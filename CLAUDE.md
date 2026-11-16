@@ -33,6 +33,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - Frames: head/neck/back. `drawGear3` draws every accessory in those frames; per-pet glasses fit uses `gx`/`gy`/`gs`.
     - QC: `__pet3Sheet({ids,moods,cols,cell,save})`; every pet × mood × accessory checked.
     - Old drawings are used only if a pet has no PET3 entry (none left).
+  - **Areas done** (`src/f2_areas.js`, shared helpers v3tree / v3rock / v3hillBand / v3water / v3glitter / v3mist / v3fishRing; a scene may add `sky(P,t,hz)`, drawn before the land cache): **Stonebrook River** (arch bridge with voussoirs, mill + waterwheel, rocks with foam pillows and wakes, heron, kingfisher), **Saltmarsh Coast** (lighthouse with sweeping beam, dunes + fence, rolling swells, gulls; `V3PLAT.pier` with crab, life ring, braced pilings), **Frostbite Lake** (aurora, ice shelf with cracks, ice hut with smoke, floes, owl, arctic fox, snowfall; `V3PLAT.ice`), **Coral Shallows** (reef patches under the water, caustic web, palms + hammock, stilt hut, turtle, parrots, fish school, frond in the corner; `V3PLAT.sand` with tiki torch). Each checked at day/dusk/night, PC + phone.
   - **Next, in order:**
     1. The 9 other areas (identities in "Area identities" below), each with its own V3SCENES entry, palette, landmark, wildlife and signature effect, plus its platform (pier, ice, sand, boat, trawler, raft, stone, crystal).
     2. Unique fish designs (all species).
