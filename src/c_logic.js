@@ -7,7 +7,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
-  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', effects:true, boostsOnScreen:true, hints:true, protectRare:true},
+  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
@@ -195,7 +195,7 @@ function chooseCatch(){
 }
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
-  G.st='reeling'; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
+  G.st='reeling'; G.crank=0; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
   G.fightT=0; G.saved=false;
   if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
 function breakStreak(){ if(S.streak>=3) setTimeout(()=>toast('Streak of '+S.streak+' ended'),1200); S.streak=0; }
@@ -205,7 +205,7 @@ function endFight(kind){
   if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
   else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
-function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; }
+function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
   if(f.hot) S.stats.hot++; G.inHot=false;
   if(f.kind==='fish') landFish(); else if(f.kind==='hat') landHat(); else landJunk(); }
 function landFish(){
@@ -361,7 +361,7 @@ function down(e){
   if(G.st!=='reeling' && G.st!=='frenzy' && G.st!=='charging' && G.st!=='result' && petHit(e)) return;
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
-    case 'idle': startCharge(); break;
+    case 'idle': if(V3ON && aimCast(e)) break; startCharge(); break;
     case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;
@@ -379,12 +379,12 @@ window.addEventListener('keyup',e=>{ if(e.code!=='Space') return; spaceDown=fals
 window.addEventListener('blur',()=>{ spaceDown=false; up(); });
 
 // ---------- update ----------
-function update(dt){
+function update(dt){ if(V3ON) padPoll();
   if(G.st==='charging'){ G.power+=G.pdir*dt*1.15; if(G.power>=1){G.power=1;G.pdir=-1;} if(G.power<=0){G.power=0;G.pdir=1;} }
   else if(G.st==='flying'){ G.t+=dt/.45; const t=Math.min(1,G.t); G.bob.x=G.from.x+(G.to.x-G.from.x)*t; G.bob.y=G.from.y+(G.to.y-G.from.y)*t - Math.sin(t*Math.PI)*H*.22; if(t>=1) beginWait(); }
   else if(G.st==='waiting'){ G.waitT+=dt; G.nibOn=Math.max(0,G.nibOn-dt);
     for(let i=G.nib.length-1;i>=0;i--) if(G.waitT>=G.nib[i]){ G.nib.splice(i,1); G.nibOn=.3; sfx.nibble(); }
-    if(G.waitT>=G.biteAt){ G.pend=chooseCatch(); G.st='bite'; G.biteEnd=G.waitT+hookWin(); sfx.bite(); splash(G.bob.x,G.bob.y,12); } }
+    if(G.waitT>=G.biteAt){ G.pend=chooseCatch(); G.st='bite'; G.biteEnd=G.waitT+hookWin(); sfx.bite(); splash(G.bob.x,G.bob.y,12); if(V3ON) vib(45); } }
   else if(G.st==='bite'){ G.waitT+=dt; if(G.waitT>G.biteEnd){ G.pend=null; endFight('nohook'); } }
   else if(G.st==='reeling'){ fight(dt); }
   else if(G.st==='landing'){ G.land.t+=dt; if(G.land.t>=G.land.dur) finishCatch(); }
@@ -403,24 +403,27 @@ function fight(dt){
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
   const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
   const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
-  if(G.hold){
-    G.d -= reel*reelK*dt*(G.run?.25:1)*(B.drag?.75:1);
+  // how hard you are reeling right now: 1 = holding; in the 0.3 preview also a crank or a partly pulled trigger (0..1)
+  const rin = V3ON ? reelInput(dt) : (G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin);
+  if(rin>0){
+    G.d -= reel*reelK*rdt*(G.run?.25:1)*(B.drag?.75:1);
     let add = (G.run?70:22)*ratio*tired*(B.heavy?1.35:1);
-    G.temper = Math.min(3, G.temper + dt*(.3+f.aggr*.9)*tempMult());
+    G.temper = Math.min(3, G.temper + rdt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
     const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
-    G.ten += add*steady*dt;
-    G.sta = Math.max(0, G.sta - (G.run?.18:.09)*dt*(B.heavy?.6:1));
-    G.tickT-=dt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
-  } else {
-    G.temper = Math.max(0, G.temper - dt*1.8*(maxed('softtouch')?2:1));
-    G.ten = Math.max(0, G.ten - 55*dt);
-    if(G.run) G.d += (1.5 + f.str*.18) * (.35+.65*G.sta) * dt;
-    if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * dt;
-    G.sta = Math.max(0, G.sta - .045*dt);
+    G.ten += add*steady*rdt;
+    G.sta = Math.max(0, G.sta - (G.run?.18:.09)*rdt*(B.heavy?.6:1));
+    G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
   }
-  if(G.run && !G.hold) G.ten = Math.max(G.ten, 6);
-  if(G.ten>75 && G.hold){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); } }
+  if(rin<1){
+    G.temper = Math.max(0, G.temper - odt*1.8*(maxed('softtouch')?2:1));
+    G.ten = Math.max(0, G.ten - 55*odt);
+    if(G.run) G.d += (1.5 + f.str*.18) * (.35+.65*G.sta) * odt;
+    if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * odt;
+    G.sta = Math.max(0, G.sta - .045*odt);
+  }
+  if(G.run && rin<.5) G.ten = Math.max(G.ten, 6);
+  if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }
   const frac = clamp(G.d/G.d0,0,1.6); const x0=W*.24, x1=castX(G.lastCast);
   G.bob.x = x0 + (x1-x0)*Math.min(frac,1.25) + (G.run ? Math.sin(performance.now()/90)*3 : 0) + (G.ev==='shake'?Math.sin(performance.now()/30)*3:0); G.bob.y = waterY(G.bob.x);
   if(G.ten>=100 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
