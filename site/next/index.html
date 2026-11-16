@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1551';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1632';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -463,15 +463,15 @@ const LOCS = [
   {id:'reef',  name:'Coral Shallows',   cost:15000,  need:8, bonus:80000,  plat:'sand',  blurb:'Warm turquoise water over a living reef. The colours are unreal and so are the fish.',
    sky:['#6fc3ec','#fbe7c3'], water:['#2bb3b8','#0b4f6e'], hill:'#3e8f4e', amp:.035, freq:1.6, depth:'1–30 m', loot:1600},
   {id:'shelf', name:'Brine Shelf',      cost:35000,  need:8, bonus:180000, plat:'boat',  blurb:'Open sea at the edge of the shelf. Marlin country. Bring heavy line.',
-   sky:['#7fb4d8','#e6d9c9'], water:['#1f5a8a','#081f3a'], hill:'#3f5468', amp:0, freq:1, depth:'30–200 m', loot:3500},
+   sky:['#7fb4d8','#e6d9c9'], water:['#1f5a8a','#081f3a'], hill:'#3f5468', amp:0, freq:1, depth:'30–200 m', loot:2200},
   {id:'deep',  name:'Midnight Deep',    cost:80000,  need:8, bonus:400000, plat:'trawler', blurb:'Far offshore on a trawler. The swell is huge, and the big game is bigger.',
-   sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:8000},
+   sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:4500},
   {id:'trench',name:'Hollow Trench',    cost:180000, need:8, bonus:1000000, plat:'raft', blurb:'Black water over a drop no one has measured. Things down here glow.',
-   sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:18000},
+   sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:10000},
   {id:'ember', name:'Ember Springs',    cost:400000, need:8, bonus:2500000, plat:'stone', blurb:'Steaming hot springs in a volcanic valley. The water glows at night, and so do the fish.',
-   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:40000},
+   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:13000},
   {id:'starfall',name:'Starfall Lake',  cost:1200000, need:8, bonus:8000000, plat:'crystal', blurb:'A lake high above the clouds, where the stars come down to drink. Nobody quite knows how you got here.',
-   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:90000},
+   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:33000},
 ];
 const SEA = ['shelf','deep','trench'];
 // fight behaviours
@@ -844,7 +844,7 @@ const GEAR = {
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
           fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity colour')+', +'+v*20+'% hotspots'},
 };
-const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46];
+const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46,.55,.65]; // one entry per Rod length level (0.3: the last two were missing and broke catches at max rod)
 const BAIT = {
   worm:   {name:'Worms',         speed:1,   rare:0,   pack:0,  price:0,    note:'Free and endless.'},
   bread:  {name:'Bread Balls',   speed:1.6, rare:0,   pack:10, price:20,   note:'Cheap and quick. Bites come fast, nothing fancy.'},
@@ -1061,7 +1061,7 @@ const PETS = [
  ['narwhal','Narwhal','rare',.25,'feat',0,'Joins you after you catch something rarer than legendary.'],
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
  ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
- ['lily','Aussie Shepherd','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
+ ['lily','Mini Aussie','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
  ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
  ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
  ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],
@@ -1171,7 +1171,7 @@ const pr = k => S.perks[k]||0;
 const locIdx = id => LOCS.findIndex(l=>l.id===id);
 const curLoc = () => LOCS[locIdx(S.loc)];
 const kgStr = kg => kg < 10 ? kg.toFixed(2)+' kg' : kg < 100 ? kg.toFixed(1)+' kg' : fmt(kg)+' kg';
-const xpNeed = l => Math.round(80*Math.pow(1.38,l-1));
+const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
 const coinMult = () => 1 + .1*S.pearls;
 const hashStr = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; };
 // boosts (timed), aquarium fish and the pet all feed the same bonus keys
@@ -1272,9 +1272,15 @@ function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
   G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; if(!G.inHot && maxed('caster') && G.power>.97){ G.inHot=true; toast('Bullseye!'); } sfx.cast(); }
 function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const wx=weather();
-  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1);
+  const speed=biteSpeed(G.inHot);
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
+// shared by fishing and the Stats tab, so the sheet always shows the real numbers
+function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
+function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
+  let rare = dm.rare + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc); return rare; }
+function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1); }
 const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
 const fishHatsLeft = () => HATS.filter(h=>h.src==='fish' && !S.owned.hats.includes(h.id));
@@ -1283,8 +1289,7 @@ function chooseCatch(){
   if(Math.random() < .007*(G.inHot?2.5:1)*(1+bonus('treasure')*.5) && fishHatsLeft().length) return Object.assign({kind:'hat', hat:pick(fishHatsLeft())}, weak);
   if(Math.random() < junkChance()) return Object.assign({kind:'junk', item:pickJunk()}, weak);
   const dm=distanceMods();
-  let rare = dm.rare + b.rare + ROD_RARE[S.gear.rod] + (G.lastCast>farAt() ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (G.inHot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc);
+  const rare = rareScore(dm, G.lastCast>farAt(), G.inHot, p);
   let pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); if(maxed('lucky') && (S.stats.caught+1)%25===0 && pool.some(s=>s.r>=2)) pool=pool.filter(s=>s.r>=2);
   const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.6:1));
   let x=Math.random()*ws.reduce((a,c)=>a+c,0), sp=pool[0]; for(let i=0;i<pool.length;i++){ x-=ws[i]; if(x<=0){ sp=pool[i]; break; } }
@@ -1451,7 +1456,7 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => (+f.value||0)*TANK_RATE*.75*(f.sh===2?1.6:1)*(f.hy?1.3:1)*RAR[SPI[f.id].r].aq*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => aqFishBase(f)*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
@@ -1595,11 +1600,11 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   if(!ctx.noHybrid && Math.random()<hybridChance()){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
   const avg=(sp.min+sp.max)/2, R=kg/avg, rel=hy?clamp(R>1?1:0,0,1):(kg-sp.min)/(sp.max-sp.min);
   let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),.45,6);
-  const shRoll=Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1);
+  const shRoll=Math.random() < shinyChance(G.inHot);
   const shiny = shRoll ? (Math.random()<PRISM_SHARE?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
   const trophy = !hy && rel > .9;
-  let value = Math.max(1,Math.round(sp.base*Math.pow(R,.85)));
-  if(hy) value=Math.round(value*(1+.6*Math.abs(Math.log(R))));
+  // hybrids: the further from normal size, the bigger the multiplier, capped at ×25 so a lucky hybrid is a jackpot, not a broken economy
+  let value = Math.max(1,Math.round(sp.base*(hy?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85))));
   value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*(spec('tinker')?.95:1)*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
@@ -1620,6 +1625,13 @@ if(/[?&]test\b/.test(location.search)) window.__forceCatch=(id,o={})=>{ const sp
   if(o.hy){ const oth=SPI[o.hy]; f.hy=o.hy; f.kg=oth.max*.8; f.ab2=rollAqBuff(oth,f.kg,true); f.str*=3; } if(o.prey){ f.prey=[rollFish(SPI[o.prey],{noPrey:true,noHybrid:true})]; } if(o.eat) G.forceEat=true; G.forced=f; return {kg:f.kg,value:f.value,shiny:f.shiny,hy:f.hy,prey:f.prey&&f.prey.length}; };
 if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=ids.length*110; const x=o.getContext('2d'); x.fillStyle='#1d3a44'; x.fillRect(0,0,o.width,o.height);
   ids.forEach((id,r)=>PRISM_KEYS.forEach((v,i)=>{ const c=document.createElement('canvas'); c.width=220; c.height=110; fishCanvas(c,SPI[id],true,2,v); x.drawImage(c,i*220,r*110); })); __post('prism',o.toDataURL()); };
+
+// ---------- aquarium income cap (0.3 balance) ----------
+// Each fish earns from its value, but never more than a small share of what an hour of fishing its water pays,
+// rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
+const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
+function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
+function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const raw=(+f.value||0)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1); return Math.min(raw,cap); }
 // =====================================================================
 // 0.3 CONTROLS: new ways to fish, all optional and all on top of the classic one-button controls.
 //  - Tap to aim (setting): tap the spot on the water you want; a little scatter keeps it honest.
@@ -2455,45 +2467,67 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 const GAME_VERSION = '0.3';
 const PATCHES = [
  {v:'0.3', name:'The Big Glow-Up', items:[
-  'Every water has been painted again from scratch. Each one has its own landmark, its own wildlife and its own light, from misty mornings through golden evenings to starry nights, and something always moves: birds, ripples, smoke, glimmers on the water.',
-  'You now stand somewhere that fits each water, and every spot is built to match its place.',
-  'Weather looks right in every water: rain, storms, fog and golden hours all sit on top of the new scenery.',
-  'Your angler is rebuilt: a new body, faces with moods, new hairstyles, every outfit redrawn, and a lean into every cast, fight and landing.',
-  'Every pet is redrawn and has more personality. They watch your line, cheer your catches and nap at night. Hats, glasses and capes sit where they should.',
-  'Every fish is redrawn, each with its own body, fins and colours, from tiny minnows to the biggest legends. Your Fish Log, catches and aquarium all show the new designs.',
-  'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight it and when it lands.',
-  'Rods are real gear now. Each one has its own look, with a reel that spins as you wind, and the Rods tab shows them.',
-  'New music: a cozy theme for every water. Pick “Follow the water” in Settings, or choose any theme you like. The old styles are still there.',
-  'New ways to fish, all optional: tap to aim your cast (turn it on in Settings), draw circles on the water or roll the mouse wheel to crank the reel, play with a controller (A casts and reels, the right trigger reels gently), and phones buzz on a bite.',
-  'A fresh look for every menu: softer panels, warm buttons, clearer tabs, gentle animations.',
-  'Home shows your dock in the water you’re fishing in. Wardrobe and Pets have a lit stage for trying things on.',
-  'The aquarium is deeper: light rays, swaying kelp, rising bubbles and rippled sand.',
-  'Waters shows a little painting of every water.',
-  'Seven body types and nine eye colours. Every outfit fits every build. Hats no longer squash your hair through the top.',
-  'New in the Wardrobe and the clothing shop: over twenty pairs of shoes and boots, scarves and necklaces, and capes, backpacks, wings and more to wear on your back.',
-  'Rest mode: press Rest on the water and your angler sits down (in your chair if you have one) and fishes slowly all by themselves, even while you browse other menus. A new skill makes them quicker.',
-  'Cast far and the water rewards it: longer casts lean toward rarer and heavier fish. Short casts can still surprise you, and hotspots never hold you back.',
-  'Something rarer than a shiny is out there. You will know it when you see it, and when it fights.',
-  'Now and then a fish weighs far more, or far less, than it has any right to. Your Fish Log keeps a separate record for these. A new skill helps you find them.',
-  'Hungry fish: big predators sometimes come up with a meal still inside, and a small fish on your line might get grabbed by something much bigger. Land it to keep both.',
-  'Aquarium fish now roll their own boost when you catch them, usually one that fits the fish, now and then a surprise. Heavier fish give more. Tanks hold more fish, and the button now says what it does: increase tank size.',
-  'Drag decorations to move them, on your dock and in your aquarium. Dock decorations are sized properly next to you now.',
-  'Every water keeps its own bounty board, and its bounties wait there until you finish them.',
-  'The Boardwalk has Counter Specials, restocking every few hours with things you can only get there, including some very silly outfits.',
-  'Three new mini-games between catches. Every mini-game can be skipped, and Settings can turn them off.',
-  'Twenty new oddities to fish up.',
-  'Catfish and gar look like catfish and gar. Willow trees look like willows, and the shores are greener.',
-  'Things you have not found yet stay a mystery: no more shapes giving them away.',
-  'Fish Log is sorted by rarity and shows your smallest catch too. Shops list everything from cheapest to most expensive.',
-  'The Boardwalk is rebuilt: a night pier with a Ferris wheel and lanterns, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
-  'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
-  'The Tide Pass is a longer climb with better rewards: a Tide-only item every five levels, including new Tide shoes, a scarf, a cape, a shell backpack and, at the very end, Tide Wings. Every reward shows exactly what you get, and the next big one is shown up top.',
-  'The clothing shop is curated now: a featured piece and a mix of hats, shoes, back pieces and more every 20 minutes, and never anything you already own.',
-  'Fish Rain is gone. In its place: Spawning Run, when shoals leap from the water and bites come fast.',
+  '## A whole new look',
+  'Every water has been painted again from scratch, each with its own landmark, wildlife and light, from misty mornings through golden evenings to starry nights. Something always moves: birds, ripples, smoke, glimmers on the water.',
+  'You now stand somewhere that fits each water, and weather (rain, storms, fog, golden hours) sits properly on top of the new scenery.',
+  'Willow Pond and Stonebrook River have fuller, greener shores, and the willow is a real weeping willow.',
+  'Every fish is redrawn with its own body, fins and colours. Catfish have broad heads and long whiskers; gar have diamond scales.',
+  'Every pet is redrawn with more personality: they watch your line, cheer your catches and nap at night. Pets are now the right size next to you.',
+  'Rods are real gear, each with its own look and a reel that spins while you wind.',
+  'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight and when it lands.',
+  'Every menu has a fresh look: softer panels, warm buttons, clearer tabs and gentle animations.',
+  'Home shows your dock in the water you are fishing. Wardrobe and Pets have a lit stage. The aquarium has light rays, swaying kelp, bubbles and rippled sand. Waters shows a little painting of each water.',
+  '## Your angler',
+  'Rebuilt from the ground up: rounded, lit shapes, arms and legs that bend, poses that flow into each other, both hands on the rod, and a soft light along your outline that matches the sky.',
+  'Seven body types and nine eye colours. Every outfit fits every build.',
+  'Hats sit properly: hair shows underneath instead of poking through, your eyes are never covered, and helmets show your face through the glass.',
+  '## Music and sound',
+  'A cozy music theme for every water. Pick “Follow the water” in Settings, or choose any theme. The old styles are still there.',
+  'The lofi music no longer has a constant hiss in the background; its record crackle is now soft and occasional.',
+  '## Controls',
+  'New, all optional: tap the water to aim your cast (turn it on in Settings), draw circles or roll the mouse wheel to crank the reel, play with a controller (A casts and reels, the right trigger reels gently), and phones buzz on a bite.',
+  'Phones no longer flash blue on every tap while reeling.',
   'Phones held sideways: the arrow on the water now has three steps: wider menus, hidden menus, and back.',
-  'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
-  'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
-  'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
+  '## New things to find',
+  'Something rarer than a shiny is out there. You will know it when you see it, and when it fights.',
+  'Now and then a fish weighs far more, or far less, than it has any right to. Your Fish Log keeps a separate record for these, and a new skill helps you find them.',
+  'Hungry fish: big predators sometimes come up with a meal inside, and a small fish on your line might get grabbed by something much bigger. Land it to keep both.',
+  'Twenty new oddities to fish up.',
+  'Three new mini-games between catches.',
+  'Rest mode: press Rest on the water and your angler sits down and fishes slowly by themselves, even while you browse other menus. A new skill makes them quicker.',
+  'A new weather replaces Fish Rain.',
+  '## Wardrobe and customisation',
+  'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
+  'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
+  'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
+  'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
+  'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
+  '## Changes to fishing',
+  'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
+  'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
+  'Every mini-game can be skipped, and Settings can turn them off completely.',
+  '## Changes to the aquarium',
+  'Every fish now gives a boost while on display, including Common ones. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better or weaker one. Heavier fish give more. Fish you caught before 0.3 keep their old boost.',
+  'Tanks hold 1.5 times as many fish, and the button now says Increase tank size.',
+  'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
+  'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
+  '## Changes to rewards and progress',
+  'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
+  'Bounties: every water now keeps its own board of 3 bounties, and they wait there until you finish them. Your existing bounties moved to the water they belong to.',
+  'Coins from junk, Boardwalk games, crates, mini-games and Tide Pass coin rewards are now based on the fish in each water. They are lower in the later waters (Brine Shelf −37%, Midnight Deep −44%, Hollow Trench −44%, Ember Springs −68%, Starfall Lake −63%), and crate and wheel prices drop by the same amount.',
+  'Fish that roll another fish’s weight are worth up to 25 times as much, no more.',
+  'Levels after 20 need less XP, so late levels come at a steadier pace.',
+  'Shops list everything from cheapest to most expensive. The Fish Log is sorted by rarity and shows your smallest catch too.',
+  '## Screens',
+  'New Stats tab: bite speed, hook window, rare and shiny odds, reel and line, sale price, XP and aquarium income, with a table of every bonus and where it comes from.',
+  'The Boardwalk is rebuilt: a night pier, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
+  'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
+  'Less scrolling everywhere: Settings, Pets, Feats, Aquarium, Home, Rods and Waters are split into sections. Pets can be filtered by bonus, and Feats show the ones closest to done first.',
+  '## Fixes',
+  'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
+  'The streak message now shows the streak you actually lost (it used to always say 0).',
+  'Everything runs smoothly: scenery is prepared once and reused, so phones stay cool.',
+  'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2.' ]},
  {v:'0.2.2.2', name:'Small patch', items:[
   'Phones held sideways: a new button on the edge of the water hides the menus so the water fills the screen, and brings them back. It remembers your choice.' ]},
  {v:'0.2.2.1', name:'Quick fix', items:[
@@ -2647,7 +2681,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
     const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span></button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
-    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'A mystery rod.':esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
+    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'How to get it: '+esc(rodHint(x)):esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
   <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has three tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<3?ATT_COST[t]:null;
     return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / 3</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
       <div class="val" style="font-size:14px">${t?statTxt(a.k,a.v[t-1]):'Not owned'}${next?` <span class="meta">→ ${statTxt(a.k,a.v[t])}</span>`:''}</div>
@@ -2721,7 +2755,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
   return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
-    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
+    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${id==="lily"?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
@@ -2761,10 +2795,10 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
    ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
 
 // ---------- patch notes ----------
-function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
+function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
@@ -3312,7 +3346,7 @@ function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const
 function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
   const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
   const nextSp=Object.keys(PASS_SPECIAL).map(Number).find(L=>L>pl), ns=nextSp&&PASS_SPECIAL[nextSp];
-  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels, a Tide-only reward every five levels, then bonus rewards forever.</p></div>
+  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels with special Tide rewards along the way, then bonus rewards forever.</p></div>
    <div class="tile" style="min-width:220px"><div class="rar" style="color:var(--kelp)">Level ${pl}</div><div class="meta">${fmt(S.pass.xp)} / ${fmt(need)} to level ${pl+1}</div><div class="prog"><i style="width:${S.pass.xp/need*100}%;background:var(--kelp)"></i></div>
    ${unclaimed?`<button class="btn" data-act="passclaim" style="margin-top:6px">Claim ${unclaimed} reward${unclaimed>1?'s':''}</button>`:''}</div></div>
    ${ns?`<div class="tile pass-next"><canvas width="240" height="180" data-passbig="${nextSp}"></canvas><div><span class="bwx-cat">Next Tide reward · level ${nextSp}</span><h3 style="margin:2px 0">${esc(ns[2])}</h3><div class="meta">${esc(ns[3])}</div><div class="meta" style="margin-top:6px">${nextSp-pl} level${nextSp-pl>1?'s':''} to go.</div></div></div>`:''}
@@ -3767,7 +3801,7 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   if(rolling){ LILY.pose='roll'; const w=Math.sin(now/80), k=(now-LILY.rollT)/1900; // belly up for rubs
     LILY.head={x:10,y:-5.2,rot:2.2+w*.08,s:.92,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     if(cape){ capeShape([-9,-1.2, 1,2.2,12,-1, 11,-4.5,9,-6.5, 0,-4.6,-8,-6.5],cape); capeShape([-9,-1.2, 1,2.2,12,-1, 1,1.2,-9,-1.2],mix(cape,'#000000',.25)); }
-    el(-9.5,-2.2,2.6,1.6,L.BK2,.2+w*.4);
+    el(-9.2,-2.2,1.6,1.3,L.BK2,w*.3);
     el(0,-4.6,8.6,4.4,L.BK); el(.8,-6.6,6.2,2.9,L.WH); el(-4.6,-6,1.4,2,L.TN,.3); el(6,-6,1.4,2,L.TN,-.3); strand(-3,-7.4,-2.4,-8.6,L.WH2); strand(2,-7.8,2.6,-9,L.WH2);
     for(let i=0;i<4;i++){ const lx=-5+i*3.4, ly=-11.6+Math.sin(now/70+i*1.7)*1.1, kx=lx+(i%2?.9:-.9), front=i>=2; c.lineCap="round"; c.strokeStyle=front?L.WH:L.BK; c.lineWidth=3; c.beginPath(); c.moveTo(lx,-7); c.quadraticCurveTo(kx,-9.4,lx+.5,ly+1.2); c.stroke(); if(!front){ c.strokeStyle=L.WH; c.lineWidth=2.8; c.beginPath(); c.moveTo(kx*.5+lx*.5+.2,-9.9); c.lineTo(lx+.5,ly+1.2); c.stroke(); } el(lx+.5,ly,1.6,1.25,L.WH); el(lx+.5,ly+.3,.75,.5,L.PK); ci(lx-.4,ly-.7,.32,L.PK); ci(lx+.5,ly-.95,.32,L.PK); ci(lx+1.4,ly-.7,.32,L.PK); } c.lineCap="butt";
     c.save(); c.translate(10,-5.2); c.rotate(2.2+w*.08); c.scale(.92,.92); lilyFace(c,h,{eyes:'happy',mouth:'tongue',ears:'out',t}); c.restore();
@@ -3775,10 +3809,17 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
     return; }
   if(sleep){ LILY.pose='sleep'; const br=Math.sin(t*1.6)*.3; // curled up napping, chin on her white paws
     LILY.head={x:8.6,y:-5.6,rot:.12,s:.85,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
-    el(-6,-1.6,3.6,1.6,L.BK2,.1);
-    el(0,-4.2,9,4.2+br,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-8+Math.sin(i)*.4+br*.5,1.4,1,L.BK); strand(-7+i*3.4,-8.6,-7.6+i*3.4,-9.6,L.HI); }
+    // bob tail: a short fluffy stub at her rump (mini Aussies have no long tail)
+    el(-8.6,-3.4,1.7,1.4,L.BK2,.2); strand(-9.6,-3.8,-10.3,-4.4,L.HI,.28);
+    // curled body: one smooth, low loaf with a rounded haunch, the fur lying flat along her back (no tufts sticking up)
+    el(-4.6,-3.9,4.4,3.7+br*.6,L.BK); el(.6,-4,8.4,3.9+br,L.BK); el(-1,-6.6,7.4,1.6,L.BK);
+    strand(-6.8,-6.9,-3.6,-7.7,L.HI,.3); strand(-2.4,-8,1.2,-8.3,L.HI2,.26); strand(2.2,-7.9,5,-7.4,L.HI,.28); strand(-5.6,-3.4,-3.4,-5.4,L.HI,.26);
+    // hind paw tucked under her side, peeking out white with a touch of tan
+    el(-3.2,-.55,2.3,.85,L.WH); el(-4.4,-.9,.9,.5,L.TN);
     if(cape){ capeShape([-7.5,-6.2-br*.5, -1,-10.4-br,6,-7.6-br*.5, 6.4,-5,5.6,-2.8, -.5,-4.4,-6.8,-2.6],cape); capeShape([-6.8,-2.6, -.5,-4.4,5.6,-2.8, -.5,-3.2,-6.8,-2.6],mix(cape,'#000000',.3)); c.strokeStyle=mix(cape,'#ffffff',.3); c.lineWidth=.35; c.beginPath(); c.moveTo(-6.8,-3); c.quadraticCurveTo(-.5,-4.8,5.6,-3.2); c.stroke(); }
-    el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3); rc(6,-1.6,4.4,1.6,L.WH); ci(10.6,-.8,.8,L.WH2);
+    // white chest, and both front paws stretched out under her chin
+    el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3);
+    el(8.2,-1,3.4,1.05,L.WH); el(9,-.35,3,.9,L.WH2); el(11.2,-1.05,1.15,.85,L.WH); el(11.7,-.4,1.1,.8,L.WH); ln([10.9,-1.6,10.9,-.6],L.WH3,.2); ln([11.6,-1,11.6,-.1],L.WH3,.2);
     c.save(); c.translate(8.6,-5.6); c.rotate(.12); c.scale(.85,.85); lilyFace(c,h,{eyes:'closed',mouth:'smile',ears:'out',t}); c.restore();
     c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',12+ph*5,-12-ph*9); } c.restore();
     return; }
@@ -3789,9 +3830,9 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
     LILY.head={x:dx+(flip?-8.6:8.6),y:-hop-14.2,rot:-.1,s:1,flip}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     c.save(); c.translate(dx,-hop); if(flip) c.scale(-1,1);
     if(cape){ const wv=Math.sin(t*16)*1.2; capeShape([5.5,-13.8, -3,-16.5+wv,-13.5,-11+wv, -12.6,-6.4+wv,-11.4,-5.6+wv, -3,-8,5,-9.6],cape); capeShape([5,-9.6, -3,-8,-11.4,-5.6+wv, -3,-9.4,5,-10.8],mix(cape,'#000000',.28)); }
-    el(-9.2,-10,3,2.2,L.BK2,-.6+Math.sin(t*24)*.4);
+    el(-9,-10,1.7,1.4,L.BK2,Math.sin(t*24)*.3);
     for(const [x,s] of [[-6,1],[-3.2,-1],[.6,1],[3.6,-1]]){ const xx=x+lg*s; rc(xx,-5,2.6,5,x<0?L.BK:L.WH); rc(xx,-2.4,2.6,1,L.TN); rc(xx,-1.4,2.6,1.6,L.WH); }
-    el(-.5,-8.4,8.6,5,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-12.6,1.6,1.1,L.BK); strand(-7+i*3.4,-13.2,-7.8+i*3.4,-14.4,L.HI); }
+    el(-.5,-8.4,8.6,5,L.BK); el(-1,-11.6,7.6,1.7,L.BK); strand(-6.6,-12,-3.4,-12.9,L.HI,.3); strand(-2,-13.1,1.6,-13.3,L.HI2,.26); strand(2.4,-12.9,5.2,-12.3,L.HI,.28);
     el(4.2,-8.6,1.4,4.4,L.TN,-.2); el(5.8,-8.4,3.6,5,L.WH);
     c.save(); c.translate(8.6,-14.2); c.rotate(-.1); lilyFace(c,h,{eyes:'open',mouth:'tongue',ears:'back',blink,t}); c.restore();
     c.restore(); return; }
@@ -3802,8 +3843,8 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   // a cape hangs from her shoulders behind her body, swaying
   if(cape){ capeShape([-1.8,-14.8, -6.4,-9+cw,-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, 3,-2.2,5,-2.4, 10,-1.6,14.4,-1.2-cw*.6, 12.4,-9-cw,7.8,-14.8, 3,-16,-1.8,-14.8],cape);
     capeShape([-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, -3,-5,-5.6,-8+cw],mix(cape,'#000000',.28)); capeShape([14.4,-1.2-cw*.6, 10,-1.6,5,-2.4, 9,-5,11.6,-8-cw],mix(cape,'#000000',.28)); }
-  // fluffy tail tuft wagging behind her
-  const tw=Math.sin(t*wag)*.5; el(10.6,-2.6,3,1.7,L.BK2,-.5+tw); strand(12.4,-3.4,13.6,-4.4+tw,L.HI);
+  // bob tail: a short fluffy stub that wiggles (no long tail on a mini Aussie)
+  const tw=Math.sin(t*wag)*.5; el(10.2,-2.9,1.7,1.4,L.BK2,tw*.5); strand(11.2,-3.6,11.8,-4.2+tw*.4,L.HI,.28);
   // haunches and hind paws
   el(-2.6,-3.6,4.4,3.8,L.BK); el(8.6,-3.6,4.4,3.8,L.BK); strand(-5.6,-5,-6.6,-4,L.HI); strand(11.6,-5,12.6,-4,L.HI);
   el(-5.4,-.7,2.1,1,L.WH); el(11.4,-.7,2.1,1,L.WH); el(-4.4,-1.6,1.2,.7,L.TN); el(10.4,-1.6,1.2,.7,L.TN);
@@ -5212,7 +5253,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
-  drawPetStyled(x,S.pet,w*.5,dy-th*.4,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  { const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,w*.58-(big?44:31)*2.6,dy-th*.4,2.6*(big?.85:1),t); } drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
   return true; }
 
 // a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow
@@ -5470,7 +5511,7 @@ function a3Body(c,x,y,s,lk,o,live){
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
-  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-59.4,60,40); c.clip(); } }
+  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
   if(hs==='long'){ c.fillStyle=hairF; c.beginPath(); c.moveTo(-7.4,-60); c.quadraticCurveTo(-12.6,-50,-9.8,-42.2); c.quadraticCurveTo(-6,-41.2,-2.4,-43.4); c.lineTo(-2.4,-58); c.closePath(); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.45; c.beginPath(); c.moveTo(-8.6,-56); c.quadraticCurveTo(-10.8,-50,-9,-44); c.moveTo(-6,-55); c.quadraticCurveTo(-7.4,-50,-6,-44.5); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.4,-57); c.quadraticCurveTo(-9.6,-52,-8.6,-47); c.stroke(); }
   if(hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
   if(hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
@@ -5514,7 +5555,19 @@ function a3Body(c,x,y,s,lk,o,live){
   const ex=4.4, ey=-57, browY=mood==='surprised'?-60.6:mood==='focus'?-59.4:-60;
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
   else if(mood==='happy'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.65; c.beginPath(); c.arc(ex,ey+.5,1.1,Math.PI*1.1,Math.PI*1.9); c.stroke(); }
-  else { const er=mood==='surprised'?1.2:1.05, eh=mood==='surprised'?1.5:1.38, ec=(EYES[lk.eye]||EYES[0])[0]; c.fillStyle=D('#1a1410'); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle=D(ec); c.beginPath(); c.ellipse(ex+.12,ey+.12,er*.72,eh*.72,0,0,7); c.fill(); c.fillStyle=D('#0a0806'); c.beginPath(); c.ellipse(ex+.18,ey+.15,er*.36,eh*.38,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.38,ey-.48,.4,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.4)'; c.beginPath(); c.arc(ex-.3,ey+.5,.2,0,7); c.fill(); }
+  else { const big=mood==='surprised', ec=(EYES[lk.eye]||EYES[0])[0];
+    if(s<3.2){ // small (on the water): a soft dark eye tinted by the eye colour, with a catchlight
+      const er=big?1.15:1, eh=big?1.45:1.3; c.fillStyle=D(mix('#1a1410',ec,.3)); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.36,ey-.46,.38,0,7); c.fill(); }
+    else { // close up (Wardrobe, Home): white of the eye, a coloured iris looking forward, pupil, catchlights and an upper lid
+      const rx=big?1.35:1.22, ry=big?1.25:1.02;
+      c.save(); c.beginPath(); c.ellipse(ex,ey,rx,ry,0,0,7); c.clip();
+      c.fillStyle=D('#fbf7f2'); c.fillRect(ex-2,ey-2,4,4);
+      const ix=ex+.34, iy=ey+.06, ir=big?.78:.84, ig=c.createRadialGradient(ix-.15,iy-.2,.05,ix,iy,ir); ig.addColorStop(0,D(mix(ec,'#ffffff',.3))); ig.addColorStop(.7,D(ec)); ig.addColorStop(1,D(mix(ec,'#000000',.45)));
+      c.fillStyle=ig; c.beginPath(); c.arc(ix,iy,ir,0,7); c.fill(); c.fillStyle=D('#100c0a'); c.beginPath(); c.arc(ix+.06,iy+.04,ir*.46,0,7); c.fill();
+      c.fillStyle='rgba(60,30,20,.16)'; c.fillRect(ex-2,ey-ry,4,ry*.55); c.restore();
+      c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.arc(ix+.28,iy-.34,.22,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.5)'; c.beginPath(); c.arc(ix-.24,iy+.3,.1,0,7); c.fill();
+      c.strokeStyle=D('#2a1a12'); c.lineWidth=.32; c.lineCap='round'; c.beginPath(); c.ellipse(ex,ey,rx,ry,0,Math.PI*1.08,Math.PI*1.95); c.stroke();
+      c.strokeStyle=D('rgba(90,40,30,.35)'); c.lineWidth=.18; c.beginPath(); c.ellipse(ex,ey+.05,rx*.95,ry,0,Math.PI*.15,Math.PI*.85); c.stroke(); } }
   if(f && !blink){ c.strokeStyle=D('#1a1410'); c.lineWidth=.55; c.beginPath(); c.moveTo(ex+.8,ey-.9); c.lineTo(ex+1.6,ey-1.6); c.stroke(); }
   c.strokeStyle=D(mix(hairC,'#000000',.15)); c.lineWidth=.75; c.beginPath(); c.moveTo(ex-1.5,browY+.25); c.quadraticCurveTo(ex,browY-(mood==='focus'?-.2:.45),ex+1.6,browY+.15); c.stroke();
   // mouth
@@ -5524,8 +5577,14 @@ function a3Body(c,x,y,s,lk,o,live){
   else if(mood==='focus'){ c.beginPath(); c.moveTo(4.4,-52.7); c.lineTo(6.4,-52.9); c.stroke(); }
   else { c.beginPath(); c.moveTo(4.1,-53); c.quadraticCurveTo(5.4,-52,6.7,-53.1); c.stroke(); }
   drawFace(c,lk,D,hair);
-  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-59.4,60,40); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
-  c.save(); c.translate(0,-56); drawHat(c,lk.hat,D(lk.hatCol),t); c.restore();
+  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
+  // hats sit a touch higher and never cover the eye (full helmets excepted), so the face always reads
+  // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
+  { const HC=a3HatLayer(c), hx=HC.getContext('2d'); hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,HC.width,HC.height); hx.setTransform(c.getTransform());
+    hx.save(); if(!hatFull&&hatId!=='none'){ hx.beginPath(); hx.rect(-40,-110,80,130); hx.ellipse(4.55,-57,1.4,1.35,0,0,7); hx.clip('evenodd'); } hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
+    if(hatId!=='none'){ hx.save(); hx.globalCompositeOperation='source-atop'; const g1=hx.createLinearGradient(-9,-74,9,-50); g1.addColorStop(0,'rgba(10,8,22,.34)'); g1.addColorStop(.45,'rgba(10,8,22,0)'); g1.addColorStop(.75,'rgba(255,244,226,.12)'); g1.addColorStop(1,'rgba(255,244,226,.22)'); hx.fillStyle=g1; hx.fillRect(-30,-100,60,60);
+      const g2=hx.createLinearGradient(0,-60,0,-52); g2.addColorStop(0,'rgba(10,8,22,0)'); g2.addColorStop(1,'rgba(10,8,22,.28)'); hx.fillStyle=g2; hx.fillRect(-30,-60,60,10); hx.restore(); }
+    c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(HC,0,0); c.restore(); }
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod
   const shF={x:.8*B.w,y:-44}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
@@ -5670,11 +5729,13 @@ function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('can
 if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=HATS.map(h=>h[0]||h.id).slice(opts.from||0,opts.to||999), cols=opts.cols||10, cw=opts.cell||110, ch=cw, sc=cw/26;
   const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(ids.length/cols)*ch; const x=o.getContext('2d');
   ids.forEach((id,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch);
-    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.5+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle='#cfd8ff'; x.font='9px system-ui'; x.fillText(id,cx+3,cy+10); });
+    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.64+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle="#cfd8ff"; x.font="9px system-ui"; x.fillText(id,cx+3,cy+10); });
   window.__post(opts.save||'hats',o.toDataURL()); return ids.length; };
 // hats that leave the top of the head free (hair shows fully) and helmets that hide all hair
 const A3_HAT_OPEN=new Set(['none','headphones','headband','halo','flower','catears','bunnyears','antlers','tiara','crown']);
 const A3_HAT_FULL=new Set(['diver','astro','fishbowl','knight','pumpkin']);
+const A3HAT=new WeakMap();
+function a3HatLayer(c){ let H=A3HAT.get(c.canvas); if(!H){ H=document.createElement('canvas'); A3HAT.set(c.canvas,H); } if(H.width!==c.canvas.width||H.height!==c.canvas.height){ H.width=c.canvas.width; H.height=c.canvas.height; } return H; }
 
 // =====================================================================
 // 0.3 wardrobe drawing: shoes, neckwear, back pieces. All are drawn in the angler's own
@@ -5833,6 +5894,32 @@ a3Back=function(c,id,D,col,t,w,lean,st){
       c.strokeStyle='rgba(235,255,255,.8)'; c.lineWidth=.5; c.beginPath(); for(let r=0;r<3;r++){ for(let x=-15;x<=-1;x+=.6) c.lineTo(x,-10+r*4+Math.sin(x*.9+t*3+r)*.7); c.moveTo(-15,-6+r*4); } c.stroke(); c.restore(); }
     c.fillStyle='rgba(235,255,255,.85)'; for(let i=0;i<5;i++){ const k=((t*.6+i/5)%1); c.beginPath(); c.arc(-14+k*4,-12+k*16,.6*(1-k),0,7); c.fill(); } c.restore(); return; }
   return _a3Back_0(c,id,D,col,t,w,lean,st); };
+
+// ---------- hats redrawn for the side-view angler (0.3): helmets show a window or visor at the front so the face
+// still shows, and the ushanka's flap sits over the ear instead of the face. Hat space: head centre (0,0), radius 7.5, facing right.
+const _drawHat_0 = drawHat;
+drawHat = function(c,id,col,t=0){ const sh=(x0,y0,x1,y1,a,b)=>{ const g=c.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,a); g.addColorStop(1,b); return g; };
+  switch(id){
+    case 'diver': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#e8b860','#8a5a1a'); c.beginPath(); c.arc(-.4,.4,11.2,0,7); c.moveTo(10,.4); c.arc(5.2,.4,4.8,0,7,true); c.fill('evenodd');
+      c.fillStyle='rgba(150,210,235,.26)'; c.beginPath(); c.arc(5.2,.4,4.8,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.45)'; c.beginPath(); c.ellipse(6.6,-2.2,1.6,.8,-.6,0,7); c.fill();
+      c.strokeStyle='#6a4410'; c.lineWidth=1.3; c.beginPath(); c.arc(5.2,.4,4.8,0,7); c.stroke(); c.fillStyle='#5a3a10'; for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.beginPath(); c.arc(5.2+Math.cos(a)*4.8,.4+Math.sin(a)*4.8,.45,0,7); c.fill(); }
+      c.fillStyle='#2a4a5a'; c.beginPath(); c.arc(-5,-1.6,2.4,0,7); c.fill(); c.strokeStyle='#6a4410'; c.lineWidth=.8; c.stroke(); c.fillStyle='#c8963a'; c.fillRect(-2.2,-12.6,3,2.4); c.fillRect(-11.6,6,23,3.4); c.fillStyle='#6a4410'; for(let x=-10;x<12;x+=3.6){ c.beginPath(); c.arc(x,7.7,.45,0,7); c.fill(); }
+      c.fillStyle='rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(-4,-7,4,1.6,-.5,0,7); c.fill(); c.restore(); return; }
+    case 'astro': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#ffffff','#b8c0c8'); c.beginPath(); c.arc(-.4,.2,11.4,0,7); c.moveTo(11.2,.2); c.ellipse(5,0,6.2,6.8,0,0,7,true); c.fill('evenodd');
+      c.fillStyle='rgba(220,170,60,.42)'; c.beginPath(); c.ellipse(5,0,6.2,6.8,0,0,7); c.fill(); c.strokeStyle='#9aa4ae'; c.lineWidth=1; c.stroke(); c.fillStyle='rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(6.6,-3.4,2.4,1,-.6,0,7); c.fill();
+      c.fillStyle='#c8d0d8'; c.beginPath(); c.arc(-3.4,1,2.6,0,7); c.fill(); c.fillStyle='#8a949e'; c.beginPath(); c.arc(-3.4,1,1.2,0,7); c.fill(); c.fillStyle='#e8303a'; c.beginPath(); c.arc(-8.4,-4.6,.9,0,7); c.fill(); c.fillStyle='#d8dde2'; c.fillRect(-11.4,8,22.4,3); c.restore(); return; }
+    case 'knight': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#d8dde4','#6a7078'); c.beginPath(); c.moveTo(-1,-10.4); c.arc(-1,0,10.4,-Math.PI/2,Math.PI/2,true); c.lineTo(6,10.4); c.quadraticCurveTo(10.4,6,9.6,0); c.quadraticCurveTo(10,-6,7,-8.6); c.quadraticCurveTo(3,-11,-1,-10.4); c.fill();
+      c.fillStyle='#1a1c22'; c.fillRect(3,-1.4,6.8,1.3); c.fillRect(3.6,1.2,6,.9); for(let i=0;i<4;i++){ c.beginPath(); c.arc(6+i*.9,4.6,.32,0,7); c.fill(); } c.strokeStyle='rgba(0,0,0,.3)'; c.lineWidth=.5; c.beginPath(); c.moveTo(-1,-10); c.lineTo(-1,10); c.stroke();
+      c.fillStyle=col; c.beginPath(); c.moveTo(-2,-10); c.quadraticCurveTo(-9,-19,-13,-10); c.quadraticCurveTo(-7,-14,-2,-8.6); c.fill(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(1,-6,3.4,1.2,-.4,0,7); c.fill(); c.restore(); return; }
+    case 'pumpkin': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#ffb04a','#c85a10'); c.beginPath(); c.ellipse(0,-.4,10.8,10.2,0,0,7); c.fill(); c.strokeStyle='rgba(150,60,10,.45)'; c.lineWidth=.7; for(const k of [-.6,-.2,.2,.6]){ c.beginPath(); c.ellipse(0,-.4,10.8*Math.abs(k),10.2,0,-Math.PI/2,Math.PI/2,k<0); c.stroke(); }
+      c.fillStyle='#ffd23a'; c.beginPath(); c.moveTo(4.6,-4); c.lineTo(8,-3.4); c.lineTo(6,-.4); c.closePath(); c.fill(); c.beginPath(); c.moveTo(3.6,3); c.lineTo(9.4,2.4); c.lineTo(8.6,4.6); c.lineTo(7.2,3.8); c.lineTo(6,5.4); c.lineTo(4.6,4.2); c.closePath(); c.fill();
+      c.fillStyle='#3a6a2a'; c.beginPath(); c.moveTo(-1,-10); c.quadraticCurveTo(0,-13.4,2,-13.6); c.lineTo(2,-12.4); c.quadraticCurveTo(.6,-12,1,-9.8); c.closePath(); c.fill(); c.restore(); return; }
+    case 'ushanka': { const dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.3); c.save(); c.fillStyle=sh(-8,-10,8,-2,lt,col); c.beginPath(); c.arc(0,-1.6,8.8,Math.PI,0); c.closePath(); c.fill();
+      c.fillStyle=lt; c.beginPath(); c.roundRect?c.roundRect(-9.2,-4.4,18.8,3.6,1.8):c.rect(-9.2,-4.4,18.8,3.6); c.fill(); c.fillStyle=col; c.beginPath(); c.roundRect?c.roundRect(-5,-2.2,5,9.6,2.2):c.rect(-5,-2.2,5,9.6); c.fill();
+      c.strokeStyle=dk; c.lineWidth=.35; for(let i=0;i<9;i++){ c.beginPath(); c.moveTo(-8.6+i*2,-4.2); c.lineTo(-8.2+i*2,-1); c.stroke(); } for(let i=0;i<4;i++){ c.beginPath(); c.moveTo(-4.4+i*1.2,-1.6); c.lineTo(-4.2+i*1.2,6.8); c.stroke(); }
+      c.strokeStyle='#5a4a3a'; c.lineWidth=.4; c.beginPath(); c.moveTo(-2.4,7.4); c.quadraticCurveTo(-2.8,9.4,-1.4,10.4); c.stroke(); c.restore(); return; }
+  }
+  return _drawHat_0(c,id,col,t); };
 
 // =====================================================================
 // Driftline 0.3: pets redrawn in the B2 style (preview only until 0.3 ships).
@@ -6978,6 +7065,147 @@ extraAct2 = function(b){ if(b.dataset.act==='bwbuy'){ const [kind,id]=b.dataset.
   return _extraAct2_0(b); };
 
 // =====================================================================
+// 0.3 Wardrobe, reorganised: your angler stays in view on the left, and everything else lives in
+// sections (Body, Clothes, Hats, Glasses, Shoes, Neck & back, Shop). The Shop has a tab per category
+// with the whole catalogue, plus a Featured shelf that rotates. More glasses, outfits and colours too.
+// =====================================================================
+GLASSES.push(['aviator','Aviators',1800],['cateye','Cat-eye frames',2200],['starshades','Star shades',2600],['visor','Sport visor',1400],['reading','Half-moon readers',900],['wrap','Wraparound shades',2000],['tinted','Rose-tinted rounds',1600],['shutter','Shutter shades',3100]);
+OUTFITS.push(['tracksuit','Tracksuit',2600,'shop'],['kimono','Kimono',5200,'shop'],['denim','Denim jacket',3400,'shop'],['sailor','Sailor suit',3800,'shop'],['aloha','Open aloha shirt',2200,'shop'],['suit','Sharp suit',8500,'shop']);
+SHOP_COLS.push(['#ff6a4a','Coral',600],['#ffd0e0','Blush Pink',700],['#c8e86a','Lime',600],['#5a7a3a','Olive',500],['#3a4a8a','Navy',600],['#a8d8ff','Ice Blue',700],['#e8c8a0','Sand',500],['#6a3a2a','Chocolate',600],['#b8a0e8','Lavender',800],['#2ad8c8','Turquoise',900],['#f2a03a','Amber',700],['#e8e8f0','Silver Grey',800]);
+const _drawFace_0 = drawFace;
+drawFace = function(c,lk,D,hair){ const gl=lk.glasses||'none', ex=4.4, ey=-57, arm=(col)=>{ c.strokeStyle=col; c.lineWidth=.6; c.beginPath(); c.moveTo(ex-2.1,ey-.2); c.lineTo(-1,ey-.6); c.stroke(); };
+  const NEW=['aviator','cateye','starshades','visor','reading','wrap','tinted','shutter']; if(!NEW.includes(gl)) return _drawFace_0(c,lk,D,hair);
+  _drawFace_0(c,Object.assign({},lk,{glasses:'none'}),D,hair); c.save();
+  switch(gl){
+    case 'aviator': { const gr=c.createLinearGradient(0,ey-2,0,ey+2.4); gr.addColorStop(0,'rgba(60,40,20,.9)'); gr.addColorStop(1,'rgba(200,140,60,.75)'); c.fillStyle=gr; c.beginPath(); c.moveTo(ex-2.2,ey-1.4); c.lineTo(ex+2.4,ey-1.4); c.quadraticCurveTo(ex+2.4,ey+2.4,ex+.2,ey+2.2); c.quadraticCurveTo(ex-2.2,ey+2,ex-2.2,ey-1.4); c.fill(); c.strokeStyle=D('#c8a050'); c.lineWidth=.45; c.stroke(); arm(D('#c8a050')); break; }
+    case 'cateye': c.fillStyle='rgba(20,10,30,.15)'; c.strokeStyle=D('#c8304a'); c.lineWidth=.9; c.beginPath(); c.moveTo(ex-2.2,ey+.2); c.quadraticCurveTo(ex-1.8,ey-1.6,ex+.4,ey-1.4); c.lineTo(ex+2.8,ey-2.4); c.quadraticCurveTo(ex+2.6,ey+1.8,ex,ey+1.6); c.quadraticCurveTo(ex-2.2,ey+1.6,ex-2.2,ey+.2); c.fill(); c.stroke(); arm(D('#c8304a')); break;
+    case 'starshades': c.fillStyle=D('#ffd23a'); c.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, r=i%2?1.1:2.6; c.lineTo(ex+.2+Math.cos(a)*r,ey+Math.sin(a)*r); } c.closePath(); c.fill(); c.fillStyle='rgba(40,20,0,.55)'; c.beginPath(); c.arc(ex+.2,ey+.1,.9,0,7); c.fill(); arm(D('#ffd23a')); break;
+    case 'visor': c.fillStyle='rgba(90,200,255,.55)'; c.beginPath(); c.moveTo(-2,ey-1.6); c.lineTo(ex+3,ey-1.6); c.quadraticCurveTo(ex+3.6,ey+.6,ex+2.4,ey+1.4); c.lineTo(-2,ey+1.2); c.closePath(); c.fill(); c.strokeStyle=D('#f4f4f2'); c.lineWidth=.5; c.stroke(); c.fillStyle='rgba(255,255,255,.6)'; c.fillRect(ex-1,ey-1.2,2.4,.5); break;
+    case 'reading': c.strokeStyle=D('#8a6a3a'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-2,ey+.4); c.lineTo(ex+2.2,ey+.4); c.arc(ex+.1,ey+.4,2.1,0,Math.PI); c.stroke(); arm(D('#8a6a3a')); c.strokeStyle='rgba(200,180,140,.6)'; c.beginPath(); c.moveTo(-1,ey); c.quadraticCurveTo(-2,ey+5,-1,ey+8); c.stroke(); break;
+    case 'wrap': { const gr=c.createLinearGradient(ex-3,0,ex+3,0); gr.addColorStop(0,'#1a1a2a'); gr.addColorStop(.6,'#3a6ae8'); gr.addColorStop(1,'#ff5aa8'); c.fillStyle=gr; c.beginPath(); c.moveTo(-1.6,ey-1.2); c.quadraticCurveTo(ex,ey-2.2,ex+3,ey-1); c.quadraticCurveTo(ex+3.2,ey+1.2,ex+1.6,ey+1.6); c.quadraticCurveTo(ex-1,ey+1.4,-1.6,ey+.6); c.closePath(); c.fill(); break; }
+    case 'tinted': c.fillStyle='rgba(255,110,150,.45)'; c.strokeStyle=D('#d8b048'); c.lineWidth=.55; c.beginPath(); c.arc(ex,ey,2,0,7); c.fill(); c.stroke(); arm(D('#d8b048')); break;
+    case 'shutter': c.fillStyle=D('#f4f4f2'); c.fillRect(ex-2.4,ey-1.6,4.8,3.2); c.fillStyle=D('#1a1a1a'); for(let i=0;i<4;i++) c.fillRect(ex-2.4,ey-1.2+i*.8,4.8,.38); arm(D('#f4f4f2')); break;
+  } c.restore(); };
+Object.assign(MEME_OUT,{
+  tracksuit(c,lk,D,f){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#2a5ad8'), st=D('#f4f4f2'); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=col; c.fillRect(-11,-50,22,30); c.fillStyle=st; c.fillRect(-10,-50,1.4,30); c.fillRect(8.6,-50,1.4,30); c.fillStyle=D(mix(lk.outCol||'#2a5ad8','#000000',.3)); c.fillRect(.2,-46,.8,22); c.restore(); c.fillStyle=col; c.beginPath(); c.ellipse(.6,-46.6,6,1.8,0,0,7); c.fill(); },
+  kimono(c,lk,D,f){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#c8304a'), dk=D(mix(lk.outCol||'#c8304a','#000000',.3)); c.fillStyle=col; a3CoatPath(c,f,-13); c.fill(); c.save(); a3CoatPath(c,f,-13); c.clip(); c.fillStyle='rgba(255,240,220,.25)'; for(let i=0;i<10;i++){ const x=-9+((i*7)%18), y=-44+((i*11)%28); c.beginPath(); c.arc(x,y,1.1,0,7); c.arc(x+1.4,y+.4,.8,0,7); c.fill(); } c.restore();
+    c.fillStyle=D('#f4ecd8'); c.beginPath(); c.moveTo(-5,-47); c.lineTo(2,-33); c.lineTo(3.6,-33); c.lineTo(-3,-47.4); c.closePath(); c.fill(); c.fillStyle=dk; c.fillRect(-9.6,-30,19.4,3.4); c.fillStyle=D('#ffd23a'); c.fillRect(-9.6,-29,19.4,.8); },
+  denim(c,lk,D,f){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#4a6a9a'), dk=D(mix(lk.outCol||'#4a6a9a','#000000',.28)); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=col; c.beginPath(); c.moveTo(-11,-50); c.lineTo(-1.6,-50); c.lineTo(-1,-22); c.lineTo(-11,-22); c.closePath(); c.moveTo(11,-50); c.lineTo(3,-50); c.lineTo(2.4,-22); c.lineTo(11,-22); c.closePath(); c.fill();
+    c.strokeStyle=D('#e8b060'); c.lineWidth=.3; c.setLineDash([.6,.5]); c.beginPath(); c.moveTo(-8,-40); c.lineTo(-2,-40); c.moveTo(3,-40); c.lineTo(9,-40); c.moveTo(-1.4,-48); c.lineTo(-1,-24); c.stroke(); c.setLineDash([]); c.fillStyle=dk; c.fillRect(-10,-25,20,2.6); c.restore(); c.fillStyle=dk; c.beginPath(); c.moveTo(-6,-47.4); c.lineTo(-1.6,-42); c.lineTo(-1.4,-47.8); c.closePath(); c.moveTo(6.4,-47.4); c.lineTo(2.8,-42); c.lineTo(2.6,-47.8); c.closePath(); c.fill(); },
+  sailor(c,lk,D,f){ const w=D('#f4f4f2'), n=D('#1a2a5a'); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=w; c.fillRect(-11,-50,22,30); c.restore(); c.fillStyle=n; c.beginPath(); c.moveTo(-7.6,-46.8); c.lineTo(.4,-38); c.lineTo(8,-46.8); c.lineTo(8,-48.6); c.lineTo(-7.6,-48.6); c.closePath(); c.fill(); c.strokeStyle=w; c.lineWidth=.4; c.beginPath(); c.moveTo(-6,-47); c.lineTo(.4,-40); c.lineTo(6.6,-47); c.stroke(); c.fillStyle=D('#d8302a'); c.beginPath(); c.moveTo(.4,-38.6); c.lineTo(-1.2,-35); c.lineTo(.4,-36); c.lineTo(2,-35); c.closePath(); c.fill(); },
+  aloha(c,lk,D,f){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#2ab8a8'); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=col; c.beginPath(); c.moveTo(-11,-50); c.lineTo(-1,-50); c.lineTo(.2,-22); c.lineTo(-11,-22); c.closePath(); c.moveTo(11,-50); c.lineTo(3,-50); c.lineTo(1.8,-22); c.lineTo(11,-22); c.closePath(); c.fill();
+    const fl=['#ff7a9a','#ffd23a','#ffffff']; for(let i=0;i<14;i++){ const x=-10+((i*9)%20), y=-48+((i*7)%26); if(x>-1&&x<3) continue; c.fillStyle=D(fl[i%3]); for(let p=0;p<5;p++){ const a=p*1.26; c.beginPath(); c.arc(x+Math.cos(a)*.8,y+Math.sin(a)*.8,.6,0,7); c.fill(); } } c.restore(); },
+  suit(c,lk,D,f){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#2a2a34'), dk=D(mix(lk.outCol||'#2a2a34','#000000',.3)); c.fillStyle=D('#f4f4f2'); c.save(); a3TorsoPath(c,f); c.clip(); c.fillRect(-11,-50,22,30); c.restore(); c.fillStyle=col; a3CoatPath(c,f,-20); c.fill();
+    c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(-3.6,-47); c.lineTo(.6,-34); c.lineTo(4.6,-47); c.closePath(); c.fill(); c.fillStyle=D('#c8302a'); c.beginPath(); c.moveTo(.2,-45.4); c.lineTo(1.2,-45.4); c.lineTo(1.4,-36); c.lineTo(.6,-34.8); c.lineTo(-.1,-36); c.closePath(); c.fill(); c.fillStyle=dk; c.beginPath(); c.moveTo(-4.2,-47); c.lineTo(-1.6,-39); c.lineTo(-3.2,-38); c.lineTo(-5.4,-46); c.closePath(); c.moveTo(5.2,-47); c.lineTo(2.8,-39); c.lineTo(4.4,-38); c.lineTo(6.4,-46); c.closePath(); c.fill();
+    c.fillStyle=D('#c8c8d0'); c.beginPath(); c.arc(.8,-28,.5,0,7); c.arc(.8,-24.5,.5,0,7); c.fill(); } });
+const _a3Sleeve_1 = a3Sleeve;
+a3Sleeve = function(lk,D,shirt){ const oc=lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:null; const m={tracksuit:oc||'#2a5ad8',kimono:oc||'#c8304a',denim:oc||'#4a6a9a',sailor:'#f4f4f2',aloha:oc||'#2ab8a8',suit:oc||'#2a2a34'}; if(m[lk.outfit]) return D(m[lk.outfit]); return _a3Sleeve_1(lk,D,shirt); };
+
+// ---------- the Wardrobe screen ----------
+let wSec='body', wShop='featured';
+const W_CATS=[['featured','Featured'],['hat','Hats'],['gls','Glasses'],['out','Outfits'],['pat','Patterns'],['col','Colours'],['shoe','Shoes'],['neck','Neckwear'],['back','Back']];
+function wCatalog(kind){ switch(kind){
+  case 'hat': return HATS.filter(x=>x.src==='shop').map(x=>({kind,id:x.id,name:x.name,price:x.price}));
+  case 'gls': return GLASSES.filter(x=>x[2]).map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
+  case 'out': return OUTFITS.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
+  case 'pat': return PATTERNS.filter(x=>x[2]).map(x=>({kind,id:x[0],name:x[1]+' shirt',price:x[2]}));
+  case 'col': return SHOP_COLS.map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
+  case 'shoe': return SHOES.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
+  case 'neck': return NECKS.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
+  case 'back': return BACKS.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]})); }
+  return []; }
+const W_KIND_NAME={hat:'Hat',gls:'Glasses',out:'Outfit',pat:'Shirt pattern',col:'Colour for shirts, trousers and hats',shoe:'Shoes',neck:'Neckwear',back:'Worn on your back'};
+function wThumb(cx,kind,id,w,h){ cx.clearRect(0,0,w,h); const lk=S.look;
+  if(kind==='col'){ const s=h/64; cx.save(); cx.translate(w/2,h*.2); cx.scale(s*1.6,s*1.6); cx.fillStyle=id; cx.beginPath(); cx.moveTo(-11,0); cx.lineTo(-5,-3); cx.lineTo(5,-3); cx.lineTo(11,0); cx.lineTo(14,8); cx.lineTo(9,10); cx.lineTo(8,26); cx.lineTo(-8,26); cx.lineTo(-9,10); cx.lineTo(-14,8); cx.closePath(); cx.fill(); cx.fillStyle='rgba(255,255,255,.18)'; cx.fillRect(-8,0,4,26); cx.restore(); }
+  else if(kind==='pat'){ cx.save(); cx.translate(w/2,h*.16); cx.scale(h/32,h/32); cx.fillStyle=lk.shirt; cx.beginPath(); cx.moveTo(-9,0); cx.lineTo(9,0); cx.lineTo(8,24); cx.lineTo(-8,24); cx.closePath(); cx.fill(); cx.clip(); drawPattern(cx,id,lk.shirt,-10,-1,20,26); cx.restore(); }
+  else if(kind==='out') drawAngler(cx,w/2,h*.97,h/80,Object.assign({},lk,{outfit:id,hat:'none'}),{});
+  else if(kind==='gls'){ const s=h/22; drawAngler(cx,w*.4,h*.5+56*s,s,Object.assign({},lk,{glasses:id,hat:'none'}),{}); }
+  else if(kind==='hat') hatPreview(cx,w,h,id,lk.hatCol);
+  else wearPreview(cx,kind,id,w,h); }
+function wOwned(kind,id){ const o=S.owned; return kind==='col'?o.cols.includes(id):kind==='pat'?o.pats.includes(id):kind==='out'?o.outfits.includes(id):kind==='gls'?o.glasses.includes(id):kind==='hat'?o.hats.includes(id):kind==='shoe'?o.shoes.includes(id):kind==='neck'?o.necks.includes(id):o.backs.includes(id); }
+function wItemCard(it,feat){ const own=wOwned(it.kind,it.id), trying=PREVIEW&&PREVIEW.kind===it.kind&&PREVIEW.id===it.id;
+  return `<div class="wd-item ${own?'own':''} ${feat?'feat':''}"><canvas width="120" height="120" data-wthumb="${it.kind}:${it.id}"></canvas><div class="wd-it"><b>${esc(it.name)}</b><span class="meta">${W_KIND_NAME[it.kind]}</span></div>
+    <div class="wd-ia">${own?'<span class="badge g">Owned</span>':`<button class="btn alt sm" data-act="wtry" data-k="${it.kind}:${it.id}">${trying?'Wearing it':'Try on'}</button><button class="btn sm" data-act="wbuy" data-k="${it.kind}:${it.id}" ${S.money>=it.price?'':'disabled'}><span class="coin">${fmtShort(it.price)}</span></button>`}</div></div>`; }
+function wChips(k,list,cur,label){ return `<div class="chips">${list.map(([v,n])=>`<button class="chipb" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${esc(n)}</button>`).join('')}</div>`; }
+function wSw(k,list,cur){ return `<div class="chips">${list.map(([v,cl,n])=>`<button class="sw" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}" style="background:${cl}" title="${esc(n||cl)}"></button>`).join('')}</div>`; }
+function wThumbGrid(k,kind,items,cur){ return `<div class="wd-thumbs">${items.map(([id,n])=>`<button class="wd-th" data-act="look" data-k="${k}" data-v="${id}" aria-pressed="${cur===id}"><canvas width="96" height="96" data-wthumb="${kind}:${id}"></canvas><span>${esc(n)}</span></button>`).join('')}</div>`; }
+renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
+  const secs=[['body','Body'],['clothes','Clothes'],['hats','Hats'],['glasses','Glasses'],['shoes','Shoes'],['neckback','Neck & back'],['shop','Shop']];
+  let body='';
+  if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
+    <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
+    <h5>Hairstyle</h5>${wChips('hairStyle',HAIRSTYLES,lk.hairStyle||'auto')}<h5>Facial hair</h5>${wChips('beard',BEARDS,lk.beard||'none')}`;
+  if(wSec==='clothes') body=`<h5>Shirt colour</h5>${wSw('shirt',cols,lk.shirt)}<h5>Shirt pattern</h5>${wChips('pat',PATTERNS.filter(p=>S.owned.pats.includes(p[0])).map(p=>[p[0],p[1]]),lk.pat)}
+    <h5>Outfit</h5>${wThumbGrid('outfit','out',OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(x=>[x[0],x[1]]),lk.outfit||'none')}
+    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+wSw('outCol',cols,lk.outCol):''}<h5>Trousers</h5>${wSw('pants',cols,lk.pants)}`;
+  if(wSec==='hats') body=`<h5>Hat</h5><div class="hatgrid">${HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('')}</div>
+    <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${wSw('hatCol',cols,lk.hatCol)}`;
+  if(wSec==='glasses') body=`<h5>Glasses</h5>${wThumbGrid('glasses','gls',GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(x=>[x[0],x[1]]),lk.glasses||'none')}`;
+  if(wSec==='shoes') body=`<h5>Shoes</h5>${wThumbGrid('shoes','shoe',SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(x=>[x[0],x[1]]),lk.shoes||'boots')}`;
+  if(wSec==='neckback') body=`<h5>Neckwear</h5>${wThumbGrid('neck','neck',NECKS.filter(x=>S.owned.necks.includes(x[0])).map(x=>[x[0],x[1]]),lk.neck||'none')}
+    <h5>On your back</h5>${wThumbGrid('back','back',BACKS.filter(x=>S.owned.backs.includes(x[0])).map(x=>[x[0],x[1]]),lk.back||'none')}
+    ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory colour</h5>'+wSw('accCol',cols,lk.accCol):''}`;
+  if(wSec==='shop'){ const list=wShop==='featured'?shopOffers():wCatalog(wShop).sort((a,b)=>wOwned(a.kind,a.id)-wOwned(b.kind,b.id)||a.price-b.price);
+    const counts=Object.fromEntries(W_CATS.filter(c=>c[0]!=='featured').map(([k])=>{ const a=wCatalog(k); return [k,a.filter(i=>!wOwned(i.kind,i.id)).length]; }));
+    body=`<div class="chips wd-cats">${W_CATS.map(([k,n])=>`<button class="chipb" data-act="wshop" data-k="${k}" aria-pressed="${wShop===k}">${n}${k!=='featured'?` <span class="meta">${counts[k]}</span>`:''}</button>`).join('')}</div>
+      <p class="sub">${wShop==='featured'?`A changing selection of things you don’t own yet. New stock in <b id="shopleft">${mmss(Math.ceil(SHOP_LEN-(Date.now()/1000%SHOP_LEN)))}</b>.`:`Every ${W_CATS.find(c=>c[0]===wShop)[1].toLowerCase()} the shop sells, cheapest first. Try anything on before you buy.`}</p>
+      <div class="wd-items">${list.length?list.map((it,i)=>wItemCard(it,wShop==='featured'&&it.feat)).join(''):'<div class="empty">You own everything here. Nice.</div>'}</div>`; }
+  P.innerHTML=`<h2>Wardrobe</h2><div class="stylewrap wd"><div class="preview wd-prev">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div class="wd-main">
+    <div class="bwx-nav wd-nav" role="tablist">${secs.map(([k,n])=>`<button role="tab" data-act="wsec" data-k="${k}" aria-selected="${wSec===k}">${n}</button>`).join('')}</div>${body}</div></div>`;
+  drawLookPreview();
+  P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
+  P.querySelectorAll('canvas[data-wthumb]').forEach(c=>{ const [kind,id]=c.dataset.wthumb.split(':'); if(id==='none'){ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); cx.fillStyle='rgba(200,220,240,.4)'; cx.font='700 '+Math.round(c.height*.3)+'px system-ui'; cx.textAlign='center'; cx.fillText('—',c.width/2,c.height*.6); return; } wThumb(c.getContext('2d'),kind,id,c.width,c.height); }); };
+previewBarHTML = function(){ if(!PREVIEW) return ''; const p=PREVIEW;
+  const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="wbuy" data-k="${p.kind}:${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
+  return `<div class="pvbar"><span>Trying on: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="tryoff">Take off</button></span></div>`; };
+const _extraAct2_3 = extraAct2;
+extraAct2 = function(b){ const a=b.dataset.act, k=b.dataset.k||'';
+  if(a==='wsec'){ wSec=k; return 'render'; } if(a==='wshop'){ wShop=k; return 'render'; }
+  if(a==='wtry'||a==='wbuy'){ const [kind,id]=k.split(':'); const it=wCatalog(kind).find(x=>x.id===id)||shopOffers().find(x=>x.kind===kind&&x.id===id); if(!it) return 'skip';
+    if(a==='wtry'){ PREVIEW={kind,id,name:it.name,price:it.price}; return 'render'; }
+    if(wOwned(kind,id)||S.money<it.price) return 'skip'; S.money-=it.price; S.stats.bought++; PREVIEW=null; const o=S.owned, L=S.look;
+    if(kind==='col') o.cols.push(id); else if(kind==='pat'){ o.pats.push(id); L.pat=id; } else if(kind==='out'){ o.outfits.push(id); L.outfit=id; } else if(kind==='gls'){ o.glasses.push(id); L.glasses=id; } else if(kind==='hat'){ o.hats.push(id); L.hat=id; }
+    else if(kind==='shoe'){ o.shoes.push(id); L.shoes=id; } else if(kind==='neck'){ o.necks.push(id); L.neck=id; } else { o.backs.push(id); L.back=id; }
+    sfx.coin(); toast('Bought '+it.name+'. Looking sharp.'); save(); return 'render'; }
+  return _extraAct2_3(b); };
+document.head.insertAdjacentHTML('beforeend',`<style>
+.stylewrap.wd{grid-template-columns:minmax(220px,300px) 1fr;align-items:start}
+.wd-prev{position:sticky;top:8px}
+.wd-nav{flex-wrap:wrap} .wd-nav button{min-width:84px}
+.wd-cats .chipb .meta{font-size:11px;opacity:.8}
+.wd-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.wd-item{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:14px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:inset 0 1px 0 #ffffff10}
+.wd-item.own{opacity:.75} .wd-item.feat{border-color:#ffd36a77;box-shadow:inset 0 1px 0 #ffffff14,0 0 20px #ffd36a1f}
+.wd-item canvas{width:100%;height:96px;object-fit:contain;border-radius:10px;background:radial-gradient(circle at 50% 60%,#24365a,#101a2c);cursor:default}
+.wd-it b{display:block;color:#fff;font-size:14px} .wd-ia{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.wd-thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.wd-th{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border-radius:12px;border:1px solid var(--line);background:var(--glass,#16243a);color:var(--ink);font:600 11.5px system-ui;cursor:pointer;text-align:center}
+.wd-th canvas{width:64px;height:64px;cursor:pointer} .wd-th[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 1px #ffd36a44,0 0 14px #ffd36a26}
+@media (max-width:640px){ .stylewrap.wd{grid-template-columns:1fr} .wd-prev{position:relative;max-width:300px;margin:0 auto} .wd-items{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))} }
+</style>`);
+
+// ---------- things you can't buy: shown as "???" with a short hint on where they come from ----------
+const SRC_HINT={fish:'Fished up from the water, now and then.', junk:'Hiding in junk you fish up.', prize:'Boardwalk prize counter.', pass:'A Tide Pass reward.', bw:'Boardwalk counter specials.', crate:'Found in Mystery Crates.', feat:'Earned from a feat.', rank:'Earned at a high angler rank.'};
+function petHint(p){ const first=(String(p.d||'').match(/^[^.]*\./)||[''])[0];
+  if(/^(Found in|Only in|Won with|Joins you)/.test(first)) return first; if(p.src==='prize') return SRC_HINT.prize; if(p.src==='crate') return SRC_HINT.crate;
+  if(/fish up|in the water/.test(p.d||'')) return 'Hiding in something you might fish up.'; return SRC_HINT[p.src]||'Keep fishing and exploring.'; }
+function rodHint(r){ return SRC_HINT[r.src]||'Keep fishing and exploring.'; }
+function wLockedItems(kind){ const o=S.owned; switch(kind){
+  case 'hat': return HATS.filter(h=>h.src!=='shop'&&h.src!=='start'&&!o.hats.includes(h.id)).map(h=>h.src);
+  case 'out': return OUTFITS.filter(x=>!['shop','start'].includes(x[3])&&!o.outfits.includes(x[0])).map(x=>x[3]);
+  case 'shoe': return SHOES.filter(x=>!['shop','start'].includes(x[3])&&!o.shoes.includes(x[0])).map(x=>x[3]);
+  case 'neck': return NECKS.filter(x=>!['shop','start'].includes(x[3])&&!o.necks.includes(x[0])).map(x=>x[3]);
+  case 'back': return BACKS.filter(x=>!['shop','start'].includes(x[3])&&!o.backs.includes(x[0])).map(x=>x[3]); } return []; }
+function wLockedHTML(kind){ const L=wLockedItems(kind); if(!L.length) return ''; const by={}; for(const s of L) by[s]=(by[s]||0)+1;
+  return `<div class="wd-locked"><span class="meta">Still to find: ${L.length}</span><div class="wd-thumbs">${L.map(s=>`<div class="wd-th lock" title="${esc(SRC_HINT[s]||'')}"><canvas width="96" height="96" data-mystery="1"></canvas><span>???</span><small>${esc(SRC_HINT[s]||'Keep exploring.')}</small></div>`).join('')}</div></div>`; }
+const _renderStyle_1 = renderStyle;
+renderStyle = function(P){ _renderStyle_1(P); const main=P.querySelector('.wd-main'); if(!main) return;
+  const kinds={hats:['hat'],clothes:['out'],shoes:['shoe'],neckback:['neck','back']}[wSec]; if(!kinds) return;
+  for(const k of kinds){ const html=wLockedHTML(k); if(!html) continue; const anchor = k==='hat' ? main.querySelector('.hatgrid') : k==='out' ? [...main.querySelectorAll('.wd-thumbs')][0] : k==='neck' ? [...main.querySelectorAll('.wd-thumbs')][0] : k==='back' ? [...main.querySelectorAll('.wd-thumbs')][1] : main.querySelector('.wd-thumbs'); if(anchor) anchor.insertAdjacentHTML('afterend',html); }
+  P.querySelectorAll('canvas[data-mystery]').forEach(c=>mysteryThumb(c.getContext('2d'),c.width,c.height,'w')); };
+document.head.insertAdjacentHTML('beforeend',`<style>.wd-locked{margin-top:8px}.wd-locked > .meta{display:block;margin:4px 0 6px}.wd-th.lock{cursor:default;opacity:.85}.wd-th.lock small{font-size:10.5px;color:var(--muted);font-weight:500;line-height:1.25}</style>`);
+
+// =====================================================================
 // 0.3 oddities: twenty new things humanity dropped in the water, from a lone sock to a megalodon tooth.
 // =====================================================================
 [['sock','Lone Sock',0,{c:.2},'Its partner is out there somewhere. Probably in a dryer.'],
@@ -7112,7 +7340,12 @@ renderBoardwalk = function(P){ accrueSpins();
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.save(); x.scale(1.8,1.8); v3Rod(x,{x:16,y:80},{x:118,y:16},66,50,ROD_I[crateRes.id],0,0,false); x.restore(); }
     else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
-  if(bwView==='prizes') paintPrizes(P);
+  if(bwView==='prizes'){ paintPrizes(P);
+    // prizes added in later updates: draw them from the real pet, rod and hat art instead of the generic token
+    P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const id=c.dataset.prize, p=PRIZES.find(q=>q[0]===id); if(!p) return; const tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase(), x=c.getContext('2d');
+      if(tag==='pet'&&PETI[id]&&!['teddy'].includes(id)){ x.clearRect(0,0,c.width,c.height); drawPetStyled(x,id,48,72,2.6,0); }
+      else if(tag==='rod'&&ROD_I[id]){ x.clearRect(0,0,c.width,c.height); v3Rod(x,{x:10,y:66},{x:88,y:12},44,44,ROD_I[id],0,0,false); }
+      else if(tag==='hat'&&HATI[id]&&!['sixsevencap','carnival','fishbowl'].includes(id)){ x.clearRect(0,0,c.width,c.height); hatPreview(x,96,80,id,S.look.hatCol); } }); }
   if(bwView==='specials') P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,80,124,1.45,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,160,130); }); };
 const _extraAct2_1 = extraAct2;
 extraAct2 = function(b){ if(b.dataset.act==='bwview'){ bwView=b.dataset.k; return 'render'; } return _extraAct2_1(b); };
@@ -7309,6 +7542,178 @@ document.head.insertAdjacentHTML('beforeend',`<style>.resttog{position:absolute;
 @media (max-width:520px),(max-height:520px){ .resttog{left:6px;bottom:6px;padding:4px 8px;font-size:11px;border-radius:10px} }</style>`);
 restBtn(); if(S.settings.rest){ setTimeout(()=>{ if(G.st==='idle'){ G.st='rest'; restCast(); } },300); }
 if(/[?&]test\b/.test(location.search)) window.__rst=RST;
+if(/[?&]test\b/.test(location.search)) window.__bal={ SP, SPI, LOCS, GEAR, RODS, ROD_I, BAIT, PERKS, RAR, RAR_ROD:ROD_RARE, chooseCatch, rollFish, salePrice, sellMult, gv, fishRate, aqCap, TANK_COST, passNeed, PASS_XP, restBiteTime,
+  bestLoot, crateCost, wheelCost, clawCost, locCost, coinMult, xpMult, G, S:()=>S, distanceMods, hybridChance, PRISM_SHARE, PRISM_VALUE, ATTS, ATT_COST:typeof ATT_COST!=='undefined'?ATT_COST:null, rodUpCost:typeof rodUpCost!=='undefined'?rodUpCost:null, TANK_RATE, AQ_MAG2, BEH, xpNeed, fight, hookIt, endFight, aqBuffsOf, junkChance, pickJunk, curLoc, bonus };
+
+// =====================================================================
+// 0.3 less scrolling: long menus get sections you switch between (the same segmented bar as the
+// Boardwalk). Applied after a menu is drawn, so every menu keeps working exactly as before; the
+// section you picked is remembered per menu while the game is open.
+// =====================================================================
+const SECT={};
+function sectionize(P,tab,groups,before){ groups=groups.filter(g=>g.nodes.length); if(groups.length<2) return;
+  const cur=groups.some(g=>g.name===SECT[tab])?SECT[tab]:groups[0].name;
+  const nav=document.createElement('div'); nav.className='bwx-nav sect-nav'; nav.setAttribute('role','tablist');
+  nav.innerHTML=groups.map(g=>`<button role="tab" type="button" data-sect="${esc(g.name)}" aria-selected="${g.name===cur}">${esc(g.name)}${g.badge?` <span class="badge g">${g.badge}</span>`:''}</button>`).join('');
+  const show=name=>{ for(const g of groups) for(const n of g.nodes) n.style.display = g.name===name ? '' : 'none'; nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.sect===name))); };
+  nav.addEventListener('click',e=>{ const b=e.target.closest('[data-sect]'); if(!b) return; e.stopPropagation(); SECT[tab]=b.dataset.sect; show(b.dataset.sect); });
+  const anchor=before||groups[0].nodes[0]; anchor.parentNode.insertBefore(nav,anchor); show(cur); }
+const kids=P=>[...P.children];
+const hasH=(el,re)=>{ const h=el.matches&&el.matches('h2,h4,h5')?el:el.querySelector&&el.querySelector('h2,h4,h5'); return !!(h&&re.test(h.textContent)); };
+function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=kids(P);
+  if(tab==='settings'){ const grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const tiles=[...grid.children], pick=re=>tiles.filter(t=>hasH(t,re));
+    const save=K.filter(c=>c!==grid&&(c.classList.contains('tile')||c.tagName==='DETAILS'));
+    // the chosen tiles sit alone in the grid, so let the grid show one wide column
+    sectionize(P,tab,[{name:'Sound',nodes:pick(/^Sound/)},{name:'Controls',nodes:pick(/^Controls/)},{name:'Display',nodes:pick(/^Display/)},{name:'Gameplay',nodes:pick(/^Gameplay/)},{name:'Patch notes',nodes:pick(/^Patch notes/)},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
+    grid.classList.add('sect-one'); }
+  else if(tab==='pets'){ const grid=K.find(c=>c.classList.contains('grid')), cust=K.filter(c=>c.classList.contains('tile')&&c!==grid); if(!grid) return; const T=[...grid.children], mine=T.filter(t=>t.querySelector('canvas[data-own="1"]')), more=T.filter(t=>!mine.includes(t));
+    sectionize(P,tab,[{name:'Your pets · '+mine.length,nodes:mine},{name:'Find more · '+more.length,nodes:more},{name:'Customize',nodes:cust}],cust[0]||grid); }
+  else if(tab==='feats'){ const grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children], todo=T.filter(t=>!t.classList.contains('done')), done=T.filter(t=>t.classList.contains('done'));
+    sectionize(P,tab,[{name:'To do · '+todo.length,nodes:todo},{name:'Done · '+done.length,nodes:done}],grid); }
+  else if(tab==='aquarium'){ const dec=K.find(c=>c.classList.contains('jsec')), head=K.slice(0,2), tank=K.filter(c=>!head.includes(c)&&c!==dec); sectionize(P,tab,[{name:'Your tank',nodes:tank},{name:'Decorate',nodes:dec?[dec]:[]}]); }
+  else if(tab==='home'){ const i=K.findIndex(c=>c.tagName==='H5'&&/Decorations/.test(c.textContent)); if(i<0) return; const head=K.findIndex(c=>c.classList.contains('row')); const dock=K.slice(head+1,i).filter(c=>!c.classList.contains('pvbar')); sectionize(P,tab,[{name:'Dock',nodes:dock},{name:'Decorations',nodes:K.slice(i)}]); }
+  else if(tab==='rods'){ const i1=K.findIndex(c=>c.tagName==='H2'&&/Rod rack/.test(c.textContent)), i2=K.findIndex(c=>c.tagName==='H2'&&/Attachments/.test(c.textContent)); if(i1<0||i2<0) return;
+    sectionize(P,tab,[{name:'Your rod',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
+  else if(tab==='locs'||tab==='waters'||tab==='map'){ const grid=K.find(c=>c.classList.contains('grid')), js=K.filter(c=>c.classList.contains('jsec')); if(!grid||!js.length) return;
+    sectionize(P,tab,[{name:'Waters',nodes:[grid]},...js.map(j=>({name:(j.querySelector('h2')||{}).textContent||'More',nodes:[j]}))]); } }
+const _renderPanel_0 = renderPanel;
+renderPanel = function(){ _renderPanel_0(); try{ applySections(); }catch(e){} };
+document.head.insertAdjacentHTML('beforeend',`<style>.sect-nav{margin:10px 0 12px;flex-wrap:wrap} .sect-nav button{min-width:90px} #panel .grid.sect-one{grid-template-columns:minmax(0,1fr)!important}</style>`);
+// denser layouts for the longest lists (0.3 QC): patch notes scroll inside their box, pets/feats/decor/bait use tighter grids
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .grid.sect-one details[open] > ul{max-height:52vh;overflow:auto;padding-right:6px}
+body.v3 #panel .grid:has(> .tile canvas[data-pet]){grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+body.v3 #panel .grid:has(> .tile canvas[data-pet]) > .tile{padding:10px;gap:4px}
+body.v3 #panel .grid:has(> .tile .prog) > .tile{padding:10px 12px;gap:4px}
+body.v3 #panel .grid:has(> .tile .prog){grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+#panel .tk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:8px}
+</style>`);
+// pets: filter by bonus type; feats: closest first, the rest behind "Show all"
+let petFilter='all', featsAll=false;
+const _applySections_0 = applySections;
+applySections = function(){ _applySections_0(); const P=$('panel'); if(!P) return;
+  if(S.tab==='pets'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children].filter(t=>t.querySelector('canvas[data-own="1"]')); if(T.length<8) return;
+    const kOf=t=>{ const id=(t.querySelector('canvas[data-pet]')||{}).dataset; return id&&PETI[id.pet]?PETI[id.pet].k:'other'; };
+    T.sort((a,b)=>{ const fa=a.classList.contains('done')?0:1, fb=b.classList.contains('done')?0:1; return fa-fb; }).forEach(t=>grid.appendChild(t)); [...grid.children].filter(t=>!T.includes(t)).forEach(t=>grid.appendChild(t));
+    const kinds=[...new Set(T.map(kOf))]; const bar=document.createElement('div'); bar.className='chips pet-filter'; bar.style.margin='0 0 10px';
+    bar.innerHTML=['all',...kinds].map(k=>`<button class="chipb" type="button" data-pf="${k}" aria-pressed="${petFilter===k}">${k==='all'?'All':(BK[k]?BK[k][0].toUpperCase()+BK[k].slice(1):k)} <span class="meta">${k==='all'?T.length:T.filter(t=>kOf(t)===k).length}</span></button>`).join('');
+    let petsAll=false; const pmore=document.createElement('button'); pmore.className='btn alt'; pmore.type='button'; pmore.style.cssText='margin:10px auto 0;display:none'; pmore.addEventListener('click',e=>{ e.stopPropagation(); petsAll=true; apply(); }); grid.after(pmore);
+    const apply=()=>{ let n=0; for(const t of T){ let show=petFilter==='all'||kOf(t)===petFilter||t.classList.contains('done'); if(show&&petFilter==='all'&&!petsAll){ n++; if(n>16) show=false; } t.style.display=show?'':'none'; } pmore.style.display=petFilter==='all'&&!petsAll&&T.length>16&&bar.style.display!=='none'?'block':'none'; pmore.textContent='Show all '+T.length; bar.querySelectorAll('[data-pf]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pf===petFilter))); };
+    bar.addEventListener('click',e=>{ const b=e.target.closest('[data-pf]'); if(!b) return; e.stopPropagation(); petFilter=b.dataset.pf; apply(); });
+    grid.parentNode.insertBefore(bar,grid); const sync=()=>{ const vis=P.querySelector('.sect-nav [aria-selected="true"]'); bar.style.display=vis&&/Your pets/.test(vis.textContent)?'':'none'; if(bar.style.display!=='none') apply(); else pmore.style.display='none'; };
+    P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(sync,0)); sync(); }
+  if(S.tab==='feats'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const todo=[...grid.children].filter(t=>!t.classList.contains('done'));
+    const prog=t=>{ const i=t.querySelector('.prog i'); return i?parseFloat(i.style.width)||0:0; }; todo.sort((a,b)=>prog(b)-prog(a)); todo.forEach(t=>grid.insertBefore(t,grid.firstChild?null:null)); const rest=[...grid.children].filter(t=>t.classList.contains('done')); todo.concat(rest).forEach(t=>grid.appendChild(t));
+    const LIMIT=18; if(todo.length<=LIMIT) return; const more=document.createElement('button'); more.className='btn alt'; more.type='button'; more.style.margin='10px auto 0'; more.style.display='block';
+    const apply=()=>{ const onTodo=/To do/.test((P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent||''); todo.forEach((t,i)=>{ if(onTodo) t.style.display=(featsAll||i<LIMIT)?'':'none'; }); more.style.display=onTodo&&!featsAll?'block':'none'; more.textContent='Show all '+todo.length; };
+    more.addEventListener('click',e=>{ e.stopPropagation(); featsAll=true; apply(); }); grid.after(more); P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(apply,0)); apply(); } };
+
+// =====================================================================
+// 0.3 Tide Pass regular levels: customisation instead of pocket change. Each level shows exactly which
+// piece you get (picked from things you don't own yet), so every claim adds something to your look or home.
+// =====================================================================
+function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats.includes(x.id)).map(x=>({kind:'hat',id:x.id,name:x.name,cat:'Hat'})),
+  ...GLASSES.filter(x=>x[2]&&!S.owned.glasses.includes(x[0])).map(x=>({kind:'gls',id:x[0],name:x[1],cat:'Glasses'})),
+  ...OUTFITS.filter(x=>x[3]==='shop'&&!S.owned.outfits.includes(x[0])).map(x=>({kind:'out',id:x[0],name:x[1],cat:'Outfit'})),
+  ...PATTERNS.filter(x=>x[2]&&!S.owned.pats.includes(x[0])).map(x=>({kind:'pat',id:x[0],name:x[1]+' shirt',cat:'Shirt pattern'})),
+  ...SHOES.filter(x=>x[3]==='shop'&&!S.owned.shoes.includes(x[0])).map(x=>({kind:'shoe',id:x[0],name:x[1],cat:'Shoes'})),
+  ...NECKS.filter(x=>x[3]==='shop'&&!S.owned.necks.includes(x[0])).map(x=>({kind:'neck',id:x[0],name:x[1],cat:'Neckwear'})),
+  ...BACKS.filter(x=>x[3]==='shop'&&!S.owned.backs.includes(x[0])).map(x=>({kind:'back',id:x[0],name:x[1],cat:'Worn on your back'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
+function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
+  ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
+function passPickItem(L,pool){ return pool.length ? pool[hashStr('tide'+L)%pool.length] : null; }
+function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
+passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
+  if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'}; }
+  if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'}; }
+  if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'};
+  return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
+const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
+  if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
+    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='crate2') S.tokens.legend+=2; if(k==='bait') S.bait[id]=(S.bait[id]||0)+6;
+    if(k==='shoe'&&!S.owned.shoes.includes(id)) S.owned.shoes.push(id); if(k==='neck'&&!S.owned.necks.includes(id)) S.owned.necks.push(id); if(k==='back'&&!S.owned.backs.includes(id)) S.owned.backs.push(id); return sp[2]; }
+  const p=passPlain(L);
+  if(p.k==='wear'){ const it=p.it, o=S.owned; ({hat:o.hats,gls:o.glasses,out:o.outfits,pat:o.pats,shoe:o.shoes,neck:o.necks,back:o.backs})[it.kind].push(it.id); return it.name; }
+  if(p.k==='decor'){ (p.it.kind==='dock'?S.dock.owned:S.aq.owned).push(p.it.id); return p.it.name; }
+  if(p.k==='big'){ S.tokens.big++; return p.name; }
+  S.scales+=25; S.tickets+=150; return p.name; };
+grantPass = function(L){ const r=grantPass_(L); S.pass.got=S.pass.got||{}; S.pass.got[L]=r; return r; };
+const _passArt_0 = passArt;
+passArt = function(x,w,h,L){ if(PASS_SPECIAL[L]) return _passArt_0(x,w,h,L); const p=passPlain(L); x.clearRect(0,0,w,h); if(p.k==='got'){ x.fillStyle='#7fe3c4'; x.font='700 '+Math.round(h*.4)+'px system-ui'; x.textAlign='center'; x.fillText('✓',w/2,h*.64); return; }
+  if(p.k==='wear'){ const it=p.it; if(it.kind==='hat') hatPreview(x,w,h,it.id,S.look.hatCol); else if(it.kind==='out') drawAngler(x,w/2,h*.96,h/80,Object.assign({},S.look,{outfit:it.id,hat:'none'}),{}); else if(it.kind==='gls'){ const s=h/24; drawAngler(x,w*.42,h*.5+56*s,s,Object.assign({},S.look,{glasses:it.id,hat:'none'}),{}); }
+    else if(it.kind==='pat'){ x.save(); x.translate(w/2,h*.16); x.scale(h/32,h/32); x.fillStyle=S.look.shirt; x.beginPath(); x.moveTo(-9,0); x.lineTo(9,0); x.lineTo(8,24); x.lineTo(-8,24); x.closePath(); x.fill(); x.clip(); drawPattern(x,it.id,S.look.shirt,-10,-1,20,26); x.restore(); }
+    else wearPreview(x,it.kind,it.id,w,h); return; }
+  if(p.k==='decor'){ if(p.it.kind==='dock') drawDockItem(x,p.it.id,w/2,h*.9,2.4*w/120,0,0); else drawDecor(x,p.it.id,w/2,h*.92,w/160,0); return; }
+  if(p.k==='big') drawJunk(x,w,h,'chest'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(w*.4+Math.cos(a)*w*.16,h/2+Math.sin(a)*w*.16); } x.fill(); x.font=Math.round(w*.24)+'px system-ui'; x.textAlign='center'; x.fillText('🎟',w*.72,h*.62); } };
+
+// =====================================================================
+// 0.3 Stats tab: everything that shapes your fishing in one place, read straight from the same
+// functions the game uses (so it is always correct). Three short sections: Overview, Bonuses
+// (where every bonus comes from), Gear. Plus preview-only tester tools (never in the release build).
+// =====================================================================
+let statSec='overview';
+const pctS = v => (v>=0?'+':'−')+Math.round(Math.abs(v)*1000)/10+'%';
+const mulS = v => '×'+(Math.round(v*100)/100).toFixed(2);
+function statRow(label,val,note){ return `<div class="st-row"><span>${label}${note?`<small>${note}</small>`:''}</span><b>${val}</b></div>`; }
+function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare:0,weight:1};
+  const keys=['bite','rare','shiny','trophy','reel','tension','calm','sell','xp','treasure','tank','hot'].filter(k=>BK[k]);
+  if(statSec==='bonuses'){ const rows=keys.map(k=>{ const parts=[buffSum(k),aqSum(k),petSum(k),rodBonus(k)], raw=parts.reduce((a,c)=>a+c,0), tot=bonus(k), cap=BONUS_CAP[k];
+      const cell=v=>v?`<td>${(k==='tension'||k==='calm'?'−':'+')+Math.round(v*1000)/10}%</td>`:'<td class="z">·</td>';
+      return `<tr><th>${BK[k][0].toUpperCase()+BK[k].slice(1)}</th>${parts.map(cell).join('')}<td class="t">${tot?(k==='tension'||k==='calm'?'−':'+')+Math.round(tot*1000)/10+'%':'·'}${cap&&raw>cap?' <small>(max)</small>':''}</td></tr>`; }).join('');
+    return `<p class="sub">Every bonus and where it comes from. Boosts are timed buffs from junk and tasks; Aquarium is your displayed fish; Pets are your favourite and companion; Rod includes its level and attachments.</p>
+      <div class="st-table-wrap"><table class="st-table"><thead><tr><th></th><th>Boosts</th><th>Aquarium</th><th>Pets</th><th>Rod</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table></div>`; }
+  if(statSec==='gear'){ const g=k=>GEAR[k].fmt(gv(k));
+    return `<div class="st-grid"><div class="tile"><h4>Tackle</h4>${statRow('Rod length',g('rod'),'Level '+(S.gear.rod+1)+' of '+GEAR.rod.lv.length)}${statRow('Reel',g('reel'),'Level '+(S.gear.reel+1)+' of '+GEAR.reel.lv.length)}${statRow('Line',g('line'),'Level '+(S.gear.line+1)+' of '+GEAR.line.lv.length)}
+      ${statRow('Hook',g('hook'),'Level '+(S.gear.hook+1)+' of '+GEAR.hook.lv.length)}${statRow('Cooler',g('cooler'))}${statRow('Fish finder',g('finder'))}</div>
+      <div class="tile"><h4>Rod: ${esc(rod().name)}</h4>${statRow('Rod level',rodLvl()+' / 10')}${Object.keys(rod().st).map(k=>statRow(k==='cast'?'Cast distance':BK[k]?BK[k][0].toUpperCase()+BK[k].slice(1):k, k==='cast'?mulS(rod().st[k]):k==='hook'?'+'+rod().st[k].toFixed(2)+' s':pctS(rod().st[k]))).join('')||'<div class="meta">No special stats</div>'}
+      ${statRow('Attachments',rodAtts().length?rodAtts().map(a=>esc(ATT_I[a].name)).join(', '):'None')}</div>
+      <div class="tile"><h4>Bait</h4>${statRow('In use',esc(b.name)+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0)+' left':''))}${statRow('Bite speed',mulS(b.speed))}${statRow('Rare odds',b.rare?'+'+Math.round(b.rare*100)+'%':'—')}</div></div>`; }
+  // overview
+  const bite=biteSpeed(false), sh=shinyChance(false), rs=rareScore(dm,false,false), rsFar=rareScore(dm,true,false), sm=sellMult(), xm=xpMult(), cm=coinMult();
+  const legW=RAR.slice(4).reduce((a,r)=>a+r.w,0), tw=RAR.reduce((a,r)=>a+r.w,0), legNow=RAR.slice(4).reduce((a,r)=>a+r.w*(1+rs*r.f),0)/RAR.reduce((a,r)=>a+r.w*(1+rs*r.f),0);
+  return `<div class="st-grid">
+    <div class="tile"><h4>Catching</h4>${statRow('Bite speed',mulS(bite),'Bait, level, skills, weather, boosts')}${statRow('Hook window',hookWin().toFixed(2)+' s')}${statRow('Rare odds score',rs.toFixed(2),'Far casts: '+rsFar.toFixed(2))}
+      ${statRow('Legendary or better',(legNow*100).toFixed(2)+'%','per fish here, base '+(legW/tw*100).toFixed(2)+'%')}${statRow('Shiny chance',(sh*100).toFixed(2)+'%')}${statRow('Hybrid chance',(hybridChance()*100).toFixed(2)+'%')}${statRow('Junk chance',(junkChance()*100).toFixed(1)+'%')}${statRow('Far casts count from',Math.round(farAt()*100)+'% power')}</div>
+    <div class="tile"><h4>Fighting</h4>${statRow('Reel speed',reelSpeed().toFixed(2)+' m/s')}${statRow('Line strength',gv('line')+' kg')}${statRow('Line tension',mulS(tensionMult()),'Lower is better')}${statRow('Temper build-up',mulS(tempMult()),'Lower is better')}${statRow('Max line out',Math.round(gv('rod')*rodCast()+28+rodSpool())+' m')}</div>
+    <div class="tile"><h4>Coins & XP</h4>${statRow('Sale price',mulS(sm),'Level, Haggler, rank, boosts, pearls')}${statRow('XP',mulS(xm))}${statRow('Wisdom Pearls',mulS(cm),S.pearls+' pearl'+(S.pearls===1?'':'s'))}${statRow('Streak bonus cap','+'+Math.round(streakCap()*100)+'% XP')}
+      ${statRow('Aquarium',fmt(Math.round(tankRate()*60))+' / hour',S.tank.length+' fish · up to '+Math.round(offlineCap()/60)+' h away')}${statRow('Cozy level',cozy()+' ♥','+'+cozyBonus()+'% XP')}</div>
+    <div class="tile"><h4>Right now</h4>${statRow('Water',esc(curLoc().name))}${statRow('Weather',esc(wx.k),esc(wx.note||''))}${statRow('Time of day',isNight()?'Night':'Day')}${statRow('Active boosts',S.buffs.filter(x=>x.until>Date.now()).length||'None')}${statRow('Skill points',ptsFree()+' free · '+ptsSpent()+' spent')}</div>
+  </div>`; }
+function renderStats(P){ P.innerHTML=`<h2>Stats</h2><p class="sub">Everything that shapes your fishing, worked out exactly like the game does.</p>
+  <div class="bwx-nav" role="tablist">${[['overview','Overview'],['bonuses','Bonuses'],['gear','Gear']].map(([k,n])=>`<button role="tab" data-act="statsec" data-k="${k}" aria-selected="${statSec===k}">${n}</button>`).join('')}</div>${statsHTML()}${window.DL_PREVIEW?testerHTML():''}`; }
+// ---------- preview-only tester tools: for the director to test everything; the release build never shows them ----------
+function testerHTML(){ return `<details class="tile st-test"><summary><b>Tester tools</b> <span class="meta">· preview only, for testing</span></summary><p class="sub">These only exist in the 0.3 preview (it has its own save, so your real game is untouched).</p>
+  <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="tester" data-k="all">Unlock everything</button><button class="btn alt sm" data-act="tester" data-k="coins">+1 billion coins</button><button class="btn alt sm" data-act="tester" data-k="scales">+10,000 Scales & tickets</button><button class="btn alt sm" data-act="tester" data-k="pass">Tide Pass to level 50</button></div></details>`; }
+function testerUnlock(k){ if(!window.DL_PREVIEW) return; const o=S.owned, U=(arr,ids)=>{ for(const id of ids) if(!arr.includes(id)) arr.push(id); };
+  if(k==='coins'){ S.money+=1e9; return 'One billion coins added.'; } if(k==='scales'){ S.scales+=1e4; S.tickets+=1e4; return 'Scales and tickets added.'; }
+  if(k==='pass'){ S.pass.lvl=Math.max(S.pass.lvl,50); return 'Tide Pass set to level 50. Claim your rewards in the Tide Pass tab.'; }
+  S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
+  U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=3;
+  U(o.hats,HATS.map(h=>h.id)); U(o.cols,SHOP_COLS.map(c=>c[0])); U(o.pats,PATTERNS.map(p=>p[0])); U(o.outfits,OUTFITS.map(x=>x[0])); U(o.glasses,GLASSES.map(x=>x[0])); U(o.shoes,SHOES.map(x=>x[0])); U(o.necks,NECKS.map(x=>x[0])); U(o.backs,BACKS.map(x=>x[0]));
+  U(o.pets,PETS.filter(p=>p.id!=='lily'||o.pets.includes('lily')).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
+  U(S.dock.owned,[...DOCK_DECOR.map(d=>d.id),...DOCK_WOODS.map(w=>w[0])]); U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;
+  for(const b2 in BAIT) if(b2!=='worm') S.bait[b2]=(S.bait[b2]||0)+99; S.lvl=Math.max(S.lvl,40); S.tokens.small+=5; S.tokens.big+=5; S.tokens.legend+=5;
+  return 'Everything unlocked for testing.'; }
+const _renderPanel_1 = renderPanel;
+renderPanel = function(){ if(S.tab==='stats'){ renderStats($('panel')); return; } _renderPanel_1(); };
+const _extraAct2_4 = extraAct2;
+extraAct2 = function(b){ if(b.dataset.act==='statsec'){ statSec=b.dataset.k; return 'render'; }
+  if(b.dataset.act==='tester'){ const m=testerUnlock(b.dataset.k); if(m){ toast(m); save(); lastHud=''; } return 'render'; } return _extraAct2_4(b); };
+// the tab itself, next to Save
+{ const sv=document.querySelector('#tabs [data-tab="save"]'); if(sv&&!document.querySelector('#tabs [data-tab="stats"]')){ sv.insertAdjacentHTML('beforebegin','<button role="tab" data-tab="stats" aria-selected="false" data-label="📊 Stats"></button>'); const nb=document.querySelector('#tabs [data-tab="stats"]'); nb.innerHTML=tabHTML(nb.dataset.label); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.st-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.st-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #ffffff0e;align-items:baseline}
+.st-row:last-child{border-bottom:0} .st-row span{color:var(--muted);display:flex;flex-direction:column} .st-row small{font-size:11px;opacity:.75} .st-row b{color:#fff;text-align:right;white-space:nowrap}
+.st-table-wrap{overflow-x:auto;border-radius:14px;border:1px solid var(--line)}
+.st-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--glass,#16243a)}
+.st-table th,.st-table td{padding:8px 10px;text-align:right;border-bottom:1px solid #ffffff0e;white-space:nowrap}
+.st-table thead th{color:var(--muted);font-weight:600;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+.st-table tbody th{text-align:left;color:var(--ink);font-weight:600} .st-table td.z{color:#ffffff30} .st-table td.t{color:#ffd36a;font-weight:700}
+.st-test{margin-top:14px;border-color:#ff9a5c55} .st-test summary{cursor:pointer}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>li.pn-h{list-style:none;margin:12px 0 4px -20px;font-weight:800;color:#ffd36a;font-size:13px;letter-spacing:.06em;text-transform:uppercase} li.pn-h:first-child{margin-top:4px}
+#evin ul{max-height:58vh;overflow:auto;padding-right:6px}</style>`);
 
 // ---------- loop ----------
 let last=performance.now();
@@ -7572,7 +7977,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   if(V3ON) v3Pedestal(cx,250,470,215,performance.now()/1000); else { cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22); }
-  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
+  { const big=S.pet==='horse'||S.pet==='cow', s=6.4; drawPetStyled(cx,S.pet,Math.max(big?120:70,300-(big?44:31)*s),470,s*(big?.85:1),performance.now()/1000); } drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
   P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.filter(id=>PETI[id].src!=="gift").length} of ${PETS.filter(p=>p.src!=="gift").length} found.</p>
@@ -7581,7 +7986,7 @@ function renderPets(P){ const pp=PETI[S.pet];
     const act = here ? '<button class="btn alt" disabled>★ Favourite</button>'
       : comp ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Make favourite</button><button class="btn sm alt" data-act="pet2off">Send home</button></div>`
       : own ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Favourite</button><button class="btn sm alt" data-act="pet2" data-k="${p.id}">Companion</button></div>`
-      : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">${esc(p.d)}</span>`;
+      : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">How to get it: ${esc(petHint(p))}</span>`;
     return `<div class="tile ${here||comp?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();
