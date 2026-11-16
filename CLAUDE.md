@@ -110,7 +110,103 @@ The director wants the whole game taken "up a notch, across the board". Lily sho
   6. **UI makeover:** one theme, drawn icons, transitions, feedback.
   7. **Equipment and gameplay depth:** visible, distinct gear; visible effects; a richer reeling fight.
 - **Rollout:** build on a separate preview link so friends keep playing the stable version. Ship as **0.3** with full spoiler-free notes.
-- **Open choices:** the art style; music (richer generated layered themes vs free-licence recorded tracks, which mean a bigger download).
+  - Preview build: `site/next/`, which needs its own save key. It copies the main save on first open and never writes to it.
+- **Art direction CHOSEN (2026-11-16): B2 "Glow Diorama"** (the canvas above).
+  - Rich layered depth, rim light, bloom on light sources, detailed shapes, and everything gently alive.
+  - **Quality bar (director):** zero visual errors. Parts joined, light behaving physically, polished silhouettes. Inspect every drawing up close before showing it. The director rejected B2's detached pet head, glow passing through the lantern pole, and lumpy mountains.
+  - Apply the concept to every artwork and system: modern, accurate, alive.
+- **Still open:** music (richer generated layered themes vs free-licence recorded tracks); relabelling the old 1.x/2.x patch-note versions as 0.1/0.2 when 0.3 ships.
+
+### Area identities (draft, nothing built yet)
+Each area gets:
+- its own palette and light
+- a landmark
+- wildlife
+- a signature effect
+- ambient sound and a music motif
+- a platform look
+
+Names stay; fish and gameplay are unchanged.
+1. **Willow Pond** (wooden dock):
+   - **Palette:** warm dusk, peach and violet.
+   - **Landmark:** a cabin in the pines with a lit window and chimney smoke, and a weeping willow over the water.
+   - **Wildlife:** ducks, frogs on lily pads, dragonflies, fireflies.
+   - **Signature:** a glowing lily bloom.
+   - **Sound:** crickets and soft guitar.
+2. **Stonebrook River** (wooden dock):
+   - **Palette:** fresh morning, green and silver.
+   - **Landmark:** an old stone arch bridge and a mossy waterwheel mill.
+   - **Wildlife:** a kingfisher, a heron, trout jumping.
+   - **Signature:** fast current lines, foam around rocks, mist.
+   - **Sound:** a babbling stream and a fiddle melody.
+3. **Saltmarsh Coast** (long pier):
+   - **Palette:** breezy midday, sand and teal.
+   - **Landmark:** **the lighthouse** with its sweeping beam at dusk, plus dunes with grass.
+   - **Wildlife:** gulls, crabs on the posts.
+   - **Signature:** rolling waves with foam, wind in the grass.
+   - **Sound:** surf and an accordion sea-shanty motif.
+4. **Frostbite Lake** (ice):
+   - **Palette:** blue hour, ice and lavender.
+   - **Landmark:** an ice-fishing hut with a stovepipe, and snowy pines.
+   - **Wildlife:** an arctic fox, an owl.
+   - **Signature:** an aurora rippling across the sky, falling snow, cracks glinting in the ice.
+   - **Sound:** wind and a music box with bells.
+5. **Coral Shallows** (sand):
+   - **Palette:** bright tropical noon, turquoise and coral.
+   - **Landmark:** palm trees, a hammock, a beach hut on stilts.
+   - **Wildlife:** a turtle surfacing, parrots.
+   - **Signature:** caustic light on the sandy bottom, a reef visible below the surface.
+   - **Sound:** ukulele and steel drums.
+6. **Brine Shelf** (boat):
+   - **Palette:** open-sea golden hour.
+   - **Landmark:** a distant tall ship and a buoy bell.
+   - **Wildlife:** dolphins leaping, an albatross.
+   - **Signature:** a big rolling swell that tilts the horizon, spray.
+   - **Sound:** a creaking hull and a strings motif.
+7. **Midnight Deep** (trawler):
+   - **Palette:** stormy night, deep navy and lightning white.
+   - **Landmark:** the trawler's deck lamps and nets.
+   - **Wildlife:** a whale tail in the swell.
+   - **Signature:** rain sheets, lightning flashes, a huge swell.
+   - **Sound:** a low cello drone and thunder.
+8. **Hollow Trench** (raft):
+   - **Palette:** eerie twilight, inky teal.
+   - **Landmark:** sea stacks and a sunken shipwreck mast.
+   - **Wildlife:** bioluminescent jellyfish below, glowing eyes in the deep.
+   - **Signature:** glowing plankton trails, a light-swallowing dark centre.
+   - **Sound:** whale song and an ambient pad.
+9. **Ember Springs** (stone):
+   - **Palette:** volcanic night, magma orange and basalt.
+   - **Landmark:** a smouldering volcano and stone terraces.
+   - **Wildlife:** fire salamanders, glowing moths.
+   - **Signature:** rising steam, embers drifting up, glowing water.
+   - **Sound:** bubbling springs and taiko drums.
+10. **Starfall Lake** (crystal):
+    - **Palette:** above the clouds, cosmic violet and starlight.
+    - **Landmark:** floating islands, crystal spires, a ringed planet.
+    - **Wildlife:** star-fish constellations, light wisps.
+    - **Signature:** shooting stars falling into the lake, the Milky Way reflected.
+    - **Sound:** celesta and choir pads.
+
+### Systems the overhaul covers (all 17 tabs)
+- **Fishing scene:** cast, bite, reel fight, catch reveal.
+- **The angler:** a rebuilt character with layered clothes, hats and glasses, plus animations.
+- **Pets:** every one redrawn with Lily-level personality animations.
+- **Home dock and decor; aquarium (tank, fish, decor).**
+- **Gear:** rods, attachments and baits, visible on the character and in previews.
+- **Every panel:** Cooler, Tackle, Rods, Bounties, Tide Pass, Waters (a map with area art), Aquarium, Home, Pets, Wardrobe, Skills, Paths, Fish Log (fish portraits), Feats, Boardwalk (games), Save, Settings.
+- **Effects and feedback:** splashes, sparkles, coins, level-ups, rarity glows.
+- **Music and ambience per area.**
+- **Performance groundwork first:** cached layers, GPU water and light, a quality setting, pause when hidden.
+
+### Build order (proposed)
+1. **Preview link + performance groundwork.**
+2. **Willow Pond as the showcase,** built to the B2 bar: the angler, three pets, dock decor, cast/reel/catch moments, and the pond's music. The director play-tests on PC and phone.
+3. **The other nine areas,** each shown as a mockup first, then built.
+4. **Every pet, clothes, hats and decor redrawn.**
+5. **UI makeover across all 17 tabs.**
+6. **Gear and fishing depth.**
+7. **Ship 0.3.**
 
 ## Roadmap: things to work on (closest first)
 1. **Confirm the open items** above with the director: the real phone ↔ PC transfer, Lily's look, and the sidebar toggle in portrait.
