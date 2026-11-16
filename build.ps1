@@ -6,7 +6,7 @@ param([switch]$Preview)
 $root = $PSScriptRoot
 $v = (Get-Date).ToString('yyyy.MM.dd-HHmm')
 $utf8 = New-Object System.Text.UTF8Encoding $false
-$parts = 'a_head.html','a2_v3ui.js','b_data.js','b2_wear.js','c_logic.js','n_play.js','k_controls.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','m_home.js','d8_v21.js','d9_link.js','d10_lily.js','f_v3scene.js','f2_areas.js','f3_foliage.js','g_angler.js','l_wear.js','h_pets.js','i_fish.js','j_music.js','e_ui.js'
+$parts = 'a_head.html','a2_v3ui.js','b_data.js','b2_wear.js','c_logic.js','n_play.js','k_controls.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','m_home.js','d8_v21.js','d9_link.js','d10_lily.js','f_v3scene.js','f2_areas.js','f3_foliage.js','g_angler.js','l_wear.js','h_pets.js','i_fish.js','j_music.js','q_boardwalk.js','s_odd.js','o_sort.js','p_games.js','r_rest.js','e_ui.js'
 $game = $parts | ForEach-Object { [IO.File]::ReadAllText((Join-Path $root "src\$_")) }
 $top = [IO.File]::ReadAllText((Join-Path $root 'src\shell_top.html')).Replace('__VERSION__', $v)
 $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))

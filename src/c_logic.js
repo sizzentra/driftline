@@ -7,7 +7,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round'],shoes:['boots','sneakers','barefoot'],necks:['none'],backs:['none']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
-  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, effects:true, boostsOnScreen:true, hints:true, protectRare:true},
+  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, minigames:true, rest:false, effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
@@ -21,7 +21,7 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.gear=Object.assign(fresh().gear,o.gear||{}); for(const k in GEAR) m.gear[k]=clamp(m.gear[k]|0,0,GEAR[k].lv.length-1);
   m.bait=Object.assign(baitZero(),o.bait||{}); if(!BAIT[m.baitSel]) m.baitSel='worm';
   m.stats=Object.assign(fresh().stats,o.stats||{}); m.perks=Object.assign({},o.perks||{}); for(const k in m.perks){ if(!PERKS[k]) delete m.perks[k]; else m.perks[k]=Math.min(m.perks[k],PERKS[k].max); }
-  m.feats=Object.assign({},o.feats||{}); m.tank=(m.tank||[]).filter(f=>SPI[f.id]); m.cooler=(m.cooler||[]).filter(f=>SPI[f.id]);
+  m.feats=Object.assign({},o.feats||{}); m.tank=(m.tank||[]).filter(f=>SPI[f.id]); m.tankBank=+m.tankBank||0; for(const f of m.tank.concat(m.cooler||[])) if(f&&SPI[f.id]&&!(+f.value>0)) f.value=Math.max(1,Math.round(SPI[f.id].base*RAR[SPI[f.id].r].val)); m.cooler=(m.cooler||[]).filter(f=>SPI[f.id]);
   m.unlocked=(m.unlocked||['pond']).filter(id=>LOCS.some(l=>l.id===id)); if(!m.unlocked.includes('pond')) m.unlocked.unshift('pond'); if(!m.unlocked.includes(m.loc)) m.loc='pond';
   for(const k in m.journal){ if(!SPI[k]) delete m.journal[k]; }
   m.look=Object.assign(fresh().look,o.look||{}); const ow=o.owned||{};
@@ -351,7 +351,7 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => f.value*TANK_RATE*.75*(f.sh===2?1.6:1)*(f.hy?1.3:1)*RAR[SPI[f.id].r].aq*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => (+f.value||0)*TANK_RATE*.75*(f.sh===2?1.6:1)*(f.hy?1.3:1)*RAR[SPI[f.id].r].aq*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
@@ -362,6 +362,7 @@ function down(e){
   if(G.st!=='reeling' && G.st!=='frenzy' && G.st!=='charging' && G.st!=='result' && petHit(e)) return;
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
+    case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
     case 'idle': if(V3ON && aimCast(e)) break; startCharge(); break;
     case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
     case 'bite': hookIt(); break;
@@ -380,7 +381,7 @@ window.addEventListener('keyup',e=>{ if(e.code!=='Space') return; spaceDown=fals
 window.addEventListener('blur',()=>{ spaceDown=false; up(); });
 
 // ---------- update ----------
-function update(dt){ if(V3ON) padPoll();
+function update(dt){ if(V3ON) padPoll(); if(G.st==='rest') restTick(dt);
   if(G.st==='charging'){ G.power+=G.pdir*dt*1.15; if(G.power>=1){G.power=1;G.pdir=-1;} if(G.power<=0){G.power=0;G.pdir=1;} }
   else if(G.st==='flying'){ G.t+=dt/.45; const t=Math.min(1,G.t); G.bob.x=G.from.x+(G.to.x-G.from.x)*t; G.bob.y=G.from.y+(G.to.y-G.from.y)*t - Math.sin(t*Math.PI)*H*.22; if(t>=1) beginWait(); }
   else if(G.st==='waiting'){ G.waitT+=dt; G.nibOn=Math.max(0,G.nibOn-dt);

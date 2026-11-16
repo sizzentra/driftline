@@ -43,7 +43,7 @@ function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.cli
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
 function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
-  const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=6, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
+  const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
   if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
@@ -87,11 +87,12 @@ function a3Body(c,x,y,s,lk,o,live){
   let stance = st==='reeling'?1.5 : st==='charging'?1*pw : st==='flying'?.8 : 0;
   let tilt = st==='waiting'?.07 : st==='bite'?-.04 : st==='flying'?-.07 : st==='reeling'?.04 : 0;
   if(st==='idle'||st==='waiting'){ lean+=Math.sin(t*.7)*.012; tilt+=Math.sin(t*.45+1)*.03; crouch+=Math.max(0,Math.sin(t*.7))*.25; }
+  if(o.sit){ lean=-.07+Math.sin(t*.5)*.012; crouch=0; stance=0; tilt=.07+Math.sin(t*.4)*.035; }
   let hx=o.hx==null?9:o.hx, hy=o.hy==null?-35:o.hy;
   if(live){ const dt=A3.lt<0?1:clamp(t-A3.lt,0,.1); A3.lt=t; const e=1-Math.exp(-dt*9), eh=1-Math.exp(-dt*24);
     A3.lean+=(lean-A3.lean)*e; A3.crouch+=(crouch-A3.crouch)*e; A3.stance+=(stance-A3.stance)*e; A3.tilt+=(tilt-A3.tilt)*e; A3.hx+=(hx-A3.hx)*eh; A3.hy+=(hy-A3.hy)*eh;
     lean=A3.lean; crouch=A3.crouch; stance=A3.stance; tilt=A3.tilt; hx=A3.hx; hy=A3.hy; }
-  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; const lift=crouch-24*(B.l-1);
+  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; const lift=o.sit?24-o.sit.seat:crouch-24*(B.l-1);
   const ra=o.rodA!=null?o.rodA:-.72; // the rod's angle at the hand (screen space)
   // upper body space: crouch down, lean around the hips. Hands are given in final space so they meet the rod exactly.
   const lc=Math.cos(lean), ls=Math.sin(lean), hipY=-24+lift;
@@ -114,7 +115,13 @@ function a3Body(c,x,y,s,lk,o,live){
     c.fillStyle='rgba(255,236,210,'+(dark?.1:.24)+')'; c.beginPath(); c.ellipse(bx+3.6,-3.3,1.6,.6,-.35,0,7); c.fill(); };
   const aB=-3.6-stance, aF=3.2+stance*.8, shoe=lk.shoes||'boots';
   c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
-  leg(-3*B.w,aB,legD,true); a3Shoe(c,shoe,aB-.2,true,D,sk,t); leg(2.6*B.w,aF,legC,false); a3Shoe(c,shoe,aF-.2,false,D,sk,t);
+  if(!o.sit){ leg(-3*B.w,aB,legD,true); a3Shoe(c,shoe,aB-.2,true,D,sk,t); leg(2.6*B.w,aF,legC,false); a3Shoe(c,shoe,aF-.2,false,D,sk,t); }
+  else { // sitting: thighs forward from the hips, shins hanging over the dock edge (kicking gently) or down to the floor in front of the chair
+    const hy0=-o.sit.seat, L1=9.4*B.l, L2=9.6*B.l;
+    for(const [hx0,col,back,ph] of [[-2.4*B.w,legD,true,1.3],[1.8*B.w,legC,false,0]]){ const hp={x:hx0,y:hy0-1.2}, kn={x:hx0+L1,y:hy0-1.5+(back?.4:0)};
+      const an=o.sit.hang?{x:kn.x+2+Math.sin(t*1.25+ph)*1.6,y:kn.y+L2}:{x:kn.x+1.2,y:-5};
+      a3Limb(c,hp,kn,6.4*B.lw,5.4*B.lw,col,back?.5:1); a3Limb(c,kn,an,5.2*B.lw,4.4*B.lw,col,back?.5:1);
+      c.save(); c.translate(an.x,an.y+5); c.rotate(o.sit.hang?.28+Math.sin(t*1.25+ph)*.08:0); a3Shoe(c,shoe,-.2,back,D,sk,t); c.restore(); } }
   // ---- upper body
   c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24);
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };

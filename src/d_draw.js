@@ -358,26 +358,27 @@ function draw(now){
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
   { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
-  const sc=clamp(H/420,.7,1.25), ax=W*.12, ay=dockY+pb;
+  const sc=clamp(H/420,.7,1.25); let ax=W*.12, ay=dockY+pb;
   drawPetScene(ax,ay,sc,t,night);
-  let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; }
-  const tip=TIP(); let tx=tip.x, ty=tip.y+pb;
+  const RP=G.st==='rest'?restPose(dockY,pb,sc):null; if(RP){ ax=RP.ax; ay=RP.ay; }
+  let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; } if(RP){ hx=RP.hx; hy=RP.hy+Math.sin(t*.8)*.6; }
+  const tip=TIP(); let tx=tip.x, ty=tip.y+pb; if(RP){ tx=ax+hx*sc+W*.075; ty=ay+hy*sc-H*.13; }
   if(G.st==='charging'){ tx -= G.power*W*.05; ty += G.power*H*.06; }
   if(G.st==='reeling'){ const bend = clamp(G.ten/100,0,1); tx += bend*W*.03; ty += bend*H*.08 + (G.run?Math.sin(t*25)*1.5:0); }
   if(G.st==='landing'){ ty += H*.04*(1-G.land.t/G.land.dur); }
   const rodA=Math.atan2((ay+hy*sc+ty)/2-6-(ay+hy*sc),(ax+hx*sc+tx)/2-(ax+hx*sc)), PV=V3ON&&v3palette.v;
-  const hp=drawAngler(g,ax,ay,sc,S.look,{night:night*.8,hx,hy,t,rodA,rim:PV?PV.rim:null,glow:PV?PV.glow:null});
+  const hp=drawAngler(g,ax,ay,sc,S.look,{night:night*.8,hx,hy,t,rodA,sit:RP?RP.sit:null,rim:PV?PV.rim:null,glow:PV?PV.glow:null});
   const hand=hp&&hp.x!=null?{x:hp.x,y:hp.y}:{x:ax+hx*sc,y:ay+hy*sc};
   if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
-  if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;
+  if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;
     g.strokeStyle='rgba(235,240,235,.75)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo((tx+G.bob.x)/2,Math.max(ty,G.bob.y)+sag-20,G.bob.x,G.bob.y); g.stroke(); }
   else if(lp){ g.strokeStyle='rgba(235,240,235,.75)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(lp.x,lp.y-8); g.stroke(); }
   else { g.strokeStyle='rgba(235,240,235,.6)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(tx,ty+H*.06); g.stroke(); G.bob.x=tx; G.bob.y=ty+H*.06; }
-  if(!lp){ let dip=0; if(G.st==='waiting'){ dip = Math.sin(t*2.2)*1.2 + (G.nibOn>0 ? Math.sin(G.nibOn*30)*3 : 0); } if(G.st==='bite') dip = 7; if(G.st==='reeling') dip = 3 + (G.run?3:0);
-    const onWater = G.st==='waiting'||G.st==='bite'||G.st==='reeling';
+  if(!lp){ let dip=0; if(G.st==='waiting'){ dip = Math.sin(t*2.2)*1.2 + (G.nibOn>0 ? Math.sin(G.nibOn*30)*3 : 0); } if(G.st==='bite') dip = 7; if(G.st==='reeling') dip = 3 + (G.run?3:0); if(G.st==='rest') dip = RST.phase==='bite'?7:RST.phase==='reel'?3:Math.sin(t*1.6)*1.2;
+    const onWater = G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest';
     const br = onWater ? clamp(6.5*(1-.4*clamp((G.bob.x-W*.3)/(W*.6),0,1)),3,7) : 5; const bx2=G.bob.x, by2=G.bob.y+dip;
     if(G.st==='waiting'||G.st==='bite'){ g.strokeStyle=G.inHot?'rgba(255,215,110,.6)':'rgba(255,255,255,.25)'; g.beginPath(); g.ellipse(G.bob.x,G.bob.y+2,br*2.2+Math.sin(t*3),br*.7,0,0,7); g.stroke(); }
     g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); }
