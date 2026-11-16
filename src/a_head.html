@@ -18,8 +18,11 @@ body{font-family:var(--body);font-size:15px;line-height:1.45;margin:0;
 [hidden]{display:none!important}
 button,select{font:inherit;color:inherit}
 .wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-.hud{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
-.brand{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;margin-right:6px}
+/* HUD: fixed grid cells, so nothing appearing or changing inside it can move the game window */
+.hud{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));align-items:stretch;gap:8px}
+.hud>*{min-width:0;height:48px}
+.hud .stat b,.hud .stat .lbl{overflow:hidden;text-overflow:ellipsis}
+.brand{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
 .brand i{width:12px;height:12px;border-radius:50%;background:var(--buoy);box-shadow:0 0 0 3px #ff6a3d33;display:inline-block}
 .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 11px;display:flex;flex-direction:column;justify-content:center;min-width:0}
 .stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
@@ -27,9 +30,9 @@ button,select{font:inherit;color:inherit}
 .coin::before{content:"";display:inline-block;width:.7em;height:.7em;border-radius:50%;background:var(--gold);margin-right:5px;vertical-align:.02em;box-shadow:inset -2px -2px 0 #c9902a}
 .xpbar{height:5px;border-radius:3px;background:#0a161d;margin-top:4px;overflow:hidden;min-width:90px}
 .xpbar i{display:block;height:100%;background:var(--kelp);width:0}
-.baitsel select{background:transparent;border:0;font-family:var(--display);font-weight:700;font-size:15px;padding:0;cursor:pointer;max-width:170px}
+.baitsel select{background:transparent;border:0;font-family:var(--display);font-weight:700;font-size:15px;padding:0;cursor:pointer;width:100%;min-width:0}
 .baitsel select option{background:var(--panel)}
-.ghost{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 12px;cursor:pointer;margin-left:auto}
+.ghost{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 12px;cursor:pointer;font-family:var(--display);font-weight:700}
 .ghost:hover{border-color:var(--kelp)}
 .stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0d2430;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{display:block;width:100%;cursor:pointer}
@@ -55,8 +58,10 @@ canvas{display:block;width:100%;cursor:pointer}
 .quote{font-style:italic}
 .hint{margin:0;color:var(--muted);text-align:center;min-height:1.4em}
 .hint b{color:var(--ink)}
-.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
-.tabs button{background:transparent;border:1px solid transparent;border-radius:9px;padding:6px 11px;cursor:pointer;font-family:var(--display);font-weight:700;font-size:15px;color:var(--muted)}
+/* tab strip: one scrollable row that sticks to the top while you browse a panel */
+.tabs{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);padding:8px 0;position:sticky;top:0;z-index:5;background:var(--bg);-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:0 0 auto;background:transparent;border:1px solid transparent;border-radius:999px;padding:7px 14px;cursor:pointer;font-family:var(--display);font-weight:700;font-size:15px;color:var(--muted);white-space:nowrap}
 .tabs button[aria-selected="true"]{background:var(--panel);border-color:var(--line);color:var(--ink)}
 .tabs button .dot{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--buoy);color:#1a0d08;font-size:12px;line-height:18px}
 .tabs button:focus-visible,.btn:focus-visible,.ghost:focus-visible,.sw:focus-visible,.jcard:focus-visible{outline:2px solid var(--kelp);outline-offset:2px}
@@ -126,21 +131,53 @@ textarea{width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--l
 textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 .offer canvas{width:64px;height:64px;cursor:default}
 @media (max-width:640px){.stylewrap{grid-template-columns:1fr}.detail{grid-template-columns:1fr}.detail canvas{margin:0 auto}}
-@media (max-width:560px){.fishrow{grid-template-columns:48px 1fr auto}.fishrow canvas{width:48px;height:24px}.fishrow .acts{grid-column:1/-1}.brand{width:100%}.ghost{margin-left:0}}
+.evcard .in{width:min(440px,100%)}
+.chests{display:flex;gap:12px;justify-content:center;margin:12px 0}
+.chests button{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:6px;cursor:pointer}
+.chests button:hover{border-color:var(--gold)}
+.chests canvas{width:96px;height:72px;pointer-events:none}
+.setrow{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;align-items:center;margin:6px 0}
+.setrow input[type=range]{width:100%;accent-color:var(--buoy)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.toggle button{min-width:64px}
+.wheelwrap{display:flex;flex-direction:column;align-items:center;gap:8px}
+.wheelwrap canvas{width:260px;height:260px;cursor:default}
+.scratch{display:grid;grid-template-columns:repeat(3,56px);gap:6px;justify-content:center}
+.scratch button{height:56px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(135deg,#8a96a0,#c8d0d8);font-size:26px;cursor:pointer}
+.scratch button.open{background:var(--panel2);cursor:default}
+.reveal canvas{width:120px;height:90px;cursor:default;margin:0 auto}
+@media (pointer:coarse){.btn{min-height:40px}.btn.sm{min-height:36px}.chipb{min-height:36px;padding:6px 13px}.tabs button{padding:9px 16px}}
+@media (max-width:700px){
+  body{padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));padding-top:10px}
+  .wrap{gap:8px}
+  .hud{grid-template-columns:repeat(4,1fr);gap:6px}
+  .hud>*{height:44px}
+  .hud .brand,.hud .opt{display:none}
+  .hud .loc{grid-column:span 2}
+  .stat{padding:4px 9px;border-radius:9px}
+  .stat b{font-size:14px}
+  .ghost{padding:4px 8px;font-size:13px}
+  .stage{border-radius:12px}
+  .grid{grid-template-columns:1fr 1fr;gap:8px}
+  .tile{padding:10px}
+  h2{font-size:17px}
+}
+@media (max-width:480px){.grid{grid-template-columns:1fr}.jgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.jcard canvas{width:84px;height:42px}}
+@media (max-width:560px){.fishrow{grid-template-columns:48px 1fr auto}.fishrow canvas{width:48px;height:24px}.fishrow .acts{grid-column:1/-1}.setrow{grid-template-columns:110px 1fr 40px}}
 </style>
 
 <div class="wrap">
   <header class="hud">
     <div class="brand"><i></i>Driftline</div>
     <div class="stat"><span class="lbl">Coins</span><b class="coin" id="money">0</b></div>
-    <div class="stat"><span class="lbl">Angler level <b id="lvl" style="font-size:12px">1</b></span><div class="xpbar"><i id="xpfill"></i></div></div>
-    <div class="stat"><span class="lbl">Fishing at</span><b id="locname">Willow Pond</b></div>
-    <div class="stat"><span class="lbl" id="todnext">Time</span><b id="tod">Day</b></div>
-    <div class="stat" id="wxchip" title=""><span class="lbl" id="wxnext">Weather</span><b id="wx">Clear</b></div>
+    <div class="stat"><span class="lbl">Level <b id="lvl" style="font-size:12px">1</b></span><div class="xpbar"><i id="xpfill"></i></div></div>
+    <div class="stat loc"><span class="lbl">Fishing at</span><b id="locname">Willow Pond</b></div>
+    <div class="stat opt"><span class="lbl" id="todnext">Time</span><b id="tod">Day</b></div>
+    <div class="stat opt" id="wxchip" title=""><span class="lbl" id="wxnext">Weather</span><b id="wx">Clear</b></div>
     <div class="stat"><span class="lbl">Cooler</span><b id="coolerct">0 / 8</b></div>
-    <div class="stat" id="buffchip" hidden title=""><span class="lbl">Boosts</span><b id="buffct" style="color:var(--kelp)">0</b></div>
+    <div class="stat" id="buffchip" title=""><span class="lbl">Boosts</span><b id="buffct">None</b></div>
     <label class="stat baitsel"><span class="lbl">Bait</span><select id="bait"></select></label>
-    <button class="ghost" id="mute" type="button">Sound: off</button>
+    <button class="ghost" id="settingsbtn" type="button">⚙ Settings</button>
   </header>
 
   <div class="stage" id="stage">
@@ -157,6 +194,7 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
         <div class="tap">Click or press Space to keep fishing</div>
       </div>
     </div>
+    <div class="card evcard" id="evcard" hidden><div class="in" id="evin"></div></div>
   </div>
   <p class="hint" id="hint"></p>
 
@@ -171,7 +209,9 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
     <button role="tab" data-tab="map" aria-selected="false">Waters</button>
     <button role="tab" data-tab="style" aria-selected="false">Wardrobe</button>
     <button role="tab" data-tab="pets" aria-selected="false">Pets</button>
+    <button role="tab" data-tab="games" aria-selected="false">Boardwalk</button>
     <button role="tab" data-tab="save" aria-selected="false">Save</button>
+    <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
   </nav>
   <section id="panel" role="tabpanel"></section>
 </div>

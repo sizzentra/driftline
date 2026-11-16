@@ -16,21 +16,22 @@ function hud(){
   const p=phase(), nf=nextFlip(), wx=weather(), wl=wxLeft(); const key=[S.money,S.lvl,S.xp,S.loc,S.cooler.length,tod(p),nf.s,wx.k,wl,G.st,ptsFree(),lastBuffN].join('|');
   setHint();
   if(key===lastHud) return; lastHud=key;
-  $('money').textContent=fmt(S.money); $('lvl').textContent=S.lvl; $('xpfill').style.width=(S.xp/xpNeed(S.lvl)*100)+'%';
+  $('money').textContent=fmtShort(S.money); $('money').title=fmt(S.money)+' coins'; $('lvl').textContent=S.lvl; $('xpfill').style.width=(S.xp/xpNeed(S.lvl)*100)+'%';
   $('locname').textContent=curLoc().name; $('tod').textContent=tod(p); $('todnext').textContent=nf.label+' '+mmss(nf.s);
   $('wx').textContent=wx.k; $('wxnext').textContent='Changes in '+mmss(wl); $('wxchip').title=wx.note; $('wx').style.color = wx.k==='Gilded'?'var(--gold)':wx.k==='Storm'?'#9fb4ff':'';
   if(wx.k!==lastWx){ if(lastWx) toast('Weather: '+wx.k+'. '+wx.note); lastWx=wx.k; }
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
-  const ab=activeBuffs(); $('buffchip').hidden=!ab.length; $('buffct').textContent=ab.length; $('buffchip').title=ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n');
+  const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
   T.querySelector('[data-tab="cooler"]').innerHTML='Cooler'+dot(S.cooler.length);
   T.querySelector('[data-tab="bounties"]').innerHTML='Bounties'+dot(S.bounties.filter(b=>bDone(b)).length);
   T.querySelector('[data-tab="skills"]').innerHTML='Skills'+dot(ptsFree());
 }
-let lastHint='';
+let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M'; return (n/1e9).toFixed(2)+'B'; }
 function setHint(){ let h='';
   switch(G.st){
-    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
+    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
     case 'charging': h='Release to cast. A <b>far cast</b> or a <b>hotspot</b> improves your odds.'; break;
     case 'flying': h='&nbsp;'; break;
     case 'waiting': h='Watch the bobber. Small twitches are nibbles: <b>wait for the big splash</b>.'; break;
@@ -38,7 +39,9 @@ function setHint(){ let h='';
     case 'reeling': h='<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
     case 'landing': h='Pulling it out…'; break;
     case 'result': h='Nice catch.'; break;
-  } if(h!==lastHint){ $('hint').innerHTML=h; lastHint=h; } }
+    case 'frenzy': h='<b>Tap the leaping fish!</b>'; break;
+    case 'event': h='&nbsp;'; break;
+  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ $('hint').innerHTML=h; lastHint=h; } }
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------
@@ -48,7 +51,7 @@ function showCard(o){
   $('cardnums').innerHTML=o.nums.map(n=>`<div><span>${esc(n[0])}</span><b${n[2]?' class="coin"':''}>${esc(n[1])}</b></div>`).join('');
   if(o.html) $('carddesc').innerHTML=o.desc; else $('carddesc').textContent=o.desc;
   $('cardbadges').innerHTML=o.badges.map(b=>`<span class="badge ${b[0]}">${esc(b[1])}</span>`).join(''); $('card').hidden=false; }
-function hideCard(){ $('card').hidden=true; G.st='idle'; }
+function hideCard(){ $('card').hidden=true; G.st='idle'; afterCard(); }
 $('card').addEventListener('pointerdown',e=>{ e.stopPropagation(); hideCard(); });
 
 // ---------- bounties ----------
@@ -69,15 +72,16 @@ function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.s
 let confirmBox = null, encLoc = null, encSel = null;
 function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('tabs').children) b.setAttribute('aria-selected', b.dataset.tab===t?'true':'false'); renderPanel(); }
 $('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); } });
-function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave}[S.tab]||renderCooler; fn(P); }
+function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderGames, settings:renderSettings}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
 function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
 
+const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
 function renderCooler(P){
-  const total=S.cooler.reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < S.tankSlots; const dm=demandSp();
+  const total=S.cooler.filter(f=>!isProtected(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < S.tankSlots; const dm=demandSp();
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
-  <button class="btn" data-act="sellall" ${S.cooler.length?'':'disabled'}>Sell all for <span class="coin">${fmt(total)}</span></button></div>
+  <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell all${S.settings.protectRare&&S.cooler.some(isProtected)?' but rare':''} for <span class="coin">${fmt(total)}</span></button></div>
   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;gap:12px"><canvas width="128" height="64" data-fish="${dm.id}" style="width:64px;height:32px"></canvas>
   <div style="min-width:0"><b>The fishmonger wants ${dm.name}</b> <span class="meta">(${LOCS[locIdx(dm.loc)].name})</span><div class="meta">Pays double for it until the weather changes (<span id="dmleft">${mmss(wxLeft())}</span>).</div></div></div>`+
   (S.cooler.length ? '<div class="list">'+S.cooler.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
@@ -124,8 +128,8 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   (S.tank.length ? '<div class="list">'+S.tank.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span></small></div>
    <div class="val"><span class="coin">${fmt(fishRate(f)*60)}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
-   : '<div class="empty">No fish on display yet. In the Cooler, press <b>To aquarium</b> on a fish you want to keep.</div>');
-  paintFish(P);
+   : '<div class="empty">No fish on display yet. In the Cooler, press <b>To aquarium</b> on a fish you want to keep.</div>') + aqCustomHTML();
+  paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
   P.innerHTML=`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
@@ -160,15 +164,20 @@ function renderJournal(P){
       <h2>${j?sel.name:'Not caught yet'}</h2><p class="sub">${j?sel.note:'Keep fishing '+L.name+(sel.time!=='any'?' at '+(sel.time==='night'?'night':'day'):'')+'.'}</p>
       <div class="kv" style="margin-top:8px"><div><span>Best weight</span> ${j?kgStr(j.best):'—'}</div><div><span>Best sale value</span> ${j&&j.bv?'<span class="coin">'+fmt(j.bv)+'</span>':'—'}</div><div><span>Times caught</span> ${j?fmt(j.n):0}</div>
       <div><span>Size range</span> ${kgStr(sel.min)}–${kgStr(sel.max)}</div><div><span>Active</span> ${sel.time==='any'?'Day and night':sel.time==='night'?'Night only':'Day only'}</div><div><span>Strength</span> ${sel.str}</div>
+      <div><span>Mastery</span> <span class="sh">${starStr(mastery(sel.id))}</span> +${mastery(sel.id)*10}%${mastery(sel.id)<4?` · next at ${MASTERY[mastery(sel.id)]}`:''}</div>
       <div><span>Fights like a</span> ${B.n.toLowerCase()}</div><div><span>Temper</span> ${'●'.repeat(Math.round(sel.aggr*5))+'○'.repeat(5-Math.round(sel.aggr*5))}</div><div><span>In the aquarium</span> ${ae?fmtB(ae.k,ae.v):'—'}</div>
       ${j&&j.first?`<div><span>First caught</span> ${new Date(j.first).toLocaleDateString()}</div>`:''}</div><p class="sub" style="margin-top:6px">${B.d}</p></div></div>`; }
     body=`<div class="row spread" style="margin-top:6px"><span class="sub">${got} / ${list.length} found${S.setDone[L.id]?' · complete':` · find them all for <span class="coin">${fmt(L.bonus)}</span>`}${open?'':' · water locked'}</span><span class="sub">Click a fish for its records</span></div>
       <div class="prog"><i style="width:${got/list.length*100}%"></i></div>${det}
       <div class="jgrid">${list.map(s=>{ const j=S.journal[s.id]; return `<button class="jcard ${encSel===s.id?'sel':''}" data-act="enc" data-k="${s.id}"><canvas width="200" height="100" data-fish="${s.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas>
         <b style="color:${j?RAR[s.r].c:'var(--muted)'}">${j?s.name:'???'}${j&&j.sh?' <span class="sh">✦</span>':''}</b><small>${RAR[s.r].k}${s.time!=='any'?' · '+(s.time==='night'?'night':'day'):''}</small>
-        <small>${j?`Record ${kgStr(j.best)}${j.tr?' 🏆':''}`:(open?'Not caught yet':'Locked')}</small></button>`; }).join('')}</div>`;
+        <small>${j?`Record ${kgStr(j.best)}${j.tr?' 🏆':''}`:(open?'Not caught yet':'Locked')}</small>${j?`<small class="sh">${starStr(mastery(s.id))}</small>`:''}</button>`; }).join('')}</div>`;
   }
-  P.innerHTML=`<div class="row spread"><div><h2>Encyclopedia</h2><p class="sub">${total} of ${SP.length} species found · ${fmt(S.stats.caught)} fish landed · ${S.stats.shiny} shiny · ${S.stats.treasure} junk · ${fmt(S.stats.earned)} coins earned · ${S.stats.snapped} lines snapped</p></div></div>
+  const ts=totalStars(), rk=anglerRank();
+  P.innerHTML=`<div class="tile" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div class="rar" style="color:var(--gold)">Angler rank ${rk}</div><b>${ts} mastery stars</b> <span class="meta">· +${rk}% to every sale</span>
+    <div class="meta">Catch a species 3, 10, 30 and 100 times for its stars. Each star adds +10% to that fish’s value. Every 8 stars is a new rank, with coins and a free Mystery Crate.</div></div>
+    <div style="min-width:120px"><div class="meta">Next rank: ${ts%8} / 8 stars</div><div class="prog"><i style="width:${ts%8/8*100}%"></i></div></div></div>
+  <div class="row spread"><div><h2>Encyclopedia</h2><p class="sub">${total} of ${SP.length} species found · ${fmt(S.stats.caught)} fish landed · ${S.stats.shiny} shiny · ${S.stats.treasure} junk · ${fmt(S.stats.earned)} coins earned · ${S.stats.snapped} lines snapped</p></div></div>
   <div class="chips" style="margin-top:10px">${chips}</div>${body}
   <div class="jsec"><div class="row spread"><span class="sub">Best streak ${S.stats.bestStreak} · ${S.stats.perfect} perfect hooks · ${S.stats.hot} hotspot catches · voyage ${S.tides+1}</span>
   ${confirmBox==='reset'?`<span class="row"><span class="sub" style="color:var(--danger)">Erase everything, including pearls, pets and hats?</span><button class="btn" data-act="resetok" style="background:var(--danger)">Erase progress</button><button class="btn alt" data-act="cancel">Cancel</button></span>`
@@ -259,8 +268,10 @@ function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mo
   <div class="tile"><h4>Load a save code</h4><div class="meta">Paste a code from another device. It replaces the progress on this one.</div><textarea id="loadcode" rows="4" placeholder="Paste a code that starts with DL" aria-label="Save code to load"></textarea>
     ${pendingLoad?`<div class="meta" style="color:var(--danger)">Replace this device’s progress with level ${pendingLoad.lvl}, ${fmt(pendingLoad.money||0)} coins, ${Object.keys(pendingLoad.journal||{}).length} species?</div><div class="row"><button class="btn" data-act="loadok" style="background:var(--danger)">Replace progress</button><button class="btn alt" data-act="cancel">Cancel</button></div>`
     :`<div class="row"><button class="btn alt" data-act="loadsave">Load code</button></div>`}</div>
-  ${window.DL_VERSION?'':'<!--'}<div class="tile"><h4>Install as an app</h4><div class="meta">${isApp?'You are playing the installed app. It updates itself when a new version is out.':'Get a home-screen icon, full-screen play and offline fishing. It updates itself.'}</div>
-    ${isApp?'':window.__dlInstallPrompt?'<button class="btn" data-act="install">Install Driftline</button>':'<div class="meta">iPhone: Share, then <b>Add to Home Screen</b>. Android, Windows or Mac in Chrome or Edge: the install icon in the address bar, or the menu, then <b>Install</b>.</div>'}</div>${window.DL_VERSION?'':'-->'}</div>
+  ${window.DL_DESKTOP?'<div class="tile"><h4>Desktop app</h4><div class="meta">You’re playing the Driftline desktop app. It updates itself and keeps your progress on this PC.</div></div>':''}
+  ${window.DL_VERSION&&!window.DL_DESKTOP?'<div class="tile"><h4>Windows desktop app</h4><div class="meta">A real program with its own window and Start-menu icon. Updates itself.</div><a class="btn" href="download/Driftline-Setup.zip" download style="text-decoration:none;text-align:center">Download for Windows</a><div class="meta">Unzip it and run <b>Driftline.exe</b>. If Windows shows “protected your PC”, click <b>More info</b>, then <b>Run anyway</b>. Your browser progress doesn’t carry over automatically: copy a save code here and load it in the app.</div></div>':''}
+  ${window.DL_VERSION&&!window.DL_DESKTOP?'':'<!--'}<div class="tile"><h4>Install as an app</h4><div class="meta">${isApp?'You are playing the installed app. It updates itself when a new version is out.':'Get a home-screen icon, full-screen play and offline fishing. It updates itself.'}</div>
+    ${isApp?'':window.__dlInstallPrompt?'<button class="btn" data-act="install">Install Driftline</button>':'<div class="meta">iPhone: Share, then <b>Add to Home Screen</b>. Android, Windows or Mac in Chrome or Edge: the install icon in the address bar, or the menu, then <b>Install</b>.</div>'}</div>${window.DL_VERSION&&!window.DL_DESKTOP?'':'-->'}</div>
   ${window.DL_VERSION?`<p class="sub" style="margin-top:10px">Version ${esc(window.DL_VERSION)}</p>`:''}`;
   makeCode().then(c=>{ const t=$('savecode'); if(t) t.value=c; }); }
 
@@ -270,7 +281,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'loadsave': { const v=($('loadcode')||{}).value||''; readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; renderPanel(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
     case 'loadok': { if(!pendingLoad) return; S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; S.tab='save'; offlineIncome(); fillBounties(); toast('Progress loaded. Welcome back!'); break; }
     case 'install': { const ip=window.__dlInstallPrompt; if(!ip) return; ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; renderPanel(); }); return; }
-    case 'sellall': { const tot=earn(S.cooler.reduce((a,f)=>a+salePrice(f),0)); S.cooler=[]; sfx.coin(); toast('Sold for '+fmt(tot)+' coins'); break; }
+    case 'sellall': { const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')); break; }
     case 'sell': { const f=S.cooler[i]; if(!f) return; earn(salePrice(f)); S.cooler.splice(i,1); sfx.coin(); break; }
     case 'totank': { if(S.tank.length>=S.tankSlots) return; const f=S.cooler[i]; if(!f) return; accrue(); S.tank.push(f); S.cooler.splice(i,1); toast(SPI[f.id].name+' is on display'+(aqEff(f)?': '+aqTxt(f):'')); break; }
     case 'untank': { if(S.cooler.length>=gv('cooler')) return; const f=S.tank[i]; if(!f) return; accrue(); S.cooler.push(f); S.tank.splice(i,1); break; }
@@ -299,14 +310,14 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
       if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name); break; }
     case 'pet': if(S.owned.pets.includes(k)){ S.pet=k; toast(PETI[k].name+' is coming with you'); } break;
     case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); S.pet=k; sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
+    default: { if(extraAct(b)==='skip') return; }
   }
   checkFeats(); save(); refreshAll(); });
 
 function renderBait(){ const sel=$('bait'); sel.innerHTML=Object.entries(BAIT).filter(([k])=>k==='worm'||S.bait[k]>0||S.baitSel===k||!BAIT[k].junk).map(([k,b])=>`<option value="${k}" ${S.baitSel===k?'selected':''} ${k!=='worm'&&S.bait[k]<=0?'disabled':''}>${b.name}${k==='worm'?'':' ('+S.bait[k]+')'}</option>`).join(''); }
 $('bait').addEventListener('change',e=>{ S.baitSel=e.target.value; e.target.blur(); save(); if(S.tab==='shop') renderPanel(); });
-function renderMute(){ $('mute').textContent='Sound: '+(S.muted?'off':'on'); }
-$('mute').addEventListener('click',e=>{ S.muted=!S.muted; renderMute(); e.currentTarget.blur(); if(!S.muted){ ac(); sfx.coin(); } save(); });
-function refreshAll(){ lastHud=''; renderBait(); renderMute(); setTab(S.tab||'cooler'); hud(); }
+$('settingsbtn').addEventListener('click',e=>{ e.currentTarget.blur(); startAudio(); setTab('settings'); $('panel').scrollIntoView({behavior:'smooth',block:'start'}); });
+function refreshAll(){ lastHud=''; renderBait(); setTab(S.tab||'cooler'); hud(); }
 
 // ---------- boot ----------
 offlineIncome(); fillBounties(); checkFeats(); refreshAll(); requestAnimationFrame(frame); initCloud();

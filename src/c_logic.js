@@ -7,6 +7,9 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog']}, pet:'dog', junk:{},
+  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', effects:true, boostsOnScreen:true, hints:true, protectRare:true},
+  aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
+  gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0},
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
 let S = fresh();
@@ -22,6 +25,8 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p])};
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});
+  m.settings=Object.assign(fresh().settings,o.settings||{}); const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); m.aq=aq;
+  m.tokens=Object.assign(fresh().tokens,o.tokens||{}); m.gstats=Object.assign(fresh().gstats,o.gstats||{}); delete m.muted;
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
@@ -66,7 +71,7 @@ function aqSum(k){ let s=0; for(const f of S.tank){ const e=aqEff(f); if(e && e.
 const petVal = () => { const p=PETI[S.pet]; return p ? p.v*(1+.1*pr('petpal')) : 0; };
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell')) * coinMult();
+const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank()) * coinMult();
 const xpMult = () => (1 + bonus('xp')) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
@@ -105,10 +110,14 @@ function wxLeft(){ return Math.ceil(WX_LEN - (Date.now()/1000 % WX_LEN)); }
 const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s)%60).padStart(2,'0');
 
 // ---------- audio ----------
-let AC=null;
-function ac(){ if(S.muted) return null; if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
-function tone(f,dur,type='sine',vol=.12,slide=0,delay=0){ const a=ac(); if(!a) return; const t=a.currentTime+delay; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g).connect(a.destination); o.start(t); o.stop(t+dur+.02); }
-function noise(dur,vol=.2,freq=900){ const a=ac(); if(!a) return; const n=a.sampleRate*dur, b=a.createBuffer(1,n,a.sampleRate), d=b.getChannelData(0); for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n); const s=a.createBufferSource(); s.buffer=b; const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq; const g=a.createGain(); g.gain.value=vol; s.connect(f).connect(g).connect(a.destination); s.start(); }
+let AC=null, BUS=null;
+function ac(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)();
+    BUS={master:AC.createGain(), sfx:AC.createGain(), music:AC.createGain(), amb:AC.createGain()}; BUS.master.connect(AC.destination); BUS.sfx.connect(BUS.master); BUS.music.connect(BUS.master); BUS.amb.connect(BUS.master); applyVolumes();
+  }catch(e){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
+function applyVolumes(){ if(!BUS) return; const s=S.settings, t=AC.currentTime; const set=(gn,v)=>{ gn.gain.cancelScheduledValues(t); gn.gain.setTargetAtTime(v,t,.08); };
+  set(BUS.master,s.master); set(BUS.sfx,s.sfx); set(BUS.music,s.musicOn?s.music*.7:0); set(BUS.amb,s.ambient?s.amb*.6:0); }
+function tone(f,dur,type='sine',vol=.12,slide=0,delay=0){ if(!S.settings.sfx||!S.settings.master) return; const a=ac(); if(!a) return; const t=a.currentTime+delay; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g).connect(BUS.sfx); o.start(t); o.stop(t+dur+.02); }
+function noise(dur,vol=.2,freq=900){ if(!S.settings.sfx||!S.settings.master) return; const a=ac(); if(!a) return; const n=a.sampleRate*dur, b=a.createBuffer(1,n,a.sampleRate), d=b.getChannelData(0); for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n); const s=a.createBufferSource(); s.buffer=b; const f=a.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq; const g=a.createGain(); g.gain.value=vol; s.connect(f).connect(g).connect(BUS.sfx); s.start(); }
 const sfx = {
   cast(){ tone(500,.25,'triangle',.05,600); },
   splash(){ noise(.35,.25,700); },
@@ -129,7 +138,7 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
-function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(300,r.width); H=clamp(Math.round(W*.5),250,520); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15; H=clamp(Math.round(W*(portrait?.82:.5)),250,portrait?Math.round(window.innerHeight*.56):520); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -167,7 +176,7 @@ function chooseCatch(){
   const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1);
   const trophy = rel > .9;
   let value = Math.max(1,Math.round(sp.base*Math.pow(kg/((sp.min+sp.max)/2),.85)));
-  if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
+  value=Math.round(value*(1+.1*mastery(sp.id))); if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
   return {kind:'fish', sp, kg, rel, str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, trophy, storm: wx.k==='Storm', hot:G.inHot};
 }
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
@@ -197,6 +206,8 @@ function landFish(){
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
   if(isNew) b.push(['','New species']); if(record) b.push(['g','Personal record']); const ae=aqBase(sp.id); if(ae && isNew) b.push(['k','In the aquarium: '+fmtB(ae.k,ae.v)]);
+  const ms=mastery(sp.id); if(ms && [3,10,30,100][ms-1]===S.journal[sp.id].n) b.push(['g','Mastery '+'★'.repeat(ms)+': +'+ms*10+'% value for this fish']);
+  const rk=checkRank(); if(rk) b.push(['g',rk]);
   if(lvUps) b.push(['g','Level up! Lv '+S.lvl+' · +'+lvUps+' skill point']); bdone.forEach(()=>b.push(['g','Bounty ready'])); if(setNow) b.push(['g',LOCS[locIdx(sp.loc)].name+' complete: +'+fmt(setNow)]);
   showCard({draw:c=>fishCanvas(c,sp,true,f.shiny), shiny:f.shiny, rar:(f.shiny?'Shiny ':'')+RAR[sp.r].k, rarCol:f.shiny?'var(--gold)':RAR[sp.r].c, name:sp.name,
     nums:[['Weight',kgStr(f.kg)],['Worth',fmt(f.value),1],['XP','+'+xp]], desc:sp.note, badges:b});
@@ -283,6 +294,14 @@ const FEATS = [
   {id:'streak10',name:'On a roll',            d:'Reach a catch streak of 10',p:()=>[S.stats.bestStreak,10], coins:1500},
   {id:'streak30',name:'Unbroken line',        d:'Reach a catch streak of 30',p:()=>[S.stats.bestStreak,30], coins:15000, pt:1},
   {id:'demand10',name:'Market regular',       d:'Catch 10 fish the fishmonger wants', p:()=>[S.stats.demand,10], coins:3000},
+  {id:'rank5', name:'Rising angler',          d:'Reach angler rank 5',       p:()=>[anglerRank(),5],      coins:5000, pt:1},
+  {id:'rank20',name:'Master angler',          d:'Reach angler rank 20',      p:()=>[anglerRank(),20],     coins:150000, pt:2},
+  {id:'rank50',name:'Grand master',           d:'Reach angler rank 50',      p:()=>[anglerRank(),50],     coins:2000000, pt:4},
+  {id:'frenzy5',name:'Frenzy fan',            d:'Play 5 fish frenzies',      p:()=>[S.gstats.frenzy,5],   coins:3000},
+  {id:'frenzy100',name:'Fast fingers',        d:'Tap 100 frenzy fish',       p:()=>[S.gstats.frenzyFish,100], coins:20000, pt:1},
+  {id:'star1', name:'Make a wish',            d:'Catch a falling star',      p:()=>[S.gstats.stars,1],    coins:2000, pt:1},
+  {id:'crates10',name:'Crate expectations',   d:'Open 10 Mystery Crates',    p:()=>[S.gstats.crates,10],  coins:10000, pt:1},
+  {id:'decor5',name:'Interior designer',      d:'Place 5 decorations in your aquarium', p:()=>[S.aq.decor.length,5], coins:8000, pt:1},
   {id:'tide1', name:'Second voyage',          d:'Set sail again once',       p:()=>[S.tides,1],           coins:0, pt:2},
   {id:'tide3', name:'Old sea dog',            d:'Set sail again 3 times',    p:()=>[S.tides,3],           coins:0, pt:3},
 ];
@@ -291,14 +310,16 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => f.value*TANK_RATE*(1+.08*pr('keeper'))*(1+bonus('tank'))*coinMult();
+const fishRate = f => f.value*TANK_RATE*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(OFFLINE_CAP_MIN,Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
 
 // ---------- input ----------
-function down(){
+function down(e){
+  if(G.star && starHit(e)) return;
   switch(G.st){
+    case 'frenzy': frenzyHit(e); break;
     case 'idle': startCharge(); break;
     case 'waiting': G.st='idle'; G.inHot=false; breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
     case 'bite': hookIt(); break;
@@ -308,7 +329,7 @@ function down(){
 }
 function up(){ if(G.st==='charging') release(); else if(G.st==='reeling') G.hold=false; }
 const stage=$('stage');
-stage.addEventListener('pointerdown',e=>{ if(e.button>0) return; e.preventDefault(); try{stage.setPointerCapture(e.pointerId);}catch(_){} down(); });
+stage.addEventListener('pointerdown',e=>{ if(e.button>0) return; if(e.target.closest('#evcard')) return; e.preventDefault(); try{stage.setPointerCapture(e.pointerId);}catch(_){} startAudio(); down(e); });
 stage.addEventListener('pointerup',up); stage.addEventListener('pointercancel',up);
 stage.addEventListener('contextmenu',e=>e.preventDefault());
 let spaceDown=false;
@@ -332,6 +353,7 @@ function update(dt){
   // hotspots: ripples on the water where rare fish gather
   if(G.hot){ G.hot.t+=dt; if(G.hot.t>G.hot.life) G.hot=null; }
   else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))}; G.hotNext=rnd(14,32); } }
+  updateEvents(dt);
 }
 function fight(dt){
   const f=G.fish, B=BEH[f.beh]||BEH.calm, line=gv('line'), reel=reelSpeed(); const ratio=clamp(f.str/line,.05,4);
