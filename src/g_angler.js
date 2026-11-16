@@ -231,3 +231,8 @@ if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=docum
 const ROD_IMG3={};
 function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('canvas'); o.width=240; o.height=80; const x=o.getContext('2d'); x.scale(2,2); v3Rod(x,{x:16,y:33},{x:114,y:6},64,22,ROD_I[id],0,0,false); ROD_IMG3[id]=o.toDataURL(); }
   return `<span style="position:relative;display:inline-block;width:120px;height:40px;flex:0 0 auto"><img src="${ROD_IMG3[id]}" width="120" height="40" alt="" style="display:block">${lvl?`<b style="position:absolute;right:0;bottom:-2px;font-size:11px;color:#ffd36a">Lv ${lvl}</b>`:''}</span>`; }
+if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=HATS.map(h=>h[0]||h.id).slice(opts.from||0,opts.to||999), cols=opts.cols||10, cw=opts.cell||110, ch=cw, sc=cw/26;
+  const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(ids.length/cols)*ch; const x=o.getContext('2d');
+  ids.forEach((id,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch);
+    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.5+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle='#cfd8ff'; x.font='9px system-ui'; x.fillText(id,cx+3,cy+10); });
+  window.__post(opts.save||'hats',o.toDataURL()); return ids.length; };

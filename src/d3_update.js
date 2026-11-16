@@ -3,21 +3,38 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.2.2';
+const GAME_VERSION = '0.3';
 const PATCHES = [
- {v:'2.2.2', name:'Small patch', items:[
+ {v:'0.3', name:'The Big Glow-Up', items:[
+  'Every water has been painted again from scratch. Each one has its own landmark, its own wildlife and its own light, from misty mornings through golden evenings to starry nights, and something always moves: birds, ripples, smoke, glimmers on the water.',
+  'You now stand somewhere that fits each water, and every spot is built to match its place.',
+  'Weather looks right in every water: rain, storms, fog and golden hours all sit on top of the new scenery.',
+  'Your angler is rebuilt: a new body, faces with moods, new hairstyles, every outfit redrawn, and a lean into every cast, fight and landing.',
+  'Every pet is redrawn and has more personality. They watch your line, cheer your catches and nap at night. Hats, glasses and capes sit where they should.',
+  'Every fish is redrawn, each with its own body, fins and colours, from tiny minnows to the biggest legends. Your Fish Log, catches and aquarium all show the new designs.',
+  'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight it and when it lands.',
+  'Rods are real gear now. Each one has its own look, with a reel that spins as you wind, and the Rods tab shows them.',
+  'New music: a cozy theme for every water. Pick “Follow the water” in Settings, or choose any theme you like. The old styles are still there.',
+  'New ways to fish, all optional: tap to aim your cast (turn it on in Settings), draw circles on the water or roll the mouse wheel to crank the reel, play with a controller (A casts and reels, the right trigger reels gently), and phones buzz on a bite.',
+  'A fresh look for every menu: softer panels, warm buttons, clearer tabs, gentle animations.',
+  'Home shows your dock in the water you’re fishing in. Wardrobe and Pets have a lit stage for trying things on.',
+  'The aquarium is deeper: light rays, swaying kelp, rising bubbles and rippled sand.',
+  'Waters shows a little painting of every water.',
+  'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
+  'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
+ {v:'0.2.2.2', name:'Small patch', items:[
   'Phones held sideways: a new button on the edge of the water hides the menus so the water fills the screen, and brings them back. It remembers your choice.' ]},
- {v:'2.2.1', name:'Quick fix', items:[
+ {v:'0.2.2.1', name:'Quick fix', items:[
   'Sending progress with a 6-digit code now works on every network. Before, it could fail to connect on some home Wi-Fi and phone connections.',
   'Your code now stays valid for 3 hours, so there’s no rush to type it in.',
   'The Save tab explains the new way to move your progress.' ]},
- {v:'2.2', name:'Closer Together', items:[
+ {v:'0.2.2', name:'Closer Together', items:[
   'Moving progress between phone and PC is much easier, in both directions: tap Send on the device with your progress and type its 6-digit code on the other one. Phones can scan the code instead. Works for any amount of progress, no matter how far you’ve come.',
   'The old “progress is too big for a QR code” problem is gone.',
   'Links still work as a backup, under “Other ways” in the Save tab.',
   'The Settings shortcut now opens moving progress and save codes.',
   'A gift code box in Settings, for when a friend has something special for you.' ]},
- {v:'2.1', name:'More of Everything', items:[
+ {v:'0.2.1', name:'More of Everything', items:[
   '21 new fish across every water. A few of them are very chill. One is an absolute unit.',
   '10 new pets: some in the pet shop, some in crates, one at the Prize Counter.',
   'Two pets at once: pick a ★ favourite that is always with you and bonds faster, plus a companion that tags along. Pet either one on the dock.',
@@ -37,7 +54,7 @@ const PATCHES = [
   'Send to my other device: one link (or a QR code) moves your progress between PC and phone. Find it in the Save tab.',
   'All tabs now fit on one screen as a tidy icon grid. No more sideways scrolling. The Encyclopedia is now called the Fish Log.',
   'Settings has a shortcut straight to your save codes.' ]},
- {v:'2.0', name:'Driftline 2.0: Home Waters', items:[
+ {v:'0.2', name:'Home Waters', items:[
   'Two new waters at the far end of the map, for anglers who think they’ve seen it all.',
   '40 new fish live in them, including a few legends and something rarer still.',
   'Home: your dock now goes with you everywhere. Choose its wood, add up to 8 decorations, and the cozier it gets, the better you fish.',
@@ -50,19 +67,19 @@ const PATCHES = [
   'Phones in landscape now get a side-by-side layout, with the water on the left and menus on the right.',
   'Every tab has an icon now, and buttons, cards and panels got a polish.',
   'New feats for all of the above.' ]},
- {v:'1.7', name:'Try Before You Buy', items:[
+ {v:'0.1.7', name:'Try Before You Buy', items:[
   'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
   'Prize Counter items now show a picture, and the wearable ones can be previewed.',
   '14 new shirt patterns are rotating into the clothing shop.',
   'The fishing vest, life jacket and captain’s coat can now be any colour.' ]},
- {v:'1.6', name:'Choices & Skies', items:[
+ {v:'0.1.6', name:'Choices & Skies', items:[
   'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
   'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
   'Wisdom Pearls can now be traded for permanent relics. Choose wisely.',
   'Keep an eye on the sky. Some rare weather has been spotted, and it isn’t subtle.',
   'The harbourmaster has new kinds of bounties, and now pays in Scales too.',
   'The update banner now tells you which update is waiting.' ]},
- {v:'1.5', name:'Rods, Pals & the Big Boardwalk', items:[
+ {v:'0.1.5', name:'Rods, Pals & the Big Boardwalk', items:[
   'Pets can now be named, dyed and dressed up. They also really like being petted. Try tapping yours.',
   'Pets you pet often grow closer to you, and their bonus grows with them.',
   'A new Rods tab: a whole collection of rods, attachments and upgrades. Not every rod is for sale…',
@@ -78,11 +95,11 @@ const PATCHES = [
   'Bigger game window on large screens and in full screen.',
   'Resetting your progress now needs a typed confirmation, and keeps a backup you can restore.',
   'Patch notes! Hello.' ]},
- {v:'1.4', name:'The Boardwalk', items:['Settings with volume controls.','Cozy music and nature sounds.','Aquarium decorating and feeding.','Mastery stars and angler ranks.','Surprise mini-games.','The Boardwalk opens.','Lots of new pets.','A cleaner layout for phones.','A Windows desktop app.','The top bar no longer jumps around.']},
- {v:'1.3', name:'Take It With You', items:['Install Driftline as an app.','Plays offline and updates itself.','Save codes to move your progress between devices.']},
- {v:'1.2', name:'The Big Catch', items:['Three new waters.','Many more fish, each with its own fighting style.','Junk, oddities and treasure.','Hotspots.','Aquarium boosts.','A wardrobe, hats and pets.','The encyclopedia.']},
- {v:'1.1', name:'Deeper Waters', items:['Skills, the aquarium, weather, feats and voyages.']},
- {v:'1.0', name:'First Cast', items:['Driftline launches. Welcome to the water.']},
+ {v:'0.1.4', name:'The Boardwalk', items:['Settings with volume controls.','Cozy music and nature sounds.','Aquarium decorating and feeding.','Mastery stars and angler ranks.','Surprise mini-games.','The Boardwalk opens.','Lots of new pets.','A cleaner layout for phones.','A Windows desktop app.','The top bar no longer jumps around.']},
+ {v:'0.1.3', name:'Take It With You', items:['Install Driftline as an app.','Plays offline and updates itself.','Save codes to move your progress between devices.']},
+ {v:'0.1.2', name:'The Big Catch', items:['Three new waters.','Many more fish, each with its own fighting style.','Junk, oddities and treasure.','Hotspots.','Aquarium boosts.','A wardrobe, hats and pets.','The encyclopedia.']},
+ {v:'0.1.1', name:'Deeper Waters', items:['Skills, the aquarium, weather, feats and voyages.']},
+ {v:'0.1.0', name:'First Cast', items:['Driftline launches. Welcome to the water.']},
 ];
 
 // ---------- quips: a little humour, never the main event ----------

@@ -35,8 +35,8 @@ body.v3 .coin::before{ background:radial-gradient(circle at 35% 30%,#fff2b8,#ffd
 body.v3 .tabs{ background:linear-gradient(180deg,#0a1220f2 70%,#0a122000); border-bottom:0; padding:10px 2px 12px; gap:6px }
 body.v3 .tabs{ grid-template-columns:repeat(auto-fill,minmax(92px,1fr)) }
 body.v3 .tabs button{ border-radius:14px; border:1px solid var(--line); background:var(--glass); box-shadow:var(--lit); color:#a9bdd4; padding:7px 4px; transition:background .15s, color .15s, box-shadow .15s, border-color .15s }
-@media (max-width:520px){ body.v3 .tabs{ grid-template-columns:repeat(6,minmax(0,1fr)) } body.v3 .tabs button{ padding:5px 2px } }
-@media (orientation:landscape) and (max-height:560px){ body.v3 .tabs{ grid-template-columns:repeat(6,minmax(0,1fr)) } body.v3 .tabs button{ padding:3px 2px } }
+@media (max-width:520px){ body.v3 .tabs{ grid-template-columns:repeat(6,minmax(0,1fr)) } body.v3 .tabs button{ padding:5px 1px; font-size:clamp(8.6px,2.5vw,10.5px); letter-spacing:-.03em } body.v3 .tabs .tl{ text-overflow:clip } }
+@media (orientation:landscape) and (max-height:560px){ body.v3 .tabs{ grid-template-columns:repeat(5,minmax(0,1fr)) } body.v3 .tabs button{ padding:3px 1px; font-size:9.5px; letter-spacing:-.03em } body.v3 .tabs .tl{ text-overflow:clip } }
 body.v3 .tabs button:hover{ background:#16243a; color:var(--ink) }
 body.v3 .tabs button[aria-selected="true"]{ background:linear-gradient(180deg,#24395a,#18273f); border-color:#5a7ea866; color:#fff; box-shadow:var(--lit), 0 0 0 1px #ffd36a1f, 0 6px 18px #02060f88, 0 0 22px #ffd36a1a }
 body.v3 .tabs button .dot{ background:linear-gradient(180deg,#ffb36a,#ff7a4a); color:#2a1206; box-shadow:0 0 10px #ff8a5c88 }
