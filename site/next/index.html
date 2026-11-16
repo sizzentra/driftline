@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1528';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1551';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -274,7 +274,8 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 .xfmore{margin-top:10px}.xfmore summary{cursor:pointer;color:var(--mute,#9fb3bd);font-weight:700}
 .sidetog{display:none}
 @media (orientation:landscape) and (max-height:560px){.sidetog{display:flex;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:58px;border-radius:10px;background:rgba(5,14,20,.62);color:#fff;border:1px solid rgba(255,255,255,.18);font:700 22px/1 system-ui;align-items:center;justify-content:center;z-index:6;padding:0;cursor:pointer;touch-action:manipulation}
-body.side-off .wrap{grid-template-columns:minmax(0,1fr)}body.side-off .tabs,body.side-off #panel{display:none!important}body.side-off .stage{grid-column:1 / -1}}
+body.side-off .wrap{grid-template-columns:minmax(0,1fr)}body.side-off .tabs,body.side-off #panel{display:none!important}body.side-off .stage{grid-column:1 / -1}
+body.side-wide .wrap{grid-template-columns:minmax(0,.62fr) minmax(0,1.38fr)}}
 </style>
 
 <div class="wrap">
@@ -902,7 +903,7 @@ const WEATHERS = [
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
   {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
   {k:'Blood Moon', w:3, rare:1.2, str:1.35, note:'Legendary odds way up, but everything fights much harder.'},
-  {k:'Fish Rain', w:3, bite:2.5, treasure:2, note:'It is literally raining fish. Bites ×2.5, junk ×2.'},
+  {k:'Spawning Run', w:3, bite:2.5, rare:.2, note:'Shoals are running up from the deep. Fish leap everywhere: bites ×2.5 and a few more rare fish.'},
 ];
 const WX_LEN = 240;
 const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,3000000,6000000,12000000,25000000];
@@ -1003,7 +1004,7 @@ const PATTERNS = [['none','Plain',0],['stripes','Sailor Stripes',1200],['flannel
   ['fishbones','Fish Bones',2800],['leopard','Leopard',3200],['tiedye','Tie-dye',3800],['pixel','Pixel Art',4400],['sunset','Sunset Fade',5200],['galaxy','Galaxy',7500],['sixseven','6-7 Print',6700]];
 const SKINS = ['#f6d7b8','#e8b98f','#c98d5f','#9a6440','#6b4128'];
 const HAIRS = ['#2a1d14','#5a3a22','#a8742e','#e8cd80','#b8b8b8','#c0402a'];
-const SHOP_LEN = 600; // seconds per clothing-shop rotation
+const SHOP_LEN = 1200; // seconds per clothing-shop rotation
 // pets: id, name, bonus key, value, source, price / hint
 const PETS = [
  ['dog','Dog','xp',.05,'start',0,'Your loyal first mate.'],
@@ -1087,15 +1088,15 @@ const SHOES = [['boots','Work boots',0,'start'],['sneakers','Sneakers',0,'start'
   ['slippers','Bunny slippers',1100,'shop'],['flippers','Swim flippers',1800,'shop'],['moonboots','Moon boots',2600,'shop'],['snowboots','Snow boots',1500,'shop'],['combat','Combat boots',2000,'shop'],
   ['brogues','Brogues',1700,'shop'],['rollers','Roller skates',3200,'shop'],['geta','Wooden geta',1300,'shop'],['heeled','Heeled boots',2400,'shop'],['glowkicks','Glow kicks',4800,'shop'],
   ['barefoot','Barefoot',0,'start'],['socksand','Socks and sandals',600,'bw'],['pirateb','Pirate boots',3600,'shop'],['astrob','Astro boots',5200,'shop'],['ducky','Duck feet',2900,'bw'],
-  ['fishfeet','Fish shoes',6700,'bw'],['clownshoes','Clown shoes',3300,'bw']];
+  ['fishfeet','Fish shoes',6700,'bw'],['clownshoes','Clown shoes',3300,'bw'],['tidetreads','Tide Treads',0,'pass']];
 const NECKS = [['none','Nothing',0,'start'],['scarf','Wool scarf',600,'shop'],['stripescarf','Striped scarf',900,'shop'],['longscarf','Long knit scarf',1600,'shop'],['bandana','Neck bandana',500,'shop'],
   ['bowtie','Bow tie',800,'shop'],['tie','Necktie',700,'shop'],['lei','Flower lei',1200,'shop'],['shells','Shell necklace',1000,'shop'],['medal','Gold medal',2500,'shop'],['pearls','Pearl necklace',3000,'shop'],
-  ['whistle','Lifeguard whistle',650,'shop'],['ascot','Ascot',1800,'shop'],['cowl','Cozy cowl',1400,'shop'],['boa','Feather boa',2700,'bw'],['goldchain','Big gold chain',6700,'bw'],['fishneck','Fish on a string',4200,'bw']];
+  ['whistle','Lifeguard whistle',650,'shop'],['ascot','Ascot',1800,'shop'],['cowl','Cozy cowl',1400,'shop'],['boa','Feather boa',2700,'bw'],['goldchain','Big gold chain',6700,'bw'],['fishneck','Fish on a string',4200,'bw'],['tidescarf','Tide Scarf',0,'pass']];
 const BACKS = [['none','Nothing',0,'start'],['backpack','Backpack',1500,'shop'],['tacklepack','Tackle backpack',2600,'shop'],['creel','Fishing creel',1800,'shop'],['netback','Landing net',1200,'shop'],
   ['cape','Hero cape',3000,'shop'],['royalcape','Royal cape',7500,'shop'],['tatteredcape','Tattered cloak',2400,'shop'],['starcape','Starry cape',9000,'shop'],['scuba','Scuba tank',4400,'shop'],
   ['jetpack','Jetpack',12000,'shop'],['angelwings','Angel wings',8000,'shop'],['butterfly','Butterfly wings',5600,'shop'],['batwings','Bat wings',5200,'shop'],['dragonwings','Dragon wings',14000,'shop'],
   ['sharkfin','Shark fin',3800,'bw'],['turtleshell','Turtle shell',4600,'bw'],['rodquiver','Rod quiver',2200,'shop'],['lanternpole','Lantern pole',3400,'shop'],['guitar','Guitar',4000,'shop'],
-  ['plushpack','Plush fish backpack',3100,'bw'],['flagpole','Banner flag',2800,'bw']];
+  ['plushpack','Plush fish backpack',3100,'bw'],['flagpole','Banner flag',2800,'bw'],['tidecape','Tide Cape',0,'pass'],['shellpack','Seashell Pack',0,'pass'],['tidewings','Tide Wings',0,'pass']];
 const SHOEI=Object.fromEntries(SHOES.map(x=>[x[0],x])), NECKI=Object.fromEntries(NECKS.map(x=>[x[0],x])), BACKI=Object.fromEntries(BACKS.map(x=>[x[0],x]));
 
 // ---------- state ----------
@@ -2484,6 +2485,12 @@ const PATCHES = [
   'Catfish and gar look like catfish and gar. Willow trees look like willows, and the shores are greener.',
   'Things you have not found yet stay a mystery: no more shapes giving them away.',
   'Fish Log is sorted by rarity and shows your smallest catch too. Shops list everything from cheapest to most expensive.',
+  'The Boardwalk is rebuilt: a night pier with a Ferris wheel and lanterns, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
+  'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
+  'The Tide Pass is a longer climb with better rewards: a Tide-only item every five levels, including new Tide shoes, a scarf, a cape, a shell backpack and, at the very end, Tide Wings. Every reward shows exactly what you get, and the next big one is shown up top.',
+  'The clothing shop is curated now: a featured piece and a mix of hats, shoes, back pieces and more every 20 minutes, and never anything you already own.',
+  'Fish Rain is gone. In its place: Spawning Run, when shoals leap from the water and bites come fast.',
+  'Phones held sideways: the arrow on the water now has three steps: wider menus, hidden menus, and back.',
   'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
   'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
   'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
@@ -3092,8 +3099,14 @@ let fishRain=null;
 function drawWeatherX(t,wx,hz){ if(!S.settings.effects) return;
   if(wx.k==='Aurora'){ for(let b=0;b<3;b++){ g.strokeStyle=['rgba(90,255,170,','rgba(160,120,255,','rgba(90,220,255,'][b]+'.22)'; g.lineWidth=16-b*4; g.beginPath(); for(let x=0;x<=W;x+=12){ const y=hz*(.2+b*.12)+Math.sin(x*.008+t*.4+b)*hz*.08+Math.sin(x*.02+t*.7)*6; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); } }
   if(wx.k==='Blood Moon'){ g.fillStyle='rgba(140,10,30,.16)'; g.fillRect(0,0,W,H); const gr=g.createRadialGradient(W*.8,hz*.35,4,W*.8,hz*.35,40); gr.addColorStop(0,'rgba(255,90,80,.95)'); gr.addColorStop(.5,'rgba(200,30,40,.6)'); gr.addColorStop(1,'rgba(200,30,40,0)'); g.fillStyle=gr; g.beginPath(); g.arc(W*.8,hz*.35,40,0,7); g.fill(); }
-  if(wx.k==='Fish Rain'){ if(!fishRain) fishRain=Array.from({length:26},()=>[Math.random(),Math.random(),.6+Math.random()*.8,Math.floor(Math.random()*6)]); const cols=['#ffb04a','#5aa9ff','#7fc8a9','#ff7a9a','#ffd84a','#c38bff'];
-    for(const f of fishRain){ const x=(f[0]*W+t*20*f[2])%W, y=((f[1]*H+t*170*f[2])%(H+30))-15; g.save(); g.translate(x,y); g.rotate(1.2+Math.sin(t*3+f[0]*9)*.4); drawFish(g,0,0,12*f[2],cols[f[3]],'#fff6e0',.4,t*14,false,{}); g.restore(); } } }
+  // Spawning Run: silvery fish leap out of the water in short arcs and splash back, ripples spreading where they land
+  if(wx.k==='Spawning Run'){ if(!fishRain) fishRain=Array.from({length:9},(_,i)=>[Math.random(),.25+Math.random()*.7,1.1+Math.random()*.9,i*.7+Math.random()*3]);
+    for(const f of fishRain){ const per=f[2]+1.6, k=((t+f[3])%per)/f[2]; const x0=W*(.28+f[0]*.68), y0=hz+(H-hz)*f[1]*.85, s=.55+f[1]*.9, arcW=W*.05*s, arcH=H*.07*s;
+      if(k<=1){ const x=x0+arcW*k, y=y0-Math.sin(k*Math.PI)*arcH, a=Math.atan2(-Math.cos(k*Math.PI)*arcH*Math.PI, arcW);
+        g.save(); g.translate(x,y); g.rotate(a); drawFish(g,0,0,14*s,'#c8d4e0','#f4f8ff',.4,t*16,false,{}); g.restore();
+        g.fillStyle='rgba(255,255,255,.8)'; g.fillRect(x+2,y-2,1.6,1.6); }
+      const kr=k-1; if(kr>0&&kr<1.2){ const e=kr/1.2; g.strokeStyle='rgba(235,245,255,'+(.55*(1-e))+')'; g.lineWidth=1.2; g.beginPath(); g.ellipse(x0+arcW,y0,3+e*16*s,1+e*5*s,0,0,7); g.stroke(); }
+      if(k<.12||(k>.9&&k<1.05)){ const sx=k<.5?x0:x0+arcW; g.fillStyle='rgba(235,245,255,.7)'; for(let i=0;i<4;i++) g.fillRect(sx-4*s+i*2.6*s,y0-2-((i*7)%5)*s,1.4,1.4); } } } }
 
 // ---------- bounties with more variety ----------
 const STYLE_BOUNTY = ['jump','run','thrash','dive','sulk','dart'];
@@ -3268,30 +3281,46 @@ function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.sc
   }
   c.restore(); }
 
-// ---------- Tide Pass ----------
+// ---------- Tide Pass (0.3: a longer climb, a Tide-only item every five levels, every reward spelled out) ----------
 const PASS_MAX = 50;
-const passNeed = L => 120 + L*25;
+const passNeed = L => Math.round(180 + L*45 + L*L*.8);
 const PASS_XP = [8,14,30,60,150,400];
-const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag (dock)'],8:['tint','tidal','Tidal pet colour'],12:['hat','tidecap','Tide Cap (hat)'],18:['dock','shipwheel','Ship’s Wheel (dock)'],25:['wood','pearl','Pearl dock wood'],30:['out','tidecoat','Tide Coat (outfit)'],40:['dock','minilight','Tiny Lighthouse (dock)'],50:['legend','','Legendary Mystery Crate']};
-function passReward(L){ if(PASS_SPECIAL[L]) return PASS_SPECIAL[L][2]; if(L>PASS_MAX) return 'Coins and 15 Scales'; return ['Big Mystery Crate','Coins','10 Scales','60 tickets','Small Mystery Crate'][L%5]; }
+const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag that ripples in the wind.'], 5:['shoe','tidetreads','Tide Treads','Shoes: sea-glass boots with a rolling wave stripe.'],
+  8:['tint','tidal','Tidal pet colour','Pet colour: recolours any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
+  12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
+  18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
+  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for your Home dock.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
+  35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
+  45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
+// regular levels cycle through these, every amount shown before you claim it
+function passPlain(L){ const base=bestLoot(); if(L>PASS_MAX) return {k:'bonus', name:'Coins and 20 Scales', d:fmt(Math.round(base*12*coinMult()))+' coins and 20 Scales.'};
+  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Coins and lures, sometimes a pet.'}][L%5]; }
+function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
-    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='legend') S.tokens.legend++; return sp[2]; }
-  if(L>PASS_MAX){ earn(base*10*coinMult()); S.scales+=15; return 'Coins and 15 Scales'; }
-  switch(L%5){ case 0: S.tokens.big++; break; case 1: earn(base*8*coinMult()); break; case 2: S.scales+=10; break; case 3: S.tickets+=60; break; case 4: S.tokens.small++; break; } return passReward(L); }
+    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='crate2') S.tokens.legend+=2; if(k==='bait') S.bait[id]=(S.bait[id]||0)+6;
+    if(k==='shoe'&&!S.owned.shoes.includes(id)) S.owned.shoes.push(id); if(k==='neck'&&!S.owned.necks.includes(id)) S.owned.necks.push(id); if(k==='back'&&!S.owned.backs.includes(id)) S.owned.backs.push(id); return sp[2]; }
+  if(L>PASS_MAX){ earn(base*12*coinMult()); S.scales+=20; return 'Coins and 20 Scales'; }
+  const p=passPlain(L); switch(p.k){ case 'big': S.tokens.big++; break; case 'coins': earn(base*10*coinMult()); break; case 'scales': S.scales+=15; break; case 'tix': S.tickets+=100; break; case 'small': S.tokens.small++; break; } return p.name; }
 function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
+function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const cx=w/2, s=w/120;
+  if(sp){ const [k,id]=sp; if(k==='dock') drawDockItem(x,id,cx,h*.9,2.4*s,performance.now()/1000,0); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
+    else if(k==='tint') drawPetStyled(x,S.pet,cx,h*.86,2.8*s,0,0,Object.assign({},petLook(),{tint:id})); else if(k==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(w*.08,h*.5,w*.84,h*.13); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(w*(.12+i*.17),h*.5,2*s,h*.13); }
+    else if(k==='shoe'||k==='neck'||k==='back') wearPreview(x,k,id,w,h); else if(k==='bait') drawJunk(x,w,h,'goldlure'); else drawJunk(x,w,h,'chest'); return; }
+  const p=L>PASS_MAX?{k:'coins'}:passPlain(L); if(p.k==='big'||p.k==='small') drawJunk(x,w,h,'chest'); else if(p.k==='coins'||p.k==='bonus') drawJunk(x,w,h,'coin');
+  else if(p.k==='scales'){ x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(cx+Math.cos(a)*24*s,h/2+Math.sin(a)*24*s); } x.fill(); } else { x.font=Math.round(34*s)+'px system-ui'; x.textAlign='center'; x.fillText('🎟',cx,h*.64); } }
 function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
   const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
-  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels of rewards, with special ones along the way, then bonus rewards forever.</p></div>
+  const nextSp=Object.keys(PASS_SPECIAL).map(Number).find(L=>L>pl), ns=nextSp&&PASS_SPECIAL[nextSp];
+  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels, a Tide-only reward every five levels, then bonus rewards forever.</p></div>
    <div class="tile" style="min-width:220px"><div class="rar" style="color:var(--kelp)">Level ${pl}</div><div class="meta">${fmt(S.pass.xp)} / ${fmt(need)} to level ${pl+1}</div><div class="prog"><i style="width:${S.pass.xp/need*100}%;background:var(--kelp)"></i></div>
    ${unclaimed?`<button class="btn" data-act="passclaim" style="margin-top:6px">Claim ${unclaimed} reward${unclaimed>1?'s':''}</button>`:''}</div></div>
-   <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L];
-     return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><span>${got?'✓ ':''}${esc(sp&&!got&&L>pl?(sp[0]==='legend'?sp[2]:'A special reward'):passReward(L))}</span></div>`; }).join('')}</div>
+   ${ns?`<div class="tile pass-next"><canvas width="240" height="180" data-passbig="${nextSp}"></canvas><div><span class="bwx-cat">Next Tide reward · level ${nextSp}</span><h3 style="margin:2px 0">${esc(ns[2])}</h3><div class="meta">${esc(ns[3])}</div><div class="meta" style="margin-top:6px">${nextSp-pl} level${nextSp-pl>1?'s':''} to go.</div></div></div>`:''}
+   <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L], d=sp?sp[3]:passPlain(L).d;
+     return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}" title="${esc(d)}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><b style="font-size:12.5px;line-height:1.2">${got?'✓ ':''}${esc(passReward(L))}</b><span class="meta" style="font-size:11px;line-height:1.25">${esc(d)}</span></div>`; }).join('')}</div>
    <p class="sub" style="margin-top:8px">Fish ×${PASS_XP.join(' / ')} XP by rarity. Shiny ×2, trophy ×1.5. Daily tasks and derbies give extra.</p>`;
-  P.querySelectorAll('canvas[data-pass]').forEach(cv2=>{ const L=+cv2.dataset.pass, sp=PASS_SPECIAL[L], x=cv2.getContext('2d'); x.clearRect(0,0,120,90); const secret=sp&&L>pl&&sp[0]!=='legend'; if(secret) x.filter='brightness(0) opacity(.5)';
-    if(sp){ if(sp[0]==='dock') drawDockItem(x,sp[1],60,80,2.4,0,0); else if(sp[0]==='hat') hatPreview(x,120,90,sp[1],S.look.hatCol); else if(sp[0]==='out') drawAngler(x,60,86,1.1,Object.assign({},S.look,{outfit:sp[1],hat:'none'}),{}); else if(sp[0]==='tint') drawPetStyled(x,S.pet,60,78,2.8,0,0,Object.assign({},petLook(),{tint:sp[1]})); else if(sp[0]==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(10,45,100,12); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(14+i*20,45,2,12); } else drawJunk(x,120,90,'crown'); }
-    else { const k=L>PASS_MAX?1:L%5; if(k===0||k===4) drawJunk(x,120,90,'chest'); else if(k===1) drawJunk(x,120,90,'coin'); else if(k===2){ x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(60+Math.cos(a)*24,45+Math.sin(a)*24); } x.fill(); } else { x.font='34px system-ui'; x.textAlign='center'; x.fillText('🎟',60,58); } }
-    x.filter='none'; }); }
+  P.querySelectorAll('canvas[data-pass]').forEach(cv2=>passArt(cv2.getContext('2d'),120,90,+cv2.dataset.pass));
+  P.querySelectorAll('canvas[data-passbig]').forEach(cv2=>passArt(cv2.getContext('2d'),240,180,+cv2.dataset.passbig)); }
 
 // ---------- Fishing Derby ----------
 const DERBY_LEN = 4*60*1000;
@@ -3660,10 +3689,12 @@ const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slic
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
 
 // ---------- phones in landscape: hide / show the menu sidebar so the water fills the screen ----------
-(function(){ const b=$('sidetog'); if(!b) return; let off=false; try{ off=localStorage.getItem('driftline-side-off')==='1'; }catch(e){}
-  const apply=()=>{ document.body.classList.toggle('side-off',off); b.textContent=off?'‹':'›'; const l=off?'Show menus':'Hide menus'; b.title=l; b.setAttribute('aria-label',l); b.setAttribute('aria-expanded',String(!off)); };
+(function(){ const b=$('sidetog'); if(!b) return; let mode='on'; try{ const v=localStorage.getItem('driftline-side-off'); mode=v==='1'?'off':v==='w'?'wide':'on'; }catch(e){}
+  // 0.3: three steps. Menus beside the water -> menus wide (the water gets smaller) -> menus hidden (the water fills the screen)
+  const L={on:['‹','Widen menus'],wide:['›','Hide menus'],off:['‹','Show menus']};
+  const apply=()=>{ document.body.classList.toggle('side-off',mode==='off'); document.body.classList.toggle('side-wide',mode==='wide'); b.textContent=L[mode][0]; b.title=L[mode][1]; b.setAttribute('aria-label',L[mode][1]); b.setAttribute('aria-expanded',String(mode!=='off')); };
   ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-  b.addEventListener('click',e=>{ e.stopPropagation(); off=!off; try{ localStorage.setItem('driftline-side-off',off?'1':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
+  b.addEventListener('click',e=>{ e.stopPropagation(); mode=mode==='on'?'wide':mode==='wide'?'off':'on'; try{ localStorage.setItem('driftline-side-off',mode==='off'?'1':mode==='wide'?'w':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
   apply(); })();
 
 // =====================================================================
@@ -5768,7 +5799,7 @@ function a3Back(c,id,D,col,t,w,lean,st){ if(!id||id==='none') return; const ac=D
 
 // ---------- previews for the shop / wardrobe: draw one piece large ----------
 function wearPreview(cx,kind,id,w,h){ const lk=Object.assign({},S.look,{hat:'none'}); if(kind==='shoe'){ cx.save(); cx.translate(w*.38,h*.78); cx.scale(w/18,w/18); a3Shoe(cx,id,0,false,q=>q,SKINS[lk.skin]||SKINS[1],performance.now()/1000); cx.restore(); return; }
-  lk[kind==='neck'?'neck':'back']=id; drawAngler(cx,w*(kind==='back'?.56:.5),h*.97,h/(kind==='back'?86:80),lk,{}); }
+  lk[kind==='neck'?'neck':'back']=id; if(kind==='neck'){ const s=h/34; drawAngler(cx,w*.46,h*.5+50*s,s,lk,{}); } else { const s=h/62; drawAngler(cx,w*.62,h*.5+38*s,s,lk,{}); } }
 
 // ---------- undiscovered things: a soft mystery mark that gives nothing away (fish, oddities, pets, decor, rods) ----------
 function mysteryThumb(c,w,h,seed){ const cx=w/2, cy=h/2, r=Math.min(w,h)*.34, k=((seed||'').length*7)%5;
@@ -5777,6 +5808,31 @@ function mysteryThumb(c,w,h,seed){ const cx=w/2, cy=h/2, r=Math.min(w,h)*.34, k=
   c.fillStyle='rgba(205,225,245,.5)'; c.font='700 '+Math.round(r*1.15)+'px system-ui, sans-serif'; c.textAlign='center'; c.textBaseline='middle'; c.fillText('?',cx,cy-r*.05);
   c.fillStyle='rgba(230,245,255,.55)'; for(let i=0;i<3;i++){ const a=i*2.1+k, d=r*(.9+.1*i); c.beginPath(); c.arc(cx+Math.cos(a)*d,cy+Math.sin(a)*d*.7,Math.max(.8,r*.04),0,7); c.fill(); }
   c.restore(); }
+
+// ---------- Tide Pass wear: sea glass, foam and living water ----------
+const _a3Shoe_0=a3Shoe, _a3Neck_0=a3Neck, _a3Back_0=a3Back;
+a3Shoe=function(c,id,bx,dark,D,sk,t){ if(id!=='tidetreads') return _a3Shoe_0(c,id,bx,dark,D,sk,t);
+  a3ShoeBody(c,bx,6.4,5.8,D(dark?'#1a5a6a':'#2a8a9a'),.85); a3Sole(c,bx,5.9,D('#0e2e3a'),1.2);
+  c.strokeStyle=D('#bffcf0'); c.lineWidth=.6; c.beginPath(); for(let x=-3;x<=5.6;x+=.5) c.lineTo(bx+x,-3.6+Math.sin(x*1.6+t*3)*.5); c.stroke();
+  c.save(); c.globalAlpha*=.35+.15*Math.sin(t*2.4); c.fillStyle='#8af4e8'; c.beginPath(); c.ellipse(bx+1.4,.1,5.6,1.1,0,0,7); c.fill(); c.restore(); };
+a3Neck=function(c,id,D,col,t,w,lean){ if(id!=='tidescarf') return _a3Neck_0(c,id,D,col,t,w,lean); const sw=Math.sin(t*1.8)*.8-(lean||0)*6, ac=D('#2a8aa8'), fo=D('#e8fbff');
+  c.fillStyle=a3Grad(c,-48,-30,ac,.25,.3); c.beginPath(); c.moveTo(-3,-45.6); c.quadraticCurveTo(-9-sw,-40,-13-sw*1.6,-31); c.lineTo(-10.6-sw*1.6,-30); c.quadraticCurveTo(-7-sw,-39,-1,-45); c.fill();
+  c.beginPath(); c.ellipse(.4,-46.2,5.6*w,2.3,0,0,7); c.fill(); c.strokeStyle=fo; c.lineWidth=.6; c.beginPath(); for(let x=-5;x<=6;x+=.5) c.lineTo(x*w,-46.4+Math.sin(x*1.4+t*3)*.5); c.stroke();
+  c.fillStyle=fo; for(let i=0;i<4;i++){ c.beginPath(); c.arc(-11-sw*1.6+i*.8,-30.4+i*.3,.6,0,7); c.fill(); } };
+a3Back=function(c,id,D,col,t,w,lean,st){
+  if(id==='tidecape'){ const wind=Math.sin(t*1.7)*1.2+(lean||0)*-12, len=36, gr=c.createLinearGradient(-14*w,0,2*w,0); gr.addColorStop(0,D('#0a2a4a')); gr.addColorStop(.6,D('#1a5a8a')); gr.addColorStop(1,D('#3a9ac8')); c.fillStyle=gr;
+    c.beginPath(); c.moveTo(-6.6*w,-46.4); c.quadraticCurveTo(-11*w-wind*.4,-46+len*.4,-14*w-wind,-46+len); for(let i=0;i<=8;i++) c.lineTo(-14*w-wind+i*2*w,-46+len+Math.sin(i*1.3+t*3)*1.4); c.lineTo(1*w,-46+len*.6); c.lineTo(4*w,-46.6); c.closePath(); c.fill();
+    c.save(); c.clip(); c.strokeStyle=D('#bffcf0'); c.globalAlpha*=.55; c.lineWidth=.6; for(let r=0;r<5;r++){ c.beginPath(); for(let x=-16;x<=4;x+=.6) c.lineTo(x*w,-40+r*7+Math.sin(x*.8+t*2+r)*1.2); c.stroke(); } c.restore();
+    c.fillStyle=D('#e8fbff'); for(let i=0;i<8;i++){ c.beginPath(); c.arc(-14*w-wind+i*2*w,-46+len+Math.sin(i*1.3+t*3)*1.4,.7,0,7); c.fill(); } return; }
+  if(id==='shellpack'){ const bx=-7.4*w; c.fillStyle=a3Grad(c,-48,-28,D('#f2b8a0'),.3,.3); c.beginPath(); c.moveTo(bx-1.6,-28); for(let i=0;i<=8;i++){ const a=Math.PI*(1+i/8); c.lineTo(bx-1.6+Math.cos(a)*6.4,-36+Math.sin(a)*9); } c.closePath(); c.fill();
+    c.strokeStyle=D('#c87a68'); c.lineWidth=.5; c.beginPath(); for(let i=1;i<8;i++){ const a=Math.PI*(1+i/8); c.moveTo(bx-1.6,-28); c.lineTo(bx-1.6+Math.cos(a)*6.4,-36+Math.sin(a)*9); } c.stroke(); c.fillStyle=D('#e89a88'); c.fillRect(bx-4,-29,5,2);
+    c.strokeStyle=D('#8a5a48'); c.lineWidth=1.2; c.beginPath(); c.moveTo(-3.4*w,-46.4); c.quadraticCurveTo(1*w,-44,1.6*w,-36); c.stroke(); return; }
+  if(id==='tidewings'){ const flap=Math.sin(t*2)*.1; c.save(); c.translate(-4*w,-42); c.rotate(-.15+flap);
+    for(const [sc,al] of [[.8,.5],[1,.85]]){ c.save(); c.scale(sc,sc); c.globalAlpha*=al; const gr=c.createLinearGradient(-16,-14,0,6); gr.addColorStop(0,'rgba(190,252,240,.9)'); gr.addColorStop(1,'rgba(40,140,200,.55)'); c.fillStyle=gr;
+      c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-6,-16,-17,-13); c.quadraticCurveTo(-13,-8,-16,-4); c.quadraticCurveTo(-11,-4,-12,1); c.quadraticCurveTo(-7,0,-7,4); c.quadraticCurveTo(-3,2,0,4); c.closePath(); c.fill();
+      c.strokeStyle='rgba(235,255,255,.8)'; c.lineWidth=.5; c.beginPath(); for(let r=0;r<3;r++){ for(let x=-15;x<=-1;x+=.6) c.lineTo(x,-10+r*4+Math.sin(x*.9+t*3+r)*.7); c.moveTo(-15,-6+r*4); } c.stroke(); c.restore(); }
+    c.fillStyle='rgba(235,255,255,.85)'; for(let i=0;i<5;i++){ const k=((t*.6+i/5)%1); c.beginPath(); c.arc(-14+k*4,-12+k*16,.6*(1-k),0,7); c.fill(); } c.restore(); return; }
+  return _a3Back_0(c,id,D,col,t,w,lean,st); };
 
 // =====================================================================
 // Driftline 0.3: pets redrawn in the B2 style (preview only until 0.3 ships).
@@ -6969,6 +7025,200 @@ drawJunkZ = function(c,id,R,Ci,E,P,Ln){ const T=(txt,x,y,sz,col)=>{ c.fillStyle=
     case 'ancientcoin': Ci(0,0,52,'#c8963a'); Ci(0,0,44,'#e8b850'); E(4,-4,16,22,'#b8862a'); E(-6,-18,10,6,'#b8862a'); for(let i=0;i<14;i++){ const a=i/14*Math.PI*2; Ci(Math.cos(a)*48,Math.sin(a)*48,2.5,'#8a6a1a'); } break;
     case 'megtooth': P([-46,40,0,-66,46,40,0,30],'#f0e8d0'); P([-46,40,0,30,46,40,30,54,-30,54],'#8a7a5a'); for(let i=0;i<6;i++){ c.fillStyle='rgba(120,100,70,.35)'; c.fillRect(-40+i*8,30-i*14,4,8); } break;
     default: _drawJunkZ_0(c,id,R,Ci,E,P,Ln); } };
+
+// =====================================================================
+// 0.3 Boardwalk, redesigned in the game's own look: a painted night pier at the top, a wallet,
+// three sections (Games, Prize counter, Counter specials) so nothing is a mile long, uniform game
+// cards, and prizes that say exactly what they are and what they do.
+// =====================================================================
+let bwView='games';
+function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase();
+  const pet=tag==='pet'?PETI[id]:null, rod=tag==='rod'?ROD_I[id]:null, hat=tag==='hat'?HATI[id]:null, dec=tag.includes('decor')&&DECORI?DECORI[id]:null;
+  if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase().replace(' pet colour','')+'.'};
+  if(pet) return {cat:'Pet', d:'A new pet to take fishing: '+fmtB(pet.k,pet.v)+' while it is your favourite.'};
+  if(rod) return {cat:'Rod', d:(Object.keys(rod.st||{}).map(k=>statTxt(k,rod.st[k])).join(' · ')||'A new rod')+' · '+rod.slots+' attachment slot'+(rod.slots>1?'s':'')+'.'};
+  if(hat) return {cat:'Hat', d:'A hat for your angler, only from the Boardwalk.'};
+  if(id==='spacesuit') return {cat:'Outfit', d:'A full space suit for your angler.'};
+  if(dec||id==='carousel') return {cat:'Aquarium decor', d:'A spinning carousel for your tank: +'+Math.round(((dec&&dec.b)||.04)*100)+'% aquarium income.'};
+  if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and at home.'};
+  if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase()+'.'};
+  if(id==='scales10') return {cat:'Scales', d:'Scales level up your rods and buy rod attachments and special bait.'};
+  if(id==='crate') return {cat:'Mystery crate', d:'Opens into coins, lures, clothes, decor, and sometimes a pet.'};
+  if(id==='myth') return {cat:'Bait', d:'Three Myth Bait: legendary fish are far more likely to bite.'};
+  return {cat:'Prize', d:p[1]}; }
+const BW_GAMES = [['wheel','🎡','#ff8a5c'],['crates','🎁','#b9a2ff'],['duck','🦆','#5ad8e8'],['hilo','🃏','#7fe3c4'],['flip','🪙','#ffd36a'],['scratch','🎫','#ff9ac0'],['claw','🧸','#ff7ab0']];
+function bwCard(icon,col,title,meta,body,foot){ return `<div class="bwx-card" style="--c:${col}"><div class="bwx-ch"><span class="bwx-ic">${icon}</span><div><h4>${title}</h4><div class="meta">${meta}</div></div></div><div class="bwx-cb">${body}</div>${foot?`<div class="bwx-cf">${foot}</div>`:''}</div>`; }
+function bwGamesHTML(){ const tk=S.tokens, base=bestLoot(), nextIn=Math.max(0,Math.ceil((SPIN_EVERY-(Date.now()-S.wheelT))/60000));
+  const crateRow=(k,name,desc)=>`<div class="bwx-row"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmtShort(crateCost(k))}</span></button>`}</div>`;
+  const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>${Math.round(f*100)}% · <span class="coin">${fmtShort(Math.max(0,amt))}</span></button>`; };
+  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'🎁':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
+  return `<div class="bwx-grid">
+   ${bwCard('🎡','#ff8a5c','Lucky wheel','A free spin every hour, up to '+SPIN_BANK+' saved.'+(S.freeSpins<SPIN_BANK?' Next in '+nextIn+' min.':''),
+     `<div class="wheelwrap"><div class="wheelring"><canvas id="wheelcv" width="520" height="520"></canvas></div>${WH.result?`<div class="val bwx-res">${esc(WH.result)}</div>`:''}</div>`,
+     S.freeSpins>0?`<button class="btn" data-act="spin" data-k="free" ${WH.spinning?'disabled':''}>Free spin (${S.freeSpins} left)</button>`:`<button class="btn" data-act="spin" ${WH.spinning||S.money<wheelCost()?'disabled':''}>Spin · <span class="coin">${fmtShort(wheelCost())}</span></button>`)}
+   ${bwCard('🎁','#b9a2ff','Mystery crates','Coins, lures, clothes, decor, rods, and pets you can’t get anywhere else.',
+     crateRow('small','Small crate','Mostly coins and lures. Sometimes a pet.')+crateRow('big','Big crate','Clothes, decor and the rarer pets.')+crateRow('legend','Legendary crate','The really good stuff.')+(crateRes?`<div class="reveal bwx-res"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''),'')}
+   ${bwCard('🦆','#5ad8e8','Duck pond','Pick a rubber duck. Every duck wins something.',
+     duck?`<div class="ducks">${ducks}</div>${duck.pick>=0?`<div class="val bwx-res">${esc(duck.msg||'')}</div>`:''}`:'<div class="bwx-art">🦆 🦆 🦆</div>',
+     `<button class="btn${duck&&duck.pick<0?' alt':''}" data-act="duckagain" ${S.money>=base&&!(duck&&duck.pick<0)?'':'disabled'}>${duck?'Play again':'Play'} · <span class="coin">${fmtShort(base)}</span></button>`)}
+   ${bwCard('🃏','#7fe3c4','Higher or lower','Guess the next fish card. Every right guess grows the pot by half. Cash out any time.',
+     hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val bwx-res">Pot <span class="coin">${fmt(hilo.pot)}</span> · streak ${hilo.streak}</div>`:`${hilo&&hilo.done?`<div class="val bwx-res">${esc(hilo.msg)}</div>`:'<div class="bwx-art">🂠 🂡</div>'}`,
+     hilo&&!hilo.done?`<button class="btn sm" data-act="hilo" data-k="hi">Higher ▲</button><button class="btn sm" data-act="hilo" data-k="lo">Lower ▼</button><button class="btn alt sm" data-act="hilocash" ${hilo.streak?'':'disabled'}>Cash out</button>`:`<button class="btn" data-act="hilostart" ${S.money>=base*2?'':'disabled'}>Deal · <span class="coin">${fmtShort(base*2)}</span></button>`)}
+   ${bwCard('🪙','#ffd36a','Coin flip','Heads you double it, tails the Fishmonger keeps it. '+S.gstats.flips+' flips, '+S.gstats.flipWins+' won.',
+     flipRes?`<div class="val bwx-res" style="color:${flipRes.win?'var(--gold)':'var(--muted)'}">${esc(flipRes.txt)}</div>`:'<div class="bwx-art">🪙</div>', betBtn(.1)+betBtn(.25)+betBtn(.5))}
+   ${bwCard('🎫','#ff9ac0','Scratch card','Three of a kind wins: 🐟 ×2 · 🦀 ×4 · 🐚 ×8 · 💎 ×20 · 👑 ×60 (times '+fmtShort(base)+').',
+     scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div>`
+      :scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val bwx-res" style="color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:'<div class="bwx-art">🎫</div>',
+     scratch&&!scratch.done?'<button class="btn alt sm" data-act="scratchall">Reveal all</button>':`<button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmtShort(base*2)}</span></button>`)}
+   ${bwCard('🧸','#ff7ab0','Claw machine','Plushies, tickets and secrets. The claw is… mostly honest.',
+     `<canvas id="clawcv" width="420" height="260" class="bwx-claw"></canvas>${claw?`<div class="val bwx-res" style="color:${claw.win?'var(--gold)':'var(--muted)'}">${esc(claw.txt)}</div>`:''}`,
+     `<button class="btn" data-act="claw" ${S.money>=clawCost()?'':'disabled'}>Drop the claw · <span class="coin">${fmtShort(clawCost())}</span></button>`)}
+  </div>`; }
+function bwPrizesHTML(){ return `<p class="sub">Every game hands out tickets. Trade them here for things you can’t get anywhere else. Preview anything you can wear or place first.</p><div class="bwx-prizes">${PRIZES.map(p=>{ const owned=p[4]&&p[4](), info=prizeInfo(p), can=S.tickets>=p[2];
+    return `<div class="bwx-prize ${owned?'own':''}"><canvas width="96" height="80" data-prize="${p[0]}"></canvas><div class="bwx-pt"><span class="bwx-cat">${info.cat}</span><b>${esc(p[1].replace(/\s*\(.*\)\s*$/,''))}</b><div class="meta">${esc(info.d)}</div></div>
+     <div class="bwx-pf">${owned?'<span class="badge g">Owned</span>':`${PRIZE_PV[p[0]]?`<button class="btn alt sm" data-act="prizepv" data-k="${p[0]}">Preview</button>`:''}<button class="btn sm" data-act="prize" data-k="${p[0]}" ${can?'':'disabled'}>🎟 ${fmt(p[2])}</button>`}</div></div>`; }).join('')}</div>`; }
+function bwSpecials2(){ const left=Math.ceil(BW_LEN-(Date.now()/1000%BW_LEN)), offers=bwOffers(), pool=bwPool(), owned=pool.filter(bwOwned).length;
+  return `<p class="sub">Boardwalk-only wear, new stock in <b>${Math.floor(left/3600)}h ${Math.floor(left%3600/60)}m</b>. You own ${owned} of ${pool.length}. What you buy goes straight on, and stays in your Wardrobe.</p><div class="bwx-prizes">${offers.map(o=>{ const own=bwOwned(o);
+    return `<div class="bwx-prize ${own?'own':''}"><canvas width="160" height="130" data-bw="${o.kind}:${o.id}"></canvas><div class="bwx-pt"><span class="bwx-cat">${o.kind==='shoe'?'Shoes':o.kind==='neck'?'Neckwear':o.kind==='back'?'Worn on your back':'Outfit'}</span><b>${esc(o.name)}</b><div class="meta">Only at the Boardwalk counter.</div></div>
+     <div class="bwx-pf">${own?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="bwbuy" data-k="${o.kind}:${o.id}" ${S.tickets>=o.tix?'':'disabled'}>🎟 ${fmt(o.tix)}</button>`}</div></div>`; }).join('')}</div>`; }
+// the painted night pier at the top
+function bwHero(cv){ if(!cv) return; const r=cv.getBoundingClientRect(), DP=Math.min(2,devicePixelRatio||1), w=Math.max(300,Math.round(r.width)), h=Math.round(r.height)||150; cv.width=w*DP; cv.height=h*DP; const x=cv.getContext('2d'); x.scale(DP,DP);
+  const sk=x.createLinearGradient(0,0,0,h); sk.addColorStop(0,'#0b1230'); sk.addColorStop(.6,'#2a2050'); sk.addColorStop(1,'#4a2a5a'); x.fillStyle=sk; x.fillRect(0,0,w,h);
+  const rr=v3rng(5); x.fillStyle='#fff'; for(let i=0;i<60;i++){ x.globalAlpha=.3+rr()*.6; const s=rr()*1.4+.4; x.fillRect(rr()*w,rr()*h*.55,s,s); } x.globalAlpha=1;
+  // moon
+  v3glow(x,w*.86,h*.24,h*.35,'rgba(255,240,210,.6)',.6); x.fillStyle='#fff3d6'; x.beginPath(); x.arc(w*.86,h*.24,h*.09,0,7); x.fill();
+  const wy=h*.8; // water
+  const wg=x.createLinearGradient(0,wy,0,h); wg.addColorStop(0,'#2a2a5a'); wg.addColorStop(1,'#0a1028'); x.fillStyle=wg; x.fillRect(0,wy,w,h-wy);
+  // ferris wheel
+  const fr=h*.33, fx=w*.15, fy=wy-fr-h*.07; x.strokeStyle='#1a1430'; x.lineWidth=3; x.beginPath(); x.moveTo(fx-fr*.6,wy); x.lineTo(fx,fy); x.lineTo(fx+fr*.6,wy); x.stroke();
+  x.strokeStyle='#3a2a5a'; x.lineWidth=2; x.beginPath(); x.arc(fx,fy,fr,0,7); x.stroke(); for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; x.beginPath(); x.moveTo(fx,fy); x.lineTo(fx+Math.cos(a)*fr,fy+Math.sin(a)*fr); x.stroke(); }
+  const cols=['#ff8a5c','#ffd36a','#7fe3c4','#b9a2ff','#ff9ac0','#5ad8e8']; for(let i=0;i<24;i++){ const a=i/24*Math.PI*2, px=fx+Math.cos(a)*fr, py=fy+Math.sin(a)*fr; v3glow(x,px,py,6,cols[i%6],.7); x.fillStyle='#fff6e0'; x.beginPath(); x.arc(px,py,1.6,0,7); x.fill(); }
+  for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+.2, px=fx+Math.cos(a)*fr, py=fy+Math.sin(a)*fr; x.fillStyle=cols[i%6]; x.fillRect(px-4,py,8,7); }
+  // the pier with lamp posts and a string of lights
+  x.fillStyle='#2a1a24'; x.fillRect(0,wy-h*.05,w,h*.05); x.fillStyle='#1a1018'; for(let X=10;X<w;X+=46) x.fillRect(X,wy,5,h*.12);
+  const posts=[]; for(let X=w*.38;X<w;X+=w*.14) posts.push(X); x.strokeStyle='#1a1018'; x.lineWidth=2; for(const X of posts){ x.beginPath(); x.moveTo(X,wy-h*.05); x.lineTo(X,wy-h*.42); x.stroke(); v3glow(x,X,wy-h*.44,h*.12,'rgba(255,200,120,.9)',.7); x.fillStyle='#ffe0a0'; x.beginPath(); x.arc(X,wy-h*.44,3,0,7); x.fill(); }
+  for(let i=0;i<posts.length-1;i++){ const a=posts[i], b=posts[i+1], y0=wy-h*.42; for(let k=0;k<=8;k++){ const u=k/8, px=a+(b-a)*u, py=y0+Math.sin(u*Math.PI)*h*.08; v3glow(x,px,py,5,cols[(i*8+k)%6],.75); x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,1.2,0,7); x.fill(); } }
+  // stalls
+  for(const [sx,c1,c2] of [[w*.45,'#ff8a5c','#ffe6d0'],[w*.66,'#7fe3c4','#e8fff6']]){ x.fillStyle='#24142a'; x.fillRect(sx,wy-h*.2,w*.12,h*.15); for(let k=0;k<6;k++){ x.fillStyle=k%2?c1:c2; x.beginPath(); x.moveTo(sx+k*w*.02,wy-h*.2); x.lineTo(sx+(k+1)*w*.02,wy-h*.2); x.lineTo(sx+(k+.5)*w*.02,wy-h*.15); x.closePath(); x.fill(); } v3glow(x,sx+w*.06,wy-h*.11,h*.12,'rgba(255,210,140,.7)',.5); }
+  // reflections
+  x.save(); x.globalAlpha=.25; for(let i=0;i<24;i++){ const a=i/24*Math.PI*2, px=fx+Math.cos(a)*fr; x.fillStyle=cols[i%6]; x.fillRect(px-2,wy+h*.04+Math.abs(Math.sin(a))*h*.08,4,1.5); } for(const X of posts){ x.fillStyle='#ffd08a'; x.fillRect(X-6,wy+h*.06,12,1.5); x.fillRect(X-4,wy+h*.1,8,1.5); } x.restore(); }
+renderBoardwalk = function(P){ accrueSpins();
+  P.innerHTML=`<div class="bwx"><div class="bwx-hero"><canvas id="bwhero"></canvas><div class="bwx-ht"><h2>The Boardwalk</h2><p>Games, prizes and treasures on the old pier. Coins and tickets only.</p></div></div>
+   <div class="bwx-wallet"><span><b class="coin">${fmtShort(S.money)}</b></span><span><b>🎟 ${fmt(S.tickets)}</b> tickets</span><span><b style="color:var(--kelp)">${fmt(S.scales)}</b> Scales</span>${S.freeSpins>0?`<span class="badge g">${S.freeSpins} free spin${S.freeSpins>1?'s':''}</span>`:''}</div>
+   <div class="bwx-nav" role="tablist">${[['games','Games'],['prizes','Prize counter'],['specials','Counter specials']].map(([k,n])=>`<button role="tab" data-act="bwview" data-k="${k}" aria-selected="${bwView===k}">${n}</button>`).join('')}</div>
+   <div class="bwx-view">${bwView==='prizes'?bwPrizesHTML():bwView==='specials'?bwSpecials2():bwGamesHTML()}</div></div>`;
+  bwHero($('bwhero'));
+  if(bwView==='games'){ paintClaw(); drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
+    if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
+    else if(k==='rod'){ x.save(); x.scale(1.8,1.8); v3Rod(x,{x:16,y:80},{x:118,y:16},66,50,ROD_I[crateRes.id],0,0,false); x.restore(); }
+    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
+  if(bwView==='prizes') paintPrizes(P);
+  if(bwView==='specials') P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,80,124,1.45,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,160,130); }); };
+const _extraAct2_1 = extraAct2;
+extraAct2 = function(b){ if(b.dataset.act==='bwview'){ bwView=b.dataset.k; return 'render'; } return _extraAct2_1(b); };
+document.head.insertAdjacentHTML('beforeend',`<style>
+.bwx-hero{position:relative;height:170px;border-radius:18px;overflow:hidden;border:1px solid #5a4a8a66;box-shadow:0 10px 30px #02060f99, inset 0 1px 0 #ffffff14}
+.bwx-hero canvas{position:absolute;inset:0;width:100%;height:100%;cursor:default}
+.bwx-ht{position:absolute;left:0;right:0;bottom:0;padding:14px 18px;background:linear-gradient(0deg,#0a0c1ee6,#0a0c1e00)}
+.bwx-ht h2{margin:0;font-size:26px;color:#fff;text-shadow:0 2px 10px #000a,0 0 18px #ffb36a55}
+.bwx-ht p{margin:2px 0 0;color:#d8cff0;font-size:13px}
+.bwx-wallet{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.bwx-wallet>span{padding:6px 12px;border-radius:999px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:var(--lit);font-size:13px;color:var(--muted)}
+.bwx-wallet>span b{color:var(--ink)}
+.bwx-nav{display:flex;gap:6px;padding:4px;border-radius:14px;background:#0a1220;border:1px solid var(--line);margin-bottom:12px}
+.bwx-nav button{flex:1;border:0;border-radius:10px;padding:9px 6px;background:transparent;color:var(--muted);font:600 13px system-ui;cursor:pointer}
+.bwx-nav button[aria-selected="true"]{background:linear-gradient(180deg,#2a3a5e,#1c2a46);color:#fff;box-shadow:inset 0 1px 0 #ffffff1a,0 0 0 1px #ffd36a33,0 0 16px #ffd36a1a}
+.bwx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.bwx-card{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:linear-gradient(180deg,color-mix(in srgb,var(--c) 10%,#16243a),#111c2e 90px);border:1px solid color-mix(in srgb,var(--c) 30%,#26385180);box-shadow:inset 0 1px 0 #ffffff12,0 6px 18px #02060f66}
+.bwx-ch{display:flex;gap:10px;align-items:flex-start}
+.bwx-ch h4{margin:0 0 2px;color:#fff}
+.bwx-ic{flex:0 0 auto;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--c) 45%,#1a2a44),color-mix(in srgb,var(--c) 15%,#0e1830));box-shadow:0 0 16px color-mix(in srgb,var(--c) 35%,transparent),inset 0 1px 0 #ffffff26}
+.bwx-cb{flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:96px}
+.bwx-cf{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.bwx-art{text-align:center;font-size:40px;opacity:.85;filter:drop-shadow(0 0 12px color-mix(in srgb,var(--c) 50%,transparent))}
+.bwx-res{text-align:center}
+.bwx-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #ffffff10}
+.bwx-row:last-of-type{border-bottom:0}
+.bwx-card .wheelring{width:min(232px,100%);aspect-ratio:1;box-sizing:border-box;margin:0 auto;box-shadow:0 0 0 3px #ffd36a,0 0 24px #ffd36a44}
+.bwx-card .wheelwrap canvas{width:100%;height:100%;display:block}
+.bwx-card .ducks{background:linear-gradient(#1f6a88,#123e58)}
+.bwx-card .hilocard{border-color:#7fe3c4}
+.bwx-claw{width:100%;height:auto;border-radius:12px;cursor:default;background:#1a2a3a}
+.bwx-prizes{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.bwx-prize{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:inset 0 1px 0 #ffffff12,0 6px 18px #02060f55}
+.bwx-prize.own{border-color:#ffd36a55}
+.bwx-prize canvas{width:100%;height:110px;object-fit:contain;border-radius:12px;background:radial-gradient(circle at 50% 60%,#24365a,#101a2c);cursor:default}
+.bwx-pt b{display:block;color:#fff;font-size:15px;margin:2px 0}
+.bwx-cat{display:inline-block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:#ffd36a}
+.bwx-pf{display:flex;gap:6px;justify-content:flex-end;margin-top:auto}
+@media (max-width:520px){ .bwx-hero{height:130px} .bwx-ht h2{font-size:21px} .bwx-nav button{font-size:12px;padding:8px 2px} .bwx-grid,.bwx-prizes{grid-template-columns:1fr} }
+</style>`);
+
+// =====================================================================
+// 0.3 Tackle shop: three short sections (Gear, Bait, Special lures) instead of one very long page,
+// compact bait rows with clear effect chips, and the bait you are using shown up top.
+// =====================================================================
+let tackleView='gear';
+function baitChips(b){ const c=[]; if(b.speed&&b.speed!==1) c.push('Bites +'+Math.round((b.speed-1)*100)+'%'); if(b.rare) c.push('Rare odds +'+Math.round(b.rare*100)+'%'); if(b.shiny) c.push('Shiny ×'+b.shiny);
+  if(b.night) c.push('×'+b.night+' rare at night'); if(b.calm) c.push('Calmer fish'); if(b.trophy) c.push('Trophy +'+Math.round(b.trophy*100)+'%'); if(b.treasure) c.push('Junk ×'+b.treasure); if(b.legend) c.push('Legendary ×'+b.legend); if(b.beh) c.push(b.beh.map(k=>BEH[k].n).join(', ')+' ×2.5');
+  if(b.loc) c.push('Best at '+LOCS[locIdx(b.loc)].name); if(b.sea) c.push('Sea waters ×1.5'); return c.map(t=>`<span class="badge k">${esc(t)}</span>`).join(''); }
+function baitRow([k,b]){ const using=S.baitSel===k;
+  const buy = b.junk ? '<span class="meta">Found in junk</span>' : b.scales ? `<button class="btn sm" data-act="buybait" data-k="${k}" ${S.scales>=b.scales?'':'disabled'}>Buy ${b.pack} · ${b.scales} Scales</button>`
+    : `<button class="btn sm" data-act="buybait" data-k="${k}" ${S.money>=b.price?'':'disabled'}>Buy ${b.pack} · <span class="coin">${fmtShort(b.price)}</span></button><button class="btn alt sm" data-act="buybait" data-k="${k}" data-n="5" ${S.money>=b.price*4.5?'':'disabled'} title="10% off">×${b.pack*5} · <span class="coin">${fmtShort(b.price*4.5)}</span></button>`;
+  return `<div class="tk-row ${using?'on':''}"><div class="tk-main"><div class="row" style="gap:8px;align-items:baseline"><b>${b.name}</b><span class="meta">You have ${S.bait[k]||0}</span>${using?'<span class="badge g">In use</span>':''}</div>
+    <div class="meta">${esc(b.note)}</div><div class="badges" style="justify-content:flex-start;margin-top:4px">${baitChips(b)}</div></div>
+    <div class="tk-acts">${buy}<button class="btn alt sm" data-act="usebait" data-k="${k}" ${S.bait[k]>0&&!using?'':'disabled'}>${using?'In use':'Use'}</button></div></div>`; }
+renderShop = function(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
+  const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
+    return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv+1} / ${max+1}</span></div><div class="pips">${G2.lv.map((_,i)=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</div>
+    <div class="meta">${G2.what}</div><div class="val">${G2.fmt(G2.lv[lv])}${lv<max?` <span class="meta">→ ${G2.fmt(G2.lv[lv+1])}</span>`:''}</div>
+    ${lv<max?`<button class="btn" data-act="buygear" data-k="${k}" ${S.money>=next?'':'disabled'}>Upgrade · <span class="coin">${fmt(next)}</span></button>`:'<button class="btn alt" disabled>Maxed out</button>'}</div>`; }).join('');
+  const owned=junkBait.filter(([k])=>S.bait[k]>0).length;
+  P.innerHTML=`<h2>Tackle shop</h2><p class="sub">Stronger line and a faster reel land heavier fish. Better bait brings rarer fish; one bait is used each time you set the hook.</p>
+   <div class="tile tk-cur"><span class="meta">Bait in use</span><b>${cur.name}</b>${S.baitSel!=='worm'?`<span class="meta">${S.bait[S.baitSel]||0} left</span><button class="btn alt sm" data-act="usebait" data-k="worm">Switch to worms</button>`:'<span class="meta">Free and endless</span>'}</div>
+   <div class="bwx-nav" role="tablist">${[['gear','Gear'],['bait','Bait · '+shopBait.length],['lures','Special lures · '+owned+'/'+junkBait.length]].map(([k,n])=>`<button role="tab" data-act="tackleview" data-k="${k}" aria-selected="${tackleView===k}">${n}</button>`).join('')}</div>
+   ${tackleView==='bait'?`<div class="tk-list">${shopBait.map(baitRow).join('')}</div>`
+    :tackleView==='lures'?`<p class="sub">These can’t be bought. They come out of junk you fish up: cheese, disco balls, magnets, gold.</p><div class="tk-list">${junkBait.map(baitRow).join('')}</div>`
+    :`<div class="grid">${gearTiles}</div>`}`; };
+const _extraAct2_2 = extraAct2;
+extraAct2 = function(b){ if(b.dataset.act==='tackleview'){ tackleView=b.dataset.k; return 'render'; } return _extraAct2_2(b); };
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .tk-cur{display:flex;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
+.tk-list{display:flex;flex-direction:column;gap:8px}
+.tk-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:14px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:inset 0 1px 0 #ffffff10}
+.tk-row.on{border-color:#ffd36a66;box-shadow:inset 0 1px 0 #ffffff10,0 0 18px #ffd36a1a}
+.tk-main{min-width:0;flex:1}
+.tk-main b{color:#fff}
+.tk-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+@media (max-width:620px){ .tk-row{flex-direction:column;align-items:stretch} .tk-acts{justify-content:flex-start} }
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .pass-next{display:flex;flex-direction:row;gap:14px;align-items:center;margin:10px 0;border-color:#b9a2ff66;box-shadow:inset 0 1px 0 #ffffff12,0 0 22px #b9a2ff1f}
+#panel .pass-next canvas{width:160px;height:120px;flex:0 0 auto;border-radius:12px;background:radial-gradient(circle at 50% 60%,#24365a,#101a2c)}
+@media (max-width:520px){ #panel .pass-next{flex-direction:column;align-items:flex-start} }</style>`);
+
+// =====================================================================
+// 0.3 clothing shop: a curated rotation instead of 8 random picks. Every 20 minutes: one featured
+// premium piece, then a set mix (hats, shoes, back pieces, neckwear, an outfit, glasses, a pattern,
+// a colour), never something you already own.
+// =====================================================================
+const SHOP_LEN2 = 1200;
+shopOffers = function(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN); let h=hashStr('shop2'+slot); const rnd2=()=>{ h=Math.imul(h^(h>>>13),1597334677)>>>0; return h/4294967296; };
+  const all={ col:SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), pat:PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' shirt',price:p[2]})), hat:HATS.filter(x=>x.src==='shop').map(x=>({kind:'hat',id:x.id,name:x.name,price:x.price})),
+    out:OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), gls:GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]})),
+    shoe:SHOES.filter(x=>x[3]==='shop').map(x=>({kind:'shoe',id:x[0],name:x[1],price:x[2]})), neck:NECKS.filter(x=>x[3]==='shop').map(x=>({kind:'neck',id:x[0],name:x[1],price:x[2]})), back:BACKS.filter(x=>x[3]==='shop').map(x=>({kind:'back',id:x[0],name:x[1],price:x[2]}))};
+  for(const k in all) all[k]=all[k].filter(o=>!ownedOffer(o));
+  const out=[], take=(k,n)=>{ const a=all[k]; for(let i=0;i<n&&a.length;i++) out.push(a.splice(Math.floor(rnd2()*a.length),1)[0]); };
+  const prem=[...all.back,...all.out,...all.hat,...all.shoe].filter(o=>o.price>=4000);
+  if(prem.length){ const f=prem[Math.floor(rnd2()*prem.length)]; f.feat=true; out.push(f); const a=all[f.kind]; a.splice(a.indexOf(f),1); }
+  take('hat',2); take('shoe',2); take('back',2); take('neck',1); take('out',1); take('gls',1); take('pat',1); take('col',1);
+  const fill=['hat','shoe','back','neck','pat','out']; let i=0; while(out.length<12 && fill.some(k=>all[k].length)){ take(fill[i%fill.length],1); i++; }
+  return [out[0]&&out[0].feat?out[0]:null, ...out.filter(o=>!o.feat).sort((a,b)=>a.price-b.price)].filter(Boolean); };
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .offer canvas{border-radius:12px;background:radial-gradient(circle at 50% 60%,#24365a,#101a2c)}
+#panel .grid > .offer:first-child{grid-column:1/-1;border-color:#ffd36a77;box-shadow:inset 0 1px 0 #ffffff14,0 0 26px #ffd36a1f}
+#panel .grid > .offer:first-child::after{content:"Featured";position:absolute;top:10px;right:12px;font:700 10.5px system-ui;letter-spacing:.08em;text-transform:uppercase;color:#ffd36a}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .offer canvas{width:88px;height:88px;flex:0 0 auto} #panel .grid > .offer:first-child canvas{width:132px;height:132px}</style>`);
 
 // =====================================================================
 // 0.3: every shop list runs from cheap to expensive (not in the order things were added over updates).
