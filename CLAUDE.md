@@ -91,6 +91,26 @@ Gotchas:
   - **Patch notes:** redeeming the code shows Cam's own notes card (`LILY_PATCH`), which then stays in his patch-notes list. Public notes only mention "a gift code box".
 - To make another one: copy the Lily pattern (a `'gift'` pet in `b_data.js`, a drawing, a code in `redeemGift`, a personal notes card).
 
+## NEXT BIG FOCUS: Driftline 3.0 overhaul (director, 2026-11-16)
+The director wants the whole game taken "up a notch, across the board". Lily showed what's possible. Things feel too simple; the game is missing a cohesive art style.
+- **Scope (nearly everything):**
+  - visuals, animations, effects, music, atmosphere
+  - each map unique and gorgeous
+  - a beautiful UI
+  - equipment
+  - pets, customization, clothes, hats, decor
+- **Priorities:** optimization and gameplay.
+- **Plan (each phase approved before the next):**
+  1. **Art direction:** mockups of 2–3 styles. Each is a full scene (map, character in outfit + hat, pet, decorated dock, aquarium corner, UI panel). The director picks one.
+  2. **Performance groundwork:** cache static layers, move water/light effects to the GPU, a quality setting, pause when hidden. Target smooth 60 fps on phones, measured.
+  3. **Vertical slice:** one map fully redone (water, lighting, weather, wildlife), the character rebuilt with cast/reel/idle/celebration animations, the catch reveal, music + ambience, 3 pets with Lily-level personality, and a few clothes/hats/decor pieces. The director play-tests it.
+  4. **Every map gets its own identity:** palette, landmarks, creatures, sounds, music theme.
+  5. **Redraw every item** (pets, clothes, hats, decor) in the style, with deeper customization and bigger previews. Saves carry over.
+  6. **UI makeover:** one theme, drawn icons, transitions, feedback.
+  7. **Equipment and gameplay depth:** visible, distinct gear; visible effects; a richer reeling fight.
+- **Rollout:** build on a separate preview link so friends keep playing the stable version. Ship as **3.0** with full spoiler-free notes.
+- **Open choices:** the art style; music (richer generated layered themes vs free-licence recorded tracks, which mean a bigger download).
+
 ## Roadmap: things to work on (closest first)
 1. **Confirm the open items** above with the director: the real phone ↔ PC transfer, Lily's look, and the sidebar toggle in portrait.
 2. **Lily polish:**
