@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1042';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1043';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2463,7 +2463,7 @@ const rodSpool = () => S.rods ? rodAtts().filter(a=>a==='spool').reduce((s,a)=>s
 const rodUpCost = id => { const L=rodLvl(id); const r=ROD_I[id]; return {coins:Math.round(Math.max(5000,r.price)*.12*(L+1)), scales:(L+1)*(L+1)*2}; };
 const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare odds at night': fmtB(k,v);
 function grantRod(id){ if(S.rods.owned.includes(id)) return null; S.rods.owned.push(id); return {title:'New rod: '+ROD_I[id].name+'!', kind:'rod', id}; }
-function rodSVG(col,lvl){ return `<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="M8 34 Q60 30 112 6" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="6" fill="#2a2a2a"/><circle cx="24" cy="31" r="2.5" fill="#8a8a8a"/>${lvl?`<text x="112" y="36" fill="#ffc94d" font-size="11" font-weight="700" text-anchor="end">Lv ${lvl}</text>`:''}</svg>`; }
+function rodSVG(col,lvl,id){ if(V3ON&&id&&ROD_I[id]) return rodImg3(id,lvl); return `<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="M8 34 Q60 30 112 6" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="6" fill="#2a2a2a"/><circle cx="24" cy="31" r="2.5" fill="#8a8a8a"/>${lvl?`<text x="112" y="36" fill="#ffc94d" font-size="11" font-weight="700" text-anchor="end">Lv ${lvl}</text>`:''}</svg>`; }
 function renderRods(P){ const r=rod(), atts=rodAtts();
   const stats=r=>{ const keys=Object.keys(r.st); return keys.length?keys.map(k=>statTxt(k,r.st[k])).join(' · '):'No special stats'; };
   const slotRow=(i)=>{ const cur=atts[i]||''; const opts=ATTS.filter(a=>S.atts[a.id] && (a.id===cur || !atts.includes(a.id)));
@@ -2472,14 +2472,14 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
   const up=rodUpCost(r.id), L=rodLvl();
   P.innerHTML=`<div class="row spread"><div><h2>Rods</h2><p class="sub">Your rod shapes every cast. Collect rods, upgrade them with coins and <b>Scales</b>, and fit attachments. Scales come from Rare and better fish.</p></div>
    <div style="text-align:right"><div class="pts" style="color:var(--kelp)">${fmt(S.scales)}</div><div class="sub">Scales</div></div></div>
-  <div class="tile" style="margin-top:10px;border-color:${r.col}"><div class="row spread"><div class="row">${rodSVG(r.col,L)}<div><div class="rar" style="color:var(--gold)">In your hands</div><h4>${r.name}</h4><div class="meta">${esc(r.d)}</div></div></div>
+  <div class="tile" style="margin-top:10px;border-color:${r.col}"><div class="row spread"><div class="row">${rodSVG(r.col,L,r.id)}<div><div class="rar" style="color:var(--gold)">In your hands</div><h4>${r.name}</h4><div class="meta">${esc(r.d)}</div></div></div>
     <div style="text-align:right"><div class="meta">Level ${L} / 10</div>${L<10?`<button class="btn sm" data-act="rodup" data-k="${r.id}" ${S.money>=up.coins&&S.scales>=up.scales?'':'disabled'}>Upgrade · <span class="coin">${fmt(up.coins)}</span> + ${up.scales} Scales</button>`:'<span class="badge g">Max level</span>'}</div></div>
     <div class="meta">${stats(r)}${L?` · Level bonus: +${3*L}% reel speed, −${2*L}% line tension, +${2*L}% rare odds`:''}</div>
     <h5>Attachments (${r.slots} slot${r.slots>1?'s':''})</h5>${Array.from({length:r.slots},(_,i)=>slotRow(i)).join('')}
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
     const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span></button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
-    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?'#2a4a55':x.col,own?rodLvl(x.id):0)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'A mystery rod.':esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
+    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'A mystery rod.':esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
   <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has three tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<3?ATT_COST[t]:null;
     return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / 3</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
       <div class="val" style="font-size:14px">${t?statTxt(a.k,a.v[t-1]):'Not owned'}${next?` <span class="meta">→ ${statTxt(a.k,a.v[t])}</span>`:''}</div>
@@ -5296,6 +5296,10 @@ function v3Rod(c,hand,tip,mx,my,rod,night,t,reeling){ const id=rod?rod.id:'bambo
 if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=3*150; const x=o.getContext('2d'); x.fillStyle='#4a7a90'; x.fillRect(0,0,o.width,o.height);
   RODS.forEach((r,i)=>{ const ox=(i%4)*220, oy=Math.floor(i/4)*150; x.save(); x.translate(ox,oy); x.scale(1.6,1.6); v3Rod(x,{x:20,y:70},{x:125,y:12},70,30,r,0,performance.now()/1000,i%2===0); x.restore(); x.fillStyle='#fff'; x.font='11px sans-serif'; x.fillText(r.id,ox+6,oy+144); });
   if(save) __post(save,o.toDataURL()); return RODS.length; };
+// rod pictures for the Rods tab, drawn once per rod with the same code as in the game
+const ROD_IMG3={};
+function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('canvas'); o.width=240; o.height=80; const x=o.getContext('2d'); x.scale(2,2); v3Rod(x,{x:16,y:33},{x:114,y:6},64,22,ROD_I[id],0,0,false); ROD_IMG3[id]=o.toDataURL(); }
+  return `<span style="position:relative;display:inline-block;width:120px;height:40px;flex:0 0 auto"><img src="${ROD_IMG3[id]}" width="120" height="40" alt="" style="display:block">${lvl?`<b style="position:absolute;right:0;bottom:-2px;font-size:11px;color:#ffd36a">Lv ${lvl}</b>`:''}</span>`; }
 
 // =====================================================================
 // Driftline 0.3: pets redrawn in the B2 style (preview only until 0.3 ships).

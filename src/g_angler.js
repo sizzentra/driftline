@@ -227,3 +227,7 @@ function v3Rod(c,hand,tip,mx,my,rod,night,t,reeling){ const id=rod?rod.id:'bambo
 if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=3*150; const x=o.getContext('2d'); x.fillStyle='#4a7a90'; x.fillRect(0,0,o.width,o.height);
   RODS.forEach((r,i)=>{ const ox=(i%4)*220, oy=Math.floor(i/4)*150; x.save(); x.translate(ox,oy); x.scale(1.6,1.6); v3Rod(x,{x:20,y:70},{x:125,y:12},70,30,r,0,performance.now()/1000,i%2===0); x.restore(); x.fillStyle='#fff'; x.font='11px sans-serif'; x.fillText(r.id,ox+6,oy+144); });
   if(save) __post(save,o.toDataURL()); return RODS.length; };
+// rod pictures for the Rods tab, drawn once per rod with the same code as in the game
+const ROD_IMG3={};
+function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('canvas'); o.width=240; o.height=80; const x=o.getContext('2d'); x.scale(2,2); v3Rod(x,{x:16,y:33},{x:114,y:6},64,22,ROD_I[id],0,0,false); ROD_IMG3[id]=o.toDataURL(); }
+  return `<span style="position:relative;display:inline-block;width:120px;height:40px;flex:0 0 auto"><img src="${ROD_IMG3[id]}" width="120" height="40" alt="" style="display:block">${lvl?`<b style="position:absolute;right:0;bottom:-2px;font-size:11px;color:#ffd36a">Lv ${lvl}</b>`:''}</span>`; }
