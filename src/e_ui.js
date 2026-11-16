@@ -274,7 +274,7 @@ async function readCode(code){ code=String(code).trim().replace(/\s+/g,''); cons
   if(tag==='DL1:'){ const u=Uint8Array.from(bin,ch=>ch.charCodeAt(0)); const st=new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return JSON.parse(await new Response(st).text()); }
   if(tag==='DL0:') return JSON.parse(decodeURIComponent(escape(bin))); throw new Error('not a Driftline code'); }
 function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mode: standalone)').matches;
-  P.innerHTML=`<h2>Save and load</h2><p class="sub">Your progress saves by itself on this device. Moving to another phone or computer? Send yourself the link below. The save code underneath is a backup.</p>${linkHTML()}
+  P.innerHTML=`<h2>Save and load</h2><p class="sub">Your progress saves by itself on this device. Moving to another phone or computer? Use Send and Get progress below with a 6-digit code. The save code underneath is a backup.</p>${linkHTML()}
   <div class="grid"><div class="tile"><h4>Your save code</h4><div class="meta">Level ${S.lvl} · ${fmt(S.money)} coins · ${Object.keys(S.journal).length} species · last saved ${S.savedAt?new Date(S.savedAt).toLocaleString():'never'}</div>
     <textarea id="savecode" readonly rows="4" aria-label="Your save code">Making your code…</textarea><div class="row"><button class="btn" data-act="copysave">Copy save code</button></div></div>
   <div class="tile"><h4>Load a save code</h4><div class="meta">Paste a code from another device. It replaces the progress on this one.</div><textarea id="loadcode" rows="4" placeholder="Paste a code that starts with DL" aria-label="Save code to load"></textarea>

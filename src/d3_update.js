@@ -3,8 +3,12 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.2';
+const GAME_VERSION = '2.2.1';
 const PATCHES = [
+ {v:'2.2.1', name:'Quick fix', items:[
+  'Sending progress with a 6-digit code now works on every network. Before, it could fail to connect on some home Wi-Fi and phone connections.',
+  'Your code now stays valid for 3 hours, so there’s no rush to type it in.',
+  'The Save tab explains the new way to move your progress.' ]},
  {v:'2.2', name:'Closer Together', items:[
   'Moving progress between phone and PC is much easier, in both directions: tap Send on the device with your progress and type its 6-digit code on the other one. Phones can scan the code instead. Works for any amount of progress, no matter how far you’ve come.',
   'The old “progress is too big for a QR code” problem is gone.',
