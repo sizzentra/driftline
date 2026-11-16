@@ -325,6 +325,7 @@ function draw(now){
   const L=curLoc(), p=phase(), t=now/1000, hz=HZ(), wx=weather(); const night=nightness(p);
   const dusk = Math.max(0, 1-Math.abs(p-.5)/.06) + Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7;
   const gloom = (wx.k==='Storm' ? .55 : wx.k==='Rain' ? .3 : wx.k==='Fog' ? .15 : 0) + (L.id==='deep'?.1:0);
+  if(!v3Scene(L,t,p,night,dusk,gloom,hz,wx)){
   const sg=g.createLinearGradient(0,0,0,hz);
   let top=mix(L.sky[0],'#0b1430',night), bot=mix(L.sky[1],'#24305a',night); if(dusk>0) bot=mix(bot,'#f2875a',clamp(dusk,0,1)*.8);
   if(gloom){ top=mix(top,'#3a4652',gloom); bot=mix(bot,'#59636c',gloom); } if(wx.k==='Gilded') bot=mix(bot,'#ffcf6a',.35);
@@ -347,12 +348,13 @@ function draw(now){
   for(let r=0;r<14;r++){ const y = hz + Math.pow(r/14,1.6)*(H-hz) + 4; const sp=10+r*5, len=8+r*4, spd=(8+r*2)*swell*(L.id==='river'?2:1); g.beginPath();
     for(let x=-sp*2 + ((t*spd+r*37)%(sp*2)); x<W; x+=sp*2){ const yy=y+Math.sin(x*.05+t*1.5+r)*1.5*swell; g.moveTo(x,yy); g.lineTo(x+len,yy); } g.stroke(); }
   drawWaterDeco(L,t,night,hz); { const dtA=Math.min(.05,Math.max(0,t-(draw.lastT||t))); draw.lastT=t; drawAmbient(L,t,night,hz,dtA); }
+  }
   drawHotspot(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.fillStyle='#06121a'; g.fillRect(G.bob.x-12,G.bob.y+8,24,14); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
-  drawPlatform(L,t,night,dockY,pb);
+  if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
   { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
   const sc=clamp(H/420,.7,1.25), ax=W*.12, ay=dockY+pb;
   drawPetScene(ax,ay,sc,t,night);
@@ -382,7 +384,7 @@ function draw(now){
     else if(f && f.kind==='hat'){ g.scale(sz/30,sz/30); drawHat(g,f.hat.id,f.hat.fixed?'#888888':S.look.hatCol,t); }
     g.restore(); if(f && (f.shiny||f.kind==='hat')){ g.fillStyle='rgba(255,233,168,.9)'; for(let i=0;i<5;i++){ const a=t*4+i*1.25; g.fillRect(lp.x+Math.cos(a)*sz*.6,lp.y+Math.sin(a)*sz*.4,2.5,2.5); } } }
   g.fillStyle='rgba(225,240,240,.85)'; for(const q of G.parts){ g.globalAlpha=Math.max(0,1-q.t/q.life); g.fillRect(q.x,q.y,2,2); } g.globalAlpha=1;
-  drawFore(L,t,night);
+  if(!v3Fore(L,t,night)) drawFore(L,t,night);
   drawEvents(t);
   const FX=S.settings.effects;
   if(FX && (wx.k==='Rain'||wx.k==='Storm')){ const n = wx.k==='Storm'?140:80; if(!drops||drops.length!==n) drops=Array.from({length:n},()=>[Math.random(),Math.random(),.6+Math.random()*.6]);

@@ -7,11 +7,11 @@ $l.Prefixes.Add('http://localhost:8766/')
 $l.Start()
 while ($l.IsListening) {
   $ctx = $l.GetContext()
-  $p = $ctx.Request.Url.AbsolutePath.TrimStart('/'); if ($p -eq '') { $p = 'index.html' }
+  $p = $ctx.Request.Url.AbsolutePath.TrimStart('/'); if ($p -eq '' -or $p.EndsWith('/')) { $p = $p + 'index.html' }
   $f = Join-Path $root $p
   if (Test-Path $f -PathType Leaf) {
     $b = [IO.File]::ReadAllBytes($f)
-    if ($p -eq 'index.html' -and $ctx.Request.Url.Query -match 'test') { $h=[Text.Encoding]::UTF8.GetString($b).Replace('<body>','<body><script>window.requestAnimationFrame=function(f){return setTimeout(function(){f(performance.now())},33)};</script>'); $b=[Text.Encoding]::UTF8.GetBytes($h) }
+    if ($p.EndsWith('index.html') -and $ctx.Request.Url.Query -match 'test') { $h=[Text.Encoding]::UTF8.GetString($b).Replace('<body>','<body><script>window.requestAnimationFrame=function(f){return setTimeout(function(){f(performance.now())},33)};</script>'); $b=[Text.Encoding]::UTF8.GetBytes($h) }
     $ext = [IO.Path]::GetExtension($f); $ctx.Response.ContentType = $types[$ext]
     $ctx.Response.ContentLength64 = $b.Length; $ctx.Response.OutputStream.Write($b,0,$b.Length)
   } else { $ctx.Response.StatusCode = 404 }

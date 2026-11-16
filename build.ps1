@@ -1,11 +1,28 @@
 # Builds site/index.html from the game source in src/ and stamps a new version.
 # Run:  powershell -ExecutionPolicy Bypass -File build.ps1
+# Preview build (0.3 work in progress, its own save):  powershell -ExecutionPolicy Bypass -File build.ps1 -Preview
+#   -> site/next/index.html, live at https://sizzentra.github.io/driftline/next/
+param([switch]$Preview)
 $root = $PSScriptRoot
 $v = (Get-Date).ToString('yyyy.MM.dd-HHmm')
 $utf8 = New-Object System.Text.UTF8Encoding $false
-$game = 'a_head.html','b_data.js','c_logic.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','d8_v21.js','d9_link.js','d10_lily.js','e_ui.js' | ForEach-Object { [IO.File]::ReadAllText((Join-Path $root "src\$_")) }
+$parts = 'a_head.html','b_data.js','c_logic.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','d8_v21.js','d9_link.js','d10_lily.js','f_v3scene.js','e_ui.js'
+$game = $parts | ForEach-Object { [IO.File]::ReadAllText((Join-Path $root "src\$_")) }
 $top = [IO.File]::ReadAllText((Join-Path $root 'src\shell_top.html')).Replace('__VERSION__', $v)
 $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))
-[IO.File]::WriteAllText((Join-Path $root 'site\index.html'), $top + ($game -join '') + $bottom, $utf8)
-[IO.File]::WriteAllText((Join-Path $root 'site\version.txt'), $v, $utf8)
-Write-Output "Built version $v"
+$body = $game -join ''
+if ($Preview) {
+  # own save key; copies the real save once on first open and never writes to it
+  $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){}")
+  $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="manifest.webmanifest"', 'href="../manifest.webmanifest"').Replace('href="icon-192.png"', 'href="../icon-192.png"')
+  $badge = '<div style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3 preview</div>'
+  $out = Join-Path $root 'site\next'
+  New-Item -ItemType Directory -Force $out | Out-Null
+  [IO.File]::WriteAllText((Join-Path $out 'index.html'), $top + $body + $badge + $bottom, $utf8)
+  [IO.File]::WriteAllText((Join-Path $out 'version.txt'), $v, $utf8)
+  Write-Output "Built PREVIEW version $v"
+} else {
+  [IO.File]::WriteAllText((Join-Path $root 'site\index.html'), $top + $body + $bottom, $utf8)
+  [IO.File]::WriteAllText((Join-Path $root 'site\version.txt'), $v, $utf8)
+  Write-Output "Built version $v"
+}
