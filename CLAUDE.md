@@ -26,6 +26,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - All of them save to `tools/shots/<name>.png` via the local server (POST /shot/<name>). Open them with the Read tool: browser-pane screenshots lag and aren't reliable.
   - **Done:** new angler `src/g_angler.js` (`drawAngler3`). It keeps the old anchors (head centre (0,-56), r 7.5) so hats, beards and glasses fit; the torso is a path (male and female); shirt patterns and all 17 outfits are clipped to the body; 9 hairstyles with back and front layers; ear, nose, jaw, blinking eyes, brows, moods (calm, surprised at a bite, focused while reeling, happy while landing); two arms (rod hand + reel hand); boots with soles and laces. Verified with `__anglerSheet({from,to,face,save})`: every outfit × 8 looks, plus face close-ups.
   - **Done:** pet spacing. The favourite stands clear of the angler; the companion goes further left, or on narrow phones sits layered just behind the favourite.
+  - **Done:** fishing moments: the angler leans for charge, throw, fight and landing (hands stay on the rod); splash rings + droplets on landing, bite and fight; sparkles for rare catches (`v3Fx` / `v3FxTop`).
+  - **Done:** ALL pets redrawn (`src/h_pets.js`).
+    - Rigs: `rigQuad` (22 four-legged + 4 reptiles), `rigSit` (10 front-facing), `rigBird` (9), plus 16 one-of-a-kind pets (`PET3_CUSTOM`).
+    - Moods: idle (breathe, blink, wag, ear twitch), watch while fishing, bite, petted, happy on a catch, sleep at night.
+    - Frames: head/neck/back. `drawGear3` draws every accessory in those frames; per-pet glasses fit uses `gx`/`gy`/`gs`.
+    - QC: `__pet3Sheet({ids,moods,cols,cell,save})`; every pet × mood × accessory checked.
+    - Old drawings are used only if a pet has no PET3 entry (none left).
   - **Next, in order:**
     1. Fishing moments: a cast swing pose, the reel fight (body lean, rod bend, fish splashes), a catch reveal with celebration.
     2. Redraw all pets on the frame system.
