@@ -15,6 +15,10 @@ body.v3{
 }
 body.v3, html:has(body.v3){ background:radial-gradient(1400px 700px at 50% -15%,#1b2c4a 0%,#0e1830 45%,#0a1220 75%) fixed,#0a1220 }
 body.v3 ::selection{background:#ff8a5c55}
+/* no blue tap flash or focus ring on the game window (phones flashed on every tap while reeling) */
+html, body, .stage, .stage *, canvas{ -webkit-tap-highlight-color:transparent }
+.stage:focus, .stage:focus-visible, canvas:focus{ outline:none }
+.stage, canvas{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none }
 
 /* ---- the game window ---- */
 body.v3 .stage{ border-radius:20px; border:1px solid #3a587855; box-shadow:0 0 0 1px #0a1220, 0 18px 60px #02060fcc, 0 0 80px #3a6aa022 }

@@ -296,7 +296,7 @@ function startAudio(){ const a=ac(); if(!a||MUS.started) return; MUS.started=tru
   n.dl=AC.createDelay(2); n.dl.delayTime.value=.42; n.fb=AC.createGain(); n.fb.gain.value=.32; n.dlf=AC.createBiquadFilter(); n.dlf.type='lowpass'; n.dlf.frequency.value=1800; n.dl.connect(n.dlf); n.dlf.connect(n.fb); n.fb.connect(n.dl); n.dlf.connect(n.wet); n.dlf.connect(BUS.music); n.dls=AC.createGain(); n.dls.gain.value=.5; n.dls.connect(n.dl);
   n.white=noiseBuf(1,false);
   // vinyl crackle for lo-fi
-  const vb=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate), vd=vb.getChannelData(0); for(let i=0;i<vd.length;i++) vd[i]=(Math.random()<.0007?(Math.random()*2-1):0)+(Math.random()*2-1)*.012; n.vin=AC.createBufferSource(); n.vin.buffer=vb; n.vin.loop=true; n.ving=AC.createGain(); n.ving.gain.value=0; const vf=AC.createBiquadFilter(); vf.type='bandpass'; vf.frequency.value=2500; n.vin.connect(vf); vf.connect(n.ving); n.ving.connect(BUS.music); n.vin.start();
+  const vb=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate), vd=vb.getChannelData(0); for(let i=0;i<vd.length;i++) vd[i]=(Math.random()<.00035?(Math.random()*2-1)*.8:0); n.vin=AC.createBufferSource(); n.vin.buffer=vb; n.vin.loop=true; n.ving=AC.createGain(); n.ving.gain.value=0; const vf=AC.createBiquadFilter(); vf.type='bandpass'; vf.frequency.value=2500; n.vin.connect(vf); vf.connect(n.ving); n.ving.connect(BUS.music); n.vin.start();
   // ambience: waves / stream, wind
   n.wave=AC.createBufferSource(); n.wave.buffer=noiseBuf(6,true); n.wave.loop=true; n.wavef=AC.createBiquadFilter(); n.wavef.type='lowpass'; n.wavef.frequency.value=600; n.waveg=AC.createGain(); n.waveg.gain.value=.05;
   n.lfo=AC.createOscillator(); n.lfo.frequency.value=.08; n.lfog=AC.createGain(); n.lfog.gain.value=.04; n.lfo.connect(n.lfog); n.lfog.connect(n.waveg.gain); n.lfo.start();
@@ -316,7 +316,7 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
     if(night<.5 && L.id==='coast' && r>.995){ const t=now+.05; for(let i=0;i<2;i++){ const o=mv('sawtooth',950,t+i*.25,.22,.012,.02,[BUS.amb]); o.frequency.exponentialRampToValueAtTime(600,t+i*.25+.2); } }
     if(L.id==='trench' && r>.996) mv('sine',1250,now+.05,2.5,.02,.01,[BUS.amb, n.wet]); }
   // music
-  const stName=curStyle(), st=STYLES[stName]; n.ving.gain.setTargetAtTime(stName==='lofi'&&S.settings.musicOn?.5:0, now, .5);
+  const stName=curStyle(), st=STYLES[stName]; n.ving.gain.setTargetAtTime(stName==='lofi'&&S.settings.musicOn?.16:0, now, .5);
   if(!S.settings.musicOn){ MUS.next=Math.max(MUS.next,now+.1); return; }
   const stepLen=60/st.bpm/2;
   while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; }

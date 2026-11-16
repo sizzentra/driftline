@@ -447,6 +447,8 @@ const PERKS = {
   aquarist: {name:'Aquarist',       max:10, per:'+3% to aquarium fish boosts', d:'Your fish thrive under your care.'},
   derbypro: {name:'Derby Pro',      max:5,  per:'Derby rivals score 4% less', d:'You know the competition’s tricks.'},
   tidewalker:{name:'Tidewalker',    max:10, per:'+6% Tide Pass XP', d:'The tide carries you further.'},
+  hybrid:   {name:'Odd Genes',      max:9,  per:'+0.1% hybrid chance', d:'Now and then a fish has the weight of another fish from the same waters. Up to 1%.'},
+  dozer:    {name:'Lazy Days',      max:5,  per:'Rest mode bites come sooner', d:'While resting, fish bite in 30 s to 3 min at full rank (3 to 10 min to start).'},
 };
 const WEATHERS = [
   {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},

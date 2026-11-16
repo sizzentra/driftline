@@ -55,16 +55,20 @@ function hideCard(){ $('card').hidden=true; G.st='idle'; afterCard(); }
 $('card').addEventListener('pointerdown',e=>{ e.stopPropagation(); hideCard(); });
 
 // ---------- bounties ----------
-const bountySlots = () => 3 + Math.min(2, Math.floor((S.unlocked.length-1)/3));
-function makeBounty(){
-  if(Math.random()<.08){ const lp=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r===4); if(lp.length){ const sp=pick(lp); return {sp:sp.id, type:'count', n:1, have:0, reward:Math.round(sp.base*3), legend:1}; } }
+// 0.3: every water keeps its own board of bounties, so progress (and rare bounties) stay with that water
+const BOUNTIES_PER_WATER = 3;
+const bountySlots = () => BOUNTIES_PER_WATER*S.unlocked.length;
+let bLoc=null;
+function makeBounty(L){ L=L||S.loc;
+  if(Math.random()<.08){ const lp=SP.filter(s=>s.loc===L&&s.r===4); if(lp.length){ const sp=pick(lp); return {sp:sp.id, loc:L, type:'count', n:1, have:0, reward:Math.round(sp.base*3), legend:1}; } }
   const cap = Math.random()<.12 ? 3 : Math.random()<.3 ? 2 : 1;
-  const pool=SP.filter(s=>S.unlocked.includes(s.loc) && s.r <= cap); const locBias = pool.filter(s=>s.loc===S.unlocked[S.unlocked.length-1]);
-  const sp = pick(locBias.length && Math.random()<.6 ? locBias : pool);
-  if(Math.random()<.55){ const n = sp.r===0 ? 2+Math.floor(Math.random()*3) : sp.r>=3 ? 1 : 1+Math.floor(Math.random()*2); return {sp:sp.id, type:'count', n, have:0, reward:Math.round(sp.base*n*2.4+20)}; }
-  const kg = +(sp.min+(sp.max-sp.min)*rnd(.45,.7)).toFixed(sp.max<10?2:1); return {sp:sp.id, type:'size', kg, have:0, reward:Math.round(sp.base*4+30)};
+  const pool=SP.filter(s=>s.loc===L && s.r <= cap); const sp = pick(pool.length?pool:SP.filter(s=>s.loc===L));
+  if(Math.random()<.55){ const n = sp.r===0 ? 2+Math.floor(Math.random()*3) : sp.r>=3 ? 1 : 1+Math.floor(Math.random()*2); return {sp:sp.id, loc:L, type:'count', n, have:0, reward:Math.round(sp.base*n*2.4+20)}; }
+  const kg = +(sp.min+(sp.max-sp.min)*rnd(.45,.7)).toFixed(sp.max<10?2:1); return {sp:sp.id, loc:L, type:'size', kg, have:0, reward:Math.round(sp.base*4+30)};
 }
-function fillBounties(){ while(S.bounties.length<bountySlots()) S.bounties.push(makeBounty2()||makeBounty()); }
+function bountyLoc(b){ if(b.loc) return b.loc; if(b.sp&&SPI[b.sp]) return SPI[b.sp].loc; return null; }
+function fillBounties(){ for(const b of S.bounties){ if(!b.loc){ const l=bountyLoc(b); b.loc=l||S.loc; } }
+  for(const L of S.unlocked){ let n=S.bounties.filter(b=>b.loc===L).length; while(n<BOUNTIES_PER_WATER){ S.bounties.push(makeBounty2(L)||makeBounty(L)); n++; } } }
 function bDone(b){ return (b.type==='count'||b.type==='style') ? b.have>=b.n : b.have>=1; }
 function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.sp!==sp.id || bDone(b)) continue; if(b.type==='count'){ b.have++; } else if(kg>=b.kg){ b.have=1; } if(bDone(b)) done.push(b); } return done; }
 
@@ -74,18 +78,18 @@ function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('ta
 $('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); b.scrollIntoView({block:'nearest',inline:'nearest'}); } });
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'); if(b){ setTab(b.dataset.tabgo); save(); } });
 function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, home:renderHome, pass:renderPass}[S.tab]||renderCooler; fn(P); }
-const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
-const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
-function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
+const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
+const aqTxt = f => { const L=aqBuffsOf(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
+function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',+c.dataset.sh||0,c.dataset.pv||null)); }
 
 const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
 function renderCooler(P){
-  const total=S.cooler.filter(f=>!isProtected(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < S.tankSlots; const dm=demandSp();
+  const total=S.cooler.filter(f=>!isProtected(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < aqCap(); const dm=demandSp();
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
   <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell all${S.settings.protectRare&&S.cooler.some(isProtected)?' but rare':''} for <span class="coin">${fmt(total)}</span></button></div>
   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;gap:12px"><canvas width="128" height="64" data-fish="${dm.id}" style="width:64px;height:32px"></canvas>
   <div style="min-width:0"><b>The fishmonger wants ${dm.name}</b> <span class="meta">(${LOCS[locIdx(dm.loc)].name})</span><div class="meta">Pays double for it until the weather changes (<span id="dmleft">${mmss(wxLeft())}</span>).</div></div></div>`+
-  (S.cooler.length ? '<div class="list">'+S.cooler.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
+  (S.cooler.length ? '<div class="list">'+S.cooler.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">Aquarium: ${aqTxt(f)}</span></small></div>
    <div class="val coin" ${dm.id===f.id?'style="color:var(--gold)" title="Fishmonger pays double"':''}>${fmt(salePrice(f))}${dm.id===f.id?' ×2':''}</div><div class="acts"><button class="btn alt sm" data-act="totank" data-i="${i}" ${tankFree?'':'disabled'} title="${tankFree?'Earns '+fmt(fishRate(f)*60)+' coins per hour':'Aquarium is full'}">To aquarium</button><button class="btn alt sm" data-act="sell" data-i="${i}">Sell</button></div></div>`; }).reverse().join('')+'</div>'
    : '<div class="empty">Nothing in the cooler yet. Cast a line and land your first fish.</div>');
@@ -117,15 +121,15 @@ function renderSkills(P){ const free=ptsFree(), cost=50*S.lvl;
     <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${r>=p.max?'Maxed':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>';
 }
 function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COST[S.tankSlots];
-  const sums={}; for(const f of S.tank){ const e=aqEff(f); if(e) sums[e.k]=(sums[e.k]||0)+e.v; }
+  const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
-  P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every Uncommon or rarer fish also gives a boost while on display, and boosts stack. Shiny fish give double.</p></div>
+  P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, prismatic fish even more, and hybrids give two.</p></div>
   <div class="bank"><div><div class="sub">Earning</div><b class="coin">${fmt(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank">${fmt(S.tankBank)}</b></div>
   <button class="btn" id="collectbtn" data-act="collect" ${S.tankBank>=1?'':'disabled'}>Collect</button></div></div>
-  <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Display an Uncommon or rarer fish.</span>'}</div>
+  <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Put a fish on display.</span>'}</div>
   <div class="tank"><canvas id="tankcv"></canvas></div>${S.aq.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the sand to move it.</p>`:""}
-  <div class="row spread" style="margin-top:10px"><span class="sub">${S.tank.length} of ${S.tankSlots} tanks used</span>
-  ${next!=null?`<button class="btn alt" data-act="buytank" ${S.money>=next?'':'disabled'}>Build another tank · <span class="coin">${fmt(next)}</span></button>`:'<span class="sub">All tanks built</span>'}</div>`+
+  <div class="row spread" style="margin-top:10px"><span class="sub">${S.tank.length} of ${aqCap()} spots used</span>
+  ${next!=null?`<button class="btn alt" data-act="buytank" ${S.money>=next?'':'disabled'}>Increase tank size · <span class="coin">${fmt(next)}</span></button>`:'<span class="sub">Your tank is as big as it gets</span>'}</div>`+
   (S.tank.length ? '<div class="list">'+S.tank.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span></small></div>
    <div class="val"><span class="coin">${fmt(fishRate(f)*60)}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
@@ -133,8 +137,9 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
-  P.innerHTML=derbyHTML()+dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
-  S.bounties.map((b,i)=>{ const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
+  P.innerHTML=derbyHTML()+dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. Every water has its own board, and its bounties wait there until you finish them. Fish still go in your cooler.</p>
+  <div class="chips" style="margin:6px 0 10px">${S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b)).map(L=>{ const n=S.bounties.filter(b=>b.loc===L&&bDone(b)).length; return `<button class="chipb" data-act="bloc" data-k="${L}" aria-pressed="${(bLoc||S.loc)===L}">${esc(LOCS[locIdx(L)].name)}${n?' · '+n+' ready':''}</button>`; }).join('')}</div><div class="grid">`+
+  S.bounties.map((b,i)=>{ if(b.loc!==(S.unlocked.includes(bLoc)?bLoc:S.loc)) return ''; const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
       return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
        <div class="row spread"><span class="val"><span class="coin">${fmt(rw)}</span> + ${b.scales} Scales</span>${d?`<button class="btn" data-act="claim" data-i="${i}">Claim</button>`:`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }
     const sp=SPI[b.sp], d=bDone(b), L=LOCS[locIdx(sp.loc)];
@@ -164,9 +169,9 @@ function renderJournal(P){
     let det='';
     if(sel){ const j=S.journal[sel.id], ae=aqBase(sel.id), B=BEH[sel.beh];
       det=`<div class="tile detail" style="margin-top:10px"><canvas width="440" height="220" data-fish="${sel.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas><div>
-      <div class="rar" style="color:${RAR[sel.r].c}">${RAR[sel.r].k}${j&&j.sh?' · <span class="sh">✦ shiny caught</span>':''}${j&&j.tr?' · trophy caught':''}</div>
+      <div class="rar" style="color:${RAR[sel.r].c}">${RAR[sel.r].k}${j&&j.pr?' · <span class="sh">✦✦ prismatic caught</span>':j&&j.sh?' · <span class="sh">✦ shiny caught</span>':''}${j&&j.tr?' · trophy caught':''}</div>
       <h2>${j?sel.name:'Not caught yet'}</h2><p class="sub">${j?sel.note:'Keep fishing '+L.name+(sel.time!=='any'?' at '+(sel.time==='night'?'night':'day'):'')+'.'}</p>
-      <div class="kv" style="margin-top:8px"><div><span>Best weight</span> ${j?kgStr(j.best):'—'}</div><div><span>Best sale value</span> ${j&&j.bv?'<span class="coin">'+fmt(j.bv)+'</span>':'—'}</div><div><span>Times caught</span> ${j?fmt(j.n):0}</div>
+      <div class="kv" style="margin-top:8px"><div><span>Heaviest</span> ${j&&j.best?kgStr(j.best):'—'}</div><div><span>Smallest</span> ${j&&j.min!=null?kgStr(j.min):'—'}</div>${j&&j.hb!=null?`<div><span>Hybrid heaviest</span> <span class="sh">${kgStr(j.hb)}</span></div><div><span>Hybrid lightest</span> <span class="sh">${kgStr(j.hs)}</span></div>`:''}<div><span>Best sale value</span> ${j&&j.bv?'<span class="coin">'+fmt(j.bv)+'</span>':'—'}</div><div><span>Times caught</span> ${j?fmt(j.n):0}</div>
       <div><span>Size range</span> ${kgStr(sel.min)}–${kgStr(sel.max)}</div><div><span>Active</span> ${sel.time==='any'?'Day and night':sel.time==='night'?'Night only':'Day only'}</div><div><span>Strength</span> ${sel.str}</div>
       <div><span>Mastery</span> <span class="sh">${starStr(mastery(sel.id))}</span> +${mastery(sel.id)*10}%${mastery(sel.id)<4?` · next at ${MASTERY[mastery(sel.id)]}`:''}</div>
       <div><span>Fights like a</span> ${B.n.toLowerCase()}</div><div><span>Temper</span> ${'●'.repeat(Math.round(sel.aggr*5))+'○'.repeat(5-Math.round(sel.aggr*5))}</div><div><span>In the aquarium</span> ${ae?fmtB(ae.k,ae.v):'—'}</div>
@@ -175,7 +180,7 @@ function renderJournal(P){
       <div class="prog"><i style="width:${got/list.length*100}%"></i></div>${det}
       <div class="jgrid">${list.map(s=>{ const j=S.journal[s.id]; return `<button class="jcard ${encSel===s.id?'sel':''}" data-act="enc" data-k="${s.id}"><canvas width="200" height="100" data-fish="${s.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas>
         <b style="color:${j?RAR[s.r].c:'var(--muted)'}">${j?s.name:'???'}${j&&j.sh?' <span class="sh">✦</span>':''}</b><small>${RAR[s.r].k}${s.time!=='any'?' · '+(s.time==='night'?'night':'day'):''}</small>
-        <small>${j?`Record ${kgStr(j.best)}${j.tr?' 🏆':''}`:(open?'Not caught yet':'Locked')}</small>${j?`<small class="sh">${starStr(mastery(s.id))}</small>`:''}</button>`; }).join('')}</div>`;
+        <small>${j?`Record ${kgStr(j.best||j.hb||0)}${j.tr?' 🏆':''}`:(open?'Not caught yet':'Locked')}</small>${j?`<small class="sh">${starStr(mastery(s.id))}</small>`:''}</button>`; }).join('')}</div>`;
   }
   const ts=totalStars(), rk=anglerRank();
   P.innerHTML=`<div class="tile" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><div><div class="rar" style="color:var(--gold)">Angler rank ${rk}</div><b>${ts} mastery stars</b> <span class="meta">· +${rk}% to every sale</span>
@@ -303,10 +308,10 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'install': { const ip=window.__dlInstallPrompt; if(!ip) return; ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; renderPanel(); }); return; }
     case 'sellall': { const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')+'. '+quip('sell')); break; }
     case 'sell': { const f=S.cooler[i]; if(!f) return; earn(salePrice(f)); S.cooler.splice(i,1); sfx.coin(); break; }
-    case 'totank': { if(S.tank.length>=S.tankSlots) return; const f=S.cooler[i]; if(!f) return; accrue(); S.tank.push(f); S.cooler.splice(i,1); toast(SPI[f.id].name+' is on display'+(aqEff(f)?': '+aqTxt(f):'')); break; }
+    case 'totank': { if(S.tank.length>=aqCap()) return; const f=S.cooler[i]; if(!f) return; accrue(); S.tank.push(f); S.cooler.splice(i,1); toast(SPI[f.id].name+' is on display'+(aqEff(f)?': '+aqTxt(f):'')); break; }
     case 'untank': { if(S.cooler.length>=gv('cooler')) return; const f=S.tank[i]; if(!f) return; accrue(); S.cooler.push(f); S.tank.splice(i,1); break; }
     case 'collect': { accrue(); const c=Math.floor(S.tankBank); if(c<1) return; earn(c); S.tankBank-=c; sfx.coin(); toast('Collected '+fmt(c)+' coins'); break; }
-    case 'buytank': { const c=TANK_COST[S.tankSlots]; if(c==null||S.money<c) return; S.money-=c; S.tankSlots++; sfx.coin(); toast('New tank built'); break; }
+    case 'buytank': { const c=TANK_COST[S.tankSlots]; if(c==null||S.money<c) return; S.money-=c; S.tankSlots++; sfx.coin(); toast('Your tank grew: room for '+aqCap()+' fish'); break; }
     case 'perk': { const p=PERKS[k]; if(!p||ptsFree()<=0||pr(k)>=p.max) return; S.perks[k]=pr(k)+1; sfx.coin(); toast(p.name+' rank '+S.perks[k]); break; }
     case 'respec': { const c=50*S.lvl; if(S.money<c) return; S.money-=c; S.perks={}; toast('Skills reset. Points refunded.'); break; }
     case 'buygear': { const lv=S.gear[k], c=GEAR[k].cost[lv+1]; if(c==null||S.money<c) return; S.money-=c; S.gear[k]++; sfx.coin(); toast(GEAR[k].name+' upgraded to level '+(S.gear[k]+1)); break; }
@@ -320,10 +325,11 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
       Object.assign(S,{money:relic('headstart')?25000:0, gear:fresh().gear, bait:relic('tacklebox')?S.bait:baitZero(), baitSel:relic('tacklebox')?S.baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0});
       S.stats.runEarned=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again with '+S.pearls+' Wisdom Pearls: +'+Math.round((coinMult()-1)*100)+'% coins and XP'); break; }
     case 'resetok': { S=fresh(); S.savedAt=Date.now(); confirmBox=null; G.st='idle'; encLoc=null; encSel=null; fillBounties(); toast('Progress reset. A fresh start at Willow Pond.'); break; }
-    case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; S.bounties[i]=makeBounty2()||makeBounty(); break; }
+    case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
     case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<locCost(L)) return; S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': encLoc=k; encSel=null; break;
+    case 'bloc': bLoc=k; break;
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }

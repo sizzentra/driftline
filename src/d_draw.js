@@ -45,8 +45,9 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
 }
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
-function fishCanvas(cnv, sp, known=true, shiny=false){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
+function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
   if(!known){ mysteryThumb(c,w,h,sp.id); return; }
+  if(shiny===2){ drawCreature(c,sp,w*.52,h*.52,L,{shiny:true}); prismOverlay(c,w,h,pv||'rainbow',performance.now()/1000); return; }
   if(shiny){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,201,77,.35)'); gr.addColorStop(1,'rgba(255,201,77,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
   if(sp.r===5){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,106,213,.4)'); gr.addColorStop(.6,'rgba(106,255,234,.12)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
   drawCreature(c,sp,w*.52,h*.52,L,{shiny}); if(shiny||sp.r===5) sparkles(c,w,h,sp.r===5?10:7); }
@@ -350,6 +351,7 @@ function draw(now){
   drawWaterDeco(L,t,night,hz); { const dtA=Math.min(.05,Math.max(0,t-(draw.lastT||t))); draw.lastT=t; drawAmbient(L,t,night,hz,dtA); }
   }
   drawHotspot(t); v3Fx(t);
+  drawEat(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.fillStyle='#06121a'; g.fillRect(G.bob.x-12,G.bob.y+8,24,14); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
