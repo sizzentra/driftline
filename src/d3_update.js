@@ -35,7 +35,7 @@ const PATCHES = [
   'Twenty new oddities to fish up.',
   'Catfish and gar look like catfish and gar. Willow trees look like willows, and the shores are greener.',
   'Things you have not found yet stay a mystery: no more shapes giving them away.',
-  'Fish Log shows your smallest catch too. Shops list everything from cheapest to most expensive.',
+  'Fish Log is sorted by rarity and shows your smallest catch too. Shops list everything from cheapest to most expensive.',
   'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
   'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
   'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},

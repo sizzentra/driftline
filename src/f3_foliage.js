@@ -51,7 +51,7 @@ function v3willowDraw(c,P,t,hz){
   // curtains: strands hanging from points along every limb, falling almost to the water, leaves as short slanted dabs
   const fr=v3rng(61), strands=[];
   tips.forEach(([x0,y0,mx,my,x1,y1],li)=>{ for(let s=.12;s<=1.04;s+=.032){ const m=1-s, px=m*m*x0+2*m*s*mx+s*s*x1, py=m*m*y0+2*m*s*my+s*s*y1, outer=Math.abs(px-bx)/(H*.12);
-      const len=(by+H*.008-py)*(.7+outer*.22+fr()*.12), ph=fr()*6.28, dir=px<bx?-1:1; strands.push({px,py,len,ph,dir,out:.4+outer*.8,layer:fr()<.4?0:fr()<.66?1:2,sw:(.5+outer)}); } });
+      const len=(by+H*.008-py)*(.7+outer*.22+fr()*.12), ph=fr()*6.28, dir=limbs[li][0]<0?-1:limbs[li][0]>0?1:(((s*100)|0)%2?1:-1); strands.push({px,py,len,ph,dir,out:.4+outer*.8,layer:fr()<.4?0:fr()<.66?1:2,sw:(.5+outer)}); } });
   const leafPass=(layer,col,lw)=>{ c.strokeStyle=col; c.lineWidth=lw; c.beginPath();
     for(const S2 of strands){ if(S2.layer!==layer) continue; const sw=(wind+Math.sin(t*1.1+S2.ph)*H*.003)*S2.sw;
       for(let k=0;k<=1;k+=.06){ const arc=Math.sin(Math.min(1,k*2.6)*Math.PI/2), y=S2.py-Math.sin(Math.min(1,k*3)*Math.PI)*H*.008+S2.len*Math.pow(k,1.25), x=S2.px+S2.dir*S2.out*arc*H*.02+sw*k*k+Math.sin(k*3+S2.ph)*H*.0022, ll=u*(3.8-k*1.5), side=((k*100|0)%2)?1:-1; c.moveTo(x,y); c.lineTo(x+side*ll*.45,y+ll); } }

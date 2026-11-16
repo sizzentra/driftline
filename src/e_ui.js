@@ -165,7 +165,7 @@ function renderJournal(P){
     body=`<p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas>
       <b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; }).join('')+'</div>';
   } else {
-    const L=LOCS[locIdx(encLoc)], list=spAt(L.id), got=caughtAt(L.id), open=S.unlocked.includes(L.id); const sel=encSel && SPI[encSel] && SPI[encSel].loc===L.id ? SPI[encSel] : null;
+    const L=LOCS[locIdx(encLoc)], list=spAt(L.id).slice().sort((a,b)=>a.r-b.r||a.base-b.base), got=caughtAt(L.id), open=S.unlocked.includes(L.id); const sel=encSel && SPI[encSel] && SPI[encSel].loc===L.id ? SPI[encSel] : null;
     let det='';
     if(sel){ const j=S.journal[sel.id], ae=aqBase(sel.id), B=BEH[sel.beh];
       det=`<div class="tile detail" style="margin-top:10px"><canvas width="440" height="220" data-fish="${sel.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas><div>
