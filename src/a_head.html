@@ -254,6 +254,9 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 .xfin{flex:1;min-width:0;font:800 26px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-align:center;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
 .qrbox.sm{width:170px;min-height:170px;flex:none}.qrbox.sm img,.qrbox.sm canvas{width:154px!important;height:154px!important}
 .xfmore{margin-top:10px}.xfmore summary{cursor:pointer;color:var(--mute,#9fb3bd);font-weight:700}
+.sidetog{display:none}
+@media (orientation:landscape) and (max-height:560px){.sidetog{display:flex;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:58px;border-radius:10px;background:rgba(5,14,20,.62);color:#fff;border:1px solid rgba(255,255,255,.18);font:700 22px/1 system-ui;align-items:center;justify-content:center;z-index:6;padding:0;cursor:pointer;touch-action:manipulation}
+body.side-off .wrap{grid-template-columns:minmax(0,1fr)}body.side-off .tabs,body.side-off #panel{display:none!important}body.side-off .stage{grid-column:1 / -1}}
 </style>
 
 <div class="wrap">
@@ -272,6 +275,7 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="Fishing scene. Hold to charge a cast, release to throw."></canvas>
+    <button id="sidetog" class="sidetog" type="button" aria-label="Hide menus" title="Hide menus">›</button>
     <div id="toast"></div>
     <div class="card" id="card" hidden>
       <div class="in" id="cardin">

@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0413';
+window.DL_VERSION='2026.11.16-0419';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -272,6 +272,9 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 .xfin{flex:1;min-width:0;font:800 26px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-align:center;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
 .qrbox.sm{width:170px;min-height:170px;flex:none}.qrbox.sm img,.qrbox.sm canvas{width:154px!important;height:154px!important}
 .xfmore{margin-top:10px}.xfmore summary{cursor:pointer;color:var(--mute,#9fb3bd);font-weight:700}
+.sidetog{display:none}
+@media (orientation:landscape) and (max-height:560px){.sidetog{display:flex;position:absolute;right:6px;top:50%;transform:translateY(-50%);width:30px;height:58px;border-radius:10px;background:rgba(5,14,20,.62);color:#fff;border:1px solid rgba(255,255,255,.18);font:700 22px/1 system-ui;align-items:center;justify-content:center;z-index:6;padding:0;cursor:pointer;touch-action:manipulation}
+body.side-off .wrap{grid-template-columns:minmax(0,1fr)}body.side-off .tabs,body.side-off #panel{display:none!important}body.side-off .stage{grid-column:1 / -1}}
 </style>
 
 <div class="wrap">
@@ -290,6 +293,7 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="Fishing scene. Hold to charge a cast, release to throw."></canvas>
+    <button id="sidetog" class="sidetog" type="button" aria-label="Hide menus" title="Hide menus">›</button>
     <div id="toast"></div>
     <div class="card" id="card" hidden>
       <div class="in" id="cardin">
@@ -2175,8 +2179,10 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.2.1';
+const GAME_VERSION = '2.2.2';
 const PATCHES = [
+ {v:'2.2.2', name:'Small patch', items:[
+  'Phones held sideways: a new button on the edge of the water hides the menus so the water fills the screen, and brings them back. It remembers your choice.' ]},
  {v:'2.2.1', name:'Quick fix', items:[
   'Sending progress with a 6-digit code now works on every network. Before, it could fail to connect on some home Wi-Fi and phone connections.',
   'Your code now stays valid for 3 hours, so there’s no rush to type it in.',
@@ -3308,6 +3314,13 @@ setTimeout(checkIncomingLink,900);
 // ---------- tabs: icon on top, short name under, all on one screen ----------
 const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slice(0,i)}</span><span class="tl">${l.slice(i+1)}</span>`; };
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
+
+// ---------- phones in landscape: hide / show the menu sidebar so the water fills the screen ----------
+(function(){ const b=$('sidetog'); if(!b) return; let off=false; try{ off=localStorage.getItem('driftline-side-off')==='1'; }catch(e){}
+  const apply=()=>{ document.body.classList.toggle('side-off',off); b.textContent=off?'‹':'›'; const l=off?'Show menus':'Hide menus'; b.title=l; b.setAttribute('aria-label',l); b.setAttribute('aria-expanded',String(!off)); };
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+  b.addEventListener('click',e=>{ e.stopPropagation(); off=!off; try{ localStorage.setItem('driftline-side-off',off?'1':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
+  apply(); })();
 
 // =====================================================================
 // Lily: an exclusive pet for Cam (gift code only), drawn from a photo of the

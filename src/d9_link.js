@@ -100,3 +100,10 @@ setTimeout(checkIncomingLink,900);
 // ---------- tabs: icon on top, short name under, all on one screen ----------
 const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slice(0,i)}</span><span class="tl">${l.slice(i+1)}</span>`; };
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
+
+// ---------- phones in landscape: hide / show the menu sidebar so the water fills the screen ----------
+(function(){ const b=$('sidetog'); if(!b) return; let off=false; try{ off=localStorage.getItem('driftline-side-off')==='1'; }catch(e){}
+  const apply=()=>{ document.body.classList.toggle('side-off',off); b.textContent=off?'‹':'›'; const l=off?'Show menus':'Hide menus'; b.title=l; b.setAttribute('aria-label',l); b.setAttribute('aria-expanded',String(!off)); };
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+  b.addEventListener('click',e=>{ e.stopPropagation(); off=!off; try{ localStorage.setItem('driftline-side-off',off?'1':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
+  apply(); })();

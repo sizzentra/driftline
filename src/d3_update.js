@@ -3,8 +3,10 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.2.1';
+const GAME_VERSION = '2.2.2';
 const PATCHES = [
+ {v:'2.2.2', name:'Small patch', items:[
+  'Phones held sideways: a new button on the edge of the water hides the menus so the water fills the screen, and brings them back. It remembers your choice.' ]},
  {v:'2.2.1', name:'Quick fix', items:[
   'Sending progress with a 6-digit code now works on every network. Before, it could fail to connect on some home Wi-Fi and phone connections.',
   'Your code now stays valid for 3 hours, so there’s no rush to type it in.',
