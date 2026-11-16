@@ -515,3 +515,92 @@ function v3sandPlat(P,t,night,dockY){
     g.fillStyle=v3rgba('#fff0a0',.8*lit); g.beginPath(); g.ellipse(tx,ty-H*.009,H*.003,H*.007*fl,0,0,7); g.fill(); }
 }
 V3PLAT.sand=(P,t,night,dockY)=>v3sandPlat(P,t,night,dockY);
+
+// =====================================================================
+// BRINE SHELF: open sea at golden hour, nothing but water to the horizon, a big slow swell that
+// tilts the world, a tall ship sailing far off, a bell buoy, dolphins and an albatross
+// =====================================================================
+V3PAL.shelf = {
+  day:  {top:'#4a8ad0', mid:'#9cc4e4', bot:'#ffe8b8', glow:'#fff0c0', far:'#c8b8a0', farHaze:'#f8dcb0', wTop:'#a8d0d8', wMid:'#2a7a9a', wBot:'#0c3a5a', rim:'#fff0c8', ship:'#5a5060', sail:'#f4ead8', cloud:'#ffffff', cloudLit:'#fff0d0', buoy:'#d8483a', leaf:'#5a7a6a'},
+  dusk: {top:'#2a2458', mid:'#e0705a', bot:'#ffc060', glow:'#ffcc70', far:'#a86a6a', farHaze:'#ffb070', wTop:'#ffb070', wMid:'#8a4a6a', wBot:'#1a1a40', rim:'#ffd080', ship:'#3a2a3a', sail:'#ffd8b0', cloud:'#e0708a', cloudLit:'#ffd0a0', buoy:'#c8383a', leaf:'#3a3a4a'},
+  night:{top:'#030818', mid:'#0c1838', bot:'#1e2c60', glow:'#c8d4ff', far:'#1e2850', farHaze:'#2a3870', wTop:'#22305e', wMid:'#0c1a3c', wBot:'#02040c', rim:'#9fb4ff', ship:'#10141e', sail:'#4a5478', cloud:'#222a50', cloudLit:'#4a5690', buoy:'#5a3040', leaf:'#121a2a'}
+};
+V3SCENES.shelf = {
+  tilt(t){ return Math.sin(t*.42)*.007+Math.sin(t*.17+1)*.004; },
+  land(x,P,hz,cnv){
+    // a long cloud bank resting on the horizon, lit on top
+    const cb=x.createLinearGradient(0,hz-H*.05,0,hz); cb.addColorStop(0,v3rgba(P.farHaze,0)); cb.addColorStop(1,v3rgba(P.farHaze,.7)); x.fillStyle=cb; x.fillRect(0,hz-H*.05,W,H*.05);
+    x.fillStyle=v3rgba(mix(mix(P.far,P.farHaze,.5),P.cloud,.35),.75); x.beginPath(); x.moveTo(-5,hz+1);
+    for(let i=0;i<=24;i++){ const X=W*i/24, h=H*(.012+.012*Math.abs(Math.sin(i*1.37))+.008*Math.sin(i*.6)); x.quadraticCurveTo(X-W/48,hz-h-H*.006,X,hz-h*.7); } x.lineTo(W+5,hz+1); x.closePath(); x.fill();
+    x.fillStyle=v3rgba(P.rim,.25*(1-P.night*.85)); for(let i=0;i<24;i++){ const X=W*(i+.5)/24, h=H*(.012+.012*Math.abs(Math.sin(i*1.37+.7))); x.beginPath(); x.ellipse(X,hz-h*.9,W*.012,H*.002,0,0,7); x.fill(); }
+    v3water(x,P,hz,cnv,.18);
+  },
+  live(P,t,hz,sun){ const FX=S.settings.effects, night=P.night, d=P.d;
+    // the tall ship, far off, sailing slowly across (a lantern at the stern after dusk)
+    { const sx=W*(1.05-((t*.004+.3)%1.3)), sy=hz+1, s=H*.0042, lit=clamp(night*1.3+d,0,1); g.save(); g.translate(sx,0); g.scale(-1,1); g.translate(-sx,0);
+      g.fillStyle=P.ship; g.beginPath(); g.moveTo(sx-s*14,sy-s*3); g.lineTo(sx+s*12,sy-s*3); g.lineTo(sx+s*15,sy-s*5.5); g.lineTo(sx+s*9,sy-s*.2); g.lineTo(sx-s*11,sy-s*.2); g.closePath(); g.fill();
+      g.fillRect(sx-s*14,sy-s*5,s*4,s*2);
+      g.strokeStyle=P.ship; g.lineWidth=Math.max(.8,s*.35); g.beginPath(); for(const mx of [-7,0,7]){ g.moveTo(sx+mx*s,sy-s*3); g.lineTo(sx+mx*s,sy-s*(mx?19:23)); } g.moveTo(sx+s*12,sy-s*4); g.lineTo(sx+s*19,sy-s*10); g.stroke();
+      g.fillStyle=P.sail; for(const mx of [-7,0,7]){ const hh=mx?1:1.2; for(let k=0;k<3;k++){ const y0=sy-s*(5+k*5)*hh, w0=s*(4.4-k*.9); g.beginPath(); g.moveTo(sx+mx*s-w0,y0-s*4*hh); g.lineTo(sx+mx*s+w0,y0-s*4*hh); g.quadraticCurveTo(sx+mx*s+w0*1.15+s*.8,y0-s*2*hh,sx+mx*s+w0,y0); g.lineTo(sx+mx*s-w0,y0); g.quadraticCurveTo(sx+mx*s-w0*.8+s*.8,y0-s*2*hh,sx+mx*s-w0,y0-s*4*hh); g.fill(); } }
+      g.beginPath(); g.moveTo(sx+s*12.5,sy-s*4.5); g.lineTo(sx+s*18.5,sy-s*10); g.lineTo(sx+s*12,sy-s*11); g.closePath(); g.fill();
+      if(lit>.1){ v3glow(g,sx-s*13,sy-s*4,s*6,"rgba(255,210,120,.9)",lit*.6); } g.restore(); }
+    v3glitter(P,t,hz,sun);
+    // the swell: broad slow rollers with lit faces and darker troughs, breaking into foam here and there
+    const foam=mix(P.wTop,'#ffffff',.75), N=6;
+    for(let r0=0;r0<N;r0++){ const u=((t*.025+r0/N)%1), y=hz+H*.015+Math.pow(u,1.6)*(H-hz)*1.05, amp=1.5+u*H*.028, a=Math.sin(u*Math.PI), sp=W*(.32-u*.1), off=r0*211;
+      if(a<.05) continue; const wy=X=>y-amp*(.55+.45*Math.sin((X+off)/sp*Math.PI*2+t*.4));
+      g.fillStyle=v3rgba(P.wBot,.18*a); g.beginPath(); g.moveTo(0,y+amp*3); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)+amp*1.4); g.lineTo(W,y+amp*4); g.closePath(); g.fill();
+      g.fillStyle=v3rgba(P.wTop,.26*a); g.beginPath(); g.moveTo(0,y+amp); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)); for(let X=W+10;X>=0;X-=10) g.lineTo(X,wy(X)+amp*.9); g.closePath(); g.fill();
+      g.strokeStyle=v3rgba(foam,.45*a); g.lineWidth=Math.max(1,u*2.6); g.beginPath(); for(let X=0;X<=W;X+=7){ if(V3CN((X+off)*.009+r0*2.3+t*.05)>.5){ const yy=wy(X); g.moveTo(X,yy); g.lineTo(X+7,wy(X+7)); } } g.stroke();
+      // spray off the crests nearest you
+      if(FX&&u>.55){ g.fillStyle=v3rgba(foam,.5*a); for(let i=0;i<8;i++){ const X=((i*197+off+t*W*.01)%W), k=((t*1.3+i*.37)%1); if(V3CN((X+off)*.009+r0*2.3+t*.05)<=.5) continue; g.globalAlpha=(1-k)*a; g.beginPath(); g.arc(X+k*W*.01,wy(X)-k*amp*2.5+k*k*amp*2,1+u*1.5,0,7); g.fill(); } g.globalAlpha=1; } }
+    // the bell buoy: rides the swell, rocks, its light blinks after dusk, the bell swings
+    { const bx=W*.58, by=hz+H*.12+Math.sin(t*.9)*H*.006, rk=Math.sin(t*.9+.6)*.18, s=H*.006, lit=clamp(night*1.4+d,0,1);
+      g.save(); g.translate(bx,by); g.rotate(rk);
+      g.fillStyle=v3rgba(P.wBot,.35); g.beginPath(); g.ellipse(0,s*.6,s*4,s*.9,0,0,7); g.fill();
+      g.fillStyle=P.buoy; g.beginPath(); g.moveTo(-s*3,0); g.lineTo(s*3,0); g.lineTo(s*2.2,-s*2.6); g.lineTo(-s*2.2,-s*2.6); g.closePath(); g.fill(); g.fillStyle=mix(P.buoy,'#ffffff',.75); g.fillRect(-s*2.6,-s*1.6,s*5.2,s*.8);
+      g.strokeStyle=mix(P.ship,'#888888',.3); g.lineWidth=Math.max(1,s*.35); g.beginPath(); g.moveTo(-s*1.8,-s*2.6); g.lineTo(-s*.6,-s*8); g.lineTo(s*.6,-s*8); g.lineTo(s*1.8,-s*2.6); g.moveTo(-s*1.2,-s*5.2); g.lineTo(s*1.2,-s*5.2); g.stroke();
+      const sw=Math.sin(t*2.2)*.5; g.save(); g.translate(0,-s*7.6); g.rotate(sw); g.fillStyle=mix('#c8a040',P.ship,night*.6); g.beginPath(); g.moveTo(-s*.9,s*2); g.quadraticCurveTo(-s*.9,0,0,0); g.quadraticCurveTo(s*.9,0,s*.9,s*2); g.closePath(); g.fill(); g.restore();
+      const blink=((t%3)<.35)?1:0; g.fillStyle=lit>.1&&blink?'#ff5a4a':mix(P.buoy,'#000000',.3); g.beginPath(); g.arc(0,-s*8.6,s*.6,0,7); g.fill(); g.restore();
+      if(lit>.1&&blink) v3glow(g,bx,by-s*8.6,s*7,'rgba(255,90,70,.9)',lit*.7);
+      if(FX&&Math.abs(Math.sin(t*2.2))>.97){ g.strokeStyle=v3rgba(P.rim,.5); g.lineWidth=1; for(const sd of [-1,1]){ g.beginPath(); g.arc(bx,by-s*7,s*(3+sd*0)+s,sd>0?-.5:Math.PI-.5+1,sd>0?.5:Math.PI+.5-1+1); g.stroke(); } } }
+    // dolphins arc out of the water together now and then
+    { const per=14, k=(t%per)/per; if(k<.3){ for(let i=0;i<2;i++){ const e=clamp((k/.3)*1.25-i*.25,0,1); if(e<=0||e>=1) continue; const dx=W*(.45+e*.18+i*.05), base=hz+H*(.24+i*.05), arc=Math.sin(e*Math.PI), s=H*.012, ang=(e-.5)*2.2;
+        g.save(); g.translate(dx,base-arc*H*.05); g.rotate(ang); g.fillStyle=mix('#6a7a8a',P.wMid,night*.5); g.beginPath(); g.moveTo(-s*3.5,0); g.quadraticCurveTo(-s*1,-s*1.8,s*2.6,-s*.4); g.lineTo(s*3.8,-s*.2); g.lineTo(s*2.6,s*.3); g.quadraticCurveTo(0,s*1.2,-s*3.5,0); g.fill();
+        g.beginPath(); g.moveTo(-s*.4,-s*1.1); g.lineTo(-s*1.4,-s*2.4); g.lineTo(s*.6,-s*1.2); g.fill(); g.beginPath(); g.moveTo(-s*3.3,0); g.lineTo(-s*4.6,-s*1); g.lineTo(-s*4.2,0); g.lineTo(-s*4.6,s*1); g.closePath(); g.fill();
+        g.fillStyle=mix('#d8dce0',P.wMid,night*.5); g.beginPath(); g.moveTo(-s*2.5,s*.3); g.quadraticCurveTo(0,s*1.1,s*2.4,s*.3); g.quadraticCurveTo(0,s*.5,-s*2.5,s*.3); g.fill(); g.restore();
+        if(e<.12||e>.88){ g.fillStyle=v3rgba(foam,.7); for(let j=0;j<5;j++){ g.beginPath(); g.arc(dx+(j-2)*s*.8,base-Math.abs(Math.sin(j+t*9))*s*1.6,1.2,0,7); g.fill(); } } } } }
+    // an albatross glides high on long still wings
+    if(night<.7){ const per=40, k=(t%per)/per, ax=W*(-.1+k*1.25), ay=hz*(.28+Math.sin(k*Math.PI*2)*.06), s=H*.009, tilt=Math.sin(t*.5)*.08;
+      g.save(); g.translate(ax,ay); g.rotate(tilt); g.strokeStyle=mix('#f4f4f0',P.top,night*.8); g.lineWidth=Math.max(1.2,s*.35); g.beginPath(); g.moveTo(-s*5,-s*.6); g.quadraticCurveTo(-s*2.5,-s*1.2,0,0); g.quadraticCurveTo(s*2.5,-s*1.2,s*5,-s*.6); g.stroke();
+      g.strokeStyle=mix('#3a3a40',P.top,night*.8); g.beginPath(); g.moveTo(-s*5,-s*.6); g.lineTo(-s*3.8,-s*.9); g.moveTo(s*5,-s*.6); g.lineTo(s*3.8,-s*.9); g.stroke(); g.fillStyle=mix('#f4f4f0',P.top,night*.8); g.beginPath(); g.ellipse(0,s*.1,s*1.2,s*.4,0,0,7); g.fill(); g.restore(); }
+    v3fishRing(P,t,hz,7.7,.42,.85);
+  }
+};
+
+// the fishing boat: a clinker hull riding the swell, a wheelhouse with a lit window, a mast light,
+// rails, a coiled rope and a net over the side; it rises and falls with the water (pb)
+function v3boat(P,t,night,dockY,pb){
+  const y=dockY+pb, PW=W*.19, N=c=>mix(c,'#0a1020',night*.5), lit=clamp(night*1.2+P.d*.9,0,1);
+  const hull=N('#f2eee2'), hullD=N('#c8c0ae'), trim=N('#2a5a8a'), wood=N(dockWood());
+  // hull: flared sides, a raised bow on the right, planks, a waterline, foam where it meets the sea
+  const bow=PW+W*.035, hb=y+H*.1;
+  const path=()=>{ g.beginPath(); g.moveTo(-12,y-H*.012); g.lineTo(PW,y-H*.012); g.quadraticCurveTo(bow-W*.01,y-H*.018,bow,y-H*.03); g.quadraticCurveTo(bow-W*.01,y+H*.06,PW-W*.03,hb); g.lineTo(-12,hb); g.closePath(); };
+  const hg=g.createLinearGradient(0,y,0,hb); hg.addColorStop(0,hull); hg.addColorStop(1,hullD); g.fillStyle=hg; path(); g.fill();
+  g.save(); path(); g.clip(); g.strokeStyle=v3rgba(mix(hullD,'#000000',.2),.6); g.lineWidth=1; for(let k=1;k<5;k++){ const yy=y-H*.012+k*H*.022; g.beginPath(); g.moveTo(-12,yy); g.quadraticCurveTo(PW,yy-H*.002,bow,yy-H*.01-k*H*.002); g.stroke(); }
+  g.fillStyle=trim; g.fillRect(-12,y-H*.004,bow+12,H*.008); g.fillStyle=N('#a8383a'); g.fillRect(-12,hb-H*.022,bow+12,H*.022);
+  g.fillStyle=v3rgba(P.rim,.25); g.fillRect(-12,y-H*.012,bow,1.4); g.restore();
+  g.fillStyle=v3rgba('#ffffff',.55); for(let i=0;i<8;i++){ const fx=PW-W*.04+i*W*.008, fy=hb-H*.004+Math.sin(t*3+i)*1.5; g.beginPath(); g.ellipse(fx,fy,W*.006,H*.003,0,0,7); g.fill(); }
+  // deck rail along the far side
+  g.strokeStyle=N('#c8d0d8'); g.lineWidth=1.5; g.beginPath(); g.moveTo(W*.06,y-H*.05); g.lineTo(PW,y-H*.05); g.quadraticCurveTo(bow-W*.008,y-H*.054,bow-W*.002,y-H*.062); for(let k=0;k<5;k++){ const px=W*.06+k*(PW-W*.06)/4; g.moveTo(px,y-H*.05); g.lineTo(px,y-H*.012); } g.moveTo(bow-W*.002,y-H*.062); g.lineTo(bow-W*.002,y-H*.03); g.stroke();
+  // wheelhouse on the left with a lit window, a mast with a light
+  { const cw=W*.06, ch=H*.075, cx0=-12; g.fillStyle=N('#e8e2d4'); g.fillRect(cx0,y-H*.012-ch,cw+12,ch); g.fillStyle=N('#2a5a8a'); g.fillRect(cx0,y-H*.012-ch-H*.008,cw+16,H*.01);
+    g.fillStyle='rgba(0,0,0,.15)'; g.fillRect(cx0+cw*.6+12,y-H*.012-ch,cw*.4,ch);
+    g.fillStyle=lit>.05?v3rgba('#ffd890',.4+lit*.6):N('#6a9ab8'); g.fillRect(cx0+12+cw*.1,y-H*.012-ch*.82,cw*.75,ch*.3); g.strokeStyle=N('#2a5a8a'); g.lineWidth=1.2; g.strokeRect(cx0+12+cw*.1,y-H*.012-ch*.82,cw*.75,ch*.3); g.beginPath(); g.moveTo(cx0+12+cw*.47,y-H*.012-ch*.82); g.lineTo(cx0+12+cw*.47,y-H*.012-ch*.52); g.stroke();
+    if(lit>.05) v3glow(g,cx0+12+cw*.47,y-H*.012-ch*.67,ch*.9,'rgba(255,210,130,.8)',lit*.4);
+    const mx=cx0+12+cw*.5, mt=y-H*.012-ch-H*.09; g.fillStyle=N('#4a4a52'); g.fillRect(mx-1.2,mt,2.4,H*.09); g.strokeStyle=N('#4a4a52'); g.lineWidth=1; g.beginPath(); g.moveTo(mx,mt+H*.01); g.lineTo(PW*.9,y-H*.05); g.stroke();
+    const ml=night>.25||P.d>.4; g.fillStyle=ml?'#fff4d0':N('#888'); g.beginPath(); g.arc(mx,mt-2,2.4,0,7); g.fill(); if(ml) v3glow(g,mx,mt-2,H*.05,'rgba(255,244,210,.8)',.6*lit); }
+  // coiled rope and a fish crate by the rail
+  { const rx=W*.155, ry=y-H*.016; g.strokeStyle=N('#c8a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.ellipse(rx,ry-k*1.6,H*.016-k*1.6,H*.005,0,0,7); g.stroke(); } }
+}
+V3PLAT.boat=(P,t,night,dockY,pb)=>v3boat(P,t,night,dockY,pb);

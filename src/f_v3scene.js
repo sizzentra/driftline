@@ -37,7 +37,7 @@ function v3pine(c,x,base,h,col,rim,rimA){
 // a mountain range: ridged fractal crests shaped into a few massifs, every column shaded by its slope
 // (faces turned to the light are lighter), snow that runs down into the gullies, haze at the foot
 function v3range(c,o){
-  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=W>900?2:1.5, raw=[];
+  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=Math.max(.5,(W>900?2:1.5)/Math.min(DPR||1,2.5)), raw=[];
   for(let X=0;X<=W+step;X+=step){ const f=X/W;
     let env=0; for(const [c0,a,w0] of o.massifs){ const d=Math.abs(f-c0)/w0; env=Math.max(env,a*Math.exp(-d*2.3)); }
     const r=.55*(1-Math.abs(2*n(f*3+1.3)-1))+.3*(1-Math.abs(2*n(f*7+5.1)-1))+.15*n(f*16+9.7);
@@ -261,6 +261,8 @@ const V3PLAT = { dock:(P,t,night,dockY)=>v3dock(P,t,night,dockY) };
 function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(!V3ON || !V3SCENES[L.id]) return false;
   const P=v3palette(L.id,night,dusk,gloom), SC=V3SCENES[L.id];
+  // a scene can tilt the whole world gently (the swell seen from a rocking boat)
+  const tl=SC.tilt?SC.tilt(t):0; if(tl){ g.save(); g.translate(W/2,hz); g.rotate(tl); g.scale(1.04,1.04); g.translate(-W/2,-hz); }
   // sky
   const sg=g.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); g.fillStyle=sg; g.fillRect(0,0,W,hz+1);
   // stars (twinkling) after dusk
@@ -282,6 +284,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   // the still land and water, from the cache
   g.drawImage(v3land(L,P,hz),0,0,W,H);
   SC.live(P,t,hz,{x:sx,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
+  if(tl) g.restore();
   return true;
 }
 function v3Platform(L,t,night,dockY,pb){
