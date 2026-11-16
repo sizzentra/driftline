@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0340';
+window.DL_VERSION='2026.11.16-0404';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -268,6 +268,10 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 .qrbox img,.qrbox canvas{width:220px;height:220px;cursor:default}
 @media (max-width:520px){.qrbox{width:100%;min-height:0}.qrbox img,.qrbox canvas{width:200px;height:200px}}
 @media (max-width:560px){.stylewrap[style*="200px"]{grid-template-columns:1fr!important}.stylewrap[style*="200px"] .preview{max-width:240px;width:100%;margin:0 auto}}
+.xfcode{font:800 44px/1.1 ui-monospace,Consolas,monospace;letter-spacing:.12em;color:var(--sun,#ffc94d);text-align:center;padding:10px;margin:6px 0;border-radius:12px;background:#0a161d;border:1px solid var(--line)}
+.xfin{flex:1;min-width:0;font:800 26px ui-monospace,Consolas,monospace;letter-spacing:.12em;text-align:center;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px}
+.qrbox.sm{width:170px;min-height:170px;flex:none}.qrbox.sm img,.qrbox.sm canvas{width:154px!important;height:154px!important}
+.xfmore{margin-top:10px}.xfmore summary{cursor:pointer;color:var(--mute,#9fb3bd);font-weight:700}
 </style>
 
 <div class="wrap">
@@ -944,6 +948,7 @@ const PETS = [
  ['narwhal','Narwhal','rare',.25,'feat',0,'Joins you after you catch something rarer than legendary.'],
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
  ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
+ ['lily','Aussie Shepherd','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
  ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
  ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
  ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],
@@ -1269,7 +1274,7 @@ const FEATS = [
   {id:'hats15',name:'Milliner',               d:'Own 15 hats',               p:()=>[S.owned.hats.length-1,15], coins:40000, pt:1},
   {id:'hatsall',name:'Head of the class',     d:'Own all '+(HATS.length-1)+' hats', p:()=>[S.owned.hats.length-1,HATS.length-1], coins:1000000, pt:3},
   {id:'pets3', name:'Menagerie',              d:'Own 3 pets',                p:()=>[S.owned.pets.length,3], coins:5000, pt:1},
-  {id:'petsall',name:'Noah’s dock',           d:'Own all '+PETS.length+' pets', p:()=>[S.owned.pets.length,PETS.length], coins:1500000, pt:3},
+  {id:'petsall',name:'Noah’s dock',           d:'Own all '+PETS.filter(p=>p.src!=='gift').length+' pets', p:()=>[S.owned.pets.filter(id=>PETI[id]&&PETI[id].src!=='gift').length,PETS.filter(p=>p.src!=='gift').length], coins:1500000, pt:3},
   {id:'style5',name:'Fashion statement',      d:'Buy 5 clothing items',      p:()=>[S.stats.bought,5], coins:5000},
   {id:'hot10', name:'Water reader',           d:'Land 10 catches from hotspots', p:()=>[S.stats.hot,10], coins:4000, pt:1},
   {id:'hot100',name:'Ripple sense',           d:'Land 100 catches from hotspots', p:()=>[S.stats.hot,100], coins:80000, pt:2},
@@ -2051,7 +2056,8 @@ function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class=
   const tg=(k,label,desc)=>`<div class="toggle"><div><b>${label}</b><div class="meta">${desc}</div></div><button class="btn ${s[k]?'':'alt'} sm" data-act="tog" data-k="${k}" aria-pressed="${!!s[k]}">${s[k]?'On':'Off'}</button></div>`;
   const styles=[['auto','Follow the time of day'],['lofi','Cozy lo-fi'],['acoustic','Harbour acoustic'],['night','Dreamy night']];
   P.innerHTML=`<h2>Settings</h2><p class="sub">Everything here is saved on this device.</p>
-  <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>💾 Save codes</b><div class="meta">Copy your progress to another phone or PC, or load it from one.</div></div><button class="btn sm" data-tabgo="save">Open save codes</button></div>
+  <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>📲 Move progress</b><div class="meta">Send your progress between phone and PC with a 6-digit code, or use save codes.</div></div><button class="btn sm" data-tabgo="save">Open</button></div>
+  <div class="tile" style="margin-top:10px"><b>🎁 Gift code</b><div class="meta">Got a gift code from a friend? Type it here.</div><div class="row" style="gap:8px;margin-top:8px;flex-wrap:nowrap"><input id="giftin" maxlength="24" placeholder="Gift code" autocapitalize="characters" style="flex:1;min-width:0;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px;text-transform:uppercase"><button class="btn sm" data-act="redeem">Redeem</button></div></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
    <div class="tile"><h4>Sound</h4>${sl('master','Master volume')}${sl('music','Music')}${sl('sfx','Sound effects')}${sl('amb','Nature sounds')}
      ${tg('musicOn','Music','Calm music that plays while you fish.')}${tg('ambient','Nature sounds','Waves, birds, crickets and wind for each water.')}
@@ -2169,8 +2175,14 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.1';
+const GAME_VERSION = '2.2';
 const PATCHES = [
+ {v:'2.2', name:'Closer Together', items:[
+  'Moving progress between phone and PC is much easier, in both directions: tap Send on the device with your progress and type its 6-digit code on the other one. Phones can scan the code instead. Works for any amount of progress, no matter how far you’ve come.',
+  'The old “progress is too big for a QR code” problem is gone.',
+  'Links still work as a backup, under “Other ways” in the Save tab.',
+  'The Settings shortcut now opens moving progress and save codes.',
+  'A gift code box in Settings, for when a friend has something special for you.' ]},
  {v:'2.1', name:'More of Everything', items:[
   '21 new fish across every water. A few of them are very chill. One is an absolute unit.',
   '10 new pets: some in the pet shop, some in crates, one at the Prize Counter.',
@@ -2335,9 +2347,9 @@ const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].na
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
 function petOffset(id,t){ if(id==='frog') return [0,-Math.pow(Math.max(0,Math.sin(t*1.4)),10)*7]; if(id==='bat') return [0,-14+Math.sin(t*2)*2]; if(id==='ghost') return [0,Math.sin(t*2)*2-4]; if(id==='crab') return [Math.sin(t*1.2)*2,0]; return [0,0]; }
-function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
+function drawPetGear(c,id,lk,t){ if(id==='lily'&&LILY.pose!=='sit') return; const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
   const col=lk.accCol||'#d8303a';
-  c.save(); c.lineCap='round';
+  c.save(); c.lineCap='round'; if(id==='lily') c.translate(LILY.hdx,LILY.hdy);
   if(lk.acc==='cape'){ c.fillStyle=col; c.beginPath(); c.moveTo(hx-r*.9,hy+r*.8); c.quadraticCurveTo(hx-r*3.4,hy+r*2+Math.sin(t*4)*1.2,hx-r*3,hy+r*3.6); c.lineTo(hx-r*.4,hy+r*2.4); c.closePath(); c.fill(); }
   if(lk.acc==='balloon'){ c.strokeStyle='#ddd'; c.lineWidth=.5; c.beginPath(); c.moveTo(hx-r,hy+r); c.quadraticCurveTo(hx-r*2,hy-r*3,hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6); c.stroke(); c.fillStyle='#ffd84a'; c.save(); c.translate(hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6.6); c.beginPath(); for(let i=0;i<10;i++){ const ang=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.6:r*1.4; c.lineTo(Math.cos(ang)*rr,Math.sin(ang)*rr); } c.fill(); c.restore(); }
   if(lk.hat && lk.hat!=='none'){ c.save(); c.translate(hx,hy); c.scale(k,k); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?'#888888':(lk.hatCol||'#c8553a'),t); c.restore(); }
@@ -2352,11 +2364,11 @@ function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r
   c.restore(); }
 function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
-let PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
+let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
 function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
   const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
   drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc;
+function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc;
   if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; PET_BOX2=drawOnePet(S.pet2,px-(big?22:12)*sc-(big2?34:22)*sc,ay,sc*.9,t,night,petT2); } else PET_BOX2=null;
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
@@ -2393,9 +2405,10 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
     <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
-function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet(); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
+function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
+  if(id==='lily'&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||editPet()!=='lily'){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -2424,10 +2437,10 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
    ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
 
 // ---------- patch notes ----------
-function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">Update ${p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
+function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return PATCHES.map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>Update ${p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
@@ -3138,6 +3151,7 @@ function extraAct6(b){ if(b.dataset.act==='claw'){ const c=clawCost(); if(S.mone
 // ---------- drawings for the new things ----------
 function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
   switch(id){
+    case 'lily': drawLily(c,t,h); break;
     case 'puppy': ln([-8,-8,-12,-12+Math.sin(t*12)*2.5],'#e0b060',2.4); rc(-6,-5,2.4,5,'#e0b060'); rc(4,-5,2.4,5,'#e0b060'); el(0,-8,8,4.6,'#f0c070'); ci(8,-13,4.4,'#f0c070'); el(11.6,-12,2.8,2,'#f8dca0'); ci(13.8,-12.4,1,'#2a1a10'); el(6,-12,1.8,3.6,'#d8a050',.2); if(!blink) eye(9,-14.4,.9); ln([12,-10,12.6,-8.4],'#ff7a8a',1.2); break;
     case 'kitten': ln([-4,-2,-8,-5,-7,-10],'#e8a060',1.6); el(0,-5,4,4.8,'#f0b070'); ci(1,-11,3.4,'#f0b070'); c.fillStyle='#f0b070'; c.beginPath(); c.moveTo(-1.5,-13); c.lineTo(-1.2,-16.5); c.lineTo(.8,-14); c.moveTo(1.8,-14); c.lineTo(3.8,-16.5); c.lineTo(4,-12.6); c.fill(); if(!blink){ ci(2.4,-11.4,.9,'#4a8a3a'); ci(-.2,-11.4,.9,'#4a8a3a'); } break;
     case 'fireflyjar': rc(-5,-14,10,14,'rgba(200,230,255,.25)'); rc(-5.5,-16,11,2.5,'#8a6a4a'); for(let i=0;i<4;i++){ const fx=Math.sin(t*2+i*1.7)*3, fy=-7+Math.cos(t*1.6+i)*4; c.fillStyle='rgba(230,255,140,'+(.6+.4*Math.sin(t*5+i))+')'; c.beginPath(); c.arc(fx,fy,1.1,0,7); c.fill(); } break;
@@ -3149,7 +3163,7 @@ function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
     case 'babywhale': { c.translate(0,Math.sin(t*1.2)); el(0,-6,10,6,'#4a7ab8'); el(1,-3.5,7,3,'#c8e0f0'); c.fillStyle='#4a7ab8'; c.beginPath(); c.moveTo(-9,-6); c.lineTo(-15,-11); c.lineTo(-14,-6); c.lineTo(-15,-1); c.closePath(); c.fill(); eye(6,-7.5,.8); if(Math.sin(t*.8)>.6){ c.fillStyle='rgba(200,230,255,.7)'; for(let i=0;i<3;i++){ c.beginPath(); c.arc(2+(i-1)*2,-14-i*1.5,1.2,0,7); c.fill(); } } break; }
     case 'snowman': ci(0,-5,5.5,'#f4f8fc'); ci(0,-13,4,'#f4f8fc'); eye(-1.4,-14,.6); eye(1.4,-14,.6); c.fillStyle='#ff8a2a'; c.beginPath(); c.moveTo(.4,-13); c.lineTo(4.4,-12.4); c.lineTo(.4,-12); c.fill(); rc(-4,-10,8,1.6,'#d8403a'); rc(2,-10,1.6,4,'#d8403a'); ci(0,-6,.6,'#333'); ci(0,-3.6,.6,'#333'); ln([-5,-8,-9,-11],'#6a4a2a',.8); ln([5,-8,9,-11],'#6a4a2a',.8); break;
   } }
-Object.assign(PET_HEAD,{puppy:[8,-13,4.4],kitten:[1,-11,3.4],fireflyjar:[0,-15,5],puffin:[1,-15,3.4],alpaca:[5,-28,3.8],mole:[6,-4,3],mushroombuddy:[0,-12,5],frogprince:[0,-8.5,3.5],babywhale:[5,-8,5],snowman:[0,-13,4]});
+Object.assign(PET_HEAD,{lily:[3,-17.6,5.9],puppy:[8,-13,4.4],kitten:[1,-11,3.4],fireflyjar:[0,-15,5],puffin:[1,-15,3.4],alpaca:[5,-28,3.8],mole:[6,-4,3],mushroombuddy:[0,-12,5],frogprince:[0,-8.5,3.5],babywhale:[5,-8,5],snowman:[0,-13,4]});
 function drawHatZ(c,id,col,t,h){ const {dk,lt,el,ci,poly,dome}=h; const f=cl=>{ c.fillStyle=cl; };
   switch(id){
     case 'aviator': dome(8.3,-1.5,'#8a5a2a'); f('#6a4220'); c.fillRect(-8.6,-2.5,4,6); c.fillRect(4.6,-2.5,4,6); el(-2,-6,2.4,1.8,'#9ad0e8'); el(3,-6,2.4,1.8,'#9ad0e8'); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.beginPath(); c.ellipse(-2,-6,2.4,1.8,0,0,7); c.ellipse(3,-6,2.4,1.8,0,0,7); c.stroke(); break;
@@ -3195,44 +3209,90 @@ function drawJunkZ(c,id,R,Ci,E,P,Ln){ switch(id){
 // =====================================================================
 const SHARE_BASE = 'https://sizzentra.github.io/driftline/';
 let shareLink='', qrState='';
-// links use URL-safe base64 (no escaping), which keeps them short and the QR code easy to scan
+// links use URL-safe base64 (no escaping), which keeps them short
 async function makeShareLink(){ const code=await makeCode(); const tag=code.slice(0,4), b=code.slice(4).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); return SHARE_BASE+'#load='+tag+b; }
 function codeFromAny(v){ v=String(v||'').trim(); const i=v.indexOf('#load='); if(i<0) return v; let c=decodeURIComponent(v.slice(i+6)); const tag=c.slice(0,4); let b=c.slice(4).replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; return tag+b; }
-function linkHTML(){ const canShare=!!navigator.share;
-  return `<div class="tile" style="margin-top:12px;border-color:#7fc8a988"><div class="row spread"><div><h4>📲 Send to my other device</h4><div class="meta">One link carries all your progress. Open it on your phone or PC and tap <b>Load</b>. That’s it.</div></div></div>
-   <div class="linkwrap"><div class="qrbox" id="qrbox" aria-label="QR code with your progress"><span class="meta">Making your QR code…</span></div>
-    <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:1">
-     <div class="meta"><b>On a phone?</b> Point your camera at the code, or use the buttons:</div>
-     ${canShare?'<button class="btn" data-act="sharelink">📤 Share link</button>':''}
-     <button class="btn ${canShare?'alt':''}" data-act="copylink">🔗 Copy link</button>
-     <button class="btn alt" data-act="maillink">✉️ Email it to myself</button>
-     <div class="meta">The link only works for loading progress and nothing is uploaded anywhere: your progress lives inside the link itself.</div></div></div></div>`; }
-function loadQRLib(){ return new Promise((res,rej)=>{ if(window.QRCode) return res(); const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
-async function paintLink(){ const box=$('qrbox'); if(!box) return; shareLink=await makeShareLink();
-  try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:shareLink,width:440,height:440,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.L}); qrState='ok'; }
-  catch(e){ box.innerHTML='<span class="meta">Your progress is too big for a QR code right now. Use the buttons instead, they always work.</span>'; qrState='fail'; } }
+
+// ---------- device to device: a 6-digit code (works PC <-> phone in both directions) ----------
+// The device WITH the progress taps Send and shows a code; the other device taps Get progress and types it
+// (a phone can also scan the small QR). The two devices connect directly (WebRTC); the progress never
+// sits on a server. PeerJS's free broker only introduces the two devices to each other.
+const XF_PREFIX='driftline-xfer-';
+let XF={mode:null, code:'', stat:'', ok:false, peer:null, conn:null, timer:0};
+function loadLib(src,test){ return new Promise((res,rej)=>{ if(test()) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
+const loadPeer = () => loadLib('https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js', ()=>!!window.Peer);
+const loadQRLib = () => loadLib('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js', ()=>!!window.QRCode);
+function xfStat(t,ok){ XF.stat=t; XF.ok=!!ok; const el=$('xfstat'); if(el){ el.textContent=t; el.style.color=ok?'var(--kelp)':''; } }
+function xfStop(){ clearTimeout(XF.timer); try{ XF.conn&&XF.conn.close(); }catch(e){} try{ XF.peer&&XF.peer.destroy(); }catch(e){} XF.peer=null; XF.conn=null; }
+const xfCodeFmt = c => c.slice(0,3)+' '+c.slice(3);
+async function xfSend(tries=0){ xfStop(); XF.mode='send'; XF.code=String(100000+Math.floor(Math.random()*900000)); xfStat('Getting your code ready…');
+  try{ await loadPeer(); }catch(e){ xfStat('Couldn’t reach the internet. Use one of the other ways below.'); return; }
+  const peer=new window.Peer(XF_PREFIX+XF.code); XF.peer=peer;
+  peer.on('open',()=>{ xfStat('Waiting for your other device…'); refreshXfer(); });
+  peer.on('error',err=>{ if(err.type==='unavailable-id' && tries<4) return xfSend(tries+1); if(XF.peer===peer) xfStat('Something went wrong ('+err.type+'). Tap Send again, or use another way below.'); });
+  peer.on('connection',conn=>{ XF.conn=conn; conn.on('open',async()=>{ xfStat('Connected! Sending your progress…'); conn.send({t:'save', code:await makeCode(), lvl:S.lvl}); });
+    conn.on('data',d=>{ if(d&&d.t==='ok'){ xfStat('Sent! Tap “Load it” on your other device.',true); sfx.shiny(); } if(d&&d.t==='done'){ xfStat('All done: your progress is on your other device now.',true); toast('Your progress arrived on your other device.'); setTimeout(()=>{ xfStop(); },3000); } }); });
+  XF.timer=setTimeout(()=>{ if(XF.mode==='send'&&!XF.ok){ xfStop(); XF.mode=null; xfStat(''); toast('The code expired. Tap Send for a new one.'); refreshXfer(); } },15*60*1000);
+  refreshXfer(); }
+async function xfGet(code){ code=String(code||'').replace(/\D/g,''); if(code.length!==6){ xfStat('Type the 6-digit code from your other device.'); return; }
+  xfStop(); XF.mode='get'; XF.code=code; refreshXfer(); xfStat('Connecting…');
+  try{ await loadPeer(); }catch(e){ xfStat('Couldn’t reach the internet. Use one of the other ways below.'); return; }
+  const peer=new window.Peer(); XF.peer=peer; let got=false;
+  peer.on('error',err=>{ if(XF.peer!==peer) return; xfStat(err.type==='peer-unavailable' ? 'No device is showing that code. Check the number, and make sure the other device still shows it.' : 'Couldn’t connect ('+err.type+'). Try again, or use another way below.'); });
+  peer.on('open',()=>{ const conn=peer.connect(XF_PREFIX+code,{reliable:true}); XF.conn=conn;
+    conn.on('open',()=>xfStat('Connected! Receiving…'));
+    conn.on('data',async d=>{ if(!d||d.t!=='save'||got) return; got=true; conn.send({t:'ok'}); xfStat('Got it!',true); XF.onLoaded=()=>{ try{ conn.send({t:'done'}); }catch(e){} setTimeout(xfStop,1500); }; offerCode(d.code,'From your other device'); }); });
+  XF.timer=setTimeout(()=>{ if(XF.mode==='get'&&!got){ xfStat('Couldn’t connect. Both devices need the internet; the same Wi-Fi works best. Or use another way below.'); xfStop(); } },20000); }
+function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
+  const send = m==='send' ? `<div class="xfcode" aria-label="Your code">${XF.peer&&XF.peer.open?xfCodeFmt(XF.code):'··· ···'}</div>
+      <div class="meta">On your other device: open Driftline, go to <b>Save</b>, tap <b>Get progress</b> and type this code.</div>
+      <div class="linkwrap"><div class="qrbox sm" id="qrbox"></div><div class="meta"><b>On a phone?</b> Just point the camera at this code instead of typing.</div></div>
+      <button class="btn alt sm" data-act="xfcancel">Stop sending</button>` : '';
+  const get = m==='get' ? `<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="xfin" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456" value="${XF.code?xfCodeFmt(XF.code):''}" class="xfin"><button class="btn" data-act="xfgo">Connect</button></div>
+      <div class="meta">Type the code shown on your other device.</div>` : '';
+  return `<div class="tile" style="margin-top:12px;border-color:#7fc8a988"><h4>📲 Move progress between phone and PC</h4>
+   <div class="meta">Works both ways. Tap <b>Send</b> on the device that has your progress and <b>Get progress</b> on the other one.</div>
+   <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn ${m==='send'?'':'alt'}" data-act="xfsend" aria-pressed="${m==='send'}">📤 Send from this device</button><button class="btn ${m==='get'?'':'alt'}" data-act="xfget" aria-pressed="${m==='get'}">📥 Get progress on this device</button></div>
+   ${send}${get}<div class="meta" id="xfstat" style="min-height:1.2em;font-weight:700${XF.ok?';color:var(--kelp)':''}">${esc(XF.stat)}</div>
+   <details class="xfmore"><summary>Other ways (if the code won’t connect)</summary>
+     <div class="meta" style="margin:6px 0">A link that carries all your progress. Send it to yourself and open it on the other device.</div>
+     <div class="row" style="gap:8px;flex-wrap:wrap">${canShare?'<button class="btn sm" data-act="sharelink">📤 Share link</button>':''}<button class="btn sm alt" data-act="copylink">🔗 Copy link</button><button class="btn sm alt" data-act="maillink">✉️ Email it to myself</button></div></details></div>`; }
+function refreshXfer(){ if(S.tab!=='save') return; renderPanel(); }
+async function paintLink(){ const box=$('qrbox'); if(!box||XF.mode!=='send'||!XF.peer||!XF.peer.open) return;
+  try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:SHARE_BASE+'#pair='+XF.code,width:300,height:300,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); qrState='ok'; }
+  catch(e){ box.remove(); qrState='fail'; } }
 function extraAct7(b){ switch(b.dataset.act){
-    case 'sharelink': (async()=>{ const url=shareLink||await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){} })(); return 'skip';
-    case 'copylink': (async()=>{ const url=shareLink||await makeShareLink(); try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it into a message to yourself, then open it on your other device.'); }catch(e){ prompt('Copy this link:',url); } })(); return 'skip';
-    case 'maillink': (async()=>{ const url=shareLink||await makeShareLink(); location.href='mailto:?subject='+encodeURIComponent('My Driftline progress')+'&body='+encodeURIComponent('Open this on my other device to load my Driftline progress:\n\n'+url); })(); return 'skip';
-    case 'linkload': { const o=pendingLink; if(!o) return 'skip'; S=migrate(o); pendingLink=null; S.savedAt=Date.now(); closeEvent(); offlineIncome(); fillBounties(); toast('Welcome back! Your progress is here now.'); sfx.shiny(); return 'render'; }
+    case 'xfsend': xfSend(); return 'skip';
+    case 'redeem': { const i=$('giftin'); return redeemGift(i?i.value:''); }
+    case 'xfget': xfStop(); XF.mode='get'; XF.code=''; xfStat(''); refreshXfer(); setTimeout(()=>{ const i=$('xfin'); i&&i.focus(); },50); return 'skip';
+    case 'xfgo': { const i=$('xfin'); xfGet(i?i.value:''); return 'skip'; }
+    case 'xfcancel': xfStop(); XF.mode=null; xfStat(''); refreshXfer(); return 'skip';
+    case 'sharelink': (async()=>{ const url=await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){} })(); return 'skip';
+    case 'copylink': (async()=>{ const url=await makeShareLink(); try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it into a message to yourself, then open it on your other device.'); }catch(e){ prompt('Copy this link:',url); } })(); return 'skip';
+    case 'maillink': (async()=>{ const url=await makeShareLink(); location.href='mailto:?subject='+encodeURIComponent('My Driftline progress')+'&body='+encodeURIComponent('Open this on my other device to load my Driftline progress:\n\n'+url); })(); return 'skip';
+    case 'linkload': { const o=pendingLink; if(!o) return 'skip'; S=migrate(o); pendingLink=null; S.savedAt=Date.now(); closeEvent(); offlineIncome(); fillBounties(); toast('Welcome back! Your progress is here now.'); sfx.shiny(); if(XF.onLoaded){ XF.onLoaded(); XF.onLoaded=null; } XF.mode=null; xfStat('Loaded!',true); return 'render'; }
     case 'linkkeep': pendingLink=null; closeEvent(); toast('Kept the progress on this device.'); return 'skip';
     case 'pet2': { const k=b.dataset.k; if(!S.owned.pets.includes(k)||k===S.pet) return 'skip'; S.pet2=k; PET_EDIT=null; toast(petName(k)+' is tagging along as your companion.'); return 'render'; }
     case 'pet2off': if(S.pet2){ toast(petName(S.pet2)+' heads home for a nap.'); S.pet2=null; PET_EDIT=null; } return 'render';
     case 'petedit': { const k=b.dataset.k; if(k!==S.pet&&k!==S.pet2) return 'skip'; PET_EDIT=k; PET_PV=null; return 'render'; }
   } return undefined; }
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target&&e.target.id==='xfin'){ e.preventDefault(); xfGet(e.target.value); } });
 // a new favourite: the old one becomes the companion if that spot is free (or if they simply swap places)
 function setFav(k){ if(!PETI[k]||k===S.pet) return; const old=S.pet; if(S.pet2===k||!S.pet2) S.pet2=old; S.pet=k; if(S.pet2===S.pet) S.pet2=null; PET_EDIT=null;
   toast(petName(k)+' is your favourite now'+(S.pet2===old?', and '+petName(old)+' tags along.':'.')); }
-// opening a link: offer to load the progress it carries
+// show a "load this progress?" prompt for a code that arrived (link, device code)
 let pendingLink=null;
-async function checkIncomingLink(){ if(!location.hash.startsWith('#load=')) return; const code=codeFromAny(location.hash); try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+async function offerCode(code,title='From your other device'){
   try{ const o=await readCode(code); if(!o||!o.journal) throw 0; pendingLink=o; G.st='event';
-    $('evin').innerHTML=`<div class="rar" style="color:var(--kelp)">From your other device</div><h3>Load this progress?</h3>
+    $('evin').innerHTML=`<div class="rar" style="color:var(--kelp)">${esc(title)}</div><h3>Load this progress?</h3>
      <div class="kv" style="text-align:left;margin:10px 0"><div><span>Level</span> ${o.lvl||1}</div><div><span>Coins</span> ${fmt(o.money||0)}</div><div><span>Species</span> ${Object.keys(o.journal||{}).length}</div><div><span>Saved</span> ${o.savedAt?new Date(o.savedAt).toLocaleString():'—'}</div></div>
      <p class="sub">This replaces the progress on this device${S.stats.caught?` (level ${S.lvl}, ${Object.keys(S.journal).length} species)`:''}.</p>
      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-act="linkload">Load it</button><button class="btn alt" data-act="linkkeep">Keep this device’s</button></div>`;
-    $('evcard').hidden=false; }catch(e){ toast('That progress link didn’t work. Try copying it again.'); } }
+    $('evcard').hidden=false; }catch(e){ toast('That progress didn’t come through. Try again.'); } }
+// opening a link: #load= carries the progress, #pair= opens Get progress with the code filled in (phone camera)
+function checkIncomingLink(){ const h=location.hash; if(!h.startsWith('#load=')&&!h.startsWith('#pair=')) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  if(h.startsWith('#load=')) return offerCode(codeFromAny(h));
+  const code=h.slice(6).replace(/\D/g,''); setTab('save'); xfGet(code); }
 $('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-act="linkload"],[data-act="linkkeep"]'); if(!b) return; const r=extraAct7(b); checkFeats(); save(); if(r!=='skip') refreshAll(); });
 window.addEventListener('hashchange',checkIncomingLink);
 setTimeout(checkIncomingLink,900);
@@ -3240,6 +3300,145 @@ setTimeout(checkIncomingLink,900);
 // ---------- tabs: icon on top, short name under, all on one screen ----------
 const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slice(0,i)}</span><span class="tl">${l.slice(i+1)}</span>`; };
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
+
+// =====================================================================
+// Lily: an exclusive pet for Cam (gift code only), drawn from a photo of the
+// real Lily: a fluffy tricolour mini Aussie. Warm brown-black coat with
+// reddish sun-lit strands, rusty chestnut tan, creamy white. Asymmetric face:
+// a white blaze from the crown, narrow between the eyes, into a white muzzle;
+// a big tan cheek on her right, a stronger tan eyebrow on her left; big dark
+// brown glossy eyes; a big black nose; wispy floppy ears; a huge white fluffy
+// chest with a rusty fringe where the black meets the white. She sits facing
+// you, like in the photo. Her own animations: head tilts, sniffing, giving
+// paw, zoomies (with paw prints), belly-up rolls when petted, a "Boof!" when
+// a fish is landed, and naps at night.
+// =====================================================================
+const LILY={seenPet:null, pets:0, rollT:-9999, boofT:-9999, lastSt:'', pose:'sit', hdx:0, hdy:0};
+const LC={BK:'#1c1411', BK2:'#2b1e18', HI:'#5b3a27', HI2:'#7a4a2c', WH:'#efe8de', WH2:'#cfc5b9', WH3:'#b9aea2', TN:'#a5602f', TN2:'#c47b40', RIM:'#4a2a18', IRIS:'#2c180d', NOSE:'#0b0807', PK:'#f08a98'};
+// Lily's face, looking at you, centred on (0,0), radius ~5.2.
+// o: {eyes:'open'|'happy'|'closed', mouth:'smile'|'tongue'|'boof', ears:'out'|'perk'|'back', blink, sniff, t}
+function lilyFace(c,h,o){ const {el,ci,ln}=h; const L=LC, t=o.t||0;
+  const strand=(x1,y1,x2,y2,col,w)=>ln([x1,y1,x2,y2],col,w||.32);
+  // ears: black, half-folded, long wispy fringe (her right one floppier)
+  const ear=(s)=>{ if(o.ears==='perk'){ el(s*4.4,-3.8,1.9,3.3,L.BK,s*.45); strand(s*5.4,-6,s*6.2,-6.8,L.HI); }
+    else if(o.ears==='back'){ el(s*5.1,.2,1.8,3.6,L.BK,s*1.25); }
+    else { const fl=s<0?.15:0; el(s*4.8,-.8+fl*4,2,3.9,L.BK,s*(.9+fl)); el(s*5.9,2+fl*3,1.3,1.4,L.BK2); for(let i=0;i<3;i++) strand(s*(5.2+i*.5),2.4+fl*3+i*.3,s*(5.8+i*.7),3.8+fl*3+i*.5,i%2?L.HI:L.BK2,.4); el(s*3.6,1.6,.9,1.2,L.TN,s*.4); } };
+  ear(-1); ear(1);
+  // head: warm black, fluffy outline, reddish sun-lit strands
+  ci(0,0,5.2,L.BK); el(0,2.6,4.8,3.2,L.BK);
+  for(let i=0;i<8;i++){ const a=-Math.PI*.98+i*Math.PI*.14; el(Math.cos(a)*5,Math.sin(a)*5,1.1,.8,L.BK,a); }
+  strand(-3.4,-2.6,-4.1,-1.2,L.HI); strand(3.6,-2.2,4.3,-.9,L.HI); strand(-2.8,-4,-3.6,-3.2,L.HI2,.25); strand(3,-4.1,3.9,-3.3,L.HI2,.25);
+  strand(-1.4,-5,-1.8,-6.1+Math.sin(t*2)*.15,L.HI,.32); strand(.9,-5.2,1.3,-6.2+Math.sin(t*2+1)*.15,L.BK2,.34); strand(2.6,-4.6,3.2,-5.5,L.HI,.28); // flyaways
+  // white blaze: from the crown (wider, leaning to her right), narrow between the eyes, into the muzzle
+  c.fillStyle=L.WH; c.beginPath(); c.moveTo(-1.5,-5.1); c.quadraticCurveTo(0,-5.6,1,-5.1); c.lineTo(.45,-2.6); c.lineTo(.75,-.4); c.lineTo(-.75,-.4); c.lineTo(-.5,-2.6); c.closePath(); c.fill();
+  strand(-.9,-4.9,-1.2,-4.2,L.WH2,.25);
+  // tan: big cheek on her right (your left), smaller on her left; eyebrows (stronger on her left); jaw edges
+  el(-3.1,1.2,1.5,1.9,L.TN,.35); el(3.4,2.6,.9,1,L.TN,-.3);
+  // white muzzle, a little more white under her left eye, grey shading
+  el(.15,2.2,3.7,2.7,L.WH); el(1.9,.6,1.5,1.3,L.WH); el(-1.6,.9,1,1,L.WH); el(0,4.4,2.6,1.6,L.WH); el(.2,3.6,2,1,L.WH2); el(2.6,1.4,.8,.7,"#e2dace");
+  el(-2,-3.05,.62,.46,L.TN,.2); el(2.15,-3.15,.86,.6,L.TN2,-.2);
+  // eyes: big, dark brown, glossy, with a warm rim
+  if(o.eyes==='happy'){ c.strokeStyle=L.NOSE; c.lineWidth=.55; c.beginPath(); c.arc(-2,-.9,.95,Math.PI*1.1,Math.PI*1.9); c.stroke(); c.beginPath(); c.arc(2,-.9,.95,Math.PI*1.1,Math.PI*1.9); c.stroke(); }
+  else if(o.eyes==='closed'||o.blink){ ln([-2.9,-1,-1.1,-.85],L.NOSE,.5); ln([1.1,-.85,2.9,-1],L.NOSE,.5); }
+  else { for(const s of [-1,1]){ const ex=s*2; ci(ex,-1.1,1.3,L.RIM); ci(ex,-1.05,1.08,L.IRIS); ci(ex,-1,.62,'#0a0605'); }
+    c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(-1.6,-1.55,.38,0,7); c.arc(2.4,-1.55,.38,0,7); c.fill();
+    c.fillStyle='rgba(255,255,255,.45)'; c.beginPath(); c.arc(-2.35,-.6,.18,0,7); c.arc(1.65,-.6,.18,0,7); c.fill(); }
+  // big black glossy nose (wiggles when sniffing)
+  const nw=o.sniff?Math.sin(t*30)*.18:0; el(.15+nw,1.05,1.65,1.15,L.NOSE); ci(-.45+nw,1.35,.32,'#000'); ci(.75+nw,1.35,.32,'#000');
+  c.fillStyle='rgba(255,255,255,.4)'; c.beginPath(); c.ellipse(-.25+nw,.62,.55,.25,-.2,0,7); c.fill();
+  // mouth
+  if(o.mouth==='boof') el(.15,3.6,1.4,1.1,'#3a1a18');
+  else { c.strokeStyle='#7a6058'; c.lineWidth=.3; c.beginPath(); c.arc(-.35,2.75,.5,.25,Math.PI*.8); c.moveTo(1.15,2.95); c.arc(.65,2.75,.5,.25,Math.PI*.8); c.stroke();
+    if(o.mouth==='tongue') el(.15,4.1+Math.sin(t*14)*.15,.85,1.35,L.PK); }
+  ci(-1.6,2.3,.12,L.WH3); ci(-1.9,2.7,.12,L.WH3); ci(1.9,2.3,.12,L.WH3); ci(2.2,2.7,.12,L.WH3); // whisker dots
+}
+function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
+  const strand=(x1,y1,x2,y2,col,w)=>ln([x1,y1,x2,y2],col,w||.32);
+  const now=performance.now(), pt=S.pet==='lily'?petT:(S.pet2==='lily'?petT2:-9999);
+  if(LILY.seenPet===null) LILY.seenPet=pt; else if(pt!==LILY.seenPet){ LILY.seenPet=pt; LILY.pets++; if(LILY.pets%3===0) LILY.rollT=now; }
+  if(G.st==='landing'&&LILY.lastSt!=='landing') LILY.boofT=now; LILY.lastSt=G.st;
+  const petted=now-pt<2200, rolling=now-LILY.rollT<1900, boof=now-LILY.boofT<1600, watching=G.st==='reeling'||G.st==='bite'||G.st==='waiting';
+  const sleep=PET_NIGHT>.55&&!petted&&!boof&&!watching&&!rolling;
+  const busy=petted||boof||rolling||watching;
+  const zc=t%28, zoom=!sleep&&!busy&&zc>20&&zc<21.8;
+  const sniff=!zoom&&!busy&&(t%13)>10.6&&(t%13)<11.9, paw=!zoom&&!busy&&!sniff&&(t%17)>8&&(t%17)<9.4;
+  const bigTilt=!sniff&&!paw&&(t%7)>5.3&&(t%7)<6.7;
+  const wag=petted||zoom||watching||boof||rolling||paw?24:9;
+  LILY.hdx=0; LILY.hdy=0;
+  if(rolling){ LILY.pose='roll'; const w=Math.sin(now/80), k=(now-LILY.rollT)/1900; // belly up for rubs
+    el(-9.5,-2.2,2.6,1.6,L.BK2,.2+w*.4);
+    el(0,-4.6,8.6,4.4,L.BK); el(.8,-6.6,6.2,2.9,L.WH); el(-4.6,-6,1.4,2,L.TN,.3); el(6,-6,1.4,2,L.TN,-.3); strand(-3,-7.4,-2.4,-8.6,L.WH2); strand(2,-7.8,2.6,-9,L.WH2);
+    for(let i=0;i<4;i++){ const lx=-5+i*3.4, ly=-11.4+Math.sin(now/70+i*1.7)*1.2; ln([lx,-7,lx+.6,ly],i<2?L.BK:L.WH,2.4); ci(lx+.6,ly+1.4,.9,L.TN); ci(lx+.6,ly,1.3,L.WH); }
+    c.save(); c.translate(10,-5.2); c.rotate(2.2+w*.08); c.scale(.92,.92); lilyFace(c,h,{eyes:'happy',mouth:'tongue',ears:'out',t}); c.restore();
+    c.save(); for(let i=0;i<4;i++){ const a=i*1.6+k*4, r=9+k*4; c.globalAlpha=Math.max(0,.9-k)*(.6+.4*Math.sin(now/90+i)); c.fillStyle='#ffe58a'; const sx=2+Math.cos(a)*r, sy=-8+Math.sin(a)*r*.5; c.beginPath(); c.moveTo(sx,sy-1.2); c.lineTo(sx+.35,sy-.35); c.lineTo(sx+1.2,sy); c.lineTo(sx+.35,sy+.35); c.lineTo(sx,sy+1.2); c.lineTo(sx-.35,sy+.35); c.lineTo(sx-1.2,sy); c.lineTo(sx-.35,sy-.35); c.fill(); } c.restore();
+    return; }
+  if(sleep){ LILY.pose='sleep'; const br=Math.sin(t*1.6)*.3; // curled up napping, chin on her white paws
+    el(-6,-1.6,3.6,1.6,L.BK2,.1);
+    el(0,-4.2,9,4.2+br,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-8+Math.sin(i)*.4+br*.5,1.4,1,L.BK); strand(-7+i*3.4,-8.6,-7.6+i*3.4,-9.6,L.HI); }
+    el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3); rc(6,-1.6,4.4,1.6,L.WH); ci(10.6,-.8,.8,L.WH2);
+    c.save(); c.translate(8.6,-5.6); c.rotate(.12); c.scale(.85,.85); lilyFace(c,h,{eyes:'closed',mouth:'smile',ears:'out',t}); c.restore();
+    c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',12+ph*5,-12-ph*9); } c.restore();
+    return; }
+  if(zoom){ LILY.pose='zoom'; // running side-on, paw prints behind her
+    const ph=(zc-20)/1.8, dx=Math.sin(ph*Math.PI*3)*11, flip=Math.cos(ph*Math.PI*3)<0;
+    c.save(); for(let i=1;i<=5;i++){ const pp=ph-i*.05; if(pp<0) continue; const px=Math.sin(pp*Math.PI*3)*11; c.globalAlpha=.32-i*.05; c.fillStyle='#e8d8c8'; c.beginPath(); c.ellipse(px+(i%2?1.4:-1.4),.6,1,.5,0,0,7); c.fill(); } c.restore();
+    const hop=Math.abs(Math.sin(t*18))*1.6, lg=Math.sin(t*22)*1.8;
+    c.save(); c.translate(dx,-hop); if(flip) c.scale(-1,1);
+    el(-9.2,-10,3,2.2,L.BK2,-.6+Math.sin(t*24)*.4);
+    for(const [x,s] of [[-6,1],[-3.2,-1],[.6,1],[3.6,-1]]){ const xx=x+lg*s; rc(xx,-5,2.6,5,x<0?L.BK:L.WH); rc(xx,-2.4,2.6,1,L.TN); rc(xx,-1.4,2.6,1.6,L.WH); }
+    el(-.5,-8.4,8.6,5,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-12.6,1.6,1.1,L.BK); strand(-7+i*3.4,-13.2,-7.8+i*3.4,-14.4,L.HI); }
+    el(4.2,-8.6,1.4,4.4,L.TN,-.2); el(5.8,-8.4,3.6,5,L.WH);
+    c.save(); c.translate(8.6,-14.2); c.rotate(-.1); lilyFace(c,h,{eyes:'open',mouth:'tongue',ears:'back',blink,t}); c.restore();
+    c.restore(); return; }
+  // ---- sitting, facing you (like the photo) ----
+  LILY.pose='sit';
+  const hop = boof ? Math.max(0,Math.sin((now-LILY.boofT)/1600*Math.PI*3))*2.4 : petted ? Math.max(0,Math.sin(now/120))*.8 : 0, br=Math.sin(t*2.2)*.25;
+  c.save(); c.translate(0,-hop);
+  // fluffy tail tuft wagging behind her
+  const tw=Math.sin(t*wag)*.5; el(10.6,-2.6,3,1.7,L.BK2,-.5+tw); strand(12.4,-3.4,13.6,-4.4+tw,L.HI);
+  // haunches and hind paws
+  el(-2.6,-3.6,4.4,3.8,L.BK); el(8.6,-3.6,4.4,3.8,L.BK); strand(-5.6,-5,-6.6,-4,L.HI); strand(11.6,-5,12.6,-4,L.HI);
+  el(-5.4,-.7,2.1,1,L.WH); el(11.4,-.7,2.1,1,L.WH); el(-4.4,-1.6,1.2,.7,L.TN); el(10.4,-1.6,1.2,.7,L.TN);
+  // shoulders: warm black with sun-lit strands
+  el(3,-9.6,6.4,7.4+br,L.BK); for(let i=0;i<6;i++){ const a=Math.PI*(.95+i*.12); el(3+Math.cos(a)*6.3,-10+Math.sin(a)*7,1.2,.9,L.BK,a); }
+  strand(-2.6,-11,-3.4,-9.4,L.HI); strand(-1.8,-13.4,-2.8,-12.4,L.HI2,.26); strand(8.6,-11,9.4,-9.4,L.HI); strand(7.8,-13.4,8.8,-12.4,L.HI2,.26);
+  // rusty fringe where the black meets the white chest
+  el(-.2,-8.4,.9,3.4,L.TN,.18); el(6.2,-8.4,.9,3.4,L.TN,-.18); strand(-.6,-10.6,-1,-8.6,L.HI2,.3); strand(6.6,-10.6,7,-8.6,L.HI2,.3);
+  // big white fluffy chest, up to the chin, with soft grey shading and a scalloped edge
+  el(3,-9.8,4.4,6.6+br,L.WH); el(3,-6.4,3.4,2.8,L.WH2); el(3,-7.2,3,2.4,L.WH);
+  for(let i=0;i<5;i++) el(.6+i*1.2,-3.6+Math.abs(i-2)*-.4,.8,.9,L.WH);
+  for(let i=0;i<5;i++) strand(1.2+i*.9,-12+i*.2,1.4+i*.9,-9.6+i*.3,L.WH2,.26);
+  // front legs: white with a little tan at the elbows; one lifts to give paw
+  const leg=(x,lift)=>{ if(lift){ c.save(); c.translate(x+1.2,-6); c.rotate(-1.15+Math.sin(t*6)*.12); rc(-1.2,0,2.4,5.2,L.WH); el(0,0,1.3,.9,L.TN); ln([-.6,5,-.6,4.4],L.WH3,.25); ln([.6,5,.6,4.4],L.WH3,.25); c.restore(); return; }
+    rc(x,-6,2.4,6,L.WH); ln([x+.8,-.2,x+.8,-.9],L.WH3,.25); ln([x+1.6,-.2,x+1.6,-.9],L.WH3,.25); };
+  leg(-.3,false); leg(3.9,paw);
+  // head on top, looking at you, with her head tilt
+  const hy=-17.4+(sniff?2.6:0)+(watching||boof?-.6:0), hx=3+(sniff?1.2:0), tilt=sniff?.28:petted?.14:boof?-.06:paw?-.2:bigTilt?-.48:-.15+Math.sin(t*1.3)*.06;
+  LILY.hdx=hx-3; LILY.hdy=hy+17.4;
+  c.save(); c.translate(hx,hy); c.rotate(tilt); c.scale(1.14,1.14);
+  lilyFace(c,h,{eyes:petted?'happy':'open', mouth:boof?'boof':(petted||watching||paw)?'tongue':'smile', ears:petted?'back':(watching||boof||bigTilt)?'perk':'out', blink, sniff, t});
+  c.restore(); c.restore();
+  if(boof){ const k=(now-LILY.boofT)/1600; c.save(); c.globalAlpha=Math.min(1,(1-k)*3); c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.ellipse(12,-27-hop,7.5,4.2,0,0,7); c.fill(); c.beginPath(); c.moveTo(9,-24); c.lineTo(8,-20.5); c.lineTo(11.5,-23.6); c.fill();
+    c.fillStyle='#1b1513'; c.font='bold 4.6px system-ui'; c.textAlign='center'; c.fillText('Boof!',12,-25.4-hop); c.restore(); } }
+
+// ---------- gift code ----------
+const LILY_PATCH = {v:'Lily', label:'A gift for Cam 🐾', name:'Lily has joined you!', items:[
+  'Lily is here, drawn from a photo of the real Lily: her warm black coat, white blaze, rusty tan eyebrows and cheeks, big brown eyes, floppy ears and that huge fluffy white chest. One of a kind and only for you: nobody else can get her.',
+  'She sits facing you on the dock, just like in her photo.',
+  'She’s now your ★ favourite and gives +12% XP, a little more than any shop pup.',
+  'Watch for her famous head tilt when she’s curious, and her sniffing around the dock.',
+  'Pet her and her ears go back, her eyes go happy and her tongue comes out. Every third pet, she rolls over for belly rubs (with sparkles).',
+  'She gives you her paw, and every now and then she gets the zoomies (watch for the little paw prints).',
+  'She perks up and watches the water while you fish, and boofs when you land one.',
+  'At night she curls up and naps beside you. She’s wide awake again the moment you pet her.',
+  'Dress her up like any pet in the Pets tab: colours, accessories and hats.' ]};
+function redeemGift(code){ code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(!code){ toast('Type a gift code first.'); return 'skip'; }
+  if(btoa(code)==='TElMWVBBV1M='){ // LILYPAWS
+    if(S.owned.pets.includes('lily')){ toast('Lily is already with you. She says hi.'); return 'skip'; }
+    S.owned.pets.push('lily'); petLook('lily').name='Lily'; setFav('lily'); setTab('pets'); sfx.shiny(); save();
+    setTimeout(()=>showPatchNotes(LILY_PATCH),250); return 'render'; }
+  toast('That gift code didn’t work. Check the spelling.'); return 'skip'; }
 
 // ---------- loop ----------
 let last=performance.now();
@@ -3493,9 +3692,9 @@ function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getCo
   drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
-  P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
+  P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.filter(id=>PETI[id].src!=="gift").length} of ${PETS.filter(p=>p.src!=="gift").length} found.</p>
   ${petCustomHTML()}
-  <div class="grid">`+PETS.map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id, comp=S.pet2===p.id; const val=p.v*(1+.1*pr('petpal'));
+  <div class="grid">`+PETS.filter(p=>p.src!=='gift'||S.owned.pets.includes(p.id)).map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id, comp=S.pet2===p.id; const val=p.v*(1+.1*pr('petpal'));
     const act = here ? '<button class="btn alt" disabled>★ Favourite</button>'
       : comp ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Make favourite</button><button class="btn sm alt" data-act="pet2off">Send home</button></div>`
       : own ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Favourite</button><button class="btn sm alt" data-act="pet2" data-k="${p.id}">Companion</button></div>`
