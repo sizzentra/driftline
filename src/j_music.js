@@ -64,7 +64,7 @@ const V3MUS = {
     if(s%2===0&&Math.random()<.42){ const m=STYLES.cello.key+m3Wander(PENT_MIN,2,8); i3Saw(mtof(m),t,L*(Math.random()<.5?3.6:2),.016,L*.6,1100,[n.dry,n.wet],4,0); }
     if(s===0&&Math.random()<.18){ const sb=AC.createBufferSource(); sb.buffer=noiseBuf(3,true); const fl=AC.createBiquadFilter(); fl.type='lowpass'; fl.frequency.value=140; const gn=AC.createGain(); gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(.35,t+.4); gn.gain.exponentialRampToValueAtTime(.001,t+3); sb.connect(fl); fl.connect(gn); gn.connect(BUS.amb); sb.start(t); sb.stop(t+3.1); } },
   abyss(t,s,root,ivs,L,n,bar){ // slow breathing pads, a whale singing far away, the odd sonar ping
-    if(s===0&&bar%2===0) ivs.slice(0,4).forEach((iv,k)=>{ mv('sine',mtof(root+iv+(k>1?12:0)),t,L*17,.04,L*5,[n.dry,n.wet],-5); mv('sine',mtof(root+iv+(k>1?12:0)),t,L*17,.03,L*5,[n.wet],6); });
+    if(s===0&&bar%2===0) ivs.slice(0,4).forEach((iv,k)=>{ mv('sine',mtof(root+iv+(k>1?12:0)),t,L*17,.02,L*5,[n.dry,n.wet],-5); mv('sine',mtof(root+iv+(k>1?12:0)),t,L*17,.014,L*5,[n.wet],6); });
     if(s===4&&Math.random()<.16){ const f=220+Math.random()*120; i3Glide(f,f*1.9,f*.85,t,2.8+Math.random()*1.5,.05,[n.dry,n.wet,n.dls]); }
     if(s===2&&Math.random()<.1) mv('sine',1400,t,1.6,.012,.005,[n.wet,n.dls]); },
   taiko(t,s,root,ivs,L,n,bar){ // taiko drums, a breathy bamboo flute, springs bubbling
