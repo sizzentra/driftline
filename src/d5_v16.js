@@ -80,8 +80,14 @@ let fishRain=null;
 function drawWeatherX(t,wx,hz){ if(!S.settings.effects) return;
   if(wx.k==='Aurora'){ for(let b=0;b<3;b++){ g.strokeStyle=['rgba(90,255,170,','rgba(160,120,255,','rgba(90,220,255,'][b]+'.22)'; g.lineWidth=16-b*4; g.beginPath(); for(let x=0;x<=W;x+=12){ const y=hz*(.2+b*.12)+Math.sin(x*.008+t*.4+b)*hz*.08+Math.sin(x*.02+t*.7)*6; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); } }
   if(wx.k==='Blood Moon'){ g.fillStyle='rgba(140,10,30,.16)'; g.fillRect(0,0,W,H); const gr=g.createRadialGradient(W*.8,hz*.35,4,W*.8,hz*.35,40); gr.addColorStop(0,'rgba(255,90,80,.95)'); gr.addColorStop(.5,'rgba(200,30,40,.6)'); gr.addColorStop(1,'rgba(200,30,40,0)'); g.fillStyle=gr; g.beginPath(); g.arc(W*.8,hz*.35,40,0,7); g.fill(); }
-  if(wx.k==='Fish Rain'){ if(!fishRain) fishRain=Array.from({length:26},()=>[Math.random(),Math.random(),.6+Math.random()*.8,Math.floor(Math.random()*6)]); const cols=['#ffb04a','#5aa9ff','#7fc8a9','#ff7a9a','#ffd84a','#c38bff'];
-    for(const f of fishRain){ const x=(f[0]*W+t*20*f[2])%W, y=((f[1]*H+t*170*f[2])%(H+30))-15; g.save(); g.translate(x,y); g.rotate(1.2+Math.sin(t*3+f[0]*9)*.4); drawFish(g,0,0,12*f[2],cols[f[3]],'#fff6e0',.4,t*14,false,{}); g.restore(); } } }
+  // Spawning Run: silvery fish leap out of the water in short arcs and splash back, ripples spreading where they land
+  if(wx.k==='Spawning Run'){ if(!fishRain) fishRain=Array.from({length:9},(_,i)=>[Math.random(),.25+Math.random()*.7,1.1+Math.random()*.9,i*.7+Math.random()*3]);
+    for(const f of fishRain){ const per=f[2]+1.6, k=((t+f[3])%per)/f[2]; const x0=W*(.28+f[0]*.68), y0=hz+(H-hz)*f[1]*.85, s=.55+f[1]*.9, arcW=W*.05*s, arcH=H*.07*s;
+      if(k<=1){ const x=x0+arcW*k, y=y0-Math.sin(k*Math.PI)*arcH, a=Math.atan2(-Math.cos(k*Math.PI)*arcH*Math.PI, arcW);
+        g.save(); g.translate(x,y); g.rotate(a); drawFish(g,0,0,14*s,'#c8d4e0','#f4f8ff',.4,t*16,false,{}); g.restore();
+        g.fillStyle='rgba(255,255,255,.8)'; g.fillRect(x+2,y-2,1.6,1.6); }
+      const kr=k-1; if(kr>0&&kr<1.2){ const e=kr/1.2; g.strokeStyle='rgba(235,245,255,'+(.55*(1-e))+')'; g.lineWidth=1.2; g.beginPath(); g.ellipse(x0+arcW,y0,3+e*16*s,1+e*5*s,0,0,7); g.stroke(); }
+      if(k<.12||(k>.9&&k<1.05)){ const sx=k<.5?x0:x0+arcW; g.fillStyle='rgba(235,245,255,.7)'; for(let i=0;i<4;i++) g.fillRect(sx-4*s+i*2.6*s,y0-2-((i*7)%5)*s,1.4,1.4); } } } }
 
 // ---------- bounties with more variety ----------
 const STYLE_BOUNTY = ['jump','run','thrash','dive','sulk','dart'];

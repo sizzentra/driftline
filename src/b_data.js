@@ -459,7 +459,7 @@ const WEATHERS = [
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
   {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
   {k:'Blood Moon', w:3, rare:1.2, str:1.35, note:'Legendary odds way up, but everything fights much harder.'},
-  {k:'Fish Rain', w:3, bite:2.5, treasure:2, note:'It is literally raining fish. Bites ×2.5, junk ×2.'},
+  {k:'Spawning Run', w:3, bite:2.5, rare:.2, note:'Shoals are running up from the deep. Fish leap everywhere: bites ×2.5 and a few more rare fish.'},
 ];
 const WX_LEN = 240;
 const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,3000000,6000000,12000000,25000000];
@@ -560,7 +560,7 @@ const PATTERNS = [['none','Plain',0],['stripes','Sailor Stripes',1200],['flannel
   ['fishbones','Fish Bones',2800],['leopard','Leopard',3200],['tiedye','Tie-dye',3800],['pixel','Pixel Art',4400],['sunset','Sunset Fade',5200],['galaxy','Galaxy',7500],['sixseven','6-7 Print',6700]];
 const SKINS = ['#f6d7b8','#e8b98f','#c98d5f','#9a6440','#6b4128'];
 const HAIRS = ['#2a1d14','#5a3a22','#a8742e','#e8cd80','#b8b8b8','#c0402a'];
-const SHOP_LEN = 600; // seconds per clothing-shop rotation
+const SHOP_LEN = 1200; // seconds per clothing-shop rotation
 // pets: id, name, bonus key, value, source, price / hint
 const PETS = [
  ['dog','Dog','xp',.05,'start',0,'Your loyal first mate.'],

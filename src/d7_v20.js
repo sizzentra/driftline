@@ -86,30 +86,46 @@ function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.sc
   }
   c.restore(); }
 
-// ---------- Tide Pass ----------
+// ---------- Tide Pass (0.3: a longer climb, a Tide-only item every five levels, every reward spelled out) ----------
 const PASS_MAX = 50;
-const passNeed = L => 120 + L*25;
+const passNeed = L => Math.round(180 + L*45 + L*L*.8);
 const PASS_XP = [8,14,30,60,150,400];
-const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag (dock)'],8:['tint','tidal','Tidal pet colour'],12:['hat','tidecap','Tide Cap (hat)'],18:['dock','shipwheel','Ship’s Wheel (dock)'],25:['wood','pearl','Pearl dock wood'],30:['out','tidecoat','Tide Coat (outfit)'],40:['dock','minilight','Tiny Lighthouse (dock)'],50:['legend','','Legendary Mystery Crate']};
-function passReward(L){ if(PASS_SPECIAL[L]) return PASS_SPECIAL[L][2]; if(L>PASS_MAX) return 'Coins and 15 Scales'; return ['Big Mystery Crate','Coins','10 Scales','60 tickets','Small Mystery Crate'][L%5]; }
+const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag that ripples in the wind.'], 5:['shoe','tidetreads','Tide Treads','Shoes: sea-glass boots with a rolling wave stripe.'],
+  8:['tint','tidal','Tidal pet colour','Pet colour: recolours any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
+  12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
+  18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
+  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for your Home dock.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
+  35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
+  45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
+// regular levels cycle through these, every amount shown before you claim it
+function passPlain(L){ const base=bestLoot(); if(L>PASS_MAX) return {k:'bonus', name:'Coins and 20 Scales', d:fmt(Math.round(base*12*coinMult()))+' coins and 20 Scales.'};
+  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Coins and lures, sometimes a pet.'}][L%5]; }
+function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
-    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='legend') S.tokens.legend++; return sp[2]; }
-  if(L>PASS_MAX){ earn(base*10*coinMult()); S.scales+=15; return 'Coins and 15 Scales'; }
-  switch(L%5){ case 0: S.tokens.big++; break; case 1: earn(base*8*coinMult()); break; case 2: S.scales+=10; break; case 3: S.tickets+=60; break; case 4: S.tokens.small++; break; } return passReward(L); }
+    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='crate2') S.tokens.legend+=2; if(k==='bait') S.bait[id]=(S.bait[id]||0)+6;
+    if(k==='shoe'&&!S.owned.shoes.includes(id)) S.owned.shoes.push(id); if(k==='neck'&&!S.owned.necks.includes(id)) S.owned.necks.push(id); if(k==='back'&&!S.owned.backs.includes(id)) S.owned.backs.push(id); return sp[2]; }
+  if(L>PASS_MAX){ earn(base*12*coinMult()); S.scales+=20; return 'Coins and 20 Scales'; }
+  const p=passPlain(L); switch(p.k){ case 'big': S.tokens.big++; break; case 'coins': earn(base*10*coinMult()); break; case 'scales': S.scales+=15; break; case 'tix': S.tickets+=100; break; case 'small': S.tokens.small++; break; } return p.name; }
 function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
+function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const cx=w/2, s=w/120;
+  if(sp){ const [k,id]=sp; if(k==='dock') drawDockItem(x,id,cx,h*.9,2.4*s,performance.now()/1000,0); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
+    else if(k==='tint') drawPetStyled(x,S.pet,cx,h*.86,2.8*s,0,0,Object.assign({},petLook(),{tint:id})); else if(k==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(w*.08,h*.5,w*.84,h*.13); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(w*(.12+i*.17),h*.5,2*s,h*.13); }
+    else if(k==='shoe'||k==='neck'||k==='back') wearPreview(x,k,id,w,h); else if(k==='bait') drawJunk(x,w,h,'goldlure'); else drawJunk(x,w,h,'chest'); return; }
+  const p=L>PASS_MAX?{k:'coins'}:passPlain(L); if(p.k==='big'||p.k==='small') drawJunk(x,w,h,'chest'); else if(p.k==='coins'||p.k==='bonus') drawJunk(x,w,h,'coin');
+  else if(p.k==='scales'){ x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(cx+Math.cos(a)*24*s,h/2+Math.sin(a)*24*s); } x.fill(); } else { x.font=Math.round(34*s)+'px system-ui'; x.textAlign='center'; x.fillText('🎟',cx,h*.64); } }
 function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
   const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
-  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels of rewards, with special ones along the way, then bonus rewards forever.</p></div>
+  const nextSp=Object.keys(PASS_SPECIAL).map(Number).find(L=>L>pl), ns=nextSp&&PASS_SPECIAL[nextSp];
+  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels, a Tide-only reward every five levels, then bonus rewards forever.</p></div>
    <div class="tile" style="min-width:220px"><div class="rar" style="color:var(--kelp)">Level ${pl}</div><div class="meta">${fmt(S.pass.xp)} / ${fmt(need)} to level ${pl+1}</div><div class="prog"><i style="width:${S.pass.xp/need*100}%;background:var(--kelp)"></i></div>
    ${unclaimed?`<button class="btn" data-act="passclaim" style="margin-top:6px">Claim ${unclaimed} reward${unclaimed>1?'s':''}</button>`:''}</div></div>
-   <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L];
-     return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><span>${got?'✓ ':''}${esc(sp&&!got&&L>pl?(sp[0]==='legend'?sp[2]:'A special reward'):passReward(L))}</span></div>`; }).join('')}</div>
+   ${ns?`<div class="tile pass-next"><canvas width="240" height="180" data-passbig="${nextSp}"></canvas><div><span class="bwx-cat">Next Tide reward · level ${nextSp}</span><h3 style="margin:2px 0">${esc(ns[2])}</h3><div class="meta">${esc(ns[3])}</div><div class="meta" style="margin-top:6px">${nextSp-pl} level${nextSp-pl>1?'s':''} to go.</div></div></div>`:''}
+   <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L], d=sp?sp[3]:passPlain(L).d;
+     return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}" title="${esc(d)}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><b style="font-size:12.5px;line-height:1.2">${got?'✓ ':''}${esc(passReward(L))}</b><span class="meta" style="font-size:11px;line-height:1.25">${esc(d)}</span></div>`; }).join('')}</div>
    <p class="sub" style="margin-top:8px">Fish ×${PASS_XP.join(' / ')} XP by rarity. Shiny ×2, trophy ×1.5. Daily tasks and derbies give extra.</p>`;
-  P.querySelectorAll('canvas[data-pass]').forEach(cv2=>{ const L=+cv2.dataset.pass, sp=PASS_SPECIAL[L], x=cv2.getContext('2d'); x.clearRect(0,0,120,90); const secret=sp&&L>pl&&sp[0]!=='legend'; if(secret) x.filter='brightness(0) opacity(.5)';
-    if(sp){ if(sp[0]==='dock') drawDockItem(x,sp[1],60,80,2.4,0,0); else if(sp[0]==='hat') hatPreview(x,120,90,sp[1],S.look.hatCol); else if(sp[0]==='out') drawAngler(x,60,86,1.1,Object.assign({},S.look,{outfit:sp[1],hat:'none'}),{}); else if(sp[0]==='tint') drawPetStyled(x,S.pet,60,78,2.8,0,0,Object.assign({},petLook(),{tint:sp[1]})); else if(sp[0]==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(10,45,100,12); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(14+i*20,45,2,12); } else drawJunk(x,120,90,'crown'); }
-    else { const k=L>PASS_MAX?1:L%5; if(k===0||k===4) drawJunk(x,120,90,'chest'); else if(k===1) drawJunk(x,120,90,'coin'); else if(k===2){ x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(60+Math.cos(a)*24,45+Math.sin(a)*24); } x.fill(); } else { x.font='34px system-ui'; x.textAlign='center'; x.fillText('🎟',60,58); } }
-    x.filter='none'; }); }
+  P.querySelectorAll('canvas[data-pass]').forEach(cv2=>passArt(cv2.getContext('2d'),120,90,+cv2.dataset.pass));
+  P.querySelectorAll('canvas[data-passbig]').forEach(cv2=>passArt(cv2.getContext('2d'),240,180,+cv2.dataset.passbig)); }
 
 // ---------- Fishing Derby ----------
 const DERBY_LEN = 4*60*1000;
