@@ -13,7 +13,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **Next:** pick from the roadmap below with the director.
+- **0.3 overhaul IN PROGRESS** (2026-11-16):
+  - Preview: https://sizzentra.github.io/driftline/next/ (its own save; it copies the real save once; badge "0.3 preview").
+  - Build: `build.ps1 -Preview`. Publish: `publish_preview.ps1` (never rebuilds friends' game).
+  - New renderer: `src/f_v3scene.js` (B2 style; on only when `DL_PREVIEW` is set or the URL has `?v3`). It hooks into `draw()` in `d_draw.js` via `v3Scene` / `v3Platform` / `v3Fore`.
+  - **Done:** Willow Pond environment (mountain ranges with shaded faces and snow, pine shores, log cabin with lit window + smoke, weeping willow, reflections, sun/moon glitter, mist, ducks, fish rings, lily pads with a glowing bloom, fireflies/dragonflies, cattails, rebuilt dock + lantern), day/dusk/night palettes, static layers cached (worst light-change frame <4 ms on PC).
+  - **Next for the showcase:** rebuilt angler, three pets with personality, cast/reel/catch moments, pond music; then the director play-tests.
+  - Test tools (`?test`): `__setPhase(0.5)` sets the clock and finds clear weather, `__crop(x,y,w,h,scale)` enlarges part of the canvas, `__go(id)` moves to an area.
 
 ## Roles
 - **The user is the director:** a non-programmer who sets the vision, play-tests and approves. Explain things in plain words and guide step by step.
