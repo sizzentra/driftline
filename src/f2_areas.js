@@ -993,7 +993,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
-  drawPetStyled(x,S.pet,w*.5,dy-th*.4,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  { const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,w*.58-(big?44:31)*2.6,dy-th*.4,2.6*(big?.85:1),t); } drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
   return true; }
 
 // a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow

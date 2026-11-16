@@ -69,7 +69,7 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   if(rolling){ LILY.pose='roll'; const w=Math.sin(now/80), k=(now-LILY.rollT)/1900; // belly up for rubs
     LILY.head={x:10,y:-5.2,rot:2.2+w*.08,s:.92,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     if(cape){ capeShape([-9,-1.2, 1,2.2,12,-1, 11,-4.5,9,-6.5, 0,-4.6,-8,-6.5],cape); capeShape([-9,-1.2, 1,2.2,12,-1, 1,1.2,-9,-1.2],mix(cape,'#000000',.25)); }
-    el(-9.5,-2.2,2.6,1.6,L.BK2,.2+w*.4);
+    el(-9.2,-2.2,1.6,1.3,L.BK2,w*.3);
     el(0,-4.6,8.6,4.4,L.BK); el(.8,-6.6,6.2,2.9,L.WH); el(-4.6,-6,1.4,2,L.TN,.3); el(6,-6,1.4,2,L.TN,-.3); strand(-3,-7.4,-2.4,-8.6,L.WH2); strand(2,-7.8,2.6,-9,L.WH2);
     for(let i=0;i<4;i++){ const lx=-5+i*3.4, ly=-11.6+Math.sin(now/70+i*1.7)*1.1, kx=lx+(i%2?.9:-.9), front=i>=2; c.lineCap="round"; c.strokeStyle=front?L.WH:L.BK; c.lineWidth=3; c.beginPath(); c.moveTo(lx,-7); c.quadraticCurveTo(kx,-9.4,lx+.5,ly+1.2); c.stroke(); if(!front){ c.strokeStyle=L.WH; c.lineWidth=2.8; c.beginPath(); c.moveTo(kx*.5+lx*.5+.2,-9.9); c.lineTo(lx+.5,ly+1.2); c.stroke(); } el(lx+.5,ly,1.6,1.25,L.WH); el(lx+.5,ly+.3,.75,.5,L.PK); ci(lx-.4,ly-.7,.32,L.PK); ci(lx+.5,ly-.95,.32,L.PK); ci(lx+1.4,ly-.7,.32,L.PK); } c.lineCap="butt";
     c.save(); c.translate(10,-5.2); c.rotate(2.2+w*.08); c.scale(.92,.92); lilyFace(c,h,{eyes:'happy',mouth:'tongue',ears:'out',t}); c.restore();
@@ -77,10 +77,17 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
     return; }
   if(sleep){ LILY.pose='sleep'; const br=Math.sin(t*1.6)*.3; // curled up napping, chin on her white paws
     LILY.head={x:8.6,y:-5.6,rot:.12,s:.85,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
-    el(-6,-1.6,3.6,1.6,L.BK2,.1);
-    el(0,-4.2,9,4.2+br,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-8+Math.sin(i)*.4+br*.5,1.4,1,L.BK); strand(-7+i*3.4,-8.6,-7.6+i*3.4,-9.6,L.HI); }
+    // bob tail: a short fluffy stub at her rump (mini Aussies have no long tail)
+    el(-8.6,-3.4,1.7,1.4,L.BK2,.2); strand(-9.6,-3.8,-10.3,-4.4,L.HI,.28);
+    // curled body: one smooth, low loaf with a rounded haunch, the fur lying flat along her back (no tufts sticking up)
+    el(-4.6,-3.9,4.4,3.7+br*.6,L.BK); el(.6,-4,8.4,3.9+br,L.BK); el(-1,-6.6,7.4,1.6,L.BK);
+    strand(-6.8,-6.9,-3.6,-7.7,L.HI,.3); strand(-2.4,-8,1.2,-8.3,L.HI2,.26); strand(2.2,-7.9,5,-7.4,L.HI,.28); strand(-5.6,-3.4,-3.4,-5.4,L.HI,.26);
+    // hind paw tucked under her side, peeking out white with a touch of tan
+    el(-3.2,-.55,2.3,.85,L.WH); el(-4.4,-.9,.9,.5,L.TN);
     if(cape){ capeShape([-7.5,-6.2-br*.5, -1,-10.4-br,6,-7.6-br*.5, 6.4,-5,5.6,-2.8, -.5,-4.4,-6.8,-2.6],cape); capeShape([-6.8,-2.6, -.5,-4.4,5.6,-2.8, -.5,-3.2,-6.8,-2.6],mix(cape,'#000000',.3)); c.strokeStyle=mix(cape,'#ffffff',.3); c.lineWidth=.35; c.beginPath(); c.moveTo(-6.8,-3); c.quadraticCurveTo(-.5,-4.8,5.6,-3.2); c.stroke(); }
-    el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3); rc(6,-1.6,4.4,1.6,L.WH); ci(10.6,-.8,.8,L.WH2);
+    // white chest, and both front paws stretched out under her chin
+    el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3);
+    el(8.2,-1,3.4,1.05,L.WH); el(9,-.35,3,.9,L.WH2); el(11.2,-1.05,1.15,.85,L.WH); el(11.7,-.4,1.1,.8,L.WH); ln([10.9,-1.6,10.9,-.6],L.WH3,.2); ln([11.6,-1,11.6,-.1],L.WH3,.2);
     c.save(); c.translate(8.6,-5.6); c.rotate(.12); c.scale(.85,.85); lilyFace(c,h,{eyes:'closed',mouth:'smile',ears:'out',t}); c.restore();
     c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',12+ph*5,-12-ph*9); } c.restore();
     return; }
@@ -91,9 +98,9 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
     LILY.head={x:dx+(flip?-8.6:8.6),y:-hop-14.2,rot:-.1,s:1,flip}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     c.save(); c.translate(dx,-hop); if(flip) c.scale(-1,1);
     if(cape){ const wv=Math.sin(t*16)*1.2; capeShape([5.5,-13.8, -3,-16.5+wv,-13.5,-11+wv, -12.6,-6.4+wv,-11.4,-5.6+wv, -3,-8,5,-9.6],cape); capeShape([5,-9.6, -3,-8,-11.4,-5.6+wv, -3,-9.4,5,-10.8],mix(cape,'#000000',.28)); }
-    el(-9.2,-10,3,2.2,L.BK2,-.6+Math.sin(t*24)*.4);
+    el(-9,-10,1.7,1.4,L.BK2,Math.sin(t*24)*.3);
     for(const [x,s] of [[-6,1],[-3.2,-1],[.6,1],[3.6,-1]]){ const xx=x+lg*s; rc(xx,-5,2.6,5,x<0?L.BK:L.WH); rc(xx,-2.4,2.6,1,L.TN); rc(xx,-1.4,2.6,1.6,L.WH); }
-    el(-.5,-8.4,8.6,5,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-12.6,1.6,1.1,L.BK); strand(-7+i*3.4,-13.2,-7.8+i*3.4,-14.4,L.HI); }
+    el(-.5,-8.4,8.6,5,L.BK); el(-1,-11.6,7.6,1.7,L.BK); strand(-6.6,-12,-3.4,-12.9,L.HI,.3); strand(-2,-13.1,1.6,-13.3,L.HI2,.26); strand(2.4,-12.9,5.2,-12.3,L.HI,.28);
     el(4.2,-8.6,1.4,4.4,L.TN,-.2); el(5.8,-8.4,3.6,5,L.WH);
     c.save(); c.translate(8.6,-14.2); c.rotate(-.1); lilyFace(c,h,{eyes:'open',mouth:'tongue',ears:'back',blink,t}); c.restore();
     c.restore(); return; }
@@ -104,8 +111,8 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   // a cape hangs from her shoulders behind her body, swaying
   if(cape){ capeShape([-1.8,-14.8, -6.4,-9+cw,-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, 3,-2.2,5,-2.4, 10,-1.6,14.4,-1.2-cw*.6, 12.4,-9-cw,7.8,-14.8, 3,-16,-1.8,-14.8],cape);
     capeShape([-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, -3,-5,-5.6,-8+cw],mix(cape,'#000000',.28)); capeShape([14.4,-1.2-cw*.6, 10,-1.6,5,-2.4, 9,-5,11.6,-8-cw],mix(cape,'#000000',.28)); }
-  // fluffy tail tuft wagging behind her
-  const tw=Math.sin(t*wag)*.5; el(10.6,-2.6,3,1.7,L.BK2,-.5+tw); strand(12.4,-3.4,13.6,-4.4+tw,L.HI);
+  // bob tail: a short fluffy stub that wiggles (no long tail on a mini Aussie)
+  const tw=Math.sin(t*wag)*.5; el(10.2,-2.9,1.7,1.4,L.BK2,tw*.5); strand(11.2,-3.6,11.8,-4.2+tw*.4,L.HI,.28);
   // haunches and hind paws
   el(-2.6,-3.6,4.4,3.8,L.BK); el(8.6,-3.6,4.4,3.8,L.BK); strand(-5.6,-5,-6.6,-4,L.HI); strand(11.6,-5,12.6,-4,L.HI);
   el(-5.4,-.7,2.1,1,L.WH); el(11.4,-.7,2.1,1,L.WH); el(-4.4,-1.6,1.2,.7,L.TN); el(10.4,-1.6,1.2,.7,L.TN);

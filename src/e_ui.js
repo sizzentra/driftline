@@ -261,7 +261,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   if(V3ON) v3Pedestal(cx,250,470,215,performance.now()/1000); else { cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22); }
-  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
+  { const big=S.pet==='horse'||S.pet==='cow', s=6.4; drawPetStyled(cx,S.pet,Math.max(big?120:70,300-(big?44:31)*s),470,s*(big?.85:1),performance.now()/1000); } drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
   P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.filter(id=>PETI[id].src!=="gift").length} of ${PETS.filter(p=>p.src!=="gift").length} found.</p>

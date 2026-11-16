@@ -42,6 +42,13 @@ const PATCHES = [
   'The clothing shop is curated now: a featured piece and a mix of hats, shoes, back pieces and more every 20 minutes, and never anything you already own.',
   'Fish Rain is gone. In its place: Spawning Run, when shoals leap from the water and bites come fast.',
   'Phones held sideways: the arrow on the water now has three steps: wider menus, hidden menus, and back.',
+  'New Stats tab: every number that shapes your fishing (bite speed, rare and shiny odds, sale price, reel and line, aquarium income) and exactly where each bonus comes from.',
+  'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop), and the Shop has a tab for every kind of clothing with its whole range, plus a Featured shelf. New glasses, outfits and colours too.',
+  'Less scrolling everywhere: long menus (Settings, Pets, Feats, Aquarium, Home, Rods, Waters) are split into sections you switch between.',
+  'Tide Pass levels now give clothing and decorations you don’t own yet instead of pocket change, and you can see exactly which piece before you claim it.',
+  'Hats sit better, hair shows properly underneath them, helmets show your face, and eyes are drawn properly up close. Pets are the right size next to you.',
+  'A balance pass: later waters pay properly, junk and Boardwalk prizes scale with the fish, hybrids are a jackpot rather than a broken one, a full aquarium is a strong bonus but fishing always pays more, and late levels come at a steadier pace.',
+  'Fixed: buying the last two Rod length upgrades could make every catch the same fish.',
   'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
   'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
   'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
@@ -272,7 +279,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
   return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
-    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
+    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${id==="lily"?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">

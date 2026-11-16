@@ -19,15 +19,15 @@ const LOCS = [
   {id:'reef',  name:'Coral Shallows',   cost:15000,  need:8, bonus:80000,  plat:'sand',  blurb:'Warm turquoise water over a living reef. The colours are unreal and so are the fish.',
    sky:['#6fc3ec','#fbe7c3'], water:['#2bb3b8','#0b4f6e'], hill:'#3e8f4e', amp:.035, freq:1.6, depth:'1–30 m', loot:1600},
   {id:'shelf', name:'Brine Shelf',      cost:35000,  need:8, bonus:180000, plat:'boat',  blurb:'Open sea at the edge of the shelf. Marlin country. Bring heavy line.',
-   sky:['#7fb4d8','#e6d9c9'], water:['#1f5a8a','#081f3a'], hill:'#3f5468', amp:0, freq:1, depth:'30–200 m', loot:3500},
+   sky:['#7fb4d8','#e6d9c9'], water:['#1f5a8a','#081f3a'], hill:'#3f5468', amp:0, freq:1, depth:'30–200 m', loot:2200},
   {id:'deep',  name:'Midnight Deep',    cost:80000,  need:8, bonus:400000, plat:'trawler', blurb:'Far offshore on a trawler. The swell is huge, and the big game is bigger.',
-   sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:8000},
+   sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:4500},
   {id:'trench',name:'Hollow Trench',    cost:180000, need:8, bonus:1000000, plat:'raft', blurb:'Black water over a drop no one has measured. Things down here glow.',
-   sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:18000},
+   sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:10000},
   {id:'ember', name:'Ember Springs',    cost:400000, need:8, bonus:2500000, plat:'stone', blurb:'Steaming hot springs in a volcanic valley. The water glows at night, and so do the fish.',
-   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:40000},
+   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:13000},
   {id:'starfall',name:'Starfall Lake',  cost:1200000, need:8, bonus:8000000, plat:'crystal', blurb:'A lake high above the clouds, where the stars come down to drink. Nobody quite knows how you got here.',
-   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:90000},
+   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:33000},
 ];
 const SEA = ['shelf','deep','trench'];
 // fight behaviours
@@ -400,7 +400,7 @@ const GEAR = {
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
           fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity colour')+', +'+v*20+'% hotspots'},
 };
-const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46];
+const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46,.55,.65]; // one entry per Rod length level (0.3: the last two were missing and broke catches at max rod)
 const BAIT = {
   worm:   {name:'Worms',         speed:1,   rare:0,   pack:0,  price:0,    note:'Free and endless.'},
   bread:  {name:'Bread Balls',   speed:1.6, rare:0,   pack:10, price:20,   note:'Cheap and quick. Bites come fast, nothing fancy.'},
@@ -617,7 +617,7 @@ const PETS = [
  ['narwhal','Narwhal','rare',.25,'feat',0,'Joins you after you catch something rarer than legendary.'],
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
  ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
- ['lily','Aussie Shepherd','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
+ ['lily','Mini Aussie','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
  ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
  ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
  ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],

@@ -127,7 +127,7 @@ function a3Body(c,x,y,s,lk,o,live){
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
-  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-59.4,60,40); c.clip(); } }
+  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
   if(hs==='long'){ c.fillStyle=hairF; c.beginPath(); c.moveTo(-7.4,-60); c.quadraticCurveTo(-12.6,-50,-9.8,-42.2); c.quadraticCurveTo(-6,-41.2,-2.4,-43.4); c.lineTo(-2.4,-58); c.closePath(); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.45; c.beginPath(); c.moveTo(-8.6,-56); c.quadraticCurveTo(-10.8,-50,-9,-44); c.moveTo(-6,-55); c.quadraticCurveTo(-7.4,-50,-6,-44.5); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.4,-57); c.quadraticCurveTo(-9.6,-52,-8.6,-47); c.stroke(); }
   if(hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
   if(hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
@@ -171,7 +171,19 @@ function a3Body(c,x,y,s,lk,o,live){
   const ex=4.4, ey=-57, browY=mood==='surprised'?-60.6:mood==='focus'?-59.4:-60;
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
   else if(mood==='happy'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.65; c.beginPath(); c.arc(ex,ey+.5,1.1,Math.PI*1.1,Math.PI*1.9); c.stroke(); }
-  else { const er=mood==='surprised'?1.2:1.05, eh=mood==='surprised'?1.5:1.38, ec=(EYES[lk.eye]||EYES[0])[0]; c.fillStyle=D('#1a1410'); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle=D(ec); c.beginPath(); c.ellipse(ex+.12,ey+.12,er*.72,eh*.72,0,0,7); c.fill(); c.fillStyle=D('#0a0806'); c.beginPath(); c.ellipse(ex+.18,ey+.15,er*.36,eh*.38,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.38,ey-.48,.4,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.4)'; c.beginPath(); c.arc(ex-.3,ey+.5,.2,0,7); c.fill(); }
+  else { const big=mood==='surprised', ec=(EYES[lk.eye]||EYES[0])[0];
+    if(s<3.2){ // small (on the water): a soft dark eye tinted by the eye colour, with a catchlight
+      const er=big?1.15:1, eh=big?1.45:1.3; c.fillStyle=D(mix('#1a1410',ec,.3)); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.36,ey-.46,.38,0,7); c.fill(); }
+    else { // close up (Wardrobe, Home): white of the eye, a coloured iris looking forward, pupil, catchlights and an upper lid
+      const rx=big?1.35:1.22, ry=big?1.25:1.02;
+      c.save(); c.beginPath(); c.ellipse(ex,ey,rx,ry,0,0,7); c.clip();
+      c.fillStyle=D('#fbf7f2'); c.fillRect(ex-2,ey-2,4,4);
+      const ix=ex+.34, iy=ey+.06, ir=big?.78:.84, ig=c.createRadialGradient(ix-.15,iy-.2,.05,ix,iy,ir); ig.addColorStop(0,D(mix(ec,'#ffffff',.3))); ig.addColorStop(.7,D(ec)); ig.addColorStop(1,D(mix(ec,'#000000',.45)));
+      c.fillStyle=ig; c.beginPath(); c.arc(ix,iy,ir,0,7); c.fill(); c.fillStyle=D('#100c0a'); c.beginPath(); c.arc(ix+.06,iy+.04,ir*.46,0,7); c.fill();
+      c.fillStyle='rgba(60,30,20,.16)'; c.fillRect(ex-2,ey-ry,4,ry*.55); c.restore();
+      c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.arc(ix+.28,iy-.34,.22,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.5)'; c.beginPath(); c.arc(ix-.24,iy+.3,.1,0,7); c.fill();
+      c.strokeStyle=D('#2a1a12'); c.lineWidth=.32; c.lineCap='round'; c.beginPath(); c.ellipse(ex,ey,rx,ry,0,Math.PI*1.08,Math.PI*1.95); c.stroke();
+      c.strokeStyle=D('rgba(90,40,30,.35)'); c.lineWidth=.18; c.beginPath(); c.ellipse(ex,ey+.05,rx*.95,ry,0,Math.PI*.15,Math.PI*.85); c.stroke(); } }
   if(f && !blink){ c.strokeStyle=D('#1a1410'); c.lineWidth=.55; c.beginPath(); c.moveTo(ex+.8,ey-.9); c.lineTo(ex+1.6,ey-1.6); c.stroke(); }
   c.strokeStyle=D(mix(hairC,'#000000',.15)); c.lineWidth=.75; c.beginPath(); c.moveTo(ex-1.5,browY+.25); c.quadraticCurveTo(ex,browY-(mood==='focus'?-.2:.45),ex+1.6,browY+.15); c.stroke();
   // mouth
@@ -181,8 +193,14 @@ function a3Body(c,x,y,s,lk,o,live){
   else if(mood==='focus'){ c.beginPath(); c.moveTo(4.4,-52.7); c.lineTo(6.4,-52.9); c.stroke(); }
   else { c.beginPath(); c.moveTo(4.1,-53); c.quadraticCurveTo(5.4,-52,6.7,-53.1); c.stroke(); }
   drawFace(c,lk,D,hair);
-  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-59.4,60,40); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
-  c.save(); c.translate(0,-56); drawHat(c,lk.hat,D(lk.hatCol),t); c.restore();
+  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
+  // hats sit a touch higher and never cover the eye (full helmets excepted), so the face always reads
+  // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
+  { const HC=a3HatLayer(c), hx=HC.getContext('2d'); hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,HC.width,HC.height); hx.setTransform(c.getTransform());
+    hx.save(); if(!hatFull&&hatId!=='none'){ hx.beginPath(); hx.rect(-40,-110,80,130); hx.ellipse(4.55,-57,1.4,1.35,0,0,7); hx.clip('evenodd'); } hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
+    if(hatId!=='none'){ hx.save(); hx.globalCompositeOperation='source-atop'; const g1=hx.createLinearGradient(-9,-74,9,-50); g1.addColorStop(0,'rgba(10,8,22,.34)'); g1.addColorStop(.45,'rgba(10,8,22,0)'); g1.addColorStop(.75,'rgba(255,244,226,.12)'); g1.addColorStop(1,'rgba(255,244,226,.22)'); hx.fillStyle=g1; hx.fillRect(-30,-100,60,60);
+      const g2=hx.createLinearGradient(0,-60,0,-52); g2.addColorStop(0,'rgba(10,8,22,0)'); g2.addColorStop(1,'rgba(10,8,22,.28)'); hx.fillStyle=g2; hx.fillRect(-30,-60,60,10); hx.restore(); }
+    c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(HC,0,0); c.restore(); }
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod
   const shF={x:.8*B.w,y:-44}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
@@ -327,8 +345,10 @@ function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('can
 if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=HATS.map(h=>h[0]||h.id).slice(opts.from||0,opts.to||999), cols=opts.cols||10, cw=opts.cell||110, ch=cw, sc=cw/26;
   const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(ids.length/cols)*ch; const x=o.getContext('2d');
   ids.forEach((id,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch);
-    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.5+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle='#cfd8ff'; x.font='9px system-ui'; x.fillText(id,cx+3,cy+10); });
+    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.64+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle="#cfd8ff"; x.font="9px system-ui"; x.fillText(id,cx+3,cy+10); });
   window.__post(opts.save||'hats',o.toDataURL()); return ids.length; };
 // hats that leave the top of the head free (hair shows fully) and helmets that hide all hair
 const A3_HAT_OPEN=new Set(['none','headphones','headband','halo','flower','catears','bunnyears','antlers','tiara','crown']);
 const A3_HAT_FULL=new Set(['diver','astro','fishbowl','knight','pumpkin']);
+const A3HAT=new WeakMap();
+function a3HatLayer(c){ let H=A3HAT.get(c.canvas); if(!H){ H=document.createElement('canvas'); A3HAT.set(c.canvas,H); } if(H.width!==c.canvas.width||H.height!==c.canvas.height){ H.width=c.canvas.width; H.height=c.canvas.height; } return H; }

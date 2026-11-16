@@ -156,3 +156,29 @@ a3Back=function(c,id,D,col,t,w,lean,st){
       c.strokeStyle='rgba(235,255,255,.8)'; c.lineWidth=.5; c.beginPath(); for(let r=0;r<3;r++){ for(let x=-15;x<=-1;x+=.6) c.lineTo(x,-10+r*4+Math.sin(x*.9+t*3+r)*.7); c.moveTo(-15,-6+r*4); } c.stroke(); c.restore(); }
     c.fillStyle='rgba(235,255,255,.85)'; for(let i=0;i<5;i++){ const k=((t*.6+i/5)%1); c.beginPath(); c.arc(-14+k*4,-12+k*16,.6*(1-k),0,7); c.fill(); } c.restore(); return; }
   return _a3Back_0(c,id,D,col,t,w,lean,st); };
+
+// ---------- hats redrawn for the side-view angler (0.3): helmets show a window or visor at the front so the face
+// still shows, and the ushanka's flap sits over the ear instead of the face. Hat space: head centre (0,0), radius 7.5, facing right.
+const _drawHat_0 = drawHat;
+drawHat = function(c,id,col,t=0){ const sh=(x0,y0,x1,y1,a,b)=>{ const g=c.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,a); g.addColorStop(1,b); return g; };
+  switch(id){
+    case 'diver': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#e8b860','#8a5a1a'); c.beginPath(); c.arc(-.4,.4,11.2,0,7); c.moveTo(10,.4); c.arc(5.2,.4,4.8,0,7,true); c.fill('evenodd');
+      c.fillStyle='rgba(150,210,235,.26)'; c.beginPath(); c.arc(5.2,.4,4.8,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.45)'; c.beginPath(); c.ellipse(6.6,-2.2,1.6,.8,-.6,0,7); c.fill();
+      c.strokeStyle='#6a4410'; c.lineWidth=1.3; c.beginPath(); c.arc(5.2,.4,4.8,0,7); c.stroke(); c.fillStyle='#5a3a10'; for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; c.beginPath(); c.arc(5.2+Math.cos(a)*4.8,.4+Math.sin(a)*4.8,.45,0,7); c.fill(); }
+      c.fillStyle='#2a4a5a'; c.beginPath(); c.arc(-5,-1.6,2.4,0,7); c.fill(); c.strokeStyle='#6a4410'; c.lineWidth=.8; c.stroke(); c.fillStyle='#c8963a'; c.fillRect(-2.2,-12.6,3,2.4); c.fillRect(-11.6,6,23,3.4); c.fillStyle='#6a4410'; for(let x=-10;x<12;x+=3.6){ c.beginPath(); c.arc(x,7.7,.45,0,7); c.fill(); }
+      c.fillStyle='rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(-4,-7,4,1.6,-.5,0,7); c.fill(); c.restore(); return; }
+    case 'astro': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#ffffff','#b8c0c8'); c.beginPath(); c.arc(-.4,.2,11.4,0,7); c.moveTo(11.2,.2); c.ellipse(5,0,6.2,6.8,0,0,7,true); c.fill('evenodd');
+      c.fillStyle='rgba(220,170,60,.42)'; c.beginPath(); c.ellipse(5,0,6.2,6.8,0,0,7); c.fill(); c.strokeStyle='#9aa4ae'; c.lineWidth=1; c.stroke(); c.fillStyle='rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(6.6,-3.4,2.4,1,-.6,0,7); c.fill();
+      c.fillStyle='#c8d0d8'; c.beginPath(); c.arc(-3.4,1,2.6,0,7); c.fill(); c.fillStyle='#8a949e'; c.beginPath(); c.arc(-3.4,1,1.2,0,7); c.fill(); c.fillStyle='#e8303a'; c.beginPath(); c.arc(-8.4,-4.6,.9,0,7); c.fill(); c.fillStyle='#d8dde2'; c.fillRect(-11.4,8,22.4,3); c.restore(); return; }
+    case 'knight': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#d8dde4','#6a7078'); c.beginPath(); c.moveTo(-1,-10.4); c.arc(-1,0,10.4,-Math.PI/2,Math.PI/2,true); c.lineTo(6,10.4); c.quadraticCurveTo(10.4,6,9.6,0); c.quadraticCurveTo(10,-6,7,-8.6); c.quadraticCurveTo(3,-11,-1,-10.4); c.fill();
+      c.fillStyle='#1a1c22'; c.fillRect(3,-1.4,6.8,1.3); c.fillRect(3.6,1.2,6,.9); for(let i=0;i<4;i++){ c.beginPath(); c.arc(6+i*.9,4.6,.32,0,7); c.fill(); } c.strokeStyle='rgba(0,0,0,.3)'; c.lineWidth=.5; c.beginPath(); c.moveTo(-1,-10); c.lineTo(-1,10); c.stroke();
+      c.fillStyle=col; c.beginPath(); c.moveTo(-2,-10); c.quadraticCurveTo(-9,-19,-13,-10); c.quadraticCurveTo(-7,-14,-2,-8.6); c.fill(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(1,-6,3.4,1.2,-.4,0,7); c.fill(); c.restore(); return; }
+    case 'pumpkin': { c.save(); c.fillStyle=sh(-10,-10,8,10,'#ffb04a','#c85a10'); c.beginPath(); c.ellipse(0,-.4,10.8,10.2,0,0,7); c.fill(); c.strokeStyle='rgba(150,60,10,.45)'; c.lineWidth=.7; for(const k of [-.6,-.2,.2,.6]){ c.beginPath(); c.ellipse(0,-.4,10.8*Math.abs(k),10.2,0,-Math.PI/2,Math.PI/2,k<0); c.stroke(); }
+      c.fillStyle='#ffd23a'; c.beginPath(); c.moveTo(4.6,-4); c.lineTo(8,-3.4); c.lineTo(6,-.4); c.closePath(); c.fill(); c.beginPath(); c.moveTo(3.6,3); c.lineTo(9.4,2.4); c.lineTo(8.6,4.6); c.lineTo(7.2,3.8); c.lineTo(6,5.4); c.lineTo(4.6,4.2); c.closePath(); c.fill();
+      c.fillStyle='#3a6a2a'; c.beginPath(); c.moveTo(-1,-10); c.quadraticCurveTo(0,-13.4,2,-13.6); c.lineTo(2,-12.4); c.quadraticCurveTo(.6,-12,1,-9.8); c.closePath(); c.fill(); c.restore(); return; }
+    case 'ushanka': { const dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.3); c.save(); c.fillStyle=sh(-8,-10,8,-2,lt,col); c.beginPath(); c.arc(0,-1.6,8.8,Math.PI,0); c.closePath(); c.fill();
+      c.fillStyle=lt; c.beginPath(); c.roundRect?c.roundRect(-9.2,-4.4,18.8,3.6,1.8):c.rect(-9.2,-4.4,18.8,3.6); c.fill(); c.fillStyle=col; c.beginPath(); c.roundRect?c.roundRect(-5,-2.2,5,9.6,2.2):c.rect(-5,-2.2,5,9.6); c.fill();
+      c.strokeStyle=dk; c.lineWidth=.35; for(let i=0;i<9;i++){ c.beginPath(); c.moveTo(-8.6+i*2,-4.2); c.lineTo(-8.2+i*2,-1); c.stroke(); } for(let i=0;i<4;i++){ c.beginPath(); c.moveTo(-4.4+i*1.2,-1.6); c.lineTo(-4.2+i*1.2,6.8); c.stroke(); }
+      c.strokeStyle='#5a4a3a'; c.lineWidth=.4; c.beginPath(); c.moveTo(-2.4,7.4); c.quadraticCurveTo(-2.8,9.4,-1.4,10.4); c.stroke(); c.restore(); return; }
+  }
+  return _drawHat_0(c,id,col,t); };

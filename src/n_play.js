@@ -60,11 +60,11 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   if(!ctx.noHybrid && Math.random()<hybridChance()){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
   const avg=(sp.min+sp.max)/2, R=kg/avg, rel=hy?clamp(R>1?1:0,0,1):(kg-sp.min)/(sp.max-sp.min);
   let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),.45,6);
-  const shRoll=Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1);
+  const shRoll=Math.random() < shinyChance(G.inHot);
   const shiny = shRoll ? (Math.random()<PRISM_SHARE?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
   const trophy = !hy && rel > .9;
-  let value = Math.max(1,Math.round(sp.base*Math.pow(R,.85)));
-  if(hy) value=Math.round(value*(1+.6*Math.abs(Math.log(R))));
+  // hybrids: the further from normal size, the bigger the multiplier, capped at ×25 so a lucky hybrid is a jackpot, not a broken economy
+  let value = Math.max(1,Math.round(sp.base*(hy?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85))));
   value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*(spec('tinker')?.95:1)*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
@@ -85,3 +85,10 @@ if(/[?&]test\b/.test(location.search)) window.__forceCatch=(id,o={})=>{ const sp
   if(o.hy){ const oth=SPI[o.hy]; f.hy=o.hy; f.kg=oth.max*.8; f.ab2=rollAqBuff(oth,f.kg,true); f.str*=3; } if(o.prey){ f.prey=[rollFish(SPI[o.prey],{noPrey:true,noHybrid:true})]; } if(o.eat) G.forceEat=true; G.forced=f; return {kg:f.kg,value:f.value,shiny:f.shiny,hy:f.hy,prey:f.prey&&f.prey.length}; };
 if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=ids.length*110; const x=o.getContext('2d'); x.fillStyle='#1d3a44'; x.fillRect(0,0,o.width,o.height);
   ids.forEach((id,r)=>PRISM_KEYS.forEach((v,i)=>{ const c=document.createElement('canvas'); c.width=220; c.height=110; fishCanvas(c,SPI[id],true,2,v); x.drawImage(c,i*220,r*110); })); __post('prism',o.toDataURL()); };
+
+// ---------- aquarium income cap (0.3 balance) ----------
+// Each fish earns from its value, but never more than a small share of what an hour of fishing its water pays,
+// rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
+const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
+function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
+function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const raw=(+f.value||0)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1); return Math.min(raw,cap); }
