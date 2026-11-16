@@ -889,7 +889,7 @@ V3SCENES.starfall = {
         this.mw={key,c}; }
       g.globalAlpha=.3+P.night*.7; g.drawImage(this.mw.c,0,0,W,hz); g.globalAlpha=1; }
     // the ringed planet, back half of the ring, the planet, then the front half
-    { const px=W*.2, py=hz*.32, R=H*.07; g.save(); g.translate(px,py); g.rotate(-.3);
+    { const px=W*(W<600?.24:.2), py=hz*(W<600?.5:.32), R=H*(W<600?.055:.07); g.save(); g.translate(px,py); g.rotate(-.3);
       g.strokeStyle=v3rgba(P.ring,.55); g.lineWidth=R*.18; g.beginPath(); g.ellipse(0,0,R*2,R*.45,0,Math.PI,0); g.stroke();
       const pg=g.createRadialGradient(-R*.4,-R*.4,R*.1,0,0,R); pg.addColorStop(0,mix(P.planet,'#ffffff',.35)); pg.addColorStop(.7,P.planet); pg.addColorStop(1,mix(P.planet,P.top,.55)); g.fillStyle=pg; g.beginPath(); g.arc(0,0,R,0,7); g.fill();
       g.save(); g.beginPath(); g.arc(0,0,R,0,7); g.clip(); g.fillStyle=v3rgba(mix(P.planet,'#8a4a3a',.4),.35); for(let k=0;k<4;k++) g.fillRect(-R,-R*.6+k*R*.35,R*2,R*.1); g.restore();

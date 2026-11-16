@@ -37,7 +37,7 @@ function v3pine(c,x,base,h,col,rim,rimA){
 // a mountain range: ridged fractal crests shaped into a few massifs, every column shaded by its slope
 // (faces turned to the light are lighter), snow that runs down into the gullies, haze at the foot
 function v3range(c,o){
-  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=Math.max(.5,(W>900?2:1.5)/Math.min(DPR||1,2.5)), raw=[];
+  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=Math.max(.75,(W>900?2:1.5)/Math.min(DPR||1,2)), raw=[];
   for(let X=0;X<=W+step;X+=step){ const f=X/W;
     let env=0; for(const [c0,a,w0] of o.massifs){ const d=Math.abs(f-c0)/w0; env=Math.max(env,a*Math.exp(-d*2.3)); }
     const r=.55*(1-Math.abs(2*n(f*3+1.3)-1))+.3*(1-Math.abs(2*n(f*7+5.1)-1))+.15*n(f*16+9.7);
@@ -302,6 +302,7 @@ if(/[?&]test\b/.test(location.search)){
   window.__setPhase=async ph=>{ const cur=(window.__realNow()/1000%360)/360, base=((ph-cur+1)%1)*360000; for(let k=0;k<80;k++){ window.__off=base+k*360000; if(weather().k==='Clear') return 'Clear'; } return 'no clear'; };
   window.__crop=(x,y,w,h,s=2)=>{ document.getElementById('dbg')?.remove(); const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); const im=document.createElement('img'); im.src=o.toDataURL(); im.id='dbg'; im.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#000;width:'+(w*s)+'px'; document.body.appendChild(im); return [o.width,o.height]; };
   window.__go=id=>{ S.loc=id; if(!S.unlocked.includes(id)) S.unlocked.push(id); };
+  window.__drawCost=(n=30)=>{ const t0=performance.now(); for(let i=0;i<n;i++) draw(performance.now()); return +((performance.now()-t0)/n).toFixed(2); };
   window.__post=(name,url)=>fetch('/shot/'+name,{method:'POST',body:url});
   window.__snap=(name,x=0,y=0,w=W,h=H,s=2)=>{ const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); return __post(name,o.toDataURL()); };
 }
