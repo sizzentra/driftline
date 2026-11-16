@@ -199,7 +199,7 @@ function drawAngler(c,x,y,s,lk,o={}){ if(V3ON) return drawAngler3(c,x,y,s,lk,o);
   c.save(); c.translate(0,-56); drawHat(c,lk.hat,D(lk.hatCol),o.t||0); c.restore();
   c.restore();
 }
-function drawPet(c,id,x,y,s,t,night=0,lk=null){
+function drawPet(c,id,x,y,s,t,night=0,lk=null){ if(V3ON && id!=='lily' && drawPet3(c,id,x,y,s,t,night,lk)) return;
   const D=cl=>night?mix(cl,'#0a1018',night*.4):cl; c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round';
   const el=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=D(cl); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); }; const ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
   const rc=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }; const ln=(pts,cl,lw)=>{ c.strokeStyle=D(cl); c.lineWidth=lw; c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=2) c.lineTo(pts[i],pts[i+1]); c.stroke(); };
