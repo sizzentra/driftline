@@ -35,17 +35,26 @@ const PATCHES = [
   'Three new mini-games between catches.',
   'Rest mode: press Rest on the water and your angler sits down and fishes slowly by themselves, even while you browse other menus. A new skill makes them quicker.',
   'A new weather replaces Fish Rain.',
+  'New dock shapes to build in Home, not just new wood.',
+  'New relics to trade your Wisdom Pearls for.',
   '## Wardrobe and customisation',
   'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
   'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
   'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
+  'Hats got a fitting pass: the bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn to sit properly on your head.',
+  'Stubble, mustaches and beards are redrawn to follow your jaw.',
+  'Shirt patterns can go on your outfit too: when you wear both, choose “Pattern goes on: Shirt or Outfit” in the Wardrobe.',
+  'Colour choices show their colour before you pick them, for your angler and your pets.',
   'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
   'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
   '## Changes to fishing',
   'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
   'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
   'Every mini-game can be skipped, and Settings can turn them off completely.',
-  '## Changes to the aquarium',
+  '## Changes to the aquarium and Home',
+  'Every decoration is redrawn, on your dock and in your tank, with light, detail and a little movement.',
+  'Aquarium decorations give twice the aquarium income bonus they used to.',
+  'Cozy level now goes up to 40 (was 25), with two new cozy names, and each point also raises your sale price by 0.5%.',
   'Every fish now gives a boost while on display, including Common ones. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better or weaker one. Heavier fish give more. Fish you caught before 0.3 keep their old boost.',
   'Tanks hold 1.5 times as many fish, and the button now says Increase tank size.',
   'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
@@ -55,13 +64,19 @@ const PATCHES = [
   'Bounties: every water now keeps its own board of 3 bounties, and they wait there until you finish them. Your existing bounties moved to the water they belong to.',
   'Coins from junk, Boardwalk games, crates, mini-games and Tide Pass coin rewards are now based on the fish in each water. They are lower in the later waters (Brine Shelf −37%, Midnight Deep −44%, Hollow Trench −44%, Ember Springs −68%, Starfall Lake −63%), and crate and wheel prices drop by the same amount.',
   'Fish that roll another fish’s weight are worth up to 25 times as much, no more.',
+  'Wisdom Pearls reworked: each pearl now gives +25% coins and XP (was +10%) and better rare odds, but pearls are 2.5 times harder to earn on a voyage. Pearls you already have are converted once: you keep 40%, rounded up, so your bonus stays about the same.',
+  'Relics cost fewer pearls: Head Start 1 (was 2), Old Mentor 1 (was 3), Old Tackle Box 1 (was 3), Deep Pockets 1 (was 3), Sea Charts 2 (was 4), Brass Compass 2 (was 4), Golden Hook 2 (was 5), Lucky Pearl 2 (was 5).',
   'Levels after 20 need less XP, so late levels come at a steadier pace.',
-  'Shops list everything from cheapest to most expensive. The Fish Log is sorted by rarity and shows your smallest catch too.',
+  'Shops list everything from cheapest to most expensive, and decorations are listed A to Z everywhere. The Fish Log is sorted by rarity and shows your smallest catch too.',
   '## Screens',
   'New Stats tab: bite speed, hook window, rare and shiny odds, reel and line, sale price, XP and aquarium income, with a table of every bonus and where it comes from.',
   'The Boardwalk is rebuilt: a night pier, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
   'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
   'Less scrolling everywhere: Settings, Pets, Feats, Aquarium, Home, Rods and Waters are split into sections. Pets can be filtered by bonus, and Feats show the ones closest to done first.',
+  'Skills are split into Catching, Rare finds, Fighting, Coins & XP and Aquarium & pets.',
+  'The Save tab is split into Move to another device, Save codes and App.',
+  'Settings is no longer listed twice: open it with the ⚙ button at the top.',
+  'Your rod: attachment slots show what each attachment does without clicking.',
   '## Fixes',
   'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
   'The streak message now shows the streak you actually lost (it used to always say 0).',
@@ -209,7 +224,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
   const stats=r=>{ const keys=Object.keys(r.st); return keys.length?keys.map(k=>statTxt(k,r.st[k])).join(' · '):'No special stats'; };
   const slotRow=(i)=>{ const cur=atts[i]||''; const opts=ATTS.filter(a=>S.atts[a.id] && (a.id===cur || !atts.includes(a.id)));
     return `<div class="toggle"><div><b>Slot ${i+1}</b><div class="meta">${cur?ATT_I[cur].name+' '+'I'.repeat(S.atts[cur])+': '+statTxt(ATT_I[cur].k,attVal(cur)):'Empty'}</div></div>
-      <div class="chips"><button class="chipb" data-act="rodatt" data-k="${i}:" aria-pressed="${!cur}">None</button>${opts.map(a=>`<button class="chipb" data-act="rodatt" data-k="${i}:${a.id}" aria-pressed="${cur===a.id}">${a.name}</button>`).join('')}</div></div>`; };
+      <div class="chips"><button class="chipb" data-act="rodatt" data-k="${i}:" aria-pressed="${!cur}">None</button>${opts.map(a=>`<button class="chipb" data-act="rodatt" data-k="${i}:${a.id}" aria-pressed="${cur===a.id}" title="${esc(a.d)}">${a.name} <span class="meta">${statTxt(a.k,attVal(a.id))}</span></button>`).join('')}</div></div>`; };
   const up=rodUpCost(r.id), L=rodLvl();
   P.innerHTML=`<div class="row spread"><div><h2>Rods</h2><p class="sub">Your rod shapes every cast. Collect rods, upgrade them with coins and <b>Scales</b>, and fit attachments. Scales come from Rare and better fish.</p></div>
    <div style="text-align:right"><div class="pts" style="color:var(--kelp)">${fmt(S.scales)}</div><div class="sub">Scales</div></div></div>
@@ -288,12 +303,12 @@ function petBondText(id){ const bl=bondLevel(id), b=S.bond[id], p=PETI[id], fav=
   return `Bonus: <span class="aq">${fmtB(p.k,val)}</span>${bl?' (bond +'+bl*5+'%)':''}${fav?'':' ('+Math.round(compShare()*100)+'% as your companion, rising with bond)'}. ${bl<10?`Pet them to grow closer: ${b?b.xp:0} / ${Math.pow(bl+1,2)*4}. Up to 25 pets a day count${b&&b.today>=25?' (that’s today’s 25!)':''}${fav?', and favourites bond twice as fast':''}.`:'You’re best friends.'}`; }
 function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bondLevel(id);
   const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
-  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!(x[0] in PRIZE_TINT)).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!(x[0] in PRIZE_TINT)).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}"><span class="tint-dot" style="${x[3]==='rainbow'?'background:linear-gradient(90deg,#ff6a6a,#ffd84a,#6aff8a,#5ab8ff,#b88aff)':'background:#c8945a;'+(x[3]?'filter:'+x[3]:'')}"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
-  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
+  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap petwrap" style="margin-top:0"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
     <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${id==="lily"?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>

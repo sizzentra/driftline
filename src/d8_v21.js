@@ -47,7 +47,9 @@ Object.assign(MASTERY_FX,{
   naturalist:'Every new species also gives 5 Scales.',
   aquarist:'Shiny fish in the aquarium give triple boosts instead of double.',
   derbypro:'Derbies last 5 minutes instead of 4.',
-  tidewalker:'Every 10th Tide Pass level gives an extra big Mystery Crate.' });
+  tidewalker:'Every 10th Tide Pass level gives an extra big Mystery Crate.',
+  dozer:'Fish you catch while resting give full XP instead of 60%.',
+  hybrid:'Hybrid chance doubles, to 2%.' });
 
 // ---------- prizes ----------
 PRIZES.push(['snowman','Little Snowman (pet)',2000,()=>{ S.owned.pets.push('snowman'); return 'a Little Snowman pet!'; },()=>S.owned.pets.includes('snowman')],

@@ -34,5 +34,5 @@ passArt = function(x,w,h,L){ if(PASS_SPECIAL[L]) return _passArt_0(x,w,h,L); con
   if(p.k==='wear'){ const it=p.it; if(it.kind==='hat') hatPreview(x,w,h,it.id,S.look.hatCol); else if(it.kind==='out') drawAngler(x,w/2,h*.96,h/80,Object.assign({},S.look,{outfit:it.id,hat:'none'}),{}); else if(it.kind==='gls'){ const s=h/24; drawAngler(x,w*.42,h*.5+56*s,s,Object.assign({},S.look,{glasses:it.id,hat:'none'}),{}); }
     else if(it.kind==='pat'){ x.save(); x.translate(w/2,h*.16); x.scale(h/32,h/32); x.fillStyle=S.look.shirt; x.beginPath(); x.moveTo(-9,0); x.lineTo(9,0); x.lineTo(8,24); x.lineTo(-8,24); x.closePath(); x.fill(); x.clip(); drawPattern(x,it.id,S.look.shirt,-10,-1,20,26); x.restore(); }
     else wearPreview(x,it.kind,it.id,w,h); return; }
-  if(p.k==='decor'){ if(p.it.kind==='dock') drawDockItem(x,p.it.id,w/2,h*.9,2.4*w/120,0,0); else drawDecor(x,p.it.id,w/2,h*.92,w/160,0); return; }
+  if(p.k==='decor'){ if(p.it.kind==='dock') dockThumb(x,p.it.id,w,h); else drawDecor(x,p.it.id,w/2,h*.92,w/160,0); return; }
   if(p.k==='big') drawJunk(x,w,h,'chest'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(w*.4+Math.cos(a)*w*.16,h/2+Math.sin(a)*w*.16); } x.fill(); x.font=Math.round(w*.24)+'px system-ui'; x.textAlign='center'; x.fillText('🎟',w*.72,h*.62); } };

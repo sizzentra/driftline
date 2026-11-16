@@ -71,6 +71,7 @@ renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].
     <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
     <h5>Hairstyle</h5>${wChips('hairStyle',HAIRSTYLES,lk.hairStyle||'auto')}<h5>Facial hair</h5>${wChips('beard',BEARDS,lk.beard||'none')}`;
   if(wSec==='clothes') body=`<h5>Shirt colour</h5>${wSw('shirt',cols,lk.shirt)}<h5>Shirt pattern</h5>${wChips('pat',PATTERNS.filter(p=>S.owned.pats.includes(p[0])).map(p=>[p[0],p[1]]),lk.pat)}
+    ${lk.outfit&&lk.outfit!=='none'&&lk.pat&&lk.pat!=='none'?'<h5>Pattern goes on</h5>'+wChips('patOn',[['shirt','Shirt'],['outfit','Outfit']],lk.patOn||'shirt'):''}
     <h5>Outfit</h5>${wThumbGrid('outfit','out',OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(x=>[x[0],x[1]]),lk.outfit||'none')}
     ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+wSw('outCol',cols,lk.outCol):''}<h5>Trousers</h5>${wSw('pants',cols,lk.pants)}`;
   if(wSec==='hats') body=`<h5>Hat</h5><div class="hatgrid">${HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('')}</div>

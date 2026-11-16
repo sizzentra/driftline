@@ -7,9 +7,9 @@
 const DOCK_H={mug:7,books:9,tacklebox:10,plants:22,gnome:17,lantern:20,bunting:64,blanket:6,umbrella:76,chair:42,windchime:60,birdhouse:60,catbed:12,lights:64,radio:11,campfire:22,telescope:46,tideflag:80,shipwheel:46,minilight:58};
 const DOCK_NAT={};
 function dockNative(id){ if(DOCK_NAT[id]) return DOCK_NAT[id]; let v={h:40};
-  try{ const o=document.createElement('canvas'); o.width=420; o.height=420; const x=o.getContext('2d'); drawDockItem(x,id,210,320,1,0,0); const d=x.getImageData(0,0,420,420).data; let top=420,bot=0;
-    for(let y=0;y<420;y++) for(let X=0;X<420;X+=2) if(d[(y*420+X)*4+3]>24){ if(y<top) top=y; if(y>bot) bot=y; }
-    if(bot>top) v={h:bot-top}; }catch(e){}
+  try{ const o=document.createElement('canvas'); o.width=420; o.height=420; const x=o.getContext('2d'); drawDockItem(x,id,210,320,1,0,0); const d=x.getImageData(0,0,420,420).data; let top=420,bot=0,lf=420,rt=0;
+    for(let y=0;y<420;y++) for(let X=0;X<420;X+=2) if(d[(y*420+X)*4+3]>24){ if(y<top) top=y; if(y>bot) bot=y; if(X<lf) lf=X; if(X>rt) rt=X; }
+    if(bot>top) v={h:bot-top,w:Math.max(4,rt-lf)}; }catch(e){}
   return DOCK_NAT[id]=v; }
 function dockItemScale(id){ return DOCK_H[id] ? DOCK_H[id]/dockNative(id).h : 1.35; }
 // positions: saved fraction, else the even spread that keeps clear of the angler
@@ -35,3 +35,32 @@ function tankDragSetup(){ const c=$('tankcv'); if(!c||c.dataset.drag) return; c.
   c.addEventListener('pointermove',e=>{ const p=pt(e); if(!drag){ c.style.cursor=p.y>.45?'grab':'default'; return; } S.aq.pos[drag]=clamp(p.x,.03,.97); });
   const end=()=>{ if(drag){ drag=null; c.style.cursor='grab'; save(); } }; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end); }
 if(/[?&]test\b/.test(location.search)) window.__dockSizes=()=>Object.keys(DOCK_H).map(id=>[id,dockNative(id).h,+dockItemScale(id).toFixed(2)]);
+
+// ---------- dock styles (0.3): the shape of your dock, not just its colour. Used on the water and in Home. ----------
+const DOCK_STYLES=[['plank','Classic planks',0],['boardwalk','Boardwalk with rail',4000],['bamboo','Bamboo',6000],['driftwood','Driftwood logs',7500],['stone','Stone jetty',9000],['pontoon','Floating pontoon',12000]];
+const dockStyleCur=()=> (DOCK_PV&&DOCK_PV.kind==='style')?DOCK_PV.id:((S.dock&&S.dock.style)||'plank');
+// c: context, o: {x0,x1,y (deck top line), th (deck thickness), fh (front beam), bottom, wd (wood colour), N (night tint), rim, t, posts:[x], pw (post width)}
+function drawDockStyle(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
+  const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
+  const plankDeck=()=>{ c.fillStyle=top; c.fillRect(x0,y-th,W2,th); c.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+W2*.06;X<x1;X+=W2*.12) c.fillRect(X,y-th,1,th); c.fillStyle=face; c.fillRect(x0,y,W2,fh);
+    c.fillStyle=N('#2a1a14'); for(let X=x0+W2*.06;X<x1;X+=W2*.25){ c.fillRect(X,y+fh*.25,1.6,1.6); c.fillRect(X,y+fh*.65,1.6,1.6); } };
+  const woodPosts=(crooked)=>{ for(const [i,px] of o.posts.entries()){ const lean=crooked?Math.sin(i*2.3)*o.pw*.6:0; c.fillStyle=dark; c.beginPath(); c.moveTo(px,y); c.lineTo(px+o.pw,y); c.lineTo(px+o.pw+lean,bottom); c.lineTo(px+lean,bottom); c.closePath(); c.fill();
+    c.fillStyle=N(mix(wd,'#000000',.3)); c.fillRect(px,y,o.pw*.35,bottom-y); c.fillStyle=N('#3f6a4a'); c.fillRect(px,y+(bottom-y)*.55,o.pw,(bottom-y)*.08); } };
+  if(st==='stone'){ const s1=N('#8a8e96'), s2=N('#6a6e78'), s3=N('#a8acb4'); c.fillStyle=N('#5a5e68'); c.fillRect(x0,y,W2,bottom-y);
+    const bh=Math.max(5,fh*.6); for(let r=0,Y=y;Y<bottom;r++,Y+=bh){ const off=(r%2)*W2*.06; for(let X=x0-off;X<x1;X+=W2*.12){ c.fillStyle=(r+Math.round(X))%3?s1:s2; c.fillRect(Math.max(x0,X)+1,Y+1,Math.min(W2*.12,x1-Math.max(x0,X))-2,bh-2); } }
+    const g2=c.createLinearGradient(0,y,0,bottom); g2.addColorStop(0,'rgba(0,0,0,0)'); g2.addColorStop(1,'rgba(4,10,20,.55)'); c.fillStyle=g2; c.fillRect(x0,y,W2,bottom-y); c.fillStyle=N('#4f7a4a'); c.fillRect(x0,y+(bottom-y)*.55,W2,3);
+    c.fillStyle=s3; c.fillRect(x0-2,y-th,W2+4,th); c.fillStyle=N('#7a7e88'); for(let X=x0+W2*.1;X<x1;X+=W2*.2) c.fillRect(X,y-th,1,th); }
+  else if(st==='bamboo'){ const b1=N('#d2be72'), b2=N('#a89448'), b3=N('#e8d898'); for(const px of o.posts){ c.fillStyle=b2; c.fillRect(px,y,o.pw,bottom-y); c.fillStyle=b3; c.fillRect(px+o.pw*.2,y,o.pw*.2,bottom-y); c.fillStyle=N('#7a6a30'); for(let Y=y+12;Y<bottom;Y+=16) c.fillRect(px-1,Y,o.pw+2,2); }
+    c.fillStyle=b1; c.fillRect(x0,y-th,W2,th); c.fillStyle=b2; for(let X=x0;X<x1;X+=Math.max(4,th*.9)) c.fillRect(X,y-th,1,th);
+    for(let k=0;k<2;k++){ const Y=y+k*fh*.5; c.fillStyle=k?b2:b1; c.beginPath(); c.roundRect?c.roundRect(x0,Y,W2,fh*.5,fh*.25):c.rect(x0,Y,W2,fh*.5); c.fill(); c.fillStyle=b3; c.fillRect(x0,Y+1,W2,1.2); c.fillStyle=N('#7a6a30'); for(let X=x0+W2*.15;X<x1;X+=W2*.22) c.fillRect(X,Y,2,fh*.5); }
+    c.strokeStyle=N('#5a4a2a'); c.lineWidth=1.2; for(const px of o.posts){ c.beginPath(); c.moveTo(px-2,y+fh*.2); c.lineTo(px+o.pw+2,y+fh*.55); c.moveTo(px+o.pw+2,y+fh*.2); c.lineTo(px-2,y+fh*.55); c.stroke(); } }
+  else if(st==='pontoon'){ const bob=Math.sin((t||0)*1.4)*1.2; for(const px of o.posts){ const bw=o.pw*3.2, bx=px-bw*.3, by=y+fh+bob; c.fillStyle=N('#3a6a9a'); c.beginPath(); c.roundRect?c.roundRect(bx,by,bw,fh*1.3,fh*.6):c.rect(bx,by,bw,fh*1.3); c.fill(); c.fillStyle=N('#5a8aba'); c.fillRect(bx+bw*.15,by+2,bw*.7,1.5); c.fillStyle=N('#c8d0d8'); c.fillRect(bx+bw*.45,by,1.5,fh*1.3); }
+    c.save(); c.translate(0,bob); plankDeck(); c.restore(); c.strokeStyle='rgba(235,245,255,.3)'; c.lineWidth=1; c.beginPath(); c.ellipse((x0+x1)/2,y+fh*2.2+bob,W2*.55,3,0,0,7); c.stroke(); }
+  else if(st==='driftwood'){ wd=mix(wd,'#9a8a78',.5); woodPosts(true); const L1=N(mix(wd,'#ffffff',.08)), L2=N(mix(wd,'#000000',.2));
+    for(let k=0;k<2;k++){ const Y=y+k*fh*.55-th*.2; c.fillStyle=k?L2:L1; c.beginPath(); c.roundRect?c.roundRect(x0-2,Y,W2+4,fh*.55,fh*.27):c.rect(x0-2,Y,W2+4,fh*.55); c.fill(); c.fillStyle=N(mix(wd,'#000000',.4)); c.beginPath(); c.ellipse(x1+1,Y+fh*.27,fh*.22,fh*.25,0,0,7); c.fill(); c.strokeStyle=N(mix(wd,'#ffffff',.25)); c.lineWidth=.6; c.beginPath(); c.ellipse(x1+1,Y+fh*.27,fh*.1,fh*.12,0,0,7); c.stroke(); }
+    c.fillStyle=L1; c.beginPath(); c.moveTo(x0,y-th); for(let X=x0;X<=x1;X+=W2/10) c.lineTo(X,y-th+Math.sin(X*.3)*1.2); c.lineTo(x1,y); c.lineTo(x0,y); c.closePath(); c.fill(); }
+  else { woodPosts(false); plankDeck();
+    if(st==='boardwalk'){ const rh=Math.max(14,fh*2.4); c.fillStyle=dark; for(const px of o.posts) c.fillRect(px+o.pw*.2,y-th-rh,o.pw*.6,rh); c.strokeStyle=N('#c9a070'); c.lineWidth=1.6; c.beginPath(); for(let i=0;i<o.posts.length-1;i++){ const a=o.posts[i]+o.pw*.5, b2=o.posts[i+1]+o.pw*.5, yy=y-th-rh*.75; c.moveTo(a,yy); c.quadraticCurveTo((a+b2)/2,yy+5,b2,yy); } c.stroke(); } }
+  if(o.rim){ c.fillStyle=v3rgba(o.rim,.45); c.fillRect(x0,y-th,W2,1); } c.fillStyle='rgba(0,0,0,.28)'; c.fillRect(x0,y+fh,W2,2); }
+function dockStyleChipsHTML(){ const cur=dockStyleCur(); S.dock.styles=S.dock.styles||['plank'];
+  return `<h5>Dock style</h5><div class="chips">${DOCK_STYLES.map(([k,n,p])=>{ const own=S.dock.styles.includes(k)||!p; return `<button class="chipb" data-act="${own?'dockstyle':'dockpv'}" data-k="${own?k:'style:'+k}" aria-pressed="${cur===k}">${n}${own?'':' · '+fmt(p)}</button>`; }).join('')}</div>`; }

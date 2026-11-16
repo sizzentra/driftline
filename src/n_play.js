@@ -9,7 +9,7 @@ const PRISM_KEYS = Object.keys(PRISM);
 const PRISM_SHARE = .06;        // share of shiny rolls that come up prismatic instead
 const PRISM_VALUE = 15;         // value multiplier (shiny is ×4)
 const HYBRID_BASE = .001;       // 0.1%, up to 1% with the Odd Genes skill
-const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'));
+const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1);
 const PRED_RX = /pike|musky|muskie|bass|gar|barracuda|shark|tuna|grouper|cod|walleye|zander|trout|salmon|snakehead|catfish|wolf|viper|angler|marlin|swordfish|wahoo|kingfish|mackerel|eel|moray|piranha|perch|char|taimen|arapaima|dragon|fang|leviathan|maw/;
 function isPredator(sp){ return sp.r>=1 && (sp.aggr>=.55 || sp.shape==='s' || PRED_RX.test(sp.id)); }
 function preyPool(pred,pool){ return pool.filter(s=>s.id!==pred.id && s.max<=Math.max(pred.min*.7,pred.max*.2) && s.r<=Math.max(1,pred.r)); }

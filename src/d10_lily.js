@@ -152,7 +152,7 @@ const LILY_PATCH = {v:'Lily', label:'A gift for Cam 🐾', name:'Lily has joined
   'Dress her up like any pet in the Pets tab: colours, accessories and hats.' ]};
 function redeemGift(code){ code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(!code){ toast('Type a gift code first.'); return 'skip'; }
-  if(btoa(code)==='TElMWVBBV1M='){ // LILYPAWS
+  if(btoa(code)==='TElMWVBBV1M='){
     if(S.owned.pets.includes('lily')){ toast('Lily is already with you. She says hi.'); return 'skip'; }
     S.owned.pets.push('lily'); petLook('lily').name='Lily'; setFav('lily'); setTab('pets'); sfx.shiny(); save();
     setTimeout(()=>showPatchNotes(LILY_PATCH),250); return 'render'; }

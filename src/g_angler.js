@@ -142,6 +142,9 @@ function a3Body(c,x,y,s,lk,o,live){
   c.fillStyle=shirt; a3TorsoPath(c,f); c.fill();
   if(lk.pat&&lk.pat!=='none'){ c.save(); a3TorsoPath(c,f); c.clip(); drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
   drawOutfit3(c,lk,D,f,t);
+  // 0.3: the shirt pattern can go on the outfit instead (drawn over the outfit in its own colours)
+  if(lk.patOn==="outfit"&&lk.pat&&lk.pat!=="none"&&lk.outfit&&lk.outfit!=="none"){ const isCoat=["raincoat","captain","tidecoat","bathrobe","fishsuit","kimono","clownsuit","suit"].includes(lk.outfit), hm={raincoat:-16,captain:-14.5,tidecoat:-16,bathrobe:-12,fishsuit:-15,kimono:-13,clownsuit:-14,suit:-20}[lk.outfit];
+    c.save(); if(isCoat) a3CoatPath(c,f,hm); else if(lk.outfit==="puffer"){ c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); } else a3TorsoPath(c,f); c.clip(); c.globalAlpha*=.85; drawPattern(c,lk.pat,D(lk.outCol||"#d8a020"),-11,-49,22,isCoat?(51+hm):27); c.restore(); }
   const bodyPath=()=>coat?a3CoatPath(c,f,hem):a3TorsoPath(c,f), out=lk.outfit;
   a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); }:bodyPath,-9.6,9.8,-48,coat?hem:-22.4,1);
   // soft shadow under the chin and where the front arm crosses the chest

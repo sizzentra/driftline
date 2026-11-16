@@ -205,9 +205,9 @@ function renderVoyage(){ const n=pearlsFor(), ok=canRetire();
   const box = confirmBox==='retire' ? `<div class="tile" style="border-color:var(--danger)"><h4>Set sail again?</h4>
     <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond. You keep your level, skills, encyclopedia, feats, aquarium, pets, hats, clothes and Wisdom Pearls.</div>
     <div class="row"><button class="btn" data-act="retireok">Set sail with +${n} pearl${n===1?'':'s'}</button><button class="btn alt" data-act="cancel">Keep fishing</button></div></div>` : '';
-  return `<div class="jsec"><h2>Set sail again</h2><p class="sub">Once you reach Hollow Trench you can start over from Willow Pond with Wisdom Pearls. Each pearl adds +10% to all coins and XP, forever. More coins earned this voyage means more pearls.</p>
+  return `<div class="jsec"><h2>Set sail again</h2><p class="sub">Once you reach Hollow Trench you can start over from Willow Pond with Wisdom Pearls. Each pearl adds +25% to all coins and XP and a little to your rare odds, forever. Pearls are hard to earn: the more coins you earn in a voyage, the more you get. More coins earned this voyage means more pearls.</p>
   <div class="grid"><div class="tile"><div class="row spread"><h4>Voyage ${S.tides+1}</h4><span class="meta">${S.pearls} pearl${S.pearls===1?'':'s'} · +${Math.round((coinMult()-1)*100)}% now</span></div>
-  <div class="meta">Coins earned this voyage: <span class="coin">${fmt(S.stats.runEarned)}</span>. Next pearl at <span class="coin">${fmt(Math.pow(n+1,2)*40000)}</span>.</div>
+  <div class="meta">Coins earned this voyage: <span class="coin">${fmt(S.stats.runEarned)}</span>. Next pearl at <span class="coin">${fmt(Math.pow(n+1,2)*PEARL_DIV)}</span>.</div>
   <div class="val">Setting sail now gives +${n} pearl${n===1?'':'s'}</div>
   <button class="btn" data-act="retire" ${ok&&!confirmBox?'':'disabled'}>${S.unlocked.includes('trench')?(n?'Set sail again':'Earn more coins first'):'Reach Hollow Trench first'}</button></div>${box}</div></div>`; }
 
@@ -322,8 +322,8 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'reset': confirmBox='reset'; break;
     case 'cancel': confirmBox=null; pendingLoad=null; break;
     case 'retireok': { if(!canRetire()) return; const n=pearlsFor(); S.pearls+=n; S.tides++;
-      Object.assign(S,{money:relic('headstart')?25000:0, gear:fresh().gear, bait:relic('tacklebox')?S.bait:baitZero(), baitSel:relic('tacklebox')?S.baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0});
-      S.stats.runEarned=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again with '+S.pearls+' Wisdom Pearls: +'+Math.round((coinMult()-1)*100)+'% coins and XP'); break; }
+      Object.assign(S,{money:relic('headstart')?25000:0, gear:relic('seasoned')?Object.fromEntries(Object.keys(GEAR).map(k=>[k,Math.min(2,GEAR[k].lv.length-1)])):fresh().gear, bait:relic('tacklebox')?S.bait:baitZero(), baitSel:relic('tacklebox')?S.baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0});
+      S.stats.runEarned=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again with '+S.pearls+' Wisdom Pearls: +'+Math.round((coinMult()-1)*100)+'% coins and XP, and better rare odds'); break; }
     case 'resetok': { S=fresh(); S.savedAt=Date.now(); confirmBox=null; G.st='idle'; encLoc=null; encSel=null; fillBounties(); toast('Progress reset. A fresh start at Willow Pond.'); break; }
     case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
     case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<locCost(L)) return; S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }

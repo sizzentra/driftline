@@ -203,21 +203,10 @@ function v3dock(P,t,night,dockY){
   // lantern light first, so the pole and housing are drawn over it
   if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba(255,200,110,.85)',lit*.6*(.93+.07*Math.sin(t*7.1)*Math.sin(t*3.3)));
     const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,190,110,'+(.32*lit)+')'); pg.addColorStop(1,'rgba(255,190,110,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
-  // posts with a moss band and their reflections
-  const pw=Math.max(5,W*.011);
-  for(let i=0;i<3;i++){ const px=W*.02+i*W*.075; g.fillStyle=dark; g.fillRect(px,dockY,pw,H-dockY); g.fillStyle=N(mix(wd,'#000000',.3)); g.fillRect(px,dockY,pw*.35,H-dockY);
-    g.fillStyle=N('#3f6a4a'); g.fillRect(px,dockY+(H-dockY)*.55,pw,(H-dockY)*.08); g.fillStyle=N('#4f8a5a'); g.fillRect(px,dockY+(H-dockY)*.55,pw,1.5); }
-  // rope wrapped around the last post
-  { const px=W*.02+2*W*.075; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
-  // deck: top boards with seams, a front beam with grain and nails, a lit edge
-  const th=Math.max(4,H*.012), fh=Math.max(6,H*.018);
-  g.fillStyle=top; g.fillRect(-2,dockY-th,PW+2,th);
-  g.fillStyle=N(mix(wd,'#000000',.12)); for(let X=W*.012;X<PW;X+=W*.024) g.fillRect(X,dockY-th,1,th);
-  g.fillStyle=face; g.fillRect(-2,dockY,PW+2,fh);
-  g.strokeStyle=N(mix(wd,'#000000',.38)); g.lineWidth=.8; g.beginPath(); for(let k=0;k<2;k++){ const y=dockY+fh*(.35+k*.32); for(let X=0;X<PW;X+=W*.05){ g.moveTo(X,y); g.quadraticCurveTo(X+W*.012,y+(k?-1:1),X+W*.03,y); } } g.stroke();
-  g.fillStyle=N('#2a1a14'); for(let X=W*.012;X<PW;X+=W*.048){ g.fillRect(X,dockY+fh*.25,1.6,1.6); g.fillRect(X,dockY+fh*.65,1.6,1.6); }
-  g.fillStyle=v3rgba(P.rim,.45+P.d*.25); g.fillRect(-2,dockY-th,PW+2,1);
-  g.fillStyle='rgba(0,0,0,.28)'; g.fillRect(-2,dockY+fh,PW+2,2);
+  // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
+  const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
+  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:[0,1,2].map(i=>W*.02+i*W*.075),pw});
+  if(st==='plank'||st==='boardwalk'||st==='driftwood'){ const px=W*.02+2*W*.075; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
   // bucket (the old grey box), now a little tin pail with a handle
   { const bx=W*.155, s=H*.024; g.fillStyle=N('#8f93a8'); g.beginPath(); g.moveTo(bx,dockY-th); g.lineTo(bx+s*.12,dockY-th-s); g.lineTo(bx+s*.88,dockY-th-s); g.lineTo(bx+s,dockY-th); g.closePath(); g.fill();
     g.fillStyle=N('#c4c8da'); g.fillRect(bx+s*.1,dockY-th-s,s*.8,1.4); g.strokeStyle=N('#c4c8da'); g.lineWidth=1; g.beginPath(); g.arc(bx+s*.5,dockY-th-s,s*.42,Math.PI,0); g.stroke(); }

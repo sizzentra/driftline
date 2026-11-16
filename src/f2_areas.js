@@ -986,10 +986,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
   // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
   const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), th=h*.035, fh=h*.05, x0=w*.03, x1=w*.95;
-  for(let i=0;i<5;i++){ const px=x0+w*.04+i*(x1-x0-w*.1)/4, pw=w*.022; x.fillStyle=N(mix(wd,'#000000',.45)); x.fillRect(px,dy,pw,h-dy); x.fillStyle=N(mix(wd,'#000000',.3)); x.fillRect(px,dy,pw*.35,h-dy); x.fillStyle=N('#3f6a4a'); x.fillRect(px,dy+(h-dy)*.55,pw,(h-dy)*.1); }
-  x.fillStyle=N(mix(wd,'#ffffff',.1)); x.fillRect(x0,dy-th,x1-x0,th); x.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+w*.03;X<x1;X+=w*.045) x.fillRect(X,dy-th,1.5,th);
-  x.fillStyle=N(mix(wd,'#000000',.22)); x.fillRect(x0,dy,x1-x0,fh); x.fillStyle=N('#2a1a14'); for(let X=x0+w*.02;X<x1;X+=w*.07){ x.fillRect(X,dy+fh*.28,3,3); x.fillRect(X,dy+fh*.66,3,3); }
-  x.fillStyle=v3rgba(P.rim,.5); x.fillRect(x0,dy-th,x1-x0,1.5); x.fillStyle='rgba(0,0,0,.3)'; x.fillRect(x0,dy+fh,x1-x0,3);
+  drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts:[0,1,2,3,4].map(i=>x0+w*.04+i*(x1-x0-w*.1)/4),pw:w*.022});
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });

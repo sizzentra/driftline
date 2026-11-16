@@ -182,3 +182,43 @@ drawHat = function(c,id,col,t=0){ const sh=(x0,y0,x1,y1,a,b)=>{ const g=c.create
       c.strokeStyle='#5a4a3a'; c.lineWidth=.4; c.beginPath(); c.moveTo(-2.4,7.4); c.quadraticCurveTo(-2.8,9.4,-1.4,10.4); c.stroke(); c.restore(); return; }
   }
   return _drawHat_0(c,id,col,t); };
+
+// ---------- more hats redrawn for the side view (0.3 round 4) ----------
+const _drawHat_1 = drawHat;
+drawHat = function(c,id,col,t=0){ const dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.3), F=cl=>{ c.fillStyle=cl; }, sh=(y0,y1,a,b)=>{ const g=c.createLinearGradient(0,y0,0,y1); g.addColorStop(0,a); g.addColorStop(1,b); return g; };
+  switch(id){
+    case 'bucket': { c.save(); c.fillStyle=sh(-12,-3,lt,col); c.beginPath(); c.moveTo(-8.2,-3.4); c.quadraticCurveTo(-8.6,-11.6,0,-12); c.quadraticCurveTo(8.8,-11.6,8.6,-3.4); c.closePath(); c.fill();
+      F(dk); c.fillRect(-8.4,-5.4,17,1.8); c.fillStyle=sh(-4,1.4,col,dk); c.beginPath(); c.moveTo(-11.8,.8); c.quadraticCurveTo(-9.6,-3.6,0,-3.8); c.quadraticCurveTo(10,-3.6,12.8,.6); c.quadraticCurveTo(12.6,1.8,11.6,1.6); c.quadraticCurveTo(0,-1.2,-10.8,1.8); c.quadraticCurveTo(-12.2,1.8,-11.8,.8); c.fill();
+      c.strokeStyle=mix(col,'#ffffff',.2); c.lineWidth=.3; c.setLineDash([.7,.6]); c.beginPath(); c.moveTo(-10.6,.4); c.quadraticCurveTo(0,-2.6,11.4,.2); c.moveTo(-7.6,-8); c.quadraticCurveTo(0,-10.6,7.8,-8); c.stroke(); c.setLineDash([]); c.restore(); return; }
+    case 'pirate': { const blk='#1e1a20'; c.save(); c.fillStyle=sh(-12,-2,'#3a343e',blk); c.beginPath(); c.ellipse(0,-6,7.6,5.4,0,Math.PI,0); c.fill();
+      c.beginPath(); c.moveTo(-13,-1.4); c.quadraticCurveTo(-12.6,-8,-10,-11.6); c.quadraticCurveTo(-6,-6.6,0,-6.4); c.quadraticCurveTo(6.6,-6.6,11.2,-12.6); c.quadraticCurveTo(14.4,-8,13.8,-1.2); c.quadraticCurveTo(0,1.8,-13,-1.4); c.fillStyle=blk; c.fill();
+      c.strokeStyle='#e8c050'; c.lineWidth=.8; c.beginPath(); c.moveTo(-13,-1.4); c.quadraticCurveTo(-12.6,-8,-10,-11.6); c.quadraticCurveTo(-6,-6.6,0,-6.4); c.quadraticCurveTo(6.6,-6.6,11.2,-12.6); c.quadraticCurveTo(14.4,-8,13.8,-1.2); c.stroke();
+      F('#f4f0e6'); c.beginPath(); c.arc(1,-3.8,1.6,0,7); c.fill(); c.fillRect(-.1,-2.6,2.2,1.1); F('#1a1a1a'); c.fillRect(.3,-4.2,.6,.6); c.fillRect(1.3,-4.2,.6,.6); c.restore(); return; }
+    case 'mushroom': { c.save(); F('#f2e6cc'); c.beginPath(); c.ellipse(0,-1.4,11.6,2.3,0,0,7); c.fill(); c.strokeStyle='#c8b490'; c.lineWidth=.3; for(let x=-10;x<=10;x+=1.4){ c.beginPath(); c.moveTo(x,-1.6); c.lineTo(x*1.03,-.2); c.stroke(); }
+      c.fillStyle=sh(-14,-1,'#ff5a4a','#b8241e'); c.beginPath(); c.moveTo(-12.4,-1.6); c.bezierCurveTo(-12,-12.6,12,-12.6,12.4,-1.6); c.quadraticCurveTo(0,-3.2,-12.4,-1.6); c.fill();
+      F('#fffaf0'); for(const [x,y,r] of [[-6,-7.6,1.6],[-1,-10.2,1.3],[4.4,-8.4,1.8],[8.8,-4.6,1.1],[-9.6,-4,1],[1.6,-5.4,.9]]){ c.beginPath(); c.arc(x,y,r,0,7); c.fill(); } c.fillStyle='rgba(255,255,255,.3)'; c.beginPath(); c.ellipse(3,-9.4,4,1.2,-.3,0,7); c.fill(); c.restore(); return; }
+    case 'beret': { c.save(); F(dk); c.fillRect(-7.6,-4.4,15.6,1.8); c.fillStyle=sh(-11,-3,lt,col); c.beginPath(); c.ellipse(1.6,-6.6,10.2,3.8,-.12,0,7); c.fill(); F(dk); c.beginPath(); c.arc(0,-10.2,.8,0,7); c.fill(); c.strokeStyle=dk; c.lineWidth=.6; c.beginPath(); c.moveTo(0,-10); c.lineTo(.4,-11.6); c.stroke(); c.restore(); return; }
+    case 'sombrero': { c.save(); c.fillStyle=sh(-4,1,lt,dk); c.beginPath(); c.ellipse(.5,-2.6,17.6,2.8,0,0,7); c.fill(); c.fillStyle=sh(-15,-3,lt,col); c.beginPath(); c.moveTo(-6.2,-3.2); c.quadraticCurveTo(-6.6,-15,0,-15.2); c.quadraticCurveTo(6.8,-15,6.4,-3.2); c.closePath(); c.fill();
+      c.strokeStyle='#d8302a'; c.lineWidth=.9; c.beginPath(); for(let i=0;i<=8;i++) c.lineTo(-6+i*1.5,-6+(i%2?-1.4:0)); c.stroke(); c.strokeStyle='#2a8a4a'; c.lineWidth=.6; c.beginPath(); c.ellipse(.5,-2.8,16,2.2,0,0,7); c.stroke(); c.restore(); return; }
+    case 'sailor': { c.save(); c.fillStyle=sh(-10,-3,'#ffffff','#d8dce4'); c.beginPath(); c.moveTo(-8.2,-3.6); c.quadraticCurveTo(-8.6,-10.6,0,-10.4); c.quadraticCurveTo(8.8,-10.6,8.6,-3.6); c.closePath(); c.fill(); F('#1a2a5a'); c.fillRect(-8.4,-4.6,17,2.2);
+      c.fillStyle='#1a2a5a'; c.beginPath(); c.moveTo(-8,-3.6); c.lineTo(-10.6,1.6); c.lineTo(-9.4,1.8); c.lineTo(-7,-2.6); c.closePath(); c.fill(); c.restore(); return; }
+  }
+  return _drawHat_1(c,id,col,t); };
+
+// ---------- facial hair redrawn for the side view ----------
+const _drawFace_1 = drawFace;
+drawFace = function(c,lk,D,hair){ const b=lk.beard||'none'; if(!['stubble','mustache','beard','longbeard'].includes(b)) return _drawFace_1(c,lk,D,hair);
+  const hairD=D(mix(HAIRS[lk.hair]||'#2a1d14','#000000',.25)), hairL=D(mix(HAIRS[lk.hair]||'#2a1d14','#ffffff',.18));
+  const jaw=()=>{ c.beginPath(); c.moveTo(-2.6,-55.6); c.quadraticCurveTo(-2.2,-50.4,1.6,-48.6); c.quadraticCurveTo(5,-47.8,7.4,-49.4); c.quadraticCurveTo(8.6,-51,8,-52.6); c.lineTo(3.4,-52.9); c.quadraticCurveTo(1.6,-53.4,.4,-55.2); c.closePath(); };
+  const stache=()=>{ c.fillStyle=hair; c.beginPath(); c.moveTo(4,-53.3); c.quadraticCurveTo(6,-54.4,8.2,-53.6); c.quadraticCurveTo(8.8,-52.8,8.2,-52.5); c.quadraticCurveTo(6.2,-53.2,4.4,-52.4); c.quadraticCurveTo(3.4,-52.6,4,-53.3); c.fill(); c.strokeStyle=hairL; c.lineWidth=.22; c.beginPath(); c.moveTo(5,-53.5); c.lineTo(7.4,-53.4); c.stroke(); };
+  c.save();
+  if(b==='stubble'){ jaw(); c.save(); c.clip(); c.fillStyle=v3rgba(rgb2hex(hair)||'#2a1d14',.16); c.fillRect(-4,-57,14,10); c.fillStyle=v3rgba(rgb2hex(hair)||'#2a1d14',.55); for(let y=-55.4;y<-48;y+=.55) for(let x=-2.6+((y*10|0)%2)*.27;x<8.4;x+=.55){ const j=Math.sin(x*12.9+y*7.3); c.fillRect(x+j*.12,y+j*.1,.16,.16); } c.restore();
+    c.fillStyle=v3rgba(rgb2hex(hair)||'#2a1d14',.45); for(let x=4.2;x<8;x+=.4) for(let y=-53.7;y<-52.7;y+=.4) c.fillRect(x,y,.15,.15); }
+  else { jaw(); const g=c.createLinearGradient(0,-56,0,-46); g.addColorStop(0,hairL); g.addColorStop(1,hairD);
+    if(b==='beard'){ c.fillStyle=g; c.fill(); }
+    if(b==='longbeard'){ c.fillStyle=g; c.beginPath(); c.moveTo(-2.6,-55.6); c.quadraticCurveTo(-3.4,-48,-.6,-43.4); c.quadraticCurveTo(2.6,-38.4,5.4,-37.6); c.quadraticCurveTo(5,-41,7,-44.6); c.quadraticCurveTo(8.8,-48.6,8,-52.6); c.lineTo(3.4,-52.9); c.quadraticCurveTo(1.6,-53.4,.4,-55.2); c.closePath(); c.fill();
+      c.strokeStyle=hairD; c.lineWidth=.3; for(let i=0;i<5;i++){ c.beginPath(); c.moveTo(-1+i*1.6,-50.6); c.quadraticCurveTo(-.4+i*1.4,-46,1+i*.9,-41+i*.6); c.stroke(); } }
+    if(b!=='mustache'){ c.fillStyle=D('#7a2e24'); c.beginPath(); c.ellipse(5.8,-52.1,1.1,.45,0,0,7); c.globalAlpha*=.0; c.fill(); c.globalAlpha=1; c.strokeStyle=hairD; c.lineWidth=.25; for(let i=0;i<6;i++){ c.beginPath(); c.moveTo(-1.6+i*1.4,-54.4+i*.3); c.lineTo(-1.2+i*1.5,-51.6+i*.2); c.stroke(); } }
+    stache(); }
+  c.restore();
+  return _drawFace_1(c,Object.assign({},lk,{beard:'none'}),D,hair); };

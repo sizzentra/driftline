@@ -60,18 +60,20 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
 
 // ---------- pearl relics ----------
 const RELICS = [
- ['headstart','Head Start',2,'Start every voyage with 25,000 coins.'],
- ['mentor','Old Mentor',3,'+25% XP, always.'],
- ['tacklebox','Old Tackle Box',3,'Keep all your bait when you set sail.'],
- ['charts','Sea Charts',4,'New waters cost 30% less to unlock.'],
- ['pockets','Deep Pockets',3,'Junk pays 25% more coins.'],
- ['goldhook','Golden Hook',5,'+0.15 s hook window, and perfect hooks add 10% value.'],
- ['luckypearl','Lucky Pearl',5,'+50% shiny chance.'],
- ['compass','Brass Compass',4,'Hotspots appear 40% more often.'],
+ ['headstart','Head Start',1,'Start every voyage with 25,000 coins.'],
+ ['mentor','Old Mentor',1,'+25% XP, always.'],
+ ['tacklebox','Old Tackle Box',1,'Keep all your bait when you set sail.'],
+ ['pockets','Deep Pockets',1,'Junk pays 25% more coins.'],
+ ['charts','Sea Charts',2,'New waters cost 30% less to unlock.'],
+ ['compass','Brass Compass',2,'Hotspots appear 40% more often.'],
+ ['tidecaller','Tide Caller',2,'+30% Tide Pass XP.'],
+ ['goldhook','Golden Hook',2,'+0.15 s hook window, and perfect hooks add 10% value.'],
+ ['luckypearl','Lucky Pearl',2,'+50% shiny chance.'],
+ ['seasoned','Seasoned Angler',3,'Start every voyage with every piece of tackle at level 3.'],
 ].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
 const relic = id => S.relics && S.relics.includes(id);
 const locCost = L => Math.round(L.cost*(relic('charts')?.7:1));
-function relicHTML(){ return `<div class="jsec"><h2>Pearl relics</h2><p class="sub">Spend Wisdom Pearls on permanent relics. Every pearl you spend gives up its +10% coins and XP, so choose what matters to you. You have <b>${S.pearls}</b> pearl${S.pearls===1?'':'s'}.</p>
+function relicHTML(){ return `<div class="jsec"><h2>Pearl relics</h2><p class="sub">Spend Wisdom Pearls on permanent relics. Every pearl you spend gives up its +25% coins and XP and its rare-odds boost, so choose what matters to you. You have <b>${S.pearls}</b> pearl${S.pearls===1?'':'s'}.</p>
   <div class="grid">${RELICS.map(r=>{ const own=relic(r.id); return `<div class="tile ${own?'done':''}"><div class="row spread"><h4>${r.name}</h4><span class="meta">${r.cost} pearl${r.cost>1?'s':''}</span></div><div class="meta">${r.d}</div>
    ${own?'<span class="badge g">Owned forever</span>':`<button class="btn sm" data-act="relic" data-k="${r.id}" ${S.pearls>=r.cost?'':'disabled'}>Trade ${r.cost} pearl${r.cost>1?'s':''}</button>`}</div>`; }).join('')}</div></div>`; }
 

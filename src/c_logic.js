@@ -39,6 +39,7 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]); if(!m.pet2||!PETI[m.pet2]||!m.owned.pets.includes(m.pet2)||m.pet2===m.pet) m.pet2=null;
   const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=(dk.decor||[]).filter(x=>dk.owned.includes(x)); if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
   m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
+  if((o.pearlV||1)<2){ m.pearls=Math.ceil((+o.pearls||0)*.4); m.pearlV=2; }
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
@@ -72,7 +73,8 @@ const locIdx = id => LOCS.findIndex(l=>l.id===id);
 const curLoc = () => LOCS[locIdx(S.loc)];
 const kgStr = kg => kg < 10 ? kg.toFixed(2)+' kg' : kg < 100 ? kg.toFixed(1)+' kg' : fmt(kg)+' kg';
 const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
-const coinMult = () => 1 + .1*S.pearls;
+const PEARL_COIN=.25, PEARL_RARE=.03, PEARL_DIV=250000; // 0.3: pearls are rarer but each one does more
+const coinMult = () => 1 + PEARL_COIN*S.pearls;
 const hashStr = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; };
 // boosts (timed), aquarium fish and the pet all feed the same bonus keys
 function buffSum(k){ const t=Date.now(); let s=0; for(const b of S.buffs) if(b.k===k && b.until>t) s+=b.v; return s; }
@@ -84,10 +86,10 @@ const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
+const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
 const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
-const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
+const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
@@ -178,7 +180,7 @@ function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const 
 // shared by fishing and the Stats tab, so the sheet always shows the real numbers
 function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
-  let rare = dm.rare + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
+  let rare = dm.rare + PEARL_RARE*(S.pearls||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
   if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc); return rare; }
 function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1); }
 const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);

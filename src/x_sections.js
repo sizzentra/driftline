@@ -61,3 +61,19 @@ applySections = function(){ _applySections_0(); const P=$('panel'); if(!P) retur
     const LIMIT=18; if(todo.length<=LIMIT) return; const more=document.createElement('button'); more.className='btn alt'; more.type='button'; more.style.margin='10px auto 0'; more.style.display='block';
     const apply=()=>{ const onTodo=/To do/.test((P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent||''); todo.forEach((t,i)=>{ if(onTodo) t.style.display=(featsAll||i<LIMIT)?'':'none'; }); more.style.display=onTodo&&!featsAll?'block':'none'; more.textContent='Show all '+todo.length; };
     more.addEventListener('click',e=>{ e.stopPropagation(); featsAll=true; apply(); }); grid.after(more); P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(apply,0)); apply(); } };
+document.head.insertAdjacentHTML('beforeend',`<style>.tint-dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;box-shadow:inset 0 0 0 1px #0004}</style>`);
+// ---------- Skills in sections, Save tidied into sections, one Settings entry (the button at the top) ----------
+const PERK_GROUPS=[['Catching',['patience','caster','reader','nightowl','weatherwise']],['Rare finds',['lucky','trophy','hybrid','scavenger']],['Fighting',['steady','strong','softtouch','reflex']],['Coins & XP',['haggler','streaker','naturalist','tidewalker','derbypro']],['Aquarium & pets',['keeper','aquarist','petpal','dozer']]];
+const _applySections_1 = applySections;
+applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) return;
+  if(S.tab==='skills'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children]; const idOf=t=>{ const b=t.querySelector('[data-act="perk"]'); return b?b.dataset.k:''; };
+    const groups=PERK_GROUPS.map(([n,ids])=>{ const nodes=T.filter(t=>ids.includes(idOf(t))); const free=nodes.filter(t=>{ const b=t.querySelector('[data-act="perk"]'); return b&&!b.disabled; }).length; return {name:n,nodes}; });
+    const known=new Set(PERK_GROUPS.flatMap(g=>g[1])), other=T.filter(t=>!known.has(idOf(t))); if(other.length) groups.push({name:'Other',nodes:other});
+    grid.classList.add('skill-grid'); sectionize(P,'skills',groups,grid); }
+  if(S.tab==='save'){ const K=[...P.children], grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const head=K.slice(0,2), link=K.filter(c=>!head.includes(c)&&c!==grid&&c.tagName!=='P');
+    const tiles=[...grid.children], code=tiles.filter(t=>/save code/i.test((t.querySelector('h4')||{}).textContent||'')), app=tiles.filter(t=>!code.includes(t));
+    sectionize(P,'save',[{name:'Move to another device',nodes:link},{name:'Save codes',nodes:code},{name:'App',nodes:app}],link[0]||grid); grid.classList.add('sect-one'); } };
+{ const st=document.querySelector('#tabs [data-tab="settings"]'); if(st) st.remove(); }
+document.head.insertAdjacentHTML('beforeend',`<style>body.v3 #panel .grid.skill-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px} body.v3 #panel .grid.skill-grid > .tile{padding:10px 12px;gap:5px}</style>`);
+// Pets > Customize: preview beside the options when there is room, stacked when the menu column is narrow (phones, landscape).
+document.head.insertAdjacentHTML('beforeend',`<style>#panel{container-type:inline-size}.stylewrap.petwrap{grid-template-columns:200px minmax(0,1fr)}.stylewrap.petwrap>*{min-width:0}@container (max-width:520px){.stylewrap.petwrap{grid-template-columns:minmax(0,1fr)}.stylewrap.petwrap>.preview{max-width:240px;width:100%;margin:0 auto}}</style>`);
