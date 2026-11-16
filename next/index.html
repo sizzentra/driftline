@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1024';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1027';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2521,7 +2521,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if(id==='lily'&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||editPet()!=='lily'){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -3019,7 +3019,7 @@ function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
      ${own?`<button class="btn ${placed?'alt':''} sm" data-act="dockdecor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:hidden?'<span class="meta">A Tide Pass reward</span>':`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="dockpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="dockdecor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`}</div>`; }).join('')}</div>`;
   P.querySelectorAll('canvas[data-dock]').forEach(cv2=>{ const x=cv2.getContext('2d'); x.clearRect(0,0,160,120); if(cv2.dataset.own!=='1') x.filter='brightness(0) opacity(.45)'; drawDockItem(x,cv2.dataset.dock,80,100,2.6,0,0); x.filter='none'; });
   paintHome(); }
-function paintHome(){ const c=$('homecv'); if(!c) return; const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000; x.clearRect(0,0,w,h);
+function paintHome(){ const c=$("homecv"); if(!c) return; if(V3ON && paintHome3(c)) return; const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000; x.clearRect(0,0,w,h);
   const sky=x.createLinearGradient(0,0,0,h*.6); sky.addColorStop(0,'#86bcd9'); sky.addColorStop(1,'#f2dcb6'); x.fillStyle=sky; x.fillRect(0,0,w,h*.6);
   const wt=x.createLinearGradient(0,h*.55,0,h); wt.addColorStop(0,'#3f827b'); wt.addColorStop(1,'#173e42'); x.fillStyle=wt; x.fillRect(0,h*.55,w,h*.45);
   const dy=h*.62, s=2.4; x.fillStyle=dockWood(); x.fillRect(0,dy,w*.92,14); x.fillStyle=mix(dockWood(),'#000000',.3); for(let i=0;i<5;i++) x.fillRect(30+i*w*.2,dy+14,12,h-dy); x.fillStyle=mix(dockWood(),'#ffffff',.12); for(let px=0;px<w*.92;px+=26) x.fillRect(px,dy,2,14);
@@ -4938,6 +4938,38 @@ function v3crystalPlat(P,t,night,dockY){
 }
 V3PLAT.crystal=(P,t,night,dockY)=>v3crystalPlat(P,t,night,dockY);
 
+// ---------- the Home tab's dock diorama, in the 0.3 look ----------
+// Uses the current area's sky colours and its cached landscape, so the preview always matches where you fish.
+function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000, P=v3palette.v; if(!P) return false;
+  const hz=h*.5, dy=h*.66;
+  const sg=x.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); x.fillStyle=sg; x.fillRect(0,0,w,hz+1);
+  if(P.night>.1){ const r=v3rng(9); x.fillStyle="#ffffff"; for(let i=0;i<70;i++){ x.globalAlpha=P.night*(.3+.6*Math.abs(Math.sin(t*.7+i))); const s=.8+r()*1.4; x.fillRect(r()*w,r()*hz*.8,s,s); } x.globalAlpha=1; }
+  { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||"#6aa"); wg.addColorStop(.35,P.wMid||"#357"); wg.addColorStop(1,P.wBot||"#123"); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
+  if(V3CACHE){ const src=V3CACHE.c, sH=src.height, sW=src.width, srcHz=HZ()*DPR, top=srcHz-sH*.3, band=sH*.42; x.drawImage(src,0,Math.max(0,top),sW,band,0,hz-h*.5*(.3/.42)*1.4,w,h*.5*1.4); }
+  else { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||'#6aa'); wg.addColorStop(1,P.wBot||'#123'); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
+  // a soft vignette so the dock reads first
+  const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
+  // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
+  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), th=h*.035, fh=h*.05, x0=w*.03, x1=w*.95;
+  for(let i=0;i<5;i++){ const px=x0+w*.04+i*(x1-x0-w*.1)/4, pw=w*.022; x.fillStyle=N(mix(wd,'#000000',.45)); x.fillRect(px,dy,pw,h-dy); x.fillStyle=N(mix(wd,'#000000',.3)); x.fillRect(px,dy,pw*.35,h-dy); x.fillStyle=N('#3f6a4a'); x.fillRect(px,dy+(h-dy)*.55,pw,(h-dy)*.1); }
+  x.fillStyle=N(mix(wd,'#ffffff',.1)); x.fillRect(x0,dy-th,x1-x0,th); x.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+w*.03;X<x1;X+=w*.045) x.fillRect(X,dy-th,1.5,th);
+  x.fillStyle=N(mix(wd,'#000000',.22)); x.fillRect(x0,dy,x1-x0,fh); x.fillStyle=N('#2a1a14'); for(let X=x0+w*.02;X<x1;X+=w*.07){ x.fillRect(X,dy+fh*.28,3,3); x.fillRect(X,dy+fh*.66,3,3); }
+  x.fillStyle=v3rgba(P.rim,.5); x.fillRect(x0,dy-th,x1-x0,1.5); x.fillStyle='rgba(0,0,0,.3)'; x.fillRect(x0,dy+fh,x1-x0,3);
+  const items=dockView(), s=2.4, xs=homeSlots(items.length,w*.06,w*.9,w*.46,w*.64);
+  items.forEach((id,i)=>drawDockItem(x,id,xs[i],dy-th*.4,s*(id==='cottage'?.9:1),t,P.night));
+  drawPetStyled(x,S.pet,w*.5,dy-th*.4,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  return true; }
+
+// a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow
+function v3Pedestal(x,cx,cy,rw,t){ const rh=rw*.22;
+  const sp=x.createRadialGradient(cx,cy-rw*.9,0,cx,cy-rw*.6,rw*1.8); sp.addColorStop(0,'rgba(255,224,170,.28)'); sp.addColorStop(.5,'rgba(255,200,140,.08)'); sp.addColorStop(1,'rgba(255,200,140,0)'); x.fillStyle=sp; x.fillRect(cx-rw*2,cy-rw*2.6,rw*4,rw*3);
+  x.fillStyle='rgba(2,6,15,.45)'; x.beginPath(); x.ellipse(cx,cy+rh*1.25,rw*1.08,rh*.9,0,0,7); x.fill();
+  const wd=dockWood(); x.fillStyle=mix(wd,'#000000',.35); x.beginPath(); x.ellipse(cx,cy+rh*.45,rw,rh,0,0,Math.PI); x.lineTo(cx-rw,cy); x.ellipse(cx,cy,rw,rh,0,Math.PI,0,true); x.closePath(); x.fill();
+  x.fillRect(cx-rw,cy,rw*2,rh*.45);
+  const tg=x.createLinearGradient(0,cy-rh,0,cy+rh); tg.addColorStop(0,mix(wd,'#ffffff',.18)); tg.addColorStop(1,mix(wd,'#000000',.1)); x.fillStyle=tg; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.fill();
+  x.save(); x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.clip(); x.strokeStyle='rgba(0,0,0,.16)'; x.lineWidth=1.5; for(let k=-4;k<=4;k++){ x.beginPath(); x.moveTo(cx+k*rw*.22,cy-rh); x.lineTo(cx+k*rw*.22,cy+rh); x.stroke(); } x.restore();
+  x.strokeStyle='rgba(255,236,200,.45)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,Math.PI*1.05,Math.PI*1.95); x.stroke(); }
+
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
 // Same skeleton anchors as before (head centre (0,-56), radius 7.5, feet at 0) so every
@@ -6384,7 +6416,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
     else hatPreview(cx,128,128,id,lk.hatCol); });
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
-  cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22);
+  if(V3ON) v3Pedestal(cx,250,470,215,performance.now()/1000); else { cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22); }
   drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
