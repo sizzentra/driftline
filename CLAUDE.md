@@ -91,7 +91,8 @@ Gotchas:
   - **Patch notes:** redeeming the code shows Cam's own notes card (`LILY_PATCH`), which then stays in his patch-notes list. Public notes only mention "a gift code box".
 - To make another one: copy the Lily pattern (a `'gift'` pet in `b_data.js`, a drawing, a code in `redeemGift`, a personal notes card).
 
-## NEXT BIG FOCUS: Driftline 3.0 overhaul (director, 2026-11-16)
+## NEXT BIG FOCUS: Driftline 0.3 overhaul (director, 2026-11-16)
+Version numbers (director): the overhaul is **0.3**, not 3.0, so each step up carries real weight. Style mockups (3 options, the director picks): https://claude.ai/artifact/326v8aADGzr8wbyemBtmPe
 The director wants the whole game taken "up a notch, across the board". Lily showed what's possible. Things feel too simple; the game is missing a cohesive art style.
 - **Scope (nearly everything):**
   - visuals, animations, effects, music, atmosphere
@@ -108,7 +109,7 @@ The director wants the whole game taken "up a notch, across the board". Lily sho
   5. **Redraw every item** (pets, clothes, hats, decor) in the style, with deeper customization and bigger previews. Saves carry over.
   6. **UI makeover:** one theme, drawn icons, transitions, feedback.
   7. **Equipment and gameplay depth:** visible, distinct gear; visible effects; a richer reeling fight.
-- **Rollout:** build on a separate preview link so friends keep playing the stable version. Ship as **3.0** with full spoiler-free notes.
+- **Rollout:** build on a separate preview link so friends keep playing the stable version. Ship as **0.3** with full spoiler-free notes.
 - **Open choices:** the art style; music (richer generated layered themes vs free-licence recorded tracks, which mean a bigger download).
 
 ## Roadmap: things to work on (closest first)
