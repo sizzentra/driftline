@@ -242,6 +242,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
   const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
   const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
+  const r5=extraAct5(b); if(r5!==undefined) return r5==='render' ? undefined : r5;
   if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;

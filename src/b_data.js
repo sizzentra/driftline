@@ -24,6 +24,10 @@ const LOCS = [
    sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:8000},
   {id:'trench',name:'Hollow Trench',    cost:180000, need:8, bonus:1000000, plat:'raft', blurb:'Black water over a drop no one has measured. Things down here glow.',
    sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:18000},
+  {id:'ember', name:'Ember Springs',    cost:400000, need:8, bonus:2500000, plat:'stone', blurb:'Steaming hot springs in a volcanic valley. The water glows at night, and so do the fish.',
+   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:40000},
+  {id:'starfall',name:'Starfall Lake',  cost:1200000, need:8, bonus:8000000, plat:'crystal', blurb:'A lake high above the clouds, where the stars come down to drink. Nobody quite knows how you got here.',
+   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:90000},
 ];
 const SEA = ['shelf','deep','trench'];
 // fight behaviours
@@ -320,15 +324,57 @@ const SP = [
  ['maincharacter','deep','Main Character Marlin',3,150,500,8600,26,'day',.7,'#ffcc33','#fff6d0',.3,'jump',.9,'f',1,'Swims in slow motion. Somewhere, music plays just for it.'],
  ['fanumtax','deep','Fanum Tax Fish',1,5,20,700,17,'night',.5,'#5a3a8a','#d0b0ff',.36,'thrash',.8,'f',0,'Takes a bite of your bait first. That’s the tax.'],
  ['thisisfine','trench','This Is Fine Fish',1,.5,2,920,17,'any',.3,'#ff8a3a','#ffd060',.4,'calm',.2,'f',0,'Its whole vent is on fire. It’s fine. Everything is fine.'],
+ // 2.0: Ember Springs
+ ['magmaminnow','ember','Magma Minnow',0,.05,.3,560,28,'any',.6,'#ff5a1a','#ffd04a',.32,'dart',.5,'f',0,'Glows like a coal. Don’t hold it too long.'],
+ ['ashperch','ember','Ash Perch',0,.3,1.5,600,29,'any',.4,'#5a5050','#c8b8b0',.38,'thrash',.5,'f',1,'Grey as ash, grumpy as a volcano.'],
+ ['cinderdace','ember','Cinder Dace',0,.1,.6,580,28,'day',.6,'#e08a4a','#fff0d0',.3,'dart',.4,'f',2,'Leaves tiny sparks when it turns.'],
+ ['steamcrab','ember','Steam Crab',0,.3,1.5,620,30,'any',.3,'#d84a2a','#ffb090',.6,'thrash',.7,'c',0,'Already cooked. Very offended about it.'],
+ ['pumicepuffer','ember','Pumice Puffer',0,.2,1,610,29,'any',.3,'#a89a8a','#e8e0d8',.7,'sulk',.4,'p',2,'So full of holes it floats.'],
+ ['sulfurgoby','ember','Sulphur Goby',0,.05,.3,590,28,'night',.5,'#d8d040','#fff8b0',.36,'calm',.3,'f',0,'Smells like eggs. Looks like sunshine.'],
+ ['lavaeel','ember','Lava Eel',1,2,8,1500,34,'night',.5,'#ff4a1a','#ffcc4a',.13,'dive',.7,'e',1,'Flows like it’s melting. It isn’t. Probably.'],
+ ['obsidiancarp','ember','Obsidian Carp',1,3,12,1550,35,'any',.3,'#1a1a22','#6a5a8a',.42,'sulk',.5,'f',0,'Black glass scales. You can see your face in it.'],
+ ['emberfin','ember','Emberfin Trout',1,1,5,1450,33,'day',.6,'#e86a3a','#ffd8a0',.32,'jump',.6,'f',2,'Its fins flicker like little flames.'],
+ ['springkoi','ember','Hot Spring Koi',1,1,5,1600,32,'any',.4,'#ffffff','#ff6a4a',.38,'calm',.3,'f',2,'Spends all day in the warm pools. Living the dream.'],
+ ['charcoalcat','ember','Charcoal Catfish',1,3,15,1500,35,'night',.4,'#2a2420','#8a6a5a',.3,'dive',.5,'f',0,'Whiskers singed from poking at lava.'],
+ ['blazeray','ember','Blaze Ray',2,5,25,4800,40,'any',.5,'#ff6a2a','#ffe06a',.6,'run',.7,'r',2,'Glides through the pools on wings of fire.'],
+ ['geyserbass','ember','Geyser Bass',2,3,12,4600,39,'day',.6,'#8a6a4a','#f0d8b0',.38,'jump',.8,'f',1,'Erupts out of the water every ten minutes.'],
+ ['firejelly','ember','Fire Jelly',2,1,5,4500,37,'night',.4,'#ff4a4a','#ffd04a',.5,'calm',.5,'j',0,'A floating lantern made of jelly and heat.'],
+ ['scorchpike','ember','Scorch Pike',2,5,20,4900,41,'any',.6,'#c84a1a','#f0c890',.24,'thrash',.9,'e',1,'Bites so hard the water boils.'],
+ ['phoenixkoi','ember','Phoenix Koi',3,5,15,16000,45,'day',.6,'#ff7a2a','#ffe060',.4,'jump',.8,'f',2,'They say it was reborn from the springs a thousand times.'],
+ ['magmashark','ember','Magma Shark',3,100,400,17000,47,'night',.6,'#3a1a10','#ff6a1a',.3,'run',.9,'s',0,'Cracks of lava glow between its scales.'],
+ ['volcanoking','ember','The Volcano King',4,300,900,150000,50,'night',.6,'#2a0a06','#ff8a2a',.36,'sulk',1,'s',2,'When it sleeps, the volcano sleeps. It is awake.'],
+ ['ashqueen','ember','The Ash Queen',4,100,300,140000,48,'day',.6,'#d8d0d0','#ff6a4a',.38,'jump',1,'f',1,'Wears a crown of cooling stone.'],
+ ['mountainheart','ember','The Heart of the Mountain',5,500,1500,600000,54,'any',.5,'#ff3a1a','#ffea8a',.7,'sulk',1,'p',2,'It beats. The whole valley beats with it.'],
+ // 2.0: Starfall Lake
+ ['stardust','starfall','Stardust Minnow',0,.02,.1,950,33,'any',.7,'#e8e0ff','#ffffff',.32,'dart',.5,'f',2,'Leaves a trail of glitter. Literally.'],
+ ['moonperch','starfall','Moon Perch',0,.3,1.5,1000,34,'night',.4,'#c8c8e0','#ffffff',.38,'calm',.3,'f',0,'Pale, round and quietly glowing.'],
+ ['cometgoby','starfall','Comet Goby',0,.05,.3,980,33,'any',.6,'#5ad8ff','#ffffff',.34,'dart',.6,'f',1,'Always in a hurry, always leaving a tail.'],
+ ['nebulafry','starfall','Nebula Fry',0,.01,.05,920,32,'night',.6,'#c86aff','#ff9ad8',.36,'dart',.4,'f',2,'A baby fish made of pink space dust.'],
+ ['cloudfish','starfall','Cloudfish',0,.5,2,1020,34,'day',.3,'#f4f6ff','#ffffff',.65,'sulk',.3,'p',0,'Fluffy. Floaty. Basically a cloud with a face.'],
+ ['twinkletetra','starfall','Twinkle Tetra',0,.02,.1,990,33,'any',.6,'#ffe06a','#fff8d0',.4,'dart',.5,'f',1,'Blinks on and off like a little star.'],
+ ['orbitray','starfall','Orbit Ray',1,5,20,2600,38,'any',.5,'#3a3a8a','#c8c8ff',.6,'run',.6,'r',2,'Swims in perfect circles. Nobody knows around what.'],
+ ['auroratrout','starfall','Aurora Trout',1,1,5,2500,37,'night',.5,'#5affb0','#c0a0ff',.32,'jump',.6,'f',1,'Ripples green and violet when it moves.'],
+ ['satelliteeel','starfall','Satellite Eel',1,2,8,2550,38,'any',.4,'#a8b0c0','#5ad8ff',.12,'dive',.5,'e',1,'Beeps faintly. Might be picking up radio.'],
+ ['cosmiccrab','starfall','Cosmic Crab',1,.5,3,2650,39,'night',.4,'#5a3aa8','#ffd06a',.6,'thrash',.7,'c',2,'Its shell is a little starry night.'],
+ ['eclipsecarp','starfall','Eclipse Carp',1,3,12,2700,39,'any',.3,'#1a1a2a','#ffd06a',.42,'sulk',.5,'f',0,'A dark circle with a golden rim.'],
+ ['constellationkoi','starfall','Constellation Koi',2,3,10,8000,44,'night',.5,'#1a1a4a','#ffffff',.38,'calm',.5,'f',2,'Connect its spots and you get a map of the sky.'],
+ ['meteorpike','starfall','Meteor Pike',2,5,20,8300,46,'any',.7,'#ff8a3a','#ffe0a0',.24,'run',.9,'e',0,'Hits the bait like it fell from orbit.'],
+ ['galaxyjelly','starfall','Galaxy Jelly',2,1,5,7800,43,'night',.4,'#6a3aff','#ff9ad8',.5,'calm',.5,'j',2,'There’s a whole galaxy swirling in there.'],
+ ['astrofish','starfall','Lost Astronaut Fish',2,1,5,8100,44,'day',.5,'#e8ecf0','#5aa9ff',.4,'calm',.4,'f',0,'Still wearing its tiny helmet. Very far from home.'],
+ ['pulsarshark','starfall','Pulsar Shark',3,150,500,28000,50,'any',.6,'#2a2a6a','#5ad8ff',.3,'run',.9,'s',1,'Pulses with light every second. Like a heartbeat.'],
+ ['nebulasquid','starfall','Nebula Squid',3,20,80,29000,51,'night',.5,'#a83aff','#ff6ad8',.32,'dive',.9,'q',0,'Ink like spilled space.'],
+ ['moonleviathan','starfall','The Moon Leviathan',4,1000,3000,300000,55,'night',.5,'#c8c8e0','#ffffff',.34,'sulk',1,'s',2,'It swallowed the moon once. Then gave it back.'],
+ ['starweaver','starfall','The Star Weaver',4,50,150,280000,54,'any',.7,'#ffd06a','#fff8e0',.3,'jump',1,'f',1,'Sews the constellations back together every night.'],
+ ['firststar','starfall','The First Star',5,10,30,1200000,58,'night',.6,'#ffffff','#ffe9a8',.4,'dart',1,'f',0,'Before anything else, there was this. It remembers.'],
 ].map(a=>({id:a[0],loc:a[1],name:a[2],r:a[3],min:a[4],max:a[5],base:a[6],str:a[7],time:a[8],th:a[9],col:a[10],belly:a[11],h:a[12],beh:a[13],aggr:a[14],shape:a[15],pat:a[16],note:a[17]}));
 const SPI = Object.fromEntries(SP.map(s=>[s.id,s]));
 
 const GEAR = {
-  rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62], cost:[0,250,1200,5000,18000,50000,130000,300000], fmt:v=>v+' m cast'},
-  reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5], cost:[0,200,1000,4000,14000,40000,100000,240000,500000], fmt:v=>v.toFixed(1)+' m/s'},
-  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100], cost:[0,180,800,3000,10000,30000,80000,200000,450000], fmt:v=>v+' kg test'},
+  rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62,70,80], cost:[0,250,1200,5000,18000,50000,130000,300000,900000,2500000], fmt:v=>v+' m cast'},
+  reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5,13.2,15], cost:[0,200,1000,4000,14000,40000,100000,240000,500000,1400000,3500000], fmt:v=>v.toFixed(1)+' m/s'},
+  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100,135,180,230], cost:[0,180,800,3000,10000,30000,80000,200000,450000,1200000,3000000,7000000], fmt:v=>v+' kg test'},
   hook:  {name:'Hook',   what:'Longer window to set the hook', lv:[.6,.7,.8,.9,1.0,1.1,1.2], cost:[0,150,900,4000,14000,45000,120000], fmt:v=>v.toFixed(1)+' s window'},
-  cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85], cost:[0,120,700,3000,10000,30000,80000,200000], fmt:v=>v+' fish'},
+  cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85,110,140], cost:[0,120,700,3000,10000,30000,80000,200000,600000,1500000], fmt:v=>v+' fish'},
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
           fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity colour')+', +'+v*20+'% hotspots'},
 };
@@ -467,6 +513,7 @@ const HATS = [
  ['catears','Cat Ears','shop',1800],['headphones','Headphones','shop',3500],['bandanahead','Head Bandana','shop',900],['witch','Witch Hat','shop',4000],['mushroom','Mushroom Cap','shop',2500],['tiara','Tiara','shop',7000],
  ['bunnyears','Bunny Ears','fish'],['pumpkin','Pumpkin Head','fish',0,1],['knight','Knight Helmet','fish',0,1],['duckonhead','Duck on Head','fish',0,1],
  ['fishbowl','Fishbowl Helmet','prize',0,1],['sixsevencap','67 Cap','prize'],['carnival','Carnival Top Hat','prize'],
+ ['tidecap','Tide Cap','pass'],['strawsun','Sun Hat','shop',1800],['cozybeanie','Cozy Knit Beanie','shop',1200],['lanternhat','Lantern Hat','fish',0,1],['acorn','Acorn Cap','fish',0,1],
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3]||0,fixed:!!a[4]}));
 const HATI = Object.fromEntries(HATS.map(h=>[h.id,h]));
 const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','#7a4a9a','#2f3b4a','#8a6a4a','#d87aa0'];

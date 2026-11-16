@@ -23,9 +23,9 @@ function hud(){
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
-  T.querySelector('[data-tab="cooler"]').innerHTML='Cooler'+dot(S.cooler.length);
-  T.querySelector('[data-tab="bounties"]').innerHTML='Bounties'+dot(S.bounties.filter(b=>bDone(b)).length);
-  T.querySelector('[data-tab="skills"]').innerHTML='Skills'+dot(ptsFree());
+  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=b.dataset.label+dot(n); };
+  setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
+  setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M'; return (n/1e9).toFixed(2)+'B'; }
@@ -71,8 +71,9 @@ function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.s
 // ---------- panels ----------
 let confirmBox = null, encLoc = null, encSel = null;
 function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('tabs').children) b.setAttribute('aria-selected', b.dataset.tab===t?'true':'false'); renderPanel(); }
-$('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); } });
-function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods}[S.tab]||renderCooler; fn(P); }
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); b.scrollIntoView({block:'nearest',inline:'nearest'}); } });
+$('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'); if(b){ setTab(b.dataset.tabgo); save(); } });
+function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, home:renderHome, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
 function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
@@ -132,7 +133,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
-  P.innerHTML=dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
+  P.innerHTML=derbyHTML()+dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
   S.bounties.map((b,i)=>{ const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
       return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
        <div class="row spread"><span class="val"><span class="coin">${fmt(rw)}</span> + ${b.scales} Scales</span>${d?`<button class="btn" data-act="claim" data-i="${i}">Claim</button>`:`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }

@@ -260,6 +260,7 @@ function drawFar(L,t,night,hz,wx){
     const cx=((t*4)%(W*1.4))-W*.2; g.fillStyle=mix('#3a4652','#05080f',night); g.fillRect(cx,hz-7,60,6); g.fillRect(cx+40,hz-15,14,8); for(let i=0;i<4;i++){ g.fillStyle=['#c8553a','#3a6f9a','#e0c050','#4f8a4a'][i]; g.globalAlpha=1-night*.7; g.fillRect(cx+4+i*9,hz-12,8,5); } g.globalAlpha=1; }
   else if(L.id==='deep'){ const ox=W*.72; g.fillStyle=mix('#3a4652','#05080f',night); g.fillRect(ox,hz-6,34,5); g.fillRect(ox+6,hz-14,12,8); g.fillRect(ox+11,hz-26,2,12); if(night>.2){ g.fillStyle=Math.sin(t*2)>0?'#ff5a5a':'#5aff8a'; g.fillRect(ox+10,hz-28,4,3); }
     const sp=(t%23); if(sp<3){ const k=sp/3, wx2=W*.5; g.fillStyle='rgba(230,240,250,'+(.7*(1-k))+')'; for(let i=0;i<8;i++){ g.beginPath(); g.arc(wx2+Math.sin(i)*k*14,hz-4-k*30*Math.abs(Math.cos(i*.7)),2+k*3,0,7); g.fill(); } g.fillStyle=mix('#1a2a3a','#05080f',night); g.beginPath(); g.ellipse(wx2,hz+2,18,4,0,Math.PI,0); g.fill(); } }
+  else if(L.id==='ember'||L.id==='starfall') drawFarX(L,t,night,hz);
   else { g.strokeStyle=mix('#2b3b48','#0a0f16',night); g.lineWidth=2; g.beginPath(); g.moveTo(W*.7,hz); g.lineTo(W*.7,hz-30); g.moveTo(W*.7-10,hz-18); g.lineTo(W*.7+10,hz-18); g.stroke(); if(night>.3){ g.fillStyle='#ff5b6e'; g.globalAlpha=(Math.sin(t*3)>.6)?1:.2; g.fillRect(W*.7-2,hz-33,4,4); g.globalAlpha=1; }
     const vx=W*.42; g.fillStyle='#0c141c'; g.fillRect(vx,hz-8,70,7); g.fillRect(vx+10,hz-18,26,10); g.fillRect(vx+50,hz-24,3,16); g.fillStyle='#ffe08a'; for(let i=0;i<4;i++) g.fillRect(vx+13+i*6,hz-15,3,3);
     const tc=t%37; if(tc<6){ const k=Math.sin(tc/6*Math.PI); g.strokeStyle='rgba(20,10,20,.85)'; g.lineWidth=5; g.beginPath(); g.moveTo(W*.88,hz+3); g.quadraticCurveTo(W*.88+10,hz-k*40,W*.88-6+Math.sin(t*2)*6,hz-k*60); g.stroke(); } }
@@ -279,14 +280,15 @@ function drawWaterDeco(L,t,night,hz){
     for(let i=0;i<9;i++){ const fx=((t*30+i*16)%(W*1.3))-W*.15, fy=H*.62+Math.sin(t+i*.5)*8+i*2; g.fillStyle='rgba(255,220,90,.6)'; g.beginPath(); g.ellipse(fx,fy,3,1.5,0,0,7); g.fill(); } }
   else if(L.id==='shelf'){ const dp=t%14; if(dp<1.6){ const k=dp/1.6, x0=W*.55; const x=x0+k*W*.12, y=hz+H*.12-Math.sin(k*Math.PI)*H*.08; g.save(); g.translate(x,y); g.rotate((k-.5)*1.6); g.fillStyle='#5a7088'; g.beginPath(); g.ellipse(0,0,16,5,0,0,7); g.fill(); g.beginPath(); g.moveTo(-2,-4); g.lineTo(2,-10); g.lineTo(5,-4); g.fill(); g.beginPath(); g.moveTo(-14,0); g.lineTo(-20,-5); g.lineTo(-20,5); g.fill(); g.restore(); if(k>.85) splash(x,hz+H*.12,1); } }
   else if(L.id==='deep'){ const fx=((t*18)%(W*1.4))-W*.2, fy=H*.66; if(Math.sin(t*.13)>.3){ g.fillStyle=N('#3a4a5a'); g.beginPath(); g.moveTo(fx,fy); g.lineTo(fx+6,fy-16); g.lineTo(fx+14,fy); g.fill(); g.strokeStyle='rgba(255,255,255,.35)'; g.beginPath(); g.moveTo(fx-12,fy+1); g.lineTo(fx+16,fy+1); g.stroke(); } }
+  else if(L.id==='ember'||L.id==='starfall') drawWaterDecoX(L,t,night,hz);
   else if(L.id==='trench'){ for(let i=0;i<16;i++){ const xx=(i*137.5+t*6)%W, yy=hz+30+((i*71)%(H-hz-40)); g.fillStyle='rgba(127,245,255,'+((.15+night*.4)*(.5+.5*Math.sin(t*2+i)))+')'; g.beginPath(); g.arc(xx,yy,1.6,0,7); g.fill(); }
     for(let i=0;i<3;i++){ const jx=W*(.4+i*.22)+Math.sin(t*.3+i)*20, jy=H*(.68+i*.06)+Math.sin(t*.9+i)*6; g.globalAlpha=.35+.25*Math.sin(t*2+i); g.fillStyle=['#ff6ad8','#6affea','#b08aff'][i]; g.beginPath(); g.arc(jx,jy,7,Math.PI,0); g.fill(); g.strokeStyle=g.fillStyle; g.lineWidth=1; for(let k=-2;k<=2;k++){ g.beginPath(); g.moveTo(jx+k*2.5,jy); g.quadraticCurveTo(jx+k*2.5+Math.sin(t*2+k)*3,jy+8,jx+k*2,jy+14); g.stroke(); } } g.globalAlpha=1; }
 }
 function drawPlatform(L,t,night,dockY,pb){
   const N=(cl,k=.6)=>mix(cl,'#0a1018',night*k), PW=W*.19;
   switch(L.plat){
-    case 'dock': case 'pier': { const tall=L.plat==='pier'; g.fillStyle=N('#6b4a2e'); g.fillRect(-2,dockY,PW,10); g.fillStyle=N('#4a3220'); for(let i=0;i<3;i++) g.fillRect(W*.02+i*W*.075,dockY+10,7,H-dockY);
-      g.fillStyle=N('#7c5838'); for(let x=0;x<PW;x+=18) g.fillRect(x,dockY,1.5,10);
+    case 'dock': case 'pier': { const tall=L.plat==='pier', wd=dockWood(); g.fillStyle=N(wd); g.fillRect(-2,dockY,PW,10); g.fillStyle=N(mix(wd,'#000000',.32)); for(let i=0;i<3;i++) g.fillRect(W*.02+i*W*.075,dockY+10,7,H-dockY);
+      g.fillStyle=N(mix(wd,'#ffffff',.14)); for(let x=0;x<PW;x+=18) g.fillRect(x,dockY,1.5,10); g.fillStyle=N(mix(wd,'#000000',.18)); g.fillRect(-2,dockY+8,PW,2);
       if(tall){ g.strokeStyle=N('#c8b08a'); g.lineWidth=1.5; g.beginPath(); g.moveTo(0,dockY-16); for(let i=0;i<4;i++){ const px=i*PW/3; g.lineTo(px,dockY-16); } g.stroke(); g.fillStyle=N('#4a3220'); for(let i=0;i<4;i++) g.fillRect(i*PW/3-2,dockY-20,4,20); }
       else { const lx=PW-6; g.fillStyle=N('#3a2a1a'); g.fillRect(lx,dockY-34,3,34); g.fillStyle=night>.3?'#ffd88a':N('#555'); g.fillRect(lx-3,dockY-42,9,8); if(night>.3){ const gr=g.createRadialGradient(lx+1.5,dockY-38,2,lx+1.5,dockY-38,40); gr.addColorStop(0,'rgba(255,216,138,.35)'); gr.addColorStop(1,'rgba(255,216,138,0)'); g.fillStyle=gr; g.fillRect(lx-40,dockY-78,82,80); } }
       g.fillStyle=N('#8a8a8a'); g.fillRect(W*.155,dockY-9,9,9); g.fillStyle=N('#6a6a6a'); g.fillRect(W*.155,dockY-9,9,2); break; }
@@ -303,7 +305,9 @@ function drawPlatform(L,t,night,dockY,pb){
       if(tr||raft){ g.fillStyle=N('#5a5a5a'); g.fillRect(cw*.4,y-(tr?90:70),3,tr?40:32); g.fillStyle=night>.2?(raft?'#ffffff':'#ff5a5a'):N('#666'); g.fillRect(cw*.4-2,y-(tr?94:74),7,5);
         if(night>.2||raft){ const gr=g.createRadialGradient(cw*.4+1,y-(tr?92:72),2,cw*.4+1,y-(tr?92:72),raft?90:30); gr.addColorStop(0,raft?'rgba(255,255,230,.25)':'rgba(255,90,90,.3)'); gr.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=gr; g.fillRect(cw*.4-90,y-182,182,182); } }
       if(tr){ g.strokeStyle=N('#6a7a6a'); g.lineWidth=1; for(let i=0;i<5;i++){ g.beginPath(); g.moveTo(cw+4+i*5,y-2); g.lineTo(cw+10+i*4,y-20); g.stroke(); } }
+      g.fillStyle=N(dockWood(),.5); g.fillRect(-10,y-2,PW+18,3);
       g.fillStyle='rgba(255,255,255,.25)'; g.fillRect(PW-20,y+H*.12,40+Math.sin(t*2)*6,2); break; }
+    default: drawPlatformX(L,t,night,dockY,pb);
   }
 }
 function drawFore(L,t,night){
@@ -333,20 +337,23 @@ function draw(now){
   g.fillStyle = sunUp ? (wx.k==='Gilded'?'#ffe08a':'#fff1c9') : (L.id==='trench'?'#ffb0a0':'#e8eef5'); g.globalAlpha = (sunUp ? 1-night*.2 : .9)*(1-gloom*.85); g.beginPath(); g.arc(bx,by,sunUp?16:11,0,7); g.fill(); g.globalAlpha=1;
   if(gloom>.08){ g.fillStyle='rgba(40,48,56,'+(gloom*.8)+')'; for(let i=0;i<6;i++){ const cx=((i*W/5)+t*8*(1+i%3))%(W+200)-100, cy=hz*(.12+.1*(i%3)); g.beginPath(); g.ellipse(cx,cy,90,22,0,0,7); g.ellipse(cx+50,cy+8,70,18,0,0,7); g.fill(); } }
   else { g.fillStyle='rgba(255,255,255,'+(.5-night*.4)+')'; for(let i=0;i<3;i++){ const cx=((i*W/2.5)+t*5)%(W+160)-80, cy=hz*(.18+.12*i); g.beginPath(); g.ellipse(cx,cy,34,9,0,0,7); g.ellipse(cx+22,cy-5,22,8,0,0,7); g.fill(); } }
+  drawGodRays(t,dusk,bx,by,hz); drawBackLayer(L,t,night,hz,bot);
   drawFar(L,t,night,hz,wx);
   const wg=g.createLinearGradient(0,hz,0,H); wg.addColorStop(0,mix(mix(L.water[0],'#10243e',night*.8),'#3b4750',gloom*.6)); wg.addColorStop(1,mix(L.water[1],'#02060c',night*.6)); g.fillStyle=wg; g.fillRect(0,hz,W,H-hz);
+  drawReflect(L,night,hz); { const hl=g.createLinearGradient(0,hz,0,hz+H*.08); hl.addColorStop(0,'rgba(255,255,255,'+(.10-night*.06)+')'); hl.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=hl; g.fillRect(0,hz,W,H*.08); }
   g.fillStyle = sunUp ? '#fff1c955' : '#e8eef544'; g.globalAlpha=1-gloom*.85; for(let i=0;i<8;i++){ const yy=hz+6+i*i*3.2; if(yy>H) break; const w2=18+i*6+Math.sin(t*2+i)*6; g.fillRect(bx-w2/2,yy,w2,2); } g.globalAlpha=1;
   const swell = (wx.k==='Storm'?2.2:1)*(L.id==='deep'?1.8:L.id==='shelf'?1.3:1);
   g.strokeStyle='rgba(255,255,255,'+(.10-night*.04+gloom*.05)+')'; g.lineWidth=1;
   for(let r=0;r<14;r++){ const y = hz + Math.pow(r/14,1.6)*(H-hz) + 4; const sp=10+r*5, len=8+r*4, spd=(8+r*2)*swell*(L.id==='river'?2:1); g.beginPath();
     for(let x=-sp*2 + ((t*spd+r*37)%(sp*2)); x<W; x+=sp*2){ const yy=y+Math.sin(x*.05+t*1.5+r)*1.5*swell; g.moveTo(x,yy); g.lineTo(x+len,yy); } g.stroke(); }
-  drawWaterDeco(L,t,night,hz);
+  drawWaterDeco(L,t,night,hz); { const dtA=Math.min(.05,Math.max(0,t-(draw.lastT||t))); draw.lastT=t; drawAmbient(L,t,night,hz,dtA); }
   drawHotspot(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.fillStyle='#06121a'; g.fillRect(G.bob.x-12,G.bob.y+8,24,14); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   drawPlatform(L,t,night,dockY,pb);
+  { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
   const sc=clamp(H/420,.7,1.25), ax=W*.12, ay=dockY+pb;
   drawPetScene(ax,ay,sc,t,night);
   let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; }
@@ -386,6 +393,7 @@ function draw(now){
   if(wx.k==='Fog'){ const fg=g.createLinearGradient(0,hz-60,0,H); fg.addColorStop(0,'rgba(210,220,225,0)'); fg.addColorStop(.25,'rgba(210,220,225,.38)'); fg.addColorStop(1,'rgba(210,220,225,.12)'); g.fillStyle=fg; g.fillRect(0,0,W,H); }
   if(FX && wx.k==='Gilded'){ for(let i=0;i<24;i++){ const x=(i*97.3+t*12*(1+i%4))%W, y=hz*.3+((i*53.7+Math.sin(t+i)*20)%(H*.6)); g.fillStyle='rgba(255,215,120,'+(.35+.35*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } }
   if(FX && G.flash>0){ g.fillStyle='rgba(235,240,255,'+(G.flash*.45)+')'; g.fillRect(0,0,W,H); }
+  drawVignette(night); drawDerbyHUD();
   // overlays
   if(G.st==='charging'){ const bw=Math.min(240,W*.4), bxx=(W-bw)/2, byy=H-34; g.fillStyle='rgba(5,14,20,.7)'; rr(bxx-4,byy-4,bw+8,22,8); g.fill();
     const grd=g.createLinearGradient(bxx,0,bxx+bw,0); grd.addColorStop(0,'#7fc8a9'); grd.addColorStop(.8,'#ffc94d'); grd.addColorStop(1,'#ff6a3d'); g.fillStyle=grd; rr(bxx,byy,bw*G.power,14,5); g.fill();

@@ -51,8 +51,8 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
        return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
   P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Specialisations</b> are big choices with a trade-off, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-   <h2 style="margin-top:12px">Specialisations</h2><div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">${SPEC_TIERS.map(specRow).join('')}</div>
-   <h2 style="margin-top:16px">Skills</h2><div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
+   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between"><span class="meta">Looking for specialisations? They have their own <b>Paths</b> tab now.</span><button class="btn alt sm" data-tabgo="paths">Open Paths</button></div>
+   <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
     return `<div class="tile ${mx?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
      <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div><div class="meta">${p.d} Each rank: ${p.per}.</div>
      <div class="meta" style="color:${mx?'var(--gold)':'var(--muted)'}">${mx?'★ ':'At max rank: '}${MASTERY_FX[k]}</div>

@@ -47,6 +47,25 @@ button,select{font:inherit;color:inherit}
 .spec b{font-family:var(--display);font-size:15px}
 .spec .up{color:var(--kelp);font-size:13px}
 .spec .down{color:#ff8a8a;font-size:13px}
+/* 2.0 polish */
+html,body{background:radial-gradient(1200px 600px at 50% -10%,#14303c 0%,#0a161d 60%) fixed,#0a161d}
+.tile{background:linear-gradient(180deg,#132a34,#0f222b);box-shadow:0 1px 0 #ffffff08 inset,0 6px 18px #0004;transition:border-color .15s,transform .15s}
+.tile:hover{border-color:#2f5866}
+.btn{box-shadow:0 2px 0 #0003,0 4px 12px #ff6a3d22;transition:transform .12s,filter .12s}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.alt{box-shadow:0 2px 0 #0003}
+.stat{background:linear-gradient(180deg,#14303a,#10222b)}
+.tabs button[aria-selected="true"]{background:linear-gradient(180deg,#1c3d49,#152d37);box-shadow:0 0 0 1px #7fc8a944 inset}
+.stage{box-shadow:0 10px 40px #0007}
+h2{letter-spacing:-.01em}
+.passtrack{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:12px}
+.passcell{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding:8px 6px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(180deg,#132a34,#0f222b);font-size:12.5px}
+.passcell canvas{width:72px;height:54px;cursor:default}
+.passcell .lv{position:absolute;top:4px;left:7px;font-family:var(--display);font-weight:800;color:var(--muted)}
+.passcell.special{border-color:#c38bff88}
+.passcell.ready{border-color:var(--kelp);box-shadow:0 0 0 1px #7fc8a966,0 0 18px #7fc8a933}
+.passcell.got{opacity:.6}
 .pvbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-bottom:8px;border-radius:10px;background:#ffc94d1a;border:1px solid #ffc94d66;font-size:13.5px}
 .prize{padding:6px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
 /* HUD: fixed grid cells, so nothing appearing or changing inside it can move the game window */
@@ -195,6 +214,26 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 }
 @media (max-width:480px){.grid{grid-template-columns:1fr}.jgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.jcard canvas{width:84px;height:42px}}
 @media (max-width:560px){.fishrow{grid-template-columns:48px 1fr auto}.fishrow canvas{width:48px;height:24px}.fishrow .acts{grid-column:1/-1}.setrow{grid-template-columns:110px 1fr 40px}}
+@media (min-width:1100px){.hud{grid-template-columns:150px repeat(9,minmax(0,1fr))}}
+/* phones held sideways: water on the left, menus scroll on the right (kept last so it wins) */
+@media (orientation:landscape) and (max-height:560px){
+  body{padding-top:6px;padding-bottom:6px}
+  .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:10px;row-gap:6px;height:calc(100vh - 12px);height:calc(100dvh - 12px)}
+  .hud{grid-column:1 / -1;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+  .hud>*{height:38px}
+  .hud .brand,.hud .opt{display:none}
+  .hud .loc{grid-column:auto}
+  .stat{padding:3px 8px}.stat .lbl{font-size:9.5px}.stat b{font-size:13px}
+  .ghost{padding:3px 6px;font-size:12px}
+  .stage{grid-column:1;grid-row:2 / 4;align-self:start}
+  .hint{display:none}
+  .tabs{grid-column:2;grid-row:2;position:static;padding:4px 0}
+  .tabs button{padding:6px 11px;font-size:13px}
+  #panel{grid-column:2;grid-row:3;overflow-y:auto;min-height:0;padding-right:4px;-webkit-overflow-scrolling:touch}
+  .grid{grid-template-columns:1fr 1fr}
+  .stylewrap{grid-template-columns:1fr}
+  .card .in{padding:10px 14px}.card canvas{width:160px;height:80px}
+}
 </style>
 
 <div class="wrap">
@@ -230,20 +269,23 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
   <p class="hint" id="hint"></p>
 
   <nav class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="cooler" aria-selected="true">Cooler</button>
-    <button role="tab" data-tab="shop" aria-selected="false">Tackle shop</button>
-    <button role="tab" data-tab="rods" aria-selected="false">Rods</button>
-    <button role="tab" data-tab="skills" aria-selected="false">Skills</button>
-    <button role="tab" data-tab="aquarium" aria-selected="false">Aquarium</button>
-    <button role="tab" data-tab="bounties" aria-selected="false">Bounties</button>
-    <button role="tab" data-tab="feats" aria-selected="false">Feats</button>
-    <button role="tab" data-tab="journal" aria-selected="false">Encyclopedia</button>
-    <button role="tab" data-tab="map" aria-selected="false">Waters</button>
-    <button role="tab" data-tab="style" aria-selected="false">Wardrobe</button>
-    <button role="tab" data-tab="pets" aria-selected="false">Pets</button>
-    <button role="tab" data-tab="games" aria-selected="false">Boardwalk</button>
-    <button role="tab" data-tab="save" aria-selected="false">Save</button>
-    <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+    <button role="tab" data-tab="cooler" aria-selected="true" data-label="🧊 Cooler">🧊 Cooler</button>
+    <button role="tab" data-tab="shop" aria-selected="false" data-label="🛒 Tackle">🛒 Tackle</button>
+    <button role="tab" data-tab="rods" aria-selected="false" data-label="🎣 Rods">🎣 Rods</button>
+    <button role="tab" data-tab="bounties" aria-selected="false" data-label="📜 Bounties">📜 Bounties</button>
+    <button role="tab" data-tab="pass" aria-selected="false" data-label="🌊 Tide Pass">🌊 Tide Pass</button>
+    <button role="tab" data-tab="map" aria-selected="false" data-label="🗺️ Waters">🗺️ Waters</button>
+    <button role="tab" data-tab="aquarium" aria-selected="false" data-label="🐠 Aquarium">🐠 Aquarium</button>
+    <button role="tab" data-tab="home" aria-selected="false" data-label="🏡 Home">🏡 Home</button>
+    <button role="tab" data-tab="pets" aria-selected="false" data-label="🐾 Pets">🐾 Pets</button>
+    <button role="tab" data-tab="style" aria-selected="false" data-label="👕 Wardrobe">👕 Wardrobe</button>
+    <button role="tab" data-tab="skills" aria-selected="false" data-label="✨ Skills">✨ Skills</button>
+    <button role="tab" data-tab="paths" aria-selected="false" data-label="🧭 Paths">🧭 Paths</button>
+    <button role="tab" data-tab="journal" aria-selected="false" data-label="📖 Encyclopedia">📖 Encyclopedia</button>
+    <button role="tab" data-tab="feats" aria-selected="false" data-label="🏆 Feats">🏆 Feats</button>
+    <button role="tab" data-tab="games" aria-selected="false" data-label="🎡 Boardwalk">🎡 Boardwalk</button>
+    <button role="tab" data-tab="save" aria-selected="false" data-label="💾 Save">💾 Save</button>
+    <button role="tab" data-tab="settings" aria-selected="false" data-label="⚙️ Settings">⚙️ Settings</button>
   </nav>
   <section id="panel" role="tabpanel"></section>
 </div>

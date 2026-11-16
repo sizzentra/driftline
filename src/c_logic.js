@@ -11,6 +11,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
+  dock:{wood:'oak', decor:[], owned:['oak']}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
   rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
@@ -34,6 +35,8 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
   m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
   m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]);
+  const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=(dk.decor||[]).filter(x=>dk.owned.includes(x)); if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
+  m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
@@ -79,7 +82,7 @@ const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
 const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
-const xpMult = () => (1 + bonus('xp')) * coinMult();
+const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
@@ -146,7 +149,8 @@ const sfx = {
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
-  const fs=!!document.fullscreenElement, maxH=portrait?window.innerHeight*.56:Math.max(520,window.innerHeight*(fs?.8:.66)); H=clamp(Math.round(W*(portrait?.82:fs?.56:.5)),250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const maxH=portrait?window.innerHeight*.56:shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
+  H=clamp(Math.round(W*(portrait?.82:fs?.56:shortLand?.62:.5)),shortLand?180:250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -164,7 +168,7 @@ function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
   G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; if(!G.inHot && maxed('caster') && G.power>.97){ G.inHot=true; toast('Bullseye!'); } sfx.cast(); }
 function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const wx=weather();
-  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1);
+  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005);
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
 const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
@@ -216,6 +220,7 @@ function landFish(){
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
   taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
+  addPassXP(PASS_XP[sp.r]*(f.shiny?2:1)*(f.trophy?1.5:1)); derbyCatch(f);
   const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg).concat(checkBounties2(f)); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
@@ -329,6 +334,11 @@ const FEATS = [
   {id:'star1', name:'Make a wish',            d:'Catch a falling star',      p:()=>[S.gstats.stars,1],    coins:2000, pt:1},
   {id:'crates10',name:'Crate expectations',   d:'Open 10 Mystery Crates',    p:()=>[S.gstats.crates,10],  coins:10000, pt:1},
   {id:'decor5',name:'Interior designer',      d:'Place 5 decorations in your aquarium', p:()=>[S.aq.decor.length,5], coins:8000, pt:1},
+  {id:'derby1', name:'Derby day',             d:'Win a gold medal in a fishing derby', p:()=>[S.medals.gold,1], coins:20000, pt:1},
+  {id:'derby10',name:'Derby champion',        d:'Win 10 gold medals',        p:()=>[S.medals.gold,10], coins:300000, pt:2},
+  {id:'pass25',name:'Riding the tide',        d:'Reach Tide Pass level 25',  p:()=>[S.pass.lvl,25], coins:100000, pt:2},
+  {id:'pass50',name:'Master of tides',        d:'Reach Tide Pass level 50',  p:()=>[S.pass.lvl,50], coins:1000000, pt:3},
+  {id:'cozy15',name:'Home sweet home',        d:'Reach 15 cozy on your dock', p:()=>[cozy(),15], coins:30000, pt:1},
   {id:'tide1', name:'Second voyage',          d:'Set sail again once',       p:()=>[S.tides,1],           coins:0, pt:2},
   {id:'tide3', name:'Old sea dog',            d:'Set sail again 3 times',    p:()=>[S.tides,3],           coins:0, pt:3},
 ];

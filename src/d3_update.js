@@ -3,8 +3,21 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.7';
+const GAME_VERSION = '2.0';
 const PATCHES = [
+ {v:'2.0', name:'Driftline 2.0: Home Waters', items:[
+  'Two new waters at the far end of the map, for anglers who think they’ve seen it all.',
+  '40 new fish live in them, including a few legends and something rarer still.',
+  'Home: your dock now goes with you everywhere. Choose its wood, add up to 8 decorations, and the cozier it gets, the better you fish.',
+  'The Tide Pass: a 50-level reward track that fills up just by fishing, with special rewards along the way and bonus rewards after.',
+  'Fishing derbies: four-minute contests against three rival anglers. Medals pay well.',
+  'Specialisations moved to their own Paths tab.',
+  'Every water got a visual makeover: distant mountains, reflections, fish leaping in the distance, wildlife, sunbeams, and warmer light at night.',
+  'New hats, outfits and pet colours, some of them only from the Tide Pass.',
+  'New gear upgrades for the toughest fish yet.',
+  'Phones in landscape now get a side-by-side layout, with the water on the left and menus on the right.',
+  'Every tab has an icon now, and buttons, cards and panels got a polish.',
+  'New feats for all of the above.' ]},
  {v:'1.7', name:'Try Before You Buy', items:[
   'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
   'Prize Counter items now show a picture, and the wearable ones can be previewed.',
@@ -126,9 +139,10 @@ const PET_HEAD = {dog:[8,-13,4.2],cat:[1,-14,4],frog:[0,-8.5,3.5],duck:[5,-11,3.
   polarbear:[8,-11,4.6],octopus:[0,-9,6],ghost:[0,-10,7],robot:[0,-16,5],slime:[0,-8,7],dragon:[7,-12,4],unicorn:[13,-26,4],corgi:[8,-11,4],shiba:[8,-12,4],goose:[6,-20,3],squirrel:[3,-13,3.6],
   beaver:[7,-9,4],cow:[10,-15,4.5],sloth:[2,-12,4],deer:[9,-19,3.6],jelly:[0,-12,6],tiger:[8,-12,4.2],phoenix:[5,-17,3.6],narwhal:[6,-7,4],teddy:[0,-15,5]};
 const PET_TINTS = [['none','Natural',0,''],['rose','Rose',800,'hue-rotate(-40deg) saturate(1.3)'],['mint','Mint',800,'hue-rotate(90deg)'],['sky','Sky',800,'hue-rotate(180deg)'],['violet','Violet',1500,'hue-rotate(250deg) saturate(1.2)'],
-  ['shadow','Shadow',5000,'brightness(.5) contrast(1.2)'],['snow','Snow',5000,'grayscale(1) brightness(1.55)'],['golden','Golden',0,'sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1)'],['rainbow','Rainbow',0,'rainbow']];
+  ['shadow','Shadow',5000,'brightness(.5) contrast(1.2)'],['snow','Snow',5000,'grayscale(1) brightness(1.55)'],['golden','Golden',0,'sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1)'],['rainbow','Rainbow',0,'rainbow'],
+  ['tidal','Tidal',0,'hue-rotate(160deg) saturate(1.5) brightness(1.1)'],['peach','Peach',1200,'sepia(.6) hue-rotate(-20deg) saturate(1.6)'],['lavender','Lavender',1500,'hue-rotate(220deg) saturate(.8) brightness(1.15)'],['cocoa','Cocoa',1200,'sepia(1) saturate(1.2) brightness(.7)']];
 const PET_ACCS = [['none','Nothing',0],['bandana','Bandana',0],['bow','Bow',600],['bowtie','Bow tie',1200],['scarf','Scarf',900],['bell','Bell collar',1000],['flower','Flower',800],['glasses','Sunglasses',1500],['cape','Hero cape',3000],['balloon','Star balloon',0],['partyhat','Party hat',0]];
-const PRIZE_TINT = {golden:600, rainbow:1200}, PRIZE_ACC = {balloon:150, partyhat:250};
+const PRIZE_TINT = {golden:600, rainbow:1200, tidal:1}, PRIZE_ACC = {balloon:150, partyhat:250};
 function petLook(id=S.pet){ if(!S.petLook[id]) S.petLook[id]={name:'',tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}; return S.petLook[id]; }
 const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].name;
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
@@ -169,7 +183,7 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
   const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
-  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!(x[0] in PRIZE_TINT)).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
@@ -297,7 +311,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
-    case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
+    case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; addPassXP(40); earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
     case 'taskbonus': { const d=ensureDaily(); if(d.bonus||!d.tasks.every(t=>t.claimed)) return 'skip'; d.bonus=true; S.tokens.small++; sfx.catch(3); toast('All tasks done! A small Mystery Crate is waiting at the Boardwalk.'); return 'render'; }
     case 'patches': showPatchNotes(); return 'skip';
     case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){}
