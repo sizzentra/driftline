@@ -222,7 +222,7 @@ function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; 
 // ---------- settings ----------
 function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class="setrow"><label for="set_${k}">${label}</label><input id="set_${k}" type="range" min="0" max="100" value="${Math.round(s[k]*100)}" data-set="${k}"><span class="meta" id="setv_${k}">${Math.round(s[k]*100)}%</span></div>`;
   const tg=(k,label,desc)=>`<div class="toggle"><div><b>${label}</b><div class="meta">${desc}</div></div><button class="btn ${s[k]?'':'alt'} sm" data-act="tog" data-k="${k}" aria-pressed="${!!s[k]}">${s[k]?'On':'Off'}</button></div>`;
-  const styles=[['auto','Follow the time of day'],['lofi','Cozy lo-fi'],['acoustic','Harbour acoustic'],['night','Dreamy night']];
+  const styles=V3ON?MUS_NAMES:[['auto','Follow the time of day'],['lofi','Cozy lo-fi'],['acoustic','Harbour acoustic'],['night','Dreamy night']];
   P.innerHTML=`<h2>Settings</h2><p class="sub">Everything here is saved on this device.</p>
   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>📲 Move progress</b><div class="meta">Send your progress between phone and PC with a 6-digit code, or use save codes.</div></div><button class="btn sm" data-tabgo="save">Open</button></div>
   <div class="tile" style="margin-top:10px"><b>🎁 Gift code</b><div class="meta">Got a gift code from a friend? Type it here.</div><div class="row" style="gap:8px;margin-top:8px;flex-wrap:nowrap"><input id="giftin" maxlength="24" placeholder="Gift code" autocapitalize="characters" style="flex:1;min-width:0;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px;text-transform:uppercase"><button class="btn sm" data-act="redeem">Redeem</button></div></div>
@@ -285,7 +285,7 @@ const STYLES = {
   night:   {bpm:58, swing:0,   drums:false, key:60, progs:[[[50,[0,3,7,10,14]],[43,[0,4,7,10,14]],[48,[0,4,7,11,14]],[45,[0,3,7,10,14]]],[[41,[0,4,7,11,14]],[43,[0,4,7,9,14]],[45,[0,3,7,10]],[40,[0,3,7,10]]]], mel:.18},
 };
 const PENT=[0,2,4,7,9];
-function curStyle(){ const s=S.settings.style; if(s!=='auto') return s; const t=tod(); return t==='Day'?'lofi':t==='Dawn'?'acoustic':'night'; }
+function curStyle(){ if(V3ON) return curStyle3(); const s=S.settings.style; if(s!=='auto') return s; const t=tod(); return t==='Day'?'lofi':t==='Dawn'?'acoustic':'night'; }
 function noiseBuf(sec,brown){ const n=AC.sampleRate*sec, b=AC.createBuffer(1,n,AC.sampleRate), d=b.getChannelData(0); let last=0; for(let i=0;i<n;i++){ const w=Math.random()*2-1; if(brown){ last=(last+.02*w)/1.02; d[i]=last*3.5; } else d[i]=w; } return b; }
 function startAudio(){ const a=ac(); if(!a||MUS.started) return; MUS.started=true;
   const n={}; n.dry=AC.createGain(); n.dry.gain.value=.9; n.dry.connect(BUS.music);
@@ -319,6 +319,7 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
   const stepLen=60/st.bpm/2;
   while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; }
     const prog=st.progs[Math.floor(MUS.bar/8)%st.progs.length], ch=prog[MUS.bar%4]; const root=ch[0], ivs=ch[1]; const t=t0+(s%2?st.swing*stepLen:0); const barLen=stepLen*8;
+    if(V3ON && V3MUS[stName]){ V3MUS[stName](t,s,root,ivs,stepLen,n,MUS.bar); MUS.step++; MUS.next+=stepLen; continue; }
     if(s===0){ const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=stName==='night'?900:1100; lp.connect(n.dry); lp.connect(n.wet);
       ivs.slice(0,4).forEach((iv,k)=>{ const f=mtof(root+12+iv); mv('triangle',f,t,barLen+1.6,.022,1.3,[lp],-7); mv('triangle',f,t,barLen+1.6,.022,1.3,[lp],7); });
       if(stName!=='night') mv('sine',mtof(root-12),t,stepLen*3.5,.13,.02,[n.dry]); else mv('sine',mtof(root-12),t,barLen,.07,.4,[n.dry]); }
