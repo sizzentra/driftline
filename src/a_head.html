@@ -1,0 +1,181 @@
+<title>Driftline</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: HUD strip, the scene (canvas), then a tabbed tackle-box panel. One committed dusk-water look. */
+:root{
+  color-scheme: dark;
+  --bg:#0a161d; --panel:#10222b; --panel2:#152d37; --line:#23434e;
+  --ink:#e6efe8; --muted:#8aa5a2; --buoy:#ff6a3d; --kelp:#7fc8a9; --gold:#ffc94d; --danger:#ff5468; --shiny:#ffe9a8;
+  --display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body:'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--body);font-size:15px;line-height:1.45;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button,select{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.hud{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px}
+.brand{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.01em;display:flex;align-items:center;gap:8px;margin-right:6px}
+.brand i{width:12px;height:12px;border-radius:50%;background:var(--buoy);box-shadow:0 0 0 3px #ff6a3d33;display:inline-block}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 11px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.stat .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap}
+.stat b{font-family:var(--display);font-weight:700;font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.coin::before{content:"";display:inline-block;width:.7em;height:.7em;border-radius:50%;background:var(--gold);margin-right:5px;vertical-align:.02em;box-shadow:inset -2px -2px 0 #c9902a}
+.xpbar{height:5px;border-radius:3px;background:#0a161d;margin-top:4px;overflow:hidden;min-width:90px}
+.xpbar i{display:block;height:100%;background:var(--kelp);width:0}
+.baitsel select{background:transparent;border:0;font-family:var(--display);font-weight:700;font-size:15px;padding:0;cursor:pointer;max-width:170px}
+.baitsel select option{background:var(--panel)}
+.ghost{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:5px 12px;cursor:pointer;margin-left:auto}
+.ghost:hover{border-color:var(--kelp)}
+.stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#0d2430;touch-action:none;user-select:none;-webkit-user-select:none}
+canvas{display:block;width:100%;cursor:pointer}
+#toast{position:absolute;left:50%;top:12px;transform:translateX(-50%);background:#0a161dE6;border:1px solid var(--line);padding:6px 14px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+.card{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#05101580;padding:12px}
+.card .in{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 20px;width:min(380px,100%);text-align:center;box-shadow:0 20px 50px #0008;animation:pop .28s ease-out;max-height:100%;overflow:auto}
+.card .in.shiny{border-color:var(--gold);box-shadow:0 0 0 1px #ffc94d55,0 20px 60px #ffc94d33}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.card .in{animation:none}}
+.card canvas{width:220px;height:110px;margin:0 auto}
+.card h3{font-family:var(--display);font-weight:800;font-size:23px;margin:2px 0 2px;text-wrap:balance}
+.rar{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.card .nums{display:flex;justify-content:center;gap:18px;margin:8px 0;font-variant-numeric:tabular-nums}
+.card .nums div{display:flex;flex-direction:column}
+.card .nums span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.card .nums b{font-family:var(--display);font-size:19px}
+.badges{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;min-height:4px}
+.badge{font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;background:#ff6a3d22;color:var(--buoy);border:1px solid #ff6a3d55}
+.badge.g{background:#ffc94d1f;color:var(--gold);border-color:#ffc94d55}
+.badge.k{background:#7fc8a91f;color:var(--kelp);border-color:#7fc8a955}
+.card .tap{color:var(--muted);font-size:13px;margin-top:8px}
+.quote{font-style:italic}
+.hint{margin:0;color:var(--muted);text-align:center;min-height:1.4em}
+.hint b{color:var(--ink)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:8px}
+.tabs button{background:transparent;border:1px solid transparent;border-radius:9px;padding:6px 11px;cursor:pointer;font-family:var(--display);font-weight:700;font-size:15px;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--panel);border-color:var(--line);color:var(--ink)}
+.tabs button .dot{display:inline-block;min-width:18px;padding:0 5px;margin-left:6px;border-radius:999px;background:var(--buoy);color:#1a0d08;font-size:12px;line-height:18px}
+.tabs button:focus-visible,.btn:focus-visible,.ghost:focus-visible,.sw:focus-visible,.jcard:focus-visible{outline:2px solid var(--kelp);outline-offset:2px}
+#panel{min-height:200px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{justify-content:space-between}
+h2{font-family:var(--display);font-weight:800;font-size:19px;margin:0}
+h5{font-family:var(--display);font-weight:700;font-size:14px;margin:12px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.sub{color:var(--muted);font-size:13.5px;margin:2px 0 0}
+.btn{background:var(--buoy);color:#1d0d06;border:0;border-radius:9px;padding:7px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn.alt{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:12px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile.done{border-color:#ffc94d66}
+.tile h4{margin:0;font-family:var(--display);font-weight:700;font-size:16px}
+.tile .meta{font-size:13px;color:var(--muted)}
+.tile .val{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+.pips{display:flex;gap:3px}
+.pips i{flex:1;height:5px;border-radius:2px;background:#0a161d}
+.pips i.on{background:var(--kelp)}
+.list{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.fishrow{display:grid;grid-template-columns:64px 1fr auto auto;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.fishrow canvas{width:64px;height:32px}
+.fishrow .nm{font-weight:700;min-width:0}
+.fishrow .nm small{display:block;font-weight:400;color:var(--muted);font-size:12.5px}
+.fishrow .val{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums}
+.fishrow .acts{display:flex;gap:6px}
+.sh{color:var(--gold)}
+.aq{color:var(--kelp)}
+.empty{color:var(--muted);padding:26px 10px;text-align:center;border:1px dashed var(--line);border-radius:12px;margin-top:12px}
+.jcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1px;min-width:0;cursor:pointer;font:inherit;color:inherit}
+.jcard:hover{border-color:var(--kelp)}
+.jcard.sel{border-color:var(--gold)}
+.jcard canvas{width:100px;height:50px;pointer-events:none}
+.jcard b{font-family:var(--display);font-size:14px}
+.jcard small{color:var(--muted);font-size:11.5px}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:8px;margin-top:8px}
+.jsec{margin-top:16px}
+.prog{height:6px;border-radius:3px;background:#0a161d;overflow:hidden;margin-top:6px}
+.prog i{display:block;height:100%;background:var(--gold)}
+.loc.here{border-color:var(--kelp)}
+.loc .sw2{height:46px;border-radius:8px}
+.tank{border-radius:12px;border:1px solid var(--line);margin-top:12px;overflow:hidden;background:#082233}
+.tank canvas{height:220px;cursor:default}
+.bank{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.bank b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.pts{font-family:var(--display);font-weight:800;font-size:28px;color:var(--gold);font-variant-numeric:tabular-nums}
+.detail{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center}
+.detail canvas{width:220px;height:110px}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 14px;font-size:13.5px}
+.kv span{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipb{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:3px 11px;cursor:pointer;font-size:13px}
+.chipb[aria-pressed="true"]{border-color:var(--kelp);color:var(--kelp)}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 0 0 2px var(--kelp)}
+.stylewrap{display:grid;grid-template-columns:260px 1fr;gap:16px;margin-top:12px;align-items:start}
+.preview{background:linear-gradient(#20435a,#10222b);border:1px solid var(--line);border-radius:12px}
+.preview canvas{width:100%;height:auto;cursor:default}
+.hatgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px}
+.hatb{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--muted)}
+.hatb canvas{width:56px;height:56px;pointer-events:none}
+.hatb[aria-pressed="true"]{border-color:var(--gold);color:var(--ink)}
+textarea{width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px;font:12px/1.4 ui-monospace,Consolas,monospace;resize:vertical;word-break:break-all}
+textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
+.offer canvas{width:64px;height:64px;cursor:default}
+@media (max-width:640px){.stylewrap{grid-template-columns:1fr}.detail{grid-template-columns:1fr}.detail canvas{margin:0 auto}}
+@media (max-width:560px){.fishrow{grid-template-columns:48px 1fr auto}.fishrow canvas{width:48px;height:24px}.fishrow .acts{grid-column:1/-1}.brand{width:100%}.ghost{margin-left:0}}
+</style>
+
+<div class="wrap">
+  <header class="hud">
+    <div class="brand"><i></i>Driftline</div>
+    <div class="stat"><span class="lbl">Coins</span><b class="coin" id="money">0</b></div>
+    <div class="stat"><span class="lbl">Angler level <b id="lvl" style="font-size:12px">1</b></span><div class="xpbar"><i id="xpfill"></i></div></div>
+    <div class="stat"><span class="lbl">Fishing at</span><b id="locname">Willow Pond</b></div>
+    <div class="stat"><span class="lbl" id="todnext">Time</span><b id="tod">Day</b></div>
+    <div class="stat" id="wxchip" title=""><span class="lbl" id="wxnext">Weather</span><b id="wx">Clear</b></div>
+    <div class="stat"><span class="lbl">Cooler</span><b id="coolerct">0 / 8</b></div>
+    <div class="stat" id="buffchip" hidden title=""><span class="lbl">Boosts</span><b id="buffct" style="color:var(--kelp)">0</b></div>
+    <label class="stat baitsel"><span class="lbl">Bait</span><select id="bait"></select></label>
+    <button class="ghost" id="mute" type="button">Sound: off</button>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="Fishing scene. Hold to charge a cast, release to throw."></canvas>
+    <div id="toast"></div>
+    <div class="card" id="card" hidden>
+      <div class="in" id="cardin">
+        <canvas id="cardfish" width="440" height="220"></canvas>
+        <div class="rar" id="cardrar"></div>
+        <h3 id="cardname"></h3>
+        <div class="badges" id="cardbadges"></div>
+        <div class="nums" id="cardnums"></div>
+        <div class="sub" id="carddesc"></div>
+        <div class="tap">Click or press Space to keep fishing</div>
+      </div>
+    </div>
+  </div>
+  <p class="hint" id="hint"></p>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-tab="cooler" aria-selected="true">Cooler</button>
+    <button role="tab" data-tab="shop" aria-selected="false">Tackle shop</button>
+    <button role="tab" data-tab="skills" aria-selected="false">Skills</button>
+    <button role="tab" data-tab="aquarium" aria-selected="false">Aquarium</button>
+    <button role="tab" data-tab="bounties" aria-selected="false">Bounties</button>
+    <button role="tab" data-tab="feats" aria-selected="false">Feats</button>
+    <button role="tab" data-tab="journal" aria-selected="false">Encyclopedia</button>
+    <button role="tab" data-tab="map" aria-selected="false">Waters</button>
+    <button role="tab" data-tab="style" aria-selected="false">Wardrobe</button>
+    <button role="tab" data-tab="pets" aria-selected="false">Pets</button>
+    <button role="tab" data-tab="save" aria-selected="false">Save</button>
+  </nav>
+  <section id="panel" role="tabpanel"></section>
+</div>
+
+<script>
+(() => {
+'use strict';
