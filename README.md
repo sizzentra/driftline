@@ -7,6 +7,8 @@ A cosy browser fishing game. It installs as an app, plays offline, and updates i
 - `build.ps1`: rebuilds `site/index.html` and stamps a new version, so everyone's app offers the update.
 - `make_icons.ps1`: redraws the app icons.
 
-Publishing: Netlify is connected to this GitHub repository and publishes `site/` on every push (see `netlify.toml`).
+Live at https://sizzentra.github.io/driftline/ (GitHub Pages, served from the `gh-pages` branch, which holds the contents of `site/`).
+Publish an update: `powershell -ExecutionPolicy Bypass -File publish.ps1 "What changed"` (builds, commits, pushes `main`, then pushes `site/` to `gh-pages`).
+`netlify.toml` is there in case the site ever moves to Netlify.
 
 Progress is saved on each device. To move it, open the **Save** tab in the game and copy or load a save code.
