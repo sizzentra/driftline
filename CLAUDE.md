@@ -24,7 +24,17 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - `__lilySheet({poses,accs|hats:"all",from,to,save})` and `__petSheet({from,to,save})` render contact sheets.
     - `__snap(name,x,y,w,h,scale)` saves a canvas crop.
     - All of them save to `tools/shots/<name>.png` via the local server (POST /shot/<name>). Open them with the Read tool: browser-pane screenshots lag and aren't reliable.
-  - **Next:** rebuilt angler (with attached clothes/hats/glasses), pets redrawn, cast/reel/catch moments, pond music, then the other areas.
+  - **Done:** new angler `src/g_angler.js` (`drawAngler3`). It keeps the old anchors (head centre (0,-56), r 7.5) so hats, beards and glasses fit; the torso is a path (male and female); shirt patterns and all 17 outfits are clipped to the body; 9 hairstyles with back and front layers; ear, nose, jaw, blinking eyes, brows, moods (calm, surprised at a bite, focused while reeling, happy while landing); two arms (rod hand + reel hand); boots with soles and laces. Verified with `__anglerSheet({from,to,face,save})`: every outfit × 8 looks, plus face close-ups.
+  - **Done:** pet spacing. The favourite stands clear of the angler; the companion goes further left, or on narrow phones sits layered just behind the favourite.
+  - **Next, in order:**
+    1. Fishing moments: a cast swing pose, the reel fight (body lean, rod bend, fish splashes), a catch reveal with celebration.
+    2. Redraw all pets on the frame system.
+    3. The 9 other areas.
+    4. Unique fish designs.
+    5. UI makeover.
+    6. Music options.
+    7. New player controls.
+    8. 0.3 patch notes + launch.
   - Test tools (`?test`): `__setPhase(0.5)` sets the clock and finds clear weather, `__crop(x,y,w,h,scale)` enlarges part of the canvas, `__go(id)` moves to an area.
 
 ## Roles

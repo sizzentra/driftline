@@ -178,7 +178,7 @@ function drawPattern(c,pat,base,x,y,w,h){
     case 'tux': c.fillStyle='#f4f4f2'; c.beginPath(); c.moveTo(x+w/2-3.5,y); c.lineTo(x+w/2+3.5,y); c.lineTo(x+w/2+1.5,y+h); c.lineTo(x+w/2-1.5,y+h); c.fill(); c.fillStyle='#c8303a'; c.beginPath(); c.moveTo(x+w/2-3,y+1); c.lineTo(x+w/2+3,y+3.5); c.lineTo(x+w/2+3,y+1); c.lineTo(x+w/2-3,y+3.5); c.fill(); break;
   }
 }
-function drawAngler(c,x,y,s,lk,o={}){
+function drawAngler(c,x,y,s,lk,o={}){ if(V3ON) return drawAngler3(c,x,y,s,lk,o);
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl; const sk=D(SKINS[lk.skin]||SKINS[1]), hair=D(HAIRS[lk.hair]||HAIRS[1]), shirt=D(lk.shirt);
   c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round';
   const hs = !lk.hairStyle||lk.hairStyle==='auto' ? (lk.g==='f'?'long':'short') : lk.hairStyle;
