@@ -5,8 +5,8 @@ const baitZero = () => Object.fromEntries(Object.keys(BAIT).filter(k=>k!=='worm'
 const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:0,cooler:0,finder:0}, bait:baitZero(), baitSel:'worm',
   unlocked:['pond'], loc:'pond', cooler:[], journal:{}, bounties:[], setDone:{},
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
-  buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020'},
-  owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
+  buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a'},
+  owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round'],shoes:['boots','sneakers','barefoot'],necks:['none'],backs:['none']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
   settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
@@ -25,7 +25,9 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.unlocked=(m.unlocked||['pond']).filter(id=>LOCS.some(l=>l.id===id)); if(!m.unlocked.includes('pond')) m.unlocked.unshift('pond'); if(!m.unlocked.includes(m.loc)) m.loc='pond';
   for(const k in m.journal){ if(!SPI[k]) delete m.journal[k]; }
   m.look=Object.assign(fresh().look,o.look||{}); const ow=o.owned||{};
-  m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p]), outfits:uniq(['none','vest',...(ow.outfits||[])]), glasses:uniq(['none','round',...(ow.glasses||[])])};
+  m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p]), outfits:uniq(['none','vest',...(ow.outfits||[])]), glasses:uniq(['none','round',...(ow.glasses||[])]),
+    shoes:uniq(['boots','sneakers','barefoot',...(ow.shoes||[])]).filter(x=>SHOEI[x]), necks:uniq(['none',...(ow.necks||[])]).filter(x=>NECKI[x]), backs:uniq(['none',...(ow.backs||[])]).filter(x=>BACKI[x])};
+  if(!BUILDI[m.look.build]) m.look.build='average'; if(!EYES[m.look.eye]) m.look.eye=0; if(!m.owned.shoes.includes(m.look.shoes)) m.look.shoes='boots'; if(!m.owned.necks.includes(m.look.neck)) m.look.neck='none'; if(!m.owned.backs.includes(m.look.back)) m.look.back='none';
   m.tickets=+o.tickets||0; if(o.freeSpins==null) m.freeSpins = (Date.now()-(o.wheelT||0)>=3600000) ? 1 : 0;
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});

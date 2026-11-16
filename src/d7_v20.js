@@ -33,14 +33,14 @@ function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
   const pvBar = DOCK_PV ? `<div class="pvbar"><span>Previewing on your dock: <b>${esc(DOCK_PV.name)}</b></span><span class="row"><button class="btn sm" data-act="${DOCK_PV.kind==='wood'?'dockwood':'dockdecor'}" data-k="${DOCK_PV.id}" ${S.money>=DOCK_PV.price?'':'disabled'}>Buy · <span class="coin">${fmt(DOCK_PV.price)}</span></button><button class="btn alt sm" data-act="dockpvoff">Stop</button></span></div>` : '';
   P.innerHTML=`<div class="row spread"><div><h2>Home</h2><p class="sub">Your dock goes with you to every water. Make it yours: pick the wood, add decorations, and the cozier it gets, the better you fish.</p></div>
    <div class="tile" style="min-width:200px"><div class="rar" style="color:#ff9ac0">Cozy level: ${cozyName()}</div><b>${c} ♥</b> <span class="meta">· +${cb}% XP, +${(cb*.5).toFixed(1)}% bite speed</span><div class="prog"><i style="width:${Math.min(1,c/25)*100}%;background:#ff9ac0"></i></div></div></div>
-   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>
+   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>${S.dock.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the dock to move it.</p>`:""}
    <h5>Wood</h5><div class="chips">${DOCK_WOODS.filter(w=>w[2]||S.dock.owned.includes(w[0])||w[0]==='oak').map(w=>{ const own=S.dock.owned.includes(w[0]); const pv=DOCK_PV&&DOCK_PV.kind==='wood'&&DOCK_PV.id===w[0];
      return `<button class="chipb" data-act="${own?'dockwood':'dockpv'}" data-k="${own?w[0]:'wood:'+w[0]}" aria-pressed="${wood===w[0]||pv}"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${w[3]};margin-right:6px;vertical-align:-1px"></span>${w[1]}${own?'':' · '+fmt(w[2])}</button>`; }).join('')}</div>
    <h5>Decorations · ${S.dock.decor.length} of ${DOCK_SLOTS} placed</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DOCK_DECOR.map(d=>{ const own=S.dock.owned.includes(d.id), placed=S.dock.decor.includes(d.id), hidden=!own&&d.src!=='shop';
      return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-dock="${d.id}" data-own="${own||!hidden?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${hidden?'???':d.name}</b><span class="meta">+${d.cozy} ♥ cozy</span>
      ${own?`<button class="btn ${placed?'alt':''} sm" data-act="dockdecor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:hidden?'<span class="meta">A Tide Pass reward</span>':`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="dockpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="dockdecor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`}</div>`; }).join('')}</div>`;
-  P.querySelectorAll('canvas[data-dock]').forEach(cv2=>{ const x=cv2.getContext('2d'); x.clearRect(0,0,160,120); if(cv2.dataset.own!=='1') x.filter='brightness(0) opacity(.45)'; drawDockItem(x,cv2.dataset.dock,80,100,2.6,0,0); x.filter='none'; });
-  paintHome(); }
+  P.querySelectorAll('canvas[data-dock]').forEach(cv2=>{ const x=cv2.getContext('2d'); x.clearRect(0,0,160,120); if(cv2.dataset.own!=='1') mysteryThumb(x,160,120,cv2.dataset.dock); else drawDockItem(x,cv2.dataset.dock,80,100,2.6,0,0); });
+  paintHome(); homeDragSetup(); }
 function paintHome(){ const c=$("homecv"); if(!c) return; if(V3ON && paintHome3(c)) return; const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000; x.clearRect(0,0,w,h);
   const sky=x.createLinearGradient(0,0,0,h*.6); sky.addColorStop(0,'#86bcd9'); sky.addColorStop(1,'#f2dcb6'); x.fillStyle=sky; x.fillRect(0,0,w,h*.6);
   const wt=x.createLinearGradient(0,h*.55,0,h); wt.addColorStop(0,'#3f827b'); wt.addColorStop(1,'#173e42'); x.fillStyle=wt; x.fillRect(0,h*.55,w,h*.45);
@@ -51,9 +51,9 @@ function paintHome(){ const c=$("homecv"); if(!c) return; if(V3ON && paintHome3(
 function homeSlots(n,x0,x1,avoid0,avoid1){ const out=[]; const span=(x1-x0)-(avoid1-avoid0); for(let i=0;i<n;i++){ let x=x0+span*(i+.5)/Math.max(n,1); if(x>avoid0) x+=avoid1-avoid0; out.push(x); } return out; }
 // decorations drawn on the dock in the scene, behind the angler
 function drawHome(L,t,night,dockY,pb,sc){ const items=dockView(); if(!items.length) return; const PW=W*.19, ax=W*.12;
-  const surf = dockY+pb; const xs=homeSlots(items.length,W*.008,PW-W*.012,ax-40*sc,ax+12*sc);
+  const surf = dockY+pb, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax-40*sc-X0)/(X1-X0),(ax+12*sc-X0)/(X1-X0));
   const cot=items.indexOf('cottage'); if(cot>=0) drawDockItem(g,'cottage',W*.045,surf,sc*1.5,t,night,true);
-  items.forEach((id,i)=>{ if(id==='cottage') return; drawDockItem(g,id,xs[i],surf,sc*1.35,t,night); }); }
+  items.forEach(id=>{ if(id==='cottage'||P[id]==null) return; drawDockItem(g,id,X0+P[id]*(X1-X0),surf,sc*dockItemScale(id),t,night); }); }
 function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.scale(s,s); const D=cl=>night?mix(cl,'#0a1018',night*.45):cl; c.lineCap='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, glow=(gx,gy,r,col)=>{ if(night<.25 && !back) return; const gr=c.createRadialGradient(gx,gy,1,gx,gy,r); gr.addColorStop(0,col); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(gx-r,gy-r,r*2,r*2); };
   switch(id){

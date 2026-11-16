@@ -84,6 +84,9 @@ const V3POND = {
     const r=v3rng(7);
     const rowB=(x0,x1,h0,h1)=>{ for(let X=x0;X<x1;X+=W*.011){ const h=H*(h0+(h1-h0)*r()); v3pine(x,X+r()*W*.006,hz+1,h,P.back,P.rim,P.d*.25); } };
     rowB(-W*.01,W*.42,.045,.075); rowB(W*.72,W*1.01,.04,.07);
+    // leafy trees and shrubs on the far hills, so the middle of the lake has a living shore too
+    for(const [fx,fh,sd] of [[.445,.05,3],[.475,.036,5],[.53,.044,8],[.585,.032,9],[.63,.048,12],[.68,.038,14]]) v3leafTree(x,W*fx,hz+1,H*fh,P,sd,{leaf:mix(P.leaf,P.hill,.45)});
+    v3bushes(x,W*.42,W*.74,hz+1.5,H*.016,P,21,{leaf:mix(P.leaf,P.hill,.5)});
     // log cabin on the left shore: log walls, stone chimney, porch roof, door; the window light is drawn live
     { const cx=W*.265, cw=H*.075, ch=H*.042, cb=hz+1, logs=mix(P.cabin,'#000000',.28);
       // stone chimney behind the roof line
@@ -105,8 +108,13 @@ const V3POND = {
     const r2=v3rng(19);
     for(const [fx,fh] of [[.02,.13],[.055,.105],[.09,.12],[.125,.09],[.16,.11],[.2,.085],[.33,.08],[.36,.1],[.395,.07]]) v3pine(x,W*fx,hz+2,H*fh*(.92+r2()*.16),P.front,P.rim,P.d*.55);
     for(const [fx,fh] of [[.76,.075],[.8,.095],[.97,.12],[.995,.1]]) v3pine(x,W*fx,hz+2,H*fh,P.front,P.rim,P.d*.55);
+    // a few leafy trees among the front pines, shoreline shrubs and reeds
+    v3leafTree(x,W*.24,hz+2,H*.075,P,31); v3leafTree(x,W*.43,hz+2,H*.06,P,33); v3leafTree(x,W*.72,hz+2,H*.07,P,37);
+    v3bushes(x,-W*.01,W*.24,hz+3,H*.02,P,41); v3bushes(x,W*.3,W*.45,hz+3,H*.018,P,43); v3bushes(x,W*.7,W*.8,hz+3,H*.018,P,47);
     // grassy bank on the right where the willow stands
     x.fillStyle=P.bank; x.beginPath(); x.moveTo(W*.8,hz+2); x.quadraticCurveTo(W*.88,hz-.012*H,W*1.01,hz-.004*H); x.lineTo(W*1.01,hz+.03*H); x.quadraticCurveTo(W*.9,hz+.028*H,W*.8,hz+2); x.closePath(); x.fill();
+    v3reeds(x,W*.8,W*1.01,hz+.02*H,H*.035,mix(P.bank,P.leafHi,.25),51); v3flowers(x,W*.82,W*1.0,hz+H*.004,hz+H*.026,['#f4e06a','#f49ac0','#ffffff','#b8a0ff'],53,26);
+    v3reeds(x,-W*.01,W*.2,hz+3,H*.026,mix(P.leaf,P.front,.4),57); v3reeds(x,W*.33,W*.44,hz+3,H*.022,mix(P.leaf,P.front,.4),59);
     // ---- water ----
     const wg=x.createLinearGradient(0,hz,0,H); wg.addColorStop(0,P.wTop); wg.addColorStop(.32,P.wMid); wg.addColorStop(1,P.wBot); x.fillStyle=wg; x.fillRect(0,hz,W,H-hz);
     // reflection: the land above, mirrored and squashed, then broken into calm bands
@@ -160,38 +168,7 @@ const V3POND = {
       else if(night<.2){ for(let i=0;i<2;i++){ const k=t*.35+i*3.1, fx=W*(.42+.25*Math.sin(k)+i*.12), fy=hz+H*(.12+.06*Math.sin(k*1.7+i)), s=H*.012; g.strokeStyle='#2a8a8a'; g.lineWidth=1.6; g.beginPath(); g.moveTo(fx-s,fy); g.lineTo(fx+s,fy); g.stroke(); g.fillStyle='rgba(220,250,255,.5)'; const fl=Math.sin(t*40+i)*.4; g.beginPath(); g.ellipse(fx,fy-s*.4,s*.7,s*.22*(1+fl),-.3,0,7); g.ellipse(fx,fy+s*.4,s*.7,s*.22*(1-fl),.3,0,7); g.fill(); } } }
   },
 
-  willow(P,t,hz){
-    const u=H/500, bx=W*.905, by=hz+H*.012, th=H*.115, wood=mix(P.cabin,'#000000',.2), rimA=.3+P.d*.4;
-    const leafD=mix(P.leaf,'#000000',.38), leafM=P.leaf, leafL=mix(P.leaf,P.leafHi,.16+P.d*.1);
-    const ccx=bx-H*.004, ccy=by-th-H*.03, rx=H*.105, ry=H*.055, sway=Math.sin(t*.7)*H*.007;
-    // trunk with root flare and a lit edge, visible under the crown
-    g.fillStyle=wood; g.beginPath(); g.moveTo(bx-H*.022,by); g.bezierCurveTo(bx-H*.01,by-H*.01,bx-H*.014,by-th*.6,bx-H*.008,by-th-H*.01); g.lineTo(bx+H*.009,by-th-H*.01); g.bezierCurveTo(bx+H*.01,by-th*.6,bx+H*.008,by-H*.012,bx+H*.024,by); g.closePath(); g.fill();
-    g.strokeStyle=v3rgba(P.rim,rimA); g.lineWidth=1; g.beginPath(); g.moveTo(bx+H*.022,by); g.bezierCurveTo(bx+H*.008,by-H*.012,bx+H*.009,by-th*.6,bx+H*.008,by-th); g.stroke();
-    g.strokeStyle=wood; g.lineCap='round'; g.lineWidth=Math.max(1.4,H*.006); g.beginPath(); g.moveTo(bx,by-th); g.quadraticCurveTo(bx-H*.03,by-th-H*.02,bx-H*.07,by-th-H*.01); g.moveTo(bx,by-th); g.quadraticCurveTo(bx+H*.03,by-th-H*.025,bx+H*.065,by-th-H*.005); g.stroke();
-    // crown: many small leaf clusters filling a dome, dark below, lighter and rim-lit on top right
-    const r=v3rng(53);
-    const dome=(n,col,lift,rad,a0=Math.PI,a1=Math.PI)=>{ g.fillStyle=col; g.beginPath(); for(let i=0;i<n;i++){ const a=a0+r()*a1, d=Math.sqrt(r()); const px=ccx+Math.cos(a)*rx*d, py=ccy+Math.sin(a)*ry*d-lift; const cr=H*rad*(.7+r()*.6); g.moveTo(px+cr,py); g.arc(px,py,cr,0,7); } g.fill(); };
-    dome(70,leafD,0,.016); dome(46,leafM,H*.008,.013); dome(14,leafL,H*.012,.009,Math.PI*1.5,Math.PI*.45);
-    // fronds: spring out from the crown edge, then fall; fine slanted leaves along each
-    const fr=v3rng(61), layers=[[],[],[]];
-    for(let i=0;i<64;i++){ const a=Math.PI*(1.04+fr()*.92), sx=ccx+Math.cos(a)*rx*.92, sy=ccy+Math.sin(a)*ry*.6, ox=Math.cos(a);
-      const len=(by-sy)*(.72+fr()*.28), ph=fr()*6.3, sw=sway*(.6+Math.abs(ox))+Math.sin(t*1.15+ph)*H*.003;
-      layers[i%3].push([sx,sy,ox,len,sw]); }
-    const bez=(p0,p1,p2,p3,k)=>{ const m=1-k; return m*m*m*p0+3*m*m*k*p1+3*m*k*k*p2+k*k*k*p3; };
-    [[leafD,0],[leafM,1],[leafL,2]].forEach(([col,li])=>{
-      g.strokeStyle=col; g.lineWidth=Math.max(.8,u*1.1); g.beginPath();
-      for(const [sx,sy,ox,len,sw] of layers[li]){
-        const x1=sx+ox*H*.03, y1=sy-H*.012, x2=sx+ox*H*.045+sw*.4, y2=sy+len*.35, x3=sx+ox*H*.04+sw, y3=Math.min(sy+len,hz+H*.02);
-        g.moveTo(sx,sy); g.bezierCurveTo(x1,y1,x2,y2,x3,y3);
-        for(let k=.12;k<1;k+=.07){ const px=bez(sx,x1,x2,x3,k), py=bez(sy,y1,y2,y3,k), side=(Math.round(k*100)%2)?1:-1, ll=u*(3.4-k*1.4);
-          g.moveTo(px,py); g.lineTo(px+side*ll*.55,py+ll); } }
-      g.stroke(); });
-    g.lineCap='butt';
-    // warm rim along the top right of the crown
-    g.strokeStyle=v3rgba(P.rim,rimA); g.lineWidth=1.3; g.beginPath(); g.ellipse(ccx,ccy-H*.012,rx*.9,ry*.95,0,-Math.PI*.42,-.08); g.stroke();
-    // soft reflection in the water
-    g.save(); g.globalAlpha=.16; g.fillStyle=leafM; g.beginPath(); g.ellipse(bx,hz+H*.06,rx*1.05,H*.045,0,0,7); g.fill(); g.restore();
-  },
+  willow(P,t,hz){ v3willow(P,t,hz); },
 
   lilies(P,t,hz,lit){
     const pads=[[.5,.78,.05],[.57,.84,.035],[.66,.72,.03],[.86,.9,.045]];

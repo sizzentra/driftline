@@ -46,7 +46,7 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 function fishCanvas(cnv, sp, known=true, shiny=false){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
-  if(!known){ drawCreature(c,sp,w*.52,h*.52,L,{sil:'#1d3a44'}); return; }
+  if(!known){ mysteryThumb(c,w,h,sp.id); return; }
   if(shiny){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,201,77,.35)'); gr.addColorStop(1,'rgba(255,201,77,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
   if(sp.r===5){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,106,213,.4)'); gr.addColorStop(.6,'rgba(106,255,234,.12)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
   drawCreature(c,sp,w*.52,h*.52,L,{shiny}); if(shiny||sp.r===5) sparkles(c,w,h,sp.r===5?10:7); }
@@ -359,12 +359,14 @@ function draw(now){
   const sc=clamp(H/420,.7,1.25), ax=W*.12, ay=dockY+pb;
   drawPetScene(ax,ay,sc,t,night);
   let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; }
-  drawAngler(g,ax,ay,sc,S.look,{night:night*.8,hx,hy,t});
-  const hand={x:ax+hx*sc,y:ay+hy*sc}; const tip=TIP(); let tx=tip.x, ty=tip.y+pb;
+  const tip=TIP(); let tx=tip.x, ty=tip.y+pb;
   if(G.st==='charging'){ tx -= G.power*W*.05; ty += G.power*H*.06; }
   if(G.st==='reeling'){ const bend = clamp(G.ten/100,0,1); tx += bend*W*.03; ty += bend*H*.08 + (G.run?Math.sin(t*25)*1.5:0); }
   if(G.st==='landing'){ ty += H*.04*(1-G.land.t/G.land.dur); }
-  if(V3ON) v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
+  const rodA=Math.atan2((ay+hy*sc+ty)/2-6-(ay+hy*sc),(ax+hx*sc+tx)/2-(ax+hx*sc)), PV=V3ON&&v3palette.v;
+  const hp=drawAngler(g,ax,ay,sc,S.look,{night:night*.8,hx,hy,t,rodA,rim:PV?PV.rim:null,glow:PV?PV.glow:null});
+  const hand=hp&&hp.x!=null?{x:hp.x,y:hp.y}:{x:ax+hx*sc,y:ay+hy*sc};
+  if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }

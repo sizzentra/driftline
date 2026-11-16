@@ -66,7 +66,12 @@ V3SCENES.river = {
     const r=v3rng(29);
     for(let i=0;i<10;i++){ const tx=W*(.02+i*.04+r()*.02); v3tree(x,tx,hz+1,H*(.07+r()*.03),Object.assign({},P,{leaf:mix(P.back,P.farHaze,.15)}),40+i,P.d*.2); }
     for(let i=0;i<5;i++){ const tx=W*(.8+i*.045+r()*.02); v3tree(x,tx,hz+1,H*(.07+r()*.03),Object.assign({},P,{leaf:mix(P.back,P.farHaze,.15)}),60+i,P.d*.2); }
+    // a hazy far row behind the groves, varied heights, so the banks read in depth
+    for(let i=0;i<16;i++){ const tx=W*(i*.065+r()*.03); if(tx>W*.4&&tx<W*.78) continue; v3leafTree(x,tx,hz,H*(.045+r()*.03),P,90+i,{leaf:mix(P.back,P.farHaze,.45),wide:.3+r()*.12}); }
     for(const [fx,fh,sd] of [[.04,.12,1],[.11,.1,2],[.19,.13,3],[.29,.09,4]]) v3tree(x,W*fx,hz+2,H*fh,Object.assign({},P,{leaf:P.front}),sd,P.d*.5);
+    v3bushes(x,-W*.01,W*.36,hz+3,H*.022,P,71,{leaf:mix(P.leaf,P.front,.3)}); v3bushes(x,W*.77,W*1.01,hz+3,H*.02,P,73,{leaf:mix(P.leaf,P.front,.3)});
+    v3reeds(x,-W*.01,W*.3,hz+4,H*.03,mix(P.leaf,P.front,.45),75,{heads:mix(P.cabin,"#5a3a1a",.4)}); v3reeds(x,W*.8,W*1.01,hz+4,H*.028,mix(P.leaf,P.front,.45),77);
+    v3flowers(x,W*.0,W*.34,hz+H*.004,hz+H*.016,["#f4e06a","#ffffff","#f49ac0"],79,30);
     // the stone arch bridge across the river (arches cut out so the far hills show through; reflections come from the mirror pass)
     { const x0=W*.42, x1=W*.76, top=hz-H*.085, dh=H*.018, n=3, span=(x1-x0)/n, ar=Math.min(span*.42,(hz-top-dh*.6)/1.15), cyA=hz+1-ar*.15;
       const arches=(p)=>{ for(let i=0;i<n;i++){ const ax=x0+span*(i+.5); p.moveTo(ax+ar,hz+1); p.arc(ax,cyA,ar,0,Math.PI,true); p.closePath(); } };
@@ -985,8 +990,9 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   x.fillStyle=N(mix(wd,'#ffffff',.1)); x.fillRect(x0,dy-th,x1-x0,th); x.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+w*.03;X<x1;X+=w*.045) x.fillRect(X,dy-th,1.5,th);
   x.fillStyle=N(mix(wd,'#000000',.22)); x.fillRect(x0,dy,x1-x0,fh); x.fillStyle=N('#2a1a14'); for(let X=x0+w*.02;X<x1;X+=w*.07){ x.fillRect(X,dy+fh*.28,3,3); x.fillRect(X,dy+fh*.66,3,3); }
   x.fillStyle=v3rgba(P.rim,.5); x.fillRect(x0,dy-th,x1-x0,1.5); x.fillStyle='rgba(0,0,0,.3)'; x.fillRect(x0,dy+fh,x1-x0,3);
-  const items=dockView(), s=2.4, xs=homeSlots(items.length,w*.06,w*.9,w*.46,w*.64);
-  items.forEach((id,i)=>drawDockItem(x,id,xs[i],dy-th*.4,s*(id==='cottage'?.9:1),t,P.night));
+  const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
+  if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
+  items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
   drawPetStyled(x,S.pet,w*.5,dy-th*.4,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
   return true; }
 
@@ -1031,7 +1037,7 @@ function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme
     c.fillStyle=col; for(let k=2;k<8;k++){ const [px,py]=pts[k], sdx=k%2?1:-1, a=Math.sin(t*1.1+i+k)*.3; c.beginPath(); c.ellipse(px+sdx*h*.03,py,h*.035,h*.011,sdx*(.5+a),0,7); c.fill(); } }
   // bubbles rising from a little vent on the left
   for(let i=0;i<10;i++){ const k=((t*.25+i/10)%1), bx=w*.06+Math.sin(t*2+i*1.7)*w*.008, by=h*.9-k*h*.9, rr=1.5+(i%3)*1.2; c.strokeStyle='rgba(230,250,255,'+(.6*(1-k*.6))+')'; c.lineWidth=1; c.beginPath(); c.arc(bx,by,rr,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(bx-rr*.4,by-rr*.5,1,1); }
-  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h*.95,h/230,t));
+  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,h/230,t)); tankDragSetup();
   return true; }
 // glass: a shimmering waterline at the top, a diagonal reflection, and darker corners
 function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0,0,w,2); c.strokeStyle='rgba(220,250,255,.25)'; c.lineWidth=1; c.beginPath(); for(let X=0;X<=w;X+=12) c.lineTo(X,5+Math.sin(X*.05+t*2)*1.5); c.stroke();

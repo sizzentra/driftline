@@ -123,7 +123,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   <div class="bank"><div><div class="sub">Earning</div><b class="coin">${fmt(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank">${fmt(S.tankBank)}</b></div>
   <button class="btn" id="collectbtn" data-act="collect" ${S.tankBank>=1?'':'disabled'}>Collect</button></div></div>
   <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Display an Uncommon or rarer fish.</span>'}</div>
-  <div class="tank"><canvas id="tankcv"></canvas></div>
+  <div class="tank"><canvas id="tankcv"></canvas></div>${S.aq.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the sand to move it.</p>`:""}
   <div class="row spread" style="margin-top:10px"><span class="sub">${S.tank.length} of ${S.tankSlots} tanks used</span>
   ${next!=null?`<button class="btn alt" data-act="buytank" ${S.money>=next?'':'disabled'}>Build another tank · <span class="coin">${fmt(next)}</span></button>`:'<span class="sub">All tanks built</span>'}</div>`+
   (S.tank.length ? '<div class="list">'+S.tank.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
@@ -184,7 +184,7 @@ function renderJournal(P){
   <div class="row spread"><div><h2>Encyclopedia</h2><p class="sub">${total} of ${SP.length} species found · ${fmt(S.stats.caught)} fish landed · ${S.stats.shiny} shiny · ${S.stats.treasure} junk · ${fmt(S.stats.earned)} coins earned · ${S.stats.snapped} lines snapped</p></div></div>
   <div class="chips" style="margin-top:10px">${chips}</div>${body}
   <div class="jsec"><span class="sub">Best streak ${S.stats.bestStreak} · ${S.stats.perfect} perfect hooks · ${S.stats.hot} hotspot catches · voyage ${S.tides+1}</span></div>`;
-  paintFish(P); P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); drawJunk(cx,c.width,c.height,c.dataset.junk,c.dataset.known==='1'?null:'#1d3a44'); });
+  paintFish(P); P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
 }
 function renderMap(P){
   P.innerHTML=`<h2>Waters</h2><p class="sub">Unlock new waters with coins once you have found ${LOCS[1].need} species in the one before. Each has ${spAt('pond').length} fish of its own, its own junk and treasure, and is tougher than the last.</p><div class="grid">`+
@@ -209,22 +209,25 @@ function renderVoyage(){ const n=pearlsFor(), ok=canRetire();
 // ---------- wardrobe ----------
 function shopOffers(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN);
   const pool=[...SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), ...PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' shirt',price:p[2]})), ...HATS.filter(h=>h.src==='shop').map(h=>({kind:'hat',id:h.id,name:h.name,price:h.price})),
-    ...OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), ...GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]}))];
-  const out=[], idx=[...pool.keys()]; let h=hashStr('shop'+slot); while(out.length<6&&idx.length){ h=Math.imul(h^(h>>>13),1597334677)>>>0; out.push(pool[idx.splice(h%idx.length,1)[0]]); } return out; }
-const ownedOffer = o => o.kind==='col'?S.owned.cols.includes(o.id):o.kind==='pat'?S.owned.pats.includes(o.id):o.kind==='out'?S.owned.outfits.includes(o.id):o.kind==='gls'?S.owned.glasses.includes(o.id):S.owned.hats.includes(o.id);
+    ...OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), ...GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]})),
+    ...SHOES.filter(x=>x[3]==='shop').map(x=>({kind:'shoe',id:x[0],name:x[1],price:x[2]})), ...NECKS.filter(x=>x[3]==='shop').map(x=>({kind:'neck',id:x[0],name:x[1],price:x[2]})), ...BACKS.filter(x=>x[3]==='shop').map(x=>({kind:'back',id:x[0],name:x[1],price:x[2]}))];
+  const out=[], idx=[...pool.keys()]; let h=hashStr('shop'+slot); while(out.length<8&&idx.length){ h=Math.imul(h^(h>>>13),1597334677)>>>0; out.push(pool[idx.splice(h%idx.length,1)[0]]); } return out; }
+const ownedOffer = o => o.kind==='shoe'?S.owned.shoes.includes(o.id):o.kind==='neck'?S.owned.necks.includes(o.id):o.kind==='back'?S.owned.backs.includes(o.id):o.kind==='col'?S.owned.cols.includes(o.id):o.kind==='pat'?S.owned.pats.includes(o.id):o.kind==='out'?S.owned.outfits.includes(o.id):o.kind==='gls'?S.owned.glasses.includes(o.id):S.owned.hats.includes(o.id);
 function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
   const sw=(k,list)=>`<div class="chips">${list.map(cl=>`<button class="sw" data-act="look" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pats=PATTERNS.filter(p=>S.owned.pats.includes(p[0])).map(p=>`<button class="chipb" data-act="look" data-k="pat" data-v="${p[0]}" aria-pressed="${lk.pat===p[0]}">${p[1]}</button>`).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('');
   const offers=shopOffers().map(o=>{ const own=ownedOffer(o); return `<div class="tile offer" style="flex-direction:row;align-items:center;gap:10px"><canvas width="128" height="128" data-offer="${o.kind}:${o.id}"></canvas>
-    <div style="min-width:0;flex:1"><h4>${esc(o.name)}</h4><div class="meta">${o.kind==='col'?'Colour for shirts, trousers and hats':o.kind==='pat'?'Shirt pattern':'Hat'}</div>
+    <div style="min-width:0;flex:1"><h4>${esc(o.name)}</h4><div class="meta">${o.kind==='col'?'Colour for shirts, trousers and hats':o.kind==='pat'?'Shirt pattern':o.kind==='shoe'?'Shoes':o.kind==='neck'?'Neckwear':o.kind==='back'?'Worn on your back':o.kind==='out'?'Outfit':o.kind==='gls'?'Glasses':'Hat'}</div>
     ${own?'<button class="btn alt sm" disabled>Owned</button>':`<div class="row" style="gap:4px"><button class="btn alt sm" data-act="tryon" data-k="${o.kind}:${o.id}">${PREVIEW&&PREVIEW.kind===o.kind&&PREVIEW.id===o.id?'Wearing it':'Try on'}</button><button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button></div>`}</div></div>`; }).join('');
   const fishHats=HATS.filter(h=>h.src==='fish'), gotFish=fishHats.filter(h=>S.owned.hats.includes(h.id)).length;
   P.innerHTML=`<h2>Wardrobe</h2><p class="sub">Dress your angler. New colours, patterns and hats rotate through the clothing shop, and rare hats can be fished out of the water (${gotFish} of ${fishHats.length} found).</p>
   <div class="stylewrap"><div class="preview">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div>
     <h5>Body</h5><div class="chips"><button class="chipb" data-act="look" data-k="g" data-v="m" aria-pressed="${lk.g==='m'}">Man</button><button class="chipb" data-act="look" data-k="g" data-v="f" aria-pressed="${lk.g==='f'}">Woman</button></div>
+    <h5>Build</h5><div class="chips">${BUILDS.map(([k,n])=>`<button class="chipb" data-act="look" data-k="build" data-v="${k}" aria-pressed="${(lk.build||'average')===k}">${n}</button>`).join('')}</div>
     <h5>Skin</h5>${sw('skin',SKINS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${SKINS[i]}"`).replace(/aria-pressed="(true|false)"/g,(m)=>m)}
     <h5>Hair</h5>${sw('hair',HAIRS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${HAIRS[i]}"`)}
+    <h5>Eyes</h5><div class="chips">${EYES.map(([cl,n],i)=>`<button class="sw" data-act="look" data-k="eye" data-v="${i}" aria-pressed="${(lk.eye|0)===i}" style="background:${cl}" title="${n}"></button>`).join('')}</div>
     <h5>Hairstyle</h5><div class="chips">${HAIRSTYLES.map(([k,n])=>`<button class="chipb" data-act="look" data-k="hairStyle" data-v="${k}" aria-pressed="${(lk.hairStyle||'auto')===k}">${n}</button>`).join('')}</div>
     <h5>Facial hair</h5><div class="chips">${BEARDS.map(([k,n])=>`<button class="chipb" data-act="look" data-k="beard" data-v="${k}" aria-pressed="${(lk.beard||'none')===k}">${n}</button>`).join('')}</div>
     <h5>Glasses</h5><div class="chips">${GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="glasses" data-v="${k}" aria-pressed="${(lk.glasses||'none')===k}">${n}</button>`).join('')}</div>
@@ -232,16 +235,21 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
     <h5>Outfit</h5><div class="chips">${OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="outfit" data-v="${k}" aria-pressed="${(lk.outfit||'none')===k}">${n}</button>`).join('')}</div>
     ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
     <h5>Trousers</h5>${sw('pants',cols)}
+    <h5>Shoes</h5><div class="chips">${SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="shoes" data-v="${k}" aria-pressed="${(lk.shoes||'boots')===k}">${n}</button>`).join('')}</div>
+    <h5>Neckwear</h5><div class="chips">${NECKS.filter(x=>S.owned.necks.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="neck" data-v="${k}" aria-pressed="${(lk.neck||'none')===k}">${n}</button>`).join('')}</div>
+    <h5>On your back</h5><div class="chips">${BACKS.filter(x=>S.owned.backs.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="back" data-v="${k}" aria-pressed="${(lk.back||'none')===k}">${n}</button>`).join('')}</div>
+    ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory colour</h5>'+sw('accCol',cols):''}
     <h5>Hat</h5><div class="hatgrid">${hats}</div>
     <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${sw('hatCol',cols)}
   </div></div>
   <div class="jsec"><div class="row spread"><h2>Clothing shop</h2><span class="sub">New stock in <b id="shopleft">${mmss(Math.ceil(SHOP_LEN-(Date.now()/1000%SHOP_LEN)))}</b></span></div><div class="grid">${offers}</div></div>`;
-  P.querySelectorAll('.sw[data-k="skin"],.sw[data-k="hair"]').forEach(b=>{ b.setAttribute('aria-pressed', String(String(lk[b.dataset.k])===b.dataset.v)); });
+  P.querySelectorAll('.sw[data-k="skin"],.sw[data-k="hair"],.sw[data-k="eye"]').forEach(b=>{ b.setAttribute('aria-pressed', String(String(lk[b.dataset.k])===b.dataset.v)); });
   drawLookPreview();
   P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
   P.querySelectorAll('canvas[data-offer]').forEach(c=>{ const [kind,id]=c.dataset.offer.split(':'); const cx=c.getContext('2d'); cx.clearRect(0,0,128,128);
     if(kind==='col'){ cx.fillStyle=id; cx.beginPath(); cx.arc(64,64,42,0,7); cx.fill(); cx.strokeStyle='#23434e'; cx.lineWidth=3; cx.stroke(); }
     else if(kind==='pat'){ cx.save(); cx.translate(64,20); cx.scale(4,4); cx.fillStyle=lk.shirt; cx.beginPath(); cx.moveTo(-9,0); cx.lineTo(9,0); cx.lineTo(8,24); cx.lineTo(-8,24); cx.closePath(); cx.fill(); cx.clip(); drawPattern(cx,id,lk.shirt,-10,-1,20,26); cx.restore(); }
+    else if(kind==='shoe'||kind==='neck'||kind==='back') wearPreview(cx,kind,id,128,128);
     else if(kind==='out') drawAngler(cx,64,124,1.75,Object.assign({},lk,{outfit:id,hat:'none'}),{});
     else if(kind==='gls'){ cx.save(); cx.translate(64,150); cx.scale(2.4,2.4); drawAngler(cx,0,0,1,Object.assign({},lk,{glasses:id,hat:'none'}),{}); cx.restore(); }
     else hatPreview(cx,128,128,id,lk.hatCol); });
@@ -262,7 +270,7 @@ function renderPets(P){ const pp=PETI[S.pet];
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();
   P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
-    else { cx.globalAlpha=.9; cx.filter='brightness(0) opacity(.5)'; drawPet(cx,c.dataset.pet,120,128,c.dataset.pet==='horse'?2.6:4.4,0); cx.filter='none'; cx.globalAlpha=1; } });
+    else mysteryThumb(cx,c.width,c.height,c.dataset.pet); });
 }
 
 // ---------- save codes ----------
@@ -317,10 +325,10 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': encLoc=k; encSel=null; break;
     case 'enc': encSel = encSel===k ? null : k; break;
-    case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair') S.look[k]=+v; else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
+    case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }
     case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++; PREVIEW=null;
-      if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
+      if(kind==='shoe'){ S.owned.shoes.push(id); S.look.shoes=id; } else if(kind==='neck'){ S.owned.necks.push(id); S.look.neck=id; } else if(kind==='back'){ S.owned.backs.push(id); S.look.back=id; } else if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
     case 'pet': if(S.owned.pets.includes(k)){ setFav(k); } break;
     case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); setFav(k); sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
     default: { if(extraAct(b)==='skip') return; }
