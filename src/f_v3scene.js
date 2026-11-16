@@ -278,6 +278,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
     for(const [f,rw,rh] of [[.14,.16,.38],[.3,.2,.7],[.5,.24,.95],[.68,.19,.66],[.84,.15,.42],[.42,.3,.4],[.7,.28,.3]]) g.ellipse(cx+cw*f,cy-chh*rh*.35,cw*rw,chh*rh*.75,0,0,7);
     g.fill(); g.restore();
     g.fillStyle=v3rgba(P.cloudLit,.75*(1-gloom*.5)); g.beginPath(); g.moveTo(cx+cw*.05,cy); g.quadraticCurveTo(cx+cw*.5,cy+chh*.16,cx+cw*.95,cy); g.quadraticCurveTo(cx+cw*.5,cy-chh*.12,cx+cw*.05,cy); g.fill(); }
+  if(SC.sky) SC.sky(P,t,hz);
   // the still land and water, from the cache
   g.drawImage(v3land(L,P,hz),0,0,W,H);
   SC.live(P,t,hz,{x:sx,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
