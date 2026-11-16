@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0255';
+window.DL_VERSION='2026.11.16-0301';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -65,6 +65,7 @@ button,select{font:inherit;color:inherit}
 .spec b{font-family:var(--display);font-size:15px}
 .spec .up{color:var(--kelp);font-size:13px}
 .spec .down{color:#ff8a8a;font-size:13px}
+.pvbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-bottom:8px;border-radius:10px;background:#ffc94d1a;border:1px solid #ffc94d66;font-size:13.5px}
 .prize{padding:6px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
 /* HUD: fixed grid cells, so nothing appearing or changing inside it can move the game window */
 .hud{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));align-items:stretch;gap:8px}
@@ -743,7 +744,9 @@ const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','
 const SHOP_COLS = [['#39ff88','Neon Green',700],['#ff3fa4','Hot Pink',700],['#ffb21a','Safety Orange',500],['#5ad8ff','Sky Blue',500],['#ffd700','Gold Lamé',6000],
   ['#b0b8c0','Chrome',4000],['#7a0f1f','Burgundy',900],['#0f5a4a','Deep Teal',900],['#f8f6f0','Snow White',800],['#111114','Midnight Black',1200],['#9b59ff','Ultraviolet',1500],['#c9a26b','Khaki',400]];
 const PATTERNS = [['none','Plain',0],['stripes','Sailor Stripes',1200],['flannel','Flannel Check',1800],['polka','Polka Dots',1500],['camo','Camo',2500],
-  ['hawaii','Hawaiian Flowers',3500],['fishprint','Fish Print',5000],['flames','Flames',8000],['tux','Tuxedo',12000]];
+  ['hawaii','Hawaiian Flowers',3500],['fishprint','Fish Print',5000],['flames','Flames',8000],['tux','Tuxedo',12000],
+  ['pinstripe','Pinstripes',900],['checker','Checkerboard',1400],['zigzag','Zigzag',1600],['hearts','Little Hearts',1700],['stars','Stars',2000],['waves','Ocean Waves',2200],['plaid','Tartan',2400],
+  ['fishbones','Fish Bones',2800],['leopard','Leopard',3200],['tiedye','Tie-dye',3800],['pixel','Pixel Art',4400],['sunset','Sunset Fade',5200],['galaxy','Galaxy',7500],['sixseven','6-7 Print',6700]];
 const SKINS = ['#f6d7b8','#e8b98f','#c98d5f','#9a6440','#6b4128'];
 const HAIRS = ['#2a1d14','#5a3a22','#a8742e','#e8cd80','#b8b8b8','#c0402a'];
 const SHOP_LEN = 600; // seconds per clothing-shop rotation
@@ -1396,6 +1399,7 @@ function drawPattern(c,pat,base,x,y,w,h){
     case 'hawaii': for(let i=0;i<7;i++){ const xx=x+((i*37)%100)/100*w, yy=y+((i*53)%100)/100*h; c.fillStyle='#3a8a4a'; c.beginPath(); c.ellipse(xx+2,yy+1,2.4,1,.6,0,7); c.fill(); c.fillStyle=['#ff6a8a','#ffd84a','#ffffff'][i%3]; c.beginPath(); c.arc(xx,yy,1.6,0,7); c.fill(); } break;
     case 'fishprint': for(let i=0;i<6;i++){ const xx=x+2+((i*41)%90)/100*w, yy=y+3+((i*57)%85)/100*h; drawFish(c,xx,yy,6,'rgba(255,255,255,.8)','rgba(255,255,255,.8)',.4,0,i%2===1,{}); } break;
     case 'flames': c.fillStyle='#ff7a1a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx-1.5,y+h-9-((i*5)%5)); c.lineTo(xx+1.5,y+h-3); } c.lineTo(x+w,y+h); c.fill(); c.fillStyle='#ffd84a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx,y+h-5-((i*3)%3)); c.lineTo(xx+1.5,y+h-1); } c.lineTo(x+w,y+h); c.fill(); break;
+    default: drawPatternX(c,pat,base,x,y,w,h); break;
     case 'tux': c.fillStyle='#f4f4f2'; c.beginPath(); c.moveTo(x+w/2-3.5,y); c.lineTo(x+w/2+3.5,y); c.lineTo(x+w/2+1.5,y+h); c.lineTo(x+w/2-1.5,y+h); c.fill(); c.fillStyle='#c8303a'; c.beginPath(); c.moveTo(x+w/2-3,y+1); c.lineTo(x+w/2+3,y+3.5); c.lineTo(x+w/2+3,y+1); c.lineTo(x+w/2-3,y+3.5); c.fill(); break;
   }
 }
@@ -1689,15 +1693,15 @@ const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
 const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
 function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
-function drawTankBack(c,w,h,t){ const th=THEMES.find(x=>x[0]===S.aq.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===S.aq.sand)||SANDS[0];
+function drawTankBack(c,w,h,t){ const V=aqView(); const th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0];
   const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,th[3]); bg.addColorStop(1,th[4]); c.fillStyle=bg; c.fillRect(0,0,w,h);
   for(let i=0;i<5;i++){ c.fillStyle='rgba(180,230,255,.05)'; c.beginPath(); const x=(i*w/4+Math.sin(t*.3+i)*30); c.moveTo(x,0); c.lineTo(x+40,0); c.lineTo(x-20,h); c.lineTo(x-70,h); c.fill(); }
-  if(S.aq.theme==='abyss'||S.aq.theme==='midnight'){ for(let i=0;i<20;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } }
+  if(V.theme==='abyss'||V.theme==='midnight'){ for(let i=0;i<20;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } }
   c.fillStyle=sd[3]; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=20) c.lineTo(x,h-14-Math.sin(x*.04)*5); c.lineTo(w,h); c.fill();
-  if(S.aq.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
+  if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
-  const ds=S.aq.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(S.aq.decor.includes('duck')) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
+function drawTankFront(c,w,h,t){ if(aqView().decor.includes('duck')) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };
@@ -1896,6 +1900,8 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
   const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
+  const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
+  if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
     case 'mstyle': S.settings.style=k; return;
@@ -1916,12 +1922,12 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   }
   return 'skip'; }
 function aqCustomHTML(){ const fedLeft=Math.max(0,3600000-(Date.now()-S.fedT));
-  const chip=(act,list,cur)=>list.map(x=>{ const own=S.aq.owned.includes(x[0]); return `<button class="chipb" data-act="${act}" data-k="${x[0]}" aria-pressed="${cur===x[0]}" ${!own&&S.money<x[2]?'disabled':''}><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x[3]};margin-right:6px;vertical-align:-1px"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
-  return `<div class="jsec"><div class="row spread"><h2>Decorate</h2><button class="btn ${fedLeft?'alt':''} sm" data-act="feed" ${fedLeft?'disabled':''}>${fedLeft?'Fed. Hungry again in '+Math.ceil(fedLeft/60000)+' min':'Feed your fish (+25% income, 30 min)'}</button></div>
+  const chip=(act,list,cur)=>list.map(x=>{ const own=S.aq.owned.includes(x[0]); const pvk=act==='aqtheme'?'theme':'sand'; const pv=AQ_PV&&AQ_PV.kind===pvk&&AQ_PV.id===x[0]; return `<button class="chipb" data-act="${own?act:'aqpv'}" data-k="${own?x[0]:pvk+':'+x[0]}" aria-pressed="${cur===x[0]||pv}" title="${own?'':'Preview first, then buy'}"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x[3]};margin-right:6px;vertical-align:-1px"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  return `<div class="jsec">${aqPvBarHTML()}<div class="row spread"><h2>Decorate</h2><button class="btn ${fedLeft?'alt':''} sm" data-act="feed" ${fedLeft?'disabled':''}>${fedLeft?'Fed. Hungry again in '+Math.ceil(fedLeft/60000)+' min':'Feed your fish (+25% income, 30 min)'}</button></div>
    <h5>Water</h5><div class="chips">${chip('aqtheme',THEMES,S.aq.theme)}</div><h5>Floor</h5><div class="chips">${chip('aqsand',SANDS,S.aq.sand)}</div>
    <h5>Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used · +${Math.round(decorBonus()*100)}% aquarium income</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DECOR.map(d=>{ const own=S.aq.owned.includes(d.id), placed=S.aq.decor.includes(d.id);
      return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-decor="${d.id}" data-own="${own?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${own||d.price?d.name:'???'}</b><span class="meta">+${Math.round(d.b*100)}% income</span>
-     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button>`:'<span class="meta">Mystery crates only</span>'}</div>`; }).join('')}</div></div>`; }
+     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="aqpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`:'<span class="meta">Mystery crates or prizes only</span>'}</div>`; }).join('')}</div></div>`; }
 function paintDecor(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(c.dataset.own!=='1'&&!DECORI[c.dataset.decor].price){ x.filter='brightness(0) opacity(.45)'; } drawDecor(x,c.dataset.decor,80,c.dataset.decor==='duck'?70:112,1,0); x.filter='none'; }); }
 
 // ---------- music & ambience (all generated live, nothing to download) ----------
@@ -1991,8 +1997,13 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.6';
+const GAME_VERSION = '1.7';
 const PATCHES = [
+ {v:'1.7', name:'Try Before You Buy', items:[
+  'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
+  'Prize Counter items now show a picture, and the wearable ones can be previewed.',
+  '14 new shirt patterns are rotating into the clothing shop.',
+  'The fishing vest, life jacket and captain’s coat can now be any colour.' ]},
  {v:'1.6', name:'Choices & Skies', items:[
   'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
   'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
@@ -2132,7 +2143,7 @@ function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r
   if(lk.acc==='flower'){ const fx=hx-r*.6, fy=hy-r*.75; for(let i=0;i<5;i++){ c.fillStyle='#ff9ad0'; c.beginPath(); c.arc(fx+Math.cos(i*1.26)*r*.28,fy+Math.sin(i*1.26)*r*.28,r*.2,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.15,0,7); c.fill(); }
   if(lk.acc==='glasses'){ c.fillStyle='#111'; c.beginPath(); c.ellipse(hx+r*.25,hy-r*.15,r*.32,r*.22,0,0,7); c.ellipse(hx+r*.85,hy-r*.15,r*.28,r*.2,0,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=r*.1; c.beginPath(); c.moveTo(hx+r*.5,hy-r*.18); c.lineTo(hx+r*.6,hy-r*.18); c.stroke(); }
   c.restore(); }
-function drawPetStyled(c,id,x,y,s,t,night=0){ const lk=petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
+function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_BOX=null, hearts=[], petT=-9999, lastPetAt=0;
 function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc, s=sc*(big?.85:1);
@@ -2151,11 +2162,12 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
-  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="pettint" data-k="${x[0]}" aria-pressed="${lk.tint===x[0]}" ${!own&&S.money<x[2]?'disabled':''}>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
-  const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="petacc" data-k="${x[0]}" aria-pressed="${lk.acc===x[0]}" ${!own&&S.money<x[2]?'disabled':''}>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
+  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
-  return `<div class="tile" style="margin-top:10px"><div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
+  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
     <div class="row spread"><h4>${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}</span></h4><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></div>
     <div class="meta">Bonus: <span class="aq">${fmtB(p.k,petVal(id))}</span>${bl?' (bond +'+bl*5+'%)':''}. ${bl<10?`Pet them to grow closer: ${b?b.xp:0} / ${nextXp}. Up to 25 pets a day count.`:'You’re best friends.'}</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
@@ -2163,7 +2175,7 @@ function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLev
     <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
-function paintPetCustom(){ const c=$('petcv'); if(!c) return; const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,200,250,big?4.2:6.5,performance.now()/1000);
+function paintPetCustom(){ const c=$('petcv'); if(!c) return; const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,200,250,big?4.2:6.5,performance.now()/1000,0,petPreviewLook());
   c.onclick=()=>{ for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); petT=performance.now(); const now=dayKey(); const b=S.bond[S.pet]||(S.bond[S.pet]={xp:0,day:now,today:0}); if(b.day!==now){ b.day=now; b.today=0; } if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1); toast(petName()+' '+quip('pet')+'.'); checkFeats(); save(); }; }
 
 // ---------- daily tasks & gift ----------
@@ -2258,7 +2270,9 @@ function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); 
       <button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmt(base*2)}</span></button>`}</div>
   </div>
   <div class="tile bwt" style="--c:#ffc94d;margin-top:12px"><div class="row spread"><div><h4>Prize counter</h4><div class="meta">Every Boardwalk game hands out tickets. Trade them here for things you can’t get anywhere else.</div></div><b>🎟 ${fmt(S.tickets)}</b></div>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span>${esc(p[1])}</span>${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</div>`; }).join('')}</div></div>`;
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span class="row" style="gap:8px;flex-wrap:nowrap"><canvas width="96" height="80" data-prize="${p[0]}" style="width:48px;height:40px;cursor:default;flex:0 0 auto"></canvas><span>${esc(p[1])}</span></span>
+     <span class="row" style="gap:4px">${!owned&&PRIZE_PV[p[0]]?`<button class="btn alt sm" data-act="prizepv" data-k="${p[0]}">Preview</button>`:''}${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</span></div>`; }).join('')}</div></div>`;
+  paintPrizes(P);
   drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.strokeStyle=ROD_I[crateRes.id].col; x.lineWidth=8; x.lineCap='round'; x.beginPath(); x.moveTo(30,160); x.quadraticCurveTo(120,150,215,30); x.stroke(); }
@@ -2273,8 +2287,8 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'rodatt': { const [si,a]=k.split(':'); const id=S.rods.eq, list=(S.rods.att[id]||[]).slice(); list[+si]=a||''; S.rods.att[id]=list.slice(0,rod().slots); return 'render'; }
     case 'attbuy': { const t=S.atts[k]||0; if(t>=3) return 'skip'; const c=ATT_COST[t]; if(S.money<c[0]||S.scales<c[1]) return 'skip'; S.money-=c[0]; S.scales-=c[1]; S.atts[k]=t+1; sfx.coin(); toast(ATT_I[k].name+' tier '+(t+1)+'!');
       const cur=S.rods.att[S.rods.eq]||[]; if(!t && cur.filter(Boolean).length<rod().slots && !cur.includes(k)){ const l=cur.slice(); const free=l.findIndex(x=>!x); if(free>=0) l[free]=k; else l.push(k); S.rods.att[S.rods.eq]=l.slice(0,rod().slots); } return 'render'; }
-    case 'pettint': { const tt=PET_TINTS.find(x=>x[0]===k); if(!tt) return 'skip'; if(!S.petTints.includes(k)){ if(!tt[2]||S.money<tt[2]) return 'skip'; S.money-=tt[2]; S.petTints.push(k); sfx.coin(); } petLook().tint=k; return 'render'; }
-    case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
+    case 'pettint': { const tt=PET_TINTS.find(x=>x[0]===k); if(!tt) return 'skip'; PET_PV=null; if(!S.petTints.includes(k)){ if(!tt[2]||S.money<tt[2]) return 'skip'; S.money-=tt[2]; S.petTints.push(k); sfx.coin(); } petLook().tint=k; return 'render'; }
+    case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
     case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
@@ -2290,7 +2304,8 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); addTickets(3); tone(900+hilo.streak*100,.1,'triangle',.06); if(hilo.streak>=8){ earn(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' coins.'; sfx.catch(4); } }
       else { hilo.done=true; hilo.msg=prev+' → '+n+'. Wrong way! The pot sinks to the bottom of the sea.'; addTickets(2); sfx.lost(); } return 'render'; }
     case 'hilocash': { if(!hilo||hilo.done||!hilo.streak) return 'skip'; earn(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' coins after '+hilo.streak+' right guesses.'; sfx.coin(); return 'render'; }
-    case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
+    case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); PREVIEW=null; PET_PV=null; AQ_PV=null;
+      if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }
   return undefined; }
 
@@ -2330,17 +2345,17 @@ function drawFace(c,lk,D,hair){ const b=lk.beard||'none', gl=lk.glasses||'none';
     case 'monocle': c.strokeStyle='#ffcc33'; c.lineWidth=.8; c.beginPath(); c.arc(ex,ey,2.2,0,7); c.stroke(); c.beginPath(); c.moveTo(ex,ey+2.2); c.quadraticCurveTo(ex-1,ey+6,ex-3,ey+8); c.stroke(); break;
     case 'pixel': c.fillStyle='#111'; c.fillRect(ex-3,ey-1.4,6,1.4); c.fillRect(ex-2.4,ey,2,1.2); c.fillRect(ex+.6,ey,2,1.2); c.fillRect(-1,ey-1.4,2,1); c.fillStyle='#fff'; c.fillRect(ex-1.8,ey,.7,.6); c.fillRect(ex+1.2,ey,.7,.6); break;
   } }
-function sleeveCol(lk,D){ const o=lk.outfit; if(o==='raincoat'||o==='hoodie'||o==='puffer') return D(lk.outCol||'#d8a020'); if(o==='wetsuit') return D('#1a1a22'); if(o==='captain') return D('#1a2a4a'); if(o==='spacesuit') return D('#e8ecf0'); return null; }
+function sleeveCol(lk,D){ const o=lk.outfit; if(o==='raincoat'||o==='hoodie'||o==='puffer') return D(lk.outCol||'#d8a020'); if(o==='wetsuit') return D('#1a1a22'); if(o==='captain') return D(lk.outCol||'#1a2a4a'); if(o==='spacesuit') return D('#e8ecf0'); return null; }
 function drawOutfit(c,lk,D){ const o=lk.outfit||'none'; if(o==='none') return; const oc=D(lk.outCol||'#d8a020'); const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); };
   switch(o){
-    case 'vest': R(-8,-46,5,22,D('#6a7a4a')); R(3,-46,5,22,D('#6a7a4a')); R(-7.5,-38,4,4,D('#5a6a3a')); R(3.5,-38,4,4,D('#5a6a3a')); R(-7.5,-31,4,4,D('#5a6a3a')); R(3.5,-31,4,4,D('#5a6a3a')); break;
-    case 'lifejacket': R(-8.5,-46,6,21,D('#ff7a1a')); R(2.5,-46,6,21,D('#ff7a1a')); R(-8.5,-36,17,2,D('#2a2a2a')); R(-8.5,-30,17,2,D('#2a2a2a')); R(-1,-37,2,4,D('#c8c8c8')); break;
+    case 'vest': { const pk=D(mix(lk.outCol||'#6a7a4a','#000000',.2)); R(-8,-46,5,22,oc); R(3,-46,5,22,oc); R(-7.5,-38,4,4,pk); R(3.5,-38,4,4,pk); R(-7.5,-31,4,4,pk); R(3.5,-31,4,4,pk); break; }
+    case 'lifejacket': R(-8.5,-46,6,21,oc); R(2.5,-46,6,21,oc); R(-8.5,-36,17,2,D('#2a2a2a')); R(-8.5,-30,17,2,D('#2a2a2a')); R(-1,-37,2,4,D('#c8c8c8')); break;
     case 'raincoat': c.fillStyle=oc; c.beginPath(); c.moveTo(-8.6,-46); c.lineTo(8.6,-46); c.lineTo(9.5,-18); c.lineTo(-9.5,-18); c.closePath(); c.fill(); R(-.4,-44,.8,25,D(mix(lk.outCol||'#d8a020','#000000',.25))); for(let i=0;i<4;i++) R(1,-42+i*6,1.4,1.4,D('#333')); c.fillStyle=oc; c.beginPath(); c.moveTo(-6,-47); c.lineTo(0,-43); c.lineTo(6,-47); c.lineTo(5,-49); c.lineTo(-5,-49); c.fill(); break;
     case 'hoodie': c.fillStyle=oc; c.beginPath(); c.moveTo(-8.4,-46); c.lineTo(8.4,-46); c.lineTo(8,-22); c.lineTo(-8,-22); c.closePath(); c.fill(); c.beginPath(); c.ellipse(-4,-47.5,5,3,-.3,0,7); c.fill(); R(-4,-32,8,5,D(mix(lk.outCol||'#d8a020','#000000',.2))); c.strokeStyle=D('#f4f4f4'); c.lineWidth=.6; c.beginPath(); c.moveTo(1,-45); c.lineTo(1.4,-39); c.moveTo(3,-45); c.lineTo(3.4,-40); c.stroke(); break;
     case 'overalls': { const den=oc; R(-7,-22,6,18,den); R(1,-22,6,18,den); R(-7,-25,14,5,den); R(-5,-36,10,12,den); R(-6,-46,2,11,den); R(4,-46,2,11,den); R(-5,-37,1.6,1.6,D('#ffcc33')); R(3.4,-37,1.6,1.6,D('#ffcc33')); R(-2,-32,4,3,D(mix(lk.outCol||'#3a6f9a','#000000',.25))); break; }
     case 'puffer': c.fillStyle=oc; c.beginPath(); c.moveTo(-9.5,-46); c.lineTo(9.5,-46); c.lineTo(9.5,-21); c.lineTo(-9.5,-21); c.closePath(); c.fill(); c.strokeStyle=D(mix(lk.outCol||'#d8a020','#000000',.25)); c.lineWidth=.8; for(let y=-41;y<-21;y+=5){ c.beginPath(); c.moveTo(-9.5,y); c.lineTo(9.5,y); c.stroke(); } R(-.4,-46,.8,25,D('#ddd')); break;
     case 'wetsuit': { const w=D('#1a1a22'); R(-8,-46,16,24,w); R(-7,-25,14,5,w); R(-7,-22,6,18,w); R(1,-22,6,18,w); R(-8,-40,16,2,oc); R(-7,-12,6,1.6,oc); R(1,-12,6,1.6,oc); break; }
-    case 'captain': { const n=D('#1a2a4a'); c.fillStyle=n; c.beginPath(); c.moveTo(-8.8,-46); c.lineTo(8.8,-46); c.lineTo(9.6,-16); c.lineTo(-9.6,-16); c.closePath(); c.fill(); for(let i=0;i<4;i++){ R(-3,-42+i*6,1.6,1.6,D('#ffcc33')); R(1.6,-42+i*6,1.6,1.6,D('#ffcc33')); } R(5,-46,4,1.6,D('#ffcc33')); R(5,-43.6,4,1.6,D('#ffcc33')); break; }
+    case 'captain': { const n=oc; c.fillStyle=n; c.beginPath(); c.moveTo(-8.8,-46); c.lineTo(8.8,-46); c.lineTo(9.6,-16); c.lineTo(-9.6,-16); c.closePath(); c.fill(); for(let i=0;i<4;i++){ R(-3,-42+i*6,1.6,1.6,D('#ffcc33')); R(1.6,-42+i*6,1.6,1.6,D('#ffcc33')); } R(5,-46,4,1.6,D('#ffcc33')); R(5,-43.6,4,1.6,D('#ffcc33')); break; }
     case 'spacesuit': { const s=D('#e8ecf0'); R(-8.6,-46,17.2,25,s); R(-7.5,-25,15,5,s); R(-7.5,-22,6.6,18,s); R(.9,-22,6.6,18,s); R(-4,-40,8,6,D('#5a6a7a')); R(-3,-39,2,2,D('#ff4a4a')); R(.5,-39,2,2,D('#4aff8a')); R(-8.6,-27,17.2,2,D('#c8553a')); break; }
   } }
 
@@ -2529,6 +2544,71 @@ function extraAct3(b){ const k=b.dataset.k;
     case 'spec': { const [ti,id]=k.split(':'); const T=SPEC_TIERS[+ti]; if(!T||S.lvl<T.lvl) return 'skip'; const cur=S.specs[ti]; if(cur===id) return 'skip'; if(cur){ const fee=specFee(+ti); if(S.money<fee) return 'skip'; S.money-=fee; }
       S.specs[ti]=id; sfx.catch(3); toast('Specialisation: '+T.opts.find(o=>o[0]===id)[1]+'.'); return 'render'; }
     case 'relic': { const r=RELICS.find(x=>x.id===k); if(!r||relic(k)||S.pearls<r.cost) return 'skip'; S.pearls-=r.cost; S.relics.push(k); sfx.shiny(); toast('Relic gained: '+r.name+'. It’s yours forever.'); return 'render'; }
+  }
+  return undefined; }
+
+// =====================================================================
+// Update 1.7: try before you buy (wardrobe, pets, aquarium, prizes),
+// more shirt patterns
+// =====================================================================
+let PREVIEW=null, PET_PV=null, AQ_PV=null; // what's being tried on right now (never saved)
+const PV_KIND_NAME = {col:'colour', pat:'shirt pattern', hat:'hat', out:'outfit', gls:'glasses'};
+function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return lk; const {kind,id}=PREVIEW;
+  if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; return lk; }
+function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
+  const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="buyoffer" data-k="${p.kind}:${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
+  return `<div class="pvbar"><span>Trying on: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="tryoff">Take off</button></span></div>`; }
+function petPreviewLook(id=S.pet){ const lk=Object.assign({},petLook(id)); if(PET_PV) lk[PET_PV.kind]=PET_PV.id; return lk; }
+function petPvBarHTML(){ if(!PET_PV) return ''; const p=PET_PV;
+  const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='tint'?'pettint':'petacc'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
+  return `<div class="pvbar"><span>Previewing: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="petpvoff">Stop</button></span></div>`; }
+function aqView(){ const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.slice()}; if(!AQ_PV) return v;
+  if(AQ_PV.kind==='theme') v.theme=AQ_PV.id; else if(AQ_PV.kind==='sand') v.sand=AQ_PV.id; else if(!v.decor.includes(AQ_PV.id)) v.decor.push(AQ_PV.id); return v; }
+function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
+  const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='theme'?'aqtheme':p.kind==='sand'?'aqsand':'decor'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
+  return `<div class="pvbar"><span>Previewing in your tank: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="aqpvoff">Stop</button></span></div>`; }
+// prize counter thumbnails
+function paintPrizes(P){ P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const x=c.getContext('2d'), id=c.dataset.prize; x.clearRect(0,0,c.width,c.height); const t=0;
+  const pet=(lk)=>drawPetStyled(x,S.pet,48,70,S.pet==='horse'||S.pet==='cow'?1.6:2.6,t,0,Object.assign({},petLook(),lk));
+  if(id==='teddy') drawPet(x,'teddy',48,72,3,t); else if(id==='carousel') drawDecor(x,'carousel',48,74,.55,t); else if(id==='golden'||id==='rainbow') pet({tint:id}); else if(id==='balloon'||id==='partyhat') pet({acc:id});
+  else if(id==='sixsevencap'||id==='carnival'||id==='fishbowl') hatPreview(x,96,80,id,S.look.hatCol); else if(id==='spacesuit') drawAngler(x,48,78,1.05,Object.assign({},S.look,{outfit:'spacesuit',hat:'none'}),{});
+  else if(id==='crate') drawJunk(x,96,80,'chest'); else if(id==='myth') drawJunk(x,96,80,'goldlure'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(48+Math.cos(a)*22,40+Math.sin(a)*22); } x.fill(); x.fillStyle='#0a161d'; x.font='800 14px system-ui'; x.textAlign='center'; x.fillText('10',48,45); } }); }
+const PRIZE_PV = {sixsevencap:['hat','sixsevencap'], carnival:['hat','carnival'], fishbowl:['hat','fishbowl'], spacesuit:['out','spacesuit'], golden:['pet','tint'], rainbow:['pet','tint'], balloon:['pet','acc'], partyhat:['pet','acc'], carousel:['aq','decor']};
+
+// ---------- more shirt patterns ----------
+function drawPatternX(c,pat,base,x,y,w,h){ const dk='rgba(0,0,0,.3)', lt='rgba(255,255,255,.75)';
+  switch(pat){
+    case 'pinstripe': c.fillStyle=lt; for(let xx=x+1.5;xx<x+w;xx+=3.2) c.fillRect(xx,y,.6,h); break;
+    case 'checker': c.fillStyle=dk; for(let yy=y,r=0;yy<y+h;yy+=3.5,r++) for(let xx=x+(r%2)*3.5;xx<x+w;xx+=7) c.fillRect(xx,yy,3.5,3.5); break;
+    case 'zigzag': c.strokeStyle=lt; c.lineWidth=1.1; for(let yy=y+3;yy<y+h;yy+=5){ c.beginPath(); for(let xx=x,i=0;xx<=x+w;xx+=2.5,i++) c.lineTo(xx,yy+(i%2?1.6:-1.6)); c.stroke(); } break;
+    case 'hearts': c.fillStyle='#ff5a8a'; for(let i=0;i<10;i++){ const hx=x+2+((i*37)%90)/100*w, hy=y+3+((i*53)%85)/100*h; c.beginPath(); c.moveTo(hx,hy+1.4); c.bezierCurveTo(hx-2,hy,hx-1,hy-1.6,hx,hy-.6); c.bezierCurveTo(hx+1,hy-1.6,hx+2,hy,hx,hy+1.4); c.fill(); } break;
+    case 'stars': c.fillStyle='#ffe066'; for(let i=0;i<9;i++){ const sx=x+2+((i*41)%90)/100*w, sy=y+3+((i*59)%85)/100*h; c.beginPath(); for(let k=0;k<10;k++){ const a=-Math.PI/2+k*Math.PI/5, r=k%2?.7:1.7; c.lineTo(sx+Math.cos(a)*r,sy+Math.sin(a)*r); } c.fill(); } break;
+    case 'waves': c.strokeStyle=lt; c.lineWidth=1; for(let yy=y+3;yy<y+h;yy+=4.5){ c.beginPath(); for(let xx=x;xx<=x+w;xx+=1) c.lineTo(xx,yy+Math.sin(xx*.9)*1.1); c.stroke(); } break;
+    case 'plaid': c.fillStyle='rgba(200,40,40,.35)'; for(let xx=x;xx<x+w;xx+=6) c.fillRect(xx,y,2.4,h); for(let yy=y;yy<y+h;yy+=6) c.fillRect(x,yy,w,2.4); c.fillStyle='rgba(255,220,90,.5)'; for(let xx=x+4;xx<x+w;xx+=6) c.fillRect(xx,y,.6,h); for(let yy=y+4;yy<y+h;yy+=6) c.fillRect(x,yy,w,.6); break;
+    case 'fishbones': c.strokeStyle=lt; c.lineWidth=.6; for(let i=0;i<5;i++){ const fx=x+3+((i*43)%80)/100*w, fy=y+4+((i*61)%80)/100*h; c.beginPath(); c.moveTo(fx-3,fy); c.lineTo(fx+3,fy); for(let k=-2;k<=1;k++){ c.moveTo(fx+k*1.3,fy-1.4); c.lineTo(fx+k*1.3,fy+1.4); } c.moveTo(fx+3,fy); c.arc(fx+3.6,fy,.8,0,7); c.stroke(); } break;
+    case 'leopard': for(let i=0;i<16;i++){ const lx=x+((i*37)%100)/100*w, ly=y+((i*53)%100)/100*h; c.fillStyle='rgba(60,30,10,.75)'; c.beginPath(); c.ellipse(lx,ly,1.6,1.2,i,0,7); c.fill(); c.fillStyle='rgba(200,140,60,.6)'; c.beginPath(); c.arc(lx,ly,.6,0,7); c.fill(); } break;
+    case 'tiedye': { const gr=c.createRadialGradient(x+w/2,y+h*.45,1,x+w/2,y+h*.45,w); ['#ff5a8a','#ffd84a','#5ad8a0','#5aa9ff','#c38bff','#ff5a8a'].forEach((cl,i)=>gr.addColorStop(i/5,cl)); c.globalAlpha*=.75; c.fillStyle=gr; c.fillRect(x,y,w,h); c.globalAlpha/=.75; break; }
+    case 'pixel': for(let yy=y;yy<y+h;yy+=3) for(let xx=x;xx<x+w;xx+=3){ const v=(Math.floor(xx*7+yy*13))%5; if(v<2){ c.fillStyle=v?'rgba(255,255,255,.35)':'rgba(0,0,0,.3)'; c.fillRect(xx,yy,3,3); } } break;
+    case 'sunset': { const gr=c.createLinearGradient(0,y,0,y+h); gr.addColorStop(0,'#ff9a5a'); gr.addColorStop(.5,'#ff5a8a'); gr.addColorStop(1,'#6a4ad8'); c.globalAlpha*=.8; c.fillStyle=gr; c.fillRect(x,y,w,h); c.globalAlpha/=.8; break; }
+    case 'galaxy': c.fillStyle='rgba(20,10,50,.75)'; c.fillRect(x,y,w,h); c.fillStyle='rgba(160,90,255,.45)'; c.beginPath(); c.ellipse(x+w*.5,y+h*.5,w*.45,h*.18,-.5,0,7); c.fill(); c.fillStyle='#fff'; for(let i=0;i<14;i++) c.fillRect(x+((i*37)%100)/100*w,y+((i*61)%100)/100*h,.7,.7); break;
+    case 'sixseven': c.fillStyle='rgba(255,224,90,.85)'; c.font='800 4px system-ui'; for(let yy=y+4,r=0;yy<y+h;yy+=5,r++) for(let xx=x+(r%2)*3;xx<x+w;xx+=7) c.fillText(r%2?'7':'6',xx,yy); break;
+  } }
+
+// ---------- actions ----------
+function extraAct4(b){ const k=b.dataset.k;
+  switch(b.dataset.act){
+    case 'tryon': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o) return 'skip'; PREVIEW={kind,id,name:o.name,price:o.price}; setTimeout(()=>{ const c=$('lookcv'); c&&c.scrollIntoView({behavior:'smooth',block:'center'}); },30); return 'render'; }
+    case 'tryoff': PREVIEW=null; return 'render';
+    case 'petpv': { const [kind,id]=k.split(':'); const list=kind==='tint'?PET_TINTS:PET_ACCS; const it=list.find(x=>x[0]===id); if(!it) return 'skip'; PET_PV={kind,id,name:it[1],price:it[2]}; return 'render'; }
+    case 'petpvoff': PET_PV=null; return 'render';
+    case 'aqpv': { const [kind,id]=k.split(':'); let name, price; if(kind==='theme'){ const th=THEMES.find(x=>x[0]===id); name=th[1]+' water'; price=th[2]; } else if(kind==='sand'){ const sd=SANDS.find(x=>x[0]===id); name=sd[1]; price=sd[2]; } else { const d=DECORI[id]; name=d.name; price=d.price; }
+      AQ_PV={kind,id,name,price}; setTimeout(()=>{ const c=$('tankcv'); c&&c.scrollIntoView({behavior:'smooth',block:'center'}); },30); return 'render'; }
+    case 'aqpvoff': AQ_PV=null; return 'render';
+    case 'prizepv': { const p=PRIZES.find(x=>x[0]===k); const how=PRIZE_PV[k]; if(!p||!how) return 'skip'; const nm=p[1].replace(/ \(.*\)$/,'');
+      if(how[0]==='hat'||how[0]==='out'){ PREVIEW={kind:how[0],id:how[1],name:nm,price:p[2],prize:k}; S.tab='style'; }
+      else if(how[0]==='pet'){ PET_PV={kind:how[1],id:k,name:nm,price:p[2],prize:k}; S.tab='pets'; }
+      else { AQ_PV={kind:'decor',id:k,name:nm,price:p[2],prize:k}; S.tab='aquarium'; }
+      setTimeout(()=>$('panel').scrollIntoView({behavior:'smooth',block:'start'}),30); return 'render'; }
   }
   return undefined; }
 
@@ -2750,10 +2830,10 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('');
   const offers=shopOffers().map(o=>{ const own=ownedOffer(o); return `<div class="tile offer" style="flex-direction:row;align-items:center;gap:10px"><canvas width="128" height="128" data-offer="${o.kind}:${o.id}"></canvas>
     <div style="min-width:0;flex:1"><h4>${esc(o.name)}</h4><div class="meta">${o.kind==='col'?'Colour for shirts, trousers and hats':o.kind==='pat'?'Shirt pattern':'Hat'}</div>
-    ${own?'<button class="btn alt sm" disabled>Owned</button>':`<button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button>`}</div></div>`; }).join('');
+    ${own?'<button class="btn alt sm" disabled>Owned</button>':`<div class="row" style="gap:4px"><button class="btn alt sm" data-act="tryon" data-k="${o.kind}:${o.id}">${PREVIEW&&PREVIEW.kind===o.kind&&PREVIEW.id===o.id?'Wearing it':'Try on'}</button><button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button></div>`}</div></div>`; }).join('');
   const fishHats=HATS.filter(h=>h.src==='fish'), gotFish=fishHats.filter(h=>S.owned.hats.includes(h.id)).length;
   P.innerHTML=`<h2>Wardrobe</h2><p class="sub">Dress your angler. New colours, patterns and hats rotate through the clothing shop, and rare hats can be fished out of the water (${gotFish} of ${fishHats.length} found).</p>
-  <div class="stylewrap"><div class="preview"><canvas id="lookcv" width="520" height="560"></canvas></div><div>
+  <div class="stylewrap"><div class="preview">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div>
     <h5>Body</h5><div class="chips"><button class="chipb" data-act="look" data-k="g" data-v="m" aria-pressed="${lk.g==='m'}">Man</button><button class="chipb" data-act="look" data-k="g" data-v="f" aria-pressed="${lk.g==='f'}">Woman</button></div>
     <h5>Skin</h5>${sw('skin',SKINS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${SKINS[i]}"`).replace(/aria-pressed="(true|false)"/g,(m)=>m)}
     <h5>Hair</h5>${sw('hair',HAIRS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${HAIRS[i]}"`)}
@@ -2762,7 +2842,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
     <h5>Glasses</h5><div class="chips">${GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="glasses" data-v="${k}" aria-pressed="${(lk.glasses||'none')===k}">${n}</button>`).join('')}</div>
     <h5>Shirt colour</h5>${sw('shirt',cols)}<h5>Shirt pattern</h5><div class="chips">${pats}</div>
     <h5>Outfit</h5><div class="chips">${OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="outfit" data-v="${k}" aria-pressed="${(lk.outfit||'none')===k}">${n}</button>`).join('')}</div>
-    ${['raincoat','hoodie','puffer','overalls','wetsuit'].includes(lk.outfit)?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
+    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
     <h5>Trousers</h5>${sw('pants',cols)}
     <h5>Hat</h5><div class="hatgrid">${hats}</div>
     <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${sw('hatCol',cols)}
@@ -2780,7 +2860,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22);
-  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,S.look,{t:performance.now()/1000}); }
+  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
   P.innerHTML=`<h2>Pets</h2><p class="sub">Your pet sits beside you wherever you fish and gives a bonus. Some are sold here, some are hiding in junk you fish up, and two join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
@@ -2849,7 +2929,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair') S.look[k]=+v; else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }
-    case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++;
+    case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++; PREVIEW=null;
       if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
     case 'pet': if(S.owned.pets.includes(k)){ S.pet=k; toast(PETI[k].name+' is coming with you'); } break;
     case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); S.pet=k; sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
