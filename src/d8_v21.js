@@ -91,6 +91,7 @@ function extraAct6(b){ if(b.dataset.act==='claw'){ const c=clawCost(); if(S.mone
 // ---------- drawings for the new things ----------
 function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
   switch(id){
+    case 'lily': drawLily(c,t,h); break;
     case 'puppy': ln([-8,-8,-12,-12+Math.sin(t*12)*2.5],'#e0b060',2.4); rc(-6,-5,2.4,5,'#e0b060'); rc(4,-5,2.4,5,'#e0b060'); el(0,-8,8,4.6,'#f0c070'); ci(8,-13,4.4,'#f0c070'); el(11.6,-12,2.8,2,'#f8dca0'); ci(13.8,-12.4,1,'#2a1a10'); el(6,-12,1.8,3.6,'#d8a050',.2); if(!blink) eye(9,-14.4,.9); ln([12,-10,12.6,-8.4],'#ff7a8a',1.2); break;
     case 'kitten': ln([-4,-2,-8,-5,-7,-10],'#e8a060',1.6); el(0,-5,4,4.8,'#f0b070'); ci(1,-11,3.4,'#f0b070'); c.fillStyle='#f0b070'; c.beginPath(); c.moveTo(-1.5,-13); c.lineTo(-1.2,-16.5); c.lineTo(.8,-14); c.moveTo(1.8,-14); c.lineTo(3.8,-16.5); c.lineTo(4,-12.6); c.fill(); if(!blink){ ci(2.4,-11.4,.9,'#4a8a3a'); ci(-.2,-11.4,.9,'#4a8a3a'); } break;
     case 'fireflyjar': rc(-5,-14,10,14,'rgba(200,230,255,.25)'); rc(-5.5,-16,11,2.5,'#8a6a4a'); for(let i=0;i<4;i++){ const fx=Math.sin(t*2+i*1.7)*3, fy=-7+Math.cos(t*1.6+i)*4; c.fillStyle='rgba(230,255,140,'+(.6+.4*Math.sin(t*5+i))+')'; c.beginPath(); c.arc(fx,fy,1.1,0,7); c.fill(); } break;
@@ -102,7 +103,7 @@ function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
     case 'babywhale': { c.translate(0,Math.sin(t*1.2)); el(0,-6,10,6,'#4a7ab8'); el(1,-3.5,7,3,'#c8e0f0'); c.fillStyle='#4a7ab8'; c.beginPath(); c.moveTo(-9,-6); c.lineTo(-15,-11); c.lineTo(-14,-6); c.lineTo(-15,-1); c.closePath(); c.fill(); eye(6,-7.5,.8); if(Math.sin(t*.8)>.6){ c.fillStyle='rgba(200,230,255,.7)'; for(let i=0;i<3;i++){ c.beginPath(); c.arc(2+(i-1)*2,-14-i*1.5,1.2,0,7); c.fill(); } } break; }
     case 'snowman': ci(0,-5,5.5,'#f4f8fc'); ci(0,-13,4,'#f4f8fc'); eye(-1.4,-14,.6); eye(1.4,-14,.6); c.fillStyle='#ff8a2a'; c.beginPath(); c.moveTo(.4,-13); c.lineTo(4.4,-12.4); c.lineTo(.4,-12); c.fill(); rc(-4,-10,8,1.6,'#d8403a'); rc(2,-10,1.6,4,'#d8403a'); ci(0,-6,.6,'#333'); ci(0,-3.6,.6,'#333'); ln([-5,-8,-9,-11],'#6a4a2a',.8); ln([5,-8,9,-11],'#6a4a2a',.8); break;
   } }
-Object.assign(PET_HEAD,{puppy:[8,-13,4.4],kitten:[1,-11,3.4],fireflyjar:[0,-15,5],puffin:[1,-15,3.4],alpaca:[5,-28,3.8],mole:[6,-4,3],mushroombuddy:[0,-12,5],frogprince:[0,-8.5,3.5],babywhale:[5,-8,5],snowman:[0,-13,4]});
+Object.assign(PET_HEAD,{lily:[3,-17.6,5.9],puppy:[8,-13,4.4],kitten:[1,-11,3.4],fireflyjar:[0,-15,5],puffin:[1,-15,3.4],alpaca:[5,-28,3.8],mole:[6,-4,3],mushroombuddy:[0,-12,5],frogprince:[0,-8.5,3.5],babywhale:[5,-8,5],snowman:[0,-13,4]});
 function drawHatZ(c,id,col,t,h){ const {dk,lt,el,ci,poly,dome}=h; const f=cl=>{ c.fillStyle=cl; };
   switch(id){
     case 'aviator': dome(8.3,-1.5,'#8a5a2a'); f('#6a4220'); c.fillRect(-8.6,-2.5,4,6); c.fillRect(4.6,-2.5,4,6); el(-2,-6,2.4,1.8,'#9ad0e8'); el(3,-6,2.4,1.8,'#9ad0e8'); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.beginPath(); c.ellipse(-2,-6,2.4,1.8,0,0,7); c.ellipse(3,-6,2.4,1.8,0,0,7); c.stroke(); break;

@@ -5,44 +5,90 @@
 // =====================================================================
 const SHARE_BASE = 'https://sizzentra.github.io/driftline/';
 let shareLink='', qrState='';
-// links use URL-safe base64 (no escaping), which keeps them short and the QR code easy to scan
+// links use URL-safe base64 (no escaping), which keeps them short
 async function makeShareLink(){ const code=await makeCode(); const tag=code.slice(0,4), b=code.slice(4).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); return SHARE_BASE+'#load='+tag+b; }
 function codeFromAny(v){ v=String(v||'').trim(); const i=v.indexOf('#load='); if(i<0) return v; let c=decodeURIComponent(v.slice(i+6)); const tag=c.slice(0,4); let b=c.slice(4).replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='='; return tag+b; }
-function linkHTML(){ const canShare=!!navigator.share;
-  return `<div class="tile" style="margin-top:12px;border-color:#7fc8a988"><div class="row spread"><div><h4>📲 Send to my other device</h4><div class="meta">One link carries all your progress. Open it on your phone or PC and tap <b>Load</b>. That’s it.</div></div></div>
-   <div class="linkwrap"><div class="qrbox" id="qrbox" aria-label="QR code with your progress"><span class="meta">Making your QR code…</span></div>
-    <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:1">
-     <div class="meta"><b>On a phone?</b> Point your camera at the code, or use the buttons:</div>
-     ${canShare?'<button class="btn" data-act="sharelink">📤 Share link</button>':''}
-     <button class="btn ${canShare?'alt':''}" data-act="copylink">🔗 Copy link</button>
-     <button class="btn alt" data-act="maillink">✉️ Email it to myself</button>
-     <div class="meta">The link only works for loading progress and nothing is uploaded anywhere: your progress lives inside the link itself.</div></div></div></div>`; }
-function loadQRLib(){ return new Promise((res,rej)=>{ if(window.QRCode) return res(); const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
-async function paintLink(){ const box=$('qrbox'); if(!box) return; shareLink=await makeShareLink();
-  try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:shareLink,width:440,height:440,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.L}); qrState='ok'; }
-  catch(e){ box.innerHTML='<span class="meta">Your progress is too big for a QR code right now. Use the buttons instead, they always work.</span>'; qrState='fail'; } }
+
+// ---------- device to device: a 6-digit code (works PC <-> phone in both directions) ----------
+// The device WITH the progress taps Send and shows a code; the other device taps Get progress and types it
+// (a phone can also scan the small QR). The two devices connect directly (WebRTC); the progress never
+// sits on a server. PeerJS's free broker only introduces the two devices to each other.
+const XF_PREFIX='driftline-xfer-';
+let XF={mode:null, code:'', stat:'', ok:false, peer:null, conn:null, timer:0};
+function loadLib(src,test){ return new Promise((res,rej)=>{ if(test()) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
+const loadPeer = () => loadLib('https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js', ()=>!!window.Peer);
+const loadQRLib = () => loadLib('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js', ()=>!!window.QRCode);
+function xfStat(t,ok){ XF.stat=t; XF.ok=!!ok; const el=$('xfstat'); if(el){ el.textContent=t; el.style.color=ok?'var(--kelp)':''; } }
+function xfStop(){ clearTimeout(XF.timer); try{ XF.conn&&XF.conn.close(); }catch(e){} try{ XF.peer&&XF.peer.destroy(); }catch(e){} XF.peer=null; XF.conn=null; }
+const xfCodeFmt = c => c.slice(0,3)+' '+c.slice(3);
+async function xfSend(tries=0){ xfStop(); XF.mode='send'; XF.code=String(100000+Math.floor(Math.random()*900000)); xfStat('Getting your code ready…');
+  try{ await loadPeer(); }catch(e){ xfStat('Couldn’t reach the internet. Use one of the other ways below.'); return; }
+  const peer=new window.Peer(XF_PREFIX+XF.code); XF.peer=peer;
+  peer.on('open',()=>{ xfStat('Waiting for your other device…'); refreshXfer(); });
+  peer.on('error',err=>{ if(err.type==='unavailable-id' && tries<4) return xfSend(tries+1); if(XF.peer===peer) xfStat('Something went wrong ('+err.type+'). Tap Send again, or use another way below.'); });
+  peer.on('connection',conn=>{ XF.conn=conn; conn.on('open',async()=>{ xfStat('Connected! Sending your progress…'); conn.send({t:'save', code:await makeCode(), lvl:S.lvl}); });
+    conn.on('data',d=>{ if(d&&d.t==='ok'){ xfStat('Sent! Tap “Load it” on your other device.',true); sfx.shiny(); } if(d&&d.t==='done'){ xfStat('All done: your progress is on your other device now.',true); toast('Your progress arrived on your other device.'); setTimeout(()=>{ xfStop(); },3000); } }); });
+  XF.timer=setTimeout(()=>{ if(XF.mode==='send'&&!XF.ok){ xfStop(); XF.mode=null; xfStat(''); toast('The code expired. Tap Send for a new one.'); refreshXfer(); } },15*60*1000);
+  refreshXfer(); }
+async function xfGet(code){ code=String(code||'').replace(/\D/g,''); if(code.length!==6){ xfStat('Type the 6-digit code from your other device.'); return; }
+  xfStop(); XF.mode='get'; XF.code=code; refreshXfer(); xfStat('Connecting…');
+  try{ await loadPeer(); }catch(e){ xfStat('Couldn’t reach the internet. Use one of the other ways below.'); return; }
+  const peer=new window.Peer(); XF.peer=peer; let got=false;
+  peer.on('error',err=>{ if(XF.peer!==peer) return; xfStat(err.type==='peer-unavailable' ? 'No device is showing that code. Check the number, and make sure the other device still shows it.' : 'Couldn’t connect ('+err.type+'). Try again, or use another way below.'); });
+  peer.on('open',()=>{ const conn=peer.connect(XF_PREFIX+code,{reliable:true}); XF.conn=conn;
+    conn.on('open',()=>xfStat('Connected! Receiving…'));
+    conn.on('data',async d=>{ if(!d||d.t!=='save'||got) return; got=true; conn.send({t:'ok'}); xfStat('Got it!',true); XF.onLoaded=()=>{ try{ conn.send({t:'done'}); }catch(e){} setTimeout(xfStop,1500); }; offerCode(d.code,'From your other device'); }); });
+  XF.timer=setTimeout(()=>{ if(XF.mode==='get'&&!got){ xfStat('Couldn’t connect. Both devices need the internet; the same Wi-Fi works best. Or use another way below.'); xfStop(); } },20000); }
+function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
+  const send = m==='send' ? `<div class="xfcode" aria-label="Your code">${XF.peer&&XF.peer.open?xfCodeFmt(XF.code):'··· ···'}</div>
+      <div class="meta">On your other device: open Driftline, go to <b>Save</b>, tap <b>Get progress</b> and type this code.</div>
+      <div class="linkwrap"><div class="qrbox sm" id="qrbox"></div><div class="meta"><b>On a phone?</b> Just point the camera at this code instead of typing.</div></div>
+      <button class="btn alt sm" data-act="xfcancel">Stop sending</button>` : '';
+  const get = m==='get' ? `<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="xfin" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456" value="${XF.code?xfCodeFmt(XF.code):''}" class="xfin"><button class="btn" data-act="xfgo">Connect</button></div>
+      <div class="meta">Type the code shown on your other device.</div>` : '';
+  return `<div class="tile" style="margin-top:12px;border-color:#7fc8a988"><h4>📲 Move progress between phone and PC</h4>
+   <div class="meta">Works both ways. Tap <b>Send</b> on the device that has your progress and <b>Get progress</b> on the other one.</div>
+   <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn ${m==='send'?'':'alt'}" data-act="xfsend" aria-pressed="${m==='send'}">📤 Send from this device</button><button class="btn ${m==='get'?'':'alt'}" data-act="xfget" aria-pressed="${m==='get'}">📥 Get progress on this device</button></div>
+   ${send}${get}<div class="meta" id="xfstat" style="min-height:1.2em;font-weight:700${XF.ok?';color:var(--kelp)':''}">${esc(XF.stat)}</div>
+   <details class="xfmore"><summary>Other ways (if the code won’t connect)</summary>
+     <div class="meta" style="margin:6px 0">A link that carries all your progress. Send it to yourself and open it on the other device.</div>
+     <div class="row" style="gap:8px;flex-wrap:wrap">${canShare?'<button class="btn sm" data-act="sharelink">📤 Share link</button>':''}<button class="btn sm alt" data-act="copylink">🔗 Copy link</button><button class="btn sm alt" data-act="maillink">✉️ Email it to myself</button></div></details></div>`; }
+function refreshXfer(){ if(S.tab!=='save') return; renderPanel(); }
+async function paintLink(){ const box=$('qrbox'); if(!box||XF.mode!=='send'||!XF.peer||!XF.peer.open) return;
+  try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:SHARE_BASE+'#pair='+XF.code,width:300,height:300,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); qrState='ok'; }
+  catch(e){ box.remove(); qrState='fail'; } }
 function extraAct7(b){ switch(b.dataset.act){
-    case 'sharelink': (async()=>{ const url=shareLink||await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){} })(); return 'skip';
-    case 'copylink': (async()=>{ const url=shareLink||await makeShareLink(); try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it into a message to yourself, then open it on your other device.'); }catch(e){ prompt('Copy this link:',url); } })(); return 'skip';
-    case 'maillink': (async()=>{ const url=shareLink||await makeShareLink(); location.href='mailto:?subject='+encodeURIComponent('My Driftline progress')+'&body='+encodeURIComponent('Open this on my other device to load my Driftline progress:\n\n'+url); })(); return 'skip';
-    case 'linkload': { const o=pendingLink; if(!o) return 'skip'; S=migrate(o); pendingLink=null; S.savedAt=Date.now(); closeEvent(); offlineIncome(); fillBounties(); toast('Welcome back! Your progress is here now.'); sfx.shiny(); return 'render'; }
+    case 'xfsend': xfSend(); return 'skip';
+    case 'redeem': { const i=$('giftin'); return redeemGift(i?i.value:''); }
+    case 'xfget': xfStop(); XF.mode='get'; XF.code=''; xfStat(''); refreshXfer(); setTimeout(()=>{ const i=$('xfin'); i&&i.focus(); },50); return 'skip';
+    case 'xfgo': { const i=$('xfin'); xfGet(i?i.value:''); return 'skip'; }
+    case 'xfcancel': xfStop(); XF.mode=null; xfStat(''); refreshXfer(); return 'skip';
+    case 'sharelink': (async()=>{ const url=await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){} })(); return 'skip';
+    case 'copylink': (async()=>{ const url=await makeShareLink(); try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it into a message to yourself, then open it on your other device.'); }catch(e){ prompt('Copy this link:',url); } })(); return 'skip';
+    case 'maillink': (async()=>{ const url=await makeShareLink(); location.href='mailto:?subject='+encodeURIComponent('My Driftline progress')+'&body='+encodeURIComponent('Open this on my other device to load my Driftline progress:\n\n'+url); })(); return 'skip';
+    case 'linkload': { const o=pendingLink; if(!o) return 'skip'; S=migrate(o); pendingLink=null; S.savedAt=Date.now(); closeEvent(); offlineIncome(); fillBounties(); toast('Welcome back! Your progress is here now.'); sfx.shiny(); if(XF.onLoaded){ XF.onLoaded(); XF.onLoaded=null; } XF.mode=null; xfStat('Loaded!',true); return 'render'; }
     case 'linkkeep': pendingLink=null; closeEvent(); toast('Kept the progress on this device.'); return 'skip';
     case 'pet2': { const k=b.dataset.k; if(!S.owned.pets.includes(k)||k===S.pet) return 'skip'; S.pet2=k; PET_EDIT=null; toast(petName(k)+' is tagging along as your companion.'); return 'render'; }
     case 'pet2off': if(S.pet2){ toast(petName(S.pet2)+' heads home for a nap.'); S.pet2=null; PET_EDIT=null; } return 'render';
     case 'petedit': { const k=b.dataset.k; if(k!==S.pet&&k!==S.pet2) return 'skip'; PET_EDIT=k; PET_PV=null; return 'render'; }
   } return undefined; }
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target&&e.target.id==='xfin'){ e.preventDefault(); xfGet(e.target.value); } });
 // a new favourite: the old one becomes the companion if that spot is free (or if they simply swap places)
 function setFav(k){ if(!PETI[k]||k===S.pet) return; const old=S.pet; if(S.pet2===k||!S.pet2) S.pet2=old; S.pet=k; if(S.pet2===S.pet) S.pet2=null; PET_EDIT=null;
   toast(petName(k)+' is your favourite now'+(S.pet2===old?', and '+petName(old)+' tags along.':'.')); }
-// opening a link: offer to load the progress it carries
+// show a "load this progress?" prompt for a code that arrived (link, device code)
 let pendingLink=null;
-async function checkIncomingLink(){ if(!location.hash.startsWith('#load=')) return; const code=codeFromAny(location.hash); try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+async function offerCode(code,title='From your other device'){
   try{ const o=await readCode(code); if(!o||!o.journal) throw 0; pendingLink=o; G.st='event';
-    $('evin').innerHTML=`<div class="rar" style="color:var(--kelp)">From your other device</div><h3>Load this progress?</h3>
+    $('evin').innerHTML=`<div class="rar" style="color:var(--kelp)">${esc(title)}</div><h3>Load this progress?</h3>
      <div class="kv" style="text-align:left;margin:10px 0"><div><span>Level</span> ${o.lvl||1}</div><div><span>Coins</span> ${fmt(o.money||0)}</div><div><span>Species</span> ${Object.keys(o.journal||{}).length}</div><div><span>Saved</span> ${o.savedAt?new Date(o.savedAt).toLocaleString():'—'}</div></div>
      <p class="sub">This replaces the progress on this device${S.stats.caught?` (level ${S.lvl}, ${Object.keys(S.journal).length} species)`:''}.</p>
      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-act="linkload">Load it</button><button class="btn alt" data-act="linkkeep">Keep this device’s</button></div>`;
-    $('evcard').hidden=false; }catch(e){ toast('That progress link didn’t work. Try copying it again.'); } }
+    $('evcard').hidden=false; }catch(e){ toast('That progress didn’t come through. Try again.'); } }
+// opening a link: #load= carries the progress, #pair= opens Get progress with the code filled in (phone camera)
+function checkIncomingLink(){ const h=location.hash; if(!h.startsWith('#load=')&&!h.startsWith('#pair=')) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+  if(h.startsWith('#load=')) return offerCode(codeFromAny(h));
+  const code=h.slice(6).replace(/\D/g,''); setTab('save'); xfGet(code); }
 $('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-act="linkload"],[data-act="linkkeep"]'); if(!b) return; const r=extraAct7(b); checkFeats(); save(); if(r!=='skip') refreshAll(); });
 window.addEventListener('hashchange',checkIncomingLink);
 setTimeout(checkIncomingLink,900);

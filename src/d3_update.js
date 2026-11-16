@@ -3,8 +3,14 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.1';
+const GAME_VERSION = '2.2';
 const PATCHES = [
+ {v:'2.2', name:'Closer Together', items:[
+  'Moving progress between phone and PC is much easier, in both directions: tap Send on the device with your progress and type its 6-digit code on the other one. Phones can scan the code instead. Works for any amount of progress, no matter how far you’ve come.',
+  'The old “progress is too big for a QR code” problem is gone.',
+  'Links still work as a backup, under “Other ways” in the Save tab.',
+  'The Settings shortcut now opens moving progress and save codes.',
+  'A gift code box in Settings, for when a friend has something special for you.' ]},
  {v:'2.1', name:'More of Everything', items:[
   '21 new fish across every water. A few of them are very chill. One is an absolute unit.',
   '10 new pets: some in the pet shop, some in crates, one at the Prize Counter.',
@@ -169,9 +175,9 @@ const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].na
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
 function petOffset(id,t){ if(id==='frog') return [0,-Math.pow(Math.max(0,Math.sin(t*1.4)),10)*7]; if(id==='bat') return [0,-14+Math.sin(t*2)*2]; if(id==='ghost') return [0,Math.sin(t*2)*2-4]; if(id==='crab') return [Math.sin(t*1.2)*2,0]; return [0,0]; }
-function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
+function drawPetGear(c,id,lk,t){ if(id==='lily'&&LILY.pose!=='sit') return; const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
   const col=lk.accCol||'#d8303a';
-  c.save(); c.lineCap='round';
+  c.save(); c.lineCap='round'; if(id==='lily') c.translate(LILY.hdx,LILY.hdy);
   if(lk.acc==='cape'){ c.fillStyle=col; c.beginPath(); c.moveTo(hx-r*.9,hy+r*.8); c.quadraticCurveTo(hx-r*3.4,hy+r*2+Math.sin(t*4)*1.2,hx-r*3,hy+r*3.6); c.lineTo(hx-r*.4,hy+r*2.4); c.closePath(); c.fill(); }
   if(lk.acc==='balloon'){ c.strokeStyle='#ddd'; c.lineWidth=.5; c.beginPath(); c.moveTo(hx-r,hy+r); c.quadraticCurveTo(hx-r*2,hy-r*3,hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6); c.stroke(); c.fillStyle='#ffd84a'; c.save(); c.translate(hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6.6); c.beginPath(); for(let i=0;i<10;i++){ const ang=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.6:r*1.4; c.lineTo(Math.cos(ang)*rr,Math.sin(ang)*rr); } c.fill(); c.restore(); }
   if(lk.hat && lk.hat!=='none'){ c.save(); c.translate(hx,hy); c.scale(k,k); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?'#888888':(lk.hatCol||'#c8553a'),t); c.restore(); }
@@ -186,11 +192,11 @@ function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r
   c.restore(); }
 function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
-let PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
+let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
 function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
   const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
   drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc;
+function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc;
   if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; PET_BOX2=drawOnePet(S.pet2,px-(big?22:12)*sc-(big2?34:22)*sc,ay,sc*.9,t,night,petT2); } else PET_BOX2=null;
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
@@ -227,9 +233,10 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
     <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
-function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet(); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
+function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
+  if(id==='lily'&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||editPet()!=='lily'){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -258,10 +265,10 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
    ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
 
 // ---------- patch notes ----------
-function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">Update ${p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
+function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return PATCHES.map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>Update ${p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';

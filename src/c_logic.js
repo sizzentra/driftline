@@ -312,7 +312,7 @@ const FEATS = [
   {id:'hats15',name:'Milliner',               d:'Own 15 hats',               p:()=>[S.owned.hats.length-1,15], coins:40000, pt:1},
   {id:'hatsall',name:'Head of the class',     d:'Own all '+(HATS.length-1)+' hats', p:()=>[S.owned.hats.length-1,HATS.length-1], coins:1000000, pt:3},
   {id:'pets3', name:'Menagerie',              d:'Own 3 pets',                p:()=>[S.owned.pets.length,3], coins:5000, pt:1},
-  {id:'petsall',name:'Noah’s dock',           d:'Own all '+PETS.length+' pets', p:()=>[S.owned.pets.length,PETS.length], coins:1500000, pt:3},
+  {id:'petsall',name:'Noah’s dock',           d:'Own all '+PETS.filter(p=>p.src!=='gift').length+' pets', p:()=>[S.owned.pets.filter(id=>PETI[id]&&PETI[id].src!=='gift').length,PETS.filter(p=>p.src!=='gift').length], coins:1500000, pt:3},
   {id:'style5',name:'Fashion statement',      d:'Buy 5 clothing items',      p:()=>[S.stats.bought,5], coins:5000},
   {id:'hot10', name:'Water reader',           d:'Land 10 catches from hotspots', p:()=>[S.stats.hot,10], coins:4000, pt:1},
   {id:'hot100',name:'Ripple sense',           d:'Land 100 catches from hotspots', p:()=>[S.stats.hot,100], coins:80000, pt:2},

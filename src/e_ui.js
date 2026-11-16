@@ -251,9 +251,9 @@ function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getCo
   drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
-  P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
+  P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.filter(id=>PETI[id].src!=="gift").length} of ${PETS.filter(p=>p.src!=="gift").length} found.</p>
   ${petCustomHTML()}
-  <div class="grid">`+PETS.map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id, comp=S.pet2===p.id; const val=p.v*(1+.1*pr('petpal'));
+  <div class="grid">`+PETS.filter(p=>p.src!=='gift'||S.owned.pets.includes(p.id)).map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id, comp=S.pet2===p.id; const val=p.v*(1+.1*pr('petpal'));
     const act = here ? '<button class="btn alt" disabled>★ Favourite</button>'
       : comp ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Make favourite</button><button class="btn sm alt" data-act="pet2off">Send home</button></div>`
       : own ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Favourite</button><button class="btn sm alt" data-act="pet2" data-k="${p.id}">Companion</button></div>`
