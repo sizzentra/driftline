@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1002';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1006';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -4733,6 +4733,107 @@ function v3stonePlat(P,t,night,dockY){
   { const bx=W*.152, s=H*.018, by=dockY-H*.006; g.fillStyle=N('#a07a48'); g.beginPath(); g.moveTo(bx,by); g.lineTo(bx+s*.15,by-s); g.lineTo(bx+s*1.15,by-s); g.lineTo(bx+s*1.3,by); g.closePath(); g.fill(); g.strokeStyle=N('#6a4a28'); g.lineWidth=.8; for(let k=1;k<4;k++){ g.beginPath(); g.moveTo(bx+s*.05,by-s*k/4); g.lineTo(bx+s*1.25,by-s*k/4); g.stroke(); } }
 }
 V3PLAT.stone=(P,t,night,dockY)=>v3stonePlat(P,t,night,dockY);
+
+// =====================================================================
+// STARFALL LAKE: a lake above the clouds, a sea of cloud tops at the horizon, a ringed planet, the Milky Way,
+// floating islands with waterfalls, crystal spires, shooting stars that fall into the water, light wisps,
+// and a constellation of a fish that slowly draws itself
+// =====================================================================
+V3PAL.starfall = {
+  day:  {top:'#4a4aa8', mid:'#9a8ad8', bot:'#f0d8f0', glow:'#fff4ff', far:'#c8b8e8', farHaze:'#f0e0f8', cloudSea:'#f4ecfa', cloudSh:'#c8b8e0', isl:'#5a8a6a', islD:'#4a3a5a', wTop:'#c8b0f0', wMid:'#6a5ab0', wBot:'#1a1440', rim:'#fff0ff', cry:'#b88aff', cry2:'#7ae0ff', planet:'#f0b890', ring:'#e8d0ff', star:'#ffffff', cloud:'#ffffff', cloudLit:'#fff4ff', leaf:'#5a8a6a'},
+  dusk: {top:'#1a1040', mid:'#7a3a8a', bot:'#ff9ab0', glow:'#ffd0e0', far:'#7a5a9a', farHaze:'#e8a0c0', cloudSea:'#f0b8c8', cloudSh:'#8a6a9a', isl:'#4a5a5a', islD:'#2e2440', wTop:'#e8a0d0', wMid:'#4a2a7a', wBot:'#0e0828', rim:'#ffd8f0', cry:'#c890ff', cry2:'#8ae8ff', planet:'#ffb080', ring:'#ffd0e8', star:'#ffffff', cloud:'#d890b0', cloudLit:'#ffd8e0', leaf:'#4a5a5a'},
+  night:{top:'#04021a', mid:'#120a3a', bot:'#2a1a5a', glow:'#d8c8ff', far:'#1e1846', farHaze:'#3a2a6a', cloudSea:'#4a3e80', cloudSh:'#241c4a', isl:'#1e2a3a', islD:'#100c22', wTop:'#2a1e5a', wMid:'#100a30', wBot:'#020108', rim:'#c8b8ff', cry:'#a070ff', cry2:'#5ad8ff', planet:'#c89a80', ring:'#b8a0e8', star:'#ffffff', cloud:'#2a2050', cloudLit:'#5a4a90', leaf:'#1e2a3a'}
+};
+V3SCENES.starfall = {
+  sky(P,t,hz){ const sa=.35+P.night*.65;
+    // the Milky Way: soft clouds of light along a gentle arc, darker dust lanes, a dense dust of stars
+    // (painted once into its own canvas per size and light level, then laid over the sky)
+    { const key=W+'|'+H+'|'+Math.round(P.night*8)+'|'+Math.round(P.d*5); if(!this.mw||this.mw.key!==key){ const c=this.mw?this.mw.c:document.createElement('canvas'); c.width=Math.round(W*Math.min(DPR,2)); c.height=Math.round(hz*Math.min(DPR,2)); const m=c.getContext('2d'); m.setTransform(Math.min(DPR,2),0,0,Math.min(DPR,2),0,0); m.clearRect(0,0,W,hz);
+        const r=v3rng(42), along=u=>[W*(u*1.15-.07), hz*(.92-u*.82)+Math.sin(u*3.2)*hz*.06], col=mix(P.ring,'#ffffff',.45);
+        for(let i=0;i<46;i++){ const u=r(), [X,Y]=along(u), off=(r()-.5)*hz*.12, rad=hz*(.05+r()*.09), gr=m.createRadialGradient(X,Y+off,0,X,Y+off,rad); gr.addColorStop(0,v3rgba(i%5?col:mix(col,P.cry,.5),.09+r()*.07)); gr.addColorStop(1,v3rgba(col,0)); m.fillStyle=gr; m.fillRect(X-rad,Y+off-rad,rad*2,rad*2); }
+        m.globalCompositeOperation='destination-out'; for(let i=0;i<14;i++){ const u=.1+r()*.8, [X,Y]=along(u), rad=hz*(.02+r()*.03), gr=m.createRadialGradient(X,Y,0,X,Y,rad); gr.addColorStop(0,'rgba(0,0,0,.45)'); gr.addColorStop(1,'rgba(0,0,0,0)'); m.fillStyle=gr; m.fillRect(X-rad*1.6,Y-rad,rad*3.2,rad*2); } m.globalCompositeOperation='source-over';
+        m.fillStyle='#ffffff'; for(let i=0;i<340;i++){ const u=r(), [X,Y]=along(u), off=(r()+r()+r()-1.5)*hz*.09, s=r()*1.1+.35; m.globalAlpha=.3+r()*.6; m.fillRect(X,Y+off,s,s); } m.globalAlpha=1;
+        this.mw={key,c}; }
+      g.globalAlpha=.3+P.night*.7; g.drawImage(this.mw.c,0,0,W,hz); g.globalAlpha=1; }
+    // the ringed planet, back half of the ring, the planet, then the front half
+    { const px=W*.2, py=hz*.32, R=H*.07; g.save(); g.translate(px,py); g.rotate(-.3);
+      g.strokeStyle=v3rgba(P.ring,.55); g.lineWidth=R*.18; g.beginPath(); g.ellipse(0,0,R*2,R*.45,0,Math.PI,0); g.stroke();
+      const pg=g.createRadialGradient(-R*.4,-R*.4,R*.1,0,0,R); pg.addColorStop(0,mix(P.planet,'#ffffff',.35)); pg.addColorStop(.7,P.planet); pg.addColorStop(1,mix(P.planet,P.top,.55)); g.fillStyle=pg; g.beginPath(); g.arc(0,0,R,0,7); g.fill();
+      g.save(); g.beginPath(); g.arc(0,0,R,0,7); g.clip(); g.fillStyle=v3rgba(mix(P.planet,'#8a4a3a',.4),.35); for(let k=0;k<4;k++) g.fillRect(-R,-R*.6+k*R*.35,R*2,R*.1); g.restore();
+      g.strokeStyle=v3rgba(P.ring,.75); g.lineWidth=R*.18; g.beginPath(); g.ellipse(0,0,R*2,R*.45,0,0,Math.PI); g.stroke(); g.strokeStyle=v3rgba('#ffffff',.3); g.lineWidth=R*.04; g.beginPath(); g.ellipse(0,0,R*1.85,R*.4,0,0,Math.PI); g.stroke(); g.restore(); }
+    // a constellation of a fish draws itself star by star, glows, and fades, over and over
+    { const per=26, k=(t%per)/per, cx=W*.74, cy=hz*.2, sx=W*.07, sy=hz*.07;
+      const body=[[-1,0],[-.55,-.62],[.1,-.78],[.62,-.45],[.62,.45],[.1,.78],[-.55,.62]], tail=[[.62,-.45],[1.15,-.85],[1,0],[1.15,.85],[.62,.45]], eye=[-.55,-.18];
+      const P2=p=>[cx+p[0]*sx,cy+p[1]*sy], seq=[...body,body[0]], nb=seq.length-1, nt=tail.length-1, total=nb+nt, shown=Math.min(total,k*total*2.6), fade=k>.72?Math.max(0,1-(k-.72)/.22):1, a=fade*sa;
+      if(a>.02){ g.strokeStyle=v3rgba(P.cry2,.4*a); g.lineWidth=1; g.beginPath();
+        for(let i=0;i<Math.min(nb,shown);i++){ const [x1,y1]=P2(seq[i]), [x2,y2]=P2(seq[i+1]), f=Math.min(1,shown-i); g.moveTo(x1,y1); g.lineTo(x1+(x2-x1)*f,y1+(y2-y1)*f); }
+        for(let i=0;i<nt&&shown>nb+i;i++){ const [x1,y1]=P2(tail[i]), [x2,y2]=P2(tail[i+1]), f=Math.min(1,shown-nb-i); g.moveTo(x1,y1); g.lineTo(x1+(x2-x1)*f,y1+(y2-y1)*f); } g.stroke();
+        const stars=[...body,...tail.slice(1,4)]; stars.forEach((p,i)=>{ if(i>shown) return; const [X,Y]=P2(p); v3glow(g,X,Y,H*.012,'rgba(200,240,255,.9)',.55*a); g.fillStyle=v3rgba('#ffffff',a); g.fillRect(X-1.1,Y-1.1,2.2,2.2); });
+        if(shown>=total){ const [X,Y]=P2(eye); g.fillStyle=v3rgba('#ffffff',a*.9); g.fillRect(X-.8,Y-.8,1.6,1.6); } } } },
+  land(x,P,hz,cnv){
+    // crystal spires rising from the far shores
+    const cry=(cx,base,w,h,col)=>{ x.fillStyle=col; x.beginPath(); x.moveTo(cx-w,base); x.lineTo(cx-w*.8,base-h*.8); x.lineTo(cx,base-h); x.lineTo(cx+w*.8,base-h*.78); x.lineTo(cx+w,base); x.closePath(); x.fill(); x.fillStyle=v3rgba('#ffffff',.25); x.beginPath(); x.moveTo(cx,base-h); x.lineTo(cx-w*.8,base-h*.8); x.lineTo(cx-w*.3,base); x.lineTo(cx,base); x.closePath(); x.fill(); x.fillStyle=v3rgba('#000000',.18); x.beginPath(); x.moveTo(cx,base-h); x.lineTo(cx+w*.8,base-h*.78); x.lineTo(cx+w,base); x.lineTo(cx+w*.3,base); x.closePath(); x.fill(); };
+    // the sea of cloud tops at the horizon: billows lit from above, shadowed below
+    for(let L=0;L<2;L++){ const y=hz+1-L*H*.012, col=L?mix(P.cloudSea,P.farHaze,.4):P.cloudSea; x.fillStyle=col; x.beginPath(); x.moveTo(-5,hz+2); for(let i=0;i<=30;i++){ const X=W*i/30-L*W*.016, h=H*(.012+.012*Math.abs(Math.sin(i*1.9+L*2)))*(L?1.3:1); x.quadraticCurveTo(X-W/60,y-h*1.6,X,y-h*.6); } x.lineTo(W+5,hz+2); x.closePath(); x.fill(); }
+    const cs=x.createLinearGradient(0,hz-H*.03,0,hz+1); cs.addColorStop(0,v3rgba(P.cloudSh,0)); cs.addColorStop(1,v3rgba(P.cloudSh,.5)); x.fillStyle=cs; x.fillRect(0,hz-H*.03,W,H*.031);
+    for(const [cx,w,h,c] of [[.3,.008,.07,P.cry],[.33,.006,.05,P.cry2],[.36,.005,.035,P.cry],[.78,.01,.09,P.cry2],[.82,.007,.06,P.cry],[.86,.005,.04,P.cry2],[.9,.008,.075,P.cry]]) cry(W*cx,hz+1,W*w,H*h,mix(c,P.farHaze,.25));
+    v3water(x,P,hz,cnv,.35);
+  },
+  live(P,t,hz,sun){ const FX=S.settings.effects, night=P.night, sa=.35+night*.65;
+    // floating islands drift and bob: a mossy top that overhangs, a rocky underside tapering to a point with
+    // hanging roots, a little crystal or tree on top, and a thin waterfall spilling into the clouds
+    for(const [ix,iy,iw,ph,fall,top] of [[.42,.4,.06,0,1,'tree'],[.6,.24,.035,1.7,0,'cry'],[.92,.46,.045,3.1,1,'cry']]){ const X=W*ix+Math.sin(t*.13+ph)*W*.008, Y=hz*iy+Math.sin(t*.5+ph)*hz*.02, w=W*iw, h=w*1.15, rk=mix(P.islD,P.far,.25);
+      g.fillStyle=rk; g.beginPath(); g.moveTo(X-w,Y); g.quadraticCurveTo(X-w*.95,Y+h*.25,X-w*.6,Y+h*.38); g.quadraticCurveTo(X-w*.35,Y+h*.62,X-w*.08,Y+h*.78); g.quadraticCurveTo(X+w*.02,Y+h*1.02,X+w*.12,Y+h*.74); g.quadraticCurveTo(X+w*.45,Y+h*.5,X+w*.7,Y+h*.32); g.quadraticCurveTo(X+w*.98,Y+h*.18,X+w,Y); g.closePath(); g.fill();
+      g.save(); g.clip(); const ug=g.createLinearGradient(X-w,0,X+w,0); ug.addColorStop(0,v3rgba(P.rim,.16)); ug.addColorStop(.45,'rgba(0,0,0,0)'); ug.addColorStop(1,'rgba(0,0,0,.32)'); g.fillStyle=ug; g.fillRect(X-w,Y,w*2,h*1.1); g.strokeStyle=v3rgba('#000000',.2); g.lineWidth=1; for(let k=1;k<4;k++){ g.beginPath(); g.moveTo(X-w,Y+h*k*.18); g.quadraticCurveTo(X,Y+h*k*.2,X+w,Y+h*k*.16); g.stroke(); } g.restore();
+      g.strokeStyle=v3rgba(mix(P.isl,P.islD,.5),.8); g.lineWidth=.9; g.beginPath(); for(let k=0;k<4;k++){ const rx=X+w*(-.55+k*.32), ry=Y+h*(.36+Math.abs(k-1.5)*-.06+.12); g.moveTo(rx,ry); g.quadraticCurveTo(rx+Math.sin(t*.8+k)*w*.04,ry+h*.15,rx+w*.03,ry+h*(.22+k%2*.1)); } g.stroke();
+      g.fillStyle=P.isl; g.beginPath(); g.moveTo(X-w*1.05,Y+h*.02); g.quadraticCurveTo(X-w*.9,Y-h*.12,X,Y-h*.13); g.quadraticCurveTo(X+w*.9,Y-h*.12,X+w*1.05,Y+h*.02); for(let k=0;k<=8;k++){ const u=k/8, xx=X+w*(1.05-u*2.1), dd=h*(.04+((k*5)%3)*.03); g.lineTo(xx,Y+dd); } g.closePath(); g.fill();
+      g.fillStyle=v3rgba(mix(P.isl,'#ffffff',.35),.6); g.beginPath(); g.moveTo(X-w*.8,Y-h*.06); g.quadraticCurveTo(X-w*.2,Y-h*.14,X+w*.3,Y-h*.1); g.quadraticCurveTo(X-w*.2,Y-h*.09,X-w*.8,Y-h*.06); g.fill();
+      if(top==='tree'){ const tx=X-w*.3, ty=Y-h*.1; g.strokeStyle=mix('#6a4a3a',P.islD,.3+P.night*.4); g.lineWidth=Math.max(1.2,w*.05); g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo(tx+w*.05,ty-h*.25,tx+w*.02,ty-h*.42); g.stroke(); g.fillStyle=mix(P.cry,P.isl,.35); for(const [dx,dy,rr] of [[0,-.48,.2],[-.14,-.4,.15],[.15,-.4,.16],[.02,-.6,.13]]){ g.beginPath(); g.arc(tx+w*dx,ty+h*dy,w*rr,0,7); g.fill(); } g.fillStyle=v3rgba('#ffffff',.25); g.beginPath(); g.arc(tx-w*.04,ty-h*.53,w*.07,0,7); g.fill(); }
+      else { const tx=X+w*.2, ty=Y-h*.1; for(const [dx,hh,ww,c] of [[0,.45,.1,P.cry2],[-.14,.3,.07,P.cry],[.12,.25,.06,P.cry]]){ const cx2=tx+w*dx; g.fillStyle=c; g.beginPath(); g.moveTo(cx2-w*ww,ty); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2,ty-h*hh); g.lineTo(cx2+w*ww*.7,ty-h*hh*.78); g.lineTo(cx2+w*ww,ty); g.closePath(); g.fill(); g.fillStyle=v3rgba('#ffffff',.3); g.beginPath(); g.moveTo(cx2,ty-h*hh); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2-w*ww*.2,ty); g.lineTo(cx2,ty); g.closePath(); g.fill(); } v3glow(g,tx,ty-h*.25,w*.6,v3rgba(P.cry2,.7),.25+.25*P.night); }
+      if(fall){ const fx=X+w*.85, fy=Y+h*.05; const fg=g.createLinearGradient(0,fy,0,hz); fg.addColorStop(0,v3rgba('#ffffff',.7)); fg.addColorStop(1,v3rgba('#ffffff',0)); g.fillStyle=fg; g.fillRect(fx,fy,Math.max(1.5,w*.05),hz-fy-H*.01);
+        g.fillStyle=v3rgba('#ffffff',.5); for(let k=0;k<4;k++){ const kk=((t*.8+k*.25)%1); g.fillRect(fx,fy+kk*(hz-fy-H*.02),Math.max(1.5,w*.05),3); } g.fillStyle=v3rgba('#ffffff',.35); g.beginPath(); g.ellipse(fx,hz-H*.012,w*.15,H*.006,0,0,7); g.fill(); } }
+    // crystals glint
+    for(let i=0;i<5;i++){ const k=(t*.25+i*.31)%1, a=Math.max(0,Math.sin(k*Math.PI))**8; if(a<.05) continue; const gx=W*[.3,.33,.78,.82,.9][i], gy=hz-H*[.06,.04,.08,.05,.065][i]; g.fillStyle=v3rgba('#ffffff',a); g.fillRect(gx-H*.008,gy,H*.016,1); g.fillRect(gx,gy-H*.008,1,H*.016); }
+    // the Milky Way and the planet's glow mirrored in the still water
+    if(this.mw){ g.save(); g.beginPath(); g.rect(0,hz,W,H-hz); g.clip(); g.globalAlpha=.22*sa; g.translate(0,hz); g.scale(1,-.8); g.translate(0,-hz); g.drawImage(this.mw.c,0,0,W,hz); g.restore(); }
+    v3glitter(P,t,hz,sun);
+    // star glints scattered on the water
+    g.fillStyle=P.star; for(let i=0;i<40;i++){ const X=(i*97.3)%W, Y=hz+H*.02+((i*61.7)%100)/100*(H-hz)*.9; g.globalAlpha=sa*.5*Math.abs(Math.sin(t*1.2+i*1.7)); g.fillRect(X,Y,1.3,1.3); } g.globalAlpha=1;
+    // shooting stars: a streak falls, and where it meets the lake, a ring of light spreads
+    { const per=6.5, k=(t%per)/per, n=Math.floor(t/per), r=v3rng(n*29+11), sx=W*(.35+r()*.55), ex=sx-W*(.08+r()*.08), ey=hz+H*(.08+r()*.2);
+      if(k<.18){ const e=k/.18, cx=sx+(ex-sx)*e, cy=H*.05+(ey-H*.05)*e*e; const sg=g.createLinearGradient(cx,cy,cx+(sx-ex)*.25,cy-(ey-H*.05)*.25); sg.addColorStop(0,'rgba(255,255,255,.95)'); sg.addColorStop(1,'rgba(255,255,255,0)'); g.strokeStyle=sg; g.lineWidth=2; g.beginPath(); g.moveTo(cx,cy); g.lineTo(cx+(sx-ex)*.25,cy-(ey-H*.05)*.25); g.stroke(); v3glow(g,cx,cy,H*.02,'rgba(220,230,255,.9)',.7); }
+      else if(k<.6){ const e=(k-.18)/.42; g.strokeStyle=v3rgba(P.cry2,.7*(1-e)); g.lineWidth=1.4; for(let j=0;j<2;j++){ const ee=Math.max(0,e-j*.15); g.beginPath(); g.ellipse(ex,ey,W*.004+ee*W*.05,H*.002+ee*H*.012,0,0,7); g.stroke(); } v3glow(g,ex,ey,H*.04,'rgba(160,230,255,.8)',.5*(1-e)); } }
+    // light wisps drift through the air
+    if(FX){ g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<7;i++){ const wx=W*((i*.137+t*.006*(1+i%3*.3))%1), wy=hz*(.55+((i*37)%40)/100)+Math.sin(t*.7+i*2)*hz*.05, a=.4+.3*Math.sin(t*2+i); v3glow(g,wx,wy,H*.012,v3rgba(i%2?P.cry2:P.cry,.9),a*.6); g.fillStyle=v3rgba('#ffffff',a); g.fillRect(wx-1,wy-1,2,2); } g.restore(); }
+    v3fishRing(P,t,hz,7.5,.42,.86);
+  },
+  fore(P,t){ // a cluster of crystals growing in the bottom right corner, pulsing softly
+    const b=H+2; for(const [cx,w,h,c,a] of [[.93,.012,.14,P.cry,-.15],[.955,.01,.1,P.cry2,.1],[.975,.014,.17,P.cry,.25],[.91,.007,.07,P.cry2,-.35],[.995,.01,.11,P.cry2,.4]]){ g.save(); g.translate(W*cx,b); g.rotate(a); const ww=W*w, hh=H*h;
+      g.fillStyle=v3rgba(mix(c,P.wBot,.2+P.night*.1),.9); g.beginPath(); g.moveTo(-ww,0); g.lineTo(-ww*.8,-hh*.8); g.lineTo(0,-hh); g.lineTo(ww*.8,-hh*.78); g.lineTo(ww,0); g.closePath(); g.fill();
+      g.fillStyle=v3rgba('#ffffff',.3); g.beginPath(); g.moveTo(0,-hh); g.lineTo(-ww*.8,-hh*.8); g.lineTo(-ww*.25,0); g.lineTo(0,0); g.closePath(); g.fill(); g.restore(); v3glow(g,W*cx,b-H*h*.5,H*h*.6,v3rgba(c,.6),.2+.12*Math.sin(t*1.5+cx*30)); }
+  }
+};
+
+// a floating shard of amethyst: a faceted slab hanging over the lake, glowing edges, small crystals sprouting,
+// and a lantern orb hovering at the end
+function v3crystalPlat(P,t,night,dockY){
+  const PW=W*.19, sa=.5+night*.5, ox=PW-W*.01, oy=dockY-H*.085+Math.sin(t*1.3)*H*.004;
+  v3glow(g,ox,oy,H*.2,'rgba(190,160,255,.85)',.45*sa);
+  const ed=PW+W*.012, pts=[[-2,dockY],[ed,dockY],[ed-W*.02,dockY+H*.08],[PW*.6,dockY+H*.17],[PW*.35,dockY+H*.24],[PW*.15,dockY+H*.15],[-2,dockY+H*.12]];
+  const sg=g.createLinearGradient(0,dockY,0,dockY+H*.24); sg.addColorStop(0,mix(P.cry,'#ffffff',.15)); sg.addColorStop(1,mix(P.cry,P.wBot,.6)); g.fillStyle=sg; g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const p of pts) g.lineTo(p[0],p[1]); g.closePath(); g.fill();
+  // facets
+  g.fillStyle=v3rgba('#ffffff',.14); g.beginPath(); g.moveTo(PW*.3,dockY); g.lineTo(PW*.6,dockY+H*.17); g.lineTo(PW*.35,dockY+H*.24); g.lineTo(PW*.1,dockY); g.closePath(); g.fill();
+  g.fillStyle=v3rgba('#000000',.16); g.beginPath(); g.moveTo(PW*.7,dockY); g.lineTo(ed,dockY); g.lineTo(ed-W*.02,dockY+H*.08); g.lineTo(PW*.6,dockY+H*.17); g.closePath(); g.fill();
+  g.strokeStyle=v3rgba(P.cry2,.5+.2*Math.sin(t*2)); g.lineWidth=1.2; g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const p of pts) g.lineTo(p[0],p[1]); g.stroke();
+  g.fillStyle=v3rgba('#ffffff',.55); g.fillRect(-2,dockY-1,ed,1.4);
+  // motes dripping from the tip
+  for(let k=0;k<3;k++){ const kk=((t*.5+k/3)%1); g.fillStyle=v3rgba(P.cry2,.7*(1-kk)); g.fillRect(PW*.35,dockY+H*.24+kk*H*.06,1.6,1.6); }
+  // small crystals sprouting from the slab
+  for(const [cx,h,c] of [[.02,.03,P.cry2],[.035,.02,P.cry],[.155,.022,P.cry2]]){ const X=W*cx, hh=H*h, ww=hh*.28; g.fillStyle=mix(c,'#ffffff',.1); g.beginPath(); g.moveTo(X-ww,dockY); g.lineTo(X-ww*.6,dockY-hh*.8); g.lineTo(X,dockY-hh); g.lineTo(X+ww*.6,dockY-hh*.8); g.lineTo(X+ww,dockY); g.closePath(); g.fill(); g.fillStyle=v3rgba('#ffffff',.3); g.beginPath(); g.moveTo(X,dockY-hh); g.lineTo(X-ww*.6,dockY-hh*.8); g.lineTo(X-ww*.2,dockY); g.lineTo(X,dockY); g.closePath(); g.fill(); }
+  // the hovering lantern orb with a ring around it
+  g.fillStyle=v3rgba('#f4ecff',.9); g.beginPath(); g.arc(ox,oy,H*.01,0,7); g.fill(); g.strokeStyle=v3rgba(P.cry2,.7); g.lineWidth=1; g.beginPath(); g.ellipse(ox,oy,H*.018,H*.005,Math.sin(t*.8)*.3,0,7); g.stroke();
+}
+V3PLAT.crystal=(P,t,night,dockY)=>v3crystalPlat(P,t,night,dockY);
 
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
