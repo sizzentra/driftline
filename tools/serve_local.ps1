@@ -7,6 +7,15 @@ $l.Prefixes.Add('http://localhost:8766/')
 $l.Start()
 while ($l.IsListening) {
   $ctx = $l.GetContext()
+  # QC: POST /shot/<name> with a PNG data URL saves it to tools/shots/<name>.png for close inspection
+  if ($ctx.Request.HttpMethod -eq 'POST' -and $ctx.Request.Url.AbsolutePath.StartsWith('/shot/')) {
+    $name = ($ctx.Request.Url.AbsolutePath.Substring(6) -replace '[^A-Za-z0-9_\-]','_')
+    $sr = New-Object IO.StreamReader($ctx.Request.InputStream); $data = $sr.ReadToEnd(); $sr.Close()
+    $i = $data.IndexOf(','); if ($i -ge 0) { $data = $data.Substring($i+1) }
+    $dir = Join-Path $PSScriptRoot 'shots'; New-Item -ItemType Directory -Force $dir | Out-Null
+    [IO.File]::WriteAllBytes((Join-Path $dir ($name + '.png')), [Convert]::FromBase64String($data))
+    $ctx.Response.StatusCode = 204; $ctx.Response.Close(); continue
+  }
   $p = $ctx.Request.Url.AbsolutePath.TrimStart('/'); if ($p -eq '' -or $p.EndsWith('/')) { $p = $p + 'index.html' }
   $f = Join-Path $root $p
   if (Test-Path $f -PathType Leaf) {

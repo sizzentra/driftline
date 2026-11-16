@@ -181,9 +181,9 @@ const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].na
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
 function petOffset(id,t){ if(id==='frog') return [0,-Math.pow(Math.max(0,Math.sin(t*1.4)),10)*7]; if(id==='bat') return [0,-14+Math.sin(t*2)*2]; if(id==='ghost') return [0,Math.sin(t*2)*2-4]; if(id==='crab') return [Math.sin(t*1.2)*2,0]; return [0,0]; }
-function drawPetGear(c,id,lk,t){ if(id==='lily'&&LILY.pose!=='sit') return; const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
+function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; } const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
   const col=lk.accCol||'#d8303a';
-  c.save(); c.lineCap='round'; if(id==='lily') c.translate(LILY.hdx,LILY.hdy);
+  c.save(); c.lineCap='round';
   if(lk.acc==='cape'){ c.fillStyle=col; c.beginPath(); c.moveTo(hx-r*.9,hy+r*.8); c.quadraticCurveTo(hx-r*3.4,hy+r*2+Math.sin(t*4)*1.2,hx-r*3,hy+r*3.6); c.lineTo(hx-r*.4,hy+r*2.4); c.closePath(); c.fill(); }
   if(lk.acc==='balloon'){ c.strokeStyle='#ddd'; c.lineWidth=.5; c.beginPath(); c.moveTo(hx-r,hy+r); c.quadraticCurveTo(hx-r*2,hy-r*3,hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6); c.stroke(); c.fillStyle='#ffd84a'; c.save(); c.translate(hx-r*1.6+Math.sin(t*1.5)*1.5,hy-r*6.6); c.beginPath(); for(let i=0;i<10;i++){ const ang=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.6:r*1.4; c.lineTo(Math.cos(ang)*rr,Math.sin(ang)*rr); } c.fill(); c.restore(); }
   if(lk.hat && lk.hat!=='none'){ c.save(); c.translate(hx,hy); c.scale(k,k); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?'#888888':(lk.hatCol||'#c8553a'),t); c.restore(); }
@@ -196,7 +196,7 @@ function drawPetGear(c,id,lk,t){ if(id==='lily'&&LILY.pose!=='sit') return; cons
   if(lk.acc==='flower'){ const fx=hx-r*.6, fy=hy-r*.75; for(let i=0;i<5;i++){ c.fillStyle='#ff9ad0'; c.beginPath(); c.arc(fx+Math.cos(i*1.26)*r*.28,fy+Math.sin(i*1.26)*r*.28,r*.2,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.15,0,7); c.fill(); }
   if(lk.acc==='glasses'){ c.fillStyle='#111'; c.beginPath(); c.ellipse(hx+r*.25,hy-r*.15,r*.32,r*.22,0,0,7); c.ellipse(hx+r*.85,hy-r*.15,r*.28,r*.2,0,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=r*.1; c.beginPath(); c.moveTo(hx+r*.5,hy-r*.18); c.lineTo(hx+r*.6,hy-r*.18); c.stroke(); }
   c.restore(); }
-function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
+function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); if(id==='lily') LILY.lk=lk; c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
 function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);

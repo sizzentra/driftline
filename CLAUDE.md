@@ -18,7 +18,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Build: `build.ps1 -Preview`. Publish: `publish_preview.ps1` (never rebuilds friends' game).
   - New renderer: `src/f_v3scene.js` (B2 style; on only when `DL_PREVIEW` is set or the URL has `?v3`). It hooks into `draw()` in `d_draw.js` via `v3Scene` / `v3Platform` / `v3Fore`.
   - **Done:** Willow Pond environment (mountain ranges with shaded faces and snow, pine shores, log cabin with lit window + smoke, weeping willow, reflections, sun/moon glitter, mist, ducks, fish rings, lily pads with a glowing bloom, fireflies/dragonflies, cattails, rebuilt dock + lantern), day/dusk/night palettes, static layers cached (worst light-change frame <4 ms on PC).
-  - **Next for the showcase:** rebuilt angler, three pets with personality, cast/reel/catch moments, pond music; then the director play-tests.
+  - **Done:** Lily attachment system (`d10_lily.js`). Each pose sets `LILY.head` / `LILY.neck` frames (position, tilt, size, flip); every hat and accessory is drawn in that frame. Hats use the player's hat units: origin = head centre, head radius 7.5. The cape is drawn behind her body per pose; the balloon is tied to her collar. Verified with contact sheets: every pose × every accessory × all 60 hats.
+  - **Decision:** the old pets' accessories are also misplaced (llama head off-frame, side-on glasses on front-facing pets, blade-like capes, strings across faces). They are NOT patched: every pet is redrawn for 0.3 on the same head/neck frame system and must pass `__petSheet` before shipping.
+  - **QC tools (`?test`):**
+    - `__lilySheet({poses,accs|hats:"all",from,to,save})` and `__petSheet({from,to,save})` render contact sheets.
+    - `__snap(name,x,y,w,h,scale)` saves a canvas crop.
+    - All of them save to `tools/shots/<name>.png` via the local server (POST /shot/<name>). Open them with the Read tool: browser-pane screenshots lag and aren't reliable.
+  - **Next:** rebuilt angler (with attached clothes/hats/glasses), pets redrawn, cast/reel/catch moments, pond music, then the other areas.
   - Test tools (`?test`): `__setPhase(0.5)` sets the clock and finds clear weather, `__crop(x,y,w,h,scale)` enlarges part of the canvas, `__go(id)` moves to an area.
 
 ## Roles
@@ -38,6 +44,38 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Once a version is published, keep its notes exactly as they shipped. New work gets a new version entry, so players who already read the notes still see the change.
   - If several things are requested in one round, they ship together as one update.
 - **It should feel like a real app** (the director compared it to PokéBonk), with a clean look on phone and PC.
+
+## The 0.3 mandate and quality control (director, 2026-11-16)
+**Release rule (director, 2026-11-16): ALL updates and fixes ship in ONE giant 0.3 launch. Nothing is published to friends' game (site/index.html) before then: use `publish_preview.ps1` only. The director will check back when the whole project is finished, and wants ONE final approval when EVERYTHING is done, "not a moment before": no interim check-ins or partial reviews.**
+"I trust you to finish this entire project on your own, don't let me down." Claude owns 0.3 end to end and judges its own work from the director's perspective, harder than the director would. **No design choice or decision may miss the bar.**
+- **Scope:**
+  - unique designs for every fish, every backdrop and every lighting setup
+  - cozy music options that fit the atmosphere
+  - new, innovative ways for players to control and customize
+  - optimized, error-free
+  - PC and mobile with equal love, both fully functional and smooth
+- **Misses the director caught (never again):**
+  - a detached pet head in a mockup
+  - lantern glow passing through its pole
+  - lumpy mountains
+  - Lily's hats and accessories not attached to her body (positioned for one pose, never tested across poses and items)
+
+**QC checklist, every piece of work, before the director sees it:**
+1. Render it and zoom in (`?test` → `__crop`) on every character, pet, prop, landform and UI element.
+2. **Every combination:**
+   - each pet × each pose × each hat/accessory/colour
+   - each area × day/dusk/night × every weather
+   - PC 1280×800, phone 375×812, phone landscape 844×390
+3. **Physics of the picture:**
+   - parts joined
+   - light behind solid objects
+   - attachments follow position, rotation and flip
+   - nothing pops or vanishes mid-animation
+   - shadows and reflections consistent
+4. **Silhouettes and shapes:** smooth and deliberate, never lumpy, never clip-art; proportions consistent across the game.
+5. **Speed measured:** frame time and the worst case. Nothing heavy every frame that could be cached.
+6. **Decisions:** think through saves and migration, balance, mobile, accessibility and patch notes before choosing.
+7. **Self-critique:** "what would the director notice first?" Fix it, re-check, and only then present.
 
 ## How it's built
 - **One HTML file**, built from parts in `src/` by `build.ps1`, in this order: `a_head.html` (layout + CSS), `b_data.js` (data), `c_logic.js`, `d_draw.js`, `d2_extra.js`, `d3_update.js`, `d4_style.js`, `d5_v16.js`, `d6_preview.js`, `d7_v20.js`, `d8_v21.js`, `d9_link.js`, `d10_lily.js`, `e_ui.js`. Around them sit `shell_top.html` and `shell_bottom.html`. The output is `site/index.html` plus `site/version.txt`.

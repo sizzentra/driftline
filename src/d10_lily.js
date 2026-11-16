@@ -55,24 +55,31 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   const now=performance.now(), pt=S.pet==='lily'?petT:(S.pet2==='lily'?petT2:-9999);
   if(LILY.seenPet===null) LILY.seenPet=pt; else if(pt!==LILY.seenPet){ LILY.seenPet=pt; LILY.pets++; if(LILY.pets%3===0) LILY.rollT=now; }
   if(G.st==='landing'&&LILY.lastSt!=='landing') LILY.boofT=now; LILY.lastSt=G.st;
-  const petted=now-pt<2200, rolling=now-LILY.rollT<1900, boof=now-LILY.boofT<1600, watching=G.st==='reeling'||G.st==='bite'||G.st==='waiting';
-  const sleep=PET_NIGHT>.55&&!petted&&!boof&&!watching&&!rolling;
-  const busy=petted||boof||rolling||watching;
-  const zc=t%28, zoom=!sleep&&!busy&&zc>20&&zc<21.8;
-  const sniff=!zoom&&!busy&&(t%13)>10.6&&(t%13)<11.9, paw=!zoom&&!busy&&!sniff&&(t%17)>8&&(t%17)<9.4;
-  const bigTilt=!sniff&&!paw&&(t%7)>5.3&&(t%7)<6.7;
+  let petted=now-pt<2200, rolling=now-LILY.rollT<1900, boof=now-LILY.boofT<1600, watching=G.st==='reeling'||G.st==='bite'||G.st==='waiting';
+  let sleep=PET_NIGHT>.55&&!petted&&!boof&&!watching&&!rolling;
+  let busy=petted||boof||rolling||watching;
+  let zc=t%28, zoom=!sleep&&!busy&&zc>20&&zc<21.8;
+  let sniff=!zoom&&!busy&&(t%13)>10.6&&(t%13)<11.9, paw=!zoom&&!busy&&!sniff&&(t%17)>8&&(t%17)<9.4;
+  let bigTilt=!sniff&&!paw&&(t%7)>5.3&&(t%7)<6.7;
+  if(LILY.force){ const f=LILY.force; petted=f==="petted"; rolling=f==="roll"; boof=f==="boof"; watching=f==="watch"; sleep=f==="sleep"; zoom=f==="zoomR"||f==="zoomL"; sniff=f==="sniff"; paw=f==="paw"; bigTilt=f==="tilt"; busy=petted||boof||rolling||watching; if(zoom) zc=20+(f==="zoomR"?.06:.4)*1.8; if(rolling) LILY.rollT=now-500; if(boof) LILY.boofT=now-300; }
   const wag=petted||zoom||watching||boof||rolling||paw?24:9;
   LILY.hdx=0; LILY.hdy=0;
+  const cape=LILY.lk&&LILY.lk.acc==='cape'?(LILY.lk.accCol||'#d8303a'):null, cw=Math.sin(t*3.2)*.8;
+  const capeShape=(pts,col)=>{ c.fillStyle=col; c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=4) c.quadraticCurveTo(pts[i],pts[i+1],pts[i+2],pts[i+3]); c.closePath(); c.fill(); };
   if(rolling){ LILY.pose='roll'; const w=Math.sin(now/80), k=(now-LILY.rollT)/1900; // belly up for rubs
+    LILY.head={x:10,y:-5.2,rot:2.2+w*.08,s:.92,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
+    if(cape){ capeShape([-9,-1.2, 1,2.2,12,-1, 11,-4.5,9,-6.5, 0,-4.6,-8,-6.5],cape); capeShape([-9,-1.2, 1,2.2,12,-1, 1,1.2,-9,-1.2],mix(cape,'#000000',.25)); }
     el(-9.5,-2.2,2.6,1.6,L.BK2,.2+w*.4);
     el(0,-4.6,8.6,4.4,L.BK); el(.8,-6.6,6.2,2.9,L.WH); el(-4.6,-6,1.4,2,L.TN,.3); el(6,-6,1.4,2,L.TN,-.3); strand(-3,-7.4,-2.4,-8.6,L.WH2); strand(2,-7.8,2.6,-9,L.WH2);
-    for(let i=0;i<4;i++){ const lx=-5+i*3.4, ly=-11.4+Math.sin(now/70+i*1.7)*1.2; ln([lx,-7,lx+.6,ly],i<2?L.BK:L.WH,2.4); ci(lx+.6,ly+1.4,.9,L.TN); ci(lx+.6,ly,1.3,L.WH); }
+    for(let i=0;i<4;i++){ const lx=-5+i*3.4, ly=-11.6+Math.sin(now/70+i*1.7)*1.1, kx=lx+(i%2?.9:-.9), front=i>=2; c.lineCap="round"; c.strokeStyle=front?L.WH:L.BK; c.lineWidth=3; c.beginPath(); c.moveTo(lx,-7); c.quadraticCurveTo(kx,-9.4,lx+.5,ly+1.2); c.stroke(); if(!front){ c.strokeStyle=L.WH; c.lineWidth=2.8; c.beginPath(); c.moveTo(kx*.5+lx*.5+.2,-9.9); c.lineTo(lx+.5,ly+1.2); c.stroke(); } el(lx+.5,ly,1.6,1.25,L.WH); el(lx+.5,ly+.3,.75,.5,L.PK); ci(lx-.4,ly-.7,.32,L.PK); ci(lx+.5,ly-.95,.32,L.PK); ci(lx+1.4,ly-.7,.32,L.PK); } c.lineCap="butt";
     c.save(); c.translate(10,-5.2); c.rotate(2.2+w*.08); c.scale(.92,.92); lilyFace(c,h,{eyes:'happy',mouth:'tongue',ears:'out',t}); c.restore();
     c.save(); for(let i=0;i<4;i++){ const a=i*1.6+k*4, r=9+k*4; c.globalAlpha=Math.max(0,.9-k)*(.6+.4*Math.sin(now/90+i)); c.fillStyle='#ffe58a'; const sx=2+Math.cos(a)*r, sy=-8+Math.sin(a)*r*.5; c.beginPath(); c.moveTo(sx,sy-1.2); c.lineTo(sx+.35,sy-.35); c.lineTo(sx+1.2,sy); c.lineTo(sx+.35,sy+.35); c.lineTo(sx,sy+1.2); c.lineTo(sx-.35,sy+.35); c.lineTo(sx-1.2,sy); c.lineTo(sx-.35,sy-.35); c.fill(); } c.restore();
     return; }
   if(sleep){ LILY.pose='sleep'; const br=Math.sin(t*1.6)*.3; // curled up napping, chin on her white paws
+    LILY.head={x:8.6,y:-5.6,rot:.12,s:.85,flip:false}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     el(-6,-1.6,3.6,1.6,L.BK2,.1);
     el(0,-4.2,9,4.2+br,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-8+Math.sin(i)*.4+br*.5,1.4,1,L.BK); strand(-7+i*3.4,-8.6,-7.6+i*3.4,-9.6,L.HI); }
+    if(cape){ capeShape([-7.5,-6.2-br*.5, -1,-10.4-br,6,-7.6-br*.5, 6.4,-5,5.6,-2.8, -.5,-4.4,-6.8,-2.6],cape); capeShape([-6.8,-2.6, -.5,-4.4,5.6,-2.8, -.5,-3.2,-6.8,-2.6],mix(cape,'#000000',.3)); c.strokeStyle=mix(cape,'#ffffff',.3); c.lineWidth=.35; c.beginPath(); c.moveTo(-6.8,-3); c.quadraticCurveTo(-.5,-4.8,5.6,-3.2); c.stroke(); }
     el(5.4,-3.4,3.4,2.8,L.WH); el(3.4,-4.6,1.2,2,L.TN,.3); rc(6,-1.6,4.4,1.6,L.WH); ci(10.6,-.8,.8,L.WH2);
     c.save(); c.translate(8.6,-5.6); c.rotate(.12); c.scale(.85,.85); lilyFace(c,h,{eyes:'closed',mouth:'smile',ears:'out',t}); c.restore();
     c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',12+ph*5,-12-ph*9); } c.restore();
@@ -81,7 +88,9 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
     const ph=(zc-20)/1.8, dx=Math.sin(ph*Math.PI*3)*11, flip=Math.cos(ph*Math.PI*3)<0;
     c.save(); for(let i=1;i<=5;i++){ const pp=ph-i*.05; if(pp<0) continue; const px=Math.sin(pp*Math.PI*3)*11; c.globalAlpha=.32-i*.05; c.fillStyle='#e8d8c8'; c.beginPath(); c.ellipse(px+(i%2?1.4:-1.4),.6,1,.5,0,0,7); c.fill(); } c.restore();
     const hop=Math.abs(Math.sin(t*18))*1.6, lg=Math.sin(t*22)*1.8;
+    LILY.head={x:dx+(flip?-8.6:8.6),y:-hop-14.2,rot:-.1,s:1,flip}; LILY.neck=lilyFramePoint(LILY.head,0,6,true);
     c.save(); c.translate(dx,-hop); if(flip) c.scale(-1,1);
+    if(cape){ const wv=Math.sin(t*16)*1.2; capeShape([5.5,-13.8, -3,-16.5+wv,-13.5,-11+wv, -12.6,-6.4+wv,-11.4,-5.6+wv, -3,-8,5,-9.6],cape); capeShape([5,-9.6, -3,-8,-11.4,-5.6+wv, -3,-9.4,5,-10.8],mix(cape,'#000000',.28)); }
     el(-9.2,-10,3,2.2,L.BK2,-.6+Math.sin(t*24)*.4);
     for(const [x,s] of [[-6,1],[-3.2,-1],[.6,1],[3.6,-1]]){ const xx=x+lg*s; rc(xx,-5,2.6,5,x<0?L.BK:L.WH); rc(xx,-2.4,2.6,1,L.TN); rc(xx,-1.4,2.6,1.6,L.WH); }
     el(-.5,-8.4,8.6,5,L.BK); for(let i=0;i<5;i++){ el(-7+i*3.4,-12.6,1.6,1.1,L.BK); strand(-7+i*3.4,-13.2,-7.8+i*3.4,-14.4,L.HI); }
@@ -92,6 +101,9 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   LILY.pose='sit';
   const hop = boof ? Math.max(0,Math.sin((now-LILY.boofT)/1600*Math.PI*3))*2.4 : petted ? Math.max(0,Math.sin(now/120))*.8 : 0, br=Math.sin(t*2.2)*.25;
   c.save(); c.translate(0,-hop);
+  // a cape hangs from her shoulders behind her body, swaying
+  if(cape){ capeShape([-1.8,-14.8, -6.4,-9+cw,-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, 3,-2.2,5,-2.4, 10,-1.6,14.4,-1.2-cw*.6, 12.4,-9-cw,7.8,-14.8, 3,-16,-1.8,-14.8],cape);
+    capeShape([-8.4,-1.2+cw*.6, -4,-1.6,1,-2.4, -3,-5,-5.6,-8+cw],mix(cape,'#000000',.28)); capeShape([14.4,-1.2-cw*.6, 10,-1.6,5,-2.4, 9,-5,11.6,-8-cw],mix(cape,'#000000',.28)); }
   // fluffy tail tuft wagging behind her
   const tw=Math.sin(t*wag)*.5; el(10.6,-2.6,3,1.7,L.BK2,-.5+tw); strand(12.4,-3.4,13.6,-4.4+tw,L.HI);
   // haunches and hind paws
@@ -107,12 +119,13 @@ function drawLily(c,t,h){ const {el,ci,rc,ln,blink}=h; const L=LC;
   for(let i=0;i<5;i++) el(.6+i*1.2,-3.6+Math.abs(i-2)*-.4,.8,.9,L.WH);
   for(let i=0;i<5;i++) strand(1.2+i*.9,-12+i*.2,1.4+i*.9,-9.6+i*.3,L.WH2,.26);
   // front legs: white with a little tan at the elbows; one lifts to give paw
-  const leg=(x,lift)=>{ if(lift){ c.save(); c.translate(x+1.2,-6); c.rotate(-1.15+Math.sin(t*6)*.12); rc(-1.2,0,2.4,5.2,L.WH); el(0,0,1.3,.9,L.TN); ln([-.6,5,-.6,4.4],L.WH3,.25); ln([.6,5,.6,4.4],L.WH3,.25); c.restore(); return; }
+  const leg=(x,lift)=>{ if(lift){ c.save(); c.translate(5.6,-7.6); c.rotate(-.5+Math.sin(t*6)*.1); rc(-1.25,-5.2,2.5,5.6,L.WH); el(0,.2,1.5,1,L.WH); el(-.2,-1,.9,.6,L.TN2); el(0,-5.4,1.75,1.4,L.WH); el(0,-5.1,.85,.6,L.PK); ci(-.95,-6.2,.34,L.PK); ci(0,-6.55,.34,L.PK); ci(.95,-6.2,.34,L.PK); c.restore(); return; }
     rc(x,-6,2.4,6,L.WH); ln([x+.8,-.2,x+.8,-.9],L.WH3,.25); ln([x+1.6,-.2,x+1.6,-.9],L.WH3,.25); };
   leg(-.3,false); leg(3.9,paw);
   // head on top, looking at you, with her head tilt
   const hy=-17.4+(sniff?2.6:0)+(watching||boof?-.6:0), hx=3+(sniff?1.2:0), tilt=sniff?.28:petted?.14:boof?-.06:paw?-.2:bigTilt?-.48:-.15+Math.sin(t*1.3)*.06;
   LILY.hdx=hx-3; LILY.hdy=hy+17.4;
+  LILY.head={x:hx,y:hy-hop,rot:tilt,s:1.14,flip:false}; LILY.neck={x:hx,y:hy-hop+6.6*1.14,rot:tilt*.35,s:1.14,flip:false};
   c.save(); c.translate(hx,hy); c.rotate(tilt); c.scale(1.14,1.14);
   lilyFace(c,h,{eyes:petted?'happy':'open', mouth:boof?'boof':(petted||watching||paw)?'tongue':'smile', ears:petted?'back':(watching||boof||bigTilt)?'perk':'out', blink, sniff, t});
   c.restore(); c.restore();
@@ -137,3 +150,62 @@ function redeemGift(code){ code=String(code||'').toUpperCase().replace(/[^A-Z0-9
     S.owned.pets.push('lily'); petLook('lily').name='Lily'; setFav('lily'); setTab('pets'); sfx.shiny(); save();
     setTimeout(()=>showPatchNotes(LILY_PATCH),250); return 'render'; }
   toast('That gift code didn’t work. Check the spelling.'); return 'skip'; }
+
+// ---------- Lily's gear: every hat and accessory is drawn in her head (or neck) frame for the pose
+// she is in, so it moves, tilts and flips with her and never disappears. Her face looks at you, so
+// glasses, bows and flowers are placed for a front-facing face. The cape is drawn inside drawLily,
+// behind her body (or over her back while she sleeps).
+function lilyFramePoint(f,px,py,asFrame){ const s=f.s, cr=Math.cos(f.rot), sr=Math.sin(f.rot); let x=(px*cr-py*sr)*s, y=(px*sr+py*cr)*s; if(f.flip) x=-x;
+  const p={x:f.x+x,y:f.y+y}; return asFrame?{x:p.x,y:p.y,rot:f.rot,s:f.s,flip:f.flip}:p; }
+function lilyApply(c,f){ c.translate(f.x,f.y); if(f.flip) c.scale(-1,1); c.rotate(f.rot); c.scale(f.s,f.s); }
+function drawLilyGear(c,lk,t){
+  const hd=LILY.head, nk=LILY.neck; if(!hd||!nk) return; const col=lk.accCol||'#d8303a', dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.35);
+  c.save(); c.lineCap='round'; c.lineJoin='round';
+  // neckwear (neck frame)
+  if(['bandana','scarf','bowtie','bell','cape'].includes(lk.acc)){ c.save(); lilyApply(c,nk);
+    if(lk.acc==='bandana'){ c.fillStyle=col; c.beginPath(); c.moveTo(-3.5,-.6); c.quadraticCurveTo(0,.4,3.5,-.6); c.lineTo(.4,3.6); c.quadraticCurveTo(0,4,-.4,3.6); c.closePath(); c.fill(); c.fillStyle=lt; for(const [x,y] of [[-1.6,.4],[1.2,.6],[0,1.9],[-.4,.2],[.8,2.8]]){ c.beginPath(); c.arc(x,y,.28,0,7); c.fill(); } c.fillStyle=dk; c.beginPath(); c.ellipse(-3.3,-.5,.7,.5,0,0,7); c.fill(); }
+    if(lk.acc==='scarf'){ c.fillStyle=col; c.beginPath(); c.moveTo(-3.7,-1); c.quadraticCurveTo(0,.2,3.7,-1); c.lineTo(3.7,.6); c.quadraticCurveTo(0,1.8,-3.7,.6); c.closePath(); c.fill(); c.beginPath(); c.moveTo(1.2,.8); c.lineTo(3,.7); c.lineTo(2.6,4.6); c.lineTo(1.6,4.4); c.closePath(); c.fill(); c.strokeStyle=dk; c.lineWidth=.3; c.beginPath(); c.moveTo(-3.4,.1); c.quadraticCurveTo(0,1.2,3.4,.1); c.moveTo(1.7,3.9); c.lineTo(2.6,4); c.stroke(); }
+    if(lk.acc==='bowtie'){ c.fillStyle=col; c.beginPath(); c.moveTo(0,.4); c.lineTo(-2,-.8); c.quadraticCurveTo(-2.4,.4,-2,1.6); c.closePath(); c.moveTo(0,.4); c.lineTo(2,-.8); c.quadraticCurveTo(2.4,.4,2,1.6); c.closePath(); c.fill(); c.fillStyle=dk; c.beginPath(); c.ellipse(0,.4,.55,.65,0,0,7); c.fill(); }
+    if(lk.acc==='bell'){ c.strokeStyle=col; c.lineWidth=.9; c.beginPath(); c.moveTo(-3.6,-.6); c.quadraticCurveTo(0,.6,3.6,-.6); c.stroke(); c.fillStyle='#ffcc33'; c.beginPath(); c.arc(0,1.1,.9,0,7); c.fill(); c.fillStyle='#b8860b'; c.fillRect(-.12,1.2,.24,.6); c.fillStyle='rgba(255,255,255,.7)'; c.beginPath(); c.arc(-.3,.8,.25,0,7); c.fill(); }
+    if(lk.acc==='cape'){ c.fillStyle='#e8c060'; c.beginPath(); c.arc(-2.4,-.5,.55,0,7); c.arc(2.4,-.5,.55,0,7); c.fill(); c.strokeStyle=col; c.lineWidth=.6; c.beginPath(); c.moveTo(-2.4,-.5); c.quadraticCurveTo(0,.3,2.4,-.5); c.stroke(); }
+    c.restore(); }
+  // the star balloon is tied to her collar and floats upright, whatever her pose
+  if(lk.acc==="balloon"){ const back=nk.flip?1:-1, tie=lilyFramePoint(nk,3.2*back*(nk.flip?-1:1),.4), bx=tie.x+back*10+Math.sin(t*1.5)*1.2, by=tie.y-19+Math.sin(t*1.1)*.6;
+    c.strokeStyle="rgba(235,235,235,.9)"; c.lineWidth=.35; c.beginPath(); c.moveTo(tie.x,tie.y); c.quadraticCurveTo(tie.x+back*8,tie.y-6,bx,by+4.6); c.stroke();
+    c.fillStyle='#ffd84a'; c.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5+Math.sin(t*1.2)*.08, rr=i%2?2.2:4.8; c.lineTo(bx+Math.cos(a)*rr,by+Math.sin(a)*rr); } c.closePath(); c.fill(); c.fillStyle='rgba(255,255,255,.55)'; c.beginPath(); c.ellipse(bx-1.2,by-1.4,.9,.5,-.5,0,7); c.fill(); }
+  // head-worn items (head frame)
+  c.save(); lilyApply(c,hd);
+  if(lk.acc==='glasses'){ c.fillStyle='#14100e'; c.beginPath(); c.ellipse(-2,-1.15,1.55,1.15,0,0,7); c.ellipse(2,-1.15,1.55,1.15,0,0,7); c.fill(); c.strokeStyle='#14100e'; c.lineWidth=.45; c.beginPath(); c.moveTo(-.5,-1.4); c.quadraticCurveTo(0,-1.8,.5,-1.4); c.moveTo(-3.5,-1.3); c.lineTo(-4.6,-1.8); c.moveTo(3.5,-1.3); c.lineTo(4.6,-1.8); c.stroke(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-2.5,-1.6,.5,.28,-.4,0,7); c.ellipse(1.5,-1.6,.5,.28,-.4,0,7); c.fill(); }
+  if(lk.acc==='bow'){ c.save(); c.translate(-3.7,-3.7); c.rotate(-.35); c.fillStyle=col; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-2.2,-1.6,-2.1,.1); c.quadraticCurveTo(-2,1.5,0,0); c.moveTo(0,0); c.quadraticCurveTo(2.2,-1.6,2.1,.1); c.quadraticCurveTo(2,1.5,0,0); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(0,0,.55,0,7); c.fill(); c.restore(); }
+  if(lk.acc==='flower'){ const fx=3.7, fy=-3.8; c.fillStyle='#ff9ad0'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(fx+Math.cos(i*1.257)*.75,fy+Math.sin(i*1.257)*.75,.62,.42,i*1.257,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,.42,0,7); c.fill(); }
+  if(lk.hat && lk.hat!=="none"){ c.save(); c.translate(0,-.4); c.scale(.75,.75); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?"#888888":(lk.hatCol||"#c8553a"),t); c.restore(); }
+  if(lk.acc==="partyhat"){ c.save(); c.translate(.6,-.6); c.rotate(.22); c.scale(.66,.66); drawHat(c,"party",col,t); c.restore(); }
+  c.restore(); c.restore();
+}
+
+// ---------- test-mode contact sheet (only with ?test): Lily in every pose with every accessory ----------
+if(/[?&]test\b/.test(location.search)){
+  window.__lilySheet=(opts={})=>{
+    const poses=opts.poses||['sit','tilt','sniff','paw','petted','boof','watch','zoomR','zoomL','roll','sleep'];
+    const accs=opts.accs||['none','bandana','bow','bowtie','scarf','bell','flower','glasses','cape','balloon','partyhat'];
+    const hat=opts.hat||'none', cw=opts.cell||120, ch=Math.round(cw*1.05), sc=cw/34;
+    const o=document.createElement('canvas'); o.width=cw*poses.length; o.height=ch*accs.length; const x=o.getContext('2d');
+    x.fillStyle='#2a3350'; x.fillRect(0,0,o.width,o.height); const t=performance.now()/1000;
+    if(opts.hats==='all') opts.hats=HATS.map(h=>h.id).filter(h=>h!=='none').slice(opts.from||0,opts.to||999); const rows=opts.hats||accs; if(opts.hats){ o.height=ch*rows.length; x.fillStyle='#2a3350'; x.fillRect(0,0,o.width,o.height); }
+    rows.forEach((a,r)=>poses.forEach((p,cI)=>{ LILY.force=p; const lk=Object.assign({},petLook('lily'),opts.hats?{acc:'none',hat:a,hatCol:'#3f7a6a'}:{acc:a,accCol:'#d8303a',hat:hat,hatCol:'#3f7a6a'});
+      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch);
+      drawPetStyled(x,'lily',cI*cw+cw*.42,r*ch+ch*.84,sc,t,0,lk); x.restore();
+      x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(p+' / '+a,cI*cw+4,r*ch+12); }));
+    LILY.force=null; if(opts.save){ window.__post(opts.save,o.toDataURL()); return 'saved'; } document.getElementById('dbg')?.remove(); const im=document.createElement('img'); im.src=o.toDataURL(); im.id='dbg'; im.style.cssText='position:fixed;left:0;top:0;z-index:99999;width:'+(opts.w||o.width)+'px'; document.body.appendChild(im); return [o.width,o.height];
+  };
+}
+if(/[?&]test\b/.test(location.search)){
+  // every pet (rows) x every accessory + a hat (columns)
+  window.__petSheet=(opts={})=>{ const ids=PETS.map(p=>p.id).filter(i=>i!=='lily').slice(opts.from||0,opts.to||999);
+    const cols=opts.cols||[['none','none'],['bandana','none'],['bow','none'],['bowtie','none'],['scarf','none'],['bell','none'],['flower','none'],['glasses','none'],['cape','none'],['balloon','none'],['partyhat','none'],['none','cap'],['none','straw']];
+    const cw=opts.cell||110, ch=Math.round(cw*.9); const o=document.createElement('canvas'); o.width=cw*cols.length; o.height=ch*ids.length; const x=o.getContext('2d'); const t=performance.now()/1000;
+    ids.forEach((id,r)=>cols.forEach(([acc,hat],cI)=>{ const big=id==='horse'||id==='cow'; const lk=Object.assign({},petLook(id),{acc,accCol:'#d8303a',hat,hatCol:'#3f7a6a'});
+      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch);
+      drawPetStyled(x,id,cI*cw+cw*.45,r*ch+ch*.82,(big?2.1:3.3)*cw/110,t,0,lk); x.restore(); x.fillStyle='#cfd8ff'; x.font='9px system-ui'; x.fillText(id+' '+acc+(hat!=='none'?' '+hat:''),cI*cw+3,r*ch+10); }));
+    window.__post(opts.save||'pets',o.toDataURL()); return ids.length; };
+}
