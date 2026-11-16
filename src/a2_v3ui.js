@@ -87,6 +87,8 @@ body.v3 select, body.v3 input[type=text], body.v3 input[type=number], body.v3 te
 body.v3 input[type=range]{ accent-color:var(--buoy) }
 body.v3 .tank, body.v3 .preview{ border-radius:18px; border:1px solid var(--line); box-shadow:var(--lit), 0 10px 30px #02060f88 }
 body.v3 .empty{ color:var(--muted) }
+body.v3 .loc .sw2.v3th{ height:84px; border-radius:12px; box-shadow:inset 0 0 0 1px #ffffff14, 0 4px 14px #02060f66 }
+body.v3 .loc.here{ border-color:var(--kelp); box-shadow:var(--lit), 0 0 0 1px #7fe3c444, 0 0 24px #7fe3c422 }
 
 /* boardwalk keeps its striped awning, on the new panel */
 body.v3 .bw-banner::after{ background:linear-gradient(#111c2ef2,#111c2e) }
