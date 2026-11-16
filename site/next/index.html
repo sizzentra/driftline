@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1523';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1528';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2483,7 +2483,7 @@ const PATCHES = [
   'Twenty new oddities to fish up.',
   'Catfish and gar look like catfish and gar. Willow trees look like willows, and the shores are greener.',
   'Things you have not found yet stay a mystery: no more shapes giving them away.',
-  'Fish Log shows your smallest catch too. Shops list everything from cheapest to most expensive.',
+  'Fish Log is sorted by rarity and shows your smallest catch too. Shops list everything from cheapest to most expensive.',
   'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
   'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
   'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
@@ -5301,7 +5301,7 @@ function v3willowDraw(c,P,t,hz){
   // curtains: strands hanging from points along every limb, falling almost to the water, leaves as short slanted dabs
   const fr=v3rng(61), strands=[];
   tips.forEach(([x0,y0,mx,my,x1,y1],li)=>{ for(let s=.12;s<=1.04;s+=.032){ const m=1-s, px=m*m*x0+2*m*s*mx+s*s*x1, py=m*m*y0+2*m*s*my+s*s*y1, outer=Math.abs(px-bx)/(H*.12);
-      const len=(by+H*.008-py)*(.7+outer*.22+fr()*.12), ph=fr()*6.28, dir=px<bx?-1:1; strands.push({px,py,len,ph,dir,out:.4+outer*.8,layer:fr()<.4?0:fr()<.66?1:2,sw:(.5+outer)}); } });
+      const len=(by+H*.008-py)*(.7+outer*.22+fr()*.12), ph=fr()*6.28, dir=limbs[li][0]<0?-1:limbs[li][0]>0?1:(((s*100)|0)%2?1:-1); strands.push({px,py,len,ph,dir,out:.4+outer*.8,layer:fr()<.4?0:fr()<.66?1:2,sw:(.5+outer)}); } });
   const leafPass=(layer,col,lw)=>{ c.strokeStyle=col; c.lineWidth=lw; c.beginPath();
     for(const S2 of strands){ if(S2.layer!==layer) continue; const sw=(wind+Math.sin(t*1.1+S2.ph)*H*.003)*S2.sw;
       for(let k=0;k<=1;k+=.06){ const arc=Math.sin(Math.min(1,k*2.6)*Math.PI/2), y=S2.py-Math.sin(Math.min(1,k*3)*Math.PI)*H*.008+S2.len*Math.pow(k,1.25), x=S2.px+S2.dir*S2.out*arc*H*.02+sw*k*k+Math.sin(k*3+S2.ph)*H*.0022, ll=u*(3.8-k*1.5), side=((k*100|0)%2)?1:-1; c.moveTo(x,y); c.lineTo(x+side*ll*.45,y+ll); } }
@@ -7226,7 +7226,7 @@ function renderJournal(P){
     body=`<p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas>
       <b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; }).join('')+'</div>';
   } else {
-    const L=LOCS[locIdx(encLoc)], list=spAt(L.id), got=caughtAt(L.id), open=S.unlocked.includes(L.id); const sel=encSel && SPI[encSel] && SPI[encSel].loc===L.id ? SPI[encSel] : null;
+    const L=LOCS[locIdx(encLoc)], list=spAt(L.id).slice().sort((a,b)=>a.r-b.r||a.base-b.base), got=caughtAt(L.id), open=S.unlocked.includes(L.id); const sel=encSel && SPI[encSel] && SPI[encSel].loc===L.id ? SPI[encSel] : null;
     let det='';
     if(sel){ const j=S.journal[sel.id], ae=aqBase(sel.id), B=BEH[sel.beh];
       det=`<div class="tile detail" style="margin-top:10px"><canvas width="440" height="220" data-fish="${sel.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas><div>
