@@ -39,12 +39,13 @@ function rigQuad(c,P,t,night,lk,m,id){
   const tx=-rx*.92, ty=by-ry*.25, tw=Math.sin(t*wag)*.45;
   pet3Tail(c,k,P.tail||'wag',tx,ty,tw,P.tailCol||main,P,sleep,s);
   // far legs, body, belly, near legs
-  if(!sleep){ for(const lx of [-rx*.62,rx*.5]){ el(lx,by+ry*.55,lw*.75,lh*.18+.5,farC); c.fillStyle=k.D(farC); c.fillRect(lx-lw/2,by+ry*.4,lw,lh+ry*.2-.6); el(lx+.3,-.45,lw*.62,.55,mix(farC,'#000000',.2)); } }
-  el(0,by+br*.2,rx,ry+br,main);
+  const legP=(lx,col,pc)=>{ const top=by+ry*.15, w0=lw*1.08, w1=lw*.82; c.fillStyle=k.D(col); c.beginPath(); c.moveTo(lx-w0/2,top); c.lineTo(lx+w0/2,top); c.quadraticCurveTo(lx+w1/2+.15,-lh*.5,lx+w1/2,-.8); c.lineTo(lx-w1/2,-.8); c.quadraticCurveTo(lx-w1/2-.2,-lh*.5,lx-w0/2,top); c.closePath(); c.fill(); el(lx+.3,-.62,lw*.62,.66,pc); };
+  if(!sleep){ for(const lx of [-rx*.62,rx*.5]) legP(lx,farC,mix(P.paw||mix(main,"#000000",.2),"#000000",.15)); }
+  el(0,by+br*.2,rx,ry+br,main); { c.save(); c.beginPath(); c.ellipse(0,by+br*.2,rx,ry+br,0,0,7); c.clip(); const vg=c.createLinearGradient(0,by-ry,0,by+ry); vg.addColorStop(0,"rgba(255,240,220,.16)"); vg.addColorStop(.55,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(20,10,30,.22)"); c.fillStyle=vg; c.fillRect(-rx,by-ry-1,rx*2,ry*2+2); c.restore(); }
   if(P.wool){ for(let i=0;i<11;i++){ const a=Math.PI*(1.02+i*.098); ci(Math.cos(a)*rx*.92,by+Math.sin(a)*ry*.95,ry*.42,mix(main,'#ffffff',.08)); } for(let i=0;i<5;i++) ci(-rx*.7+i*rx*.35,by+ry*.62,ry*.38,main); }
   el(rx*.15,by+ry*.48,rx*.72,ry*.42,belly);
   if(P.mark) pet3Mark(c,k,P.mark,0,by,rx,ry,P,t);
-  if(!sleep){ for(const lx of [-rx*.42,rx*.7]){ c.fillStyle=k.D(main); c.fillRect(lx-lw/2,by+ry*.35,lw,lh+ry*.3-.6); el(lx+.3,-.45,lw*.62,.55,P.paw||dark); } }
+  if(!sleep){ for(const lx of [-rx*.42,rx*.7]) legP(lx,main,P.paw||mix(main,"#000000",.2)); }
   else { el(rx*.8,-.55,lw*.9,.6,P.paw||dark); el(rx*.45,-.5,lw*.85,.55,P.paw||dark); }
   // cape over the back
   if(cape){ const f0=c.filter; c.filter='none'; const wv=Math.sin(t*3.4)*.5; c.fillStyle=k.D(cape); c.beginPath(); c.moveTo(rx*.55,by-ry*.95); c.quadraticCurveTo(-rx*.2,by-ry*1.25,-rx*.95,by-ry*.55+wv); c.lineTo(-rx*.8,by+ry*.2+wv); c.quadraticCurveTo(-rx*.1,by-ry*.2,rx*.5,by-ry*.4); c.closePath(); c.fill(); c.fillStyle=k.D(mix(cape,'#000000',.28)); c.beginPath(); c.moveTo(-rx*.95,by-ry*.55+wv); c.lineTo(-rx*.8,by+ry*.2+wv); c.lineTo(-rx*.62,by-ry*.1); c.closePath(); c.fill(); c.filter=f0; }
@@ -52,7 +53,7 @@ function rigQuad(c,P,t,night,lk,m,id){
   c.strokeStyle='rgba(255,226,180,.28)'; c.lineWidth=.45; c.beginPath(); c.ellipse(0,by+br*.2,rx*.96,(ry+br)*.96,0,-Math.PI*.85,-Math.PI*.18); c.stroke();
   // neck
   if(!sleep){ c.fillStyle=k.D(main); c.beginPath(); c.moveTo(rx*.48,by-ry*.55); c.quadraticCurveTo(hx-hr*.9,hy+hr*.2,hx-hr*.35,hy+hr*.55); c.lineTo(hx+hr*.2,hy+hr*.7); c.quadraticCurveTo(rx*.95,by,rx*.98,by+ry*.2); c.closePath(); c.fill();
-    if(P.mane){ c.fillStyle=k.D(P.mane); c.beginPath(); c.moveTo(rx*.45,by-ry*.6); c.quadraticCurveTo(hx-hr*1.1,hy-hr*.1,hx-hr*.5,hy-hr*.75); c.lineTo(hx-hr*.95,hy-hr*.3); c.quadraticCurveTo(rx*.2,by-ry*.6,rx*.2,by-ry*.4); c.closePath(); c.fill(); } }
+    if(P.mane){ const mc=P.mane; for(let i=0;i<7;i++){ const f=i/6, x0=rx*.45+(hx-hr*.6-rx*.45)*f, y0=by-ry*.62+(hy-hr*.55-(by-ry*.62))*f; k.qd(x0,y0,x0-1.6,y0+1.2,x0-1.1+Math.sin(t*1.4+i)*.25,y0+3.2,mc,1.25); } k.qd(hx-hr*.45,hy-hr*.85,hx+hr*.1,hy-hr*.75,hx+hr*.25,hy-hr*.25,mc,1.1); } }
   // head
   c.save(); c.translate(hx,hy); c.rotate(hrot);
   pet3Ears(c,k,P.ears||'pointy',hr,P.earCol||main,P.earIn||'#e8a0a0',m,t,true,P);
@@ -93,7 +94,7 @@ function pet3Ears(c,k,type,hr,col,inn,m,t,back,P){ const {el,ci}=k, D=k.D; const
     if(back) ear(-hr*.3,true); else ear(hr*.05,false); return; }
   if(type==='floppy'){ if(back) return; c.save(); c.translate(-hr*.2,-hr*.45); c.rotate(.5+flop*.5+tw); el(0,hr*.45,hr*.36,hr*.7,P.earCol||mix(col,'#000000',.25)); c.restore(); return; }
   if(type==='round'){ el(back?-hr*.45:hr*.05,-hr*.78,hr*.34,hr*.32,back?mix(col,'#000000',.25):col); if(!back) el(hr*.05,-hr*.76,hr*.18,hr*.16,inn); return; }
-  if(type==='long'){ const ear=(ox,dk)=>{ c.save(); c.translate(ox,-hr*.7); c.rotate(-.2+perk+flop*1.4+tw); el(0,-hr*.85,hr*.3,hr*.95,dk?mix(col,'#000000',.25):col); if(!dk) el(0,-hr*.8,hr*.14,hr*.7,inn); c.restore(); }; if(back) ear(-hr*.35,true); else ear(hr*.0,false); return; }
+  if(type==='long'){ const L=P.earLen||1; const ear=(ox,dk)=>{ c.save(); c.translate(ox,-hr*.7); c.rotate(-.2+perk+flop*1.4+tw+(L<1?.25:0)); el(0,-hr*.85*L,hr*.3*(L<1?.9:1),hr*.95*L,dk?mix(col,'#000000',.25):col); if(!dk) el(0,-hr*.8*L,hr*.14,hr*.7*L,inn); c.restore(); }; if(back) ear(-hr*.35,true); else ear(hr*.0,false); return; }
   if(type==='tiny'){ if(back) return; el(-hr*.15,-hr*.86,hr*.2,hr*.16,col); return; }
   if(type==='side'){ if(back) return; c.save(); c.translate(-hr*.35,-hr*.3); c.rotate(-.9+flop+tw); el(0,0,hr*.55,hr*.24,col); el(0,0,hr*.32,hr*.12,inn); c.restore(); return; }
 }
@@ -111,7 +112,7 @@ function pet3Mark(c,k,mk,x0,by,rx,ry,P,t){ const {el,ci,D}=k; c.save(); c.beginP
   c.restore(); }
 function pet3Face(c,k,fm,hr,P){ const {el,ci}=k;
   if(fm==='mask'){ el(hr*.28,-hr*.2,hr*.42,hr*.28,P.accent||'#2a2a2a',-.1); }
-  if(fm==='blaze'){ el(hr*.35,-hr*.2,hr*.2,hr*.6,'#f6f0e6',.35); }
+  if(fm==='blaze'){ k.qd(hr*.5,-hr*.88,hr*.98,-hr*.55,hr*1.2,hr*.08,'#f6f0e6',hr*.2); }
   if(fm==='patch'){ el(hr*.28,-hr*.2,hr*.3,hr*.36,'#1c1c1c',-.4); }
   if(fm==='cheeks'){ el(hr*.45,hr*.35,hr*.4,hr*.32,'#f4ece0'); }
   if(fm==='tigerface'){ c.strokeStyle=k.D('#2a1a10'); c.lineWidth=.35; c.beginPath(); c.moveTo(-hr*.2,-hr*.9); c.lineTo(-hr*.05,-hr*.55); c.moveTo(hr*.15,-hr*.95); c.lineTo(hr*.2,-hr*.6); c.moveTo(-hr*.7,-hr*.2); c.lineTo(-hr*.35,-hr*.15); c.stroke(); }
@@ -165,8 +166,8 @@ const PET3 = {
   capybara:{rig:'quad', main:'#a0764a', belly:'#b88a5e', ears:'tiny', tail:'stub', legH:3, bodyRx:8.6, bodyRy:5, headR:4.4, snout:{l:3,w:2.2,col:'#8a6440'}, nose:'#3a2418', blinkOff:1, extras:(c,k,f)=>{ if(f.sleep) return; k.ci(f.hx-f.hr*.1,f.hy-f.hr*1.2,f.hr*.55,'#ff9a3a'); k.el(f.hx-f.hr*.05,f.hy-f.hr*1.7,f.hr*.15,f.hr*.1,'#4a8a3a'); }},
   goat:    {rig:'quad', main:'#f0ece4', belly:'#ffffff', ears:'side', earIn:'#e8c0b8', tail:'stub', horn:'goat', snout:{l:2.4,w:1.4,col:'#f8f4ee'}, nose:'#8a7a70', legH:5.6, legW:1.8, blinkOff:.6, extras:(c,k,f)=>{ if(f.sleep) return; k.el(f.hx+f.hr*1.1,f.hy+f.hr*1.15,f.hr*.16,f.hr*.4,'#e8e0d4'); }},
   sheep:   {rig:'quad', main:'#f4f0ea', belly:'#f4f0ea', wool:true, ears:'side', earCol:'#2a2a2e', earIn:'#4a4a4e', headCol:'#2a2a2e', tail:'stub', snout:{l:1.8,w:1.5,col:'#3a3a3e'}, nose:'#1a1a1e', legH:4, legW:1.6, paw:'#1a1a1e', bodyRx:8, bodyRy:5, eyeCol:'#f4f0ea', blinkOff:1.4},
-  llama:   {rig:'quad', main:'#f0e2c8', belly:'#f8f0e0', ears:'long', earIn:'#d8c0a0', tail:'fluffy', neck:5, legH:6, legW:1.8, snout:{l:2.2,w:1.6,col:'#f8f0e0'}, nose:'#6a5040', blinkOff:2.6},
-  alpaca:  {rig:'quad', main:'#e8d0b0', belly:'#f4e4cc', wool:true, ears:'long', earIn:'#c8a888', tail:'fluffy', neck:4, legH:5, legW:1.8, snout:{l:1.8,w:1.5,col:'#f4e4cc'}, nose:'#6a5040', blinkOff:.15},
+  llama:   {rig:'quad', main:'#f0e2c8', belly:'#f8f0e0', ears:'long', earLen:.55, earIn:'#d8c0a0', tail:'fluffy', neck:5, legH:6, legW:1.8, snout:{l:2.2,w:1.6,col:'#f8f0e0'}, nose:'#6a5040', blinkOff:2.6},
+  alpaca:  {rig:'quad', main:'#e8d0b0', belly:'#f4e4cc', wool:true, ears:'long', earLen:.5, earIn:'#c8a888', tail:'fluffy', neck:4, legH:5, legW:1.8, snout:{l:1.8,w:1.5,col:'#f4e4cc'}, nose:'#6a5040', blinkOff:.15},
   deer:    {rig:'quad', main:'#b8763e', belly:'#f0dcc0', ears:'side', earIn:'#e8c0a0', tail:'stub', tailCol:'#f8f0e8', horn:'antlers', neck:2.4, legH:6.4, legW:1.5, snout:{l:2.4,w:1.4,col:'#d8a878'}, mark:'spots', accent:'#f4e8d8', blinkOff:1.8},
   horse:   {rig:'quad', main:'#8a5a32', belly:'#a06a3e', ears:'pointy', earIn:'#5a3a20', tail:'horse', mane:'#2a1a10', neck:3.4, legH:7, legW:2, bodyRx:9.4, bodyRy:5, headR:4, snout:{l:3.4,w:2,col:'#a06a3e'}, nose:'#3a2418', faceMark:'blaze', size:.95, blinkOff:.8},
   unicorn: {rig:'quad', main:'#f8f4fa', belly:'#ffffff', ears:'pointy', earIn:'#f8c8e0', tail:'horse', mane:'#c89aff', horn:'uni', neck:3, legH:6.6, legW:1.9, bodyRx:9, bodyRy:4.8, headR:4, snout:{l:3,w:1.9,col:'#ffffff'}, nose:'#d8b0c8', size:.95, blinkOff:2.1},
