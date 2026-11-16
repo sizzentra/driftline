@@ -300,3 +300,26 @@ if(/[?&]test\b/.test(location.search)){
   window.__post=(name,url)=>fetch('/shot/'+name,{method:'POST',body:url});
   window.__snap=(name,x=0,y=0,w=W,h=H,s=2)=>{ const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); return __post(name,o.toDataURL()); };
 }
+
+// ---------- water effects for the fishing moments (all areas, preview) ----------
+// rings and droplets live on the water (drawn under the dock and angler); a rare catch gets a sparkle burst on top
+const V3FX={rings:[],drops:[],prev:'idle',splT:0,last:0,rare:0};
+function v3fxSplash(x,y,n,pow){ const rn=Math.min(3,1+Math.floor(n/8)); for(let i=0;i<rn;i++) V3FX.rings.push({x,y,t:-i*.14,life:1.3+pow,r0:2,r1:14+pow*26});
+  for(let i=0;i<n;i++){ const a=-Math.PI*(.12+.76*Math.random()), sp=(50+Math.random()*90)*(.55+pow); V3FX.drops.push({x:x+(Math.random()-.5)*4,y,vx:Math.cos(a)*sp*.55,vy:Math.sin(a)*sp,t:0,life:.55+Math.random()*.45,r:.7+Math.random()*1.3}); }
+  if(V3FX.drops.length>160) V3FX.drops.splice(0,V3FX.drops.length-160); }
+function v3Fx(t){ if(!V3ON) return; const dt=Math.min(.05,Math.max(0,t-(V3FX.last||t))); V3FX.last=t; const st=G.st, pv=V3FX.prev, sc=clamp(H/420,.7,1.25);
+  if(st==='waiting'&&pv==='flying') v3fxSplash(G.bob.x,G.bob.y,9,.25);
+  if(st==='bite'&&pv!=='bite') v3fxSplash(G.bob.x,G.bob.y,7,.2);
+  if(st==='reeling'){ V3FX.splT-=dt; if(V3FX.splT<=0){ const ten=clamp((G.ten||0)/100,0,1); v3fxSplash(G.bob.x+(Math.random()-.5)*12,G.bob.y+3,2+Math.round(ten*6),.1+ten*.35); V3FX.splT=.16+(1-ten)*.4+(G.run?-.06:0); } }
+  if(st==='landing'&&pv!=='landing'&&G.land){ v3fxSplash(G.land.x0,G.land.y0,22,.65); const f=G.fish; if(f&&(f.shiny||f.kind==='hat'||(f.kind==='fish'&&f.sp&&f.sp.r>=3))) V3FX.rare=performance.now(); }
+  V3FX.prev=st;
+  for(let i=V3FX.rings.length-1;i>=0;i--){ const r=V3FX.rings[i]; r.t+=dt; if(r.t>r.life){ V3FX.rings.splice(i,1); continue; } if(r.t<0) continue; const k=r.t/r.life, rad=(r.r0+(r.r1-r.r0)*Math.sqrt(k))*sc;
+    g.strokeStyle='rgba(236,246,255,'+(.6*(1-k))+')'; g.lineWidth=1.3*(1-k*.5); g.beginPath(); g.ellipse(r.x,r.y+2,rad,rad*.3,0,0,7); g.stroke(); }
+  for(let i=V3FX.drops.length-1;i>=0;i--){ const d=V3FX.drops[i]; d.t+=dt; if(d.t>d.life){ V3FX.drops.splice(i,1); continue; } d.vy+=330*dt; d.x+=d.vx*dt*sc; d.y+=d.vy*dt*sc; const a=1-d.t/d.life;
+    g.fillStyle='rgba(232,245,255,'+(.85*a)+')'; g.beginPath(); g.ellipse(d.x,d.y,d.r*sc,d.r*1.35*sc,Math.atan2(d.vy,d.vx)+Math.PI/2,0,7); g.fill(); }
+}
+function v3FxTop(){ if(!V3ON||!V3FX.rare) return; const k=(performance.now()-V3FX.rare)/1700; if(k>1){ V3FX.rare=0; return; }
+  const cx=W*.2, cy=H*.24, sc=clamp(H/420,.7,1.25);
+  for(let i=0;i<10;i++){ const a=i/10*Math.PI*2+k*1.2, rr=(14+k*46)*sc, x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr*.75, s=(3.2-k*2)*sc, al=Math.min(1,(1-k)*1.8);
+    g.fillStyle='rgba(255,226,140,'+al+')'; g.beginPath(); g.moveTo(x,y-s*1.6); g.quadraticCurveTo(x,y,x+s*1.6,y); g.quadraticCurveTo(x,y,x,y+s*1.6); g.quadraticCurveTo(x,y,x-s*1.6,y); g.quadraticCurveTo(x,y,x,y-s*1.6); g.fill(); }
+}
