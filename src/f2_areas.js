@@ -999,3 +999,41 @@ function v3Pedestal(x,cx,cy,rw,t){ const rh=rw*.22;
   const tg=x.createLinearGradient(0,cy-rh,0,cy+rh); tg.addColorStop(0,mix(wd,'#ffffff',.18)); tg.addColorStop(1,mix(wd,'#000000',.1)); x.fillStyle=tg; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.fill();
   x.save(); x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.clip(); x.strokeStyle='rgba(0,0,0,.16)'; x.lineWidth=1.5; for(let k=-4;k<=4;k++){ x.beginPath(); x.moveTo(cx+k*rw*.22,cy-rh); x.lineTo(cx+k*rw*.22,cy+rh); x.stroke(); } x.restore();
   x.strokeStyle='rgba(255,236,200,.45)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,Math.PI*1.05,Math.PI*1.95); x.stroke(); }
+
+// ---------- the aquarium tank in the 0.3 look ----------
+// Static layers (depth, far rock silhouettes, sand with ripples) are cached per size, theme and sand;
+// light rays, caustics, kelp and bubbles move every frame. Theme and sand colours come from the player's choices.
+let V3TANK=null;
+function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0], DP=Math.min(DPR||1,2);
+  const key=w+'|'+h+'|'+V.theme+'|'+V.sand;
+  if(!V3TANK||V3TANK.key!==key){ const cc=(V3TANK&&V3TANK.c)||document.createElement('canvas'); cc.width=Math.round(w*DP); cc.height=Math.round(h*DP); const x=cc.getContext('2d'); x.setTransform(DP,0,0,DP,0,0); x.clearRect(0,0,w,h);
+    const bg=x.createLinearGradient(0,0,0,h); bg.addColorStop(0,mix(th[3],'#ffffff',.08)); bg.addColorStop(.55,th[3]); bg.addColorStop(1,th[4]); x.fillStyle=bg; x.fillRect(0,0,w,h);
+    // far rock and coral silhouettes, two depths, tinted by the water
+    const r=v3rng(31); for(let L=0;L<2;L++){ x.fillStyle=mix(th[4],th[3],L?.35:.6); x.beginPath(); x.moveTo(0,h); for(let X=0;X<=w;X+=w/24){ const hh=h*(.18+.16*Math.abs(Math.sin(X*.011+L*2))+.06*r())*(L?.75:1); x.lineTo(X,h-hh); } x.lineTo(w,h); x.closePath(); x.fill(); }
+    for(let i=0;i<6;i++){ const bx=w*(.08+i*.17+r()*.05), bh=h*(.2+r()*.15); x.strokeStyle=mix(th[4],th[3],.45); x.lineWidth=Math.max(2,h*.012); x.lineCap='round'; x.beginPath(); x.moveTo(bx,h*.9); x.lineTo(bx,h*.9-bh); for(const sdx of [-1,1]){ x.moveTo(bx,h*.9-bh*.5); x.quadraticCurveTo(bx+sdx*bh*.25,h*.9-bh*.6,bx+sdx*bh*.3,h*.9-bh*.85); } x.stroke(); }
+    // sand: a soft dune with ripples and grains, lighter at the front lip
+    const sy=X=>h-h*.075-Math.sin(X*.018)*h*.022-Math.sin(X*.05)*h*.008;
+    const sg=x.createLinearGradient(0,h*.82,0,h); sg.addColorStop(0,mix(sd[3],'#000000',.15)); sg.addColorStop(1,mix(sd[3],'#ffffff',.12)); x.fillStyle=sg; x.beginPath(); x.moveTo(0,h); for(let X=0;X<=w;X+=8) x.lineTo(X,sy(X)); x.lineTo(w,h); x.closePath(); x.fill();
+    x.strokeStyle=v3rgba(mix(sd[3],'#000000',.3),.35); x.lineWidth=1; for(let k=1;k<4;k++){ x.beginPath(); for(let X=0;X<=w;X+=10){ const Y=sy(X)+k*h*.022+Math.sin(X*.06+k)*1.5; X?x.lineTo(X,Y):x.moveTo(X,Y); } x.stroke(); }
+    for(let i=0;i<120;i++){ x.fillStyle=v3rgba(i%2?mix(sd[3],'#ffffff',.4):mix(sd[3],'#000000',.35),.5); const X=r()*w; x.fillRect(X,sy(X)+r()*h*.07,1.3,1); }
+    if(V.sand==='pebble'){ for(let i=0;i<46;i++){ const X=(i*37.3)%w; x.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; x.beginPath(); x.ellipse(X,sy(X)+h*.03+((i*13)%10)*h*.004,4,2.5,0,0,7); x.fill(); x.fillStyle='rgba(255,255,255,.25)'; x.fillRect(X-2,sy(X)+h*.025+((i*13)%10)*h*.004,2,1); } }
+    V3TANK={key,c:cc}; }
+  c.drawImage(V3TANK.c,0,0,w,h);
+  // light rays fanning down from the surface, fading with depth
+  c.save(); c.globalCompositeOperation='lighter'; for(let i=0;i<6;i++){ const x0=w*(i/5)+Math.sin(t*.25+i*1.7)*w*.03, rw=w*(.04+(i%3)*.015), gr=c.createLinearGradient(0,0,0,h); gr.addColorStop(0,'rgba(190,235,255,.12)'); gr.addColorStop(1,'rgba(190,235,255,0)'); c.fillStyle=gr; c.beginPath(); c.moveTo(x0,0); c.lineTo(x0+rw,0); c.lineTo(x0+rw-w*.06,h); c.lineTo(x0-w*.1,h); c.closePath(); c.fill(); }
+  // caustic shimmer on the sand
+  if(S.settings.effects){ c.strokeStyle='rgba(220,250,255,.14)'; c.lineWidth=1; for(let i=0;i<16;i++){ const cx=w*((i*.0631)%1)+Math.sin(t*.4+i)*8, cy=h*(.9+((i*7)%5)*.015), R=w*.022; c.beginPath(); for(let j=0;j<=6;j++){ const a=j/6*6.283, rr=R*(.7+.3*Math.sin(t*1.5+i+j*1.9)); const X=cx+Math.cos(a)*rr, Y=cy+Math.sin(a)*rr*.3; j?c.lineTo(X,Y):c.moveTo(X,Y); } c.stroke(); } }
+  c.restore();
+  if(V.theme==='abyss'||V.theme==='midnight'){ c.save(); c.globalCompositeOperation='lighter'; for(let i=0;i<24;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } c.restore(); }
+  // leafy kelp swaying
+  for(let i=0;i<7;i++){ const x=(i+.5)*w/7+((i*29)%20)-10, hh=h*(.3+((i*17)%40)/100), base=h*.93, col=i%2?'#3f8f5a':'#2f7a4c';
+    c.strokeStyle=col; c.lineWidth=Math.max(2,h*.012); c.lineCap='round'; c.beginPath(); const pts=[]; for(let k=0;k<=8;k++){ const u=k/8, px=x+Math.sin(t*.9+i+u*2.2)*h*.04*u, py=base-hh*u; pts.push([px,py]); k?c.lineTo(px,py):c.moveTo(px,py); } c.stroke();
+    c.fillStyle=col; for(let k=2;k<8;k++){ const [px,py]=pts[k], sdx=k%2?1:-1, a=Math.sin(t*1.1+i+k)*.3; c.beginPath(); c.ellipse(px+sdx*h*.03,py,h*.035,h*.011,sdx*(.5+a),0,7); c.fill(); } }
+  // bubbles rising from a little vent on the left
+  for(let i=0;i<10;i++){ const k=((t*.25+i/10)%1), bx=w*.06+Math.sin(t*2+i*1.7)*w*.008, by=h*.9-k*h*.9, rr=1.5+(i%3)*1.2; c.strokeStyle='rgba(230,250,255,'+(.6*(1-k*.6))+')'; c.lineWidth=1; c.beginPath(); c.arc(bx,by,rr,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(bx-rr*.4,by-rr*.5,1,1); }
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h*.95,h/230,t));
+  return true; }
+// glass: a shimmering waterline at the top, a diagonal reflection, and darker corners
+function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0,0,w,2); c.strokeStyle='rgba(220,250,255,.25)'; c.lineWidth=1; c.beginPath(); for(let X=0;X<=w;X+=12) c.lineTo(X,5+Math.sin(X*.05+t*2)*1.5); c.stroke();
+  const rg=c.createLinearGradient(0,0,w*.4,h); rg.addColorStop(0,'rgba(255,255,255,0)'); rg.addColorStop(.48,'rgba(255,255,255,0)'); rg.addColorStop(.5,'rgba(255,255,255,.06)'); rg.addColorStop(.56,'rgba(255,255,255,0)'); c.fillStyle=rg; c.fillRect(0,0,w,h);
+  const vg=c.createRadialGradient(w/2,h/2,h*.3,w/2,h/2,w*.6); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,4,12,.35)'); c.fillStyle=vg; c.fillRect(0,0,w,h); }

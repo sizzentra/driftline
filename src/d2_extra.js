@@ -34,7 +34,7 @@ const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
 const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
 function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
-function drawTankBack(c,w,h,t){ const V=aqView(); const th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0];
+function drawTankBack(c,w,h,t){ if(V3ON && v3TankBack(c,w,h,t)) return; const V=aqView(); const th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0];
   const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,th[3]); bg.addColorStop(1,th[4]); c.fillStyle=bg; c.fillRect(0,0,w,h);
   for(let i=0;i<5;i++){ c.fillStyle='rgba(180,230,255,.05)'; c.beginPath(); const x=(i*w/4+Math.sin(t*.3+i)*30); c.moveTo(x,0); c.lineTo(x+40,0); c.lineTo(x-20,h); c.lineTo(x-70,h); c.fill(); }
   if(V.theme==='abyss'||V.theme==='midnight'){ for(let i=0;i<20;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } }
@@ -42,7 +42,7 @@ function drawTankBack(c,w,h,t){ const V=aqView(); const th=THEMES.find(x=>x[0]==
   if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
   const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(aqView().decor.includes('duck')) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };
