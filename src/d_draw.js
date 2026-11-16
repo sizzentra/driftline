@@ -390,7 +390,7 @@ function draw(now){
   if(FX && (wx.k==='Rain'||wx.k==='Storm')){ const n = wx.k==='Storm'?140:80; if(!drops||drops.length!==n) drops=Array.from({length:n},()=>[Math.random(),Math.random(),.6+Math.random()*.6]);
     g.strokeStyle='rgba(200,220,235,.35)'; g.lineWidth=1; g.beginPath(); const slant = wx.k==='Storm'? 10 : 4;
     for(const d of drops){ const x=((d[0]*W + t*slant*20*d[2])%W), y=((d[1]*H + t*700*d[2])%H); g.moveTo(x,y); g.lineTo(x-slant,y+14); } g.stroke(); }
-  if(FX && L.id==='frost'){ if(!flakes) flakes=Array.from({length:70},()=>[Math.random(),Math.random(),.5+Math.random()]); g.fillStyle='rgba(255,255,255,.8)';
+  if(FX && L.id==='frost' && !V3ON){ if(!flakes) flakes=Array.from({length:70},()=>[Math.random(),Math.random(),.5+Math.random()]); g.fillStyle='rgba(255,255,255,.8)';
     for(const f of flakes){ const x=((f[0]*W + Math.sin(t*.8+f[1]*9)*20 + t*8*f[2])%W+W)%W, y=((f[1]*H + t*30*f[2])%H); g.fillRect(x,y,1.6*f[2],1.6*f[2]); } }
   if(wx.k==='Fog'){ const fg=g.createLinearGradient(0,hz-60,0,H); fg.addColorStop(0,'rgba(210,220,225,0)'); fg.addColorStop(.25,'rgba(210,220,225,.38)'); fg.addColorStop(1,'rgba(210,220,225,.12)'); g.fillStyle=fg; g.fillRect(0,0,W,H); }
   if(FX && wx.k==='Gilded'){ for(let i=0;i<24;i++){ const x=(i*97.3+t*12*(1+i%4))%W, y=hz*.3+((i*53.7+Math.sin(t+i)*20)%(H*.6)); g.fillStyle='rgba(255,215,120,'+(.35+.35*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } }

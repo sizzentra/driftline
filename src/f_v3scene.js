@@ -265,6 +265,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const tl=SC.tilt?SC.tilt(t):0; if(tl){ g.save(); g.translate(W/2,hz); g.rotate(tl); g.scale(1.04,1.04); g.translate(-W/2,-hz); }
   // sky
   const sg=g.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); g.fillStyle=sg; g.fillRect(0,0,W,hz+1);
+  if(wx&&wx.k==='Gilded'){ const gg=g.createLinearGradient(0,0,0,hz); gg.addColorStop(0,'rgba(255,200,90,0)'); gg.addColorStop(1,'rgba(255,196,90,'+(.26*(1-night*.65))+')'); g.fillStyle=gg; g.fillRect(0,0,W,hz+1); }
   // stars (twinkling) after dusk
   if(night>.05 && gloom<.5 && !SC.overcast){ if(!v3Scene.st||v3Scene.st.w!==W){ const r=v3rng(3); v3Scene.st={w:W,a:Array.from({length:90},()=>[r()*W,r()*hz*.85,r(),.6+r()*1.1])}; }
     g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
@@ -303,6 +304,7 @@ if(/[?&]test\b/.test(location.search)){
   window.__crop=(x,y,w,h,s=2)=>{ document.getElementById('dbg')?.remove(); const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); const im=document.createElement('img'); im.src=o.toDataURL(); im.id='dbg'; im.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#000;width:'+(w*s)+'px'; document.body.appendChild(im); return [o.width,o.height]; };
   window.__go=id=>{ S.loc=id; if(!S.unlocked.includes(id)) S.unlocked.push(id); };
   window.__drawCost=(n=30)=>{ const t0=performance.now(); for(let i=0;i<n;i++) draw(performance.now()); return +((performance.now()-t0)/n).toFixed(2); };
+  window.__setWeather=k=>{ for(let i=0;i<3000;i++){ window.__off+=137000; if(weather().k===k) return k; } return 'none'; };
   window.__post=(name,url)=>fetch('/shot/'+name,{method:'POST',body:url});
   window.__snap=(name,x=0,y=0,w=W,h=H,s=2)=>{ const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); return __post(name,o.toDataURL()); };
 }
