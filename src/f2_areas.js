@@ -967,3 +967,35 @@ function v3crystalPlat(P,t,night,dockY){
   g.fillStyle=v3rgba('#f4ecff',.9); g.beginPath(); g.arc(ox,oy,H*.01,0,7); g.fill(); g.strokeStyle=v3rgba(P.cry2,.7); g.lineWidth=1; g.beginPath(); g.ellipse(ox,oy,H*.018,H*.005,Math.sin(t*.8)*.3,0,7); g.stroke();
 }
 V3PLAT.crystal=(P,t,night,dockY)=>v3crystalPlat(P,t,night,dockY);
+
+// ---------- the Home tab's dock diorama, in the 0.3 look ----------
+// Uses the current area's sky colours and its cached landscape, so the preview always matches where you fish.
+function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000, P=v3palette.v; if(!P) return false;
+  const hz=h*.5, dy=h*.66;
+  const sg=x.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); x.fillStyle=sg; x.fillRect(0,0,w,hz+1);
+  if(P.night>.1){ const r=v3rng(9); x.fillStyle="#ffffff"; for(let i=0;i<70;i++){ x.globalAlpha=P.night*(.3+.6*Math.abs(Math.sin(t*.7+i))); const s=.8+r()*1.4; x.fillRect(r()*w,r()*hz*.8,s,s); } x.globalAlpha=1; }
+  { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||"#6aa"); wg.addColorStop(.35,P.wMid||"#357"); wg.addColorStop(1,P.wBot||"#123"); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
+  if(V3CACHE){ const src=V3CACHE.c, sH=src.height, sW=src.width, srcHz=HZ()*DPR, top=srcHz-sH*.3, band=sH*.42; x.drawImage(src,0,Math.max(0,top),sW,band,0,hz-h*.5*(.3/.42)*1.4,w,h*.5*1.4); }
+  else { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||'#6aa'); wg.addColorStop(1,P.wBot||'#123'); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
+  // a soft vignette so the dock reads first
+  const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
+  // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
+  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), th=h*.035, fh=h*.05, x0=w*.03, x1=w*.95;
+  for(let i=0;i<5;i++){ const px=x0+w*.04+i*(x1-x0-w*.1)/4, pw=w*.022; x.fillStyle=N(mix(wd,'#000000',.45)); x.fillRect(px,dy,pw,h-dy); x.fillStyle=N(mix(wd,'#000000',.3)); x.fillRect(px,dy,pw*.35,h-dy); x.fillStyle=N('#3f6a4a'); x.fillRect(px,dy+(h-dy)*.55,pw,(h-dy)*.1); }
+  x.fillStyle=N(mix(wd,'#ffffff',.1)); x.fillRect(x0,dy-th,x1-x0,th); x.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+w*.03;X<x1;X+=w*.045) x.fillRect(X,dy-th,1.5,th);
+  x.fillStyle=N(mix(wd,'#000000',.22)); x.fillRect(x0,dy,x1-x0,fh); x.fillStyle=N('#2a1a14'); for(let X=x0+w*.02;X<x1;X+=w*.07){ x.fillRect(X,dy+fh*.28,3,3); x.fillRect(X,dy+fh*.66,3,3); }
+  x.fillStyle=v3rgba(P.rim,.5); x.fillRect(x0,dy-th,x1-x0,1.5); x.fillStyle='rgba(0,0,0,.3)'; x.fillRect(x0,dy+fh,x1-x0,3);
+  const items=dockView(), s=2.4, xs=homeSlots(items.length,w*.06,w*.9,w*.46,w*.64);
+  items.forEach((id,i)=>drawDockItem(x,id,xs[i],dy-th*.4,s*(id==='cottage'?.9:1),t,P.night));
+  drawPetStyled(x,S.pet,w*.5,dy-th*.4,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  return true; }
+
+// a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow
+function v3Pedestal(x,cx,cy,rw,t){ const rh=rw*.22;
+  const sp=x.createRadialGradient(cx,cy-rw*.9,0,cx,cy-rw*.6,rw*1.8); sp.addColorStop(0,'rgba(255,224,170,.28)'); sp.addColorStop(.5,'rgba(255,200,140,.08)'); sp.addColorStop(1,'rgba(255,200,140,0)'); x.fillStyle=sp; x.fillRect(cx-rw*2,cy-rw*2.6,rw*4,rw*3);
+  x.fillStyle='rgba(2,6,15,.45)'; x.beginPath(); x.ellipse(cx,cy+rh*1.25,rw*1.08,rh*.9,0,0,7); x.fill();
+  const wd=dockWood(); x.fillStyle=mix(wd,'#000000',.35); x.beginPath(); x.ellipse(cx,cy+rh*.45,rw,rh,0,0,Math.PI); x.lineTo(cx-rw,cy); x.ellipse(cx,cy,rw,rh,0,Math.PI,0,true); x.closePath(); x.fill();
+  x.fillRect(cx-rw,cy,rw*2,rh*.45);
+  const tg=x.createLinearGradient(0,cy-rh,0,cy+rh); tg.addColorStop(0,mix(wd,'#ffffff',.18)); tg.addColorStop(1,mix(wd,'#000000',.1)); x.fillStyle=tg; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.fill();
+  x.save(); x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.clip(); x.strokeStyle='rgba(0,0,0,.16)'; x.lineWidth=1.5; for(let k=-4;k<=4;k++){ x.beginPath(); x.moveTo(cx+k*rw*.22,cy-rh); x.lineTo(cx+k*rw*.22,cy+rh); x.stroke(); } x.restore();
+  x.strokeStyle='rgba(255,236,200,.45)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,Math.PI*1.05,Math.PI*1.95); x.stroke(); }
