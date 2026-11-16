@@ -57,6 +57,7 @@ function drawHome(L,t,night,dockY,pb,sc){ const items=dockView(); if(!items.leng
 function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.scale(s,s); const D=cl=>night?mix(cl,'#0a1018',night*.45):cl; c.lineCap='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, glow=(gx,gy,r,col)=>{ if(night<.25 && !back) return; const gr=c.createRadialGradient(gx,gy,1,gx,gy,r); gr.addColorStop(0,col); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(gx-r,gy-r,r*2,r*2); };
   switch(id){
+    default: drawDockZ(c,id,t,R,Ci,D); break;
     case 'mug': R(-3,-6,6,6,'#d8553a'); c.strokeStyle=D('#d8553a'); c.lineWidth=1.2; c.beginPath(); c.arc(3.5,-3,1.8,-1.5,1.5); c.stroke(); c.strokeStyle='rgba(255,255,255,.5)'; c.lineWidth=.8; for(let i=0;i<2;i++){ c.beginPath(); c.moveTo(-1+i*2,-7); c.quadraticCurveTo(-2+i*2+Math.sin(t*2+i)*1.5,-11,-1+i*2,-14); c.stroke(); } break;
     case 'books': R(-6,-3,12,3,'#3a6f9a'); R(-5,-6,11,3,'#c8553a'); R(-6,-9,10,3,'#4f8a4a'); R(-4,-11,8,2,'#e0c050'); break;
     case 'tacklebox': R(-7,-7,14,7,'#4a7a4a'); R(-7,-8,14,2,'#3a6a3a'); R(-2,-10,4,2,'#888'); break;
@@ -91,12 +92,12 @@ const passNeed = L => 120 + L*25;
 const PASS_XP = [8,14,30,60,150,400];
 const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag (dock)'],8:['tint','tidal','Tidal pet colour'],12:['hat','tidecap','Tide Cap (hat)'],18:['dock','shipwheel','Ship’s Wheel (dock)'],25:['wood','pearl','Pearl dock wood'],30:['out','tidecoat','Tide Coat (outfit)'],40:['dock','minilight','Tiny Lighthouse (dock)'],50:['legend','','Legendary Mystery Crate']};
 function passReward(L){ if(PASS_SPECIAL[L]) return PASS_SPECIAL[L][2]; if(L>PASS_MAX) return 'Coins and 15 Scales'; return ['Big Mystery Crate','Coins','10 Scales','60 tickets','Small Mystery Crate'][L%5]; }
-function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot();
+function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
     if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='legend') S.tokens.legend++; return sp[2]; }
   if(L>PASS_MAX){ earn(base*10*coinMult()); S.scales+=15; return 'Coins and 15 Scales'; }
   switch(L%5){ case 0: S.tokens.big++; break; case 1: earn(base*8*coinMult()); break; case 2: S.scales+=10; break; case 3: S.tickets+=60; break; case 4: S.tokens.small++; break; } return passReward(L); }
-function addPassXP(n){ S.pass.xp+=Math.round(n); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
+function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
 function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
   const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
   P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels of rewards, with special ones along the way, then bonus rewards forever.</p></div>
@@ -115,8 +116,9 @@ const DERBY_LEN = 4*60*1000;
 const RIVALS = [['Old Pete','has fished here since before the dock'],['Marina','never misses a hook'],['Captain Gull','a seagull in a captain’s hat']];
 function derbyCost(){ return Math.round(bestLoot()*3); }
 function startDerby(){ const sps=spAt(S.loc).filter(s=>s.r<=1); const mean=sps.reduce((a,s)=>a+(s.min+s.max)/2*RAR[s.r].w,0)/sps.reduce((a,s)=>a+RAR[s.r].w,0);
-  const rivals=RIVALS.map((r,i)=>({name:r[0], score:+(mean*14*[.7,1,1.35][i]*rnd(.85,1.15)).toFixed(1)}));
-  S.derby={until:Date.now()+DERBY_LEN, loc:S.loc, total:0, n:0, best:0, rivals}; toast('The derby has begun! Heaviest total catch at '+curLoc().name+' in 4 minutes wins.'); sfx.catch(3); }
+  const soft=(1-.04*pr('derbypro'))*(relic('derbyhorn')?.9:1);
+  const rivals=RIVALS.map((r,i)=>({name:r[0], score:+(mean*14*[.7,1,1.35][i]*rnd(.85,1.15)*soft).toFixed(1)}));
+  S.derby={until:Date.now()+(maxed('derbypro')?5*60*1000:DERBY_LEN), loc:S.loc, total:0, n:0, best:0, rivals}; toast('The derby has begun! Heaviest total catch at '+curLoc().name+' in 4 minutes wins.'); sfx.catch(3); }
 function derbyCatch(f){ const d=S.derby; if(!d||Date.now()>d.until||S.loc!==d.loc||f.kind!=='fish') return; d.total=+(d.total+f.kg).toFixed(2); d.n++; d.best=Math.max(d.best,f.kg); }
 function derbyPlace(){ const d=S.derby; return 1+d.rivals.filter(r=>r.score>d.total).length; }
 function endDerby(){ const d=S.derby; if(!d) return; const place=derbyPlace(), base=bestLoot(); S.derby=null; const medal=['gold','silver','bronze'][place-1]; let txt;

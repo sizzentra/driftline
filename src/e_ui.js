@@ -23,7 +23,7 @@ function hud(){
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
-  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=b.dataset.label+dot(n); };
+  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=tabHTML(b.dataset.label)+dot(n); };
   setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
   setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
@@ -251,12 +251,14 @@ function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getCo
   drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
-  P.innerHTML=`<h2>Pets</h2><p class="sub">Your pet sits beside you wherever you fish and gives a bonus. Some are sold here, some are hiding in junk you fish up, and two join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
+  P.innerHTML=`<h2>Pets</h2><p class="sub">Two pets can come fishing with you. Your <b style="color:#ffc94d">★ favourite</b> is always by your side, gives its full bonus and bonds twice as fast. Your <b>companion</b> tags along for half its bonus, a little more as you bond. Some pets are sold here, some are hiding in junk you fish up, and a few join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
   ${petCustomHTML()}
-  <div class="grid">`+PETS.map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id; const val=p.v*(1+.1*pr('petpal'));
-    const act = here ? '<button class="btn alt" disabled>With you</button>' : own ? `<button class="btn" data-act="pet" data-k="${p.id}">Bring along</button>`
+  <div class="grid">`+PETS.map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id, comp=S.pet2===p.id; const val=p.v*(1+.1*pr('petpal'));
+    const act = here ? '<button class="btn alt" disabled>★ Favourite</button>'
+      : comp ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Make favourite</button><button class="btn sm alt" data-act="pet2off">Send home</button></div>`
+      : own ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Favourite</button><button class="btn sm alt" data-act="pet2" data-k="${p.id}">Companion</button></div>`
       : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">${esc(p.d)}</span>`;
-    return `<div class="tile ${here?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
+    return `<div class="tile ${here||comp?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();
   P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
@@ -272,7 +274,7 @@ async function readCode(code){ code=String(code).trim().replace(/\s+/g,''); cons
   if(tag==='DL1:'){ const u=Uint8Array.from(bin,ch=>ch.charCodeAt(0)); const st=new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return JSON.parse(await new Response(st).text()); }
   if(tag==='DL0:') return JSON.parse(decodeURIComponent(escape(bin))); throw new Error('not a Driftline code'); }
 function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mode: standalone)').matches;
-  P.innerHTML=`<h2>Save and load</h2><p class="sub">Your progress saves by itself on this device. To move it to another phone or computer, copy your save code here and load it on the other one.</p>
+  P.innerHTML=`<h2>Save and load</h2><p class="sub">Your progress saves by itself on this device. Moving to another phone or computer? Send yourself the link below. The save code underneath is a backup.</p>${linkHTML()}
   <div class="grid"><div class="tile"><h4>Your save code</h4><div class="meta">Level ${S.lvl} · ${fmt(S.money)} coins · ${Object.keys(S.journal).length} species · last saved ${S.savedAt?new Date(S.savedAt).toLocaleString():'never'}</div>
     <textarea id="savecode" readonly rows="4" aria-label="Your save code">Making your code…</textarea><div class="row"><button class="btn" data-act="copysave">Copy save code</button></div></div>
   <div class="tile"><h4>Load a save code</h4><div class="meta">Paste a code from another device. It replaces the progress on this one.</div><textarea id="loadcode" rows="4" placeholder="Paste a code that starts with DL" aria-label="Save code to load"></textarea>
@@ -283,12 +285,12 @@ function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mo
   ${window.DL_VERSION&&!window.DL_DESKTOP?'':'<!--'}<div class="tile"><h4>Install as an app</h4><div class="meta">${isApp?'You are playing the installed app. It updates itself when a new version is out.':'Get a home-screen icon, full-screen play and offline fishing. It updates itself.'}</div>
     ${isApp?'':window.__dlInstallPrompt?'<button class="btn" data-act="install">Install Driftline</button>':'<div class="meta">iPhone: Share, then <b>Add to Home Screen</b>. Android, Windows or Mac in Chrome or Edge: the install icon in the address bar, or the menu, then <b>Install</b>.</div>'}</div>${window.DL_VERSION&&!window.DL_DESKTOP?'':'-->'}</div>
   ${window.DL_VERSION?`<p class="sub" style="margin-top:10px">Version ${esc(window.DL_VERSION)}</p>`:''}`;
-  makeCode().then(c=>{ const t=$('savecode'); if(t) t.value=c; }); }
+  makeCode().then(c=>{ const t=$('savecode'); if(t) t.value=c; }); paintLink(); }
 
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b||b.disabled) return; const k=b.dataset.k, i=+b.dataset.i;
   switch(b.dataset.act){
     case 'copysave': { const t=$('savecode'); if(!t||!t.value.startsWith('DL')) return; (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied')).catch(()=>{ t.focus(); t.select(); toast('Press Ctrl+C (or long-press, Copy) to copy the code'); }); return; }
-    case 'loadsave': { const v=($('loadcode')||{}).value||''; readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; renderPanel(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
+    case 'loadsave': { const v=codeFromAny(($('loadcode')||{}).value||''); readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; renderPanel(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
     case 'loadok': { if(!pendingLoad) return; S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; S.tab='save'; offlineIncome(); fillBounties(); toast('Progress loaded. Welcome back!'); break; }
     case 'install': { const ip=window.__dlInstallPrompt; if(!ip) return; ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; renderPanel(); }); return; }
     case 'sellall': { const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')+'. '+quip('sell')); break; }
@@ -319,8 +321,8 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }
     case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++; PREVIEW=null;
       if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
-    case 'pet': if(S.owned.pets.includes(k)){ S.pet=k; toast(PETI[k].name+' is coming with you'); } break;
-    case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); S.pet=k; sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
+    case 'pet': if(S.owned.pets.includes(k)){ setFav(k); } break;
+    case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); setFav(k); sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
     default: { if(extraAct(b)==='skip') return; }
   }
   checkFeats(); save(); refreshAll(); });

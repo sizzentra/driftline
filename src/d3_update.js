@@ -3,8 +3,28 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '2.0';
+const GAME_VERSION = '2.1';
 const PATCHES = [
+ {v:'2.1', name:'More of Everything', items:[
+  '21 new fish across every water. A few of them are very chill. One is an absolute unit.',
+  '10 new pets: some in the pet shop, some in crates, one at the Prize Counter.',
+  'Two pets at once: pick a ★ favourite that is always with you and bonds faster, plus a companion that tags along. Pet either one on the dock.',
+  'Petting in the Pets tab now has a little animation, and the bond hearts update right away.',
+  '6 new rods. Not all of them can be bought.',
+  '4 new attachments.',
+  '5 new skills, each with its own mastery effect.',
+  'A fifth Path opens at level 75.',
+  '4 new baits, including some for the far waters.',
+  '6 new hats and 3 new outfits.',
+  '5 new aquarium decorations and 5 new dock decorations.',
+  '6 new pieces of junk to fish up.',
+  '2 new relics.',
+  'A new game on the Boardwalk, and new prizes at the Prize Counter.',
+  'A new rare weather.',
+  '8 new feats.',
+  'Send to my other device: one link (or a QR code) moves your progress between PC and phone. Find it in the Save tab.',
+  'All tabs now fit on one screen as a tidy icon grid. No more sideways scrolling. The Encyclopedia is now called the Fish Log.',
+  'Settings has a shortcut straight to your save codes.' ]},
  {v:'2.0', name:'Driftline 2.0: Home Waters', items:[
   'Two new waters at the far end of the map, for anglers who think they’ve seen it all.',
   '40 new fish live in them, including a few legends and something rarer still.',
@@ -143,7 +163,8 @@ const PET_TINTS = [['none','Natural',0,''],['rose','Rose',800,'hue-rotate(-40deg
   ['tidal','Tidal',0,'hue-rotate(160deg) saturate(1.5) brightness(1.1)'],['peach','Peach',1200,'sepia(.6) hue-rotate(-20deg) saturate(1.6)'],['lavender','Lavender',1500,'hue-rotate(220deg) saturate(.8) brightness(1.15)'],['cocoa','Cocoa',1200,'sepia(1) saturate(1.2) brightness(.7)']];
 const PET_ACCS = [['none','Nothing',0],['bandana','Bandana',0],['bow','Bow',600],['bowtie','Bow tie',1200],['scarf','Scarf',900],['bell','Bell collar',1000],['flower','Flower',800],['glasses','Sunglasses',1500],['cape','Hero cape',3000],['balloon','Star balloon',0],['partyhat','Party hat',0]];
 const PRIZE_TINT = {golden:600, rainbow:1200, tidal:1}, PRIZE_ACC = {balloon:150, partyhat:250};
-function petLook(id=S.pet){ if(!S.petLook[id]) S.petLook[id]={name:'',tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}; return S.petLook[id]; }
+let PET_EDIT=null; const editPet = () => (PET_EDIT && (PET_EDIT===S.pet||PET_EDIT===S.pet2)) ? PET_EDIT : S.pet;
+function petLook(id=editPet()){ if(!S.petLook[id]) S.petLook[id]={name:'',tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}; return S.petLook[id]; }
 const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].name;
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
@@ -165,38 +186,55 @@ function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r
   c.restore(); }
 function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
-let PET_BOX=null, hearts=[], petT=-9999, lastPetAt=0;
-function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc, s=sc*(big?.85:1);
-  const k=(performance.now()-petT)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b+.0); g.translate(-px,-ay-b*7*sc); }
-  drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); PET_BOX={x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4};
-  if(k>=0&&k<2.2){ const nm=petName(id); g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(px-tw/2-7,PET_BOX.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,px,PET_BOX.y0-10); g.globalAlpha=1; }
+let PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
+function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
+  const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
+  drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
+function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc;
+  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; PET_BOX2=drawOnePet(S.pet2,px-(big?22:12)*sc-(big2?34:22)*sc,ay,sc*.9,t,night,petT2); } else PET_BOX2=null;
+  PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
+  const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
+  if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
   for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; }
-function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<PET_BOX.x0||m.x>PET_BOX.x1||m.y<PET_BOX.y0||m.y>PET_BOX.y1) return false;
-  const now=performance.now(); if(now-lastPetAt<300) return true; lastPetAt=now; petT=now; for(let i=0;i<3;i++) hearts.push({x:(PET_BOX.x0+PET_BOX.x1)/2+rnd(-8,8), y:PET_BOX.y0+rnd(0,8), t:-i*.12, s:rnd(4,7)});
-  tone(880,.08,'sine',.05); tone(1320,.12,'sine',.04,0,.08);
-  const id=S.pet, today=dayKey(); const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.day!==today){ b.day=today; b.today=0; }
-  const before=bondLevel(id); if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1);
+const inPetBox = (m,b) => b && m.x>=b.x0 && m.x<=b.x1 && m.y>=b.y0 && m.y<=b.y1;
+function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); const hit=inPetBox(m,PET_BOX)?S.pet:inPetBox(m,PET_BOX2)?S.pet2:null; if(!hit) return false;
+  const now=performance.now(); if(now-lastPetAt<300) return true; lastPetAt=now; const bx=hit===S.pet?PET_BOX:PET_BOX2; if(hit===S.pet) petT=now; else petT2=now;
+  for(let i=0;i<3;i++) hearts.push({x:(bx.x0+bx.x1)/2+rnd(-8,8), y:bx.y0+rnd(0,8), t:-i*.12, s:rnd(4,7)});
+  tone(880,.08,'sine',.05); tone(1320,.12,'sine',.04,0,.08); petTap(hit); return true; }
+// one pet (on the dock or in the Pets tab). The favourite bonds twice as fast.
+function petTap(id){ const today=dayKey(); const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.day!==today){ b.day=today; b.today=0; }
+  const before=bondLevel(id); if(b.today<25){ b.today++; b.xp+=id===S.pet?2:1; } S.gstats.pets++; taskProgress('pet',1);
   if(maxed('petpal') && Date.now()-(S.petGiftT||0)>3600000 && Math.random()<.35){ S.petGiftT=Date.now(); const r=Math.random(); let gift;
     if(r<.4){ gift=fmt(earn(bestLoot()*rnd(2,5)*coinMult()))+' coins'; } else if(r<.75){ const sc=rint(3,8); S.scales+=sc; gift=sc+' Scales'; } else { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk&&!BAIT[k].scales); const k=pick(opts); S.bait[k]+=5; renderBait(); gift='5 '+BAIT[k].name; }
     setTimeout(()=>toast(petName(id)+' brought you a gift: '+gift+'!'),600); sfx.coin(); }
-  const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
-  checkFeats(); save(); return true; }
-function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
+  refreshPetInfo(); const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
+  checkFeats(); save(); }
+function petBondText(id){ const bl=bondLevel(id), b=S.bond[id], p=PETI[id], fav=id===S.pet; const val=fav?petVal(id):petVal(id)*compShare();
+  return `Bonus: <span class="aq">${fmtB(p.k,val)}</span>${bl?' (bond +'+bl*5+'%)':''}${fav?'':' ('+Math.round(compShare()*100)+'% as your companion, rising with bond)'}. ${bl<10?`Pet them to grow closer: ${b?b.xp:0} / ${Math.pow(bl+1,2)*4}. Up to 25 pets a day count${b&&b.today>=25?' (that’s today’s 25!)':''}${fav?', and favourites bond twice as fast':''}.`:'You’re best friends.'}`; }
+function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bondLevel(id);
   const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
   const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!(x[0] in PRIZE_TINT)).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
-  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
-    <div class="row spread"><h4>${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}</span></h4><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></div>
-    <div class="meta">Bonus: <span class="aq">${fmtB(p.k,petVal(id))}</span>${bl?' (bond +'+bl*5+'%)':''}. ${bl<10?`Pet them to grow closer: ${b?b.xp:0} / ${nextXp}. Up to 25 pets a day count.`:'You’re best friends.'}</div>
+  const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
+  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
+    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
+    <div class="meta" id="petbondinfo">${petBondText(id)}</div>
+    <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
     <h5>Colour</h5><div class="chips">${tints}</div>
     <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
-function paintPetCustom(){ const c=$('petcv'); if(!c) return; const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,200,250,big?4.2:6.5,performance.now()/1000,0,petPreviewLook());
-  c.onclick=()=>{ for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); petT=performance.now(); const now=dayKey(); const b=S.bond[S.pet]||(S.bond[S.pet]={xp:0,day:now,today:0}); if(b.day!==now){ b.day=now; b.today=0; } if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1); toast(petName()+' '+quip('pet')+'.'); checkFeats(); save(); }; }
+function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet(); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
+  x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
+  drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
+  c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
+// update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
+function refreshPetInfo(){ if(S.tab!=='pets') return; const el=$('petbond'); if(!el) return; const id=editPet(), bl=bondLevel(id);
+  el.innerHTML=`<span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span>`; const inf=$('petbondinfo'); if(inf) inf.innerHTML=petBondText(id); }
 
 // ---------- daily tasks & gift ----------
 function dayKey(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -288,11 +326,12 @@ function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); 
      ${scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div><div class="row" style="justify-content:center"><button class="btn alt sm" data-act="scratchall">Reveal all</button></div>`
       :`${scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val" style="text-align:center;color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:''}
       <button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmt(base*2)}</span></button>`}</div>
+   ${clawHTML()}
   </div>
   <div class="tile bwt" style="--c:#ffc94d;margin-top:12px"><div class="row spread"><div><h4>Prize counter</h4><div class="meta">Every Boardwalk game hands out tickets. Trade them here for things you can’t get anywhere else.</div></div><b>🎟 ${fmt(S.tickets)}</b></div>
    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span class="row" style="gap:8px;flex-wrap:nowrap"><canvas width="96" height="80" data-prize="${p[0]}" style="width:48px;height:40px;cursor:default;flex:0 0 auto"></canvas><span>${esc(p[1])}</span></span>
      <span class="row" style="gap:4px">${!owned&&PRIZE_PV[p[0]]?`<button class="btn alt sm" data-act="prizepv" data-k="${p[0]}">Preview</button>`:''}${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</span></div>`; }).join('')}</div></div>`;
-  paintPrizes(P);
+  paintPrizes(P); paintClaw();
   drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.strokeStyle=ROD_I[crateRes.id].col; x.lineWidth=8; x.lineCap='round'; x.beginPath(); x.moveTo(30,160); x.quadraticCurveTo(120,150,215,30); x.stroke(); }

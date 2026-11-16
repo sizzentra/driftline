@@ -114,7 +114,7 @@ function drawJunkAt(c,id,x,y,s,sil){
     case 'saddle': c.fillStyle=F('#7a3a1a'); c.beginPath(); c.moveTo(-80,-10); c.quadraticCurveTo(-40,-60,0,-20); c.quadraticCurveTo(40,-60,80,-10); c.quadraticCurveTo(60,40,0,30); c.quadraticCurveTo(-60,40,-80,-10); c.fill(); R(-6,20,12,50,'#5a2a10'); Ring(0,74,10,'#bbb',4); Ci(50,-30,8,'#ffc94d'); break;
     case 'trident': Ln([0,90,0,-40],'#8a6a4a',10); Ln([-36,-80,-36,-40,36,-40,36,-80],'#a87a4a',9); Ln([0,-40,0,-94],'#a87a4a',9); P([-36,-94,-44,-74,-28,-74],'#a87a4a'); P([36,-94,28,-74,44,-74],'#a87a4a'); P([0,-108,-8,-88,8,-88],'#a87a4a'); break;
     case 'piano': R(-90,-70,180,130,'#3a2010'); R(-84,-10,168,30,'#f4f4f0'); for(let i=0;i<14;i++){ if(i%7!==2&&i%7!==6) R(-80+i*12,-10,7,18,'#111'); } R(-90,60,16,20,'#3a2010'); R(74,60,16,20,'#3a2010'); R(-70,-60,140,36,'#4a2a18'); break;
-    default: Ci(0,0,60,'#888');
+    default: drawJunkZ(c,id,R,Ci,E,P,Ln);
   }
   c.restore();
 }

@@ -234,6 +234,22 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
   .stylewrap{grid-template-columns:1fr}
   .card .in{padding:10px 14px}.card canvas{width:160px;height:80px}
 }
+/* tabs: a tidy icon grid that always fits, no sideways scrolling */
+.tabs,.tabs:where(*){display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:5px;overflow:visible;position:static;padding:8px 0;flex-wrap:wrap}
+.tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:6px 4px;border-radius:12px;font-size:12.5px;position:relative;min-width:0;white-space:normal;border:1px solid var(--line);background:#10222b}
+.tabs button:hover{border-color:#2f5866}
+.tabs button[aria-selected="true"]{border-color:var(--kelp);color:var(--ink)}
+.tabs .ti{font-size:19px;line-height:1.15}
+.tabs .tl{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs .dot{position:absolute;top:2px;right:4px;margin:0;min-width:16px;line-height:16px;font-size:11px}
+@media (max-width:520px){.tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.tabs button{padding:5px 2px;font-size:10.5px}.tabs .ti{font-size:17px}}
+@media (orientation:landscape) and (max-height:560px){.tabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:2px 0}.tabs button{padding:3px 2px;font-size:10px}.tabs .ti{font-size:15px}}
+.linkwrap{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.qrbox{width:236px;min-height:236px;padding:8px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;text-align:center;flex:0 0 auto}
+.qrbox .meta{color:#335}
+.qrbox img,.qrbox canvas{width:220px;height:220px;cursor:default}
+@media (max-width:520px){.qrbox{width:100%;min-height:0}.qrbox img,.qrbox canvas{width:200px;height:200px}}
+@media (max-width:560px){.stylewrap[style*="200px"]{grid-template-columns:1fr!important}.stylewrap[style*="200px"] .preview{max-width:240px;width:100%;margin:0 auto}}
 </style>
 
 <div class="wrap">
@@ -281,7 +297,7 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
     <button role="tab" data-tab="style" aria-selected="false" data-label="👕 Wardrobe">👕 Wardrobe</button>
     <button role="tab" data-tab="skills" aria-selected="false" data-label="✨ Skills">✨ Skills</button>
     <button role="tab" data-tab="paths" aria-selected="false" data-label="🧭 Paths">🧭 Paths</button>
-    <button role="tab" data-tab="journal" aria-selected="false" data-label="📖 Encyclopedia">📖 Encyclopedia</button>
+    <button role="tab" data-tab="journal" aria-selected="false" data-label="📖 Fish Log">📖 Fish Log</button>
     <button role="tab" data-tab="feats" aria-selected="false" data-label="🏆 Feats">🏆 Feats</button>
     <button role="tab" data-tab="games" aria-selected="false" data-label="🎡 Boardwalk">🎡 Boardwalk</button>
     <button role="tab" data-tab="save" aria-selected="false" data-label="💾 Save">💾 Save</button>

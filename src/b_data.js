@@ -366,6 +366,28 @@ const SP = [
  ['moonleviathan','starfall','The Moon Leviathan',4,1000,3000,300000,55,'night',.5,'#c8c8e0','#ffffff',.34,'sulk',1,'s',2,'It swallowed the moon once. Then gave it back.'],
  ['starweaver','starfall','The Star Weaver',4,50,150,280000,54,'any',.7,'#ffd06a','#fff8e0',.3,'jump',1,'f',1,'Sews the constellations back together every night.'],
  ['firststar','starfall','The First Star',5,10,30,1200000,58,'night',.6,'#ffffff','#ffe9a8',.4,'dart',1,'f',0,'Before anything else, there was this. It remembers.'],
+ // 2.1: more in every water
+ ['lilyminnow','pond','Lily Minnow',0,.02,.1,6,1,'day',.6,'#9ad88a','#f0ffe0',.32,'dart',.4,'f',2,'Naps on lily pads. Wakes up grumpy.'],
+ ['grumpyguppy','pond','Grumpy Guppy',1,.05,.2,26,2.2,'any',.6,'#c86aff','#ffd0ff',.42,'thrash',.9,'f',1,'Tiny. Furious. Has opinions about your hat.'],
+ ['chillfish','pond','Just a Chill Fish',2,1,4,140,3,'any',.2,'#8a7a6a','#e8dccb',.4,'calm',.05,'f',0,'Hands in pockets. Lowkey doesn’t care. Just a chill fish.'],
+ ['pebblefish','river','Pebble Fish',0,.1,.5,13,2.2,'any',.3,'#9a9a90','#d8d8d0',.5,'sulk',.3,'p',2,'Looks exactly like a pebble. Has fooled many herons.'],
+ ['streamsprite','river','Stream Sprite',2,.1,.4,210,6,'day',.7,'#7ae8ff','#ffffff',.3,'dart',.8,'f',0,'Glitters in the rapids. Gone if you blink.'],
+ ['pierpike','coast','Pier Pike',0,.5,3,46,5.2,'any',.5,'#6a7a6a','#e0e8d8',.22,'run',.6,'e',1,'Lurks under every pier, judging your knots.'],
+ ['wellyfish','coast','Wellington Fish',1,.5,2,118,7,'any',.3,'#3a6a3a','#c8e0c8',.4,'calm',.3,'f',0,'Lives inside a lost rain boot and won’t leave.'],
+ ['mittenfish','frost','Mitten Fish',0,.2,1,68,8,'any',.4,'#d8504a','#ffffff',.45,'calm',.3,'f',1,'Grew a little knitted pattern to stay warm.'],
+ ['icicleeel','frost','Icicle Eel',1,1,5,205,10.5,'night',.5,'#c8f0ff','#ffffff',.1,'dive',.6,'e',0,'Thin, sharp and cold enough to sting.'],
+ ['bubbleblenny','reef','Bubble Blenny',0,.05,.2,100,10,'any',.6,'#ffb04a','#fff4c0',.42,'dart',.5,'f',2,'Blows bubbles at you. It thinks it’s scary.'],
+ ['sunsetwrasse','reef','Sunset Wrasse',2,1,4,920,14,'day',.6,'#ff7a5a','#ffd06a',.4,'run',.6,'f',1,'Every evening it changes colour with the sky.'],
+ ['searobin','shelf','Sea Robin',1,1,3,330,12,'any',.5,'#c86a4a','#ffe0c0',.4,'calm',.3,'f',2,'Walks on the seabed with little leg fins and chirps.'],
+ ['captaincod','shelf','Captain Cod',2,10,40,1450,17,'day',.5,'#5a6a5a','#e8e8d0',.38,'sulk',.6,'f',2,'Wears a tiny captain’s hat. Has seen things.'],
+ ['gloweyegrouper','deep','Glow-eye Grouper',1,20,80,700,18,'night',.4,'#3a3a4a','#7affd0',.42,'sulk',.5,'f',0,'Eyes like two little headlights.'],
+ ['absoluteunit','deep','Absolute Unit Grouper',3,400,1200,8800,27,'any',.3,'#6a5a4a','#d8c8a8',.6,'sulk',.9,'f',2,'In awe at the size of this lad. Absolute unit.'],
+ ['glasssquid','trench','Glass Squid',1,.2,1,950,17.5,'night',.5,'#e0f0ff','#ffffff',.3,'dive',.5,'q',0,'Completely see-through, except for its eyes.'],
+ ['bobbitworm','trench','Bobbit Worm',2,1,5,2700,21,'night',.6,'#8a4a6a','#ffb0d0',.08,'thrash',.9,'e',1,'Ambush predator. Several metres long. Absolutely not.'],
+ ['marshmallowfish','ember','Toasted Marshmallow Fish',1,.5,2,1550,33,'any',.4,'#f0dcc0','#c8843a',.5,'calm',.3,'p',0,'Perfectly golden on one side. A camping snack, sort of.'],
+ ['cinderskate','ember','Cinder Skate',2,5,25,4700,40,'night',.5,'#3a2a2a','#ff7a3a',.6,'dive',.7,'r',2,'Glides along the hot bottom leaving glowing trails.'],
+ ['moonjelly','starfall','Moon Jelly',1,1,4,2600,37,'night',.4,'#e8e8ff','#c8d0ff',.5,'calm',.3,'j',0,'Glows softly like a nightlight.'],
+ ['wishfish','starfall','Wishfish',3,1,5,30000,50,'night',.7,'#ffe9a8','#ffffff',.4,'dart',1,'f',2,'Make a wish when you catch it. It probably won’t come true. Probably.'],
 ].map(a=>({id:a[0],loc:a[1],name:a[2],r:a[3],min:a[4],max:a[5],base:a[6],str:a[7],time:a[8],th:a[9],col:a[10],belly:a[11],h:a[12],beh:a[13],aggr:a[14],shape:a[15],pat:a[16],note:a[17]}));
 const SPI = Object.fromEntries(SP.map(s=>[s.id,s]));
 
@@ -388,6 +410,10 @@ const BAIT = {
   minnows:{name:'Live Minnows',  speed:1.4, rare:.5,  pack:10, price:700,  beh:['run','thrash','jump'], note:'Predators can’t resist: runners, thrashers and jumpers ×2.5.'},
   glitter:{name:'Glitter Jigs',  speed:1.2, rare:.3,  pack:10, price:1200, shiny:2, note:'Shiny fish ×2.'},
   deepjig:{name:'Deep Jigs',     speed:1.5, rare:.9,  pack:10, price:4000, beh:['dive','sulk'], note:'Sinks deep: divers and sulkers ×2.5.'},
+  berries:{name:'Wild Berries',  speed:1.45,rare:.35, pack:10, price:500,  loc:'river', note:'Sweet and sticky: odds ×1.6 at Stonebrook River.'},
+  goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:30000, note:'The good stuff. Fast bites and great odds anywhere.'},
+  lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:60000, loc:'ember', note:'Heat-proof worms: odds ×1.6 at Ember Springs.'},
+  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:150000, loc:'starfall', note:'A pinch of the sky: odds ×1.6 at Starfall Lake.'},
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
@@ -416,9 +442,15 @@ const PERKS = {
   petpal:   {name:'Pet Whisperer',  max:10, per:'+10% pet bonus', d:'Your pet’s bonus grows stronger.'},
   streaker: {name:'On a Roll',      max:5,  per:'+10% max streak bonus', d:'Long catch streaks pay more XP.'},
   nightowl: {name:'Night Owl',      max:5,  per:'Better rare odds at dusk and night', d:'The dark is where the good fish hide.'},
+  weatherwise:{name:'Weatherwise',  max:10, per:'+4% bite speed in any weather but clear', d:'You read the sky like a book.'},
+  naturalist:{name:'Naturalist',    max:10, per:'+5% XP from fish you’ve caught fewer than 3 times', d:'New discoveries teach you the most.'},
+  aquarist: {name:'Aquarist',       max:10, per:'+3% to aquarium fish boosts', d:'Your fish thrive under your care.'},
+  derbypro: {name:'Derby Pro',      max:5,  per:'Derby rivals score 4% less', d:'You know the competition’s tricks.'},
+  tidewalker:{name:'Tidewalker',    max:10, per:'+6% Tide Pass XP', d:'The tide carries you further.'},
 };
 const WEATHERS = [
-  {k:'Clear',  w:34, note:'Calm skies. Nothing special.'},
+  {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},
+  {k:'Rainbow', w:3, shiny:2, xp:1.3, note:'A rainbow over the water. Shinies ×2 and XP +30%.'},
   {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
   {k:'Fog',    w:15, fog:true, note:'Night-only fish bite at any hour.'},
   {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
@@ -514,6 +546,7 @@ const HATS = [
  ['bunnyears','Bunny Ears','fish'],['pumpkin','Pumpkin Head','fish',0,1],['knight','Knight Helmet','fish',0,1],['duckonhead','Duck on Head','fish',0,1],
  ['fishbowl','Fishbowl Helmet','prize',0,1],['sixsevencap','67 Cap','prize'],['carnival','Carnival Top Hat','prize'],
  ['tidecap','Tide Cap','pass'],['strawsun','Sun Hat','shop',1800],['cozybeanie','Cozy Knit Beanie','shop',1200],['lanternhat','Lantern Hat','fish',0,1],['acorn','Acorn Cap','fish',0,1],
+ ['aviator','Aviator Cap','shop',3200],['headband','Sporty Headband','shop',700],['gnomehat','Gnome Hat','shop',1400],['flowerpot','Flowerpot','fish',0,1],['tinfoil','Tinfoil Hat','fish',0,1],['clawplush','Plush Crab Hat','prize',0,1],
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3]||0,fixed:!!a[4]}));
 const HATI = Object.fromEntries(HATS.map(h=>[h.id,h]));
 const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','#7a4a9a','#2f3b4a','#8a6a4a','#d87aa0'];
@@ -581,5 +614,15 @@ const PETS = [
  ['phoenix','Phoenix','rare',.35,'crate',3,'Only in Legendary crates. Its glow draws the rarest fish.'],
  ['narwhal','Narwhal','rare',.25,'feat',0,'Joins you after you catch something rarer than legendary.'],
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
+ ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
+ ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
+ ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
+ ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],
+ ['alpaca','Alpaca','sell',.12,'shop',28000,'Fluffier than a llama and twice as persuasive.'],
+ ['mole','Mole','treasure',.25,'crate',1,'Found in Mystery Crates. Digs up junk from the riverbed.'],
+ ['mushroombuddy','Mushroom Buddy','calm',.18,'crate',1,'Found in Mystery Crates. A tiny walking mushroom. Very peaceful.'],
+ ['frogprince','Frog Prince','bite',.2,'crate',2,'Found in Big or Legendary crates. Wears a crown. Expects a kiss.'],
+ ['babywhale','Baby Whale','tank',.35,'crate',3,'Only in Legendary crates. Sings to your aquarium every night.'],
+ ['snowman','Little Snowman','calm',.2,'prize',2000,'Won with tickets at the Prize Counter. Somehow never melts.'],
 ].map(a=>({id:a[0],name:a[1],k:a[2],v:a[3],src:a[4],price:a[5],d:a[6]}));
 const PETI = Object.fromEntries(PETS.map(p=>[p.id,p]));

@@ -224,6 +224,7 @@ function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class=
   const tg=(k,label,desc)=>`<div class="toggle"><div><b>${label}</b><div class="meta">${desc}</div></div><button class="btn ${s[k]?'':'alt'} sm" data-act="tog" data-k="${k}" aria-pressed="${!!s[k]}">${s[k]?'On':'Off'}</button></div>`;
   const styles=[['auto','Follow the time of day'],['lofi','Cozy lo-fi'],['acoustic','Harbour acoustic'],['night','Dreamy night']];
   P.innerHTML=`<h2>Settings</h2><p class="sub">Everything here is saved on this device.</p>
+  <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div><b>💾 Save codes</b><div class="meta">Copy your progress to another phone or PC, or load it from one.</div></div><button class="btn sm" data-tabgo="save">Open save codes</button></div>
   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
    <div class="tile"><h4>Sound</h4>${sl('master','Master volume')}${sl('music','Music')}${sl('sfx','Sound effects')}${sl('amb','Nature sounds')}
      ${tg('musicOn','Music','Calm music that plays while you fish.')}${tg('ambient','Nature sounds','Waves, birds, crickets and wind for each water.')}
@@ -243,6 +244,8 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
   const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
   const r5=extraAct5(b); if(r5!==undefined) return r5==='render' ? undefined : r5;
+  const r6=extraAct6(b); if(r6!==undefined) return r6==='render' ? undefined : r6;
+  const r7=extraAct7(b); if(r7!==undefined) return r7==='render' ? undefined : r7;
   if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
