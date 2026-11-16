@@ -117,7 +117,7 @@ function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const
 function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
   const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
   const nextSp=Object.keys(PASS_SPECIAL).map(Number).find(L=>L>pl), ns=nextSp&&PASS_SPECIAL[nextSp];
-  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels, a Tide-only reward every five levels, then bonus rewards forever.</p></div>
+  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels with special Tide rewards along the way, then bonus rewards forever.</p></div>
    <div class="tile" style="min-width:220px"><div class="rar" style="color:var(--kelp)">Level ${pl}</div><div class="meta">${fmt(S.pass.xp)} / ${fmt(need)} to level ${pl+1}</div><div class="prog"><i style="width:${S.pass.xp/need*100}%;background:var(--kelp)"></i></div>
    ${unclaimed?`<button class="btn" data-act="passclaim" style="margin-top:6px">Claim ${unclaimed} reward${unclaimed>1?'s':''}</button>`:''}</div></div>
    ${ns?`<div class="tile pass-next"><canvas width="240" height="180" data-passbig="${nextSp}"></canvas><div><span class="bwx-cat">Next Tide reward · level ${nextSp}</span><h3 style="margin:2px 0">${esc(ns[2])}</h3><div class="meta">${esc(ns[3])}</div><div class="meta" style="margin-top:6px">${nextSp-pl} level${nextSp-pl>1?'s':''} to go.</div></div></div>`:''}

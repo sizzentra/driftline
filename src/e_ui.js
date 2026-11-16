@@ -270,7 +270,7 @@ function renderPets(P){ const pp=PETI[S.pet];
     const act = here ? '<button class="btn alt" disabled>★ Favourite</button>'
       : comp ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Make favourite</button><button class="btn sm alt" data-act="pet2off">Send home</button></div>`
       : own ? `<div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="pet" data-k="${p.id}">★ Favourite</button><button class="btn sm alt" data-act="pet2" data-k="${p.id}">Companion</button></div>`
-      : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">${esc(p.d)}</span>`;
+      : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">How to get it: ${esc(petHint(p))}</span>`;
     return `<div class="tile ${here||comp?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();

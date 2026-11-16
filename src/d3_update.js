@@ -6,52 +6,67 @@
 const GAME_VERSION = '0.3';
 const PATCHES = [
  {v:'0.3', name:'The Big Glow-Up', items:[
-  'Every water has been painted again from scratch. Each one has its own landmark, its own wildlife and its own light, from misty mornings through golden evenings to starry nights, and something always moves: birds, ripples, smoke, glimmers on the water.',
-  'You now stand somewhere that fits each water, and every spot is built to match its place.',
-  'Weather looks right in every water: rain, storms, fog and golden hours all sit on top of the new scenery.',
-  'Your angler is rebuilt: a new body, faces with moods, new hairstyles, every outfit redrawn, and a lean into every cast, fight and landing.',
-  'Every pet is redrawn and has more personality. They watch your line, cheer your catches and nap at night. Hats, glasses and capes sit where they should.',
-  'Every fish is redrawn, each with its own body, fins and colours, from tiny minnows to the biggest legends. Your Fish Log, catches and aquarium all show the new designs.',
-  'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight it and when it lands.',
-  'Rods are real gear now. Each one has its own look, with a reel that spins as you wind, and the Rods tab shows them.',
-  'New music: a cozy theme for every water. Pick “Follow the water” in Settings, or choose any theme you like. The old styles are still there.',
-  'New ways to fish, all optional: tap to aim your cast (turn it on in Settings), draw circles on the water or roll the mouse wheel to crank the reel, play with a controller (A casts and reels, the right trigger reels gently), and phones buzz on a bite.',
-  'A fresh look for every menu: softer panels, warm buttons, clearer tabs, gentle animations.',
-  'Home shows your dock in the water you’re fishing in. Wardrobe and Pets have a lit stage for trying things on.',
-  'The aquarium is deeper: light rays, swaying kelp, rising bubbles and rippled sand.',
-  'Waters shows a little painting of every water.',
-  'Seven body types and nine eye colours. Every outfit fits every build. Hats no longer squash your hair through the top.',
-  'New in the Wardrobe and the clothing shop: over twenty pairs of shoes and boots, scarves and necklaces, and capes, backpacks, wings and more to wear on your back.',
-  'Rest mode: press Rest on the water and your angler sits down (in your chair if you have one) and fishes slowly all by themselves, even while you browse other menus. A new skill makes them quicker.',
-  'Cast far and the water rewards it: longer casts lean toward rarer and heavier fish. Short casts can still surprise you, and hotspots never hold you back.',
-  'Something rarer than a shiny is out there. You will know it when you see it, and when it fights.',
-  'Now and then a fish weighs far more, or far less, than it has any right to. Your Fish Log keeps a separate record for these. A new skill helps you find them.',
-  'Hungry fish: big predators sometimes come up with a meal still inside, and a small fish on your line might get grabbed by something much bigger. Land it to keep both.',
-  'Aquarium fish now roll their own boost when you catch them, usually one that fits the fish, now and then a surprise. Heavier fish give more. Tanks hold more fish, and the button now says what it does: increase tank size.',
-  'Drag decorations to move them, on your dock and in your aquarium. Dock decorations are sized properly next to you now.',
-  'Every water keeps its own bounty board, and its bounties wait there until you finish them.',
-  'The Boardwalk has Counter Specials, restocking every few hours with things you can only get there, including some very silly outfits.',
-  'Three new mini-games between catches. Every mini-game can be skipped, and Settings can turn them off.',
-  'Twenty new oddities to fish up.',
-  'Catfish and gar look like catfish and gar. Willow trees look like willows, and the shores are greener.',
-  'Things you have not found yet stay a mystery: no more shapes giving them away.',
-  'Fish Log is sorted by rarity and shows your smallest catch too. Shops list everything from cheapest to most expensive.',
-  'The Boardwalk is rebuilt: a night pier with a Ferris wheel and lanterns, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
-  'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
-  'The Tide Pass is a longer climb with better rewards: a Tide-only item every five levels, including new Tide shoes, a scarf, a cape, a shell backpack and, at the very end, Tide Wings. Every reward shows exactly what you get, and the next big one is shown up top.',
-  'The clothing shop is curated now: a featured piece and a mix of hats, shoes, back pieces and more every 20 minutes, and never anything you already own.',
-  'Fish Rain is gone. In its place: Spawning Run, when shoals leap from the water and bites come fast.',
+  '## A whole new look',
+  'Every water has been painted again from scratch, each with its own landmark, wildlife and light, from misty mornings through golden evenings to starry nights. Something always moves: birds, ripples, smoke, glimmers on the water.',
+  'You now stand somewhere that fits each water, and weather (rain, storms, fog, golden hours) sits properly on top of the new scenery.',
+  'Willow Pond and Stonebrook River have fuller, greener shores, and the willow is a real weeping willow.',
+  'Every fish is redrawn with its own body, fins and colours. Catfish have broad heads and long whiskers; gar have diamond scales.',
+  'Every pet is redrawn with more personality: they watch your line, cheer your catches and nap at night. Pets are now the right size next to you.',
+  'Rods are real gear, each with its own look and a reel that spins while you wind.',
+  'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight and when it lands.',
+  'Every menu has a fresh look: softer panels, warm buttons, clearer tabs and gentle animations.',
+  'Home shows your dock in the water you are fishing. Wardrobe and Pets have a lit stage. The aquarium has light rays, swaying kelp, bubbles and rippled sand. Waters shows a little painting of each water.',
+  '## Your angler',
+  'Rebuilt from the ground up: rounded, lit shapes, arms and legs that bend, poses that flow into each other, both hands on the rod, and a soft light along your outline that matches the sky.',
+  'Seven body types and nine eye colours. Every outfit fits every build.',
+  'Hats sit properly: hair shows underneath instead of poking through, your eyes are never covered, and helmets show your face through the glass.',
+  '## Music and sound',
+  'A cozy music theme for every water. Pick “Follow the water” in Settings, or choose any theme. The old styles are still there.',
+  'The lofi music no longer has a constant hiss in the background; its record crackle is now soft and occasional.',
+  '## Controls',
+  'New, all optional: tap the water to aim your cast (turn it on in Settings), draw circles or roll the mouse wheel to crank the reel, play with a controller (A casts and reels, the right trigger reels gently), and phones buzz on a bite.',
+  'Phones no longer flash blue on every tap while reeling.',
   'Phones held sideways: the arrow on the water now has three steps: wider menus, hidden menus, and back.',
-  'New Stats tab: every number that shapes your fishing (bite speed, rare and shiny odds, sale price, reel and line, aquarium income) and exactly where each bonus comes from.',
-  'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop), and the Shop has a tab for every kind of clothing with its whole range, plus a Featured shelf. New glasses, outfits and colours too.',
-  'Less scrolling everywhere: long menus (Settings, Pets, Feats, Aquarium, Home, Rods, Waters) are split into sections you switch between.',
-  'Tide Pass levels now give clothing and decorations you don’t own yet instead of pocket change, and you can see exactly which piece before you claim it.',
-  'Hats sit better, hair shows properly underneath them, helmets show your face, and eyes are drawn properly up close. Pets are the right size next to you.',
-  'A balance pass: later waters pay properly, junk and Boardwalk prizes scale with the fish, hybrids are a jackpot rather than a broken one, a full aquarium is a strong bonus but fishing always pays more, and late levels come at a steadier pace.',
-  'Fixed: buying the last two Rod length upgrades could make every catch the same fish.',
-  'Fixes: the streak message shows the streak you actually lost, the cozy lofi music lost its constant hiss, and phones no longer flash blue on every tap while reeling.',
-  'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2, so every new update counts for more.',
-  'Everything runs smoothly: the scenery is prepared once and reused, so phones stay cool.' ]},
+  '## New things to find',
+  'Something rarer than a shiny is out there. You will know it when you see it, and when it fights.',
+  'Now and then a fish weighs far more, or far less, than it has any right to. Your Fish Log keeps a separate record for these, and a new skill helps you find them.',
+  'Hungry fish: big predators sometimes come up with a meal inside, and a small fish on your line might get grabbed by something much bigger. Land it to keep both.',
+  'Twenty new oddities to fish up.',
+  'Three new mini-games between catches.',
+  'Rest mode: press Rest on the water and your angler sits down and fishes slowly by themselves, even while you browse other menus. A new skill makes them quicker.',
+  'A new weather replaces Fish Rain.',
+  '## Wardrobe and customisation',
+  'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
+  'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
+  'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
+  'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
+  'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
+  '## Changes to fishing',
+  'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
+  'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
+  'Every mini-game can be skipped, and Settings can turn them off completely.',
+  '## Changes to the aquarium',
+  'Every fish now gives a boost while on display, including Common ones. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better or weaker one. Heavier fish give more. Fish you caught before 0.3 keep their old boost.',
+  'Tanks hold 1.5 times as many fish, and the button now says Increase tank size.',
+  'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
+  'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
+  '## Changes to rewards and progress',
+  'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
+  'Bounties: every water now keeps its own board of 3 bounties, and they wait there until you finish them. Your existing bounties moved to the water they belong to.',
+  'Coins from junk, Boardwalk games, crates, mini-games and Tide Pass coin rewards are now based on the fish in each water. They are lower in the later waters (Brine Shelf −37%, Midnight Deep −44%, Hollow Trench −44%, Ember Springs −68%, Starfall Lake −63%), and crate and wheel prices drop by the same amount.',
+  'Fish that roll another fish’s weight are worth up to 25 times as much, no more.',
+  'Levels after 20 need less XP, so late levels come at a steadier pace.',
+  'Shops list everything from cheapest to most expensive. The Fish Log is sorted by rarity and shows your smallest catch too.',
+  '## Screens',
+  'New Stats tab: bite speed, hook window, rare and shiny odds, reel and line, sale price, XP and aquarium income, with a table of every bonus and where it comes from.',
+  'The Boardwalk is rebuilt: a night pier, three sections (Games, Prize counter, Counter specials), tidy game cards, and every prize says exactly what it is and what it does.',
+  'The Tackle shop is split into Gear, Bait and Special lures, with short bait rows that show every effect at a glance.',
+  'Less scrolling everywhere: Settings, Pets, Feats, Aquarium, Home, Rods and Waters are split into sections. Pets can be filtered by bonus, and Feats show the ones closest to done first.',
+  '## Fixes',
+  'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
+  'The streak message now shows the streak you actually lost (it used to always say 0).',
+  'Everything runs smoothly: scenery is prepared once and reused, so phones stay cool.',
+  'Version numbers start fresh: earlier updates are now listed as 0.1 and 0.2.' ]},
  {v:'0.2.2.2', name:'Small patch', items:[
   'Phones held sideways: a new button on the edge of the water hides the menus so the water fills the screen, and brings them back. It remembers your choice.' ]},
  {v:'0.2.2.1', name:'Quick fix', items:[
@@ -205,7 +220,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
     const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span></button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
-    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'A mystery rod.':esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
+    return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'How to get it: '+esc(rodHint(x)):esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
   <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has three tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<3?ATT_COST[t]:null;
     return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / 3</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
       <div class="val" style="font-size:14px">${t?statTxt(a.k,a.v[t-1]):'Not owned'}${next?` <span class="meta">→ ${statTxt(a.k,a.v[t])}</span>`:''}</div>
@@ -319,10 +334,10 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
    ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
 
 // ---------- patch notes ----------
-function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`; }
+function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';

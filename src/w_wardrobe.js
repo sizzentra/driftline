@@ -118,3 +118,24 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .wd-th canvas{width:64px;height:64px;cursor:pointer} .wd-th[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 1px #ffd36a44,0 0 14px #ffd36a26}
 @media (max-width:640px){ .stylewrap.wd{grid-template-columns:1fr} .wd-prev{position:relative;max-width:300px;margin:0 auto} .wd-items{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))} }
 </style>`);
+
+// ---------- things you can't buy: shown as "???" with a short hint on where they come from ----------
+const SRC_HINT={fish:'Fished up from the water, now and then.', junk:'Hiding in junk you fish up.', prize:'Boardwalk prize counter.', pass:'A Tide Pass reward.', bw:'Boardwalk counter specials.', crate:'Found in Mystery Crates.', feat:'Earned from a feat.', rank:'Earned at a high angler rank.'};
+function petHint(p){ const first=(String(p.d||'').match(/^[^.]*\./)||[''])[0];
+  if(/^(Found in|Only in|Won with|Joins you)/.test(first)) return first; if(p.src==='prize') return SRC_HINT.prize; if(p.src==='crate') return SRC_HINT.crate;
+  if(/fish up|in the water/.test(p.d||'')) return 'Hiding in something you might fish up.'; return SRC_HINT[p.src]||'Keep fishing and exploring.'; }
+function rodHint(r){ return SRC_HINT[r.src]||'Keep fishing and exploring.'; }
+function wLockedItems(kind){ const o=S.owned; switch(kind){
+  case 'hat': return HATS.filter(h=>h.src!=='shop'&&h.src!=='start'&&!o.hats.includes(h.id)).map(h=>h.src);
+  case 'out': return OUTFITS.filter(x=>!['shop','start'].includes(x[3])&&!o.outfits.includes(x[0])).map(x=>x[3]);
+  case 'shoe': return SHOES.filter(x=>!['shop','start'].includes(x[3])&&!o.shoes.includes(x[0])).map(x=>x[3]);
+  case 'neck': return NECKS.filter(x=>!['shop','start'].includes(x[3])&&!o.necks.includes(x[0])).map(x=>x[3]);
+  case 'back': return BACKS.filter(x=>!['shop','start'].includes(x[3])&&!o.backs.includes(x[0])).map(x=>x[3]); } return []; }
+function wLockedHTML(kind){ const L=wLockedItems(kind); if(!L.length) return ''; const by={}; for(const s of L) by[s]=(by[s]||0)+1;
+  return `<div class="wd-locked"><span class="meta">Still to find: ${L.length}</span><div class="wd-thumbs">${L.map(s=>`<div class="wd-th lock" title="${esc(SRC_HINT[s]||'')}"><canvas width="96" height="96" data-mystery="1"></canvas><span>???</span><small>${esc(SRC_HINT[s]||'Keep exploring.')}</small></div>`).join('')}</div></div>`; }
+const _renderStyle_1 = renderStyle;
+renderStyle = function(P){ _renderStyle_1(P); const main=P.querySelector('.wd-main'); if(!main) return;
+  const kinds={hats:['hat'],clothes:['out'],shoes:['shoe'],neckback:['neck','back']}[wSec]; if(!kinds) return;
+  for(const k of kinds){ const html=wLockedHTML(k); if(!html) continue; const anchor = k==='hat' ? main.querySelector('.hatgrid') : k==='out' ? [...main.querySelectorAll('.wd-thumbs')][0] : k==='neck' ? [...main.querySelectorAll('.wd-thumbs')][0] : k==='back' ? [...main.querySelectorAll('.wd-thumbs')][1] : main.querySelector('.wd-thumbs'); if(anchor) anchor.insertAdjacentHTML('afterend',html); }
+  P.querySelectorAll('canvas[data-mystery]').forEach(c=>mysteryThumb(c.getContext('2d'),c.width,c.height,'w')); };
+document.head.insertAdjacentHTML('beforeend',`<style>.wd-locked{margin-top:8px}.wd-locked > .meta{display:block;margin:4px 0 6px}.wd-th.lock{cursor:default;opacity:.85}.wd-th.lock small{font-size:10.5px;color:var(--muted);font-weight:500;line-height:1.25}</style>`);

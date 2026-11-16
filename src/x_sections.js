@@ -32,4 +32,32 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
     sectionize(P,tab,[{name:'Waters',nodes:[grid]},...js.map(j=>({name:(j.querySelector('h2')||{}).textContent||'More',nodes:[j]}))]); } }
 const _renderPanel_0 = renderPanel;
 renderPanel = function(){ _renderPanel_0(); try{ applySections(); }catch(e){} };
-document.head.insertAdjacentHTML('beforeend',`<style>.sect-nav{margin:10px 0 12px;flex-wrap:wrap} .sect-nav button{min-width:90px} #panel .grid.sect-one{grid-template-columns:minmax(0,1fr)}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>.sect-nav{margin:10px 0 12px;flex-wrap:wrap} .sect-nav button{min-width:90px} #panel .grid.sect-one{grid-template-columns:minmax(0,1fr)!important}</style>`);
+// denser layouts for the longest lists (0.3 QC): patch notes scroll inside their box, pets/feats/decor/bait use tighter grids
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .grid.sect-one details[open] > ul{max-height:52vh;overflow:auto;padding-right:6px}
+body.v3 #panel .grid:has(> .tile canvas[data-pet]){grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+body.v3 #panel .grid:has(> .tile canvas[data-pet]) > .tile{padding:10px;gap:4px}
+body.v3 #panel .grid:has(> .tile .prog) > .tile{padding:10px 12px;gap:4px}
+body.v3 #panel .grid:has(> .tile .prog){grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+#panel .tk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,420px),1fr));gap:8px}
+</style>`);
+// pets: filter by bonus type; feats: closest first, the rest behind "Show all"
+let petFilter='all', featsAll=false;
+const _applySections_0 = applySections;
+applySections = function(){ _applySections_0(); const P=$('panel'); if(!P) return;
+  if(S.tab==='pets'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children].filter(t=>t.querySelector('canvas[data-own="1"]')); if(T.length<8) return;
+    const kOf=t=>{ const id=(t.querySelector('canvas[data-pet]')||{}).dataset; return id&&PETI[id.pet]?PETI[id.pet].k:'other'; };
+    T.sort((a,b)=>{ const fa=a.classList.contains('done')?0:1, fb=b.classList.contains('done')?0:1; return fa-fb; }).forEach(t=>grid.appendChild(t)); [...grid.children].filter(t=>!T.includes(t)).forEach(t=>grid.appendChild(t));
+    const kinds=[...new Set(T.map(kOf))]; const bar=document.createElement('div'); bar.className='chips pet-filter'; bar.style.margin='0 0 10px';
+    bar.innerHTML=['all',...kinds].map(k=>`<button class="chipb" type="button" data-pf="${k}" aria-pressed="${petFilter===k}">${k==='all'?'All':(BK[k]?BK[k][0].toUpperCase()+BK[k].slice(1):k)} <span class="meta">${k==='all'?T.length:T.filter(t=>kOf(t)===k).length}</span></button>`).join('');
+    let petsAll=false; const pmore=document.createElement('button'); pmore.className='btn alt'; pmore.type='button'; pmore.style.cssText='margin:10px auto 0;display:none'; pmore.addEventListener('click',e=>{ e.stopPropagation(); petsAll=true; apply(); }); grid.after(pmore);
+    const apply=()=>{ let n=0; for(const t of T){ let show=petFilter==='all'||kOf(t)===petFilter||t.classList.contains('done'); if(show&&petFilter==='all'&&!petsAll){ n++; if(n>16) show=false; } t.style.display=show?'':'none'; } pmore.style.display=petFilter==='all'&&!petsAll&&T.length>16&&bar.style.display!=='none'?'block':'none'; pmore.textContent='Show all '+T.length; bar.querySelectorAll('[data-pf]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pf===petFilter))); };
+    bar.addEventListener('click',e=>{ const b=e.target.closest('[data-pf]'); if(!b) return; e.stopPropagation(); petFilter=b.dataset.pf; apply(); });
+    grid.parentNode.insertBefore(bar,grid); const sync=()=>{ const vis=P.querySelector('.sect-nav [aria-selected="true"]'); bar.style.display=vis&&/Your pets/.test(vis.textContent)?'':'none'; if(bar.style.display!=='none') apply(); else pmore.style.display='none'; };
+    P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(sync,0)); sync(); }
+  if(S.tab==='feats'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const todo=[...grid.children].filter(t=>!t.classList.contains('done'));
+    const prog=t=>{ const i=t.querySelector('.prog i'); return i?parseFloat(i.style.width)||0:0; }; todo.sort((a,b)=>prog(b)-prog(a)); todo.forEach(t=>grid.insertBefore(t,grid.firstChild?null:null)); const rest=[...grid.children].filter(t=>t.classList.contains('done')); todo.concat(rest).forEach(t=>grid.appendChild(t));
+    const LIMIT=18; if(todo.length<=LIMIT) return; const more=document.createElement('button'); more.className='btn alt'; more.type='button'; more.style.margin='10px auto 0'; more.style.display='block';
+    const apply=()=>{ const onTodo=/To do/.test((P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent||''); todo.forEach((t,i)=>{ if(onTodo) t.style.display=(featsAll||i<LIMIT)?'':'none'; }); more.style.display=onTodo&&!featsAll?'block':'none'; more.textContent='Show all '+todo.length; };
+    more.addEventListener('click',e=>{ e.stopPropagation(); featsAll=true; apply(); }); grid.after(more); P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(apply,0)); apply(); } };

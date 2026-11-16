@@ -65,3 +65,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .st-table tbody th{text-align:left;color:var(--ink);font-weight:600} .st-table td.z{color:#ffffff30} .st-table td.t{color:#ffd36a;font-weight:700}
 .st-test{margin-top:14px;border-color:#ff9a5c55} .st-test summary{cursor:pointer}
 </style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>li.pn-h{list-style:none;margin:12px 0 4px -20px;font-weight:800;color:#ffd36a;font-size:13px;letter-spacing:.06em;text-transform:uppercase} li.pn-h:first-child{margin-top:4px}
+#evin ul{max-height:58vh;overflow:auto;padding-right:6px}</style>`);
