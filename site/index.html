@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0246';
+window.DL_VERSION='2026.11.16-0255';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -58,6 +58,13 @@ button,select{font:inherit;color:inherit}
 .hilocard{width:110px;height:140px;margin:10px auto;border-radius:12px;background:#f4ece0;color:#1a1a1a;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 20px #0006;border:3px solid #c8553a}
 .hilocard b{font-family:var(--display);font-size:46px;line-height:1}
 .hilocard span{font-size:13px;font-weight:700;color:#7a4a2a}
+.spec{display:flex;flex-direction:column;gap:3px;text-align:left;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;font:inherit;color:inherit}
+.spec:hover:not(:disabled){border-color:var(--kelp)}
+.spec.on{border-color:var(--gold);box-shadow:0 0 0 1px #ffc94d55;cursor:default}
+.spec:disabled:not(.on){opacity:.6;cursor:not-allowed}
+.spec b{font-family:var(--display);font-size:15px}
+.spec .up{color:var(--kelp);font-size:13px}
+.spec .down{color:#ff8a8a;font-size:13px}
 .prize{padding:6px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
 /* HUD: fixed grid cells, so nothing appearing or changing inside it can move the game window */
 .hud{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));align-items:stretch;gap:8px}
@@ -635,11 +642,14 @@ const PERKS = {
   nightowl: {name:'Night Owl',      max:5,  per:'Better rare odds at dusk and night', d:'The dark is where the good fish hide.'},
 };
 const WEATHERS = [
-  {k:'Clear',  w:40, note:'Calm skies. Nothing special.'},
-  {k:'Rain',   w:25, bite:1.35, note:'Bites come 35% faster.'},
+  {k:'Clear',  w:34, note:'Calm skies. Nothing special.'},
+  {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
   {k:'Fog',    w:15, fog:true, note:'Night-only fish bite at any hour.'},
-  {k:'Storm',  w:12, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
+  {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
+  {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
+  {k:'Blood Moon', w:3, rare:1.2, str:1.35, note:'Legendary odds way up, but everything fights much harder.'},
+  {k:'Fish Rain', w:3, bite:2.5, treasure:2, note:'It is literally raining fish. Bites ×2.5, junk ×2.'},
 ];
 const WX_LEN = 240;
 const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,3000000,6000000,12000000,25000000];
@@ -806,7 +816,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
-  petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0,
+  petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
   rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
@@ -829,7 +839,8 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.petLook=Object.assign({},o.petLook||{}); m.bond=Object.assign({},o.bond||{}); m.petTints=uniq(['none',...(o.petTints||[])]); m.petAccs=uniq(['none','bandana',...(o.petAccs||[])]);
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
   m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
-  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
+  m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]);
+  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
@@ -873,18 +884,18 @@ function aqSum(k){ let s=0; for(const f of S.tank){ const e=aqEff(f); if(e && e.
 const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank()) * coinMult();
+const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
 const xpMult = () => (1 + bonus('xp')) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
-const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?2:1));
-const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook();
+const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
+const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
-const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)));
+const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.6:1));
 const farAt = () => .8 - .02*pr('caster');
-const hotRate = () => 1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot');
+const hotRate = () => (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1);
 const streakCap = () => .5 + .1*pr('streaker');
 const ptsTotal = () => (S.lvl-1) + S.bonusPts;
 const ptsSpent = () => Object.values(S.perks).reduce((a,b)=>a+b,0);
@@ -904,7 +915,7 @@ const CYCLE = 360;
 function phase(){ return (Date.now()/1000 % CYCLE)/CYCLE; }
 function tod(p=phase()){ if(p<.05||p>=.95) return 'Dawn'; if(p<.45) return 'Day'; if(p<.55) return 'Dusk'; return 'Night'; }
 function isNight(p=phase()){ const t=tod(p); return t==='Night'||t==='Dusk'; }
-function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog; return !isNight(p) || tod(p)==='Dusk'; }
+function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog || (maxed('nightowl') && tod(p)==='Dawn'); return !isNight(p) || tod(p)==='Dusk'; }
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
 function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
@@ -957,12 +968,12 @@ function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+
   if(S.baitSel!=='worm' && S.bait[S.baitSel]<=0){ S.baitSel='worm'; renderBait(); }
   G.st='charging'; G.power=0; G.pdir=1; ac(); }
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
-  G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; sfx.cast(); }
+  G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; if(!G.inHot && maxed('caster') && G.power>.97){ G.inHot=true; toast('Bullseye!'); } sfx.cast(); }
 function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const wx=weather();
-  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1);
-  G.biteAt = rnd(1.4,4.6)/speed; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
+  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1);
+  G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
-const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1);
+const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
 const fishHatsLeft = () => HATS.filter(h=>h.src==='fish' && !S.owned.hats.includes(h.id));
 function chooseCatch(){
@@ -970,22 +981,24 @@ function chooseCatch(){
   if(Math.random() < .007*(G.inHot?2.5:1)*(1+bonus('treasure')*.5) && fishHatsLeft().length) return Object.assign({kind:'hat', hat:pick(fishHatsLeft())}, weak);
   if(Math.random() < junkChance()) return Object.assign({kind:'junk', item:pickJunk()}, weak);
   let rare = b.rare + ROD_RARE[S.gear.rod] + (G.lastCast>farAt() ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (G.inHot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night;
-  const pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1));
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1);
+  let pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); if(maxed('lucky') && (S.stats.caught+1)%25===0 && pool.some(s=>s.r>=2)) pool=pool.filter(s=>s.r>=2);
+  const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.6:1));
   let x=Math.random()*ws.reduce((a,c)=>a+c,0), sp=pool[0]; for(let i=0;i<pool.length;i++){ x-=ws[i]; if(x<=0){ sp=pool[i]; break; } }
-  const tb = 1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0);
+  const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?2:spec('shinyhunter')?.7:1);
   const kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb);
   const rel=(kg-sp.min)/(sp.max-sp.min); const str=sp.str*(.8+.4*rel)*(wx.str||1);
-  const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1);
+  const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1);
   const trophy = rel > .9;
   let value = Math.max(1,Math.round(sp.base*Math.pow(kg/((sp.min+sp.max)/2),.85)));
-  value=Math.round(value*RAR[sp.r].val*(1+.1*mastery(sp.id))); if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
+  value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*(spec('tinker')?.95:1)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5)); if(shiny) value*=4;
   return {kind:'fish', sp, kg, rel, str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, trophy, storm: wx.k==='Storm', hot:G.inHot};
 }
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
   G.st='reeling'; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
-  if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
+  G.fightT=0; G.saved=false;
+  if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
 function breakStreak(){ if(S.streak>=3) setTimeout(()=>toast('Streak of '+S.streak+' ended'),1200); S.streak=0; }
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
@@ -1001,14 +1014,15 @@ function landFish(){
   const j=S.journal[sp.id]; const isNew=!j; const record = j && f.kg > j.best;
   S.journal[sp.id] = {n:(j?j.n:0)+1, best:Math.max(j?j.best:0, +f.kg.toFixed(3)), sh:(j&&j.sh)||f.shiny, tr:(j&&j.tr)||f.trophy, bv:Math.max((j&&j.bv)||0, f.value), first:(j&&j.first)||Date.now()};
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = Math.min(streakCap(),.05*(S.streak-1));
-  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult());
+  if(G.perfect && relic('goldhook')) f.value=Math.round(f.value*1.1);
+  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*(spec('mythseeker')&&sp.r===0?.7:1));
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   S.cooler.push({id:sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny?1:0, tr:f.trophy?1:0}); S.stats.caught++;
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
-  const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?1.5:1)); if(scl) S.scales+=scl;
+  const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
   taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
-  const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg); const setNow = checkSet(sp.loc);
+  const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg).concat(checkBounties2(f)); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
   if(scl) b.push(['k','+'+scl+' Scales']); if(tok) b.push(['g','+1 '+(tok==='big'?'big':'small')+' Mystery Crate']);
@@ -1035,7 +1049,7 @@ function landJunk(){
   if(e.special==='lottery'){ const r=Math.random(); if(r<.05){ coins=base*30; quote='WE HAVE A WINNER! All six numbers! I need to sit down.'; b.push(['g','Jackpot ×30']); } else if(r<.3){ coins=base*3; quote='A small winner. Better than a boot!'; } else { coins=0; quote='Not a winner. Not even close. Keep it as a souvenir.'; } }
   if(e.special==='fortune'){ const fo=pick(FORTUNES); quote='The paper says: "'+fo[0]+'"'; addBuff(fo[1],fo[2],5,'Fortune: '+BK[fo[1]]); b.push(['k','Boost: '+fmtB(fo[1],fo[2])+' for 5 min']); }
   if(e.special==='chest'){ coins=base*3; const bk = li<=1?'cricket':li<=3?'glow':'chum'; const n=bk==='chum'?3:5; S.bait[bk]+=n; found=n+' '+BAIT[bk].name; b.push(['k','+'+n+' '+BAIT[bk].name]); }
-  coins = coins>0 ? earn(coins*coinMult()) : 0; if(coins) b.unshift(['g','+'+fmt(coins)+' coins']); if(isNew) b.push(['','New oddity']);
+  coins = coins>0 ? earn(coins*coinMult()*(maxed('scavenger')?1.5:1)*(relic('pockets')?1.25:1)) : 0; if(coins) b.unshift(['g','+'+fmt(coins)+' coins']); if(isNew) b.push(['','New oddity']);
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const xp=Math.round((12+li*10)*xpMult()); const lv=addXP(xp); if(lv) b.push(['g','Level up! Lv '+S.lvl]);
   showCard({draw:c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); drawJunk(cx,c.width,c.height,J.id); }, shiny:J.t>=3, rar:['Junk','Odd junk','Rare find','Treasure'][J.t], rarCol:J.t>=2?'var(--gold)':'var(--muted)', name:J.name,
     nums:[['Found',found],['Worth',fmt(coins),1],['XP','+'+xp]], desc:quote?'<span class="quote">Fishmonger: '+esc(quote)+'</span>':'', badges:b, html:true});
@@ -1130,9 +1144,9 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => f.value*TANK_RATE*RAR[SPI[f.id].r].aq*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => f.value*TANK_RATE*RAR[SPI[f.id].r].aq*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
-function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(OFFLINE_CAP_MIN,Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
+function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
 
 // ---------- input ----------
@@ -1142,7 +1156,7 @@ function down(e){
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'idle': startCharge(); break;
-    case 'waiting': G.st='idle'; G.inHot=false; breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
+    case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;
     case 'result': hideCard(); break;
@@ -1173,7 +1187,7 @@ function update(dt){
   G.flash=Math.max(0,G.flash-dt*2.5);
   // hotspots: ripples on the water where rare fish gather
   if(G.hot){ G.hot.t+=dt; if(G.hot.t>G.hot.life) G.hot=null; }
-  else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))}; G.hotNext=rnd(14,32); } }
+  else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))*(maxed('reader')?2:1)}; G.hotNext=rnd(14,32); } }
   updateEvents(dt);
 }
 function fight(dt){
@@ -1181,18 +1195,19 @@ function fight(dt){
   G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta); if(G.run){ splash(G.bob.x,G.bob.y,6); G.ev=null; } }
   if(!G.run && (B.shake||B.jump) && !G.ev){ G.evT-=dt; if(G.evT<=0){ G.ev=B.jump?'jump':'shake'; G.evDur=B.jump?.85:.5; G.evT=rnd(1.3,3)/(.5+f.aggr)*(.6+.4/(.3+G.sta)); if(B.jump){ splash(G.bob.x,G.bob.y,14); sfx.jump(); } else sfx.warn(); } }
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
-  const tired=.45+.55*G.sta, steady=tensionMult();
+  const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
+  const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
   if(G.hold){
-    G.d -= reel*dt*(G.run?.25:1)*(B.drag?.75:1);
+    G.d -= reel*reelK*dt*(G.run?.25:1)*(B.drag?.75:1);
     let add = (G.run?70:22)*ratio*tired*(B.heavy?1.35:1);
     G.temper = Math.min(3, G.temper + dt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
-    if(G.ev==='jump') add += 170; else if(G.ev==='shake') add += 110*Math.pow(ratio,.25)+30;
+    const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
     G.ten += add*steady*dt;
     G.sta = Math.max(0, G.sta - (G.run?.18:.09)*dt*(B.heavy?.6:1));
     G.tickT-=dt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
   } else {
-    G.temper = Math.max(0, G.temper - dt*1.8);
+    G.temper = Math.max(0, G.temper - dt*1.8*(maxed('softtouch')?2:1));
     G.ten = Math.max(0, G.ten - 55*dt);
     if(G.run) G.d += (1.5 + f.str*.18) * (.35+.65*G.sta) * dt;
     if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * dt;
@@ -1202,6 +1217,7 @@ function fight(dt){
   if(G.ten>75 && G.hold){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); } }
   const frac = clamp(G.d/G.d0,0,1.6); const x0=W*.24, x1=castX(G.lastCast);
   G.bob.x = x0 + (x1-x0)*Math.min(frac,1.25) + (G.run ? Math.sin(performance.now()/90)*3 : 0) + (G.ev==='shake'?Math.sin(performance.now()/30)*3:0); G.bob.y = waterY(G.bob.x);
+  if(G.ten>=100 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
   if(G.ten>=100) endFight('snap'); else if(G.d>=G.maxOut) endFight('spool'); else if(G.d<=0) endFight('caught');
 }
 
@@ -1670,7 +1686,7 @@ const DECOR = [['kelp','Kelp Patch',800,.01],['duck','Floating Duck',1000,.02],[
   ['toiletthrone','Porcelain Throne',4800,.03],['disco','Disco Ball',6500,.04],['tvfish','Tiny TV (fish channel)',8000,.04],['flamingofloat','Flamingo Float',5500,.04],['bigclam','Giant Clam',11000,.05],
   ['jellylamp','Jellyfish Lamp',14000,.05],['wreckcar','Sunken Car',18000,.06],['treasurepile','Gold Coin Pile',30000,.07],['carousel','Carousel',0,.08]].map(a=>({id:a[0],name:a[1],price:a[2],b:a[3]}));
 const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
-const aqSlots = () => 6 + Math.floor(S.tankSlots/2);
+const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
 function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
 function drawTankBack(c,w,h,t){ const th=THEMES.find(x=>x[0]===S.aq.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===S.aq.sand)||SANDS[0];
@@ -1781,7 +1797,7 @@ function frenzyHit(e){ if(!e||!G.fz) return; const m=canvasXY(e); let best=null,
   if(best){ best.hit=best.t; G.fz.caught++; const p=jumperPos(best); splash(p.x,p.y,10); tone(900+G.fz.caught*30,.08,'triangle',.06); } }
 function starHit(e){ if(!e||!G.star) return false; const m=canvasXY(e), p=starPos(); if((p.x-m.x)**2+(p.y-m.y)**2>44*44) return false;
   const fo=pick(FORTUNES); addBuff(fo[1],fo[2],10,'Falling star'); S.gstats.stars++; G.star=null; sfx.shiny(); toast('You caught a falling star! Your wish: '+fmtB(fo[1],fo[2])+' for 10 min'); checkFeats(); save(); lastHud=''; return true; }
-function drawEvents(t){
+function drawEvents(t){ drawWeatherX(t,weather(),HZ());
   if(G.star){ const p=starPos(); const a=Math.sin(p.k*Math.PI); const gr=g.createLinearGradient(p.x,p.y,p.x+70,p.y-24); gr.addColorStop(0,'rgba(255,245,200,'+a+')'); gr.addColorStop(1,'rgba(255,245,200,0)'); g.strokeStyle=gr; g.lineWidth=3; g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x+70,p.y-24); g.stroke(); g.fillStyle='rgba(255,250,220,'+a+')'; g.beginPath(); g.arc(p.x,p.y,3.5,0,7); g.fill(); }
   if(G.st==='frenzy' && G.fz){ for(const j of G.fz.jumpers){ const p=jumperPos(j); g.save(); g.translate(p.x,p.y); if(j.hit){ g.globalAlpha=Math.max(0,1-(j.t-j.hit)/.4); g.fillStyle='#ffc94d'; g.font='800 16px system-ui'; g.textAlign='center'; g.fillText('+1',0,-14-(j.t-j.hit)*40); }
       else { g.rotate(-Math.cos(p.k*Math.PI)*.9); drawCreature(g,j.sp,0,0,30,{wag:t*20,flip:true}); } g.restore(); } } }
@@ -1879,6 +1895,7 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
 // handles panel buttons added by the extras; returns 'skip' to avoid a full re-render
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
+  const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
     case 'mstyle': S.settings.style=k; return;
@@ -1966,7 +1983,7 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
 }
 document.addEventListener('visibilitychange',()=>{ if(!AC) return; if(document.hidden) AC.suspend(); else if(MUS.started) AC.resume(); });
 window.addEventListener('resize',()=>resize());
-// test hook (only active with ?test): if(/[?&]test\b/.test(location.search)) window.__dl={openEvent, G, S:()=>S, MUS};
+if(/[?&]test\b/.test(location.search)) window.__dl={openEvent, G, S:()=>S, MUS};
 document.addEventListener('pointerdown',()=>startAudio(),{once:true});
 document.addEventListener('keydown',()=>startAudio(),{once:true});
 
@@ -1974,8 +1991,15 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.5';
+const GAME_VERSION = '1.6';
 const PATCHES = [
+ {v:'1.6', name:'Choices & Skies', items:[
+  'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
+  'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
+  'Wisdom Pearls can now be traded for permanent relics. Choose wisely.',
+  'Keep an eye on the sky. Some rare weather has been spotted, and it isn’t subtle.',
+  'The harbourmaster has new kinds of bounties, and now pays in Scales too.',
+  'The update banner now tells you which update is waiting.' ]},
  {v:'1.5', name:'Rods, Pals & the Big Boardwalk', items:[
   'Pets can now be named, dyed and dressed up. They also really like being petted. Try tapping yours.',
   'Pets you pet often grow closer to you, and their bonus grows with them.',
@@ -2121,6 +2145,9 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   tone(880,.08,'sine',.05); tone(1320,.12,'sine',.04,0,.08);
   const id=S.pet, today=dayKey(); const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.day!==today){ b.day=today; b.today=0; }
   const before=bondLevel(id); if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1);
+  if(maxed('petpal') && Date.now()-(S.petGiftT||0)>3600000 && Math.random()<.35){ S.petGiftT=Date.now(); const r=Math.random(); let gift;
+    if(r<.4){ gift=fmt(earn(bestLoot()*rnd(2,5)*coinMult()))+' coins'; } else if(r<.75){ const sc=rint(3,8); S.scales+=sc; gift=sc+' Scales'; } else { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk&&!BAIT[k].scales); const k=pick(opts); S.bait[k]+=5; renderBait(); gift='5 '+BAIT[k].name; }
+    setTimeout(()=>toast(petName(id)+' brought you a gift: '+gift+'!'),600); sfx.coin(); }
   const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
@@ -2400,6 +2427,111 @@ function drawDecorX(c,id,t,h){ const {R,Ci,E,P}=h;
     case 'carousel': R(-3,-96,6,96,'#ffcc33'); P([-44,-90,44,-90,0,-118],'#d8303a'); for(let i=0;i<4;i++) R(-44+i*22,-90,11,6,'#fff'); c.save(); c.translate(0,-50); for(let i=0;i<3;i++){ const a=t*.8+i*2.09; const x=Math.cos(a)*30, s=.75+.25*Math.sin(a); c.strokeStyle='#ffcc33'; c.lineWidth=2; c.beginPath(); c.moveTo(x,-40); c.lineTo(x,10); c.stroke(); c.save(); c.translate(x,Math.sin(t*2+i)*6); c.scale(s,s); E(0,0,13,7,['#ffffff','#ff9ad0','#9ad8ff'][i]); Ci(11,-8,5,['#ffffff','#ff9ad0','#9ad8ff'][i]); c.restore(); } c.restore(); R(-48,-6,96,6,'#d8303a'); break;
   } }
 
+// =====================================================================
+// Update 1.6: skill specialisations & mastery effects, pearl relics,
+// rare weathers, richer bounties
+// =====================================================================
+// ---------- specialisations: one choice per tier, each with a trade-off ----------
+const SPEC_TIERS = [
+ {lvl:5,  name:'Style', opts:[
+   ['speedy','Quick Draw','Bites come 25% faster.','Rare odds −10%.'],
+   ['patient','Still Waters','Rare odds +30%.','Bites come 20% slower.'],
+   ['tinker','Tinkerer','Junk and treasure ×1.8.','Fish are worth 5% less.']]},
+ {lvl:15, name:'Fight', opts:[
+   ['brawler','Brawler','Reel 25% faster.','Line tension +15%.'],
+   ['gentle','Gentle Giant','Fish tempers rise 40% slower.','Reel 10% slower.'],
+   ['acrobat','Acrobat','Jumps and head-shakes strain your line 60% less.','Runs pull 15% harder.']]},
+ {lvl:30, name:'Trade', opts:[
+   ['merchant','Merchant','Sale price +20%.','Aquarium income −15%.'],
+   ['curator','Curator','Aquarium income +35% and 2 extra decoration spots.','Sale price −10%.'],
+   ['collector','Collector','Mastery stars give +15% value each (not 10%), new species give triple XP.','Bounty rewards −20%.']]},
+ {lvl:50, name:'Legacy', opts:[
+   ['mythseeker','Myth Seeker','Legendary and rarer fish ×1.6.','Common fish give 30% less XP.'],
+   ['shinyhunter','Shiny Hunter','Shiny fish twice as common.','Trophy-size fish 30% rarer.'],
+   ['trophyking','Trophy King','Trophy-size fish twice as common, and worth ×2 (not ×1.5).','Shiny fish 30% rarer.']]},
+];
+const spec = id => !!(S.specs && Object.values(S.specs).includes(id));
+const specFee = tier => 2000*(tier+1)*(tier+1);
+const maxed = k => pr(k) >= PERKS[k].max;
+// what each skill does once it is fully learned
+const MASTERY_FX = {
+  steady:'Second wind: once per fight, your line survives a snap.',
+  strong:'Power start: the first 2 seconds of every fight reel twice as fast.',
+  softtouch:'Calm aura: fish lose their temper twice as fast whenever you let go.',
+  reflex:'Lightning hook: a perfect hook pulls the fish halfway in.',
+  patience:'Every 10th cast bites almost instantly.',
+  lucky:'Every 25th catch is at least Rare.',
+  caster:'Bullseye: a full-power cast makes its own little hotspot.',
+  trophy:'Trophy-size fish give double Scales.',
+  reader:'Hotspots last twice as long.',
+  scavenger:'Junk pays 50% more coins.',
+  haggler:'The fishmonger’s wanted fish pays ×3 instead of ×2.',
+  keeper:'The aquarium keeps earning for 16 hours while you’re away, not 8.',
+  petpal:'Petting sometimes earns a little gift from your pet (once an hour).',
+  streaker:'Reeling in early no longer breaks your streak.',
+  nightowl:'Night fish also bite at dawn.',
+};
+const offlineCap = () => maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN;
+function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
+  const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
+    return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· level ${T.lvl}</span></h4>${cur?`<span class="badge g">${SPEC_TIERS[ti].opts.find(o=>o[0]===cur)[1]}</span>`:locked?'<span class="meta">Locked</span>':'<span class="badge">Choose one</span>'}</div>
+     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
+       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
+  P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Specialisations</b> are big choices with a trade-off, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
+   <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
+   <h2 style="margin-top:12px">Specialisations</h2><div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">${SPEC_TIERS.map(specRow).join('')}</div>
+   <h2 style="margin-top:16px">Skills</h2><div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
+    return `<div class="tile ${mx?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
+     <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div><div class="meta">${p.d} Each rank: ${p.per}.</div>
+     <div class="meta" style="color:${mx?'var(--gold)':'var(--muted)'}">${mx?'★ ':'At max rank: '}${MASTERY_FX[k]}</div>
+     <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${mx?'Mastered':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>'; }
+
+// ---------- pearl relics ----------
+const RELICS = [
+ ['headstart','Head Start',2,'Start every voyage with 25,000 coins.'],
+ ['mentor','Old Mentor',3,'+25% XP, always.'],
+ ['tacklebox','Old Tackle Box',3,'Keep all your bait when you set sail.'],
+ ['charts','Sea Charts',4,'New waters cost 30% less to unlock.'],
+ ['pockets','Deep Pockets',3,'Junk pays 25% more coins.'],
+ ['goldhook','Golden Hook',5,'+0.15 s hook window, and perfect hooks add 10% value.'],
+ ['luckypearl','Lucky Pearl',5,'+50% shiny chance.'],
+ ['compass','Brass Compass',4,'Hotspots appear 40% more often.'],
+].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
+const relic = id => S.relics && S.relics.includes(id);
+const locCost = L => Math.round(L.cost*(relic('charts')?.7:1));
+function relicHTML(){ return `<div class="jsec"><h2>Pearl relics</h2><p class="sub">Spend Wisdom Pearls on permanent relics. Every pearl you spend gives up its +10% coins and XP, so choose what matters to you. You have <b>${S.pearls}</b> pearl${S.pearls===1?'':'s'}.</p>
+  <div class="grid">${RELICS.map(r=>{ const own=relic(r.id); return `<div class="tile ${own?'done':''}"><div class="row spread"><h4>${r.name}</h4><span class="meta">${r.cost} pearl${r.cost>1?'s':''}</span></div><div class="meta">${r.d}</div>
+   ${own?'<span class="badge g">Owned forever</span>':`<button class="btn sm" data-act="relic" data-k="${r.id}" ${S.pearls>=r.cost?'':'disabled'}>Trade ${r.cost} pearl${r.cost>1?'s':''}</button>`}</div>`; }).join('')}</div></div>`; }
+
+// ---------- rare weathers ----------
+let fishRain=null;
+function drawWeatherX(t,wx,hz){ if(!S.settings.effects) return;
+  if(wx.k==='Aurora'){ for(let b=0;b<3;b++){ g.strokeStyle=['rgba(90,255,170,','rgba(160,120,255,','rgba(90,220,255,'][b]+'.22)'; g.lineWidth=16-b*4; g.beginPath(); for(let x=0;x<=W;x+=12){ const y=hz*(.2+b*.12)+Math.sin(x*.008+t*.4+b)*hz*.08+Math.sin(x*.02+t*.7)*6; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); } }
+  if(wx.k==='Blood Moon'){ g.fillStyle='rgba(140,10,30,.16)'; g.fillRect(0,0,W,H); const gr=g.createRadialGradient(W*.8,hz*.35,4,W*.8,hz*.35,40); gr.addColorStop(0,'rgba(255,90,80,.95)'); gr.addColorStop(.5,'rgba(200,30,40,.6)'); gr.addColorStop(1,'rgba(200,30,40,0)'); g.fillStyle=gr; g.beginPath(); g.arc(W*.8,hz*.35,40,0,7); g.fill(); }
+  if(wx.k==='Fish Rain'){ if(!fishRain) fishRain=Array.from({length:26},()=>[Math.random(),Math.random(),.6+Math.random()*.8,Math.floor(Math.random()*6)]); const cols=['#ffb04a','#5aa9ff','#7fc8a9','#ff7a9a','#ffd84a','#c38bff'];
+    for(const f of fishRain){ const x=(f[0]*W+t*20*f[2])%W, y=((f[1]*H+t*170*f[2])%(H+30))-15; g.save(); g.translate(x,y); g.rotate(1.2+Math.sin(t*3+f[0]*9)*.4); drawFish(g,0,0,12*f[2],cols[f[3]],'#fff6e0',.4,t*14,false,{}); g.restore(); } } }
+
+// ---------- bounties with more variety ----------
+const STYLE_BOUNTY = ['jump','run','thrash','dive','sulk','dart'];
+function makeBounty2(){ const r=Math.random(); const L=pick(S.unlocked), base=LOCS[locIdx(L)].loot;
+  if(r<.12) return {type:'trophy', loc:L, n:1, have:0, reward:Math.round(base*6), scales:4};
+  if(r<.24){ const st=pick(STYLE_BOUNTY); return {type:'style', beh:st, n:rint(3,6), have:0, reward:Math.round(bestLoot()*3), scales:3}; }
+  if(r<.3) return {type:'shiny', n:1, have:0, reward:Math.round(bestLoot()*12), scales:10};
+  return null; }
+function bountyText(b){ if(b.type==='trophy') return {what:'Catch any trophy-size fish at '+LOCS[locIdx(b.loc)].name, where:LOCS[locIdx(b.loc)].name};
+  if(b.type==='style') return {what:'Catch '+b.n+' '+BEH[b.beh].n.toLowerCase()+'s', where:'Any water'}; if(b.type==='shiny') return {what:'Catch any shiny fish', where:'Any water'}; return null; }
+function checkBounties2(f){ const done=[]; for(const b of S.bounties){ if(!['trophy','style','shiny'].includes(b.type)||bDone(b)) continue;
+  if(b.type==='trophy' && f.trophy && f.sp.loc===b.loc) b.have=1; if(b.type==='style' && f.sp.beh===b.beh) b.have++; if(b.type==='shiny' && f.shiny) b.have=1; if(bDone(b)) done.push(b); } return done; }
+
+// ---------- actions ----------
+function extraAct3(b){ const k=b.dataset.k;
+  switch(b.dataset.act){
+    case 'spec': { const [ti,id]=k.split(':'); const T=SPEC_TIERS[+ti]; if(!T||S.lvl<T.lvl) return 'skip'; const cur=S.specs[ti]; if(cur===id) return 'skip'; if(cur){ const fee=specFee(+ti); if(S.money<fee) return 'skip'; S.money-=fee; }
+      S.specs[ti]=id; sfx.catch(3); toast('Specialisation: '+T.opts.find(o=>o[0]===id)[1]+'.'); return 'render'; }
+    case 'relic': { const r=RELICS.find(x=>x.id===k); if(!r||relic(k)||S.pearls<r.cost) return 'skip'; S.pearls-=r.cost; S.relics.push(k); sfx.shiny(); toast('Relic gained: '+r.name+'. It’s yours forever.'); return 'render'; }
+  }
+  return undefined; }
+
 // ---------- loop ----------
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
@@ -2465,15 +2597,15 @@ function makeBounty(){
   if(Math.random()<.55){ const n = sp.r===0 ? 2+Math.floor(Math.random()*3) : sp.r>=3 ? 1 : 1+Math.floor(Math.random()*2); return {sp:sp.id, type:'count', n, have:0, reward:Math.round(sp.base*n*2.4+20)}; }
   const kg = +(sp.min+(sp.max-sp.min)*rnd(.45,.7)).toFixed(sp.max<10?2:1); return {sp:sp.id, type:'size', kg, have:0, reward:Math.round(sp.base*4+30)};
 }
-function fillBounties(){ while(S.bounties.length<bountySlots()) S.bounties.push(makeBounty()); }
-function bDone(b){ return b.type==='count' ? b.have>=b.n : b.have>=1; }
+function fillBounties(){ while(S.bounties.length<bountySlots()) S.bounties.push(makeBounty2()||makeBounty()); }
+function bDone(b){ return (b.type==='count'||b.type==='style') ? b.have>=b.n : b.have>=1; }
 function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.sp!==sp.id || bDone(b)) continue; if(b.type==='count'){ b.have++; } else if(kg>=b.kg){ b.have=1; } if(bDone(b)) done.push(b); } return done; }
 
 // ---------- panels ----------
 let confirmBox = null, encLoc = null, encSel = null;
 function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('tabs').children) b.setAttribute('aria-selected', b.dataset.tab===t?'true':'false'); renderPanel(); }
 $('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); } });
-function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods}[S.tab]||renderCooler; fn(P); }
+function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
 function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
@@ -2534,7 +2666,10 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
 }
 function renderBounties(P){ fillBounties();
   P.innerHTML=dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
-  S.bounties.map((b,i)=>{ const sp=SPI[b.sp], d=bDone(b), L=LOCS[locIdx(sp.loc)];
+  S.bounties.map((b,i)=>{ const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
+      return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
+       <div class="row spread"><span class="val"><span class="coin">${fmt(rw)}</span> + ${b.scales} Scales</span>${d?`<button class="btn" data-act="claim" data-i="${i}">Claim</button>`:`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }
+    const sp=SPI[b.sp], d=bDone(b), L=LOCS[locIdx(sp.loc)];
     const what = b.type==='count' ? `Catch ${b.n} × ${sp.name}` : `Catch a ${sp.name} of ${kgStr(b.kg)} or more`;
     const prog = b.type==='count' ? `${Math.min(b.have,b.n)} / ${b.n}` : (d?'Done':'Not yet');
     return `<div class="tile ${d||b.legend?'done':''}">${b.legend?'<span class="rar" style="color:var(--gold)">Legendary bounty</span>':''}<canvas width="220" height="90" data-fish="${sp.id}" data-known="${S.journal[sp.id]?1:0}" style="width:110px;height:45px"></canvas><h4>${S.journal[sp.id]||!b.legend?what:'Catch the legend of '+L.name}</h4>
@@ -2587,10 +2722,10 @@ function renderMap(P){
   P.innerHTML=`<h2>Waters</h2><p class="sub">Unlock new waters with coins once you have found ${LOCS[1].need} species in the one before. Each has ${spAt('pond').length} fish of its own, its own junk and treasure, and is tougher than the last.</p><div class="grid">`+
   LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), here=S.loc===L.id; const prev=i?LOCS[i-1]:null; const met=!prev||caughtAt(prev.id)>=L.need; const sps=spAt(L.id);
     const btn = here ? '<button class="btn alt" disabled>Fishing here</button>' : open ? `<button class="btn" data-act="goto" data-k="${L.id}" ${G.st==='idle'?'':'disabled'}>Travel here</button>`
-      : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=L.cost&&(!prev||S.unlocked.includes(prev.id))?'':'disabled'}>Unlock · <span class="coin">${fmt(L.cost)}</span></button>`;
+      : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=locCost(L)&&(!prev||S.unlocked.includes(prev.id))?'':'disabled'}>Unlock · <span class="coin">${fmt(locCost(L))}</span></button>`;
     return `<div class="tile loc ${here?'here':''}"><div class="sw2" style="background:linear-gradient(${L.sky[0]},${L.sky[1]} 48%,${L.water[0]} 52%,${L.water[1]})"></div>
     <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${L.depth} · ${caughtAt(L.id)}/${sps.length} species · strength ${Math.min(...sps.map(s=>s.str))}–${Math.max(...sps.map(s=>s.str))}</div>
-    ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${Math.min(caughtAt(prev.id),L.need)} / ${L.need} species found at ${prev.name}</div>`:''}${btn}</div>`; }).join('')+'</div>'+renderVoyage();
+    ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${Math.min(caughtAt(prev.id),L.need)} / ${L.need} species found at ${prev.name}</div>`:''}${btn}</div>`; }).join('')+'</div>'+renderVoyage()+relicHTML();
 }
 const canRetire = () => S.unlocked.includes('trench') && pearlsFor() > 0 && G.st==='idle';
 function renderVoyage(){ const n=pearlsFor(), ok=canRetire();
@@ -2699,16 +2834,16 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'buygear': { const lv=S.gear[k], c=GEAR[k].cost[lv+1]; if(c==null||S.money<c) return; S.money-=c; S.gear[k]++; sfx.coin(); toast(GEAR[k].name+' upgraded to level '+(S.gear[k]+1)); break; }
     case 'buybait': { const bt=BAIT[k]; if(!bt||bt.junk) return; if(bt.scales){ if(S.scales<bt.scales) return; S.scales-=bt.scales; S.bait[k]+=bt.pack; } else { const n=+b.dataset.n||1, cost=n>1?bt.price*4.5:bt.price; if(S.money<cost) return; S.money-=cost; S.bait[k]+=bt.pack*n; } if(S.baitSel==='worm') S.baitSel=k; sfx.coin(); toast('Bought '+bt.name); break; }
     case 'usebait': S.baitSel=k; break;
-    case 'claim': { const bo=S.bounties[i]; if(!bo||!bDone(bo)) return; const paid=earn(bo.reward*coinMult()); S.bounties.splice(i,1); fillBounties(); sfx.coin(); toast('Bounty paid: '+fmt(paid)+' coins'); break; }
+    case 'claim': { const bo=S.bounties[i]; if(!bo||!bDone(bo)) return; const paid=earn(bo.reward*coinMult()*(spec('collector')?.8:1)); if(bo.scales) S.scales+=bo.scales; S.bounties.splice(i,1); fillBounties(); sfx.coin(); toast('Bounty paid: '+fmt(paid)+' coins'+(bo.scales?' and '+bo.scales+' Scales':'')); break; }
     case 'retire': { if(!canRetire()) return; confirmBox='retire'; break; }
     case 'reset': confirmBox='reset'; break;
     case 'cancel': confirmBox=null; pendingLoad=null; break;
     case 'retireok': { if(!canRetire()) return; const n=pearlsFor(); S.pearls+=n; S.tides++;
-      Object.assign(S,{money:0, gear:fresh().gear, bait:baitZero(), baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0});
+      Object.assign(S,{money:relic('headstart')?25000:0, gear:fresh().gear, bait:relic('tacklebox')?S.bait:baitZero(), baitSel:relic('tacklebox')?S.baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0});
       S.stats.runEarned=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again with '+S.pearls+' Wisdom Pearls: +'+Math.round((coinMult()-1)*100)+'% coins and XP'); break; }
     case 'resetok': { S=fresh(); S.savedAt=Date.now(); confirmBox=null; G.st='idle'; encLoc=null; encSel=null; fillBounties(); toast('Progress reset. A fresh start at Willow Pond.'); break; }
-    case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; S.bounties[i]=makeBounty(); break; }
-    case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<L.cost) return; S.money-=L.cost; S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
+    case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; S.bounties[i]=makeBounty2()||makeBounty(); break; }
+    case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<locCost(L)) return; S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': encLoc=k; encSel=null; break;
     case 'enc': encSel = encSel===k ? null : k; break;
@@ -2735,8 +2870,8 @@ if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cas
 </script>
 
 <div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
-  A new version of Driftline is ready
-  <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update</button>
+  <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
+  <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>
 </div>
 <script>
 (function(){

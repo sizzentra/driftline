@@ -372,11 +372,14 @@ const PERKS = {
   nightowl: {name:'Night Owl',      max:5,  per:'Better rare odds at dusk and night', d:'The dark is where the good fish hide.'},
 };
 const WEATHERS = [
-  {k:'Clear',  w:40, note:'Calm skies. Nothing special.'},
-  {k:'Rain',   w:25, bite:1.35, note:'Bites come 35% faster.'},
+  {k:'Clear',  w:34, note:'Calm skies. Nothing special.'},
+  {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
   {k:'Fog',    w:15, fog:true, note:'Night-only fish bite at any hour.'},
-  {k:'Storm',  w:12, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
+  {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
+  {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
+  {k:'Blood Moon', w:3, rare:1.2, str:1.35, note:'Legendary odds way up, but everything fights much harder.'},
+  {k:'Fish Rain', w:3, bite:2.5, treasure:2, note:'It is literally raining fish. Bites ×2.5, junk ×2.'},
 ];
 const WX_LEN = 240;
 const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,3000000,6000000,12000000,25000000];

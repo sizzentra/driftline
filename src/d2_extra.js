@@ -31,7 +31,7 @@ const DECOR = [['kelp','Kelp Patch',800,.01],['duck','Floating Duck',1000,.02],[
   ['toiletthrone','Porcelain Throne',4800,.03],['disco','Disco Ball',6500,.04],['tvfish','Tiny TV (fish channel)',8000,.04],['flamingofloat','Flamingo Float',5500,.04],['bigclam','Giant Clam',11000,.05],
   ['jellylamp','Jellyfish Lamp',14000,.05],['wreckcar','Sunken Car',18000,.06],['treasurepile','Gold Coin Pile',30000,.07],['carousel','Carousel',0,.08]].map(a=>({id:a[0],name:a[1],price:a[2],b:a[3]}));
 const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
-const aqSlots = () => 6 + Math.floor(S.tankSlots/2);
+const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
 function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
 function drawTankBack(c,w,h,t){ const th=THEMES.find(x=>x[0]===S.aq.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===S.aq.sand)||SANDS[0];
@@ -142,7 +142,7 @@ function frenzyHit(e){ if(!e||!G.fz) return; const m=canvasXY(e); let best=null,
   if(best){ best.hit=best.t; G.fz.caught++; const p=jumperPos(best); splash(p.x,p.y,10); tone(900+G.fz.caught*30,.08,'triangle',.06); } }
 function starHit(e){ if(!e||!G.star) return false; const m=canvasXY(e), p=starPos(); if((p.x-m.x)**2+(p.y-m.y)**2>44*44) return false;
   const fo=pick(FORTUNES); addBuff(fo[1],fo[2],10,'Falling star'); S.gstats.stars++; G.star=null; sfx.shiny(); toast('You caught a falling star! Your wish: '+fmtB(fo[1],fo[2])+' for 10 min'); checkFeats(); save(); lastHud=''; return true; }
-function drawEvents(t){
+function drawEvents(t){ drawWeatherX(t,weather(),HZ());
   if(G.star){ const p=starPos(); const a=Math.sin(p.k*Math.PI); const gr=g.createLinearGradient(p.x,p.y,p.x+70,p.y-24); gr.addColorStop(0,'rgba(255,245,200,'+a+')'); gr.addColorStop(1,'rgba(255,245,200,0)'); g.strokeStyle=gr; g.lineWidth=3; g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x+70,p.y-24); g.stroke(); g.fillStyle='rgba(255,250,220,'+a+')'; g.beginPath(); g.arc(p.x,p.y,3.5,0,7); g.fill(); }
   if(G.st==='frenzy' && G.fz){ for(const j of G.fz.jumpers){ const p=jumperPos(j); g.save(); g.translate(p.x,p.y); if(j.hit){ g.globalAlpha=Math.max(0,1-(j.t-j.hit)/.4); g.fillStyle='#ffc94d'; g.font='800 16px system-ui'; g.textAlign='center'; g.fillText('+1',0,-14-(j.t-j.hit)*40); }
       else { g.rotate(-Math.cos(p.k*Math.PI)*.9); drawCreature(g,j.sp,0,0,30,{wag:t*20,flip:true}); } g.restore(); } } }
@@ -240,6 +240,7 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
 // handles panel buttons added by the extras; returns 'skip' to avoid a full re-render
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
+  const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
     case 'mstyle': S.settings.style=k; return;
@@ -327,6 +328,6 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
 }
 document.addEventListener('visibilitychange',()=>{ if(!AC) return; if(document.hidden) AC.suspend(); else if(MUS.started) AC.resume(); });
 window.addEventListener('resize',()=>resize());
-// test hook (only active with ?test): if(/[?&]test\b/.test(location.search)) window.__dl={openEvent, G, S:()=>S, MUS};
+if(/[?&]test\b/.test(location.search)) window.__dl={openEvent, G, S:()=>S, MUS};
 document.addEventListener('pointerdown',()=>startAudio(),{once:true});
 document.addEventListener('keydown',()=>startAudio(),{once:true});

@@ -10,7 +10,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
-  petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0,
+  petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
   rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
@@ -33,7 +33,8 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.petLook=Object.assign({},o.petLook||{}); m.bond=Object.assign({},o.bond||{}); m.petTints=uniq(['none',...(o.petTints||[])]); m.petAccs=uniq(['none','bandana',...(o.petAccs||[])]);
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
   m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
-  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
+  m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]);
+  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
@@ -77,18 +78,18 @@ function aqSum(k){ let s=0; for(const f of S.tank){ const e=aqEff(f); if(e && e.
 const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank()) * coinMult();
+const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
 const xpMult = () => (1 + bonus('xp')) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
-const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?2:1));
-const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook();
+const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
+const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
-const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)));
+const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.6:1));
 const farAt = () => .8 - .02*pr('caster');
-const hotRate = () => 1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot');
+const hotRate = () => (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1);
 const streakCap = () => .5 + .1*pr('streaker');
 const ptsTotal = () => (S.lvl-1) + S.bonusPts;
 const ptsSpent = () => Object.values(S.perks).reduce((a,b)=>a+b,0);
@@ -108,7 +109,7 @@ const CYCLE = 360;
 function phase(){ return (Date.now()/1000 % CYCLE)/CYCLE; }
 function tod(p=phase()){ if(p<.05||p>=.95) return 'Dawn'; if(p<.45) return 'Day'; if(p<.55) return 'Dusk'; return 'Night'; }
 function isNight(p=phase()){ const t=tod(p); return t==='Night'||t==='Dusk'; }
-function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog; return !isNight(p) || tod(p)==='Dusk'; }
+function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog || (maxed('nightowl') && tod(p)==='Dawn'); return !isNight(p) || tod(p)==='Dusk'; }
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
 function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
@@ -161,12 +162,12 @@ function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+
   if(S.baitSel!=='worm' && S.bait[S.baitSel]<=0){ S.baitSel='worm'; renderBait(); }
   G.st='charging'; G.power=0; G.pdir=1; ac(); }
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
-  G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; sfx.cast(); }
+  G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; if(!G.inHot && maxed('caster') && G.power>.97){ G.inHot=true; toast('Bullseye!'); } sfx.cast(); }
 function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const wx=weather();
-  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1);
-  G.biteAt = rnd(1.4,4.6)/speed; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
+  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1);
+  G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
-const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1);
+const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
 const fishHatsLeft = () => HATS.filter(h=>h.src==='fish' && !S.owned.hats.includes(h.id));
 function chooseCatch(){
@@ -174,22 +175,24 @@ function chooseCatch(){
   if(Math.random() < .007*(G.inHot?2.5:1)*(1+bonus('treasure')*.5) && fishHatsLeft().length) return Object.assign({kind:'hat', hat:pick(fishHatsLeft())}, weak);
   if(Math.random() < junkChance()) return Object.assign({kind:'junk', item:pickJunk()}, weak);
   let rare = b.rare + ROD_RARE[S.gear.rod] + (G.lastCast>farAt() ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (G.inHot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night;
-  const pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1));
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1);
+  let pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); if(maxed('lucky') && (S.stats.caught+1)%25===0 && pool.some(s=>s.r>=2)) pool=pool.filter(s=>s.r>=2);
+  const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.6:1));
   let x=Math.random()*ws.reduce((a,c)=>a+c,0), sp=pool[0]; for(let i=0;i<pool.length;i++){ x-=ws[i]; if(x<=0){ sp=pool[i]; break; } }
-  const tb = 1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0);
+  const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?2:spec('shinyhunter')?.7:1);
   const kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb);
   const rel=(kg-sp.min)/(sp.max-sp.min); const str=sp.str*(.8+.4*rel)*(wx.str||1);
-  const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1);
+  const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1);
   const trophy = rel > .9;
   let value = Math.max(1,Math.round(sp.base*Math.pow(kg/((sp.min+sp.max)/2),.85)));
-  value=Math.round(value*RAR[sp.r].val*(1+.1*mastery(sp.id))); if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
+  value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*(spec('tinker')?.95:1)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5)); if(shiny) value*=4;
   return {kind:'fish', sp, kg, rel, str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, trophy, storm: wx.k==='Storm', hot:G.inHot};
 }
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
   G.st='reeling'; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
-  if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
+  G.fightT=0; G.saved=false;
+  if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
 function breakStreak(){ if(S.streak>=3) setTimeout(()=>toast('Streak of '+S.streak+' ended'),1200); S.streak=0; }
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
@@ -205,14 +208,15 @@ function landFish(){
   const j=S.journal[sp.id]; const isNew=!j; const record = j && f.kg > j.best;
   S.journal[sp.id] = {n:(j?j.n:0)+1, best:Math.max(j?j.best:0, +f.kg.toFixed(3)), sh:(j&&j.sh)||f.shiny, tr:(j&&j.tr)||f.trophy, bv:Math.max((j&&j.bv)||0, f.value), first:(j&&j.first)||Date.now()};
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = Math.min(streakCap(),.05*(S.streak-1));
-  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult());
+  if(G.perfect && relic('goldhook')) f.value=Math.round(f.value*1.1);
+  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*(spec('mythseeker')&&sp.r===0?.7:1));
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   S.cooler.push({id:sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny?1:0, tr:f.trophy?1:0}); S.stats.caught++;
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
-  const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?1.5:1)); if(scl) S.scales+=scl;
+  const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
   taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
-  const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg); const setNow = checkSet(sp.loc);
+  const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg).concat(checkBounties2(f)); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
   if(scl) b.push(['k','+'+scl+' Scales']); if(tok) b.push(['g','+1 '+(tok==='big'?'big':'small')+' Mystery Crate']);
@@ -239,7 +243,7 @@ function landJunk(){
   if(e.special==='lottery'){ const r=Math.random(); if(r<.05){ coins=base*30; quote='WE HAVE A WINNER! All six numbers! I need to sit down.'; b.push(['g','Jackpot ×30']); } else if(r<.3){ coins=base*3; quote='A small winner. Better than a boot!'; } else { coins=0; quote='Not a winner. Not even close. Keep it as a souvenir.'; } }
   if(e.special==='fortune'){ const fo=pick(FORTUNES); quote='The paper says: "'+fo[0]+'"'; addBuff(fo[1],fo[2],5,'Fortune: '+BK[fo[1]]); b.push(['k','Boost: '+fmtB(fo[1],fo[2])+' for 5 min']); }
   if(e.special==='chest'){ coins=base*3; const bk = li<=1?'cricket':li<=3?'glow':'chum'; const n=bk==='chum'?3:5; S.bait[bk]+=n; found=n+' '+BAIT[bk].name; b.push(['k','+'+n+' '+BAIT[bk].name]); }
-  coins = coins>0 ? earn(coins*coinMult()) : 0; if(coins) b.unshift(['g','+'+fmt(coins)+' coins']); if(isNew) b.push(['','New oddity']);
+  coins = coins>0 ? earn(coins*coinMult()*(maxed('scavenger')?1.5:1)*(relic('pockets')?1.25:1)) : 0; if(coins) b.unshift(['g','+'+fmt(coins)+' coins']); if(isNew) b.push(['','New oddity']);
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const xp=Math.round((12+li*10)*xpMult()); const lv=addXP(xp); if(lv) b.push(['g','Level up! Lv '+S.lvl]);
   showCard({draw:c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); drawJunk(cx,c.width,c.height,J.id); }, shiny:J.t>=3, rar:['Junk','Odd junk','Rare find','Treasure'][J.t], rarCol:J.t>=2?'var(--gold)':'var(--muted)', name:J.name,
     nums:[['Found',found],['Worth',fmt(coins),1],['XP','+'+xp]], desc:quote?'<span class="quote">Fishmonger: '+esc(quote)+'</span>':'', badges:b, html:true});
@@ -334,9 +338,9 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => f.value*TANK_RATE*RAR[SPI[f.id].r].aq*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => f.value*TANK_RATE*RAR[SPI[f.id].r].aq*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
-function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(OFFLINE_CAP_MIN,Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
+function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
 
 // ---------- input ----------
@@ -346,7 +350,7 @@ function down(e){
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'idle': startCharge(); break;
-    case 'waiting': G.st='idle'; G.inHot=false; breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
+    case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;
     case 'result': hideCard(); break;
@@ -377,7 +381,7 @@ function update(dt){
   G.flash=Math.max(0,G.flash-dt*2.5);
   // hotspots: ripples on the water where rare fish gather
   if(G.hot){ G.hot.t+=dt; if(G.hot.t>G.hot.life) G.hot=null; }
-  else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))}; G.hotNext=rnd(14,32); } }
+  else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))*(maxed('reader')?2:1)}; G.hotNext=rnd(14,32); } }
   updateEvents(dt);
 }
 function fight(dt){
@@ -385,18 +389,19 @@ function fight(dt){
   G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta); if(G.run){ splash(G.bob.x,G.bob.y,6); G.ev=null; } }
   if(!G.run && (B.shake||B.jump) && !G.ev){ G.evT-=dt; if(G.evT<=0){ G.ev=B.jump?'jump':'shake'; G.evDur=B.jump?.85:.5; G.evT=rnd(1.3,3)/(.5+f.aggr)*(.6+.4/(.3+G.sta)); if(B.jump){ splash(G.bob.x,G.bob.y,14); sfx.jump(); } else sfx.warn(); } }
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
-  const tired=.45+.55*G.sta, steady=tensionMult();
+  const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
+  const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
   if(G.hold){
-    G.d -= reel*dt*(G.run?.25:1)*(B.drag?.75:1);
+    G.d -= reel*reelK*dt*(G.run?.25:1)*(B.drag?.75:1);
     let add = (G.run?70:22)*ratio*tired*(B.heavy?1.35:1);
     G.temper = Math.min(3, G.temper + dt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
-    if(G.ev==='jump') add += 170; else if(G.ev==='shake') add += 110*Math.pow(ratio,.25)+30;
+    const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
     G.ten += add*steady*dt;
     G.sta = Math.max(0, G.sta - (G.run?.18:.09)*dt*(B.heavy?.6:1));
     G.tickT-=dt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
   } else {
-    G.temper = Math.max(0, G.temper - dt*1.8);
+    G.temper = Math.max(0, G.temper - dt*1.8*(maxed('softtouch')?2:1));
     G.ten = Math.max(0, G.ten - 55*dt);
     if(G.run) G.d += (1.5 + f.str*.18) * (.35+.65*G.sta) * dt;
     if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * dt;
@@ -406,5 +411,6 @@ function fight(dt){
   if(G.ten>75 && G.hold){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); } }
   const frac = clamp(G.d/G.d0,0,1.6); const x0=W*.24, x1=castX(G.lastCast);
   G.bob.x = x0 + (x1-x0)*Math.min(frac,1.25) + (G.run ? Math.sin(performance.now()/90)*3 : 0) + (G.ev==='shake'?Math.sin(performance.now()/30)*3:0); G.bob.y = waterY(G.bob.x);
+  if(G.ten>=100 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
   if(G.ten>=100) endFight('snap'); else if(G.d>=G.maxOut) endFight('spool'); else if(G.d<=0) endFight('caught');
 }

@@ -3,8 +3,15 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.5';
+const GAME_VERSION = '1.6';
 const PATCHES = [
+ {v:'1.6', name:'Choices & Skies', items:[
+  'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
+  'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
+  'Wisdom Pearls can now be traded for permanent relics. Choose wisely.',
+  'Keep an eye on the sky. Some rare weather has been spotted, and it isn’t subtle.',
+  'The harbourmaster has new kinds of bounties, and now pays in Scales too.',
+  'The update banner now tells you which update is waiting.' ]},
  {v:'1.5', name:'Rods, Pals & the Big Boardwalk', items:[
   'Pets can now be named, dyed and dressed up. They also really like being petted. Try tapping yours.',
   'Pets you pet often grow closer to you, and their bonus grows with them.',
@@ -150,6 +157,9 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   tone(880,.08,'sine',.05); tone(1320,.12,'sine',.04,0,.08);
   const id=S.pet, today=dayKey(); const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.day!==today){ b.day=today; b.today=0; }
   const before=bondLevel(id); if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1);
+  if(maxed('petpal') && Date.now()-(S.petGiftT||0)>3600000 && Math.random()<.35){ S.petGiftT=Date.now(); const r=Math.random(); let gift;
+    if(r<.4){ gift=fmt(earn(bestLoot()*rnd(2,5)*coinMult()))+' coins'; } else if(r<.75){ const sc=rint(3,8); S.scales+=sc; gift=sc+' Scales'; } else { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk&&!BAIT[k].scales); const k=pick(opts); S.bait[k]+=5; renderBait(); gift='5 '+BAIT[k].name; }
+    setTimeout(()=>toast(petName(id)+' brought you a gift: '+gift+'!'),600); sfx.coin(); }
   const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
