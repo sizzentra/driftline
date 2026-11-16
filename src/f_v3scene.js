@@ -255,6 +255,7 @@ function v3dock(P,t,night,dockY){
 }
 
 const V3SCENES = { pond: V3POND };
+const V3PLAT = { dock:(P,t,night,dockY)=>v3dock(P,t,night,dockY) };
 
 // ---------- entry points called from draw() ----------
 function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
@@ -283,8 +284,8 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   return true;
 }
 function v3Platform(L,t,night,dockY,pb){
-  if(!V3ON || L.id!=='pond') return false;
-  const P=v3palette.v; if(!P) return false; v3dock(P,t,night,dockY); return true;
+  const fn=V3PLAT[L.plat]; if(!V3ON || !V3SCENES[L.id] || !fn) return false;
+  const P=v3palette.v; if(!P) return false; fn(P,t,night,dockY,pb,L); return true;
 }
 function v3Fore(L,t,night){
   if(!V3ON || !V3SCENES[L.id] || !V3SCENES[L.id].fore) return false;
