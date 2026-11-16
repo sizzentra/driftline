@@ -1,10 +1,11 @@
 // ---------- data ----------
 const RAR = [
-  {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1},
-  {k:'Uncommon',  c:'#7fc8a9', w:26,  f:.5,  xp:1.5},
-  {k:'Rare',      c:'#5aa9ff', w:10,  f:1,   xp:2.5},
-  {k:'Epic',      c:'#c38bff', w:3.4, f:1.6, xp:4},
-  {k:'Legendary', c:'#ffc94d', w:.6,  f:2.4, xp:8},
+  {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1,   val:1,    aq:1,   sc:0},
+  {k:'Uncommon',  c:'#7fc8a9', w:26,  f:.5,  xp:1.8, val:1.15, aq:1.2, sc:0},
+  {k:'Rare',      c:'#5aa9ff', w:10,  f:1,   xp:3.5, val:1.35, aq:1.5, sc:1},
+  {k:'Epic',      c:'#c38bff', w:3.4, f:1.6, xp:7,   val:1.7,  aq:2,   sc:3},
+  {k:'Legendary', c:'#ffc94d', w:.6,  f:2.4, xp:16,  val:2.5,  aq:3,   sc:10},
+  {k:'Mythic',    c:'#ff6ad5', w:.1,  f:3.4, xp:40,  val:4,    aq:5,   sc:40},
 ];
 const LOCS = [
   {id:'pond',  name:'Willow Pond',     cost:0,      need:0, bonus:800,    plat:'dock',  blurb:'A quiet pond behind the boathouse. Gentle fish, good for learning the line.',
@@ -269,11 +270,61 @@ const SP = [
  ['hollowking','trench','The Hollow King',4,400,1200,60000,34,'night',.6,'#0f141c','#b3fff0',.34,'dive',1,'s',0,'The trench is named for it.'],
  ['maw','trench','The Maw Below',4,800,2000,80000,36,'any',.6,'#1a0a14','#ff2a5a',.36,'dive',1,'s',0,'No one who has seen all of it has come back up.'],
  ['deepdreamer','trench','The Deep Dreamer',4,1000,3000,100000,38,'night',.4,'#2a0a4a','#a0ffea',.4,'sulk',1,'q',0,'It was asleep. It is not asleep now.'],
+ // update 1.5: more fish in every water, and one Mythic each
+ ['sunperch','pond','Sun Perch',0,.1,.6,8,1.3,'day',.4,'#e0a040','#fff0b0',.4,'dart',.4,'f',1,'Glows orange in the afternoon light.'],
+ ['weatherloach','pond','Weather Loach',1,.1,.5,24,2.2,'any',.5,'#8a7a50','#d8c8a0',.16,'dart',.5,'e',2,'Wriggles like mad before a storm.'],
+ ['lilypike','pond','Lilypad Pike',2,2,8,125,4.6,'any',.5,'#5a9a4a','#d8f0a0',.24,'run',.6,'e',2,'Hides under lily pads and ambushes everything.'],
+ ['pondmother','pond','The Pond Mother',5,30,60,6000,8,'night',.5,'#3a6a5a','#e0fff0',.38,'sulk',1,'f',2,'Every fish in the pond is her grandchild. She remembers you.'],
+ ['shimmerminnow','river','Shimmer Minnow',0,.02,.1,11,2,'day',.7,'#c0d0e0','#ffffff',.3,'dart',.5,'f',0,'Catches the sun like a sequin.'],
+ ['rockbass','river','Rock Bass',1,.3,1.5,42,4,'any',.4,'#7a6a4a','#e8c8a0',.42,'thrash',.6,'f',2,'Red eyes, big attitude, lives under boulders.'],
+ ['shovelnose','river','Shovelnose Sturgeon',2,3,12,210,7,'night',.4,'#8a7a6a','#e8e0d0',.22,'sulk',.5,'s',0,'A small sturgeon with a snout like a spade.'],
+ ['rapidsking','river','King of the Rapids',5,60,140,14000,12,'day',.7,'#4ad0ff','#ffffff',.3,'jump',1,'f',1,'Leaps waterfalls for fun. Never been caught. Until now?'],
+ ['garfish','coast','Garfish',0,.3,1.2,45,5,'any',.6,'#4a8a7a','#e0f0e8',.12,'dart',.5,'e',0,'Green bones and a needle beak.'],
+ ['wreckfish','coast','Wreckfish',1,5,30,140,8,'night',.3,'#5a4a3a','#c8b8a0',.42,'dive',.5,'f',0,'Lives in shipwrecks. Smells like old rope.'],
+ ['bluelobster','coast','Blue Lobster',2,.5,3,520,9,'night',.4,'#2a5aaa','#8ac0ff',.5,'thrash',.8,'c',0,'One lobster in two million is blue. Lucky you.'],
+ ['seaserpent','coast','The Sea Serpent',5,200,500,30000,19,'night',.6,'#1a6a5a','#a0ffd0',.12,'dive',1,'e',1,'Sailors drew it on every old map. They weren’t lying.'],
+ ['snowtrout','frost','Snowflake Trout',0,.3,1.5,72,8.5,'any',.4,'#d0e0f0','#ffffff',.32,'calm',.3,'f',2,'Its spots look exactly like snowflakes.'],
+ ['frostbass','frost','Frost Bass',1,1,5,195,10,'day',.5,'#6a8aa8','#e0f0ff',.38,'jump',.5,'f',1,'Jumps through cracks in the ice.'],
+ ['crystalpike','frost','Crystal Pike',2,5,20,640,13,'night',.5,'#a0e0ff','#ffffff',.24,'thrash',.8,'e',0,'Clear as glass. You can see what it ate.'],
+ ['winterheart','frost','The Winter Heart',5,80,200,45000,22,'night',.5,'#c0f0ff','#ffffff',.4,'sulk',1,'p',2,'A frozen heart that beats once a year. It just did.'],
+ ['mandarin','reef','Mandarin Dragonet',0,.02,.1,105,10,'night',.5,'#ff7a2a','#3ac0ff',.4,'dart',.4,'f',1,'Painted by a toddler with every crayon at once.'],
+ ['batfish','reef','Pinnate Batfish',1,.5,2,300,11.5,'any',.4,'#2a2a2a','#ff8a2a',.7,'calm',.3,'f',1,'Tall, black, with an orange outline. Very goth.'],
+ ['mimic','reef','Mimic Octopus',2,1,4,1000,14,'any',.5,'#c8a080','#fff0d8',.4,'dive',.7,'q',1,'It is pretending to be a fish. Badly.'],
+ ['rainbowsoul','reef','The Rainbow Soul',5,5,15,60000,23,'day',.6,'#ff6ad5','#6affea',.5,'dart',1,'f',1,'Every colour of the reef in one fish. It hums.'],
+ ['needlefish','shelf','Needlefish',0,.5,2,115,9.5,'day',.7,'#4a8ab8','#e8f4ff',.1,'jump',.5,'e',0,'Skips across the waves like a thrown stone.'],
+ ['trevally','shelf','Golden Trevally',1,5,25,350,13,'any',.6,'#e0c040','#fff4c0',.38,'run',.6,'f',2,'Flashes gold as it turns.'],
+ ['spearfish','shelf','Shortbill Spearfish',2,15,50,1450,17,'day',.7,'#2a4a8a','#d0e0f0',.28,'jump',.8,'f',0,'The rarest billfish. Small, fast, flashy.'],
+ ['stormbringer','shelf','The Stormbringer',5,500,1500,90000,30,'any',.8,'#2a1a4a','#ffe060',.32,'jump',1,'s',1,'Thunder follows it. So does every gull in the sky.'],
+ ['snipeeel','deep','Snipe Eel',0,.1,.5,250,13.5,'night',.5,'#3a3020','#c8a870',.08,'dart',.5,'e',0,'So thin it looks like a shoelace with a beak.'],
+ ['kitefin','deep','Kitefin Shark',1,5,20,690,17.5,'night',.4,'#3a3a44','#a0ffe0',.28,'thrash',.7,'s',0,'The biggest glowing shark there is.'],
+ ['fireflysquid','deep','Firefly Squid',2,.02,.1,2400,21,'night',.5,'#3a6aff','#a0e0ff',.32,'dart',.7,'q',2,'Thousands of tiny blue lights.'],
+ ['abyssemperor','deep','The Abyss Emperor',5,2000,5000,180000,36,'night',.5,'#0a0a2a','#ff3a6a',.36,'sulk',1,'s',2,'The deep has a king. You just met him.'],
+ ['seapig','trench','Sea Pig',0,.1,.5,410,14.5,'any',.2,'#ffb0c0','#ffe0e8',.5,'calm',.2,'p',0,'A pink sea cucumber with legs. It waddles.'],
+ ['yeticrab','trench','Yeti Crab',1,.2,1,900,17.5,'any',.3,'#f0e8e0','#ffffff',.5,'thrash',.6,'c',0,'Hairy arms. It grows its own food in the hair.'],
+ ['wraitheel','trench','Wraith Eel',2,5,20,2900,22,'night',.5,'#c0c8ff','#ffffff',.1,'dive',.8,'e',0,'You can only see it when it moves.'],
+ ['endlessone','trench','The Endless One',5,5000,12000,400000,44,'night',.5,'#050508','#a0ffff',.4,'dive',1,'q',0,'There is no bottom to it. There is no bottom to the trench either.'],
+ // the internet got into the water
+ ['sixseven','pond','The 6-7 Fish',2,6.7,6.71,67,3,'any',.5,'#8a6aff','#ffd0ff',.38,'dart',.67,'f',0,'Six. Seven. Six. Seven. It will not stop doing the hand thing.'],
+ ['touchgrass','pond','Touch Grass Goby',1,.1,.5,25,2,'day',.4,'#4ac04a','#c0ffa0',.36,'calm',.3,'f',2,'Has been outside once. Won’t stop telling you about it.'],
+ ['npcfish','river','NPC Fish',0,.3,1,13,2.2,'any',.2,'#a0a8b0','#d8dce0',.34,'calm',.1,'f',0,'“Hello, traveller. Nice weather we’re having.” “Hello, traveller.”'],
+ ['goofyahh','river','Goofy Ahh Goby',1,.1,.4,40,3.5,'any',.6,'#ffb04a','#fff0c0',.5,'dart',.8,'p',2,'Makes a cartoon boing sound every time it swims.'],
+ ['ohiocarp','river','Only in Ohio Carp',2,5,20,200,7,'night',.5,'#4a7a3a','#ffd0a0',.42,'thrash',.7,'f',2,'Nobody can explain it. It just happened in Ohio.'],
+ ['rizzray','coast','Rizz Ray',1,2,8,118,7,'night',.4,'#ff6ab0','#ffd0e8',.6,'calm',.4,'r',2,'Unspoken rizz. You didn’t catch it. It let you.'],
+ ['skibidi','coast','Skibidi Toiletfish',2,1,4,430,8,'any',.6,'#7a8a9a','#e8f0f8',.36,'thrash',.9,'f',0,'Lives in a toilet. Sings the same song. Forever.'],
+ ['bingchilling','frost','Bing Chilling Salmon',1,2,8,190,10,'any',.5,'#f0c0d0','#ffffff',.34,'jump',.5,'f',2,'Holds a tiny ice cream. Very good. Very, very good.'],
+ ['aurafarmer','frost','Aura Farmer',2,2,8,650,12,'any',.5,'#ffffff','#a0e0ff',.36,'calm',.3,'f',0,'+1000 aura every time it does absolutely nothing.'],
+ ['tralala','reef','Tralalero Tralala',3,40,120,3300,18,'day',.6,'#5a8ab8','#f0f4ff',.3,'run',.8,'s',0,'A shark in brand-new sneakers. Nobody knows why. Nobody asks.'],
+ ['pastryfish','reef','Toaster Pastry Fish',2,.5,2,950,13,'night',.6,'#e8b07a','#ff8ad0',.5,'dart',.6,'f',2,'Leaves a rainbow trail and a faint smell of strawberry.'],
+ ['stonks','shelf','Stonks Snapper',1,3,10,360,12,'day',.5,'#2a6a3a','#a0ffa0',.38,'run',.5,'f',1,'Line goes up. That’s the whole strategy.'],
+ ['sigmashark','shelf','Sigma Grindset Shark',3,80,300,4400,20,'any',.5,'#2a2a30','#c8c8d0',.3,'run',.7,'s',0,'Up at 4 a.m. Swims alone. Has never once smiled.'],
+ ['maincharacter','deep','Main Character Marlin',3,150,500,8600,26,'day',.7,'#ffcc33','#fff6d0',.3,'jump',.9,'f',1,'Swims in slow motion. Somewhere, music plays just for it.'],
+ ['fanumtax','deep','Fanum Tax Fish',1,5,20,700,17,'night',.5,'#5a3a8a','#d0b0ff',.36,'thrash',.8,'f',0,'Takes a bite of your bait first. That’s the tax.'],
+ ['thisisfine','trench','This Is Fine Fish',1,.5,2,920,17,'any',.3,'#ff8a3a','#ffd060',.4,'calm',.2,'f',0,'Its whole vent is on fire. It’s fine. Everything is fine.'],
 ].map(a=>({id:a[0],loc:a[1],name:a[2],r:a[3],min:a[4],max:a[5],base:a[6],str:a[7],time:a[8],th:a[9],col:a[10],belly:a[11],h:a[12],beh:a[13],aggr:a[14],shape:a[15],pat:a[16],note:a[17]}));
 const SPI = Object.fromEntries(SP.map(s=>[s.id,s]));
 
 const GEAR = {
-  rod:   {name:'Rod',    what:'Cast distance and better odds on far casts', lv:[22,26,31,36,42,48,55,62], cost:[0,250,1200,5000,18000,50000,130000,300000], fmt:v=>v+' m cast'},
+  rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62], cost:[0,250,1200,5000,18000,50000,130000,300000], fmt:v=>v+' m cast'},
   reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5], cost:[0,200,1000,4000,14000,40000,100000,240000,500000], fmt:v=>v.toFixed(1)+' m/s'},
   line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100], cost:[0,180,800,3000,10000,30000,80000,200000,450000], fmt:v=>v+' kg test'},
   hook:  {name:'Hook',   what:'Longer window to set the hook', lv:[.6,.7,.8,.9,1.0,1.1,1.2], cost:[0,150,900,4000,14000,45000,120000], fmt:v=>v.toFixed(1)+' s window'},
@@ -284,7 +335,14 @@ const GEAR = {
 const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46];
 const BAIT = {
   worm:   {name:'Worms',         speed:1,   rare:0,   pack:0,  price:0,    note:'Free and endless.'},
+  bread:  {name:'Bread Balls',   speed:1.6, rare:0,   pack:10, price:20,   note:'Cheap and quick. Bites come fast, nothing fancy.'},
   cricket:{name:'Crickets',      speed:1.3, rare:.25, pack:10, price:60,   note:'Faster bites, a few more good fish.'},
+  crawler:{name:'Nightcrawlers', speed:1.3, rare:.3,  pack:10, price:200,  night:2, note:'Rare odds ×2 at dusk and night.'},
+  corn:   {name:'Sweetcorn',     speed:1.2, rare:.2,  pack:10, price:250,  calm:.35, note:'Fish stay calm: tempers rise 35% slower.'},
+  minnows:{name:'Live Minnows',  speed:1.4, rare:.5,  pack:10, price:700,  beh:['run','thrash','jump'], note:'Predators can’t resist: runners, thrashers and jumpers ×2.5.'},
+  glitter:{name:'Glitter Jigs',  speed:1.2, rare:.3,  pack:10, price:1200, shiny:2, note:'Shiny fish ×2.'},
+  deepjig:{name:'Deep Jigs',     speed:1.5, rare:.9,  pack:10, price:4000, beh:['dive','sulk'], note:'Sinks deep: divers and sulkers ×2.5.'},
+  mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
   icefly: {name:'Ice Flies',     speed:1.4, rare:.6,  pack:10, price:1500, loc:'frost', note:'Tied for cold water: odds ×1.6 at Frostbite Lake.'},
@@ -328,7 +386,7 @@ const OFFLINE_CAP_MIN = 8*60;
 const BK = {bite:'bite speed', rare:'rare odds', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
 const fmtB = (k,v) => (k==='tension'||k==='calm'?'−':'+')+Math.round(v*100)+'% '+BK[k];
 const AQ_KEYS = ['bite','rare','shiny','tension','reel','sell','xp','treasure','tank','calm','trophy','hot'];
-const AQ_MAG = [0,.02,.04,.06,.1];
+const AQ_MAG = [0,.02,.04,.06,.1,.18];
 const BONUS_CAP = {tension:.6, calm:.7};
 
 // junk & treasure: id, name, tier (0 common .. 3 very rare), effect, fishmonger's remark
@@ -385,6 +443,8 @@ const JUNK = [
  ['saddle','Fancy Saddle',3,{pet:'horse',c:3},'A horse has been waiting by the dock for this. Don’t ask.'],
  ['trident','Rusty Trident',3,{buff:['rare',1,5]},'Somebody important is missing this.'],
  ['piano','Upright Piano',3,{c:8},'How? Just... how? Take the money.'],
+ ['oldrod','Rusty Old Rod',2,{rod:'scrap',c:1},'Someone lost their fishing rod. It still works, sort of.'],
+ ['tackbox','Lost Tackle Box',2,{scales:6,c:1},'Full of hooks, line and a few shiny scales.'],
 ].map(a=>({id:a[0],name:a[1],t:a[2],e:a[3],q:a[4]}));
 const JUNKI = Object.fromEntries(JUNK.map(j=>[j.id,j]));
 const JUNK_W = [10,5,2,.6];
@@ -401,6 +461,9 @@ const HATS = [
  ['fez','Fez','fish'],['diver','Diving Helmet','fish',0,1],['fishhat','Fish Hat','fish'],['antlers','Antlers','fish',0,1],['jester','Jester Hat','fish'],['grad','Graduation Cap','fish'],
  ['flower','Flower Crown','fish',0,1],['santa','Santa Hat','fish'],['halo','Halo','fish',0,1],['froghat','Frog Hat','fish',0,1],['mohawk','Mohawk Wig','fish'],
  ['cone','Traffic Cone','junk',0,1],['astro','Astronaut Helmet','junk',0,1],['crown','Royal Crown','junk',0,1],
+ ['catears','Cat Ears','shop',1800],['headphones','Headphones','shop',3500],['bandanahead','Head Bandana','shop',900],['witch','Witch Hat','shop',4000],['mushroom','Mushroom Cap','shop',2500],['tiara','Tiara','shop',7000],
+ ['bunnyears','Bunny Ears','fish'],['pumpkin','Pumpkin Head','fish',0,1],['knight','Knight Helmet','fish',0,1],['duckonhead','Duck on Head','fish',0,1],
+ ['fishbowl','Fishbowl Helmet','prize',0,1],['sixsevencap','67 Cap','prize'],['carnival','Carnival Top Hat','prize'],
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3]||0,fixed:!!a[4]}));
 const HATI = Object.fromEntries(HATS.map(h=>[h.id,h]));
 const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','#7a4a9a','#2f3b4a','#8a6a4a','#d87aa0'];
@@ -453,5 +516,18 @@ const PETS = [
  ['slime','Slime','xp',.2,'crate',2,'Found in Big or Legendary crates. Absorbs knowledge. And bait.'],
  ['dragon','Baby Dragon','rare',.3,'crate',3,'Only in Legendary crates. Warms the water. The rare fish rise.'],
  ['unicorn','Unicorn','shiny',.6,'crate',3,'Only in Legendary crates. Everything near it sparkles.'],
+ ['corgi','Corgi','xp',.08,'shop',5000,'Short legs, huge heart. Herds fish toward you.'],
+ ['shiba','Shiba','sell',.08,'shop',16000,'Very serious about prices. Much haggle.'],
+ ['goose','Goose','treasure',.25,'shop',12000,'Honks at junk until it surfaces. Terrifying.'],
+ ['squirrel','Squirrel','trophy',.15,'shop',8000,'Hoards only the biggest catches.'],
+ ['beaver','Beaver','tension',.12,'shop',20000,'Expert in knots. Your line holds better.'],
+ ['cow','Cow','tank',.2,'shop',35000,'Moos softly at the aquarium. Visitors love it.'],
+ ['sloth','Sloth','calm',.2,'crate',1,'Found in Mystery Crates. Everything slows down around it.'],
+ ['deer','Deer','bite',.15,'crate',1,'Found in Mystery Crates. Fish come to drink beside it.'],
+ ['jelly','Jellyfish','shiny',.3,'crate',2,'Found in Big or Legendary crates. Floats in a little bubble.'],
+ ['tiger','Tiger Cub','reel',.2,'crate',2,'Found in Big or Legendary crates. Pulls fish in with you.'],
+ ['phoenix','Phoenix','rare',.35,'crate',3,'Only in Legendary crates. Its glow draws the rarest fish.'],
+ ['narwhal','Narwhal','rare',.25,'feat',0,'Joins you after you catch something rarer than legendary.'],
+ ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
 ].map(a=>({id:a[0],name:a[1],k:a[2],v:a[3],src:a[4],price:a[5],d:a[6]}));
 const PETI = Object.fromEntries(PETS.map(p=>[p.id,p]));

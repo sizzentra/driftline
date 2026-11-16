@@ -72,7 +72,7 @@ function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.s
 let confirmBox = null, encLoc = null, encSel = null;
 function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('tabs').children) b.setAttribute('aria-selected', b.dataset.tab===t?'true':'false'); renderPanel(); }
 $('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); } });
-function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderGames, settings:renderSettings}[S.tab]||renderCooler; fn(P); }
+function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
 function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
@@ -99,7 +99,7 @@ function renderShop(P){
     ${lv<max?`<button class="btn" data-act="buygear" data-k="${k}" ${S.money>=next?'':'disabled'}>Upgrade · <span class="coin">${fmt(next)}</span></button>`:'<button class="btn alt" disabled>Maxed out</button>'}</div>`; }).join('');
   const baitTile = ([k,b]) => `<div class="tile"><div class="row spread"><h4>${b.name}</h4><span class="meta">You have ${S.bait[k]}</span></div>
     <div class="meta">${b.note} Bites ${Math.round((b.speed-1)*100)}% faster.</div>
-    <div class="row">${b.junk?'':`<button class="btn" data-act="buybait" data-k="${k}" ${S.money>=b.price?'':'disabled'}>Buy ${b.pack} · <span class="coin">${fmt(b.price)}</span></button>`}
+    <div class="row">${b.junk?'':b.scales?`<button class="btn" data-act="buybait" data-k="${k}" ${S.scales>=b.scales?'':'disabled'}>Buy ${b.pack} · ${b.scales} Scales</button>`:`<button class="btn" data-act="buybait" data-k="${k}" ${S.money>=b.price?'':'disabled'}>Buy ${b.pack} · <span class="coin">${fmt(b.price)}</span></button><button class="btn alt sm" data-act="buybait" data-k="${k}" data-n="5" ${S.money>=b.price*4.5?'':'disabled'} title="10% off">×${b.pack*5} · <span class="coin">${fmt(b.price*4.5)}</span></button>`}
     <button class="btn alt" data-act="usebait" data-k="${k}" ${S.bait[k]>0&&S.baitSel!==k?'':'disabled'}>${S.baitSel===k?'In use':'Use'}</button></div></div>`;
   const shopBait = Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk);
   P.innerHTML=`<h2>Tackle shop</h2><p class="sub">Heavier fish need stronger line and a faster reel. Better bait brings rarer fish; one bait is used each time you set the hook.</p>
@@ -132,7 +132,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
-  P.innerHTML=`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
+  P.innerHTML=dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
   S.bounties.map((b,i)=>{ const sp=SPI[b.sp], d=bDone(b), L=LOCS[locIdx(sp.loc)];
     const what = b.type==='count' ? `Catch ${b.n} × ${sp.name}` : `Catch a ${sp.name} of ${kgStr(b.kg)} or more`;
     const prog = b.type==='count' ? `${Math.min(b.have,b.n)} / ${b.n}` : (d?'Done':'Not yet');
@@ -179,9 +179,7 @@ function renderJournal(P){
     <div style="min-width:120px"><div class="meta">Next rank: ${ts%8} / 8 stars</div><div class="prog"><i style="width:${ts%8/8*100}%"></i></div></div></div>
   <div class="row spread"><div><h2>Encyclopedia</h2><p class="sub">${total} of ${SP.length} species found · ${fmt(S.stats.caught)} fish landed · ${S.stats.shiny} shiny · ${S.stats.treasure} junk · ${fmt(S.stats.earned)} coins earned · ${S.stats.snapped} lines snapped</p></div></div>
   <div class="chips" style="margin-top:10px">${chips}</div>${body}
-  <div class="jsec"><div class="row spread"><span class="sub">Best streak ${S.stats.bestStreak} · ${S.stats.perfect} perfect hooks · ${S.stats.hot} hotspot catches · voyage ${S.tides+1}</span>
-  ${confirmBox==='reset'?`<span class="row"><span class="sub" style="color:var(--danger)">Erase everything, including pearls, pets and hats?</span><button class="btn" data-act="resetok" style="background:var(--danger)">Erase progress</button><button class="btn alt" data-act="cancel">Cancel</button></span>`
-  :`<button class="btn alt sm" data-act="reset">Reset all progress</button>`}</div></div>`;
+  <div class="jsec"><span class="sub">Best streak ${S.stats.bestStreak} · ${S.stats.perfect} perfect hooks · ${S.stats.hot} hotspot catches · voyage ${S.tides+1}</span></div>`;
   paintFish(P); P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); drawJunk(cx,c.width,c.height,c.dataset.junk,c.dataset.known==='1'?null:'#1d3a44'); });
 }
 function renderMap(P){
@@ -206,9 +204,10 @@ function renderVoyage(){ const n=pearlsFor(), ok=canRetire();
 
 // ---------- wardrobe ----------
 function shopOffers(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN);
-  const pool=[...SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), ...PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' shirt',price:p[2]})), ...HATS.filter(h=>h.src==='shop').map(h=>({kind:'hat',id:h.id,name:h.name,price:h.price}))];
+  const pool=[...SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), ...PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' shirt',price:p[2]})), ...HATS.filter(h=>h.src==='shop').map(h=>({kind:'hat',id:h.id,name:h.name,price:h.price})),
+    ...OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), ...GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]}))];
   const out=[], idx=[...pool.keys()]; let h=hashStr('shop'+slot); while(out.length<6&&idx.length){ h=Math.imul(h^(h>>>13),1597334677)>>>0; out.push(pool[idx.splice(h%idx.length,1)[0]]); } return out; }
-const ownedOffer = o => o.kind==='col'?S.owned.cols.includes(o.id):o.kind==='pat'?S.owned.pats.includes(o.id):S.owned.hats.includes(o.id);
+const ownedOffer = o => o.kind==='col'?S.owned.cols.includes(o.id):o.kind==='pat'?S.owned.pats.includes(o.id):o.kind==='out'?S.owned.outfits.includes(o.id):o.kind==='gls'?S.owned.glasses.includes(o.id):S.owned.hats.includes(o.id);
 function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
   const sw=(k,list)=>`<div class="chips">${list.map(cl=>`<button class="sw" data-act="look" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pats=PATTERNS.filter(p=>S.owned.pats.includes(p[0])).map(p=>`<button class="chipb" data-act="look" data-k="pat" data-v="${p[0]}" aria-pressed="${lk.pat===p[0]}">${p[1]}</button>`).join('');
@@ -222,7 +221,12 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
     <h5>Body</h5><div class="chips"><button class="chipb" data-act="look" data-k="g" data-v="m" aria-pressed="${lk.g==='m'}">Man</button><button class="chipb" data-act="look" data-k="g" data-v="f" aria-pressed="${lk.g==='f'}">Woman</button></div>
     <h5>Skin</h5>${sw('skin',SKINS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${SKINS[i]}"`).replace(/aria-pressed="(true|false)"/g,(m)=>m)}
     <h5>Hair</h5>${sw('hair',HAIRS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${HAIRS[i]}"`)}
+    <h5>Hairstyle</h5><div class="chips">${HAIRSTYLES.map(([k,n])=>`<button class="chipb" data-act="look" data-k="hairStyle" data-v="${k}" aria-pressed="${(lk.hairStyle||'auto')===k}">${n}</button>`).join('')}</div>
+    <h5>Facial hair</h5><div class="chips">${BEARDS.map(([k,n])=>`<button class="chipb" data-act="look" data-k="beard" data-v="${k}" aria-pressed="${(lk.beard||'none')===k}">${n}</button>`).join('')}</div>
+    <h5>Glasses</h5><div class="chips">${GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="glasses" data-v="${k}" aria-pressed="${(lk.glasses||'none')===k}">${n}</button>`).join('')}</div>
     <h5>Shirt colour</h5>${sw('shirt',cols)}<h5>Shirt pattern</h5><div class="chips">${pats}</div>
+    <h5>Outfit</h5><div class="chips">${OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="outfit" data-v="${k}" aria-pressed="${(lk.outfit||'none')===k}">${n}</button>`).join('')}</div>
+    ${['raincoat','hoodie','puffer','overalls','wetsuit'].includes(lk.outfit)?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
     <h5>Trousers</h5>${sw('pants',cols)}
     <h5>Hat</h5><div class="hatgrid">${hats}</div>
     <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${sw('hatCol',cols)}
@@ -234,22 +238,24 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
   P.querySelectorAll('canvas[data-offer]').forEach(c=>{ const [kind,id]=c.dataset.offer.split(':'); const cx=c.getContext('2d'); cx.clearRect(0,0,128,128);
     if(kind==='col'){ cx.fillStyle=id; cx.beginPath(); cx.arc(64,64,42,0,7); cx.fill(); cx.strokeStyle='#23434e'; cx.lineWidth=3; cx.stroke(); }
     else if(kind==='pat'){ cx.save(); cx.translate(64,20); cx.scale(4,4); cx.fillStyle=lk.shirt; cx.beginPath(); cx.moveTo(-9,0); cx.lineTo(9,0); cx.lineTo(8,24); cx.lineTo(-8,24); cx.closePath(); cx.fill(); cx.clip(); drawPattern(cx,id,lk.shirt,-10,-1,20,26); cx.restore(); }
+    else if(kind==='out') drawAngler(cx,64,124,1.75,Object.assign({},lk,{outfit:id,hat:'none'}),{});
+    else if(kind==='gls'){ cx.save(); cx.translate(64,150); cx.scale(2.4,2.4); drawAngler(cx,0,0,1,Object.assign({},lk,{glasses:id,hat:'none'}),{}); cx.restore(); }
     else hatPreview(cx,128,128,id,lk.hatCol); });
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22);
-  drawPet(cx,S.pet,S.pet==='horse'?130:160,470,S.pet==='horse'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,S.look,{t:performance.now()/1000}); }
+  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,S.look,{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
   P.innerHTML=`<h2>Pets</h2><p class="sub">Your pet sits beside you wherever you fish and gives a bonus. Some are sold here, some are hiding in junk you fish up, and two join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
-  <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;gap:12px"><canvas width="160" height="120" id="petnow" style="width:80px;height:60px;cursor:default"></canvas><div><b>${pp.name} is with you</b><div class="meta">${pp.d} Bonus: <span class="aq">${fmtB(pp.k,petVal())}</span></div></div></div>
+  ${petCustomHTML()}
   <div class="grid">`+PETS.map(p=>{ const own=S.owned.pets.includes(p.id), here=S.pet===p.id; const val=p.v*(1+.1*pr('petpal'));
     const act = here ? '<button class="btn alt" disabled>With you</button>' : own ? `<button class="btn" data-act="pet" data-k="${p.id}">Bring along</button>`
       : p.src==='shop' ? `<button class="btn" data-act="buypet" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Adopt · <span class="coin">${fmt(p.price)}</span></button>` : `<span class="meta">${esc(p.d)}</span>`;
-    return `<div class="tile ${here?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own||p.src==='shop'?p.name:'???'}</h4>
+    return `<div class="tile ${here?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
-  const pc=$('petnow'); if(pc){ const cx=pc.getContext('2d'); drawPet(cx,S.pet,80,110,S.pet==='horse'?2.2:4,0); }
-  P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.own==='1'||PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,c.dataset.pet==='horse'?2.6:4.4,0);
+  paintPetCustom();
+  P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
     else { cx.globalAlpha=.9; cx.filter='brightness(0) opacity(.5)'; drawPet(cx,c.dataset.pet,120,128,c.dataset.pet==='horse'?2.6:4.4,0); cx.filter='none'; cx.globalAlpha=1; } });
 }
 
@@ -281,7 +287,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'loadsave': { const v=($('loadcode')||{}).value||''; readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; renderPanel(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
     case 'loadok': { if(!pendingLoad) return; S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; S.tab='save'; offlineIncome(); fillBounties(); toast('Progress loaded. Welcome back!'); break; }
     case 'install': { const ip=window.__dlInstallPrompt; if(!ip) return; ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; renderPanel(); }); return; }
-    case 'sellall': { const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')); break; }
+    case 'sellall': { const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')+'. '+quip('sell')); break; }
     case 'sell': { const f=S.cooler[i]; if(!f) return; earn(salePrice(f)); S.cooler.splice(i,1); sfx.coin(); break; }
     case 'totank': { if(S.tank.length>=S.tankSlots) return; const f=S.cooler[i]; if(!f) return; accrue(); S.tank.push(f); S.cooler.splice(i,1); toast(SPI[f.id].name+' is on display'+(aqEff(f)?': '+aqTxt(f):'')); break; }
     case 'untank': { if(S.cooler.length>=gv('cooler')) return; const f=S.tank[i]; if(!f) return; accrue(); S.cooler.push(f); S.tank.splice(i,1); break; }
@@ -290,7 +296,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'perk': { const p=PERKS[k]; if(!p||ptsFree()<=0||pr(k)>=p.max) return; S.perks[k]=pr(k)+1; sfx.coin(); toast(p.name+' rank '+S.perks[k]); break; }
     case 'respec': { const c=50*S.lvl; if(S.money<c) return; S.money-=c; S.perks={}; toast('Skills reset. Points refunded.'); break; }
     case 'buygear': { const lv=S.gear[k], c=GEAR[k].cost[lv+1]; if(c==null||S.money<c) return; S.money-=c; S.gear[k]++; sfx.coin(); toast(GEAR[k].name+' upgraded to level '+(S.gear[k]+1)); break; }
-    case 'buybait': { const bt=BAIT[k]; if(!bt||bt.junk||S.money<bt.price) return; S.money-=bt.price; S.bait[k]+=bt.pack; if(S.baitSel==='worm') S.baitSel=k; sfx.coin(); toast('Bought '+bt.pack+' '+bt.name); break; }
+    case 'buybait': { const bt=BAIT[k]; if(!bt||bt.junk) return; if(bt.scales){ if(S.scales<bt.scales) return; S.scales-=bt.scales; S.bait[k]+=bt.pack; } else { const n=+b.dataset.n||1, cost=n>1?bt.price*4.5:bt.price; if(S.money<cost) return; S.money-=cost; S.bait[k]+=bt.pack*n; } if(S.baitSel==='worm') S.baitSel=k; sfx.coin(); toast('Bought '+bt.name); break; }
     case 'usebait': S.baitSel=k; break;
     case 'claim': { const bo=S.bounties[i]; if(!bo||!bDone(bo)) return; const paid=earn(bo.reward*coinMult()); S.bounties.splice(i,1); fillBounties(); sfx.coin(); toast('Bounty paid: '+fmt(paid)+' coins'); break; }
     case 'retire': { if(!canRetire()) return; confirmBox='retire'; break; }
@@ -305,9 +311,10 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': encLoc=k; encSel=null; break;
     case 'enc': encSel = encSel===k ? null : k; break;
-    case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair') S.look[k]=+v; else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; } else S.look[k]=v; break; }
+    case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair') S.look[k]=+v; else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
+      else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }
     case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++;
-      if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name); break; }
+      if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
     case 'pet': if(S.owned.pets.includes(k)){ S.pet=k; toast(PETI[k].name+' is coming with you'); } break;
     case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); S.pet=k; sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }
     default: { if(extraAct(b)==='skip') return; }
@@ -320,7 +327,8 @@ $('settingsbtn').addEventListener('click',e=>{ e.currentTarget.blur(); startAudi
 function refreshAll(){ lastHud=''; renderBait(); setTab(S.tab||'cooler'); hud(); }
 
 // ---------- boot ----------
-offlineIncome(); fillBounties(); checkFeats(); refreshAll(); requestAnimationFrame(frame); initCloud();
+offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); refreshAll(); requestAnimationFrame(frame); initCloud();
+{ const gift=dailyLogin(); const veteran=S.stats.caught>0||S.savedAt; if(S.seenPatch!==GAME_VERSION){ S.seenPatch=GAME_VERSION; if(veteran) setTimeout(()=>showPatchNotes(PATCHES[0],gift),700); else if(gift) setTimeout(()=>toast(gift),1200); } else if(gift) setTimeout(()=>toast(gift),1200); save(); }
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>

@@ -5,11 +5,13 @@ const baitZero = () => Object.fromEntries(Object.keys(BAIT).filter(k=>k!=='worm'
 const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:0,cooler:0,finder:0}, bait:baitZero(), baitSel:'worm',
   unlocked:['pond'], loc:'pond', cooler:[], journal:{}, bounties:[], setDone:{},
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
-  buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a'},
-  owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog']}, pet:'dog', junk:{},
+  buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020'},
+  owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
   settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', effects:true, boostsOnScreen:true, hints:true, protectRare:true},
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
-  gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0},
+  gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
+  petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0,
+  rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
 let S = fresh();
@@ -22,11 +24,15 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.unlocked=(m.unlocked||['pond']).filter(id=>LOCS.some(l=>l.id===id)); if(!m.unlocked.includes('pond')) m.unlocked.unshift('pond'); if(!m.unlocked.includes(m.loc)) m.loc='pond';
   for(const k in m.journal){ if(!SPI[k]) delete m.journal[k]; }
   m.look=Object.assign(fresh().look,o.look||{}); const ow=o.owned||{};
-  m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p])};
+  m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p]), outfits:uniq(['none','vest',...(ow.outfits||[])]), glasses:uniq(['none','round',...(ow.glasses||[])])};
+  m.tickets=+o.tickets||0; if(o.freeSpins==null) m.freeSpins = (Date.now()-(o.wheelT||0)>=3600000) ? 1 : 0;
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});
   m.settings=Object.assign(fresh().settings,o.settings||{}); const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); m.aq=aq;
   m.tokens=Object.assign(fresh().tokens,o.tokens||{}); m.gstats=Object.assign(fresh().gstats,o.gstats||{}); delete m.muted;
+  m.petLook=Object.assign({},o.petLook||{}); m.bond=Object.assign({},o.bond||{}); m.petTints=uniq(['none',...(o.petTints||[])]); m.petAccs=uniq(['none','bandana',...(o.petAccs||[])]);
+  const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
+  m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
@@ -68,19 +74,19 @@ const aqCache = {};
 function aqBase(id){ if(!(id in aqCache)){ const sp=SPI[id]; aqCache[id] = sp.r ? {k:AQ_KEYS[hashStr(id)%AQ_KEYS.length], v:AQ_MAG[sp.r]} : null; } return aqCache[id]; }
 function aqEff(f){ const b=aqBase(f.id); return b ? {k:b.k, v:b.v*(f.sh?2:1)*(f.tr?1.25:1)} : null; }
 function aqSum(k){ let s=0; for(const f of S.tank){ const e=aqEff(f); if(e && e.k===k) s+=e.v; } return s; }
-const petVal = () => { const p=PETI[S.pet]; return p ? p.v*(1+.1*pr('petpal')) : 0; };
+const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
-function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
+function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
 const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank()) * coinMult();
 const xpMult = () => (1 + bonus('xp')) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?2:1));
-const hookWin = () => gv('hook') + .05*pr('reflex');
+const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook();
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
-const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')));
+const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)));
 const farAt = () => .8 - .02*pr('caster');
 const hotRate = () => 1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot');
 const streakCap = () => .5 + .1*pr('streaker');
@@ -138,7 +144,8 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
-function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15; H=clamp(Math.round(W*(portrait?.82:.5)),250,portrait?Math.round(window.innerHeight*.56):520); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
+  const fs=!!document.fullscreenElement, maxH=portrait?window.innerHeight*.56:Math.max(520,window.innerHeight*(fs?.8:.66)); H=clamp(Math.round(W*(portrait?.82:fs?.56:.5)),250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -150,7 +157,7 @@ const G = {st:'idle', power:0, pdir:1, t:0, bob:{x:0,y:0}, from:null, to:null, w
   fish:null, pend:null, d:0, d0:0, maxOut:0, ten:0, sta:1, temper:0, run:false, runT:0, ev:null, evT:2, evDur:0, hold:false, tickT:0, warnT:0,
   parts:[], lastCast:.5, flash:0, nextBolt:5, hot:null, hotNext:8, inHot:false, land:null, perfect:false};
 
-function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast('Your cooler is full. Sell your catch or move fish to the aquarium.'); setTab('cooler'); return; }
+function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+' Sell your catch or move fish to the aquarium.'); setTab('cooler'); return; }
   if(S.baitSel!=='worm' && S.bait[S.baitSel]<=0){ S.baitSel='worm'; renderBait(); }
   G.st='charging'; G.power=0; G.pdir=1; ac(); }
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
@@ -167,8 +174,8 @@ function chooseCatch(){
   if(Math.random() < .007*(G.inHot?2.5:1)*(1+bonus('treasure')*.5) && fishHatsLeft().length) return Object.assign({kind:'hat', hat:pick(fishHatsLeft())}, weak);
   if(Math.random() < junkChance()) return Object.assign({kind:'junk', item:pickJunk()}, weak);
   let rare = b.rare + ROD_RARE[S.gear.rod] + (G.lastCast>farAt() ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (G.inHot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5;
-  const pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f));
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=1.6; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night;
+  const pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); const ws=pool.map(s=>RAR[s.r].w*(1+rare*RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?2.5:1)*(b.legend&&s.r>=4?b.legend:1));
   let x=Math.random()*ws.reduce((a,c)=>a+c,0), sp=pool[0]; for(let i=0;i<pool.length;i++){ x-=ws[i]; if(x<=0){ sp=pool[i]; break; } }
   const tb = 1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0);
   const kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb);
@@ -176,19 +183,19 @@ function chooseCatch(){
   const shiny = Math.random() < (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (G.inHot?2:1);
   const trophy = rel > .9;
   let value = Math.max(1,Math.round(sp.base*Math.pow(kg/((sp.min+sp.max)/2),.85)));
-  value=Math.round(value*(1+.1*mastery(sp.id))); if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
+  value=Math.round(value*RAR[sp.r].val*(1+.1*mastery(sp.id))); if(trophy) value=Math.round(value*1.5); if(shiny) value*=4;
   return {kind:'fish', sp, kg, rel, str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, trophy, storm: wx.k==='Storm', hot:G.inHot};
 }
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
-  G.st='reeling'; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6; G.maxOut = gv('rod') + 28; G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
+  G.st='reeling'; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
   if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
 function breakStreak(){ if(S.streak>=3) setTimeout(()=>toast('Streak of '+S.streak+' ended'),1200); S.streak=0; }
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
   G.st='idle'; G.fish=null; G.inHot=false; breakStreak();
-  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast(G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then.' : 'Snap! The line broke. Ease off when it runs.'); checkFeats(); save(); }
-  else { sfx.lost(); toast(kind==='spool' ? 'It ran out all your line and got away.' : 'It slipped off the hook.'); }
+  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
+  else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; }
   if(f.hot) S.stats.hot++; G.inHot=false;
@@ -202,9 +209,13 @@ function landFish(){
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   S.cooler.push({id:sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny?1:0, tr:f.trophy?1:0}); S.stats.caught++;
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
+  const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?1.5:1)); if(scl) S.scales+=scl;
+  const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
+  taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
   const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
+  if(scl) b.push(['k','+'+scl+' Scales']); if(tok) b.push(['g','+1 '+(tok==='big'?'big':'small')+' Mystery Crate']);
   if(isNew) b.push(['','New species']); if(record) b.push(['g','Personal record']); const ae=aqBase(sp.id); if(ae && isNew) b.push(['k','In the aquarium: '+fmtB(ae.k,ae.v)]);
   const ms=mastery(sp.id); if(ms && [3,10,30,100][ms-1]===S.journal[sp.id].n) b.push(['g','Mastery '+'★'.repeat(ms)+': +'+ms*10+'% value for this fish']);
   const rk=checkRank(); if(rk) b.push(['g',rk]);
@@ -222,6 +233,9 @@ function landJunk(){
   if(e.pet){ if(!S.owned.pets.includes(e.pet)){ S.owned.pets.push(e.pet); found='A '+PETI[e.pet].name.toLowerCase(); b.push(['g','New pet: '+PETI[e.pet].name+'! See the Pets tab']); } else coins += base; }
   if(e.hat){ let h=e.hat; if(h==='random'){ const left=HATS.filter(x=>x.src!=='junk'&&x.src!=='start'&&!S.owned.hats.includes(x.id)); h=left.length?pick(left).id:null; }
     if(h && !S.owned.hats.includes(h)){ S.owned.hats.push(h); found=HATI[h].name; b.push(['g','New hat: '+HATI[h].name+'! See the Wardrobe']); } else coins += base; }
+  if(e.rod){ if(!S.rods.owned.includes(e.rod)){ S.rods.owned.push(e.rod); found='A fishing rod'; b.push(['g','New rod: '+ROD_I[e.rod].name+'! See the Rods tab']); } else coins += base; }
+  if(e.scales){ S.scales+=e.scales; b.push(['k','+'+e.scales+' Scales']); }
+  taskProgress('junk',1);
   if(e.special==='lottery'){ const r=Math.random(); if(r<.05){ coins=base*30; quote='WE HAVE A WINNER! All six numbers! I need to sit down.'; b.push(['g','Jackpot ×30']); } else if(r<.3){ coins=base*3; quote='A small winner. Better than a boot!'; } else { coins=0; quote='Not a winner. Not even close. Keep it as a souvenir.'; } }
   if(e.special==='fortune'){ const fo=pick(FORTUNES); quote='The paper says: "'+fo[0]+'"'; addBuff(fo[1],fo[2],5,'Fortune: '+BK[fo[1]]); b.push(['k','Boost: '+fmtB(fo[1],fo[2])+' for 5 min']); }
   if(e.special==='chest'){ coins=base*3; const bk = li<=1?'cricket':li<=3?'glow':'chum'; const n=bk==='chum'?3:5; S.bait[bk]+=n; found=n+' '+BAIT[bk].name; b.push(['k','+'+n+' '+BAIT[bk].name]); }
@@ -261,7 +275,16 @@ const FEATS = [
   {id:'leg',   name:'Myth made real',         d:'Land a Legendary fish',     p:()=>[nLeg(),1], coins:2000, pt:1},
   {id:'leg5',  name:'Legend hunter',          d:'Land 5 different Legendaries', p:()=>[nLeg(),5], coins:60000, pt:2},
   {id:'leg12', name:'Mythologist',            d:'Land 12 different Legendaries', p:()=>[nLeg(),12], coins:500000, pt:3},
-  {id:'legall',name:'Keeper of legends',      d:'Land all 24 Legendaries',   p:()=>[nLeg(),24], coins:2500000, pt:5},
+  {id:'legall',name:'Keeper of legends',      d:'Land every Legendary',      p:()=>[nLeg(),SP.filter(s=>s.r===4).length], coins:2500000, pt:5},
+  {id:'myth1', name:'Beyond legend',          d:'Land a fish rarer than Legendary', p:()=>[Object.keys(S.journal).filter(k=>SPI[k].r===5).length,1], coins:50000, pt:2, pet:'narwhal'},
+  {id:'myth3', name:'Myth hunter',            d:'Land 3 different Mythic fish', p:()=>[Object.keys(S.journal).filter(k=>SPI[k].r===5).length,3], coins:500000, pt:3, rod:'spine'},
+  {id:'mythall',name:'Keeper of myths',       d:'Land every Mythic fish',    p:()=>[Object.keys(S.journal).filter(k=>SPI[k].r===5).length,SP.filter(s=>s.r===5).length], coins:10000000, pt:6},
+  {id:'rods4', name:'Rod rack',               d:'Own 4 rods',                p:()=>[S.rods.owned.length,4], coins:20000, pt:1},
+  {id:'rod10', name:'Fine-tuned',             d:'Upgrade a rod to level 10', p:()=>[Math.max(0,...Object.values(S.rods.lvl)),10], coins:100000, pt:2},
+  {id:'pet50', name:'Good boy, good girl',    d:'Pet your pets 50 times',    p:()=>[S.gstats.pets,50], coins:3000, pt:1},
+  {id:'bond10',name:'Best friends',           d:'Reach bond level 10 with a pet', p:()=>[Math.max(0,...PETS.map(p=>bondLevel(p.id))),10], coins:50000, pt:2},
+  {id:'tasks10',name:'Daily grind',           d:'Finish 10 daily tasks',     p:()=>[S.gstats.tasks,10], coins:20000, pt:1},
+  {id:'tasks100',name:'Creature of habit',    d:'Finish 100 daily tasks',    p:()=>[S.gstats.tasks,100], coins:500000, pt:3},
   ...LOCS.map(L=>({id:'set_'+L.id, name:'Master of '+L.name, d:'Find every fish in '+L.name, p:()=>[caughtAt(L.id),spAt(L.id).length], coins:Math.round(L.bonus*.5), pt:1, pet:L.id==='frost'?'penguin':null})),
   {id:'shiny', name:'Something glittered',    d:'Land a shiny fish',         p:()=>[S.stats.shiny,1],     coins:1000, pt:1},
   {id:'shiny10',name:'Shine collector',       d:'Land 10 shiny fish',        p:()=>[S.stats.shiny,10],    coins:25000, pt:1},
@@ -307,10 +330,11 @@ const FEATS = [
 ];
 function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const [a,b]=f.p(); if(a>=b){ S.feats[f.id]=true; earn(f.coins); if(f.pt) S.bonusPts+=f.pt;
   let extra=''; if(f.pet && !S.owned.pets.includes(f.pet)){ S.owned.pets.push(f.pet); extra=', new pet: '+PETI[f.pet].name; }
+  if(f.rod && !S.rods.owned.includes(f.rod)){ S.rods.owned.push(f.rod); extra+=', new rod: '+ROD_I[f.rod].name; }
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => f.value*TANK_RATE*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => f.value*TANK_RATE*RAR[SPI[f.id].r].aq*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(OFFLINE_CAP_MIN,Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
@@ -318,6 +342,7 @@ function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTim
 // ---------- input ----------
 function down(e){
   if(G.star && starHit(e)) return;
+  if(G.st!=='reeling' && G.st!=='frenzy' && G.st!=='charging' && G.st!=='result' && petHit(e)) return;
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'idle': startCharge(); break;
