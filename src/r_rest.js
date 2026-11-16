@@ -35,6 +35,7 @@ function restBtn(){ let b=$('resttog'); if(!b){ $('stage').insertAdjacentHTML('b
     b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.currentTarget.blur(); startAudio(); setRest(!S.settings.rest); }); }
   b.textContent=S.settings.rest?'☾ Resting':'☾ Rest'; b.setAttribute('aria-pressed',String(!!S.settings.rest)); }
 document.head.insertAdjacentHTML('beforeend',`<style>.resttog{position:absolute;left:10px;bottom:10px;z-index:3;border-radius:12px;padding:6px 10px;font:600 12px system-ui;color:#e8eef8;background:linear-gradient(180deg,#1a2a44e6,#111c2ee6);border:1px solid #3a587888;box-shadow:0 4px 14px #02060f66;cursor:pointer}
-.resttog[aria-pressed="true"]{border-color:#ffd36a;color:#ffe6a0;box-shadow:0 0 0 1px #ffd36a44,0 0 16px #ffd36a33}</style>`);
+.resttog[aria-pressed="true"]{border-color:#ffd36a;color:#ffe6a0;box-shadow:0 0 0 1px #ffd36a44,0 0 16px #ffd36a33}
+@media (max-width:520px),(max-height:520px){ .resttog{left:6px;bottom:6px;padding:4px 8px;font-size:11px;border-radius:10px} }</style>`);
 restBtn(); if(S.settings.rest){ setTimeout(()=>{ if(G.st==='idle'){ G.st='rest'; restCast(); } },300); }
 if(/[?&]test\b/.test(location.search)) window.__rst=RST;
