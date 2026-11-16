@@ -34,14 +34,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - QC: `__pet3Sheet({ids,moods,cols,cell,save})`; every pet × mood × accessory checked.
     - Old drawings are used only if a pet has no PET3 entry (none left).
   - **Next, in order:**
-    1. Fishing moments: a cast swing pose, the reel fight (body lean, rod bend, fish splashes), a catch reveal with celebration.
-    2. Redraw all pets on the frame system.
-    3. The 9 other areas.
-    4. Unique fish designs.
-    5. UI makeover.
-    6. Music options.
-    7. New player controls.
-    8. 0.3 patch notes + launch.
+    1. The 9 other areas (identities in "Area identities" below), each with its own V3SCENES entry, palette, landmark, wildlife and signature effect, plus its platform (pier, ice, sand, boat, trawler, raft, stone, crystal).
+    2. Unique fish designs (all species).
+    3. UI makeover (all 17 tabs).
+    4. Music options (cozy, per area).
+    5. New player controls.
+    6. Dock decor and aquarium in the new style.
+    7. 0.3 patch notes (relabel old versions as 0.1/0.2) + final QC + launch.
   - Test tools (`?test`): `__setPhase(0.5)` sets the clock and finds clear weather, `__crop(x,y,w,h,scale)` enlarges part of the canvas, `__go(id)` moves to an area.
 
 ## Roles
