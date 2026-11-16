@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0301';
+window.DL_VERSION='2026.11.16-0321';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -65,6 +65,25 @@ button,select{font:inherit;color:inherit}
 .spec b{font-family:var(--display);font-size:15px}
 .spec .up{color:var(--kelp);font-size:13px}
 .spec .down{color:#ff8a8a;font-size:13px}
+/* 2.0 polish */
+html,body{background:radial-gradient(1200px 600px at 50% -10%,#14303c 0%,#0a161d 60%) fixed,#0a161d}
+.tile{background:linear-gradient(180deg,#132a34,#0f222b);box-shadow:0 1px 0 #ffffff08 inset,0 6px 18px #0004;transition:border-color .15s,transform .15s}
+.tile:hover{border-color:#2f5866}
+.btn{box-shadow:0 2px 0 #0003,0 4px 12px #ff6a3d22;transition:transform .12s,filter .12s}
+.btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.alt{box-shadow:0 2px 0 #0003}
+.stat{background:linear-gradient(180deg,#14303a,#10222b)}
+.tabs button[aria-selected="true"]{background:linear-gradient(180deg,#1c3d49,#152d37);box-shadow:0 0 0 1px #7fc8a944 inset}
+.stage{box-shadow:0 10px 40px #0007}
+h2{letter-spacing:-.01em}
+.passtrack{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:12px}
+.passcell{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;padding:8px 6px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(180deg,#132a34,#0f222b);font-size:12.5px}
+.passcell canvas{width:72px;height:54px;cursor:default}
+.passcell .lv{position:absolute;top:4px;left:7px;font-family:var(--display);font-weight:800;color:var(--muted)}
+.passcell.special{border-color:#c38bff88}
+.passcell.ready{border-color:var(--kelp);box-shadow:0 0 0 1px #7fc8a966,0 0 18px #7fc8a933}
+.passcell.got{opacity:.6}
 .pvbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-bottom:8px;border-radius:10px;background:#ffc94d1a;border:1px solid #ffc94d66;font-size:13.5px}
 .prize{padding:6px 10px;border-radius:10px;background:var(--panel2);border:1px solid var(--line)}
 /* HUD: fixed grid cells, so nothing appearing or changing inside it can move the game window */
@@ -213,6 +232,26 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 }
 @media (max-width:480px){.grid{grid-template-columns:1fr}.jgrid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}.jcard canvas{width:84px;height:42px}}
 @media (max-width:560px){.fishrow{grid-template-columns:48px 1fr auto}.fishrow canvas{width:48px;height:24px}.fishrow .acts{grid-column:1/-1}.setrow{grid-template-columns:110px 1fr 40px}}
+@media (min-width:1100px){.hud{grid-template-columns:150px repeat(9,minmax(0,1fr))}}
+/* phones held sideways: water on the left, menus scroll on the right (kept last so it wins) */
+@media (orientation:landscape) and (max-height:560px){
+  body{padding-top:6px;padding-bottom:6px}
+  .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:10px;row-gap:6px;height:calc(100vh - 12px);height:calc(100dvh - 12px)}
+  .hud{grid-column:1 / -1;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+  .hud>*{height:38px}
+  .hud .brand,.hud .opt{display:none}
+  .hud .loc{grid-column:auto}
+  .stat{padding:3px 8px}.stat .lbl{font-size:9.5px}.stat b{font-size:13px}
+  .ghost{padding:3px 6px;font-size:12px}
+  .stage{grid-column:1;grid-row:2 / 4;align-self:start}
+  .hint{display:none}
+  .tabs{grid-column:2;grid-row:2;position:static;padding:4px 0}
+  .tabs button{padding:6px 11px;font-size:13px}
+  #panel{grid-column:2;grid-row:3;overflow-y:auto;min-height:0;padding-right:4px;-webkit-overflow-scrolling:touch}
+  .grid{grid-template-columns:1fr 1fr}
+  .stylewrap{grid-template-columns:1fr}
+  .card .in{padding:10px 14px}.card canvas{width:160px;height:80px}
+}
 </style>
 
 <div class="wrap">
@@ -248,20 +287,23 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
   <p class="hint" id="hint"></p>
 
   <nav class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="cooler" aria-selected="true">Cooler</button>
-    <button role="tab" data-tab="shop" aria-selected="false">Tackle shop</button>
-    <button role="tab" data-tab="rods" aria-selected="false">Rods</button>
-    <button role="tab" data-tab="skills" aria-selected="false">Skills</button>
-    <button role="tab" data-tab="aquarium" aria-selected="false">Aquarium</button>
-    <button role="tab" data-tab="bounties" aria-selected="false">Bounties</button>
-    <button role="tab" data-tab="feats" aria-selected="false">Feats</button>
-    <button role="tab" data-tab="journal" aria-selected="false">Encyclopedia</button>
-    <button role="tab" data-tab="map" aria-selected="false">Waters</button>
-    <button role="tab" data-tab="style" aria-selected="false">Wardrobe</button>
-    <button role="tab" data-tab="pets" aria-selected="false">Pets</button>
-    <button role="tab" data-tab="games" aria-selected="false">Boardwalk</button>
-    <button role="tab" data-tab="save" aria-selected="false">Save</button>
-    <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+    <button role="tab" data-tab="cooler" aria-selected="true" data-label="🧊 Cooler">🧊 Cooler</button>
+    <button role="tab" data-tab="shop" aria-selected="false" data-label="🛒 Tackle">🛒 Tackle</button>
+    <button role="tab" data-tab="rods" aria-selected="false" data-label="🎣 Rods">🎣 Rods</button>
+    <button role="tab" data-tab="bounties" aria-selected="false" data-label="📜 Bounties">📜 Bounties</button>
+    <button role="tab" data-tab="pass" aria-selected="false" data-label="🌊 Tide Pass">🌊 Tide Pass</button>
+    <button role="tab" data-tab="map" aria-selected="false" data-label="🗺️ Waters">🗺️ Waters</button>
+    <button role="tab" data-tab="aquarium" aria-selected="false" data-label="🐠 Aquarium">🐠 Aquarium</button>
+    <button role="tab" data-tab="home" aria-selected="false" data-label="🏡 Home">🏡 Home</button>
+    <button role="tab" data-tab="pets" aria-selected="false" data-label="🐾 Pets">🐾 Pets</button>
+    <button role="tab" data-tab="style" aria-selected="false" data-label="👕 Wardrobe">👕 Wardrobe</button>
+    <button role="tab" data-tab="skills" aria-selected="false" data-label="✨ Skills">✨ Skills</button>
+    <button role="tab" data-tab="paths" aria-selected="false" data-label="🧭 Paths">🧭 Paths</button>
+    <button role="tab" data-tab="journal" aria-selected="false" data-label="📖 Encyclopedia">📖 Encyclopedia</button>
+    <button role="tab" data-tab="feats" aria-selected="false" data-label="🏆 Feats">🏆 Feats</button>
+    <button role="tab" data-tab="games" aria-selected="false" data-label="🎡 Boardwalk">🎡 Boardwalk</button>
+    <button role="tab" data-tab="save" aria-selected="false" data-label="💾 Save">💾 Save</button>
+    <button role="tab" data-tab="settings" aria-selected="false" data-label="⚙️ Settings">⚙️ Settings</button>
   </nav>
   <section id="panel" role="tabpanel"></section>
 </div>
@@ -295,6 +337,10 @@ const LOCS = [
    sky:['#557595','#c7b9b0'], water:['#163f6e','#030b1a'], hill:'#24384c', amp:0, freq:1, depth:'500–3,000 m', loot:8000},
   {id:'trench',name:'Hollow Trench',    cost:180000, need:8, bonus:1000000, plat:'raft', blurb:'Black water over a drop no one has measured. Things down here glow.',
    sky:['#5d7f99','#b9b1b8'], water:['#123a55','#02080f'], hill:'#1b2a36', amp:0, freq:1, depth:'1,000 m +', loot:18000},
+  {id:'ember', name:'Ember Springs',    cost:400000, need:8, bonus:2500000, plat:'stone', blurb:'Steaming hot springs in a volcanic valley. The water glows at night, and so do the fish.',
+   sky:['#b8604a','#f2c08a'], water:['#b8582a','#2a0a06'], hill:'#3a2420', amp:.13, freq:2.2, depth:'Bubbling', loot:40000},
+  {id:'starfall',name:'Starfall Lake',  cost:1200000, need:8, bonus:8000000, plat:'crystal', blurb:'A lake high above the clouds, where the stars come down to drink. Nobody quite knows how you got here.',
+   sky:['#2a1a5a','#c8a0e8'], water:['#5a3aa8','#0a0828'], hill:'#3a2a6a', amp:.06, freq:1.4, depth:'Endless sky', loot:90000},
 ];
 const SEA = ['shelf','deep','trench'];
 // fight behaviours
@@ -591,15 +637,57 @@ const SP = [
  ['maincharacter','deep','Main Character Marlin',3,150,500,8600,26,'day',.7,'#ffcc33','#fff6d0',.3,'jump',.9,'f',1,'Swims in slow motion. Somewhere, music plays just for it.'],
  ['fanumtax','deep','Fanum Tax Fish',1,5,20,700,17,'night',.5,'#5a3a8a','#d0b0ff',.36,'thrash',.8,'f',0,'Takes a bite of your bait first. That’s the tax.'],
  ['thisisfine','trench','This Is Fine Fish',1,.5,2,920,17,'any',.3,'#ff8a3a','#ffd060',.4,'calm',.2,'f',0,'Its whole vent is on fire. It’s fine. Everything is fine.'],
+ // 2.0: Ember Springs
+ ['magmaminnow','ember','Magma Minnow',0,.05,.3,560,28,'any',.6,'#ff5a1a','#ffd04a',.32,'dart',.5,'f',0,'Glows like a coal. Don’t hold it too long.'],
+ ['ashperch','ember','Ash Perch',0,.3,1.5,600,29,'any',.4,'#5a5050','#c8b8b0',.38,'thrash',.5,'f',1,'Grey as ash, grumpy as a volcano.'],
+ ['cinderdace','ember','Cinder Dace',0,.1,.6,580,28,'day',.6,'#e08a4a','#fff0d0',.3,'dart',.4,'f',2,'Leaves tiny sparks when it turns.'],
+ ['steamcrab','ember','Steam Crab',0,.3,1.5,620,30,'any',.3,'#d84a2a','#ffb090',.6,'thrash',.7,'c',0,'Already cooked. Very offended about it.'],
+ ['pumicepuffer','ember','Pumice Puffer',0,.2,1,610,29,'any',.3,'#a89a8a','#e8e0d8',.7,'sulk',.4,'p',2,'So full of holes it floats.'],
+ ['sulfurgoby','ember','Sulphur Goby',0,.05,.3,590,28,'night',.5,'#d8d040','#fff8b0',.36,'calm',.3,'f',0,'Smells like eggs. Looks like sunshine.'],
+ ['lavaeel','ember','Lava Eel',1,2,8,1500,34,'night',.5,'#ff4a1a','#ffcc4a',.13,'dive',.7,'e',1,'Flows like it’s melting. It isn’t. Probably.'],
+ ['obsidiancarp','ember','Obsidian Carp',1,3,12,1550,35,'any',.3,'#1a1a22','#6a5a8a',.42,'sulk',.5,'f',0,'Black glass scales. You can see your face in it.'],
+ ['emberfin','ember','Emberfin Trout',1,1,5,1450,33,'day',.6,'#e86a3a','#ffd8a0',.32,'jump',.6,'f',2,'Its fins flicker like little flames.'],
+ ['springkoi','ember','Hot Spring Koi',1,1,5,1600,32,'any',.4,'#ffffff','#ff6a4a',.38,'calm',.3,'f',2,'Spends all day in the warm pools. Living the dream.'],
+ ['charcoalcat','ember','Charcoal Catfish',1,3,15,1500,35,'night',.4,'#2a2420','#8a6a5a',.3,'dive',.5,'f',0,'Whiskers singed from poking at lava.'],
+ ['blazeray','ember','Blaze Ray',2,5,25,4800,40,'any',.5,'#ff6a2a','#ffe06a',.6,'run',.7,'r',2,'Glides through the pools on wings of fire.'],
+ ['geyserbass','ember','Geyser Bass',2,3,12,4600,39,'day',.6,'#8a6a4a','#f0d8b0',.38,'jump',.8,'f',1,'Erupts out of the water every ten minutes.'],
+ ['firejelly','ember','Fire Jelly',2,1,5,4500,37,'night',.4,'#ff4a4a','#ffd04a',.5,'calm',.5,'j',0,'A floating lantern made of jelly and heat.'],
+ ['scorchpike','ember','Scorch Pike',2,5,20,4900,41,'any',.6,'#c84a1a','#f0c890',.24,'thrash',.9,'e',1,'Bites so hard the water boils.'],
+ ['phoenixkoi','ember','Phoenix Koi',3,5,15,16000,45,'day',.6,'#ff7a2a','#ffe060',.4,'jump',.8,'f',2,'They say it was reborn from the springs a thousand times.'],
+ ['magmashark','ember','Magma Shark',3,100,400,17000,47,'night',.6,'#3a1a10','#ff6a1a',.3,'run',.9,'s',0,'Cracks of lava glow between its scales.'],
+ ['volcanoking','ember','The Volcano King',4,300,900,150000,50,'night',.6,'#2a0a06','#ff8a2a',.36,'sulk',1,'s',2,'When it sleeps, the volcano sleeps. It is awake.'],
+ ['ashqueen','ember','The Ash Queen',4,100,300,140000,48,'day',.6,'#d8d0d0','#ff6a4a',.38,'jump',1,'f',1,'Wears a crown of cooling stone.'],
+ ['mountainheart','ember','The Heart of the Mountain',5,500,1500,600000,54,'any',.5,'#ff3a1a','#ffea8a',.7,'sulk',1,'p',2,'It beats. The whole valley beats with it.'],
+ // 2.0: Starfall Lake
+ ['stardust','starfall','Stardust Minnow',0,.02,.1,950,33,'any',.7,'#e8e0ff','#ffffff',.32,'dart',.5,'f',2,'Leaves a trail of glitter. Literally.'],
+ ['moonperch','starfall','Moon Perch',0,.3,1.5,1000,34,'night',.4,'#c8c8e0','#ffffff',.38,'calm',.3,'f',0,'Pale, round and quietly glowing.'],
+ ['cometgoby','starfall','Comet Goby',0,.05,.3,980,33,'any',.6,'#5ad8ff','#ffffff',.34,'dart',.6,'f',1,'Always in a hurry, always leaving a tail.'],
+ ['nebulafry','starfall','Nebula Fry',0,.01,.05,920,32,'night',.6,'#c86aff','#ff9ad8',.36,'dart',.4,'f',2,'A baby fish made of pink space dust.'],
+ ['cloudfish','starfall','Cloudfish',0,.5,2,1020,34,'day',.3,'#f4f6ff','#ffffff',.65,'sulk',.3,'p',0,'Fluffy. Floaty. Basically a cloud with a face.'],
+ ['twinkletetra','starfall','Twinkle Tetra',0,.02,.1,990,33,'any',.6,'#ffe06a','#fff8d0',.4,'dart',.5,'f',1,'Blinks on and off like a little star.'],
+ ['orbitray','starfall','Orbit Ray',1,5,20,2600,38,'any',.5,'#3a3a8a','#c8c8ff',.6,'run',.6,'r',2,'Swims in perfect circles. Nobody knows around what.'],
+ ['auroratrout','starfall','Aurora Trout',1,1,5,2500,37,'night',.5,'#5affb0','#c0a0ff',.32,'jump',.6,'f',1,'Ripples green and violet when it moves.'],
+ ['satelliteeel','starfall','Satellite Eel',1,2,8,2550,38,'any',.4,'#a8b0c0','#5ad8ff',.12,'dive',.5,'e',1,'Beeps faintly. Might be picking up radio.'],
+ ['cosmiccrab','starfall','Cosmic Crab',1,.5,3,2650,39,'night',.4,'#5a3aa8','#ffd06a',.6,'thrash',.7,'c',2,'Its shell is a little starry night.'],
+ ['eclipsecarp','starfall','Eclipse Carp',1,3,12,2700,39,'any',.3,'#1a1a2a','#ffd06a',.42,'sulk',.5,'f',0,'A dark circle with a golden rim.'],
+ ['constellationkoi','starfall','Constellation Koi',2,3,10,8000,44,'night',.5,'#1a1a4a','#ffffff',.38,'calm',.5,'f',2,'Connect its spots and you get a map of the sky.'],
+ ['meteorpike','starfall','Meteor Pike',2,5,20,8300,46,'any',.7,'#ff8a3a','#ffe0a0',.24,'run',.9,'e',0,'Hits the bait like it fell from orbit.'],
+ ['galaxyjelly','starfall','Galaxy Jelly',2,1,5,7800,43,'night',.4,'#6a3aff','#ff9ad8',.5,'calm',.5,'j',2,'There’s a whole galaxy swirling in there.'],
+ ['astrofish','starfall','Lost Astronaut Fish',2,1,5,8100,44,'day',.5,'#e8ecf0','#5aa9ff',.4,'calm',.4,'f',0,'Still wearing its tiny helmet. Very far from home.'],
+ ['pulsarshark','starfall','Pulsar Shark',3,150,500,28000,50,'any',.6,'#2a2a6a','#5ad8ff',.3,'run',.9,'s',1,'Pulses with light every second. Like a heartbeat.'],
+ ['nebulasquid','starfall','Nebula Squid',3,20,80,29000,51,'night',.5,'#a83aff','#ff6ad8',.32,'dive',.9,'q',0,'Ink like spilled space.'],
+ ['moonleviathan','starfall','The Moon Leviathan',4,1000,3000,300000,55,'night',.5,'#c8c8e0','#ffffff',.34,'sulk',1,'s',2,'It swallowed the moon once. Then gave it back.'],
+ ['starweaver','starfall','The Star Weaver',4,50,150,280000,54,'any',.7,'#ffd06a','#fff8e0',.3,'jump',1,'f',1,'Sews the constellations back together every night.'],
+ ['firststar','starfall','The First Star',5,10,30,1200000,58,'night',.6,'#ffffff','#ffe9a8',.4,'dart',1,'f',0,'Before anything else, there was this. It remembers.'],
 ].map(a=>({id:a[0],loc:a[1],name:a[2],r:a[3],min:a[4],max:a[5],base:a[6],str:a[7],time:a[8],th:a[9],col:a[10],belly:a[11],h:a[12],beh:a[13],aggr:a[14],shape:a[15],pat:a[16],note:a[17]}));
 const SPI = Object.fromEntries(SP.map(s=>[s.id,s]));
 
 const GEAR = {
-  rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62], cost:[0,250,1200,5000,18000,50000,130000,300000], fmt:v=>v+' m cast'},
-  reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5], cost:[0,200,1000,4000,14000,40000,100000,240000,500000], fmt:v=>v.toFixed(1)+' m/s'},
-  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100], cost:[0,180,800,3000,10000,30000,80000,200000,450000], fmt:v=>v+' kg test'},
+  rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62,70,80], cost:[0,250,1200,5000,18000,50000,130000,300000,900000,2500000], fmt:v=>v+' m cast'},
+  reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5,13.2,15], cost:[0,200,1000,4000,14000,40000,100000,240000,500000,1400000,3500000], fmt:v=>v.toFixed(1)+' m/s'},
+  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100,135,180,230], cost:[0,180,800,3000,10000,30000,80000,200000,450000,1200000,3000000,7000000], fmt:v=>v+' kg test'},
   hook:  {name:'Hook',   what:'Longer window to set the hook', lv:[.6,.7,.8,.9,1.0,1.1,1.2], cost:[0,150,900,4000,14000,45000,120000], fmt:v=>v.toFixed(1)+' s window'},
-  cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85], cost:[0,120,700,3000,10000,30000,80000,200000], fmt:v=>v+' fish'},
+  cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85,110,140], cost:[0,120,700,3000,10000,30000,80000,200000,600000,1500000], fmt:v=>v+' fish'},
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
           fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity colour')+', +'+v*20+'% hotspots'},
 };
@@ -738,6 +826,7 @@ const HATS = [
  ['catears','Cat Ears','shop',1800],['headphones','Headphones','shop',3500],['bandanahead','Head Bandana','shop',900],['witch','Witch Hat','shop',4000],['mushroom','Mushroom Cap','shop',2500],['tiara','Tiara','shop',7000],
  ['bunnyears','Bunny Ears','fish'],['pumpkin','Pumpkin Head','fish',0,1],['knight','Knight Helmet','fish',0,1],['duckonhead','Duck on Head','fish',0,1],
  ['fishbowl','Fishbowl Helmet','prize',0,1],['sixsevencap','67 Cap','prize'],['carnival','Carnival Top Hat','prize'],
+ ['tidecap','Tide Cap','pass'],['strawsun','Sun Hat','shop',1800],['cozybeanie','Cozy Knit Beanie','shop',1200],['lanternhat','Lantern Hat','fish',0,1],['acorn','Acorn Cap','fish',0,1],
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3]||0,fixed:!!a[4]}));
 const HATI = Object.fromEntries(HATS.map(h=>[h.id,h]));
 const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','#7a4a9a','#2f3b4a','#8a6a4a','#d87aa0'];
@@ -820,6 +909,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
+  dock:{wood:'oak', decor:[], owned:['oak']}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
   rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
@@ -843,6 +933,8 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
   m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
   m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]);
+  const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=(dk.decor||[]).filter(x=>dk.owned.includes(x)); if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
+  m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
 try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
 
@@ -888,7 +980,7 @@ const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal
 function petSum(k){ const p=PETI[S.pet]; return p && p.k===k ? petVal() : 0; }
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
 const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
-const xpMult = () => (1 + bonus('xp')) * coinMult();
+const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/40000));
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
@@ -955,7 +1047,8 @@ const sfx = {
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
-  const fs=!!document.fullscreenElement, maxH=portrait?window.innerHeight*.56:Math.max(520,window.innerHeight*(fs?.8:.66)); H=clamp(Math.round(W*(portrait?.82:fs?.56:.5)),250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const maxH=portrait?window.innerHeight*.56:shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
+  H=clamp(Math.round(W*(portrait?.82:fs?.56:shortLand?.62:.5)),shortLand?180:250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -973,7 +1066,7 @@ function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
   G.inHot = !!(G.hot && Math.abs(G.power-G.hot.p) <= G.hot.r); if(G.inHot) G.hot=null; if(!G.inHot && maxed('caster') && G.power>.97){ G.inHot=true; toast('Bullseye!'); } sfx.cast(); }
 function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const wx=weather();
-  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1);
+  const speed=b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(G.inHot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005);
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
 const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
@@ -1025,6 +1118,7 @@ function landFish(){
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
   taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
+  addPassXP(PASS_XP[sp.r]*(f.shiny?2:1)*(f.trophy?1.5:1)); derbyCatch(f);
   const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg).concat(checkBounties2(f)); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
@@ -1138,6 +1232,11 @@ const FEATS = [
   {id:'star1', name:'Make a wish',            d:'Catch a falling star',      p:()=>[S.gstats.stars,1],    coins:2000, pt:1},
   {id:'crates10',name:'Crate expectations',   d:'Open 10 Mystery Crates',    p:()=>[S.gstats.crates,10],  coins:10000, pt:1},
   {id:'decor5',name:'Interior designer',      d:'Place 5 decorations in your aquarium', p:()=>[S.aq.decor.length,5], coins:8000, pt:1},
+  {id:'derby1', name:'Derby day',             d:'Win a gold medal in a fishing derby', p:()=>[S.medals.gold,1], coins:20000, pt:1},
+  {id:'derby10',name:'Derby champion',        d:'Win 10 gold medals',        p:()=>[S.medals.gold,10], coins:300000, pt:2},
+  {id:'pass25',name:'Riding the tide',        d:'Reach Tide Pass level 25',  p:()=>[S.pass.lvl,25], coins:100000, pt:2},
+  {id:'pass50',name:'Master of tides',        d:'Reach Tide Pass level 50',  p:()=>[S.pass.lvl,50], coins:1000000, pt:3},
+  {id:'cozy15',name:'Home sweet home',        d:'Reach 15 cozy on your dock', p:()=>[cozy(),15], coins:30000, pt:1},
   {id:'tide1', name:'Second voyage',          d:'Set sail again once',       p:()=>[S.tides,1],           coins:0, pt:2},
   {id:'tide3', name:'Old sea dog',            d:'Set sail again 3 times',    p:()=>[S.tides,3],           coins:0, pt:3},
 ];
@@ -1485,6 +1584,7 @@ function drawFar(L,t,night,hz,wx){
     const cx=((t*4)%(W*1.4))-W*.2; g.fillStyle=mix('#3a4652','#05080f',night); g.fillRect(cx,hz-7,60,6); g.fillRect(cx+40,hz-15,14,8); for(let i=0;i<4;i++){ g.fillStyle=['#c8553a','#3a6f9a','#e0c050','#4f8a4a'][i]; g.globalAlpha=1-night*.7; g.fillRect(cx+4+i*9,hz-12,8,5); } g.globalAlpha=1; }
   else if(L.id==='deep'){ const ox=W*.72; g.fillStyle=mix('#3a4652','#05080f',night); g.fillRect(ox,hz-6,34,5); g.fillRect(ox+6,hz-14,12,8); g.fillRect(ox+11,hz-26,2,12); if(night>.2){ g.fillStyle=Math.sin(t*2)>0?'#ff5a5a':'#5aff8a'; g.fillRect(ox+10,hz-28,4,3); }
     const sp=(t%23); if(sp<3){ const k=sp/3, wx2=W*.5; g.fillStyle='rgba(230,240,250,'+(.7*(1-k))+')'; for(let i=0;i<8;i++){ g.beginPath(); g.arc(wx2+Math.sin(i)*k*14,hz-4-k*30*Math.abs(Math.cos(i*.7)),2+k*3,0,7); g.fill(); } g.fillStyle=mix('#1a2a3a','#05080f',night); g.beginPath(); g.ellipse(wx2,hz+2,18,4,0,Math.PI,0); g.fill(); } }
+  else if(L.id==='ember'||L.id==='starfall') drawFarX(L,t,night,hz);
   else { g.strokeStyle=mix('#2b3b48','#0a0f16',night); g.lineWidth=2; g.beginPath(); g.moveTo(W*.7,hz); g.lineTo(W*.7,hz-30); g.moveTo(W*.7-10,hz-18); g.lineTo(W*.7+10,hz-18); g.stroke(); if(night>.3){ g.fillStyle='#ff5b6e'; g.globalAlpha=(Math.sin(t*3)>.6)?1:.2; g.fillRect(W*.7-2,hz-33,4,4); g.globalAlpha=1; }
     const vx=W*.42; g.fillStyle='#0c141c'; g.fillRect(vx,hz-8,70,7); g.fillRect(vx+10,hz-18,26,10); g.fillRect(vx+50,hz-24,3,16); g.fillStyle='#ffe08a'; for(let i=0;i<4;i++) g.fillRect(vx+13+i*6,hz-15,3,3);
     const tc=t%37; if(tc<6){ const k=Math.sin(tc/6*Math.PI); g.strokeStyle='rgba(20,10,20,.85)'; g.lineWidth=5; g.beginPath(); g.moveTo(W*.88,hz+3); g.quadraticCurveTo(W*.88+10,hz-k*40,W*.88-6+Math.sin(t*2)*6,hz-k*60); g.stroke(); } }
@@ -1504,14 +1604,15 @@ function drawWaterDeco(L,t,night,hz){
     for(let i=0;i<9;i++){ const fx=((t*30+i*16)%(W*1.3))-W*.15, fy=H*.62+Math.sin(t+i*.5)*8+i*2; g.fillStyle='rgba(255,220,90,.6)'; g.beginPath(); g.ellipse(fx,fy,3,1.5,0,0,7); g.fill(); } }
   else if(L.id==='shelf'){ const dp=t%14; if(dp<1.6){ const k=dp/1.6, x0=W*.55; const x=x0+k*W*.12, y=hz+H*.12-Math.sin(k*Math.PI)*H*.08; g.save(); g.translate(x,y); g.rotate((k-.5)*1.6); g.fillStyle='#5a7088'; g.beginPath(); g.ellipse(0,0,16,5,0,0,7); g.fill(); g.beginPath(); g.moveTo(-2,-4); g.lineTo(2,-10); g.lineTo(5,-4); g.fill(); g.beginPath(); g.moveTo(-14,0); g.lineTo(-20,-5); g.lineTo(-20,5); g.fill(); g.restore(); if(k>.85) splash(x,hz+H*.12,1); } }
   else if(L.id==='deep'){ const fx=((t*18)%(W*1.4))-W*.2, fy=H*.66; if(Math.sin(t*.13)>.3){ g.fillStyle=N('#3a4a5a'); g.beginPath(); g.moveTo(fx,fy); g.lineTo(fx+6,fy-16); g.lineTo(fx+14,fy); g.fill(); g.strokeStyle='rgba(255,255,255,.35)'; g.beginPath(); g.moveTo(fx-12,fy+1); g.lineTo(fx+16,fy+1); g.stroke(); } }
+  else if(L.id==='ember'||L.id==='starfall') drawWaterDecoX(L,t,night,hz);
   else if(L.id==='trench'){ for(let i=0;i<16;i++){ const xx=(i*137.5+t*6)%W, yy=hz+30+((i*71)%(H-hz-40)); g.fillStyle='rgba(127,245,255,'+((.15+night*.4)*(.5+.5*Math.sin(t*2+i)))+')'; g.beginPath(); g.arc(xx,yy,1.6,0,7); g.fill(); }
     for(let i=0;i<3;i++){ const jx=W*(.4+i*.22)+Math.sin(t*.3+i)*20, jy=H*(.68+i*.06)+Math.sin(t*.9+i)*6; g.globalAlpha=.35+.25*Math.sin(t*2+i); g.fillStyle=['#ff6ad8','#6affea','#b08aff'][i]; g.beginPath(); g.arc(jx,jy,7,Math.PI,0); g.fill(); g.strokeStyle=g.fillStyle; g.lineWidth=1; for(let k=-2;k<=2;k++){ g.beginPath(); g.moveTo(jx+k*2.5,jy); g.quadraticCurveTo(jx+k*2.5+Math.sin(t*2+k)*3,jy+8,jx+k*2,jy+14); g.stroke(); } } g.globalAlpha=1; }
 }
 function drawPlatform(L,t,night,dockY,pb){
   const N=(cl,k=.6)=>mix(cl,'#0a1018',night*k), PW=W*.19;
   switch(L.plat){
-    case 'dock': case 'pier': { const tall=L.plat==='pier'; g.fillStyle=N('#6b4a2e'); g.fillRect(-2,dockY,PW,10); g.fillStyle=N('#4a3220'); for(let i=0;i<3;i++) g.fillRect(W*.02+i*W*.075,dockY+10,7,H-dockY);
-      g.fillStyle=N('#7c5838'); for(let x=0;x<PW;x+=18) g.fillRect(x,dockY,1.5,10);
+    case 'dock': case 'pier': { const tall=L.plat==='pier', wd=dockWood(); g.fillStyle=N(wd); g.fillRect(-2,dockY,PW,10); g.fillStyle=N(mix(wd,'#000000',.32)); for(let i=0;i<3;i++) g.fillRect(W*.02+i*W*.075,dockY+10,7,H-dockY);
+      g.fillStyle=N(mix(wd,'#ffffff',.14)); for(let x=0;x<PW;x+=18) g.fillRect(x,dockY,1.5,10); g.fillStyle=N(mix(wd,'#000000',.18)); g.fillRect(-2,dockY+8,PW,2);
       if(tall){ g.strokeStyle=N('#c8b08a'); g.lineWidth=1.5; g.beginPath(); g.moveTo(0,dockY-16); for(let i=0;i<4;i++){ const px=i*PW/3; g.lineTo(px,dockY-16); } g.stroke(); g.fillStyle=N('#4a3220'); for(let i=0;i<4;i++) g.fillRect(i*PW/3-2,dockY-20,4,20); }
       else { const lx=PW-6; g.fillStyle=N('#3a2a1a'); g.fillRect(lx,dockY-34,3,34); g.fillStyle=night>.3?'#ffd88a':N('#555'); g.fillRect(lx-3,dockY-42,9,8); if(night>.3){ const gr=g.createRadialGradient(lx+1.5,dockY-38,2,lx+1.5,dockY-38,40); gr.addColorStop(0,'rgba(255,216,138,.35)'); gr.addColorStop(1,'rgba(255,216,138,0)'); g.fillStyle=gr; g.fillRect(lx-40,dockY-78,82,80); } }
       g.fillStyle=N('#8a8a8a'); g.fillRect(W*.155,dockY-9,9,9); g.fillStyle=N('#6a6a6a'); g.fillRect(W*.155,dockY-9,9,2); break; }
@@ -1528,7 +1629,9 @@ function drawPlatform(L,t,night,dockY,pb){
       if(tr||raft){ g.fillStyle=N('#5a5a5a'); g.fillRect(cw*.4,y-(tr?90:70),3,tr?40:32); g.fillStyle=night>.2?(raft?'#ffffff':'#ff5a5a'):N('#666'); g.fillRect(cw*.4-2,y-(tr?94:74),7,5);
         if(night>.2||raft){ const gr=g.createRadialGradient(cw*.4+1,y-(tr?92:72),2,cw*.4+1,y-(tr?92:72),raft?90:30); gr.addColorStop(0,raft?'rgba(255,255,230,.25)':'rgba(255,90,90,.3)'); gr.addColorStop(1,'rgba(0,0,0,0)'); g.fillStyle=gr; g.fillRect(cw*.4-90,y-182,182,182); } }
       if(tr){ g.strokeStyle=N('#6a7a6a'); g.lineWidth=1; for(let i=0;i<5;i++){ g.beginPath(); g.moveTo(cw+4+i*5,y-2); g.lineTo(cw+10+i*4,y-20); g.stroke(); } }
+      g.fillStyle=N(dockWood(),.5); g.fillRect(-10,y-2,PW+18,3);
       g.fillStyle='rgba(255,255,255,.25)'; g.fillRect(PW-20,y+H*.12,40+Math.sin(t*2)*6,2); break; }
+    default: drawPlatformX(L,t,night,dockY,pb);
   }
 }
 function drawFore(L,t,night){
@@ -1558,20 +1661,23 @@ function draw(now){
   g.fillStyle = sunUp ? (wx.k==='Gilded'?'#ffe08a':'#fff1c9') : (L.id==='trench'?'#ffb0a0':'#e8eef5'); g.globalAlpha = (sunUp ? 1-night*.2 : .9)*(1-gloom*.85); g.beginPath(); g.arc(bx,by,sunUp?16:11,0,7); g.fill(); g.globalAlpha=1;
   if(gloom>.08){ g.fillStyle='rgba(40,48,56,'+(gloom*.8)+')'; for(let i=0;i<6;i++){ const cx=((i*W/5)+t*8*(1+i%3))%(W+200)-100, cy=hz*(.12+.1*(i%3)); g.beginPath(); g.ellipse(cx,cy,90,22,0,0,7); g.ellipse(cx+50,cy+8,70,18,0,0,7); g.fill(); } }
   else { g.fillStyle='rgba(255,255,255,'+(.5-night*.4)+')'; for(let i=0;i<3;i++){ const cx=((i*W/2.5)+t*5)%(W+160)-80, cy=hz*(.18+.12*i); g.beginPath(); g.ellipse(cx,cy,34,9,0,0,7); g.ellipse(cx+22,cy-5,22,8,0,0,7); g.fill(); } }
+  drawGodRays(t,dusk,bx,by,hz); drawBackLayer(L,t,night,hz,bot);
   drawFar(L,t,night,hz,wx);
   const wg=g.createLinearGradient(0,hz,0,H); wg.addColorStop(0,mix(mix(L.water[0],'#10243e',night*.8),'#3b4750',gloom*.6)); wg.addColorStop(1,mix(L.water[1],'#02060c',night*.6)); g.fillStyle=wg; g.fillRect(0,hz,W,H-hz);
+  drawReflect(L,night,hz); { const hl=g.createLinearGradient(0,hz,0,hz+H*.08); hl.addColorStop(0,'rgba(255,255,255,'+(.10-night*.06)+')'); hl.addColorStop(1,'rgba(255,255,255,0)'); g.fillStyle=hl; g.fillRect(0,hz,W,H*.08); }
   g.fillStyle = sunUp ? '#fff1c955' : '#e8eef544'; g.globalAlpha=1-gloom*.85; for(let i=0;i<8;i++){ const yy=hz+6+i*i*3.2; if(yy>H) break; const w2=18+i*6+Math.sin(t*2+i)*6; g.fillRect(bx-w2/2,yy,w2,2); } g.globalAlpha=1;
   const swell = (wx.k==='Storm'?2.2:1)*(L.id==='deep'?1.8:L.id==='shelf'?1.3:1);
   g.strokeStyle='rgba(255,255,255,'+(.10-night*.04+gloom*.05)+')'; g.lineWidth=1;
   for(let r=0;r<14;r++){ const y = hz + Math.pow(r/14,1.6)*(H-hz) + 4; const sp=10+r*5, len=8+r*4, spd=(8+r*2)*swell*(L.id==='river'?2:1); g.beginPath();
     for(let x=-sp*2 + ((t*spd+r*37)%(sp*2)); x<W; x+=sp*2){ const yy=y+Math.sin(x*.05+t*1.5+r)*1.5*swell; g.moveTo(x,yy); g.lineTo(x+len,yy); } g.stroke(); }
-  drawWaterDeco(L,t,night,hz);
+  drawWaterDeco(L,t,night,hz); { const dtA=Math.min(.05,Math.max(0,t-(draw.lastT||t))); draw.lastT=t; drawAmbient(L,t,night,hz,dtA); }
   drawHotspot(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.fillStyle='#06121a'; g.fillRect(G.bob.x-12,G.bob.y+8,24,14); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   drawPlatform(L,t,night,dockY,pb);
+  { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
   const sc=clamp(H/420,.7,1.25), ax=W*.12, ay=dockY+pb;
   drawPetScene(ax,ay,sc,t,night);
   let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; }
@@ -1611,6 +1717,7 @@ function draw(now){
   if(wx.k==='Fog'){ const fg=g.createLinearGradient(0,hz-60,0,H); fg.addColorStop(0,'rgba(210,220,225,0)'); fg.addColorStop(.25,'rgba(210,220,225,.38)'); fg.addColorStop(1,'rgba(210,220,225,.12)'); g.fillStyle=fg; g.fillRect(0,0,W,H); }
   if(FX && wx.k==='Gilded'){ for(let i=0;i<24;i++){ const x=(i*97.3+t*12*(1+i%4))%W, y=hz*.3+((i*53.7+Math.sin(t+i)*20)%(H*.6)); g.fillStyle='rgba(255,215,120,'+(.35+.35*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } }
   if(FX && G.flash>0){ g.fillStyle='rgba(235,240,255,'+(G.flash*.45)+')'; g.fillRect(0,0,W,H); }
+  drawVignette(night); drawDerbyHUD();
   // overlays
   if(G.st==='charging'){ const bw=Math.min(240,W*.4), bxx=(W-bw)/2, byy=H-34; g.fillStyle='rgba(5,14,20,.7)'; rr(bxx-4,byy-4,bw+8,22,8); g.fill();
     const grd=g.createLinearGradient(bxx,0,bxx+bw,0); grd.addColorStop(0,'#7fc8a9'); grd.addColorStop(.8,'#ffc94d'); grd.addColorStop(1,'#ff6a3d'); g.fillStyle=grd; rr(bxx,byy,bw*G.power,14,5); g.fill();
@@ -1901,6 +2008,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
   const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
   const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
+  const r5=extraAct5(b); if(r5!==undefined) return r5==='render' ? undefined : r5;
   if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
@@ -1997,8 +2105,21 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.7';
+const GAME_VERSION = '2.0';
 const PATCHES = [
+ {v:'2.0', name:'Driftline 2.0: Home Waters', items:[
+  'Two new waters at the far end of the map, for anglers who think they’ve seen it all.',
+  '40 new fish live in them, including a few legends and something rarer still.',
+  'Home: your dock now goes with you everywhere. Choose its wood, add up to 8 decorations, and the cozier it gets, the better you fish.',
+  'The Tide Pass: a 50-level reward track that fills up just by fishing, with special rewards along the way and bonus rewards after.',
+  'Fishing derbies: four-minute contests against three rival anglers. Medals pay well.',
+  'Specialisations moved to their own Paths tab.',
+  'Every water got a visual makeover: distant mountains, reflections, fish leaping in the distance, wildlife, sunbeams, and warmer light at night.',
+  'New hats, outfits and pet colours, some of them only from the Tide Pass.',
+  'New gear upgrades for the toughest fish yet.',
+  'Phones in landscape now get a side-by-side layout, with the water on the left and menus on the right.',
+  'Every tab has an icon now, and buttons, cards and panels got a polish.',
+  'New feats for all of the above.' ]},
  {v:'1.7', name:'Try Before You Buy', items:[
   'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
   'Prize Counter items now show a picture, and the wearable ones can be previewed.',
@@ -2120,9 +2241,10 @@ const PET_HEAD = {dog:[8,-13,4.2],cat:[1,-14,4],frog:[0,-8.5,3.5],duck:[5,-11,3.
   polarbear:[8,-11,4.6],octopus:[0,-9,6],ghost:[0,-10,7],robot:[0,-16,5],slime:[0,-8,7],dragon:[7,-12,4],unicorn:[13,-26,4],corgi:[8,-11,4],shiba:[8,-12,4],goose:[6,-20,3],squirrel:[3,-13,3.6],
   beaver:[7,-9,4],cow:[10,-15,4.5],sloth:[2,-12,4],deer:[9,-19,3.6],jelly:[0,-12,6],tiger:[8,-12,4.2],phoenix:[5,-17,3.6],narwhal:[6,-7,4],teddy:[0,-15,5]};
 const PET_TINTS = [['none','Natural',0,''],['rose','Rose',800,'hue-rotate(-40deg) saturate(1.3)'],['mint','Mint',800,'hue-rotate(90deg)'],['sky','Sky',800,'hue-rotate(180deg)'],['violet','Violet',1500,'hue-rotate(250deg) saturate(1.2)'],
-  ['shadow','Shadow',5000,'brightness(.5) contrast(1.2)'],['snow','Snow',5000,'grayscale(1) brightness(1.55)'],['golden','Golden',0,'sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1)'],['rainbow','Rainbow',0,'rainbow']];
+  ['shadow','Shadow',5000,'brightness(.5) contrast(1.2)'],['snow','Snow',5000,'grayscale(1) brightness(1.55)'],['golden','Golden',0,'sepia(1) saturate(3) hue-rotate(-10deg) brightness(1.1)'],['rainbow','Rainbow',0,'rainbow'],
+  ['tidal','Tidal',0,'hue-rotate(160deg) saturate(1.5) brightness(1.1)'],['peach','Peach',1200,'sepia(.6) hue-rotate(-20deg) saturate(1.6)'],['lavender','Lavender',1500,'hue-rotate(220deg) saturate(.8) brightness(1.15)'],['cocoa','Cocoa',1200,'sepia(1) saturate(1.2) brightness(.7)']];
 const PET_ACCS = [['none','Nothing',0],['bandana','Bandana',0],['bow','Bow',600],['bowtie','Bow tie',1200],['scarf','Scarf',900],['bell','Bell collar',1000],['flower','Flower',800],['glasses','Sunglasses',1500],['cape','Hero cape',3000],['balloon','Star balloon',0],['partyhat','Party hat',0]];
-const PRIZE_TINT = {golden:600, rainbow:1200}, PRIZE_ACC = {balloon:150, partyhat:250};
+const PRIZE_TINT = {golden:600, rainbow:1200, tidal:1}, PRIZE_ACC = {balloon:150, partyhat:250};
 function petLook(id=S.pet){ if(!S.petLook[id]) S.petLook[id]={name:'',tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}; return S.petLook[id]; }
 const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].name;
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
@@ -2163,7 +2285,7 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
   const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
-  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!(x[0] in PRIZE_TINT)).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
@@ -2291,7 +2413,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
-    case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
+    case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; addPassXP(40); earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
     case 'taskbonus': { const d=ensureDaily(); if(d.bonus||!d.tasks.every(t=>t.claimed)) return 'skip'; d.bonus=true; S.tokens.small++; sfx.catch(3); toast('All tasks done! A small Mystery Crate is waiting at the Boardwalk.'); return 'render'; }
     case 'patches': showPatchNotes(); return 'skip';
     case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){}
@@ -2314,7 +2436,8 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
 // meme-fish flourishes, new pets, new aquarium decor
 // =====================================================================
 const OUTFITS = [['none','Just the shirt',0,'start'],['vest','Fishing vest',0,'start'],['lifejacket','Life jacket',1500,'shop'],['hoodie','Hoodie',2000,'shop'],['raincoat','Raincoat',2500,'shop'],
-  ['overalls','Overalls',3000,'shop'],['puffer','Puffer jacket',6000,'shop'],['wetsuit','Wetsuit',9000,'shop'],['captain','Captain’s coat',15000,'shop'],['spacesuit','Space suit',0,'prize']];
+  ['overalls','Overalls',3000,'shop'],['puffer','Puffer jacket',6000,'shop'],['wetsuit','Wetsuit',9000,'shop'],['captain','Captain’s coat',15000,'shop'],['spacesuit','Space suit',0,'prize'],
+  ['cardigan','Cozy cardigan',2400,'shop'],['sweater','Knit sweater',2800,'shop'],['apron','Fishmonger apron',1600,'shop'],['tidecoat','Tide Coat',0,'pass']];
 const GLASSES = [['none','No glasses',0],['round','Round glasses',0],['nerd','Thick frames',600],['sunglasses','Sunglasses',800],['threed','3D glasses',1200],['heart','Heart shades',1500],['goggles','Ski goggles',2500],['monocle','Monocle',3000],['pixel','Pixel shades',6700]];
 const BEARDS = [['none','Clean shaven'],['stubble','Stubble'],['mustache','Moustache'],['beard','Beard'],['longbeard','Wizard beard']];
 const HAIRSTYLES = [['auto','Classic'],['short','Short'],['buzz','Buzz cut'],['long','Long'],['ponytail','Ponytail'],['bun','Bun'],['curly','Curly'],['spiky','Spiky'],['bald','Bald']];
@@ -2345,7 +2468,7 @@ function drawFace(c,lk,D,hair){ const b=lk.beard||'none', gl=lk.glasses||'none';
     case 'monocle': c.strokeStyle='#ffcc33'; c.lineWidth=.8; c.beginPath(); c.arc(ex,ey,2.2,0,7); c.stroke(); c.beginPath(); c.moveTo(ex,ey+2.2); c.quadraticCurveTo(ex-1,ey+6,ex-3,ey+8); c.stroke(); break;
     case 'pixel': c.fillStyle='#111'; c.fillRect(ex-3,ey-1.4,6,1.4); c.fillRect(ex-2.4,ey,2,1.2); c.fillRect(ex+.6,ey,2,1.2); c.fillRect(-1,ey-1.4,2,1); c.fillStyle='#fff'; c.fillRect(ex-1.8,ey,.7,.6); c.fillRect(ex+1.2,ey,.7,.6); break;
   } }
-function sleeveCol(lk,D){ const o=lk.outfit; if(o==='raincoat'||o==='hoodie'||o==='puffer') return D(lk.outCol||'#d8a020'); if(o==='wetsuit') return D('#1a1a22'); if(o==='captain') return D(lk.outCol||'#1a2a4a'); if(o==='spacesuit') return D('#e8ecf0'); return null; }
+function sleeveCol(lk,D){ const o=lk.outfit; if(o==='raincoat'||o==='hoodie'||o==='puffer') return D(lk.outCol||'#d8a020'); if(o==='wetsuit') return D('#1a1a22'); if(o==='captain') return D(lk.outCol||'#1a2a4a'); if(o==='spacesuit') return D('#e8ecf0'); if(o==='sweater'||o==='cardigan') return D(lk.outCol||'#d8a020'); if(o==='tidecoat') return D('#1a3a5a'); return null; }
 function drawOutfit(c,lk,D){ const o=lk.outfit||'none'; if(o==='none') return; const oc=D(lk.outCol||'#d8a020'); const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); };
   switch(o){
     case 'vest': { const pk=D(mix(lk.outCol||'#6a7a4a','#000000',.2)); R(-8,-46,5,22,oc); R(3,-46,5,22,oc); R(-7.5,-38,4,4,pk); R(3.5,-38,4,4,pk); R(-7.5,-31,4,4,pk); R(3.5,-31,4,4,pk); break; }
@@ -2356,6 +2479,10 @@ function drawOutfit(c,lk,D){ const o=lk.outfit||'none'; if(o==='none') return; c
     case 'puffer': c.fillStyle=oc; c.beginPath(); c.moveTo(-9.5,-46); c.lineTo(9.5,-46); c.lineTo(9.5,-21); c.lineTo(-9.5,-21); c.closePath(); c.fill(); c.strokeStyle=D(mix(lk.outCol||'#d8a020','#000000',.25)); c.lineWidth=.8; for(let y=-41;y<-21;y+=5){ c.beginPath(); c.moveTo(-9.5,y); c.lineTo(9.5,y); c.stroke(); } R(-.4,-46,.8,25,D('#ddd')); break;
     case 'wetsuit': { const w=D('#1a1a22'); R(-8,-46,16,24,w); R(-7,-25,14,5,w); R(-7,-22,6,18,w); R(1,-22,6,18,w); R(-8,-40,16,2,oc); R(-7,-12,6,1.6,oc); R(1,-12,6,1.6,oc); break; }
     case 'captain': { const n=oc; c.fillStyle=n; c.beginPath(); c.moveTo(-8.8,-46); c.lineTo(8.8,-46); c.lineTo(9.6,-16); c.lineTo(-9.6,-16); c.closePath(); c.fill(); for(let i=0;i<4;i++){ R(-3,-42+i*6,1.6,1.6,D('#ffcc33')); R(1.6,-42+i*6,1.6,1.6,D('#ffcc33')); } R(5,-46,4,1.6,D('#ffcc33')); R(5,-43.6,4,1.6,D('#ffcc33')); break; }
+    case 'cardigan': R(-8.4,-46,6,24,oc); R(2.4,-46,6,24,oc); for(let i=0;i<4;i++) R(1,-42+i*5,1.2,1.2,D('#f4ecd8')); R(-8.4,-24,16.8,2,D(mix(lk.outCol||'#d8a020','#000000',.2))); break;
+    case 'sweater': { c.fillStyle=oc; c.beginPath(); c.moveTo(-8.6,-46); c.lineTo(8.6,-46); c.lineTo(8.2,-22); c.lineTo(-8.2,-22); c.closePath(); c.fill(); c.fillStyle=D(mix(lk.outCol||'#d8a020','#ffffff',.35)); for(let x=-7;x<8;x+=3.2){ c.beginPath(); c.moveTo(x,-38); c.lineTo(x+1.6,-36); c.lineTo(x+3.2,-38); c.lineTo(x+1.6,-40); c.fill(); } R(-8.2,-24.5,16.4,2.5,D(mix(lk.outCol||'#d8a020','#000000',.2))); break; }
+    case 'apron': R(-6,-40,12,20,oc); R(-6,-46,1.4,6,oc); R(4.6,-46,1.4,6,oc); R(-3,-34,6,4,D(mix(lk.outCol||'#d8a020','#000000',.2))); break;
+    case 'tidecoat': { const n=D('#1a3a5a'); c.fillStyle=n; c.beginPath(); c.moveTo(-8.8,-46); c.lineTo(8.8,-46); c.lineTo(9.6,-17); c.lineTo(-9.6,-17); c.closePath(); c.fill(); c.strokeStyle=D('#5ad8e8'); c.lineWidth=1.2; c.beginPath(); for(let x=-9;x<=9;x+=1){ c.lineTo(x,-24+Math.sin(x*.9)*1.2); } c.stroke(); R(-.5,-46,1,22,D('#5ad8e8')); break; }
     case 'spacesuit': { const s=D('#e8ecf0'); R(-8.6,-46,17.2,25,s); R(-7.5,-25,15,5,s); R(-7.5,-22,6.6,18,s); R(.9,-22,6.6,18,s); R(-4,-40,8,6,D('#5a6a7a')); R(-3,-39,2,2,D('#ff4a4a')); R(.5,-39,2,2,D('#4aff8a')); R(-8.6,-27,17.2,2,D('#c8553a')); break; }
   } }
 
@@ -2374,6 +2501,11 @@ function drawHatX(c,id,col,t,h){ const {dk,lt,el,ci,poly,dome}=h; const f=cl=>{ 
     case 'duckonhead': el(-1,-11,7,4.5,'#ffd23a'); ci(4,-16,3.6,'#ffd23a'); poly([7,-16.5,10.5,-15.5,7,-14.5],'#ff8a2a'); ci(5,-17,.8,'#111'); el(-3,-11,3,2,'#f0c020',-.3); break;
     case 'fishbowl': c.globalAlpha*=.35; ci(0,0,13,'#9ad8ff'); c.globalAlpha/=.35; c.strokeStyle='rgba(220,245,255,.8)'; c.lineWidth=1; c.beginPath(); c.arc(0,0,13,0,7); c.stroke(); drawFish(c,-5+Math.sin(t)*3,-8,7,'#ff8a2a','#ffd08a',.45,t*8,Math.cos(t)<0,{}); c.fillStyle='rgba(220,245,255,.6)'; c.beginPath(); c.arc(6,-9+(-t*6%10),1,0,7); c.fill(); break;
     case 'sixsevencap': dome(8,-1,col); f(dk); c.fillRect(5,-2.2,8.5,2.4); f('#fff'); c.font='800 6px system-ui'; c.textAlign='center'; c.fillText('67',0,-3.2); break;
+    case 'tidecap': f('#f4f4f2'); c.beginPath(); c.moveTo(-8.5,-3); c.lineTo(-7.5,-9); c.quadraticCurveTo(0,-11.5,7.5,-9); c.lineTo(8.5,-3); c.fill(); f('#2a8aa8'); c.fillRect(-8.6,-5.5,17.2,2.6); c.strokeStyle='#ffffff'; c.lineWidth=.8; c.beginPath(); c.moveTo(-6,-4.2); c.quadraticCurveTo(-3,-6,0,-4.2); c.quadraticCurveTo(3,-2.6,6,-4.2); c.stroke(); f('#111'); c.fillRect(3,-3.2,9,2); break;
+    case 'strawsun': el(0,-4,16,3.4,col); f(lt); c.beginPath(); c.arc(0,-6,7,Math.PI,0); c.fill(); f(dk); c.fillRect(-7,-7,14,2); ci(-5,-7,1.6,'#ff9ad0'); break;
+    case 'cozybeanie': dome(8.5,-2,col); f(dk); c.fillRect(-8.8,-4.4,17.6,4); c.strokeStyle=lt; c.lineWidth=.6; for(let i=-6;i<=6;i+=2){ c.beginPath(); c.moveTo(i,-4.4); c.lineTo(i,-.4); c.stroke(); } ci(0,-12,3.2,lt); ci(-1,-13,1.4,'#ffffff'); break;
+    case 'lanternhat': dome(8,-2,'#5a4a3a'); f('#3a3a3a'); c.fillRect(-.6,-16,1.2,6); f('#2a2a2a'); c.fillRect(-2.6,-21,5.2,5); f('#ffe08a'); c.fillRect(-1.8,-20.2,3.6,3.6); c.fillStyle='rgba(255,220,130,.25)'; c.beginPath(); c.arc(0,-18.5,8,0,7); c.fill(); break;
+    case 'acorn': f('#8a5a2a'); c.beginPath(); c.arc(0,-2,8.6,Math.PI,0); c.fill(); c.strokeStyle='#6a4220'; c.lineWidth=.6; for(let i=-7;i<=7;i+=2.4){ c.beginPath(); c.moveTo(i,-2); c.lineTo(i+1.4,-8); c.stroke(); } f('#5a3a1a'); c.fillRect(-.8,-13,1.6,3.5); break;
     case 'carnival': el(0,-5,11,2,'#d8303a'); f('#d8303a'); c.fillRect(-6.5,-21,13,16); f('#fff'); for(let i=0;i<3;i++) c.fillRect(-6.5+i*4.4,-21,2.2,16); f('#ffcc33'); c.fillRect(-6.5,-9.5,13,2.5); ci(4,-23,1.6,'#ffcc33'); break;
   } }
 
@@ -2494,8 +2626,8 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
        return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
   P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Specialisations</b> are big choices with a trade-off, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-   <h2 style="margin-top:12px">Specialisations</h2><div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">${SPEC_TIERS.map(specRow).join('')}</div>
-   <h2 style="margin-top:16px">Skills</h2><div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
+   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between"><span class="meta">Looking for specialisations? They have their own <b>Paths</b> tab now.</span><button class="btn alt sm" data-tabgo="paths">Open Paths</button></div>
+   <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
     return `<div class="tile ${mx?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
      <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div><div class="meta">${p.d} Each rank: ${p.per}.</div>
      <div class="meta" style="color:${mx?'var(--gold)':'var(--muted)'}">${mx?'★ ':'At max rank: '}${MASTERY_FX[k]}</div>
@@ -2612,6 +2744,199 @@ function extraAct4(b){ const k=b.dataset.k;
   }
   return undefined; }
 
+// =====================================================================
+// Driftline 2.0: Paths tab, Home (dock customization & cozy), Tide Pass,
+// Fishing Derby, richer scenery for every water, two new waters' looks
+// =====================================================================
+
+// ---------- Paths (specialisations get their own tab) ----------
+function renderPaths(P){ const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
+    return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· unlocks at level ${T.lvl}</span></h4>${cur?`<span class="badge g">${T.opts.find(o=>o[0]===cur)[1]}</span>`:locked?`<span class="meta">Level ${S.lvl} / ${T.lvl}</span>`:'<span class="badge">Choose one</span>'}</div>
+     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
+       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
+  P.innerHTML=`<h2>Paths</h2><p class="sub">Four forks on your angler’s road. Each choice gives something and takes something, so pick what fits how you like to fish. You can switch later for a fee.</p>
+   <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">${SPEC_TIERS.map(specRow).join('')}</div>`; }
+
+// ---------- Home: dock style, decorations, cozy ----------
+const DOCK_WOODS = [['oak','Oak',0,'#6b4a2e'],['birch','Birch',1500,'#c8a878'],['walnut','Walnut',2500,'#3e2a1c'],['driftwood','Driftwood',2000,'#8a7a6a'],['white','Painted white',3000,'#e4e0d6'],
+  ['blue','Harbour blue',3000,'#3a6f9a'],['red','Barn red',3000,'#9a3a2a'],['mint','Seafoam',3500,'#7fc8a9'],['pearl','Pearl',0,'#f0e8f4']];
+// id, name, price, cozy points, source
+const DOCK_DECOR = [['mug','Steaming Mug',600,1],['books','Stack of Books',800,1],['tacklebox','Tackle Box',900,1],['plants','Potted Plants',1200,2],['gnome','Dock Gnome',1500,1],['lantern','Lantern',1500,2],
+  ['bunting','Bunting Flags',1800,2],['blanket','Picnic Blanket',2000,2],['umbrella','Beach Umbrella',2200,2],['chair','Cozy Chair',2500,3],['windchime','Wind Chime',2600,2],['birdhouse','Birdhouse',2800,2],
+  ['catbed','Cat Bed',3000,2],['lights','String Lights',3500,3],['radio','Old Radio',4000,2],['campfire','Campfire',6000,4],['telescope','Telescope',9000,2],['cottage','Little Cottage',60000,6],
+  ['tideflag','Tide Flag',0,2,'pass'],['shipwheel','Ship’s Wheel',0,3,'pass'],['minilight','Tiny Lighthouse',0,4,'pass']].map(a=>({id:a[0],name:a[1],price:a[2],cozy:a[3],src:a[4]||'shop'}));
+const DOCKI = Object.fromEntries(DOCK_DECOR.map(d=>[d.id,d]));
+const DOCK_SLOTS = 8;
+let DOCK_PV=null;
+const dockWood = () => { const w=DOCK_WOODS.find(x=>x[0]===((DOCK_PV&&DOCK_PV.kind==='wood')?DOCK_PV.id:S.dock.wood))||DOCK_WOODS[0]; return w[3]; };
+function dockView(){ const d=S.dock.decor.slice(); if(DOCK_PV&&DOCK_PV.kind==='decor'&&!d.includes(DOCK_PV.id)) d.push(DOCK_PV.id); return d; }
+function cozy(){ let c=S.dock.wood!=='oak'?1:0; for(const id of S.dock.decor) if(DOCKI[id]) c+=DOCKI[id].cozy; return c; }
+const cozyBonus = () => Math.min(25,cozy());
+const COZY_NAMES = [[0,'Bare boards'],[4,'Snug'],[9,'Homey'],[15,'Cozy'],[22,'Hygge']];
+const cozyName = () => COZY_NAMES.filter(x=>cozy()>=x[0]).pop()[1];
+function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
+  const pvBar = DOCK_PV ? `<div class="pvbar"><span>Previewing on your dock: <b>${esc(DOCK_PV.name)}</b></span><span class="row"><button class="btn sm" data-act="${DOCK_PV.kind==='wood'?'dockwood':'dockdecor'}" data-k="${DOCK_PV.id}" ${S.money>=DOCK_PV.price?'':'disabled'}>Buy · <span class="coin">${fmt(DOCK_PV.price)}</span></button><button class="btn alt sm" data-act="dockpvoff">Stop</button></span></div>` : '';
+  P.innerHTML=`<div class="row spread"><div><h2>Home</h2><p class="sub">Your dock goes with you to every water. Make it yours: pick the wood, add decorations, and the cozier it gets, the better you fish.</p></div>
+   <div class="tile" style="min-width:200px"><div class="rar" style="color:#ff9ac0">Cozy level: ${cozyName()}</div><b>${c} ♥</b> <span class="meta">· +${cb}% XP, +${(cb*.5).toFixed(1)}% bite speed</span><div class="prog"><i style="width:${Math.min(1,c/25)*100}%;background:#ff9ac0"></i></div></div></div>
+   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>
+   <h5>Wood</h5><div class="chips">${DOCK_WOODS.filter(w=>w[2]||S.dock.owned.includes(w[0])||w[0]==='oak').map(w=>{ const own=S.dock.owned.includes(w[0]); const pv=DOCK_PV&&DOCK_PV.kind==='wood'&&DOCK_PV.id===w[0];
+     return `<button class="chipb" data-act="${own?'dockwood':'dockpv'}" data-k="${own?w[0]:'wood:'+w[0]}" aria-pressed="${wood===w[0]||pv}"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${w[3]};margin-right:6px;vertical-align:-1px"></span>${w[1]}${own?'':' · '+fmt(w[2])}</button>`; }).join('')}</div>
+   <h5>Decorations · ${S.dock.decor.length} of ${DOCK_SLOTS} placed</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DOCK_DECOR.map(d=>{ const own=S.dock.owned.includes(d.id), placed=S.dock.decor.includes(d.id), hidden=!own&&d.src!=='shop';
+     return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-dock="${d.id}" data-own="${own||!hidden?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${hidden?'???':d.name}</b><span class="meta">+${d.cozy} ♥ cozy</span>
+     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="dockdecor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:hidden?'<span class="meta">A Tide Pass reward</span>':`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="dockpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="dockdecor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`}</div>`; }).join('')}</div>`;
+  P.querySelectorAll('canvas[data-dock]').forEach(cv2=>{ const x=cv2.getContext('2d'); x.clearRect(0,0,160,120); if(cv2.dataset.own!=='1') x.filter='brightness(0) opacity(.45)'; drawDockItem(x,cv2.dataset.dock,80,100,2.6,0,0); x.filter='none'; });
+  paintHome(); }
+function paintHome(){ const c=$('homecv'); if(!c) return; const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000; x.clearRect(0,0,w,h);
+  const sky=x.createLinearGradient(0,0,0,h*.6); sky.addColorStop(0,'#86bcd9'); sky.addColorStop(1,'#f2dcb6'); x.fillStyle=sky; x.fillRect(0,0,w,h*.6);
+  const wt=x.createLinearGradient(0,h*.55,0,h); wt.addColorStop(0,'#3f827b'); wt.addColorStop(1,'#173e42'); x.fillStyle=wt; x.fillRect(0,h*.55,w,h*.45);
+  const dy=h*.62, s=2.4; x.fillStyle=dockWood(); x.fillRect(0,dy,w*.92,14); x.fillStyle=mix(dockWood(),'#000000',.3); for(let i=0;i<5;i++) x.fillRect(30+i*w*.2,dy+14,12,h-dy); x.fillStyle=mix(dockWood(),'#ffffff',.12); for(let px=0;px<w*.92;px+=26) x.fillRect(px,dy,2,14);
+  const items=dockView(); const xs=homeSlots(items.length,w*.04,w*.88,w*.5,w*.62);
+  items.forEach((id,i)=>drawDockItem(x,id,xs[i],dy,s*(id==='cottage'?.9:1),t,0));
+  drawPetStyled(x,S.pet,w*.5,dy,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy,2.6,S.look,{t}); }
+function homeSlots(n,x0,x1,avoid0,avoid1){ const out=[]; const span=(x1-x0)-(avoid1-avoid0); for(let i=0;i<n;i++){ let x=x0+span*(i+.5)/Math.max(n,1); if(x>avoid0) x+=avoid1-avoid0; out.push(x); } return out; }
+// decorations drawn on the dock in the scene, behind the angler
+function drawHome(L,t,night,dockY,pb,sc){ const items=dockView(); if(!items.length) return; const PW=W*.19, ax=W*.12;
+  const surf = dockY+pb; const xs=homeSlots(items.length,W*.008,PW-W*.012,ax-40*sc,ax+12*sc);
+  const cot=items.indexOf('cottage'); if(cot>=0) drawDockItem(g,'cottage',W*.045,surf,sc*1.5,t,night,true);
+  items.forEach((id,i)=>{ if(id==='cottage') return; drawDockItem(g,id,xs[i],surf,sc*1.35,t,night); }); }
+function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.scale(s,s); const D=cl=>night?mix(cl,'#0a1018',night*.45):cl; c.lineCap='round';
+  const R=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, glow=(gx,gy,r,col)=>{ if(night<.25 && !back) return; const gr=c.createRadialGradient(gx,gy,1,gx,gy,r); gr.addColorStop(0,col); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(gx-r,gy-r,r*2,r*2); };
+  switch(id){
+    case 'mug': R(-3,-6,6,6,'#d8553a'); c.strokeStyle=D('#d8553a'); c.lineWidth=1.2; c.beginPath(); c.arc(3.5,-3,1.8,-1.5,1.5); c.stroke(); c.strokeStyle='rgba(255,255,255,.5)'; c.lineWidth=.8; for(let i=0;i<2;i++){ c.beginPath(); c.moveTo(-1+i*2,-7); c.quadraticCurveTo(-2+i*2+Math.sin(t*2+i)*1.5,-11,-1+i*2,-14); c.stroke(); } break;
+    case 'books': R(-6,-3,12,3,'#3a6f9a'); R(-5,-6,11,3,'#c8553a'); R(-6,-9,10,3,'#4f8a4a'); R(-4,-11,8,2,'#e0c050'); break;
+    case 'tacklebox': R(-7,-7,14,7,'#4a7a4a'); R(-7,-8,14,2,'#3a6a3a'); R(-2,-10,4,2,'#888'); break;
+    case 'plants': for(const [px,cl] of [[-5,'#c8703a'],[4,'#a85a3a']]){ c.fillStyle=D(cl); c.beginPath(); c.moveTo(px-3,0); c.lineTo(px-4,-6); c.lineTo(px+4,-6); c.lineTo(px+3,0); c.fill(); for(let i=-2;i<=2;i++){ c.strokeStyle=D('#3a9a4a'); c.lineWidth=1.4; c.beginPath(); c.moveTo(px,-6); c.quadraticCurveTo(px+i*2,-10,px+i*3+Math.sin(t+i)*.6,-14+Math.abs(i)); c.stroke(); } } Ci(5,-14,1.4,'#ff7ab0'); break;
+    case 'gnome': c.fillStyle=D('#d8473a'); c.beginPath(); c.moveTo(-3,-9); c.lineTo(3,-9); c.lineTo(0,-17); c.fill(); Ci(0,-8,2.5,'#f6d0b0'); c.fillStyle=D('#f4f4f4'); c.beginPath(); c.moveTo(-2.5,-7); c.lineTo(2.5,-7); c.lineTo(0,-2); c.fill(); R(-3,-3,6,3,'#3a6fca'); break;
+    case 'lantern': R(-.7,-20,1.4,20,'#3a2a1a'); R(-3,-26,6,6,'#2a2a2a'); R(-2.2,-25,4.4,4.4,night>.25?'#ffe08a':'#c8b880'); glow(0,-23,28,'rgba(255,216,138,.35)'); break;
+    case 'bunting': { c.strokeStyle=D('#c8b08a'); c.lineWidth=.6; c.beginPath(); c.moveTo(-12,-22); c.quadraticCurveTo(0,-17,12,-22); c.stroke(); R(-12.5,-22,1,22,'#5a3a20'); R(11.5,-22,1,22,'#5a3a20'); const cols=['#ff6a6a','#ffd84a','#5aa9ff','#7fc8a9','#c38bff']; for(let i=0;i<5;i++){ const fx=-9+i*4.5, fy=-20.5+Math.sin((i/4)*Math.PI)*2.2; c.fillStyle=D(cols[i]); c.beginPath(); c.moveTo(fx-1.6,fy); c.lineTo(fx+1.6,fy); c.lineTo(fx,fy+3.4+Math.sin(t*3+i)*.3); c.fill(); } break; }
+    case 'blanket': c.fillStyle=D('#d84a4a'); c.beginPath(); c.moveTo(-10,0); c.lineTo(10,0); c.lineTo(8,-2.5); c.lineTo(-8,-2.5); c.fill(); c.fillStyle=D('#ffffff'); for(let i=-8;i<8;i+=4) c.fillRect(i,-2.5,2,2.5); R(-3,-5,6,3,'#c89a5a'); break;
+    case 'umbrella': R(-.5,-22,1,22,'#ddd'); c.fillStyle=D('#ff7a5a'); c.beginPath(); c.moveTo(-12,-18); c.quadraticCurveTo(0,-30,12,-18); c.closePath(); c.fill(); c.fillStyle=D('#ffffff'); c.beginPath(); c.moveTo(-4,-18); c.quadraticCurveTo(0,-29.5,4,-18); c.closePath(); c.fill(); break;
+    case 'chair': R(-6,-6,12,2,'#8a5a3a'); R(-6,-14,2,10,'#8a5a3a'); R(-6,-4,1.5,4,'#6a4228'); R(4.5,-4,1.5,4,'#6a4228'); R(-5,-13,2.4,7,'#d8a84a'); R(-4,-6.5,9,2,'#d8a84a'); R(4,-9,2,5,'#8a5a3a'); break;
+    case 'windchime': R(-.5,-26,1,4,'#888'); R(-5,-22,10,1.2,'#8a6a4a'); for(let i=0;i<4;i++){ const sw=Math.sin(t*2+i)*.8; R(-4+i*2.6+sw,-21,1,6+i%2*2,'#b8c8d8'); } break;
+    case 'birdhouse': R(-.6,-16,1.2,16,'#5a3a20'); R(-4,-24,8,8,'#4a8ab8'); c.fillStyle=D('#c8553a'); c.beginPath(); c.moveTo(-5.5,-24); c.lineTo(0,-28); c.lineTo(5.5,-24); c.fill(); Ci(0,-20.5,1.4,'#1a1a1a'); if(night<.5 && Math.sin(t*.7)>.5){ Ci(5,-27,1.4,'#c86a3a'); } break;
+    case 'catbed': c.fillStyle=D('#9a5aa8'); c.beginPath(); c.ellipse(0,-2,8,3.4,0,0,7); c.fill(); c.fillStyle=D('#c89ad8'); c.beginPath(); c.ellipse(0,-3,6,2,0,0,7); c.fill(); break;
+    case 'lights': { c.strokeStyle=D('#444'); c.lineWidth=.5; c.beginPath(); c.moveTo(-14,-24); c.quadraticCurveTo(0,-18,14,-24); c.stroke(); R(-14.5,-24,1,24,'#5a3a20'); R(13.5,-24,1,24,'#5a3a20'); const cols=['#ffd84a','#ff7a5a','#7fc8a9','#5aa9ff','#ff9ad0'];
+      for(let i=0;i<7;i++){ const lx=-12+i*4, ly=-22.6+Math.sin((i/6)*Math.PI)*2.8, on=night>.25; c.fillStyle=on?cols[i%5]:D('#c8c0a0'); c.beginPath(); c.arc(lx,ly+1,1.1,0,7); c.fill(); if(on){ const gr=c.createRadialGradient(lx,ly+1,.5,lx,ly+1,6); gr.addColorStop(0,cols[i%5]+'88'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(lx-6,ly-5,12,12); } } break; }
+    case 'radio': R(-6,-7,12,7,'#a85a3a'); R(-5,-6,5,5,'#c8b890'); Ci(3,-3.5,1.8,'#2a2a2a'); R(-1,-10,.8,3,'#888'); if(Math.sin(t*.8)>0){ c.fillStyle='rgba(255,255,255,.7)'; c.font='6px system-ui'; c.fillText('♪',6+Math.sin(t*2)*2,-10-((t*6)%6)); } break;
+    case 'campfire': { for(let i=-1;i<=1;i++){ c.save(); c.rotate(i*.5); R(-6,-1.4,12,2.4,'#6a4228'); c.restore(); } const fl=Math.sin(t*12)*.6; c.fillStyle='#ff7a1a'; c.beginPath(); c.moveTo(-4,-1); c.quadraticCurveTo(-2,-9-fl,0,-12+fl); c.quadraticCurveTo(2,-9+fl,4,-1); c.fill(); c.fillStyle='#ffd84a'; c.beginPath(); c.moveTo(-2,-1); c.quadraticCurveTo(0,-7+fl,2,-1); c.fill();
+      { const gr=c.createRadialGradient(0,-4,1,0,-4,night>.25?42:14); gr.addColorStop(0,'rgba(255,150,60,.35)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(-42,-46,84,84); } c.fillStyle='rgba(200,200,200,.25)'; for(let i=0;i<3;i++){ const k=((t*.4+i/3)%1); c.beginPath(); c.arc(Math.sin(t+i)*3,-14-k*20,2+k*3,0,7); c.fill(); } break; }
+    case 'telescope': R(-.6,-10,1.2,10,'#5a3a20'); R(-4,-2,8,1,'#5a3a20'); c.save(); c.translate(0,-11); c.rotate(-.5); R(-7,-1.8,14,3.6,'#c8a050'); R(6,-2.2,3,4.4,'#a88030'); c.restore(); break;
+    case 'cottage': { c.save(); if(back) c.globalAlpha=.97; R(-16,-26,32,26,'#c8a878'); c.fillStyle=D('#8a3a2a'); c.beginPath(); c.moveTo(-20,-26); c.lineTo(0,-42); c.lineTo(20,-26); c.fill(); R(8,-44,5,10,'#6a4a3a'); R(-4,-14,8,14,'#6a3a20'); const win=night>.25?'#ffd88a':'#9ad0e8'; R(-13,-20,7,6,win); R(7,-20,7,6,win);
+      if(night>.25){ const gr=c.createRadialGradient(-9,-17,1,-9,-17,18); gr.addColorStop(0,'rgba(255,210,130,.4)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(-28,-36,40,40); }
+      c.fillStyle='rgba(220,220,220,.35)'; for(let i=0;i<4;i++){ const k=((t*.25+i/4)%1); c.beginPath(); c.arc(10.5+k*6,-46-k*22,2+k*4,0,7); c.fill(); } c.restore(); break; }
+    case 'tideflag': R(-.6,-26,1.2,26,'#ddd'); c.fillStyle=D('#2a8aa8'); c.beginPath(); c.moveTo(.6,-26); c.quadraticCurveTo(7,-24+Math.sin(t*3)*1.5,13,-26+Math.sin(t*3+1)); c.lineTo(13,-18+Math.sin(t*3+1)); c.quadraticCurveTo(7,-16+Math.sin(t*3)*1.5,.6,-18); c.fill(); c.strokeStyle='#fff'; c.lineWidth=.8; c.beginPath(); c.moveTo(3,-22); c.quadraticCurveTo(6,-24,9,-22); c.stroke(); break;
+    case 'shipwheel': { c.save(); c.translate(0,-11); c.rotate(Math.sin(t*.5)*.3); c.strokeStyle=D('#8a5a2a'); c.lineWidth=1.6; c.beginPath(); c.arc(0,0,7,0,7); c.stroke(); for(let i=0;i<8;i++){ const a=i*Math.PI/4; c.beginPath(); c.moveTo(0,0); c.lineTo(Math.cos(a)*10,Math.sin(a)*10); c.stroke(); } Ci(0,0,2,'#c8a050'); c.restore(); R(-.8,-4,1.6,4,'#6a4228'); break; }
+    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); R(-2.4,-25.4,4.8,2.8,night>.25?'#fff2a8':'#d8d0a0'); if(night>.25){ c.fillStyle='rgba(255,240,170,.14)'; c.beginPath(); c.moveTo(0,-24); const a=t*1.5; c.lineTo(Math.cos(a)*70,-24-14); c.lineTo(Math.cos(a)*70,-24+14); c.fill(); } break; }
+  }
+  c.restore(); }
+
+// ---------- Tide Pass ----------
+const PASS_MAX = 50;
+const passNeed = L => 120 + L*25;
+const PASS_XP = [8,14,30,60,150,400];
+const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag (dock)'],8:['tint','tidal','Tidal pet colour'],12:['hat','tidecap','Tide Cap (hat)'],18:['dock','shipwheel','Ship’s Wheel (dock)'],25:['wood','pearl','Pearl dock wood'],30:['out','tidecoat','Tide Coat (outfit)'],40:['dock','minilight','Tiny Lighthouse (dock)'],50:['legend','','Legendary Mystery Crate']};
+function passReward(L){ if(PASS_SPECIAL[L]) return PASS_SPECIAL[L][2]; if(L>PASS_MAX) return 'Coins and 15 Scales'; return ['Big Mystery Crate','Coins','10 Scales','60 tickets','Small Mystery Crate'][L%5]; }
+function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot();
+  if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
+    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='legend') S.tokens.legend++; return sp[2]; }
+  if(L>PASS_MAX){ earn(base*10*coinMult()); S.scales+=15; return 'Coins and 15 Scales'; }
+  switch(L%5){ case 0: S.tokens.big++; break; case 1: earn(base*8*coinMult()); break; case 2: S.scales+=10; break; case 3: S.tickets+=60; break; case 4: S.tokens.small++; break; } return passReward(L); }
+function addPassXP(n){ S.pass.xp+=Math.round(n); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
+function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S.pass.claimed;
+  const shown=[]; const start=Math.max(1,Math.min(S.pass.claimed+1, pl+1)-2); for(let L=start; L<start+15; L++) shown.push(L);
+  P.innerHTML=`<div class="row spread"><div><h2>Tide Pass</h2><p class="sub">Every fish you land fills the Tide Pass. Rarer fish fill it faster. ${PASS_MAX} levels of rewards, with special ones along the way, then bonus rewards forever.</p></div>
+   <div class="tile" style="min-width:220px"><div class="rar" style="color:var(--kelp)">Level ${pl}</div><div class="meta">${fmt(S.pass.xp)} / ${fmt(need)} to level ${pl+1}</div><div class="prog"><i style="width:${S.pass.xp/need*100}%;background:var(--kelp)"></i></div>
+   ${unclaimed?`<button class="btn" data-act="passclaim" style="margin-top:6px">Claim ${unclaimed} reward${unclaimed>1?'s':''}</button>`:''}</div></div>
+   <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L];
+     return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><span>${got?'✓ ':''}${esc(sp&&!got&&L>pl?(sp[0]==='legend'?sp[2]:'A special reward'):passReward(L))}</span></div>`; }).join('')}</div>
+   <p class="sub" style="margin-top:8px">Fish ×${PASS_XP.join(' / ')} XP by rarity. Shiny ×2, trophy ×1.5. Daily tasks and derbies give extra.</p>`;
+  P.querySelectorAll('canvas[data-pass]').forEach(cv2=>{ const L=+cv2.dataset.pass, sp=PASS_SPECIAL[L], x=cv2.getContext('2d'); x.clearRect(0,0,120,90); const secret=sp&&L>pl&&sp[0]!=='legend'; if(secret) x.filter='brightness(0) opacity(.5)';
+    if(sp){ if(sp[0]==='dock') drawDockItem(x,sp[1],60,80,2.4,0,0); else if(sp[0]==='hat') hatPreview(x,120,90,sp[1],S.look.hatCol); else if(sp[0]==='out') drawAngler(x,60,86,1.1,Object.assign({},S.look,{outfit:sp[1],hat:'none'}),{}); else if(sp[0]==='tint') drawPetStyled(x,S.pet,60,78,2.8,0,0,Object.assign({},petLook(),{tint:sp[1]})); else if(sp[0]==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(10,45,100,12); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(14+i*20,45,2,12); } else drawJunk(x,120,90,'crown'); }
+    else { const k=L>PASS_MAX?1:L%5; if(k===0||k===4) drawJunk(x,120,90,'chest'); else if(k===1) drawJunk(x,120,90,'coin'); else if(k===2){ x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(60+Math.cos(a)*24,45+Math.sin(a)*24); } x.fill(); } else { x.font='34px system-ui'; x.textAlign='center'; x.fillText('🎟',60,58); } }
+    x.filter='none'; }); }
+
+// ---------- Fishing Derby ----------
+const DERBY_LEN = 4*60*1000;
+const RIVALS = [['Old Pete','has fished here since before the dock'],['Marina','never misses a hook'],['Captain Gull','a seagull in a captain’s hat']];
+function derbyCost(){ return Math.round(bestLoot()*3); }
+function startDerby(){ const sps=spAt(S.loc).filter(s=>s.r<=1); const mean=sps.reduce((a,s)=>a+(s.min+s.max)/2*RAR[s.r].w,0)/sps.reduce((a,s)=>a+RAR[s.r].w,0);
+  const rivals=RIVALS.map((r,i)=>({name:r[0], score:+(mean*14*[.7,1,1.35][i]*rnd(.85,1.15)).toFixed(1)}));
+  S.derby={until:Date.now()+DERBY_LEN, loc:S.loc, total:0, n:0, best:0, rivals}; toast('The derby has begun! Heaviest total catch at '+curLoc().name+' in 4 minutes wins.'); sfx.catch(3); }
+function derbyCatch(f){ const d=S.derby; if(!d||Date.now()>d.until||S.loc!==d.loc||f.kind!=='fish') return; d.total=+(d.total+f.kg).toFixed(2); d.n++; d.best=Math.max(d.best,f.kg); }
+function derbyPlace(){ const d=S.derby; return 1+d.rivals.filter(r=>r.score>d.total).length; }
+function endDerby(){ const d=S.derby; if(!d) return; const place=derbyPlace(), base=bestLoot(); S.derby=null; const medal=['gold','silver','bronze'][place-1]; let txt;
+  if(medal){ const m=[1,.5,.25][place-1]; const coins=earn(base*25*m*coinMult()), sc=Math.round(30*m), tk=Math.round(150*m); S.scales+=sc; S.tickets+=tk; S.medals[medal]++; addPassXP(300*m); txt=`+${fmt(coins)} coins, +${sc} Scales, +${tk} tickets`; sfx.catch(4); }
+  else { S.tickets+=20; txt='+20 tickets for taking part'; sfx.lost(); }
+  G.st = G.st==='idle'||G.st==='result'?G.st:G.st; $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">Fishing derby results</div><h3>${medal?['🥇 First place!','🥈 Second place','🥉 Third place'][place-1]:'Fourth place. Next time!'}</h3>
+   <div class="list" style="margin:8px 0">${[{name:'You',score:d.total},...d.rivals].sort((a,b)=>b.score-a.score).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r.name)}</b></span><span>${r.score.toFixed(1)} kg</span></div>`).join('')}</div>
+   <p class="sub">${txt}</p><button class="btn" data-ev="skip">Back to fishing</button>`; if(G.st==='idle'){ G.st='event'; $('evcard').hidden=false; } else { setTimeout(()=>{ if(G.st==='idle'){ G.st='event'; $('evcard').hidden=false; } else toast('Derby over: place '+place+'. '+txt); },2500); } checkFeats(); save(); }
+setInterval(()=>{ if(S.derby && Date.now()>=S.derby.until) endDerby(); const dl=$('derbyleft'); if(dl&&S.derby) dl.textContent=mmss(Math.max(0,Math.ceil((S.derby.until-Date.now())/1000)))+' left'; },1000);
+function derbyHTML(){ const d=S.derby; if(d){ const left=Math.max(0,Math.ceil((d.until-Date.now())/1000));
+    return `<div class="tile bwt" style="--c:#ffc94d;margin-bottom:12px"><div class="row spread"><h4>Fishing derby at ${LOCS[locIdx(d.loc)].name}</h4><span class="badge g" id="derbyleft">${mmss(left)} left</span></div><div class="meta">Your total: <b>${d.total.toFixed(1)} kg</b> from ${d.n} fish · you’re in place ${derbyPlace()}${S.loc!==d.loc?' · <span style="color:var(--danger)">travel back there for catches to count!</span>':''}</div>
+     ${d.rivals.map(r=>`<div class="meta">${esc(r.name)}: ${r.score.toFixed(1)} kg</div>`).join('')}</div>`; }
+  return `<div class="tile bwt" style="--c:#ffc94d;margin-bottom:12px"><div class="row spread"><div><h4>Fishing derby</h4><div class="meta">Four minutes at ${curLoc().name}: land the heaviest total catch to beat ${RIVALS.map(r=>r[0]).join(', ')}. Medals pay coins, Scales, tickets and Tide Pass XP.</div><div class="meta">Medals: 🥇 ${S.medals.gold} · 🥈 ${S.medals.silver} · 🥉 ${S.medals.bronze}</div></div>
+    <button class="btn" data-act="derby" ${S.money>=derbyCost()&&G.st==='idle'?'':'disabled'}>Enter · <span class="coin">${fmt(derbyCost())}</span></button></div></div>`; }
+function drawDerbyHUD(){ const d=S.derby; if(!d) return; const left=Math.max(0,Math.ceil((d.until-Date.now())/1000)); const txt='🏆 Derby '+mmss(left)+' · '+d.total.toFixed(1)+' kg · #'+derbyPlace()+(S.loc!==d.loc?' (wrong water)':'');
+  g.font='700 12px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.78)'; rr(W-tw-34,40,tw+20,24,12); g.fill(); g.fillStyle='#ffc94d'; g.textAlign='left'; g.fillText(txt,W-tw-24,56); }
+
+// ---------- richer scenery ----------
+const MOUNT = {pond:['#7a9ab8',.16],river:['#6a8aa8',.22],coast:['#9aa8b8',.12],frost:['#c8d8e8',.24],reef:['#7ab8c8',.1],ember:['#5a3a3a',.26],starfall:['#4a3a8a',.14]};
+function drawBackLayer(L,t,night,hz,skyBot){ const m=MOUNT[L.id]; const t0=t;
+  if(m){ const col=mix(mix(m[0],skyBot,.45),'#0a1220',night*.6); g.fillStyle=col; g.beginPath(); g.moveTo(0,hz); for(let x=0;x<=W;x+=10){ const y=hz-H*m[1]*(.45+.35*Math.sin(x/W*5.1+L.freq)+.2*Math.sin(x/W*13.3)); g.lineTo(x,y); } g.lineTo(W,hz); g.fill();
+    if(L.id==='frost'||L.id==='river'||L.id==='starfall'){ g.fillStyle=mix(L.id==='starfall'?'#e8d8ff':'#ffffff',col,night*.5); for(let x=0;x<=W;x+=W/7){ const y=hz-H*m[1]*(.45+.35*Math.sin(x/W*5.1+L.freq)+.2*Math.sin(x/W*13.3)); g.beginPath(); g.moveTo(x-10,y+7); g.lineTo(x,y); g.lineTo(x+10,y+7); g.fill(); } } }
+  // soft cloud banks
+  if(L.id!=='trench'&&L.id!=='deep'){ for(let i=0;i<3;i++){ const cx=((i*W/2.2)+t0*(3+i))%(W+300)-150, cy=hz*(.22+.15*i), sc2=1+i*.25; const gr=g.createLinearGradient(0,cy-20*sc2,0,cy+16*sc2); gr.addColorStop(0,'rgba(255,255,255,'+(.42-night*.32)+')'); gr.addColorStop(1,'rgba(200,210,225,'+(.18-night*.12)+')'); g.fillStyle=gr; g.beginPath(); g.ellipse(cx,cy,60*sc2,14*sc2,0,0,7); g.ellipse(cx+35*sc2,cy-8*sc2,34*sc2,13*sc2,0,0,7); g.ellipse(cx-30*sc2,cy-4*sc2,28*sc2,10*sc2,0,0,7); g.fill(); } } }
+function drawGodRays(t,dusk,bx,by,hz){ if(dusk<.15 || !S.settings.effects) return; g.save(); g.globalAlpha=Math.min(.18,dusk*.2); g.fillStyle='#ffd8a0'; for(let i=0;i<5;i++){ const a=-.9+i*.45+Math.sin(t*.1+i)*.05; g.beginPath(); g.moveTo(bx,by); g.lineTo(bx+Math.cos(a)*W,by+Math.sin(a)*W*.15+hz*.6); g.lineTo(bx+Math.cos(a+.08)*W,by+Math.sin(a+.08)*W*.15+hz*.6); g.fill(); } g.restore(); }
+function drawReflect(L,night,hz){ if(L.amp<=0) return; g.save(); g.globalAlpha=.16-night*.08; g.fillStyle=mix(L.hill,'#0a1220',night*.7); g.beginPath(); g.moveTo(0,hz); for(let x=0;x<=W;x+=8){ const y=hz + ((Math.sin(x/W*L.freq*Math.PI+1)*.5+.5)*H*L.amp + Math.sin(x/W*L.freq*7.3)*H*L.amp*.25 + H*.012)*.55; g.lineTo(x,y); } g.lineTo(W,hz); g.fill(); g.restore(); }
+let AMB={jumps:[], nextJump:3, flies:null, leaves:null};
+function drawAmbient(L,t,night,hz,dt){ if(!S.settings.effects) return;
+  // distant fish jumping, with ripples
+  AMB.nextJump-=dt; if(AMB.nextJump<=0){ AMB.nextJump=rnd(4,9); AMB.jumps.push({x:rnd(W*.35,W*.95), t:0}); }
+  for(let i=AMB.jumps.length-1;i>=0;i--){ const j=AMB.jumps[i]; j.t+=dt; if(j.t>2.4){ AMB.jumps.splice(i,1); continue; } const y0=hz+(j.x-W*.3)/(W*.7)*H*.06+H*.04;
+    if(j.t<.6){ const k=j.t/.6; g.save(); g.translate(j.x+k*14,y0-Math.sin(k*Math.PI)*12); g.rotate(-Math.cos(k*Math.PI)*.9); g.fillStyle=mix('#5a7a8a','#0a1220',night*.6); g.beginPath(); g.ellipse(0,0,4,1.6,0,0,7); g.fill(); g.restore(); }
+    const rk=Math.max(0,j.t-.5); if(rk>0){ g.strokeStyle='rgba(255,255,255,'+(.35*(1-rk/1.9))+')'; g.lineWidth=1; g.beginPath(); g.ellipse(j.x+14,y0,rk*12,rk*3,0,0,7); g.stroke(); } }
+  // dragonflies by day, near the shore
+  if(night<.4 && ['pond','river','reef','ember'].includes(L.id)){ for(let i=0;i<3;i++){ const x=W*(.3+.2*i)+Math.sin(t*1.3+i*2)*40+Math.sin(t*4.1+i)*8, y=hz+H*.06+Math.sin(t*1.7+i)*14+Math.cos(t*5+i)*3; g.fillStyle=L.id==='ember'?'#ff9a4a':'#3ab0e0'; g.fillRect(x-3,y,6,1.2); g.fillStyle='rgba(220,240,255,.6)'; g.fillRect(x-1,y-2+Math.sin(t*40)*.6,1,1.6); g.fillRect(x+1,y-2-Math.sin(t*40)*.6,1,1.6); } }
+  // falling leaves
+  if(['pond','river'].includes(L.id)){ if(!AMB.leaves) AMB.leaves=Array.from({length:10},()=>[Math.random(),Math.random(),.5+Math.random()]); const cols=['#d8903a','#c8553a','#e0c050','#a86a2a'];
+    AMB.leaves.forEach((lf,i)=>{ const x=((lf[0]*W+Math.sin(t*.8+i)*30+t*12*lf[2])%W+W)%W, y=((lf[1]*H*.7+t*18*lf[2])%(H*.7)); g.save(); g.translate(x,y); g.rotate(t*2+i); g.fillStyle=mix(cols[i%4],'#0a1220',night*.6); g.beginPath(); g.ellipse(0,0,3,1.6,0,0,7); g.fill(); g.restore(); }); }
+  // shooting stars over the sky lake, always
+  if(L.id==='starfall'){ const k=(t*.35)%1, i=Math.floor(t*.35)%5; const sx=W*(.3+.13*i)-k*W*.3, sy=hz*(.1+.07*(i%3))+k*hz*.25; const gr=g.createLinearGradient(sx,sy,sx+60,sy-20); gr.addColorStop(0,'rgba(255,255,240,'+Math.sin(k*Math.PI)+')'); gr.addColorStop(1,'rgba(255,255,240,0)'); g.strokeStyle=gr; g.lineWidth=2; g.beginPath(); g.moveTo(sx,sy); g.lineTo(sx+60,sy-20); g.stroke(); }
+  // embers rising at the springs
+  if(L.id==='ember'){ for(let i=0;i<18;i++){ const x=(i*97+Math.sin(t+i)*20)%W, y=H-((t*25+i*60)%(H*.9)); g.fillStyle='rgba(255,'+(140+(i%3)*40)+',60,'+(.5+.4*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } } }
+function drawVignette(night){ const gr=g.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(4,10,16,'+(.22+night*.2)+')'); g.fillStyle=gr; g.fillRect(0,0,W,H); }
+
+// ---------- actions ----------
+function extraAct5(b){ const k=b.dataset.k;
+  switch(b.dataset.act){
+    case 'derby': { if(S.derby||G.st!=='idle') return 'skip'; const c=derbyCost(); if(S.money<c) return 'skip'; S.money-=c; startDerby(); return 'render'; }
+    case 'passclaim': { const got=[]; while(S.pass.claimed<S.pass.lvl){ S.pass.claimed++; got.push(grantPass(S.pass.claimed)); } if(got.length){ sfx.shiny(); toast('Tide Pass: '+got.slice(0,3).join(', ')+(got.length>3?' and more':'')); renderBait(); } return 'render'; }
+    case 'dockwood': { const w=DOCK_WOODS.find(x=>x[0]===k); if(!w) return 'skip'; if(!S.dock.owned.includes(k)){ if(!w[2]||S.money<w[2]) return 'skip'; S.money-=w[2]; S.dock.owned.push(k); sfx.coin(); } S.dock.wood=k; DOCK_PV=null; return 'render'; }
+    case 'dockdecor': { const d=DOCKI[k]; if(!d) return 'skip'; DOCK_PV=null; if(!S.dock.owned.includes(k)){ if(d.src!=='shop'||S.money<d.price) return 'skip'; S.money-=d.price; S.dock.owned.push(k); sfx.coin(); }
+      if(S.dock.decor.includes(k)) S.dock.decor=S.dock.decor.filter(x=>x!==k); else if(S.dock.decor.length<DOCK_SLOTS){ S.dock.decor.push(k); toast(d.name+' placed. Cozy!'); } else toast('Your dock is full. Remove something first.'); return 'render'; }
+    case 'dockpv': { const [kind,id]=k.split(':'); if(kind==='wood'){ const w=DOCK_WOODS.find(x=>x[0]===id); DOCK_PV={kind,id,name:w[1]+' wood',price:w[2]}; } else { const d=DOCKI[id]; DOCK_PV={kind:'decor',id,name:d.name,price:d.price}; } setTimeout(()=>{ const c=$('homecv'); c&&c.scrollIntoView({behavior:'smooth',block:'center'}); },30); return 'render'; }
+    case 'dockpvoff': DOCK_PV=null; return 'render';
+  }
+  return undefined; }
+
+// ---------- Ember Springs & Starfall Lake looks ----------
+function drawFarX(L,t,night,hz){ const N=cl=>mix(cl,'#0a1220',night*.6); const sy=x=>hz-(Math.sin(x/W*L.freq*Math.PI+1)*.5+.5)*H*L.amp-Math.sin(x/W*L.freq*7.3)*H*L.amp*.25-H*.012;
+  if(L.id==='ember'){ const vx=W*.72, vy=sy(vx)+2; g.fillStyle=N('#2a1a18'); g.beginPath(); g.moveTo(vx-H*.22,vy+4); g.lineTo(vx-H*.04,vy-H*.2); g.lineTo(vx+H*.04,vy-H*.2); g.lineTo(vx+H*.22,vy+4); g.fill();
+    g.fillStyle='rgba(255,120,40,'+(.5+night*.4)+')'; g.beginPath(); g.moveTo(vx-H*.03,vy-H*.2); g.lineTo(vx-H*.015,vy-H*.12); g.lineTo(vx+H*.01,vy-H*.15); g.lineTo(vx+H*.03,vy-H*.2); g.fill();
+    for(let i=0;i<6;i++){ const k=((t*.12+i/6)%1); g.fillStyle='rgba(90,80,80,'+(.4*(1-k))+')'; g.beginPath(); g.arc(vx+Math.sin(t*.3+i)*10+k*30,vy-H*.2-k*H*.25,6+k*22,0,7); g.fill(); }
+    for(let i=0;i<4;i++){ const x=W*(.35+.15*i); g.fillStyle='rgba(240,240,240,'+(.12+.06*Math.sin(t+i))+')'; for(let k=0;k<3;k++){ g.beginPath(); g.arc(x+Math.sin(t*.8+k)*6,hz+4-k*8-((t*8)%8),5+k*2,0,7); g.fill(); } } }
+  if(L.id==='starfall'){ for(const [ix,iy,ir] of [[.3,.55,.05],[.62,.4,.035],[.85,.6,.06]]){ const x=W*ix, y=hz*iy+Math.sin(t*.5+ix*9)*4; g.fillStyle=N('#4a8a5a'); g.beginPath(); g.ellipse(x,y,W*ir,H*.012,0,Math.PI,0); g.fill(); g.fillStyle=N('#5a4a7a'); g.beginPath(); g.moveTo(x-W*ir,y); g.lineTo(x,y+H*.06); g.lineTo(x+W*ir,y); g.fill(); g.fillStyle='rgba(180,220,255,.5)'; for(let k=0;k<3;k++) g.fillRect(x-4+k*4,y+H*.06+((t*20+k*7)%20),1,4); }
+    const px=W*.15, py=hz*.3; const gr=g.createRadialGradient(px-6,py-6,2,px,py,26); gr.addColorStop(0,'#ffd0a0'); gr.addColorStop(1,'#a85a8a'); g.fillStyle=gr; g.beginPath(); g.arc(px,py,24,0,7); g.fill(); g.strokeStyle='rgba(255,220,180,.6)'; g.lineWidth=2; g.beginPath(); g.ellipse(px,py,40,8,-.3,0,7); g.stroke(); } }
+function drawWaterDecoX(L,t,night,hz){ if(L.id==='ember'){ for(let i=0;i<10;i++){ const x=W*(.3+((i*37)%70)/100), y=hz+H*(.08+((i*53)%40)/100), k=((t*.6+i*.3)%1); g.strokeStyle='rgba(255,200,120,'+(.4*(1-k))+')'; g.lineWidth=1; g.beginPath(); g.arc(x,y,2+k*6,0,7); g.stroke(); }
+    for(const [fx,fy] of [[.45,.7],[.8,.62],[.6,.85]]){ const x=W*fx, y=H*fy; g.fillStyle='#2a1a18'; g.beginPath(); g.ellipse(x,y,16,6,0,Math.PI,0); g.fill(); g.fillStyle='rgba(255,110,40,'+(.5+.3*Math.sin(t*2+fx*9))+')'; g.fillRect(x-6,y-3,12,1.5); } }
+  if(L.id==='starfall'){ for(let i=0;i<40;i++){ const x=(i*61)%W, y=hz+((i*37)%100)/100*(H-hz); g.fillStyle='rgba(255,255,255,'+(.25+.35*Math.abs(Math.sin(t*1.5+i)))+')'; g.fillRect(x,y,1.4,1.4); }
+    g.strokeStyle='rgba(200,160,255,.25)'; g.lineWidth=1; for(let i=0;i<3;i++){ g.beginPath(); g.ellipse(W*(.4+.25*i),H*(.7+.05*i),30+10*Math.sin(t+i),6,0,0,7); g.stroke(); } } }
+function drawPlatformX(L,t,night,dockY,pb){ const PW=W*.19, N=(cl,k=.6)=>mix(cl,'#0a1018',night*k);
+  if(L.plat==='stone'){ g.fillStyle=N('#3a2a28'); g.beginPath(); g.moveTo(-2,dockY); g.lineTo(PW*.4,dockY-3); g.lineTo(PW+8,dockY+2); g.lineTo(PW+20,H); g.lineTo(-2,H); g.fill(); g.fillStyle=N('#4a3a36'); for(let i=0;i<6;i++){ g.beginPath(); g.ellipse(((i*37)%100)/100*PW,dockY+10+((i*53)%60)/100*(H-dockY),8,4,0,0,7); g.fill(); }
+    g.strokeStyle='rgba(255,110,40,'+(.5+.2*Math.sin(t*2))+')'; g.lineWidth=1.5; g.beginPath(); g.moveTo(PW*.2,dockY+8); g.lineTo(PW*.35,dockY+20); g.lineTo(PW*.3,dockY+34); g.stroke(); g.fillStyle=N(dockWood()); g.fillRect(-2,dockY-2,PW*.9,4); }
+  else { const y=dockY+Math.sin(t*.8)*2; g.fillStyle=N('#8a7ad8',.4); g.beginPath(); g.moveTo(-2,y); g.lineTo(PW+6,y); g.lineTo(PW*.75,y+H*.14); g.lineTo(PW*.4,y+H*.22); g.lineTo(PW*.1,y+H*.12); g.lineTo(-2,y+H*.1); g.fill();
+    g.fillStyle='rgba(220,200,255,.35)'; g.beginPath(); g.moveTo(PW*.2,y); g.lineTo(PW*.4,y+H*.18); g.lineTo(PW*.5,y); g.fill(); g.fillStyle=N(dockWood(),.4); g.fillRect(-2,y-3,PW+8,4); for(let i=0;i<3;i++){ g.fillStyle='rgba(200,180,255,'+(.4+.3*Math.sin(t*2+i))+')'; g.fillRect(PW*(.3+.2*i),y+H*.2+((t*14+i*9)%18),2,2); } } }
+
 // ---------- loop ----------
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
@@ -2636,9 +2961,9 @@ function hud(){
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
-  T.querySelector('[data-tab="cooler"]').innerHTML='Cooler'+dot(S.cooler.length);
-  T.querySelector('[data-tab="bounties"]').innerHTML='Bounties'+dot(S.bounties.filter(b=>bDone(b)).length);
-  T.querySelector('[data-tab="skills"]').innerHTML='Skills'+dot(ptsFree());
+  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=b.dataset.label+dot(n); };
+  setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
+  setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M'; return (n/1e9).toFixed(2)+'B'; }
@@ -2684,8 +3009,9 @@ function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.s
 // ---------- panels ----------
 let confirmBox = null, encLoc = null, encSel = null;
 function setTab(t){ if(S.tab!==t) confirmBox=null; S.tab=t; for(const b of $('tabs').children) b.setAttribute('aria-selected', b.dataset.tab===t?'true':'false'); renderPanel(); }
-$('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); } });
-function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods}[S.tab]||renderCooler; fn(P); }
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('[data-tab]'); if(b){ setTab(b.dataset.tab); save(); b.scrollIntoView({block:'nearest',inline:'nearest'}); } });
+$('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'); if(b){ setTab(b.dataset.tabgo); save(); } });
+function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, home:renderHome, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const e=aqEff(f); return e ? fmtB(e.k,e.v) : 'no special effect'; };
 function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',c.dataset.sh==='1')); }
@@ -2745,7 +3071,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
-  P.innerHTML=dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
+  P.innerHTML=derbyHTML()+dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. More boards open as you unlock new waters. Fish still go in your cooler.</p><div class="grid">`+
   S.bounties.map((b,i)=>{ const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
       return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
        <div class="row spread"><span class="val"><span class="coin">${fmt(rw)}</span> + ${b.scales} Scales</span>${d?`<button class="btn" data-act="claim" data-i="${i}">Claim</button>`:`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }
