@@ -5,7 +5,7 @@
 </div>
 <script>
 (function(){
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function(){});
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(function(){});
   function check(){
     fetch('version.txt', {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; }).then(function(v){
       v = (v || '').trim(); if (v && v !== window.DL_VERSION) document.getElementById('updbar').hidden = false;
@@ -13,7 +13,10 @@
   }
   setInterval(check, 5 * 60 * 1000);
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
-  document.getElementById('updbtn').onclick = function(){ location.reload(); };
+  document.getElementById('updbtn').onclick = function(){
+    var go = function(){ location.reload(); };
+    fetch('./', {cache:'reload'}).then(go, go);
+  };
 })();
 </script>
 </body>

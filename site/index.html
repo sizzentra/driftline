@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.16-0137';
+window.DL_VERSION='2026.11.16-0151';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1741,7 +1741,7 @@ if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cas
 </div>
 <script>
 (function(){
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(function(){});
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(function(){});
   function check(){
     fetch('version.txt', {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; }).then(function(v){
       v = (v || '').trim(); if (v && v !== window.DL_VERSION) document.getElementById('updbar').hidden = false;
@@ -1749,7 +1749,10 @@ if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cas
   }
   setInterval(check, 5 * 60 * 1000);
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });
-  document.getElementById('updbtn').onclick = function(){ location.reload(); };
+  document.getElementById('updbtn').onclick = function(){
+    var go = function(){ location.reload(); };
+    fetch('./', {cache:'reload'}).then(go, go);
+  };
 })();
 </script>
 </body>
