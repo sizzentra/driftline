@@ -44,6 +44,9 @@ function rigQuad(c,P,t,night,lk,m,id){
   el(0,by+br*.2,rx,ry+br,main); { c.save(); c.beginPath(); c.ellipse(0,by+br*.2,rx,ry+br,0,0,7); c.clip(); const vg=c.createLinearGradient(0,by-ry,0,by+ry); vg.addColorStop(0,"rgba(255,240,220,.16)"); vg.addColorStop(.55,"rgba(0,0,0,0)"); vg.addColorStop(1,"rgba(20,10,30,.22)"); c.fillStyle=vg; c.fillRect(-rx,by-ry-1,rx*2,ry*2+2); c.restore(); }
   if(P.wool){ for(let i=0;i<11;i++){ const a=Math.PI*(1.02+i*.098); ci(Math.cos(a)*rx*.92,by+Math.sin(a)*ry*.95,ry*.42,mix(main,'#ffffff',.08)); } for(let i=0;i<5;i++) ci(-rx*.7+i*rx*.35,by+ry*.62,ry*.38,main); }
   el(rx*.15,by+ry*.48,rx*.72,ry*.42,belly);
+  if(P.shell){ el(0,by-ry*.15,rx*1.08,ry*1.32,P.shell); c.save(); c.beginPath(); c.ellipse(0,by-ry*.15,rx*1.08,ry*1.32,0,0,7); c.clip(); c.strokeStyle=k.D(P.shellLine); c.lineWidth=.35;
+    for(const [cx2,cy2] of [[-3.4,-.6],[0,-1.4],[3.4,-.6],[-1.7,1.6],[1.7,1.6],[-5,1.2],[5,1.2]]){ c.beginPath(); for(let a=0;a<6;a++){ const ang=a*Math.PI/3+Math.PI/6; c.lineTo(cx2+Math.cos(ang)*1.7,by+cy2+Math.sin(ang)*1.4); } c.closePath(); c.stroke(); }
+    c.restore(); el(0,by+ry*.95,rx*1.1,ry*.25,mix(P.shell,'#000000',.3)); c.strokeStyle='rgba(255,240,200,.35)'; c.lineWidth=.4; c.beginPath(); c.ellipse(0,by-ry*.15,rx,ry*1.24,0,-Math.PI*.85,-Math.PI*.2); c.stroke(); }
   if(P.mark) pet3Mark(c,k,P.mark,0,by,rx,ry,P,t);
   if(!sleep){ for(const lx of [-rx*.42,rx*.7]) legP(lx,main,P.paw||mix(main,"#000000",.2)); }
   else { el(rx*.8,-.55,lw*.9,.6,P.paw||dark); el(rx*.45,-.5,lw*.85,.55,P.paw||dark); }
@@ -56,7 +59,7 @@ function rigQuad(c,P,t,night,lk,m,id){
     if(P.mane){ const mc=P.mane; for(let i=0;i<7;i++){ const f=i/6, x0=rx*.45+(hx-hr*.6-rx*.45)*f, y0=by-ry*.62+(hy-hr*.55-(by-ry*.62))*f; k.qd(x0,y0,x0-1.6,y0+1.2,x0-1.1+Math.sin(t*1.4+i)*.25,y0+3.2,mc,1.25); } k.qd(hx-hr*.45,hy-hr*.85,hx+hr*.1,hy-hr*.75,hx+hr*.25,hy-hr*.25,mc,1.1); } }
   // head
   c.save(); c.translate(hx,hy); c.rotate(hrot);
-  pet3Ears(c,k,P.ears||'pointy',hr,P.earCol||main,P.earIn||'#e8a0a0',m,t,true,P);
+  pet3Ears(c,k,P.ears||'pointy',hr,P.earCol||main,P.earIn||'#e8a0a0',m,t,true,P); if(P.headBehind) P.headBehind(c,k,hr,t,m);
   ci(0,0,hr,main); if(P.headCol) ci(0,0,hr*.98,P.headCol);
   const sl=P.snout||{l:2.4,w:1.7}, sx=hr*.72, sy=hr*.28; el(sx,sy,sl.l,sl.w,sl.col||belly);
   if(P.snoutPig){ el(sx+sl.l*.85,sy,sl.w*.55,sl.w*.75,P.snoutPig); ci(sx+sl.l*.85,sy-sl.w*.25,.28,'#3a1a1a'); ci(sx+sl.l*.85,sy+sl.w*.25,.28,'#3a1a1a'); }
@@ -87,6 +90,7 @@ function pet3Tail(c,k,type,x,y,w,col,P,sleep,s){ const {el,ci,qd}=k, D=k.D;
     case 'ringed': c.save(); c.translate(x,y); c.rotate(-.9+w*.5); el(-3,0,3.6,1.7,col); for(let i=0;i<3;i++) el(-1.6-i*1.5,0,.45,1.6,P.ring||'#2a1a14'); c.restore(); break;
     case 'tuft': qd(x,y,x-2.2,y+1.2,x-2.6,y+3.8+w,col,.9); el(x-2.6,y+4.4+w,.9,1.5,P.tailTip||mix(col,'#000000',.3)); break;
     case 'horse': c.save(); c.translate(x,y); c.rotate(.5+w*.3); for(let i=0;i<5;i++) qd(0,0,-2,1.5+i*.4,-1.4+i*.3,6.5,P.mane||mix(col,'#000000',.3),1); c.restore(); break;
+    case 'reptile': { const ww=w*.6; c.fillStyle=D(col); c.beginPath(); c.moveTo(x+.6,y-1.4); c.quadraticCurveTo(x-4,y-1+ww,x-9,-.6+ww*.5); c.quadraticCurveTo(x-4,y+1.4+ww,x+.6,y+1.4); c.closePath(); c.fill(); if(P.spikes){ c.fillStyle=D(P.spikes); for(let i=0;i<4;i++){ const f=i/4, sx2=x-1-f*7, sy2=y-1.2+f*(1.4)+ww*f*.5; c.beginPath(); c.moveTo(sx2-.6,sy2); c.lineTo(sx2,sy2-1.1); c.lineTo(sx2+.6,sy2); c.fill(); } } break; }
     default: qd(x,y,x-3.2,y-1.2+w*2,x-4.6,y-4.2+w*3,col,1.6); ci(x-4.6,y-4.2+w*3,.85,col); }
 }
 function pet3Ears(c,k,type,hr,col,inn,m,t,back,P){ const {el,ci}=k, D=k.D; const tw=(Math.sin(t*.7+(P.blinkOff||0)*3)>.97)?.25:0, perk=m.watch?-.15:0, flop=m.petted?.35:0;
@@ -251,6 +255,135 @@ function pet3Beak(c,k,type,hr,col,m){ const {D}=k; c.fillStyle=D(col); const ope
   if(type==='puffin'){ c.beginPath(); c.moveTo(hr*.75,-hr*.4); c.quadraticCurveTo(hr*1.7,-hr*.2,hr*1.6,hr*.3); c.lineTo(hr*.75,hr*.5); c.closePath(); c.fill(); c.fillStyle=D('#3a5a8a'); c.beginPath(); c.moveTo(hr*.78,-hr*.38); c.lineTo(hr*1.02,-hr*.32); c.lineTo(hr*1.02,hr*.46); c.lineTo(hr*.78,hr*.48); c.closePath(); c.fill(); }
   if(type==='flamingo'){ c.beginPath(); c.moveTo(hr*.75,-hr*.15); c.lineTo(hr*1.5,hr*.05); c.quadraticCurveTo(hr*1.7,hr*.7,hr*1.3,hr*.9); c.lineTo(hr*1.2,hr*.4); c.lineTo(hr*.75,hr*.35); c.closePath(); c.fill(); c.fillStyle=D('#1c1416'); c.beginPath(); c.moveTo(hr*1.35,hr*.4); c.quadraticCurveTo(hr*1.7,hr*.7,hr*1.3,hr*.9); c.lineTo(hr*1.2,hr*.45); c.closePath(); c.fill(); }
 }
+
+// ---------------------------------------------------------------------
+// ONE-OF-A-KIND PETS (custom drawings with the same frames and moods)
+// ---------------------------------------------------------------------
+function p3fr(id,s,head,neck){ PET3_FR[id]={head:Object.assign({rot:0,face:'front'},head,{x:head.x*s,y:head.y*s,r:head.r*s}),neck:Object.assign({rot:0,face:head.face||'front'},neck,{x:neck.x*s,y:neck.y*s,r:neck.r*s}),back:{x:0,y:head.y*s,len:4*s}}; }
+function p3eyes(c,k,m,t,xs,y,r,col,off){ const blink=((t+(off||0))%4.3)<.13, mode=m.sleep?'closed':(m.petted||m.happy)?'happy':blink?'closed':'open'; for(const x of xs) pet3Eye(c,k,x,y,r,mode,col); return mode; }
+function p3cheeks(c,k,m,xs,y,r){ if(m.petted||m.happy) for(const x of xs) k.el(x,y,r,r*.55,'#ff9aa8'); }
+function p3cape(c,k,lk,pts){ if(!(lk&&lk.acc==='cape')) return; const f0=c.filter; c.filter='none'; c.fillStyle=k.D(lk.accCol||'#d8303a'); c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=4) c.quadraticCurveTo(pts[i],pts[i+1],pts[i+2],pts[i+3]); c.closePath(); c.fill(); c.filter=f0; }
+function p3mouth(c,k,m,x,y,w){ if(m.petted||m.happy){ k.el(x,y+w*.15,w*.45,w*.4,'#7a2a3a'); k.el(x,y+w*.3,w*.25,w*.18,'#ff8a9a'); } else k.qd(x-w*.5,y,x,y+w*.45,x+w*.5,y,'#3a2420',w*.16); }
+
+const PET3_CUSTOM = {
+  frog(c,P,t,night,lk,m,id,frogPrince){ const k=pet3Kit(c,night), {el,ci}=k; const hop=m.petted?Math.max(0,Math.sin(m.now/110))*2.2:Math.pow(Math.max(0,Math.sin(t*1.3)),12)*1.6, g0=frogPrince?'#4aa04a':'#5ab04a', bel='#d8ecb0';
+    c.save(); c.translate(0,-hop); p3cape(c,k,lk,[-4,-7,-8,-3,-7.6,-.4, 0,.8,7.6,-.4, 8,-3,4,-7]);
+    el(-4.6,-1.2,3.2,1.6,g0); el(4.6,-1.2,3.2,1.6,g0); el(0,-4.4,6,4.6,g0); el(0,-3.2,4.2,3,bel);
+    el(-2.6,-1,1.4,.8,mix(g0,'#000000',.15)); el(2.6,-1,1.4,.8,mix(g0,'#000000',.15));
+    const ey=-8.6; ci(-2.6,ey,2.2,g0); ci(2.6,ey,2.2,g0); ci(-2.6,ey,1.45,'#f8f8f0'); ci(2.6,ey,1.45,'#f8f8f0');
+    const mode=p3eyes(c,k,m,t,[-2.5,2.5],ey,.95,'#1a1410',P.blinkOff);
+    if(m.sleep){ el(-2.6,ey,1.5,.9,g0); el(2.6,ey,1.5,.9,g0); k.qd(-3.6,ey+.2,-2.6,ey+.9,-1.6,ey+.2,'#1a1410',.35); k.qd(1.6,ey+.2,2.6,ey+.9,3.6,ey+.2,'#1a1410',.35); }
+    k.qd(-2.4,-5.6,0,m.petted||m.happy?-4.2:-4.9,2.4,-5.6,'#2a4a24',.4); p3cheeks(c,k,m,[-4,4],-5.6,.8);
+    if(frogPrince){ c.fillStyle=k.D('#f4c83a'); c.beginPath(); c.moveTo(-1.8,-10.6); c.lineTo(-1.8,-12.6); c.lineTo(-.9,-11.6); c.lineTo(0,-13); c.lineTo(.9,-11.6); c.lineTo(1.8,-12.6); c.lineTo(1.8,-10.6); c.closePath(); c.fill(); ci(0,-12.9,.3,'#e83a5a'); }
+    c.restore(); p3fr(id,P.size||1,{x:0,y:-7.4-hop,r:4.4},{x:0,y:-3.6-hop,r:3.8});
+    if(m.sleep) pet3Zz(c,5,-12,t); },
+  frogprince(c,P,t,night,lk,m,id){ PET3_CUSTOM.frog(c,P,t,night,lk,m,id,true); },
+  crab(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, red='#e8543a', dk='#b83a28', sx=m.sleep?0:Math.sin(t*1.2)*.8, claw=m.petted||m.happy?Math.sin(t*10)*.3:Math.sin(t*2)*.1;
+    c.save(); c.translate(sx,0); for(const sd of [-1,1]) for(let i=0;i<3;i++){ k.qd(sd*3.4,-2.6+i*.5,sd*(5.6+i*.4),-3.4+i*.6,sd*(6.4+i*.6),-.4,dk,.6); }
+    p3cape(c,k,lk,[-3.6,-5.6,-6.4,-3.4,-6,-1, 0,0,6,-1, 6.4,-3.4,3.6,-5.6]);
+    el(0,-3.6,5.2,3.2,red); el(0,-4.4,4.2,1.8,mix(red,'#ffffff',.18)); for(const x of [-1.6,0,1.6]) ci(x,-5.6,.32,mix(red,'#ffffff',.35));
+    for(const sd of [-1,1]){ c.save(); c.translate(sd*5,-4.4); c.rotate(sd*(-.5-claw)); el(0,-1.6,1.5,1.9,red); el(sd*.5,-3,.9,1.1,red); c.fillStyle=k.D('#2a1a1a'); c.beginPath(); c.moveTo(0,-3.2); c.lineTo(sd*.4,-2.2); c.lineTo(0,-1.6); c.fill(); c.restore(); }
+    k.ln([-1.4,-6.2,-1.6,-8.2],dk,.45); k.ln([1.4,-6.2,1.6,-8.2],dk,.45); ci(-1.6,-8.6,1.05,'#f8f8f0'); ci(1.6,-8.6,1.05,'#f8f8f0');
+    p3eyes(c,k,m,t,[-1.6,1.6],-8.6,.6,'#1a1410',P.blinkOff); p3mouth(c,k,m,0,-3.2,1.3); p3cheeks(c,k,m,[-2.8,2.8],-3.8,.6);
+    c.restore(); p3fr(id,P.size||1,{x:sx,y:-6.2,r:3.4},{x:sx,y:-2.6,r:3.6}); if(m.sleep) pet3Zz(c,4,-10,t); },
+  octopus(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, pk='#e86a9a', dk='#c84a7a';
+    for(let i=0;i<6;i++){ const x=-4.5+i*1.8, w=Math.sin(t*2+i)*(m.petted?1.4:.7); k.qd(x,-3.4,x+w,-1.6,x-.6+w*1.4,-.2,i%2?dk:pk,1.3); ci(x-.6+w*1.4,-.2,.65,i%2?dk:pk); }
+    p3cape(c,k,lk,[-3.6,-7,-7,-4,-6.6,-1, 0,0,6.6,-1, 7,-4,3.6,-7]);
+    el(0,-7.6,5.2,5.2,pk); el(-1.6,-10,1.6,1,mix(pk,'#ffffff',.3),-.4); for(const [x,y] of [[2.6,-9],[3.2,-6.8],[-3.2,-6]]) ci(x,y,.42,dk);
+    ci(-1.9,-7.2,1.3,'#f8f8f0'); ci(1.9,-7.2,1.3,'#f8f8f0'); p3eyes(c,k,m,t,[-1.8,1.8],-7.1,.82,'#1a1410',P.blinkOff); p3mouth(c,k,m,0,-4.8,1.3); p3cheeks(c,k,m,[-3.3,3.3],-5.4,.7);
+    p3fr(id,P.size||1,{x:0,y:-8.6,r:4.6},{x:0,y:-3.4,r:4}); if(m.sleep) pet3Zz(c,5,-13,t); },
+  jelly(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, fl=Math.sin(t*2.4)*.8, hy=-11-fl, gl=m.petted?.5:.3;
+    const gr=c.createRadialGradient(0,hy,1,0,hy,9); gr.addColorStop(0,'rgba(190,150,255,'+gl+')'); gr.addColorStop(1,'rgba(190,150,255,0)'); c.fillStyle=gr; c.fillRect(-9,hy-9,18,18);
+    for(let i=0;i<5;i++){ const x=-3+i*1.5; k.qd(x,hy+2,x+Math.sin(t*3+i)*1.2,hy+5,x+Math.sin(t*2+i)*.8,hy+9-Math.abs(i-2)*.8,'#c8a8ff',.45); }
+    c.save(); c.globalAlpha*=.9; c.fillStyle=k.D('#b896f4'); c.beginPath(); c.arc(0,hy+1.6,5,Math.PI,0); c.quadraticCurveTo(4,hy+3.2,2.5,hy+2.4); c.quadraticCurveTo(1.2,hy+3.4,0,hy+2.4); c.quadraticCurveTo(-1.2,hy+3.4,-2.5,hy+2.4); c.quadraticCurveTo(-4,hy+3.2,-5,hy+1.6); c.fill(); c.restore();
+    el(-1.4,hy-1.6,1.6,.8,'#e8dcff',-.3); p3eyes(c,k,m,t,[-1.6,1.6],hy+.2,.62,'#2a1a3a',P.blinkOff); p3mouth(c,k,m,0,hy+1.4,1); p3cheeks(c,k,m,[-3,3],hy+1,.55);
+    p3fr(id,P.size||1,{x:0,y:hy,r:4.6},{x:0,y:hy+2.6,r:3.6}); if(m.sleep) pet3Zz(c,5,hy-4,t); },
+  tub(c,k,t){ // a little wooden tub of water for the sea pets
+    k.el(0,-.6,7.4,1.4,'#5a3a28'); c.fillStyle=k.D('#8a5a3a'); c.beginPath(); c.moveTo(-7,-5.2); c.lineTo(7,-5.2); c.lineTo(6.2,-.6); c.lineTo(-6.2,-.6); c.closePath(); c.fill(); c.fillStyle=k.D('#6a4430'); c.fillRect(-7,-4.2,14,.7); c.fillRect(-6.4,-1.8,12.8,.7);
+    k.el(0,-5.2,7,1.3,'#5aa8c8'); c.strokeStyle='rgba(255,255,255,.6)'; c.lineWidth=.3; c.beginPath(); c.ellipse(Math.sin(t)*2,-5.2,2.2,.5,0,0,7); c.stroke(); },
+  babywhale(c,P,t,night,lk,m,id,narwhal){ const k=pet3Kit(c,night), {el,ci}=k, bob=Math.sin(t*1.6)*.4, col=narwhal?'#7a9ab8':'#5a7ab8', bel=narwhal?'#e8eef4':'#c8dcf0';
+    PET3_CUSTOM.tub(c,k,t); c.save(); c.beginPath(); c.rect(-12,-30,24,25.2); c.clip(); const by=-6.4+bob;
+    p3cape(c,k,lk,[-1,-10+bob,-6,-10+bob,-8,-6+bob, -4,-5.8+bob,-1,-7.4+bob]);
+    el(0,by,5.8,4,col); el(.6,by+1.6,4.6,2,bel); c.save(); c.translate(-5.4,by-1.4); c.rotate(-.5+Math.sin(t*3)*.2); el(-1.2,0,1.8,.8,col); el(-.6,-1,1.2,.6,col,-.8); c.restore();
+    if(narwhal){ c.fillStyle=k.D('#f4ead0'); c.beginPath(); c.moveTo(4.4,by-2.4); c.lineTo(9.6,by-6.4); c.lineTo(4.9,by-1.6); c.closePath(); c.fill(); c.strokeStyle=k.D('#c8b890'); c.lineWidth=.2; for(let i=1;i<4;i++){ c.beginPath(); c.moveTo(4.6+i*1.3,by-2.4-i); c.lineTo(5.2+i*1.3,by-1.9-i); c.stroke(); } }
+    else if(!m.sleep){ for(let i=0;i<3;i++){ const ph=(t*.8+i/3)%1; c.globalAlpha=1-ph; ci(1.4+Math.sin(i)*.6,by-4.4-ph*5,.45+ph*.4,'#cde8f8'); c.globalAlpha=1; } }
+    p3eyes(c,k,m,t,[2.6],by-.8,.62,'#1a1a2a',P.blinkOff); p3mouth(c,k,m,4.2,by+.8,1); p3cheeks(c,k,m,[2.4],by+.4,.6);
+    c.restore(); p3fr(id,P.size||1,{x:1.8,y:by-1,r:3.8,face:'side'},{x:2.6,y:by+2,r:3});
+    if(m.sleep) pet3Zz(c,5,-12,t); },
+  narwhal(c,P,t,night,lk,m,id){ PET3_CUSTOM.babywhale(c,P,t,night,lk,m,id,true); },
+  seal(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, gr='#9aa4b0', dk='#7a848e', lift=m.petted?Math.max(0,Math.sin(m.now/120))*.8:0, hy=-8.6-lift;
+    c.save(); c.translate(-6.6,-1.4); c.rotate(.15+Math.sin(t*2)*.1); el(-1.4,0,2,.9,dk,-.4); el(-1.4,.6,2,.9,dk,.4); c.restore();
+    p3cape(c,k,lk,[1.6,-7.6,-4,-6.4,-7,-2.6, -3,-2,1.6,-4.6]);
+    el(-.4,-3.4,6.6,3.4,gr); el(.6,-2.2,5,1.8,mix(gr,'#ffffff',.3)); for(const [x,y] of [[-3,-4.8],[-1,-5.4],[-4.6,-3.6]]) ci(x,y,.32,dk);
+    el(4.4,-6,2.6,3.4,gr,.35); ci(5.6,hy,3.4,gr); el(7.4,hy+.9,1.6,1.1,mix(gr,'#ffffff',.35));
+    c.save(); c.translate(3.4,-2); c.rotate(m.petted?-.9+Math.sin(t*12)*.4:-.25); el(0,1.2,.9,2,dk); c.restore();
+    ci(8.6,hy+.4,.5,'#2a2a32'); for(const sd of [-1,1]) k.ln([8,hy+1.2,9.6,hy+.9+sd*.6],'#e8e8ec',.12);
+    p3eyes(c,k,m,t,[6.2],hy-.6,.7,'#141418',P.blinkOff); p3cheeks(c,k,m,[6.6],hy+1.2,.6);
+    p3fr(id,P.size||1,{x:5.6,y:hy,r:3.4,face:'side'},{x:5,y:hy+3.2,r:2.8,face:'side'}); if(m.sleep) pet3Zz(c,9,hy-4,t); },
+  ghost(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, fl=Math.sin(t*1.8)*1, hy=-12-fl;
+    const gr=c.createRadialGradient(0,hy+2,1,0,hy+2,9); gr.addColorStop(0,'rgba(220,235,255,.35)'); gr.addColorStop(1,'rgba(220,235,255,0)'); c.fillStyle=gr; c.fillRect(-9,hy-7,18,18);
+    p3cape(c,k,lk,[-3.6,hy+1,-7,hy+4,-6.4,hy+8, 0,hy+9,6.4,hy+8, 7,hy+4,3.6,hy+1]);
+    c.fillStyle=k.D('#f4f8ff'); c.beginPath(); c.arc(0,hy,4.8,Math.PI,0); c.lineTo(4.8,hy+6.4); for(let i=0;i<4;i++){ const x=4.8-i*2.4, w=Math.sin(t*4+i)*.4; c.quadraticCurveTo(x-.6,hy+7.8+w,x-1.2,hy+6.6); c.quadraticCurveTo(x-1.8,hy+5.6,x-2.4,hy+6.6+w*.5); } c.closePath(); c.fill();
+    c.save(); c.globalAlpha*=.12; c.fillStyle='#6070a0'; c.beginPath(); c.ellipse(-2.6,hy+2,1.6,4.6,0,0,7); c.fill(); c.restore();
+    el(0,1.2,3.6,.6,'rgba(0,0,0,.18)'); p3eyes(c,k,m,t,[-1.6,1.6],hy-.6,.85,'#2a2a3a',P.blinkOff); p3mouth(c,k,m,0,hy+1.4,1.2); p3cheeks(c,k,m,[-2.9,2.9],hy+.9,.6);
+    p3fr(id,P.size||1,{x:0,y:hy,r:4.6},{x:0,y:hy+3,r:4}); if(m.sleep) pet3Zz(c,5,hy-5,t); },
+  robot(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, bob=Math.abs(Math.sin(t*3))*.3, hy=-12.4-bob, mt='#a8b4c4', dk='#6a7484';
+    el(-2.6,-.6,2,1,dk); el(2.6,-.6,2,1,dk); c.fillStyle=k.D(dk); c.fillRect(-3.2,-3,1.4,2.6); c.fillRect(1.8,-3,1.4,2.6);
+    p3cape(c,k,lk,[-3.4,-8.2,-6.6,-5,-6,-1.6, 0,-1,6,-1.6, 6.6,-5,3.4,-8.2]);
+    c.fillStyle=k.D(mt); c.beginPath(); c.roundRect?c.roundRect(-4,-8.4,8,5.8,1.2):c.rect(-4,-8.4,8,5.8); c.fill(); c.fillStyle=k.D('#3a4454'); c.fillRect(-2.4,-7.2,4.8,2.4); for(let i=0;i<3;i++){ c.fillStyle=['#5aff8a','#ffd84a','#ff5a5a'][i]; c.globalAlpha=(Math.sin(t*4+i*2)>0)?1:.3; c.fillRect(-1.9+i*1.5,-6.4,.9,.9); } c.globalAlpha=1;
+    for(const sd of [-1,1]){ c.save(); c.translate(sd*4.4,-7.2); c.rotate(sd*(m.petted?-1.6+Math.sin(t*10)*.3:.3)); c.fillStyle=k.D(dk); c.fillRect(-.5,0,1,3); ci(0,3.2,.8,mt); c.restore(); }
+    c.fillStyle=k.D(mt); c.beginPath(); c.roundRect?c.roundRect(-4.4,hy-3.4,8.8,6.6,1.8):c.rect(-4.4,hy-3.4,8.8,6.6); c.fill(); c.fillStyle=k.D('#2a3242'); c.beginPath(); c.roundRect?c.roundRect(-3.4,hy-2.4,6.8,4.4,1.2):c.rect(-3.4,hy-2.4,6.8,4.4); c.fill();
+    k.ln([0,hy-3.4,0,hy-5.6],dk,.4); const ant=(Math.sin(t*3)>0)?'#ff5a5a':'#ff9a8a'; ci(0,hy-5.9,.6,ant);
+    const eyeC='#6ae8ff', mode=m.sleep?'closed':(m.petted||m.happy)?'happy':(((t+(P.blinkOff||0))%4.3)<.13)?'closed':'open';
+    if(mode==='open'){ for(const x of [-1.4,1.4]){ c.fillStyle=eyeC; c.beginPath(); c.roundRect?c.roundRect(x-.6,hy-1.2,1.2,1.6,.4):c.rect(x-.6,hy-1.2,1.2,1.6); c.fill(); } } else { for(const x of [-1.4,1.4]) k.qd(x-.7,mode==='happy'?hy:hy-.2,x,mode==='happy'?hy-1:hy+.3,x+.7,mode==='happy'?hy:hy-.2,eyeC,.4); }
+    k.qd(-.9,hy+1,0,hy+(m.petted?1.8:1.4),.9,hy+1,eyeC,.3);
+    p3fr(id,P.size||1,{x:0,y:hy,r:4.4},{x:0,y:-8.2,r:3.6}); if(m.sleep) pet3Zz(c,5,hy-5,t); },
+  slime(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, sq=1+Math.sin(t*3)*.07*(m.petted?2:1), h=6*sq, w=6.4/sq, col='#6ad870';
+    p3cape(c,k,lk,[-3.4,-h,-7,-h*.5,-6.6,-.6, 0,.2,6.6,-.6, 7,-h*.5,3.4,-h]);
+    c.save(); c.globalAlpha*=.92; c.fillStyle=k.D(col); c.beginPath(); c.moveTo(-w,-.2); c.quadraticCurveTo(-w*1.05,-h*1.15,0,-h*1.25); c.quadraticCurveTo(w*1.05,-h*1.15,w,-.2); c.closePath(); c.fill(); c.restore();
+    el(-w*.4,-h*.9,w*.25,h*.12,'#d8ffd0',-.3); el(w*.3,-h*.3,.5,.5,mix(col,'#ffffff',.4)); el(0,.1,w*.9,.5,'rgba(0,0,0,.18)');
+    p3eyes(c,k,m,t,[-1.8,1.8],-h*.62,.8,'#1a3a1a',P.blinkOff); p3mouth(c,k,m,0,-h*.35,1.3); p3cheeks(c,k,m,[-3.2,3.2],-h*.42,.6);
+    p3fr(id,P.size||1,{x:0,y:-h*.7,r:4.6},{x:0,y:-h*.25,r:4.6}); if(m.sleep) pet3Zz(c,5,-h-3,t); },
+  snail(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, sl=m.sleep?0:Math.sin(t*.8)*.6, body='#d8c8a0';
+    c.fillStyle=k.D(body); c.beginPath(); c.moveTo(-6,-.2); c.quadraticCurveTo(0,-1.8,5.4,-1.4); c.quadraticCurveTo(7.2,-1.6,7.6,-4.6); c.quadraticCurveTo(6,-6.2,4.6,-3.2); c.quadraticCurveTo(0,-2.6,-6,-.2); c.fill();
+    if(!m.sleep){ k.ln([6.4,-5.2,6.6+sl,-8.4],body,.5); k.ln([7.4,-4.6,8.4+sl,-7.4],body,.5); ci(6.6+sl,-8.6,.6,body); ci(8.4+sl,-7.6,.6,body); }
+    p3cape(c,k,lk,[1.6,-7.6,-2,-9,-4.6,-5, -2,-3.4,1.6,-4]);
+    ci(-.6,-4.6,4.4,'#c87a4a'); c.strokeStyle=k.D('#8a4a2a'); c.lineWidth=.5; c.beginPath(); for(let a=0;a<12;a+=.3){ const r=4-a*.31; c.lineTo(-.6+Math.cos(a)*r,-4.6+Math.sin(a)*r); } c.stroke(); el(-1.8,-7,1.4,.6,'#e8a878',-.4);
+    if(m.sleep){ k.qd(6.2,-3.6,6.8,-3,7.4,-3.6,'#3a2a1a',.3); } else { p3eyes(c,k,m,t,[6.6+sl,8.4+sl],-8.6,.38,'#1a1410',P.blinkOff); } p3cheeks(c,k,m,[6.4],-3.4,.5);
+    p3fr(id,P.size||1,{x:6.4,y:-5,r:2.4,face:'side'},{x:6,y:-2.6,r:2,face:'side'}); if(m.sleep) pet3Zz(c,8,-8,t); },
+  fireflyjar(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, glow=.45+.25*Math.sin(t*2.2)+(m.petted?.25:0);
+    const gr=c.createRadialGradient(0,-6,1,0,-6,10); gr.addColorStop(0,'rgba(240,255,150,'+(glow*.7)+')'); gr.addColorStop(1,'rgba(240,255,150,0)'); c.fillStyle=gr; c.fillRect(-10,-16,20,20);
+    c.save(); c.globalAlpha*=.35; c.fillStyle='#d8f0ff'; c.beginPath(); c.moveTo(-4.4,-11); c.quadraticCurveTo(-5.4,-6,-4.6,-.4); c.lineTo(4.6,-.4); c.quadraticCurveTo(5.4,-6,4.4,-11); c.closePath(); c.fill(); c.restore();
+    c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=.35; c.beginPath(); c.moveTo(-3.6,-9.6); c.quadraticCurveTo(-4.3,-6,-3.8,-1.6); c.stroke();
+    for(let i=0;i<5;i++){ const fx=Math.sin(t*1.4+i*1.7)*3, fy=-5.6+Math.cos(t*1.1+i*2.3)*3.6, a=.5+.5*Math.sin(t*5+i); c.fillStyle='rgba(240,255,150,'+a+')'; c.beginPath(); c.arc(fx,fy,.55,0,7); c.fill(); }
+    p3cape(c,k,lk,[-4.4,-11,-6.6,-7,-6,-1, -4.6,-1,-4.6,-9]);
+    el(0,-11.4,4.8,1.1,'#8a5a3a'); c.fillStyle=k.D('#a86a40'); c.fillRect(-4.6,-13,9.2,1.8); c.strokeStyle=k.D('#c8b088'); c.lineWidth=.3; c.beginPath(); c.moveTo(-4.8,-12.2); c.lineTo(4.8,-12.2); c.stroke();
+    const mode=p3eyes(c,k,m,t,[-1.5,1.5],-6.2,.55,'#2a3a1a',P.blinkOff); p3mouth(c,k,m,0,-4.8,1);
+    p3fr(id,P.size||1,{x:0,y:-14.2,r:4.6},{x:0,y:-10.8,r:4.4}); if(m.sleep) pet3Zz(c,5,-15,t); },
+  mushroombuddy(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, sw=Math.sin(t*1.5)*.06+(m.petted?Math.sin(t*12)*.08:0);
+    c.save(); c.rotate(sw); p3cape(c,k,lk,[-2.8,-7.4,-6,-4.4,-5.4,-.6, 0,.2,5.4,-.6, 6,-4.4,2.8,-7.4]);
+    el(-1.6,-.5,1.4,.7,'#e8d8c0'); el(1.6,-.5,1.4,.7,'#e8d8c0');
+    c.fillStyle=k.D('#f4e8d4'); c.beginPath(); c.moveTo(-3,-.6); c.quadraticCurveTo(-3.6,-5,-2.6,-7.8); c.lineTo(2.6,-7.8); c.quadraticCurveTo(3.6,-5,3,-.6); c.closePath(); c.fill();
+    c.fillStyle=k.D('#e8503a'); c.beginPath(); c.moveTo(-6.4,-7.4); c.quadraticCurveTo(-6.2,-14.6,0,-14.8); c.quadraticCurveTo(6.2,-14.6,6.4,-7.4); c.quadraticCurveTo(0,-8.6,-6.4,-7.4); c.fill();
+    for(const [x,y,r] of [[-3.2,-11,1.1],[1,-13,.9],[3.6,-10,1],[-.6,-10,.7]]) ci(x,y,r,'#fbf4ec');
+    p3eyes(c,k,m,t,[-1.2,1.2],-4.6,.55,'#2a1a14',P.blinkOff); p3mouth(c,k,m,0,-3,1); p3cheeks(c,k,m,[-2.2,2.2],-3.6,.5);
+    c.restore(); p3fr(id,P.size||1,{x:0,y:-9.6,r:5.6},{x:0,y:-6.6,r:3.4}); if(m.sleep) pet3Zz(c,5,-15,t); },
+  snowman(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, wob=Math.sin(t*1.4)*.04+(m.petted?Math.sin(t*10)*.06:0);
+    c.save(); c.rotate(wob); p3cape(c,k,lk,[-3.4,-9,-7,-5,-6.4,-1, 0,0,6.4,-1, 7,-5,3.4,-9]);
+    ci(0,-4,4.4,'#f4f8fc'); ci(0,-10.4,3.4,'#f8fbff'); el(-1.4,-11.4,1.2,.7,'#ffffff',-.4);
+    for(const y of [-5.6,-3.6,-1.6]) ci(0,y,.42,'#3a3a44'); for(const sd of [-1,1]) k.ln([sd*3.4,-8,sd*6.4,-10.4+(m.petted?Math.sin(t*10)*1.2:0)],'#7a5a3a',.45);
+    c.fillStyle=k.D('#f08a2a'); c.beginPath(); c.moveTo(.2,-10.2); c.lineTo(2.8,-9.8); c.lineTo(.2,-9.4); c.closePath(); c.fill();
+    p3eyes(c,k,m,t,[-1.1,1.1],-11.2,.45,'#2a2a34',P.blinkOff); if(m.petted||m.happy) k.qd(-1,-8.8,0,-8.1,1,-8.8,'#2a2a34',.3); else for(const x of [-1,-.35,.35,1]) ci(x,-8.7+Math.abs(x)*.25,.18,'#2a2a34'); p3cheeks(c,k,m,[-2.2,2.2],-9.6,.5);
+    c.restore(); p3fr(id,P.size||1,{x:0,y:-10.6,r:3.6},{x:0,y:-7.6,r:2.8}); if(m.sleep) pet3Zz(c,4,-14,t); },
+  bat(c,P,t,night,lk,m,id){ const k=pet3Kit(c,night), {el,ci}=k, fl=Math.sin(t*(m.petted?14:7)), hy=-13+Math.sin(t*2)*1, wcol='#4a3a5a';
+    if(m.sleep){ // hangs upside down from a little perch while asleep
+      k.ln([-3,-21,3,-21],'#7a5a3a',.6); c.save(); c.translate(0,-15); c.rotate(Math.PI); el(0,0,2.6,3.2,'#3a2a48'); el(-1.4,-3.4,1.2,1.6,'#3a2a48',-.3); el(1.4,-3.4,1.2,1.6,'#3a2a48',.3); k.qd(-1,-1.2,0,-.6,1,-1.2,'#1a1018',.3); c.restore(); p3fr(id,P.size||1,{x:0,y:-14,r:3,rot:Math.PI},{x:0,y:-17,r:2.4,rot:Math.PI}); pet3Zz(c,4,-12,t); return; }
+    for(const sd of [-1,1]){ c.save(); c.translate(sd*2.4,hy+1); c.scale(sd,1); c.rotate(-fl*.35); c.fillStyle=k.D(wcol); c.beginPath(); c.moveTo(0,-1); c.quadraticCurveTo(4,-5,7.4,-2.6); c.quadraticCurveTo(6.4,-1,6.6,.6); c.quadraticCurveTo(5.2,-.4,4.6,1.4); c.quadraticCurveTo(3.4,.2,2.6,1.8); c.quadraticCurveTo(1.4,.4,0,1.2); c.closePath(); c.fill(); c.restore(); }
+    p3cape(c,k,lk,[-2,hy+1,-4,hy+4,-3,hy+7, 0,hy+7.4,3,hy+7, 4,hy+4,2,hy+1]);
+    el(0,hy+2.6,2.4,3,'#3a2a48'); ci(0,hy-1.2,2.9,'#3a2a48'); for(const sd of [-1,1]){ c.fillStyle=k.D('#3a2a48'); c.beginPath(); c.moveTo(sd*1.2,hy-3.4); c.lineTo(sd*2.6,hy-5.8); c.lineTo(sd*2.8,hy-2.6); c.closePath(); c.fill(); }
+    ci(-1.1,hy-1.4,.8,'#f8e8a0'); ci(1.1,hy-1.4,.8,'#f8e8a0'); p3eyes(c,k,m,t,[-1.1,1.1],hy-1.4,.48,'#1a1018',P.blinkOff); c.fillStyle='#ffffff'; c.beginPath(); c.moveTo(-.6,hy); c.lineTo(-.35,hy+.6); c.lineTo(-.1,hy); c.moveTo(.1,hy); c.lineTo(.35,hy+.6); c.lineTo(.6,hy); c.fill(); p3cheeks(c,k,m,[-1.9,1.9],hy-.4,.45);
+    p3fr(id,P.size||1,{x:0,y:hy-1.2,r:2.9},{x:0,y:hy+1.2,r:2.4}); },
+};
 const PET3 = {
   dog:     {rig:'quad', main:'#a8743e', belly:'#e8c89a', ears:'floppy', earCol:'#7a4f26', tail:'wag', snout:{l:2.6,w:1.8,col:'#d8b080'}, blinkOff:.3},
   puppy:   {rig:'quad', main:'#e8b868', belly:'#f8e2b0', ears:'floppy', earCol:'#c8903e', tail:'fluffy', snout:{l:2.2,w:1.7,col:'#f8e2b0'}, size:.9, headR:4.6, blinkOff:1.1},
@@ -297,6 +430,21 @@ const PET3 = {
   puffin:  {rig:'bird', main:'#1c1c22', belly:'#f8f8f8', wing:'#2a2a32', cheek:'#f4f4f4', beak:'puffin', beakCol:'#f06030', legs:'#f06030', upright:true, bodyRx:4.2, bodyRy:5.4, legH:2, headR:3, eyeCol:'#1a1210', blinkOff:1.1},
   penguin: {rig:'bird', main:'#1c1c28', belly:'#f8f8f8', wing:'#1c1c28', beak:'cone', beakCol:'#f0a030', legs:'#f0a030', upright:true, flipper:true, bodyRx:4.4, bodyRy:6.2, legH:1.2, headR:3.2, cheek:'#f8f8f8', blinkOff:2.4},
   phoenix: {rig:'bird', main:'#ff6a2a', belly:'#ffc84a', wing:'#ff3a2a', tailCol:'#ffd84a', tailLen:6.5, beak:'hook', beakCol:'#ffd84a', legs:'#c8602a', blinkOff:.5, crest:(c,k,hr,t)=>{ for(let i=0;i<3;i++){ const f=Math.sin(t*6+i)*.2; c.fillStyle=k.D(['#ffd84a','#ff9a2a','#ff5a2a'][i]); c.beginPath(); c.moveTo(-hr*.3+i*hr*.25,-hr*.7); c.quadraticCurveTo(-hr*.9+i*hr*.3,-hr*1.6+f,-hr*.4+i*hr*.4,-hr*2.1-i*hr*.2); c.quadraticCurveTo(-hr*.2+i*hr*.3,-hr*1.2,hr*.1+i*hr*.2,-hr*.75); c.fill(); } }, headGlow:(c,k,hr,t)=>{ const gr=c.createRadialGradient(0,0,hr*.5,0,0,hr*2.2); gr.addColorStop(0,'rgba(255,200,90,'+(.28+.12*Math.sin(t*4))+')'); gr.addColorStop(1,'rgba(255,160,60,0)'); c.fillStyle=gr; c.fillRect(-hr*2.2,-hr*2.2,hr*4.4,hr*4.4); }},
+  // ---- low-slung reptiles on the four-legged rig ----
+  turtle:  {rig:'quad', main:'#7ab05a', belly:'#c8d88a', shell:'#5a8a3a', shellLine:'#3a6a2a', ears:'none', tail:'stub', legH:2, legW:2, bodyRx:6.4, bodyRy:3.4, headR:2.7, snout:{l:.9,w:1,col:'#86bc66'}, nose:'#2a3a20', blinkOff:1.7},
+  lizard:  {rig:'quad', main:'#4ab8a0', belly:'#a8e8c8', ears:'none', tail:'reptile', legH:1.5, legW:1.3, bodyRx:5.8, bodyRy:2.4, headR:2.5, snout:{l:2,w:1.2,col:'#5ac8b0'}, nose:'#2a4a40', mark:'spots', accent:'#2a8a7a', eyeCol:'#5a3a10', blinkOff:2.3},
+  axopet:  {rig:'quad', main:'#f4a8c0', belly:'#f8c8d8', ears:'none', tail:'reptile', legH:1.4, legW:1.3, bodyRx:5.4, bodyRy:2.6, headR:3.2, snout:{l:1.1,w:1.3,col:'#f8c0d0'}, nose:'#d87a9a', blinkOff:.6,
+    headBehind:(c,k,hr,t)=>{ for(const sd of [-1,1]) for(let i=0;i<3;i++){ c.save(); c.translate(-hr*.35,sd*hr*.05-hr*.25+i*hr*.32*sd); c.rotate(-Math.PI*(.55+i*.12)*sd*(sd<0?1:-1)+(sd<0?Math.PI:0)); k.el(-hr*.55,0,hr*.55,hr*.16,'#e8607a'); k.el(-hr*.75,-hr*.1,hr*.18,hr*.08,'#f07a92'); c.restore(); } }},
+  dragon:  {rig:'quad', main:'#6a9a4a', belly:'#e8d888', ears:'pointy', earIn:'#e8d888', tail:'reptile', spikes:'#e8a83a', legH:3.4, bodyRx:7, bodyRy:3.8, headR:3.8, snout:{l:2.6,w:1.6,col:'#7aaa5a'}, nose:'#2a3a20', horn:'goat', eyeCol:'#5a2a00', blinkOff:2.9,
+    extras:(c,k,f)=>{ const fl=Math.sin(f.t*(f.m.petted||f.m.happy?12:3))*.25; c.save(); c.translate(-.6,f.by-f.ry*.6); c.rotate(-.5-fl); c.fillStyle=k.D('#4a7a3a'); c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-2,-6,-6.4,-6.8); c.quadraticCurveTo(-5.4,-4.6,-5.8,-3); c.quadraticCurveTo(-4,-3.8,-3.6,-1.8); c.quadraticCurveTo(-2,-2.4,0,0); c.fill(); c.strokeStyle=k.D('#8aba6a'); c.lineWidth=.3; c.beginPath(); c.moveTo(0,0); c.lineTo(-6,-6.4); c.moveTo(-1,-.6); c.lineTo(-5.6,-3.2); c.stroke(); c.restore();
+      if(!f.sleep && (f.t%6)<.9){ const p=(f.t%6)/.9; for(let i=0;i<3;i++){ c.save(); c.globalAlpha=(1-p)*.6; k.ci(f.hx+f.hr*1.6+p*4+i*.8,f.hy+f.hr*.1-p*2-i*.6,.6+p*.8,'#d8d8e0'); c.restore(); } } }},
+  // ---- one-of-a-kind pets ----
+  frog:{rig:'custom', draw:PET3_CUSTOM.frog}, frogprince:{rig:'custom', draw:PET3_CUSTOM.frogprince}, crab:{rig:'custom', draw:PET3_CUSTOM.crab},
+  octopus:{rig:'custom', draw:PET3_CUSTOM.octopus}, jelly:{rig:'custom', draw:PET3_CUSTOM.jelly}, babywhale:{rig:'custom', draw:PET3_CUSTOM.babywhale},
+  narwhal:{rig:'custom', draw:PET3_CUSTOM.narwhal}, seal:{rig:'custom', draw:PET3_CUSTOM.seal}, ghost:{rig:'custom', draw:PET3_CUSTOM.ghost},
+  robot:{rig:'custom', draw:PET3_CUSTOM.robot}, slime:{rig:'custom', draw:PET3_CUSTOM.slime}, snail:{rig:'custom', draw:PET3_CUSTOM.snail},
+  fireflyjar:{rig:'custom', draw:PET3_CUSTOM.fireflyjar}, mushroombuddy:{rig:'custom', draw:PET3_CUSTOM.mushroombuddy}, snowman:{rig:'custom', draw:PET3_CUSTOM.snowman},
+  bat:{rig:'custom', draw:PET3_CUSTOM.bat},
 };
 // every pet without its own entry yet keeps the old drawing until its rig is done
 function drawPet3(c,id,x,y,s,t,night,lk){ const P=PET3[id]; if(!P) return false; c.save(); c.translate(x,y); c.scale(s,s); const m=petMood3(id);
