@@ -364,8 +364,8 @@ function draw(now){
   if(G.st==='charging'){ tx -= G.power*W*.05; ty += G.power*H*.06; }
   if(G.st==='reeling'){ const bend = clamp(G.ten/100,0,1); tx += bend*W*.03; ty += bend*H*.08 + (G.run?Math.sin(t*25)*1.5:0); }
   if(G.st==='landing'){ ty += H*.04*(1-G.land.t/G.land.dur); }
-  g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke();
-  g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill();
+  if(V3ON) v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
+  if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
   if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;

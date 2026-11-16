@@ -195,3 +195,35 @@ if(/[?&]test\b/.test(location.search)){
       x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(st+(ov.pow!=null?' '+ov.pow:'')+(ov.ten!=null?' '+ov.ten:''),cI*cw+3,r*ch+11); }));
     window.__post(opts.save||'poses',o.toDataURL()); return 'ok'; };
 }
+
+// ---------- 0.3 rods: a tapered blank with a grip, reel, guides and a look of its own for every rod ----------
+function v3Rod(c,hand,tip,mx,my,rod,night,t,reeling){ const id=rod?rod.id:'bamboo', col=rod?rod.col:'#d9c7a0', N=c2=>mix(c2,'#1a1820',night*.4), n=12, pts=[];
+  for(let i=0;i<=n;i++){ const u=i/n, x=(1-u)*(1-u)*hand.x+2*u*(1-u)*mx+u*u*tip.x, y=(1-u)*(1-u)*hand.y+2*u*(1-u)*my+u*u*tip.y; pts.push([x,y]); }
+  const base=id==='scrap'?'#8a5a3a':col, dark=mix(base,'#000000',.35), lite=mix(base,'#ffffff',.35);
+  // the grip behind the hand (cork, or rod-specific)
+  const g0=pts[0], ga=Math.atan2(pts[1][1]-g0[1],pts[1][0]-g0[0]); c.save(); c.translate(g0[0],g0[1]); c.rotate(ga);
+  c.fillStyle=N(id==='golden'?'#c8961e':id==='abyssrod'?'#24102e':id==='carbon'?'#1a1a1a':'#b8875a'); c.fillRect(-9,-2.4,13,4.8); if(id!=='carbon'&&id!=='abyssrod'){ c.fillStyle=N('#8a5f3a'); for(let k=-8;k<4;k+=3) c.fillRect(k,-2.4,1,4.8); }
+  c.fillStyle=N('#2a2a30'); c.fillRect(-11,-2,2.4,4); c.restore();
+  // the tapered blank, segment by segment
+  c.lineCap='round'; for(let i=0;i<n;i++){ const u=i/n, w=3.2-u*2.3; let cl=base;
+    if(id==='bamboo'&&i%3===2) cl=dark; if(id==='fibre') cl=i%4===3?'#d8383a':base; if(id==='spine') cl=i%2?mix(base,'#ffffff',.25):base;
+    if(id==='tides') cl=mix(base,'#bffcf0',.5+.5*Math.sin(t*3-i*.8)); if(id==='golden') cl=mix(base,'#fff4b0',Math.max(0,Math.sin(t*2-i*.5))*.6);
+    c.strokeStyle=N(cl); c.lineWidth=Math.max(.9,w); c.beginPath(); c.moveTo(pts[i][0],pts[i][1]); c.lineTo(pts[i+1][0],pts[i+1][1]); c.stroke(); }
+  // a light edge along the top of the blank
+  c.strokeStyle=v3rgba(lite,id==='carbon'?.5:.35); c.lineWidth=.8; c.beginPath(); c.moveTo(pts[1][0],pts[1][1]-1); for(let i=2;i<=n-2;i++) c.lineTo(pts[i][0],pts[i][1]-1); c.stroke();
+  // wraps and guides
+  for(const i of [3,6,9,11]){ const [x,y]=pts[i]; c.fillStyle=N(id==='carbon'?'#d8b048':id==='fibre'?'#d8383a':mix(base,'#000000',.5)); c.fillRect(x-1.4,y-1.6,2.8,3.2); c.strokeStyle=N('#c8ccd4'); c.lineWidth=.8; c.beginPath(); c.arc(x,y+2.2,1.3,0,7); c.stroke(); }
+  // signature touches
+  if(id==='frostrod'){ c.fillStyle='rgba(230,248,255,.85)'; for(let i=2;i<n;i+=2){ const [x,y]=pts[i]; c.fillRect(x-.6,y-2.6,1.2,1.2); } const [x,y]=pts[n]; c.beginPath(); c.moveTo(x,y-3); c.lineTo(x+1.6,y); c.lineTo(x,y+3); c.lineTo(x-1.6,y); c.fill(); }
+  if(id==='coralrod'){ c.fillStyle=N('#ffb0c0'); for(const i of [2,5,8]){ const [x,y]=pts[i]; c.beginPath(); c.arc(x+1,y-2.4,1.3,0,7); c.arc(x-1.6,y-2,1,0,7); c.fill(); } }
+  if(id==='stormrod'&&Math.sin(t*1.7)>.85){ c.strokeStyle='rgba(220,235,255,.9)'; c.lineWidth=.9; c.beginPath(); c.moveTo(pts[4][0],pts[4][1]-3); c.lineTo(pts[6][0]+2,pts[6][1]-6); c.lineTo(pts[7][0],pts[7][1]-3); c.lineTo(pts[9][0]+2,pts[9][1]-6); c.stroke(); }
+  if(id==='abyssrod'){ for(const i of [2,4,6,8,10]){ const [x,y]=pts[i]; v3glow(c,x,y,5,'rgba(190,120,255,.9)',.35+.25*Math.sin(t*2+i)); c.fillStyle='#e0c0ff'; c.fillRect(x-.6,y-.6,1.2,1.2); } }
+  if(id==='scrap'){ c.fillStyle=N('#c8c0a0'); const [x,y]=pts[5]; c.fillRect(x-2.5,y-2.4,5,4.8); c.fillStyle=v3rgba('#a0602a',.6); for(const i of [3,7,10]){ const [x2,y2]=pts[i]; c.beginPath(); c.arc(x2,y2,1.2,0,7); c.fill(); } }
+  if(id==='spine'){ c.fillStyle=N(mix(base,'#ffffff',.4)); for(let i=1;i<n;i++){ const [x,y]=pts[i]; c.beginPath(); c.moveTo(x-1,y-1.5); c.lineTo(x,y-4.2+i*.15); c.lineTo(x+1,y-1.5); c.fill(); } }
+  // the reel under the grip: a spool that spins while you reel
+  { const [x,y]=pts[1], r=3.6; c.fillStyle=N('#3a3a44'); c.fillRect(x-1,y,2,3); c.fillStyle=N(id==='golden'?'#e8b830':id==='carbon'?'#c8c8d0':'#8a8a96'); c.beginPath(); c.arc(x,y+5.4,r,0,7); c.fill();
+    c.strokeStyle=N('#2a2a30'); c.lineWidth=.9; c.beginPath(); c.arc(x,y+5.4,r,0,7); c.stroke(); const a=reeling?t*16:0; c.beginPath(); c.moveTo(x,y+5.4); c.lineTo(x+Math.cos(a)*r*1.5,y+5.4+Math.sin(a)*r*1.5); c.stroke(); c.fillStyle=N('#2a2a30'); c.beginPath(); c.arc(x+Math.cos(a)*r*1.5,y+5.4+Math.sin(a)*r*1.5,1.1,0,7); c.fill(); }
+  c.lineCap='butt'; }
+if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=3*150; const x=o.getContext('2d'); x.fillStyle='#4a7a90'; x.fillRect(0,0,o.width,o.height);
+  RODS.forEach((r,i)=>{ const ox=(i%4)*220, oy=Math.floor(i/4)*150; x.save(); x.translate(ox,oy); x.scale(1.6,1.6); v3Rod(x,{x:20,y:70},{x:125,y:12},70,30,r,0,performance.now()/1000,i%2===0); x.restore(); x.fillStyle='#fff'; x.font='11px sans-serif'; x.fillText(r.id,ox+6,oy+144); });
+  if(save) __post(save,o.toDataURL()); return RODS.length; };
