@@ -174,6 +174,7 @@ function drawPattern(c,pat,base,x,y,w,h){
     case 'hawaii': for(let i=0;i<7;i++){ const xx=x+((i*37)%100)/100*w, yy=y+((i*53)%100)/100*h; c.fillStyle='#3a8a4a'; c.beginPath(); c.ellipse(xx+2,yy+1,2.4,1,.6,0,7); c.fill(); c.fillStyle=['#ff6a8a','#ffd84a','#ffffff'][i%3]; c.beginPath(); c.arc(xx,yy,1.6,0,7); c.fill(); } break;
     case 'fishprint': for(let i=0;i<6;i++){ const xx=x+2+((i*41)%90)/100*w, yy=y+3+((i*57)%85)/100*h; drawFish(c,xx,yy,6,'rgba(255,255,255,.8)','rgba(255,255,255,.8)',.4,0,i%2===1,{}); } break;
     case 'flames': c.fillStyle='#ff7a1a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx-1.5,y+h-9-((i*5)%5)); c.lineTo(xx+1.5,y+h-3); } c.lineTo(x+w,y+h); c.fill(); c.fillStyle='#ffd84a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx,y+h-5-((i*3)%3)); c.lineTo(xx+1.5,y+h-1); } c.lineTo(x+w,y+h); c.fill(); break;
+    default: drawPatternX(c,pat,base,x,y,w,h); break;
     case 'tux': c.fillStyle='#f4f4f2'; c.beginPath(); c.moveTo(x+w/2-3.5,y); c.lineTo(x+w/2+3.5,y); c.lineTo(x+w/2+1.5,y+h); c.lineTo(x+w/2-1.5,y+h); c.fill(); c.fillStyle='#c8303a'; c.beginPath(); c.moveTo(x+w/2-3,y+1); c.lineTo(x+w/2+3,y+3.5); c.lineTo(x+w/2+3,y+1); c.lineTo(x+w/2-3,y+3.5); c.fill(); break;
   }
 }

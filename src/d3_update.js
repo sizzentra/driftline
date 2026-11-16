@@ -3,8 +3,13 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '1.6';
+const GAME_VERSION = '1.7';
 const PATCHES = [
+ {v:'1.7', name:'Try Before You Buy', items:[
+  'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
+  'Prize Counter items now show a picture, and the wearable ones can be previewed.',
+  '14 new shirt patterns are rotating into the clothing shop.',
+  'The fishing vest, life jacket and captain’s coat can now be any colour.' ]},
  {v:'1.6', name:'Choices & Skies', items:[
   'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
   'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
@@ -144,7 +149,7 @@ function drawPetGear(c,id,lk,t){ const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r
   if(lk.acc==='flower'){ const fx=hx-r*.6, fy=hy-r*.75; for(let i=0;i<5;i++){ c.fillStyle='#ff9ad0'; c.beginPath(); c.arc(fx+Math.cos(i*1.26)*r*.28,fy+Math.sin(i*1.26)*r*.28,r*.2,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.15,0,7); c.fill(); }
   if(lk.acc==='glasses'){ c.fillStyle='#111'; c.beginPath(); c.ellipse(hx+r*.25,hy-r*.15,r*.32,r*.22,0,0,7); c.ellipse(hx+r*.85,hy-r*.15,r*.28,r*.2,0,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=r*.1; c.beginPath(); c.moveTo(hx+r*.5,hy-r*.18); c.lineTo(hx+r*.6,hy-r*.18); c.stroke(); }
   c.restore(); }
-function drawPetStyled(c,id,x,y,s,t,night=0){ const lk=petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
+function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night); c.restore();
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_BOX=null, hearts=[], petT=-9999, lastPetAt=0;
 function drawPetScene(ax,ay,sc,t,night){ const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?40:26)*sc, s=sc*(big?.85:1);
@@ -163,11 +168,12 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); if(m.x<P
   const after=bondLevel(id); if(after>before){ toast(petName(id)+' feels closer to you. Bond level '+after+'! (+'+after*5+'% pet bonus)'); sfx.shiny(); } else if(Math.random()<.25) toast(petName(id)+' '+quip('pet')+'.');
   checkFeats(); save(); return true; }
 function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLevel(id), b=S.bond[id]; const nextXp=Math.pow(bl+1,2)*4;
-  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="pettint" data-k="${x[0]}" aria-pressed="${lk.tint===x[0]}" ${!own&&S.money<x[2]?'disabled':''}>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
-  const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="petacc" data-k="${x[0]}" aria-pressed="${lk.acc===x[0]}" ${!own&&S.money<x[2]?'disabled':''}>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const pvOn=(kind,id)=>PET_PV&&PET_PV.kind===kind&&PET_PV.id===id;
+  const tints=PET_TINTS.filter(x=>x[2]||S.petTints.includes(x[0])||!PRIZE_TINT[x[0]]).map(x=>{ const own=S.petTints.includes(x[0]); return `<button class="chipb" data-act="${own?'pettint':'petpv'}" data-k="${own?x[0]:'tint:'+x[0]}" aria-pressed="${lk.tint===x[0]||pvOn('tint',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  const accs=PET_ACCS.filter(x=>x[2]||S.petAccs.includes(x[0])||!PRIZE_ACC[x[0]]).map(x=>{ const own=S.petAccs.includes(x[0]); return `<button class="chipb" data-act="${own?'petacc':'petpv'}" data-k="${own?x[0]:'acc:'+x[0]}" aria-pressed="${lk.acc===x[0]||pvOn('acc',x[0])}">${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="chipb" data-act="pethat" data-k="${h.id}" aria-pressed="${lk.hat===h.id}">${esc(h.name)}</button>`).join('');
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
-  return `<div class="tile" style="margin-top:10px"><div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
+  return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}<div class="stylewrap" style="margin-top:0;grid-template-columns:200px 1fr"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
     <div class="row spread"><h4>${esc(petName(id))} <span class="meta">the ${p.name.toLowerCase()}</span></h4><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></div>
     <div class="meta">Bonus: <span class="aq">${fmtB(p.k,petVal(id))}</span>${bl?' (bond +'+bl*5+'%)':''}. ${bl<10?`Pet them to grow closer: ${b?b.xp:0} / ${nextXp}. Up to 25 pets a day count.`:'You’re best friends.'}</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
@@ -175,7 +181,7 @@ function petCustomHTML(){ const id=S.pet, lk=petLook(id), p=PETI[id], bl=bondLev
     <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
-function paintPetCustom(){ const c=$('petcv'); if(!c) return; const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,200,250,big?4.2:6.5,performance.now()/1000);
+function paintPetCustom(){ const c=$('petcv'); if(!c) return; const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,200,250,big?4.2:6.5,performance.now()/1000,0,petPreviewLook());
   c.onclick=()=>{ for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); petT=performance.now(); const now=dayKey(); const b=S.bond[S.pet]||(S.bond[S.pet]={xp:0,day:now,today:0}); if(b.day!==now){ b.day=now; b.today=0; } if(b.today<25){ b.today++; b.xp++; } S.gstats.pets++; taskProgress('pet',1); toast(petName()+' '+quip('pet')+'.'); checkFeats(); save(); }; }
 
 // ---------- daily tasks & gift ----------
@@ -270,7 +276,9 @@ function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); 
       <button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmt(base*2)}</span></button>`}</div>
   </div>
   <div class="tile bwt" style="--c:#ffc94d;margin-top:12px"><div class="row spread"><div><h4>Prize counter</h4><div class="meta">Every Boardwalk game hands out tickets. Trade them here for things you can’t get anywhere else.</div></div><b>🎟 ${fmt(S.tickets)}</b></div>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span>${esc(p[1])}</span>${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</div>`; }).join('')}</div></div>`;
+   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span class="row" style="gap:8px;flex-wrap:nowrap"><canvas width="96" height="80" data-prize="${p[0]}" style="width:48px;height:40px;cursor:default;flex:0 0 auto"></canvas><span>${esc(p[1])}</span></span>
+     <span class="row" style="gap:4px">${!owned&&PRIZE_PV[p[0]]?`<button class="btn alt sm" data-act="prizepv" data-k="${p[0]}">Preview</button>`:''}${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</span></div>`; }).join('')}</div></div>`;
+  paintPrizes(P);
   drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.strokeStyle=ROD_I[crateRes.id].col; x.lineWidth=8; x.lineCap='round'; x.beginPath(); x.moveTo(30,160); x.quadraticCurveTo(120,150,215,30); x.stroke(); }
@@ -285,8 +293,8 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'rodatt': { const [si,a]=k.split(':'); const id=S.rods.eq, list=(S.rods.att[id]||[]).slice(); list[+si]=a||''; S.rods.att[id]=list.slice(0,rod().slots); return 'render'; }
     case 'attbuy': { const t=S.atts[k]||0; if(t>=3) return 'skip'; const c=ATT_COST[t]; if(S.money<c[0]||S.scales<c[1]) return 'skip'; S.money-=c[0]; S.scales-=c[1]; S.atts[k]=t+1; sfx.coin(); toast(ATT_I[k].name+' tier '+(t+1)+'!');
       const cur=S.rods.att[S.rods.eq]||[]; if(!t && cur.filter(Boolean).length<rod().slots && !cur.includes(k)){ const l=cur.slice(); const free=l.findIndex(x=>!x); if(free>=0) l[free]=k; else l.push(k); S.rods.att[S.rods.eq]=l.slice(0,rod().slots); } return 'render'; }
-    case 'pettint': { const tt=PET_TINTS.find(x=>x[0]===k); if(!tt) return 'skip'; if(!S.petTints.includes(k)){ if(!tt[2]||S.money<tt[2]) return 'skip'; S.money-=tt[2]; S.petTints.push(k); sfx.coin(); } petLook().tint=k; return 'render'; }
-    case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
+    case 'pettint': { const tt=PET_TINTS.find(x=>x[0]===k); if(!tt) return 'skip'; PET_PV=null; if(!S.petTints.includes(k)){ if(!tt[2]||S.money<tt[2]) return 'skip'; S.money-=tt[2]; S.petTints.push(k); sfx.coin(); } petLook().tint=k; return 'render'; }
+    case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
     case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
@@ -302,6 +310,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); addTickets(3); tone(900+hilo.streak*100,.1,'triangle',.06); if(hilo.streak>=8){ earn(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' coins.'; sfx.catch(4); } }
       else { hilo.done=true; hilo.msg=prev+' → '+n+'. Wrong way! The pot sinks to the bottom of the sea.'; addTickets(2); sfx.lost(); } return 'render'; }
     case 'hilocash': { if(!hilo||hilo.done||!hilo.streak) return 'skip'; earn(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' coins after '+hilo.streak+' right guesses.'; sfx.coin(); return 'render'; }
-    case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
+    case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); PREVIEW=null; PET_PV=null; AQ_PV=null;
+      if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }
   return undefined; }

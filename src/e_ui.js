@@ -217,10 +217,10 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
   const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('');
   const offers=shopOffers().map(o=>{ const own=ownedOffer(o); return `<div class="tile offer" style="flex-direction:row;align-items:center;gap:10px"><canvas width="128" height="128" data-offer="${o.kind}:${o.id}"></canvas>
     <div style="min-width:0;flex:1"><h4>${esc(o.name)}</h4><div class="meta">${o.kind==='col'?'Colour for shirts, trousers and hats':o.kind==='pat'?'Shirt pattern':'Hat'}</div>
-    ${own?'<button class="btn alt sm" disabled>Owned</button>':`<button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button>`}</div></div>`; }).join('');
+    ${own?'<button class="btn alt sm" disabled>Owned</button>':`<div class="row" style="gap:4px"><button class="btn alt sm" data-act="tryon" data-k="${o.kind}:${o.id}">${PREVIEW&&PREVIEW.kind===o.kind&&PREVIEW.id===o.id?'Wearing it':'Try on'}</button><button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button></div>`}</div></div>`; }).join('');
   const fishHats=HATS.filter(h=>h.src==='fish'), gotFish=fishHats.filter(h=>S.owned.hats.includes(h.id)).length;
   P.innerHTML=`<h2>Wardrobe</h2><p class="sub">Dress your angler. New colours, patterns and hats rotate through the clothing shop, and rare hats can be fished out of the water (${gotFish} of ${fishHats.length} found).</p>
-  <div class="stylewrap"><div class="preview"><canvas id="lookcv" width="520" height="560"></canvas></div><div>
+  <div class="stylewrap"><div class="preview">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div>
     <h5>Body</h5><div class="chips"><button class="chipb" data-act="look" data-k="g" data-v="m" aria-pressed="${lk.g==='m'}">Man</button><button class="chipb" data-act="look" data-k="g" data-v="f" aria-pressed="${lk.g==='f'}">Woman</button></div>
     <h5>Skin</h5>${sw('skin',SKINS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${SKINS[i]}"`).replace(/aria-pressed="(true|false)"/g,(m)=>m)}
     <h5>Hair</h5>${sw('hair',HAIRS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${HAIRS[i]}"`)}
@@ -229,7 +229,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
     <h5>Glasses</h5><div class="chips">${GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="glasses" data-v="${k}" aria-pressed="${(lk.glasses||'none')===k}">${n}</button>`).join('')}</div>
     <h5>Shirt colour</h5>${sw('shirt',cols)}<h5>Shirt pattern</h5><div class="chips">${pats}</div>
     <h5>Outfit</h5><div class="chips">${OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="outfit" data-v="${k}" aria-pressed="${(lk.outfit||'none')===k}">${n}</button>`).join('')}</div>
-    ${['raincoat','hoodie','puffer','overalls','wetsuit'].includes(lk.outfit)?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
+    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
     <h5>Trousers</h5>${sw('pants',cols)}
     <h5>Hat</h5><div class="hatgrid">${hats}</div>
     <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${sw('hatCol',cols)}
@@ -247,7 +247,7 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
 }
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22);
-  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,S.look,{t:performance.now()/1000}); }
+  drawPetStyled(cx,S.pet,S.pet==='horse'||S.pet==='cow'?130:160,470,S.pet==='horse'||S.pet==='cow'?3.4:4,performance.now()/1000); drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }
 // ---------- pets ----------
 function renderPets(P){ const pp=PETI[S.pet];
   P.innerHTML=`<h2>Pets</h2><p class="sub">Your pet sits beside you wherever you fish and gives a bonus. Some are sold here, some are hiding in junk you fish up, and two join you after big feats. ${S.owned.pets.length} of ${PETS.length} found.</p>
@@ -316,7 +316,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair') S.look[k]=+v; else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }
-    case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++;
+    case 'buyoffer': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o||ownedOffer(o)||S.money<o.price) return; S.money-=o.price; S.stats.bought++; PREVIEW=null;
       if(kind==='col') S.owned.cols.push(id); else if(kind==='pat'){ S.owned.pats.push(id); S.look.pat=id; } else if(kind==='out'){ S.owned.outfits.push(id); S.look.outfit=id; } else if(kind==='gls'){ S.owned.glasses.push(id); S.look.glasses=id; } else { S.owned.hats.push(id); S.look.hat=id; } sfx.coin(); toast('Bought '+o.name+'. Looking sharp.'); break; }
     case 'pet': if(S.owned.pets.includes(k)){ S.pet=k; toast(PETI[k].name+' is coming with you'); } break;
     case 'buypet': { const p=PETI[k]; if(!p||p.src!=='shop'||S.owned.pets.includes(k)||S.money<p.price) return; S.money-=p.price; S.owned.pets.push(k); S.pet=k; sfx.coin(); toast('You adopted a '+p.name.toLowerCase()+'!'); break; }

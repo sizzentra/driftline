@@ -473,7 +473,9 @@ const FREE_COLS = ['#3a6f9a','#c8553a','#4f8a4a','#e0c050','#e8e4dc','#2a2d33','
 const SHOP_COLS = [['#39ff88','Neon Green',700],['#ff3fa4','Hot Pink',700],['#ffb21a','Safety Orange',500],['#5ad8ff','Sky Blue',500],['#ffd700','Gold Lamé',6000],
   ['#b0b8c0','Chrome',4000],['#7a0f1f','Burgundy',900],['#0f5a4a','Deep Teal',900],['#f8f6f0','Snow White',800],['#111114','Midnight Black',1200],['#9b59ff','Ultraviolet',1500],['#c9a26b','Khaki',400]];
 const PATTERNS = [['none','Plain',0],['stripes','Sailor Stripes',1200],['flannel','Flannel Check',1800],['polka','Polka Dots',1500],['camo','Camo',2500],
-  ['hawaii','Hawaiian Flowers',3500],['fishprint','Fish Print',5000],['flames','Flames',8000],['tux','Tuxedo',12000]];
+  ['hawaii','Hawaiian Flowers',3500],['fishprint','Fish Print',5000],['flames','Flames',8000],['tux','Tuxedo',12000],
+  ['pinstripe','Pinstripes',900],['checker','Checkerboard',1400],['zigzag','Zigzag',1600],['hearts','Little Hearts',1700],['stars','Stars',2000],['waves','Ocean Waves',2200],['plaid','Tartan',2400],
+  ['fishbones','Fish Bones',2800],['leopard','Leopard',3200],['tiedye','Tie-dye',3800],['pixel','Pixel Art',4400],['sunset','Sunset Fade',5200],['galaxy','Galaxy',7500],['sixseven','6-7 Print',6700]];
 const SKINS = ['#f6d7b8','#e8b98f','#c98d5f','#9a6440','#6b4128'];
 const HAIRS = ['#2a1d14','#5a3a22','#a8742e','#e8cd80','#b8b8b8','#c0402a'];
 const SHOP_LEN = 600; // seconds per clothing-shop rotation

@@ -34,15 +34,15 @@ const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
 const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
 function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
-function drawTankBack(c,w,h,t){ const th=THEMES.find(x=>x[0]===S.aq.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===S.aq.sand)||SANDS[0];
+function drawTankBack(c,w,h,t){ const V=aqView(); const th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0];
   const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,th[3]); bg.addColorStop(1,th[4]); c.fillStyle=bg; c.fillRect(0,0,w,h);
   for(let i=0;i<5;i++){ c.fillStyle='rgba(180,230,255,.05)'; c.beginPath(); const x=(i*w/4+Math.sin(t*.3+i)*30); c.moveTo(x,0); c.lineTo(x+40,0); c.lineTo(x-20,h); c.lineTo(x-70,h); c.fill(); }
-  if(S.aq.theme==='abyss'||S.aq.theme==='midnight'){ for(let i=0;i<20;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } }
+  if(V.theme==='abyss'||V.theme==='midnight'){ for(let i=0;i<20;i++){ c.fillStyle='rgba(127,245,255,'+(.25+.25*Math.sin(t*2+i))+')'; c.beginPath(); c.arc((i*97+t*5)%w,(i*53)%h,1.5,0,7); c.fill(); } }
   c.fillStyle=sd[3]; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=20) c.lineTo(x,h-14-Math.sin(x*.04)*5); c.lineTo(w,h); c.fill();
-  if(S.aq.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
+  if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
-  const ds=S.aq.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(S.aq.decor.includes('duck')) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
+function drawTankFront(c,w,h,t){ if(aqView().decor.includes('duck')) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };
@@ -241,6 +241,8 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
   const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
+  const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
+  if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
     case 'mstyle': S.settings.style=k; return;
@@ -261,12 +263,12 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   }
   return 'skip'; }
 function aqCustomHTML(){ const fedLeft=Math.max(0,3600000-(Date.now()-S.fedT));
-  const chip=(act,list,cur)=>list.map(x=>{ const own=S.aq.owned.includes(x[0]); return `<button class="chipb" data-act="${act}" data-k="${x[0]}" aria-pressed="${cur===x[0]}" ${!own&&S.money<x[2]?'disabled':''}><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x[3]};margin-right:6px;vertical-align:-1px"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
-  return `<div class="jsec"><div class="row spread"><h2>Decorate</h2><button class="btn ${fedLeft?'alt':''} sm" data-act="feed" ${fedLeft?'disabled':''}>${fedLeft?'Fed. Hungry again in '+Math.ceil(fedLeft/60000)+' min':'Feed your fish (+25% income, 30 min)'}</button></div>
+  const chip=(act,list,cur)=>list.map(x=>{ const own=S.aq.owned.includes(x[0]); const pvk=act==='aqtheme'?'theme':'sand'; const pv=AQ_PV&&AQ_PV.kind===pvk&&AQ_PV.id===x[0]; return `<button class="chipb" data-act="${own?act:'aqpv'}" data-k="${own?x[0]:pvk+':'+x[0]}" aria-pressed="${cur===x[0]||pv}" title="${own?'':'Preview first, then buy'}"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x[3]};margin-right:6px;vertical-align:-1px"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
+  return `<div class="jsec">${aqPvBarHTML()}<div class="row spread"><h2>Decorate</h2><button class="btn ${fedLeft?'alt':''} sm" data-act="feed" ${fedLeft?'disabled':''}>${fedLeft?'Fed. Hungry again in '+Math.ceil(fedLeft/60000)+' min':'Feed your fish (+25% income, 30 min)'}</button></div>
    <h5>Water</h5><div class="chips">${chip('aqtheme',THEMES,S.aq.theme)}</div><h5>Floor</h5><div class="chips">${chip('aqsand',SANDS,S.aq.sand)}</div>
    <h5>Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used · +${Math.round(decorBonus()*100)}% aquarium income</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DECOR.map(d=>{ const own=S.aq.owned.includes(d.id), placed=S.aq.decor.includes(d.id);
      return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-decor="${d.id}" data-own="${own?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${own||d.price?d.name:'???'}</b><span class="meta">+${Math.round(d.b*100)}% income</span>
-     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button>`:'<span class="meta">Mystery crates only</span>'}</div>`; }).join('')}</div></div>`; }
+     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="aqpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`:'<span class="meta">Mystery crates or prizes only</span>'}</div>`; }).join('')}</div></div>`; }
 function paintDecor(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(c.dataset.own!=='1'&&!DECORI[c.dataset.decor].price){ x.filter='brightness(0) opacity(.45)'; } drawDecor(x,c.dataset.decor,80,c.dataset.decor==='duck'?70:112,1,0); x.filter='none'; }); }
 
 // ---------- music & ambience (all generated live, nothing to download) ----------
