@@ -16,7 +16,7 @@ function drawFish(c,x,y,L,col,belly,h=.38,wag=0,flip=false,o={}){
   c.fillStyle='#0b1418'; c.beginPath(); c.arc(L*.31,-H2*.08,Math.max(1.4,L*.032),0,7); c.fill(); c.fillStyle='#fff'; c.beginPath(); c.arc(L*.32,-H2*.11,Math.max(.6,L*.012),0,7); c.fill();
   c.restore();
 }
-function drawCreature(c,sp,x,y,L,o={}){
+function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) return;
   let col=sp.col, belly=sp.belly; if(o.shiny){ col=mix(col,'#ffd36a',.45); belly=mix(belly,'#fff6d6',.5); } if(o.sil){ col=belly=o.sil; }
   const wag=o.wag||0, pat=o.sil?0:sp.pat;
   if(sp.shape==='f'||sp.shape==='e'||sp.shape==='s'){ if(!o.sil && MEME_X[sp.id]) memeBehind(c,sp,x,y,L,o); drawFish(c,x,y,L,col,belly,sp.h,wag,o.flip,{shark:sp.shape==='s',pat}); if(!o.sil && MEME_X[sp.id]) memeExtra(c,sp,x,y,L,o); return; }
