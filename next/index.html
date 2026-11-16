@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1000';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1002';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -4640,6 +4640,99 @@ function v3raft(P,t,night,dockY,pb){
   g.strokeStyle=N('#1e2a2a'); g.lineWidth=1.3; g.strokeRect(lx-hw/2,ly-hh/2,hw,hh); g.fillStyle=N('#1e2a2a'); g.beginPath(); g.moveTo(lx-hw*.7,ly-hh/2); g.lineTo(lx,ly-hh*.95); g.lineTo(lx+hw*.7,ly-hh/2); g.closePath(); g.fill();
 }
 V3PLAT.raft=(P,t,night,dockY,pb)=>v3raft(P,t,night,dockY,pb);
+
+// =====================================================================
+// EMBER SPRINGS: a volcanic valley, a smouldering volcano with glowing veins, stone terraces of hot pools,
+// steam lifting off warm water, embers drifting up, glowing moths, a fire salamander
+// =====================================================================
+V3PAL.ember = {
+  day:  {top:'#6a5a6a', mid:'#b88a7a', bot:'#f0c8a0', glow:'#ffe0b0', far:'#6a5050', farHaze:'#c89a88', rock:'#4a3a3a', rockD:'#2a2024', terr:'#7a6258', wTop:'#e8b090', wMid:'#8a5a5a', wBot:'#2a1a20', rim:'#ffd8b0', lava:'#ff7a2a', lava2:'#ffc04a', pool:'#7ad8d0', cloud:'#9a8080', cloudLit:'#e8c0a0', leaf:'#4a5a3a'},
+  dusk: {top:'#2a1430', mid:'#8a2a3a', bot:'#ff7a3a', glow:'#ffa060', far:'#3a1a24', farHaze:'#a84a3a', rock:'#2e1c22', rockD:'#180e14', terr:'#5a3a38', wTop:'#ff9060', wMid:'#6a2a3a', wBot:'#1a0a14', rim:'#ffb070', lava:'#ff6a1a', lava2:'#ffb030', pool:'#6ab8b8', cloud:'#5a2a34', cloudLit:'#d06040', leaf:'#2e2a24'},
+  night:{top:'#0a0408', mid:'#1e0a10', bot:'#3a1418', glow:'#ffb090', far:'#140a0e', farHaze:'#3a1a1a', rock:'#140c10', rockD:'#08050a', terr:'#2a1a1a', wTop:'#5a2420', wMid:'#200c10', wBot:'#060204', rim:'#ff9a6a', lava:'#ff5a10', lava2:'#ffa020', pool:'#3a7a80', cloud:'#2a1216', cloudLit:'#6a2a1a', leaf:'#141210'}
+};
+V3SCENES.ember = {
+  land(x,P,hz,cnv){
+    // far jagged ridges in ash haze
+    v3range(x,{seed:71, base:hz+1, amp:.09*H, massifs:[[.1,.7,.12],[.3,.5,.1],[.92,.6,.12]], light:mix(P.far,P.farHaze,.45), shadow:mix(P.far,'#000000',.2), haze:P.farHaze, snow:null, hazeA:.6});
+    // the volcano: broad cone, glowing crater lip and veins of lava running down
+    { const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh;
+      const cone=()=>{ x.beginPath(); x.moveTo(vx-vw,vb); x.quadraticCurveTo(vx-vw*.4,vb-vh*.35,vx-cw,ty); x.lineTo(vx-cw*.4,ty+vh*.03); x.lineTo(vx+cw*.3,ty+vh*.015); x.lineTo(vx+cw,ty); x.quadraticCurveTo(vx+vw*.45,vb-vh*.4,vx+vw,vb); x.closePath(); };
+      x.fillStyle=P.rock; cone(); x.fill(); x.save(); cone(); x.clip();
+      const sg=x.createLinearGradient(vx-vw,0,vx+vw,0); sg.addColorStop(0,v3rgba(P.rim,.12)); sg.addColorStop(.45,'rgba(0,0,0,0)'); sg.addColorStop(1,v3rgba(P.rockD,.8)); x.fillStyle=sg; x.fillRect(vx-vw,ty,vw*2,vh);
+      x.strokeStyle=v3rgba(P.rockD,.6); x.lineWidth=1; for(let k=0;k<9;k++){ const a=-1+k*.25; x.beginPath(); x.moveTo(vx+a*cw*.8,ty+vh*.03); x.quadraticCurveTo(vx+a*vw*.3,vb-vh*.5,vx+a*vw*.9,vb); x.stroke(); }
+      // lava veins with a hot core
+      for(const [a,len,sd] of [[-.35,.75,1],[.1,.55,2],[.42,.85,3]]){ const r=v3rng(sd); let X=vx+a*cw, Y=ty+vh*.02; const pts=[[X,Y]]; for(let k=0;k<8;k++){ Y+=vh*len/8; X+=a*vw*.07+(r()-.5)*vw*.04; pts.push([X,Y]); }
+        for(const [lw,col] of [[4,v3rgba(P.lava,.35)],[2,P.lava],[.9,P.lava2]]){ x.strokeStyle=col; x.lineWidth=lw; x.beginPath(); x.moveTo(pts[0][0],pts[0][1]); for(const p of pts) x.lineTo(p[0],p[1]); x.stroke(); } }
+      x.restore();
+      x.fillStyle=P.lava2; x.beginPath(); x.moveTo(vx-cw*.85,ty+1); x.lineTo(vx-cw*.4,ty+vh*.03); x.lineTo(vx+cw*.3,ty+vh*.015); x.lineTo(vx+cw*.85,ty+1); x.quadraticCurveTo(vx,ty-vh*.02,vx-cw*.85,ty+1); x.fill(); }
+    // a hillside of travertine on the left bank: the slope itself, then terraces cut into it, each holding
+    // a steaming turquoise pool, with pale mineral curtains dripping over every lip
+    { const hill=()=>{ x.beginPath(); x.moveTo(-2,hz+1); x.lineTo(-2,hz-H*.11); x.bezierCurveTo(W*.08,hz-H*.115,W*.18,hz-H*.07,W*.34,hz+1); x.closePath(); };
+      x.fillStyle=mix(P.terr,P.rockD,.35); hill(); x.fill();
+      const mc=mix(mix('#f0e8dc',P.terr,.35),P.rockD,P.night*.65);
+      for(let k=0;k<5;k++){ const tx=W*(.0+k*.062), tw=W*.075, ty=hz-H*(.098-k*.021), lip=ty+H*.005;
+        x.fillStyle=mix(P.terr,P.farHaze,.06*k); x.beginPath(); x.moveTo(tx-W*.01,ty+H*.012); x.quadraticCurveTo(tx,ty-H*.003,tx+tw*.3,ty-H*.003); x.lineTo(tx+tw*.85,ty-H*.003); x.quadraticCurveTo(tx+tw*1.05,ty-H*.001,tx+tw*1.04,lip); x.lineTo(tx+tw*1.04,ty+H*.02); x.lineTo(tx-W*.01,ty+H*.024); x.closePath(); x.fill();
+        x.fillStyle=mc; x.beginPath(); x.moveTo(tx+tw*.1,lip); for(let j=0;j<=9;j++){ const u=j/9, X=tx+tw*(.1+u*.94), dl=H*(.007+((j*5)%3)*.004); x.lineTo(X,lip+dl); x.lineTo(X+tw*.05,lip+dl*.35); } x.lineTo(tx+tw*1.04,lip); x.closePath(); x.fill();
+        x.fillStyle=v3rgba(mc,.45); for(let j=0;j<4;j++) x.fillRect(tx+tw*(.2+j*.22),lip,1.3,H*(.012+((j*7)%3)*.004));
+        x.fillStyle=mix(P.pool,P.wMid,.2+P.night*.35); x.beginPath(); x.ellipse(tx+tw*.58,ty+H*.0006,tw*.4,H*.0035,0,0,7); x.fill();
+        x.fillStyle=v3rgba(mix(P.pool,'#ffffff',.6),.55*(1-P.night*.6)); x.fillRect(tx+tw*.32,ty-H*.0015,tw*.3,1); } }
+    // basalt cliffs on the right bank: one jagged mass whose face splits into tall columns, slanted caps catching the light
+    { const x0=W*.83, cols=14, cw=(W*1.02-x0)/cols, tops=[]; for(let i=0;i<=cols;i++){ const u=i/cols; tops.push(hz-H*(.025+.07*Math.sin(Math.min(1,u*1.3)*Math.PI*.55)+.006*Math.sin(i*2.7))); }
+      x.fillStyle=P.rock; x.beginPath(); x.moveTo(x0-W*.02,hz+1); x.quadraticCurveTo(x0-W*.01,hz-H*.01,x0,tops[0]); for(let i=0;i<cols;i++){ x.lineTo(x0+i*cw+cw*.15,tops[i]-H*.004); x.lineTo(x0+(i+1)*cw,tops[i+1]); } x.lineTo(W+2,hz+1); x.closePath(); x.fill();
+      for(let i=0;i<cols;i++){ const y0=Math.max(tops[i],tops[i+1]); x.fillStyle=i%3===1?v3rgba(P.rockD,.4):i%3===2?v3rgba(P.rim,.05):'rgba(0,0,0,0)'; x.fillRect(x0+i*cw,y0,cw,hz-y0+1); x.fillStyle=v3rgba(P.rockD,.75); x.fillRect(x0+i*cw,y0+H*.004,1,hz-y0); x.strokeStyle=v3rgba(P.rim,.25); x.lineWidth=1.2; x.beginPath(); x.moveTo(x0+i*cw+1,tops[i]+.5); x.lineTo(x0+i*cw+cw*.15,tops[i]-H*.004+.5); x.lineTo(x0+(i+1)*cw-1,tops[i+1]+.5); x.stroke(); }
+      x.fillStyle=v3rgba(P.farHaze,.25); x.fillRect(x0-W*.02,hz-H*.012,W*.2,H*.013); }
+    v3water(x,P,hz,cnv,.25);
+    // a warm glow in the water under the volcano
+    const wg=x.createRadialGradient(W*.62,hz+H*.04,0,W*.62,hz+H*.04,W*.3); wg.addColorStop(0,v3rgba(P.lava,.22)); wg.addColorStop(1,v3rgba(P.lava,0)); x.fillStyle=wg; x.fillRect(0,hz,W,H-hz);
+  },
+  live(P,t,hz,sun){ const FX=S.settings.effects, night=P.night;
+    const vx=W*.62, ty=hz+1-H*.22;
+    // the crater breathes: a glow that swells and fades; smoke rolls up from it
+    v3glow(g,vx,ty,H*.12,v3rgba(P.lava,.9),.25+night*.3+.15*Math.sin(t*1.3));
+    if(FX){ for(let i=0;i<9;i++){ const k=((t*.05+i/9)%1), sx=vx+Math.sin(k*4+i)*W*.01+k*W*.06, sy=ty-k*H*.25, rr=H*(.01+k*.04); g.fillStyle=v3rgba(mix(P.cloud,P.lava,(1-k)*.35*night+.05),.35*(1-k)); g.beginPath(); g.arc(sx,sy,rr,0,7); g.fill(); } }
+    v3glitter(P,t,hz,sun);
+    // steam lifting off the warm water in soft columns
+    if(FX){ for(let i=0;i<12;i++){ const sx=W*(.22+((i*0.071)%0.72)), k=((t*.1+i*.29)%1), base=hz+H*(.04+((i*37)%30)/100), sy=base-k*H*.1, a=.11*Math.sin(k*Math.PI)*(1-P.night*.3); const sg=g.createLinearGradient(0,sy-H*.04,0,sy+H*.02); sg.addColorStop(0,v3rgba('#ffffff',0)); sg.addColorStop(.5,v3rgba(mix('#ffffff',P.farHaze,.3),a)); sg.addColorStop(1,v3rgba('#ffffff',0)); g.fillStyle=sg; g.beginPath(); g.ellipse(sx+Math.sin(t*.6+i+k*3)*W*.008,sy-H*.01,W*(.006+k*.012),H*(.022+k*.025),Math.sin(t*.4+i)*.15,0,7); g.fill(); } }
+    // bubble rings popping on the surface
+    for(let i=0;i<5;i++){ const k=((t*.5+i*.37)%1), bx=W*(.35+i*.12), by=hz+H*(.1+((i*41)%30)/100); g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.5*(1-k)); g.lineWidth=1; g.beginPath(); g.ellipse(bx,by,2+k*W*.012,1+k*H*.004,0,0,7); g.stroke(); }
+    // embers drifting up everywhere, flickering
+    g.save(); g.globalCompositeOperation='lighter'; const nE=FX?40:15; for(let i=0;i<nE;i++){ const sp=.4+((i*13)%10)/15, X=((i*89.3+Math.sin(t*.8+i)*W*.02)%W), Y=H-((t*H*.06*sp+i*57.7)%(H*1.05)), a=.4+.6*Math.abs(Math.sin(t*4+i*1.7)); g.fillStyle=v3rgba(i%3?P.lava2:P.lava,a*(.5+night*.5)); g.fillRect(X,Y,1.6,1.6); } g.restore();
+    // a fire salamander crawls along the lowest terrace now and then
+    { const per=26, k=(t%per)/per; if(k<.35){ const e=k/.35, sx=W*(.02+e*.27), sy=hz-H*.014+(e>.5?0:0), s=H*.004, wig=Math.sin(t*10)*.3; g.save(); g.translate(sx,sy-H*(.05-Math.min(3,Math.floor(e*4))*.012)+H*.0); g.restore();
+        const yy=hz-H*(.05-Math.min(3,Math.floor(e*4))*.012)-s*.8; g.fillStyle=mix('#1a1a1a',P.rockD,.2); g.beginPath(); g.ellipse(sx,yy,s*3,s*.9,0,0,7); g.fill(); g.beginPath(); g.ellipse(sx+s*3.2,yy-s*.2,s*1.1,s*.8,0,0,7); g.fill();
+        g.strokeStyle=mix('#1a1a1a',P.rockD,.2); g.lineWidth=s*.7; g.beginPath(); g.moveTo(sx-s*2.8,yy); g.quadraticCurveTo(sx-s*4.5,yy+wig*s*2,sx-s*6,yy-wig*s); g.stroke();
+        g.lineWidth=s*.5; g.beginPath(); for(const [lx,ph] of [[-1.6,0],[1.6,Math.PI]]){ g.moveTo(sx+lx*s,yy); g.lineTo(sx+lx*s+Math.sin(t*10+ph)*s,yy+s*1.2); g.moveTo(sx+lx*s,yy); g.lineTo(sx+lx*s-Math.sin(t*10+ph)*s,yy-s*1.2); } g.stroke();
+        g.fillStyle=P.lava2; for(let j=0;j<4;j++){ g.beginPath(); g.arc(sx-s*2+j*s*1.3,yy-s*.2,s*.38,0,7); g.fill(); } v3glow(g,sx,yy,s*6,v3rgba(P.lava,.8),.3); } }
+    v3fishRing(P,t,hz,7.1,.4,.85);
+  },
+  fore(P,t){ // glowing moths flutter at the bottom right
+    g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<4;i++){ const mx=W*(.82+i*.04)+Math.sin(t*1.3+i*2)*W*.02, my=H*(.82-i*.04)+Math.sin(t*2.1+i)*H*.02, fl=Math.abs(Math.sin(t*14+i)), s=H*.005;
+      v3glow(g,mx,my,s*5,'rgba(255,200,120,.8)',.3+.2*P.night); g.fillStyle=v3rgba('#ffe0a0',.8); g.beginPath(); g.ellipse(mx-s*fl,my,s*1.2*fl+.4,s*.8,0,0,7); g.ellipse(mx+s*fl,my,s*1.2*fl+.4,s*.8,0,0,7); g.fill(); } g.restore();
+  }
+};
+
+// standing on basalt columns: hexagonal tops at slightly different heights, hot cracks glowing between them,
+// a stone lantern, a woven basket
+function v3stonePlat(P,t,night,dockY){
+  const PW=W*.19, N=c=>mix(c,'#050204',night*.3), lit=.4+night*.6, lx=PW-W*.01, ly=dockY-H*.07;
+  v3glow(g,lx,ly,H*.17,'rgba(255,170,90,.85)',lit*.5*(.92+.08*Math.sin(t*5.7)));
+  const cw=W*.032, cols=Math.ceil((PW+W*.03)/cw)+1;
+  for(let i=0;i<cols;i++){ const cx=-W*.01+i*cw, top=dockY-H*.004+((i*7)%3)*H*.004-(i===cols-1?0:0), hx=cw*.5;
+    // column body with facets
+    g.fillStyle=N(i%2?'#3a2e30':'#2e2428'); g.fillRect(cx,top,cw,H-top); g.fillStyle=N('#4a3c3c'); g.fillRect(cx,top,cw*.35,H-top); g.fillStyle=N('#1e1618'); g.fillRect(cx+cw*.75,top,cw*.25,H-top);
+    // hex top
+    g.fillStyle=N('#5a4a48'); g.beginPath(); g.moveTo(cx,top); g.lineTo(cx+cw*.22,top-H*.007); g.lineTo(cx+cw*.78,top-H*.007); g.lineTo(cx+cw,top); g.lineTo(cx+cw*.78,top+H*.005); g.lineTo(cx+cw*.22,top+H*.005); g.closePath(); g.fill();
+    g.strokeStyle=v3rgba(P.rim,.25); g.lineWidth=1; g.beginPath(); g.moveTo(cx+cw*.22,top-H*.007); g.lineTo(cx+cw*.78,top-H*.007); g.stroke();
+    // a glowing crack in the seam
+    if(i%2===0){ g.strokeStyle=v3rgba(P.lava,.5+.3*Math.sin(t*1.7+i)); g.lineWidth=1.4; g.beginPath(); g.moveTo(cx+cw,top+H*.01); g.lineTo(cx+cw+1,top+H*.04); g.lineTo(cx+cw-1,top+H*.07); g.stroke(); } }
+  // stone lantern: base, post, firebox with a window, roof cap
+  { const s=H*.012, bx=lx; g.fillStyle=N('#6a5a54'); g.fillRect(bx-s*1.2,dockY-H*.012,s*2.4,s*.7); g.fillRect(bx-s*.45,ly+s*1.6,s*.9,dockY-H*.012-(ly+s*1.6));
+    g.fillRect(bx-s*1.1,ly-s*1.1,s*2.2,s*2.6); g.fillStyle=v3rgba('#ffb060',.6+lit*.4); g.fillRect(bx-s*.55,ly-s*.6,s*1.1,s*1.4);
+    g.fillStyle=N('#5a4a44'); g.beginPath(); g.moveTo(bx-s*1.9,ly-s*1.1); g.lineTo(bx,ly-s*2.4); g.lineTo(bx+s*1.9,ly-s*1.1); g.closePath(); g.fill(); g.beginPath(); g.arc(bx,ly-s*2.5,s*.35,0,7); g.fill(); }
+  // a woven basket by the angler
+  { const bx=W*.152, s=H*.018, by=dockY-H*.006; g.fillStyle=N('#a07a48'); g.beginPath(); g.moveTo(bx,by); g.lineTo(bx+s*.15,by-s); g.lineTo(bx+s*1.15,by-s); g.lineTo(bx+s*1.3,by); g.closePath(); g.fill(); g.strokeStyle=N('#6a4a28'); g.lineWidth=.8; for(let k=1;k<4;k++){ g.beginPath(); g.moveTo(bx+s*.05,by-s*k/4); g.lineTo(bx+s*1.25,by-s*k/4); g.stroke(); } }
+}
+V3PLAT.stone=(P,t,night,dockY)=>v3stonePlat(P,t,night,dockY);
 
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
