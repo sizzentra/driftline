@@ -1,5 +1,5 @@
-// 0.3 UI layer (Glow Diorama): injected only in the preview / ?v3, scoped under body.v3
-if(window.DL_PREVIEW || /[?&]v3\b/.test(location.search)){ document.body.classList.add('v3'); document.head.insertAdjacentHTML('beforeend', `
+// 0.3 UI layer (Glow Diorama), scoped under body.v3 (always on since 0.3)
+{ document.body.classList.add('v3'); document.head.insertAdjacentHTML('beforeend', `
 <style>
 /* =====================================================================
    0.3 UI: "Glow Diorama". One layer over the old styles, active only with body.v3.

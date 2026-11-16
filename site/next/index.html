@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1048';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1051';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -335,8 +335,8 @@ body.side-off .wrap{grid-template-columns:minmax(0,1fr)}body.side-off .tabs,body
 <script>
 (() => {
 'use strict';
-// 0.3 UI layer (Glow Diorama): injected only in the preview / ?v3, scoped under body.v3
-if(window.DL_PREVIEW || /[?&]v3\b/.test(location.search)){ document.body.classList.add('v3'); document.head.insertAdjacentHTML('beforeend', `
+// 0.3 UI layer (Glow Diorama), scoped under body.v3 (always on since 0.3)
+{ document.body.classList.add('v3'); document.head.insertAdjacentHTML('beforeend', `
 <style>
 /* =====================================================================
    0.3 UI: "Glow Diorama". One layer over the old styles, active only with body.v3.
@@ -1471,7 +1471,7 @@ function fight(dt){
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
   const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
   const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
-  // how hard you are reeling right now: 1 = holding; in the 0.3 preview also a crank or a partly pulled trigger (0..1)
+  // how hard you are reeling right now: 1 = holding; since 0.3 also a crank or a partly pulled trigger (0..1)
   const rin = V3ON ? reelInput(dt) : (G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin);
   if(rin>0){
     G.d -= reel*reelK*rdt*(G.run?.25:1)*(B.drag?.75:1);
@@ -3698,13 +3698,13 @@ if(/[?&]test\b/.test(location.search)){
 
 // =====================================================================
 // Driftline 0.3 scene renderer, style B2 "Glow Diorama".
-// Active only in the preview build (window.DL_PREVIEW) or with ?v3 in the URL.
+// Since 0.3 this is the only renderer (V3ON is always true).
 // Areas move over one at a time (V3SCENES); the rest keep the old renderer.
 // Speed: everything that doesn't move (mountains, shores, cabin, water base,
 // reflections) is drawn once into an offscreen canvas and reused until the
 // size or the light changes; only living things are drawn every frame.
 // =====================================================================
-const V3ON = !!window.DL_PREVIEW || /[?&]v3\b/.test(location.search);
+const V3ON = true; // 0.3: the new look is the game (kept as a flag so the older drawing code stays readable)
 function v3rng(seed){ let s=(seed>>>0)||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
 function v3noise(seed){ const r=v3rng(seed), p=Array.from({length:128},()=>r()); return x=>{ const i=Math.floor(x), f=x-i, u=f*f*(3-2*f); const a=p[((i%128)+128)%128], b=p[(((i+1)%128)+128)%128]; return a+(b-a)*u; }; }
 const v3s = x => x*x*(3-2*x); // smoothstep

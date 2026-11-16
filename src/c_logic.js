@@ -403,7 +403,7 @@ function fight(dt){
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
   const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
   const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
-  // how hard you are reeling right now: 1 = holding; in the 0.3 preview also a crank or a partly pulled trigger (0..1)
+  // how hard you are reeling right now: 1 = holding; since 0.3 also a crank or a partly pulled trigger (0..1)
   const rin = V3ON ? reelInput(dt) : (G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin);
   if(rin>0){
     G.d -= reel*reelK*rdt*(G.run?.25:1)*(B.drag?.75:1);

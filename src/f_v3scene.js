@@ -1,13 +1,13 @@
 
 // =====================================================================
 // Driftline 0.3 scene renderer, style B2 "Glow Diorama".
-// Active only in the preview build (window.DL_PREVIEW) or with ?v3 in the URL.
+// Since 0.3 this is the only renderer (V3ON is always true).
 // Areas move over one at a time (V3SCENES); the rest keep the old renderer.
 // Speed: everything that doesn't move (mountains, shores, cabin, water base,
 // reflections) is drawn once into an offscreen canvas and reused until the
 // size or the light changes; only living things are drawn every frame.
 // =====================================================================
-const V3ON = !!window.DL_PREVIEW || /[?&]v3\b/.test(location.search);
+const V3ON = true; // 0.3: the new look is the game (kept as a flag so the older drawing code stays readable)
 function v3rng(seed){ let s=(seed>>>0)||1; return ()=>{ s^=s<<13; s>>>=0; s^=s>>>17; s^=s<<5; s>>>=0; return s/4294967296; }; }
 function v3noise(seed){ const r=v3rng(seed), p=Array.from({length:128},()=>r()); return x=>{ const i=Math.floor(x), f=x-i, u=f*f*(3-2*f); const a=p[((i%128)+128)%128], b=p[(((i+1)%128)+128)%128]; return a+(b-a)*u; }; }
 const v3s = x => x*x*(3-2*x); // smoothstep

@@ -13,7 +13,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **0.3 overhaul IN PROGRESS** (2026-11-16):
+- **0.3 overhaul: RELEASE CANDIDATE, awaiting final approval** (2026-11-16):
   - Preview: https://sizzentra.github.io/driftline/next/ (its own save; it copies the real save once; badge "0.3 preview").
   - Build: `build.ps1 -Preview`. Publish: `publish_preview.ps1` (never rebuilds friends' game).
   - New renderer: `src/f_v3scene.js` (B2 style; on only when `DL_PREVIEW` is set or the URL has `?v3`). It hooks into `draw()` in `d_draw.js` via `v3Scene` / `v3Platform` / `v3Fore`.
@@ -35,14 +35,19 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - Old drawings are used only if a pet has no PET3 entry (none left).
   - **ALL 10 AREAS DONE** (`src/f2_areas.js`; shared helpers v3tree / v3rock / v3hillBand / v3water / v3glitter / v3mist / v3fishRing / v3stack / v3palm / v3snowPine). Scene hooks: `land` (cached), `live`, `fore`, optional `sky(P,t,hz)` (before the land cache), `tilt(t)` (world rocks, boat areas), `overcast` (hides stars, dims sun/moon). Every area has its own platform in `V3PLAT` (dock, pier, ice, sand, boat, trawler, raft, stone, crystal). River: arch bridge, mill + waterwheel, rocks with foam pillows. Coast: lighthouse beam, dunes, swells, gulls, crab pier. Frost: aurora, ice hut, floes, owl, fox, snow. Reef: reef patches under water, caustic web, palms, stilt hut, turtle, parrots. Shelf: swell + tilt, tall ship, bell buoy, dolphins, albatross. Deep: storm bands, lightning flash, rain sheets, whale tail, trawler floodlights. Trench: sea stacks, wreck mast, jellyfish, plankton, eyes in the deep, raft. Ember: volcano, travertine terraces, basalt, steam, embers, salamander, moths. Starfall: cached Milky Way + reflection, ringed planet, floating islands, fish constellation, shooting stars. Checked day/dusk/night, PC + phone, weather overlays (`__setWeather(kind)`), draw cost under 1 ms each (`__drawCost(n)`).
   - **FISH DONE** (`src/i_fish.js`, `drawCreature3`, hooked at the top of `drawCreature` when `V3ON`): `fishDesign(sp)` builds a design per species from its old shape letter, pattern flag, size and name keywords (pike/trout/perch/carp/cod/jack/grouper/...), area touches (ember glow, frost sheen, cosmic sparkles, deep-sea glow) and per-id variety; `FISH3_OVR` holds hand-made designs for ~170 signature species. Plans: fusi, deep, long, disc, grouper, koi/carp/goldfish, bill (marlin/swordfish), tuna, mahi, blenny, guppy, eel, worm, shark (hammer/goblin/thresher), ray, manta, ball (puffer), box, horse (seahorse/leafy dragon), mola, angler, blob, seapig, axolotl, tadpole, hatchet, gulper, chimera, rattail, sculpin, flat, star, plus jelly, squid, octopus, crab, lobster, shrimp, isopod, krill. Silhouettes (`o.sil`), shiny, flip and wag all supported; meme overlays still work. QC: `__fishSheet({from,to,ids,loc,cols,cell,save})`. Cost about 0.1 ms per fish.
+  - **0.3 RELEASE CANDIDATE READY (2026-11-16), waiting for the director's ONE final approval.** Live for review at https://sizzentra.github.io/driftline/next/ (own save; copies the real save once). Friends' game is untouched (still 2.2.2).
+    - Done since the areas and fish: **UI layer** (`src/a2_v3ui.js`, body.v3: glass panels, lantern buttons, icon tab grid that fits every phone width and sideways), **Home dock diorama** using the current area's sky/landscape/water (`paintHome3`), **lit stage** for Wardrobe/Pets (`v3Pedestal`), **aquarium** (`v3TankBack`/`v3TankGlass`), **Waters thumbnails** painted from each scene (`v3Thumb`), **rods as real gear** (`v3Rod` in game and Rods tab), **music themes per water** (`src/j_music.js`, "Follow the water"), **new controls** (`src/k_controls.js`: tap to aim, crank reeling by circles or mouse wheel, gamepad with analog trigger, phone vibration; Settings > Controls), **0.3 patch notes** with old versions relabelled 0.1.x / 0.2.x.
+    - `V3ON` is now always true (src is the 0.3 game). The main site only changes when `publish.ps1` runs.
+    - QC done: every area × day/dusk/night on PC, phone portrait and landscape; weather overlays; a full automated cast → bite → hook → reel → land → catch in all 10 areas with zero errors; every fish/creature sheet; rods sheet; hats sheet; music levels measured per theme; draw cost under 1 ms per area; the release build (real save key, no badge) loads and shows the 0.3 notes.
+    - **To launch after approval:** `powershell -ExecutionPolicy Bypass -File publish.ps1 "Driftline 0.3: The Big Glow-Up"` (builds `site/index.html` as 0.3, commits, pushes main and gh-pages). Then add the 0.3 entry to the patch-notes memory and set "Live version" above to 0.3.
   - **Next, in order:**
     1. ~~The 9 other areas~~ (done).
     2. ~~Unique fish designs~~ (done).
-    3. UI makeover (all 17 tabs).
-    4. Music options (cozy, per area).
-    5. New player controls.
-    6. Dock decor and aquarium in the new style.
-    7. 0.3 patch notes (relabel old versions as 0.1/0.2) + final QC + launch.
+    3. ~~UI makeover~~ (done).
+    4. ~~Music options~~ (done).
+    5. ~~New player controls~~ (done).
+    6. ~~Dock diorama and aquarium~~ (done).
+    7. ~~Patch notes + final QC~~ (done). Launch waits for the director's approval.
   - Test tools (`?test`): `__setPhase(0.5)` sets the clock and finds clear weather, `__crop(x,y,w,h,scale)` enlarges part of the canvas, `__go(id)` moves to an area.
 
 ## Roles
