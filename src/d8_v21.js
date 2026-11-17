@@ -94,6 +94,7 @@ function extraAct6(b){ if(b.dataset.act==='claw'){ const c=clawCost(); if(S.mone
 function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
   switch(id){
     case 'lily': drawLily(c,t,h); break;
+    case 'daxniko': drawPair(c,t,h); break;
     case 'puppy': ln([-8,-8,-12,-12+Math.sin(t*12)*2.5],'#e0b060',2.4); rc(-6,-5,2.4,5,'#e0b060'); rc(4,-5,2.4,5,'#e0b060'); el(0,-8,8,4.6,'#f0c070'); ci(8,-13,4.4,'#f0c070'); el(11.6,-12,2.8,2,'#f8dca0'); ci(13.8,-12.4,1,'#2a1a10'); el(6,-12,1.8,3.6,'#d8a050',.2); if(!blink) eye(9,-14.4,.9); ln([12,-10,12.6,-8.4],'#ff7a8a',1.2); break;
     case 'kitten': ln([-4,-2,-8,-5,-7,-10],'#e8a060',1.6); el(0,-5,4,4.8,'#f0b070'); ci(1,-11,3.4,'#f0b070'); c.fillStyle='#f0b070'; c.beginPath(); c.moveTo(-1.5,-13); c.lineTo(-1.2,-16.5); c.lineTo(.8,-14); c.moveTo(1.8,-14); c.lineTo(3.8,-16.5); c.lineTo(4,-12.6); c.fill(); if(!blink){ ci(2.4,-11.4,.9,'#4a8a3a'); ci(-.2,-11.4,.9,'#4a8a3a'); } break;
     case 'fireflyjar': rc(-5,-14,10,14,'rgba(200,230,255,.25)'); rc(-5.5,-16,11,2.5,'#8a6a4a'); for(let i=0;i<4;i++){ const fx=Math.sin(t*2+i*1.7)*3, fy=-7+Math.cos(t*1.6+i)*4; c.fillStyle='rgba(230,255,140,'+(.6+.4*Math.sin(t*5+i))+')'; c.beginPath(); c.arc(fx,fy,1.1,0,7); c.fill(); } break;

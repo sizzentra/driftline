@@ -618,6 +618,7 @@ const PETS = [
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
  ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
  ['lily','Mini Aussie','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
+ ['daxniko','Chihuahua terrier mixes','xp',.12,'gift',0,'One of a kind, times two. Small, loyal and always side by side.'],
  ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
  ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
  ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],

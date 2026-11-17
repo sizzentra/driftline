@@ -985,12 +985,13 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   // a soft vignette so the dock reads first
   const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
   // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
-  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), th=h*.035, fh=h*.05, x0=w*.03, x1=w*.95;
-  drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts:[0,1,2,3,4].map(i=>x0+w*.04+i*(x1-x0-w*.1)/4),pw:w*.022});
+  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), u=2.6, th=5.04*u, fh=7.56*u, x0=w*.03, x1=w*.95; // the same proportions as the dock on the water, at Home's zoom (the angler is drawn at 2.6)
+  const posts=[]; for(let X=x0+16.8*u; X<x1-9.24*u; X+=63*u) posts.push(X);
+  drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts,pw:9.24*u,wl:dy+31.5*u,wc:P.wMid});
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
-  { const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,w*.58-(big?44:31)*2.6,dy-th*.4,2.6*(big?.85:1),t); } drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  homePetsDraw(x,w,dy-th*.4,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
   return true; }
 
 // a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow

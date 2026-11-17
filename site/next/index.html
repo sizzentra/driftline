@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1803';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1814';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1063,6 +1063,7 @@ const PETS = [
  ['teddy','Teddy Bear','xp',.15,'prize',1500,'Won with tickets at the Boardwalk Prize Counter. Soft and lucky.'],
  ['puppy','Golden Puppy','xp',.1,'shop',7000,'All paws, all heart. Very proud of every catch.'],
  ['lily','Mini Aussie','xp',.12,'gift',0,'One of a kind. Fluffy, loyal, and very good at head tilts.'],
+ ['daxniko','Chihuahua terrier mixes','xp',.12,'gift',0,'One of a kind, times two. Small, loyal and always side by side.'],
  ['kitten','Kitten','trophy',.15,'shop',4000,'Small, fluffy and only interested in the big fish.'],
  ['fireflyjar','Firefly Jar','rare',.08,'shop',3000,'A little jar of friendly lights. The fish come to look.'],
  ['puffin','Puffin','hot',.25,'shop',15000,'Always knows where the fish are gathering.'],
@@ -1872,7 +1873,7 @@ function drawAngler(c,x,y,s,lk,o={}){ if(V3ON) return drawAngler3(c,x,y,s,lk,o);
   c.save(); c.translate(0,-56); drawHat(c,lk.hat,D(lk.hatCol),o.t||0); c.restore();
   c.restore();
 }
-function drawPet(c,id,x,y,s,t,night=0,lk=null){ if(V3ON && id!=='lily' && drawPet3(c,id,x,y,s,t,night,lk)) return;
+function drawPet(c,id,x,y,s,t,night=0,lk=null){ if(V3ON && id!=='lily' && id!=='daxniko' && drawPet3(c,id,x,y,s,t,night,lk)) return;
   const D=cl=>night?mix(cl,'#0a1018',night*.4):cl; c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round';
   const el=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=D(cl); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); }; const ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
   const rc=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }; const ln=(pts,cl,lw)=>{ c.strokeStyle=D(cl); c.lineWidth=lw; c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=2) c.lineTo(pts[i],pts[i+1]); c.stroke(); };
@@ -2722,7 +2723,7 @@ const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].na
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
 function petOffset(id,t){ if(id==='frog') return [0,-Math.pow(Math.max(0,Math.sin(t*1.4)),10)*7]; if(id==='bat') return [0,-14+Math.sin(t*2)*2]; if(id==='ghost') return [0,Math.sin(t*2)*2-4]; if(id==='crab') return [Math.sin(t*1.2)*2,0]; return [0,0]; }
-function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; } const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
+function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; } if(id==='daxniko'){ drawPairGear(c,lk,t); return; } const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
   const col=lk.accCol||'#d8303a';
   c.save(); c.lineCap='round';
   if(lk.acc==='cape'){ c.fillStyle=col; c.beginPath(); c.moveTo(hx-r*.9,hy+r*.8); c.quadraticCurveTo(hx-r*3.4,hy+r*2+Math.sin(t*4)*1.2,hx-r*3,hy+r*3.6); c.lineTo(hx-r*.4,hy+r*2.4); c.closePath(); c.fill(); }
@@ -2737,15 +2738,15 @@ function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; 
   if(lk.acc==='flower'){ const fx=hx-r*.6, fy=hy-r*.75; for(let i=0;i<5;i++){ c.fillStyle='#ff9ad0'; c.beginPath(); c.arc(fx+Math.cos(i*1.26)*r*.28,fy+Math.sin(i*1.26)*r*.28,r*.2,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.15,0,7); c.fill(); }
   if(lk.acc==='glasses'){ c.fillStyle='#111'; c.beginPath(); c.ellipse(hx+r*.25,hy-r*.15,r*.32,r*.22,0,0,7); c.ellipse(hx+r*.85,hy-r*.15,r*.28,r*.2,0,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=r*.1; c.beginPath(); c.moveTo(hx+r*.5,hy-r*.18); c.lineTo(hx+r*.6,hy-r*.18); c.stroke(); }
   c.restore(); }
-function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); if(id==='lily') LILY.lk=lk; c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night,lk); c.restore();
-  if(V3ON && id!=='lily' && PET3[id]){ drawGear3(c,id,lk,t); return; }
+function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); if(id==='lily') LILY.lk=lk; if(id==='daxniko') PAIR.lk=lk; c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night,lk); c.restore();
+  if(V3ON && id!=='lily' && id!=='daxniko' && PET3[id]){ drawGear3(c,id,lk,t); return; }
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
 function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
   const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
   drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?44:31)*sc;
-  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2); } else PET_BOX2=null;
+function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=(S.dock&&S.dock.petPos!=null&&G.st!=='rest')?scenePetX(S.dock.petPos):ax-(big?44:31)*sc;
+  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(S.dock&&S.dock.pet2Pos!=null&&G.st!=='rest') x2=scenePetX(S.dock.pet2Pos); else if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2); } else PET_BOX2=null;
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
@@ -2773,7 +2774,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
   return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap petwrap" style="margin-top:0"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
-    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${id==="lily"?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
+    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${(id==="lily"||id==="daxniko")?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
@@ -2782,7 +2783,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
-  if(id==='lily'&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||editPet()!=='lily'){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
+  if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
   if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
@@ -2816,7 +2817,7 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
 function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(S.owned.pets.includes("daxniko")?[PAIR_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
@@ -3282,7 +3283,7 @@ function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
   const pvBar = DOCK_PV ? `<div class="pvbar"><span>Previewing on your dock: <b>${esc(DOCK_PV.name)}</b></span><span class="row"><button class="btn sm" data-act="${DOCK_PV.kind==='wood'?'dockwood':DOCK_PV.kind==='style'?'dockstyle':'dockdecor'}" data-k="${DOCK_PV.id}" ${S.money>=DOCK_PV.price?'':'disabled'}>Buy · <span class="coin">${fmt(DOCK_PV.price)}</span></button><button class="btn alt sm" data-act="dockpvoff">Stop</button></span></div>` : '';
   P.innerHTML=`<div class="row spread"><div><h2>Home</h2><p class="sub">Your dock goes with you to every water. Make it yours: pick the wood, add decorations, and the cozier it gets, the better you fish.</p></div>
    <div class="tile" style="min-width:200px"><div class="rar" style="color:#ff9ac0">Cozy level: ${cozyName()}</div><b>${c} ♥</b> <span class="meta">· +${cb}% XP, +${(cb*.5).toFixed(1)}% bite speed, +${(cb*.5).toFixed(1)}% sale price</span><div class="prog"><i style="width:${Math.min(1,c/40)*100}%;background:#ff9ac0"></i></div></div></div>
-   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>${S.dock.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the dock to move it.</p>`:""}
+   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>${S.dock.decor.length?`<p class="sub" style="margin-top:6px">Drag decorations and pets along the dock to move them.</p>`:""}
    <h5>Wood</h5><div class="chips">${DOCK_WOODS.filter(w=>w[2]||S.dock.owned.includes(w[0])||w[0]==='oak').map(w=>{ const own=S.dock.owned.includes(w[0]); const pv=DOCK_PV&&DOCK_PV.kind==='wood'&&DOCK_PV.id===w[0];
      return `<button class="chipb" data-act="${own?'dockwood':'dockpv'}" data-k="${own?w[0]:'wood:'+w[0]}" aria-pressed="${wood===w[0]||pv}"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${w[3]};margin-right:6px;vertical-align:-1px"></span>${w[1]}${own?'':' · '+fmt(w[2])}</button>`; }).join('')}</div>
    ${dockStyleChipsHTML()}
@@ -3484,9 +3485,10 @@ const HOME_X0=.06, HOME_X1=.9;
 function homeDragSetup(){ const c=$('homecv'); if(!c||c.dataset.drag) return; c.dataset.drag='1'; c.style.cursor='grab'; c.style.touchAction='pan-y';
   let drag=null; const toX=e=>{ const r=c.getBoundingClientRect(); return (e.clientX-r.left)*(c.width/r.width); };
   c.addEventListener('pointerdown',e=>{ const x=toX(e), w=c.width, items=dockView(), P=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0)); let best=null, bd=w*.06;
+    for(const wh of ['1','2']){ if(wh==='2'&&!(S.pet2&&PETI[S.pet2])) continue; if(wh==='1'&&!S.pet) continue; const d=Math.abs(homePetX(wh,w)-x); if(d<bd){ bd=d; best='pet'+wh; } }
     for(const id in P){ const px=w*(HOME_X0+P[id]*(HOME_X1-HOME_X0)), d=Math.abs(px-x); if(d<bd){ bd=d; best=id; } }
     if(best){ drag=best; c.setPointerCapture(e.pointerId); c.style.cursor='grabbing'; e.preventDefault(); } });
-  c.addEventListener('pointermove',e=>{ if(!drag) return; const w=c.width; S.dock.pos[drag]=clamp((toX(e)/w-HOME_X0)/(HOME_X1-HOME_X0),0,1); paintHome(); });
+  c.addEventListener('pointermove',e=>{ if(!drag) return; const w=c.width, v=clamp((toX(e)/w-HOME_X0)/(HOME_X1-HOME_X0),0,1); if(drag==='pet1') S.dock.petPos=v; else if(drag==='pet2') S.dock.pet2Pos=v; else S.dock.pos[drag]=v; paintHome(); });
   const end=()=>{ if(drag){ drag=null; c.style.cursor='grab'; save(); } }; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end); }
 
 // aquarium: drag a decoration along the tank floor
@@ -3502,7 +3504,7 @@ if(/[?&]test\b/.test(location.search)) window.__dockSizes=()=>Object.keys(DOCK_H
 const DOCK_STYLES=[['plank','Classic planks',0],['boardwalk','Boardwalk with rail',4000],['bamboo','Bamboo',6000],['driftwood','Driftwood logs',7500],['stone','Stone jetty',9000],['pontoon','Floating pontoon',12000]];
 const dockStyleCur=()=> (DOCK_PV&&DOCK_PV.kind==='style')?DOCK_PV.id:((S.dock&&S.dock.style)||'plank');
 // c: context, o: {x0,x1,y (deck top line), th (deck thickness), fh (front beam), bottom, wd (wood colour), N (night tint), rim, t, posts:[x], pw (post width)}
-function drawDockStyle(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
+function drawDockStyle0(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
   const plankDeck=()=>{ c.fillStyle=top; c.fillRect(x0,y-th,W2,th); c.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+W2*.06;X<x1;X+=W2*.12) c.fillRect(X,y-th,1,th); c.fillStyle=face; c.fillRect(x0,y,W2,fh);
     c.fillStyle=N('#2a1a14'); for(let X=x0+W2*.06;X<x1;X+=W2*.25){ c.fillRect(X,y+fh*.25,1.6,1.6); c.fillRect(X,y+fh*.65,1.6,1.6); } };
@@ -3523,9 +3525,28 @@ function drawDockStyle(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}
     c.fillStyle=L1; c.beginPath(); c.moveTo(x0,y-th); for(let X=x0;X<=x1;X+=W2/10) c.lineTo(X,y-th+Math.sin(X*.3)*1.2); c.lineTo(x1,y); c.lineTo(x0,y); c.closePath(); c.fill(); }
   else { woodPosts(false); plankDeck();
     if(st==='boardwalk'){ const rh=Math.max(14,fh*2.4); c.fillStyle=dark; for(const px of o.posts) c.fillRect(px+o.pw*.2,y-th-rh,o.pw*.6,rh); c.strokeStyle=N('#c9a070'); c.lineWidth=1.6; c.beginPath(); for(let i=0;i<o.posts.length-1;i++){ const a=o.posts[i]+o.pw*.5, b2=o.posts[i+1]+o.pw*.5, yy=y-th-rh*.75; c.moveTo(a,yy); c.quadraticCurveTo((a+b2)/2,yy+5,b2,yy); } c.stroke(); } }
-  if(o.rim){ c.fillStyle=v3rgba(o.rim,.45); c.fillRect(x0,y-th,W2,1); } c.fillStyle='rgba(0,0,0,.28)'; c.fillRect(x0,y+fh,W2,2); }
+  if(o.rim){ c.fillStyle=v3rgba(o.rim,.45); c.fillRect(x0,y-th,W2,1); } c.fillStyle='rgba(0,0,0,.28)'; c.fillRect(x0,y+fh,W2,2);
+  // the water comes up to just under the deck: the posts below the waterline sit in the water, tinted by it
+  if(false){ const wl=o.wl, g3=c.createLinearGradient(0,wl,0,bottom); g3.addColorStop(0,v3rgba(o.wc,.55)); g3.addColorStop(.35,v3rgba(o.wc,.82)); g3.addColorStop(1,v3rgba(o.wc,.92)); c.fillStyle=g3; c.fillRect(x0-6,wl,W2+12,bottom-wl);
+    c.strokeStyle='rgba(235,248,255,.35)'; c.lineWidth=1; const ph=(t||0)*1.6; for(const px of (o.posts||[])){ const cx=px+o.pw*.5; c.beginPath(); c.ellipse(cx,wl+1,o.pw*(1.1+.12*Math.sin(ph+px)),Math.max(1.2,o.pw*.22),0,0,7); c.stroke(); }
+    c.fillStyle='rgba(235,248,255,.18)'; c.fillRect(x0-6,wl,W2+12,1); } }
 function dockStyleChipsHTML(){ const cur=dockStyleCur(); S.dock.styles=S.dock.styles||['plank'];
   return `<h5>Dock style</h5><div class="chips">${DOCK_STYLES.map(([k,n,p])=>{ const own=S.dock.styles.includes(k)||!p; return `<button class="chipb" data-act="${own?'dockstyle':'dockpv'}" data-k="${own?k:'style:'+k}" aria-pressed="${cur===k}">${n}${own?'':' · '+fmt(p)}</button>`; }).join('')}</div>`; }
+// the dock stands in the water: everything above the waterline is solid, the part below shows faintly through the water
+function drawDockStyle(c,o){ if(!o.wl||dockStyleCur()==='pontoon') return drawDockStyle0(c,o); const wl=o.wl;
+  c.save(); c.beginPath(); c.rect(-1e4,-1e4,3e4,1e4+wl); c.clip(); drawDockStyle0(c,o); c.restore();
+  c.save(); c.beginPath(); c.rect(-1e4,wl,3e4,1e4); c.clip(); c.globalAlpha*=.2; drawDockStyle0(c,o); c.restore();
+  c.save(); c.strokeStyle='rgba(235,248,255,.38)'; c.lineWidth=1; const ph=(o.t||0)*1.6;
+  if(dockStyleCur()==='stone'){ c.fillStyle='rgba(235,248,255,.22)'; c.fillRect(o.x0,wl,o.x1-o.x0,1.2); }
+  else for(const px of (o.posts||[])){ const cx=px+o.pw*.5; c.beginPath(); c.ellipse(cx,wl+1,o.pw*(1.15+.12*Math.sin(ph+px)),Math.max(1.2,o.pw*.22),0,0,7); c.stroke(); }
+  c.restore(); }
+// pets on the dock: each pet can be dragged to its own spot in Home (saved as a 0..1 position along the dock)
+const petBig = id => id==='horse'||id==='cow';
+function homePetX(wh,w){ const pos=S.dock[wh==='2'?'pet2Pos':'petPos']; if(pos!=null) return w*(HOME_X0+pos*(HOME_X1-HOME_X0));
+  const px=w*.58-(petBig(S.pet)?44:31)*2.6; return wh==='2' ? px-(petBig(S.pet)?22:15)*2.6-(petBig(S.pet2)?36:26)*2.6 : px; }
+function homePetsDraw(x,w,y,t){ if(S.pet2&&PETI[S.pet2]) drawPetStyled(x,S.pet2,homePetX('2',w),y,2.6*.9*(petBig(S.pet2)?.85:1),t); if(S.pet) drawPetStyled(x,S.pet,homePetX('1',w),y,2.6*(petBig(S.pet)?.85:1),t); }
+// the same spots on the water (the dock there runs from W*.008 to W*.178)
+function scenePetX(pos){ return W*.008+pos*(W*.17); }
 
 // =====================================================================
 // Update 2.1 "More of Everything": more rods, attachments, decor, dock
@@ -3622,6 +3643,7 @@ function extraAct6(b){ if(b.dataset.act==='claw'){ const c=clawCost(); if(S.mone
 function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
   switch(id){
     case 'lily': drawLily(c,t,h); break;
+    case 'daxniko': drawPair(c,t,h); break;
     case 'puppy': ln([-8,-8,-12,-12+Math.sin(t*12)*2.5],'#e0b060',2.4); rc(-6,-5,2.4,5,'#e0b060'); rc(4,-5,2.4,5,'#e0b060'); el(0,-8,8,4.6,'#f0c070'); ci(8,-13,4.4,'#f0c070'); el(11.6,-12,2.8,2,'#f8dca0'); ci(13.8,-12.4,1,'#2a1a10'); el(6,-12,1.8,3.6,'#d8a050',.2); if(!blink) eye(9,-14.4,.9); ln([12,-10,12.6,-8.4],'#ff7a8a',1.2); break;
     case 'kitten': ln([-4,-2,-8,-5,-7,-10],'#e8a060',1.6); el(0,-5,4,4.8,'#f0b070'); ci(1,-11,3.4,'#f0b070'); c.fillStyle='#f0b070'; c.beginPath(); c.moveTo(-1.5,-13); c.lineTo(-1.2,-16.5); c.lineTo(.8,-14); c.moveTo(1.8,-14); c.lineTo(3.8,-16.5); c.lineTo(4,-12.6); c.fill(); if(!blink){ ci(2.4,-11.4,.9,'#4a8a3a'); ci(-.2,-11.4,.9,'#4a8a3a'); } break;
     case 'fireflyjar': rc(-5,-14,10,14,'rgba(200,230,255,.25)'); rc(-5.5,-16,11,2.5,'#8a6a4a'); for(let i=0;i<4;i++){ const fx=Math.sin(t*2+i*1.7)*3, fy=-7+Math.cos(t*1.6+i)*4; c.fillStyle='rgba(230,255,140,'+(.6+.4*Math.sin(t*5+i))+')'; c.beginPath(); c.arc(fx,fy,1.1,0,7); c.fill(); } break;
@@ -4003,6 +4025,169 @@ if(/[?&]test\b/.test(location.search)){
 }
 
 // =====================================================================
+// Dax & Niko: an exclusive double pet for Zac (gift code only), the first pair in the game,
+// drawn from a photo of the real dogs, two Chihuahua terrier mixes who sit side by side facing you.
+//  Dax (left): smaller, black and a little scruffy, half-up ears whose tips fold forward, a greying
+//   muzzle and chin, a small white blaze on his chest, warm brown eyes, a long thin tail.
+//  Niko (right): cream with big upright ears (pink inside, his right tip folds a little), a white blaze
+//   down to a white muzzle, a liver-pink nose, white chest and white paws.
+// They count as ONE pet with the same bonus as Lily (+12% XP), so an exclusive is never stronger.
+// Their own moments: Niko's ear twitches, Dax's head tilt and paw, nose boops with a little heart,
+// a play bow together every third pet, Niko's "Yip!" when a fish lands, shivering in cold water,
+// and napping curled up together at night.
+// Faces are drawn in Lily's face units (eyes at +-2,-1.1) so every hat and accessory fits them too.
+// =====================================================================
+const PAIR={seenPet:null, pets:0, playT:-9999, yipT:-9999, lastSt:'', force:null, dax:{}, niko:{}};
+const DXC={BK:'#151316', BK2:'#252226', HI:'#3d3944', WH:'#efebe5', GR:'#a8a29a', GR2:'#7a756f', TN:'#6b4a38', RIM:'#5a3a26', IRIS:'#3a2010', NOSE:'#09080a', PK:'#f08a98'};
+const NKC={CR:'#e6c48c', CR2:'#cfa266', CR3:'#f2d9aa', WH:'#f7f1e7', WH2:'#e2d8c8', EAR:'#eca8a2', EAR2:'#d88c86', RIM:'#6a4228', IRIS:'#4a2a14', NOSE:'#7d4a42', PK:'#f08a98'};
+function pairEyes(c,h,o,P,lookX){ const {ci,ln}=h;
+  if(o.eyes==='happy'){ c.strokeStyle='#120c0a'; c.lineWidth=.55; for(const s of [-1,1]){ c.beginPath(); c.arc(s*2,-.9,.95,Math.PI*1.1,Math.PI*1.9); c.stroke(); } return; }
+  if(o.eyes==='closed'||o.blink){ ln([-2.9,-1,-1.1,-.85],'#120c0a',.5); ln([1.1,-.85,2.9,-1],'#120c0a',.5); return; }
+  const lx=lookX||0; for(const s of [-1,1]){ const ex=s*2; ci(ex,-1.1,1.25,P.RIM); ci(ex+lx*.25,-1.05,1.02,P.IRIS); ci(ex+lx*.35,-1,.58,'#070505'); }
+  c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(-1.6+lx*.3,-1.55,.36,0,7); c.arc(2.4+lx*.3,-1.55,.36,0,7); c.fill(); }
+function pairMouth(c,h,o,tongue){ const {el}=h; c.strokeStyle='rgba(60,40,36,.8)'; c.lineWidth=.3; c.beginPath(); c.arc(-.4,2.75,.5,.25,Math.PI*.8); c.moveTo(1.1,2.95); c.arc(.6,2.75,.5,.25,Math.PI*.8); c.stroke();
+  if(o.mouth==='tongue') el(.1,4+Math.sin((o.t||0)*14)*.15,.8,1.25,tongue); if(o.mouth==='yip') el(.1,3.5,1.25,1,'#3a1a18'); }
+// Niko's face: cream, big upright ears, white blaze into a white muzzle, liver nose
+function nikoFace(c,h,o){ const {el,ci}=h, N=NKC, t=o.t||0, tw=o.twitch?Math.sin(t*40)*.18:0;
+  const ear=(s)=>{ let tipX=s*5.9, tipY=-10.6, rot=0; if(o.ears==='back'){ tipX=s*8.4; tipY=-6.6; } else if(o.ears==='perk'){ tipX=s*5.2; tipY=-11.6; }
+    if(s>0) rot=tw; c.save(); c.translate(s*3.4,-3.2); c.rotate(rot); c.translate(-s*3.4,3.2);
+    c.fillStyle=N.CR2; c.beginPath(); c.moveTo(s*1.4,-3.9); c.quadraticCurveTo(s*3.6,-7.6,tipX,tipY); c.quadraticCurveTo(s*6.6,-6.2,s*5.1,-1.8); c.closePath(); c.fill();
+    c.fillStyle=N.EAR; c.beginPath(); c.moveTo(s*2.3,-3.8); c.quadraticCurveTo(s*3.9,-6.9,tipX*.92,tipY*.88); c.quadraticCurveTo(s*5.6,-5.8,s*4.5,-2.4); c.closePath(); c.fill();
+    c.fillStyle=N.EAR2; c.beginPath(); c.moveTo(s*3.2,-3.6); c.quadraticCurveTo(s*4.1,-5.8,tipX*.84,tipY*.8); c.lineTo(s*4.2,-3); c.closePath(); c.fill();
+    if(s<0&&o.ears!=='back'){ c.fillStyle=N.CR2; c.beginPath(); c.moveTo(tipX,tipY); c.quadraticCurveTo(tipX-1.6,tipY+.6,tipX-1.3,tipY+1.9); c.quadraticCurveTo(tipX-.2,tipY+1.4,tipX+.7,tipY+1.4); c.closePath(); c.fill(); } // his folded tip
+    c.restore(); };
+  ear(-1); ear(1);
+  el(0,-.2,4.9,4.6,N.CR); el(-2.9,1.5,2.1,2,N.CR); el(2.9,1.5,2.1,2,N.CR); el(0,-3.1,3.8,1.6,N.CR2); el(0,-2.6,3.2,1.2,N.CR);
+  c.fillStyle=N.WH; c.beginPath(); c.moveTo(-.55,-3.9); c.quadraticCurveTo(0,-4.3,.55,-3.9); c.lineTo(.7,-1.4); c.quadraticCurveTo(1.4,-.2,2.3,1); c.lineTo(-2.3,1); c.quadraticCurveTo(-1.4,-.2,-.7,-1.4); c.closePath(); c.fill();
+  el(0,2.3,2.8,2.1,N.WH); el(0,3.9,1.8,1.1,N.WH); el(0,3.1,2.1,.8,N.WH2);
+  pairEyes(c,h,o,N,o.look);
+  el(0,1.15,1.2,.88,N.NOSE); ci(-.4,1.4,.25,'#4a2a26'); ci(.4,1.4,.25,'#4a2a26'); c.fillStyle='rgba(255,255,255,.4)'; c.beginPath(); c.ellipse(-.3,.8,.45,.2,-.2,0,7); c.fill();
+  pairMouth(c,h,o,N.PK); }
+// Dax's face: black and scruffy, half-up ears with forward-folded tips, a greying muzzle and chin
+function daxFace(c,h,o){ const {el,ci,ln}=h, D=DXC, t=o.t||0;
+  const ear=(s)=>{ let up=-6.8, fold=1; if(o.ears==='perk'){ up=-7.8; fold=.7; } else if(o.ears==='back'){ up=-4.6; fold=1.3; }
+    c.fillStyle=D.BK; c.beginPath(); c.moveTo(s*2,-3.6); c.quadraticCurveTo(s*3.6,up-.4,s*4.9,up); c.quadraticCurveTo(s*5.8,-3.6,s*5,-1.6); c.closePath(); c.fill();
+    c.fillStyle=D.BK2; c.beginPath(); c.moveTo(s*4.2,up+.6); c.quadraticCurveTo(s*5.9,up+.2,s*(6.4+fold*.4),up+2.4*fold); c.quadraticCurveTo(s*5.6,up+2.2,s*4.6,up+1.7); c.closePath(); c.fill(); // the folded tip
+    ln([s*3.2,-4.6,s*4,up+.8],D.HI,.3); };
+  ear(-1); ear(1);
+  el(0,-.1,4.8,4.5,D.BK); el(-2.8,1.4,2,1.9,D.BK); el(2.8,1.4,2,1.9,D.BK);
+  for(const [x,y,r] of [[-4.9,1.2,.5],[-5.1,2.2,.4],[4.9,1.2,.5],[5.1,2.2,.4],[-.5,-4.6,.45],[.6,-4.7,.4]]) el(x,y,r*1.6,r,D.BK,x>0?.5:-.5); // soft scruffy tufts
+  el(-2.1,-2.55,1.1,.35,D.BK2,.1); el(2.1,-2.55,1.1,.35,D.BK2,-.1); c.fillStyle='rgba(120,115,130,.16)'; c.beginPath(); c.ellipse(-1.2,-3.9,1.1,.35,-.2,0,7); c.ellipse(1.3,-3.9,1.1,.35,.2,0,7); c.fill(); // soft brows and a sheen
+  el(0,2.3,2.9,2.2,D.BK2); el(0,2.1,1.8,1.1,'#2e2a2e'); el(0,3.9,1.7,.95,D.GR2); el(0,4.15,1.25,.7,D.GR); // a long muzzle with a greying chin
+  pairEyes(c,h,o,D,o.look);
+  el(0,1.25,1.2,.86,D.NOSE); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-.3,.85,.45,.2,-.2,0,7); c.fill();
+  pairMouth(c,h,o,D.PK); }
+function pairFrame(x,y,rot,s,flip){ return {x,y,rot,s,flip:!!flip}; }
+// one dog sitting facing you; ox = its centre on the dock
+function nikoSit(c,h,ox,o){ const {el,rc,ln}=h, N=NKC, t=o.t, br=Math.sin(t*2.1)*.22, hop=o.hop||0;
+  c.save(); c.translate(ox+(o.jit||0),-hop);
+  ln([3.6,-1.2,6.6,-.7,8.4,-2.4+Math.sin(t*(o.wag||8))*.9],N.CR2,1);  // thin tail curled at his side
+  el(-3.2,-3,3.1,3,N.CR); el(3.2,-3,3.1,3,N.CR); el(-4.3,-.55,1.7,.75,N.WH); el(4.3,-.55,1.7,.75,N.WH);
+  el(0,-8.4,4.3,6.6+br,N.CR); el(-2.6,-9.6,1.6,4.6,N.CR2,.15); el(2.6,-9.6,1.6,4.6,N.CR2,-.15);
+  el(0,-9,2.9,5.2+br,N.WH); el(0,-5.6,2.2,1.8,N.WH2);
+  const leg=(x,lift)=>{ if(lift){ c.save(); c.translate(x+.8,-7); c.rotate(-.55+Math.sin(t*6)*.1); rc(-.8,-5,1.6,5.4,N.CR3); el(0,-5.2,1.1,.9,N.WH); c.restore(); return; } rc(x,-6.2,1.6,6.2,N.CR3); rc(x,-2,1.6,2,N.WH); el(x+.8,-.35,1.15,.6,N.WH); };
+  leg(-2.1,false); leg(.5,!!o.paw);
+  const hx=(o.hx||0), hy=-15.8+(o.hy||0), rot=o.rot||0, s=.9;
+  PAIR.niko.head=pairFrame(ox+hx+(o.jit||0),hy-hop,rot,s); PAIR.niko.neck=pairFrame(ox+hx+(o.jit||0),hy-hop+5.6,rot*.35,s);
+  c.save(); c.translate(hx,hy); c.rotate(rot); c.scale(s,s); nikoFace(c,h,o.face); c.restore(); c.restore(); }
+function daxSit(c,h,ox,o){ const {el,rc,ln}=h, D=DXC, t=o.t, br=Math.sin(t*2.3+1)*.2, hop=o.hop||0;
+  c.save(); c.translate(ox+(o.jit||0),-hop);
+  c.strokeStyle=D.BK; c.lineWidth=.9; c.lineCap='round'; c.beginPath(); c.moveTo(-3,-1.2); c.quadraticCurveTo(-7,-.2,-10.4,-1.2+Math.sin(t*(o.wag||8))*.8); c.stroke(); // long thin tail on the ground
+  el(-3,-2.7,2.9,2.8,D.BK); el(3,-2.7,2.9,2.8,D.BK); el(1.7,-1.9,.8,.6,D.TN); el(-4,-.5,1.5,.7,D.BK2); el(4,-.5,1.5,.7,D.BK2);
+  el(0,-7.4,3.9,5.8+br,D.BK); ln([-2.6,-10.6,-3.4,-9],D.HI,.35); ln([2.6,-10.6,3.4,-9],D.HI,.35); ln([-1.6,-6,-2.2,-4.6],D.HI,.3);
+  el(.3,-9.2,.95,1.5,D.WH); el(.2,-8.1,.5,.7,D.WH); // the small white blaze on his chest
+  const leg=(x,lift)=>{ if(lift){ c.save(); c.translate(x+.75,-6.4); c.rotate(-.6+Math.sin(t*6)*.1); rc(-.75,-4.6,1.5,5,D.BK); el(0,-4.8,1,.85,D.BK2); el(0,-4.6,.5,.35,'#3a2a2c'); c.restore(); return; } rc(x,-5.6,1.5,5.6,D.BK); el(x+.75,-.35,1.05,.6,D.BK2); };
+  leg(-1.9,!!o.paw); leg(.5,false);
+  const hx=(o.hx||0), hy=-14.4+(o.hy||0), rot=o.rot||0, s=.88;
+  PAIR.dax.head=pairFrame(ox+hx+(o.jit||0),hy-hop,rot,s); PAIR.dax.neck=pairFrame(ox+hx+(o.jit||0),hy-hop+5.4,rot*.35,s);
+  c.save(); c.translate(hx,hy); c.rotate(rot); c.scale(s,s); daxFace(c,h,o.face); c.restore(); c.restore(); }
+// a cape behind a sitting dog's shoulders
+function pairCape(c,ox,top,w,col,t){ const sw=Math.sin(t*3.2)*.6; c.fillStyle=col; c.beginPath(); c.moveTo(ox-w*.45,top); c.quadraticCurveTo(ox-w-.6,top+5+sw,ox-w-.4,-1.2+sw*.5); c.lineTo(ox+w+.4,-1.2-sw*.5); c.quadraticCurveTo(ox+w+.6,top+5-sw,ox+w*.45,top); c.closePath(); c.fill();
+  c.fillStyle=mix(col,'#000000',.28); c.beginPath(); c.moveTo(ox-w-.4,-1.2+sw*.5); c.lineTo(ox+w+.4,-1.2-sw*.5); c.lineTo(ox+w*.6,-2.6); c.lineTo(ox-w*.6,-2.6); c.closePath(); c.fill(); }
+const DAX_X=-4.6, NIKO_X=6.6;
+function drawPair(c,t,h){ const {el,ln}=h;
+  const now=performance.now(), pt=S.pet==='daxniko'?petT:(S.pet2==='daxniko'?petT2:-9999);
+  if(PAIR.seenPet===null) PAIR.seenPet=pt; else if(pt!==PAIR.seenPet){ PAIR.seenPet=pt; PAIR.pets++; if(PAIR.pets%3===0) PAIR.playT=now; }
+  if(G.st==='landing'&&PAIR.lastSt!=='landing') PAIR.yipT=now; PAIR.lastSt=G.st;
+  let petted=now-pt<2200, play=now-PAIR.playT<2400, yip=now-PAIR.yipT<1600, watching=G.st==='reeling'||G.st==='bite'||G.st==='waiting';
+  let sleep=PET_NIGHT>.55&&!petted&&!yip&&!watching&&!play;
+  const busy=()=>petted||yip||play||watching;
+  let boop=!sleep&&!busy()&&(t%23)>15&&(t%23)<17.2, paw=!sleep&&!busy()&&!boop&&(t%19)>8&&(t%19)<9.6, tilt=!boop&&!paw&&(t%7)>5.2&&(t%7)<6.6, twitch=(t%9)>7.6&&(t%9)<8.1;
+  let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){} let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
+  if(PAIR.force){ const f=PAIR.force; petted=f==='petted'; play=f==='play'; yip=f==='yip'; watching=f==='watch'; sleep=f==='sleep'; boop=f==='boop'; paw=f==='paw'; tilt=f==='tilt'; twitch=f==='twitch'; shiver=f==='shiver'; if(play) PAIR.playT=now-700; if(yip) PAIR.yipT=now-300; }
+  const lk=PAIR.lk||{}, cape=lk.acc==='cape'?(lk.accCol||'#d8303a'):null, blink=h.blink;
+  if(sleep){ // curled up together: Niko's cream loaf behind, Dax tucked in front of him
+    const br=Math.sin(t*1.6)*.3;
+    el(9.6,-3.4,6.4,3.6+br,NKC.CR); el(4.6,-3.2,3.2,2.8,NKC.CR); el(11.8,-1.2,2.4,.8,NKC.WH); ln([15.6,-2.2,16.8,-.6,14.6,.2],NKC.CR2,.9);
+    if(cape){ c.fillStyle=cape; c.beginPath(); c.ellipse(9.6,-5.4-br*.4,5.2,1.6,0,0,7); c.fill(); }
+    PAIR.niko.head=pairFrame(4.4,-6.2,-.1,.78); PAIR.niko.neck=pairFrame(4.4,-2,-.04,.78);
+    c.save(); c.translate(4.4,-6.2); c.rotate(-.1); c.scale(.78,.78); nikoFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
+    el(-2,-2.7,5.4,2.9+br*.8,DXC.BK); el(-6.4,-2.5,2.6,2.4,DXC.BK); ln([2.6,-.8,5.4,-.4,7.4,-1.2],DXC.BK,.8); ln([-4,-5,-1,-5.6],DXC.HI,.3); ln([.4,-5.4,2.4,-5],DXC.HI,.28);
+    if(cape){ c.fillStyle=mix(cape,'#000000',.1); c.beginPath(); c.ellipse(-2,-4.6-br*.3,4.4,1.4,0,0,7); c.fill(); }
+    el(-8.6,-.7,2.2,.75,DXC.BK2);
+    PAIR.dax.head=pairFrame(-6.6,-4.6,.12,.7); PAIR.dax.neck=pairFrame(-6.6,-.8,.05,.7);
+    c.save(); c.translate(-6.6,-4.6); c.rotate(.12); c.scale(.7,.7); daxFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
+    c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',8+ph*5,-11-ph*9); } c.restore();
+    return; }
+  if(play){ // a play bow together: chests down, rumps up, tails going, little paw prints
+    const k=(now-PAIR.playT)/2400, b=Math.abs(Math.sin(k*Math.PI*6))*1.4;
+    c.save(); for(let i=0;i<6;i++){ c.globalAlpha=.28; c.fillStyle='#e8d8c8'; c.beginPath(); c.ellipse(-8+i*3.4,.7,.9,.45,0,0,7); c.fill(); } c.restore();
+    c.save(); c.translate(0,-b); el(DAX_X-1.6,-6.6,3,3,DXC.BK); ln([DAX_X-3.4,-8,DAX_X-6.4,-11+Math.sin(t*24)*1.6],DXC.BK,.9); el(DAX_X+.6,-3.4,3.8,2.6,DXC.BK); el(DAX_X+1.4,-.6,3,.8,DXC.BK2); el(DAX_X+.9,-3.6,.8,1.6,DXC.WH);
+    PAIR.dax.head=pairFrame(DAX_X+.9,-6.4-b,.3,.8); PAIR.dax.neck=pairFrame(DAX_X+.9,-2.4-b,.1,.8);
+    c.save(); c.translate(DAX_X+.9,-6.4); c.rotate(.3); c.scale(.8,.8); daxFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:1}); c.restore(); c.restore();
+    c.save(); c.translate(0,-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4); el(NIKO_X+1.8,-7.2,3.2,3.2,NKC.CR); ln([NIKO_X+3.8,-8.6,NIKO_X+7,-11.6+Math.sin(t*24+1)*1.6],NKC.CR2,1); el(NIKO_X-.6,-3.6,4,2.7,NKC.CR); el(NIKO_X-1.4,-.6,3.2,.8,NKC.WH); el(NIKO_X-.8,-3.6,2.2,1.8,NKC.WH);
+    const nb=-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4; PAIR.niko.head=pairFrame(NIKO_X-.6,-7+nb,-.3,.86); PAIR.niko.neck=pairFrame(NIKO_X-.6,-2.6+nb,-.1,.86);
+    c.save(); c.translate(NIKO_X-.6,-7); c.rotate(-.3); c.scale(.86,.86); nikoFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:-1}); c.restore(); c.restore();
+    c.save(); c.globalAlpha=Math.max(0,1-k)*.9; c.fillStyle='#ff8ab8'; const hy=-17-k*6; c.beginPath(); c.moveTo(1,hy+1.6); c.bezierCurveTo(-1.6,hy,-.8,hy-1.8,1,hy-.6); c.bezierCurveTo(2.8,hy-1.8,3.6,hy,1,hy+1.6); c.fill(); c.restore();
+    return; }
+  // sitting side by side, facing you, like in their photo
+  if(cape){ pairCape(c,DAX_X,-12,3.6,cape,t); pairCape(c,NIKO_X,-14,4,cape,t); }
+  const wag=petted||yip||watching||boop?22:8, jit=shiver?Math.sin(t*60)*.28:0, yk=(now-PAIR.yipT)/1600;
+  const look=watching?1:0;
+  const dHop=yip?Math.max(0,Math.sin(yk*Math.PI*3))*2.2:petted?Math.max(0,Math.sin(now/120))*.7:0;
+  const nHop=petted?Math.max(0,Math.sin(now/120+1))*.7:0;
+  daxSit(c,h,DAX_X,{t,wag,jit,hop:dHop,paw,hx:boop?1.6:0,hy:boop?.6:0,rot:boop?.32:tilt?-.42:petted?.14:-.1+Math.sin(t*1.3)*.05,
+    face:{eyes:petted?'happy':'open',mouth:(petted||watching||paw||yip)?'tongue':'smile',ears:petted?'back':(watching||yip||tilt)?'perk':'out',blink,t,look}});
+  nikoSit(c,h,NIKO_X,{t,wag,jit:jit*.8,hop:nHop,hx:boop?-1.2:0,hy:boop?.5:0,rot:boop?-.26:petted?-.12:.06+Math.sin(t*1.1+1)*.05,
+    face:{eyes:petted?'happy':'open',mouth:yip?'yip':(petted||watching)?'tongue':'smile',ears:petted?'back':(watching||yip)?'perk':'up',twitch,blink,t,look}});
+  if(boop){ const k=PAIR.force?.45:((t%23)-15)/2.2; c.save(); c.globalAlpha=Math.sin(Math.min(1,k)*Math.PI)*.95; c.fillStyle='#ff8ab8'; const hy=-21-k*4, hx=1.2; c.beginPath(); c.moveTo(hx,hy+1.4); c.bezierCurveTo(hx-1.5,hy,hx-.8,hy-1.6,hx,hy-.5); c.bezierCurveTo(hx+.8,hy-1.6,hx+1.5,hy,hx,hy+1.4); c.fill(); c.restore(); }
+  if(yip){ c.save(); c.globalAlpha=Math.min(1,(1-yk)*3); c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.ellipse(13,-27,6.4,3.8,0,0,7); c.fill(); c.beginPath(); c.moveTo(10.4,-24.4); c.lineTo(9,-21); c.lineTo(12.6,-24); c.fill();
+    c.fillStyle='#1b1513'; c.font='bold 4.4px system-ui'; c.textAlign='center'; c.fillText('Yip!',13,-25.6); c.restore(); } }
+// their gear: the same hat and accessory on both (matching!), each in its own head and neck frame;
+// the star balloon is tied to Niko only, so there is never a tangle
+function drawPairGear(c,lk,t){ const keep=[LILY.head,LILY.neck];
+  for(const d of [PAIR.dax,PAIR.niko]){ if(!d.head||!d.neck) continue; LILY.head=d.head; LILY.neck=d.neck; drawLilyGear(c,(lk.acc==='balloon'&&d!==PAIR.niko)?Object.assign({},lk,{acc:'none'}):lk,t); }
+  LILY.head=keep[0]; LILY.neck=keep[1]; }
+// ---------- gift ----------
+const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko have joined you!', items:[
+  'Dax and Niko are here, drawn from a photo of the real pair: Dax with his black scruffy coat, folded ear tips, greying muzzle and little white chest blaze, and Niko with his cream coat, big pink-lined ears, white blaze and white paws.',
+  'They are the first double pet in Driftline: one of a kind and only for you. Nobody else can get them.',
+  'They sit side by side on the dock facing you, just like in their photo, and count as one pet: they are your ★ favourite and give +12% XP together.',
+  'Watch Niko’s ear twitch, Dax’s head tilt, and the moment they boop noses (look for the little heart).',
+  'Pet them and their ears go back and their tongues come out. Every third pet, they do a play bow together.',
+  'Dax gives you his paw now and then. When you land a fish, Niko yips and Dax hops.',
+  'They perk up and watch the water while you fish. On cold water they shiver a little (they are Chihuahuas, after all).',
+  'At night they curl up and nap together.',
+  'Dress them up in the Pets tab: colours, accessories and hats. They always match.' ]};
+const _redeemGift_pair = redeemGift;
+redeemGift = function(code){ const k=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(k && btoa(k)==='WkFDU1BVUFM='){
+    if(S.owned.pets.includes('daxniko')){ toast('Dax and Niko are already with you. They say hi.'); return 'skip'; }
+    S.owned.pets.push('daxniko'); petLook('daxniko').name='Dax & Niko'; setFav('daxniko'); setTab('pets'); sfx.shiny(); save();
+    setTimeout(()=>showPatchNotes(PAIR_PATCH),250); return 'render'; }
+  return _redeemGift_pair(code); };
+// test sheet: the pair in every moment, with accessories or hats
+if(/[?&]test\b/.test(location.search)){
+  window.__pairSheet=(opts={})=>{ const poses=opts.poses||['sit','tilt','boop','paw','twitch','petted','yip','watch','shiver','play','sleep'];
+    const accs=opts.accs||['none','bandana','bow','bowtie','scarf','bell','flower','glasses','cape','balloon','partyhat'];
+    const cw=opts.cell||150, ch=Math.round(cw*.8), sc=cw/42; const rows=opts.hats||accs; const o=document.createElement('canvas'); o.width=cw*poses.length; o.height=ch*rows.length; const x=o.getContext('2d'); const t=performance.now()/1000;
+    rows.forEach((a,r)=>poses.forEach((p,cI)=>{ PAIR.force=p; const lk=Object.assign({},petLook('daxniko'),opts.hats?{acc:'none',hat:a,hatCol:'#3f7a6a'}:{acc:a,accCol:'#d8303a',hat:opts.hat||'none',hatCol:'#3f7a6a'});
+      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch); drawPetStyled(x,'daxniko',cI*cw+cw*.46,r*ch+ch*.88,sc,t,0,lk); x.restore();
+      x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(p+' / '+a,cI*cw+4,r*ch+12); }));
+    PAIR.force=null; window.__post(opts.save||'pair',o.toDataURL()); return rows.length*poses.length; };
+}
+
+// =====================================================================
 // Driftline 0.3 scene renderer, style B2 "Glow Diorama".
 // Since 0.3 this is the only renderer (V3ON is always true).
 // Areas move over one at a time (V3SCENES); the rest keep the old renderer.
@@ -4208,7 +4393,7 @@ function v3dock(P,t,night,dockY){
     const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,190,110,'+(.32*lit)+')'); pg.addColorStop(1,'rgba(255,190,110,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
   // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
   const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
-  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:[0,1,2].map(i=>W*.02+i*W*.075),pw});
+  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:[0,1,2].map(i=>W*.02+i*W*.075),pw,wl:dockY+H*.075,wc:P.wMid});
   if(st==='plank'||st==='boardwalk'||st==='driftwood'){ const px=W*.02+2*W*.075; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
   // bucket (the old grey box), now a little tin pail with a handle
   { const bx=W*.155, s=H*.024; g.fillStyle=N('#8f93a8'); g.beginPath(); g.moveTo(bx,dockY-th); g.lineTo(bx+s*.12,dockY-th-s); g.lineTo(bx+s*.88,dockY-th-s); g.lineTo(bx+s,dockY-th); g.closePath(); g.fill();
@@ -5287,12 +5472,13 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   // a soft vignette so the dock reads first
   const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
   // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
-  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), th=h*.035, fh=h*.05, x0=w*.03, x1=w*.95;
-  drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts:[0,1,2,3,4].map(i=>x0+w*.04+i*(x1-x0-w*.1)/4),pw:w*.022});
+  const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), u=2.6, th=5.04*u, fh=7.56*u, x0=w*.03, x1=w*.95; // the same proportions as the dock on the water, at Home's zoom (the angler is drawn at 2.6)
+  const posts=[]; for(let X=x0+16.8*u; X<x1-9.24*u; X+=63*u) posts.push(X);
+  drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts,pw:9.24*u,wl:dy+31.5*u,wc:P.wMid});
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
-  { const big=S.pet==='horse'||S.pet==='cow'; drawPetStyled(x,S.pet,w*.58-(big?44:31)*2.6,dy-th*.4,2.6*(big?.85:1),t); } drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  homePetsDraw(x,w,dy-th*.4,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
   return true; }
 
 // a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow
@@ -8186,7 +8372,7 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; const o=S.owned, U=(arr
   S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
   U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=3;
   U(o.hats,HATS.map(h=>h.id)); U(o.cols,SHOP_COLS.map(c=>c[0])); U(o.pats,PATTERNS.map(p=>p[0])); U(o.outfits,OUTFITS.map(x=>x[0])); U(o.glasses,GLASSES.map(x=>x[0])); U(o.shoes,SHOES.map(x=>x[0])); U(o.necks,NECKS.map(x=>x[0])); U(o.backs,BACKS.map(x=>x[0]));
-  U(o.pets,PETS.filter(p=>p.id!=='lily'||o.pets.includes('lily')).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
+  U(o.pets,PETS.filter(p=>(p.id!=='lily'||o.pets.includes('lily'))&&(p.id!=='daxniko'||o.pets.includes('daxniko'))).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
   U(S.dock.owned,[...DOCK_DECOR.map(d=>d.id),...DOCK_WOODS.map(w=>w[0])]); U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;
   for(const b2 in BAIT) if(b2!=='worm') S.bait[b2]=(S.bait[b2]||0)+99; S.lvl=Math.max(S.lvl,40); S.tokens.small+=5; S.tokens.big+=5; S.tokens.legend+=5;
   return 'Everything unlocked for testing.'; }

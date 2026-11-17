@@ -22,9 +22,10 @@ const HOME_X0=.06, HOME_X1=.9;
 function homeDragSetup(){ const c=$('homecv'); if(!c||c.dataset.drag) return; c.dataset.drag='1'; c.style.cursor='grab'; c.style.touchAction='pan-y';
   let drag=null; const toX=e=>{ const r=c.getBoundingClientRect(); return (e.clientX-r.left)*(c.width/r.width); };
   c.addEventListener('pointerdown',e=>{ const x=toX(e), w=c.width, items=dockView(), P=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0)); let best=null, bd=w*.06;
+    for(const wh of ['1','2']){ if(wh==='2'&&!(S.pet2&&PETI[S.pet2])) continue; if(wh==='1'&&!S.pet) continue; const d=Math.abs(homePetX(wh,w)-x); if(d<bd){ bd=d; best='pet'+wh; } }
     for(const id in P){ const px=w*(HOME_X0+P[id]*(HOME_X1-HOME_X0)), d=Math.abs(px-x); if(d<bd){ bd=d; best=id; } }
     if(best){ drag=best; c.setPointerCapture(e.pointerId); c.style.cursor='grabbing'; e.preventDefault(); } });
-  c.addEventListener('pointermove',e=>{ if(!drag) return; const w=c.width; S.dock.pos[drag]=clamp((toX(e)/w-HOME_X0)/(HOME_X1-HOME_X0),0,1); paintHome(); });
+  c.addEventListener('pointermove',e=>{ if(!drag) return; const w=c.width, v=clamp((toX(e)/w-HOME_X0)/(HOME_X1-HOME_X0),0,1); if(drag==='pet1') S.dock.petPos=v; else if(drag==='pet2') S.dock.pet2Pos=v; else S.dock.pos[drag]=v; paintHome(); });
   const end=()=>{ if(drag){ drag=null; c.style.cursor='grab'; save(); } }; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end); }
 
 // aquarium: drag a decoration along the tank floor
@@ -40,7 +41,7 @@ if(/[?&]test\b/.test(location.search)) window.__dockSizes=()=>Object.keys(DOCK_H
 const DOCK_STYLES=[['plank','Classic planks',0],['boardwalk','Boardwalk with rail',4000],['bamboo','Bamboo',6000],['driftwood','Driftwood logs',7500],['stone','Stone jetty',9000],['pontoon','Floating pontoon',12000]];
 const dockStyleCur=()=> (DOCK_PV&&DOCK_PV.kind==='style')?DOCK_PV.id:((S.dock&&S.dock.style)||'plank');
 // c: context, o: {x0,x1,y (deck top line), th (deck thickness), fh (front beam), bottom, wd (wood colour), N (night tint), rim, t, posts:[x], pw (post width)}
-function drawDockStyle(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
+function drawDockStyle0(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
   const plankDeck=()=>{ c.fillStyle=top; c.fillRect(x0,y-th,W2,th); c.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+W2*.06;X<x1;X+=W2*.12) c.fillRect(X,y-th,1,th); c.fillStyle=face; c.fillRect(x0,y,W2,fh);
     c.fillStyle=N('#2a1a14'); for(let X=x0+W2*.06;X<x1;X+=W2*.25){ c.fillRect(X,y+fh*.25,1.6,1.6); c.fillRect(X,y+fh*.65,1.6,1.6); } };
@@ -61,6 +62,25 @@ function drawDockStyle(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}
     c.fillStyle=L1; c.beginPath(); c.moveTo(x0,y-th); for(let X=x0;X<=x1;X+=W2/10) c.lineTo(X,y-th+Math.sin(X*.3)*1.2); c.lineTo(x1,y); c.lineTo(x0,y); c.closePath(); c.fill(); }
   else { woodPosts(false); plankDeck();
     if(st==='boardwalk'){ const rh=Math.max(14,fh*2.4); c.fillStyle=dark; for(const px of o.posts) c.fillRect(px+o.pw*.2,y-th-rh,o.pw*.6,rh); c.strokeStyle=N('#c9a070'); c.lineWidth=1.6; c.beginPath(); for(let i=0;i<o.posts.length-1;i++){ const a=o.posts[i]+o.pw*.5, b2=o.posts[i+1]+o.pw*.5, yy=y-th-rh*.75; c.moveTo(a,yy); c.quadraticCurveTo((a+b2)/2,yy+5,b2,yy); } c.stroke(); } }
-  if(o.rim){ c.fillStyle=v3rgba(o.rim,.45); c.fillRect(x0,y-th,W2,1); } c.fillStyle='rgba(0,0,0,.28)'; c.fillRect(x0,y+fh,W2,2); }
+  if(o.rim){ c.fillStyle=v3rgba(o.rim,.45); c.fillRect(x0,y-th,W2,1); } c.fillStyle='rgba(0,0,0,.28)'; c.fillRect(x0,y+fh,W2,2);
+  // the water comes up to just under the deck: the posts below the waterline sit in the water, tinted by it
+  if(false){ const wl=o.wl, g3=c.createLinearGradient(0,wl,0,bottom); g3.addColorStop(0,v3rgba(o.wc,.55)); g3.addColorStop(.35,v3rgba(o.wc,.82)); g3.addColorStop(1,v3rgba(o.wc,.92)); c.fillStyle=g3; c.fillRect(x0-6,wl,W2+12,bottom-wl);
+    c.strokeStyle='rgba(235,248,255,.35)'; c.lineWidth=1; const ph=(t||0)*1.6; for(const px of (o.posts||[])){ const cx=px+o.pw*.5; c.beginPath(); c.ellipse(cx,wl+1,o.pw*(1.1+.12*Math.sin(ph+px)),Math.max(1.2,o.pw*.22),0,0,7); c.stroke(); }
+    c.fillStyle='rgba(235,248,255,.18)'; c.fillRect(x0-6,wl,W2+12,1); } }
 function dockStyleChipsHTML(){ const cur=dockStyleCur(); S.dock.styles=S.dock.styles||['plank'];
   return `<h5>Dock style</h5><div class="chips">${DOCK_STYLES.map(([k,n,p])=>{ const own=S.dock.styles.includes(k)||!p; return `<button class="chipb" data-act="${own?'dockstyle':'dockpv'}" data-k="${own?k:'style:'+k}" aria-pressed="${cur===k}">${n}${own?'':' · '+fmt(p)}</button>`; }).join('')}</div>`; }
+// the dock stands in the water: everything above the waterline is solid, the part below shows faintly through the water
+function drawDockStyle(c,o){ if(!o.wl||dockStyleCur()==='pontoon') return drawDockStyle0(c,o); const wl=o.wl;
+  c.save(); c.beginPath(); c.rect(-1e4,-1e4,3e4,1e4+wl); c.clip(); drawDockStyle0(c,o); c.restore();
+  c.save(); c.beginPath(); c.rect(-1e4,wl,3e4,1e4); c.clip(); c.globalAlpha*=.2; drawDockStyle0(c,o); c.restore();
+  c.save(); c.strokeStyle='rgba(235,248,255,.38)'; c.lineWidth=1; const ph=(o.t||0)*1.6;
+  if(dockStyleCur()==='stone'){ c.fillStyle='rgba(235,248,255,.22)'; c.fillRect(o.x0,wl,o.x1-o.x0,1.2); }
+  else for(const px of (o.posts||[])){ const cx=px+o.pw*.5; c.beginPath(); c.ellipse(cx,wl+1,o.pw*(1.15+.12*Math.sin(ph+px)),Math.max(1.2,o.pw*.22),0,0,7); c.stroke(); }
+  c.restore(); }
+// pets on the dock: each pet can be dragged to its own spot in Home (saved as a 0..1 position along the dock)
+const petBig = id => id==='horse'||id==='cow';
+function homePetX(wh,w){ const pos=S.dock[wh==='2'?'pet2Pos':'petPos']; if(pos!=null) return w*(HOME_X0+pos*(HOME_X1-HOME_X0));
+  const px=w*.58-(petBig(S.pet)?44:31)*2.6; return wh==='2' ? px-(petBig(S.pet)?22:15)*2.6-(petBig(S.pet2)?36:26)*2.6 : px; }
+function homePetsDraw(x,w,y,t){ if(S.pet2&&PETI[S.pet2]) drawPetStyled(x,S.pet2,homePetX('2',w),y,2.6*.9*(petBig(S.pet2)?.85:1),t); if(S.pet) drawPetStyled(x,S.pet,homePetX('1',w),y,2.6*(petBig(S.pet)?.85:1),t); }
+// the same spots on the water (the dock there runs from W*.008 to W*.178)
+function scenePetX(pos){ return W*.008+pos*(W*.17); }

@@ -258,7 +258,7 @@ const petName = (id=S.pet) => (S.petLook[id]&&S.petLook[id].name) || PETI[id].na
 function bondLevel(id){ const b=S.bond&&S.bond[id]; return b ? Math.min(10, Math.floor(Math.sqrt(b.xp/4))) : 0; }
 function tintFilter(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(!tt||!tt[3]) return 'none'; return tt[3]==='rainbow' ? 'hue-rotate('+((t*80)%360|0)+'deg) saturate(1.4)' : tt[3]; }
 function petOffset(id,t){ if(id==='frog') return [0,-Math.pow(Math.max(0,Math.sin(t*1.4)),10)*7]; if(id==='bat') return [0,-14+Math.sin(t*2)*2]; if(id==='ghost') return [0,Math.sin(t*2)*2-4]; if(id==='crab') return [Math.sin(t*1.2)*2,0]; return [0,0]; }
-function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; } const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
+function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; } if(id==='daxniko'){ drawPairGear(c,lk,t); return; } const a=PET_HEAD[id]||[2,-12,4]; const [hx,hy,r]=a; const k=r/7.5;
   const col=lk.accCol||'#d8303a';
   c.save(); c.lineCap='round';
   if(lk.acc==='cape'){ c.fillStyle=col; c.beginPath(); c.moveTo(hx-r*.9,hy+r*.8); c.quadraticCurveTo(hx-r*3.4,hy+r*2+Math.sin(t*4)*1.2,hx-r*3,hy+r*3.6); c.lineTo(hx-r*.4,hy+r*2.4); c.closePath(); c.fill(); }
@@ -273,15 +273,15 @@ function drawPetGear(c,id,lk,t){ if(id==='lily'){ drawLilyGear(c,lk,t); return; 
   if(lk.acc==='flower'){ const fx=hx-r*.6, fy=hy-r*.75; for(let i=0;i<5;i++){ c.fillStyle='#ff9ad0'; c.beginPath(); c.arc(fx+Math.cos(i*1.26)*r*.28,fy+Math.sin(i*1.26)*r*.28,r*.2,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.15,0,7); c.fill(); }
   if(lk.acc==='glasses'){ c.fillStyle='#111'; c.beginPath(); c.ellipse(hx+r*.25,hy-r*.15,r*.32,r*.22,0,0,7); c.ellipse(hx+r*.85,hy-r*.15,r*.28,r*.2,0,0,7); c.fill(); c.strokeStyle='#111'; c.lineWidth=r*.1; c.beginPath(); c.moveTo(hx+r*.5,hy-r*.18); c.lineTo(hx+r*.6,hy-r*.18); c.stroke(); }
   c.restore(); }
-function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); if(id==='lily') LILY.lk=lk; c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night,lk); c.restore();
-  if(V3ON && id!=='lily' && PET3[id]){ drawGear3(c,id,lk,t); return; }
+function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLook(id); if(id==='lily') LILY.lk=lk; if(id==='daxniko') PAIR.lk=lk; c.save(); c.filter=tintFilter(lk,t); drawPet(c,id,x,y,s,t,night,lk); c.restore();
+  if(V3ON && id!=='lily' && id!=='daxniko' && PET3[id]){ drawGear3(c,id,lk,t); return; }
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
 function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
   const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
   drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?44:31)*sc;
-  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2); } else PET_BOX2=null;
+function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=(S.dock&&S.dock.petPos!=null&&G.st!=='rest')?scenePetX(S.dock.petPos):ax-(big?44:31)*sc;
+  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(S.dock&&S.dock.pet2Pos!=null&&G.st!=='rest') x2=scenePetX(S.dock.pet2Pos); else if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2); } else PET_BOX2=null;
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
@@ -309,7 +309,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
   const cols=[...FREE_COLS,...S.owned.cols]; const sw=k=>`<div class="chips">${cols.map(cl=>`<button class="sw" data-act="petcol" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
   const pick2 = S.pet2 ? `<div class="chips" style="margin-bottom:8px"><span class="meta" style="align-self:center">Dressing up:</span><button class="chipb" data-act="petedit" data-k="${S.pet}" aria-pressed="${id===S.pet}">★ ${esc(petName(S.pet))}</button><button class="chipb" data-act="petedit" data-k="${S.pet2}" aria-pressed="${id===S.pet2}">${esc(petName(S.pet2))}</button></div>` : '';
   return `<div class="tile" style="margin-top:10px">${petPvBarHTML()}${pick2}<div class="stylewrap petwrap" style="margin-top:0"><div class="preview"><canvas id="petcv" width="400" height="300" style="cursor:pointer" title="Pet me!"></canvas></div><div>
-    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${id==="lily"?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
+    <div class="row spread"><h4>${id===S.pet?'<span title="Favourite" style="color:#ffc94d">★</span> ':''}${esc(petName(id))} <span class="meta">the ${(id==="lily"||id==="daxniko")?p.name:p.name.toLowerCase()}${S.pet2?(id===S.pet?' · favourite':' · companion'):''}</span></h4><span id="petbond"><span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span></span></div>
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">Tap ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
@@ -318,7 +318,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
     <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
-  if(id==='lily'&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||editPet()!=='lily'){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
+  if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
   if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
@@ -352,7 +352,7 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
 function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
-function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
+function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(S.owned.pets.includes("daxniko")?[PAIR_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
