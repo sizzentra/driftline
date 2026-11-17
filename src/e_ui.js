@@ -162,7 +162,7 @@ function renderFeats(P){ const done=FEATS.filter(f=>S.feats[f.id]).length;
     <div class="val" style="font-size:14px"><span class="coin">${fmt(f.coins)}</span>${f.pt?` · +${f.pt} skill point${f.pt>1?'s':''}`:''}${f.pet?' · pet: '+PETI[f.pet].name:''}</div></div>`; }).join('')+'</div>';
 }
 function renderJournal(P){
-  const total=Object.keys(S.journal).length; if(!encLoc) encLoc=S.loc;
+  const total=Object.keys(S.journal).length; if(!encLoc||(encLoc!=='junk'&&!LOCS[locIdx(encLoc)])) encLoc=S.loc; // a water that doesn't exist falls back to the current one
   const chips=[...LOCS.map(L=>[L.id,L.name+' '+caughtAt(L.id)+'/'+spAt(L.id).length]),['junk','Oddities '+nJunkKinds()+'/'+JUNK.length]].map(([k,n])=>`<button class="chipb" data-act="encloc" data-k="${k}" aria-pressed="${encLoc===k}">${n}</button>`).join('');
   let body='';
   if(encLoc==='junk'){
@@ -338,7 +338,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
     case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<locCost(L)) return; S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
-    case 'encloc': encLoc=k; encSel=null; break;
+    case 'encloc': if(k==='junk'||LOCS[locIdx(k)]) encLoc=k; encSel=null; break;
     case 'bloc': bLoc=k; break;
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }

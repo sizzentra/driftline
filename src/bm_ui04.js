@@ -1282,6 +1282,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
 //    text fields (pet names, save codes); no pinch or double-tap zoom.
 document.head.insertAdjacentHTML('beforeend',`<style>
 html,body{overscroll-behavior:none;touch-action:manipulation}
+/* every control answers a tap at once: no phone waits to see whether a double tap (zoom) follows */
+button,a,summary,label,select,input,[data-act],[data-tab],[role="button"],[role="tab"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 body,body *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 body input,body textarea,body select,body [contenteditable="true"]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
 img,canvas,svg{-webkit-user-drag:none}

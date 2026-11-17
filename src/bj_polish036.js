@@ -73,7 +73,7 @@ body.pc-wide #tabs.secmode .secdot{right:4px}
 // in the wide layout the tip line sits on the water (as on phones), and the water is a little taller to fill its column
 (function(){ const hint=$('hint'), stage=$('stage'); if(!hint||!stage) return; const home=hint.parentElement; let placed=false;
   // fishing mode (0.4) keeps the tip on the water in every layout; #tabs may live inside the menu by then
-  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
+  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); if(tabs&&tabs.parentNode===home) home.insertBefore(hint,tabs); else home.appendChild(hint); placed=false; } };
   addEventListener('resize',()=>setTimeout(apply,10)); setTimeout(apply,60); })();
 const _stageHOverride_036c=stageHOverride;
 stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*1.15),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
