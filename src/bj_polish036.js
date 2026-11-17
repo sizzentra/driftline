@@ -242,3 +242,4 @@ v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const oW=W, oH=H, want
   if(want>=oH) return _v3Thumb_04(id); const ch=cv.height;
   try{ H=want; cv.height=Math.round(want*DPR); return _v3Thumb_04(id); } finally{ H=oH; cv.height=ch; g.setTransform(DPR,0,0,DPR,0,0); } };
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .loc .sw2{background-position:50% 40%!important}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .wd-nav .wl{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.1;text-align:center}</style>`);
