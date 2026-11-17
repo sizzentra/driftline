@@ -30,7 +30,7 @@ MENU_SECS.splice(0,MENU_SECS.length,
 PAGE_DESC.home='Your dock at each water: wood, style and decorations';
 SEARCH_IDX.forEach((e,i)=>{ if(e[1]==='home'&&/^Home/.test(e[0])) SEARCH_IDX[i]=[e[0].replace(/^Home: dock/,'Dock: wood and style').replace(/^Home:/,'Dock:'),e[1],e[2],e[3]+' home'] });
 KEYS[0][1]='Open a category (Fishing, Upgrades, Collections, Challenges, Customization)';
-KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or the search']; if(k[0]==='M') KEYS[i]=['M','Hide or show the dashboard (bigger water)']; });
+KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or the search']; if(k[0]==='M') KEYS[i]=['M','Open or close the menu']; });
 // rebuild the category row with the new categories (the click handler finds them by data-sec)
 (function(){ const T=$('tabs'), bar=T&&T.querySelector('.secbar'); if(!bar) return;
   const svg=p=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -80,6 +80,7 @@ function menuEls(){ return {T:$('tabs'), P:$('panel'), toast:$('toast'), stage:$
 const MO=document.createElement('div'); MO.id='menuov'; MO.hidden=true; MO.setAttribute('role','dialog'); MO.setAttribute('aria-modal','true'); MO.setAttribute('aria-label','Menu');
 MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   <button type="button" class="mo-back" data-mo="close" aria-label="Back to fishing (Esc)" title="Back to fishing (Esc)"><svg class="mo-bi" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SEC_ICONS.fish}</svg><span class="mo-bl">Back to fishing</span></button>
+  <button type="button" class="mo-home" data-mo="home" aria-label="Overview" title="Overview: your cooler, bounties, aquarium, events and more"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mo-hl">Overview</span><span class="mo-hdot" hidden></span></button>
   <div class="mo-title" aria-live="polite"></div>
   <div class="mo-tools"><span class="mo-pause" hidden title="Your line waits while a menu is open">⏸ <span>Line waiting</span></span><span class="mo-coin" title="Your coins"><span class="coin" id="mocoin">0</span></span><button type="button" class="mo-tb" data-mo="search" aria-label="Search the menus" title="Search (/)">🔍</button><button type="button" class="mo-tb" data-mo="settings" aria-label="Settings, stats and save" title="Settings, stats and save">⚙</button></div>
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
@@ -94,15 +95,33 @@ function menuUnmount(){ const {T,P,toast,stage}=menuEls(); const [a,b]=holdTab; 
   const w=document.querySelector('.wrap'); if(w){ w.classList.remove('wrapin'); void w.offsetWidth; w.classList.add('wrapin'); }
   try{ document.activeElement&&document.activeElement.blur&&document.activeElement.blur(); }catch(e){}
  }
-function menuMode(){ const open=S.tab!==DASH; if(open===MENU_OPEN) return; MENU_OPEN=open; if(open) menuMount(); else { menuUnmount(); if(menuHist){ menuHist=false; try{ history.back(); }catch(e){} } } }
-addEventListener('popstate',()=>{ if(menuHist){ menuHist=false; if(MENU_OPEN){ S.settings.pageLast=S.tab; setTab(DASH); save(); } } });
-function openMenu(t){ setTab(t||S.settings.pageLast||'cooler'); save(); }
-function closeMenu(){ if(S.tab===DASH) return; S.settings.pageLast=S.tab; setTab(DASH); save(); }
-{ const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) S.settings.pageLast=t; _st(t); menuMode(); menuHead(); }; }
-function menuHead(){ if(!MENU_OPEN) return; const sec=menuSecOf(S.tab), t=MO.querySelector('.mo-title'), nm=sec?(sec.id==='more'?'Settings':(sec.short||sec.name)):'';
-  if(t.textContent!==nm) t.textContent=nm; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy; }
+// Two modes. MENU_WANT says which one the player asked for; S.tab is the page shown inside the menu ('dash' = Overview).
+// Any page opened from anywhere (a link, the goal chip, search, settings, a full cooler) opens the menu; refreshing the
+// page after an action never does. Closing the menu always returns to the Overview, so the menu opens on it next time.
+let MENU_WANT=false;
+function menuMode(){ const open=MENU_WANT; if(open===MENU_OPEN) return; MENU_OPEN=open; if(open) menuMount(); else { menuUnmount(); if(menuHist){ menuHist=false; try{ history.back(); }catch(e){} } } }
+addEventListener('popstate',()=>{ if(menuHist){ menuHist=false; if(MENU_OPEN) closeMenu(); } });
+function openMenu(t){ MENU_WANT=true; setTab(t||DASH); save(); }
+function closeMenu(){ if(!MENU_OPEN&&!MENU_WANT) return; MENU_WANT=false; setTab(DASH); save(); }
+function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
+{ const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) MENU_WANT=true; menuMode(); _st(t); menuHead(); }; }
+function menuHead(){ if(!MENU_OPEN) return; const sec=menuSecOf(S.tab), t=MO.querySelector('.mo-title'), nm=S.tab===DASH?'Overview':sec?(sec.id==='more'?'Settings':(sec.short||sec.name)):'';
+  if(t.textContent!==nm) t.textContent=nm; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy;
+  const h=MO.querySelector('.mo-home'); if(h){ const on=S.tab===DASH; h.classList.toggle('on',on); h.setAttribute('aria-pressed',on?'true':'false'); } }
 MO.addEventListener('click',e=>{ const b=e.target.closest('[data-mo]'); if(!b) return; e.stopPropagation(); const m=b.dataset.mo;
-  if(m==='close') closeMenu(); else if(m==='search'){ const s=$('searchbtn'); if(s) s.click(); } else if(m==='settings'){ const mt=MENU_MORE.tabs, last=menuLast().more; setTab(S.tab!=='settings'&&mt.includes(last)&&menuSecOf(S.tab)!==MENU_MORE?last:'settings'); save(); } });
+  if(m==='close') closeMenu(); else if(m==='home'){ if(S.tab!==DASH){ setTab(DASH); save(); } } else if(m==='search'){ const s=$('searchbtn'); if(s) s.click(); } else if(m==='settings'){ const mt=MENU_MORE.tabs, last=menuLast().more; setTab(S.tab!=='settings'&&mt.includes(last)&&menuSecOf(S.tab)!==MENU_MORE?last:'settings'); save(); } });
+// ---------- the Menu button on the water (fishing mode) ----------
+const MB=document.createElement('button'); MB.id='menubtn'; MB.type='button'; MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M)';
+MB.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mbl">Menu</span><span class="mbdot" hidden></span>';
+$('stage').appendChild(MB); ['pointerdown','touchstart','mousedown'].forEach(ev=>MB.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+MB.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(DASH); });
+// what is waiting: the menu badges plus the Overview's ready cards (a full cooler, a finished bounty, coins in the aquarium)
+// how many things are waiting (a page with something new counts once, however big its own number is)
+function waitingCount(){ let n=0; try{ for(const s of MENU_SECS) for(const t of s.tabs) if(menuDot(t)) n++; if(S.cooler.length>=gv('cooler')) n++; if(S.tankBank>=1&&S.tank.length) n++; }catch(e){} return n; }
+setInterval(()=>{ const n=waitingCount(), d=MB.querySelector('.mbdot'), t=n>99?'99+':String(n); const al='Open the menu (M)'+(n?', '+n+' thing'+(n===1?'':'s')+' waiting':''); if(MB.getAttribute('aria-label')!==al){ MB.setAttribute('aria-label',al); MB.title=al; } if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
+  const hd=MO.querySelector('.mo-hdot'); if(hd){ const r=(S.cooler.length>=gv('cooler')?1:0)+(S.tankBank>=1&&S.tank.length?1:0)+S.bounties.filter(bDone).length; if(r){ hd.textContent=r; hd.hidden=false; } else hd.hidden=true; } },1000);
+// M opens and closes the menu (it used to fold the side menus away)
+addEventListener('keydown',e=>{ if((e.key!=='m'&&e.key!=='M')||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; e.preventDefault(); e.stopImmediatePropagation(); toggleMenu(); },true);
 // Esc closes the menu (the search box, a confirmation or a card handle Esc themselves first)
 addEventListener('keydown',e=>{ if(e.key!=='Escape'||!MENU_OPEN) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; const tag=(document.activeElement&&document.activeElement.tagName)||'';
   if(/INPUT|TEXTAREA|SELECT/.test(tag)){ document.activeElement.blur(); return; } e.preventDefault(); e.stopImmediatePropagation(); closeMenu(); },true);
@@ -113,7 +132,7 @@ addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePro
 { const _up=update; update=function(dt){ if(S.dockAt!==S.loc) dockSync(); if(MENU_OPEN){ if(G.st==='rest') restTick(dt); return; } return _up(dt); }; }
 { let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250) return; lastD=now; return _dr(now); }; }
 // a full cooler: show it on the dashboard instead of throwing you into a menu
-{ const _sc=startCharge; startCharge=function(){ if(!MENU_OPEN&&S.cooler.length>=gv('cooler')){ toast(quip('full')+' Sell your catch or move fish to the aquarium.'); dashFlash('cooler'); return; } return _sc.apply(this,arguments); }; }
+// a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
 { const _ms=menuSync; menuSync=function(){ _ms(); try{ const T=$('tabs'), live=!!(S.chal||liveScheds().length);
     T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } });
@@ -134,7 +153,7 @@ const DW={
   bounty(){ fillBounties(); const here=S.bounties.map((b,i)=>[b,i]).filter(([b])=>b.loc===S.loc), ready=S.bounties.filter(bDone).length, readyHere=here.filter(([b])=>bDone(b)).length, away=ready-readyHere;
     const row=([b,i])=>{ const d=bDone(b), bt=bountyText(b); let what, p=d?1:0, pt;
       if(bt){ what=bt.what; if(b.type==='style'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
-      else { const sp=SPI[b.sp]; if(!sp) return ''; what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+LOCS[locIdx(sp.loc)].name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch a ${sp.name} of ${kgStr(b.kg)} or more`; if(b.type==='count'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
+      else { const sp=SPI[b.sp]; if(!sp) return ''; what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+LOCS[locIdx(sp.loc)].name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?"an":"a"} ${sp.name} of ${kgStr(b.kg)} or more`; if(b.type==='count'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
       const rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
       return `<div class="dwq${d?' done':''}"><div class="dwqt"><b>${esc(what)}</b><span class="meta"><span class="coin">${fmtShort(rw)}</span>${b.scales?' + '+b.scales+' Scales':''}${pt?' · '+pt:d?'':' · not yet'}</span>${pt&&!d?dwBar(p):''}</div>${d?`<button class="btn sm" data-act="claim" data-i="${i}">Claim</button>`:''}</div>`; };
     return dwBox('bounty',{icon:'📜', title:'Bounties', wide:true, state:ready?'ready':'', sum:ready?`${ready} ready`:`${here.length} here`, body:
@@ -178,7 +197,7 @@ function renderDash(P){ const keep=P.scrollTop; P.innerHTML=`<div class="dash" a
 const dwStrip=h=>h.replace(/(data-live[^>]*>)[^<]*/g,'$1').replace(/data-cd="\d+"/g,'');
 const dwLast={};
 function dashCache(P){ for(const id of DW_ORDER) dwLast[id]=null; P.querySelectorAll('.dash > [data-w]').forEach(el=>dwLast[el.dataset.w]=dwStrip(el.outerHTML)); }
-function dashTick(){ if(MENU_OPEN||S.tab!==DASH||document.hidden) return; const P=$('panel'), D=P&&P.querySelector('.dash'); if(!D) return;
+function dashTick(){ if(!MENU_OPEN||S.tab!==DASH||document.hidden) return; const P=$('panel'), D=P&&P.querySelector('.dash'); if(!D) return;
   const now=Date.now(); D.querySelectorAll('[data-cd]').forEach(el=>{ const ms=+el.dataset.cd-now; if(el.id!=='tankbank'){ const t=/min$/.test(el.textContent)?Math.max(1,Math.ceil(ms/60000))+' min':mmss(Math.max(0,Math.ceil(ms/1000))); if(el.textContent!==t) el.textContent=t; } });
   if(dashPress) return;
   const want=[dashWaiting(),...DW_ORDER.map(dashHTML)].filter(Boolean), ids=want.map(h=>(h.match(/data-w="(\w+)"/)||[])[1]), have=[...D.children].map(el=>el.dataset.w);
@@ -197,7 +216,7 @@ function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'
     if(a!=='dockcopy') dockCopyAsk=null;
     return _xa(b); }; }
 // the panel shows the dashboard in fishing mode, the page otherwise
-{ const _rp=renderPanel; renderPanel=function(){ dockSync(); if(S.tab===DASH){ const P=$('panel'); if(P){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
+{ const _rp=renderPanel; renderPanel=function(){ dockSync(); if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
 setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&&c.textContent!==v){ c.textContent=v; c.title=fmt(S.money)+' coins'; } menuHead(); } },250);
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
@@ -313,10 +332,8 @@ body.phone-app #panel .dwb{padding:0 10px 9px;gap:6px}
 /* tablets and small windows: the water name gets the room it needs in the top bar */
 @media (max-width:980px){body:not(.phone-app) .hud .stat.loc{flex-grow:2;min-width:0}body:not(.phone-app) .hud > .stat:not(.loc){min-width:0}}
 </style>`);
-// the water's edge toggle now hides the dashboard (the menus open full screen anyway)
-(function(){ const b=$('sidetog'); if(!b) return; const lab=()=>{ const off=document.body.classList.contains('side-off'), t=off?'Show the dashboard':'Bigger water: hide the dashboard'; b.title=t; b.setAttribute('aria-label',t); };
-  b.addEventListener('click',()=>setTimeout(lab,0)); lab();
-  SEARCH_IDX.forEach((e,i)=>{ if(e[0]==='Hide menus') SEARCH_IDX[i]=['Bigger water: hide the dashboard','settings',null,'hide menus dashboard collapse full water bigger screen']; }); })();
+// the old "hide menus" toggle is gone (fishing is always full screen); its search entry goes too
+for(let i=SEARCH_IDX.length-1;i>=0;i--) if(SEARCH_IDX[i][0]==='Hide menus') SEARCH_IDX.splice(i,1);
 // the Dock page measures each decoration's drawing the first time it opens (about 90 ms); do it in idle moments after load instead
 (function(){ const ids=Object.keys(typeof DOCK_H==='object'?DOCK_H:{}); let i=0; const idle=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>8}),200));
   const step=dl=>{ while(i<ids.length&&dl.timeRemaining()>4){ try{ dockNative(ids[i]); }catch(e){} i++; } if(i<ids.length) idle(step,{timeout:3000}); };
@@ -327,3 +344,80 @@ if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be rea
 { const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
 // phones held sideways: the top bar's seven chips share the width by what they hold, so the water name always fits
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){.hud{grid-template-columns:minmax(0,.9fr) minmax(0,.85fr) minmax(0,1.65fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,.95fr)!important}}</style>`);
+// =====================================================================
+// Fishing mode = the water fills the screen (the top bar stays above it). Every layout (PC wide, PC stacked, tablet,
+// phone upright, phone sideways) uses the same column: top bar, then the water down to the bottom edge. The menus,
+// the Overview and every page live in the full-screen menu, one tap away on the Menu button.
+// =====================================================================
+document.body.classList.add('dl-fish'); document.documentElement.classList.add('dl-fish');
+try{ document.body.classList.remove('side-off'); localStorage.setItem('driftline-side-off','0'); }catch(e){} // the old "hide menus" switch has nothing left to hide
+{ const _sho04=stageHOverride; stageHOverride=function(W,H){ try{ const w=document.querySelector('.wrap'), st=$('stage'); if(w&&st&&document.body.classList.contains('dl-fish')){ const h=Math.round(w.getBoundingClientRect().bottom-st.getBoundingClientRect().top); if(h>140) return h; } }catch(e){} return _sho04(W,H); }; }
+addEventListener('orientationchange',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },300));
+if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ clearTimeout(window.__dlvv); window.__dlvv=setTimeout(()=>{ try{ resize(); }catch(e){} },120); });
+// the water's chip says where you are too (the top bar on phones has no room for the name of the water)
+// phones held upright: two lines (the water, then time · weather · effect · time left) so it never runs into the streak chip
+drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const big=W>=700; const bc=document.body.classList, phone=bc.contains('phone-app')||bc.contains('phone-land');
+  const rest=tod(p)+' · '+wxName(wx.k)+(tag?' ('+tag+')':'')+' · '+mmss(wxLeft()); const col=wx.k==='Gilded'?'#ffc94d':tag?'#bfe8ff':'#e6efe8'; g.textAlign='left';
+  if(bc.contains('phone-app')){ g.font='800 11.5px system-ui'; const t1=g.measureText(nm).width; g.font='700 11px system-ui'; const t2=g.measureText(rest).width; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,Math.max(t1,t2)+18,36,11); g.fill();
+    g.fillStyle='#ffffff'; g.font='800 11.5px system-ui'; g.fillText(nm,19,24); g.fillStyle=col; g.font='700 11px system-ui'; g.fillText(rest,19,39); return; }
+  const txt=rest; g.font='700 '+(big?12:11)+'px system-ui'; const tw=g.measureText(txt).width, h=big?22:20; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,tw+(big?20:16),h,h/2); g.fill(); g.fillStyle=col; g.fillText(txt,big?20:18,big?25:24); };
+document.head.insertAdjacentHTML('beforeend','<style>body.phone-app #goalchip{top:54px}</style>');
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* ---------- fishing mode: one column, the water to the bottom edge ---------- */
+html.dl-fish{height:100%;overflow:hidden}
+html body.dl-fish{height:100vh;height:100dvh;box-sizing:border-box;overflow:hidden;overscroll-behavior:none;margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important}
+@media (max-width:700px),(max-height:560px){html body.dl-fish{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}}
+body.dl-fish .wrap{display:flex!important;flex-direction:column!important;gap:8px!important;height:100%!important;max-width:none!important;width:100%!important;grid-template-columns:none!important;grid-template-rows:none!important;overflow:hidden;position:relative;column-gap:0!important}
+@media (max-height:560px){body.dl-fish .wrap{gap:5px!important}}
+body.dl-fish .wrap > .hud{flex:0 0 auto;grid-column:auto!important;grid-row:auto!important;margin:0!important}
+body.dl-fish .wrap > #stage{flex:1 1 0!important;min-height:0!important;width:100%!important;max-width:none!important;grid-column:auto!important;grid-row:auto!important;align-self:stretch!important;margin:0!important;position:relative}
+body.dl-fish .wrap > #tabs,body.dl-fish .wrap > #panel{display:none!important}
+body.dl-fish .sidetog,body.dl-fish #towater{display:none!important}
+/* the tip line sits on the water, above the buttons */
+body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{position:absolute!important;left:50%;bottom:72px;transform:translateX(-50%);z-index:3;margin:0!important;max-width:calc(100% - 28px);width:max-content;padding:5px 12px;border-radius:12px;background:#0a1220b8;border:1px solid #ffffff1a;color:#dbe7f3;font-size:12px;line-height:1.3;text-align:center;pointer-events:none;display:block}
+body.dl-fish .wrap > #hint:empty,body.dl-fish #stage > #hint:empty{display:none}
+body.dl-fish.card-open #hint{opacity:0}
+@media (max-height:560px){body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:58px;font-size:11px}}
+/* phones: a one-row top bar (coins, level, cooler, bait); the name of the water is on the water, search and settings are in the menu */
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,1.15fr)!important;gap:5px!important}
+body.phone-app.dl-fish .hud > .stat.loc,body.phone-app.dl-fish .hud > #buffchip,body.phone-app.dl-fish .hud > .hudbtns{display:none!important}
+@media (orientation:landscape) and (max-height:560px){
+  body.dl-fish .hud{grid-template-columns:minmax(0,.95fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,.8fr) minmax(0,1.05fr)!important}
+  body.dl-fish .hud > #buffchip,body.dl-fish .hud > .hudbtns{display:none!important}
+}
+/* ---------- the Menu button ---------- */
+#menubtn{position:absolute;right:12px;bottom:12px;z-index:6;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px 0 14px;border-radius:15px;border:1px solid #ffd36a99;background:linear-gradient(180deg,#24395cee,#15233ef2);color:#fff3cf;font:800 15px var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:0 8px 22px #02060fcc,0 0 18px #ffd36a2a;transition:transform .12s,box-shadow .18s,border-color .18s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#menubtn:hover{border-color:var(--gold,#ffd36a);box-shadow:0 8px 22px #02060fcc,0 0 26px #ffd36a55;transform:translateY(-1px)}
+#menubtn:active{transform:scale(.97)}
+#menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:3px}
+#menubtn .mbdot{position:absolute;top:-8px;right:-7px;min-width:21px;height:21px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 12px/21px var(--display,system-ui);text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008}
+#menubtn .mbdot[hidden]{display:none}
+body.card-open #menubtn{opacity:0;pointer-events:none}
+@media (max-height:560px){#menubtn{min-height:42px;right:10px;bottom:10px;font-size:14px;padding:0 15px 0 12px}}
+@media (max-width:420px){#menubtn{right:10px;bottom:10px}}
+.dlprev{right:auto!important;left:50%!important;bottom:4px!important;transform:translateX(-50%);opacity:.8}
+/* ---------- the full-screen menu: no pinned bars, every part is a row of one screen-tall grid (works under Safari's toolbars) ---------- */
+#menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:100vh;height:100dvh}
+#menuov .mo-in{grid-template-columns:auto auto minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}
+#menuov .mo-title{display:none!important}
+#menuov .mo-home{grid-area:home;align-self:center;position:relative;display:inline-flex;align-items:center;gap:7px;min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line,#26385180);background:var(--glass,#111c2e);color:#bcd0e4;font:800 14px var(--display,system-ui);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+#menuov .mo-home:hover{border-color:#5a7ea8aa;color:#eef3f8}
+#menuov .mo-home.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6;color:#2a1806}
+#menuov .mo-home:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+#menuov .mo-hdot{position:absolute;top:-7px;right:-6px;min-width:19px;height:19px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 11px/19px var(--display,system-ui);text-align:center}
+#menuov .mo-hdot[hidden]{display:none}
+@media (max-width:1100px){#menuov .mo-in{grid-template-rows:auto auto auto minmax(0,1fr)!important;grid-template-areas:"back home . tools" "secs secs secs secs" "sub sub sub sub" "body body body body"!important}}
+@media (max-width:640px){#menuov .mo-home{min-height:42px;padding:0 11px}#menuov .mo-home .mo-hl{font-size:13px}}
+@media (max-width:460px){#menuov .mo-home .mo-hl{display:none}#menuov .mo-home{padding:0 11px}#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
+#menuov .mo-in{overflow:hidden}
+/* phones held upright: the categories are the bottom row of the same grid (thumb reach), never a pinned bar */
+@media (max-width:700px) and (orientation:portrait){
+  #menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr) auto!important;grid-template-areas:"back home . tools" "sub sub sub sub" "body body body body" "secs secs secs secs"!important;row-gap:4px!important}
+  body #menuov #tabs.secmode .secbar{position:static!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;transform:none!important;margin:0 calc(-1 * max(10px,env(safe-area-inset-right))) 0 calc(-1 * max(10px,env(safe-area-inset-left)));padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}
+  body #menuov #panel{padding-bottom:16px!important}
+}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}#menuov .mo-home{min-height:38px;padding:0 10px}#menuov .mo-home .mo-hl{display:none}}
+/* the Overview inside the menu: cards across the full width */
+#menuov #panel .dash{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+@container (min-width:640px){#menuov #panel .dash .dw.wide{grid-column:span 2}}
+</style>`);

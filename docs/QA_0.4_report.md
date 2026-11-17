@@ -97,3 +97,12 @@ Real frame pacing could not be measured: the browser pane was hidden, so the bro
 
 ## Verdict
 On everything that could be tested here, no known reproducible defects remain: 45/45 automated checks, about 27,000 random actions with no rule broken, 40/40 real catches, clean layouts at 12 sizes, and a clean release build and console. Release-ready **for the tested environment (Chromium on desktop, phone sizes emulated)**. A short real-phone check (one iPhone, one Android) is recommended before publishing, since real devices and other browsers were not available.
+
+## Addendum: two full-screen modes (director feedback, 2026-11-17)
+The director's iPhone screenshots showed that the first version kept a dashboard beside or below the water, and on iPhone Safari the bottom menu bar was missing and the cards were cut off. Rebuilt:
+- **Fishing mode:** the water fills the whole screen in every layout. The top bar stays (one row on phones), and a **Menu** button sits on the water with a count of things waiting. The old side-menu toggle is gone.
+- **Menu mode:** one full-screen menu that opens on the **Overview** (the live cards), with Overview / five categories / settings, and **Back to fishing**. Switching: the Menu button, M, Esc, the phone back gesture.
+- **iPhone robustness:** the menu's category bar is now the last row of a screen-tall grid (`height:100dvh`), not a bar pinned to the bottom, so Safari's toolbar can't hide it.
+- Verified at 12 sizes with `__layoutQC()`. It now also checks that the water reaches the bottom edge, the picture fills it, the Menu button sits on it and the page never scrolls: all clean. 45/45 automated checks pass. 12/12 real touch catches on the full-screen iPhone-size water (Willow Pond, Coral Shallows, Starfall, day and night, menu opened mid-fight 4×). All mode transitions pass, and the release build is clean.
+- Drawing cost at full-screen 1920×1080 (1896×1004 water): 2.3–3.7 ms per frame.
+- Still not verified on a real iPhone or Android device.
