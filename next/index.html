@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="description" content="Driftline: a cosy fishing game. 520 fish, ten waters, 100 oddities, pets and hats.">
 <meta name="theme-color" content="#0a161d">
 <link rel="manifest" href="../manifest.webmanifest">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1245';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1316';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2835,6 +2835,10 @@ const PATCHES = [
   'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
   'Phone held sideways: the Aquarium shows your whole tank right under your earnings, and Collapse panel works on every menu page to give pages the full width.',
   'The “new version” bar now shows on top of the menus too, so you always know when an update is ready.',
+  'Rainbows stand on the side away from the sun and sink lower as the sun climbs, and their reflection lines up with the arc and fades softly into the water instead of ending in a hard edge.',
+  'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
+  'In fog, your angler, dock and boat stay clear while the far shore fades away.',
+  'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -5061,6 +5065,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const vis=(1-gloom*.85)*(up?1:clamp(night*1.2,0,1))*(1-(SC.overcast||0));
   if(up){ v3glow(g,sx,sy,H*.42,v3rgba(P.glow,.9),vis*(.55+P.d*.4)); g.fillStyle=mix(P.glow,'#ffffff',.5); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.045,0,7); g.fill(); g.globalAlpha=1; }
   else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); g.save(); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sx,sy,H*.03,0,Math.PI*2); g.moveTo(sx+H*.013+H*.028,sy-H*.009); g.arc(sx+H*.013,sy-H*.009,H*.028,0,Math.PI*2); g.fill('evenodd'); g.restore(); }
+  if(!up&&typeof wx3BloodMoonDisc==='function'&&wx3k()==='Blood Moon'&&wx3A()>.01) wx3BloodMoonDisc(sx,sy,wx3A()); // the blood moon is the moon (2026-11-17)
   // soft clouds: a bumpy top made of overlapping puffs, a flat base, lighter on top, lit underside; drifting
   for(let i=0;i<(SC.noClouds?0:3);i++){ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015);
     const cg=g.createLinearGradient(0,cy-chh,0,cy); cg.addColorStop(0,v3rgba(mix(P.cloud,'#ffffff',.25),.85*(1-gloom*.3))); cg.addColorStop(1,v3rgba(P.cloud,.8*(1-gloom*.3)));
@@ -6572,14 +6577,22 @@ m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; fo
 // =====================================================================
 const WX3={};
 function wx3sun(hz){ const p=phase(), sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45; return {x:W*(.1+.8*k), y:hz-Math.sin(k*Math.PI)*hz*.8+10, up}; }
+// where the rainbow stands, shared by the sky arc and its reflection: like a real one it is on the side away from the
+// sun and sinks lower as the sun climbs, so it never rings the sun (it used to sit right around it; 2026-11-17)
+// the blood moon takes the moon's own place at night (it used to hang beside the normal moon: two moons); by day it keeps its spot
+function wx3BloodMoon(hz){ const s=wx3sun(hz); return s.up?{x:W*.78,y:hz*.32}:{x:s.x,y:s.y}; }
+function wx3BloodMoonDisc(mx,my,a){ const r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
+  g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
+function wx3Rainbow(hz){ const s=wx3sun(hz), R=H*.66; if(!s.up) return {cx:W*.62, cy:hz+H*.28, R};
+  const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.2+.36*elev); return {cx, cy, R}; }
 function wx3k(){ try{ return weather().k; }catch(e){ return 'Clear'; } }
 const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------
 function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0;
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const cx=W*.62, cy=hz+H*.28, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
-      g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); }
-      g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI*1.06,Math.PI*1.94); g.stroke(); g.restore(); } }
+  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
+      g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI,Math.PI*2); g.stroke(); }
+      g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI,Math.PI*2); g.stroke(); g.restore(); } }
   if(k==="Aurora"){ const A=a*(.55+.45*night);
     // the curtains are drawn into a small offscreen picture (half resolution, about 20 refreshes a second: they move slowly
     // and are soft, so nobody can tell) and added to the sky in one step. Drawing ~240 additive strips straight onto a
@@ -6594,8 +6607,9 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
         for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; o.globalAlpha=.16+.12*Math.sin(X*.03+t*1.3+b*2); o.save(); o.translate(0,dy); o.fillRect(X,y0-hz*.24,sw+1,hz*.32); o.restore(); } } }
     g.save(); g.globalCompositeOperation='lighter'; g.globalAlpha=A; g.drawImage(AU.c,0,0,cw/q,chh/q); g.restore(); }
   if(k==='Blood Moon'){ const tint=g.createLinearGradient(0,0,0,hz); tint.addColorStop(0,'rgba(60,0,12,'+(.35*a)+')'); tint.addColorStop(1,'rgba(150,20,30,'+(.25*a)+')'); g.fillStyle=tint; g.fillRect(0,0,W,hz+1);
-    const mx=W*.78, my=hz*.32, r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
-    g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
+    // by day the blood moon hangs in its own spot here; at night it is drawn in the moon's place by the scene (wx3BloodMoonDisc),
+    // so the land in front covers it just like the normal moon
+    if(wx3sun(hz).up){ const bm=wx3BloodMoon(hz); wx3BloodMoonDisc(bm.x,bm.y,a); } }
   if(k==='Gilded'){ const s=wx3sun(hz), A=a*(1-night*.8)*.14; if(s.up&&A>.01){ g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<7;i++){ const ang=Math.PI*.15+i*Math.PI*.1+Math.sin(t*.12+i)*.03, L=H*1.2, w=.05+(i%3)*.02; g.fillStyle='rgba(255,210,120,'+(A*(.6+.4*Math.sin(t*.6+i*1.7)))+')'; g.beginPath(); g.moveTo(s.x,s.y); g.lineTo(s.x+Math.cos(ang-w)*L,s.y+Math.sin(ang-w)*L); g.lineTo(s.x+Math.cos(ang+w)*L,s.y+Math.sin(ang+w)*L); g.closePath(); g.fill(); } g.restore(); } }
   if(k==='Storm'||k==='Rain'){ const A=a*(k==='Storm'?.55:.32); g.fillStyle=k==='Storm'?'rgba(40,46,56,'+A+')':'rgba(70,78,90,'+A+')';
     for(let i=0;i<6;i++){ const sp=k==='Storm'?.025:.012, cw=W*(.22+(i%3)*.08), cx=((i*.31+t*sp*(1+i%2*.4))%1.4)*W-W*.2, cy=hz*(.12+(i%3)*.14); g.beginPath(); g.ellipse(cx,cy,cw*.5,hz*.05,0,0,7); g.ellipse(cx+cw*.25,cy+hz*.02,cw*.35,hz*.045,0,0,7); g.ellipse(cx-cw*.28,cy+hz*.025,cw*.3,hz*.04,0,0,7); g.fill(); } }
@@ -6611,10 +6625,19 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
   if(k==='Storm'&&FX){ g.fillStyle=v3rgba('#e8f0f4',.4*a); for(let i=0,n=Math.round(20*gfxK());i<n;i++){ const y=hz+H*.03+Math.pow((i*.137)%1,1.4)*(H-hz)*.9, u=(y-hz)/(H-hz), x=((((i*97.3)%1000)/1000*W+t*W*(.03+u*.04))%(W*1.1))-W*.05, l=W*(.012+u*.03); g.globalAlpha=a*(.4+.4*Math.sin(t*2+i)); g.fillRect(x,y,l,Math.max(1,u*2.4)); } g.globalAlpha=1; }
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.13; if(A>.01){ const cx=W*.62, cy=hz-H*.28+hz*0, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012; g.save(); g.beginPath(); g.rect(0,hz,W,H*.22); g.clip(); g.translate(0,hz*2); g.scale(1,-1); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A; g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,hz+H*.28,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); } g.restore(); }
+  if(k==='Rainbow'){ const A=a*(1-night*.85)*.2; if(A>.01){
+      // the rainbow's reflection: the sky arc mirrored in the horizon (centre hz-.28H, the mirror of the sky arc's hz+.28H),
+      // faded smoothly with depth and laid on in thin rippling strips like the land's reflection. It used to be a sharp,
+      // full-strength copy cut off by a hard straight edge (director, 2026-11-17).
+      const depth=Math.min(H-hz,H*.3), q=.5, cw=Math.max(8,Math.ceil(W*q)), ch=Math.max(4,Math.ceil(depth*q)), RB=wx3Water.rb||(wx3Water.rb={c:document.createElement('canvas')}), RP=wx3Rainbow(hz), key=cw+'|'+ch+'|'+Math.round(H)+'|'+Math.round(hz)+'|'+Math.round(RP.cx/2)+'|'+Math.round(RP.cy/2);
+      if(RB.key!==key){ RB.key=key; if(RB.c.width!==cw||RB.c.height!==ch){ RB.c.width=cw; RB.c.height=ch; } const o=RB.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,ch); o.setTransform(q,0,0,q,0,0);
+        const cx=RP.cx, R=RP.R, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012; o.lineWidth=bw*1.25;
+        for(let i=0;i<7;i++){ o.strokeStyle=cols[i]; o.beginPath(); o.arc(cx,-(RP.cy-hz),R-i*bw,0,Math.PI); o.stroke(); }
+        o.setTransform(1,0,0,1,0,0); o.globalCompositeOperation='destination-in'; const fg=o.createLinearGradient(0,0,0,ch); fg.addColorStop(0,'rgba(0,0,0,1)'); fg.addColorStop(.45,'rgba(0,0,0,.55)'); fg.addColorStop(1,'rgba(0,0,0,0)'); o.fillStyle=fg; o.fillRect(0,0,cw,ch); o.globalCompositeOperation='source-over'; }
+      g.save(); g.globalAlpha=A; const sh=Math.max(2,H/220); for(let y=0;y<depth;y+=sh){ const u=y/depth, dx=Math.sin(y*.21+t*1.7)*(.6+u*3.2)+Math.sin(y*.07-t*.9)*(.4+u*1.4); g.drawImage(RB.c,0,y*q,cw,Math.max(1,sh*q),dx,hz+y,W,sh+.5); } g.restore(); }
     if(FX){ g.fillStyle='rgba(255,250,230,'+(.6*a*(1-night))+')'; for(let i=0;i<10;i++){ const x=W*((i*.173+t*.01)%1), y=hz+H*(.03+((i*37)%10)/40); if(Math.sin(t*3+i*2)>.6) g.fillRect(x,y,1.6,1.6); } } }
   if(k==="Aurora"){ const A=a*(.5+.5*night); g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<14;i++){ const x=W*((i*.071+Math.sin(t*.2+i)*.01)%1), y=hz+H*(.01+((i*13)%9)/80), cl=i%3===1?'150,110,255':'90,255,170'; g.fillStyle='rgba('+cl+','+(A*(.12+.1*Math.sin(t*1.5+i)))+')'; g.fillRect(x,y,W*(.03+(i%4)*.01),1.6); } g.restore(); }
-  if(k==='Blood Moon'){ const mx=W*.78; g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<10;i++){ const y=hz+H*(.012+i*i*.006), w=W*(.012+i*.004)*(1+.2*Math.sin(t*2+i)); g.fillStyle='rgba(255,60,50,'+(a*.22*(1-i/10))+')'; g.fillRect(mx-w/2+Math.sin(t*1.3+i)*3,y,w,Math.max(1,H*.003)); } g.restore();
+  if(k==='Blood Moon'){ const mx=wx3BloodMoon(hz).x; g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<10;i++){ const y=hz+H*(.012+i*i*.006), w=W*(.012+i*.004)*(1+.2*Math.sin(t*2+i)); g.fillStyle='rgba(255,60,50,'+(a*.22*(1-i/10))+')'; g.fillRect(mx-w/2+Math.sin(t*1.3+i)*3,y,w,Math.max(1,H*.003)); } g.restore();
     const rg=g.createLinearGradient(0,hz,0,H); rg.addColorStop(0,'rgba(120,10,20,'+(a*.18)+')'); rg.addColorStop(1,'rgba(40,0,8,'+(a*.25)+')'); g.fillStyle=rg; g.fillRect(0,hz,W,H-hz); }
   if(k==='Gilded'){ const A=a*(1-night*.7); g.fillStyle='rgba(255,215,120,'+(A*.07)+')'; g.fillRect(0,hz,W,H-hz); if(FX){ for(let i=0;i<22;i++){ const x=W*((i*.113+t*.004*(1+i%3))%1), y=hz+H*(.02+((i*41)%30)/60), tw=Math.sin(t*4+i*1.7); if(tw>.3){ g.fillStyle='rgba(255,226,140,'+(A*.8*tw)+')'; g.fillRect(x,y,2+tw*2,1.4); } } } }
   if(k==='Fog'){ for(let i=0;i<5;i++){ const y=hz+H*(.01+i*.035), x=((i*.37+t*.006*(1+i*.3))%1.6)*W-W*.3, w=W*(.5+(i%2)*.2); const fg=g.createRadialGradient(x+w/2,y,0,x+w/2,y,w*.5); fg.addColorStop(0,'rgba(215,222,228,'+(a*.28)+')'); fg.addColorStop(1,'rgba(215,222,228,0)'); g.save(); g.translate(0,y); g.scale(1,.12); g.translate(0,-y); g.fillStyle=fg; g.fillRect(x,y-w*.5,w,w); g.restore(); } }
@@ -13629,9 +13652,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 // the menu page never rubber-bands past its top or bottom (an older rule with a stronger selector kept "contain")
 document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscroll-behavior:none!important}</style>');
-{ const P=$('panel'); let y0=0; P.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true});
-  P.addEventListener('touchmove',e=>{ if(!MENU_OPEN||e.touches.length!==1) return; const dy=e.touches[0].clientY-y0; const atTop=P.scrollTop<=0, atEnd=P.scrollTop+P.clientHeight>=P.scrollHeight-1;
-    if((atTop&&dy>0)||(atEnd&&dy<0)){ let n=e.target; while(n&&n!==P){ const cs=getComputedStyle(n); if(/(auto|scroll)/.test(cs.overflowY)&&n.scrollHeight>n.clientHeight+1) return; n=n.parentElement; } if(e.cancelable) e.preventDefault(); } },{passive:false}); }
+// (the touch guard that used to sit here is replaced by the page-wide one at the end of this file, which also leaves
+//  sideways swipes alone and covers the top bars)
 
 // =====================================================================
 // Two more chips in the top bar while fishing: Aquarium (income per hour; gold when coins are waiting) and Fish Log
@@ -13991,6 +14013,33 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
  #menuov #panel:has(> .tank) > .badges{order:4;margin-top:8px}
  #menuov #panel:has(> .tank) > .dl-head > :not(.bank){order:5;margin-top:6px}
 }</style>`);
+// heavy fog is drawn behind the dock, the angler and the pets (it used to be laid over them, washing out your own angler);
+// the far shore and the middle distance still fade into it, and a light veil stays over the near water (2026-11-17)
+{ let FOG_EARLY=false; const _dwx=drawWeatherX, _vp=v3Platform;
+  drawWeatherX=function(t,wx,hz){ if(wx&&wx.k==='Fog'&&!FOG_EARLY) return; return _dwx.apply(this,arguments); };
+  v3Platform=function(L,t,night,dockY,pb){ try{ const wx=weather(); if(wx.k==='Fog'){ FOG_EARLY=true; _dwx(t,wx,HZ()); } }catch(e){} finally{ FOG_EARLY=false; } return _vp.apply(this,arguments); }; }
+// ---------- touch: no bouncing past the top bars, no long-press menus, no text selection, no zoom (director, 2026-11-17) ----------
+// 1. Pulling a list past its top or bottom never drags the page (iPhone Safari rubber-bands the whole page otherwise, sliding
+//    pages under the top panels). A drag is let through only to a box that can still scroll that way; sideways drags (tab rows,
+//    sliders) are untouched.
+{ let lx=0, ly=0; document.addEventListener('touchstart',e=>{ if(e.touches.length===1){ lx=e.touches[0].clientX; ly=e.touches[0].clientY; } },{passive:true});
+  document.addEventListener('touchmove',e=>{ if(e.touches.length!==1) return; const tx=e.touches[0].clientX, ty=e.touches[0].clientY, dx=tx-lx, dy=ty-ly; lx=tx; ly=ty;
+    if(Math.abs(dx)>Math.abs(dy)) return; if(!dy) return;
+    for(let n=e.target; n&&n!==document.documentElement; n=n.parentElement){ if(n.nodeType!==1) continue; const oy=getComputedStyle(n).overflowY;
+      if((oy==='auto'||oy==='scroll')&&n.scrollHeight>n.clientHeight+1){ if((dy>0&&n.scrollTop>0)||(dy<0&&n.scrollTop+n.clientHeight<n.scrollHeight-1)) return; break; } }
+    if(e.cancelable) e.preventDefault(); },{passive:false}); }
+// 2. No long-press callout (copy / share / look up), no text selection and no image dragging anywhere in the game, except in
+//    text fields (pet names, save codes); no pinch or double-tap zoom.
+document.head.insertAdjacentHTML('beforeend',`<style>
+html,body{overscroll-behavior:none;touch-action:manipulation}
+body,body *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+body input,body textarea,body select,body [contenteditable="true"]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
+img,canvas,svg{-webkit-user-drag:none}
+</style>`);
+document.addEventListener('contextmenu',e=>{ if(!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault(); });
+document.addEventListener('selectstart',e=>{ if(!e.target.closest||!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault(); });
+for(const ev of ['gesturestart','gesturechange']) document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
+document.addEventListener('dblclick',e=>{ if(!e.target.closest('input,textarea')) e.preventDefault(); },{passive:false});
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -14282,13 +14331,25 @@ ui(){ QA.sys='UI';
     clearAt(.3); for(const L of LOCS){ const cr=coins(L.id); cr.slice(0,2).forEach(bk=>{ if(BAIT[bk].loc&&BAIT[bk].loc!==L.id) e.push(bk+' is a top-2 pick at '+L.id); }); }
     window.__off=off0; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
   T('Boardwalk pays prizes: duck, scratch and higher-or-lower never pay coins; wear prizes are never duplicates or prize-counter items; owning everything pays tickets',()=>{ const e=[]; S.money=1e12; const m0=S.money, B=bestLoot(); let cost=0;
-    for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; }
+    // feats are paused while the games run: a hat won at the duck pond can finish "Hat trick" (2,000 coins), which is the feat paying, not the game
+    const cf=checkFeats; checkFeats=function(){}; try{ for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; } } finally{ checkFeats=cf; }
     if(S.money!==m0-cost) e.push('games paid '+fmt(S.money-(m0-cost))+' coins');
     const seen=new Set(); let r, guard=0; while((r=bwWearPrize(guard%3===0))&&guard++<2000){ const key=r.wear.kind+':'+r.wear.id; if(seen.has(key)) e.push('duplicate '+key); seen.add(key); if((r.wear.kind==='petacc'&&r.wear.id in PRIZE_ACC)||(r.wear.kind==='pettint'&&r.wear.id in PRIZE_TINT)) e.push('prize-counter item '+key); }
     if(!seen.size) e.push('no wear prizes at all'); if(bwWearPool().length||bwPool().some(x=>!bwOwned(x))) e.push('pool not empty after drawing everything');
     const t0=S.tickets; wheelPrize(WHEEL.findIndex(w=>w[0]==='JACKPOT')); if(S.tickets!==t0+400) e.push('jackpot with everything owned gave '+(S.tickets-t0)+' tickets');
     for(const k of ['small','big']){ S.tokens[k]=1; crateRes=null; act('crate',{k,free:1}); if(!crateRes||!crateRes.title) e.push(k+' crate gave nothing'); } crateRes=null;
     return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:seen.size+' wear prizes drawn, all different'}; });
+  T('touch: a page never bounces past its top or bottom or under the top bars; scrolling and sideways swipes still work; no selection or long-press menu except in text fields',()=>{ if(typeof Touch!=='function'||typeof TouchEvent!=='function') return {ok:true,detail:'no touch events in this browser'};
+    const drag=(el,dx,dy)=>{ const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+Math.min(r.height/2,20), mk=(cx,cy)=>new Touch({identifier:7,target:el,clientX:cx,clientY:cy});
+      el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[mk(x,y)],changedTouches:[mk(x,y)]})); const ev=new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[mk(x+dx,y+dy)],changedTouches:[mk(x+dx,y+dy)]}); el.dispatchEvent(ev);
+      el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],changedTouches:[mk(x+dx,y+dy)]})); return ev.defaultPrevented; };
+    const e=[]; openMenu('journal'); const P=$('panel'), it=P.querySelector('button')||P; P.scrollTop=0; if(!drag(it,0,30)) e.push('pull down at the top not blocked');
+    if(P.scrollHeight>P.clientHeight+40){ P.scrollTop=40; if(drag(it,0,30)) e.push('scrolling up mid-page blocked'); P.scrollTop=0; if(drag(it,0,-30)) e.push('scrolling down from the top blocked'); }
+    const top=document.querySelector('#menuov .mo-in > *'); if(top&&!drag(top,0,30)) e.push('drag on the top bar not blocked'); if(drag(it,-40,3)) e.push('sideways swipe blocked');
+    const us=el=>{ const s=getComputedStyle(el); return s.userSelect||s.webkitUserSelect; }; if(us(it)!=='none') e.push('menu button selectable');
+    openMenu('pets'); const nm=$('petname'); if(nm&&us(nm)!=='text') e.push('pet name field not selectable'); closeMenu();
+    if(!/user-scalable=no/.test((document.querySelector('meta[name=viewport]')||{}).content||'')) e.push('viewport allows zoom');
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true}; });
   T('the cast power bar and its label sit above the hint at the bottom of the water, inside the water',()=>{ closeMenu(); const h=$('hint'), cv=$('cv'); if(!h||!cv) return {ok:false,detail:'missing'}; const was=h.textContent; if(!h.textContent.trim()) h.textContent='Release to cast. A far cast or a hotspot improves your odds.';
     const cr=cv.getBoundingClientRect(), hr=h.getBoundingClientRect(); if(!cr.height) return {ok:true,detail:'water not on screen'}; const k=cr.height/H, y=castBarY(), top=cr.top+(y-22)*k, bot=cr.top+(y+18)*k; h.textContent=was;
     const e=[]; if(top<cr.top) e.push('bar above the water'); if(hr.height&&bot>hr.top+1&&top<hr.bottom) e.push('bar '+Math.round(top)+'-'+Math.round(bot)+' overlaps hint '+Math.round(hr.top)+'-'+Math.round(hr.bottom)); return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:innerWidth+'x'+innerHeight}; });
@@ -14301,7 +14362,7 @@ ui(){ QA.sys='UI';
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
 },
 fuzz(){ QA.sys='Adversarial';
-  T('3,000 random actions (spam, bad ids, bad indexes): no errors, rules always hold',()=>{ const errs=[]; const h=e=>errs.push(String(e.message||e.reason)); addEventListener('error',h); addEventListener('unhandledrejection',h); const os=window.toast;
+  T('3,000 random actions (spam, bad ids, bad indexes): no errors, rules always hold',()=>{ const errs=[]; const h=e=>errs.push(String(e.message||e.reason)+(e.error&&e.error.stack?' @ '+e.error.stack.split(String.fromCharCode(10)).slice(1,4).join(' <- '):'')); addEventListener('error',h); addEventListener('unhandledrejection',h); const os=window.toast;
       const pick=a=>a[Math.floor(Math.random()*a.length)], ks={buygear:Object.keys(GEAR), buybait:Object.keys(BAIT), perk:Object.keys(PERKS), unlock:LOCS.map(l=>l.id), goto:LOCS.map(l=>l.id), dockdecor:Object.keys(DOCKI), dockwood:DOCK_WOODS.map(w=>w[0]), dockstyle:DOCK_STYLES.map(s=>s[0]), buypet:Object.keys(PETI), pet:Object.keys(PETI), rodbuy:RODS.map(r=>r.id), rodeq:RODS.map(r=>r.id), rodup:RODS.map(r=>r.id), usebait:Object.keys(BAIT), dockcopy:LOCS.map(l=>l.id), dockpick:LOCS.map(l=>l.id), chalgo:Object.keys(CHAL), dcol:DW_ORDER, crate:['small','big','legend'], spec:typeof SPECS!=='undefined'?Object.keys(SPECS):[], relic:typeof RELICS!=='undefined'?RELICS.map(r=>r.id||r[0]):[], aqtheme:THEMES.map(t=>t[0]), aqsand:SANDS.map(t=>t[0]), decor:DECOR.map(d=>d.id), encloc:LOCS.map(l=>l.id), bloc:LOCS.map(l=>l.id), enc:SP.map(s=>s.id)};
       const acts=['buygear','buybait','perk','respec','unlock','goto','claim','reroll','collect','sellall','sell','totank','untank','buytank','feed','passclaim','dockdecor','dockwood','dockstyle','dockcopy','dockpick','buypet','pet','rodbuy','rodeq','rodup','usebait','chalgo','chalquit','dcol','retire','cancel','spin','crate','scratch','taskclaim','taskbonus','dhunts','buyoffer','bwbuy','prize','attbuy','rodatt','spec','relic','aqtheme','aqsand','decor','petacc','pettint','look','flip','hilostart','hilo','claw','buyscratch','scratchall','frenzy','duckpick','statsec','tackleview','bwview','encloc','bloc','enc','petedit','pet2','pet2off','tryon','tryoff','dockpv','dockpvoff','aqpv','aqpvoff','petpv','petpvoff','autobait','duckagain','hilocash','wqclaim','wqbonus'];
       let stepFail=null; try{ S.money=Math.max(S.money,5e6); S.scales=Math.max(S.scales,500); for(let n=0;n<(window.__qaN||3000);n++){ const a=pick(acts), k=ks[a]?(Math.random()<.9?pick(ks[a]):pick(['__bad','',undefined])):undefined, i=String(Math.floor(Math.random()*12)-2);
@@ -14316,9 +14377,18 @@ window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window._
   try{ for(const g of (groups||Object.keys(GROUPS))) GROUPS[g]();
     // async: save codes
     QA.sys='Saves'; const i=QA.R.findIndex(r=>r.name.startsWith('save code')); try{ dockStore(); const ref=JSON.parse(snap()); const c=await makeCode(); const o=await readCode(c); const diff=['money','lvl','journal','unlocked','hunts','docks','dock','gear','cooler','tank'].filter(k=>JSON.stringify(o[k])!==JSON.stringify(ref[k])); if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:!diff.length&&c.startsWith('DL'),detail:!diff.length?'code '+c.length+' chars':'differs: '+diff.join(',')}; }catch(e){ if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:false,detail:'THREW '+e.message}; }
-  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){} }
+  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+    // close any event card a test left open (a challenge finished by a test shows its result card a moment later)
+    const shut=()=>{ const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; if(G.st==='event') G.st='idle'; } }; shut(); setTimeout(shut,1600); }
   const fails=QA.R.filter(r=>!r.ok); return {pass:QA.R.length-fails.length, fail:fails.length, fails, all:QA.R}; };
 window.__inv=inv;
+// __sweep(acts, ks, is): every action with every bad id and index, saving switched off and the save restored afterwards;
+// returns the errors with where they came from (the random fuzz only shows the message)
+window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), os=save, ot=toast, errs=[]; save=function(){}; toast=function(){};
+  const h=e=>errs.push((e.error&&e.error.stack?e.error.stack.split('\n').slice(0,5).join(' <- '):String(e.message))); addEventListener('error',h); let n=0;
+  try{ S.money=Math.max(S.money,5e6); for(const a of acts) for(const k of ks) for(const i of is){ G.st=n%3?'idle':'waiting'; const b0=errs.length; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } n++; if(errs.length>b0) errs[errs.length-1]=a+' k='+k+' i='+i+' :: '+errs[errs.length-1]; if(S.tab!==DASH) setTab(DASH); } }
+  finally{ removeEventListener('error',h); save=os; toast=ot; restore(keep); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
+  return {n, errs:[...new Set(errs)].slice(0,10)}; };
 })();
 // test-mode profiler: where a page's render time goes (wraps the heavy drawing helpers while it runs)
 if(/[?&]test\b/.test(location.search)) window.__profUI=(page,n=3)=>{ const acc={}; const wrap=(name,get,set)=>{ const f=get(); set(function(){ const a=performance.now(); try{ return f.apply(this,arguments); } finally{ acc[name]=(acc[name]||0)+performance.now()-a; } }); return ()=>set(f); };
