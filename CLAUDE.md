@@ -3,7 +3,7 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
-- **Live version: 0.3.2 "Prized Catches"** (shipped 2026-11-16, director approved; 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
+- **Live version: 0.3.3 "Every Water Special"** (shipped 2026-11-16, director approved; 0.3.2, 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
   - **2.2 "Closer Together":** moving progress with a 6-digit code, gift codes, and Lily.
@@ -13,7 +13,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **0.3.3 "Every Water Special": PREVIEW ONLY at /next/ (2026-11-16), awaiting the director's go-ahead.**
+- **0.3.3 "Every Water Special": SHIPPED 2026-11-16** (director approved; publish.ps1, commit d67637b). Its patch-notes entry stays as shipped.
   - **`src/ao_maps033.js`:** each scene hook is wrapped with `m33wrap(id,hook,fn)`; it skips zero-size canvases, because some loops step by W/n.
     - **Coast:** headland and village with lit windows that fade, a sailboat, a seal on a rock, tide-pool rocks.
     - **Shelf:** island with a sea arch, a whale (rises, blows, shows its tail), kelp mats with a gull, a full-width swell.
