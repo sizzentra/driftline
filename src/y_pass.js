@@ -6,7 +6,7 @@
 function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats.includes(x.id)).map(x=>({kind:'hat',id:x.id,name:x.name,cat:'Hat'})),
   ...GLASSES.filter(x=>x[2]&&!S.owned.glasses.includes(x[0])).map(x=>({kind:'gls',id:x[0],name:x[1],cat:'Glasses'})),
   ...OUTFITS.filter(x=>x[3]==='shop'&&!S.owned.outfits.includes(x[0])).map(x=>({kind:'out',id:x[0],name:x[1],cat:'Outfit'})),
-  ...PATTERNS.filter(x=>x[2]&&!S.owned.pats.includes(x[0])).map(x=>({kind:'pat',id:x[0],name:x[1]+' shirt',cat:'Shirt pattern'})),
+  ...PATTERNS.filter(x=>x[2]&&!S.owned.pats.includes(x[0])).map(x=>({kind:'pat',id:x[0],name:x[1]+' fabric',cat:'Fabric'})),
   ...SHOES.filter(x=>x[3]==='shop'&&!S.owned.shoes.includes(x[0])).map(x=>({kind:'shoe',id:x[0],name:x[1],cat:'Shoes'})),
   ...NECKS.filter(x=>x[3]==='shop'&&!S.owned.necks.includes(x[0])).map(x=>({kind:'neck',id:x[0],name:x[1],cat:'Neckwear'})),
   ...BACKS.filter(x=>x[3]==='shop'&&!S.owned.backs.includes(x[0])).map(x=>({kind:'back',id:x[0],name:x[1],cat:'Worn on your back'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }

@@ -100,7 +100,7 @@ body.v3 .bwt{ background:linear-gradient(180deg,color-mix(in srgb,var(--c,#c8553
 
 /* a quiet entrance for panels */
 @keyframes v3in{ from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none} }
-body.v3 #panel > *{ animation:v3in .22s ease-out both }
+body.v3 #panel.pin > *{ animation:v3in .22s ease-out both }
 @media (prefers-reduced-motion:reduce){ body.v3 #panel > *{ animation:none } body.v3 .tile:hover, body.v3 .jcard:hover{ transform:none } }
 </style>
 `); }

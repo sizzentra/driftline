@@ -108,7 +108,7 @@ function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
 Object.assign(PET_HEAD,{lily:[3,-17.6,5.9],puppy:[8,-13,4.4],kitten:[1,-11,3.4],fireflyjar:[0,-15,5],puffin:[1,-15,3.4],alpaca:[5,-28,3.8],mole:[6,-4,3],mushroombuddy:[0,-12,5],frogprince:[0,-8.5,3.5],babywhale:[5,-8,5],snowman:[0,-13,4]});
 function drawHatZ(c,id,col,t,h){ const {dk,lt,el,ci,poly,dome}=h; const f=cl=>{ c.fillStyle=cl; };
   switch(id){
-    case 'aviator': dome(8.3,-1.5,'#8a5a2a'); f('#6a4220'); c.fillRect(-8.6,-2.5,4,6); c.fillRect(4.6,-2.5,4,6); el(-2,-6,2.4,1.8,'#9ad0e8'); el(3,-6,2.4,1.8,'#9ad0e8'); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.beginPath(); c.ellipse(-2,-6,2.4,1.8,0,0,7); c.ellipse(3,-6,2.4,1.8,0,0,7); c.stroke(); break;
+    case 'aviator': dome(8.3,-1.5,'#8a5a2a'); f('#6a4220'); c.beginPath(); if(c.roundRect) c.roundRect(-5.2,-2.6,4.6,7.4,1.4); else c.rect(-5.2,-2.6,4.6,7.4); c.fill(); el(-2,-6,2.4,1.8,'#9ad0e8'); el(3,-6,2.4,1.8,'#9ad0e8'); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.beginPath(); c.ellipse(-2,-6,2.4,1.8,0,0,7); c.ellipse(3,-6,2.4,1.8,0,0,7); c.stroke(); break;
     case 'headband': f(col); c.fillRect(-8,-6,16,2.6); poly([-8,-5,-12,-3,-11,-1],col); f(lt); c.fillRect(-8,-5.3,16,.6); break;
     case 'gnomehat': f(col); c.beginPath(); c.moveTo(-7.5,-3); c.lineTo(7.5,-3); c.quadraticCurveTo(3,-14,-2,-22); c.quadraticCurveTo(-5,-12,-7.5,-3); c.fill(); f(dk); c.fillRect(-8,-4.5,16,2); break;
     case 'flowerpot': poly([-7,-2,7,-2,5.5,-12,-5.5,-12],'#c8703a'); f('#a85a2a'); c.fillRect(-6.5,-13.5,13,2.5); c.strokeStyle='#3a9a4a'; c.lineWidth=1.2; c.beginPath(); c.moveTo(0,-13); c.lineTo(0,-20); c.stroke(); ci(0,-21,2.4,'#ff7ab0'); ci(0,-21,1,'#ffd84a'); el(-2.4,-17,2,1,'#3a9a4a',-.5); break;

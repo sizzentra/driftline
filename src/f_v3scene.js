@@ -37,7 +37,7 @@ function v3pine(c,x,base,h,col,rim,rimA){
 // a mountain range: ridged fractal crests shaped into a few massifs, every column shaded by its slope
 // (faces turned to the light are lighter), snow that runs down into the gullies, haze at the foot
 function v3range(c,o){
-  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=Math.max(.75,(W>900?2:1.5)/Math.min(DPR||1,2)), raw=[];
+  const n=v3noise(o.seed), m=v3noise(o.seed+101), step=1.5/Math.min(DPR||1,2), raw=[];
   for(let X=0;X<=W+step;X+=step){ const f=X/W;
     let env=0; for(const [c0,a,w0] of o.massifs){ const d=Math.abs(f-c0)/w0; env=Math.max(env,a*Math.exp(-d*2.3)); }
     const r=.55*(1-Math.abs(2*n(f*3+1.3)-1))+.3*(1-Math.abs(2*n(f*7+5.1)-1))+.15*n(f*16+9.7);
@@ -45,13 +45,13 @@ function v3range(c,o){
   // a light smoothing pass keeps crests crisp but never jagged
   const cols=raw.map((h,i)=>o.base-((raw[i-1]??h)+h*2+(raw[i+1]??h))/4);
   const path=()=>{ c.beginPath(); c.moveTo(0,o.base); for(let i=0;i<cols.length;i++) c.lineTo(i*step,cols[i]); c.lineTo(W,o.base); c.closePath(); };
-  const sl=i=>{ const a=cols[Math.max(0,i-4)], b=cols[Math.min(cols.length-1,i+4)]; return (b-a)/(8*step); };
+  const sk=Math.max(4,Math.round(8/step)), sl=i=>{ const a=cols[Math.max(0,i-sk)], b=cols[Math.min(cols.length-1,i+sk)]; return (b-a)/(2*sk*step); };
   c.save(); path(); c.clip();
   for(let i=0;i<cols.length;i++){ const lit=clamp(.5+sl(i)*1.9,0,1);
-    c.fillStyle=mix(o.shadow,o.light,lit); c.fillRect(i*step,cols[i],step+.6,o.base-cols[i]+1); }
+    const top=Math.min(cols[i],cols[i+1]??cols[i])-1; c.fillStyle=mix(o.shadow,o.light,lit); c.fillRect(i*step,top,step+.6,o.base-top+1); }
   if(o.snow){ for(let i=0;i<cols.length;i++){ if(cols[i]>=o.snowLine) continue; const above=o.snowLine-cols[i];
       const depth=above*(.5+.45*m(i*step*.012))+above*.35*Math.max(0,m(i*step*.033+3)-.45);
-      const lit=clamp(.5+sl(i)*1.9,0,1); c.fillStyle=mix(mix(o.snow,'#8088bc',.4),o.snow,lit); c.fillRect(i*step,cols[i],step+.6,depth); } }
+      const lit=clamp(.5+sl(i)*1.9,0,1); const top=Math.min(cols[i],cols[i+1]??cols[i])-1; c.fillStyle=mix(mix(o.snow,'#8088bc',.4),o.snow,lit); c.fillRect(i*step,top,step+.6,depth+cols[i]-top); } }
   const hg=c.createLinearGradient(0,o.base-o.amp,0,o.base); hg.addColorStop(0,v3rgba(o.haze,0)); hg.addColorStop(.55,v3rgba(o.haze,o.hazeA*.35)); hg.addColorStop(1,v3rgba(o.haze,o.hazeA)); c.fillStyle=hg; c.fillRect(0,o.base-o.amp,W,o.amp+1);
   c.restore();
 }

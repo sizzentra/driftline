@@ -99,7 +99,7 @@ function a3Body(c,x,y,s,lk,o,live){
   const toUp=(px,py)=>{ const X=px, Y=py-lift+24; return {x:X*lc+Y*ls, y:-X*ls+Y*lc-24}; }; // world -> leaned upper-body coordinates
   const HW={x:hx,y:hy}, BW={x:hx-Math.cos(ra)*6.6,y:hy-Math.sin(ra)*6.6};
   const HH=toUp(HW.x,HW.y), BH=toUp(BW.x,BW.y);
-  const legC=a3Legs(lk,D), legD=D(mix(a3Legs(lk,q=>q),'#000000',.22)), sleeve=a3Sleeve(lk,D,shirt), cuffC=D(mix(lk.pants||'#3a4a6a','#000000',.25));
+  const legC=a3Legs(lk,D), legD=D(mix(a3Legs(lk,q=>q),'#000000',.22)), sleeve=a3Sleeve(lk,D,(lk.tone==="sleeves"&&lk.shirt2)?D(lk.shirt2):shirt), sleeveFab=a3SleeveLayers(lk,D), cuffC=D(mix(lk.pants||'#3a4a6a','#000000',.25));
   c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   // ---- legs: hip -> knee -> ankle, knees bend forward when the hips drop; boots stay planted
   const leg=(hipX,ankX,col,back)=>{ const hp={x:hipX+Math.sin(lean)*1.2,y:hipY}, an={x:ankX,y:-5}, kn=a3IK(hp.x,hp.y,an.x,an.y,9.58*B.l,9.58*B.l,-1);
@@ -134,17 +134,14 @@ function a3Body(c,x,y,s,lk,o,live){
   c.restore();
   // back arm: shoulder -> elbow -> hand on the grip behind the front hand
   const shB={x:-1.4*B.w,y:-44}, elB=a3IK(shB.x,shB.y,BH.x,BH.y,7.8,7.6,1), slD=D(mix(sleeve,'#000000',.2));
-  a3Limb(c,shB,elB,4.6*B.lw,4*B.lw,slD,.5); a3Limb(c,elB,BH,4*B.lw,3.4*B.lw,slD,.5);
+  a3Limb(c,shB,elB,4.6*B.lw,4*B.lw,slD,.5); a3Limb(c,elB,BH,4*B.lw,3.4*B.lw,slD,.5); for(const sf of sleeveFab){ a3LimbFab(c,shB,elB,4.6*B.lw,4*B.lw,sf); a3LimbFab(c,elB,BH,4*B.lw,3.4*B.lw,sf); }
   c.fillStyle=skD; c.beginPath(); c.arc(BH.x,BH.y,2.15,0,7); c.fill();
   // torso (or coat), pattern clipped to the body, outfit, then volume
   const coat=['raincoat','captain','tidecoat','bathrobe'].includes(lk.outfit), hem={raincoat:-16,captain:-14.5,tidecoat:-16,bathrobe:-12}[lk.outfit];
   c.save(); c.translate(0,br*.3); c.scale(B.w,1);
   c.fillStyle=shirt; a3TorsoPath(c,f); c.fill();
-  if(lk.pat&&lk.pat!=='none'){ c.save(); a3TorsoPath(c,f); c.clip(); drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
-  drawOutfit3(c,lk,D,f,t);
-  // 0.3: the shirt pattern can go on the outfit instead (drawn over the outfit in its own colours)
-  if(lk.patOn==="outfit"&&lk.pat&&lk.pat!=="none"&&lk.outfit&&lk.outfit!=="none"){ const isCoat=["raincoat","captain","tidecoat","bathrobe","fishsuit","kimono","clownsuit","suit"].includes(lk.outfit), hm={raincoat:-16,captain:-14.5,tidecoat:-16,bathrobe:-12,fishsuit:-15,kimono:-13,clownsuit:-14,suit:-20}[lk.outfit];
-    c.save(); if(isCoat) a3CoatPath(c,f,hm); else if(lk.outfit==="puffer"){ c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); } else a3TorsoPath(c,f); c.clip(); c.globalAlpha*=.85; drawPattern(c,lk.pat,D(lk.outCol||"#d8a020"),-11,-49,22,isCoat?(51+hm):27); c.restore(); }
+  { c.save(); a3TorsoPath(c,f); c.clip(); drawTwoTone(c,lk,D,-10,-49,20,27); if(lk.pat&&lk.pat!=='none') drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
+  if(lk.outFab&&lk.outFab!=='none'&&outfitFabrics(lk.outfit).includes(lk.outFab)) a3FabricOutfit(c,lk,D,f,t); else drawOutfit3(c,lk,D,f,t);
   const bodyPath=()=>coat?a3CoatPath(c,f,hem):a3TorsoPath(c,f), out=lk.outfit;
   a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); }:bodyPath,-9.6,9.8,-48,coat?hem:-22.4,1);
   // soft shadow under the chin and where the front arm crosses the chest
@@ -197,17 +194,17 @@ function a3Body(c,x,y,s,lk,o,live){
   else { c.beginPath(); c.moveTo(4.1,-53); c.quadraticCurveTo(5.4,-52,6.7,-53.1); c.stroke(); }
   drawFace(c,lk,D,hair);
   if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
-  // hats sit a touch higher and never cover the eye (full helmets excepted), so the face always reads
+  // hats sit above the eye line, so the face always reads (no hole is ever cut into a hat)
   // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
   { const HC=a3HatLayer(c), hx=HC.getContext('2d'); hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,HC.width,HC.height); hx.setTransform(c.getTransform());
-    hx.save(); if(!hatFull&&hatId!=='none'){ hx.beginPath(); hx.rect(-40,-110,80,130); hx.ellipse(4.55,-57,1.4,1.35,0,0,7); hx.clip('evenodd'); } hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
+    hx.save(); hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
     if(hatId!=='none'){ hx.save(); hx.globalCompositeOperation='source-atop'; const g1=hx.createLinearGradient(-9,-74,9,-50); g1.addColorStop(0,'rgba(10,8,22,.34)'); g1.addColorStop(.45,'rgba(10,8,22,0)'); g1.addColorStop(.75,'rgba(255,244,226,.12)'); g1.addColorStop(1,'rgba(255,244,226,.22)'); hx.fillStyle=g1; hx.fillRect(-30,-100,60,60);
       const g2=hx.createLinearGradient(0,-60,0,-52); g2.addColorStop(0,'rgba(10,8,22,0)'); g2.addColorStop(1,'rgba(10,8,22,.28)'); hx.fillStyle=g2; hx.fillRect(-30,-60,60,10); hx.restore(); }
     c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(HC,0,0); c.restore(); }
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod
   const shF={x:.8*B.w,y:-44}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
-  a3Limb(c,shF,elF,5*B.lw,4.3*B.lw,sleeve,1); a3Limb(c,elF,HH,4.3*B.lw,3.6*B.lw,sleeve,1);
+  a3Limb(c,shF,elF,5*B.lw,4.3*B.lw,sleeve,1); a3Limb(c,elF,HH,4.3*B.lw,3.6*B.lw,sleeve,1); for(const sf of sleeveFab){ a3LimbFab(c,shF,elF,5*B.lw,4.3*B.lw,sf); a3LimbFab(c,elF,HH,4.3*B.lw,3.6*B.lw,sf); }
   if(!['wetsuit','spacesuit'].includes(lk.outfit)){ const d2=Math.hypot(HH.x-elF.x,HH.y-elF.y)||1, ux=(HH.x-elF.x)/d2, uy=(HH.y-elF.y)/d2; c.fillStyle=D(mix(sleeve==shirt?lk.shirt:sleeve,'#000000',.18)); c.beginPath(); c.ellipse(HH.x-ux*2.6,HH.y-uy*2.6,1.1,2,Math.atan2(uy,ux),0,7); c.fill(); }
   { const gr=c.createRadialGradient(HH.x+.6,HH.y-.9,.3,HH.x,HH.y,2.8); gr.addColorStop(0,mix(sk,'#fff4e6',.2)); gr.addColorStop(1,skD); c.fillStyle=gr; c.beginPath(); c.arc(HH.x,HH.y,2.45,0,7); c.fill(); }
   c.restore(); c.restore();
@@ -345,13 +342,21 @@ if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=docum
 const ROD_IMG3={};
 function rodImg3(id,lvl){ if(!ROD_IMG3[id]){ const o=document.createElement('canvas'); o.width=240; o.height=80; const x=o.getContext('2d'); x.scale(2,2); v3Rod(x,{x:16,y:33},{x:114,y:6},64,22,ROD_I[id],0,0,false); ROD_IMG3[id]=o.toDataURL(); }
   return `<span style="position:relative;display:inline-block;width:120px;height:40px;flex:0 0 auto"><img src="${ROD_IMG3[id]}" width="120" height="40" alt="" style="display:block">${lvl?`<b style="position:absolute;right:0;bottom:-2px;font-size:11px;color:#ffd36a">Lv ${lvl}</b>`:''}</span>`; }
-if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=HATS.map(h=>h[0]||h.id).slice(opts.from||0,opts.to||999), cols=opts.cols||10, cw=opts.cell||110, ch=cw, sc=cw/26;
+if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=opts.ids||HATS.map(h=>h[0]||h.id).slice(opts.from||0,opts.to||999), cols=opts.cols||10, cw=opts.cell||110, ch=cw, sc=cw/26;
   const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(ids.length/cols)*ch; const x=o.getContext('2d');
   ids.forEach((id,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch);
-    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:i%2?'f':'m',hairStyle:i%2?'long':'short'}); drawAngler3(x,cx+cw*.45,cy+ch*.64+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle="#cfd8ff"; x.font="9px system-ui"; x.fillText(id,cx+3,cy+10); });
-  window.__post(opts.save||'hats',o.toDataURL()); return ids.length; };
+    const lk=Object.assign({},S.look,{hat:id,outfit:'none',glasses:'none',beard:'none',g:opts.pair?(i%2?'f':'m'):(i%2?'f':'m'),hairStyle:opts.hair?opts.hair[i%opts.hair.length]:(i%2?'long':'short')}); drawAngler3(x,cx+cw*.45,cy+ch*.64+56*sc,sc,lk,{t:1.3,hx:9,hy:-35}); x.restore(); x.fillStyle="#cfd8ff"; x.font="9px system-ui"; x.fillText(id,cx+3,cy+10); });
+  window.__lastSheet=o; if(!opts.nosave) window.__post(opts.save||'hats',o.toDataURL()); return ids.length; };
 // hats that leave the top of the head free (hair shows fully) and helmets that hide all hair
 const A3_HAT_OPEN=new Set(['none','headphones','headband','halo','flower','catears','bunnyears','antlers','tiara','crown']);
 const A3_HAT_FULL=new Set(['diver','astro','fishbowl','knight','pumpkin']);
 const A3HAT=new WeakMap();
 function a3HatLayer(c){ let H=A3HAT.get(c.canvas); if(!H){ H=document.createElement('canvas'); A3HAT.set(c.canvas,H); } if(H.width!==c.canvas.width||H.height!==c.canvas.height){ H.width=c.canvas.width; H.height=c.canvas.height; } return H; }
+// test: lowest point a hat reaches over the eye (hat units, eye centre at y=+0.4, eye top at -0.95)
+if(/[?&]test\b/.test(location.search)) window.__hatBottom=(id)=>{ const k=40, o=document.createElement('canvas'); o.width=40*k; o.height=40*k; const x=o.getContext('2d'); x.translate(20*k,30*k); x.scale(k,k); drawHat(x,id,'#c8553a',1.3);
+  const d=x.getImageData(0,0,o.width,o.height).data; let best=-99; for(let px=Math.round((20+3.15)*k);px<=Math.round((20+5.95)*k);px++) for(let py=o.height-1;py>=0;py--){ if(d[(py*o.width+px)*4+3]>40){ best=Math.max(best,py/k-30); break; } } return +best.toFixed(2); };
+if(/[?&]test\b/.test(location.search)) window.__hatBase=(id,a=-3,b=3)=>{ const k=40, o=document.createElement('canvas'); o.width=60*k; o.height=60*k; const x=o.getContext('2d'); x.translate(30*k,40*k); x.scale(k,k); drawHat(x,id,'#c8553a',1.3);
+  const d=x.getImageData(0,0,o.width,o.height).data; let best=-99; for(let px=Math.round((30+a)*k);px<=Math.round((30+b)*k);px++) for(let py=o.height-1;py>=0;py--){ if(d[(py*o.width+px)*4+3]>40){ best=Math.max(best,py/k-40); break; } } return +best.toFixed(2); };
+if(/[?&]test\b/.test(location.search)) window.__lookSheet=(looks,opts={})=>{ const cols=opts.cols||7, cw=opts.cell||160, ch=Math.round(cw*1.5), sc=cw/42; const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(looks.length/cols)*ch; const x=o.getContext('2d');
+  looks.forEach((l,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch); drawAngler3(x,cx+cw*.48,cy+ch*.93,sc,Object.assign({},S.look,l),{t:1.3}); x.restore(); x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(l.label||'',cx+3,cy+11); });
+  window.__post(opts.save||'looks',o.toDataURL()); return looks.length; };

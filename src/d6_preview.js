@@ -4,7 +4,7 @@
 // more shirt patterns
 // =====================================================================
 let PREVIEW=null, PET_PV=null, AQ_PV=null; // what's being tried on right now (never saved)
-const PV_KIND_NAME = {col:'colour', pat:'shirt pattern', hat:'hat', out:'outfit', gls:'glasses', shoe:'shoes', neck:'neckwear', back:'back piece'};
+const PV_KIND_NAME = {col:'colour', pat:'fabric', hat:'hat', out:'outfit', gls:'glasses', shoe:'shoes', neck:'neckwear', back:'back piece'};
 function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return lk; const {kind,id}=PREVIEW;
   if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; else if(kind==='shoe') lk.shoes=id; else if(kind==='neck') lk.neck=id; else if(kind==='back') lk.back=id; return lk; }
 function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
