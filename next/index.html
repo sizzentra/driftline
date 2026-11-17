@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1557';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1616';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2783,6 +2783,58 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 const GAME_VERSION = '0.4';
 const PATCHES = [
  {v:'0.4', name:'Fifty Fathoms', items:[
+  '## More to catch',
+  'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
+  '20 joke fish have slipped in too, two in every water. You will know them when you see them.',
+  'The oddity collection grows to 100, with 20 new finds to fish up.',
+  '## Voyages',
+  'Setting sail now leaves a lasting legacy: every voyage adds +10% coins forever (up to ten voyages, then +5% for each one after), and voyages bring in more pearls the more of them you make.',
+  'Six voyage milestones give you a head start on every new voyage, from starting coins and an unlocked river to a bigger cooler, a bait stash and better tackle.',
+  'Four new relics, and the fish in your aquarium now go to the Trophy Room when you set sail instead of being lost.',
+  'Tiny hybrids are worth keeping: the smaller a hybrid is for its kind, the bigger its aquarium boost.',
+  '## Events',
+  'Six new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Long Cast, Steady Hands, Treasure Dive and Trophy Weigh-in. Each is sized to your gear and odds, with coins, Scales and tickets to win.',
+  'A new event calendar: the Shoal Run (faster bites, more rare fish), Golden Hour (shiny fish twice as common) and Market Rush (fish sell for 30% more) run on the clock at every water. The calendar shows what is live and when the next one starts.',
+  'Live events and challenges show their progress right on the water, and the Events tab shows how many are live.',
+  '## Weekly quests and forecasts',
+  'Weekly quests: four bigger goals every week, right under your daily tasks in Bounties. Each pays coins and Scales, and finishing all four earns a big Mystery Crate. New quests arrive every Monday.',
+  'Weather forecast: the Events page shows the weather coming to every water and when, so you can plan for rare weather like Gilded, Aurora or a Blood Moon. A heads-up arrives a minute before rare weather starts.',
+  '## Hunts',
+  'New in the Fish Log: Hunts. Pick up to 3 fish you are still missing at each water, and each one turns up twice as often whenever it can bite. Every water keeps its own hunts, and catching a hunted fish completes its hunt.',
+  'Hunted fish are marked HUNTING in the log, the water shows how many hunts you have there, and a fish’s page shows your real chance of catching it.',
+  '## Docks',
+  'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
+  'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
+  '## The Boardwalk: prizes, not coins',
+  'The Boardwalk games now pay out in prizes: tickets, crates and things to wear. The coin flip is still a coin game, and the wheel keeps one small coin slice.',
+  'New on the wheel: a Wear prize (something you don’t own yet) and a jackpot that gives a Boardwalk-only piece.',
+  'Scratch cards pay tickets, a crate or a Boardwalk-only piece, and Higher or lower now grows a ticket pot.',
+  'Duck pond ducks all hide tickets, and a few hide a crate or something to wear.',
+  'Mystery crates are mostly clothes, hats, glasses, fabrics, colours, pet extras, decor and pets. When you already own everything a roll could give, you get tickets.',
+  'A crate’s reveal shows what you won, on your angler or your pet.',
+  '## Fishing feel',
+  'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
+  'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',
+  'When a fish is close to your line’s limit, the game warns you as you hook it.',
+  '## Better choices',
+  'Rare odds stack properly now: every source of better odds (bait, rods, skills, hotspots, far casts) keeps counting as you add more, so upgrades you can feel.',
+  'Bait, rods and the Lucky Charm skill show your real chance of an epic or better fish at the water you are on, and how much a choice changes it.',
+  'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, by day and by night, for rare fish and for coins, and no single bait wins everywhere. Wild Berries, Ice Flies and Live Shrimp are much stronger at their own water. Lava Worms, Stardust and Golden Chum are much cheaper.',
+  '## A new look',
+  'Every scene has real depth now: a slow camera drift moves the sky, the land and the water at different speeds.',
+  'Ember Springs looks properly volcanic, with scorched hills and burnt trees instead of green grass.',
+  'Fish are drawn with rounded bodies, a lateral line and a wet sheen, and every fin, spine, crown and feeler now grows out of the body. Nothing floats or looks pasted on.',
+  'Your angler has more natural proportions, softer shading and a contact shadow. Clothes have a woven texture with creases at the elbows and knees.',
+  'Over 30 hats are redrawn to fit the head properly, from caps with curved visors to woven straw hats, jewelled crowns and a glowing lantern. Many outfits gain buttons, drawstrings, belts and trims.',
+  'Pet bows and flowers sit on each pet’s head instead of floating above it.',
+  'Decorations and oddities have real edges, texture and a shadow on the sand, and two oddities that showed as grey circles have proper drawings.',
+  'A sleeping bat’s accessories now hang with it instead of floating.',
+  'Backpacks and everything worn on the back have straps that run from the pack over your shoulder: the backpack, tackle pack, plush and seashell packs, scuba tank, jetpack, rod quiver, guitar, shark fin, turtle shell, creel, net, lantern and banner poles.',
+  'Necklaces show on your chest instead of hiding behind your arm: the gold chain, pearls, shells, medal, whistle, fish on a string, flower lei, feather boa, bow tie and tie.',
+  'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
+  'Rainbows stand on the side away from the sun and sink lower as the sun climbs, and their reflection lines up with the arc and fades softly into the water instead of ending in a hard edge.',
+  'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
+  'In fog, your angler, dock and boat stay clear while the far shore fades away.',
   '## A new way around',
   'The game now has two full-screen modes. Fishing fills the whole screen with the water, on PC, tablets and phones held either way. The category bar on the water (or the M key) opens the full-screen menu, and Back returns you to the water.',
   'The menus are grouped into five categories: Fishing, Upgrades, Collections, Challenges and Customization. Events sit under Challenges, and the Challenges button shows LIVE whenever an event or challenge is running.',
@@ -2797,84 +2849,11 @@ const PATCHES = [
   'Phone held sideways: Collapse panel at the top of the side panel folds it down to icons, giving the water and the pages more room. Expand panel brings the names back, and your choice is remembered.',
   'Page tabs stay pinned at the top while you scroll, so the Wardrobe’s sections are always one tap away. On a phone held sideways they sit in one row.',
   'The bait chip in the top bar always shows the whole bait name, with how many you have left above it. Tap it to switch bait, or press Use on any bait in the Bait and Special lures tabs.',
-  '## Weekly quests and forecasts',
-  'Weekly quests: four bigger goals every week, right under your daily tasks in Bounties. Each pays coins and Scales, and finishing all four earns a big Mystery Crate. New quests arrive every Monday.',
-  'Weather forecast: the Events page shows the weather coming to every water and when, so you can plan for rare weather like Gilded, Aurora or a Blood Moon. A heads-up arrives a minute before rare weather starts.',
-  '## The Boardwalk: prizes, not coins',
-  'The Boardwalk games now pay out in prizes: tickets, crates and things to wear. The coin flip is still a coin game, and the wheel keeps one small coin slice.',
-  'New on the wheel: a Wear prize (something you don’t own yet) and a jackpot that gives a Boardwalk-only piece.',
-  'Scratch cards pay tickets, a crate or a Boardwalk-only piece, and Higher or lower now grows a ticket pot.',
-  'Duck pond ducks all hide tickets, and a few hide a crate or something to wear.',
-  'Mystery crates are mostly clothes, hats, glasses, fabrics, colours, pet extras, decor and pets. When you already own everything a roll could give, you get tickets.',
-  'A crate’s reveal shows what you won, on your angler or your pet.',
-  '## Docks',
-  'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
-  'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
-  '## Hunts',
-  'New in the Fish Log: Hunts. Pick up to 3 fish you are still missing at each water, and each one turns up twice as often whenever it can bite. Every water keeps its own hunts, and catching a hunted fish completes its hunt.',
-  'Hunted fish are marked HUNTING in the log, the water shows how many hunts you have there, and a fish’s page shows your real chance of catching it.',
-  '## Fishing feel',
-  'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
-  'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',
-  'When a fish is close to your line’s limit, the game warns you as you hook it.',
-  '## Better choices',
-  'Rare odds stack properly now: every source of better odds (bait, rods, skills, hotspots, far casts) keeps counting as you add more, so upgrades you can feel.',
-  'Bait, rods and the Lucky Charm skill show your real chance of an epic or better fish at the water you are on, and how much a choice changes it.',
-  'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, by day and by night, for rare fish and for coins, and no single bait wins everywhere. Wild Berries, Ice Flies and Live Shrimp are much stronger at their own water. Lava Worms, Stardust and Golden Chum are much cheaper.',
-  '## Events',
-  'Six new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Long Cast, Steady Hands, Treasure Dive and Trophy Weigh-in. Each is sized to your gear and odds, with coins, Scales and tickets to win.',
-  'A new event calendar: the Shoal Run (faster bites, more rare fish), Golden Hour (shiny fish twice as common) and Market Rush (fish sell for 30% more) run on the clock at every water. The calendar shows what is live and when the next one starts.',
-  'Live events and challenges show their progress right on the water, and the Events tab shows how many are live.',
   '## Clear direction',
   'A goal on the water always shows what to do next and how close you are, from your first catch to the next water to filling the Fish Log. Tap it to open the right page. It also tells you when your cooler is full.',
   'The search button now opens a map of every page, grouped by category, with a line on what each one is for, and hovering a badge tells you what is waiting.',
   'Nothing scrolls the water away any more: the game always fits one screen, and on iPhone the menu bar can no longer hide under Safari’s toolbar.',
   'The top bar is slimmer. Time and weather moved onto the water, and the weather now says what it does. On phones the bar is one row; the water’s name shows on the water, and search and settings are in the menu.',
-  'Every label fits: nothing is cut off with “…” on any page, on any screen.',
-  'Smoother everywhere: Aurora weather is far lighter to draw, the Pets page opens about twice as fast, and the top bar does less work while you fish.',
-  'The numbers add up: each aquarium fish’s coins per hour add up exactly to the total, short amounts never round up (999,999 coins used to read 1000K), and weekly quests pay exactly what they show.',
-  'A sleeping bat’s accessories now hang with it instead of floating.',
-  'Backpacks and everything worn on the back have straps that run from the pack over your shoulder: the backpack, tackle pack, plush and seashell packs, scuba tank, jetpack, rod quiver, guitar, shark fin, turtle shell, creel, net, lantern and banner poles.',
-  'Necklaces show on your chest instead of hiding behind your arm: the gold chain, pearls, shells, medal, whistle, fish on a string, flower lei, feather boa, bow tie and tie.',
-  'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
-  'Phone held sideways: the Aquarium shows your whole tank right under your earnings, and Collapse panel works on every menu page to give pages the full width.',
-  'The “new version” bar now shows on top of the menus too, so you always know when an update is ready.',
-  'Rainbows stand on the side away from the sun and sink lower as the sun climbs, and their reflection lines up with the arc and fades softly into the water instead of ending in a hard edge.',
-  'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
-  'In fog, your angler, dock and boat stay clear while the far shore fades away.',
-  'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
-  'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
-  'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
-  'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
-  'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
-'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
-'Menus on phones held sideways: the side buttons are bigger, the space between them counts as part of a button, and they react as your finger lifts.',
-'Phones: closing the menu with Back no longer taps whatever was underneath (like the bait list), and quick taps on two buttons in a row never bounce you back to the first.',
-'Folding the side panels in and out no longer makes the water flash.',
-  'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
-  'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
-  '## Handy extras',
-  'Keyboard shortcuts on PC: M opens and closes the menu, 1 to 5 open a category, [ and ] move between pages, / searches and Esc closes menus and cards. Press ? to see them all.',
-  'Bait can restock itself: switch on Auto-restock on the Tackle page and one more pack is bought when you run out, if you have the coins.',
-  'The Stats page shows your real chance of epic and legendary fish at the water you are on, and water pictures on the Waters page show the whole scene again.',
-  'Your game also saves when the tab is closed or put in the background, a broken streak is saved at once, and very large coin amounts read cleanly (T, Qa...).',
-  '## More to catch',
-  'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
-  '20 joke fish have slipped in too, two in every water. You will know them when you see them.',
-  'The oddity collection grows to 100, with 20 new finds to fish up.',
-  '## Voyages',
-  'Setting sail now leaves a lasting legacy: every voyage adds +10% coins forever (up to ten voyages, then +5% for each one after), and voyages bring in more pearls the more of them you make.',
-  'Six voyage milestones give you a head start on every new voyage, from starting coins and an unlocked river to a bigger cooler, a bait stash and better tackle.',
-  'Four new relics, and the fish in your aquarium now go to the Trophy Room when you set sail instead of being lost.',
-  'Tiny hybrids are worth keeping: the smaller a hybrid is for its kind, the bigger its aquarium boost.',
-  '## A new look',
-  'Every scene has real depth now: a slow camera drift moves the sky, the land and the water at different speeds.',
-  'Ember Springs looks properly volcanic, with scorched hills and burnt trees instead of green grass.',
-  'Fish are drawn with rounded bodies, a lateral line and a wet sheen, and every fin, spine, crown and feeler now grows out of the body. Nothing floats or looks pasted on.',
-  'Your angler has more natural proportions, softer shading and a contact shadow. Clothes have a woven texture with creases at the elbows and knees.',
-  'Over 30 hats are redrawn to fit the head properly, from caps with curved visors to woven straw hats, jewelled crowns and a glowing lantern. Many outfits gain buttons, drawstrings, belts and trims.',
-  'Pet bows and flowers sit on each pet’s head instead of floating above it.',
-  'Decorations and oddities have real edges, texture and a shadow on the sand, and two oddities that showed as grey circles have proper drawings.',
   '## Menus and phones',
   'iPhone gets its own fixes: the bottom menu bar sits above Safari’s toolbar, text no longer enlarges when you turn the phone, tapping a picker no longer zooms the page, and the full-screen button explains how to play full screen from your home screen.',
   'Phones held sideways use compact tabs that always fit, even beside the notch.',
@@ -2883,6 +2862,28 @@ const PATCHES = [
   'The Fish Log can show only the fish you are missing, or the ones you can catch right now.',
   'Better catches feel better: the catch card grows more dramatic with each rarity, with its own frame, light, sound and vibration.',
   'Buttons are easier to tap on phones, and nothing on any page runs off the side of the screen.',
+  'Phone held sideways: the Aquarium shows your whole tank right under your earnings, and Collapse panel works on every menu page to give pages the full width.',
+  'The “new version” bar now shows on top of the menus too, so you always know when an update is ready.',
+  'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
+  'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
+  'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
+  'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
+  'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
+  'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
+  'Menus on phones held sideways: the side buttons are bigger, the space between them counts as part of a button, and they react as your finger lifts.',
+  'Phones: closing the menu with Back no longer taps whatever was underneath (like the bait list), and quick taps on two buttons in a row never bounce you back to the first.',
+  'Folding the side panels in and out no longer makes the water flash.',
+  'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
+  'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
+  '## Handy extras',
+  'Keyboard shortcuts on PC: M opens and closes the menu, 1 to 5 open a category, [ and ] move between pages, / searches and Esc closes menus and cards. Press ? to see them all.',
+  'Bait can restock itself: switch on Auto-restock on the Tackle page and one more pack is bought when you run out, if you have the coins.',
+  'The Stats page shows your real chance of epic and legendary fish at the water you are on, and water pictures on the Waters page show the whole scene again.',
+  'Your game also saves when the tab is closed or put in the background, a broken streak is saved at once, and very large coin amounts read cleanly (T, Qa...).',
+  '## Polish',
+  'Every label fits: nothing is cut off with “…” on any page, on any screen.',
+  'Smoother everywhere: Aurora weather is far lighter to draw, the Pets page opens about twice as fast, and the top bar does less work while you fish.',
+  'The numbers add up: each aquarium fish’s coins per hour add up exactly to the total, short amounts never round up (999,999 coins used to read 1000K), and weekly quests pay exactly what they show.',
  ]},
  {v:'0.3.5.1', name:'Made for Phones', items:[
   'Phones held upright now show everything on one screen: the water stays in view, and only the page you have open scrolls, right above the section bar. No more scrolling the water away and back.',
@@ -3392,6 +3393,15 @@ function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHa
 // ---------- patch notes ----------
 function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
 function showPatchNotes(p=PATCHES[0], after){ G.st='event'; $('evin').innerHTML=patchHTML(p)+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
+  if(after) setTimeout(()=>toast(after),400); }
+// Everything a returning player missed, in one card, newest first (a player away for several updates used to see only the newest).
+// Old saves may hold the pre-0.3 numbering (1.x / 2.x = 0.1.x / 0.2.x).
+function verParts(v){ let p=String(v||'').split('.').map(n=>parseInt(n,10)||0); if(p[0]>=1) p=[0].concat(p); return p; }
+function verNewer(a,b){ const x=verParts(a), y=verParts(b); for(let i=0;i<Math.max(x.length,y.length);i++){ const d=(x[i]||0)-(y[i]||0); if(d) return d>0; } return false; }
+function missedPatches(seen){ return PATCHES.filter(p=>!seen||verNewer(p.v,seen)); }
+function showWhatsNew(seen, after){ const all=missedPatches(seen); if(all.length<=1) return showPatchNotes(PATCHES[0],after); G.st='event';
+  const list=all.slice(0,20), more=all.length-list.length; // a very old save: the oldest notes stay in Settings, and the card says so
+  $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">${all.length} updates since you last played</div><h3>What’s new</h3><p class="sub" style="margin:4px 0 0">Everything that arrived while you were away, newest first.${more?` The ${more} oldest are in Patch notes under Settings.`:''}</p>`+list.map((p,i)=>`<div style="margin-top:${i?18:12}px;${i?'padding-top:14px;border-top:1px solid var(--line)':''}">${patchHTML(p).replace('<ul style="','<ul style="max-height:none;overflow:visible;')}</div>`).join('')+`<div class="row" style="justify-content:center;margin-top:14px"><button class="btn" data-ev="skip">Let’s fish!</button></div>`; $('evcard').hidden=false;
   if(after) setTimeout(()=>toast(after),400); }
 function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]).concat(S.owned.pets.includes("daxniko")?[PAIR_PATCH]:[]).concat(PATCHES).map(p=>`<details ${p===PATCHES[0]?'open':''} style="margin:6px 0"><summary style="cursor:pointer"><b>${p.label?esc(p.label):"Update "+p.v}</b> · ${esc(p.name)}</summary><ul style="margin:6px 0;padding-left:20px;line-height:1.5">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li class="meta" style="color:var(--ink)">${esc(i)}</li>`).join('')}</ul></details>`).join(''); }
 
@@ -14913,7 +14923,7 @@ function refreshAll(){ lastHud=''; renderBait(); setTab(S.tab||'cooler'); hud();
 
 // ---------- boot ----------
 offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); refreshAll(); requestAnimationFrame(frame); resize.live=true; initCloud();
-{ const gift=dailyLogin(); const veteran=S.stats.caught>0||S.savedAt; if(S.seenPatch!==GAME_VERSION){ S.seenPatch=GAME_VERSION; if(veteran) setTimeout(()=>showPatchNotes(PATCHES[0],gift),700); else if(gift) setTimeout(()=>toast(gift),1200); } else if(gift) setTimeout(()=>toast(gift),1200); save(); }
+{ const gift=dailyLogin(); const veteran=S.stats.caught>0||S.savedAt; if(S.seenPatch!==GAME_VERSION){ const seen0=S.seenPatch; S.seenPatch=GAME_VERSION; if(veteran) setTimeout(()=>showWhatsNew(seen0,gift),700); else if(gift) setTimeout(()=>toast(gift),1200); } else if(gift) setTimeout(()=>toast(gift),1200); save(); }
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>
