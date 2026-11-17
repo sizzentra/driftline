@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0357';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0413';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -912,7 +912,7 @@ const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,
 const TANK_RATE = .015;
 const OFFLINE_CAP_MIN = 8*60;
 // bonus keys shared by boosts, aquarium fish and pets
-const BK = {bite:'bite speed', rare:'rare odds', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
+const BK = {bite:'bite speed', rare:'rare bonus', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
 const fmtB = (k,v) => (k==='tension'||k==='calm'?'−':'+')+Math.round(v*100)+'% '+BK[k];
 const AQ_KEYS = ['bite','rare','shiny','tension','reel','sell','xp','treasure','tank','calm','trophy','hot'];
 const AQ_MAG = [0,.02,.04,.06,.1,.18];
@@ -2755,9 +2755,9 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.6';
+const GAME_VERSION = '0.4';
 const PATCHES = [
- {v:'0.3.6', name:'Fifty Fathoms', items:[
+ {v:'0.4', name:'Fifty Fathoms', items:[
   '## Fishing feel',
   'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
   'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',
@@ -2767,13 +2767,20 @@ const PATCHES = [
   'Bait, rods and the Lucky Charm skill show your real chance of an epic or better fish at the water you are on, and how much a choice changes it.',
   'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, and no single bait wins everywhere. Lava Worms, Stardust and Golden Chum are much cheaper.',
   '## Events',
-  'Four new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Steady Hands and Trophy Weigh-in, each sized to your gear and odds, with coins, Scales and tickets to win.',
-  'A Shoal Run passes through every water for 8 minutes every 90 minutes: bites come faster and rare fish are more common. The Events page counts down to the next one.',
-  'Live events and challenges show their progress right on the water.',
+  'Six new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Long Cast, Steady Hands, Treasure Dive and Trophy Weigh-in. Each is sized to your gear and odds, with coins, Scales and tickets to win.',
+  'A new event calendar: the Shoal Run (faster bites, more rare fish), Golden Hour (shiny fish twice as common) and Market Rush (fish sell for 30% more) run on the clock at every water. The calendar shows what is live and when the next one starts.',
+  'Live events and challenges show their progress right on the water, and the Events tab shows how many are live.',
   '## Clear direction',
-  'A goal on the water always shows what to do next and how close you are, from your first catch to the next water to filling the Fish Log. Tap it to open the right page.',
+  'A goal on the water always shows what to do next and how close you are, from your first catch to the next water to filling the Fish Log. Tap it to open the right page. It also tells you when your cooler is full.',
+  'The search button now opens a map of every page, grouped by section, with a line on what each one is for. Every page shows where you are at the top, and hovering a badge tells you what is waiting.',
   'On PC, the page you open sits beside the water on wide screens, or below it in one screen with only the page scrolling, so you never have to scroll past the water again.',
+  'PC can hide the menus too: the handle on the water’s edge (or the M key) lets the water fill the window.',
   'The top bar is slimmer. Time and weather moved onto the water, and the weather now says what it does.',
+  'Every label fits: nothing is cut off with “…” on any page, on any screen.',
+  '## Handy extras',
+  'Keyboard shortcuts on PC: 1 to 5 open a section, [ and ] move between pages, M hides the menus, / searches and Esc closes cards. Press ? to see them all.',
+  'Bait can restock itself: switch on Auto-restock on the Tackle page and one more pack is bought when you run out, if you have the coins.',
+  'The Stats page shows your real chance of epic and legendary fish at the water you are on, and water pictures on the Waters page show the whole scene again.',
   'Your game also saves when the tab is closed or put in the background, a broken streak is saved at once, and very large coin amounts read cleanly (T, Qa...).',
   '## More to catch',
   'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
@@ -3175,7 +3182,7 @@ const rodCast = () => S.rods ? (rod().st.cast||1) : 1;
 const rodHook = () => S.rods ? (rod().st.hook||0) + rodAtts().filter(a=>a==='bell').reduce((s,a)=>s+attVal(a),0) : 0;
 const rodSpool = () => S.rods ? rodAtts().filter(a=>a==='spool').reduce((s,a)=>s+attVal(a),0) : 0;
 const rodUpCost = id => { const L=rodLvl(id); const r=ROD_I[id]; return {coins:Math.round(Math.max(5000,r.price)*.12*(L+1)), scales:(L+1)*(L+1)*2}; };
-const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare odds at night': fmtB(k,v);
+const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare bonus at night': fmtB(k,v);
 function grantRod(id){ if(S.rods.owned.includes(id)) return null; S.rods.owned.push(id); return {title:'New rod: '+ROD_I[id].name+'!', kind:'rod', id}; }
 function rodSVG(col,lvl,id){ if(id==null&&col==="#2a4a55") return `<span style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:40px;border-radius:20px;background:radial-gradient(closest-side,#5a82aa55,#1e344e33 70%,transparent);color:#cde1f5aa;font:700 26px system-ui">?</span>`; if(V3ON&&id&&ROD_I[id]) return rodImg3(id,lvl); return `<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="M8 34 Q60 30 112 6" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="6" fill="#2a2a2a"/><circle cx="24" cy="31" r="2.5" fill="#8a8a8a"/>${lvl?`<text x="112" y="36" fill="#ffc94d" font-size="11" font-weight="700" text-anchor="end">Lv ${lvl}</text>`:''}</svg>`; }
 function renderRods(P){ const r=rod(), atts=rodAtts();
@@ -3188,7 +3195,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
    <div style="text-align:right"><div class="pts" style="color:var(--kelp)">${fmt(S.scales)}</div><div class="sub">Scales</div></div></div>
   <div class="tile" style="margin-top:10px;border-color:${r.col}"><div class="row spread"><div class="row">${rodSVG(r.col,L,r.id)}<div><div class="rar" style="color:var(--gold)">In your hands</div><h4>${r.name}</h4><div class="meta">${esc(r.d)}</div></div></div>
     <div style="text-align:right"><div class="meta">Level ${L} / 10</div>${L<10?`<button class="btn sm" data-act="rodup" data-k="${r.id}" ${S.money>=up.coins&&S.scales>=up.scales?'':'disabled'}>Upgrade · <span class="coin">${fmt(up.coins)}</span> + ${up.scales} Scales</button>`:'<span class="badge g">Max level</span>'}</div></div>
-    <div class="meta">${stats(r)}${L?` · Level bonus: +${3*L}% reel speed, −${2*L}% line tension, +${2*L}% rare odds`:''}</div>
+    <div class="meta">${stats(r)}${L?` · Level bonus: +${3*L}% reel speed, −${2*L}% line tension, +${2*L}% rare bonus`:''}</div>
     <h5>Attachments (${r.slots} slot${r.slots>1?'s':''})</h5>${Array.from({length:r.slots},(_,i)=>slotRow(i)).join('')}
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
@@ -10018,7 +10025,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // compact bait rows with clear effect chips, and the bait you are using shown up top.
 // =====================================================================
 let tackleView='gear';
-function baitChips(b){ const c=[]; if(b.speed&&b.speed!==1) c.push('Bites +'+Math.round((b.speed-1)*100)+'%'); if(b.rare) c.push('Rare odds +'+Math.round(b.rare*100)+'%'); if(b.shiny) c.push('Shiny ×'+b.shiny);
+function baitChips(b){ const c=[]; if(b.speed&&b.speed!==1) c.push('Bites +'+Math.round((b.speed-1)*100)+'%'); if(b.rare) c.push(b.rare<.35?'Slightly better odds':b.rare<.8?'Better odds':b.rare<1.3?'Great odds':'Best odds'); if(b.shiny) c.push('Shiny ×'+b.shiny);
   if(b.night) c.push('×'+b.night+' rare at night'); if(b.calm) c.push('Calmer fish'); if(b.trophy) c.push('Trophy +'+Math.round(b.trophy*100)+'%'); if(b.treasure) c.push('Junk ×'+b.treasure); if(b.legend) c.push('Legendary ×'+b.legend); if(b.beh) c.push(b.beh.map(k=>BEH[k].n).join(', ')+' ×1.9');
   if(b.loc) c.push('Best at '+LOCS[locIdx(b.loc)].name); if(b.sea) c.push('Sea waters ×1.5'); return c.map(t=>`<span class="badge k">${esc(t)}</span>`).join(''); }
 function baitRow([k,b]){ const using=S.baitSel===k;
@@ -10751,10 +10758,10 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
       <div class="tile"><h4>Bait</h4>${statRow('In use',esc(b.name)+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0)+' left':''))}${statRow('Bite speed',mulS(b.speed))}${statRow('Rare odds',b.rare?'+'+Math.round(b.rare*100)+'%':'—')}</div></div>`; }
   // overview
   const bite=biteSpeed(false), sh=shinyChance(false), rs=rareScore(dm,false,false), rsFar=rareScore(dm,true,false), sm=sellMult(), xm=xpMult(), cm=coinMult();
-  const legW=RAR.slice(4).reduce((a,r)=>a+r.w,0), tw=RAR.reduce((a,r)=>a+r.w,0), legNow=RAR.slice(4).reduce((a,r)=>a+r.w*(1+rs*r.f),0)/RAR.reduce((a,r)=>a+r.w*(1+rs*r.f),0);
+  /* 0.4: the real odds at this water, from the same weights as a catch (they used to come from a generic table) */ const oNow=catchOdds(), oBase=catchOdds({mul:()=>1}), legNow=oNow.legend, legW=oBase.legend, tw=1, epNow=oNow.epic, epBase=oBase.epic;
   return `<div class="st-grid">
     <div class="tile"><h4>Catching</h4>${statRow('Bite speed',mulS(bite),'Bait, level, skills, weather, boosts')}${statRow('Hook window',hookWin().toFixed(2)+' s')}${statRow('Rare odds score',rs.toFixed(2),'Far casts: '+rsFar.toFixed(2))}
-      ${statRow('Legendary or better',(legNow*100).toFixed(2)+'%','per fish here, base '+(legW/tw*100).toFixed(2)+'%')}${statRow('Shiny chance',(sh*100).toFixed(2)+'%')}${statRow('Hybrid chance',(hybridChance()*100).toFixed(2)+'%')}${statRow('Junk chance',(junkChance()*100).toFixed(1)+'%')}${statRow('Far casts count from',Math.round(farAt()*100)+'% power')}</div>
+      ${statRow('Epic or better',fmtOdds(epNow),'per fish here, '+fmtOdds(epBase)+' with no bonuses')}${statRow('Legendary or better',fmtOdds(legNow),'per fish here, '+fmtOdds(legW)+' with no bonuses')}${statRow('Shiny chance',(sh*100).toFixed(2)+'%')}${statRow('Hybrid chance',(hybridChance()*100).toFixed(2)+'%')}${statRow('Junk chance',(junkChance()*100).toFixed(1)+'%')}${statRow('Far casts count from',Math.round(farAt()*100)+'% power')}</div>
     <div class="tile"><h4>Fighting</h4>${statRow('Reel speed',reelSpeed().toFixed(2)+' m/s')}${statRow('Line strength',gv('line')+' kg')}${statRow('Line tension',mulS(tensionMult()),'Lower is better')}${statRow('Temper build-up',mulS(tempMult()),'Lower is better')}${statRow('Max line out',Math.round(gv('rod')*rodCast()+28+rodSpool())+' m')}</div>
     <div class="tile"><h4>Coins & XP</h4>${statRow('Sale price',mulS(sm),'Level, Haggler, rank, boosts, pearls')}${statRow('XP',mulS(xm))}${statRow('Wisdom Pearls',mulS(cm),S.pearls+' pearl'+(S.pearls===1?'':'s'))}${statRow('Streak bonus cap','+'+Math.round(streakCap()*100)+'% XP')}
       ${statRow('Aquarium',fmt(Math.round(tankRate()*60))+' / hour',S.tank.length+' fish · up to '+Math.round(offlineCap()/60)+' h away')}${statRow('Cozy level',cozy()+' ♥','+'+cozyBonus()+'% XP, +'+(cozyBonus()*.5)+'% bite speed and sale price')}</div>
@@ -11637,6 +11644,11 @@ if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=
       if((e.tagName==='BUTTON'||e.classList.contains('chip'))&&e.scrollWidth>e.clientWidth+2&&cs.overflow!=='visible'&&cs.textOverflow!=='ellipsis') out.push(where+': clipped "'+e.textContent.trim().slice(0,30)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return {label:label||vw+'x'+vh, n:out.length, out:[...new Set(out)].slice(0,40)}; };
+// QC (test mode only): every page, every visible label that is cut off with "…" (text-overflow) or clipped
+if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2) return; const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
+    if(e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.add(where+': "'+t.slice(0,28)+'"'); }); };
+  for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,200)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); look(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
+  return [...out].slice(0,60); };
 // =====================================================================
 // 0.3.6 classic hats rebuilt with real construction: brims seen almost edge on (top, underside and rim), crowns with
 // volume and creases, bands with buckles and stitching, trims and embroidery. Same hat space as bg_angler036.js.
@@ -12264,20 +12276,132 @@ body.pc-app:not(.pc-wide) #tabs.secmode .secb{min-height:42px;padding:4px 8px;fo
 body.pc-app:not(.pc-wide) #tabs.secmode .subp{min-height:34px}
 body.pc-app:not(.pc-wide) #hint{margin:2px 0}
 </style>`);
+
+// ---------------------------------------------------------------------
+// PC: hide the menus (the same switch phones use, remembered on this device). The handle on the water's right edge, or
+// the M key, collapses the page column so the water fills the window, and brings it back.
+// ---------------------------------------------------------------------
+const _stageHOverride_036d=stageHOverride;
+stageHOverride=function(W,H){ const b=document.body.classList; if(b.contains('pc-app')&&b.contains('side-off')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*.62),Math.round(innerHeight-top-22))); } return _stageHOverride_036d(W,H); };
+addEventListener('keydown',e=>{ if(e.key!=='m'&&e.key!=='M'||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; if(!document.body.classList.contains('pc-app')) return; const b=$('sidetog'); if(b){ e.preventDefault(); b.click(); } });
+(function(){ const b=$('sidetog'); if(b) b.addEventListener('click',()=>setTimeout(()=>{ try{ pcFit(); resize(); }catch(e){} },60)); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-app .sidetog{display:flex!important;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:64px;border-radius:10px;align-items:center;justify-content:center;background:#08121ec8;border:1px solid #ffffff22;color:#e6efe8;font-size:20px;font-weight:800;z-index:5;cursor:pointer;box-shadow:0 4px 14px #0006}
+body.pc-app .sidetog:hover{border-color:#ffd36a88;color:#ffd36a}
+body.pc-app.side-off #tabs,body.pc-app.side-off #panel{display:none!important}
+body.pc-wide.side-off .wrap{grid-template-columns:minmax(0,1fr)}
+body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
+</style>`);
+
+// ---------------------------------------------------------------------
+// "Where is that?" Every page says where you are; the search opens on a map of every page with what it is for; badges
+// say what is waiting; and search knows the newer things.
+// ---------------------------------------------------------------------
+const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, and your daily reward', events:'Challenges, the event calendar and the derby',
+  shop:'Line, reel and other gear, bait and special lures', rods:'Your rods, upgrades and attachments', skills:'Spend skill points on small steady gains', paths:'Big choices that shape your style',
+  aquarium:'Fish that earn coins and boosts while you play', trophy:'Fish you keep forever', journal:'Every species and oddity, found and missing', feats:'Goals with rewards',
+  home:'Your dock and its decorations', pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',
+  settings:'Sound, controls, display, patch notes and saves', stats:'Every number in the game, and your odds', save:'Move your progress to another device'};
+SEARCH_IDX.push(
+ ['Events: challenges','events',null,'challenge rare run mixed bag long cast steady hands treasure dive weigh in trophy'],
+ ['Events: calendar','events',null,'calendar schedule shoal run golden hour market rush live next'],
+ ['Daily reward','bounties',null,'daily login gift reward streak'],
+ ['Fish odds','shop',['tackleview','bait'],'odds chance epic rare legendary percent bait best'],
+ ['Hide menus','settings',null,'hide menus collapse full water bigger screen'],
+ ['Keyboard shortcuts','settings',null,'keyboard shortcuts keys hotkeys help']);
+// a breadcrumb at the top of every page
+(function(){ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){} return r; }; })();
+// the search opens on a map of every page, grouped by section
+(function(){ const res=$('searchres'), q=$('searchq'); if(!res||!q) return; const ov=$('searchov');
+  const map=()=>{ if(q.value.trim()) return; const secs=MENU_SECS.concat([{id:'more',name:'Settings',tabs:MENU_MORE.tabs}]);
+    res.innerHTML='<div class="sv-map">'+secs.map(s=>`<div class="sv-sec"><div class="sv-sec-h">${esc(s.name)}</div>${s.tabs.filter(t=>t==='settings'||menuTabBtn(t)||t==='stats'||t==='save').map(t=>`<button type="button" class="sv-r sv-p" data-tab="${t}"><b>${esc(menuTabLabel(t)[1]||t)}</b><span class="meta">${esc(PAGE_DESC[t]||'')}</span></button>`).join('')}</div>`).join('')+'</div>'; };
+  new MutationObserver(()=>{ if(!ov.hidden&&!q.value.trim()&&!res.querySelector('.sv-map')) map(); }).observe(res,{childList:true});
+  res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){} },true);
+  q.placeholder='Search, or pick a page below'; })();
+// badges say what is waiting
+setInterval(()=>{ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
+    const tip=parts.length?sec.name+': '+parts.join(', '):sec.name; if(b.title!==tip) b.title=tip; });
+  T.querySelectorAll('.subp').forEach(p=>{ const t=p.dataset.sub, n=menuDot(t), tip=(menuTabLabel(t)[1]||'')+(PAGE_DESC[t]?': '+PAGE_DESC[t]:'')+(n?' ('+n+' waiting)':''); if(p.title!==tip) p.title=tip; }); },1500);
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel > .crumb{display:flex;align-items:center;gap:6px;font:800 10.5px var(--display,system-ui);letter-spacing:.09em;text-transform:uppercase;color:#7f97b2;margin:2px 0 4px}
+#panel > .crumb b{color:#cfdcea;font-weight:800}
+#panel > .crumb span::after{content:"›";margin-left:6px;color:#55708f}
+#searchres .sv-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 14px;max-height:min(60vh,520px);overflow:auto;padding:2px}
+#searchres .sv-sec-h{font:800 10.5px var(--display,system-ui);letter-spacing:.09em;text-transform:uppercase;color:#97abc2;margin:2px 0 4px}
+#searchres .sv-p{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left}
+#searchres .sv-p .meta{font-size:11.5px;line-height:1.3}
+</style>`);
+
+// ---------------------------------------------------------------------
+// Quality of life
+// ---------------------------------------------------------------------
+// 1) Bait restocks itself (one pack) when it runs out, if you can afford it. Switch it on or off on the Tackle page.
+const _hookIt_04=hookIt;
+hookIt=function(){ const sel=S.baitSel; _hookIt_04.apply(this,arguments);
+  try{ const b=BAIT[sel]; if(sel!=='worm'&&S.settings.autoBait&&S.bait[sel]===0&&b&&!b.junk&&b.price>0&&S.money>=b.price){ S.money-=b.price; S.bait[sel]+=b.pack; S.baitSel=sel; renderBait(); save(); setTimeout(()=>toast('Restocked '+b.name+': '+b.pack+' more for '+fmtShort(b.price)+' coins.'),700); } }catch(e){} };
+const _renderShop_04=renderShop;
+renderShop=function(P){ _renderShop_04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; const on=!!S.settings.autoBait; const b=document.createElement('button'); b.className='btn alt sm'; b.dataset.act='autobait'; b.setAttribute('aria-pressed',on); b.title='When your bait runs out, buy one more pack automatically if you have the coins'; b.textContent=on?'Auto-restock: on':'Auto-restock: off'; b.style.marginLeft='auto'; cur.appendChild(b); }catch(e){} };
+const _extraAct2_qol=extraAct2;
+extraAct2=function(b){ if(b.dataset.act==='autobait'){ S.settings.autoBait=!S.settings.autoBait; save(); toast(S.settings.autoBait?'Bait will restock itself when it runs out (if you have the coins).':'Bait restocking is off.'); return 'render'; } return _extraAct2_qol(b); };
+// 2) A full cooler shows on the water before you try to cast
+const _nextGoal_qol=nextGoal;
+nextGoal=function(){ if(S.cooler&&S.cooler.length>=gv('cooler')&&!S.chal) return {t:'Your cooler is full', sub:'Tap to sell or keep your catch', p:1, tab:'cooler', ready:true}; return _nextGoal_qol(); };
+// 3) Keyboard shortcuts on PC: 1-5 sections, [ ] previous and next page, M hide menus, / search, Esc closes, ? shows them
+const KEYS=[['1 - 5','Open a section (Fishing, Gear, Collection, Home, Rewards)'],['[  ]','Previous / next page in the section'],['Space','Cast and reel (hold)'],['M','Hide or show the menus'],['/','Search, or browse every page'],['Esc','Close a card or the search'],['?','Show these shortcuts']];
+function showKeys(){ if(G.st!=='idle'&&G.st!=='waiting') return; G.st='event'; $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">Keyboard</div><h3>Shortcuts</h3><div class="list keys">${KEYS.map(k=>`<div class="row spread prize"><kbd>${k[0]}</kbd><span>${k[1]}</span></div>`).join('')}</div><button class="btn" data-ev="skip">Got it</button>`; $('evcard').hidden=false; }
+SEARCH_IDX.forEach((e,i)=>{ if(e[0]==='Keyboard shortcuts') SEARCH_IDX[i]=['Keyboard shortcuts','__keys',null,'keyboard shortcuts keys hotkeys help']; });
+{ const _sg=searchGo; searchGo=function(e){ if(e&&e[1]==='__keys'){ showKeys(); return; } return _sg.apply(this,arguments); }; }
+addEventListener('keydown',e=>{ if(e.ctrlKey||e.metaKey||e.altKey) return; const tag=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  const sov=$('searchov'); if(sov&&!sov.hidden) return;
+  if(e.key==='Escape'){ const card=$('card'); if(card&&!card.hidden&&G.st==='result'){ hideCard(); e.preventDefault(); return; }
+    const ev=$('evcard'); if(ev&&!ev.hidden){ const btns=ev.querySelectorAll('button'), skip=ev.querySelector('[data-ev="skip"]'); if(skip&&btns.length===1){ skip.click(); e.preventDefault(); } } return; }
+  if(e.key==='?'){ e.preventDefault(); showKeys(); return; }
+  if(/^[1-5]$/.test(e.key)){ const b=document.querySelectorAll('#tabs .secb')[+e.key-1]; if(b){ e.preventDefault(); b.click(); } return; }
+  if(e.key==='['||e.key===']'){ const ps=[...document.querySelectorAll('#tabs .subbar .subp')]; if(!ps.length) return; const i=ps.findIndex(p=>p.dataset.sub===S.tab); const n=ps[(i+(e.key===']'?1:ps.length-1))%ps.length]; if(n){ e.preventDefault(); n.click(); } } });
+document.head.insertAdjacentHTML('beforeend',`<style>
+#evin .keys kbd{display:inline-block;min-width:54px;text-align:center;padding:2px 8px;border-radius:7px;background:#ffffff14;border:1px solid #ffffff2a;border-bottom-width:2px;font:800 12px ui-monospace,Consolas,monospace;color:#fff}
+#evin .keys .prize{gap:12px;align-items:center}
+#evin .keys .prize span{flex:1;text-align:left;color:#cfdcea}
+</style>`);
+// the narrow page column on wide PCs: the wardrobe's seven section tabs sit in two rows of four, so every label shows
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-wide #panel .wd-nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+body.pc-wide #panel .wd-nav button{min-width:0}
+</style>`);
+
+// ---------------------------------------------------------------------
+// Water thumbnails (Waters page) are painted at a fixed wide shape, whatever shape the water has on this screen
+// (with the taller water of the new layouts they came out as a cropped middle band: no sky, no mountains)
+// ---------------------------------------------------------------------
+const _v3Thumb_04=v3Thumb;
+v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const oW=W, oH=H, want=Math.round(oW/2.6);
+  if(want>=oH) return _v3Thumb_04(id); const ch=cv.height;
+  try{ H=want; cv.height=Math.round(want*DPR); return _v3Thumb_04(id); } finally{ H=oH; cv.height=ch; g.setTransform(DPR,0,0,DPR,0,0); } };
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .loc .sw2{background-position:50% 40%!important}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .wd-nav .wl{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.1;text-align:center}</style>`);
 // =====================================================================
-// 0.3.6 Events, expanded. Three kinds of event, each asking for a different way of fishing:
-//  - Challenges you start whenever you like (one at a time, each rests 12 minutes after it ends): Rare Run, Mixed Bag,
-//    Steady Hands and Trophy Weigh-in. Every target is set from your real odds at this water with your gear and bait,
-//    so a challenge is fair at every stage of the game, and better choices make it easier.
-//  - The Shoal Run: a scheduled event on the real clock (8 minutes every 90), bites and rare odds up at every water.
+// 0.4 Events. Three kinds, each asking for a different way of fishing:
+//  - Challenges you start whenever you like (one at a time, each rests 12 minutes after it ends). Every target is set
+//    from your real odds at this water with your gear and bait, so a challenge is fair at every stage of the game and
+//    better choices make it easier.
+//  - Scheduled events on the real clock (Shoal Run, Golden Hour, Market Rush): each lifts one thing at every water for a
+//    few minutes. A calendar shows what is live and what comes next.
 //  - The Fishing Derby (unchanged).
 // Live progress shows on the water. Rewards scale with your best water like the derby, at about a third of a derby win.
 // =====================================================================
-const CHAL_CD=12*60*1000, SHOAL_EVERY=90*60*1000, SHOAL_LEN=8*60*1000;
+const CHAL_CD=12*60*1000, MIN=60*1000;
 const CHAL_RIVALS=['Old Marta','Captain Reed','Lily-Ann','Bo the Barge'];
-const shoalLeft = () => { const t=Date.now()%SHOAL_EVERY; return t<SHOAL_LEN ? SHOAL_LEN-t : 0; };
-const shoalNext = () => SHOAL_EVERY-(Date.now()%SHOAL_EVERY);
 const CATCHES_PER_MIN = 3.6; // a steady pace (about one landed fish every 16 seconds), used to size targets
+// scheduled events: every N minutes on the real clock, for M minutes, shifted so they rarely meet
+const SCHED=[
+  {id:'shoal', name:'Shoal Run',   icon:'🐟', every:90,  len:8, off:0,  col:'#7fe3c4', fx:{bite:.6, rare:.15}, what:'Bites +60% and more rare fish', d:'A great shoal passes through every water: bites come 60% faster and rare fish are more common.'},
+  {id:'gold',  name:'Golden Hour', icon:'✨', every:120, len:6, off:50, col:'#ffd36a', fx:{shiny:1},          what:'Shiny fish twice as common',  d:'The light turns gold over every water and shiny fish come out twice as often.'},
+  {id:'market',name:'Market Rush', icon:'🪙', every:75,  len:6, off:25, col:'#ffb36a', fx:{sell:()=>.3*(1+.03*(S.lvl-1)+.04*pr('haggler')+_bonus_036('sell')+cozyBonus()*.005+.01*anglerRank())}, /* a true +30% of your sale price, whatever your level */          what:'Fish sell for 30% more',      d:'Buyers crowd the harbour: the fishmonger pays 30% more for everything you sell.'},
+];
+const schedLeft = e => { const p=e.every*MIN, t=(Date.now()-e.off*MIN)%p, tt=t<0?t+p:t; return tt<e.len*MIN ? e.len*MIN-tt : 0; };
+const schedNext = e => { const p=e.every*MIN, t=(Date.now()-e.off*MIN)%p, tt=t<0?t+p:t; return p-tt; };
+const liveScheds = () => SCHED.filter(e=>schedLeft(e)>0);
+const shoalLeft = () => schedLeft(SCHED[0]), shoalNext = () => schedNext(SCHED[0]);
 const CHAL={
   rare:  {name:'Rare Run', icon:'💎', mins:6, m:.3, rule:c=>'Land '+c.need+' Rare or better fish', hint:o=>'Your chance of Rare or better per catch here: '+fmtOdds(o.by[2]+o.by[3]+o.by[4]+o.by[5])+'. Better bait, hotspots and far casts raise it.',
     setup:o=>{ const q=o.by[2]+o.by[3]+o.by[4]+o.by[5]; return {need:Math.max(2,Math.min(8,Math.round(6*CATCHES_PER_MIN*q*.75)))}; },
@@ -12285,9 +12409,13 @@ const CHAL={
   bag:   {name:'Mixed Bag', icon:'🧺', mins:6, m:.3, rule:c=>'Land '+c.need+' different species', hint:()=>'Every species counts once. Try different spots and casting distances to find the less common ones.',
     setup:o=>{ const n=6*CATCHES_PER_MIN, e=o.shares.reduce((a,[s,p])=>a+(1-Math.pow(1-p,n)),0); return {need:Math.max(4,Math.round(e*.9)), seen:[]}; },
     onCatch:(c,f)=>{ if(!c.seen.includes(f.sp.id)){ c.seen.push(f.sp.id); c.prog=c.seen.length; return true; } } },
+  long:  {name:'Long Cast', icon:'🎯', mins:6, m:.25, rule:c=>'Land '+c.need+' fish from far casts', hint:()=>'Charge your cast past the far mark on the power bar. Far casts also bring better fish. Long Caster lowers the mark.',
+    setup:()=>({need:5}), onCatch:(c,f,perfect,far)=>{ if(far){ c.prog++; return true; } } },
   steady:{name:'Steady Hands', icon:'✋', mins:6, m:.25, rule:c=>'Land '+c.need+' perfect-hook fish in a row', hint:()=>'Strike the instant it bites. A fish hooked late resets the count. A longer hook window (Hook upgrades, Quick Reflexes) helps.',
     setup:()=>({need:4}), onCatch:(c,f,perfect)=>{ if(perfect){ c.prog++; return true; } if(c.prog){ c.prog=0; toast('Late hook: Steady Hands count back to 0.'); } } },
-  weigh: {name:'Trophy Weigh-in', icon:'⚖️', mins:5, m:.35, rule:()=>'Weigh in your heaviest fish', hint:()=>'Only your heaviest fish counts. Spinners, Trophy Hunter and Feather Flies bring bigger fish.', ranked:true,
+  treasure:{name:'Treasure Dive', icon:'🧭', mins:6, m:.3, rule:c=>'Fish up '+c.need+' piece'+(c.need>1?'s':'')+' of junk or treasure', hint:()=>'Your chance of junk or treasure per bite here: '+fmtOdds(junkChance())+'. Magnet Lures, the Magnet Tip and Scavenger raise it.',
+    setup:()=>({need:Math.max(1,Math.min(5,Math.round(6*CATCHES_PER_MIN*junkChance()*.85)))}), onJunk:(c)=>{ c.prog++; return true; } },
+  weigh: {name:'Trophy Weigh-in', icon:'⚖️', mins:5, m:.35, rule:()=>'Weigh in your heaviest fish', hint:()=>'Only your heaviest fish counts. Spinners, Trophy Hunter and Feather Flies bring bigger fish.', ranked:true, slow:true,
     setup:()=>{ // rivals are set from what anglers really catch here: the best fish out of a five-minute session
       const n=Math.round(5*CATCHES_PER_MIN), trials=[]; for(let t=0;t<80;t++){ let best=0; for(let i=0;i<n;i++){ const f=chooseCatch(); if(f.kind==='fish'&&!f.hy) best=Math.max(best,f.kg); } trials.push(best); } trials.sort((a,b)=>a-b);
       const q=k=>+trials[Math.floor(k*(trials.length-1))].toFixed(2), names=CHAL_RIVALS.slice().sort(()=>Math.random()-.5).slice(0,3);
@@ -12297,7 +12425,7 @@ const CHAL={
 function chalPlace(c){ return 1+c.rivals.filter(r=>r[1]>c.best).length; }
 function chalReward(m){ const base=bestLoot(); return {coins:Math.round(base*25*m*coinMult()), scales:Math.max(1,Math.round(30*m)), tickets:Math.round(150*m), xp:Math.round(300*m)}; }
 function chalStart(id){ const C=CHAL[id]; if(!C||S.chal||(S.chalCd&&S.chalCd[id]>Date.now())) return false;
-  const o=catchOdds(), extra=C.setup(o); S.chal=Object.assign({id, until:Date.now()+C.mins*60000, loc:S.loc, prog:0}, extra);
+  const o=catchOdds(), extra=C.setup(o); S.chal=Object.assign({id, until:Date.now()+C.mins*MIN, loc:S.loc, prog:0}, extra);
   toast(C.icon+' '+C.name+' started at '+curLoc().name+': '+C.rule(S.chal)+' in '+C.mins+' minutes.'); try{ sfx.catch(2); }catch(e){} save(); return true; }
 function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal=null; S.chalCd=S.chalCd||{}; S.chalCd[c.id]=Date.now()+CHAL_CD;
   let title, m=0; if(C.ranked){ const place=c.best>0?chalPlace(c):4; m=place<=3?[1,.55,.3][place-1]*C.m:0; title=c.best>0?(['🥇 First place!','🥈 Second place','🥉 Third place','Fourth place'][place-1]):'No fish weighed in'; }
@@ -12308,67 +12436,79 @@ function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal
   const show=()=>{ $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">${C.icon} ${esc(C.name)}</div><h3>${esc(title)}</h3>${table}<p class="sub">${txt}</p><button class="btn" data-ev="skip">Back to fishing</button>`; G.st='event'; $('evcard').hidden=false; };
   if(G.st==='idle') show(); else setTimeout(()=>{ if(G.st==='idle') show(); else toast(C.name+': '+title+'. '+txt); },2500);
   checkFeats(); save(); if(S.tab==='events') renderPanel(); }
-// progress from every landed fish (the fish and whether its hook was perfect are read before the catch is processed)
+function chalProgress(){ const c=S.chal, C=CHAL[c.id]; if(!C.ranked&&c.prog>=c.need) setTimeout(()=>chalEnd(true),900); else save(); if(S.tab==='events') renderPanel(); }
+// progress from every landed fish (the fish, its hook and its cast are read before the catch is processed)
 const _landFish_036=landFish;
-landFish=function(){ const f=G.fish, perfect=!!G.perfect; _landFish_036.apply(this,arguments);
-  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch(c,f,perfect)){ if(!C.ranked&&c.prog>=c.need) setTimeout(()=>chalEnd(true),900); else save(); } if(S.tab==='events') renderPanel(); } }catch(e){} };
-// the Shoal Run lifts bites and rare odds while it lasts (through the shared bonus, so cards and odds show it too)
+landFish=function(){ const f=G.fish, perfect=!!G.perfect, far=G.lastCast>farAt(); _landFish_036.apply(this,arguments);
+  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){} };
+const _landJunk_04=landJunk;
+landJunk=function(){ _landJunk_04.apply(this,arguments); try{ const c=S.chal; if(c&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onJunk&&C.onJunk(c)) chalProgress(); } }catch(e){} };
+// scheduled events lift their stat while they last (through the shared bonus, so cards and odds show it too)
 const _bonus_036=bonus;
-bonus=function(k){ const v=_bonus_036(k); if(!shoalLeft()) return v; return k==='bite'?v+.6:k==='rare'?v+.15:v; };
-let shoalWas=!!shoalLeft();
+bonus=function(k){ let v=_bonus_036(k); for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; };
+const schedWas={}; SCHED.forEach(e=>schedWas[e.id]=!!schedLeft(e));
 setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
-  const on=!!shoalLeft(); if(on&&!shoalWas){ toast('🐟 A Shoal Run is passing through every water: bites +60% and more rare fish for 8 minutes!'); try{ sfx.hot(); }catch(e){} } shoalWas=on;
-  if(S.tab==='events'){ // a rest that just ended, or the Shoal Run starting or ending, redraws the page so its buttons are right
-    const stale=[...document.querySelectorAll('[data-evleft]')].some(el=>{ const k=el.dataset.evleft; return k!=='shoal'&&k!=='chal'&&!((S.chalCd&&S.chalCd[k]||0)>Date.now()); }) || (document.querySelector('#panel .ev-live')&&document.querySelector('#panel .ev-live').classList.contains('on')!==on);
+  let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ toast(e.icon+' '+e.name+' at every water for '+e.len+' minutes: '+e.what.toLowerCase()+'!'); try{ sfx.hot(); }catch(er){} } } schedWas[e.id]=on; }
+  if(S.tab==='events'){ // a rest that just ended, or a scheduled event starting or ending, redraws the page so its buttons are right
+    const stale=changed||[...document.querySelectorAll('[data-evleft]')].some(el=>{ const k=el.dataset.evleft; return CHAL[k]&&!((S.chalCd&&S.chalCd[k]||0)>Date.now()); });
     if(stale){ renderPanel(); return; }
-    document.querySelectorAll('[data-evleft]').forEach(el=>{ const k=el.dataset.evleft; const ms=k==='shoal'?(shoalLeft()||shoalNext()):k==='chal'&&S.chal?Math.max(0,S.chal.until-Date.now()):(S.chalCd&&S.chalCd[k]||0)-Date.now(); el.textContent=mmss(Math.max(0,Math.ceil(ms/1000))); }); } },1000);
-// what the water's goal chip shows while something is live: your challenge first, then the Shoal Run
+    document.querySelectorAll('[data-evleft]').forEach(el=>{ const k=el.dataset.evleft, e=SCHED.find(x=>x.id===k); const ms=e?(schedLeft(e)||schedNext(e)):k==='chal'&&S.chal?Math.max(0,S.chal.until-Date.now()):(S.chalCd&&S.chalCd[k]||0)-Date.now(); el.textContent=mmss(Math.max(0,Math.ceil(ms/1000))); }); } },1000);
+// what the water's goal chip shows while something is live: your challenge first, then a live scheduled event
 const _nextGoal_036=nextGoal;
 nextGoal=function(){ const c=S.chal; if(c){ const C=CHAL[c.id], left=mmss(Math.max(0,Math.ceil((c.until-Date.now())/1000)));
     const wrong=S.loc!==c.loc?' (at '+LOCS[locIdx(c.loc)].name+')':'';
     if(C.ranked) return {t:C.icon+' '+C.name+' · '+left+wrong, sub:(c.best?'Your best '+c.best.toFixed(2)+' kg · place '+chalPlace(c):'No fish weighed yet')+' · to beat: '+Math.max(...c.rivals.map(r=>r[1])).toFixed(2)+' kg', p:Math.min(1,c.best/Math.max(...c.rivals.map(r=>r[1]))), tab:'events', live:true};
     return {t:C.icon+' '+C.name+' · '+left+wrong, sub:C.rule(c)+': '+c.prog+' / '+c.need, p:c.prog/c.need, tab:'events', live:true}; }
-  const sl=shoalLeft(); if(sl) return {t:'🐟 Shoal Run · '+mmss(Math.ceil(sl/1000))+' left', sub:'Bites +60% and more rare fish at every water', p:sl/SHOAL_LEN, tab:'events', live:true};
+  const e=liveScheds()[0]; if(e){ const l=schedLeft(e); return {t:e.icon+' '+e.name+' · '+mmss(Math.ceil(l/1000))+' left', sub:e.what+' at every water', p:l/(e.len*MIN), tab:'events', live:true}; }
   return _nextGoal_036(); };
 // the Events page
 function evRewardTxt(m){ const r=chalReward(m); return `<span class="coin">${fmtShort(r.coins)}</span> · ${r.scales} Scales · ${r.tickets} tickets`; }
-renderEvents=function(P){ const o=catchOdds(), c=S.chal, sl=shoalLeft();
-  const shoal=`<div class="tile ev-live ${sl?'on':''}"><div class="row spread"><div><span class="rar" style="color:${sl?'var(--kelp)':'var(--muted)'}">${sl?'Live now':'Scheduled'}</span><h4>🐟 Shoal Run</h4></div><span class="badge ${sl?'g':''}">${sl?'<span data-evleft="shoal">'+mmss(Math.ceil(sl/1000))+'</span> left':'Next in <span data-evleft="shoal">'+mmss(Math.ceil(shoalNext()/1000))+'</span>'}</span></div>
-    <div class="meta">Every 90 minutes a great shoal passes through every water for 8 minutes: bites come 60% faster and rare fish are more common. Nothing to join, just be fishing.</div></div>`;
+function schedCal(){ const items=SCHED.map(e=>({e, live:schedLeft(e), next:schedNext(e)})).sort((a,b)=>(a.live?-1e12+a.live:a.next)-(b.live?-1e12+b.live:b.next));
+  return `<div class="tile ev-cal"><h4>Event calendar</h4><div class="meta" style="margin-bottom:6px">These run on the clock at every water. Nothing to join: just be fishing.</div>
+   ${items.map(({e,live,next})=>`<div class="ev-cal-row ${live?'on':''}" style="--c:${e.col}"><span class="ev-cal-ic">${e.icon}</span><div class="ev-cal-txt"><b>${esc(e.name)}</b><span class="meta">${esc(e.what)} · ${e.len} min, every ${e.every} min</span></div>
+     <span class="badge ${live?'g':''}">${live?'Live · <span data-evleft="'+e.id+'">'+mmss(Math.ceil(live/1000))+'</span> left':'In <span data-evleft="'+e.id+'">'+mmss(Math.ceil(next/1000))+'</span>'}</span></div>`).join('')}</div>`; }
+renderEvents=function(P){ const o=catchOdds(), c=S.chal;
   const active=c?(()=>{ const C=CHAL[c.id], left=Math.max(0,Math.ceil((c.until-Date.now())/1000)), pct=C.ranked?Math.min(1,c.best/Math.max(...c.rivals.map(r=>r[1]))):c.prog/c.need;
     return `<div class="tile ev-active"><div class="row spread"><div><span class="rar" style="color:var(--gold)">Your challenge · ${esc(LOCS[locIdx(c.loc)].name)}</span><h4>${C.icon} ${esc(C.name)}</h4></div><span class="badge g"><span data-evleft="chal">${mmss(left)}</span> left</span></div>
       <div class="meta">${esc(C.rule(c))}${C.ranked?'':': <b>'+c.prog+' / '+c.need+'</b>'}${S.loc!==c.loc?' · <b style="color:#ff9a8a">Only catches at '+esc(LOCS[locIdx(c.loc)].name)+' count</b>':''}</div>
       <i class="ev-bar"><b style="width:${Math.round(pct*100)}%"></b></i>
       ${C.ranked?`<div class="list" style="margin-top:6px">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?r[1].toFixed(2)+' kg':'–'}</span></div>`).join('')}</div>`:''}
       <div class="row" style="margin-top:8px"><button class="btn alt sm" data-act="chalquit">Give up</button></div></div>`; })():'';
-  const tiles=Object.entries(CHAL).map(([id,C])=>{ const cd=S.chalCd&&S.chalCd[id]>Date.now(), fake={need:C.setup===CHAL.weigh.setup?1:C.setup(o).need};
+  const tiles=Object.entries(CHAL).map(([id,C])=>{ const cd=S.chalCd&&S.chalCd[id]>Date.now(), fake={need:C.slow?1:C.setup(o).need};
     const btn=c?'<button class="btn sm" disabled>Finish your challenge first</button>':cd?`<button class="btn alt sm" disabled>Ready in <span data-evleft="${id}">${mmss(Math.ceil((S.chalCd[id]-Date.now())/1000))}</span></button>`:`<button class="btn sm" data-act="chalgo" data-k="${id}">Start · ${C.mins} min</button>`;
     return `<div class="tile ev-ch"><h4>${C.icon} ${esc(C.name)}</h4><div class="meta"><b>${esc(C.rule(fake))}</b> · ${C.mins} minutes, at the water you are on</div><div class="meta">${esc(C.hint(o))}</div>
       <div class="meta ev-rw2">${C.ranked?'Medals: '+evRewardTxt(C.m)+' for first':'Reward: '+evRewardTxt(C.m)}</div>${btn}</div>`; }).join('');
   const base=bestLoot(), row=(icon,m,label)=>`<div class="row spread ev-rw"><span>${icon} <b>${label}</b></span><span class="meta">${m?`<span class="coin">${fmtShort(Math.round(base*25*m*coinMult()))}</span> · ${Math.round(30*m)} Scales · ${Math.round(150*m)} tickets`:'20 tickets for taking part'}</span></div>`;
-  P.innerHTML=`<h2>Events</h2><p class="sub">Live events and challenges with their own rewards. Challenges are sized to your odds here, so better gear and bait make them easier.</p>
-   ${shoal}${active}<h3 class="ev-h">Challenges</h3>${c?'':'<p class="sub" style="margin-top:-4px">One at a time. Each rests for 12 minutes after it ends.</p>'}<div class="grid ev-grid">${tiles}</div>
+  P.innerHTML=`<h2>Events</h2><p class="sub">Live events, challenges and the derby. Challenges are sized to your odds here, so better gear and bait make them easier.</p>
+   ${active}${schedCal()}<h3 class="ev-h">Challenges</h3>${c?'':'<p class="sub" style="margin-top:-4px">One at a time. Each rests for 12 minutes after it ends.</p>'}<div class="grid ev-grid">${tiles}</div>
    <h3 class="ev-h">Fishing Derby</h3>${derbyHTML()}<div class="tile"><h4>Derby rewards</h4><div class="meta" style="margin-bottom:6px">Four minutes, one water: the heaviest total catch wins.</div>${row('🥇',1,'First place')}${row('🥈',.5,'Second place')}${row('🥉',.25,'Third place')}${row('🎣',0,'Fourth place')}</div>`; };
 const _extraAct2_ev036=extraAct2;
 extraAct2=function(b){ const a=b.dataset.act; if(a==='chalgo'){ if(G.st!=='idle'&&G.st!=='waiting'&&G.st!=='result'){ toast('Finish your catch first.'); return 'skip'; } return chalStart(b.dataset.k)?'render':'skip'; }
   if(a==='chalquit'){ if(!S.chal) return 'skip'; if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Tap again to give up'; return 'skip'; } chalEnd(false); return 'render'; } return _extraAct2_ev036(b); };
-// the Events tab shows a dot while the Shoal Run is live or a challenge is running
-setInterval(()=>{ const b=document.querySelector('#tabs [data-tab="events"]'); if(!b) return; let d=b.querySelector('.dot'); const n=(shoalLeft()?1:0)+(S.chal?1:0);
+// the Events tab shows how many things are live (scheduled events and your challenge)
+setInterval(()=>{ const b=document.querySelector('#tabs [data-tab="events"]'); if(!b) return; let d=b.querySelector('.dot'); const n=liveScheds().length+(S.chal?1:0);
   if(n){ if(!d){ d=document.createElement('span'); d.className='dot'; b.appendChild(d); } if(d.textContent!==String(n)) d.textContent=n; } else if(d) d.remove(); },1500);
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .ev-h{margin:16px 0 8px}
-#panel .ev-live.on{border-color:#7fe3c488;box-shadow:inset 0 1px 0 #ffffff12,0 0 22px #7fe3c422}
-#panel .ev-active{border-color:#ffd36a88;box-shadow:inset 0 1px 0 #ffffff12,0 0 22px #ffd36a22;margin-top:10px}
+#panel .ev-active{border-color:#ffd36a88;box-shadow:inset 0 1px 0 #ffffff12,0 0 22px #ffd36a22;margin:10px 0}
 #panel .ev-bar{display:block;height:6px;border-radius:6px;background:#ffffff14;margin-top:8px;overflow:hidden}
 #panel .ev-bar b{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
+#panel .ev-cal{margin-top:10px}
+#panel .ev-cal-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+#panel .ev-cal-row:first-of-type{border-top:0}
+#panel .ev-cal-row.on .ev-cal-ic{box-shadow:0 0 0 2px var(--c),0 0 14px var(--c)}
+#panel .ev-cal-ic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#ffffff10;font-size:16px}
+#panel .ev-cal-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+#panel .ev-cal-txt b{color:#fff}
+#panel .ev-cal-row .badge{flex:0 0 auto;white-space:nowrap}
 #panel .ev-ch .ev-rw2{margin-top:2px;color:#cfdcea}
 #panel .ev-ch .btn{margin-top:8px;align-self:flex-start}
 #goalchip.live{border-color:#7fe3c488}
 #goalchip.live .gl-k{color:#7fe3c4}
 </style>`);
 // the goal chip says "Live" for events
-setInterval(()=>{ const el=$('goalchip'); if(!el) return; const live=!!(S.chal||shoalLeft()); el.classList.toggle('live',live); const k=el.querySelector('.gl-k'); if(k&&live&&k.textContent!=='Live') k.textContent='Live'; },700);
-if(/[?&]test\b/.test(location.search)) window.__ev={chalStart, chalEnd, CHAL, shoalLeft, shoalNext, bonus:k=>bonus(k), rareRaw:()=>_rareScore_034(distanceMods(),false,false,phase()), rare:()=>rareScore(distanceMods(),false,false,phase())};
+setInterval(()=>{ const el=$('goalchip'); if(!el) return; const live=!!(S.chal||liveScheds().length); el.classList.toggle('live',live); const k=el.querySelector('.gl-k'); if(k&&live&&k.textContent!=='Live') k.textContent='Live'; },700);
+if(/[?&]test\b/.test(location.search)) window.__ev={chalStart, chalEnd, CHAL, SCHED, schedLeft, schedNext, shoalLeft, shoalNext, bonus:k=>bonus(k), junk:()=>junkChance(), rare:()=>rareScore(distanceMods(),false,false,phase())};
 
 // ---------- loop ----------
 let last=performance.now();
@@ -12724,7 +12864,7 @@ offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); ref
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>
-<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.6 preview</div>
+<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.4 preview</div>
 <div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
   <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
   <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>
