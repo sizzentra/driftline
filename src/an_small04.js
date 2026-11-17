@@ -1,5 +1,5 @@
 // =====================================================================
-// 0.4 small things: time played, and a scrollbar that keeps out of the way.
+// 0.3.1 small things: time played, and a scrollbar that keeps out of the way.
 // =====================================================================
 
 // ---------- time played: counts every second the game is open and in front of you ----------

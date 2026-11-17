@@ -1,5 +1,5 @@
 // =====================================================================
-// 0.4 side-view clothing. The angler is seen from the side (facing right), so the torso is now a
+// 0.3.1 side-view clothing. The angler is seen from the side (facing right), so the torso is now a
 // real side profile (back, shoulder blade, small of the back, seat; chest and belly at the front)
 // instead of a front-on box, and every outfit is drawn the way it looks from that side:
 // openings, buttons and zips at the front edge, hoods, sailor collars and bows at the back,

@@ -3,9 +3,9 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4';
+const GAME_VERSION = '0.3.1';
 const PATCHES = [
- {v:'0.4', name:'Dressed for the Weather', items:[
+ {v:'0.3.1', name:'Dressed for the Weather', items:[
   '## Your angler',
   'Clothes are now drawn from the side, the way your angler actually stands: buttons, zips and buckles sit at the front, hoods, collars and bows at the back, and pockets on the side. Every outfit was redrawn this way.',
   'Body types have proper shapes now (back, chest and belly) instead of boxes, from slim to sturdy.',

@@ -1,5 +1,5 @@
 // =====================================================================
-// 0.4 sort and filter for the decoration shops (aquarium and Home).
+// 0.3.1 sort and filter for the decoration shops (aquarium and Home).
 // A small bar above each list: sort by price, name or bonus (cozy at Home), show all / owned / for sale,
 // and in the aquarium pick a bonus kind. It only reorders and hides the tiles that are already there,
 // so it is instant; your choice is remembered on this device.

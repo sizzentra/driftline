@@ -1,5 +1,5 @@
 // =====================================================================
-// 0.4 decorations: not every aquarium piece is about income any more. Each one has a kind:
+// 0.3.1 decorations: not every aquarium piece is about income any more. Each one has a kind:
 //   income   : +% aquarium income (as before)
 //   boost    : +% strength of every buff your aquarium fish give
 //   showpiece: +% income from shiny and hybrid fish in the tank
@@ -81,7 +81,7 @@ Object.assign(DOCK_ART,{
 });
 
 // =====================================================================
-// 0.4 shiny fish: a soft glow behind, a glint of light sweeping across the scales, and twinkling sparkles
+// 0.3.1 shiny fish: a soft glow behind, a glint of light sweeping across the scales, and twinkling sparkles
 // (drawn through one shared layer, so the glint only ever lands on the fish itself)
 // =====================================================================
 const SHINY3={c:null};

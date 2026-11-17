@@ -7,7 +7,7 @@
 const BUILDS = [['average','Average',{w:1,l:1,lw:1,belly:0}],['slim','Slim',{w:.86,l:1.03,lw:.86,belly:0}],['athletic','Athletic',{w:1.12,l:1,lw:1.1,belly:0}],
   ['broad','Broad',{w:1.24,l:1,lw:1.2,belly:0}],['sturdy','Sturdy',{w:1.16,l:.94,lw:1.14,belly:1}],['tall','Tall',{w:.96,l:1.13,lw:.96,belly:0}],['petite','Petite',{w:.9,l:.88,lw:.9,belly:0}]];
 const BUILDI = Object.fromEntries(BUILDS.map(b=>[b[0],b[2]]));
-// 0.4 face options (a softer, plainer face is a choice, not a given)
+// 0.3.1 face options (a softer, plainer face is a choice, not a given)
 const NOSES = [['button','Button'],['small','Small'],['straight','Straight'],['pointed','Pointed'],['round','Round']];
 const BROWS = [['soft','Soft'],['bold','Bold'],['arched','Arched'],['straight','Straight'],['thin','Thin']];
 const MOUTHS = [['smile','Smile'],['calm','Calm'],['smirk','Smirk'],['grin','Grin']];
