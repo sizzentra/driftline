@@ -612,7 +612,7 @@ function v3boat(P,t,night,dockY,pb){
     const mx=cx0+12+cw*.5, mt=y-H*.012-ch-H*.09; g.fillStyle=N('#4a4a52'); g.fillRect(mx-1.2,mt,2.4,H*.09); g.strokeStyle=N('#4a4a52'); g.lineWidth=1; g.beginPath(); g.moveTo(mx,mt+H*.01); g.lineTo(PW*.9,y-H*.05); g.stroke();
     const ml=night>.25||P.d>.4; g.fillStyle=ml?'#fff4d0':N('#888'); g.beginPath(); g.arc(mx,mt-2,2.4,0,7); g.fill(); if(ml) v3glow(g,mx,mt-2,H*.05,'rgba(255,244,210,.8)',.6*lit); }
   // coiled rope and a fish crate by the rail
-  { const rx=W*.155, ry=y-H*.016; g.strokeStyle=N('#c8a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.ellipse(rx,ry-k*1.6,H*.016-k*1.6,H*.005,0,0,7); g.stroke(); } }
+  { const rx=W*.155, ry=y-H*.016; g.strokeStyle=N('#c8a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.ellipse(rx,ry-k*1.6,Math.max(.6,H*.016-k*1.6),Math.max(.4,H*.005),0,0,7); g.stroke(); } }
 }
 V3PLAT.boat=(P,t,night,dockY,pb)=>v3boat(P,t,night,dockY,pb);
 
