@@ -14,8 +14,15 @@ function sellKeep(f){ if(isProtected(f)) return true; const s=S.settings, sp=SPI
 const _renderCooler_034 = renderCooler;
 renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
-  btn.insertAdjacentHTML('beforebegin',`<div class="sellf"><span class="meta">Sell</span>${sel('sellR',SELL_RAR,s.sellR||'all')}${sel('sellP',SELL_PRICE,+s.sellP||0)}</div>`);
-  P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); }); };
+  // 0.3.4.3: the price is typed in (plain numbers or 50k / 1.2m); empty means any price
+  const pv=+s.sellP>0?fmtShort(+s.sellP):'';
+  btn.insertAdjacentHTML('beforebegin',`<div class="sellf"><span class="meta">Sell</span>${sel('sellR',SELL_RAR,s.sellR||'all')}<label class="sellp"><span>under</span><input data-sp type="text" inputmode="decimal" autocomplete="off" placeholder="any price" value="${pv}" aria-label="Only sell fish worth less than this"></label>${+s.sellP>0?'<button class="btn alt sm" data-spclear title="Clear the price limit">×</button>':''}</div>`);
+  P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); });
+  const inp=P.querySelector('[data-sp]'); if(inp){ const apply=()=>{ const v=sellParse(inp.value); if(v===+S.settings.sellP||(!v&&!(+S.settings.sellP))){ inp.value=v?fmtShort(v):''; return; } S.settings.sellP=v; save(); renderPanel(); };
+    inp.addEventListener('change',apply); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }); }
+  const clr=P.querySelector('[data-spclear]'); if(clr) clr.onclick=()=>{ S.settings.sellP=0; save(); renderPanel(); }; };
+// "50k" -> 50000, "1.2m" -> 1200000, "2,500" -> 2500, anything else -> 0 (no limit)
+function sellParse(t){ const m=String(t||'').trim().toLowerCase().replace(/[, _]/g,'').match(/^(\d+(?:\.\d+)?)([kmb]?)$/); if(!m) return 0; const n=parseFloat(m[1])*({k:1e3,m:1e6,b:1e9}[m[2]]||1); return Math.max(0,Math.round(n)); }
 
 // ---------- the aquarium's Feed button, always beside Collect ----------
 const _renderAquarium_034 = renderAquarium;
@@ -53,7 +60,7 @@ const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPane
 const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){} };
 
 document.head.insertAdjacentHTML('beforeend',`<style>
-.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
+.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
 .aqh{font-size:11px;color:#9fe0c0;font-weight:600;white-space:nowrap}.aqinc{text-align:center;margin:-2px 0 6px;color:#9fe0c0}
 .shine{position:absolute;pointer-events:none}.shine i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;background:radial-gradient(circle,#fff8d0 0 18%,rgba(255,230,140,.6) 30%,transparent 62%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:shinetw 1.9s ease-in-out infinite;opacity:0}
 .shine.prism i{background:radial-gradient(circle,#fff 0 18%,rgba(255,140,230,.7) 32%,transparent 62%)}

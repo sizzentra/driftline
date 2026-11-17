@@ -5,7 +5,8 @@
 // =====================================================================
 const GAME_VERSION = '0.3.4.2';
 const PATCHES = [
- {v:'0.3.4.2', name:'Catch Card Fix', items:[
+ {v:'0.3.4.2', name:'Cooler and Catch Card Fixes', items:[
+  'Sell all’s price filter is now a box you type into: enter any amount (like 2500, 50k or 1.2m) to only sell fish worth less than that. Leave it empty for any price, or tap × to clear it.',
   'The catch card shows just one aquarium earnings line again (it was keeping the lines from earlier catches, so the top number belonged to a different fish).',
  ]},
  {v:'0.3.4.1', name:'Aquarium Numbers Hotfix', items:[
