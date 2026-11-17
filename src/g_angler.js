@@ -41,6 +41,7 @@ function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.cli
   c.fillStyle=gy; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
 
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
+let A3HEAD=.9; // 0.3.6: adult proportions (was 1.1, a cartoon-sized head)
 function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
   const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
@@ -132,7 +133,7 @@ function a3Body(c,x,y,s,lk,o,live){
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
-  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
+  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
   if(hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
     const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0); c.fillStyle=hairF; c.beginPath(); c.moveTo(-6.4,-62.4); c.bezierCurveTo(-9.6,-60.6,-10.2,-55.6,-9.4,-51); c.bezierCurveTo(-8.8,-47.4,-9.4+sw,-44.4,-8.8+sw,-40.4); c.quadraticCurveTo(-8+sw,-41.4,-7.4+sw,-40.6); c.quadraticCurveTo(-6.8+sw,-41.6,-6.1+sw,-41.2); c.bezierCurveTo(-5.4,-43.6,-4,-45.4,-2.6,-46.4); c.lineTo(-2.4,-58); c.closePath(); c.fill();
     c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.42; c.beginPath(); c.moveTo(-8,-58); c.bezierCurveTo(-9.2,-53,-8.2,-47,-8+sw,-41.6); c.moveTo(-5.6,-56.6); c.bezierCurveTo(-6.6,-52,-6,-47,-6.6+sw,-42); c.stroke();
@@ -163,7 +164,7 @@ function a3Body(c,x,y,s,lk,o,live){
   { const ng=c.createLinearGradient(-2.2,0,2.2,0); ng.addColorStop(0,skD); ng.addColorStop(.7,sk); ng.addColorStop(1,mix(sk,'#fff2e0',.12)); c.fillStyle=ng; c.beginPath(); c.moveTo(-2.1,-51); c.lineTo(-2.3,-45.6); c.quadraticCurveTo(0,-44.6,2.4,-45.6); c.lineTo(2.2,-51); c.closePath(); c.fill(); }
   c.save(); c.scale(SIDE_K,1); a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
-  c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50);
+  c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50);
   c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.fill();
   // head volume: lit from the upper front, shade wrapping the back and under the jaw
   c.save(); c.beginPath(); c.arc(0,-56,7.5,0,7); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.clip();
@@ -174,7 +175,7 @@ function a3Body(c,x,y,s,lk,o,live){
   // nose
   a3Nose(c,lk.nose,sk,skD);
   // blush
-  if(lk.blush!=='off'){ c.fillStyle='rgba(240,120,110,'+(lk.blush==='soft'?.14:.3)+')'; c.beginPath(); c.ellipse(3.6,-53.6,1.8,1,0,0,7); c.fill(); }
+  if(lk.blush!=='off'){ const ba=lk.blush==='soft'?.07:.13, bg=c.createRadialGradient(3.8,-53.5,0,3.8,-53.5,2.3); bg.addColorStop(0,'rgba(214,96,86,'+ba+')'); bg.addColorStop(1,'rgba(214,96,86,0)'); c.fillStyle=bg; c.beginPath(); c.ellipse(3.8,-53.5,2.4,1.5,0,0,7); c.fill(); }
   // eyes and brows
   const ex=4.4, ey=-57, browY=mood==='surprised'?-60.6:mood==='focus'?-59.4:-60;
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
