@@ -423,7 +423,7 @@ const rodCast = () => S.rods ? (rod().st.cast||1) : 1;
 const rodHook = () => S.rods ? (rod().st.hook||0) + rodAtts().filter(a=>a==='bell').reduce((s,a)=>s+attVal(a),0) : 0;
 const rodSpool = () => S.rods ? rodAtts().filter(a=>a==='spool').reduce((s,a)=>s+attVal(a),0) : 0;
 const rodUpCost = id => { const L=rodLvl(id); const r=ROD_I[id]; return {coins:Math.round(Math.max(5000,r.price)*.12*(L+1)), scales:(L+1)*(L+1)*2}; };
-const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare odds at night': fmtB(k,v);
+const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare bonus at night': fmtB(k,v);
 function grantRod(id){ if(S.rods.owned.includes(id)) return null; S.rods.owned.push(id); return {title:'New rod: '+ROD_I[id].name+'!', kind:'rod', id}; }
 function rodSVG(col,lvl,id){ if(id==null&&col==="#2a4a55") return `<span style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:40px;border-radius:20px;background:radial-gradient(closest-side,#5a82aa55,#1e344e33 70%,transparent);color:#cde1f5aa;font:700 26px system-ui">?</span>`; if(V3ON&&id&&ROD_I[id]) return rodImg3(id,lvl); return `<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="M8 34 Q60 30 112 6" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="6" fill="#2a2a2a"/><circle cx="24" cy="31" r="2.5" fill="#8a8a8a"/>${lvl?`<text x="112" y="36" fill="#ffc94d" font-size="11" font-weight="700" text-anchor="end">Lv ${lvl}</text>`:''}</svg>`; }
 function renderRods(P){ const r=rod(), atts=rodAtts();
@@ -436,7 +436,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
    <div style="text-align:right"><div class="pts" style="color:var(--kelp)">${fmt(S.scales)}</div><div class="sub">Scales</div></div></div>
   <div class="tile" style="margin-top:10px;border-color:${r.col}"><div class="row spread"><div class="row">${rodSVG(r.col,L,r.id)}<div><div class="rar" style="color:var(--gold)">In your hands</div><h4>${r.name}</h4><div class="meta">${esc(r.d)}</div></div></div>
     <div style="text-align:right"><div class="meta">Level ${L} / 10</div>${L<10?`<button class="btn sm" data-act="rodup" data-k="${r.id}" ${S.money>=up.coins&&S.scales>=up.scales?'':'disabled'}>Upgrade · <span class="coin">${fmt(up.coins)}</span> + ${up.scales} Scales</button>`:'<span class="badge g">Max level</span>'}</div></div>
-    <div class="meta">${stats(r)}${L?` · Level bonus: +${3*L}% reel speed, −${2*L}% line tension, +${2*L}% rare odds`:''}</div>
+    <div class="meta">${stats(r)}${L?` · Level bonus: +${3*L}% reel speed, −${2*L}% line tension, +${2*L}% rare bonus`:''}</div>
     <h5>Attachments (${r.slots} slot${r.slots>1?'s':''})</h5>${Array.from({length:r.slots},(_,i)=>slotRow(i)).join('')}
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';

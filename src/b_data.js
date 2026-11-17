@@ -466,7 +466,7 @@ const TANK_COST = [0,0,0,400,1500,5000,15000,45000,120000,300000,700000,1500000,
 const TANK_RATE = .015;
 const OFFLINE_CAP_MIN = 8*60;
 // bonus keys shared by boosts, aquarium fish and pets
-const BK = {bite:'bite speed', rare:'rare odds', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
+const BK = {bite:'bite speed', rare:'rare bonus', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
 const fmtB = (k,v) => (k==='tension'||k==='calm'?'−':'+')+Math.round(v*100)+'% '+BK[k];
 const AQ_KEYS = ['bite','rare','shiny','tension','reel','sell','xp','treasure','tank','calm','trophy','hot'];
 const AQ_MAG = [0,.02,.04,.06,.1,.18];
