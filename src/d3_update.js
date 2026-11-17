@@ -66,6 +66,7 @@ const PATCHES = [
   'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
   'In fog, your angler, dock and boat stay clear while the far shore fades away.',
   'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
+'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
