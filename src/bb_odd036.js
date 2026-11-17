@@ -71,7 +71,7 @@ drawJunkAt = function(c,id,x,y,s,sil){ if(!s) return _drawJunkAt_036(c,id,x,y,s,
     _drawJunkAt_036(x2,id,S/2,S/2,q,null);
     x2.globalCompositeOperation='source-atop';
     const lg=x2.createLinearGradient(S*.2,S*.15,S*.8,S*.85); lg.addColorStop(0,'rgba(255,250,235,.26)'); lg.addColorStop(.45,'rgba(255,255,255,0)'); lg.addColorStop(1,'rgba(10,14,24,.34)'); x2.fillStyle=lg; x2.fillRect(0,0,S,S);
-    const rg=x2.createRadialGradient(S*.38,S*.32,0,S*.38,S*.32,S*.3); rg.addColorStop(0,'rgba(255,255,255,.2)'); rg.addColorStop(1,'rgba(255,255,255,0)'); x2.fillStyle=rg; x2.fillRect(0,0,S,S);
+    const rg=x2.createRadialGradient(S*.38,S*.32,0,S*.38,S*.32,S*.3); rg.addColorStop(0,'rgba(255,255,255,.2)'); rg.addColorStop(1,'rgba(255,255,255,0)'); x2.fillStyle=rg; x2.fillRect(0,0,S,S); x2.globalCompositeOperation="source-over"; defineSprite(cv,{d:Math.max(1,Math.round(S/90)),ao:.12});
     spr=ODD_SPR[key]={cv,S}; if(++ODD_SPR_N>240){ for(const k in ODD_SPR){ delete ODD_SPR[k]; } ODD_SPR_N=0; ODD_SPR[key]=spr; } }
   const d=spr.S/q*s; c.save(); c.shadowColor='rgba(0,0,0,.38)'; c.shadowBlur=Math.max(2,10*s*(m.a||1)); c.shadowOffsetY=Math.max(1,6*s*(m.a||1));
   c.drawImage(spr.cv,x-d/2,y-d/2,d,d); c.restore(); };

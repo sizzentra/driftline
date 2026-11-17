@@ -212,6 +212,7 @@ function a3Body(c,x,y,s,lk,o,live){
     hx.save(); hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
     if(hatId!=='none'){ hx.save(); hx.globalCompositeOperation='source-atop'; const g1=hx.createLinearGradient(-9,-74,9,-50); g1.addColorStop(0,'rgba(10,8,22,.34)'); g1.addColorStop(.45,'rgba(10,8,22,0)'); g1.addColorStop(.75,'rgba(255,244,226,.12)'); g1.addColorStop(1,'rgba(255,244,226,.22)'); hx.fillStyle=g1; hx.fillRect(-30,-100,60,60);
       const g2=hx.createLinearGradient(0,-60,0,-52); g2.addColorStop(0,'rgba(10,8,22,0)'); g2.addColorStop(1,'rgba(10,8,22,.28)'); hx.fillStyle=g2; hx.fillRect(-30,-60,60,10); hx.restore(); }
+    if(hatId!=='none'&&typeof defineSprite==='function') defineSprite(HC,{d:Math.max(1,Math.round(s*.32)),ao:.1,dark:.3,light:.26}); /* 0.3.6: hats get real edges and texture */
     c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(HC,0,0); c.restore(); }
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod

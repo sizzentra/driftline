@@ -31,7 +31,12 @@ drawDecor = function(c,id,x,y,s,t){ if(!(s>0)) return _drawDecor_036(c,id,x,y,s,
   const m=c.getTransform?c.getTransform():null; if(!m||m.b||m.c) return _drawDecor_036(c,id,x,y,s,t);
   const eff=Math.abs(m.a)*s, q=Math.max(.2,Math.round(eff*10)/10), key=id+'|'+q; let sp=DEC036.spr[key];
   if(!sp){ const w=Math.ceil((p.bx1-p.bx0)*q), h=Math.ceil((p.by1-p.by0)*q); if(w<2||h<2||w*h>4e6) return _drawDecor_036(c,id,x,y,s,t);
-    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const x2=cv.getContext('2d'); x2.setTransform(q,0,0,q,-p.bx0*q,-p.by0*q); try{ _drawDecor_036(x2,id,0,0,1,1.13); }catch(e){}
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const x2=cv.getContext('2d'); x2.setTransform(q,0,0,q,-p.bx0*q,-p.by0*q); try{ _drawDecor_036(x2,id,0,0,1,1.13); }catch(e){} x2.setTransform(1,0,0,1,0,0); defineSprite(cv,{d:Math.max(1,Math.round(q*1.6))});
     sp=DEC036.spr[key]={cv}; if(++DEC036.n>70){ DEC036.spr={}; DEC036.n=1; DEC036.spr[key]=sp; } }
   c.drawImage(sp.cv,x+p.bx0*s,y+p.by0*s,(p.bx1-p.bx0)*s,(p.by1-p.by0)*s); };
 if(/[?&]test\b/.test(location.search)) window.__decProbe=()=>Object.fromEntries(Object.entries(DEC036.probe).map(([k,v])=>[k,v.moving?'live':'cached']));
+// QC (test mode only): decorations drawn through the real cached path (measured first, so the finished sprites show)
+if(/[?&]test\b/.test(location.search)) window.__decorReal=async(ids,save,sc=1.15)=>{ ids.forEach(id=>decProbe(id)); const cols=8, cw=170, ch=190, cv=document.createElement('canvas'); cv.width=cols*cw; cv.height=Math.ceil(ids.length/cols)*ch; const x=cv.getContext('2d');
+  x.fillStyle='#123848'; x.fillRect(0,0,cv.width,cv.height); x.fillStyle='#c8b080'; for(let r=0;r<cv.height/ch;r++) x.fillRect(0,r*ch+ch-24,cv.width,24);
+  ids.forEach((id,i)=>drawDecor(x,id,(i%cols)*cw+cw/2,Math.floor(i/cols)*ch+ch-24,sc,1.13)); x.fillStyle='#fff'; x.font='11px system-ui'; ids.forEach((id,i)=>x.fillText(id,(i%cols)*cw+6,Math.floor(i/cols)*ch+ch-8));
+  return __post(save||'decreal',cv.toDataURL()); };

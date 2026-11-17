@@ -122,3 +122,22 @@ if(/[?&]test\b/.test(location.search)) window.__lists=()=>{ const id=x=>Array.is
 // heart shades get an arm to the ear like every other pair (they sat on the face like a sticker)
 const _drawFace_036=drawFace;
 drawFace=function(c,lk,D,hair){ _drawFace_036(c,lk,D,hair); if(lk&&lk.glasses==='heart'){ const ex=4.4, ey=-57; c.save(); c.strokeStyle=D?D('#c82a68'):'#c82a68'; c.lineWidth=.5; c.lineCap='round'; c.beginPath(); c.moveTo(ex-2.1,ey-.5); c.quadraticCurveTo(1,ey-.9,-1.3,ey+.9); c.stroke(); c.restore(); } };
+// ---------------------------------------------------------------------
+// 0.3.6 definition pass, shared by decorations, oddities and hats: on an image of one item it adds a bevel that follows
+// the item's own outline (a lit top-left edge, a shaded bottom-right edge), ambient shade low on the item and a fine
+// surface grain, so flat painted shapes read as solid objects with real edges. Runs on cached sprites once, and on
+// the small hat layer each frame.
+// ---------------------------------------------------------------------
+const DEF036={t:null,n:null};
+function def036Noise(){ if(DEF036.n) return DEF036.n; const n=96, c=document.createElement('canvas'); c.width=c.height=n; const x=c.getContext('2d'), im=x.createImageData(n,n), d=im.data; let s=7;
+  for(let i=0;i<n*n;i++){ s=(s*16807)%2147483647; const v=s/2147483647, a=Math.abs(v-.5)*2; d[i*4]=d[i*4+1]=d[i*4+2]=v<.5?0:255; d[i*4+3]=Math.round(a*a*38); } x.putImageData(im,0,0); return DEF036.n=c; }
+function defineSprite(cv,o={}){ const w=cv.width, h=cv.height; if(w<4||h<4) return cv; const d=o.d||Math.max(1,Math.min(4,Math.round(Math.min(w,h)/70))), x=cv.getContext('2d');
+  let t=DEF036.t; if(!t){ t=DEF036.t=document.createElement('canvas'); } if(t.width<w||t.height<h){ t.width=Math.max(t.width,w); t.height=Math.max(t.height,h); } const tx=t.getContext('2d');
+  const edge=(col,dx,dy,a)=>{ tx.setTransform(1,0,0,1,0,0); tx.globalCompositeOperation='source-over'; tx.clearRect(0,0,w,h); tx.fillStyle=col; tx.fillRect(0,0,w,h); tx.globalCompositeOperation='destination-out'; tx.drawImage(cv,dx,dy);
+    x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop'; x.globalAlpha=a; x.drawImage(t,0,0,w,h,0,0,w,h); x.restore(); };
+  edge('#05070d',-d,-d,o.dark!=null?o.dark:.34);          // shade along the lower and right edges
+  edge('#fff6e2',d*.8,d*.8,o.light!=null?o.light:.28);     // light along the upper and left edges
+  x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop';
+  if(o.ao!==false){ const g=x.createLinearGradient(0,h*.45,0,h); g.addColorStop(0,'rgba(5,8,16,0)'); g.addColorStop(1,'rgba(5,8,16,'+(o.ao||.2)+')'); x.fillStyle=g; x.fillRect(0,0,w,h); }
+  if(o.grain!==false){ x.globalAlpha=o.grain||.55; const p=x.createPattern(def036Noise(),'repeat'); x.fillStyle=p; x.fillRect(0,0,w,h); }
+  x.restore(); return cv; }
