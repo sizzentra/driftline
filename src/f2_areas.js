@@ -473,10 +473,10 @@ V3SCENES.reef = {
     v3glitter(P,t,hz,sun);
     // caustics: a wobbling web of light on the sandy bottom, finer far away and bolder close up
     const ca=(1-night*.85)*(1-P.gloom)*(.13+.06*(1-d)); if(FX&&ca>.03){ g.save(); g.globalCompositeOperation='lighter'; g.lineJoin='round';
-      const nR=13, nC=30, y0=hz+H*.11, pt=(r,c)=>{ const k=Math.pow(r/nR,1.35), y=y0+k*(H-y0+H*.05), ch=(H-y0)/nR*(.5+k*1.2), cw=W*1.1/nC; return [-W*.05+c*cw+Math.sin(t*1.05+c*1.7+r*2.3)*cw*.34+Math.sin(c*3.1+r*1.9)*cw*.2, y+Math.cos(t*.85+c*2.1+r*1.3)*ch*.3]; };
+      const nR=15, nC=30, y0=hz+H*.035, pt=(r,c)=>{ const k=Math.pow(r/nR,1.35), y=y0+k*(H-y0+H*.05), ch=(H-y0)/nR*(.5+k*1.2), cw=W*1.1/nC; return [-W*.05+c*cw+Math.sin(t*1.05+c*1.7+r*2.3)*cw*.34+Math.sin(c*3.1+r*1.9)*cw*.2, y+Math.cos(t*.85+c*2.1+r*1.3)*ch*.3]; };
       const line=(get,n)=>{ let p0=get(0); g.moveTo(p0[0],p0[1]); for(let i=1;i<n;i++){ const p1=get(i), p2=get(Math.min(n-1,i+1)); g.quadraticCurveTo(p1[0],p1[1],(p1[0]+p2[0])/2,(p1[1]+p2[1])/2); } };
-      for(let r=0;r<=nR;r++){ const k=r/nR; g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),ca*(.35+k*.65)); g.lineWidth=.6+k*1.8; g.beginPath(); line(c=>pt(r,c),nC+1); g.stroke(); }
-      for(let c=0;c<=nC;c++){ g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),ca*.75); g.lineWidth=1.1; g.beginPath(); line(r=>pt(r,c),nR+1); g.stroke(); }
+      for(let r=0;r<=nR;r++){ const k=r/nR, fade=Math.min(1,k*3.2); /* rows fade in with distance: no hard top edge */ g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),ca*(.35+k*.65)*fade*fade); g.lineWidth=.6+k*1.8; g.beginPath(); line(c=>pt(r,c),nC+1); g.stroke(); }
+      const vg=g.createLinearGradient(0,y0,0,y0+(H-y0)*.4); vg.addColorStop(0,v3rgba(mix(P.wTop,'#ffffff',.7),0)); vg.addColorStop(1,v3rgba(mix(P.wTop,'#ffffff',.7),ca*.75)); for(let c=0;c<=nC;c++){ g.strokeStyle=vg; g.lineWidth=1.1; g.beginPath(); line(r=>pt(r,c),nR+1); g.stroke(); }
       g.restore(); }
     // the sea turtle surfaces now and then for a breath, then glides back down
     { const per=19, k=(t%per)/per; if(k<.32){ const e=k/.32, up=Math.sin(e*Math.PI), tx=W*(.62-e*.12), ty=hz+H*.2+(1-up)*H*.03, s=H*.007, tc=mix('#6a8a4a',P.wMid,Math.min(1,(1-up)*.6+night*.55));
@@ -508,11 +508,16 @@ function v3sandPlat(P,t,night,dockY){
   const ed=PW+W*.035, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.012,dockY+H*.07,ed+W*.004,H+2); /* 0.3.3: the beach stays left of the shortest cast, so fish always come out of the water */ g.lineTo(-2,H+2); g.closePath(); };
   const sg=g.createLinearGradient(0,dockY,0,H); sg.addColorStop(0,N(P.sand)); sg.addColorStop(1,N(P.sandD)); g.fillStyle=sg; path(); g.fill();
   g.save(); path(); g.clip();
-  // wet darker sand along the waterline with a foam lip that comes and goes
-  const wv=Math.sin(t*.9)*W*.008; g.fillStyle=v3rgba(mix(P.sandD,P.wMid,.4),.6); g.beginPath(); g.moveTo(ed-W*.03+wv,dockY); g.quadraticCurveTo(ed+W*.01+wv,dockY+H*.06,ed+W*.05+wv,H+2); g.lineTo(ed+W*.2,H+2); g.lineTo(ed+W*.2,dockY); g.closePath(); g.fill();
+  // the wash: water slides up the beach in a thin sheet with a foam lip, then drains back, leaving darker wet sand.
+  // The shore follows the beach edge exactly; the sheet is the edge pulled inland by the swash distance.
+  const edge=(off,u)=>{ const v=1-u, x0=ed-W*.02, y0=dockY, cx=ed+W*.012, cy=dockY+H*.07, x1=ed+W*.004, y1=H+2; return [v*v*x0+2*v*u*cx+u*u*x1-off*(.6+.4*u), v*v*y0+2*v*u*cy+u*u*y1]; };
+  const sw=(Math.sin(t*.55)+1)/2, reach=W*(.006+.02*sw*sw*(3-2*sw));
+  g.fillStyle=v3rgba(mix(P.sandD,P.wMid,.35),.55); g.beginPath(); for(let i=0;i<=16;i++){ const [x,y]=edge(W*.028,i/16); i?g.lineTo(x,y):g.moveTo(x,y); } for(let i=16;i>=0;i--){ const [x,y]=edge(0,i/16); g.lineTo(x+2,y); } g.closePath(); g.fill();
   const r=v3rng(19); for(let i=0;i<40;i++){ g.fillStyle=v3rgba(i%2?P.sandD:P.rim,.35); g.fillRect(r()*ed,dockY+r()*(H-dockY),1.5,1.2); }
   g.restore();
-  g.strokeStyle=v3rgba('#ffffff',.6*(1-night*.5)); g.lineWidth=2; g.beginPath(); g.moveTo(ed-W*.028+wv,dockY+H*.004); g.quadraticCurveTo(ed+W*.012+wv,dockY+H*.06,ed+W*.052+wv,H+2); g.stroke();
+  { g.fillStyle=v3rgba(mix(P.wTop,'#ffffff',.35),.5); g.beginPath(); for(let i=0;i<=48;i++){ const [x,y]=edge(reach*(1+.22*Math.sin(i/48*9+t*1.1)+.1*Math.sin(i/48*23-t*.7)),i/48); i?g.lineTo(x,y):g.moveTo(x,y); } for(let i=16;i>=0;i--){ const [x,y]=edge(-W*.004,i/16); g.lineTo(x,y); } g.closePath(); g.fill();
+    g.strokeStyle=v3rgba('#ffffff',(.55+.3*Math.cos(t*.55))*(1-night*.5)); g.lineWidth=2; g.beginPath(); for(let i=0;i<=48;i++){ const [x,y]=edge(reach*(1+.22*Math.sin(i/48*9+t*1.1)+.1*Math.sin(i/48*23-t*.7)),i/48); const yy=y; i?g.lineTo(x,yy):g.moveTo(x,yy); } g.stroke();
+    if(S.settings.effects){ g.fillStyle=v3rgba('#ffffff',.6*(1-night*.5)); for(let i=1;i<14;i+=2){ const [x,y]=edge(reach+W*.003,i/16); g.fillRect(x+Math.sin(t*3+i)*1.5,y,1.4,1.4); } } }
   g.fillStyle=v3rgba(P.rim,.5); g.fillRect(-2,dockY-H*.008,ed-W*.04,1);
   // striped towel, shells, a starfish
   { const bx=W*.025, by=dockY-H*.004; g.fillStyle=N('#3a8ae0'); g.beginPath(); g.moveTo(bx,by); g.lineTo(bx+W*.05,by-H*.003); g.lineTo(bx+W*.055,by+H*.008); g.lineTo(bx+W*.004,by+H*.011); g.closePath(); g.fill(); g.fillStyle=N('#f4f0e0'); for(let k=1;k<5;k+=2){ g.beginPath(); g.moveTo(bx+W*.011*k,by-H*.0006*k); g.lineTo(bx+W*.011*(k+1),by-H*.0006*(k+1)); g.lineTo(bx+W*.011*(k+1)+W*.001,by+H*.011-H*.0006*(k+1)); g.lineTo(bx+W*.011*k+W*.001,by+H*.011-H*.0006*k); g.closePath(); g.fill(); } }
@@ -889,20 +894,9 @@ V3SCENES.starfall = {
         this.mw={key,c}; }
       g.globalAlpha=.3+P.night*.7; g.drawImage(this.mw.c,0,0,W,hz); g.globalAlpha=1; }
     // the ringed planet, back half of the ring, the planet, then the front half
-    { const px=W*(W<600?.24:.2), py=hz*(W<600?.5:.32), R=H*(W<600?.055:.07); g.save(); g.translate(px,py); g.rotate(-.3);
-      g.strokeStyle=v3rgba(P.ring,.55); g.lineWidth=R*.18; g.beginPath(); g.ellipse(0,0,R*2,R*.45,0,Math.PI,0); g.stroke();
-      const pg=g.createRadialGradient(-R*.4,-R*.4,R*.1,0,0,R); pg.addColorStop(0,mix(P.planet,'#ffffff',.35)); pg.addColorStop(.7,P.planet); pg.addColorStop(1,mix(P.planet,P.top,.55)); g.fillStyle=pg; g.beginPath(); g.arc(0,0,R,0,7); g.fill();
-      g.save(); g.beginPath(); g.arc(0,0,R,0,7); g.clip(); g.fillStyle=v3rgba(mix(P.planet,'#8a4a3a',.4),.35); for(let k=0;k<4;k++) g.fillRect(-R,-R*.6+k*R*.35,R*2,R*.1); g.restore();
-      g.strokeStyle=v3rgba(P.ring,.75); g.lineWidth=R*.18; g.beginPath(); g.ellipse(0,0,R*2,R*.45,0,0,Math.PI); g.stroke(); g.strokeStyle=v3rgba('#ffffff',.3); g.lineWidth=R*.04; g.beginPath(); g.ellipse(0,0,R*1.85,R*.4,0,0,Math.PI); g.stroke(); g.restore(); }
-    // a constellation of a fish draws itself star by star, glows, and fades, over and over
-    { const per=26, k=(t%per)/per, cx=W*.74, cy=hz*.2, sx=W*.07, sy=hz*.07;
-      const body=[[-1,0],[-.55,-.62],[.1,-.78],[.62,-.45],[.62,.45],[.1,.78],[-.55,.62]], tail=[[.62,-.45],[1.15,-.85],[1,0],[1.15,.85],[.62,.45]], eye=[-.55,-.18];
-      const P2=p=>[cx+p[0]*sx,cy+p[1]*sy], seq=[...body,body[0]], nb=seq.length-1, nt=tail.length-1, total=nb+nt, shown=Math.min(total,k*total*2.6), fade=k>.72?Math.max(0,1-(k-.72)/.22):1, a=fade*sa;
-      if(a>.02){ g.strokeStyle=v3rgba(P.cry2,.4*a); g.lineWidth=1; g.beginPath();
-        for(let i=0;i<Math.min(nb,shown);i++){ const [x1,y1]=P2(seq[i]), [x2,y2]=P2(seq[i+1]), f=Math.min(1,shown-i); g.moveTo(x1,y1); g.lineTo(x1+(x2-x1)*f,y1+(y2-y1)*f); }
-        for(let i=0;i<nt&&shown>nb+i;i++){ const [x1,y1]=P2(tail[i]), [x2,y2]=P2(tail[i+1]), f=Math.min(1,shown-nb-i); g.moveTo(x1,y1); g.lineTo(x1+(x2-x1)*f,y1+(y2-y1)*f); } g.stroke();
-        const stars=[...body,...tail.slice(1,4)]; stars.forEach((p,i)=>{ if(i>shown) return; const [X,Y]=P2(p); v3glow(g,X,Y,H*.012,'rgba(200,240,255,.9)',.55*a); g.fillStyle=v3rgba('#ffffff',a); g.fillRect(X-1.1,Y-1.1,2.2,2.2); });
-        if(shown>=total){ const [X,Y]=P2(eye); g.fillStyle=v3rgba('#ffffff',a*.9); g.fillRect(X-.8,Y-.8,1.6,1.6); } } } },
+    sfPlanet(P,t,hz);
+    // a constellation of a fish, always in the sky, its stars twinkling and its lines softly glowing
+    starSignature(P,t,hz,sa); },/*SIGEND*/
   land(x,P,hz,cnv){
     // crystal spires rising from the far shores
     const cry=(cx,base,w,h,col)=>{ x.fillStyle=col; x.beginPath(); x.moveTo(cx-w,base); x.lineTo(cx-w*.8,base-h*.8); x.lineTo(cx,base-h); x.lineTo(cx+w*.8,base-h*.78); x.lineTo(cx+w,base); x.closePath(); x.fill(); x.fillStyle=v3rgba('#ffffff',.25); x.beginPath(); x.moveTo(cx,base-h); x.lineTo(cx-w*.8,base-h*.8); x.lineTo(cx-w*.3,base); x.lineTo(cx,base); x.closePath(); x.fill(); x.fillStyle=v3rgba('#000000',.18); x.beginPath(); x.moveTo(cx,base-h); x.lineTo(cx+w*.8,base-h*.78); x.lineTo(cx+w,base); x.lineTo(cx+w*.3,base); x.closePath(); x.fill(); };

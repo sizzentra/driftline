@@ -7,7 +7,7 @@
 // =====================================================================
 const M33={};
 // wrap one scene hook: the original first, then ours
-function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const old=S0[hook]; S0[hook]=function(){ if(old) old.apply(this,arguments); if(!(W>8&&H>8)) return; /* never draw extras on a zero-size canvas (some loops step by a fraction of W) */ try{ fn.apply(this,arguments); }catch(e){ if(!M33.err){ M33.err=1; console.error(e); } } }; }
+function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const old=S0[hook]; S0[hook]=function(){ if(old) old.apply(this,arguments); if(!(W>8&&H>8)||window.__noExtras) return; /* never draw extras on a zero-size canvas (some loops step by a fraction of W) */ try{ fn.apply(this,arguments); }catch(e){ if(!M33.err){ M33.err=1; console.error(e); } } }; }
 // a soft mirror of whatever pathFn draws, just under the horizon
 function m33reflect(x,hz,depth,alpha,col,pathFn){ x.save(); x.beginPath(); x.rect(0,hz,W,depth); x.clip(); x.translate(0,hz*2); x.scale(1,-1); x.globalAlpha=alpha; x.fillStyle=col; pathFn(); x.fill(); x.restore(); }
 const m33dot=(c,x,y,r,col)=>{ c.fillStyle=col; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
@@ -313,9 +313,16 @@ function m33village(x,P,hz){ const wall=mix(P.lh,P.farHaze,.22), wallS=mix(wall,
 // the Starfall waterfalls are drawn over the scenery so they visibly pour past the cloud bank into the lake
 m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; for(const k in F){ const [tt,X,Y,w,h]=F[k], fx=X+w*1.02, fy=Y+h*.03;
   // the source: a spring pool on the island, a stream across the grass, and the water spilling over the lip
-  { const px=X+w*.25, py=Y-h*.075, wc='rgba(200,230,255,.85)'; g.fillStyle=v3rgba(mix(P.isl,'#000000',.25),.6); g.beginPath(); g.ellipse(px,py+h*.012,w*.2,h*.04,0,0,7); g.fill(); g.fillStyle=wc; g.beginPath(); g.ellipse(px,py,w*.17,h*.03,0,0,7); g.fill(); g.fillStyle='rgba(255,255,255,'+(.45+.3*Math.sin(tt*2.4))+')'; g.beginPath(); g.ellipse(px-w*.05,py-h*.006,w*.06,h*.008,0,0,7); g.fill();
-    g.strokeStyle=wc; g.lineCap='round'; g.lineWidth=Math.max(1.4,w*.05); g.beginPath(); g.moveTo(px+w*.12,py); g.quadraticCurveTo(X+w*.6,Y-h*.06,X+w*.82,Y-h*.035); g.quadraticCurveTo(X+w*.96,Y-h*.02,fx,fy); g.stroke();
-    g.strokeStyle='rgba(255,255,255,.7)'; g.lineWidth=.8; for(let q=0;q<3;q++){ const u=((tt*.6+q/3)%1), sx=px+w*.12+(fx-px-w*.12)*u, sy=py+(fy-py)*u*u-h*.02*Math.sin(u*Math.PI); g.beginPath(); g.moveTo(sx,sy); g.lineTo(sx+w*.05,sy+h*.004); g.stroke(); }
-    g.fillStyle='rgba(230,245,255,.8)'; g.beginPath(); g.ellipse(fx-w*.01,fy,w*.05,h*.022,.4,0,7); g.fill(); }
+  { // a small pond set into the grass near the edge, brimming over its lip into the fall
+    const px=X+w*.62, py=Y-h*.06, pw=w*.34, ph=h*.05, wc=mix(P.wTop,'#c8e4ff',.5);
+    g.fillStyle=mix(P.islD,'#000000',.2); g.beginPath(); g.ellipse(px,py+ph*.25,pw*1.12,ph*1.25,0,0,7); g.fill(); // its bank
+    g.fillStyle=v3rgba(wc,.95); g.beginPath(); g.ellipse(px,py,pw,ph,0,0,7); g.fill();
+    g.fillStyle=v3rgba(mix(P.isl,'#000000',.35),.5); g.beginPath(); g.ellipse(px,py-ph*.25,pw*.98,ph*.55,0,Math.PI,0); g.fill(); // the far bank reflected
+    g.fillStyle='rgba(255,255,255,'+(.4+.25*Math.sin(tt*1.6))+')'; g.beginPath(); g.ellipse(px-pw*.3,py+ph*.15,pw*.3,ph*.18,0,0,7); g.fill();
+    for(let k=0;k<2;k++){ const q=((tt*.5+k*.5)%1); g.strokeStyle='rgba(235,245,255,'+(.5*(1-q))+')'; g.lineWidth=.8; g.beginPath(); g.ellipse(px+pw*.1,py,pw*(.15+q*.5),ph*(.15+q*.5),0,0,7); g.stroke(); }
+    // the overflow: water slipping over the lip toward the edge, then the brink of the fall
+    g.strokeStyle=v3rgba(wc,.95); g.lineCap='round'; g.lineWidth=Math.max(1.6,w*.06); g.beginPath(); g.moveTo(px+pw*.85,py+ph*.2); g.quadraticCurveTo(X+w*.96,Y-h*.035,fx,fy); g.stroke();
+    g.strokeStyle='rgba(255,255,255,.7)'; g.lineWidth=.8; for(let q=0;q<3;q++){ const u=((tt*.8+q/3)%1), sx=px+pw*.85+(fx-px-pw*.85)*u, sy=py+ph*.2+(fy-py-ph*.2)*u*u; g.beginPath(); g.moveTo(sx,sy); g.lineTo(sx+w*.04,sy+h*.005); g.stroke(); }
+    g.fillStyle='rgba(235,245,255,.85)'; g.beginPath(); g.ellipse(fx-w*.005,fy,w*.05,h*.022,.4,0,7); g.fill(); }
   m33fall(tt,fx,fy,w,hz);
   g.save(); g.globalAlpha=.18; const rg=g.createLinearGradient(0,hz+H*.012,0,hz+H*.08); rg.addColorStop(0,'rgba(240,236,255,.9)'); rg.addColorStop(1,'rgba(240,236,255,0)'); g.fillStyle=rg; g.fillRect(fx-Math.max(1.4,w*.06),hz+H*.014,Math.max(2.8,w*.12),H*.066); g.restore(); } });

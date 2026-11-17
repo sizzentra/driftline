@@ -67,7 +67,7 @@ m33wrap('ember','land',function(x,P,hz){ const x0=W*.79, rock=mix(P.rock,'#2a242
 var THUMB_CLEAR=false;
 const _wx3k_th = wx3k; wx3k = function(){ return THUMB_CLEAR?'Clear':_wx3k_th(); };
 v3Thumb = function(id){ if(V3THUMB[id]) return V3THUMB[id]; const L=LOCS.find(l=>l.id===id); if(!L||!V3SCENES[id]||!(W>40&&H>40)) return null;
-  const oWXA=WXA; try{ THUMB_CLEAR=true; WXA=0; v3palette.k=null; const hz=HZ(), t=42, p=.3, gloom=id==='deep'?.1:0;
+  const oWXA=WXA; try{ THUMB_CLEAR=true; WXA=0; v3palette.k=null; const hz=HZ(), t=(function(){ let tt=42; if(typeof sfEvent==="function") while(sfEvent(tt).into<=SF_DUR+1) tt+=1.7; return tt; })(), p=.3, /* a calm moment between events */ gloom=id==='deep'?.1:0;
     g.save(); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
     v3Scene(L,t,p,0,0,gloom,hz,{k:'Clear'}); v3Platform(L,t,0,H*.6,0); v3Fore(L,t,0); g.restore();
     const tw=840, th=Math.round(840*H/W), c=document.createElement('canvas'); c.width=tw; c.height=th; c.getContext('2d').drawImage(cv,0,0,cv.width,cv.height,0,0,tw,th);
@@ -75,3 +75,11 @@ v3Thumb = function(id){ if(V3THUMB[id]) return V3THUMB[id]; const L=LOCS.find(l=
   catch(e){ V3THUMB[id]=null; console.warn('thumb '+id,e); }
   finally{ THUMB_CLEAR=false; WXA=oWXA; v3palette.k=null; }
   return V3THUMB[id]; };
+// Waters pictures are rendered in the background, one per idle moment after the game loads, so opening the Waters
+// tab never freezes; any still missing when the tab opens fade in as they finish.
+const THUMB_Q={busy:false};
+function thumbIdle(fn){ (window.requestIdleCallback||((f)=>setTimeout(()=>f({timeRemaining:()=>16}),120)))(fn,{timeout:1500}); }
+function thumbNext(){ const id=LOCS.map(l=>l.id).find(id=>V3SCENES[id]&&!V3THUMB[id]); if(!id){ THUMB_Q.busy=false; return; } THUMB_Q.busy=true;
+  thumbIdle(()=>{ if(G.st!=='idle'&&G.st!=='waiting'){ setTimeout(thumbNext,1500); return; } v3Thumb(id); const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
+setTimeout(thumbNext,3000);
+v3WaterThumbs = function(P){ P.querySelectorAll('.loc .sw2').forEach((el,i)=>{ const L=LOCS[i]; if(!L) return; const u=V3THUMB[L.id]; if(u){ el.style.background='url('+u+') center/cover'; el.classList.add('v3th'); } }); if(!THUMB_Q.busy) thumbNext(); };
