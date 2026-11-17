@@ -7,7 +7,7 @@
 const DEC036={probe:{}, spr:{}, n:0};
 const _drawDecor_036=drawDecor;
 function decProbe(id){ let p=DEC036.probe[id]; if(p) return p;
-  const W=320, H=360, ox=160, oy=320, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d');
+  const W=320, H=360, ox=160, oy=320, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d',{willReadFrequently:true});
   const shot=t=>{ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H); try{ _drawDecor_036(x,id,ox,oy,1,t); }catch(e){} return x.getImageData(0,0,W,H).data; };
   const a=shot(1.13), b=shot(2.71); let diff=0, minx=W, maxx=-1, miny=H, maxy=-1, fx0=W, fx1=-1;
   for(let yy=0;yy<H;yy+=2) for(let xx=0;xx<W;xx+=2){ const i=(yy*W+xx)*4, al=a[i+3]; if(al>10){ if(xx<minx)minx=xx; if(xx>maxx)maxx=xx; if(yy<miny)miny=yy; if(yy>maxy)maxy=yy; if(yy>oy-22&&yy<oy+6){ if(xx<fx0)fx0=xx; if(xx>fx1)fx1=xx; } }

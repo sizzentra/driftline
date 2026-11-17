@@ -7,7 +7,7 @@
 const DOCK_H={mug:7,books:9,tacklebox:10,plants:22,gnome:17,lantern:20,bunting:64,blanket:6,umbrella:76,chair:42,windchime:60,birdhouse:60,catbed:12,lights:64,radio:11,campfire:22,telescope:46,tideflag:80,shipwheel:46,minilight:58};
 const DOCK_NAT={};
 function dockNative(id){ if(DOCK_NAT[id]) return DOCK_NAT[id]; let v={h:40};
-  try{ const o=document.createElement('canvas'); o.width=420; o.height=420; const x=o.getContext('2d'); drawDockItem(x,id,210,320,1,0,0); const d=x.getImageData(0,0,420,420).data; let top=420,bot=0,lf=420,rt=0;
+  try{ const o=document.createElement('canvas'); o.width=420; o.height=420; const x=o.getContext('2d',{willReadFrequently:true}); drawDockItem(x,id,210,320,1,0,0); const d=x.getImageData(0,0,420,420).data; let top=420,bot=0,lf=420,rt=0;
     for(let y=0;y<420;y++) for(let X=0;X<420;X+=2) if(d[(y*420+X)*4+3]>24){ if(y<top) top=y; if(y>bot) bot=y; if(X<lf) lf=X; if(X>rt) rt=X; }
     if(bot>top) v={h:bot-top,w:Math.max(4,rt-lf)}; }catch(e){}
   return DOCK_NAT[id]=v; }

@@ -51,7 +51,10 @@ function dockSync(){ if(!S||!S.dock) return; if(!S.docks||typeof S.docks!=='obje
   S.dockAt=here; DOCK_PV=null; }
 function dockStore(){ try{ dockSync(); if(S.dockAt) S.docks[S.dockAt]=dockCopy(S.dock); }catch(e){} }
 { const _save04=save; save=function(){ dockStore(); return _save04.apply(this,arguments); }; }
-{ const _mig04=migrate; migrate=function(o){ const st=_mig04(o); try{ if(!st.docks||typeof st.docks!=='object'||Array.isArray(st.docks)) st.docks={};
+function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){} }
+function perksClean(st){ const keep=S; try{ S=st; if(ptsFree()<0) st.perks={}; }catch(e){} finally{ S=keep; } } // more ranks than points (a damaged save): refund them
+rodsClean(S); perksClean(S);
+{ const _mig04=migrate; migrate=function(o){ const st=_mig04(o); rodsClean(st); perksClean(st); try{ if(!st.docks||typeof st.docks!=='object'||Array.isArray(st.docks)) st.docks={};
     for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else st.docks[k]=dockCopy(st.docks[k]); }
     if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} return st; }; }
 let dockCopyAsk=null;
@@ -160,7 +163,7 @@ const DW={
     return dwBox('prog',{icon:'⭐', title:'Level '+S.lvl, state:ups||pts?'ready':'', sum:Math.floor(S.xp/need*100)+'%', body:
       `${dwBar(S.xp/need,'linear-gradient(90deg,#7fe3c4,#5fb4ff)')}<div class="dwrow"><span class="meta">${fmt(Math.floor(S.xp))} / ${fmt(need)} XP to level ${S.lvl+1}</span></div>
        ${ups||pts?`<div class="dwacts">${ups?`<button class="btn sm" data-tabgo="shop">${ups} upgrade${ups===1?'':'s'} you can afford</button>`:''}${pts?`<button class="btn sm" data-tabgo="skills">${pts} skill point${pts===1?'':'s'}</button>`:''}</div>`:''}`}); },
-  gear(){ const r=rod(), bt=BAIT[S.baitSel]||BAIT.worm, bs=Object.keys(BK).map(k=>[k,rodBonus(k)]).filter(([,v])=>v>0).slice(0,3).map(([k,v])=>fmtB(k,v));
+  gear(){ const r=rod(), bt=BAIT[S.baitSel]||BAIT.worm, bs=Object.keys(BK).map(k=>[k,rodBonus(k)]).filter(([,v])=>v>0).map(([k,v])=>fmtB(k,v)).concat(Object.entries(r.st).filter(([k])=>!BK[k]).map(([k,v])=>statTxt(k,v))).slice(0,3);
     return dwBox('gear',{icon:'🎣', title:'Equipment', sum:esc(r.name), body:
       `<div class="dwrow"><span class="meta"><b>${esc(r.name)}</b>${bs.length?' · '+bs.join(', '):''}</span></div><div class="dwrow"><span class="meta">Bait: <b>${esc(bt.name)}</b>${S.baitSel==='worm'?' (free)':' · '+S.bait[S.baitSel]+' left'}</span></div>
        <div class="dwacts"><button class="btn alt sm" data-act="dbait">Change bait</button><button class="btn alt sm" data-tabgo="rods">Rods</button></div>`}); }
@@ -217,7 +220,7 @@ body.pc-wide:not(.menu-open) #tabs.secmode .secb .secfull{display:none}body.pc-w
 #menuov[hidden]{display:none}
 #menuov.mo-show{animation:moFade .18s ease-out}
 @keyframes moFade{from{opacity:0}to{opacity:1}}
-#menuov .mo-in{width:100%;max-width:1280px;height:100%;box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto minmax(0,1fr);grid-template-areas:"back secs tools" "sub sub sub" "body body body";column-gap:14px;row-gap:6px;padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+#menuov .mo-in{width:100%;max-width:none;height:100%;box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-rows:auto auto minmax(0,1fr);grid-template-areas:"back secs tools" "sub sub sub" "body body body";column-gap:14px;row-gap:6px;padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
 #menuov .mo-top,#menuov .mo-nav,body #menuov #tabs.secmode{display:contents!important}
 #menuov .mo-back{grid-area:back;align-self:center;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 16px 0 12px;border-radius:14px;border:1px solid #7fe3c455;background:linear-gradient(180deg,#173a4a,#10283a);color:#dff8ee;font:800 14px var(--display,system-ui);cursor:pointer;box-shadow:0 4px 14px #02060f66;transition:border-color .15s,box-shadow .15s,transform .12s}
 #menuov .mo-back:hover{border-color:#7fe3c4;box-shadow:0 4px 14px #02060f66,0 0 16px #7fe3c433;transform:translateY(-1px)}
@@ -314,3 +317,13 @@ body.phone-app #panel .dwb{padding:0 10px 9px;gap:6px}
 (function(){ const b=$('sidetog'); if(!b) return; const lab=()=>{ const off=document.body.classList.contains('side-off'), t=off?'Show the dashboard':'Bigger water: hide the dashboard'; b.title=t; b.setAttribute('aria-label',t); };
   b.addEventListener('click',()=>setTimeout(lab,0)); lab();
   SEARCH_IDX.forEach((e,i)=>{ if(e[0]==='Hide menus') SEARCH_IDX[i]=['Bigger water: hide the dashboard','settings',null,'hide menus dashboard collapse full water bigger screen']; }); })();
+// the Dock page measures each decoration's drawing the first time it opens (about 90 ms); do it in idle moments after load instead
+(function(){ const ids=Object.keys(typeof DOCK_H==='object'?DOCK_H:{}); let i=0; const idle=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>8}),200));
+  const step=dl=>{ while(i<ids.length&&dl.timeRemaining()>4){ try{ dockNative(ids[i]); }catch(e){} i++; } if(i<ids.length) idle(step,{timeout:3000}); };
+  setTimeout(()=>idle(step,{timeout:3000}),4000); })();
+// a save that could not be read was kept aside at load: say so once
+if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
+// save codes and the account copy carry the current dock exactly as it is right now
+{ const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
+// phones held sideways: the top bar's seven chips share the width by what they hold, so the water name always fits
+document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){.hud{grid-template-columns:minmax(0,.9fr) minmax(0,.85fr) minmax(0,1.65fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,.95fr)!important}}</style>`);

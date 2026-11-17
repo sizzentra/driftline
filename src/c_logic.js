@@ -17,7 +17,26 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   muted:true, tab:'cooler', savedAt:0});
 let S = fresh();
 const uniq = a => [...new Set(a)];
-function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; const m=Object.assign(d,o);
+// 0.4: a damaged save never crashes loading. Anything with the wrong type (text where a number belongs, a list that is
+// not a list...) falls back to its default, numbers stay finite and never negative, and lists only hold real entries.
+const isObj = v => !!v && typeof v==='object' && !Array.isArray(v);
+function saveClean(o,d){ const out={}; for(const k of Object.keys(o)){ const v=o[k], dv=d?d[k]:undefined;
+    if(dv===undefined||dv===null){ out[k]=v; continue; }
+    if(typeof dv==='number'){ const n=typeof v==='string'&&v.trim()!==''?+v:v; if(typeof n==='number'&&isFinite(n)) out[k]=n; continue; }
+    if(typeof dv==='string'||typeof dv==='boolean'){ if(typeof v===typeof dv) out[k]=v; continue; }
+    if(Array.isArray(dv)){ if(Array.isArray(v)) out[k]=v.filter(x=>x!==null&&x!==undefined); continue; }
+    if(isObj(dv)){ if(isObj(v)) out[k]=saveClean(v,dv); continue; }
+    out[k]=v; }
+  return out; }
+function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
+  for(const k of ['cooler','tank','bounties']) if(o[k]) o[k]=o[k].filter(isObj);
+  if(o.journal!==undefined&&!isObj(o.journal)) delete o.journal; else if(o.journal) for(const k in o.journal) if(!isObj(o.journal[k])) delete o.journal[k];
+  for(const k of ['money','scales','tickets','pearls','xp','tankBank','freeSpins','tides']) if(typeof o[k]==='number') o[k]=Math.max(0,o[k]);
+  if(typeof o.lvl==='number') o.lvl=Math.max(1,Math.floor(o.lvl));
+  if(o.rods){ if(o.rods.owned) o.rods.owned=o.rods.owned.filter(x=>typeof x==='string'); /* unknown rods are dropped later, once the rod list exists (bm_ui04) */ if(typeof o.rods.eq!=='string') delete o.rods.eq; }
+  if(o.pass){ for(const k of ['xp','lvl','claimed']) if(typeof o.pass[k]==='number') o.pass[k]=Math.max(0,Math.floor(o.pass[k])); if(o.pass.claimed>o.pass.lvl) o.pass.claimed=o.pass.lvl||0; }
+  if(o.bait&&isObj(o.bait)) for(const k in o.bait){ const n=+o.bait[k]; o.bait[k]=isFinite(n)&&n>0?Math.floor(n):0; }
+  const m=Object.assign(d,o);
   m.gear=Object.assign(fresh().gear,o.gear||{}); for(const k in GEAR) m.gear[k]=clamp(m.gear[k]|0,0,GEAR[k].lv.length-1);
   m.bait=Object.assign(baitZero(),o.bait||{}); if(!BAIT[m.baitSel]) m.baitSel='worm';
   m.stats=Object.assign(fresh().stats,o.stats||{}); m.perks=Object.assign({},o.perks||{}); for(const k in m.perks){ if(!PERKS[k]) delete m.perks[k]; else m.perks[k]=Math.min(m.perks[k],PERKS[k].max); }
@@ -41,7 +60,7 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   if((o.pearlV||1)<2){ m.pearls=Math.ceil((+o.pearls||0)*.4); m.pearlV=2; }
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
-try { const raw = localStorage.getItem(LS_KEY); if (raw) S = migrate(JSON.parse(raw)); } catch(e) {}
+try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw)); } catch(e) { try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){} } } } catch(e) {} // 0.4: a save that cannot be read is kept aside, never overwritten
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
 function save(){ S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){}
