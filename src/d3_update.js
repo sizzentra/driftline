@@ -60,6 +60,8 @@ const PATCHES = [
   'Backpacks and everything worn on the back have straps that run from the pack over your shoulder: the backpack, tackle pack, plush and seashell packs, scuba tank, jetpack, rod quiver, guitar, shark fin, turtle shell, creel, net, lantern and banner poles.',
   'Necklaces show on your chest instead of hiding behind your arm: the gold chain, pearls, shells, medal, whistle, fish on a string, flower lei, feather boa, bow tie and tie.',
   'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
+  'Phone held sideways: the Aquarium shows your whole tank right under your earnings, and Collapse panel works on every menu page to give pages the full width.',
+  'The “new version” bar now shows on top of the menus too, so you always know when an update is ready.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
