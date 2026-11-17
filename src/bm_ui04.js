@@ -1009,3 +1009,30 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.dl-fish .hud > .st-log{display:none!important}
 }
 </style>`);
+// sideways phones: the menu rail shows each name next to its icon (it matches the rail on the water)
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
+  #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
+  #menuov .mo-back::after{content:"Fishing"!important;font-size:12px!important}
+  #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
+  #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
+  body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
+  body #menuov #tabs.secmode .secb .secl{display:inline!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
+  body #menuov #tabs.secmode .secb .seci svg{width:17px;height:17px}
+  body #menuov #tabs.secmode .secb .secdot{top:50%!important;right:5px!important;transform:translateY(-50%)!important}
+  body #menuov #tabs.secmode .secb .seclive{top:4px!important;left:4px!important}
+}
+</style>`);
+
+// =====================================================================
+// No Overview page (director, 2026-11-17): the Menu button, M and keys open the page you used last; the categories
+// carry their own counts. 'dash' stays only as the internal "menu closed / fishing" state.
+// =====================================================================
+function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
+{ const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
+openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
+{ const h=MO.querySelector('.mo-home'); if(h) h.remove(); }
+MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M): opens the page you used last';
+document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:none!important}</style>');

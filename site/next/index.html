@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0943';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0950';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2780,8 +2780,8 @@ const PATCHES = [
   '## A new way around',
   'The game now has two full-screen modes. Fishing fills the whole screen with the water, on PC, tablets and phones held either way. The Menu button on the water (or the M key) opens the full-screen menu, and Back to fishing returns you to the water.',
   'The menus are grouped into five categories: Fishing, Upgrades, Collections, Challenges and Customization. Events sit under Challenges, and the Challenges button shows LIVE whenever an event or challenge is running.',
-  'The menu opens on the Overview, a page of live cards for the everyday jobs: sell your catch, claim bounties, collect and feed your aquarium, follow live events and challenges, check your hunts, see upgrades you can afford and change bait. Tap a card’s title to fold it away. Anything else waiting for you shows as a button at the top, and the Menu button shows how many things are waiting.',
-  'In the menu, switch categories straight away from the tabs at the top (or the bar at the bottom on phones), and the Overview button takes you back to the cards. Back to fishing, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
+  'The Menu button opens the page you used last, and each category shows how many things are waiting in it, so nothing slips by. The Menu button shows the total.',
+  'In the menu, switch categories straight away from the category bar, and the page tabs above each page. Back to fishing, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
   'Your line waits while a menu is open: a cast, a bite or a fight pauses and carries on when you come back, never lost.',
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   'On a phone held sideways, the menu’s categories run down the left side, so every page gets the whole height of the screen. Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
@@ -13672,6 +13672,33 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.dl-fish .hud > .st-log{display:none!important}
 }
 </style>`);
+// sideways phones: the menu rail shows each name next to its icon (it matches the rail on the water)
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
+  #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
+  #menuov .mo-back::after{content:"Fishing"!important;font-size:12px!important}
+  #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
+  #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
+  body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
+  body #menuov #tabs.secmode .secb .secl{display:inline!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
+  body #menuov #tabs.secmode .secb .seci svg{width:17px;height:17px}
+  body #menuov #tabs.secmode .secb .secdot{top:50%!important;right:5px!important;transform:translateY(-50%)!important}
+  body #menuov #tabs.secmode .secb .seclive{top:4px!important;left:4px!important}
+}
+</style>`);
+
+// =====================================================================
+// No Overview page (director, 2026-11-17): the Menu button, M and keys open the page you used last; the categories
+// carry their own counts. 'dash' stays only as the internal "menu closed / fishing" state.
+// =====================================================================
+function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
+{ const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
+openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
+{ const h=MO.querySelector('.mo-home'); if(h) h.remove(); }
+MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M): opens the page you used last';
+document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:none!important}</style>');
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
 // window.__qa(groups?) runs real game code in the real page and returns [{sys, name, ok, detail}].
@@ -13782,8 +13809,7 @@ ui(){ QA.sys='UI';
       for(const t of pages){ setTab(t); const P=$('panel'); const seen=new Set(); const visit=()=>P.querySelectorAll('[data-act]').forEach(b=>{ const f=ACT_OK[b.dataset.act]; if(!f) return; const key=b.dataset.act+'|'+b.dataset.k+'|'+b.dataset.i; if(seen.has(key)) return; seen.add(key); n++; let ok=false; try{ ok=f(b.dataset.k, b.dataset.i!=null&&b.dataset.i!==''?+b.dataset.i:NaN); }catch(e){} if(!ok) bad.push(t+': '+key); });
         visit(); [...P.querySelectorAll('[data-act]')].filter(b=>sub.includes(b.dataset.act)).map(b=>[b.dataset.act,b.dataset.k]).forEach(([a,k])=>{ try{ act(a,{k}); visit(); }catch(e){} }); [...P.querySelectorAll('[data-sect]')].map(b=>b.dataset.sect).forEach(s=>{ const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===s); try{ b&&b.click(); visit(); }catch(e){} }); }
       setTab(DASH); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:n+' real buttons checked'}; });
-  T('dashboard: every card state renders (empty, full cooler, empty tank, no bounties, live challenge)',()=>{ const errs=[]; const states=[()=>{ S.cooler=[]; S.tank=[]; S.tankBank=0; }, ()=>{ while(S.cooler.length<gv('cooler')) S.cooler.push(coolerEntry(rollFish(SP[0],{}))); }, ()=>{ S.bounties=[]; }, ()=>{ S.chal=null; S.chalCd={}; chalStart(Object.keys(CHAL)[0]); }];
-      for(const f of states){ try{ f(); openMenu(DASH); const ids=__ui.dash(); if(!ids.includes('cooler')) errs.push('no cooler card'); }catch(e){ errs.push(e.message); } } S.chal=null; closeMenu(); return errs.length?{ok:false,detail:errs.join(' | ')}:true; });
+  T('menu: no Overview; the Menu button opens the last page used and closing returns to fishing',()=>{ const errs=[]; openMenu('rods'); closeMenu(); openMenu(); if(S.tab!=='rods') errs.push('opened '+S.tab); if($('panel').querySelector('.dash')) errs.push('overview rendered'); if(document.querySelector('#menuov .mo-home')) errs.push('overview button'); closeMenu(); if(MENU_OPEN||S.tab!==DASH) errs.push('did not close'); return errs.length?{ok:false,detail:errs.join('; ')}:{ok:true,detail:'Menu opens the last page; no Overview'}; });
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
 },
 fuzz(){ QA.sys='Adversarial';
