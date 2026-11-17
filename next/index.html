@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1845';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1909';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -68,7 +68,7 @@ button,select{font:inherit;color:inherit}
 /* 2.0 polish */
 html,body{background:radial-gradient(1200px 600px at 50% -10%,#14303c 0%,#0a161d 60%) fixed,#0a161d}
 .tile{background:linear-gradient(180deg,#132a34,#0f222b);box-shadow:0 1px 0 #ffffff08 inset,0 6px 18px #0004;transition:border-color .15s,transform .15s}
-.tile:hover{border-color:#2f5866}
+.tile:has(button:not(:disabled),[data-act],a,select,input):hover{border-color:#2f5866}
 .btn{box-shadow:0 2px 0 #0003,0 4px 12px #ff6a3d22;transition:transform .12s,filter .12s}
 .btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
 .btn:active:not(:disabled){transform:translateY(1px)}
@@ -403,7 +403,7 @@ body.v3 .tile, body.v3 .fishrow, body.v3 .spec, body.v3 .jcard, body.v3 .passcel
   background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--lit), 0 6px 18px #02060f66 }
 body.v3 .tile{ position:relative; overflow:hidden }
 body.v3 .tile::before{ content:""; position:absolute; left:14px; right:14px; top:0; height:1px; background:linear-gradient(90deg,transparent,#ffffff22,transparent); pointer-events:none }
-body.v3 .tile:hover, body.v3 .jcard:hover, body.v3 .spec:hover:not(:disabled){ border-color:#5a7ea8aa; transform:translateY(-1px); box-shadow:var(--lit), 0 10px 26px #02060f88 }
+body.v3 .tile:has(button:not(:disabled),[data-act],a,select,input):hover, body.v3 .jcard:hover, body.v3 .spec:hover:not(:disabled){ border-color:#5a7ea8aa; transform:translateY(-1px); box-shadow:var(--lit), 0 10px 26px #02060f88 }
 body.v3 .tile.done{ border-color:#ffd36a66; box-shadow:var(--lit), 0 0 0 1px #ffd36a22, 0 6px 18px #02060f66, 0 0 26px #ffd36a14 }
 body.v3 .tile h4{ color:#fff }
 body.v3 .spec.on, body.v3 .jcard.sel{ border-color:var(--gold); box-shadow:var(--lit), 0 0 0 1px #ffd36a44, 0 0 24px #ffd36a22 }
@@ -2532,7 +2532,7 @@ const PATCHES = [
   'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
   'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
   'Drag your pets along the dock in Home too; they stay where you put them on the water.',
-  'Your dock stands in the water instead of towering over it, and the Home picture now matches the dock you fish from.',
+  'Your dock stands in the water on five posts instead of towering over it, and the Home picture matches the dock you fish from.',
   'The tank stays in view while you decorate, so every water, floor and decoration shows as you pick it.',
   '## Changes to rewards and progress',
   'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
@@ -2555,7 +2555,10 @@ const PATCHES = [
   'Buying, equipping or switching something updates the menu in place, without a flash or jump.',
   'On PC the info bar above the water fits on one line.',
   'Mountains look smoother, and the Waters pictures are sharper.',
-  'Tide Pass levels never show the same reward twice.',
+  'Tide Pass levels never show the same reward twice. When you already own everything a level could give, it gives Scales or tickets instead, never the same as the level beside it.',
+  'New Events tab: the fishing derby lives there now, with every medal’s rewards spelled out.',
+  'The Wardrobe tabs have icons, and pets fill the Customize stage whatever their size.',
+  'Boxes only light up under your mouse when there is something in them to click.',
   '## Fixes',
   'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
   'The streak message now shows the streak you actually lost (it used to always say 0).',
@@ -2799,7 +2802,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -2937,6 +2940,13 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }
   return undefined; }
+// the Customize stage fits each pet: measured once (drawn small offscreen), then scaled to fill the stage
+const PET_FIT={};
+function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;
+  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; const keepN=PET_NIGHT; PET_NIGHT=0; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'})); PET_NIGHT=keepN;
+    const d=x.getImageData(0,0,o.width,o.height).data; let x0=1e9,y0=1e9,x1=-1,y1=-1; for(let yy=0;yy<o.height;yy++) for(let xx=0;xx<o.width;xx++){ if(d[(yy*o.width+xx)*4+3]>30){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; } }
+    if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){}
+  return PET_FIT[id]=s; }
 
 // =====================================================================
 // Update 1.5 looks: outfits, glasses, beards, hairstyles, new hats,
@@ -3561,6 +3571,8 @@ function homePetX(wh,w){ const pos=S.dock[wh==='2'?'pet2Pos':'petPos']; if(pos!=
 function homePetsDraw(x,w,y,t){ if(S.pet2&&PETI[S.pet2]) drawPetStyled(x,S.pet2,homePetX('2',w),y,2.6*.9*(petBig(S.pet2)?.85:1),t); if(S.pet) drawPetStyled(x,S.pet,homePetX('1',w),y,2.6*(petBig(S.pet)?.85:1),t); }
 // the same spots on the water (the dock there runs from W*.008 to W*.178)
 function scenePetX(pos){ return W*.008+pos*(W*.17); }
+// five evenly spaced support posts under every dock (the water scene and Home always match)
+function dockPosts5(x0,x1,pw){ const a=x0+(x1-x0)*.04, b=x1-(x1-x0)*.04-pw; return [0,1,2,3,4].map(i=>a+i*(b-a)/4); }
 
 // =====================================================================
 // Update 2.1 "More of Everything": more rods, attachments, decor, dock
@@ -4006,8 +4018,8 @@ function drawLilyGear(c,lk,t){
   if(lk.acc==='glasses'){ c.fillStyle='#14100e'; c.beginPath(); c.ellipse(-2,-1.15,1.55,1.15,0,0,7); c.ellipse(2,-1.15,1.55,1.15,0,0,7); c.fill(); c.strokeStyle='#14100e'; c.lineWidth=.45; c.beginPath(); c.moveTo(-.5,-1.4); c.quadraticCurveTo(0,-1.8,.5,-1.4); c.moveTo(-3.5,-1.3); c.lineTo(-4.6,-1.8); c.moveTo(3.5,-1.3); c.lineTo(4.6,-1.8); c.stroke(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-2.5,-1.6,.5,.28,-.4,0,7); c.ellipse(1.5,-1.6,.5,.28,-.4,0,7); c.fill(); }
   if(lk.acc==='bow'){ c.save(); c.translate(-3.7,-3.7); c.rotate(-.35); c.fillStyle=col; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-2.2,-1.6,-2.1,.1); c.quadraticCurveTo(-2,1.5,0,0); c.moveTo(0,0); c.quadraticCurveTo(2.2,-1.6,2.1,.1); c.quadraticCurveTo(2,1.5,0,0); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(0,0,.55,0,7); c.fill(); c.restore(); }
   if(lk.acc==='flower'){ const fx=3.7, fy=-3.8; c.fillStyle='#ff9ad0'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(fx+Math.cos(i*1.257)*.75,fy+Math.sin(i*1.257)*.75,.62,.42,i*1.257,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,.42,0,7); c.fill(); }
-  if(lk.hat && lk.hat!=="none"){ c.save(); c.translate(0,-.4); c.scale(.75,.75); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?"#888888":(lk.hatCol||"#c8553a"),t); c.restore(); }
-  if(lk.acc==="partyhat"){ c.save(); c.translate(.6,-.6); c.rotate(.22); c.scale(.66,.66); drawHat(c,"party",col,t); c.restore(); }
+  if(lk.hat && lk.hat!=="none"){ c.save(); c.translate(0,-.4-(HAT_TOPPER.has(lk.hat)?0:(LILY.hatLift==null?1.3:LILY.hatLift))); c.scale(.75,.75); HAT_TRIM_OFF=true; drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?"#888888":(lk.hatCol||"#c8553a"),t); HAT_TRIM_OFF=false; c.restore(); }
+  if(lk.acc==="partyhat"){ c.save(); c.translate(.6,-.6-(LILY.hatLift==null?1.3:LILY.hatLift)); c.rotate(.22); c.scale(.66,.66); drawHat(c,"party",col,t); c.restore(); }
   c.restore(); c.restore();
 }
 
@@ -4053,7 +4065,7 @@ if(/[?&]test\b/.test(location.search)){
 // =====================================================================
 const PAIR={seenPet:null, pets:0, playT:-9999, yipT:-9999, lastSt:'', force:null, dax:{}, niko:{}};
 const DXC={BK:'#151316', BK2:'#252226', HI:'#3d3944', WH:'#efebe5', GR:'#a8a29a', GR2:'#7a756f', TN:'#6b4a38', RIM:'#5a3a26', IRIS:'#3a2010', NOSE:'#09080a', PK:'#f08a98'};
-const NKC={CR:'#e6c48c', CR2:'#cfa266', CR3:'#f2d9aa', WH:'#f7f1e7', WH2:'#e2d8c8', EAR:'#eca8a2', EAR2:'#d88c86', RIM:'#6a4228', IRIS:'#4a2a14', NOSE:'#7d4a42', PK:'#f08a98'};
+const NKC={CR:'#e9d4ab', CR2:'#d6b483', CR3:'#f3e5c8', WH:'#f8f4ec', WH2:'#e6dfd2', EAR:'#efbcb2', EAR2:'#dc9f96', RIM:'#5e3c26', IRIS:'#3e2412', NOSE:'#93605a', PK:'#f08a98'}; // pale cream, golden-tan only on the back and crown (from his photo)
 function pairEyes(c,h,o,P,lookX){ const {ci,ln}=h;
   if(o.eyes==='happy'){ c.strokeStyle='#120c0a'; c.lineWidth=.55; for(const s of [-1,1]){ c.beginPath(); c.arc(s*2,-.9,.95,Math.PI*1.1,Math.PI*1.9); c.stroke(); } return; }
   if(o.eyes==='closed'||o.blink){ ln([-2.9,-1,-1.1,-.85],'#120c0a',.5); ln([1.1,-.85,2.9,-1],'#120c0a',.5); return; }
@@ -4129,49 +4141,60 @@ function drawPair(c,t,h){ const {el,ln}=h;
   let boop=!sleep&&!busy()&&(t%23)>15&&(t%23)<17.2, paw=!sleep&&!busy()&&!boop&&(t%19)>8&&(t%19)<9.6, tilt=!boop&&!paw&&(t%7)>5.2&&(t%7)<6.6, twitch=(t%9)>7.6&&(t%9)<8.1;
   let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){} let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
   if(PAIR.force){ const f=PAIR.force; petted=f==='petted'; play=f==='play'; yip=f==='yip'; watching=f==='watch'; sleep=f==='sleep'; boop=f==='boop'; paw=f==='paw'; tilt=f==='tilt'; twitch=f==='twitch'; shiver=f==='shiver'; if(play) PAIR.playT=now-700; if(yip) PAIR.yipT=now-300; }
-  const lk=PAIR.lk||{}, cape=lk.acc==='cape'?(lk.accCol||'#d8303a'):null, blink=h.blink;
+  // each dog has its own look (colour, hat, accessory); the colour is applied per dog, never to hearts, bubbles or z's
+  const dLk=(PAIR.lk&&PAIR.lk!==S.petLook.daxniko_niko)?PAIR.lk:_petLook_pair('daxniko'), nLk=Object.assign({},pairNikoLook(),(dLk.__pv&&PAIR.nikoPv)||{}), blink=h.blink; PAIR.nLk=nLk;
+  const capeOf=l=>l.acc==='cape'?(l.accCol||'#d8303a'):null, dCape=capeOf(dLk), nCape=capeOf(nLk);
+  const tint=(l,fn)=>{ c.save(); c.filter=tintFilter(l,t); fn(); c.restore(); }; c.filter='none';
   if(sleep){ // curled up together: Niko's cream loaf behind, Dax tucked in front of him
     const br=Math.sin(t*1.6)*.3;
-    el(9.6,-3.4,6.4,3.6+br,NKC.CR); el(4.6,-3.2,3.2,2.8,NKC.CR); el(11.8,-1.2,2.4,.8,NKC.WH); ln([15.6,-2.2,16.8,-.6,14.6,.2],NKC.CR2,.9);
-    if(cape){ c.fillStyle=cape; c.beginPath(); c.ellipse(9.6,-5.4-br*.4,5.2,1.6,0,0,7); c.fill(); }
+    tint(nLk,()=>{ el(9.6,-3.4,6.4,3.6+br,NKC.CR); el(4.6,-3.2,3.2,2.8,NKC.CR); el(11.8,-1.2,2.4,.8,NKC.WH); ln([15.6,-2.2,16.8,-.6,14.6,.2],NKC.CR2,.9); });
+    if(nCape){ c.fillStyle=nCape; c.beginPath(); c.ellipse(9.6,-5.4-br*.4,5.2,1.6,0,0,7); c.fill(); }
     PAIR.niko.head=pairFrame(4.4,-6.2,-.1,.78); PAIR.niko.neck=pairFrame(4.4,-2,-.04,.78);
-    c.save(); c.translate(4.4,-6.2); c.rotate(-.1); c.scale(.78,.78); nikoFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
-    el(-2,-2.7,5.4,2.9+br*.8,DXC.BK); el(-6.4,-2.5,2.6,2.4,DXC.BK); ln([2.6,-.8,5.4,-.4,7.4,-1.2],DXC.BK,.8); ln([-4,-5,-1,-5.6],DXC.HI,.3); ln([.4,-5.4,2.4,-5],DXC.HI,.28);
-    if(cape){ c.fillStyle=mix(cape,'#000000',.1); c.beginPath(); c.ellipse(-2,-4.6-br*.3,4.4,1.4,0,0,7); c.fill(); }
-    el(-8.6,-.7,2.2,.75,DXC.BK2);
+    tint(nLk,()=>{ c.translate(4.4,-6.2); c.rotate(-.1); c.scale(.78,.78); nikoFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); });
+    tint(dLk,()=>{ el(-2,-2.7,5.4,2.9+br*.8,DXC.BK); el(-6.4,-2.5,2.6,2.4,DXC.BK); ln([2.6,-.8,5.4,-.4,7.4,-1.2],DXC.BK,.8); ln([-4,-5,-1,-5.6],DXC.HI,.3); ln([.4,-5.4,2.4,-5],DXC.HI,.28); });
+    if(dCape){ c.fillStyle=dCape; c.beginPath(); c.ellipse(-2,-4.6-br*.3,4.4,1.4,0,0,7); c.fill(); }
+    tint(dLk,()=>{ el(-8.6,-.7,2.2,.75,DXC.BK2); });
     PAIR.dax.head=pairFrame(-6.6,-4.6,.12,.7); PAIR.dax.neck=pairFrame(-6.6,-.8,.05,.7);
-    c.save(); c.translate(-6.6,-4.6); c.rotate(.12); c.scale(.7,.7); daxFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
+    tint(dLk,()=>{ c.translate(-6.6,-4.6); c.rotate(.12); c.scale(.7,.7); daxFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); });
     c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',8+ph*5,-11-ph*9); } c.restore();
     return; }
   if(play){ // a play bow together: chests down, rumps up, tails going, little paw prints
-    const k=(now-PAIR.playT)/2400, b=Math.abs(Math.sin(k*Math.PI*6))*1.4;
+    const k=(now-PAIR.playT)/2400, b=Math.abs(Math.sin(k*Math.PI*6))*1.4, nb=-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4;
     c.save(); for(let i=0;i<6;i++){ c.globalAlpha=.28; c.fillStyle='#e8d8c8'; c.beginPath(); c.ellipse(-8+i*3.4,.7,.9,.45,0,0,7); c.fill(); } c.restore();
-    c.save(); c.translate(0,-b); el(DAX_X-1.6,-6.6,3,3,DXC.BK); ln([DAX_X-3.4,-8,DAX_X-6.4,-11+Math.sin(t*24)*1.6],DXC.BK,.9); el(DAX_X+.6,-3.4,3.8,2.6,DXC.BK); el(DAX_X+1.4,-.6,3,.8,DXC.BK2); el(DAX_X+.9,-3.6,.8,1.6,DXC.WH);
+    c.save(); c.translate(0,-b);
+    tint(dLk,()=>{ el(DAX_X-1.6,-6.6,3,3,DXC.BK); ln([DAX_X-3.4,-8,DAX_X-6.4,-11+Math.sin(t*24)*1.6],DXC.BK,.9); el(DAX_X+.6,-3.4,3.8,2.6,DXC.BK); el(DAX_X+1.4,-.6,3,.8,DXC.BK2); el(DAX_X+.9,-3.6,.8,1.6,DXC.WH); });
+    if(dCape){ c.fillStyle=dCape; c.beginPath(); c.ellipse(DAX_X-1,-6.8,3.6,1.5,-.35,0,7); c.fill(); }
+    tint(dLk,()=>{ c.translate(DAX_X+.9,-6.4); c.rotate(.3); c.scale(.8,.8); daxFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:1}); }); c.restore();
     PAIR.dax.head=pairFrame(DAX_X+.9,-6.4-b,.3,.8); PAIR.dax.neck=pairFrame(DAX_X+.9,-2.4-b,.1,.8);
-    c.save(); c.translate(DAX_X+.9,-6.4); c.rotate(.3); c.scale(.8,.8); daxFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:1}); c.restore(); c.restore();
-    c.save(); c.translate(0,-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4); el(NIKO_X+1.8,-7.2,3.2,3.2,NKC.CR); ln([NIKO_X+3.8,-8.6,NIKO_X+7,-11.6+Math.sin(t*24+1)*1.6],NKC.CR2,1); el(NIKO_X-.6,-3.6,4,2.7,NKC.CR); el(NIKO_X-1.4,-.6,3.2,.8,NKC.WH); el(NIKO_X-.8,-3.6,2.2,1.8,NKC.WH);
-    const nb=-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4; PAIR.niko.head=pairFrame(NIKO_X-.6,-7+nb,-.3,.86); PAIR.niko.neck=pairFrame(NIKO_X-.6,-2.6+nb,-.1,.86);
-    c.save(); c.translate(NIKO_X-.6,-7); c.rotate(-.3); c.scale(.86,.86); nikoFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:-1}); c.restore(); c.restore();
+    c.save(); c.translate(0,nb);
+    tint(nLk,()=>{ el(NIKO_X+1.8,-7.2,3.2,3.2,NKC.CR); ln([NIKO_X+3.8,-8.6,NIKO_X+7,-11.6+Math.sin(t*24+1)*1.6],NKC.CR2,1); el(NIKO_X-.6,-3.6,4,2.7,NKC.CR); el(NIKO_X-1.4,-.6,3.2,.8,NKC.WH); el(NIKO_X-.8,-3.6,2.2,1.8,NKC.WH); });
+    if(nCape){ c.fillStyle=nCape; c.beginPath(); c.ellipse(NIKO_X+1.2,-7.4,3.8,1.6,.35,0,7); c.fill(); }
+    tint(nLk,()=>{ c.translate(NIKO_X-.6,-7); c.rotate(-.3); c.scale(.86,.86); nikoFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:-1}); }); c.restore();
+    PAIR.niko.head=pairFrame(NIKO_X-.6,-7+nb,-.3,.86); PAIR.niko.neck=pairFrame(NIKO_X-.6,-2.6+nb,-.1,.86);
     c.save(); c.globalAlpha=Math.max(0,1-k)*.9; c.fillStyle='#ff8ab8'; const hy=-17-k*6; c.beginPath(); c.moveTo(1,hy+1.6); c.bezierCurveTo(-1.6,hy,-.8,hy-1.8,1,hy-.6); c.bezierCurveTo(2.8,hy-1.8,3.6,hy,1,hy+1.6); c.fill(); c.restore();
     return; }
   // sitting side by side, facing you, like in their photo
-  if(cape){ pairCape(c,DAX_X,-12,3.6,cape,t); pairCape(c,NIKO_X,-14,4,cape,t); }
+  if(dCape) pairCape(c,DAX_X,-12,3.6,dCape,t); if(nCape) pairCape(c,NIKO_X,-14,4,nCape,t);
   const wag=petted||yip||watching||boop?22:8, jit=shiver?Math.sin(t*60)*.28:0, yk=(now-PAIR.yipT)/1600;
   const look=watching?1:0;
   const dHop=yip?Math.max(0,Math.sin(yk*Math.PI*3))*2.2:petted?Math.max(0,Math.sin(now/120))*.7:0;
   const nHop=petted?Math.max(0,Math.sin(now/120+1))*.7:0;
-  daxSit(c,h,DAX_X,{t,wag,jit,hop:dHop,paw,hx:boop?1.6:0,hy:boop?.6:0,rot:boop?.32:tilt?-.42:petted?.14:-.1+Math.sin(t*1.3)*.05,
-    face:{eyes:petted?'happy':'open',mouth:(petted||watching||paw||yip)?'tongue':'smile',ears:petted?'back':(watching||yip||tilt)?'perk':'out',blink,t,look}});
-  nikoSit(c,h,NIKO_X,{t,wag,jit:jit*.8,hop:nHop,hx:boop?-1.2:0,hy:boop?.5:0,rot:boop?-.26:petted?-.12:.06+Math.sin(t*1.1+1)*.05,
-    face:{eyes:petted?'happy':'open',mouth:yip?'yip':(petted||watching)?'tongue':'smile',ears:petted?'back':(watching||yip)?'perk':'up',twitch,blink,t,look}});
+  tint(dLk,()=>daxSit(c,h,DAX_X,{t,wag,jit,hop:dHop,paw,hx:boop?1.6:0,hy:boop?.6:0,rot:boop?.32:tilt?-.42:petted?.14:-.1+Math.sin(t*1.3)*.05,
+    face:{eyes:petted?'happy':'open',mouth:(petted||watching||paw||yip)?'tongue':'smile',ears:petted?'back':(watching||yip||tilt)?'perk':'out',blink,t,look}}));
+  tint(nLk,()=>nikoSit(c,h,NIKO_X,{t,wag,jit:jit*.8,hop:nHop,hx:boop?-1.2:0,hy:boop?.5:0,rot:boop?-.26:petted?-.12:.06+Math.sin(t*1.1+1)*.05,
+    face:{eyes:petted?'happy':'open',mouth:yip?'yip':(petted||watching)?'tongue':'smile',ears:petted?'back':(watching||yip)?'perk':'up',twitch,blink,t,look}}));
   if(boop){ const k=PAIR.force?.45:((t%23)-15)/2.2; c.save(); c.globalAlpha=Math.sin(Math.min(1,k)*Math.PI)*.95; c.fillStyle='#ff8ab8'; const hy=-21-k*4, hx=1.2; c.beginPath(); c.moveTo(hx,hy+1.4); c.bezierCurveTo(hx-1.5,hy,hx-.8,hy-1.6,hx,hy-.5); c.bezierCurveTo(hx+.8,hy-1.6,hx+1.5,hy,hx,hy+1.4); c.fill(); c.restore(); }
   if(yip){ c.save(); c.globalAlpha=Math.min(1,(1-yk)*3); c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.ellipse(13,-27,6.4,3.8,0,0,7); c.fill(); c.beginPath(); c.moveTo(10.4,-24.4); c.lineTo(9,-21); c.lineTo(12.6,-24); c.fill();
     c.fillStyle='#1b1513'; c.font='bold 4.4px system-ui'; c.textAlign='center'; c.fillText('Yip!',13,-25.6); c.restore(); } }
-// their gear: the same hat and accessory on both (matching!), each in its own head and neck frame;
-// the star balloon is tied to Niko only, so there is never a tangle
-function drawPairGear(c,lk,t){ const keep=[LILY.head,LILY.neck];
-  for(const d of [PAIR.dax,PAIR.niko]){ if(!d.head||!d.neck) continue; LILY.head=d.head; LILY.neck=d.neck; drawLilyGear(c,(lk.acc==='balloon'&&d!==PAIR.niko)?Object.assign({},lk,{acc:'none'}):lk,t); }
-  LILY.head=keep[0]; LILY.neck=keep[1]; }
+// their gear: each dog wears its own hat and accessory in its own head and neck frame, in every pose.
+// Dax's head frame is mirrored so a cap's visor points away from Niko (rotation mirrored back so it still
+// tilts with his head); hats sit a little higher on both so their eyes always show.
+function drawPairGear(c,lk,t){ if(!lk||lk===S.petLook.daxniko_niko) lk=_petLook_pair('daxniko'); const keep=[LILY.head,LILY.neck,LILY.hatLift], nLk=PAIR.nLk||pairNikoLook(); LILY.hatLift=1.3;
+  for(const d of [PAIR.dax,PAIR.niko]){ if(!d.head||!d.neck) continue; const dax=d===PAIR.dax;
+    const L2=dax?lk:nLk, noFlip=L2.hat==='sixsevencap'; // hats with writing are never mirrored
+    LILY.head=(dax&&!noFlip)?Object.assign({},d.head,{flip:true,rot:-d.head.rot}):d.head; LILY.neck=dax?d.neck:Object.assign({},d.neck,{flip:true,rot:-d.neck.rot}); // Niko's balloon floats to his right, Dax's to his left
+    drawLilyGear(c,L2,t); }
+  LILY.head=keep[0]; LILY.neck=keep[1]; LILY.hatLift=keep[2]; }
 // ---------- gift ----------
 const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko have joined you!', items:[
   'Dax and Niko are here, drawn from a photo of the real pair: Dax with his black scruffy coat, folded ear tips, greying muzzle and little white chest blaze, and Niko with his cream coat, big pink-lined ears, white blaze and white paws.',
@@ -4182,7 +4205,7 @@ const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko h
   'Dax gives you his paw now and then. When you land a fish, Niko yips and Dax hops.',
   'They perk up and watch the water while you fish. On cold water they shiver a little (they are Chihuahuas, after all).',
   'At night they curl up and nap together.',
-  'Dress them up in the Pets tab: colours, accessories and hats. They always match.' ]};
+  'Dress them up in the Pets tab: pick Dax or Niko and give each their own colour, accessory and hat (or match them).' ]};
 const _redeemGift_pair = redeemGift;
 redeemGift = function(code){ const k=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(k && btoa(k)==='WkFDU1BVUFM='){
@@ -4196,10 +4219,29 @@ if(/[?&]test\b/.test(location.search)){
     const accs=opts.accs||['none','bandana','bow','bowtie','scarf','bell','flower','glasses','cape','balloon','partyhat'];
     const cw=opts.cell||150, ch=Math.round(cw*.8), sc=cw/42; const rows=opts.hats||accs; const o=document.createElement('canvas'); o.width=cw*poses.length; o.height=ch*rows.length; const x=o.getContext('2d'); const t=performance.now()/1000;
     rows.forEach((a,r)=>poses.forEach((p,cI)=>{ PAIR.force=p; const lk=Object.assign({},petLook('daxniko'),opts.hats?{acc:'none',hat:a,hatCol:'#3f7a6a'}:{acc:a,accCol:'#d8303a',hat:opts.hat||'none',hatCol:'#3f7a6a'});
-      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch); drawPetStyled(x,'daxniko',cI*cw+cw*.46,r*ch+ch*.88,sc,t,0,lk); x.restore();
+      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch); const nk0=S.petLook.daxniko_niko; S.petLook.daxniko_niko=Object.assign({},lk,opts.niko||{}); drawPetStyled(x,'daxniko',cI*cw+cw*.46,r*ch+ch*.88,sc,t,0,lk); S.petLook.daxniko_niko=nk0; x.restore();
       x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(p+' / '+a,cI*cw+4,r*ch+12); }));
     PAIR.force=null; window.__post(opts.save||'pair',o.toDataURL()); return rows.length*poses.length; };
 }
+// ---------- separate looks: Dax uses the pet's own look (S.petLook.daxniko, which also holds their shared name),
+// Niko has his own (S.petLook.daxniko_niko). In Customize a Dax / Niko switch picks who you are dressing.
+let PAIR_EDIT='dax', PAIR_UI=false;
+function pairNikoLook(){ const d=_petLook_pair('daxniko'); const n=(S.petLook.daxniko_niko=S.petLook.daxniko_niko||{tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}); n.name=d.name; return n; }
+const _petLook_pair = petLook;
+petLook = function(id=editPet()){ if(id==='daxniko' && PAIR_UI && PAIR_EDIT==='niko') return pairNikoLook(); return _petLook_pair(id); };
+// try-on previews go to the dog you are dressing
+const _petPreviewLook_pair = petPreviewLook;
+petPreviewLook = function(id=editPet()){ if(id!=='daxniko') return _petPreviewLook_pair(id); const base=Object.assign({},_petLook_pair('daxniko'),{__pv:true}); PAIR.nikoPv=null;
+  if(PET_PV){ if(PAIR_EDIT==='niko') PAIR.nikoPv={[PET_PV.kind]:PET_PV.id}; else base[PET_PV.kind]=PET_PV.id; } return base; };
+// clicks and redraws in the Pets menu edit the chosen dog; everything else (the dock, Home) reads Dax's look for the pet
+const pairUIOn = () => S.tab==='pets' && editPet()==='daxniko';
+$('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-pairdog]'); if(b){ PAIR_EDIT=b.dataset.pairdog; renderPanel(); return; } if(pairUIOn()){ PAIR_UI=true; setTimeout(()=>{ PAIR_UI=false; },0); } },true);
+document.addEventListener('click',()=>{ PAIR_UI=false; });
+const _renderPanel_pair = renderPanel;
+renderPanel = function(){ const on=pairUIOn(), was=PAIR_UI; if(on) PAIR_UI=true; try{ _renderPanel_pair(); if(on) pairSwitchInject(); } finally { PAIR_UI=was; } };
+function pairSwitchInject(){ const wrap=document.querySelector('#panel .petwrap'); if(!wrap||wrap.querySelector('.pairdog')) return; const first=[...wrap.querySelectorAll('h5')].find(h=>/Colour|Color/.test(h.textContent)); if(!first) return;
+  first.insertAdjacentHTML('beforebegin',`<div class="pairdog"><h5>Dressing</h5><div class="chips"><button class="chipb" data-pairdog="dax" aria-pressed="${PAIR_EDIT==='dax'}">Dax</button><button class="chipb" data-pairdog="niko" aria-pressed="${PAIR_EDIT==='niko'}">Niko</button></div></div>`); }
+// a fresh exclusive starts both dogs plain
 
 // =====================================================================
 // Driftline 0.3 scene renderer, style B2 "Glow Diorama".
@@ -4407,8 +4449,8 @@ function v3dock(P,t,night,dockY){
     const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,190,110,'+(.32*lit)+')'); pg.addColorStop(1,'rgba(255,190,110,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
   // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
   const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
-  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:[0,1,2].map(i=>W*.02+i*W*.075),pw,wl:dockY+H*.075,wc:P.wMid});
-  if(st==='plank'||st==='boardwalk'||st==='driftwood'){ const px=W*.02+2*W*.075; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
+  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:dockPosts5(-2,PW,pw),pw,wl:dockY+H*.075,wc:P.wMid});
+  if(st==='plank'||st==='boardwalk'||st==='driftwood'){ const px=dockPosts5(-2,PW,pw)[4]; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
   // bucket (the old grey box), now a little tin pail with a handle
   { const bx=W*.155, s=H*.024; g.fillStyle=N('#8f93a8'); g.beginPath(); g.moveTo(bx,dockY-th); g.lineTo(bx+s*.12,dockY-th-s); g.lineTo(bx+s*.88,dockY-th-s); g.lineTo(bx+s,dockY-th); g.closePath(); g.fill();
     g.fillStyle=N('#c4c8da'); g.fillRect(bx+s*.1,dockY-th-s,s*.8,1.4); g.strokeStyle=N('#c4c8da'); g.lineWidth=1; g.beginPath(); g.arc(bx+s*.5,dockY-th-s,s*.42,Math.PI,0); g.stroke(); }
@@ -5487,7 +5529,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
   // the dock in the new style: top boards with seams, a beam with nails, mossy posts, a lit edge
   const wd=dockWood(), N=cl=>mix(cl,'#0a1020',P.night*.5), u=2.6, th=5.04*u, fh=7.56*u, x0=w*.03, x1=w*.95; // the same proportions as the dock on the water, at Home's zoom (the angler is drawn at 2.6)
-  const posts=[]; for(let X=x0+16.8*u; X<x1-9.24*u; X+=63*u) posts.push(X);
+  const posts=dockPosts5(x0,x1,9.24*u);
   drawDockStyle(x,{x0,x1,y:dy,th,fh,bottom:h,wd,N,rim:P.rim,t,posts,pw:9.24*u,wl:dy+31.5*u,wc:P.wMid});
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
@@ -6212,6 +6254,10 @@ drawFace = function(c,lk,D,hair){ const b=lk.beard||'none'; if(!['stubble','must
 // Hat units: origin near the eye line, the head is a dome around (0,-0.6); short hair reaches about
 // r=8.2, a bald head about r=6.4. Bases sit at r~6.8 so they rest on every hairstyle and on a bald head.
 // =====================================================================
+// front-facing pets (Lily, Dax & Niko) never get the side-view brim trim
+let HAT_TRIM_OFF=false;
+// toppers sit on top of the head and never reach the eyes, so they are not raised on front-facing pets
+const HAT_TOPPER=new Set(["fishhat","duckonhead","bunnyears","tiara","catears","mohawk","flower","crown","halo","antlers","party","clawplush","pumpkin","knight","astro","diver","fishbowl"]);
 (function(){
   const CX=0, CY=0.7, P=(r,a)=>[CX+Math.cos(a)*r, CY+Math.sin(a)*r];
   const arcBand=(c,r0,r1,a0,a1,fill)=>{ c.fillStyle=fill; c.beginPath(); c.arc(CX,CY,r1,a0,a1); c.arc(CX,CY,r0,a1,a0,true); c.closePath(); c.fill(); };
@@ -6252,9 +6298,17 @@ drawFace = function(c,lk,D,hair){ const b=lk.beard||'none'; if(!['stubble','must
   const _drawHat_fit = drawHat;
   // brims that would reach down over the eye curve up at the front instead (the hat stays on the head)
   const TRIM={pirate:-1.5,sombrero:-1.5,mushroom:-1.4,bucket:-1.5};
-  const _drawHat_trim = function(c,id,col,t){ const ty=TRIM[id]; if(ty===undefined) return false; c.save(); c.beginPath(); c.rect(-40,-60,80,80);
+  const _drawHat_trim = function(c,id,col,t){ const ty=TRIM[id]; if(ty===undefined||HAT_TRIM_OFF) return false; c.save(); c.beginPath(); c.rect(-40,-60,80,80);
     c.moveTo(1.4,20); c.lineTo(1.4,ty+.6); c.quadraticCurveTo(1.6,ty,3.2,ty-.15); c.quadraticCurveTo(8,ty-.5,30,ty-1.6); c.lineTo(30,20); c.closePath(); c.clip('evenodd'); _drawHat_fit(c,id,col,t); c.restore(); return true; };
-  drawHat = function(c,id,col,t=0){ if(_drawHat_trim(c,id,col,t)) return; const seat={fishhat:3.2,duckonhead:2.8}[id]; if(seat){ c.save(); c.translate(0,seat); _drawHat_fit(c,id,col,t); c.restore(); return; } const f=FIT[id]; if(f){ c.save(); c.lineCap='round'; c.lineJoin='round'; f(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); };
+  // front-facing pets (Lily, Dax & Niko): ear pieces sit on both sides of the head; the side-view versions and seat offsets above are for the angler only
+  const FRONT={
+    ushanka(c,col,t){ const dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.3); for(const s of [-1,1]){ c.fillStyle=dk; c.beginPath(); if(c.roundRect) c.roundRect(s*7.4-1.9,-4,3.8,9.4,1.8); else c.rect(s*7.4-1.9,-4,3.8,9.4); c.fill(); c.strokeStyle=lt; c.lineWidth=.35; for(let i=0;i<3;i++){ c.beginPath(); c.moveTo(s*7.4-1.2+i*1.2,-3.2); c.lineTo(s*7.4-1.2+i*1.2,4.6); c.stroke(); } }
+      c.fillStyle=col; c.beginPath(); c.arc(0,-1.6,8.8,Math.PI,0); c.closePath(); c.fill(); c.fillStyle=lt; c.beginPath(); if(c.roundRect) c.roundRect(-9.6,-3.4,19.2,3.4,1.6); else c.rect(-9.6,-3.4,19.2,3.4); c.fill(); c.strokeStyle=dk; c.lineWidth=.3; for(let x=-8.6;x<9;x+=1.4){ c.beginPath(); c.moveTo(x,-3.2); c.lineTo(x,-.3); c.stroke(); } },
+    aviator(c,col,t){ c.fillStyle='#6a4220'; for(const s of [-1,1]){ c.beginPath(); if(c.roundRect) c.roundRect(s*7-1.7,-2.6,3.4,7.2,1.4); else c.rect(s*7-1.7,-2.6,3.4,7.2); c.fill(); }
+      c.fillStyle='#8a5a2a'; c.beginPath(); c.arc(0,-1.5,8.3,Math.PI,0); c.closePath(); c.fill(); c.fillStyle='rgba(255,255,255,.15)'; c.beginPath(); c.ellipse(-2.6,-7,3,1.4,-.3,0,7); c.fill();
+      for(const x of [-2.4,2.4]){ c.fillStyle='#9ad0e8'; c.beginPath(); c.ellipse(x,-6,2.2,1.7,0,0,7); c.fill(); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.stroke(); } c.strokeStyle='#3a3a3a'; c.lineWidth=.5; c.beginPath(); c.moveTo(-.2,-6); c.lineTo(.2,-6); c.stroke(); },
+  };
+  drawHat = function(c,id,col,t=0){ if(HAT_TRIM_OFF){ const fr=FRONT[id]; if(fr){ c.save(); c.lineCap='round'; fr(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); } if(_drawHat_trim(c,id,col,t)) return; const seat={fishhat:3.2,duckonhead:2.8}[id]; if(seat){ c.save(); c.translate(0,seat); _drawHat_fit(c,id,col,t); c.restore(); return; } const f=FIT[id]; if(f){ c.save(); c.lineCap='round'; c.lineJoin='round'; f(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); };
   // these rest on the hair, so the hair under them is never trimmed flat
   for(const id of ['fishhat','duckonhead','mohawk']) A3_HAT_OPEN.add(id);
 })();
@@ -7468,7 +7522,7 @@ function wChips(k,list,cur,label){ return `<div class="chips">${list.map(([v,n])
 function wSw(k,list,cur){ return `<div class="chips">${list.map(([v,cl,n])=>`<button class="sw" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}" style="background:${cl}" title="${esc(n||cl)}"></button>`).join('')}</div>`; }
 function wThumbGrid(k,kind,items,cur){ return `<div class="wd-thumbs">${items.map(([id,n])=>`<button class="wd-th" data-act="look" data-k="${k}" data-v="${id}" aria-pressed="${cur===id}"><canvas width="96" height="96" data-wthumb="${kind}:${id}"></canvas><span>${esc(n)}</span></button>`).join('')}</div>`; }
 renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
-  const secs=[['body','Body'],['clothes','Clothes'],['hats','Hats'],['glasses','Glasses'],['shoes','Shoes'],['neckback','Neck & back'],['shop','Shop']];
+  const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['shop','Shop','🛍️']];
   let body='';
   if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
     <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
@@ -7489,7 +7543,7 @@ renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].
       <p class="sub">${wShop==='featured'?`A changing selection of things you don’t own yet. New stock in <b id="shopleft">${mmss(Math.ceil(SHOP_LEN-(Date.now()/1000%SHOP_LEN)))}</b>.`:`Every ${W_CATS.find(c=>c[0]===wShop)[1].toLowerCase()} the shop sells, cheapest first. Try anything on before you buy.`}</p>
       <div class="wd-items">${list.length?list.map((it,i)=>wItemCard(it,wShop==='featured'&&it.feat)).join(''):'<div class="empty">You own everything here. Nice.</div>'}</div>`; }
   P.innerHTML=`<h2>Wardrobe</h2><div class="stylewrap wd"><div class="preview wd-prev">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div class="wd-main">
-    <div class="bwx-nav wd-nav" role="tablist">${secs.map(([k,n])=>`<button role="tab" data-act="wsec" data-k="${k}" aria-selected="${wSec===k}">${n}</button>`).join('')}</div>${body}</div></div>`;
+    <div class="bwx-nav wd-nav" role="tablist">${secs.map(([k,n,ic])=>`<button role="tab" data-act="wsec" data-k="${k}" aria-selected="${wSec===k}"><span class="wi" aria-hidden="true">${ic}</span><span class="wl">${n}</span></button>`).join('')}</div>${body}</div></div>`;
   drawLookPreview();
   P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
   P.querySelectorAll('canvas[data-wthumb]').forEach(c=>{ const [kind,id]=c.dataset.wthumb.split(':'); if(id==='none'){ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); cx.fillStyle='rgba(200,220,240,.4)'; cx.font='700 '+Math.round(c.height*.3)+'px system-ui'; cx.textAlign='center'; cx.fillText('—',c.width/2,c.height*.6); return; } wThumb(c.getContext('2d'),kind,id,c.width,c.height); }); };
@@ -7509,7 +7563,7 @@ extraAct2 = function(b){ const a=b.dataset.act, k=b.dataset.k||'';
 document.head.insertAdjacentHTML('beforeend',`<style>
 .stylewrap.wd{grid-template-columns:minmax(220px,300px) 1fr;align-items:start}
 .wd-prev{position:sticky;top:8px}
-.wd-nav{flex-wrap:wrap} .wd-nav button{min-width:84px}
+.wd-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.wd-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:8px 2px 7px;font-size:11.5px;line-height:1.15;transition:background .15s,color .15s}.wd-nav button:hover:not([aria-selected="true"]){background:#ffffff0d;color:var(--ink)}.wd-nav .wi{font-size:18px;line-height:1;filter:saturate(.85)}.wd-nav button[aria-selected="true"] .wi{filter:none}.wd-nav .wl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}@container (max-width:520px){.wd-nav{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .wd-cats .chipb .meta{font-size:11px;opacity:.8}
 .wd-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .wd-item{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:14px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:inset 0 1px 0 #ffffff10}
@@ -8083,14 +8137,17 @@ function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats
 function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
   ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
 // upcoming levels pick in order and never promise the same item twice (so no repeats, back to back or otherwise)
+// when you already own everything a clothing or decoration level could give, it falls back to Scales or tickets
+// (never the same as the level next to it)
+const PASS_FB_SCALES={k:'scales', name:'50 Scales', d:'Scales level up rods.'}, PASS_FB_TIX={k:'tickets', name:'300 tickets', d:'Tickets buy Boardwalk prizes.'};
 function passPickItem(L,pool){ if(!pool.length) return null; const decor=pool[0].kind==='dock'||pool[0].kind==='aq', used=new Set(); let pick=null;
   for(let l=(S.pass.claimed||0)+1; l<=L; l++){ if(PASS_SPECIAL[l]) continue; const slot=(passPlainIndex(l)-1)%5; if(decor?slot!==3:!(slot===0||slot===2)) continue;
     let i=hashStr('tide'+l)%pool.length, n=0; while(used.has(pool[i].kind+pool[i].id)&&n<pool.length){ i=(i+1)%pool.length; n++; } pick=pool[i]; used.add(pick.kind+pick.id); }
   return pick; }
 function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
-passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
-  if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'}; }
-  if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'}; }
+passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Claimed before 0.3.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
+  if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'};  return slot===0?PASS_FB_SCALES:PASS_FB_TIX; }
+  if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'};  return PASS_FB_SCALES; }
   if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'};
   return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
 const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
@@ -8101,6 +8158,7 @@ const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('
   if(p.k==='wear'){ const it=p.it, o=S.owned; ({hat:o.hats,gls:o.glasses,out:o.outfits,pat:o.pats,shoe:o.shoes,neck:o.necks,back:o.backs})[it.kind].push(it.id); return it.name; }
   if(p.k==='decor'){ (p.it.kind==='dock'?S.dock.owned:S.aq.owned).push(p.it.id); return p.it.name; }
   if(p.k==='big'){ S.tokens.big++; return p.name; }
+  if(p.k==='scales'){ S.scales+=50; return p.name; } if(p.k==='tickets'){ S.tickets+=300; return p.name; }
   S.scales+=25; S.tickets+=150; return p.name; };
 grantPass = function(L){ const r=grantPass_(L); S.pass.got=S.pass.got||{}; S.pass.got[L]=r; return r; };
 const _passArt_0 = passArt;
@@ -8420,6 +8478,18 @@ document.head.insertAdjacentHTML('beforeend',`<style>li.pn-h{list-style:none;mar
 #evin ul{max-height:58vh;overflow:auto;padding-right:6px}</style>`);
 
 // =====================================================================
+// 0.3 Events: a tab for timed events (the fishing derby lives here now, and future events will too).
+// =====================================================================
+function renderEvents(P){ const base=bestLoot(), row=(icon,m,label)=>`<div class="row spread ev-rw"><span>${icon} <b>${label}</b></span><span class="meta">${m?`<span class="coin">${fmt(Math.round(base*25*m*coinMult()))}</span> · ${Math.round(30*m)} Scales · ${Math.round(150*m)} tickets · ${Math.round(300*m)} Tide Pass XP`:'20 tickets for taking part'}</span></div>`;
+  P.innerHTML=`<h2>Events</h2><p class="sub">Timed events with their own rewards. Join one whenever you like.</p>${derbyHTML()}
+  <div class="tile"><h4>Derby rewards</h4><div class="meta" style="margin-bottom:6px">Four minutes, one water: the heaviest total catch wins. Rewards grow with the waters you have unlocked.</div>
+   ${row('🥇',1,'First place')}${row('🥈',.5,'Second place')}${row('🥉',.25,'Third place')}${row('🎣',0,'Fourth place')}</div>`; }
+const _renderPanel_ev = renderPanel;
+renderPanel = function(){ if(S.tab==='events'){ const P=$('panel'); if(P){ renderEvents(P); return; } } _renderPanel_ev(); };
+{ const anchor=document.querySelector('#tabs [data-tab="games"]'); if(anchor&&!document.querySelector('#tabs [data-tab="events"]')){ anchor.insertAdjacentHTML('beforebegin','<button role="tab" data-tab="events" aria-selected="false" data-label="🎏 Events"></button>'); const nb=document.querySelector('#tabs [data-tab="events"]'); nb.innerHTML=tabHTML(nb.dataset.label); } }
+document.head.insertAdjacentHTML('beforeend',`<style>.ev-rw{padding:6px 0;border-top:1px solid var(--line);gap:10px;flex-wrap:wrap}.ev-rw:first-of-type{border-top:0}</style>`);
+
+// =====================================================================
 // 0.3 smooth menus: a click that changes something redraws the menu in place. The fade-in only
 // plays when you open a different tab, and scroll position and open drop-downs are kept, so
 // buying, equipping or toggling never looks like a page reload.
@@ -8591,7 +8661,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   paintFish(P); paintDecor(P);
 }
 function renderBounties(P){ fillBounties();
-  P.innerHTML=derbyHTML()+dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. Every water has its own board, and its bounties wait there until you finish them. Fish still go in your cooler.</p>
+  P.innerHTML=dailyHTML()+`<h2>Bounties</h2><p class="sub">The harbourmaster pays extra for specific catches. Every water has its own board, and its bounties wait there until you finish them. Fish still go in your cooler.</p>
   <div class="chips" style="margin:6px 0 10px">${S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b)).map(L=>{ const n=S.bounties.filter(b=>b.loc===L&&bDone(b)).length; return `<button class="chipb" data-act="bloc" data-k="${L}" aria-pressed="${(bLoc||S.loc)===L}">${esc(LOCS[locIdx(L)].name)}${n?' · '+n+' ready':''}</button>`; }).join('')}</div><div class="grid">`+
   S.bounties.map((b,i)=>{ if(b.loc!==(S.unlocked.includes(bLoc)?bLoc:S.loc)) return ''; const bt=bountyText(b); if(bt){ const d=bDone(b), rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
       return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
