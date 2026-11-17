@@ -3,8 +3,9 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4';
+const GAME_VERSION = '0.4.1';
 const PATCHES = [
+{v:'0.4.1', name:'Catching Up', items:[  'Back after a while? The update notes now show everything that arrived while you were away, all in one place, newest first.',  'The 0.4 notes now start with the biggest additions: new fish, voyages, events and more.', ]},
  {v:'0.4', name:'Fifty Fathoms', items:[
   '## More to catch',
   'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
