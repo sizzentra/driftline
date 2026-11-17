@@ -68,6 +68,7 @@ const PATCHES = [
   'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
   'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
   'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
+'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',

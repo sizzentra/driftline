@@ -1284,6 +1284,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html,body{overscroll-behavior:none;touch-action:manipulation}
 /* every control answers a tap at once: no phone waits to see whether a double tap (zoom) follows */
 button,a,summary,label,select,input,[data-act],[data-tab],[role="button"],[role="tab"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* touch screens switch pages instantly: no entrance animation on every card (desktop keeps it) */@media not ((hover:hover) and (pointer:fine)){ body.v3 #panel.pin > *{animation:none!important} }
 body,body *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 body input,body textarea,body select,body [contenteditable="true"]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
 img,canvas,svg{-webkit-user-drag:none}
@@ -1297,3 +1298,16 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
   for(const v of P.querySelectorAll(':scope > .bwx-nav')){ if(v.contains(e.target)) return; const r=v.getBoundingClientRect(), pr=P.getBoundingClientRect();
     if(r.top-pr.top>12||r.height<8) continue; // only while the tabs sit at the top of the page
     if(e.clientY>=pr.top&&e.clientY<=r.bottom+10){ e.preventDefault(); e.stopPropagation(); return; } } },true);
+// Menu pictures that never change (fish in the Fish Log and aquarium lists, dock decorations) are drawn once and reused.
+// Redrawing dozens of them on every page switch made tapping between pages slow on phones.
+{ const KEEP=new Map(), keep=(k,w,h,paint)=>{ let o=KEEP.get(k); if(!o){ o=document.createElement('canvas'); o.width=w; o.height=h; paint(o); if(KEEP.size>800) KEEP.clear(); KEEP.set(k,o); } return o; };
+  paintFish=function(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>{ const sp=SPI[c.dataset.fish]; if(!sp) return; const known=c.dataset.known!=='0', sh=+c.dataset.sh||0, pv=c.dataset.pv||null;
+    const o=keep(['f',sp.id,known?1:0,sh,pv,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>fishCanvas(o,sp,known,sh,pv)); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
+  const _dt=dockThumb;
+  dockThumb=function(x,id,w,h,night){ const m=x.getTransform&&x.getTransform(); if(!m||m.a!==1||m.d!==1||m.b||m.c||m.e||m.f) return _dt.apply(this,arguments); // only plain, unscaled canvases are kept
+    x.drawImage(keep(['d',id,w,h,night||0].join('|'),w,h,o=>_dt(o.getContext('2d'),id,w,h,night)),0,0); };
+  paintDecor=function(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const id=c.dataset.decor, D=DECORI[id]; if(!D) return; const myst=c.dataset.own!=='1'&&!D.price;
+    const o=keep(['a',id,myst?1:0,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>{ const x=o.getContext('2d'); if(myst) mysteryThumb(x,o.width,o.height,id); else drawDecor(x,id,80,id==='duck'?70:112,1,0); }); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
+  // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
+  const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
+  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },3000); }
