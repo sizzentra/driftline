@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.17-0044';
+window.DL_VERSION='2026.11.17-0101';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1269,8 +1269,8 @@ const sfx = {
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
-  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const maxH=portrait?window.innerHeight*.56:shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
-  H=clamp(Math.round(W*(portrait?.82:fs?.56:shortLand?.62:.5)),shortLand?180:250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
+  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -2142,7 +2142,7 @@ function drawFightHUD(t){
   const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
 }
 function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
-  if(cnv.width!==Math.round(w*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); }
+  if(cnv.width!==Math.round(w*DPR)||cnv.height!==Math.round(h*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); } /* 0.3.5.1: also when only the height changes (turning the phone) */
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
   S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=Math.max(14,Math.min(h*.3,w*.22,(22+11*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.8,1.9))); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const M=tankMove(f,sp,i,t,w,h,L);
@@ -2193,8 +2193,8 @@ function drawTankBack(c,w,h,t){ if(V3ON && v3TankBack(c,w,h,t)) return; const V=
   c.fillStyle=sd[3]; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=20) c.lineTo(x,h-14-Math.sin(x*.04)*5); c.lineTo(w,h); c.fill();
   if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
-  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,tankK(w,h),t)); }
+function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,tankK(w,h),t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };
@@ -2502,8 +2502,18 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.5';
+const GAME_VERSION = '0.3.5.1';
 const PATCHES = [
+ {v:'0.3.5.1', name:'Made for Phones', items:[
+  'Phones held upright now show everything on one screen: the water stays in view, and only the page you have open scrolls, right above the section bar. No more scrolling the water away and back.',
+  'New full-screen button on the water (phones held upright): one tap and the water fills the screen, one more and the menus come back. It shares its setting with the sideways menu button.',
+  'Rest is now a proper button on the water, next to the full-screen button, and it glows while you rest.',
+  'The tips line sits on the water instead of taking up its own row, and the top bar is slimmer.',
+  'Event cards such as patch notes and treasure choices fit on one screen on phones.',
+  'The aquarium fits on phones again, held upright or sideways: a wide tank like on PC, with decorations sized to fit.',
+  'Fish rows in the Cooler and Aquarium no longer squeeze the fish’s name and details when the menu is narrow: the buttons sit on their own line underneath.',
+  'Menus feel snappier on phones: switching pages is instant and the section bar is lighter to draw, so taps respond faster.',
+ ]},
  {v:'0.3.5', name:'A Tidier Tackle Box', items:[
   '## Menus',
   'The menus are reorganised into five sections: Fishing, Gear, Collection, Home and Rewards. Pick a section, then a page. The game remembers which page you last had open in each one.',
@@ -5761,7 +5771,7 @@ function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme
     c.fillStyle=col; for(let k=2;k<8;k++){ const [px,py]=pts[k], sdx=k%2?1:-1, a=Math.sin(t*1.1+i+k)*.3; c.beginPath(); c.ellipse(px+sdx*h*.03,py,h*.035,h*.011,sdx*(.5+a),0,7); c.fill(); } }
   // bubbles rising from a little vent on the left
   for(let i=0;i<10;i++){ const k=((t*.25+i/10)%1), bx=w*.06+Math.sin(t*2+i*1.7)*w*.008, by=h*.9-k*h*.9, rr=1.5+(i%3)*1.2; c.strokeStyle='rgba(230,250,255,'+(.6*(1-k*.6))+')'; c.lineWidth=1; c.beginPath(); c.arc(bx,by,rr,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(bx-rr*.4,by-rr*.5,1,1); }
-  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,h/230,t)); tankDragSetup();
+  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,tankK(w,h),t)); tankDragSetup();
   return true; }
 // glass: a shimmering waterline at the top, a diagonal reflection, and darker corners
 function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0,0,w,2); c.strokeStyle='rgba(220,250,255,.25)'; c.lineWidth=1; c.beginPath(); for(let X=0;X<=w;X+=12) c.lineTo(X,5+Math.sin(X*.05+t*2)*1.5); c.stroke();
@@ -10503,10 +10513,10 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 #tabs.secmode .subp.on{border-color:var(--gold,#ffd36a);color:#fff3cf;background:linear-gradient(180deg,#2a3a56,#1c2a42);box-shadow:inset 0 1px 0 #ffffff14,0 0 0 1px #ffd36a33,0 0 16px #ffd36a26}
 #tabs.secmode .subp .subi{font-size:16px;line-height:1}
 #tabs.secmode .subp .subdot{position:static;margin-left:2px;min-width:18px;height:18px;font-size:11px;line-height:18px;padding:0 5px}
-#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}
+@media (hover:hover) and (pointer:fine){#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}}
 #tabs.secmode .subbar.subin .subp:nth-child(2){animation-delay:.03s}#tabs.secmode .subbar.subin .subp:nth-child(3){animation-delay:.06s}#tabs.secmode .subbar.subin .subp:nth-child(4){animation-delay:.09s}
 @keyframes subin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-#panel.pagein{animation:pagein .22s ease-out both}
+@media (hover:hover) and (pointer:fine){#panel.pagein{animation:pagein .22s ease-out both}} /* touch screens switch pages instantly */
 @keyframes pagein{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
 #settingsbtn.menu-on{border-color:var(--gold,#ffd36a)!important;color:#fff3cf;box-shadow:var(--lit,none),0 0 0 1px #ffd36a44,0 0 16px #ffd36a33!important}
 @media (prefers-reduced-motion:reduce){#tabs.secmode .subbar.subin .subp,#panel.pagein{animation:none}#tabs.secmode .secb,#tabs.secmode .secb:hover{transition:none;transform:none}}
@@ -10514,7 +10524,7 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 @media (max-width:860px){#tabs.secmode .secb{flex-direction:column;gap:2px;font-size:12px;min-height:54px;padding:5px 2px}#tabs.secmode .secdot{right:6px}}
 /* phones held upright: the section row docks along the bottom edge, below everything else */
 @media (max-width:700px) and (orientation:portrait){
-  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0b1626f0,#08111df8);border-top:1px solid var(--line,#26385180);box-shadow:0 -8px 24px #02060f99;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0c1828,#08111d);border-top:1px solid var(--line,#26385180);box-shadow:0 -6px 18px #02060f88;transform:translateZ(0)} /* solid, no blur: a blur over the moving water costs phones every frame */
   #tabs.secmode .secb{min-height:52px;border-radius:14px;background:transparent;border-color:transparent;box-shadow:none;font-size:11px}
   #tabs.secmode .secb.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6}
   #tabs.secmode .secdot{top:-3px;right:calc(50% - 26px)}
@@ -10553,7 +10563,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #card #cardbadges .badge{line-height:1.35}
 }
 /* every size: the stage buttons (Rest, menus) step aside while a catch card is open */
-.stage:has(#card:not([hidden])) #resttog{opacity:0;pointer-events:none}
+body.card-open #resttog{opacity:0;pointer-events:none}
 @media (max-width:560px), (orientation:landscape) and (max-height:560px){
 }
 </style>`);
@@ -10586,6 +10596,27 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){#towater{display:none!important}}
 @media (prefers-reduced-motion:reduce){#towater{transition:none}}
 </style>`);
+
+// ---------- the aquarium on phones: a wide tank like on PC, decorations sized to fit it ----------
+// (decorations used to scale with the tank's height only, so a tall, narrow phone tank crammed them together)
+function tankK(w,h){ return Math.min(h/230, w/520); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:46vh} }
+@media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:62vh} }
+</style>`);
+// fish rows (cooler, aquarium) in a narrow menu column (phones, the sideways menu): the buttons go on their own
+// line under the fish, so the name and details never get squeezed into one word per line
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:620px){
+  #panel .fishrow{grid-template-columns:48px minmax(0,1fr) auto;row-gap:6px}
+  #panel .fishrow canvas{width:48px;height:24px}
+  #panel .fishrow .acts{grid-column:1/-1;justify-content:flex-end;flex-wrap:wrap}
+  #panel .fishrow .val{text-align:right}
+}
+</style>`);
+// a cheap switch for "a catch card is open" (instead of a :has() style rule the browser keeps re-checking)
+{ const _sc=showCard; showCard=function(o){ _sc(o); document.body.classList.add('card-open'); };
+  const _hc=hideCard; hideCard=function(){ document.body.classList.remove('card-open'); return _hc.apply(this,arguments); }; }
 // =====================================================================
 // 0.3.5 Trophy Room (placeholder name): a permanent home for any fish you choose. Fish kept here earn nothing
 // and give no boosts, but they stay forever: a new voyage never touches them (S.vault is not part of the
@@ -10676,6 +10707,92 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:520px){.tp-in{padding:14px 12px 12px}.tp-title{font-size:28px}.tp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 10px}.tp-plaque{height:88px}.tp-plaque canvas{width:104px;height:52px}.tp-plate{min-width:0;width:100%;padding:3px 6px}.tp-plate b{font-size:14px}}
 @media (prefers-reduced-motion:reduce){.tp-star{animation:none}}
 </style>`);
+// =====================================================================
+// 0.3.5.2 phones held upright: one screen, no page scrolling. A compact top bar, the water, the page pills,
+// and the open page scrolling inside its own area just above the section bar. The water never scrolls away.
+// The game's tip line sits on the water as a small overlay instead of taking a row of its own.
+// Switched on by body.phone-app, decided by the same rule the water's size uses (c_logic resize()).
+// =====================================================================
+const PHONE_APP=()=>window.innerHeight>window.innerWidth*1.15 && window.innerWidth<=700;
+(function(){ const hint=$('hint'), stage=$('stage'), wrap=document.querySelector('.wrap'); if(!hint||!stage||!wrap) return;
+  const home=hint.parentElement, next=hint.nextElementSibling; let on=null;
+  function apply(){ const v=PHONE_APP(); if(v===on) return; on=v; document.body.classList.toggle('phone-app',v); document.documentElement.classList.toggle('phone-app',v);
+    // the tip line moves onto the water (and back when the phone is turned)
+    if(v){ if(hint.parentElement!==stage) stage.appendChild(hint); } else if(hint.parentElement!==home){ next&&next.parentElement===home?home.insertBefore(hint,next):home.appendChild(hint); }
+    try{ resize(); }catch(e){} }
+  addEventListener('resize',apply); addEventListener('orientationchange',()=>setTimeout(apply,60)); apply(); })();
+
+// a new page starts at its top (inside its own scroll area on phones); the same page re-drawing keeps its place
+{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), keep=P?P.scrollTop:0, same=S.tab===lastTab; const r=_rp.apply(this,arguments);
+    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){} lastTab=S.tab; return r; }; }
+
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app{height:100dvh;overflow:hidden;padding-top:8px!important;padding-bottom:0!important;overscroll-behavior:none}
+html.phone-app{overflow:hidden;height:100%}
+body.phone-app .wrap{height:calc(100dvh - 8px - 70px - env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;overflow:hidden}
+body.phone-app .wrap > *{flex:0 0 auto}
+body.phone-app #panel{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;scrollbar-width:thin;contain:layout paint}
+body.phone-app #tabs.secmode{padding:0!important;gap:0}
+body.phone-app #tabs.secmode .subbar{padding:2px 2px 2px}
+body.phone-app #tabs.secmode .subp{min-height:34px;padding:0 12px;font-size:12.5px}
+/* a compact top bar: two slim rows */
+body.phone-app .hud{gap:5px}
+body.phone-app .hud>*{height:36px}
+body.phone-app .hud .stat{padding:2px 8px}
+body.phone-app .hud .stat .lbl{font-size:8.5px;letter-spacing:.06em}
+body.phone-app .hud .stat b{font-size:13px}
+body.phone-app .hud .ghost{font-size:12px}
+/* the tip line, on the water */
+body.phone-app #stage > #hint{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:3;margin:0;max-width:calc(100% - 28px);min-width:110px;width:max-content;padding:4px 10px;border-radius:12px;background:#0a1220b8;border:1px solid #ffffff1a;color:#dbe7f3;font-size:11px;line-height:1.3;text-align:center;pointer-events:none;display:block}
+body.phone-app #stage > #hint:empty{display:none}
+body.phone-app.card-open #stage > #hint{opacity:0}
+/* the water is always in view here, so the jump button is not needed */
+body.phone-app #towater{display:none!important}
+</style>`);
+
+// ---------- full-screen water on phones held upright: the same toggle and saved setting as phones held sideways ----------
+// One tap and the water fills the screen (menus hidden, the top bar stays); one more tap and the menus come back.
+function stageHOverride(W,H){ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
+  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); }
+// re-measure the water whenever the toggle flips (the sideways code already does this; upright needs it too)
+{ const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },40)); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app .sidetog{display:flex!important;position:absolute;right:10px;top:auto;bottom:10px;transform:none;width:40px;height:40px;border-radius:12px;align-items:center;justify-content:center;background:#0a1220c4;border:1px solid #ffffff2e;color:#fff;font-size:0;z-index:4;box-shadow:0 4px 12px #0008}
+body.phone-app .sidetog::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:var(--fsic) center/contain no-repeat;mask:var(--fsic) center/contain no-repeat}
+body.phone-app .sidetog[aria-expanded="true"]{--fsic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'/%3E%3C/svg%3E")}
+body.phone-app .sidetog[aria-expanded="false"]{--fsic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5'/%3E%3C/svg%3E")}
+body.phone-app.card-open .sidetog{opacity:0;pointer-events:none}
+/* full-screen water (upright): menus and the section bar step away, the water takes the space */
+body.phone-app.side-off #panel,body.phone-app.side-off #tabs.secmode{display:none!important}
+body.phone-app.side-off .wrap{height:calc(100dvh - 8px - env(safe-area-inset-bottom))}
+body.phone-app.side-off #stage > #hint{bottom:62px}
+</style>`);
+// Rest, built into the phone controls: a proper button mirroring the full-screen one (bottom-left / bottom-right)
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #resttog,body.phone-land #resttog{left:10px;bottom:10px;height:40px;min-width:40px;padding:0 13px 0 11px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;font:800 13px var(--display,system-ui);background:#0a1220c4;border:1px solid #ffffff2e;box-shadow:0 4px 12px #0008;z-index:4}
+body.phone-app #resttog[aria-pressed="true"],body.phone-land #resttog[aria-pressed="true"]{background:linear-gradient(180deg,#3a3010e6,#241c08e6);border-color:#ffd36a;color:#ffe6a0;box-shadow:0 0 0 1px #ffd36a44,0 0 18px #ffd36a44}
+</style>`);
+// phones held sideways get the same controls look
+(function(){ const f=()=>document.body.classList.toggle('phone-land',matchMedia('(orientation:landscape) and (max-height:560px)').matches); addEventListener('resize',f); f(); })();
+// small phones: a two-line tip, an icon-only gear button, and more room for coins
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #stage > #hint{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.phone-app #stage > #hint:empty{display:none}
+@media (max-width:380px){
+  body.phone-app .hud{grid-template-columns:1.25fr .9fr 1fr .8fr}
+  body.phone-app .hud #settingsbtn{font-size:0;padding:0;display:flex;align-items:center;justify-content:center}
+  body.phone-app .hud #settingsbtn::before{content:"⚙";font-size:19px;line-height:1}
+  body.phone-app #stage > #hint{font-size:10.5px}
+}
+</style>`);
+// event cards (patch notes, chests, choices) float over the whole phone screen too, like the catch card
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #evcard,body.phone-land #evcard{position:fixed;inset:0;z-index:40;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+body.phone-app #evcard .in,body.phone-land #evcard .in{max-height:100%;overflow-y:auto;overscroll-behavior:contain;width:min(460px,100%)}
+</style>`);
+// hide the water controls while an event card is open, like for catches
+{ const ev=$('evcard'); if(ev) new MutationObserver(()=>document.body.classList.toggle('ev-open',!ev.hidden)).observe(ev,{attributes:true,attributeFilter:['hidden']}); }
+document.head.insertAdjacentHTML('beforeend',`<style>body.ev-open #resttog,body.ev-open.phone-app .sidetog{opacity:0;pointer-events:none}</style>`);
 
 // ---------- loop ----------
 let last=performance.now();
