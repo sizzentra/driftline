@@ -208,7 +208,7 @@ if(/[?&]test\b/.test(location.search)){
 }
 if(/[?&]test\b/.test(location.search)){
   // every pet (rows) x every accessory + a hat (columns)
-  window.__petSheet=(opts={})=>{ const ids=PETS.map(p=>p.id).filter(i=>i!=='lily').slice(opts.from||0,opts.to||999);
+  window.__petSheet=(opts={})=>{ const ids=opts.ids||PETS.map(p=>p.id).filter(i=>i!=="lily").slice(opts.from||0,opts.to||999);
     const cols=opts.cols||[['none','none'],['bandana','none'],['bow','none'],['bowtie','none'],['scarf','none'],['bell','none'],['flower','none'],['glasses','none'],['cape','none'],['balloon','none'],['partyhat','none'],['none','cap'],['none','straw']];
     const cw=opts.cell||110, ch=Math.round(cw*.9); const o=document.createElement('canvas'); o.width=cw*cols.length; o.height=ch*ids.length; const x=o.getContext('2d'); const t=performance.now()/1000;
     ids.forEach((id,r)=>cols.forEach(([acc,hat],cI)=>{ const big=id==='horse'||id==='cow'; const lk=Object.assign({},petLook(id),{acc,accCol:'#d8303a',hat,hatCol:'#3f7a6a'});

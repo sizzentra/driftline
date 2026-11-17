@@ -125,6 +125,16 @@ function pet3Face(c,k,fm,hr,P){ const {el,ci}=k;
 // ---------------------------------------------------------------------
 // gear for every rig, drawn in the pet's head / neck / back frames
 // ---------------------------------------------------------------------
+// 0.3.6: where the top of a pet's head really is, at a point across the head (in head radii from its centre). Pets with
+// wide, flat or odd heads (frog, slime, crab, jellyfish...) don't match a circle, so a bow placed on the circle floated
+// above them. Measured once per pet by drawing the pet alone off screen, then remembered.
+const PET_TOP={};
+function petTopK(id,xk,t){ const key=id+'|'+xk; if(key in PET_TOP) return PET_TOP[key]; PET_TOP[key]=null;
+  try{ const S=320, cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d',{willReadFrequently:true});
+    const lk=Object.assign({},petLook(id),{acc:'none',hat:'none'}); drawPetStyled(x,id,S/2,S*.8,4,t||0,0,lk); const F=PET3_FR[id]; if(!F) return null;
+    const hd=F.head, col=Math.round(hd.x+(hd.flip?-1:1)*xk*hd.r); if(col<1||col>S-2) return null; const d=x.getImageData(col-1,0,3,S).data;
+    for(let y=0;y<S;y++){ if(d[(y*3+1)*4+3]>110){ PET_TOP[key]=(y-hd.y)/hd.r; break; } } }catch(e){}
+  return PET_TOP[key]; }
 function drawGear3(c,id,lk,t){ const F=PET3_FR[id]; if(!F) return false; const hd=F.head, nk=F.neck, col=lk.accCol||'#d8303a', dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.35), front=hd.face==='front';
   c.save(); c.lineCap='round'; c.lineJoin='round';
   // neckwear (unit = neck radius)
@@ -145,8 +155,8 @@ function drawGear3(c,id,lk,t){ const F=PET3_FR[id]; if(!F) return false; const h
     else { c.fillStyle='#14100e'; c.beginPath(); c.ellipse(r*.32,r*gy,r*.3*gs,r*.24*gs,0,0,7); c.fill(); c.strokeStyle='#14100e'; c.lineWidth=r*.08*gs; c.beginPath(); c.moveTo(r*.05,r*gy-r*.04); c.lineTo(-r*.55,r*gy-r*.12); c.stroke(); }
     c.strokeStyle='rgba(205,215,235,.75)'; c.lineWidth=r*.05; c.beginPath(); if(front){ c.ellipse(-r*gx,r*gy,r*.3*gs,r*.22*gs,0,0,7); c.moveTo(r*gx+r*.3*gs,r*gy); c.ellipse(r*gx,r*gy,r*.3*gs,r*.22*gs,0,0,7); } else c.ellipse(r*.32,r*gy,r*.3*gs,r*.24*gs,0,0,7); c.stroke();
     c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(front?-r*(gx+.07):r*.24,r*gy-r*.1,r*.09,r*.05,-.4,0,7); c.fill(); }
-  if(lk.acc==='bow'){ c.save(); c.translate(front?-r*.6:-r*.45,-r*.82); c.rotate(-.3); c.fillStyle=col; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-r*.42,-r*.3,-r*.4,r*.02); c.quadraticCurveTo(-r*.38,r*.28,0,0); c.moveTo(0,0); c.quadraticCurveTo(r*.42,-r*.3,r*.4,r*.02); c.quadraticCurveTo(r*.38,r*.28,0,0); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(0,0,r*.1,0,7); c.fill(); c.restore(); }
-  if(lk.acc==='flower'){ const fx=front?r*.6:-r*.1, fy=-r*.82; c.fillStyle='#ff9ad0'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(fx+Math.cos(i*1.257)*r*.15,fy+Math.sin(i*1.257)*r*.15,r*.12,r*.08,i*1.257,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.08,0,7); c.fill(); }
+  if(lk.acc==='bow'){ const bxk=front?-.6:-.45, bt=petTopK(id,bxk,t); c.save(); c.translate(bxk*r,(bt==null?-.82:bt+.06)*r); c.rotate(-.3); c.fillStyle=col; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-r*.42,-r*.3,-r*.4,r*.02); c.quadraticCurveTo(-r*.38,r*.28,0,0); c.moveTo(0,0); c.quadraticCurveTo(r*.42,-r*.3,r*.4,r*.02); c.quadraticCurveTo(r*.38,r*.28,0,0); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(0,0,r*.1,0,7); c.fill(); c.restore(); }
+  if(lk.acc==='flower'){ const fxk=front?.6:-.1, ft=petTopK(id,fxk,t), fx=fxk*r, fy=(ft==null?-.82:ft+.05)*r; c.fillStyle='#ff9ad0'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(fx+Math.cos(i*1.257)*r*.15,fy+Math.sin(i*1.257)*r*.15,r*.12,r*.08,i*1.257,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,r*.08,0,7); c.fill(); }
   if(lk.hat && lk.hat!=='none'){ c.save(); c.translate(0,-r*.08); c.scale(r*1.02/7.5,r*1.02/7.5); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?'#888888':(lk.hatCol||'#c8553a'),t); c.restore(); }
   if(lk.acc==='partyhat'){ c.save(); c.translate(r*.1,-r*.12); c.rotate(.22); c.scale(r*.9/7.5,r*.9/7.5); drawHat(c,'party',col,t); c.restore(); }
   c.restore(); c.restore(); return true; }
