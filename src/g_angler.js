@@ -35,13 +35,27 @@ function a3Limb(c,p0,p1,w0,w1,col,lightA){ const dx=p1.x-p0.x, dy=p1.y-p0.y, L=M
   const gr=c.createLinearGradient(mx-nx*wm*lit,my-ny*wm*lit,mx+nx*wm*lit,my+ny*wm*lit);
   gr.addColorStop(0,mix(col,'#0a0814',.34)); gr.addColorStop(.42,col); gr.addColorStop(.8,mix(col,'#fff2dc',.16*(lightA==null?1:lightA))); gr.addColorStop(1,mix(col,'#0a0814',.08));
   c.fillStyle=gr; c.beginPath(); c.moveTo(p0.x+nx*w0/2,p0.y+ny*w0/2); c.lineTo(p1.x+nx*w1/2,p1.y+ny*w1/2); c.lineTo(p1.x-nx*w1/2,p1.y-ny*w1/2); c.lineTo(p0.x-nx*w0/2,p0.y-ny*w0/2); c.closePath(); c.fill();
-  c.beginPath(); c.arc(p0.x,p0.y,w0/2,0,7); c.fill(); c.beginPath(); c.arc(p1.x,p1.y,w1/2,0,7); c.fill(); }
+  c.beginPath(); c.arc(p0.x,p0.y,w0/2,0,7); c.fill(); c.beginPath(); c.arc(p1.x,p1.y,w1/2,0,7); c.fill();
+  // 0.3.6 fabric: the weave, and a soft crease where the limb bends (elbow, knee)
+  if(lightA!==0){ c.save(); c.beginPath(); c.moveTo(p0.x+nx*w0/2,p0.y+ny*w0/2); c.lineTo(p1.x+nx*w1/2,p1.y+ny*w1/2); c.lineTo(p1.x-nx*w1/2,p1.y-ny*w1/2); c.lineTo(p0.x-nx*w0/2,p0.y-ny*w0/2); c.closePath(); c.clip();
+    a3Weave(c,Math.min(p0.x,p1.x)-w0,Math.min(p0.y,p1.y)-w0,Math.max(p0.x,p1.x)+w0,Math.max(p0.y,p1.y)+w0,.11);
+    const ex=p1.x-dx/L*w1*.7, ey=p1.y-dy/L*w1*.7; c.strokeStyle='rgba(8,6,20,.14)'; c.lineWidth=Math.max(.3,w1*.12); c.lineCap='round'; c.beginPath(); c.moveTo(ex+nx*w1*.35,ey+ny*w1*.35); c.quadraticCurveTo(ex+dx/L*w1*.25,ey+dy/L*w1*.25,ex-nx*w1*.3,ey-ny*w1*.3); c.stroke(); c.restore(); } }
 // soft volume over a clipped body part: darker back edge, lit front, a touch of light on top, shade at the bottom
 function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.clip();
   const gx=c.createLinearGradient(x0,0,x1,0); gx.addColorStop(0,'rgba(8,6,20,'+(.36*k)+')'); gx.addColorStop(.32,'rgba(8,6,20,'+(.06*k)+')'); gx.addColorStop(.6,'rgba(255,240,215,0)'); gx.addColorStop(.86,'rgba(255,240,215,'+(.17*k)+')'); gx.addColorStop(1,'rgba(8,6,20,'+(.1*k)+')');
   c.fillStyle=gx; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4);
   const gy=c.createLinearGradient(0,y0,0,y1); gy.addColorStop(0,'rgba(255,246,230,'+(.13*k)+')'); gy.addColorStop(.22,'rgba(255,246,230,0)'); gy.addColorStop(.78,'rgba(8,6,20,0)'); gy.addColorStop(1,'rgba(8,6,20,'+(.24*k)+')');
-  c.fillStyle=gy; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
+  c.fillStyle=gy; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4);
+  // 0.3.6 fabric: a fine weave locked to screen pixels, folds from under the arm and around the waist
+  if(k>0){ a3Weave(c,x0,y0,x1,y1,.13*k); const W=x1-x0, H=y1-y0; c.lineCap='round';
+    c.strokeStyle='rgba(8,6,20,'+(.16*k)+')'; c.lineWidth=Math.max(.35,W*.05); c.beginPath(); c.moveTo(x0+W*.58,y0+H*.2); c.quadraticCurveTo(x0+W*.66,y0+H*.42,x0+W*.62,y0+H*.66); c.stroke();
+    c.strokeStyle='rgba(255,246,230,'+(.1*k)+')'; c.lineWidth=Math.max(.3,W*.035); c.beginPath(); c.moveTo(x0+W*.64,y0+H*.22); c.quadraticCurveTo(x0+W*.72,y0+H*.42,x0+W*.68,y0+H*.62); c.stroke(); }
+  c.restore(); }
+// a woven texture (twill) for clothes, sized to the screen's pixels so it stays fine at any zoom
+let A3WEAVE=null;
+function a3Weave(c,x0,y0,x1,y1,a){ if(!A3WEAVE){ const n=6, cv=document.createElement('canvas'); cv.width=cv.height=n; const x=cv.getContext('2d'); for(let i=0;i<n;i++){ x.fillStyle='rgba(0,0,0,.55)'; x.fillRect(i,(i*2)%n,1,1); x.fillStyle='rgba(255,255,255,.4)'; x.fillRect(i,(i*2+3)%n,1,1); } A3WEAVE=cv; }
+  const m=c.getTransform(), p=c.createPattern(A3WEAVE,'repeat'); if(p.setTransform&&m.a) p.setTransform(new DOMMatrix().scale(1/Math.hypot(m.a,m.b)));
+  c.save(); c.globalAlpha*=a; c.fillStyle=p; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
 
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
 let A3HEAD=.9; // 0.3.6: adult proportions (was 1.1, a cartoon-sized head)
