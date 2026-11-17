@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1428';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1433';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2841,7 +2841,8 @@ const PATCHES = [
   'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
   'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
   'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
-'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
+  'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
+  'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -14068,6 +14069,18 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
   // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
   const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
   setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },3000); }
+// Tapping fast between sections and pages: the first tap switches at once (highlight and page together); taps that arrive
+// while a page is still being built only remember where you want to go, and that one page is built on the next frame.
+// The save that remembers your last page waits until the tapping stops instead of writing on every tap.
+{ const T=$('tabs'); let busyUntil=0, want=null, reveal=false, raf=0, saveT=0;
+  const go=(t,rv)=>{ if(t&&S.tab!==t){ setTab(t); clearTimeout(saveT); saveT=setTimeout(()=>{ try{ save(); }catch(e){} },700); } else menuSync(); if(rv) try{ menuReveal(); }catch(e){} };
+  if(T) T.addEventListener('click',e=>{ const sb=e.target.closest('[data-sec]'), pb=e.target.closest('[data-sub]'); if(!sb&&!pb) return; e.stopImmediatePropagation(); e.stopPropagation(); try{ startAudio&&startAudio(); }catch(er){}
+    let t; if(sb){ const sec=MENU_SECS.find(s=>s.id===sb.dataset.sec); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; t=list.includes(last)?last:list[0]; }
+    else { t=pb.dataset.sub; try{ pb.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(er){} }
+
+    if(e.timeStamp>=busyUntil&&!raf){ go(t,!!sb); busyUntil=performance.now(); return; } // the tap came while nothing was being built: switch right now
+    want=t; reveal=reveal||!!sb; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const w=want, rv=reveal; want=null; reveal=false; go(w,rv); busyUntil=performance.now(); }); },true);
+  addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){} } }); }
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for

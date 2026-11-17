@@ -1311,3 +1311,15 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
   // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
   const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
   setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },3000); }
+// Tapping fast between sections and pages: the first tap switches at once (highlight and page together); taps that arrive
+// while a page is still being built only remember where you want to go, and that one page is built on the next frame.
+// The save that remembers your last page waits until the tapping stops instead of writing on every tap.
+{ const T=$('tabs'); let busyUntil=0, want=null, reveal=false, raf=0, saveT=0;
+  const go=(t,rv)=>{ if(t&&S.tab!==t){ setTab(t); clearTimeout(saveT); saveT=setTimeout(()=>{ try{ save(); }catch(e){} },700); } else menuSync(); if(rv) try{ menuReveal(); }catch(e){} };
+  if(T) T.addEventListener('click',e=>{ const sb=e.target.closest('[data-sec]'), pb=e.target.closest('[data-sub]'); if(!sb&&!pb) return; e.stopImmediatePropagation(); e.stopPropagation(); try{ startAudio&&startAudio(); }catch(er){}
+    let t; if(sb){ const sec=MENU_SECS.find(s=>s.id===sb.dataset.sec); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; t=list.includes(last)?last:list[0]; }
+    else { t=pb.dataset.sub; try{ pb.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(er){} }
+
+    if(e.timeStamp>=busyUntil&&!raf){ go(t,!!sb); busyUntil=performance.now(); return; } // the tap came while nothing was being built: switch right now
+    want=t; reveal=reveal||!!sb; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const w=want, rv=reveal; want=null; reveal=false; go(w,rv); busyUntil=performance.now(); }); },true);
+  addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){} } }); }
