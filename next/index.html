@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0043';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0052';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2142,7 +2142,7 @@ function drawFightHUD(t){
   const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
 }
 function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
-  if(cnv.width!==Math.round(w*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); }
+  if(cnv.width!==Math.round(w*DPR)||cnv.height!==Math.round(h*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); } /* 0.3.5.1: also when only the height changes (turning the phone) */
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
   S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=Math.max(14,Math.min(h*.3,w*.22,(22+11*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.8,1.9))); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const M=tankMove(f,sp,i,t,w,h,L);
@@ -2193,8 +2193,8 @@ function drawTankBack(c,w,h,t){ if(V3ON && v3TankBack(c,w,h,t)) return; const V=
   c.fillStyle=sd[3]; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=20) c.lineTo(x,h-14-Math.sin(x*.04)*5); c.lineTo(w,h); c.fill();
   if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
-  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,tankK(w,h),t)); }
+function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,tankK(w,h),t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };
@@ -2502,8 +2502,13 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.5';
+const GAME_VERSION = '0.3.5.1';
 const PATCHES = [
+ {v:'0.3.5.1', name:'Phone Fit Hotfix', items:[
+  'The aquarium fits on phones again, held upright or sideways: a wide tank like on PC, with decorations sized to fit.',
+  'Fish rows in the Cooler and Aquarium no longer squeeze the fish’s name and details when the menu is narrow: the buttons sit on their own line underneath.',
+  'Menus feel snappier on phones: switching pages is instant and the section bar is lighter to draw, so taps respond faster.',
+ ]},
  {v:'0.3.5', name:'A Tidier Tackle Box', items:[
   '## Menus',
   'The menus are reorganised into five sections: Fishing, Gear, Collection, Home and Rewards. Pick a section, then a page. The game remembers which page you last had open in each one.',
@@ -5761,7 +5766,7 @@ function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme
     c.fillStyle=col; for(let k=2;k<8;k++){ const [px,py]=pts[k], sdx=k%2?1:-1, a=Math.sin(t*1.1+i+k)*.3; c.beginPath(); c.ellipse(px+sdx*h*.03,py,h*.035,h*.011,sdx*(.5+a),0,7); c.fill(); } }
   // bubbles rising from a little vent on the left
   for(let i=0;i<10;i++){ const k=((t*.25+i/10)%1), bx=w*.06+Math.sin(t*2+i*1.7)*w*.008, by=h*.9-k*h*.9, rr=1.5+(i%3)*1.2; c.strokeStyle='rgba(230,250,255,'+(.6*(1-k*.6))+')'; c.lineWidth=1; c.beginPath(); c.arc(bx,by,rr,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(bx-rr*.4,by-rr*.5,1,1); }
-  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,h/230,t)); tankDragSetup();
+  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,tankK(w,h),t)); tankDragSetup();
   return true; }
 // glass: a shimmering waterline at the top, a diagonal reflection, and darker corners
 function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0,0,w,2); c.strokeStyle='rgba(220,250,255,.25)'; c.lineWidth=1; c.beginPath(); for(let X=0;X<=w;X+=12) c.lineTo(X,5+Math.sin(X*.05+t*2)*1.5); c.stroke();
@@ -10503,10 +10508,10 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 #tabs.secmode .subp.on{border-color:var(--gold,#ffd36a);color:#fff3cf;background:linear-gradient(180deg,#2a3a56,#1c2a42);box-shadow:inset 0 1px 0 #ffffff14,0 0 0 1px #ffd36a33,0 0 16px #ffd36a26}
 #tabs.secmode .subp .subi{font-size:16px;line-height:1}
 #tabs.secmode .subp .subdot{position:static;margin-left:2px;min-width:18px;height:18px;font-size:11px;line-height:18px;padding:0 5px}
-#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}
+@media (hover:hover) and (pointer:fine){#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}}
 #tabs.secmode .subbar.subin .subp:nth-child(2){animation-delay:.03s}#tabs.secmode .subbar.subin .subp:nth-child(3){animation-delay:.06s}#tabs.secmode .subbar.subin .subp:nth-child(4){animation-delay:.09s}
 @keyframes subin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-#panel.pagein{animation:pagein .22s ease-out both}
+@media (hover:hover) and (pointer:fine){#panel.pagein{animation:pagein .22s ease-out both}} /* touch screens switch pages instantly */
 @keyframes pagein{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
 #settingsbtn.menu-on{border-color:var(--gold,#ffd36a)!important;color:#fff3cf;box-shadow:var(--lit,none),0 0 0 1px #ffd36a44,0 0 16px #ffd36a33!important}
 @media (prefers-reduced-motion:reduce){#tabs.secmode .subbar.subin .subp,#panel.pagein{animation:none}#tabs.secmode .secb,#tabs.secmode .secb:hover{transition:none;transform:none}}
@@ -10514,7 +10519,7 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 @media (max-width:860px){#tabs.secmode .secb{flex-direction:column;gap:2px;font-size:12px;min-height:54px;padding:5px 2px}#tabs.secmode .secdot{right:6px}}
 /* phones held upright: the section row docks along the bottom edge, below everything else */
 @media (max-width:700px) and (orientation:portrait){
-  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0b1626f0,#08111df8);border-top:1px solid var(--line,#26385180);box-shadow:0 -8px 24px #02060f99;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0c1828,#08111d);border-top:1px solid var(--line,#26385180);box-shadow:0 -6px 18px #02060f88;transform:translateZ(0)} /* solid, no blur: a blur over the moving water costs phones every frame */
   #tabs.secmode .secb{min-height:52px;border-radius:14px;background:transparent;border-color:transparent;box-shadow:none;font-size:11px}
   #tabs.secmode .secb.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6}
   #tabs.secmode .secdot{top:-3px;right:calc(50% - 26px)}
@@ -10553,7 +10558,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #card #cardbadges .badge{line-height:1.35}
 }
 /* every size: the stage buttons (Rest, menus) step aside while a catch card is open */
-.stage:has(#card:not([hidden])) #resttog{opacity:0;pointer-events:none}
+body.card-open #resttog{opacity:0;pointer-events:none}
 @media (max-width:560px), (orientation:landscape) and (max-height:560px){
 }
 </style>`);
@@ -10586,6 +10591,27 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){#towater{display:none!important}}
 @media (prefers-reduced-motion:reduce){#towater{transition:none}}
 </style>`);
+
+// ---------- the aquarium on phones: a wide tank like on PC, decorations sized to fit it ----------
+// (decorations used to scale with the tank's height only, so a tall, narrow phone tank crammed them together)
+function tankK(w,h){ return Math.min(h/230, w/520); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:46vh} }
+@media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:62vh} }
+</style>`);
+// fish rows (cooler, aquarium) in a narrow menu column (phones, the sideways menu): the buttons go on their own
+// line under the fish, so the name and details never get squeezed into one word per line
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:620px){
+  #panel .fishrow{grid-template-columns:48px minmax(0,1fr) auto;row-gap:6px}
+  #panel .fishrow canvas{width:48px;height:24px}
+  #panel .fishrow .acts{grid-column:1/-1;justify-content:flex-end;flex-wrap:wrap}
+  #panel .fishrow .val{text-align:right}
+}
+</style>`);
+// a cheap switch for "a catch card is open" (instead of a :has() style rule the browser keeps re-checking)
+{ const _sc=showCard; showCard=function(o){ _sc(o); document.body.classList.add('card-open'); };
+  const _hc=hideCard; hideCard=function(){ document.body.classList.remove('card-open'); return _hc.apply(this,arguments); }; }
 // =====================================================================
 // 0.3.5 Trophy Room (placeholder name): a permanent home for any fish you choose. Fish kept here earn nothing
 // and give no boosts, but they stay forever: a new voyage never touches them (S.vault is not part of the
@@ -11030,7 +11056,7 @@ offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); ref
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>
-<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.5 preview</div>
+<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.5.1 preview</div>
 <div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
   <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
   <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>
