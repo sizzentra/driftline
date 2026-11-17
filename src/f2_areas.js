@@ -779,7 +779,7 @@ function v3raft(P,t,night,dockY,pb){
   g.strokeStyle=v3rgba(P.rim,.25); g.lineWidth=1; for(let k=0;k<2;k++){ const e=((t*.4+k*.5)%1); g.globalAlpha=1-e; g.beginPath(); g.ellipse(PW*.5,y+lh*1.8,PW*(.55+e*.3),H*(.006+e*.01),0,0,Math.PI); g.stroke(); } g.globalAlpha=1;
   // crate and a coil of line
   { const cx=W*.03, s=H*.03; g.fillStyle=N('#7a6044'); g.fillRect(cx,y-H*.004-s,s*1.2,s); g.strokeStyle=N('#4a3a28'); g.lineWidth=1.2; g.strokeRect(cx,y-H*.004-s,s*1.2,s); g.beginPath(); g.moveTo(cx,y-H*.004-s); g.lineTo(cx+s*1.2,y-H*.004); g.stroke(); }
-  { const rx=W*.152, ry=y-H*.008; g.strokeStyle=N('#c8b088'); g.lineWidth=1.5; for(let k=0;k<3;k++){ g.beginPath(); g.ellipse(rx,ry-k*1.5,H*.014-k*1.4,H*.0045,0,0,7); g.stroke(); } }
+  { const rx=W*.152, ry=y-H*.008; g.strokeStyle=N('#c8b088'); g.lineWidth=1.5; for(let k=0;k<3;k++){ g.beginPath(); g.ellipse(rx,ry-k*1.5,Math.max(.6,H*.014-k*1.4),Math.max(.4,H*.0045),0,0,7); g.stroke(); } }
   // crooked pole with the lantern
   g.strokeStyle=N('#4a3a2a'); g.lineWidth=3; g.beginPath(); g.moveTo(lx+W*.004,y-H*.004); g.quadraticCurveTo(lx-W*.004,y-H*.05,lx,ly+H*.016); g.stroke();
   const hw=H*.018, hh=H*.026; g.fillStyle=v3rgba('#c8fff0',.5+lit*.45); g.fillRect(lx-hw/2,ly-hh/2,hw,hh); g.fillStyle='#f0fff8'; g.beginPath(); g.ellipse(lx,ly+hh*.05,hw*.16,hh*.22*(1+Math.sin(t*9)*.06),0,0,7); g.fill();
