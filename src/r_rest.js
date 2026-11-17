@@ -39,7 +39,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>.resttog{position:absolute;
 @media (max-width:520px),(max-height:520px){ .resttog{left:6px;bottom:6px;padding:4px 8px;font-size:11px;border-radius:10px} }</style>`);
 restBtn(); if(S.settings.rest){ setTimeout(()=>{ if(G.st==='idle'){ G.st='rest'; restCast(); } },300); }
 if(/[?&]test\b/.test(location.search)) window.__rst=RST;
-if(/[?&]test\b/.test(location.search)) window.__bal={ SP, SPI, LOCS, GEAR, RODS, ROD_I, BAIT, PERKS, RAR, RAR_ROD:ROD_RARE, chooseCatch, rollFish, salePrice, sellMult, gv, fishRate, aqCap, TANK_COST, passNeed, PASS_XP, restBiteTime,
+if(/[?&]test\b/.test(location.search)) window.__bal={ SP, SPI, catchOdds, rareMul, LOCS, GEAR, RODS, ROD_I, BAIT, PERKS, RAR, RAR_ROD:ROD_RARE, chooseCatch, rollFish, salePrice, sellMult, gv, fishRate, aqCap, TANK_COST, passNeed, PASS_XP, restBiteTime,
   bestLoot, crateCost, wheelCost, clawCost, locCost, coinMult, xpMult, G, S:()=>S, distanceMods, hybridChance, PRISM_SHARE, PRISM_VALUE, ATTS, ATT_COST:typeof ATT_COST!=='undefined'?ATT_COST:null, rodUpCost:typeof rodUpCost!=='undefined'?rodUpCost:null, TANK_RATE, AQ_MAG2, BEH, xpNeed, fight, hookIt, endFight, aqBuffsOf, junkChance, pickJunk, curLoc, bonus };
 // QC (test mode only): fight simulator. Plays real fights with the real fight code: a simulated angler lets go when the
 // tension passes a threshold or the fish runs or leaps, with a reaction delay. Restores the game state afterwards.
