@@ -13,6 +13,18 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
+- **0.3.2 "Prized Catches": PREVIEW ONLY at /next/ (2026-11-16), awaiting the director's go-ahead to ship.** Play notes from a friend plus director requests:
+  - **Aquarium weight:** income cap ×`aqWeightK` (0.75 to 1.7 by weight within the species); buffs get a weight factor (`aqBuffsOf` wrap in n_play); tank size by real kg (log scale, d_draw `drawTank`).
+  - **Fights:** a running fish takes line when you're not reeling, at `max(base, reel*(.24+.11*rarity))*stamina`; reeling during a run gains no line and adds 95 tension instead of 70. Bot fights: pond 6–10 s, ember legendary 18 s, all landed.
+  - **Shiny frenzy fish:** 11%, worth 5 fish, `pat` skip/zig/high; `__frenzy()` test hook.
+  - **Bug fixes:** predator-grab shadow cleared when a fight ends (`drawEat`); the mouse wheel doesn't scroll the page for 1.6 s after reeling (`_reelT`).
+  - **Visibility:** clearer cast marker and outlined float.
+  - **Art:** heron legs and ripple; pineapple house redrawn; Snoozy Rock and Grumpy Tiki House added.
+  - **Angler:** body narrowed `SIDE_K` .84 with an `a3Deltoid` shoulder cap and shoulders at y -45.4; curly hair `drawCurls3` (full mass starting at the face); hot dog suit side-on.
+  - **Pets:** drawn after the angler (scene and Home).
+  - **Badges:** feats badge plus New marks (`S.featSeen`); Skills section badges (`sdot`).
+  - **Full screen:** remembered via localStorage `dl-fs`, re-entered on the first tap.
+  - **Crate counter:** `.badge` no longer wraps.
 - **0.3.1 "Dressed for the Weather": SHIPPED 2026-11-16** (director: "this is 3.1", so it is 0.3.1, not 0.4; publish.ps1, commit d4afb7d). Its patch-notes entry stays as shipped. The director's list after 0.3:
   - **Side-view clothing** (`src/ak_side.js`): side-profile torso and coat paths (`sideTorsoPath` / `sideCoatPath`); `sideFront(y,f)` places front-edge details; all 27 outfits in `SIDE_OUT`; neckwear in `SIDE_NECK` hangs at the chest front; `a3OverArm` draws straps and epaulettes after the front arm; the belt buckle sits at the front.
   - **Body and face:** rounded builds (belly `A3BELLY*2.0`); beards drawn after the front arm (except inside full helmets); curly fringe kept off the face; long hair reshaped; brows drawn over the fringe; face options `NOSES` / `BROWS` / `MOUTHS` / `BLUSHES` (in b2_wear, validated in migrate).
