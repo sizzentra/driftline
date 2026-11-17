@@ -1036,3 +1036,87 @@ openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(
 { const h=MO.querySelector('.mo-home'); if(h) h.remove(); }
 MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M): opens the page you used last';
 document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:none!important}</style>');
+
+// =====================================================================
+// QC pass fixes (2026-11-17, round 2)
+// =====================================================================
+{ const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
+    // Skills: the "Looking for specialisations? Open Paths" pointer is redundant (Paths is the tab right beside it)
+    if(S.tab==='skills'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>/Looking for specialisations/i.test(x.textContent)); if(t) t.remove(); }
+    // Bounties: the three daily tasks sit side by side when there is room
+    if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
+  }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* a page header's number or controls sit beside the text when they fit, and start on the left when they wrap */
+#menuov #panel > .row.dl-head{justify-content:space-between!important}
+#menuov #panel > .row.dl-head > :not(:first-child){margin-left:0!important}
+/* Events calendar and daily tasks: side by side on wide enough pages */
+@container (min-width:560px){
+  #menuov #panel .ev-cal{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
+  #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
+  #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
+  #menuov #panel .tile.dtasks{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
+  #menuov #panel .tile.dtasks > .row{grid-column:1 / -1}
+  #menuov #panel .tile.dtasks > .toggle{flex-wrap:wrap;align-content:flex-start;border-top:1px solid var(--line);padding-top:6px}
+}
+/* sideways phones: no empty slot where the Overview button was */
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"tools sub back" "body body secs"!important}
+}
+</style>`);
+{ const _t7=menuTidy2; menuTidy2=function(){ _t7(); try{ const P=$('panel');
+    if(S.tab==='paths') P.querySelectorAll('.tile .grid').forEach(g=>g.classList.add('pathgrid'));
+    if(S.tab==='rods'){ const t=[...P.querySelectorAll('.tile')].find(x=>/in your hands/i.test(x.textContent)); if(t) t.classList.add('rodnow'); }
+  }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* disabled buttons stay readable (they say what is not possible yet) */
+#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.55!important;filter:saturate(.35)}
+/* Paths: the three choices of a fork side by side */
+#menuov #panel .grid.pathgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+@container (max-width:560px){
+  #menuov #panel .grid.pathgrid > .tile{padding:7px 8px!important}
+  #menuov #panel .grid.pathgrid h4{font-size:13px!important}
+  #menuov #panel .grid.pathgrid .meta,#menuov #panel .grid.pathgrid div{font-size:11.5px;line-height:1.3}
+  /* Aquarium: earnings on one line, the two buttons on the next */
+  #menuov #panel .bank{display:grid!important;grid-template-columns:1fr 1fr;gap:6px 10px;align-items:center;width:100%}
+  #menuov #panel .bank > .btn{width:100%}
+  /* Rods: level and upgrade side by side under the rod */
+  #menuov #panel .rodnow > .row.spread > :last-child{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left!important}
+  /* section tabs: one row that scrolls sideways */
+  #menuov #panel .bwx-nav.sect-nav{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;display:flex!important;-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  #menuov #panel .bwx-nav.sect-nav::-webkit-scrollbar{display:none}
+  #menuov #panel .bwx-nav.sect-nav > button{flex:0 0 auto!important;white-space:nowrap}
+  /* Bounties: the water list scrolls sideways like the Fish Log's */
+  #menuov #panel .chips:has(> [data-act="bloc"]){flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .chips:has(> [data-act="bloc"])::-webkit-scrollbar{display:none}
+  #menuov #panel .chips:has(> [data-act="bloc"]) > *{flex:0 0 auto}
+  #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
+}
+</style>`);
+{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:560px){
+  /* Tide Pass: the next reward picture beside its text */
+  #menuov #panel .tile.pass-next{flex-direction:row!important;align-items:center;gap:10px}
+  #menuov #panel .tile.pass-next > canvas{width:104px!important;height:78px!important;flex:0 0 auto}
+  /* a wrapped header block (Tide Pass level, cozy level) uses the full width */
+  #menuov #panel > .row.dl-head > :not(:first-child){flex:1 1 auto}
+  /* Docks and pet filters: one row that scrolls sideways */
+  #menuov #panel .dock-h:has(> .dock-c),#menuov #panel .chips.pet-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .dock-h:has(> .dock-c)::-webkit-scrollbar,#menuov #panel .chips.pet-filter::-webkit-scrollbar{display:none}
+  #menuov #panel .dock-h > *,#menuov #panel .chips.pet-filter > *{flex:0 0 auto}
+}
+</style>`);
+// buttons inside a settings-style row (switches, daily task Claim) had a dark background with dark text: make them readable
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.v3 .toggle button.btn{color:#dfe8f2!important;border:1px solid #3a587888!important;text-shadow:none}
+body.v3 .toggle button.btn[aria-pressed="true"]{color:#ffe7a6!important;border-color:#ffd36a99!important;box-shadow:0 0 10px #ffd36a26}
+body.v3 .toggle button.btn[aria-pressed="false"]{color:#9fb2c8!important}
+body.v3 .toggle button.btn[data-act="taskclaim"]:not(:disabled){background:linear-gradient(180deg,var(--buoy2,#ff9a6a),var(--buoy,#ff6a3d) 55%,#f0683c)!important;color:#1d0d06!important;border-color:transparent!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* one clear look for anything not possible yet: dark slate with readable muted text (was faded orange, unreadable) */
+body.v3 .btn:disabled,body.v3 .btn[disabled],body.v3 #menuov .btn:disabled{background:linear-gradient(180deg,#26324a,#1e2838)!important;color:#a9b9cc!important;border:1px solid #3a4a62!important;box-shadow:none!important;filter:none!important;opacity:1!important;text-shadow:none!important;cursor:not-allowed}
+body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important}
+</style>`);
