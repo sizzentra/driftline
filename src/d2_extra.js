@@ -41,8 +41,8 @@ function drawTankBack(c,w,h,t){ if(V3ON && v3TankBack(c,w,h,t)) return; const V=
   c.fillStyle=sd[3]; c.beginPath(); c.moveTo(0,h); for(let x=0;x<=w;x+=20) c.lineTo(x,h-14-Math.sin(x*.04)*5); c.lineTo(w,h); c.fill();
   if(V.sand==='pebble'){ for(let i=0;i<40;i++){ c.fillStyle=['#a8a89a','#6a6a62','#c8c0b0'][i%3]; c.beginPath(); c.ellipse((i*37)%w,h-4-((i*13)%10),4,2.5,0,0,7); c.fill(); } }
   for(let i=0;i<7;i++){ const x=(i+.5)*w/7, hh=30+(i*17)%40; c.strokeStyle=i%2?'#3f8f5a':'#2f7a4c'; c.lineWidth=4; c.beginPath(); c.moveTo(x,h-10); c.quadraticCurveTo(x+Math.sin(t+i)*10,h-10-hh*.6,x+Math.sin(t*1.2+i)*6,h-10-hh); c.stroke(); }
-  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,h/230,t)); }
-function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,h/230,t);
+  const ds=V.decor.filter(id=>id!=='duck'); ds.forEach((id,i)=>drawDecor(c,id,w*(i+.5)/Math.max(ds.length,1),h-8,tankK(w,h),t)); }
+function drawTankFront(c,w,h,t){ if(V3ON) v3TankGlass(c,w,h,t); if(aqView().decor.includes("duck")) drawDecor(c,'duck',w*.8+Math.sin(t*.4)*w*.1,8,tankK(w,h),t);
   if(feedAnim && performance.now()-feedAnim<7000){ const k=(performance.now()-feedAnim)/1000; c.fillStyle='#d8a050'; for(let i=0;i<24;i++){ const x=w*(.3+((i*37)%40)/100), y=Math.min(h-16, k*30*(.6+((i*13)%10)/20)+((i*7)%20)); c.fillRect(x,y,3,3); } } }
 function drawDecor(c,id,x,y,s,t=0){ c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   const R=(x,y,w,h,cl)=>{ c.fillStyle=cl; c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.fill(); };

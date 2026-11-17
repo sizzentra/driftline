@@ -1025,7 +1025,7 @@ function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme
     c.fillStyle=col; for(let k=2;k<8;k++){ const [px,py]=pts[k], sdx=k%2?1:-1, a=Math.sin(t*1.1+i+k)*.3; c.beginPath(); c.ellipse(px+sdx*h*.03,py,h*.035,h*.011,sdx*(.5+a),0,7); c.fill(); } }
   // bubbles rising from a little vent on the left
   for(let i=0;i<10;i++){ const k=((t*.25+i/10)%1), bx=w*.06+Math.sin(t*2+i*1.7)*w*.008, by=h*.9-k*h*.9, rr=1.5+(i%3)*1.2; c.strokeStyle='rgba(230,250,255,'+(.6*(1-k*.6))+')'; c.lineWidth=1; c.beginPath(); c.arc(bx,by,rr,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,.5)'; c.fillRect(bx-rr*.4,by-rr*.5,1,1); }
-  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,h/230,t)); tankDragSetup();
+  const ds=V.decor.filter(id=>id!=='duck'), AP=aqPositions(ds); ds.forEach(id=>drawDecor(c,id,w*AP[id],h*.95,tankK(w,h),t)); tankDragSetup();
   return true; }
 // glass: a shimmering waterline at the top, a diagonal reflection, and darker corners
 function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0,0,w,2); c.strokeStyle='rgba(220,250,255,.25)'; c.lineWidth=1; c.beginPath(); for(let X=0;X<=w;X+=12) c.lineTo(X,5+Math.sin(X*.05+t*2)*1.5); c.stroke();

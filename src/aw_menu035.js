@@ -90,10 +90,10 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 #tabs.secmode .subp.on{border-color:var(--gold,#ffd36a);color:#fff3cf;background:linear-gradient(180deg,#2a3a56,#1c2a42);box-shadow:inset 0 1px 0 #ffffff14,0 0 0 1px #ffd36a33,0 0 16px #ffd36a26}
 #tabs.secmode .subp .subi{font-size:16px;line-height:1}
 #tabs.secmode .subp .subdot{position:static;margin-left:2px;min-width:18px;height:18px;font-size:11px;line-height:18px;padding:0 5px}
-#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}
+@media (hover:hover) and (pointer:fine){#tabs.secmode .subbar.subin .subp{animation:subin .28s ease-out both}}
 #tabs.secmode .subbar.subin .subp:nth-child(2){animation-delay:.03s}#tabs.secmode .subbar.subin .subp:nth-child(3){animation-delay:.06s}#tabs.secmode .subbar.subin .subp:nth-child(4){animation-delay:.09s}
 @keyframes subin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-#panel.pagein{animation:pagein .22s ease-out both}
+@media (hover:hover) and (pointer:fine){#panel.pagein{animation:pagein .22s ease-out both}} /* touch screens switch pages instantly */
 @keyframes pagein{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:none}}
 #settingsbtn.menu-on{border-color:var(--gold,#ffd36a)!important;color:#fff3cf;box-shadow:var(--lit,none),0 0 0 1px #ffd36a44,0 0 16px #ffd36a33!important}
 @media (prefers-reduced-motion:reduce){#tabs.secmode .subbar.subin .subp,#panel.pagein{animation:none}#tabs.secmode .secb,#tabs.secmode .secb:hover{transition:none;transform:none}}
@@ -101,7 +101,7 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 @media (max-width:860px){#tabs.secmode .secb{flex-direction:column;gap:2px;font-size:12px;min-height:54px;padding:5px 2px}#tabs.secmode .secdot{right:6px}}
 /* phones held upright: the section row docks along the bottom edge, below everything else */
 @media (max-width:700px) and (orientation:portrait){
-  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0b1626f0,#08111df8);border-top:1px solid var(--line,#26385180);box-shadow:0 -8px 24px #02060f99;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  #tabs.secmode .secbar{position:fixed;left:0;right:0;bottom:0;z-index:20;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#0c1828,#08111d);border-top:1px solid var(--line,#26385180);box-shadow:0 -6px 18px #02060f88;transform:translateZ(0)} /* solid, no blur: a blur over the moving water costs phones every frame */
   #tabs.secmode .secb{min-height:52px;border-radius:14px;background:transparent;border-color:transparent;box-shadow:none;font-size:11px}
   #tabs.secmode .secb.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6}
   #tabs.secmode .secdot{top:-3px;right:calc(50% - 26px)}
@@ -140,7 +140,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #card #cardbadges .badge{line-height:1.35}
 }
 /* every size: the stage buttons (Rest, menus) step aside while a catch card is open */
-.stage:has(#card:not([hidden])) #resttog{opacity:0;pointer-events:none}
+body.card-open #resttog{opacity:0;pointer-events:none}
 @media (max-width:560px), (orientation:landscape) and (max-height:560px){
 }
 </style>`);
@@ -173,3 +173,24 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){#towater{display:none!important}}
 @media (prefers-reduced-motion:reduce){#towater{transition:none}}
 </style>`);
+
+// ---------- the aquarium on phones: a wide tank like on PC, decorations sized to fit it ----------
+// (decorations used to scale with the tank's height only, so a tall, narrow phone tank crammed them together)
+function tankK(w,h){ return Math.min(h/230, w/520); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:46vh} }
+@media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:62vh} }
+</style>`);
+// fish rows (cooler, aquarium) in a narrow menu column (phones, the sideways menu): the buttons go on their own
+// line under the fish, so the name and details never get squeezed into one word per line
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:620px){
+  #panel .fishrow{grid-template-columns:48px minmax(0,1fr) auto;row-gap:6px}
+  #panel .fishrow canvas{width:48px;height:24px}
+  #panel .fishrow .acts{grid-column:1/-1;justify-content:flex-end;flex-wrap:wrap}
+  #panel .fishrow .val{text-align:right}
+}
+</style>`);
+// a cheap switch for "a catch card is open" (instead of a :has() style rule the browser keeps re-checking)
+{ const _sc=showCard; showCard=function(o){ _sc(o); document.body.classList.add('card-open'); };
+  const _hc=hideCard; hideCard=function(){ document.body.classList.remove('card-open'); return _hc.apply(this,arguments); }; }

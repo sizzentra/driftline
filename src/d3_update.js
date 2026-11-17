@@ -3,8 +3,13 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.5';
+const GAME_VERSION = '0.3.5.1';
 const PATCHES = [
+ {v:'0.3.5.1', name:'Phone Fit Hotfix', items:[
+  'The aquarium fits on phones again, held upright or sideways: a wide tank like on PC, with decorations sized to fit.',
+  'Fish rows in the Cooler and Aquarium no longer squeeze the fish’s name and details when the menu is narrow: the buttons sit on their own line underneath.',
+  'Menus feel snappier on phones: switching pages is instant and the section bar is lighter to draw, so taps respond faster.',
+ ]},
  {v:'0.3.5', name:'A Tidier Tackle Box', items:[
   '## Menus',
   'The menus are reorganised into five sections: Fishing, Gear, Collection, Home and Rewards. Pick a section, then a page. The game remembers which page you last had open in each one.',
