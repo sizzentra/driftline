@@ -5,7 +5,7 @@
 //     wherever it happens, with no extra hooks.
 //  2. Weather forecast: the weather follows a fixed schedule (weatherAt), so the Events page shows what is coming,
 //     and a heads-up arrives just before rare weather starts.
-//  3. Save your catch: a camera button on the catch card makes a picture of the fish to share or save.
+
 // =====================================================================
 
 // ---------- 1. weekly quests ----------
@@ -66,34 +66,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @container (min-width:560px){ #menuov #panel .wxf{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px} #menuov #panel .wxf > h4,#menuov #panel .wxf > .meta{grid-column:1 / -1} }
 </style>`);
 
-// ---------- 3. save your catch as a picture ----------
-function catchPicture(){ const name=($('cardname')||{}).textContent||'Fish', rar=($('cardrar')||{}).textContent||'', rc=getComputedStyle($('cardrar')||document.body).color, fish=$('cardfish');
-  const nums=[...(($('cardnums')||{}).children||[])].map(e=>e.innerText.replace(/\s+/g,' ').trim()).filter(Boolean).slice(0,4);
-  const W2=1080, H2=1350, c=document.createElement('canvas'); c.width=W2; c.height=H2; const x=c.getContext('2d');
-  const bg=x.createLinearGradient(0,0,0,H2); bg.addColorStop(0,'#16284a'); bg.addColorStop(.55,'#0d1a30'); bg.addColorStop(1,'#070d18'); x.fillStyle=bg; x.fillRect(0,0,W2,H2);
-  const gl=x.createRadialGradient(W2/2,560,40,W2/2,560,520); gl.addColorStop(0,'rgba(255,211,106,.22)'); gl.addColorStop(1,'rgba(255,211,106,0)'); x.fillStyle=gl; x.fillRect(0,0,W2,H2);
-  x.textAlign='center'; x.fillStyle='#ffd36a'; x.font='800 54px system-ui,sans-serif'; x.fillText('Driftline',W2/2,120);
-  x.fillStyle='#9fb2c8'; x.font='600 34px system-ui,sans-serif'; x.fillText(curLoc().name+' · '+new Date().toLocaleDateString(),W2/2,176);
-  if(fish&&fish.width){ const fw=900, fh=fw*fish.height/fish.width; x.drawImage(fish,(W2-fw)/2,560-fh/2,fw,fh); }
-  x.fillStyle=rc||'#ffffff'; x.font='800 40px system-ui,sans-serif'; x.fillText(rar.toUpperCase(),W2/2,880);
-  x.fillStyle='#ffffff'; x.font='800 76px system-ui,sans-serif'; let fs=76; while(x.measureText(name).width>W2-120&&fs>40){ fs-=4; x.font='800 '+fs+'px system-ui,sans-serif'; } x.fillText(name,W2/2,970);
-  // the weight, big and gold; then the card's own badges (new species, personal record, shiny...) if any
-  const kg=(nums.find(t=>/kg/i.test(t))||'').replace(/^weight\s*/i,''); if(kg){ x.fillStyle='#ffd36a'; x.font='800 64px system-ui,sans-serif'; x.fillText(kg,W2/2,1070); }
-  const badges=[...(($('cardbadges')||{}).children||[])].map(e=>e.textContent.trim()).filter(t=>t&&!/streak/i.test(t)).slice(0,3).join('  ·  ');
-  if(badges){ x.fillStyle='#bfe8ff'; x.font='700 34px system-ui,sans-serif'; let bs=34; while(x.measureText(badges).width>W2-120&&bs>22){ bs-=2; x.font='700 '+bs+'px system-ui,sans-serif'; } x.fillText(badges,W2/2,1140); }
-  x.fillStyle='#6f86a0'; x.font='600 28px system-ui,sans-serif'; x.fillText('Caught in Driftline',W2/2,H2-60); return c; }
-async function shareCatch(){ try{ const c=catchPicture(); const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob) throw new Error('no image'); const nm='driftline-'+(($('cardname')||{}).textContent||'catch').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';
-    const file=new File([blob],nm,{type:'image/png'}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'My Driftline catch'}); return 'shared'; }
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nm; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },2000); toast('Picture saved'); return 'saved'; }
-  catch(e){ if(e&&e.name==='AbortError') return 'cancelled'; toast('Could not make the picture on this device.'); return 'failed'; } }
-{ const _sc=showCard; showCard=function(o){ _sc.apply(this,arguments); try{ const cin=$('cardin'); if(!cin||cin.querySelector('.cardpic')) return; const b=document.createElement('button'); b.type='button'; b.className='cardpic'; b.title='Save a picture of this catch'; b.setAttribute('aria-label','Save a picture of this catch'); b.textContent='📸';
-    ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); shareCatch(); }); cin.appendChild(b); }catch(e){} }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-#cardin{position:relative}
-#cardin .cardpic{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:12px;border:1px solid #ffffff2a;background:#0b1626cc;color:#fff;font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;z-index:2}
-#cardin .cardpic:hover{border-color:#ffd36a99}
-</style>`);
-if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, catchPicture, weekKey};
+if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, weekKey};
 document.head.insertAdjacentHTML('beforeend','<style>#panel .badge.n{background:#ffffff0d;color:#c9d7e8;border-color:#ffffff24}</style>');
-document.head.insertAdjacentHTML('beforeend','<style>#card #cardin{position:relative!important}#card #cardin > .cardpic{position:absolute!important;top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;width:38px!important;height:38px!important;min-height:0!important;margin:0!important;padding:0!important}</style>');
 document.head.insertAdjacentHTML('beforeend','<style>@container (min-width:560px){ #menuov #panel .tile.dtasks > :not(.toggle){grid-column:1 / -1} #menuov #panel .tile.dtasks > .btn{justify-self:start} }</style>');

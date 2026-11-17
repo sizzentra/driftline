@@ -1120,3 +1120,33 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.v3 .btn:disabled,body.v3 .btn[disabled],body.v3 #menuov .btn:disabled{background:linear-gradient(180deg,#26324a,#1e2838)!important;color:#a9b9cc!important;border:1px solid #3a4a62!important;box-shadow:none!important;filter:none!important;opacity:1!important;text-shadow:none!important;cursor:not-allowed}
 body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important}
 </style>`);
+
+// =====================================================================
+// The category bar never covers the water (director, 2026-11-17): it is its own part of the screen, a column to the
+// right of the water on sideways phones and a bar under the water everywhere else. Only Rest and the tip stay on it.
+// =====================================================================
+{ const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
+  const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
+  // the picture is exactly the water's box (the bar below or beside it is not part of the water)
+  const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.dl-fish .wrap > #catdock{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;z-index:2;flex:0 0 auto;margin:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(180deg,#14223a,#0f1a2e);border:1px solid var(--line,#26385180)}
+/* on the water: Rest bottom left, the tip just above it in the middle */
+body.dl-fish .resttog{bottom:10px!important;left:10px!important}
+body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;left:50%!important;transform:translateX(-50%)!important;max-width:calc(100% - 28px)!important}
+/* PC and tablets: a bar under the water, centred */
+@media (min-width:701px) and (min-height:561px){ html body.dl-fish .wrap > #catdock{align-self:center;border-radius:16px} }
+/* phones upright: a full-width bar under the water */
+@media (max-width:700px) and (orientation:portrait){ html body.dl-fish .wrap > #catdock{align-self:stretch;width:auto;border-radius:15px;padding:3px} }
+/* phones sideways: the water on the left, the categories in their own column on the right */
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .wrap{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto minmax(0,1fr)!important;column-gap:6px!important;row-gap:5px!important}
+  html body.dl-fish .wrap > .hud{grid-column:1 / -1!important;grid-row:1!important}
+  html body.dl-fish .wrap > #stage{grid-column:1!important;grid-row:2!important;min-height:0!important;height:auto!important}
+  html body.dl-fish .wrap > #catdock{grid-column:2;grid-row:2;align-self:stretch;flex-direction:column!important;justify-content:space-evenly;gap:2px;padding:4px;border-radius:14px}
+  body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:12px!important;left:calc(50% + 40px)!important;max-width:calc(100% - 120px)!important}
+  .dlprev{right:calc(150px + env(safe-area-inset-right))!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
+}
+@media (max-width:700px) and (orientation:portrait){ .dlprev{bottom:calc(76px + env(safe-area-inset-bottom))!important} }
+@media (min-width:701px) and (min-height:561px){ .dlprev{bottom:calc(74px + env(safe-area-inset-bottom))!important} }
+</style>`);
