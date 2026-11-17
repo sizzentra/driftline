@@ -160,7 +160,7 @@ ui(){ QA.sys='UI';
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'categories, page tabs, Back, goal'}; });
   T('top bar: no bait chip; Fishing at, Cooler, Aquarium, Fish Log and Settings are on screen, fit, and each opens its page; bait is picked in Tackle',()=>{ const e=[]; closeMenu(); setTab(DASH);
     const bc=document.querySelector('.hud > .st-bait'); if(bc&&getComputedStyle(bc).display!=='none') e.push('bait chip still shown');
-    const want=[['.hud > .stat.loc','map'],['.hud > .st-cool','cooler'],['.hud > .st-aq','aquarium'],['.hud > .st-log','journal'],['.hud #settingsbtn','settings']];
+    const want=[['.hud > .stat.loc','map'],['.hud > .st-cool','cooler'],['.hud > .st-aq','aquarium'],['.hud > .st-log','journal'],[document.body.classList.contains('pch-on')?'#pchead [data-pch="settings"]':'.hud #settingsbtn','settings']];
     for(const [q,tab] of want){ const el=document.querySelector(q); if(!el){ e.push(q+' missing'); continue; } const r=el.getBoundingClientRect(); if(!r.width||getComputedStyle(el).display==='none'){ e.push(q+' hidden'); continue; }
       if(r.right>innerWidth+1) e.push(q+' off screen'); for(const x of el.querySelectorAll('b,.lbl')) if(x.clientWidth&&x.scrollWidth>x.clientWidth+1) e.push(q+' text cut');
       el.click(); if(S.tab!==tab) e.push(q+' opened '+S.tab); closeMenu(); setTab(DASH); }
