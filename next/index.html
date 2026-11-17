@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1128';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1209';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -856,16 +856,16 @@ const BAIT = {
   minnows:{name:'Live Minnows',  speed:1.4, rare:.5,  pack:10, price:700,  beh:['run','thrash','jump'], note:'Predators can’t resist: runners, thrashers and jumpers ×1.9.'},
   glitter:{name:'Glitter Jigs',  speed:1.2, rare:.3,  pack:10, price:1200, shiny:2, note:'Shiny fish ×2.'},
   deepjig:{name:'Deep Jigs',     speed:1.5, rare:.9,  pack:10, price:4000, beh:['dive','sulk'], note:'Sinks deep: divers and sulkers ×1.9.'},
-  berries:{name:'Wild Berries',  speed:1.45,rare:.35, pack:10, price:500,  loc:'river', note:'Sweet and sticky: odds ×2 at Stonebrook River.'},
+  berries:{name:'Wild Berries',  speed:1.45,rare:.5,  pack:10, price:600,  loc:'river', locMul:5, note:'Sweet and sticky: odds ×5 at Stonebrook River.'},
   goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:9000, note:'The good stuff. Fast bites and great odds anywhere.'},
   lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:20000, loc:'ember', note:'Heat-proof worms: odds ×2 at Ember Springs.'},
   stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', note:'A pinch of the sky: odds ×2 at Starfall Lake.'},
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
-  icefly: {name:'Ice Flies',     speed:1.4, rare:.6,  pack:10, price:1500, loc:'frost', note:'Tied for cold water: odds ×2 at Frostbite Lake.'},
+  icefly: {name:'Ice Flies',     speed:1.4, rare:.65, pack:10, price:1500, loc:'frost', locMul:4, note:'Tied for cold water: odds ×4 at Frostbite Lake.'},
   chum:   {name:'Abyssal Chum',  speed:1.9, rare:1.2, pack:10, price:2500, note:'Draws the rarest fish fast.'},
-  shrimp: {name:'Live Shrimp',   speed:1.5, rare:.7,  pack:10, price:3000, loc:'reef', note:'Reef fish can’t resist: odds ×2 at Coral Shallows.'},
+  shrimp: {name:'Live Shrimp',   speed:1.5, rare:.7,  pack:10, price:3000, loc:'reef', locMul:4, note:'Reef fish can’t resist: odds ×4 at Coral Shallows.'},
   squid:  {name:'Squid Strips',  speed:1.7, rare:1.1, pack:10, price:8000, sea:true, note:'Big-game bait: odds ×1.5 on the open sea.'},
   stinky: {name:'Stinky Cheese', speed:2.6, rare:.1,  junk:true, note:'Found as junk. Bites come very fast.'},
   disco:  {name:'Disco Lures',   speed:1.4, rare:.5,  junk:true, shiny:3, note:'Found as junk. Shiny fish ×3.'},
@@ -1537,7 +1537,7 @@ function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const 
 function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearls||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=2; if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc); return rare; }
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc); return rare; }
 function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1); }
 const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
@@ -2796,6 +2796,13 @@ const PATCHES = [
   '## Weekly quests and forecasts',
   'Weekly quests: four bigger goals every week, right under your daily tasks in Bounties. Each pays coins and Scales, and finishing all four earns a big Mystery Crate. New quests arrive every Monday.',
   'Weather forecast: the Events page shows the weather coming to every water and when, so you can plan for rare weather like Gilded, Aurora or a Blood Moon. A heads-up arrives a minute before rare weather starts.',
+  '## The Boardwalk: prizes, not coins',
+  'The Boardwalk games now pay out in prizes: tickets, crates and things to wear. The coin flip is still a coin game, and the wheel keeps one small coin slice.',
+  'New on the wheel: a Wear prize (something you don’t own yet) and a jackpot that gives a Boardwalk-only piece.',
+  'Scratch cards pay tickets, a crate or a Boardwalk-only piece, and Higher or lower now grows a ticket pot.',
+  'Duck pond ducks all hide tickets, and a few hide a crate or something to wear.',
+  'Mystery crates are mostly clothes, hats, glasses, fabrics, colours, pet extras, decor and pets. When you already own everything a roll could give, you get tickets.',
+  'A crate’s reveal shows what you won, on your angler or your pet.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
@@ -2809,7 +2816,7 @@ const PATCHES = [
   '## Better choices',
   'Rare odds stack properly now: every source of better odds (bait, rods, skills, hotspots, far casts) keeps counting as you add more, so upgrades you can feel.',
   'Bait, rods and the Lucky Charm skill show your real chance of an epic or better fish at the water you are on, and how much a choice changes it.',
-  'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, and no single bait wins everywhere. Lava Worms, Stardust and Golden Chum are much cheaper.',
+  'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, by day and by night, for rare fish and for coins, and no single bait wins everywhere. Wild Berries, Ice Flies and Live Shrimp are much stronger at their own water. Lava Worms, Stardust and Golden Chum are much cheaper.',
   '## Events',
   'Six new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Long Cast, Steady Hands, Treasure Dive and Trophy Weigh-in. Each is sized to your gear and odds, with coins, Scales and tickets to win.',
   'A new event calendar: the Shoal Run (faster bites, more rare fish), Golden Hour (shiny fish twice as common) and Market Rush (fish sell for 30% more) run on the clock at every water. The calendar shows what is live and when the next one starts.',
@@ -9962,7 +9969,7 @@ function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=(
   if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and at home.'};
   if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase()+'.'};
   if(id==='scales10') return {cat:'Scales', d:'Scales level up your rods and buy rod attachments and special bait.'};
-  if(id==='crate') return {cat:'Mystery crate', d:'Opens into coins, lures, clothes, decor, and sometimes a pet.'};
+  if(id==='crate') return {cat:'Mystery crate', d:'Opens into clothes, lures, decor and now and then a pet.'};
   if(id==='myth') return {cat:'Bait', d:'Three Myth Bait: legendary fish are far more likely to bite.'};
   return {cat:'Prize', d:p[1]}; }
 const BW_GAMES = [['wheel','🎡','#ff8a5c'],['crates','🎁','#b9a2ff'],['duck','🦆','#5ad8e8'],['hilo','🃏','#7fe3c4'],['flip','🪙','#ffd36a'],['scratch','🎫','#ff9ac0'],['claw','🧸','#ff7ab0']];
@@ -9970,24 +9977,24 @@ function bwCard(icon,col,title,meta,body,foot){ return `<div class="bwx-card" st
 function bwGamesHTML(){ const tk=S.tokens, base=bestLoot(), nextIn=Math.max(0,Math.ceil((SPIN_EVERY-(Date.now()-S.wheelT))/60000));
   const crateRow=(k,name,desc)=>`<div class="bwx-row"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmtShort(crateCost(k))}</span></button>`}</div>`;
   const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>${Math.round(f*100)}% · <span class="coin">${fmtShort(Math.max(0,amt))}</span></button>`; };
-  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'🎁':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
+  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'🎁':p.k==='wear'?'👕':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
   return `<div class="bwx-grid">
    ${bwCard('🎡','#ff8a5c','Lucky wheel','A free spin every hour, up to '+SPIN_BANK+' saved.'+(S.freeSpins<SPIN_BANK?' Next in '+nextIn+' min.':''),
      `<div class="wheelwrap"><div class="wheelring"><canvas id="wheelcv" width="520" height="520"></canvas></div>${WH.result?`<div class="val bwx-res">${esc(WH.result)}</div>`:''}</div>`,
      S.freeSpins>0?`<button class="btn" data-act="spin" data-k="free" ${WH.spinning?'disabled':''}>Free spin (${S.freeSpins} left)</button>`:`<button class="btn" data-act="spin" ${WH.spinning||S.money<wheelCost()?'disabled':''}>Spin · <span class="coin">${fmtShort(wheelCost())}</span></button>`)}
-   ${bwCard('🎁','#b9a2ff','Mystery crates','Coins, lures, clothes, decor, rods, and pets you can’t get anywhere else.',
-     crateRow('small','Small crate','Mostly coins and lures. Sometimes a pet.')+crateRow('big','Big crate','Clothes, decor and the rarer pets.')+crateRow('legend','Legendary crate','The really good stuff.')+(crateRes?`<div class="reveal bwx-res"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''),'')}
-   ${bwCard('🦆','#5ad8e8','Duck pond','Pick a rubber duck. Every duck wins something.',
+   ${bwCard('🎁','#b9a2ff','Mystery crates','Clothes, decor, lures and pets you can’t get anywhere else, plus Boardwalk-only wear.',
+     crateRow('small','Small crate','Mostly clothes and lures. Sometimes decor or a pet.')+crateRow('big','Big crate','Clothes, Boardwalk-only wear, decor and the rarer pets.')+crateRow('legend','Legendary crate','The really good stuff.')+(crateRes?`<div class="reveal bwx-res"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''),'')}
+   ${bwCard('🦆','#5ad8e8','Duck pond','Pick a rubber duck. Every duck wins tickets, and a few hide a crate or something to wear.',
      duck?`<div class="ducks">${ducks}</div>${duck.pick>=0?`<div class="val bwx-res">${esc(duck.msg||'')}</div>`:''}`:'<div class="bwx-art">🦆 🦆 🦆</div>',
      `<button class="btn${duck&&duck.pick<0?' alt':''}" data-act="duckagain" ${S.money>=base&&!(duck&&duck.pick<0)?'':'disabled'}>${duck?'Play again':'Play'} · <span class="coin">${fmtShort(base)}</span></button>`)}
-   ${bwCard('🃏','#7fe3c4','Higher or lower','Guess the next fish card. Every right guess grows the pot by half. Cash out any time.',
-     hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val bwx-res">Pot <span class="coin">${fmt(hilo.pot)}</span> · streak ${hilo.streak}</div>`:`${hilo&&hilo.done?`<div class="val bwx-res">${esc(hilo.msg)}</div>`:'<div class="bwx-art">🂠 🂡</div>'}`,
+   ${bwCard('🃏','#7fe3c4','Higher or lower','Guess the next fish card. Every right guess grows the ticket pot by half. Cash out any time.',
+     hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val bwx-res">Pot 🎟 ${fmt(hilo.pot)} tickets · streak ${hilo.streak}</div>`:`${hilo&&hilo.done?`<div class="val bwx-res">${esc(hilo.msg)}</div>`:'<div class="bwx-art">🂠 🂡</div>'}`,
      hilo&&!hilo.done?`<button class="btn sm" data-act="hilo" data-k="hi">Higher ▲</button><button class="btn sm" data-act="hilo" data-k="lo">Lower ▼</button><button class="btn alt sm" data-act="hilocash" ${hilo.streak?'':'disabled'}>Cash out</button>`:`<button class="btn" data-act="hilostart" ${S.money>=base*2?'':'disabled'}>Deal · <span class="coin">${fmtShort(base*2)}</span></button>`)}
    ${bwCard('🪙','#ffd36a','Coin flip','Heads you double it, tails the Fishmonger keeps it. '+S.gstats.flips+' flips, '+S.gstats.flipWins+' won.',
      flipRes?`<div class="val bwx-res" style="color:${flipRes.win?'var(--gold)':'var(--muted)'}">${esc(flipRes.txt)}</div>`:'<div class="bwx-art">🪙</div>', betBtn(.1)+betBtn(.25)+betBtn(.5))}
-   ${bwCard('🎫','#ff9ac0','Scratch card','Three of a kind wins: 🐟 ×2 · 🦀 ×4 · 🐚 ×8 · 💎 ×20 · 👑 ×60 (times '+fmtShort(base)+').',
+   ${bwCard('🎫','#ff9ac0','Scratch card','Three of a kind wins: 🐟 30 · 🦀 60 · 🐚 120 tickets · 💎 a crate · 👑 Boardwalk-only wear.',
      scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div>`
-      :scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val bwx-res" style="color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:'<div class="bwx-art">🎫</div>',
+      :scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val bwx-res" style="color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! '+(scratch.txt||''):'No match this time.'}</div>`:'<div class="bwx-art">🎫</div>',
      scratch&&!scratch.done?'<button class="btn alt sm" data-act="scratchall">Reveal all</button>':`<button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmtShort(base*2)}</span></button>`)}
    ${bwCard('🧸','#ff7ab0','Claw machine','Plushies, tickets and secrets. The claw is… mostly honest.',
      `<canvas id="clawcv" width="420" height="260" class="bwx-claw"></canvas>${claw?`<div class="val bwx-res" style="color:${claw.win?'var(--gold)':'var(--muted)'}">${esc(claw.txt)}</div>`:''}`,
@@ -10030,7 +10037,7 @@ renderBoardwalk = function(P){ accrueSpins();
   if(bwView==='games'){ paintClaw(); drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.save(); x.scale(1.8,1.8); v3Rod(x,{x:16,y:80},{x:118,y:16},66,50,ROD_I[crateRes.id],0,0,false); x.restore(); }
-    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
+    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else if(k==='wear') bwDrawWear(x,240,180,crateRes.wear); else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
   if(bwView==='prizes'){ paintPrizes(P);
     // prizes added in later updates: draw them from the real pet, rod and hat art instead of the generic token
     P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const id=c.dataset.prize, p=PRIZES.find(q=>q[0]===id); if(!p) return; const tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase(), x=c.getContext('2d');
@@ -11254,7 +11261,8 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 // scroll the pill row (not the page) so the open page's pill sits fully in view, clear of the edge fades
 function menuPillView(sb,p){ if(!sb||!p) return; if(sb.scrollWidth>sb.clientWidth+2){ const s=sb.getBoundingClientRect(), r=p.getBoundingClientRect(), pad=34;
     if(r.right>s.right-pad) sb.scrollLeft+=r.right-(s.right-pad); else if(r.left<s.left+pad) sb.scrollLeft-=(s.left+pad)-r.left; }
-  sb.classList.toggle('more-r',sb.scrollLeft+sb.clientWidth<sb.scrollWidth-4); sb.classList.toggle('more-l',sb.scrollLeft>4); }
+  const edges=()=>{ sb.classList.toggle('more-r',sb.scrollLeft+sb.clientWidth<sb.scrollWidth-4); sb.classList.toggle('more-l',sb.scrollLeft>4); };
+  edges(); requestAnimationFrame(edges); } // again next frame: the row can still change width after this (the edge fade must match the final scroll)
 
 // ---------- the catch card on phones (upright and sideways): everything on one card, no scrolling ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13980,7 +13988,96 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @container (min-width:560px){ #menuov #panel .wxf{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px} #menuov #panel .wxf > h4,#menuov #panel .wxf > .meta{grid-column:1 / -1} }
 </style>`);
 
-if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, weekKey};
+// ---------- 3. the Boardwalk pays out in prizes, not coins (director, 2026-11-17) ----------
+// Every game except the coin flip now pays tickets, crates and cosmetics. "Wear" prizes are things you don't own yet:
+// shop clothes, glasses, hats, fabrics, colours and pet extras, and now and then a Boardwalk-only piece from the counter.
+const BW_KIND={shoe:'shoes',neck:'neckwear',back:'back piece',out:'outfit',glasses:'glasses',hat:'hat',pat:'fabric',col:'colour',petacc:'pet accessory',pettint:'pet colour'};
+function bwWearPool(){ const o=S.owned, out=[]; const add=(arr,kind,list)=>arr.forEach(x=>{ if(x[0]!=='none'&&x[3]==='shop'&&x[2]>0&&!list.includes(x[0])) out.push({kind,id:x[0],name:x[1]}); });
+  add(SHOES,'shoe',o.shoes); add(NECKS,'neck',o.necks); add(BACKS,'back',o.backs); add(OUTFITS,'out',o.outfits);
+  GLASSES.forEach(g=>{ if(g[2]>0&&!o.glasses.includes(g[0])) out.push({kind:'glasses',id:g[0],name:g[1]}); });
+  HATS.forEach(h=>{ if(h.src==='shop'&&!o.hats.includes(h.id)) out.push({kind:'hat',id:h.id,name:h.name}); });
+  PATTERNS.forEach(p=>{ if(p[2]>0&&!o.pats.includes(p[0])) out.push({kind:'pat',id:p[0],name:p[1]}); });
+  SHOP_COLS.forEach(c=>{ if(!o.cols.includes(c[0])) out.push({kind:'col',id:c[0],name:c[1]}); });
+  PET_ACCS.forEach(a=>{ if(a[2]>0&&!(a[0] in PRIZE_ACC)&&!S.petAccs.includes(a[0])) out.push({kind:'petacc',id:a[0],name:a[1]}); });
+  PET_TINTS.forEach(t=>{ if(t[2]>0&&!(t[0] in PRIZE_TINT)&&!S.petTints.includes(t[0])) out.push({kind:'pettint',id:t[0],name:t[1]}); });
+  return out; }
+function bwGrantWear(it){ const o=S.owned, L={shoe:o.shoes,neck:o.necks,back:o.backs,out:o.outfits,glasses:o.glasses,hat:o.hats,pat:o.pats,col:o.cols,petacc:S.petAccs,pettint:S.petTints}[it.kind]; if(L&&!L.includes(it.id)) L.push(it.id); }
+// excl: a Boardwalk-only piece when one is left (the jackpots); otherwise mostly shop wear, sometimes Boardwalk-only
+function bwWearPrize(excl){ const ex=bwPool().filter(x=>!bwOwned(x)), pool=bwWearPool(); let it=null;
+  if(ex.length&&(excl||!pool.length||Math.random()<.3)) it=pick(ex); else if(pool.length) it=pick(pool);
+  if(!it) return null; const isEx=ex.some(x=>x.kind===it.kind&&x.id===it.id); it={kind:it.kind,id:it.id,name:it.name,excl:isEx}; bwGrantWear(it);
+  return {title:'New '+BW_KIND[it.kind]+': '+it.name+(it.excl?' (Boardwalk only)':''), kind:'wear', wear:it}; }
+// the picture of a wear prize (crate reveal)
+function bwDrawWear(x,w,h,it){ if(!it) return; const lk=Object.assign({},S.look,{hat:'none'});
+  if(it.kind==='shoe'||it.kind==='neck'||it.kind==='back') return wearPreview(x,it.kind,it.id,w,h);
+  if(it.kind==='hat') return hatPreview(x,w,h,it.id,S.look.hatCol,true);
+  if(it.kind==='col'){ x.fillStyle=it.id; x.beginPath(); x.arc(w/2,h/2,Math.min(w,h)*.28,0,7); x.fill(); return; }
+  if(it.kind==='glasses'){ lk.glasses=it.id; const s=h/32; return drawAngler(x,w*.46,h*.52+50*s,s,lk,{}); }
+  if(it.kind==='petacc'||it.kind==='pettint'){
+    // shown on your favourite pet, awake; a new colour on a pet whose coat it barely changes (Dax is black) is shown on another of your pets
+    let id=S.pet; if(it.kind==='pettint'&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id;
+    const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id}), n0=PET_NIGHT; PET_NIGHT=0;
+    try{ drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); } finally{ PET_NIGHT=n0; } return; }
+  if(it.kind==='pat'){ lk.pat=it.id; lk.outfit='none'; const s=h/34; return drawAngler(x,w*.46,h*.5+50*s,s,lk,{}); }
+  if(it.kind==='out') lk.outfit=it.id;
+  drawAngler(x,w/2,h*.95,h/90,lk,{}); }
+const bwTix=(n,why)=>({title:'+'+addTickets(n)+' tickets'+(why?' ('+why+')':''), kind:'tix'});
+
+// the wheel: tickets, lures, a boost, crates, a wear prize, a small coin slice, and a Boardwalk-only jackpot
+WHEEL.length=0; WHEEL.push(['25 tickets',22,'#3a6f9a'],['Lure pack',13,'#4f8a4a'],['60 tickets',14,'#7a4a9a'],['Lucky boost',12,'#2a8aa8'],['Small crate',12,'#c8553a'],['Coins ×3',10,'#6a7680'],['Big crate',6,'#d87aa0'],['Wear prize',8,'#2f9a7a'],['JACKPOT',3,'#d8a020']);
+wheelPrize=function(i){ const lab=(WHEEL[i]||WHEEL[0])[0]; try{ sfx.coin(); }catch(e){}
+  if(lab==='25 tickets') return '+'+addTickets(25)+' tickets';
+  if(lab==='60 tickets') return '+'+addTickets(60)+' tickets';
+  if(lab==='Lure pack'){ const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk); const k=pick(opts); S.bait[k]+=8; renderBait(); return '8 '+BAIT[k].name; }
+  if(lab==='Lucky boost'){ const fo=pick(FORTUNES); addBuff(fo[1],fo[2],15,'Lucky wheel'); return 'Boost: '+fmtB(fo[1],fo[2])+' for 15 min'; }
+  if(lab==='Small crate'){ S.tokens.small++; return 'A small Mystery Crate (open it in Mystery crates)'; }
+  if(lab==='Big crate'){ S.tokens.big++; return 'A BIG Mystery Crate (open it in Mystery crates)'; }
+  if(lab==='Coins ×3') return '+'+fmt(bwEarn(bestLoot()*3*coinMult()))+' coins';
+  if(lab==='Wear prize'){ const r=bwWearPrize(false); return r?r.title:'+'+addTickets(150)+' tickets (you own every prize)'; }
+  try{ sfx.shiny(); }catch(e){} const r=bwWearPrize(true); return 'JACKPOT! '+(r?r.title:'+'+addTickets(400)+' tickets'); };
+
+// crates: mostly things to wear and place; tickets (not coins) when you already own everything a roll could give
+openCrate=function(k){ const r=Math.random(); let res;
+  const petPool=tier=>PETS.filter(p=>p.src==='crate'&&p.price<=tier&&!S.owned.pets.includes(p.id));
+  const decor=rare=>{ const pool=DECOR.filter(d=>!S.aq.owned.includes(d.id)&&(rare?true:d.price>0)); if(!pool.length) return null; const d=rare&&pool.some(x=>!x.price)&&Math.random()<.6?pick(pool.filter(x=>!x.price)):pick(pool); S.aq.owned.push(d.id); return {title:'Aquarium decor: '+d.name+' (+'+Math.round(d.b*100)+'% income)', kind:'decor', id:d.id}; };
+  const pet=(tier,legendBias)=>{ let pool=petPool(tier); if(legendBias){ const top=pool.filter(p=>p.price===3); if(top.length&&Math.random()<.35) pool=top; } if(!pool.length) return null; const p=pick(pool); S.owned.pets.push(p.id); return {title:'New pet: '+p.name+'!', kind:'pet', id:p.id}; };
+  const coins=(a,b)=>({title:'+'+fmt(bwEarn(bestLoot()*rnd(a,b)*coinMult()))+' coins', kind:'coins'});
+  const lure=()=>{ const opts=Object.keys(BAIT).filter(x=>x!=='worm'); const kk=pick(opts); const n=BAIT[kk].junk?4:10; S.bait[kk]+=n; renderBait(); return {title:n+' '+BAIT[kk].name, kind:'lure'}; };
+  const wear=excl=>bwWearPrize(excl), own='you own everything this could have been';
+  if(k==='small') res = r<.15?coins(2,6) : r<.35?lure() : r<.75?(wear(false)||bwTix(40,own)) : r<.9?(decor(false)||bwTix(40,own)) : (pet(1)||wear(false)||bwTix(60,own));
+  else if(k==='big') res = r<.1?coins(10,25) : r<.5?(wear(Math.random()<.4)||bwTix(150,own)) : r<.68?(decor(false)||wear(false)||bwTix(150,own)) : r<.92?(pet(2)||wear(true)||bwTix(200,own)) : (decor(true)||wear(true)||bwTix(200,own));
+  else res = (r<.1&&grantRod('golden')) || (r<.45?(pet(3,true)||wear(true)||coins(150,300)) : r<.75?(decor(true)||wear(true)||coins(150,300)) : r<.9?(wear(true)||coins(100,300)) : coins(100,300));
+  S.gstats.crates++; try{ sfx.catch(k==='legend'?4:k==='big'?3:2); if(res.kind==='pet'||res.kind==='decor'||res.kind==='wear') sfx.shiny(); }catch(e){} crateRes=Object.assign({crate:k},res); };
+
+// duck pond: every duck wins tickets; a few hide a crate or something to wear
+newDuck=function(){ const prizes=[]; for(let i=0;i<6;i++){ const r=Math.random(); prizes.push(r<.05?{k:'crate'}:r<.08?{k:'wear'}:r<.3?{k:'tix',n:rint(40,70)}:r<.6?{k:'tix',n:rint(20,40)}:{k:'tix',n:rint(8,16)}); } duck={prizes, pick:-1}; };
+// scratch card: tickets, a crate, or a Boardwalk-only piece
+const SCRATCH_PAY=[30,60,120];
+newScratch=function(){ const sym=['🐟','🦀','🐚','💎','👑'], ws=[50,25,15,8,2]; const win=Math.random()<.35; let w=-1; if(win){ let x=Math.random()*100; w=0; for(let i=0;i<5;i++){ x-=ws[i]; if(x<=0){ w=i; break; } } }
+  const cells=[]; if(win) cells.push(w,w,w); const cnt=[0,0,0,0,0]; if(win) cnt[w]=3; while(cells.length<9){ const s=Math.floor(Math.random()*5); if(s===w||cnt[s]>=2) continue; cnt[s]++; cells.push(s); }
+  for(let i=cells.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
+  scratch={cells, open:Array(9).fill(false), win:w, prize:0, txt:'', done:false, sym}; };
+settleScratch=function(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++;
+  if(scratch.win>=0){ const w=scratch.win; let t; if(w<3) t='+'+addTickets(SCRATCH_PAY[w])+' tickets'; else if(w===3){ S.tokens.small++; t='a small Mystery Crate and +'+addTickets(100)+' tickets'; } else { const r=bwWearPrize(true); t=r?r.title:'+'+addTickets(500)+' tickets'; }
+    scratch.txt=t; S.gstats.scratchWins++; try{ sfx.catch(w>=3?4:2); }catch(e){} } else { try{ sfx.lost(); }catch(e){} } };
+// higher or lower: the pot is tickets now; a right guess grows it by half, eight in a row pays it out
+const HILO_POT=12;
+{ const _xh=extraAct2; extraAct2=function(b){ const a=b.dataset.act, k=b.dataset.k, i=+b.dataset.i;
+  if(a==='hilostart'){ const c=bestLoot()*2; if(S.money<c) return 'skip'; S.money-=c; hilo={card:rint(1,13), streak:0, pot:HILO_POT, done:false}; taskProgress('game',1); return 'render'; }
+  if(a==='hilo'){ if(!hilo||hilo.done) return 'skip'; let n; do{ n=rint(1,13); }while(n===hilo.card); const ok=(k==='hi')===(n>hilo.card), prev=hilo.card; hilo.card=n;
+    if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); try{ tone(900+hilo.streak*100,.1,'triangle',.06); }catch(e){} if(hilo.streak>=8){ addTickets(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' tickets.'; try{ sfx.catch(4); }catch(e){} } }
+    else { hilo.done=true; hilo.msg=prev+' → '+n+'. Wrong way! The pot sinks, but you keep '+addTickets(2)+' tickets for trying.'; try{ sfx.lost(); }catch(e){} } return 'render'; }
+  if(a==='hilocash'){ if(!hilo||hilo.done||!hilo.streak) return 'skip'; addTickets(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' tickets after '+hilo.streak+' right guess'+(hilo.streak>1?'es':'')+'.'; try{ sfx.coin(); }catch(e){} return 'render'; }
+  if(a==='duckpick'){ if(!duck||duck.pick>=0) return 'skip'; if(!Number.isInteger(i)||i<0||i>=duck.prizes.length) return 'skip'; duck.pick=i; const p=duck.prizes[i];
+    if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; try{ sfx.shiny(); }catch(e){} }
+    else if(p.k==='wear'){ const r=bwWearPrize(false); duck.msg=(r?r.title:'+'+addTickets(120)+' tickets')+'. Quack!'; try{ sfx.shiny(); }catch(e){} }
+    else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; try{ tone(1200,.08,'triangle',.05); }catch(e){} } return 'render'; }
+  return _xh(b); }; }
+
+// (2026-11-17 balance check: Wild Berries, Ice Flies and Live Shrimp were too weak to be the best bait at their own
+//  water, so their base odds were raised in b_data.js; Lava Worms and Stardust already were.)
+
+if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, weekKey, bwWearPool, bwWearPrize, bwDrawWear, wheel:()=>WHEEL.map(w=>w.slice(0,2))};
 document.head.insertAdjacentHTML('beforeend','<style>#panel .badge.n{background:#ffffff0d;color:#c9d7e8;border-color:#ffffff24}</style>');
 document.head.insertAdjacentHTML('beforeend','<style>@container (min-width:560px){ #menuov #panel .tile.dtasks > :not(.toggle){grid-column:1 / -1} #menuov #panel .tile.dtasks > .btn{justify-self:start} }</style>');
 // =====================================================================
@@ -14104,6 +14201,23 @@ ui(){ QA.sys='UI';
   T('aquarium: each fish\'s coins per hour add up exactly to the total shown, each within a coin of its true value',()=>{ const e=[]; const base=S.tank.slice(); const pool=[...S.cooler,...base]; if(!pool.length) return {ok:true,detail:'no fish to test'};
     for(let k=1;k<=Math.min(12,aqCap());k++){ S.tank=Array.from({length:k},(_,i)=>pool[i%pool.length]); const sh=aqShownRates(), tot=Math.floor(tankRate()*60); if(sh.reduce((a,b)=>a+b,0)!==tot) e.push(k+' fish: '+sh.reduce((a,b)=>a+b,0)+' vs '+tot); S.tank.forEach((f,i)=>{ if(Math.abs(sh[i]-fishRate(f)*60)>=1) e.push('fish '+i+' off by '+(sh[i]-fishRate(f)*60).toFixed(2)); }); }
     S.tank=base; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
+  T('each water bait is the best bait at its own water (rare odds and coins per hour, clear day and night) and never a top-2 pick elsewhere',()=>{ const e=[]; const off0=window.__off; const baits=Object.keys(BAIT).filter(k=>!BAIT[k].junk&&!BAIT[k].scales); const spV={};
+    const clearAt=ph=>{ setPhaseNow(ph); const base=window.__off; for(let k=0;k<120;k++){ window.__off=base+k*CYCLE*1000; if(weather().k==='Clear') return true; } return false; };
+    const coins=L=>{ S.loc=L; if(!S.unlocked.includes(L)) S.unlocked.push(L); S.baitSel='worm'; for(const s of SP.filter(s=>s.loc===L)) if(spV[s.id]==null){ let t=0; for(let i=0;i<120;i++) t+=salePrice(rollFish(s,{dist:{rare:0,weight:1}})); spV[s.id]=t/120; }
+      return baits.map(bk=>{ const bt=BAIT[bk], o=catchOdds({bait:bk}); let ev=0,T=0; for(const [s,w] of o.shares){ ev+=w*spV[s.id]; T+=w*(3.5+3/bt.speed+3+3*s.r); } return [bk,(ev-(bt.price||0)/(bt.pack||1))/T]; }).sort((a,b)=>b[1]-a[1]).map(x=>x[0]); };
+    for(const ph of [.3,.8]){ if(!clearAt(ph)){ e.push('no clear weather found'); continue; } for(const bk of baits.filter(k=>BAIT[k].loc)){ const L=BAIT[bk].loc; S.loc=L; if(!S.unlocked.includes(L)) S.unlocked.push(L);
+      const ep=baits.map(k=>[k,catchOdds({bait:k}).epic]).sort((a,b)=>b[1]-a[1]).map(x=>x[0]); if(ep[0]!==bk) e.push(bk+' rare odds #'+(ep.indexOf(bk)+1)+' at '+L+(ph>.5?' (night)':' (day)'));
+      const cr=coins(L); if(cr[0]!==bk) e.push(bk+' coins #'+(cr.indexOf(bk)+1)+' at '+L+(ph>.5?' (night)':' (day)')); } }
+    clearAt(.3); for(const L of LOCS){ const cr=coins(L.id); cr.slice(0,2).forEach(bk=>{ if(BAIT[bk].loc&&BAIT[bk].loc!==L.id) e.push(bk+' is a top-2 pick at '+L.id); }); }
+    window.__off=off0; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
+  T('Boardwalk pays prizes: duck, scratch and higher-or-lower never pay coins; wear prizes are never duplicates or prize-counter items; owning everything pays tickets',()=>{ const e=[]; S.money=1e12; const m0=S.money, B=bestLoot(); let cost=0;
+    for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; }
+    if(S.money!==m0-cost) e.push('games paid '+fmt(S.money-(m0-cost))+' coins');
+    const seen=new Set(); let r, guard=0; while((r=bwWearPrize(guard%3===0))&&guard++<2000){ const key=r.wear.kind+':'+r.wear.id; if(seen.has(key)) e.push('duplicate '+key); seen.add(key); if((r.wear.kind==='petacc'&&r.wear.id in PRIZE_ACC)||(r.wear.kind==='pettint'&&r.wear.id in PRIZE_TINT)) e.push('prize-counter item '+key); }
+    if(!seen.size) e.push('no wear prizes at all'); if(bwWearPool().length||bwPool().some(x=>!bwOwned(x))) e.push('pool not empty after drawing everything');
+    const t0=S.tickets; wheelPrize(WHEEL.findIndex(w=>w[0]==='JACKPOT')); if(S.tickets!==t0+400) e.push('jackpot with everything owned gave '+(S.tickets-t0)+' tickets');
+    for(const k of ['small','big']){ S.tokens[k]=1; crateRes=null; act('crate',{k,free:1}); if(!crateRes||!crateRes.title) e.push(k+' crate gave nothing'); } crateRes=null;
+    return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:seen.size+' wear prizes drawn, all different'}; });
   T('top bar bait chip: every bait name and count fits with nothing cut off, and the real picker covers the chip',()=>{ const e=[]; const nm=document.querySelector('.st-bait .bnm'), lb=document.querySelector('.st-bait .lbl'), sel=$('bait'); if(!nm||!lb) return {ok:false,detail:'chip missing'};
     for(const k of Object.keys(BAIT)){ S.bait[k]=999999; S.baitSel=k; renderBait(); if(nm.clientWidth&&nm.scrollWidth>nm.clientWidth+1) e.push(k+' name cut'); if(lb.clientWidth&&lb.scrollWidth>lb.clientWidth+1) e.push(k+' label cut'); if(sel.value!==k) e.push(k+' picker shows '+sel.value); }
     const c=sel.closest('.stat').getBoundingClientRect(), s=sel.getBoundingClientRect(); if(c.width&&(Math.abs(c.width-s.width)>2||Math.abs(c.height-s.height)>2)) e.push('picker does not cover the chip');
@@ -14115,7 +14229,7 @@ ui(){ QA.sys='UI';
 fuzz(){ QA.sys='Adversarial';
   T('3,000 random actions (spam, bad ids, bad indexes): no errors, rules always hold',()=>{ const errs=[]; const h=e=>errs.push(String(e.message||e.reason)); addEventListener('error',h); addEventListener('unhandledrejection',h); const os=window.toast;
       const pick=a=>a[Math.floor(Math.random()*a.length)], ks={buygear:Object.keys(GEAR), buybait:Object.keys(BAIT), perk:Object.keys(PERKS), unlock:LOCS.map(l=>l.id), goto:LOCS.map(l=>l.id), dockdecor:Object.keys(DOCKI), dockwood:DOCK_WOODS.map(w=>w[0]), dockstyle:DOCK_STYLES.map(s=>s[0]), buypet:Object.keys(PETI), pet:Object.keys(PETI), rodbuy:RODS.map(r=>r.id), rodeq:RODS.map(r=>r.id), rodup:RODS.map(r=>r.id), usebait:Object.keys(BAIT), dockcopy:LOCS.map(l=>l.id), dockpick:LOCS.map(l=>l.id), chalgo:Object.keys(CHAL), dcol:DW_ORDER, crate:['small','big','legend'], spec:typeof SPECS!=='undefined'?Object.keys(SPECS):[], relic:typeof RELICS!=='undefined'?RELICS.map(r=>r.id||r[0]):[], aqtheme:THEMES.map(t=>t[0]), aqsand:SANDS.map(t=>t[0]), decor:DECOR.map(d=>d.id), encloc:LOCS.map(l=>l.id), bloc:LOCS.map(l=>l.id), enc:SP.map(s=>s.id)};
-      const acts=['buygear','buybait','perk','respec','unlock','goto','claim','reroll','collect','sellall','sell','totank','untank','buytank','feed','passclaim','dockdecor','dockwood','dockstyle','dockcopy','dockpick','buypet','pet','rodbuy','rodeq','rodup','usebait','chalgo','chalquit','dcol','retire','cancel','spin','crate','scratch','taskclaim','taskbonus','dhunts','buyoffer','bwbuy','prize','attbuy','rodatt','spec','relic','aqtheme','aqsand','decor','petacc','pettint','look','flip','hilostart','hilo','claw','buyscratch','scratchall','frenzy','duckpick','statsec','tackleview','bwview','encloc','bloc','enc','petedit','pet2','pet2off','tryon','tryoff','dockpv','dockpvoff','aqpv','aqpvoff','petpv','petpvoff','autobait'];
+      const acts=['buygear','buybait','perk','respec','unlock','goto','claim','reroll','collect','sellall','sell','totank','untank','buytank','feed','passclaim','dockdecor','dockwood','dockstyle','dockcopy','dockpick','buypet','pet','rodbuy','rodeq','rodup','usebait','chalgo','chalquit','dcol','retire','cancel','spin','crate','scratch','taskclaim','taskbonus','dhunts','buyoffer','bwbuy','prize','attbuy','rodatt','spec','relic','aqtheme','aqsand','decor','petacc','pettint','look','flip','hilostart','hilo','claw','buyscratch','scratchall','frenzy','duckpick','statsec','tackleview','bwview','encloc','bloc','enc','petedit','pet2','pet2off','tryon','tryoff','dockpv','dockpvoff','aqpv','aqpvoff','petpv','petpvoff','autobait','duckagain','hilocash','wqclaim','wqbonus'];
       let stepFail=null; try{ S.money=Math.max(S.money,5e6); S.scales=Math.max(S.scales,500); for(let n=0;n<(window.__qaN||3000);n++){ const a=pick(acts), k=ks[a]?(Math.random()<.9?pick(ks[a]):pick(['__bad','',undefined])):undefined, i=String(Math.floor(Math.random()*12)-2);
         G.st=Math.random()<.15?'waiting':'idle'; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } if(S.tab!==DASH&&Math.random()<.5) setTab(DASH);
         if(n%50===0){ const p=inv(); if(p.length){ stepFail='after '+n+' ('+a+' '+k+'): '+p.slice(0,4).join('; '); break; } } } }
@@ -14177,6 +14291,30 @@ if(/[?&]test\b/.test(location.search)) window.__drawRepeat=(look,times=50)=>{ co
 if(/[?&]test\b/.test(location.search)) window.__petPose=p=>{ PET3_FORCE=p||null; return PET3_FORCE; };
 if(/[?&]test\b/.test(location.search)) window.__hatIds=()=>HATS.map(h=>h[0]||h.id).filter(h=>h!=='none');
 if(/[?&]test\b/.test(location.search)) window.__fmtShort=fmtShort;
+// test builds: __bwSim(n) plays every Boardwalk game n times through the real handlers on a copy of the save and reports,
+// per play: coins paid out and the price (both in units of your best catch value), tickets, wear prizes, crates and Scales won.
+// The wardrobe is reset after every play so the prize pool never runs dry; the save is restored at the end.
+if(/[?&]test\b/.test(location.search)) window.__bwSim=(n=2000)=>{ const snap=()=>JSON.stringify(S), restore=s=>{ const o=JSON.parse(s); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); };
+  const act=(a,attrs={})=>{ const P=$('panel'), b=document.createElement('button'); b.type='button'; b.dataset.act=a; for(const k in attrs) if(attrs[k]!=null) b.dataset[k]=attrs[k]; b.hidden=true; P.appendChild(b); b.click(); if(b.parentNode) b.remove(); };
+  const s0=snap(), out={}; let wearN=0; const _w=bwWearPrize; bwWearPrize=function(e){ const r=_w(e); if(r) wearN++; return r; };
+  const games={
+    wheel:{cost:0, play:()=>{ const tot=WHEEL.reduce((a,s)=>a+s[1],0); let x=Math.random()*tot, i=0; for(;i<WHEEL.length;i++){ x-=WHEEL[i][1]; if(x<=0) break; } wheelPrize(Math.min(i,WHEEL.length-1)); }},
+    smallcrate:{cost:0, play:()=>{ S.tokens.small=5; act('crate',{k:'small',free:1}); }},
+    bigcrate:{cost:0, play:()=>{ S.tokens.big=5; act('crate',{k:'big',free:1}); }},
+    legendcrate:{cost:0, play:()=>{ S.tokens.legend=5; act('crate',{k:'legend',free:1}); }},
+    duck:{cost:1, play:()=>{ act('duckagain'); act('duckpick',{i:Math.floor(Math.random()*6)}); }},
+    scratch:{cost:2, play:()=>{ act('buyscratch'); act('scratchall'); }},
+    hilo_cash3:{cost:2, play:()=>{ act('hilostart'); for(let g=0;g<8&&hilo&&!hilo.done;g++){ if(hilo.streak>=3){ act('hilocash'); break; } act('hilo',{k:hilo.card<=7?'hi':'lo'}); } }},
+    claw:{cost:1.5, play:()=>{ act('claw'); }} };
+  try{ for(const [name,gm] of Object.entries(games)){ restore(s0); S.money=1e12; const B=bestLoot(), own0=JSON.stringify(S.owned), pa0=S.petAccs.slice(), pt0=S.petTints.slice(), pets0=S.owned.pets.slice(), aq0=S.aq.owned.slice();
+      const m0=S.money, t0=S.tickets, sc0=S.scales, cr0=S.tokens.small+S.tokens.big+S.tokens.legend; let crates=0, petN=0, decorN=0; wearN=0;
+      for(let i=0;i<n;i++){ const tk=S.tokens.small+S.tokens.big+S.tokens.legend, p0=S.owned.pets.length, d0=S.aq.owned.length; gm.play(); duck=null; scratch=null; hilo=null;
+        crates+=Math.max(0,S.tokens.small+S.tokens.big+S.tokens.legend-tk-(name.endsWith('crate')?-1:0)); petN+=S.owned.pets.length>p0?1:0; decorN+=S.aq.owned.length>d0?1:0;
+        S.owned=JSON.parse(own0); S.owned.pets=pets0.slice(); S.petAccs=pa0.slice(); S.petTints=pt0.slice(); S.aq.owned=aq0.slice(); }
+      const coinsOut=S.money-m0+gm.cost*B*n;
+      out[name]={priceB:gm.cost, coinsBackB:+(coinsOut/n/B).toFixed(2), tickets:+((S.tickets-t0)/n).toFixed(1), wearPct:+(wearN/n*100).toFixed(1), cratePct:+(crates/n*100).toFixed(1), petPct:+(petN/n*100).toFixed(1), decorPct:+(decorN/n*100).toFixed(1), scales:+((S.scales-sc0)/n).toFixed(2)}; } }
+  finally{ bwWearPrize=_w; restore(s0); duck=null; scratch=null; hilo=null; crateRes=null; }
+  return out; };
 
 // ---------- loop ----------
 let last=performance.now();
