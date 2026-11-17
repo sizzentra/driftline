@@ -505,7 +505,7 @@ V3SCENES.reef = {
 function v3sandPlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#0a1020',night*.35), lit=clamp(night*1.2+P.d*.9,0,1), tx=PW-W*.006, ty=dockY-H*.095;
   if(lit>.05){ v3glow(g,tx,ty,H*.2,'rgba(255,170,80,.9)',lit*.55*(.9+.1*Math.sin(t*9)*Math.sin(t*4.1))); }
-  const ed=PW+W*.04, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.02,dockY+H*.06,ed+W*.06,H+2); g.lineTo(-2,H+2); g.closePath(); };
+  const ed=PW+W*.035, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.012,dockY+H*.07,ed+W*.004,H+2); /* 0.3.3: the beach stays left of the shortest cast, so fish always come out of the water */ g.lineTo(-2,H+2); g.closePath(); };
   const sg=g.createLinearGradient(0,dockY,0,H); sg.addColorStop(0,N(P.sand)); sg.addColorStop(1,N(P.sandD)); g.fillStyle=sg; path(); g.fill();
   g.save(); path(); g.clip();
   // wet darker sand along the waterline with a foam lip that comes and goes

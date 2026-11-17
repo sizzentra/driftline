@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2243';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2246';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2514,6 +2514,7 @@ const PATCHES = [
   'The pictures of each water in the Waters tab now show exactly what the real scene looks like.',
   'The lighthouse at Saltmarsh Coast now glows softly instead of throwing a hard beam, and its light shimmers on the water.',
   'The waterfalls at Starfall Sea now start from a spring on their island, run across the grass, spill over the edge and pour all the way into the lake, with mist and spray where they land.',
+  'Fixed: at Coral Shallows a short cast could land on the beach, so fish came up out of the sand. Every cast now lands in the water (checked on every water).',
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
@@ -5183,7 +5184,7 @@ V3SCENES.reef = {
 function v3sandPlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#0a1020',night*.35), lit=clamp(night*1.2+P.d*.9,0,1), tx=PW-W*.006, ty=dockY-H*.095;
   if(lit>.05){ v3glow(g,tx,ty,H*.2,'rgba(255,170,80,.9)',lit*.55*(.9+.1*Math.sin(t*9)*Math.sin(t*4.1))); }
-  const ed=PW+W*.04, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.02,dockY+H*.06,ed+W*.06,H+2); g.lineTo(-2,H+2); g.closePath(); };
+  const ed=PW+W*.035, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.012,dockY+H*.07,ed+W*.004,H+2); /* 0.3.3: the beach stays left of the shortest cast, so fish always come out of the water */ g.lineTo(-2,H+2); g.closePath(); };
   const sg=g.createLinearGradient(0,dockY,0,H); sg.addColorStop(0,N(P.sand)); sg.addColorStop(1,N(P.sandD)); g.fillStyle=sg; path(); g.fill();
   g.save(); path(); g.clip();
   // wet darker sand along the waterline with a foam lip that comes and goes

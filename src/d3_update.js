@@ -15,6 +15,7 @@ const PATCHES = [
   'The pictures of each water in the Waters tab now show exactly what the real scene looks like.',
   'The lighthouse at Saltmarsh Coast now glows softly instead of throwing a hard beam, and its light shimmers on the water.',
   'The waterfalls at Starfall Sea now start from a spring on their island, run across the grass, spill over the edge and pour all the way into the lake, with mist and spray where they land.',
+  'Fixed: at Coral Shallows a short cast could land on the beach, so fish came up out of the sand. Every cast now lands in the water (checked on every water).',
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
