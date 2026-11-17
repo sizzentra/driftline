@@ -1,0 +1,82 @@
+// =====================================================================
+// 0.3.4 quality-of-life (feedback from Cam): sell filters, a feed button by Collect, aquarium income on hover,
+// the fishmonger asks mostly for local fish, Bounties opens on your water, a soft sound when a fish runs,
+// and twinkling sparkles on shiny fish pictures.
+// =====================================================================
+
+// ---------- Sell all filters: by rarity, by price, or both ----------
+const SELL_RAR=[['all','Any rarity'],['0','Common only'],['1','Up to Uncommon'],['2','Up to Rare'],['3','Up to Epic'],['4','Up to Legendary']];
+const SELL_PRICE=[[0,'Any price'],[50,'Under 50'],[200,'Under 200'],[1000,'Under 1k'],[5000,'Under 5k'],[20000,'Under 20k'],[100000,'Under 100k']];
+function sellFilterOn(){ const s=S.settings; return (s.sellR&&s.sellR!=='all')||(+s.sellP>0); }
+// a fish stays in the cooler when it is protected (Protect rare fish setting) or does not match the filter
+function sellKeep(f){ if(isProtected(f)) return true; const s=S.settings, sp=SPI[f.id]; if(!sp) return true;
+  if(s.sellR&&s.sellR!=='all'&&sp.r>+s.sellR) return true; if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
+const _renderCooler_034 = renderCooler;
+renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
+  const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
+  btn.insertAdjacentHTML('beforebegin',`<div class="sellf"><span class="meta">Sell</span>${sel('sellR',SELL_RAR,s.sellR||'all')}${sel('sellP',SELL_PRICE,+s.sellP||0)}</div>`);
+  P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); }); };
+
+// ---------- the aquarium's Feed button, always beside Collect ----------
+const _renderAquarium_034 = renderAquarium;
+renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#collectbtn'); if(!c||P.querySelector('#feedbtn2')) return; const left=Math.max(0,3600000-(Date.now()-S.fedT));
+  c.insertAdjacentHTML('afterend',`<button class="btn ${left?'alt':''}" id="feedbtn2" data-act="feed" ${left?'disabled':''} title="Feeding gives +25% aquarium income for 30 minutes">${left?'Fed · hungry in '+Math.ceil(left/60000)+' min':'Feed fish'}</button>`); const fb=P.querySelector('#feedbtn2'); if(fb) fb.addEventListener('click',()=>setTimeout(()=>{ if(S.tab==='aquarium') renderPanel(); },60)); };
+
+// ---------- what a fish would earn in the aquarium: on the catch card and on the To aquarium button ----------
+function aqIncomeTxt(f){ try{ return 'Earns '+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
+const _showCard_034 = showCard;
+showCard = function(o){ const ce=G.lastEntry; _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
+  const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
+  q.insertAdjacentHTML('afterend',`<div class="meta aqinc">${inc}${S.tank.length>=aqCap()?' (aquarium full)':''}</div>`); };
+const _renderCooler_034b = renderCooler;
+renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach((row,i)=>{ const f=S.cooler[i]; if(!f) return; const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' / h in tank</div>'); }); };
+
+// ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
+const DEMAND={slot:-1,id:null};
+demandSp = function(){ const slot=Math.floor(Date.now()/1000/WX_LEN); if(DEMAND.slot!==slot||!SPI[DEMAND.id]){ const h=hashStr('dm'+slot), local=SP.filter(s=>s.loc===S.loc&&s.r<=3), any=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3), pool=(h%10<8&&local.length)?local:any; DEMAND.slot=slot; DEMAND.id=pool[(h>>>4)%pool.length].id; } return SPI[DEMAND.id]; };
+
+// ---------- Bounties opens on the board of the water you are fishing ----------
+let lastTab034=null; const _renderPanel_034=renderPanel;
+renderPanel = function(){ if(S.tab==='bounties'&&lastTab034!=='bounties') bLoc=null; lastTab034=S.tab; return _renderPanel_034.apply(this,arguments); };
+
+// ---------- a soft cue when a hooked fish starts to run (line hissing off the reel) ----------
+const _fight_034 = fight;
+fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.run&&!was){ try{ tone(520,.14,'triangle',.035,-160); tone(380,.18,'sine',.025,-90,.06); }catch(e){} if(typeof vib==='function') vib(12); } };
+
+// ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
+function shineDecorate(root){ (root||document).querySelectorAll('canvas[data-sh="1"],canvas[data-sh="2"],#cardfish.shiny').forEach(cv=>{ const p=cv.parentElement; if(!p||p.querySelector(':scope > .shine')) return; if(getComputedStyle(p).position==='static') p.style.position='relative';
+  const r=cv.getBoundingClientRect(), pr=p.getBoundingClientRect(), s=document.createElement('span'); s.className='shine'+(cv.dataset.sh==='2'?' prism':''); s.style.cssText=`left:${r.left-pr.left}px;top:${r.top-pr.top}px;width:${r.width}px;height:${r.height}px`;
+  for(let i=0;i<5;i++){ const d=document.createElement('i'); d.style.left=(12+((i*37)%76))+'%'; d.style.top=(15+((i*53)%60))+'%'; d.style.animationDelay=(i*.37)+'s'; s.appendChild(d); } p.appendChild(s); }); }
+const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPanel_034b.apply(this,arguments); try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){} return r; };
+const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){} };
+
+document.head.insertAdjacentHTML('beforeend',`<style>
+.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
+.aqh{font-size:11px;color:#9fe0c0;font-weight:600;white-space:nowrap}.aqinc{text-align:center;margin:-2px 0 6px;color:#9fe0c0}
+.shine{position:absolute;pointer-events:none}.shine i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;background:radial-gradient(circle,#fff8d0 0 18%,rgba(255,230,140,.6) 30%,transparent 62%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:shinetw 1.9s ease-in-out infinite;opacity:0}
+.shine.prism i{background:radial-gradient(circle,#fff 0 18%,rgba(255,140,230,.7) 32%,transparent 62%)}
+@keyframes shinetw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}45%{opacity:1;transform:scale(1.15) rotate(25deg)}70%{opacity:.4;transform:scale(.8) rotate(40deg)}}
+</style>`);
+
+// ---------- rarity balance: each rarity has the same overall chance in every water, whatever its species count,
+// and within a rarity every fish keeps its own steady rate (some legendaries rarer than others) ----------
+var RAR_REF=[11,10,7,4,3,1]; // the typical number of species per rarity in a water (keeps today's average odds)
+var RAR_MEMO={key:null,map:null};
+function rarIndiv(s){ return .6+((hashStr('rw'+s.id)%1000)/1000)*.8; } // .6 .. 1.4, fixed per species
+function rarBase(s,pool){ if(!RAR_MEMO) RAR_MEMO={key:null}; if(!RAR_REF) RAR_REF=[11,10,7,4,3,1]; const key=pool.length+'|'+(pool[0]&&pool[0].id)+'|'+(pool[pool.length-1]&&pool[pool.length-1].id);
+  if(RAR_MEMO.key!==key){ const cnt=[0,0,0,0,0,0], ind=[0,0,0,0,0,0]; for(const p of pool){ cnt[p.r]++; ind[p.r]+=rarIndiv(p); } RAR_MEMO.map={cnt,ind}; RAR_MEMO.key=key; }
+  const {cnt,ind}=RAR_MEMO.map; return RAR[s.r].w*RAR_REF[s.r]*rarIndiv(s)/Math.max(.001,ind[s.r]); }
+// late-game luck (strong baits, long rods, pearls, hotspots) stacks with diminishing returns,
+// so legendaries stay special in the last waters instead of turning up every few casts
+const RARE_SOFT=3; const _rareScore_034=rareScore;
+rareScore=function(dm,far,hot,p){ const r=_rareScore_034(dm,far,hot,p); return r>0 ? r/(1+r/RARE_SOFT) : r; };
+if(/[?&]test\b/.test(location.search)) window.__land=(id,o={})=>{ __forceCatch(id,o); G.fish=G.forced; G.forced=null; G.st='reeling'; landFish(); return !$('card').hidden; };
+if(/[?&]test\b/.test(location.search)) window.__demand=()=>demandSp();
+
+// ---------- Boardwalk winnings count toward Voyage pearls only up to a quarter of your voyage earnings ----------
+// (games and gambling can't be farmed for pearls; the coins themselves are still yours in full)
+const BW_PEARL_SHARE=.25;
+function bwEarn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; const st=S.stats; st.runBw=st.runBw||0;
+  const other=Math.max(0,st.runEarned-st.runBw), cap=other*BW_PEARL_SHARE/(1-BW_PEARL_SHARE), credit=Math.floor(Math.max(0,Math.min(n,cap-st.runBw)));
+  st.runBw+=credit; st.runEarned+=credit; return n; }
+if(/[?&]test\b/.test(location.search)) window.__bwEarn=n=>bwEarn(n);

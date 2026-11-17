@@ -94,10 +94,10 @@ m33wrap('shelf','live',function(P,t,hz){ const night=P.night, FX=S.settings.effe
     if(gull&&night<.75){ const gc=mix('#f4f4f2',P.top,night*.8), s=H*.005, bob=Math.sin(t*1.1)*H*.003; g.fillStyle=gc; g.beginPath(); g.ellipse(x+w*.2,y-s*1.4+bob,s*2,s*1.1,0,0,7); g.fill(); m33dot(g,x+w*.2+s*1.8,y-s*2.4+bob,s*.8,gc); g.fillStyle=mix('#8a8a94',P.top,night*.6); g.beginPath(); g.ellipse(x+w*.2-s*.4,y-s*1.6+bob,s*1.3,s*.6,-.1,0,7); g.fill(); g.fillStyle='#e8a030'; g.beginPath(); g.moveTo(x+w*.2+s*2.5,y-s*2.5+bob); g.lineTo(x+w*.2+s*3.4,y-s*2.3+bob); g.lineTo(x+w*.2+s*2.5,y-s*2.1+bob); g.fill(); } }
 });
 m33wrap('shelf','fore',function(P,t){ // a big swell rolling along the bottom edge, its crest feathering into spray
-  const b=H+2, base=H*.955, foam=mix(P.wTop,'#ffffff',.75);
-  const sg=g.createLinearGradient(0,base-H*.04,0,b); sg.addColorStop(0,v3rgba(mix(P.wMid,P.wTop,.45),.7)); sg.addColorStop(1,v3rgba(P.wMid,.25)); g.fillStyle=sg; g.beginPath(); g.moveTo(-8,b); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.sin(X/W*7+t*.8)*H*.012-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02; g.lineTo(X,y); } g.lineTo(W+8,b); g.closePath(); g.fill();
-  g.strokeStyle=v3rgba(foam,.55); g.lineWidth=Math.max(1.4,H*.003); g.beginPath(); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.sin(X/W*7+t*.8)*H*.012-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02; X===-8?g.moveTo(X,y):g.lineTo(X,y); } g.stroke();
-  if(S.settings.effects){ g.fillStyle=v3rgba(foam,.5); for(let i=0;i<14;i++){ const X=W*(((i*.071+t*.01)%1)), y=base-Math.sin(X/W*7+t*.8)*H*.012-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02, k=(t*1.3+i*.37)%1; g.fillRect(X,y-k*H*.02,1.6,1.6); } }
+  const b=H+2, base=H*.955, SK=1+seaStormK()*1.2, foam=mix(P.wTop,'#ffffff',.75);
+  const sg=g.createLinearGradient(0,base-H*.04,0,b); sg.addColorStop(0,v3rgba(mix(P.wMid,P.wTop,.45),.7)); sg.addColorStop(1,v3rgba(P.wMid,.25)); g.fillStyle=sg; g.beginPath(); g.moveTo(-8,b); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.sin(X/W*7+t*.8)*H*.012*SK-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02*SK; g.lineTo(X,y); } g.lineTo(W+8,b); g.closePath(); g.fill();
+  g.strokeStyle=v3rgba(foam,.55); g.lineWidth=Math.max(1.4,H*.003); g.beginPath(); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.sin(X/W*7+t*.8)*H*.012*SK-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02*SK; X===-8?g.moveTo(X,y):g.lineTo(X,y); } g.stroke();
+  if(S.settings.effects){ g.fillStyle=v3rgba(foam,.5); for(let i=0;i<14;i++){ const X=W*(((i*.071+t*.01)%1)), y=base-Math.sin(X/W*7+t*.8)*H*.012*SK-Math.max(0,Math.sin(X/W*3.1-t*.35))*H*.02*SK, k=(t*1.3+i*.37)%1; g.fillRect(X,y-k*H*.02,1.6,1.6); } }
 });
 
 // ---------------------------------------------------------------------
@@ -121,9 +121,9 @@ m33wrap('deep','live',function(P,t,hz){ const FX=S.settings.effects, fl=this.fla
   // whitecaps: short foam streaks riding the crests, drifting with the wind
   if(FX){ g.fillStyle=v3rgba('#e8f0f4',.45); for(let i=0;i<26;i++){ const r=((i*97.3)%1000)/1000, y=hz+H*.03+Math.pow((i*.137)%1,1.4)*(H-hz)*.9, u=(y-hz)/(H-hz), x=((r*W+t*W*(.02+u*.03))%(W*1.1))-W*.05, l=W*(.01+u*.025), a=.5+.5*Math.sin(t*2+i); g.globalAlpha=a*.8; g.fillRect(x,y,l,Math.max(1,u*2.4)); } g.globalAlpha=1; }
 });
-m33wrap('deep','fore',function(P,t){ const b=H+2, base=H*.95, c=mix(P.wMid,P.wBot,.3);
-  const dg=g.createLinearGradient(0,base-H*.04,0,b); dg.addColorStop(0,v3rgba(c,.75)); dg.addColorStop(1,v3rgba(c,.3)); g.fillStyle=dg; g.beginPath(); g.moveTo(-8,b); for(let X=-8;X<=W+8;X+=10) g.lineTo(X,base-Math.abs(Math.sin(X/W*5-t*.9))*H*.03); g.lineTo(W+8,b); g.closePath(); g.fill();
-  g.strokeStyle='rgba(232,240,244,.6)'; g.lineWidth=Math.max(1.4,H*.003); g.beginPath(); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.abs(Math.sin(X/W*5-t*.9))*H*.03; X===-8?g.moveTo(X,y):g.lineTo(X,y); } g.stroke();
+m33wrap('deep','fore',function(P,t){ const b=H+2, base=H*.95, SK=1+seaStormK()*1.4, c=mix(P.wMid,P.wBot,.3);
+  const dg=g.createLinearGradient(0,base-H*.04,0,b); dg.addColorStop(0,v3rgba(c,.75)); dg.addColorStop(1,v3rgba(c,.3)); g.fillStyle=dg; g.beginPath(); g.moveTo(-8,b); for(let X=-8;X<=W+8;X+=10) g.lineTo(X,base-Math.abs(Math.sin(X/W*5-t*(.9+SK*.15)))*H*.03*SK); g.lineTo(W+8,b); g.closePath(); g.fill();
+  g.strokeStyle='rgba(232,240,244,.6)'; g.lineWidth=Math.max(1.4,H*.003); g.beginPath(); for(let X=-8;X<=W+8;X+=10){ const y=base-Math.abs(Math.sin(X/W*5-t*(.9+SK*.15)))*H*.03*SK; X===-8?g.moveTo(X,y):g.lineTo(X,y); } g.stroke();
 });
 
 // ---------------------------------------------------------------------

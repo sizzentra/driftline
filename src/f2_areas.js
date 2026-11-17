@@ -579,8 +579,8 @@ V3SCENES.shelf = {
       const blink=((t%3)<.35)?1:0; g.fillStyle=lit>.1&&blink?'#ff5a4a':mix(P.buoy,'#000000',.3); g.beginPath(); g.arc(0,-s*8.6,s*.6,0,7); g.fill(); g.restore();
       if(lit>.1&&blink) v3glow(g,bx,by-s*8.6,s*7,'rgba(255,90,70,.9)',lit*.7);
       if(FX&&Math.abs(Math.sin(t*2.2))>.97){ g.strokeStyle=v3rgba(P.rim,.5); g.lineWidth=1; for(const sd of [-1,1]){ g.beginPath(); g.arc(bx,by-s*7,s*(3+sd*0)+s,sd>0?-.5:Math.PI-.5+1,sd>0?.5:Math.PI+.5-1+1); g.stroke(); } } }
-    // dolphins arc out of the water together now and then
-    m33dolphins(P,t,hz,foam,night);
+    // flying fish glide over the swell now and then (0.3.4: replaced the dolphins)
+    m34flyfish(P,t,hz,foam,night);
     // an albatross glides high on long still wings
     if(night<.7){ const per=40, k=(t%per)/per, ax=W*(-.1+k*1.25), ay=hz*(.28+Math.sin(k*Math.PI*2)*.06), s=H*.009, tilt=Math.sin(t*.5)*.08;
       g.save(); g.translate(ax,ay); g.rotate(tilt); g.strokeStyle=mix('#f4f4f0',P.top,night*.8); g.lineWidth=Math.max(1.2,s*.35); g.beginPath(); g.moveTo(-s*5,-s*.6); g.quadraticCurveTo(-s*2.5,-s*1.2,0,0); g.quadraticCurveTo(s*2.5,-s*1.2,s*5,-s*.6); g.stroke();
@@ -751,8 +751,10 @@ V3SCENES.trench = {
       g.strokeStyle=v3rgba(col,a*.5); g.lineWidth=1; g.beginPath(); for(let tn=0;tn<4;tn++){ const tx=jx-s*.6+tn*s*.4; g.moveTo(tx,jy); g.quadraticCurveTo(tx+Math.sin(t*1.8+tn+j)*s*.4,jy+s*1.2,tx+Math.sin(t*1.3+tn)*s*.3,jy+s*2.4); } g.stroke(); }
     g.restore();
     // eyes in the deep: now and then, something down there opens its eyes, looks, and closes them
-    { const per=29, k=(t%per)/per; if(k<.18){ const e=k/.18, open=Math.min(1,Math.sin(e*Math.PI)*1.8), n=Math.floor(t/per), r=v3rng(n*17+3), ex=W*(.45+r()*.2), ey=hz+H*(.28+r()*.08), s=H*.007, look=Math.sin(e*6)*s*.3;
-        for(const sd of [-1,1]){ v3glow(g,ex+sd*s*3,ey,s*4,'rgba(220,255,140,.9)',.3*open); g.fillStyle=v3rgba('#e8ff9a',.85*open); g.beginPath(); g.ellipse(ex+sd*s*3,ey,s*1.4,s*.9*open,0,0,7); g.fill(); g.fillStyle='rgba(0,0,0,.9)'; g.beginPath(); g.ellipse(ex+sd*s*3+look,ey,s*.25,s*.7*open,0,0,7); g.fill(); } } }
+    { const per=29, k=(t%per)/per; if(k<.3){ const n=Math.floor(t/per), r=m34rng(n*17+3), NP=1+Math.floor(r()*3.2); /* 0.3.4: one to four pairs, each its own size, place, colour and timing */
+      for(let pi=0;pi<Math.min(4,NP);pi++){ const st=r()*.1, e=(k-st)/(.13+r()*.07); const ex=W*(.3+r()*.62), ey=hz+H*(.2+r()*.22), s=H*(.0035+r()*.0085)*(.7+(ey-hz)/H*1.4), cols=[['#e8ff9a','220,255,140'],['#b8fff4','150,255,240'],['#ffd27a','255,200,110'],['#ff9a8a','255,130,110']], cl=cols[Math.floor(r()*4)], gap=2.4+r()*1.6, blink=r()<.5?.55:-1; if(e<0||e>1) continue;
+        let open=Math.min(1,Math.sin(e*Math.PI)*1.8); if(blink>0&&Math.abs(e-blink)<.04) open*=.1; const look=Math.sin(e*6+pi)*s*.3;
+        for(const sd of [-1,1]){ v3glow(g,ex+sd*s*gap,ey,s*4,'rgba('+cl[1]+',.9)',.3*open); g.fillStyle=v3rgba(cl[0],.85*open); g.beginPath(); g.ellipse(ex+sd*s*gap,ey,s*1.4,s*.9*open,0,0,7); g.fill(); g.fillStyle='rgba(0,0,0,.9)'; g.beginPath(); g.ellipse(ex+sd*s*gap+look,ey,s*.25,s*.7*open,0,0,7); g.fill(); } } } }
     v3fishRing(P,t,hz,9.1,.3,.85);
   },
   fore(P,t){ // drifting kelp fronds rising into the bottom corner, faintly glowing at their tips

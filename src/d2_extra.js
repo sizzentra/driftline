@@ -173,14 +173,14 @@ function spinWheel(paid){ if(WH.spinning) return; const tot=WHEEL.reduce((a,s)=>
   step(); }
 function wheelPrize(i){ const base=bestLoot(); sfx.coin();
   switch(i){
-    case 0: return '+'+fmt(earn(base*2*coinMult()))+' coins';
+    case 0: return '+'+fmt(bwEarn(base*2*coinMult()))+' coins';
     case 1: addTickets(10); return quip('seashell')+' (+10 tickets)';
     case 2: { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk); const k=pick(opts); S.bait[k]+=8; renderBait(); return '8 '+BAIT[k].name; }
-    case 3: return '+'+fmt(earn(base*6*coinMult()))+' coins';
+    case 3: return '+'+fmt(bwEarn(base*6*coinMult()))+' coins';
     case 4: { const fo=pick(FORTUNES); addBuff(fo[1],fo[2],15,'Lucky wheel'); return 'Boost: '+fmtB(fo[1],fo[2])+' for 15 min'; }
     case 5: S.tokens.small++; return 'A small Mystery Crate (open it below)';
     case 6: S.tokens.big++; return 'A BIG Mystery Crate (open it below)';
-    default: sfx.shiny(); return 'JACKPOT! +'+fmt(earn(base*40*coinMult()))+' coins';
+    default: sfx.shiny(); return 'JACKPOT! +'+fmt(bwEarn(base*40*coinMult()))+' coins';
   } }
 function openCrate(k){ const base=bestLoot(); const r=Math.random(); let res={title:'',draw:null};
   const petPool=tier=>PETS.filter(p=>p.src==='crate' && p.price<=tier && !S.owned.pets.includes(p.id));
@@ -221,7 +221,7 @@ function renderGames(P){ const free=Date.now()-S.wheelT>=WHEEL_FREE_MS, wait=Mat
   drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPet(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
-function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++; if(scratch.win>=0){ earn(scratch.prize); S.gstats.scratchWins++; sfx.catch(scratch.win>=3?4:2); } else sfx.lost(); }
+function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++; if(scratch.win>=0){ bwEarn(scratch.prize); S.gstats.scratchWins++; sfx.catch(scratch.win>=3?4:2); } else sfx.lost(); }
 
 // ---------- settings ----------
 function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class="setrow"><label for="set_${k}">${label}</label><input id="set_${k}" type="range" min="0" max="100" value="${Math.round(s[k]*100)}" data-set="${k}"><span class="meta" id="setv_${k}">${Math.round(s[k]*100)}%</span></div>`;

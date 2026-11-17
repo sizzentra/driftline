@@ -3,8 +3,31 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.3.1';
+const GAME_VERSION = '0.3.4';
 const PATCHES = [
+ {v:'0.3.4', name:'Sea Legs', items:[
+  '## Fishing',
+  'Holding the reel now always reels. While a fish runs you still bring line in, just slowly, and the tension climbs much faster, so watch it.',
+  'A soft whirr now tells you when a hooked fish starts to run.',
+  'Rarities are balanced across every water: each rarity turns up about as often wherever you fish, and every fish keeps its own steady rate, so some legendaries are rarer than others.',
+  'Strong late-game luck (baits, rods, pearls, hotspots) still helps, but with diminishing returns, so legendaries stay special in the last waters.',
+  'The fishmonger now asks for a fish from the water you are on most of the time.',
+  'Boardwalk winnings now count for at most a quarter of your progress toward Wisdom Pearls on a voyage (you still keep every coin).',
+  '## Cooler and aquarium',
+  'Sell all has filters: sell only up to a rarity, only fish under a price, or both together. Your choice is remembered.',
+  'The aquarium has a Feed button right next to Collect.',
+  'See what a fish would earn in your aquarium before you decide: on the catch card, under the price in your cooler, and when you hover To aquarium (even when the aquarium is full).',
+  'Shiny fish pictures now twinkle.',
+  'Bounties always open on the water you are fishing.',
+  '## The waters',
+  'Brine Shelf: the dolphins have swum off; flying fish glide over the swell instead. Ships pass in the distance, and the buoy has a gentle bell.',
+  'Midnight Deep has new company on the horizon on some nights (keep an eye out).',
+  'Storms at sea are much rougher: choppy water, rain squalls that blur the horizon, and a bigger swell.',
+  'Rain finally makes a sound.',
+  'Hollow Trench: whatever watches from the depths is no longer just one pair of eyes.',
+  'Ember Springs: the lava flows down the volcano now, and the crater throws out the odd glowing rock.',
+  'Dusk and dawn shift more gently.',
+ ]},
  {v:'0.3.3.1', name:'Hair Hotfix', items:[
   'Curly hair no longer pokes out around hats: under a hat the curls sit neatly below the brim.',
   'Spiky hair has been redrawn: swept-back spikes that grow from the head, and it sits properly under hats.',
@@ -552,12 +575,12 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       S=fresh(); S.seenPatch=GAME_VERSION; S.tab='settings'; S.savedAt=Date.now(); G.st='idle'; fillBounties(); toast('Progress erased. A backup was kept. You can restore it in Settings.'); return 'render'; }
     case 'restorebk': { try{ const raw=localStorage.getItem(BACKUP_KEY); if(!raw) return 'skip'; S=migrate(JSON.parse(raw)); S.savedAt=Date.now(); localStorage.removeItem(BACKUP_KEY); G.st='idle'; toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
-    case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(earn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
+    case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(bwEarn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
     case 'hilostart': { const c=bestLoot()*2; if(S.money<c) return 'skip'; S.money-=c; newHilo(); taskProgress('game',1); return 'render'; }
     case 'hilo': { if(!hilo||hilo.done) return 'skip'; let n; do{ n=rint(1,13); }while(n===hilo.card); const ok=(k==='hi')===(n>hilo.card); const prev=hilo.card; hilo.card=n;
-      if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); addTickets(3); tone(900+hilo.streak*100,.1,'triangle',.06); if(hilo.streak>=8){ earn(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' coins.'; sfx.catch(4); } }
+      if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); addTickets(3); tone(900+hilo.streak*100,.1,'triangle',.06); if(hilo.streak>=8){ bwEarn(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' coins.'; sfx.catch(4); } }
       else { hilo.done=true; hilo.msg=prev+' → '+n+'. Wrong way! The pot sinks to the bottom of the sea.'; addTickets(2); sfx.lost(); } return 'render'; }
-    case 'hilocash': { if(!hilo||hilo.done||!hilo.streak) return 'skip'; earn(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' coins after '+hilo.streak+' right guesses.'; sfx.coin(); return 'render'; }
+    case 'hilocash': { if(!hilo||hilo.done||!hilo.streak) return 'skip'; bwEarn(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' coins after '+hilo.streak+' right guesses.'; sfx.coin(); return 'render'; }
     case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); PREVIEW=null; PET_PV=null; AQ_PV=null;
       if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }

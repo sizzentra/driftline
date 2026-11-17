@@ -236,7 +236,7 @@ function hatPreview(c,w,h,id,col,big){ const s=h/(big?44:40); c.save(); c.transl
 
 // ---------- drawing: the scene ----------
 let stars=null, drops=null, flakes=null, WXA=1;
-function nightness(p){ let n=0; if(p>=.45&&p<.55) n=(p-.45)/.1; else if(p>=.55&&p<.95) n=1; else if(p>=.95) n=1-(p-.95)/.1; else if(p<.05) n=1-(p+.05)/.1; return clamp(n,0,1); }
+function nightness(p){ let n=0; if(p>=.45&&p<.55) n=(p-.45)/.1; else if(p>=.55&&p<.95) n=1; else if(p>=.95) n=1-(p-.95)/.1; else if(p<.05) n=1-(p+.05)/.1; n=clamp(n,0,1); return n*n*(3-2*n); } /* 0.3.4: eased, so dusk and dawn start and finish gently */
 function tree(x,y,h,col,snow){ g.fillStyle=col; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.32,y); g.lineTo(x+h*.32,y); g.fill(); if(snow){ g.fillStyle='#f4f8fa'; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.12,y-h*.62); g.lineTo(x+h*.12,y-h*.62); g.fill(); } }
 function drawFar(L,t,night,hz,wx){
   const N=cl=>mix(cl,'#0a1220',night*.7);

@@ -23,7 +23,7 @@ function v3palette(id,night,dusk,gloom){
   // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
   const fk=id+'|'+Math.round(night*60)+'|'+Math.round(dusk*40)+'|'+Math.round(gloom*30);
   if(v3palette.k===fk) return v3palette.v;
-  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:id+'|'+Math.round(night*8)+'|'+Math.round(dusk*5)+'|'+Math.round(gloom*4)};
+  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:id+'|'+Math.round(night*14)+'|'+Math.round(dusk*9)+'|'+Math.round(gloom*6)} /* 0.3.4: finer light steps, so each fade is smaller */;
   for(const k in P.day){ let c=mix(P.day[k],P.night[k],night); if(d>0) c=mix(c,P.dusk[k],d); if(gloom>0) c=mix(c,'#59616b',gloom*.6); o[k]=c; }
   o.d=d; o.night=night; o.gloom=gloom; v3palette.k=fk; v3palette.v=o; return o;
 }
@@ -62,7 +62,7 @@ function v3rgba(hex,a){ const v=hex2rgb(rgb2hex(hex)); return 'rgba('+v[0]+','+v
 
 // ---------- offscreen cache for the still parts ----------
 let V3CACHE=null, V3PREV=null;
-const V3FADE=2.4; // seconds a new light level takes to fade in over the old one
+const V3FADE=3.4; // seconds a new light level takes to fade in over the old one
 function v3land(L,P,hz){
   const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key;
   if(V3CACHE && V3CACHE.key===key) return V3CACHE;
