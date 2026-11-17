@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1348';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1402';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2839,7 +2839,8 @@ const PATCHES = [
   'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
   'In fog, your angler, dock and boat stay clear while the far shore fades away.',
   'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
-'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
+  'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
+  'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -12341,7 +12342,7 @@ body.pc-wide #tabs.secmode .secdot{right:4px}
 // in the wide layout the tip line sits on the water (as on phones), and the water is a little taller to fill its column
 (function(){ const hint=$('hint'), stage=$('stage'); if(!hint||!stage) return; const home=hint.parentElement; let placed=false;
   // fishing mode (0.4) keeps the tip on the water in every layout; #tabs may live inside the menu by then
-  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
+  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); if(tabs&&tabs.parentNode===home) home.insertBefore(hint,tabs); else home.appendChild(hint); placed=false; } };
   addEventListener('resize',()=>setTimeout(apply,10)); setTimeout(apply,60); })();
 const _stageHOverride_036c=stageHOverride;
 stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*1.15),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
@@ -14037,6 +14038,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
 //    text fields (pet names, save codes); no pinch or double-tap zoom.
 document.head.insertAdjacentHTML('beforeend',`<style>
 html,body{overscroll-behavior:none;touch-action:manipulation}
+/* every control answers a tap at once: no phone waits to see whether a double tap (zoom) follows */
+button,a,summary,label,select,input,[data-act],[data-tab],[role="button"],[role="tab"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 body,body *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
 body input,body textarea,body select,body [contenteditable="true"]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
 img,canvas,svg{-webkit-user-drag:none}
@@ -14633,7 +14636,7 @@ function renderFeats(P){ const done=FEATS.filter(f=>S.feats[f.id]).length;
     <div class="val" style="font-size:14px"><span class="coin">${fmt(f.coins)}</span>${f.pt?` · +${f.pt} skill point${f.pt>1?'s':''}`:''}${f.pet?' · pet: '+PETI[f.pet].name:''}</div></div>`; }).join('')+'</div>';
 }
 function renderJournal(P){
-  const total=Object.keys(S.journal).length; if(!encLoc) encLoc=S.loc;
+  const total=Object.keys(S.journal).length; if(!encLoc||(encLoc!=='junk'&&!LOCS[locIdx(encLoc)])) encLoc=S.loc; // a water that doesn't exist falls back to the current one
   const chips=[...LOCS.map(L=>[L.id,L.name+' '+caughtAt(L.id)+'/'+spAt(L.id).length]),['junk','Oddities '+nJunkKinds()+'/'+JUNK.length]].map(([k,n])=>`<button class="chipb" data-act="encloc" data-k="${k}" aria-pressed="${encLoc===k}">${n}</button>`).join('');
   let body='';
   if(encLoc==='junk'){
@@ -14809,7 +14812,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
     case 'unlock': { const L=LOCS[locIdx(k)]; if(S.money<locCost(L)) return; S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
-    case 'encloc': encLoc=k; encSel=null; break;
+    case 'encloc': if(k==='junk'||LOCS[locIdx(k)]) encLoc=k; encSel=null; break;
     case 'bloc': bLoc=k; break;
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
