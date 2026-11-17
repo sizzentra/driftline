@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1029';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1128';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1730,6 +1730,8 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
 // ---------- aquarium ----------
 const fishRate = f => aqFishBase(f)*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
+// each fish's coins per hour as whole numbers that add up exactly to the shown total (largest remainders get the spare coins)
+function aqShownRates(){ const v=S.tank.map(f=>fishRate(f)*60), fl=v.map(Math.floor); let left=Math.floor(v.reduce((a,b)=>a+b,0))-fl.reduce((a,b)=>a+b,0); v.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(left>0){ fl[i]++; left--; } }); return fl; }
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
 
@@ -2778,16 +2780,19 @@ const GAME_VERSION = '0.4';
 const PATCHES = [
  {v:'0.4', name:'Fifty Fathoms', items:[
   '## A new way around',
-  'The game now has two full-screen modes. Fishing fills the whole screen with the water, on PC, tablets and phones held either way. The Menu button on the water (or the M key) opens the full-screen menu, and Back to fishing returns you to the water.',
+  'The game now has two full-screen modes. Fishing fills the whole screen with the water, on PC, tablets and phones held either way. The category bar on the water (or the M key) opens the full-screen menu, and Back returns you to the water.',
   'The menus are grouped into five categories: Fishing, Upgrades, Collections, Challenges and Customization. Events sit under Challenges, and the Challenges button shows LIVE whenever an event or challenge is running.',
-  'The Menu button opens the page you used last, and each category shows how many things are waiting in it, so nothing slips by. The Menu button shows the total.',
-  'In the menu, switch categories straight away from the category bar, and the page tabs above each page. Back to fishing, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
+  'The menu opens on the page you used last, and each category shows how many things are waiting in it, so nothing slips by.',
+  'In the menu, switch categories straight away from the category bar, and the page tabs above each page. Back, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
   'Your line waits while a menu is open: a cast, a bite or a fight pauses and carries on when you come back, never lost.',
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   'Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
   'Every menu page is more compact: tighter cards and more of them per row on every screen, two cards per row on phones held upright, five fish per row in the Fish Log on small phones, and the Hunt button is a small target on each fish card.',
-  'The water now has a category bar: Menu plus Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. It runs along the bottom when your phone is upright and down the right side when it is sideways, where the menu keeps its slim rail too, so pages get almost the whole screen. Bait in use now sits under the Bait tab.',
+  'The water now has a category bar: Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. It runs along the bottom when your phone is upright and down the right side when it is sideways, where the menu keeps its slim rail too, so pages get almost the whole screen. Bait in use now sits under the Bait tab.',
   'The top bar now also shows your aquarium income per hour (it glows gold when coins are waiting) and how many species you have found. Tap either one to open it.',
+  'Phone held sideways: Collapse panel at the top of the side panel folds it down to icons, giving the water and the pages more room. Expand panel brings the names back, and your choice is remembered.',
+  'Page tabs stay pinned at the top while you scroll, so the Wardrobe’s sections are always one tap away. On a phone held sideways they sit in one row.',
+  'The bait chip in the top bar always shows the whole bait name, with how many you have left above it. Tap it to switch bait, or press Use on any bait in the Bait and Special lures tabs.',
   '## Weekly quests and forecasts',
   'Weekly quests: four bigger goals every week, right under your daily tasks in Bounties. Each pays coins and Scales, and finishing all four earns a big Mystery Crate. New quests arrive every Monday.',
   'Weather forecast: the Events page shows the weather coming to every water and when, so you can plan for rare weather like Gilded, Aurora or a Blood Moon. A heads-up arrives a minute before rare weather starts.',
@@ -2815,6 +2820,9 @@ const PATCHES = [
   'Nothing scrolls the water away any more: the game always fits one screen, and on iPhone the menu bar can no longer hide under Safari’s toolbar.',
   'The top bar is slimmer. Time and weather moved onto the water, and the weather now says what it does. On phones the bar is one row; the water’s name shows on the water, and search and settings are in the menu.',
   'Every label fits: nothing is cut off with “…” on any page, on any screen.',
+  'Smoother everywhere: Aurora weather is far lighter to draw, the Pets page opens about twice as fast, and the top bar does less work while you fish.',
+  'The numbers add up: each aquarium fish’s coins per hour add up exactly to the total, short amounts never round up (999,999 coins used to read 1000K), and weekly quests pay exactly what they show.',
+  'A sleeping bat’s accessories now hang with it instead of floating.',
   '## Handy extras',
   'Keyboard shortcuts on PC: M opens and closes the menu, 1 to 5 open a category, [ and ] move between pages, / searches and Esc closes menus and cards. Press ? to see them all.',
   'Bait can restock itself: switch on Auto-restock on the Tackle page and one more pack is bought when you run out, if you have the coins.',
@@ -6552,12 +6560,19 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
   if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const cx=W*.62, cy=hz+H*.28, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
       g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); }
       g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI*1.06,Math.PI*1.94); g.stroke(); g.restore(); } }
-  if(k==="Aurora"){ const A=a*(.55+.45*night); const cs=['90,255,170','150,110,255','90,220,255'];
-    g.save(); g.globalCompositeOperation='lighter'; const sw=Math.max(4,W/80); for(let b=0;b<3;b++){ const y0=hz*(.18+b*.11);
-      // one shared gradient per ribbon (light at the curtain's foot, fading up); each strip just moves and dims it
-      const gr=g.createLinearGradient(0,y0+hz*.08,0,y0-hz*.24); gr.addColorStop(0,'rgba('+cs[b]+',0)'); gr.addColorStop(.25,'rgba('+cs[b]+',1)'); gr.addColorStop(1,'rgba('+cs[b]+',0)'); g.fillStyle=gr;
-      for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; g.globalAlpha=A*(.16+.12*Math.sin(X*.03+t*1.3+b*2)); g.save(); g.translate(0,dy); g.fillRect(X,y0-hz*.24,sw+1,hz*.32); g.restore(); } }
-    g.restore(); }
+  if(k==="Aurora"){ const A=a*(.55+.45*night);
+    // the curtains are drawn into a small offscreen picture (half resolution, about 20 refreshes a second: they move slowly
+    // and are soft, so nobody can tell) and added to the sky in one step. Drawing ~240 additive strips straight onto a
+    // full-density screen every frame tripled the scene's cost on phones (2026-11-17 QC).
+    const AU=wx3Sky.au||(wx3Sky.au={c:document.createElement('canvas'),t:-1,w:0,h:0}), q=.5, cw=Math.max(8,Math.ceil(W*q)), chh=Math.max(8,Math.ceil(hz*.62*q));
+    if(AU.w!==cw||AU.h!==chh||Math.abs(t-AU.t)>.05){ if(AU.w!==cw||AU.h!==chh){ AU.c.width=cw; AU.c.height=chh; AU.w=cw; AU.h=chh; }
+      AU.t=t; const o=AU.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,chh); o.setTransform(q,0,0,q,0,0); o.globalCompositeOperation='lighter';
+      const cs=['90,255,170','150,110,255','90,220,255'], sw=Math.max(4,W/80);
+      for(let b=0;b<3;b++){ const y0=hz*(.18+b*.11);
+        // one shared gradient per ribbon (light at the curtain's foot, fading up); each strip just moves and dims it
+        const gr=o.createLinearGradient(0,y0+hz*.08,0,y0-hz*.24); gr.addColorStop(0,'rgba('+cs[b]+',0)'); gr.addColorStop(.25,'rgba('+cs[b]+',1)'); gr.addColorStop(1,'rgba('+cs[b]+',0)'); o.fillStyle=gr;
+        for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; o.globalAlpha=.16+.12*Math.sin(X*.03+t*1.3+b*2); o.save(); o.translate(0,dy); o.fillRect(X,y0-hz*.24,sw+1,hz*.32); o.restore(); } } }
+    g.save(); g.globalCompositeOperation='lighter'; g.globalAlpha=A; g.drawImage(AU.c,0,0,cw/q,chh/q); g.restore(); }
   if(k==='Blood Moon'){ const tint=g.createLinearGradient(0,0,0,hz); tint.addColorStop(0,'rgba(60,0,12,'+(.35*a)+')'); tint.addColorStop(1,'rgba(150,20,30,'+(.25*a)+')'); g.fillStyle=tint; g.fillRect(0,0,W,hz+1);
     const mx=W*.78, my=hz*.32, r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
     g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
@@ -7980,7 +7995,7 @@ function pet3Face(c,k,fm,hr,P){ const {el,ci}=k;
 // wide, flat or odd heads (frog, slime, crab, jellyfish...) don't match a circle, so a bow placed on the circle floated
 // above them. Measured once per pet by drawing the pet alone off screen, then remembered.
 const PET_TOP={};
-function petTopK(id,xk,t){ const key=id+'|'+xk; if(key in PET_TOP) return PET_TOP[key]; PET_TOP[key]=null;
+function petTopK(id,xk,t){ /* a head turned upside down or on its side (the bat hanging asleep): the outline scan would find the perch, not the head, so use the head circle */ const F0=PET3_FR[id]; if(F0&&F0.head&&Math.cos(F0.head.rot||0)<.5) return null; const key=id+'|'+xk; if(key in PET_TOP) return PET_TOP[key]; PET_TOP[key]=null;
   try{ const S=320, cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d',{willReadFrequently:true});
     const lk=Object.assign({},petLook(id),{acc:'none',hat:'none'}); drawPetStyled(x,id,S/2,S*.8,4,t||0,0,lk); const F=PET3_FR[id]; if(!F) return null;
     const hd=F.head, col=Math.round(hd.x+(hd.flip?-1:1)*xk*hd.r); if(col<1||col>S-2) return null; const d=x.getImageData(col-1,0,3,S).data;
@@ -7995,7 +8010,7 @@ function drawGear3(c,id,lk,t){ const F=PET3_FR[id]; if(!F) return false; const h
     if(lk.acc==='bowtie'){ c.fillStyle=col; c.beginPath(); c.moveTo(.3,.1); c.lineTo(-.25,-.25); c.lineTo(-.25,.45); c.closePath(); c.moveTo(.3,.1); c.lineTo(.85,-.25); c.lineTo(.85,.45); c.closePath(); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(.3,.1,.13,0,7); c.fill(); }
     if(lk.acc==='bell'){ c.strokeStyle=col; c.lineWidth=.22; c.beginPath(); c.moveTo(-.9,-.15); c.quadraticCurveTo(0,.15,.9,-.15); c.stroke(); c.fillStyle='#ffcc33'; c.beginPath(); c.arc(.25,.28,.24,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.7)'; c.beginPath(); c.arc(.18,.2,.07,0,7); c.fill(); }
     c.restore(); }
-  if(lk.acc==='cape'){ c.save(); c.translate(nk.x,nk.y); c.rotate(nk.rot); c.scale(nk.r,nk.r); c.fillStyle='#e8c060'; c.beginPath(); c.arc(-.55,-.15,.14,0,7); c.fill(); c.restore(); }
+  if(lk.acc==='cape'&&Math.cos(nk.rot||0)>-.5){ c.save(); c.translate(nk.x,nk.y); c.rotate(nk.rot); c.scale(nk.r,nk.r); c.fillStyle='#e8c060'; c.beginPath(); c.arc(-.55,-.15,.14,0,7); c.fill(); c.restore(); }
   if(lk.acc==='balloon'){ const tx=nk.x-nk.r*.4, ty=nk.y, bx=tx-hd.r*2.4+Math.sin(t*1.5)*1.2, by=ty-hd.r*5.2, R=hd.r*1.05;
     c.strokeStyle='rgba(235,235,235,.9)'; c.lineWidth=.35; c.beginPath(); c.moveTo(tx,ty); c.quadraticCurveTo(tx-hd.r*1.8,ty-hd.r*2,bx,by+R); c.stroke();
     c.fillStyle='#ffd84a'; c.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5+Math.sin(t*1.2)*.08, rr=i%2?R*.46:R; c.lineTo(bx+Math.cos(a)*rr,by+Math.sin(a)*rr); } c.closePath(); c.fill(); }
@@ -12926,11 +12941,11 @@ body #menuov #panel{display:block!important;flex:1 1 auto;min-height:0;max-heigh
 #menuov > #toast{position:fixed;top:calc(74px + env(safe-area-inset-top));z-index:60}
 @media (min-width:861px){body #menuov #tabs.secmode .secb{flex-direction:row;gap:8px;font-size:14px;min-height:46px;padding:4px 10px}body #menuov #tabs.secmode .secdot{right:8px}}
 @media (max-width:1100px){#menuov .mo-in{grid-template-areas:"back title tools" "secs secs secs" "sub sub sub" "body body body"}}
-@media (max-width:640px){#menuov .mo-in{column-gap:8px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}#menuov .mo-back{min-height:42px;padding:0 12px 0 10px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Fishing";font-size:13px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{min-height:36px;padding:0 9px;font-size:13px}#menuov .mo-pause span{display:none}}
+@media (max-width:640px){#menuov .mo-in{column-gap:8px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}#menuov .mo-back{min-height:42px;padding:0 12px 0 10px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:13px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{min-height:36px;padding:0 9px;font-size:13px}#menuov .mo-pause span{display:none}}
 /* phones held upright: the categories stay docked along the bottom edge, in menus too */
 @media (max-width:700px) and (orientation:portrait){#menuov .mo-in{grid-template-areas:"back title tools" "sub sub sub" "body body body"}body #menuov #panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}#menuov > #toast{top:calc(60px + env(safe-area-inset-top))}}
 /* phones held sideways: one compact row */
-@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-title{display:none}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Fishing";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-title{display:none}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
 html.menu-open,body.menu-open{overflow:hidden!important}
 body.menu-open #towater,body.menu-open .dlprev{display:none!important}
 .wrap.wrapin{animation:wrapin .2s ease-out}
@@ -13577,7 +13592,7 @@ document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscr
   const aq=mk('st-aq','Aquarium','aquarium','Aquarium: coins per hour (tap to open)'), lg=mk('st-log','Fish Log','journal','Fish Log: species found (tap to open)');
   after.after(aq); aq.after(lg);
   [aq,lg].forEach(b=>{ ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(b.dataset.go); }); });
-  const tick=()=>{ try{ const r=Math.round(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
+  const tick=()=>{ try{ const r=Math.floor(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
     const got=SP.filter(s=>S.journal[s.id]).length, lt=got+'/'+SP.length, lv=lg.querySelector('b'); if(lv.textContent!==lt) lv.textContent=lt; }catch(e){} };
   tick(); setInterval(tick,1500); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13680,7 +13695,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
   #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
-  #menuov .mo-back::after{content:"Fishing"!important;font-size:12px!important}
+  #menuov .mo-back::after{content:"Back"!important;font-size:12px!important}
   #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
   #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
   body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
@@ -13759,7 +13774,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
 }
 </style>`);
-{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
+{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:560px){
@@ -13816,6 +13831,87 @@ body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;lef
 @media (max-width:700px) and (orientation:portrait){ .dlprev{bottom:calc(76px + env(safe-area-inset-bottom))!important} }
 @media (min-width:701px) and (min-height:561px){ .dlprev{bottom:calc(74px + env(safe-area-inset-bottom))!important} }
 </style>`);
+
+// =====================================================================
+// No Menu button (director, 2026-11-17): the five categories are the way into the menu; M still toggles it on a keyboard.
+// The landscape side panels fold to icons and back (one setting for the water's panel and the menu's rail).
+// Page tabs (Wardrobe tabs, section tabs) stay pinned while a page scrolls.
+// =====================================================================
+MB.remove();
+{ const mini=()=>!!(S.settings&&S.settings.dockMini); const apply=()=>{ document.body.classList.toggle('dock-mini',mini()); document.querySelectorAll('.cdmini').forEach(b=>{ b.setAttribute('aria-pressed',String(mini())); const t=mini()?'Expand panel':'Collapse panel'; b.title=t; b.setAttribute('aria-label',t); const l=b.querySelector('.cdml'); if(l&&l.textContent!==t) l.textContent=t; }); };
+  const mk=()=>{ const b=document.createElement('button'); b.type='button'; b.className='cdmini'; b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="cdml">Collapse panel</span>';
+    ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.dockMini=!mini(); apply(); save(); dispatchEvent(new Event('resize')); }); return b; };
+  CD.prepend(mk()); const sb=$('tabs')&&$('tabs').querySelector('.secbar'); if(sb) sb.appendChild(mk()); apply(); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* only landscape phones have side panels to fold */
+@media (orientation:landscape) and (max-height:560px){
+  body .cdmini,body #menuov #tabs .secbar > .cdmini{display:flex!important}
+  .cdmini{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex:0 0 auto;height:26px;padding:0 9px;border-radius:9px;border:1px solid #ffffff14;background:#ffffff08;color:#9fb2c8;font:700 10.5px var(--display,system-ui);cursor:pointer;touch-action:manipulation}
+  .cdmini:hover{color:#fff;border-color:#ffffff30}
+  .cdmini svg{transition:transform .2s}
+  body.dock-mini .cdmini{justify-content:center;padding:0}
+  body.dock-mini .cdmini svg{transform:rotate(180deg)}
+  body.dock-mini .cdmini .cdml{display:none}
+  body #menuov #tabs.secmode .secbar > .cdmini{margin-top:auto;width:100%}
+  /* folded: icons only, the water and the pages get the room */
+  body.dock-mini.dl-fish .wrap > #catdock .cdb{width:46px!important;padding:0!important;justify-content:center!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cdl{display:none!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cddot{top:-4px!important;right:-4px!important;transform:none!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cdb.live::before{top:3px!important;left:3px!important}
+  body.dock-mini #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 52px!important}
+  body.dock-mini #menuov .mo-back{justify-content:center!important;padding:0!important;font-size:0!important}
+  body.dock-mini #menuov .mo-back::after{content:none!important}
+  body.dock-mini #menuov #tabs.secmode .secb{justify-content:center!important;padding:0!important}
+  body.dock-mini #menuov #tabs.secmode .secb .secl{display:none!important}
+  body.dock-mini #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;transform:none!important}
+  body.dock-mini.dl-fish .wrap > #stage > #hint{left:50%!important;max-width:calc(100% - 28px)!important}
+  body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}
+}
+/* page tabs stay pinned at the top of the page while it scrolls */
+#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 6px 12px -6px #02060fcc}
+@media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
+@media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
+</style>`);
+// landscape phones: the wardrobe's section tabs stay on one line (Shop used to wrap onto a row of its own); on the
+// narrowest screens the row scrolls sideways instead of squeezing the labels
+document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) and (orientation:landscape){
+ #menuov #panel > .wd-nav.wd-top{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
+ #menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
+ #menuov #panel > .wd-nav.wd-top > button{flex:1 0 auto!important}
+}</style>`);
+// ---------- top bar bait chip: the whole name always fits (2026-11-17) ----------
+// The closed picker used to show "Name (count)" in a ~55 px chip, so most names were cut off at every size. Now the count
+// sits on the label line ("BAIT · 12", with the picker arrow) and the name gets its own line: the full name, its text a
+// little smaller if needed, and a short form only when even that can't fit. The real picker still covers the whole chip,
+// so a tap opens the phone's own list with every bait and count.
+{ const sel=$('bait'), chip=sel&&sel.closest('.stat'), lbl=chip&&chip.querySelector('.lbl');
+  if(chip&&lbl){
+    const SHORT={worm:'Worms',bread:'Bread',cricket:'Crickets',crawler:'Crawlers',corn:'Corn',minnows:'Minnows',glitter:'Glitter',deepjig:'Deep Jigs',berries:'Berries',goldchum:'Gold Chum',lavaworm:'Lava',stardust:'Stardust',mythbait:'Myth',spinner:'Spinner',glow:'Glow',icefly:'Ice Flies',chum:'Chum',shrimp:'Shrimp',squid:'Squid',stinky:'Cheese',disco:'Disco',magnet:'Magnet',golden:'Golden'};
+    const nm=document.createElement('b'); nm.className='bnm'; nm.setAttribute('aria-hidden','true'); sel.after(nm); chip.classList.add('bait-x');
+    const paint=()=>{ try{ const k=BAIT[S.baitSel]?S.baitSel:'worm', b=BAIT[k], n=k==='worm'?null:(S.bait[k]||0);
+      const lt='Bait'+(n!=null?' · '+fmtShort(n):''); if(lbl.textContent!==lt) lbl.textContent=lt;
+      const t=b.name+(n!=null?' ('+fmt(n)+' left)':''); if(chip.title!==t+'. Tap to change bait') chip.title=t+'. Tap to change bait';
+      // measured on the real text (letter spacing and the loaded font included); redone only when the bait or the width changes
+      const avail=nm.clientWidth, key=k+'|'+avail+'|'+(document.fonts?document.fonts.status:''); if(avail>0&&nm._fitKey===key) return; nm._fitKey=avail>0?key:'';
+      let best=null; const fits=(s,fs)=>{ nm.textContent=s; nm.style.fontSize=fs+'px'; return nm.scrollWidth<=nm.clientWidth+.5; };
+      if(avail>0){ for(const s of [b.name, SHORT[k]||b.name]){ for(let fs=15;fs>=11;fs--){ if(fits(s,fs)){ best=[s,fs]; break; } } if(best) break; } }
+      if(!best) best=[SHORT[k]||b.name,11];
+      if(nm.textContent!==best[0]) nm.textContent=best[0]; const f=best[1]+'px'; if(nm.style.fontSize!==f) nm.style.fontSize=f; }catch(e){} };
+    { const _rb=renderBait; renderBait=function(){ const r=_rb.apply(this,arguments); paint(); return r; }; }
+    sel.addEventListener('change',()=>setTimeout(paint,0)); addEventListener('resize',()=>requestAnimationFrame(paint));
+    if(window.ResizeObserver) new ResizeObserver(()=>paint()).observe(chip);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(paint);
+    paint();
+    if(/[?&]test\b/.test(location.search)) window.__baitChip=paint;
+  } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud .stat.bait-x{position:relative;min-width:0}
+.hud .stat.bait-x > #bait{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;padding:0!important;opacity:0!important;z-index:2;cursor:pointer;font-size:16px!important}
+.hud .stat.bait-x > .lbl{display:block;padding-right:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23c9d7e8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;box-sizing:border-box}
+.hud .stat.bait-x > .bnm{display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:700 15px/22px var(--display,"Bricolage Grotesque"),"Segoe UI",system-ui,sans-serif;color:#eef3f8}
+.hud .stat.bait-x:focus-within{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+.hud .stat.bait-x:hover{border-color:#ffffff30}
+</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -13853,7 +13949,7 @@ function weeklyHTML(){ const w=ensureWeekly(), done=w.quests.filter(q=>q.claimed
    ${w.quests.every(q=>q.claimed)?(w.bonus?'<p class="sub">Weekly crate collected. New quests on Monday.</p>':'<button class="btn" data-act="wqbonus" style="margin-top:8px">Claim the weekly crate</button>'):''}</div>`; }
 { const _rb=renderBounties; renderBounties=function(P){ _rb(P); try{ const d=[...P.children].find(c=>c.classList&&c.classList.contains('tile')&&/Daily tasks/.test(c.textContent)); const html=weeklyHTML(); if(d) d.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){} }; }
 { const _xw=extraAct2; extraAct2=function(b){ const a=b.dataset.act;
-  if(a==='wqclaim'){ const w=ensureWeekly(), q=w.quests[+b.dataset.i]; if(!q||q.claimed||wqHave(q)<q.n) return 'skip'; q.claimed=true; const c=Math.round(q.coins*coinMult()); earn(c); S.scales+=q.scales; try{ addPassXP(60); }catch(e){} try{ sfx.coin(); }catch(e){} toast('Weekly quest done: +'+fmt(c)+' coins, +'+q.scales+' Scales'); save(); return 'render'; }
+  if(a==='wqclaim'){ const w=ensureWeekly(), q=w.quests[+b.dataset.i]; if(!q||q.claimed||wqHave(q)<q.n) return 'skip'; q.claimed=true; const c=earn(q.coins*coinMult()); S.scales+=q.scales; try{ addPassXP(60); }catch(e){} try{ sfx.coin(); }catch(e){} toast('Weekly quest done: +'+fmt(c)+' coins, +'+q.scales+' Scales'); save(); return 'render'; }
   if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){} toast('All weekly quests done! +25 Scales and a big Mystery Crate at the Boardwalk.'); save(); return 'render'; }
   return _xw(b); }; }
 if(typeof ACT_OK==='object'){ ACT_OK.wqclaim=(k,i)=>Number.isInteger(i)&&i>=0&&i<ensureWeekly().quests.length; ACT_OK.wqbonus=()=>true; }
@@ -13997,10 +14093,23 @@ ui(){ QA.sys='UI';
       for(const t of pages){ setTab(t); const P=$('panel'); const seen=new Set(); const visit=()=>P.querySelectorAll('[data-act]').forEach(b=>{ const f=ACT_OK[b.dataset.act]; if(!f) return; const key=b.dataset.act+'|'+b.dataset.k+'|'+b.dataset.i; if(seen.has(key)) return; seen.add(key); n++; let ok=false; try{ ok=f(b.dataset.k, b.dataset.i!=null&&b.dataset.i!==''?+b.dataset.i:NaN); }catch(e){} if(!ok) bad.push(t+': '+key); });
         visit(); [...P.querySelectorAll('[data-act]')].filter(b=>sub.includes(b.dataset.act)).map(b=>[b.dataset.act,b.dataset.k]).forEach(([a,k])=>{ try{ act(a,{k}); visit(); }catch(e){} }); [...P.querySelectorAll('[data-sect]')].map(b=>b.dataset.sect).forEach(s=>{ const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===s); try{ b&&b.click(); visit(); }catch(e){} }); }
       setTab(DASH); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:n+' real buttons checked'}; });
-  T('menu: no Overview; the Menu button opens the last page used and closing returns to fishing',()=>{ const errs=[]; openMenu('rods'); closeMenu(); openMenu(); if(S.tab!=='rods') errs.push('opened '+S.tab); if($('panel').querySelector('.dash')) errs.push('overview rendered'); if(document.querySelector('#menuov .mo-home')) errs.push('overview button'); closeMenu(); if(MENU_OPEN||S.tab!==DASH) errs.push('did not close'); return errs.length?{ok:false,detail:errs.join('; ')}:{ok:true,detail:'Menu opens the last page; no Overview'}; });
+  T('menu: no Overview; opening the menu shows the last page used and closing returns to fishing',()=>{ const errs=[]; openMenu('rods'); closeMenu(); openMenu(); if(S.tab!=='rods') errs.push('opened '+S.tab); if($('panel').querySelector('.dash')) errs.push('overview rendered'); if(document.querySelector('#menuov .mo-home')) errs.push('overview button'); closeMenu(); if(MENU_OPEN||S.tab!==DASH) errs.push('did not close'); return errs.length?{ok:false,detail:errs.join('; ')}:{ok:true,detail:'Menu opens the last page; no Overview'}; });
   T('contrast: every button and label on every menu page is readable (ratio 3+)',()=>{ const bad=[]; const pages=[...MENU_SECS.flatMap(s=>s.tabs),...MENU_MORE.tabs]; for(const t of pages){ openMenu(t); for(const c of __contrast()) bad.push(t+': '+c); } closeMenu(); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:pages.length+' pages readable'}; });
   T('weekly quests: progress from counters, each pays once, crate once, week rollover and damaged saves rebuild',()=>{ const e=[]; S.weekly=null; const w=ensureWeekly(); if(w.quests.length!==4) e.push('quests '+w.quests.length); for(const q of w.quests){ const m={caught:()=>S.stats.caught+=q.n,shiny:()=>S.stats.shiny+=q.n,earned:()=>S.stats.earned+=q.n,tasks:()=>S.gstats.tasks+=q.n,hot:()=>S.stats.hot+=q.n,chal:()=>S.stats.chalWins=(S.stats.chalWins||0)+q.n,species:()=>{}}; m[q.t](); } const sc0=S.scales; w.quests.forEach((q,i)=>{ if(q.t==='species') q.base-=q.n; act('wqclaim',{i}); act('wqclaim',{i}); }); const want=w.quests.reduce((a,q)=>a+q.scales,0); if(S.scales-sc0!==want) e.push('scales '+(S.scales-sc0)+' want '+want); const big=S.tokens.big; act('wqbonus',{}); act('wqbonus',{}); if(S.tokens.big-big!==1) e.push('crate '+(S.tokens.big-big)); S.weekly.wk='2000-01-03'; if(ensureWeekly().wk!==weekKey()) e.push('rollover'); S.weekly={wk:1,quests:[null]}; if(!Array.isArray(ensureWeekly().quests)||ensureWeekly().quests.length!==4) e.push('rebuild'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:'claims, crate, rollover and rebuild ok'}; });
   T('weather forecast matches the real weather schedule, in order and in the future',()=>{ const e=[]; const f=wxForecast(6), now=Date.now()/1000; let last=0; for(const x of f){ const slot=Math.round((x.at+now)/WX_LEN); if(weatherAt(slot).k!==x.k) e.push(x.k+' at slot '+slot); if(x.at<=0||x.at<last) e.push('order '+x.at); last=x.at; } if(!f.length) e.push('empty'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:f.map(x=>x.k).join(', ')}; });
+  T('no Menu button: the category bar opens the pages; "Collapse panel" shrinks both side panels and is remembered',()=>{ const e=[]; if($('menubtn')&&$('menubtn').isConnected) e.push('Menu button still on screen'); if(!$('catdock')||!$('catdock').querySelector('.cdb[data-cd]')) e.push('no category bar');
+    const tg=document.querySelectorAll('.cdmini'); if(tg.length!==2) e.push(tg.length+' collapse buttons'); if(!matchMedia('(orientation:landscape) and (max-height:560px)').matches){ openMenu('rods'); tg.forEach(b=>{ if(getComputedStyle(b).display!=='none') e.push('collapse button shown outside landscape phones'); }); closeMenu(); } const was=!!(S.settings&&S.settings.dockMini);
+    if(tg[0]){ tg[0].click(); if(!!S.settings.dockMini===was||document.body.classList.contains('dock-mini')===was) e.push('toggle on'); tg[0].click(); if(!!S.settings.dockMini!==was||document.body.classList.contains('dock-mini')!==was) e.push('toggle back'); }
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true}; });
+  T('aquarium: each fish\'s coins per hour add up exactly to the total shown, each within a coin of its true value',()=>{ const e=[]; const base=S.tank.slice(); const pool=[...S.cooler,...base]; if(!pool.length) return {ok:true,detail:'no fish to test'};
+    for(let k=1;k<=Math.min(12,aqCap());k++){ S.tank=Array.from({length:k},(_,i)=>pool[i%pool.length]); const sh=aqShownRates(), tot=Math.floor(tankRate()*60); if(sh.reduce((a,b)=>a+b,0)!==tot) e.push(k+' fish: '+sh.reduce((a,b)=>a+b,0)+' vs '+tot); S.tank.forEach((f,i)=>{ if(Math.abs(sh[i]-fishRate(f)*60)>=1) e.push('fish '+i+' off by '+(sh[i]-fishRate(f)*60).toFixed(2)); }); }
+    S.tank=base; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
+  T('top bar bait chip: every bait name and count fits with nothing cut off, and the real picker covers the chip',()=>{ const e=[]; const nm=document.querySelector('.st-bait .bnm'), lb=document.querySelector('.st-bait .lbl'), sel=$('bait'); if(!nm||!lb) return {ok:false,detail:'chip missing'};
+    for(const k of Object.keys(BAIT)){ S.bait[k]=999999; S.baitSel=k; renderBait(); if(nm.clientWidth&&nm.scrollWidth>nm.clientWidth+1) e.push(k+' name cut'); if(lb.clientWidth&&lb.scrollWidth>lb.clientWidth+1) e.push(k+' label cut'); if(sel.value!==k) e.push(k+' picker shows '+sel.value); }
+    const c=sel.closest('.stat').getBoundingClientRect(), s=sel.getBoundingClientRect(); if(c.width&&(Math.abs(c.width-s.width)>2||Math.abs(c.height-s.height)>2)) e.push('picker does not cover the chip');
+    return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:Object.keys(BAIT).length+' baits at '+innerWidth+'x'+innerHeight}; });
+  T('short numbers (K, M, B...) never round up past the real amount',()=>{ const e=[]; const mul={K:1e3,M:1e6,B:1e9,T:1e12,Qa:1e15}; const vals=[99999,100000,999999,1e6-1,1e6,9999999,1e7,99999999,999999999,1e9,9.999e9,999.99e9,1e12,7.7e12,999999e9]; for(let i=0;i<300;i++) vals.push(Math.floor(Math.pow(10,5+Math.random()*10)));
+    for(const v of vals){ const s=fmtShort(v), m=s.match(/^([\d.]+)(K|M|B|T|Qa)$/); if(!m){ if(v>=100000) e.push(v+' -> '+s); continue; } const back=parseFloat(m[1])*mul[m[2]]; if(back>v*(1+1e-9)) e.push(v+' -> '+s); if(parseFloat(m[1])>=1000) e.push(v+' -> '+s); } return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:vals.length+' numbers'}; });
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
 },
 fuzz(){ QA.sys='Adversarial';
@@ -14030,7 +14139,7 @@ if(/[?&]test\b/.test(location.search)) window.__profUI=(page,n=3)=>{ const acc={
   return Object.fromEntries(Object.entries(acc).map(([k,v])=>[k,+(v/n).toFixed(1)])); };
 // test-mode layout check: the dashboard, every page (via __audit / __trunc) and the menu header in each category
 if(/[?&]test\b/.test(location.search)) window.__layoutQC=async()=>{ const chk=()=>{ const out=[]; const vw=document.documentElement.clientWidth; document.querySelectorAll('#panel *, .hud *, #tabs *, #menuov .mo-top *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height||!e.offsetParent) return; if(window.__inHScroll&&__inHScroll(e)) return; const cs=getComputedStyle(e); if(cs.position==='fixed') return; if(r.right>vw+2&&!e.closest('.subbar')) out.push('off '+(e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'"'); const t=(e.textContent||'').trim(); if(t&&e.children.length<=2&&e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.push('cut "'+t.slice(0,30)+'"'); }); if(document.documentElement.scrollWidth>vw+1) out.push('page scrolls sideways'); return out; };
-  const r={size:innerWidth+'x'+innerHeight, layout:document.body.className.replace(/\bv3\b|plat-\w+/g,'').trim()}; closeMenu(); await new Promise(x=>setTimeout(x,500)); { const w=document.querySelector('.wrap').getBoundingClientRect(), s=$('stage').getBoundingClientRect(), c=$('cv').getBoundingClientRect(); r.fishing={stageFillsToBottom:Math.abs(w.bottom-Math.max(s.bottom,$('catdock').getBoundingClientRect().bottom))<=2, waterUncovered:(()=>{ const d=$('catdock').getBoundingClientRect(); return !(d.left<s.right-1&&d.right>s.left+1&&d.top<s.bottom-1&&d.bottom>s.top+1); })(), canvasFillsStage:Math.abs(c.height-s.height)<=2&&Math.abs(c.width-s.width)<=2, menuButton:!!$('menubtn')&&$('menubtn').getBoundingClientRect().bottom<=w.bottom+1&&$('menubtn').offsetParent!==null, pageScrolls:document.documentElement.scrollHeight>innerHeight+1, hudCut:chk().filter(x=>!/#panel/.test(x))}; } openMenu(DASH); await new Promise(x=>setTimeout(x,500)); r.dash=chk(); r.audit=(await __audit()).out; r.trunc=await __trunc(); const heads=[]; for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(x=>setTimeout(x,150)); heads.push(...chk().filter(x=>!/#panel/.test(x))); } r.head=[...new Set(heads)]; closeMenu(); const f=r.fishing; r.clean=!r.dash.length&&!r.audit.length&&!r.trunc.length&&!r.head.length&&f.stageFillsToBottom&&f.waterUncovered&&f.canvasFillsStage&&f.menuButton&&!f.pageScrolls&&!f.hudCut.length; return r; };
+  const r={size:innerWidth+'x'+innerHeight, layout:document.body.className.replace(/\bv3\b|plat-\w+/g,'').trim()}; closeMenu(); await new Promise(x=>setTimeout(x,500)); { const w=document.querySelector('.wrap').getBoundingClientRect(), s=$('stage').getBoundingClientRect(), c=$('cv').getBoundingClientRect(); r.fishing={stageFillsToBottom:Math.abs(w.bottom-Math.max(s.bottom,$('catdock').getBoundingClientRect().bottom))<=2, waterUncovered:(()=>{ const d=$('catdock').getBoundingClientRect(); return !(d.left<s.right-1&&d.right>s.left+1&&d.top<s.bottom-1&&d.bottom>s.top+1); })(), canvasFillsStage:Math.abs(c.height-s.height)<=2&&Math.abs(c.width-s.width)<=2, menuButton:!!$('catdock')&&$('catdock').offsetParent!==null&&$('catdock').getBoundingClientRect().bottom<=w.bottom+1, pageScrolls:document.documentElement.scrollHeight>innerHeight+1, hudCut:chk().filter(x=>!/#panel/.test(x))}; } openMenu(DASH); await new Promise(x=>setTimeout(x,500)); r.dash=chk(); r.audit=(await __audit()).out; r.trunc=await __trunc(); const heads=[]; for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(x=>setTimeout(x,150)); heads.push(...chk().filter(x=>!/#panel/.test(x))); } r.head=[...new Set(heads)]; closeMenu(); const f=r.fishing; r.clean=!r.dash.length&&!r.audit.length&&!r.trunc.length&&!r.head.length&&f.stageFillsToBottom&&f.waterUncovered&&f.canvasFillsStage&&f.menuButton&&!f.pageScrolls&&!f.hudCut.length; return r; };
 // test builds: ?test&open=<page> opens that menu page right after load (for screenshots of a menu page)
 if(/[?&]test\b/.test(location.search)){ const m=location.search.match(/[?&]open=([\w-]+)/); if(m) setTimeout(()=>{ try{ openMenu(m[1]==='dash'?undefined:m[1]); }catch(e){} },700); }
 if(/[?&]test\b/.test(location.search)&&/[?&]noanim\b/.test(location.search)) document.head.insertAdjacentHTML('beforeend','<style>*,*::before,*::after{animation:none!important;transition:none!important}</style>');
@@ -14045,6 +14154,29 @@ if(/[?&]test\b/.test(location.search)) window.__contrast=(root=$('panel'),min=3)
   const lum=c=>{ const f=v=>{ v/=255; return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4); }; return .2126*f(c.r)+.7152*f(c.g)+.0722*f(c.b); };
   const bgOf=el=>{ for(let e=el;e;e=e.parentElement){ const cs=getComputedStyle(e); const img=cs.backgroundImage; if(img&&img!=='none'){ const c=parse(img); if(c&&c.a>.5) return c; } const c=parse(cs.backgroundColor); if(c&&c.a>.5) return c; } return {r:10,g:19,b:34,a:1}; };
   root.querySelectorAll('button,.btn,b,h4,.meta,span,label,a').forEach(el=>{ if(!el.offsetParent) return; const t=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).join(''); if(!t) return; const cs=getComputedStyle(el); if(+cs.opacity<.2) return; const fg=parse(cs.color); if(!fg) return; const bg=bgOf(el); const L1=lum(fg), L2=lum(bg); const ratio=(Math.max(L1,L2)+.05)/(Math.min(L1,L2)+.05); const eff=ratio*(fg.a); if(eff<min) out.push(t.slice(0,24)+' '+eff.toFixed(1)); }); return out; };
+// test builds: __cosmeticSweep() draws every cosmetic combination off-screen and reports drawing errors and slow draws
+if(/[?&]test\b/.test(location.search)) window.__cosmeticSweep=()=>{ const c=document.createElement('canvas'); c.width=240; c.height=240; const x=c.getContext('2d'); const errs=[], slow=[]; let n=0, tot=0;
+  const id=a=>Array.isArray(a)?a[0]:(a&&a.id); const run=(label,fn)=>{ const t0=performance.now(); try{ x.save(); fn(); x.restore(); }catch(e){ try{ x.restore(); }catch(_){} errs.push(label+': '+(e&&e.message)); } const dt=performance.now()-t0; tot+=dt; n++; if(dt>12) slow.push(label+' '+dt.toFixed(1)+'ms'); };
+  const base=Object.assign({},S.look,{shirt:'#4f86c9',pants:'#3a4a6a'}); const hats=HATS.map(id), hs=HAIRSTYLES.map(id), outs=OUTFITS.map(id), builds=BUILDS.map(id);
+  const poses=[['idle',{}],['charging',{pow:1}],['flying',{}],['bite',{}],['reeling',{ten:1}],['landing',{}]];
+  for(const g of ['m','f']){
+    for(const h of hats) for(const s of hs) run(`hat ${h} hair ${s} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,hat:h,hairStyle:s}),{t:1.3,hx:9,hy:-35}));
+    for(const o of outs) for(const b of builds) run(`outfit ${o} build ${b} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,outfit:o,build:b}),{t:1.3,hx:9,hy:-35}));
+    for(const [st,ov] of poses) for(const o of outs) run(`pose ${st} outfit ${o} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,outfit:o,hat:'cap',back:'backpack'}),Object.assign({t:1.3,hx:9,hy:-35,forceSt:st},ov)));
+    for(const k of ['shoes','neck','back']){ const L=k==='shoes'?SHOES:k==='neck'?NECKS:BACKS; for(const w of L.map(id)) for(const [st,ov] of poses) run(`${k} ${w} ${st} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,[k]:w}),Object.assign({t:1.3,hx:9,hy:-35,forceSt:st},ov))); }
+    for(const gl of GLASSES.map(id)) for(const be of BEARDS.map(id)) run(`glasses ${gl} beard ${be} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,glasses:gl,beard:be}),{t:1.3,hx:9,hy:-35}));
+    for(const f of FABRICS.map(id)) for(const tone of ['none','shoulders','sleeves','chest','lower']) run(`fabric ${f} tone ${tone} ${g}`,()=>drawAngler3(x,120,220,2.4,Object.assign({},base,{g,outfit:'vest',outFab:f,tone,shirt2:'#c04040'}),{t:1.3,hx:9,hy:-35}));
+  }
+  const accs=PET_ACCS.map(id); const t=performance.now()/1000;
+  for(const p of PETS.map(id)){ for(const a of accs) run(`pet ${p} acc ${a}`,()=>drawPetStyled(x,p,120,200,2.6,t,0,Object.assign({},petLook(p),{acc:a,accCol:'#d8303a',hat:'none'})));
+    for(const h of hats) run(`pet ${p} hat ${h}`,()=>drawPetStyled(x,p,120,200,2.6,t,0,Object.assign({},petLook(p),{acc:'none',hat:h,hatCol:'#3f7a6a'})));
+    run(`pet ${p} night`,()=>drawPetStyled(x,p,120,200,2.6,t,1,petLook(p))); }
+  return {draws:n, avgMs:+(tot/n).toFixed(2), errors:errs.length, errList:errs.slice(0,15), slow:slow.length, slowList:slow.slice(0,10)}; };
+if(/[?&]test\b/.test(location.search)) window.__drawRepeat=(look,times=50)=>{ const c=document.createElement('canvas'); c.width=240; c.height=240; const x=c.getContext('2d'); const ts=[]; const lk=Object.assign({},S.look,look); for(let i=0;i<times;i++){ const t0=performance.now(); drawAngler3(x,120,220,2.4,lk,{t:1.3+i*.016,hx:9,hy:-35}); ts.push(performance.now()-t0); } ts.sort((a,b)=>a-b); return {med:+ts[times>>1].toFixed(2), p95:+ts[Math.floor(times*.95)].toFixed(2), max:+ts[times-1].toFixed(2)}; };
+// test builds: __petPose('idle'|'petted'|'watch'|'bite'|'happy'|'sleep'|null) forces every pet into one pose for sheets
+if(/[?&]test\b/.test(location.search)) window.__petPose=p=>{ PET3_FORCE=p||null; return PET3_FORCE; };
+if(/[?&]test\b/.test(location.search)) window.__hatIds=()=>HATS.map(h=>h[0]||h.id).filter(h=>h!=='none');
+if(/[?&]test\b/.test(location.search)) window.__fmtShort=fmtShort;
 
 // ---------- loop ----------
 let last=performance.now();
@@ -14070,13 +14202,16 @@ function hud(){
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
-  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=tabHTML(b.dataset.label)+dot(n); };
+  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(!b) return; const h=tabHTML(b.dataset.label)+dot(n); if(b._tabH!==h){ b._tabH=h; b.innerHTML=h; } }; // only touch the button when its badge changed
   setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
   setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
-function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M';
-  /* 0.3.6: trillions and beyond keep a short form (7.7 trillion used to read "7700.00B") */ const U=['B','T','Qa','Qi','Sx','Sp','Oc','No','Dc']; let i=0, v=n/1e9; while(v>=1000&&i<U.length-1){ v/=1000; i++; } return (v<10?v.toFixed(2):v<100?v.toFixed(1):v.toFixed(0))+U[i]; }
+function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n);
+  // short forms round down like every other coin number (rounding to nearest showed 999,999 as "1000K")
+  const tr=(v,d)=>{ const p=Math.pow(10,d); return (Math.floor(v*p+1e-6)/p).toFixed(d); };
+  if(n<1e6) return tr(n/1e3,0)+'K'; if(n<1e9){ const v=n/1e6; return tr(v,v<10?2:1)+'M'; }
+  /* 0.3.6: trillions and beyond keep a short form (7.7 trillion used to read "7700.00B") */ const U=['B','T','Qa','Qi','Sx','Sp','Oc','No','Dc']; let i=0, v=n/1e9; while(v>=1000&&i<U.length-1){ v/=1000; i++; } return tr(v,v<10?2:v<100?1:0)+U[i]; }
 function setHint(){ let h='';
   switch(G.st){
     case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
@@ -14168,7 +14303,7 @@ function renderSkills(P){ const free=ptsFree(), cost=50*S.lvl;
     <div class="meta">${p.d}</div><div class="val" style="font-size:14px">Each rank: ${p.per}</div>
     <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${r>=p.max?'Maxed':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>';
 }
-function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COST[S.tankSlots];
+function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
   P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
@@ -14180,7 +14315,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   ${next!=null?`<button class="btn alt" data-act="buytank" ${S.money>=next?'':'disabled'}>Increase tank size · <span class="coin">${fmt(next)}</span></button>`:'<span class="sub">Your tank is as big as it gets</span>'}</div>`+
   (S.tank.length ? '<div class="list">'+S.tank.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span></small></div>
-   <div class="val"><span class="coin">${fmt(fishRate(f)*60)}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
+   <div class="val"><span class="coin">${fmt((AQS||(AQS=aqShownRates()))[i])}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
    : '<div class="empty">No fish on display yet. In the Cooler, press <b>To aquarium</b> on a fish you want to keep.</div>') + aqCustomHTML();
   paintFish(P); paintDecor(P);
 }
@@ -14322,8 +14457,14 @@ function renderPets(P){ const pp=PETI[S.pet];
     return `<div class="tile ${here||comp?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();
-  P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
-    else mysteryThumb(cx,c.width,c.height,c.dataset.pet); });
+  // the first portraits are drawn at once, the rest in small batches right after (and any that scroll into view first are
+  // drawn straight away): setting up 60+ fresh canvases in one go made the Pets page slow to open (2026-11-17 QC)
+  const paint=c=>{ if(c.dataset.done) return; c.dataset.done=1; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
+    else mysteryThumb(cx,c.width,c.height,c.dataset.pet); };
+  const cvs=[...P.querySelectorAll('canvas[data-pet]')]; cvs.slice(0,8).forEach(paint);
+  let io=null; if(window.IntersectionObserver){ io=new IntersectionObserver(es=>{ for(const e of es) if(e.isIntersecting){ io.unobserve(e.target); paint(e.target); } },{rootMargin:'300px 0px'}); cvs.slice(8).forEach(c=>io.observe(c)); }
+  let i=8; const batch=()=>{ if(!cvs[0]||!cvs[0].isConnected){ if(io) io.disconnect(); return; } for(let n=0;n<6&&i<cvs.length;n++,i++) paint(cvs[i]); if(i<cvs.length) setTimeout(batch,16); else if(io) io.disconnect(); };
+  if(cvs.length>8) setTimeout(batch,16);
 }
 
 // ---------- save codes ----------
