@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1238';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1245';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2833,6 +2833,8 @@ const PATCHES = [
   'Backpacks and everything worn on the back have straps that run from the pack over your shoulder: the backpack, tackle pack, plush and seashell packs, scuba tank, jetpack, rod quiver, guitar, shark fin, turtle shell, creel, net, lantern and banner poles.',
   'Necklaces show on your chest instead of hiding behind your arm: the gold chain, pearls, shells, medal, whistle, fish on a string, flower lei, feather boa, bow tie and tie.',
   'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
+  'Phone held sideways: the Aquarium shows your whole tank right under your earnings, and Collapse panel works on every menu page to give pages the full width.',
+  'The “new version” bar now shows on top of the menus too, so you always know when an update is ready.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -13976,6 +13978,19 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:560px){
  #menuov #panel .bwx-pf{flex-wrap:wrap;justify-content:stretch;gap:5px}
  #menuov #panel .bwx-pf .btn{flex:1 1 auto;min-width:0;padding-left:6px;padding-right:6px}
 }</style>`);
+// Aquarium on sideways phones and tablets: the tank comes straight under the earnings bar, so the whole tank is on screen
+// (with the side panel collapsed it fills the width); the boosts and the description follow it (director, 2026-11-17)
+document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){
+ body #menuov #panel:has(> .tank){display:flex!important;flex-direction:column!important}
+ #menuov #panel:has(> .tank) > *{order:6;flex:0 0 auto}
+ #menuov #panel:has(> .tank) > .crumb{order:0}
+ #menuov #panel:has(> .tank) > .dl-head{display:contents}
+ #menuov #panel:has(> .tank) > .dl-head > .bank{order:1;margin:0 0 8px}
+ #menuov #panel:has(> .tank) > .tank{order:2;margin-top:0}
+ #menuov #panel:has(> .tank) > p.sub{order:3;margin:4px 0 0}
+ #menuov #panel:has(> .tank) > .badges{order:4;margin-top:8px}
+ #menuov #panel:has(> .tank) > .dl-head > :not(.bank){order:5;margin-top:6px}
+}</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -14739,7 +14754,7 @@ if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cas
 })();
 </script>
 <div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.4 preview</div>
-<div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
+<div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:65;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
   <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
   <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>
 </div>
