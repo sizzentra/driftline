@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0154';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0209';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -4892,6 +4892,9 @@ const V3SCENES = { pond: V3POND };
 const V3PLAT = { dock:(P,t,night,dockY)=>v3dock(P,t,night,dockY) };
 
 // ---------- entry points called from draw() ----------
+// the camera drifts slowly side to side (two slow waves, never a loop you notice); off for reduced motion
+const V3PAR={dx:0,amp:0,rm:matchMedia('(prefers-reduced-motion:reduce)')};
+function v3par(t){ V3PAR.amp=W*.008; if(V3PAR.rm.matches||window.__noPar){ V3PAR.dx=0; return 0; } return V3PAR.dx=V3PAR.amp*(Math.sin(t*.105)*.68+Math.sin(t*.043+1.3)*.32); }
 function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(!V3ON || !V3SCENES[L.id]) return false;
   const P=v3palette(L.id,night,dusk,gloom), SC=V3SCENES[L.id];
@@ -4900,6 +4903,8 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   // sky
   const sg=g.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); g.fillStyle=sg; g.fillRect(0,0,W,hz+1);
   if(wx&&wx.k==='Gilded'){ const gg=g.createLinearGradient(0,0,0,hz); gg.addColorStop(0,'rgba(255,200,90,0)'); gg.addColorStop(1,'rgba(255,196,90,'+(.26*(1-night*.65)*WXA)+')'); g.fillStyle=gg; g.fillRect(0,0,W,hz+1); }
+  // 0.3.6 parallax: a slow camera drift; the sky moves least, the land and water more, the out-of-focus foreground most
+  const px=v3par(t); g.save(); g.translate(px*.35,0);
   // stars (twinkling) after dusk
   if(night>.05 && gloom<.5 && !SC.overcast){ if(!v3Scene.st||v3Scene.st.w!==W){ const r=v3rng(3); v3Scene.st={w:W,a:Array.from({length:90},()=>[r()*W,r()*hz*.85,r(),.6+r()*1.1])}; }
     g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
@@ -4916,9 +4921,12 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
     g.fill(); g.restore();
     g.fillStyle=v3rgba(P.cloudLit,.75*(1-gloom*.5)); g.beginPath(); g.moveTo(cx+cw*.05,cy); g.quadraticCurveTo(cx+cw*.5,cy+chh*.16,cx+cw*.95,cy); g.quadraticCurveTo(cx+cw*.5,cy-chh*.12,cx+cw*.05,cy); g.fill(); }
   if(SC.sky) SC.sky(P,t,hz);
-  // the still land and water, from the cache
+  g.restore();
+  // the still land and water, from the cache (scaled a hair so the drift never shows an edge)
+  g.save(); if(px){ const os=1+V3PAR.amp*2.4/W; g.translate(W/2+px,hz); g.scale(os,os); g.translate(-W/2,-hz); }
   v3landDraw(L,P,hz);
-  SC.live(P,t,hz,{x:sx,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
+  SC.live(P,t,hz,{x:sx+px*.35-px,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
+  g.restore();
   if(tl) g.restore();
   return true;
 }
@@ -6982,10 +6990,10 @@ m33wrap('ember','live',function(P,t,hz){ const FX=S.settings.effects, night=P.ni
 // =====================================================================
 const DOF_CACHE={};
 const DOF_SETS={
- pond:   {br:'reeds',  tr:'leaves'},
- river:  {br:'grass',  tr:'leaves'},
+ pond:   {br:'reeds'},
+ river:  {br:'grass'},
  coast:  {br:'dune'},
- frost:  {br:'ice',    tr:'snowbranch'},
+ frost:  {br:'ice'},
  reef:   {br:'coral'},
  trench: {br:'kelp'},
  ember:  {br:'lavarock'},
@@ -7008,11 +7016,36 @@ function dofSprite(id,slot,kind,w,h,P,night){ const key=id+'|'+slot+'|'+Math.rou
   const k=.12, sw=Math.max(8,Math.round(w*k)), sh=Math.max(8,Math.round(h*k)), a=document.createElement('canvas'); a.width=sw; a.height=sh; const ax=a.getContext('2d'); ax.scale(k,k); dofDraw(ax,kind,w,h,P,night);
   const b=document.createElement('canvas'); b.width=Math.round(w*.5); b.height=Math.round(h*.5); const bx=b.getContext('2d'); bx.imageSmoothingEnabled=true; bx.imageSmoothingQuality='high'; bx.drawImage(a,0,0,b.width,b.height);
   s=DOF_CACHE[key]={cv:b}; const keys=Object.keys(DOF_CACHE); if(keys.length>40) delete DOF_CACHE[keys[0]]; return s; }
-for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=matchMedia('(prefers-reduced-motion:reduce)').matches, sway=rm?0:Math.sin(t*.6)*W*.004;
+for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=V3PAR.rm.matches, sway=(rm?0:Math.sin(t*.6)*W*.004)-V3PAR.dx*1.3;
   g.save(); g.globalAlpha=.92; g.imageSmoothingEnabled=true;
   if(set.br){ const w=W*.26, h=H*.34, s=dofSprite(id,'br',set.br,w,h,P,night); g.drawImage(s.cv,W-w*.92+sway,H-h*.9,w,h); }
-  if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w+sway*1.4,-h*.12,w,h); }
+  if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w*.94+sway*1.2,-h*.12,w,h); }
   g.restore(); }); }
+
+// ---------------------------------------------------------------------
+// 0.3.6 photographic finish for every water. (1) Surface grain baked into the cached scenery once per light level:
+// flat painted shapes pick up a fine stone/foliage texture, the biggest single step away from the "flat drawing"
+// look, at zero cost per frame. (2) A lens vignette and a soft horizon haze drawn over the scene (one cached image).
+// ---------------------------------------------------------------------
+const FIN036={grain:null, vig:null};
+function finGrain(){ if(FIN036.grain) return FIN036.grain; const n=160, c=document.createElement('canvas'); c.width=c.height=n; const x=c.getContext('2d'), im=x.createImageData(n,n), d=im.data; let s=91;
+  const r=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
+  for(let i=0;i<n*n;i++){ const v=r(), lum=v<.5?0:255, a=Math.abs(v-.5)*2; d[i*4]=d[i*4+1]=d[i*4+2]=lum; d[i*4+3]=Math.round(a*a*44); }
+  x.putImageData(im,0,0); return FIN036.grain=c; }
+const _v3land_036=v3land;
+v3land=function(L,P,hz){ const before=V3CACHE&&V3CACHE.key, C=_v3land_036(L,P,hz);
+  if(C.key!==before && !C.fin){ C.fin=1; try{ const x=C.c.getContext('2d'); x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop';
+    const k=Math.max(1,Math.round(C.c.width/1400)); const hzq=Math.round(hz*C.c.height/H)+2; x.globalAlpha=.42; x.fillStyle=x.createPattern(finGrain(),'repeat'); if(k>1&&x.fillStyle.setTransform) x.fillStyle.setTransform(new DOMMatrix().scale(k,k)); x.fillRect(0,0,C.c.width,hzq);
+    // light falls from above: the tops of things lighter, the ground near the camera darker
+    x.globalAlpha=1; const hzp=hz*C.c.height/H, lg=x.createLinearGradient(0,0,0,C.c.height); lg.addColorStop(0,'rgba(255,248,235,.06)'); lg.addColorStop(Math.min(.98,hzp/C.c.height),'rgba(255,248,235,0)'); lg.addColorStop(1,'rgba(0,4,12,.16)'); x.fillStyle=lg; x.fillRect(0,0,C.c.width,C.c.height);
+    x.restore(); }catch(e){} }
+  return C; };
+function finVignette(){ const key=W+'x'+H; if(FIN036.vig&&FIN036.vig.key===key) return FIN036.vig.c;
+  const c=document.createElement('canvas'), q=Math.min(1,600/Math.max(W,H)); c.width=Math.max(8,Math.round(W*q)); c.height=Math.max(8,Math.round(H*q)); const x=c.getContext('2d'), w=c.width, h=c.height, R=Math.hypot(w,h)/2;
+  const rg=x.createRadialGradient(w*.5,h*.46,R*.42,w*.5,h*.5,R*1.02); rg.addColorStop(0,'rgba(2,4,12,0)'); rg.addColorStop(.6,'rgba(2,4,12,.16)'); rg.addColorStop(1,'rgba(2,4,12,.42)'); x.fillStyle=rg; x.fillRect(0,0,w,h);
+  FIN036.vig={key,c}; return c; }
+const _v3Fore_036=v3Fore;
+v3Fore=function(L,t,night){ const r=_v3Fore_036(L,t,night); if(r&&!window.__noVig){ g.save(); g.imageSmoothingEnabled=true; g.drawImage(finVignette(),0,0,W,H); g.restore(); } return r; };
 
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
@@ -7056,6 +7089,7 @@ function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.cli
   c.fillStyle=gy; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
 
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
+let A3HEAD=.9; // 0.3.6: adult proportions (was 1.1, a cartoon-sized head)
 function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
   const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
@@ -7147,7 +7181,7 @@ function a3Body(c,x,y,s,lk,o,live){
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
-  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
+  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
   if(hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
     const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0); c.fillStyle=hairF; c.beginPath(); c.moveTo(-6.4,-62.4); c.bezierCurveTo(-9.6,-60.6,-10.2,-55.6,-9.4,-51); c.bezierCurveTo(-8.8,-47.4,-9.4+sw,-44.4,-8.8+sw,-40.4); c.quadraticCurveTo(-8+sw,-41.4,-7.4+sw,-40.6); c.quadraticCurveTo(-6.8+sw,-41.6,-6.1+sw,-41.2); c.bezierCurveTo(-5.4,-43.6,-4,-45.4,-2.6,-46.4); c.lineTo(-2.4,-58); c.closePath(); c.fill();
     c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.42; c.beginPath(); c.moveTo(-8,-58); c.bezierCurveTo(-9.2,-53,-8.2,-47,-8+sw,-41.6); c.moveTo(-5.6,-56.6); c.bezierCurveTo(-6.6,-52,-6,-47,-6.6+sw,-42); c.stroke();
@@ -7178,7 +7212,7 @@ function a3Body(c,x,y,s,lk,o,live){
   { const ng=c.createLinearGradient(-2.2,0,2.2,0); ng.addColorStop(0,skD); ng.addColorStop(.7,sk); ng.addColorStop(1,mix(sk,'#fff2e0',.12)); c.fillStyle=ng; c.beginPath(); c.moveTo(-2.1,-51); c.lineTo(-2.3,-45.6); c.quadraticCurveTo(0,-44.6,2.4,-45.6); c.lineTo(2.2,-51); c.closePath(); c.fill(); }
   c.save(); c.scale(SIDE_K,1); a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
-  c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50);
+  c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50);
   c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.fill();
   // head volume: lit from the upper front, shade wrapping the back and under the jaw
   c.save(); c.beginPath(); c.arc(0,-56,7.5,0,7); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.clip();
@@ -7189,7 +7223,7 @@ function a3Body(c,x,y,s,lk,o,live){
   // nose
   a3Nose(c,lk.nose,sk,skD);
   // blush
-  if(lk.blush!=='off'){ c.fillStyle='rgba(240,120,110,'+(lk.blush==='soft'?.14:.3)+')'; c.beginPath(); c.ellipse(3.6,-53.6,1.8,1,0,0,7); c.fill(); }
+  if(lk.blush!=='off'){ const ba=lk.blush==='soft'?.07:.13, bg=c.createRadialGradient(3.8,-53.5,0,3.8,-53.5,2.3); bg.addColorStop(0,'rgba(214,96,86,'+ba+')'); bg.addColorStop(1,'rgba(214,96,86,0)'); c.fillStyle=bg; c.beginPath(); c.ellipse(3.8,-53.5,2.4,1.5,0,0,7); c.fill(); }
   // eyes and brows
   const ex=4.4, ey=-57, browY=mood==='surprised'?-60.6:mood==='focus'?-59.4:-60;
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
@@ -11232,6 +11266,71 @@ body.phone-app #evcard .in,body.phone-land #evcard .in{max-height:100%;overflow-
 // hide the water controls while an event card is open, like for catches
 { const ev=$('evcard'); if(ev) new MutationObserver(()=>document.body.classList.toggle('ev-open',!ev.hidden)).observe(ev,{attributes:true,attributeFilter:['hidden']}); }
 document.head.insertAdjacentHTML('beforeend',`<style>body.ev-open #resttog,body.ev-open.phone-app .sidetog{opacity:0;pointer-events:none}</style>`);
+// =====================================================================
+// 0.3.6 a real cap: a six-panel crown with seams and a button, a sweatband edge, and a curved brim that grows out of
+// the front of the crown (it used to be a flat slab floating in front of the face), with its own underside shadow.
+// Same space as every hat: the crown sits on y=0, the face looks to +x.
+// =====================================================================
+const _drawHat_036=drawHat;
+drawHat=function(c,id,col,t=0){ if(id!=='cap'||(typeof HAT_TRIM_OFF!=='undefined'&&HAT_TRIM_OFF)) return _drawHat_036(c,id,col,t);
+  const dk=mix(col,'#000000',.32), lt=mix(col,'#ffffff',.22), dd=mix(col,'#000000',.5);
+  c.save(); c.lineCap='round'; c.lineJoin='round';
+  // crown: a soft dome a little taller at the front, with a rounded back
+  const crown=()=>{ c.beginPath(); c.moveTo(-8.2,-.6); c.bezierCurveTo(-8.6,-6.4,-4.8,-10.2,.4,-10.1); c.bezierCurveTo(5.4,-10,8.4,-6.6,8.4,-1.8); c.lineTo(8.2,-.4); c.quadraticCurveTo(0,.6,-8.2,-.6); c.closePath(); };
+  const cg=c.createLinearGradient(-8,-10,6,0); cg.addColorStop(0,dk); cg.addColorStop(.45,col); cg.addColorStop(1,lt); c.fillStyle=cg; crown(); c.fill();
+  c.save(); crown(); c.clip();
+  // panel seams and stitching
+  c.strokeStyle=v3rgba(dd,.5); c.lineWidth=.32; c.beginPath(); c.moveTo(.6,-10); c.quadraticCurveTo(3.2,-5,3.4,.2); c.moveTo(.4,-10); c.quadraticCurveTo(-3.6,-5.4,-4.6,0); c.stroke();
+  c.strokeStyle=v3rgba(lt,.45); c.lineWidth=.2; c.setLineDash([.5,.45]); c.beginPath(); c.moveTo(1.1,-9.6); c.quadraticCurveTo(3.8,-5,4,0); c.stroke(); c.setLineDash([]);
+  // a front panel highlight and a darker back
+  c.fillStyle='rgba(255,250,240,.14)'; c.beginPath(); c.ellipse(4.6,-6.4,3.2,2.2,-.5,0,7); c.fill();
+  c.fillStyle='rgba(10,6,16,.18)'; c.beginPath(); c.ellipse(-7,-3,3.4,6,0,0,7); c.fill();
+  // sweatband edge
+  c.fillStyle=dk; c.beginPath(); c.moveTo(-8.6,-1.2); c.quadraticCurveTo(0,-.2,8.6,-1.4); c.lineTo(8.6,1); c.lineTo(-8.6,1); c.closePath(); c.fill();
+  c.restore();
+  // button on top
+  c.fillStyle=dk; c.beginPath(); c.ellipse(.4,-10.1,1.2,.65,0,0,7); c.fill(); c.fillStyle=v3rgba(lt,.6); c.beginPath(); c.ellipse(.2,-10.35,.6,.25,0,0,7); c.fill();
+  // brim: grows out of the front of the crown, curves down at the tip; top lit, underside dark, thin edge
+  c.fillStyle=dd; c.beginPath(); c.moveTo(6.4,-1.4); c.quadraticCurveTo(11,-2.2,14.2,-.2); c.quadraticCurveTo(14.6,.5,13.8,.8); c.quadraticCurveTo(10.4,.2,6.6,.6); c.closePath(); c.fill();
+  const bg=c.createLinearGradient(6,-2.6,14,0); bg.addColorStop(0,mix(col,'#000000',.12)); bg.addColorStop(1,lt); c.fillStyle=bg;
+  c.beginPath(); c.moveTo(6.2,-2.2); c.quadraticCurveTo(10.8,-3.3,14.2,-.6); c.quadraticCurveTo(14.4,-.1,13.9,.1); c.quadraticCurveTo(10.6,-1.2,6.4,-.7); c.closePath(); c.fill();
+  c.strokeStyle=v3rgba(lt,.5); c.lineWidth=.22; c.beginPath(); c.moveTo(7,-2.25); c.quadraticCurveTo(10.8,-3.1,13.8,-.75); c.stroke();
+  c.restore(); };
+// =====================================================================
+// 0.3.6 platform layer: one game, tuned per device. On load the page knows whether it runs on an iPhone/iPad,
+// an Android phone/tablet or a PC (classes plat-ios / plat-android / plat-pc on the page root and body, plus plat-app when
+// installed to the home screen), and each gets its own fixes:
+//  - iPhone: no text inflation in landscape, no page zoom when a text field or menu is tapped, the notch's side
+//    margins counted when choosing the compact layout, a drawn menu arrow instead of iOS's double arrows, and an honest
+//    full-screen button (iPhone Safari doesn't allow full screen for websites: it explains Add to Home Screen instead).
+//  - Phones held sideways (iPhone and Android): compact stacked tabs and an icon-only settings button, so nothing is
+//    cut off or pushes the page sideways.
+//  - PC keeps the roomy layout.
+// =====================================================================
+const DL_PLAT=(function(){ const ua=navigator.userAgent||'', ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), android=/Android/i.test(ua);
+  const p=ios?'ios':android?'android':'pc', app=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+  for(const el of [document.documentElement,document.body]){ if(!el) continue; el.classList.add('plat-'+p); if(app) el.classList.add('plat-app'); }
+  if(ios){ const vp=document.querySelector('meta[name=viewport]'); if(vp&&!/maximum-scale/.test(vp.content)) vp.content+=',maximum-scale=1'; } /* iOS still allows pinch zoom; this only stops the jump-zoom on focus */
+  return {p,ios,android,pc:p==='pc',app}; })();
+window.DL_PLAT=DL_PLAT;
+// full screen where the browser can't do it (iPhone): explain the real way instead of a button that does nothing
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act=fullscreen]'); if(!b) return; const d=document.documentElement;
+  if(d.requestFullscreen||d.webkitRequestFullscreen) return; e.stopImmediatePropagation(); e.preventDefault();
+  toast(DL_PLAT.app?'You are already playing full screen.':DL_PLAT.ios?'iPhone doesn’t let websites go full screen. For a full-screen game: tap Share, then “Add to Home Screen”.':'This browser can’t go full screen. Try adding Driftline to your home screen.'); },true);
+// the side-scrolling tab rows re-check their fade edges whenever their size changes (fonts load later on iOS)
+(function(){ if(!window.ResizeObserver) return; const ro=new ResizeObserver(es=>{ for(const e of es) e.target.dispatchEvent(new Event('scroll')); });
+  const hook=()=>document.querySelectorAll('.subbar').forEach(s=>{ if(!s.__ro){ s.__ro=1; ro.observe(s); } }); hook(); setInterval(hook,2000); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.plat-ios *,.plat-android *{-webkit-tap-highlight-color:transparent}
+.plat-ios select{-webkit-appearance:none;appearance:none;padding-right:15px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23cfe0f0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 2px center!important}
+/* phones held sideways: the side margins (notch) eat width, so use the compact stacked tabs regardless of the width number */
+body.phone-land #tabs.secmode .secb{flex-direction:column;gap:2px;font-size:11px;min-height:46px;padding:4px 2px;white-space:nowrap}
+body.phone-land #tabs.secmode .secb .seci svg{width:18px;height:18px}
+body.phone-land #tabs.secmode .secdot{right:4px}
+body.phone-land .hudbtns #settingsbtn{font-size:0;padding:0 10px;display:flex;align-items:center;justify-content:center}
+body.phone-land .hudbtns #settingsbtn::before{content:"⚙";font-size:18px;line-height:1}
+</style>`);
 // =====================================================================
 // 0.3.6 voyages revamped. Every voyage you complete now counts for something on top of the pearls:
 //  - Legacy: +10% coins and XP for each completed voyage (+5% each after the tenth), and a little rare luck.
