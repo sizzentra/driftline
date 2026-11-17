@@ -30,8 +30,13 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     const v=on?Math.round(probe.offsetHeight-b.offsetHeight)+'px':''; if(v===last) return; last=v; b.style.top=v; b.style.bottom=on?'auto':''; };
   place(); addEventListener('resize',place); addEventListener('orientationchange',()=>setTimeout(place,250)); if(window.visualViewport) visualViewport.addEventListener('resize',place); setInterval(place,800); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
+.baitsel .lbl{flex:none!important;line-height:11px!important}
+.baitsel #bait{flex:none}
+body.phone-app #bait,body.phone-land #bait{height:20px!important;line-height:20px!important}
 .plat-ios #bait{height:22px;line-height:22px;padding-top:0!important;padding-bottom:0!important;margin:0;font-size:15px;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* the search and settings buttons keep their own width in the top bar; the stat boxes give way instead (they overflowed the window by a few pixels on mid-size PC windows) */
+.hud .hudbtns{flex:0 0 auto!important}
 .plat-ios *,.plat-android *{-webkit-tap-highlight-color:transparent}
 .plat-ios select{-webkit-appearance:none;appearance:none;padding-right:15px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23cfe0f0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 2px center!important}
 /* phones held sideways: the side margins (notch) eat width, so use the compact stacked tabs regardless of the width number */
@@ -41,3 +46,11 @@ body.phone-land #tabs.secmode .secdot{right:4px}
 body.phone-land .hudbtns #settingsbtn{font-size:0;padding:0 10px;display:flex;align-items:center;justify-content:center}
 body.phone-land .hudbtns #settingsbtn::before{content:"⚙";font-size:18px;line-height:1}
 </style>`);
+// QC (test mode only): open every menu page and report sideways overflow, things off the screen and clipped button text
+if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=[]; const vw=document.documentElement.clientWidth, vh=innerHeight;
+  const check=where=>{ const sw=document.documentElement.scrollWidth; if(sw>vw+1) out.push(where+': page '+sw+'>'+vw);
+    document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height) return; const cs=getComputedStyle(e); if(cs.position==='fixed'||cs.visibility==='hidden') return;
+      if(r.right>vw+2&&!e.closest('.subbar')&&!e.closest('[data-hscroll]')) out.push(where+': off-screen '+(e.id||e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'" r='+Math.round(r.right));
+      if((e.tagName==='BUTTON'||e.classList.contains('chip'))&&e.scrollWidth>e.clientWidth+2&&cs.overflow!=='visible'&&cs.textOverflow!=='ellipsis') out.push(where+': clipped "'+e.textContent.trim().slice(0,30)+'"'); }); };
+  for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
+  return {label:label||vw+'x'+vh, n:out.length, out:[...new Set(out)].slice(0,40)}; };
