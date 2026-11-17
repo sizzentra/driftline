@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1526';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1538';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -14104,20 +14104,22 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
 // Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
 // the touch was a click; that decision sometimes failed on iPhone and needed a second tap. The phone's own click that follows is ignored.
 { const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home';
-  // every finger is tracked on its own (fast taps with two thumbs overlap); each tap that acted leaves a note so the phone's
-  // late click for it is ignored even if another button was tapped in between
-  const downs=new Map(); let recent=[], synth=false;
-  document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
-  document.addEventListener('pointercancel',e=>{ downs.delete(e.pointerId); },true);
-  document.addEventListener('pointerup',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(!d||Math.hypot(e.clientX-d.x,e.clientY-d.y)>14||!d.el.isConnected) return;
-    const now=performance.now(); recent=recent.filter(r=>now-r.t<800); recent.push({el:d.el,x:e.clientX,y:e.clientY,t:now});
+  // Every finger is tracked on its own (fast taps with two thumbs overlap). While touch is in use, menu buttons are driven only by
+  // finger lifts: the phone's own clicks on them are ignored, so a late click can never undo a newer tap. The one exception is a
+  // touch that didn't act (the phone cancelled it, or the finger slid): its click is honoured, since nothing else acted for it.
+  const downs=new Map(); let lastTouch=-1e9, spare=[], synth=false;
+  document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
+  const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
+  document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
+  document.addEventListener('pointerup',e=>{ lastTouch=performance.now(); const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
     synth=true; try{ d.el.click(); }finally{ synth=false; } },true);
-  document.addEventListener('click',e=>{ if(synth||!recent.length) return; const now=performance.now(); recent=recent.filter(r=>now-r.t<800);
-    const i=recent.findIndex(r=>e.target===r.el||(r.el.contains&&r.el.contains(e.target))||(e.clientX||e.clientY?Math.hypot(e.clientX-r.x,e.clientY-r.y)<24:false));
-    if(i>=0){ e.stopImmediatePropagation(); e.preventDefault(); recent.splice(i,1); } },true);
+  document.addEventListener('click',e=>{ if(synth) return; const now=performance.now(); if(now-lastTouch>1000) return; // mouse and keyboard keep normal clicks
+    const el=e.target.closest&&e.target.closest(NAV); if(!el) return;
+    spare=spare.filter(s=>now-s.t<900); const i=spare.findIndex(s=>s.el===el); if(i>=0){ spare.splice(i,1); return; } // a touch that didn't act: let its click through
+    e.stopImmediatePropagation(); e.preventDefault(); },true);
   document.head.insertAdjacentHTML('beforeend',`<style>
 /* bigger side buttons on short landscape screens, and no dead gap between them: each button's tap area reaches halfway into the gap */
 @media (orientation:landscape) and (max-height:560px){
