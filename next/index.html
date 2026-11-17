@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2202';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2217';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2507,12 +2507,14 @@ const PATCHES = [
   '## The waters',
   'Several waters got a lot more love so none of them feel empty: new landmarks on the horizon, new wildlife, things floating by and new details in the foreground. Each one now has a signature of its own (go and find them).',
   'Some of the places you stand on have been refined, with more depth and detail.',
+  'The lighthouse at Saltmarsh Coast now glows softly instead of throwing a hard beam, and its light shimmers on the water.',
+  'The waterfalls at Starfall Sea now pour all the way into the lake, with mist and spray where they land.',
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
   'Weather and its effects still build up and fade away smoothly.',
   '## Your angler',
-  'Curly hair has been redone from scratch: loose, tousled curls.',
+  'Curly hair has been redone from scratch: natural, medium-length curls that follow the head and fall over the ears.',
   'New hairstyle: Coils, tight round curls.',
   '## Graphics',
   'New Graphics setting (Settings): High or Balanced. Computers use High automatically, with sharper scenery and more life on the water and in the weather; phones and tablets use Balanced.',
@@ -4863,8 +4865,10 @@ V3SCENES.coast = {
     // the lighthouse lamp; after dusk its beam sweeps round, flaring when it faces you
     { const lx=W*.86, ly=hz-H*.03-H*.2-H*.018, lit=clamp(night*1.4+d*1.1,0,1);
       if(lit>.04){ const a=t*.7, face=Math.cos(a), dir=Math.sin(a)>0?1:-1, len=W*(.35+.25*Math.abs(Math.sin(a)));
-        if(Math.abs(face)<.97){ const spread=H*.028*(1+Math.abs(face)*2); const bg=g.createLinearGradient(lx,ly,lx-dir*len,ly); bg.addColorStop(0,'rgba(255,240,190,'+(.4*lit)+')'); bg.addColorStop(1,'rgba(255,240,190,0)'); g.fillStyle=bg; g.beginPath(); g.moveTo(lx,ly-H*.004); g.lineTo(lx-dir*len,ly-spread); g.lineTo(lx-dir*len,ly+spread*.7); g.lineTo(lx,ly+H*.004); g.closePath(); g.fill(); }
-        const flare=Math.max(0,face)**8; v3glow(g,lx,ly,H*(.05+flare*.18),'rgba(255,236,170,.95)',lit*(.55+flare*.45));
+        /* 0.3.3: no hard beam; a layered soft glow that swells as the turning lamp faces you, and a shimmer on the water */
+        const sw=.5+.5*face, soft=sw*sw;
+        v3glow(g,lx,ly,H*.3,'rgba(255,226,160,.9)',lit*(.08+.1*soft)); v3glow(g,lx,ly,H*(.1+.04*soft),'rgba(255,236,180,.95)',lit*(.32+.3*soft)); v3glow(g,lx,ly,H*.035,'rgba(255,250,225,1)',lit*(.6+.35*soft));
+        if(typeof v3lanternReflect==='function') v3lanternReflect(lx,hz+2,lit*(.55+.35*soft),t,'255,226,160');
         g.fillStyle=v3rgba('#fff6d0',.5+lit*.5); g.fillRect(lx-H*.012,ly-H*.008,H*.024,H*.016); }
       else { g.fillStyle=v3rgba(mix(P.farHaze,'#ffffff',.4),.7); g.fillRect(lx-H*.012,ly-H*.008,H*.024,H*.016); g.fillStyle=v3rgba(P.rim,.6); g.fillRect(lx+H*.003,ly-H*.007,H*.004,H*.014); } }
     v3glitter(P,t,hz,sun);
@@ -5589,8 +5593,7 @@ V3SCENES.starfall = {
       g.fillStyle=v3rgba(mix(P.isl,'#ffffff',.35),.6); g.beginPath(); g.moveTo(X-w*.8,Y-h*.06); g.quadraticCurveTo(X-w*.2,Y-h*.14,X+w*.3,Y-h*.1); g.quadraticCurveTo(X-w*.2,Y-h*.09,X-w*.8,Y-h*.06); g.fill();
       if(top==='tree'){ const tx=X-w*.3, ty=Y-h*.1; g.strokeStyle=mix('#6a4a3a',P.islD,.3+P.night*.4); g.lineWidth=Math.max(1.2,w*.05); g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo(tx+w*.05,ty-h*.25,tx+w*.02,ty-h*.42); g.stroke(); g.fillStyle=mix(P.cry,P.isl,.35); for(const [dx,dy,rr] of [[0,-.48,.2],[-.14,-.4,.15],[.15,-.4,.16],[.02,-.6,.13]]){ g.beginPath(); g.arc(tx+w*dx,ty+h*dy,w*rr,0,7); g.fill(); } g.fillStyle=v3rgba('#ffffff',.25); g.beginPath(); g.arc(tx-w*.04,ty-h*.53,w*.07,0,7); g.fill(); }
       else { const tx=X+w*.2, ty=Y-h*.1; for(const [dx,hh,ww,c] of [[0,.45,.1,P.cry2],[-.14,.3,.07,P.cry],[.12,.25,.06,P.cry]]){ const cx2=tx+w*dx; g.fillStyle=c; g.beginPath(); g.moveTo(cx2-w*ww,ty); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2,ty-h*hh); g.lineTo(cx2+w*ww*.7,ty-h*hh*.78); g.lineTo(cx2+w*ww,ty); g.closePath(); g.fill(); g.fillStyle=v3rgba('#ffffff',.3); g.beginPath(); g.moveTo(cx2,ty-h*hh); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2-w*ww*.2,ty); g.lineTo(cx2,ty); g.closePath(); g.fill(); } v3glow(g,tx,ty-h*.25,w*.6,v3rgba(P.cry2,.7),.25+.25*P.night); }
-      if(fall){ const fx=X+w*.85, fy=Y+h*.05; const fg=g.createLinearGradient(0,fy,0,hz); fg.addColorStop(0,v3rgba('#ffffff',.7)); fg.addColorStop(1,v3rgba('#ffffff',0)); g.fillStyle=fg; g.fillRect(fx,fy,Math.max(1.5,w*.05),hz-fy-H*.01);
-        g.fillStyle=v3rgba('#ffffff',.5); for(let k=0;k<4;k++){ const kk=((t*.8+k*.25)%1); g.fillRect(fx,fy+kk*(hz-fy-H*.02),Math.max(1.5,w*.05),3); } g.fillStyle=v3rgba('#ffffff',.35); g.beginPath(); g.ellipse(fx,hz-H*.012,w*.15,H*.006,0,0,7); g.fill(); } }
+      if(fall) (M33.falls=M33.falls||{})[ix]=[t+ph,X+w*.85,Y+h*.05,w]; }
     // crystals glint
     for(let i=0;i<5;i++){ const k=(t*.25+i*.31)%1, a=Math.max(0,Math.sin(k*Math.PI))**8; if(a<.05) continue; const gx=W*[.3,.33,.78,.82,.9][i], gy=hz-H*[.06,.04,.08,.05,.065][i]; g.fillStyle=v3rgba('#ffffff',a); g.fillRect(gx-H*.008,gy,H*.016,1); g.fillRect(gx,gy-H*.008,1,H*.016); }
     // the Milky Way and the planet's glow mirrored in the still water
@@ -5795,7 +5798,7 @@ function m33reflect(x,hz,depth,alpha,col,pathFn){ x.save(); x.beginPath(); x.rec
 const m33dot=(c,x,y,r,col)=>{ c.fillStyle=col; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
 
 // ---------------------------------------------------------------------
-// SALTWIND COAST: a cliffed headland with a fishing village on the left, a sailboat on the horizon,
+// SALTMARSH COAST: a cliffed headland with a fishing village on the left, a sailboat on the horizon,
 // a seal basking on a rock, and tide-pool rocks with weed and a starfish in front
 // ---------------------------------------------------------------------
 M33.headland=(c,hz)=>{ c.beginPath(); c.moveTo(-2,hz+1); c.lineTo(-2,hz-H*.072); c.bezierCurveTo(W*.05,hz-H*.086,W*.12,hz-H*.07,W*.18,hz-H*.064); c.bezierCurveTo(W*.21,hz-H*.062,W*.235,hz-H*.058,W*.246,hz-H*.05); c.lineTo(W*.252,hz-H*.03); c.lineTo(W*.262,hz-H*.016); c.lineTo(W*.27,hz+1); c.closePath(); };
@@ -5809,17 +5812,12 @@ m33wrap('coast','land',function(x,P,hz){
   x.strokeStyle=v3rgba(mix(P.stoneD,P.far,.3),.6); x.lineWidth=1; for(let k=0;k<4;k++){ const y=hz-H*(.045-k*.011); x.beginPath(); x.moveTo(W*.214+k*W*.004,y); x.lineTo(W*.26,y+H*.004); x.stroke(); }
   const hg=x.createLinearGradient(0,hz-H*.09,0,hz); hg.addColorStop(0,v3rgba(P.rim,.18)); hg.addColorStop(1,v3rgba(P.farHaze,.45)); x.fillStyle=hg; x.fillRect(0,hz-H*.09,W*.28,H*.09);
   x.restore();
-  // the village: whitewashed cottages with coloured roofs, a chapel with a spire
-  const wall=mix(P.lh,P.farHaze,.25);
-  for(const [hx,hh,rc] of M33.houses){ const X=W*hx, base=hz-H*(.066+(hx-.1)*(hx-.1)*.8), w=H*.03, h=H*hh; x.fillStyle=wall; x.fillRect(X,base-h,w,h);
-    x.fillStyle=mix(rc,P.farHaze,.3+P.night*.4); x.beginPath(); x.moveTo(X-w*.12,base-h); x.lineTo(X+w*.5,base-h-w*.42); x.lineTo(X+w*1.12,base-h); x.closePath(); x.fill();
-    x.fillStyle=v3rgba(mix(P.stoneD,'#000000',.3),.55); x.fillRect(X+w*.18,base-h*.62,w*.2,h*.3); x.fillRect(X+w*.62,base-h*.62,w*.2,h*.3); }
-  { const X=W*.108, base=hz-H*.07, w=H*.022; x.fillStyle=wall; x.fillRect(X,base-H*.05,w,H*.05); x.fillStyle=mix('#8a8a96',P.farHaze,.3); x.beginPath(); x.moveTo(X-1,base-H*.05); x.lineTo(X+w/2,base-H*.085); x.lineTo(X+w+1,base-H*.05); x.closePath(); x.fill(); x.fillStyle=mix(P.stoneD,P.farHaze,.2); x.fillRect(X+w*.5-.6,base-H*.094,1.2,H*.01); }
+  m33village(x,P,hz);
   m33reflect(x,hz,H*.07,.22,mix(farC,P.wMid,.5),()=>M33.headland(x,hz));
 });
 m33wrap('coast','live',function(P,t,hz){ const night=P.night, d=P.d, FX=S.settings.effects;
   // village windows light up after dusk, flickering now and then
-  const lit=clamp(night*1.3+d*.8,0,1); if(lit>.05){ for(let i=0;i<M33.houses.length;i++){ const [hx,hh]=M33.houses[i], X=W*hx, base=hz-H*(.066+(hx-.1)*(hx-.1)*.8), w=H*.03, h=H*hh, ph=((t/7+i*.37)%5), on=ph<4?1:Math.max(0,Math.abs(ph-4.5)*2-.0); /* a window goes dark for a while and fades back, never popping */ const a=lit*Math.min(1,on);
+  const lit=clamp(night*1.3+d*.8,0,1); if(lit>.05){ for(let i=0;i<M33.houses.length;i++){ const [hx,hh]=M33.houses[i], X=W*hx, base=m33groundY(hz,W*hx+H*.015)+H*.002, w=H*.03, h=H*hh, ph=((t/7+i*.37)%5), on=ph<4?1:Math.max(0,Math.abs(ph-4.5)*2-.0); /* a window goes dark for a while and fades back, never popping */ const a=lit*Math.min(1,on);
       if(a<.02) continue; g.fillStyle=v3rgba('#ffd27a',.55*a); g.fillRect(X+w*.18,base-h*.62,w*.2,h*.3); if(i%2) g.fillRect(X+w*.62,base-h*.62,w*.2,h*.3); v3glow(g,X+w*.4,base-h*.5,H*.02,'rgba(255,200,110,.9)',.18*a); } }
   // a sailboat crossing slowly along the horizon, rocking, its sail catching the light
   { const per=140, k=((t+40)%per)/per, bx=W*(-.08+k*1.16), by=hz+H*.01, s=H*.0042, rk=Math.sin(t*1.1)*.06;
@@ -5841,6 +5839,8 @@ m33wrap('coast','live',function(P,t,hz){ const night=P.night, d=P.d, FX=S.settin
     m33dot(g,hx+rw*.08,hy-rh*.12,Math.max(.6,rw*.025),'#14141a');
     g.beginPath(); g.moveTo(rx-rw*.55,ry-rh*1.5); g.lineTo(rx-rw*.78,ry-rh*1.85); g.lineTo(rx-rw*.72,ry-rh*1.3); g.fillStyle=sc; g.fill();
     if(FX){ const k=(t*.6)%1; g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),.55*(1-k)); g.lineWidth=1.2; g.beginPath(); g.ellipse(rx,ry+1,rw*(1.05+k*.5),rh*(.35+k*.25),0,0,7); g.stroke(); } }
+  // surf foaming along the foot of the cliff
+  if(FX){ for(let i=0;i<9;i++){ const q=((t*.45+i*.11)%1), X=W*(.205+i*.007), y=hz+H*.002; g.fillStyle=v3rgba(mix(P.wTop,"#ffffff",.75),.55*Math.sin(q*Math.PI)); g.beginPath(); g.ellipse(X,y-q*H*.004,W*.004*(1+q),H*.0018,0,0,7); g.fill(); } }
 });
 m33wrap('coast','fore',function(P,t){ const b=H+2, sh=mix(P.stone,P.wBot,.2+P.night*.3), dk=mix(P.stoneD,P.wBot,.2+P.night*.3);
   // tide-pool rocks: two boulders, weed, a starfish, and the water washing in and out between them
@@ -6038,6 +6038,66 @@ function m33dolphins(P,t,hz,foam,night){ const per=16, k=(t%per)/per, FX=S.setti
       if(FX&&(lq<.16||lq>.84)){ const sx=lq<.5?x0:x1, e=lq<.5?lq/.16:(1-lq)/.16, pw=1-e; for(let j=0;j<7;j++){ const a=-Math.PI/2+(j-3)*.32, rr=s*(1.4+pw*2.4); g.fillStyle=v3rgba(foam,.75*(1-pw*.4)); g.beginPath(); g.arc(sx+Math.cos(a)*rr,base+Math.sin(a)*rr*1.3,Math.max(1,s*.18),0,7); g.fill(); } } }
     // rings spreading from both splash points
     for(const [sx,st] of [[x0,lead],[x1,.62]]){ const rq=(q-st)/.3; if(rq>0&&rq<1){ g.strokeStyle=v3rgba(foam,.5*(1-rq)); g.lineWidth=1.2; g.beginPath(); g.ellipse(sx,base+1,s*(1.5+rq*5),s*(.35+rq*1.1),0,0,7); g.stroke(); } } } }
+
+// ---------- Starfall waterfalls: a ribbon that widens and shimmers as it falls, then lands properly in the cloud sea
+// with billowing mist, droplets arcing out, spreading rings and a few glints
+function m33fall(t,fx,fy,w,hz){ const FX=S.settings.effects, by=hz+H*.012, /* lands on the lake itself, in front of the cloud bank */ L=by-fy, w0=Math.max(1.4,w*.05), w1=w0*2.6;
+  const fg=g.createLinearGradient(0,fy,0,by); fg.addColorStop(0,'rgba(255,255,255,.75)'); fg.addColorStop(.7,'rgba(235,240,255,.5)'); fg.addColorStop(1,'rgba(230,236,255,.15)');
+  g.fillStyle=fg; g.beginPath(); g.moveTo(fx-w0/2,fy); g.lineTo(fx+w0/2,fy); g.quadraticCurveTo(fx+w0*.6,fy+L*.6,fx+w1/2,by); g.lineTo(fx-w1/2,by); g.quadraticCurveTo(fx-w0*.6,fy+L*.6,fx-w0/2,fy); g.closePath(); g.fill();
+  // streaks flowing down the ribbon
+  g.fillStyle='rgba(255,255,255,.55)'; for(let k=0;k<5;k++){ const q=((t*.9+k*.2)%1), y=fy+q*q*L, ww=w0+(w1-w0)*q; g.fillRect(fx-ww*.3+Math.sin(k*2.1)*ww*.2,y,Math.max(1,ww*.25),2+q*3); }
+  // mist billowing up where it lands
+  for(let k=0;k<6;k++){ const q=((t*.35+k/6)%1), mx=fx+Math.sin(k*1.9+t*.4)*w*.18*(.5+q), my=by-q*H*.05, r=H*(.012+q*.026); g.fillStyle="rgba(240,236,255,"+(.34*(1-q))+")"; g.beginPath(); g.arc(mx,my,r,0,7); g.fill(); }
+  v3glow(g,fx,by,w*.6,'rgba(240,236,255,.9)',.25+.08*Math.sin(t*2.2));
+  if(FX){ // droplets thrown out to both sides in little arcs
+    g.fillStyle='rgba(255,255,255,.75)'; for(let k=0;k<10;k++){ const q=((t*1.4+k*.137)%1), sd=k%2?1:-1, dx=sd*(w*.06+q*w*(.16+(k%3)*.05)), dy=-Math.sin(q*Math.PI)*H*(.012+(k%4)*.004); g.globalAlpha=1-q; g.fillRect(fx+dx,by+dy,1.4,1.4); } g.globalAlpha=1;
+    // rings spreading on the surface
+    for(let k=0;k<3;k++){ const q=((t*.5+k/3)%1); g.strokeStyle='rgba(240,236,255,'+(.45*(1-q))+')'; g.lineWidth=1; g.beginPath(); g.ellipse(fx,by+1,w*(.08+q*.3),H*(.002+q*.006),0,0,7); g.stroke(); }
+    // a glint now and then in the spray
+    if(((t*.6)%1)<.12){ const gx=fx+Math.sin(t*3)*w*.1, gy=by-H*.012; g.fillStyle='rgba(255,255,255,.9)'; g.fillRect(gx-H*.006,gy,H*.012,1); g.fillRect(gx,gy-H*.006,1,H*.012); } } }
+
+// ---------- Saltmarsh Coast village: the ground line of the headland (so houses stand on it), and the village itself ----------
+function m33groundY(hz,X){ const segs=[[[-2,hz-H*.072],[W*.05,hz-H*.086],[W*.12,hz-H*.07],[W*.18,hz-H*.064]],[[W*.18,hz-H*.064],[W*.21,hz-H*.062],[W*.235,hz-H*.058],[W*.246,hz-H*.05]]];
+  let px=null,py=null; for(const s of segs) for(let i=0;i<=24;i++){ const u=i/24, v=1-u, x=v*v*v*s[0][0]+3*v*v*u*s[1][0]+3*v*u*u*s[2][0]+u*u*u*s[3][0], y=v*v*v*s[0][1]+3*v*v*u*s[1][1]+3*v*u*u*s[2][1]+u*u*u*s[3][1];
+    if(px!==null&&X>=px&&X<=x) return py+(y-py)*(X-px)/Math.max(.001,x-px); px=x; py=y; } return hz-H*.06; }
+function m33village(x,P,hz){ const wall=mix(P.lh,P.farHaze,.22), wallS=mix(wall,P.far,.35), dark=mix(P.stoneD,P.farHaze,.15), green=mix(P.grass,P.far,.3), greenD=mix(green,'#0a1a10',.3);
+  // fields on the hillside in a few greens, divided by hedgerows (clipped to the headland)
+  x.save(); M33.headland(x,hz); x.clip(); const fr=v3rng(83);
+  // soft bands of pasture following the slope, a hedgerow of little bushes between them
+  for(let k=0;k<3;k++){ x.fillStyle=v3rgba(mix(green,k%2?'#c8b85a':'#7aa84a',.25),.35); x.beginPath(); x.moveTo(0,hz); for(let X=0;X<=W*.27;X+=W*.006) x.lineTo(X,m33groundY(hz,Math.min(X,W*.246))+H*(.01+k*.016)); x.lineTo(W*.27,hz); x.closePath(); x.fill(); }
+  x.fillStyle=v3rgba(greenD,.7); for(let X=W*.01;X<W*.2;X+=W*.007){ const y=m33groundY(hz,X)+H*.018; x.beginPath(); x.arc(X,y,H*.0022,0,7); x.fill(); } x.restore();
+  // the cliff face: cracks, darker crevices and tufts of grass clinging to ledges
+  x.strokeStyle=v3rgba(mix(P.stoneD,'#000000',.2),.55); x.lineWidth=.8; for(const [a,b] of [[.222,.05],[.236,.044],[.249,.036],[.257,.024]]){ x.beginPath(); x.moveTo(W*a,hz-H*b); x.lineTo(W*a+W*.003,hz-H*(b-.012)); x.lineTo(W*a-W*.001,hz-H*(b-.022)); x.stroke(); }
+  x.fillStyle=green; for(const [a,b] of [[.226,.046],[.244,.034],[.254,.02]]){ x.beginPath(); x.ellipse(W*a,hz-H*b,W*.004,H*.002,0,0,7); x.fill(); }
+  // a stone quay at the cliff foot with two little boats moored to it
+  { const qx=W*.262, qy=hz; x.fillStyle=mix(P.stone,P.farHaze,.25); x.fillRect(qx,qy-H*.006,W*.03,H*.006); x.fillStyle=v3rgba(mix(P.stoneD,'#000000',.2),.6); x.fillRect(qx,qy-H*.0015,W*.03,H*.0015);
+    for(const [bx,col] of [[.276,'#c8483a'],[.292,'#3a6f9a']]){ const X=W*bx, s=H*.0028, cc=mix(col,P.farHaze,.25); x.fillStyle=cc; x.beginPath(); x.moveTo(X-s*3,qy-s*.8); x.lineTo(X+s*3,qy-s*.8); x.lineTo(X+s*2,qy+s*.4); x.lineTo(X-s*2.2,qy+s*.4); x.closePath(); x.fill(); x.fillStyle=mix(P.wood||'#5a3a2a',P.farHaze,.3); x.fillRect(X-.4,qy-s*5.5,.8,s*4.8); } }
+  // a footpath winding along the ridge
+  x.strokeStyle=v3rgba(mix(P.sand,P.farHaze,.3),.8); x.lineWidth=Math.max(1,H*.0025); x.beginPath(); for(let X=W*.02;X<=W*.2;X+=W*.004){ const y=m33groundY(hz,X)+H*.006+Math.sin(X/W*40)*H*.0015; X===W*.02?x.moveTo(X,y):x.lineTo(X,y); } x.stroke();
+  // trees and bushes behind and between the houses
+  for(const [tx,s] of [[.025,1],[.074,.8],[.112,1.1],[.145,.9],[.192,1.05]]){ const X=W*tx, g0=m33groundY(hz,X), r=H*.009*s; x.fillStyle=greenD; x.fillRect(X-.6,g0-r*1.6,1.2,r*1.6); x.fillStyle=green; x.beginPath(); x.arc(X,g0-r*1.9,r,0,7); x.arc(X-r*.7,g0-r*1.4,r*.75,0,7); x.arc(X+r*.7,g0-r*1.45,r*.7,0,7); x.fill(); x.fillStyle=v3rgba(P.rim,.2); x.beginPath(); x.arc(X+r*.3,g0-r*2.2,r*.45,0,7); x.fill(); }
+  for(const [hx,hh,rc] of M33.houses){ const X=W*hx, w=H*.03, h=H*hh, gl=m33groundY(hz,X), gr=m33groundY(hz,X+w), base=Math.max(gl,gr)+H*.002, top=base-h, roofC=mix(rc,P.farHaze,.25+P.night*.35);
+    // walls planted in the ground (a little foundation where the slope drops), lit front and shaded side
+    x.fillStyle=wall; x.fillRect(X,top,w,base-top+H*.004); x.fillStyle=wallS; x.fillRect(X+w*.72,top,w*.28,base-top+H*.004);
+    // roof with a lit slope, a darker slope and a ridge line; a chimney
+    x.fillStyle=roofC; x.beginPath(); x.moveTo(X-w*.14,top+.3); x.lineTo(X+w*.42,top-w*.44); x.lineTo(X+w*1.14,top+.3); x.closePath(); x.fill();
+    x.fillStyle=mix(roofC,'#000000',.22); x.beginPath(); x.moveTo(X+w*.42,top-w*.44); x.lineTo(X+w*1.14,top+.3); x.lineTo(X+w*.7,top+.3); x.closePath(); x.fill();
+    x.strokeStyle=mix(roofC,'#ffffff',.25); x.lineWidth=.7; x.beginPath(); x.moveTo(X-w*.1,top); x.lineTo(X+w*.42,top-w*.42); x.stroke();
+    x.fillStyle=mix(wall,P.stoneD,.4); x.fillRect(X+w*.66,top-w*.36,w*.12,w*.26);
+    // a door and framed windows
+    x.fillStyle=mix(rc,'#2a1a14',.45); x.fillRect(X+w*.42,base-h*.5,w*.18,h*.5); x.fillStyle=v3rgba(dark,.8); x.fillRect(X+w*.12,base-h*.68,w*.18,h*.26); if(w*.82<w) x.fillRect(X+w*.7,base-h*.68,w*.16,h*.26);
+    x.strokeStyle=v3rgba(wall,.9); x.lineWidth=.5; x.beginPath(); x.moveTo(X+w*.21,base-h*.68); x.lineTo(X+w*.21,base-h*.42); x.stroke();
+    // grass tufts at the foot so the house sits in the ground
+    x.fillStyle=green; x.beginPath(); x.ellipse(X+w*.5,base+H*.002,w*.7,H*.003,0,0,7); x.fill(); }
+  // the chapel: tower, belfry opening, slate spire with a cross
+  { const X=W*.108, w=H*.022, base=m33groundY(hz,X+w/2)+H*.002, top=base-H*.05; x.fillStyle=wall; x.fillRect(X,top,w,base-top+H*.003); x.fillStyle=wallS; x.fillRect(X+w*.7,top,w*.3,base-top+H*.003);
+    x.fillStyle=v3rgba(dark,.8); x.beginPath(); x.moveTo(X+w*.3,top+H*.012); x.lineTo(X+w*.3,top+H*.006); x.arc(X+w*.5,top+H*.006,w*.2,Math.PI,0); x.lineTo(X+w*.7,top+H*.012); x.closePath(); x.fill();
+    x.fillStyle=mix('#7a8494',P.farHaze,.25); x.beginPath(); x.moveTo(X-1,top); x.lineTo(X+w/2,top-H*.036); x.lineTo(X+w+1,top); x.closePath(); x.fill(); x.fillStyle=mix('#5a6474',P.farHaze,.25); x.beginPath(); x.moveTo(X+w/2,top-H*.036); x.lineTo(X+w+1,top); x.lineTo(X+w*.55,top); x.closePath(); x.fill();
+    x.strokeStyle=mix(P.stoneD,P.farHaze,.2); x.lineWidth=.8; x.beginPath(); x.moveTo(X+w/2,top-H*.036); x.lineTo(X+w/2,top-H*.046); x.moveTo(X+w/2-1.6,top-H*.042); x.lineTo(X+w/2+1.6,top-H*.042); x.stroke();
+    x.fillStyle=green; x.beginPath(); x.ellipse(X+w/2,base+H*.002,w*.8,H*.003,0,0,7); x.fill(); } }
+// the Starfall waterfalls are drawn over the scenery so they visibly pour past the cloud bank into the lake
+m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; for(const k in F){ const [tt,fx,fy,w]=F[k]; m33fall(tt,fx,fy,w,hz);
+  g.save(); g.globalAlpha=.18; const rg=g.createLinearGradient(0,hz+H*.012,0,hz+H*.08); rg.addColorStop(0,'rgba(240,236,255,.9)'); rg.addColorStop(1,'rgba(240,236,255,0)'); g.fillStyle=rg; g.fillRect(fx-Math.max(1.4,w*.06),hz+H*.014,Math.max(2.8,w*.12),H*.066); g.restore(); } });
 // =====================================================================
 // 0.3.3 weather that changes the world. Every weather type now touches three layers:
 //   sky   (behind the land: rainbow arc, aurora curtains, blood moon, golden sun rays, storm scud)
@@ -8526,28 +8586,6 @@ const CURLY_TIPS=(()=>{ const out=[], E=CURL_EDGE; for(let i=0;i<E.length;i+=1){
 // loose locks inside the curly mass: fewer and bigger than the coil grid, kept inside the outline
 const CURLY_LOCKS=(()=>{ const cv=document.createElement('canvas'), x=cv.getContext('2d'), out=[]; let s=5; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; curlMass(x);
   for(let y=-68.6;y<=-51;y+=2.6) for(let X=-9.2;X<=6.8;X+=2.8){ const px=X+(rnd()-.5)*1.4, py=y+(rnd()-.5)*1.2; if(x.isPointInPath(px,py)) out.push([px,py,1.1+rnd()*.5,rnd()*6.28]); } return out; })();
-function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000000',.42)), dk2=D(mix(hairC,'#000000',.22)), lt=D(mix(hairC,'#ffffff',.32)), lt2=D(mix(hairC,'#ffffff',.55));
-  const gr=c.createLinearGradient(2,-70,-6,-49); gr.addColorStop(0,D(mix(hairC,'#ffffff',.14))); gr.addColorStop(.55,base); gr.addColorStop(1,D(mix(hairC,'#000000',.22)));
-  const flick=(x,y,nx,ny,L,sd)=>{ // a pointed lock curling to one side
-    const bx=-ny*sd, by=nx*sd, tipx=x+nx*L*.7+bx*L*1.05, tipy=y+ny*L*.7+by*L*1.05; c.beginPath(); c.moveTo(x-bx*1.1,y-by*1.1); c.quadraticCurveTo(x+nx*L*1.25-bx*.1,y+ny*L*1.25-by*.1,tipx,tipy); c.quadraticCurveTo(x+nx*L*.45+bx*.4,y+ny*L*.45+by*.4,x+bx*1.1,y+by*1.1); c.closePath(); /* a short lock that hooks over to one side */ };
-  // dark outline layer first (the flicks and mass, slightly fattened), then the colour over it
-  c.fillStyle=dk; c.strokeStyle=dk; c.lineWidth=.9; c.lineJoin='round'; curlMass(c); c.fill(); c.stroke(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); c.stroke(); }
-  // the curl dropping over the temple, in front of the ear
-  const temple=()=>{ c.beginPath(); c.moveTo(1.4,-58.6); c.quadraticCurveTo(2.6,-55.6,1.2,-52.4); c.quadraticCurveTo(.8,-53.6,-.2,-52.8); c.quadraticCurveTo(.6,-55.6,-.4,-57.6); c.closePath(); }; temple(); c.fill(); c.stroke();
-  c.fillStyle=gr; curlMass(c); c.fill(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); } temple(); c.fill();
-  // swooping crescent locks inside, each lit on top and shaded underneath
-  c.save(); curlMass(c); c.clip(); c.lineCap='round';
-  for(const [x,y,r,rot] of CURLY_LOCKS){ const R=r*1.5, a=rot, ox=x+Math.cos(a+Math.PI*.6)*R*.38, oy=y+Math.sin(a+Math.PI*.6)*R*.38;
-    // a crescent lock: lit body, dark lower edge, a light streak along its top
-    const lock=()=>{ c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.arc(ox,oy,R*.6,a+Math.PI*1.3,a,true); c.closePath(); };
-    c.fillStyle=y<-61?D(mix(hairC,'#ffffff',.16)):D(mix(hairC,'#ffffff',.06)); lock(); c.fill(); c.strokeStyle=v3rgba(dk,.8); c.lineWidth=.38; c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.stroke();
-    c.strokeStyle=v3rgba(y<-61?lt2:lt,.7); c.lineWidth=.36; c.beginPath(); c.arc(x,y,R*.82,a+Math.PI*.25,a+Math.PI*1.0); c.stroke(); }
-  c.restore();
-  // strand lines on the flicks so they read as hair
-  c.strokeStyle=v3rgba(lt,.55); c.lineWidth=.32; for(const [x,y,nx,ny,L,sd] of CURLY_TIPS){ if(y>-58&&x>-2) continue; c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+nx*L*.5,y+ny*L*.5,x+nx*L*.8-ny*sd*L*.35,y+ny*L*.8+nx*sd*L*.35); c.stroke(); }
-  c.save(); c.globalAlpha*=.14; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-.6,-66.6,5,1.4,-.12,0,7); c.fill(); c.restore();
-  drawEar3(c); }
-
 // ---------- COILS (director's reference, left-hand image): tight round coils. Every curl is its own round coil with a
 // spiral in it and a dark outline, piled into a dome that falls to the jaw behind.
 const COIL_BLOBS=(()=>{ const out=[]; let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
@@ -8564,6 +8602,36 @@ function drawCoils3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000
     c.strokeStyle=v3rgba(dk,.85); c.lineWidth=.38; c.beginPath(); c.arc(x,y,r*.72,a,a+Math.PI*1.45); c.stroke(); c.beginPath(); c.arc(x+Math.cos(a)*r*.18,y+Math.sin(a)*r*.18,r*.38,a+Math.PI,a+Math.PI*2.5); c.stroke();
     c.strokeStyle=v3rgba(y<-61?lt2:lt,.75); c.lineWidth=.32; c.beginPath(); c.arc(x,y,r*.82,Math.PI*1.15,Math.PI*1.65); c.stroke(); }
   drawEar3(c); }
+
+// ---------- CURLY (0.3.3 redesign, per the director's brief): modern, medium-length, slightly messy curls that follow the
+// skull. About eleven soft curl clusters (C, S and loose spiral shapes) at irregular sizes and angles, moderate volume on
+// top, a couple of curls falling toward the forehead, small tight curls at the temple, a compact back tapering to the
+// nape. Three tones per colour (shadow, base, light) and only a soft outline. Head centre (0,-56), radius 7.5.
+const CURLY_LOBES=[ // x, y, rx, ry, rotation, curl type
+  [-6.3,-52.6,1.6,1.7,-1.4,'S'],[-7.3,-55.8,1.9,2.0,-1.2,'C'],[-7.2,-59.4,2.0,2.1,-1.0,'P'],[-5.9,-62.6,2.4,2.2,-.6,'C'],
+  [-3.2,-64.6,2.9,2.2,-.25,'S'],[.1,-65,3.0,2.2,-.05,'C'],[3.2,-64,2.8,2.1,.15,'S'],[-3.4,-60.8,2.4,2.1,.45,'P'],
+  [1.2,-61.8,2.3,1.8,.2,'S'],[5.4,-61.5,2.4,1.8,.35,'C'],[.4,-58.6,1.4,1.3,.8,'C'],[6.8,-59.8,1.35,1.25,.7,'C'],
+  [-1.9,-57,1.9,2.1,-1,'C'],[-2.4,-54.2,1.6,1.8,-1.2,'S'],[-4.4,-52.2,1.5,1.5,-1.3,'C']]; /* curls fall over the ear */
+function curlyCap(c){ c.beginPath(); c.moveTo(6.6,-60.2); c.bezierCurveTo(7.4,-63.6,4.6,-66.4,0,-66.4); c.bezierCurveTo(-4.8,-66.4,-8.2,-63.4,-8.4,-58.6); c.bezierCurveTo(-8.5,-55,-7.8,-52.2,-6.2,-50.8); c.bezierCurveTo(-4.8,-51.2,-3.6,-52,-3.2,-53.2); c.bezierCurveTo(-2.4,-55.8,-1.4,-57.6,.6,-58.6); c.bezierCurveTo(2.6,-59.6,4.6,-59.6,6.6,-60.2); c.closePath(); }
+function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
+  const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
+  // soft outline: the whole shape a touch larger in the shadow tone, then the base colour over it
+  c.fillStyle=shade; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,.32); c.fill(); }
+  c.fillStyle=base; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,0); c.fill(); }
+  // each cluster: a shadow under its lower edge, the curl's line, and a light sweep on top
+  c.lineCap='round'; c.lineJoin='round';
+  for(const [x,y,rx,ry,r,ty] of CURLY_LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
+    c.save(); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.clip();
+    c.fillStyle=v3rgba(shade,.7); c.beginPath(); c.ellipse(x+sn*s*.35,y+cs*s*.45,rx*.95,ry*.55,r,0,7); c.fill();
+    c.fillStyle=base; c.beginPath(); c.ellipse(x-sn*s*.15,y-cs*s*.2,rx*.86,ry*.72,r,0,7); c.fill();
+    c.strokeStyle=v3rgba(line,.75); c.lineWidth=.42; c.beginPath();
+    if(ty==='C'){ c.ellipse(x,y,rx*.6,ry*.58,r,Math.PI*.15,Math.PI*1.35); }
+    else if(ty==='S'){ const [a1,b1]=P(-rx*.55,ry*.2), [a2,b2]=P(0,-ry*.25), [a3,b3]=P(rx*.55,ry*.15), [m1,n1]=P(-rx*.3,-ry*.55), [m2,n2]=P(rx*.3,ry*.6); c.moveTo(a1,b1); c.quadraticCurveTo(m1,n1,a2,b2); c.quadraticCurveTo(m2,n2,a3,b3); }
+    else { c.ellipse(x,y,rx*.62,ry*.6,r,Math.PI*1.0,Math.PI*2.2); c.moveTo(...P(rx*.62*Math.cos(Math.PI*2.2),ry*.6*Math.sin(Math.PI*2.2))); c.ellipse(x+cs*s*.12,y+sn*s*.12,rx*.32,ry*.3,r,Math.PI*.2,Math.PI*1.4); }
+    c.stroke();
+    c.strokeStyle=v3rgba(light,.85); c.lineWidth=.5; c.beginPath(); c.ellipse(x-sn*s*.08,y-cs*s*.12,rx*.68,ry*.58,r,Math.PI*1.2,Math.PI*1.72); c.stroke();
+    c.restore(); }
+  }
 
 // =====================================================================
 // 0.3 oddities: twenty new things humanity dropped in the water, from a lone sock to a megalodon tooth.
