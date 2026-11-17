@@ -54,3 +54,8 @@ if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=
       if((e.tagName==='BUTTON'||e.classList.contains('chip'))&&e.scrollWidth>e.clientWidth+2&&cs.overflow!=='visible'&&cs.textOverflow!=='ellipsis') out.push(where+': clipped "'+e.textContent.trim().slice(0,30)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return {label:label||vw+'x'+vh, n:out.length, out:[...new Set(out)].slice(0,40)}; };
+// QC (test mode only): every page, every visible label that is cut off with "…" (text-overflow) or clipped
+if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2) return; const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
+    if(e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.add(where+': "'+t.slice(0,28)+'"'); }); };
+  for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,200)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); look(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
+  return [...out].slice(0,60); };

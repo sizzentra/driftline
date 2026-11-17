@@ -227,3 +227,18 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #evin .keys .prize{gap:12px;align-items:center}
 #evin .keys .prize span{flex:1;text-align:left;color:#cfdcea}
 </style>`);
+// the narrow page column on wide PCs: the wardrobe's seven section tabs sit in two rows of four, so every label shows
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-wide #panel .wd-nav{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+body.pc-wide #panel .wd-nav button{min-width:0}
+</style>`);
+
+// ---------------------------------------------------------------------
+// Water thumbnails (Waters page) are painted at a fixed wide shape, whatever shape the water has on this screen
+// (with the taller water of the new layouts they came out as a cropped middle band: no sky, no mountains)
+// ---------------------------------------------------------------------
+const _v3Thumb_04=v3Thumb;
+v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const oW=W, oH=H, want=Math.round(oW/2.6);
+  if(want>=oH) return _v3Thumb_04(id); const ch=cv.height;
+  try{ H=want; cv.height=Math.round(want*DPR); return _v3Thumb_04(id); } finally{ H=oH; cv.height=ch; g.setTransform(DPR,0,0,DPR,0,0); } };
+document.head.insertAdjacentHTML('beforeend',`<style>#panel .loc .sw2{background-position:50% 40%!important}</style>`);
