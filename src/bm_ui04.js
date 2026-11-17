@@ -130,7 +130,7 @@ addEventListener('keydown',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediateP
 addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePropagation(); },true);
 // the line waits while a menu is open (rest mode keeps fishing by itself); the water draws a few times a second behind it
 { const _up=update; update=function(dt){ if(S.dockAt!==S.loc) dockSync(); if(MENU_OPEN){ if(G.st==='rest') restTick(dt); return; } return _up(dt); }; }
-{ let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250) return; lastD=now; return _dr(now); }; }
+{ let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250&&!resize.force) return; lastD=now; return _dr(now); }; }
 // a full cooler: show it on the dashboard instead of throwing you into a menu
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
