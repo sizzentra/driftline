@@ -361,7 +361,7 @@ drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const bi
   if(bc.contains('phone-app')){ g.font='800 11.5px system-ui'; const t1=g.measureText(nm).width; g.font='700 11px system-ui'; const t2=g.measureText(rest).width; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,Math.max(t1,t2)+18,36,11); g.fill();
     g.fillStyle='#ffffff'; g.font='800 11.5px system-ui'; g.fillText(nm,19,24); g.fillStyle=col; g.font='700 11px system-ui'; g.fillText(rest,19,39); return; }
   const txt=rest; g.font='700 '+(big?12:11)+'px system-ui'; const tw=g.measureText(txt).width, h=big?22:20; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,tw+(big?20:16),h,h/2); g.fill(); g.fillStyle=col; g.fillText(txt,big?20:18,big?25:24); };
-document.head.insertAdjacentHTML('beforeend','<style>body.phone-app #goalchip{top:54px}</style>');
+// (the goal chip now lives in the top bar)
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* ---------- fishing mode: one column, the water to the bottom edge ---------- */
 html.dl-fish{height:100%;overflow:hidden}
@@ -420,4 +420,91 @@ body.card-open #menubtn{opacity:0;pointer-events:none}
 /* the Overview inside the menu: cards across the full width */
 #menuov #panel .dash{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 @container (min-width:640px){#menuov #panel .dash .dw.wide{grid-column:span 2}}
+</style>`);
+
+// =====================================================================
+// The goal / Live chip moves off the water into the top bar, right after "Fishing at", and the top bar chips size to
+// what they hold: the short numbers stay compact, the water and the goal take the room that is left.
+// =====================================================================
+(function(){ const hud=document.querySelector('.hud'), gc=$('goalchip'), loc=hud&&hud.querySelector('.stat.loc'); if(!hud||!gc||!loc) return;
+  loc.after(gc); gc.classList.add('hudgoal');
+  const tag=(id,c)=>{ const e=$(id); const s=e&&e.closest('.stat'); if(s) s.classList.add(c); };
+  tag('money','st-coins'); tag('lvl','st-lvl'); tag('coolerct','st-cool'); tag('buffct','st-buff'); tag('bait','st-bait'); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > #goalchip{position:relative!important;left:auto;top:auto!important;z-index:auto;display:flex;flex-direction:column;justify-content:center;gap:0;max-width:none;min-width:0;padding:4px 11px 5px;border-radius:10px;border:1px solid var(--line);background:var(--panel);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:hidden;text-align:left}
+.hud > #goalchip .gl-k{font-size:11px;letter-spacing:.08em;white-space:nowrap;line-height:1.2}
+.hud > #goalchip .gl-t{font-family:var(--display);font-size:14px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud > #goalchip .gl-s{display:none!important}
+.hud > #goalchip .gl-bar{position:absolute;left:0;right:0;bottom:0;height:3px;margin:0;border-radius:0;background:#ffffff12}
+.hud > #goalchip .gl-bar b{border-radius:0}
+.hud > #goalchip.live{border-color:#7fe3c466}
+.hud > #goalchip.ready{border-color:#ffd36a99;box-shadow:0 0 12px #ffd36a26}
+/* wide screens: compact number chips, the water and the goal share what is left */
+@media (min-width:701px){
+  body.dl-fish .hud{gap:6px!important}
+  body.dl-fish .hud > *{flex:0 1 auto!important}
+  body.dl-fish .hud > .st-coins{flex:.3 1 104px!important;min-width:84px}
+  body.dl-fish .hud > .st-lvl{flex:.3 1 112px!important;min-width:92px}
+  body.dl-fish .hud > .stat.loc{flex:0 0 auto!important;max-width:none;min-width:128px}
+  body.dl-fish .hud > #goalchip{flex:1.5 1 230px!important;max-width:440px;min-width:150px}
+  body.dl-fish .hud > .st-cool{flex:.3 1 84px!important;min-width:70px}
+  body.dl-fish .hud > .st-buff{flex:.3 1 96px!important;min-width:76px}
+  body.dl-fish .hud > .st-bait{flex:.4 1 150px!important;min-width:124px}
+  body.dl-fish .hud > .hudbtns,body.dl-fish .hud > .brand{flex:0 0 auto!important}
+}
+@media (min-width:701px) and (max-width:1099px){
+  body.dl-fish .hud > .st-buff{display:none!important}
+  body.dl-fish .hud > .stat.loc{min-width:112px;padding-right:10px!important}
+  body.dl-fish .hud > #goalchip{min-width:120px}
+}
+/* phones held upright: the goal is a slim full-width row under the four chips */
+body.phone-app.dl-fish .hud > #goalchip{grid-column:1 / -1;order:9;height:30px!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;padding:0 10px 2px}
+body.phone-app.dl-fish .hud > #goalchip .gl-k{font-size:9.5px;flex:0 0 auto}
+body.phone-app.dl-fish .hud > #goalchip .gl-t{font-size:12.5px;flex:1 1 auto;min-width:0}
+/* phones held sideways: one row of six */
+@media (orientation:landscape) and (max-height:560px){
+  body.dl-fish .hud{grid-template-columns:minmax(70px,.7fr) minmax(66px,.7fr) max-content minmax(0,1.9fr) minmax(64px,.55fr) minmax(92px,.85fr)!important}
+  body.dl-fish .hud > #goalchip{padding:2px 8px 4px}
+  body.dl-fish .hud > #goalchip .gl-k{font-size:9px}
+  body.dl-fish .hud > #goalchip .gl-t{font-size:12px}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* tablets and narrow windows (701-899 px): two rows, the numbers on top, the water and the goal side by side under them */
+@media (min-width:701px) and (max-width:899px) and (min-height:561px){
+  body.dl-fish .hud{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,1.25fr) auto!important;grid-template-areas:"coins lvl cool bait btns" "loc loc goal goal goal"!important;gap:6px!important}
+  body.dl-fish .hud > *{height:44px!important;min-width:0!important;max-width:none!important}
+  body.dl-fish .hud > .st-coins{grid-area:coins}body.dl-fish .hud > .st-lvl{grid-area:lvl}body.dl-fish .hud > .st-cool{grid-area:cool}body.dl-fish .hud > .st-bait{grid-area:bait}body.dl-fish .hud > .hudbtns{grid-area:btns}
+  body.dl-fish .hud > .stat.loc{grid-area:loc}body.dl-fish .hud > #goalchip{grid-area:goal}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* very wide screens: every chip stops growing at a sensible width; any room left sits before the buttons on the right */
+@media (min-width:900px){
+  body.dl-fish .hud > .st-coins{max-width:150px}body.dl-fish .hud > .st-lvl{max-width:170px}
+  body.dl-fish .hud > .stat.loc{flex:.6 0 auto!important;max-width:320px}body.dl-fish .hud > #goalchip{max-width:520px}
+  body.dl-fish .hud > .st-cool{max-width:120px}body.dl-fish .hud > .st-buff{max-width:140px}body.dl-fish .hud > .st-bait{max-width:220px}
+  body.dl-fish .hud > .hudbtns{margin-left:auto}
+}
+</style>`);
+// the water redraws at its new size whenever its box changes (window resize, rotation, the top bar changing height),
+// not only on the window's resize event
+if(window.ResizeObserver){ const st=$("stage"); let tmr=0, lw=0, lh=0;
+  new ResizeObserver(es=>{ const r=es[0].contentRect, w=Math.round(r.width), h=Math.round(r.height); if(Math.abs(w-lw)<2&&Math.abs(h-lh)<2) return; lw=w; lh=h; clearTimeout(tmr); tmr=setTimeout(()=>{ try{ resize(); }catch(e){} },30); }).observe(st); }
+// a goal too long for one line wraps onto two compact lines (the label runs in front of it) instead of being cut
+{ const gc=$('goalchip'); if(gc){ const fit=()=>{ const t=gc.querySelector('.gl-t'); gc.classList.remove('long'); if(t&&gc.closest('.hud')&&t.scrollWidth>t.clientWidth+1) gc.classList.add('long'); };
+  new MutationObserver(fit).observe(gc,{childList:true}); addEventListener('resize',()=>setTimeout(fit,80)); addEventListener('orientationchange',()=>setTimeout(fit,350)); setTimeout(fit,100);
+  if(/[?&]test\b/.test(location.search)) window.__fitGoal=fit; } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > #goalchip.long{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;padding:7px 10px 0!important;line-height:1.16}
+.hud > #goalchip.long .gl-k{display:inline;margin-right:6px;font-size:9.5px;line-height:1.16}
+.hud > #goalchip.long .gl-t{display:inline;white-space:normal;font-size:12.5px;line-height:1.16}
+@media (min-width:701px) and (max-width:899px) and (min-height:561px){.hud > #goalchip.long{padding-top:5px!important}}
+body.phone-app.dl-fish .hud > #goalchip.long{height:auto!important;min-height:30px;padding:5px 10px 6px!important}
+@media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long{padding:4px 8px 0!important;line-height:1.1}.hud > #goalchip.long .gl-k{font-size:8.5px}.hud > #goalchip.long .gl-t{font-size:11px;line-height:1.1}}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the level bar always stays inside its chip */
+body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:100%!important;align-self:stretch}
+@media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long .gl-t{font-size:10.5px}}
 </style>`);

@@ -72,7 +72,8 @@ body.pc-wide #tabs.secmode .secdot{right:4px}
 </style>`);
 // in the wide layout the tip line sits on the water (as on phones), and the water is a little taller to fill its column
 (function(){ const hint=$('hint'), stage=$('stage'); if(!hint||!stage) return; const home=hint.parentElement; let placed=false;
-  const apply=()=>{ const wide=document.body.classList.contains('pc-wide'); if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
+  // fishing mode (0.4) keeps the tip on the water in every layout; #tabs may live inside the menu by then
+  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
   addEventListener('resize',()=>setTimeout(apply,10)); setTimeout(apply,60); })();
 const _stageHOverride_036c=stageHOverride;
 stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*1.15),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
@@ -101,8 +102,9 @@ function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:
   const all=SP.filter(s=>S.journal[s.id]).length; return {t:'Every species here found', sub:all+' / '+SP.length+' in the Fish Log', p:all/SP.length, tab:'journal'}; }
 (function(){ const stage=$('stage'); if(!stage) return; const el=document.createElement('button'); el.id='goalchip'; el.type='button'; stage.appendChild(el);
   el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; setTab(gl.tab); try{ menuSync(); }catch(er){} const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
-  let last=''; const tick=()=>{ const show=['idle','waiting','result','rest'].includes(G.st)&&!S.settings.hideGoal; let html='';
-    if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.title=gl.tab?'Open the page for this goal':''; }
+  // in the top bar (fishing mode) the chip always shows, so the bar never shifts when a fight starts
+  let last=''; const tick=()=>{ const show=(el.closest('.hud')||['idle','waiting','result','rest'].includes(G.st))&&!S.settings.hideGoal; let html='';
+    if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':gl.live?'Live':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.classList.toggle('live',!!gl.live); el.title=(gl.sub?gl.sub+'. ':'')+(gl.tab?'Open the page for this goal':''); }
     if(html!==last){ last=html; el.innerHTML=html; el.hidden=!html; } };
   setInterval(tick,700); tick(); })();
 
