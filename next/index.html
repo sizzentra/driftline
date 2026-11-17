@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1538';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1557';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1512,7 +1512,11 @@ const sfx = {
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
-  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=Math.min(2,window.devicePixelRatio||1);
+  // resizing a canvas wipes it: skip when nothing changed, and draw the scene again at once so a blank frame never shows (folding the side panels flashed)
+  if(cv.width===Math.floor(W*DPR)&&cv.height===Math.floor(H*DPR)&&cv.style.height===H+'px'){ g.setTransform(DPR,0,0,DPR,0,0); return; }
+  cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0);
+  if(resize.live){ resize.force=true; try{ draw(performance.now()); }catch(e){} resize.force=false; } }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -2846,6 +2850,7 @@ const PATCHES = [
 'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
 'Menus on phones held sideways: the side buttons are bigger, the space between them counts as part of a button, and they react as your finger lifts.',
 'Phones: closing the menu with Back no longer taps whatever was underneath (like the bait list), and quick taps on two buttons in a row never bounce you back to the first.',
+'Folding the side panels in and out no longer makes the water flash.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -12891,7 +12896,7 @@ addEventListener('keydown',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediateP
 addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePropagation(); },true);
 // the line waits while a menu is open (rest mode keeps fishing by itself); the water draws a few times a second behind it
 { const _up=update; update=function(dt){ if(S.dockAt!==S.loc) dockSync(); if(MENU_OPEN){ if(G.st==='rest') restTick(dt); return; } return _up(dt); }; }
-{ let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250) return; lastD=now; return _dr(now); }; }
+{ let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250&&!resize.force) return; lastD=now; return _dr(now); }; }
 // a full cooler: show it on the dashboard instead of throwing you into a menu
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
@@ -14907,7 +14912,7 @@ $('settingsbtn').addEventListener('click',e=>{ e.currentTarget.blur(); startAudi
 function refreshAll(){ lastHud=''; renderBait(); setTab(S.tab||'cooler'); hud(); }
 
 // ---------- boot ----------
-offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); refreshAll(); requestAnimationFrame(frame); initCloud();
+offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); refreshAll(); requestAnimationFrame(frame); resize.live=true; initCloud();
 { const gift=dailyLogin(); const veteran=S.stats.caught>0||S.savedAt; if(S.seenPatch!==GAME_VERSION){ S.seenPatch=GAME_VERSION; if(veteran) setTimeout(()=>showPatchNotes(PATCHES[0],gift),700); else if(gift) setTimeout(()=>toast(gift),1200); } else if(gift) setTimeout(()=>toast(gift),1200); save(); }
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
