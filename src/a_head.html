@@ -157,7 +157,8 @@ h5{font-family:var(--display);font-weight:700;font-size:14px;margin:12px 0 6px;c
 .loc.here{border-color:var(--kelp)}
 .loc .sw2{height:46px;border-radius:8px}
 .tank{border-radius:12px;border:1px solid var(--line);margin-top:12px;overflow:hidden;background:#082233}
-.tank canvas{height:220px;cursor:default}
+.tank canvas{height:clamp(300px,52vh,560px);cursor:default}
+@media (max-width:560px){ .tank canvas{height:clamp(260px,42vh,380px)} }
 .bank{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .bank b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
 .pts{font-family:var(--display);font-weight:800;font-size:28px;color:var(--gold);font-variant-numeric:tabular-nums}

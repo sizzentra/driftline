@@ -56,3 +56,23 @@ renderSettings = function(P){ _renderSettings_gfx(P); const cur=S.settings.gfx||
   const opt=[['auto','Auto ('+(GFX_TOUCH?'Balanced':'High')+' here)'],['high','High'],['balanced','Balanced']];
   grid.insertAdjacentHTML('afterbegin',`<div class="tile"><h4>Graphics</h4><div class="meta">High draws everything at full sharpness and adds more life to the water and weather. Balanced is lighter on phones and older devices.</div><div class="chips" style="margin-top:8px">${opt.map(([k,n])=>`<button class="chipb" type="button" data-gfx="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div></div>`);
   grid.querySelectorAll('[data-gfx]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.settings.gfx=b.dataset.gfx==='auto'?undefined:b.dataset.gfx; if(!S.settings.gfx) delete S.settings.gfx; save(); if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; renderPanel(); }); };
+
+// ---------- 0.3.3 aquarium swimming: every fish has its own pace and style, picked from its kind and kept stable.
+//   glide  : slow, wide lazy laps (big and calm fish)        dart  : quick bursts with little pauses (small fish)
+//   bottom : cruises low along the sand, nosing about         hover : drifts in place, turning now and then (puffers, odd ones)
+//   wave   : rolls up and down as it goes (eels, long fish)   rare and up: sweeping figure-eights through the middle
+function tankStyle(f,sp){ const h=hashStr(f.id+(f.kg||0)), n=sp.name.toLowerCase(), d=(typeof fishDesign==='function')?fishDesign(sp):{};
+  if(/eel|worm|serpent|snake/.test(n)||d.plan==='eel') return 'wave'; if(/puffer|box|mola|blob|jelly/.test(n)||/ball|box|mola|blob|jelly/.test(d.plan||'')) return 'hover';
+  if(/cat|loach|flounder|ray|crab|lobster|sculpin|bullhead/.test(n)||/flat|ray|crab|lobster/.test(d.plan||'')) return 'bottom';
+  if(sp.r>=4) return 'eight'; if(sp.max<=1.5) return 'dart'; return ['glide','dart','glide','wave'][h%4]; }
+const TANK_MV=new WeakMap();
+function tankMove(f,sp,i,t,w,h,L){ let m=TANK_MV.get(f); if(!m){ const hs=hashStr((f.id||'')+i); m={st:tankStyle(f,sp), sp:.7+(hs%100)/100*.6, ph:(hs%628)/100, lane:.18+((hs>>>7)%60)/100}; TANK_MV.set(f,m); }
+  const top=h*.08+L*.3, bot=h*.8-L*.2, mid=(top+bot)/2, span=(bot-top), ph=m.ph, k=m.sp; let x,y,vx;
+  switch(m.st){
+    case 'glide': { const a=t*.12*k+ph; x=w*(.5+.42*Math.sin(a)); vx=Math.cos(a); y=top+span*m.lane+Math.sin(t*.4*k+ph)*span*.06; return {x,y,dir:vx>=0,wag:5}; }
+    case 'dart': { const per=3.2/k, q=((t+ph*2)%per)/per, seg=Math.floor((t+ph*2)/per), r1=((Math.sin((seg+i)*12.9898)*43758.5)%1+1)%1, r0=((Math.sin((seg-1+i)*12.9898)*43758.5)%1+1)%1, e=q<.35?(q/.35)*(q/.35)*(3-2*q/.35):1;
+      const x0=w*(.1+r0*.8), x1=w*(.1+r1*.8); x=x0+(x1-x0)*e; y=top+span*(.15+((r0*7)%1)*.7)+(span*(.15+((r1*7)%1)*.7)-span*(.15+((r0*7)%1)*.7))*e+Math.sin(t*2+i)*2; return {x,y,dir:x1>=x0,wag:q<.35?16:6}; }
+    case 'bottom': { const a=t*.08*k+ph; x=w*(.5+.44*Math.sin(a)); vx=Math.cos(a); y=bot-L*.05+Math.sin(t*1.1+ph)*2; return {x,y,dir:vx>=0,wag:4}; }
+    case 'hover': { x=w*(.2+.6*((ph/6.28)%1))+Math.sin(t*.3*k+ph)*w*.05; y=top+span*m.lane+Math.sin(t*.6*k+ph)*span*.05; return {x,y,dir:Math.sin(t*.15*k+ph)>=0,wag:3}; }
+    case 'wave': { const a=t*.1*k+ph; x=w*(.5+.43*Math.sin(a)); vx=Math.cos(a); y=mid+Math.sin(t*1.2*k+ph)*span*.22; return {x,y,dir:vx>=0,wag:9}; }
+    default: { const a=t*.13*k+ph; x=w*(.5+.38*Math.sin(a)); vx=Math.cos(a); y=mid+Math.sin(a*2)*span*.25; return {x,y,dir:vx>=0,wag:7}; } } }
