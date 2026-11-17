@@ -90,7 +90,7 @@ renderBoardwalk = function(P){ accrueSpins();
     P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const id=c.dataset.prize, p=PRIZES.find(q=>q[0]===id); if(!p) return; const tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase(), x=c.getContext('2d');
       if(tag==='pet'&&PETI[id]&&!['teddy'].includes(id)){ x.clearRect(0,0,c.width,c.height); drawPetStyled(x,id,48,72,2.6,0); }
       else if(tag==='rod'&&ROD_I[id]){ x.clearRect(0,0,c.width,c.height); v3Rod(x,{x:10,y:66},{x:88,y:12},44,44,ROD_I[id],0,0,false); }
-      else if(tag==='hat'&&HATI[id]&&!['sixsevencap','carnival','fishbowl'].includes(id)){ x.clearRect(0,0,c.width,c.height); hatPreview(x,96,80,id,S.look.hatCol); } }); }
+      else if(tag==='hat'&&HATI[id]){ x.clearRect(0,0,c.width,c.height); hatPreview(x,96,80,id,S.look.hatCol); } }); }
   if(bwView==='specials') P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,80,124,1.45,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,160,130); }); };
 const _extraAct2_1 = extraAct2;
 extraAct2 = function(b){ if(b.dataset.act==='bwview'){ bwView=b.dataset.k; return 'render'; } return _extraAct2_1(b); };

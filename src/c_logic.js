@@ -27,7 +27,7 @@ function migrate(o){ const d=fresh(); if(!o||typeof o!=='object') return d; cons
   m.look=Object.assign(fresh().look,o.look||{}); const ow=o.owned||{};
   m.owned={hats:uniq([...d.owned.hats,...(ow.hats||[])]).filter(h=>HATI[h]), cols:uniq(ow.cols||[]), pats:uniq(['none',...(ow.pats||[])]), pets:uniq(['dog',...(ow.pets||[])]).filter(p=>PETI[p]), outfits:uniq(['none','vest',...(ow.outfits||[])]), glasses:uniq(['none','round',...(ow.glasses||[])]),
     shoes:uniq(['boots','sneakers','barefoot',...(ow.shoes||[])]).filter(x=>SHOEI[x]), necks:uniq(['none',...(ow.necks||[])]).filter(x=>NECKI[x]), backs:uniq(['none',...(ow.backs||[])]).filter(x=>BACKI[x])};
-  if(!BUILDI[m.look.build]) m.look.build='average'; if(!EYES[m.look.eye]) m.look.eye=0; if(!m.owned.shoes.includes(m.look.shoes)) m.look.shoes='boots'; if(!m.owned.necks.includes(m.look.neck)) m.look.neck='none'; if(!m.owned.backs.includes(m.look.back)) m.look.back='none';
+  if(!BUILDI[m.look.build]) m.look.build='average'; if(m.look.shoeCol&&!/^#[0-9a-f]{6}$/i.test(m.look.shoeCol)) m.look.shoeCol=''; for(const [k,L,d] of [['nose',NOSES,'button'],['brows',BROWS,'soft'],['mouth',MOUTHS,'smile'],['blush',BLUSHES,'on']]) if(!L.some(x=>x[0]===m.look[k])) m.look[k]=d; if(!EYES[m.look.eye]) m.look.eye=0; if(!m.owned.shoes.includes(m.look.shoes)) m.look.shoes='boots'; if(!m.owned.necks.includes(m.look.neck)) m.look.neck='none'; if(!m.owned.backs.includes(m.look.back)) m.look.back='none';
   m.tickets=+o.tickets||0; if(o.freeSpins==null) m.freeSpins = (Date.now()-(o.wheelT||0)>=3600000) ? 1 : 0;
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});
@@ -121,6 +121,11 @@ function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') re
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
 function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
+// how strongly the current weather shows (0..1): it builds up over the first half minute and fades out over the
+// last one when the next slot brings different weather (looks only; the gameplay effect is the whole slot)
+const WX_FADE=32;
+function wxAmt(){ const s=Date.now()/1000/WX_LEN, slot=Math.floor(s), into=(s-slot)*WX_LEN, cur=weatherAt(slot).k; let a=1;
+  if(weatherAt(slot-1).k!==cur) a=Math.min(a,into/WX_FADE); if(weatherAt(slot+1).k!==cur) a=Math.min(a,(WX_LEN-into)/WX_FADE); a=clamp(a,0,1); return a*a*(3-2*a); }
 function wxLeft(){ return Math.ceil(WX_LEN - (Date.now()/1000 % WX_LEN)); }
 const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s)%60).padStart(2,'0');
 
@@ -400,7 +405,7 @@ function update(dt){ if(V3ON) padPoll(); if(G.st==='rest') restTick(dt);
   else if(G.st==='reeling'){ fight(dt); }
   else if(G.st==='landing'){ G.land.t+=dt; if(G.land.t>=G.land.dur) finishCatch(); }
   for(let i=G.parts.length-1;i>=0;i--){ const p=G.parts[i]; p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=420*dt; if(p.t>p.life) G.parts.splice(i,1); }
-  if(weather().k==='Storm'){ G.nextBolt-=dt; if(G.nextBolt<=0){ G.flash=1; G.nextBolt=rnd(6,16); setTimeout(()=>sfx.thunder(),400); } }
+  if(weather().k==='Storm'&&wxAmt()>.6){ G.nextBolt-=dt; if(G.nextBolt<=0){ G.flash=1; G.nextBolt=rnd(6,16); setTimeout(()=>sfx.thunder(),400); } }
   G.flash=Math.max(0,G.flash-dt*2.5);
   // hotspots: ripples on the water where rare fish gather
   if(G.hot){ G.hot.t+=dt; if(G.hot.t>G.hot.life) G.hot=null; }

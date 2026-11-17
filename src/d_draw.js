@@ -235,7 +235,7 @@ function hatPreview(c,w,h,id,col,big){ const s=h/(big?44:40); c.save(); c.transl
   drawHat(c,id,HATI[id]&&HATI[id].fixed?'#888888':col,performance.now()/1000); c.restore(); if(big) sparkles(c,w,h,5); }
 
 // ---------- drawing: the scene ----------
-let stars=null, drops=null, flakes=null;
+let stars=null, drops=null, flakes=null, WXA=1;
 function nightness(p){ let n=0; if(p>=.45&&p<.55) n=(p-.45)/.1; else if(p>=.55&&p<.95) n=1; else if(p>=.95) n=1-(p-.95)/.1; else if(p<.05) n=1-(p+.05)/.1; return clamp(n,0,1); }
 function tree(x,y,h,col,snow){ g.fillStyle=col; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.32,y); g.lineTo(x+h*.32,y); g.fill(); if(snow){ g.fillStyle='#f4f8fa'; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.12,y-h*.62); g.lineTo(x+h*.12,y-h*.62); g.fill(); } }
 function drawFar(L,t,night,hz,wx){
@@ -325,7 +325,7 @@ function drawHotspot(t){ const hs=G.hot; if(!hs) return; const fade=Math.min(1,h
 function draw(now){
   const L=curLoc(), p=phase(), t=now/1000, hz=HZ(), wx=weather(); const night=nightness(p);
   const dusk = Math.max(0, 1-Math.abs(p-.5)/.06) + Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7;
-  const gloom = (wx.k==='Storm' ? .55 : wx.k==='Rain' ? .3 : wx.k==='Fog' ? .15 : 0) + (L.id==='deep'?.1:0);
+  const wa=wxAmt(); WXA=wa; const gloom = (wx.k==='Storm' ? .55 : wx.k==='Rain' ? .3 : wx.k==='Fog' ? .15 : 0)*wa + (L.id==='deep'?.1:0);
   if(!v3Scene(L,t,p,night,dusk,gloom,hz,wx)){
   const sg=g.createLinearGradient(0,0,0,hz);
   let top=mix(L.sky[0],'#0b1430',night), bot=mix(L.sky[1],'#24305a',night); if(dusk>0) bot=mix(bot,'#f2875a',clamp(dusk,0,1)*.8);
@@ -392,13 +392,14 @@ function draw(now){
   if(!v3Fore(L,t,night)) drawFore(L,t,night);
   drawEvents(t);
   const FX=S.settings.effects;
-  if(FX && (wx.k==='Rain'||wx.k==='Storm')){ const n = wx.k==='Storm'?140:80; if(!drops||drops.length!==n) drops=Array.from({length:n},()=>[Math.random(),Math.random(),.6+Math.random()*.6]);
-    g.strokeStyle='rgba(200,220,235,.35)'; g.lineWidth=1; g.beginPath(); const slant = wx.k==='Storm'? 10 : 4;
-    for(const d of drops){ const x=((d[0]*W + t*slant*20*d[2])%W), y=((d[1]*H + t*700*d[2])%H); g.moveTo(x,y); g.lineTo(x-slant,y+14); } g.stroke(); }
+  if(FX && (wx.k==='Rain'||wx.k==='Storm') && wa>.01){ const N = wx.k==='Storm'?140:80; if(!drops||drops.length!==140) drops=Array.from({length:140},()=>[Math.random(),Math.random(),.6+Math.random()*.6]);
+    // rain starts as a few light drops and picks up (and thins out again before it stops)
+    const n=Math.round(N*wa); g.strokeStyle='rgba(200,220,235,'+(.12+.23*wa)+')'; g.lineWidth=1; g.beginPath(); const slant = wx.k==='Storm'? 10 : 4;
+    for(let i=0;i<n;i++){ const d=drops[i]; const x=((d[0]*W + t*slant*20*d[2])%W), y=((d[1]*H + t*700*d[2])%H); g.moveTo(x,y); g.lineTo(x-slant,y+14); } g.stroke(); }
   if(FX && L.id==='frost' && !V3ON){ if(!flakes) flakes=Array.from({length:70},()=>[Math.random(),Math.random(),.5+Math.random()]); g.fillStyle='rgba(255,255,255,.8)';
     for(const f of flakes){ const x=((f[0]*W + Math.sin(t*.8+f[1]*9)*20 + t*8*f[2])%W+W)%W, y=((f[1]*H + t*30*f[2])%H); g.fillRect(x,y,1.6*f[2],1.6*f[2]); } }
-  if(wx.k==='Fog'){ const fg=g.createLinearGradient(0,hz-60,0,H); fg.addColorStop(0,'rgba(210,220,225,0)'); fg.addColorStop(.25,'rgba(210,220,225,.38)'); fg.addColorStop(1,'rgba(210,220,225,.12)'); g.fillStyle=fg; g.fillRect(0,0,W,H); }
-  if(FX && wx.k==='Gilded'){ for(let i=0;i<24;i++){ const x=(i*97.3+t*12*(1+i%4))%W, y=hz*.3+((i*53.7+Math.sin(t+i)*20)%(H*.6)); g.fillStyle='rgba(255,215,120,'+(.35+.35*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } }
+  if(wx.k==='Fog'&&wa>.01){ const fg=g.createLinearGradient(0,hz-60,0,H); fg.addColorStop(0,'rgba(210,220,225,0)'); fg.addColorStop(.25,'rgba(210,220,225,'+(.38*wa)+')'); fg.addColorStop(1,'rgba(210,220,225,'+(.12*wa)+')'); g.fillStyle=fg; g.fillRect(0,0,W,H); }
+  if(FX && wx.k==='Gilded'){ for(let i=0;i<Math.round(24*wa);i++){ const x=(i*97.3+t*12*(1+i%4))%W, y=hz*.3+((i*53.7+Math.sin(t+i)*20)%(H*.6)); g.fillStyle='rgba(255,215,120,'+(.35+.35*Math.sin(t*3+i))+')'; g.fillRect(x,y,2,2); } }
   if(FX && G.flash>0){ g.fillStyle='rgba(235,240,255,'+(G.flash*.45)+')'; g.fillRect(0,0,W,H); }
   drawVignette(night); drawDerbyHUD();
   // overlays
@@ -418,7 +419,7 @@ function draw(now){
   else { drawSceneChip(p,wx);
     if(S.streak>=2){ const txt='Streak '+S.streak+'  ·  +'+Math.round(Math.min(streakCap(),.05*S.streak)*100)+'% XP'; g.font='700 12px system-ui'; const tw=g.measureText(txt).width;
     g.fillStyle='rgba(5,14,20,.7)'; rr(W-tw-34,12,tw+20,24,12); g.fill(); g.fillStyle=S.streak>=10?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,W-tw-24,28); }
-    if(G.st!=='charging' && S.settings.boostsOnScreen){ const bs=activeBuffs().slice(0,4); g.font='700 11px system-ui'; g.textAlign='left'; let yy=H-12; const now2=Date.now();
+    if(G.st!=='charging' && S.settings.boostsOnScreen){ const bs=activeBuffs().slice(0,4); g.font='700 11px system-ui'; g.textAlign='left'; let yy=H-((innerWidth<=520||innerHeight<=520)?38:48); const now2=Date.now(); /* start above the Rest button in the corner */
       for(const b of bs){ const txt=fmtB(b.k,b.v)+'  '+mmss(Math.ceil((b.until-now2)/1000)); const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.7)'; rr(10,yy-15,tw+16,20,10); g.fill(); g.fillStyle='#7fc8a9'; g.fillText(txt,18,yy-1); yy-=24; } } }
 }
 function rr(x,y,w,h,r){ g.beginPath(); g.roundRect ? g.roundRect(x,y,Math.max(0,w),h,r) : g.rect(x,y,Math.max(0,w),h); }

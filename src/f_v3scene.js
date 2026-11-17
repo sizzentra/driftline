@@ -19,11 +19,13 @@ const V3PAL = { pond: {
   night:{top:'#05091a', mid:'#111a3c', bot:'#27306a', glow:'#c8d4ff', far:'#283058', farHaze:'#3a4478', snow:'#8e98c6', hill:'#1a2042', back:'#141a36', front:'#0c1126', bank:'#121a34', wTop:'#2a346c', wMid:'#131b40', wBot:'#04060e', rim:'#9fb4ff', cabin:'#1e1c32', roof:'#100e20', leaf:'#1c2838', leafHi:'#6f80c8', cloud:'#2a3058', cloudLit:'#5a66a0'}
 }};
 function v3palette(id,night,dusk,gloom){
-  const key=id+'|'+Math.round(night*16)+'|'+Math.round(dusk*10)+'|'+Math.round(gloom*6);
-  if(v3palette.k===key) return v3palette.v;
-  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key};
+  // colours follow the clock in fine steps (cheap); o.key is a coarse light level that the cached scenery
+  // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
+  const fk=id+'|'+Math.round(night*60)+'|'+Math.round(dusk*40)+'|'+Math.round(gloom*30);
+  if(v3palette.k===fk) return v3palette.v;
+  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:id+'|'+Math.round(night*8)+'|'+Math.round(dusk*5)+'|'+Math.round(gloom*4)};
   for(const k in P.day){ let c=mix(P.day[k],P.night[k],night); if(d>0) c=mix(c,P.dusk[k],d); if(gloom>0) c=mix(c,'#59616b',gloom*.6); o[k]=c; }
-  o.d=d; o.night=night; o.gloom=gloom; v3palette.k=key; v3palette.v=o; return o;
+  o.d=d; o.night=night; o.gloom=gloom; v3palette.k=fk; v3palette.v=o; return o;
 }
 
 // ---------- shared drawing pieces ----------
@@ -59,15 +61,23 @@ function v3glow(c,x,y,r,col,a){ const gr=c.createRadialGradient(x,y,0,x,y,r); gr
 function v3rgba(hex,a){ const v=hex2rgb(rgb2hex(hex)); return 'rgba('+v[0]+','+v[1]+','+v[2]+','+a+')'; }
 
 // ---------- offscreen cache for the still parts ----------
-let V3CACHE=null;
+let V3CACHE=null, V3PREV=null;
+const V3FADE=2.4; // seconds a new light level takes to fade in over the old one
 function v3land(L,P,hz){
   const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key;
-  if(V3CACHE && V3CACHE.key===key) return V3CACHE.c;
-  const c=(V3CACHE&&V3CACHE.c)||document.createElement('canvas'); c.width=Math.round(W*DPR); c.height=Math.round(H*DPR);
-  const x=c.getContext('2d'); x.setTransform(DPR,0,0,DPR,0,0); x.clearRect(0,0,W,H);
+  if(V3CACHE && V3CACHE.key===key) return V3CACHE;
+  // only the light changed (same place and size): keep the old picture to fade from; otherwise start clean
+  const same=V3CACHE && V3CACHE.base===L.id+'|'+W+'|'+H+'|'+DPR;
+  const spare=V3PREV&&V3PREV.c, old=V3CACHE;
+  const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
+  const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); /* still scenery at most 2x: sharp on every phone, far less to repaint */
   V3SCENES[L.id].land(x,P,hz,c);
-  V3CACHE={key,c}; return c;
+  V3PREV=same?{c:old.c,t0:performance.now()}:null;
+  V3CACHE={key,base:L.id+'|'+W+'|'+H+'|'+DPR,c}; return V3CACHE;
 }
+// the cached scenery, with the previous light level fading out on top while a new one comes in
+function v3landDraw(L,P,hz){ const C=v3land(L,P,hz); g.drawImage(C.c,0,0,W,H);
+  if(V3PREV){ const k=(performance.now()-V3PREV.t0)/1000/V3FADE; if(k>=1) V3PREV.t0=-1e12; else { g.globalAlpha=1-v3s(k); g.drawImage(V3PREV.c,0,0,W,H); g.globalAlpha=1; } } }
 
 // =====================================================================
 // WILLOW POND
@@ -192,6 +202,12 @@ const V3POND = {
   }
 };
 
+// the lantern's reflection: short soft streaks that wobble and thin out with depth, never a solid block
+// a soft oval pool of lantern light on a deck (rgb as 'r,g,b')
+function v3lightPool(x,y,R,rgb,a){ if(a<.01) return; g.save(); g.translate(x,y); g.scale(1,.3); const pg=g.createRadialGradient(0,0,0,0,0,R); pg.addColorStop(0,'rgba('+rgb+','+a+')'); pg.addColorStop(.6,'rgba('+rgb+','+(a*.33)+')'); pg.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=pg; g.beginPath(); g.arc(0,0,R,0,7); g.fill(); g.restore(); }
+function v3lanternReflect(x,y0,lit,t,rgb){ if(lit<.05) return; const L=H*.13, sc=clamp(H/420,.7,1.25); rgb=rgb||'255,210,130';
+  for(let i=0;i<9;i++){ const k=i/8, y=y0+k*L, w=(7-k*4.5)*sc*(1+.25*Math.sin(t*2.1+i*1.7)), dx=Math.sin(t*1.3+i*2.3)*2*sc*k, a=lit*.28*(1-k)*(.65+.35*Math.sin(t*3+i));
+    g.fillStyle='rgba('+rgb+','+a+')'; g.beginPath(); g.ellipse(x+dx,y,w,Math.max(.6,.75*sc),0,0,7); g.fill(); } }
 // =====================================================================
 // the dock for areas with a wooden dock (pond first): grain, nails, moss,
 // rope, a bucket, and a lantern whose light sits BEHIND its pole and housing
@@ -202,7 +218,9 @@ function v3dock(P,t,night,dockY){
   const lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.008, ly=dockY-H*.1;
   // lantern light first, so the pole and housing are drawn over it
   if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba(255,200,110,.85)',lit*.6*(.93+.07*Math.sin(t*7.1)*Math.sin(t*3.3)));
-    const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,190,110,'+(.32*lit)+')'); pg.addColorStop(1,'rgba(255,190,110,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
+    // a soft oval pool of light on the boards (no hard edges), and a gentle broken reflection on the water below
+    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,190,110',.3*lit);
+    v3lanternReflect(lx,dockY+H*.075,lit,t); }
   // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
   const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
   drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:dockPosts5(-2,PW,pw),pw,wl:dockY+H*.075,wc:P.wMid});
@@ -231,7 +249,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const tl=SC.tilt?SC.tilt(t):0; if(tl){ g.save(); g.translate(W/2,hz); g.rotate(tl); g.scale(1.04,1.04); g.translate(-W/2,-hz); }
   // sky
   const sg=g.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); g.fillStyle=sg; g.fillRect(0,0,W,hz+1);
-  if(wx&&wx.k==='Gilded'){ const gg=g.createLinearGradient(0,0,0,hz); gg.addColorStop(0,'rgba(255,200,90,0)'); gg.addColorStop(1,'rgba(255,196,90,'+(.26*(1-night*.65))+')'); g.fillStyle=gg; g.fillRect(0,0,W,hz+1); }
+  if(wx&&wx.k==='Gilded'){ const gg=g.createLinearGradient(0,0,0,hz); gg.addColorStop(0,'rgba(255,200,90,0)'); gg.addColorStop(1,'rgba(255,196,90,'+(.26*(1-night*.65)*WXA)+')'); g.fillStyle=gg; g.fillRect(0,0,W,hz+1); }
   // stars (twinkling) after dusk
   if(night>.05 && gloom<.5 && !SC.overcast){ if(!v3Scene.st||v3Scene.st.w!==W){ const r=v3rng(3); v3Scene.st={w:W,a:Array.from({length:90},()=>[r()*W,r()*hz*.85,r(),.6+r()*1.1])}; }
     g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
@@ -249,7 +267,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
     g.fillStyle=v3rgba(P.cloudLit,.75*(1-gloom*.5)); g.beginPath(); g.moveTo(cx+cw*.05,cy); g.quadraticCurveTo(cx+cw*.5,cy+chh*.16,cx+cw*.95,cy); g.quadraticCurveTo(cx+cw*.5,cy-chh*.12,cx+cw*.05,cy); g.fill(); }
   if(SC.sky) SC.sky(P,t,hz);
   // the still land and water, from the cache
-  g.drawImage(v3land(L,P,hz),0,0,W,H);
+  v3landDraw(L,P,hz);
   SC.live(P,t,hz,{x:sx,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
   if(tl) g.restore();
   return true;
@@ -269,6 +287,8 @@ if(/[?&]test\b/.test(location.search)){
   window.__setPhase=async ph=>{ const cur=(window.__realNow()/1000%360)/360, base=((ph-cur+1)%1)*360000; for(let k=0;k<80;k++){ window.__off=base+k*360000; if(weather().k==='Clear') return 'Clear'; } return 'no clear'; };
   window.__crop=(x,y,w,h,s=2)=>{ document.getElementById('dbg')?.remove(); const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); const im=document.createElement('img'); im.src=o.toDataURL(); im.id='dbg'; im.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#000;width:'+(w*s)+'px'; document.body.appendChild(im); return [o.width,o.height]; };
   window.__go=id=>{ S.loc=id; if(!S.unlocked.includes(id)) S.unlocked.push(id); };
+  window.__v3st=()=>({cache:V3CACHE&&V3CACHE.key, prev:V3PREV&&V3PREV.t0});
+  window.__landCost=(n=5)=>{ let mx=0; for(let i=0;i<n;i++){ if(V3CACHE) V3CACHE.key=""; v3palette.k=null; const t0=performance.now(); draw(performance.now()); mx=Math.max(mx,performance.now()-t0); } return +mx.toFixed(2); };
   window.__drawCost=(n=30)=>{ const t0=performance.now(); for(let i=0;i<n;i++) draw(performance.now()); return +((performance.now()-t0)/n).toFixed(2); };
   window.__setWeather=k=>{ for(let i=0;i<3000;i++){ window.__off+=137000; if(weather().k===k) return k; } return 'none'; };
   window.__post=(name,url)=>fetch('/shot/'+name,{method:'POST',body:url});

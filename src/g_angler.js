@@ -92,7 +92,7 @@ function a3Body(c,x,y,s,lk,o,live){
   if(live){ const dt=A3.lt<0?1:clamp(t-A3.lt,0,.1); A3.lt=t; const e=1-Math.exp(-dt*9), eh=1-Math.exp(-dt*24);
     A3.lean+=(lean-A3.lean)*e; A3.crouch+=(crouch-A3.crouch)*e; A3.stance+=(stance-A3.stance)*e; A3.tilt+=(tilt-A3.tilt)*e; A3.hx+=(hx-A3.hx)*eh; A3.hy+=(hy-A3.hy)*eh;
     lean=A3.lean; crouch=A3.crouch; stance=A3.stance; tilt=A3.tilt; hx=A3.hx; hy=A3.hy; }
-  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; const lift=o.sit?24-o.sit.seat:crouch-24*(B.l-1);
+  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; A3LW=B.lw; A3SHOE=lk.shoes||"boots"; A3SHOECOL=lk.shoeCol||null; const lift=o.sit?24-o.sit.seat:crouch-24*(B.l-1);
   const ra=o.rodA!=null?o.rodA:-.72; // the rod's angle at the hand (screen space)
   // upper body space: crouch down, lean around the hips. Hands are given in final space so they meet the rod exactly.
   const lc=Math.cos(lean), ls=Math.sin(lean), hipY=-24+lift;
@@ -106,7 +106,7 @@ function a3Body(c,x,y,s,lk,o,live){
     a3Limb(c,hp,kn,6.2*B.lw,5.2*B.lw,col,back?.5:1); a3Limb(c,kn,an,5.2*B.lw,4.4*B.lw,col,back?.5:1);
     if(lk.outfit==='pajamas'){ c.save(); c.globalAlpha*=.55; c.strokeStyle=D('#f4f0f8'); c.lineWidth=.8; for(const q of [-1.3,1.3]){ c.beginPath(); c.moveTo(hp.x+q,hp.y); c.lineTo(kn.x+q,kn.y); c.lineTo(an.x+q*.8,an.y); c.stroke(); } c.restore(); }
     c.strokeStyle='rgba(0,0,0,.16)'; c.lineWidth=.45; c.beginPath(); c.moveTo(kn.x-1.2,kn.y-1); c.quadraticCurveTo(kn.x+.4,kn.y+.6,kn.x+1.6,kn.y-.2); c.stroke();
-    if(lk.outfit!=='wetsuit'&&lk.outfit!=='spacesuit'){ c.fillStyle=back?D(mix(lk.pants||'#3a4a6a','#000000',.38)):cuffC; c.beginPath(); c.ellipse(an.x,an.y-.4,2.7,1,0,0,7); c.fill(); }
+    if(lk.outfit!=='wetsuit'&&lk.outfit!=='spacesuit'&&!SHOE_TALL.has(lk.shoes||'boots')){ c.fillStyle=back?D(mix(lk.pants||'#3a4a6a','#000000',.38)):cuffC; c.beginPath(); c.ellipse(an.x,-(SHOE_TOPY[lk.shoes||"boots"]||5)-.3,2.5*B.lw,.9,0,0,7); c.fill(); }
     return an; };
   const boot=(bx,dark)=>{ const bc=D(dark?'#24180f':'#33241a'), gr=c.createLinearGradient(0,-5.4,0,0); gr.addColorStop(0,mix(bc,'#fff0dc',.14)); gr.addColorStop(.6,bc); gr.addColorStop(1,mix(bc,'#000000',.35)); c.fillStyle=gr;
     c.beginPath(); c.moveTo(bx-3,-5.4); c.quadraticCurveTo(bx+.4,-6,bx+1.8,-5.1); c.quadraticCurveTo(bx+6.4,-4,bx+6,-1.1); c.quadraticCurveTo(bx+5.8,-.2,bx+5,-.2); c.lineTo(bx-3.2,-.2); c.quadraticCurveTo(bx-3.8,-2.8,bx-3,-5.4); c.fill();
@@ -128,7 +128,10 @@ function a3Body(c,x,y,s,lk,o,live){
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
   c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
-  if(hs==='long'){ c.fillStyle=hairF; c.beginPath(); c.moveTo(-7.4,-60); c.quadraticCurveTo(-12.6,-50,-9.8,-42.2); c.quadraticCurveTo(-6,-41.2,-2.4,-43.4); c.lineTo(-2.4,-58); c.closePath(); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.45; c.beginPath(); c.moveTo(-8.6,-56); c.quadraticCurveTo(-10.8,-50,-9,-44); c.moveTo(-6,-55); c.quadraticCurveTo(-7.4,-50,-6,-44.5); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.4,-57); c.quadraticCurveTo(-9.6,-52,-8.6,-47); c.stroke(); }
+  if(hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
+    const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0); c.fillStyle=hairF; c.beginPath(); c.moveTo(-6.4,-62.4); c.bezierCurveTo(-9.6,-60.6,-10.2,-55.6,-9.4,-51); c.bezierCurveTo(-8.8,-47.4,-9.4+sw,-44.4,-8.8+sw,-40.4); c.quadraticCurveTo(-8+sw,-41.4,-7.4+sw,-40.6); c.quadraticCurveTo(-6.8+sw,-41.6,-6.1+sw,-41.2); c.bezierCurveTo(-5.4,-43.6,-4,-45.4,-2.6,-46.4); c.lineTo(-2.4,-58); c.closePath(); c.fill();
+    c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.42; c.beginPath(); c.moveTo(-8,-58); c.bezierCurveTo(-9.2,-53,-8.2,-47,-8+sw,-41.6); c.moveTo(-5.6,-56.6); c.bezierCurveTo(-6.6,-52,-6,-47,-6.6+sw,-42); c.stroke();
+    c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.2,-59.4); c.bezierCurveTo(-9,-55,-8.8,-50.4,-8.4,-47); c.stroke(); }
   if(hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
   if(hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
   c.restore();
@@ -143,13 +146,13 @@ function a3Body(c,x,y,s,lk,o,live){
   { c.save(); a3TorsoPath(c,f); c.clip(); drawTwoTone(c,lk,D,-10,-49,20,27); if(lk.pat&&lk.pat!=='none') drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
   if(lk.outFab&&lk.outFab!=='none'&&outfitFabrics(lk.outfit).includes(lk.outFab)) a3FabricOutfit(c,lk,D,f,t); else drawOutfit3(c,lk,D,f,t);
   const bodyPath=()=>coat?a3CoatPath(c,f,hem):a3TorsoPath(c,f), out=lk.outfit;
-  a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); }:bodyPath,-9.6,9.8,-48,coat?hem:-22.4,1);
+  a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-5.4,-47.6); c.bezierCurveTo(-8.6,-46.8,-8.8,-40,-8.2,-34); c.bezierCurveTo(-7.8,-29,-8.4,-24,-8,-21.6); c.quadraticCurveTo(0,-20.6,8.2+A3BELLY*2,-21.6); c.bezierCurveTo(8.8+A3BELLY*2.6,-28,8.6+A3BELLY*2,-38,4.6,-47.6); c.quadraticCurveTo(-.6,-49,-5.4,-47.6); c.closePath(); }:bodyPath,-8.4,8.6,-48,coat?hem:-22.4,1);
   // soft shadow under the chin and where the front arm crosses the chest
   c.save(); bodyPath(); c.clip(); c.fillStyle='rgba(20,10,20,.22)'; c.beginPath(); c.ellipse(1.2,-46.2,4.6,2.2,0,0,7); c.fill();
   const elF0=a3IK(.8,-44,HH.x/B.w,HH.y,7.8,7.6,1); c.strokeStyle='rgba(10,6,20,.16)'; c.lineWidth=5.4; c.beginPath(); c.moveTo(.8,-43); c.lineTo(elF0.x+.4,elF0.y+1.4); c.stroke(); c.restore();
   // belt: only where the waist shows (shirt, vest, life jacket, tuxedo T-shirt); every jacket, sweater, coat or costume covers it
-  if(['none','vest','lifejacket','tuxshirt'].includes(out||'none')){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.fillStyle=bg; c.beginPath(); c.moveTo(-7.7,-25.7); c.quadraticCurveTo(0,-26.3,7.8,-25.7); c.lineTo(7.8,-23.4); c.quadraticCurveTo(0,-24,-7.7,-23.4); c.closePath(); c.fill();
-    c.fillStyle=D('#e2bc6a'); c.beginPath(); c.roundRect?c.roundRect(1.1,-26.1,3.1,3,.6):c.rect(1.1,-26.1,3.1,3); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(1.9,-25.2,1.5,1.2); c.fillStyle='rgba(255,255,230,.5)'; c.fillRect(1.3,-25.9,2.6,.45); }
+  if(['none','vest','lifejacket','tuxshirt'].includes(out||'none')){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=bg; c.beginPath(); c.moveTo(-9,-25.5); c.quadraticCurveTo(0,-26.1,9,-25.9); c.lineTo(9,-23.5); c.quadraticCurveTo(0,-23.8,-9,-23.2); c.closePath(); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(-3.6,-25.8,.7,2.6); c.restore();
+    /* side view: the buckle sits at the front of the waist, seen almost edge-on */ const fx=sideFront(-24.6,f); c.fillStyle=D('#e2bc6a'); c.beginPath(); c.roundRect?c.roundRect(fx-1.7,-26.2,2,3.1,.5):c.rect(fx-1.7,-26.2,2,3.1); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(fx-1.2,-25.3,.9,1.3); c.fillStyle='rgba(255,255,230,.5)'; c.fillRect(fx-1.5,-26,1.6,.45); }
   c.restore();
   // ---- neck and head (the head tilts on the neck: looks down at the float, up while the cast flies)
   { const ng=c.createLinearGradient(-2.2,0,2.2,0); ng.addColorStop(0,skD); ng.addColorStop(.7,sk); ng.addColorStop(1,mix(sk,'#fff2e0',.12)); c.fillStyle=ng; c.beginPath(); c.moveTo(-2.1,-51); c.lineTo(-2.3,-45.6); c.quadraticCurveTo(0,-44.6,2.4,-45.6); c.lineTo(2.2,-51); c.closePath(); c.fill(); }
@@ -164,9 +167,9 @@ function a3Body(c,x,y,s,lk,o,live){
   // ear
   c.fillStyle=sk; c.beginPath(); c.ellipse(-1.8,-55.4,1.8,2.3,0,0,7); c.fill(); c.fillStyle=skD; c.beginPath(); c.ellipse(-1.6,-55.3,.85,1.25,0,0,7); c.fill(); c.fillStyle='rgba(255,240,225,.3)'; c.beginPath(); c.ellipse(-2.4,-56.2,.5,.9,0,0,7); c.fill();
   // nose
-  c.fillStyle=sk; c.beginPath(); c.ellipse(7.5,-55.4,1.45,1.25,0,0,7); c.fill(); c.strokeStyle=skD; c.lineWidth=.45; c.beginPath(); c.arc(7.3,-55.1,1.1,-.2,1.8); c.stroke(); c.fillStyle='rgba(255,248,236,.5)'; c.beginPath(); c.arc(7.7,-55.9,.45,0,7); c.fill();
+  a3Nose(c,lk.nose,sk,skD);
   // blush
-  c.fillStyle='rgba(240,120,110,.3)'; c.beginPath(); c.ellipse(3.6,-53.6,1.8,1,0,0,7); c.fill();
+  if(lk.blush!=='off'){ c.fillStyle='rgba(240,120,110,'+(lk.blush==='soft'?.14:.3)+')'; c.beginPath(); c.ellipse(3.6,-53.6,1.8,1,0,0,7); c.fill(); }
   // eyes and brows
   const ex=4.4, ey=-57, browY=mood==='surprised'?-60.6:mood==='focus'?-59.4:-60;
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
@@ -184,16 +187,16 @@ function a3Body(c,x,y,s,lk,o,live){
       c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.arc(ix+.28,iy-.34,.22,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.5)'; c.beginPath(); c.arc(ix-.24,iy+.3,.1,0,7); c.fill();
       c.strokeStyle=D('#2a1a12'); c.lineWidth=.32; c.lineCap='round'; c.beginPath(); c.ellipse(ex,ey,rx,ry,0,Math.PI*1.08,Math.PI*1.95); c.stroke();
       c.strokeStyle=D('rgba(90,40,30,.35)'); c.lineWidth=.18; c.beginPath(); c.ellipse(ex,ey+.05,rx*.95,ry,0,Math.PI*.15,Math.PI*.85); c.stroke(); } }
-  if(f && !blink){ c.strokeStyle=D('#1a1410'); c.lineWidth=.55; c.beginPath(); c.moveTo(ex+.8,ey-.9); c.lineTo(ex+1.6,ey-1.6); c.stroke(); }
-  c.strokeStyle=D(mix(hairC,'#000000',.15)); c.lineWidth=.75; c.beginPath(); c.moveTo(ex-1.5,browY+.25); c.quadraticCurveTo(ex,browY-(mood==='focus'?-.2:.45),ex+1.6,browY+.15); c.stroke();
+  if(f && !blink){ c.strokeStyle=D('#1a1410'); c.lineWidth=.32; c.beginPath(); c.moveTo(ex+.9,ey-.85); c.quadraticCurveTo(ex+1.4,ey-1.2,ex+1.75,ey-1.15); c.moveTo(ex+.5,ey-1.05); c.quadraticCurveTo(ex+.9,ey-1.55,ex+1.3,ey-1.6); c.stroke(); }
   // mouth
   c.strokeStyle=D('#7a2e24'); c.fillStyle=D('#7a2e24'); c.lineWidth=.6;
   if(mood==='happy'){ c.beginPath(); c.moveTo(3.8,-53.2); c.quadraticCurveTo(5.6,-50.6,7,-53.1); c.closePath(); c.fill(); c.fillStyle='#ffffff'; c.fillRect(4.3,-53.2,2.2,.5); }
   else if(mood==='surprised'){ c.beginPath(); c.ellipse(5.5,-52.6,.75,.95,0,0,7); c.fill(); }
   else if(mood==='focus'){ c.beginPath(); c.moveTo(4.4,-52.7); c.lineTo(6.4,-52.9); c.stroke(); }
-  else { c.beginPath(); c.moveTo(4.1,-53); c.quadraticCurveTo(5.4,-52,6.7,-53.1); c.stroke(); }
-  drawFace(c,lk,D,hair);
+  else a3Mouth(c,lk.mouth,D);
+  const beardOn=lk.beard&&lk.beard!=='none'&&!A3_HAT_FULL.has(lk.hat||'none'); drawFace(c,beardOn?Object.assign({},lk,{beard:'none'}):lk,D,hair); const headM=c.getTransform(); /* the beard is drawn after the front arm: the face juts out in front of the shoulder */
   if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
+  a3Brow(c,lk.brows,D(mix(hairC,'#000000',.15)),ex,browY+.4,mood); /* brows sit over the fringe so they always show */
   // hats sit above the eye line, so the face always reads (no hole is ever cut into a hat)
   // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
   { const HC=a3HatLayer(c), hx=HC.getContext('2d'); hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,HC.width,HC.height); hx.setTransform(c.getTransform());
@@ -204,7 +207,7 @@ function a3Body(c,x,y,s,lk,o,live){
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod
   const shF={x:.8*B.w,y:-44}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
-  a3Limb(c,shF,elF,5*B.lw,4.3*B.lw,sleeve,1); a3Limb(c,elF,HH,4.3*B.lw,3.6*B.lw,sleeve,1); for(const sf of sleeveFab){ a3LimbFab(c,shF,elF,5*B.lw,4.3*B.lw,sf); a3LimbFab(c,elF,HH,4.3*B.lw,3.6*B.lw,sf); }
+  a3Limb(c,shF,elF,5*B.lw,4.3*B.lw,sleeve,1); a3Limb(c,elF,HH,4.3*B.lw,3.6*B.lw,sleeve,1); for(const sf of sleeveFab){ a3LimbFab(c,shF,elF,5*B.lw,4.3*B.lw,sf); a3LimbFab(c,elF,HH,4.3*B.lw,3.6*B.lw,sf); } a3OverArm(c,lk,D,B,t); if(beardOn){ c.save(); c.setTransform(headM); drawFace(c,Object.assign({},lk,{glasses:'none'}),D,hair); c.restore(); }
   if(!['wetsuit','spacesuit'].includes(lk.outfit)){ const d2=Math.hypot(HH.x-elF.x,HH.y-elF.y)||1, ux=(HH.x-elF.x)/d2, uy=(HH.y-elF.y)/d2; c.fillStyle=D(mix(sleeve==shirt?lk.shirt:sleeve,'#000000',.18)); c.beginPath(); c.ellipse(HH.x-ux*2.6,HH.y-uy*2.6,1.1,2,Math.atan2(uy,ux),0,7); c.fill(); }
   { const gr=c.createRadialGradient(HH.x+.6,HH.y-.9,.3,HH.x,HH.y,2.8); gr.addColorStop(0,mix(sk,'#fff4e6',.2)); gr.addColorStop(1,skD); c.fillStyle=gr; c.beginPath(); c.arc(HH.x,HH.y,2.45,0,7); c.fill(); }
   c.restore(); c.restore();
@@ -217,10 +220,11 @@ function drawHair3(c,hs,hair,hairC,D,t){
     c.strokeStyle=lt; c.lineWidth=.6; c.beginPath(); c.arc(0,-57.4,6.4,Math.PI*1.25,Math.PI*1.6); c.stroke(); };
   switch(hs){
     case 'short': cap(); break;
-    case 'long': cap(); c.fillStyle=hair; c.beginPath(); c.moveTo(-2.8,-56); c.quadraticCurveTo(-4.6,-50,-3.4,-46); c.lineTo(-5.8,-46.6); c.quadraticCurveTo(-7,-51,-6.6,-55); c.closePath(); c.fill(); break;
+    case 'long': cap(); c.fillStyle=hair; c.beginPath(); c.moveTo(-2.6,-57); c.bezierCurveTo(-3.5,-53,-3.1,-49.6,-4,-46.1); c.quadraticCurveTo(-4.7,-47.3,-5.3,-46.5); c.quadraticCurveTo(-5.8,-47.6,-6.3,-47.4); c.bezierCurveTo(-6.9,-50.4,-7,-53.4,-6.6,-56); c.closePath(); c.fill();
+      c.strokeStyle=dk; c.lineWidth=.35; c.beginPath(); c.moveTo(-4.4,-55); c.bezierCurveTo(-4.8,-52,-4.6,-49.6,-4.9,-47.4); c.stroke(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); c.moveTo(-3.4,-55.6); c.bezierCurveTo(-3.8,-53,-3.7,-50.6,-4.1,-48.4); c.stroke(); break;
     case 'ponytail': case 'bun': cap(); c.fillStyle=hair; c.fillRect(-7.2,-60,1.4,1); break;
     case 'buzz': c.save(); c.globalAlpha*=.8; c.fillStyle=hair; c.beginPath(); c.arc(0,-56.6,7.85,Math.PI*1.02,Math.PI*1.97); c.quadraticCurveTo(4,-59.6,0,-59.4); c.quadraticCurveTo(-2.4,-58.6,-2.6,-55); c.lineTo(-6.8,-54.6); c.closePath(); c.fill(); c.restore(); break;
-    case 'curly': c.fillStyle=hair; for(let i=0;i<10;i++){ const a=Math.PI*(1.02+i*.11); c.beginPath(); c.arc(Math.cos(a)*7.2,-57+Math.sin(a)*7,2.6,0,7); c.fill(); } c.beginPath(); c.arc(-6.6,-53.4,2.4,0,7); c.arc(-4.6,-55,2.2,0,7); c.fill();
+    case 'curly': c.fillStyle=hair; /* curls stop above the brow: the face stays clear */ for(let i=0;i<9;i++){ const a=Math.PI*(1.0+i*.098); c.beginPath(); c.arc(Math.cos(a)*7.2,-57+Math.sin(a)*7,2.6,0,7); c.fill(); } c.beginPath(); c.arc(-6.6,-53.4,2.4,0,7); c.arc(-4.6,-55,2.2,0,7); c.fill(); c.beginPath(); c.arc(4.4,-61.6,1.7,0,7); c.fill(); c.beginPath(); c.arc(6.1,-60.8,1.3,0,7); c.fill();
       c.strokeStyle=lt; c.lineWidth=.45; for(let i=0;i<6;i++){ const a=Math.PI*(1.1+i*.15); c.beginPath(); c.arc(Math.cos(a)*7.2,-57+Math.sin(a)*7,1.4,Math.PI*1.1,Math.PI*1.8); c.stroke(); } break;
     case 'spiky': cap(); c.fillStyle=hair; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0-1.7,-61.6); c.lineTo(x0+.6,-68.2+((i*5)%3)); c.lineTo(x0+1.7,-61.6); } c.fill(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0,-62); c.lineTo(x0+.5,-66.6+((i*5)%3)); } c.stroke(); break;
     case 'bald': c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); break;
@@ -357,6 +361,6 @@ if(/[?&]test\b/.test(location.search)) window.__hatBottom=(id)=>{ const k=40, o=
   const d=x.getImageData(0,0,o.width,o.height).data; let best=-99; for(let px=Math.round((20+3.15)*k);px<=Math.round((20+5.95)*k);px++) for(let py=o.height-1;py>=0;py--){ if(d[(py*o.width+px)*4+3]>40){ best=Math.max(best,py/k-30); break; } } return +best.toFixed(2); };
 if(/[?&]test\b/.test(location.search)) window.__hatBase=(id,a=-3,b=3)=>{ const k=40, o=document.createElement('canvas'); o.width=60*k; o.height=60*k; const x=o.getContext('2d'); x.translate(30*k,40*k); x.scale(k,k); drawHat(x,id,'#c8553a',1.3);
   const d=x.getImageData(0,0,o.width,o.height).data; let best=-99; for(let px=Math.round((30+a)*k);px<=Math.round((30+b)*k);px++) for(let py=o.height-1;py>=0;py--){ if(d[(py*o.width+px)*4+3]>40){ best=Math.max(best,py/k-40); break; } } return +best.toFixed(2); };
-if(/[?&]test\b/.test(location.search)) window.__lookSheet=(looks,opts={})=>{ const cols=opts.cols||7, cw=opts.cell||160, ch=Math.round(cw*1.5), sc=cw/42; const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(looks.length/cols)*ch; const x=o.getContext('2d');
-  looks.forEach((l,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch); drawAngler3(x,cx+cw*.48,cy+ch*.93,sc,Object.assign({},S.look,l),{t:1.3}); x.restore(); x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(l.label||'',cx+3,cy+11); });
+if(/[?&]test\b/.test(location.search)) window.__lookSheet=(looks,opts={})=>{ const cols=opts.cols||7, cw=opts.cell||160, ch=Math.round(cw*1.5), sc=cw/(opts.k||48); const o=document.createElement('canvas'); o.width=cols*cw; o.height=Math.ceil(looks.length/cols)*ch; const x=o.getContext('2d');
+  looks.forEach((l,i)=>{ const cx=(i%cols)*cw, cy=Math.floor(i/cols)*ch; x.save(); x.beginPath(); x.rect(cx,cy,cw,ch); x.clip(); x.fillStyle=i%2?'#2e3858':'#283150'; x.fillRect(cx,cy,cw,ch); drawAngler3(x,cx+cw*(opts.ax||.48),cy+(opts.up?ch*.5+(opts.up)*sc:ch*.93),sc,Object.assign({},S.look,l),Object.assign({t:1.3},opts.o||{})); x.restore(); x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(l.label||'',cx+3,cy+11); });
   window.__post(opts.save||'looks',o.toDataURL()); return looks.length; };

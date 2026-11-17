@@ -3,8 +3,36 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3';
+const GAME_VERSION = '0.4';
 const PATCHES = [
+ {v:'0.4', name:'Dressed for the Weather', items:[
+  '## Your angler',
+  'Clothes are now drawn from the side, the way your angler actually stands: buttons, zips and buckles sit at the front, hoods, collars and bows at the back, and pockets on the side. Every outfit was redrawn this way.',
+  'Body types have proper shapes now (back, chest and belly) instead of boxes, from slim to sturdy.',
+  'Neckwear wraps the neck and hangs at the front of the chest, so your arm no longer hides it. Backpack and shoulder straps go over the shoulder.',
+  'New face options in the Wardrobe: nose, eyebrows, resting mouth and rosy cheeks, for a look that is a little less goofy (or more, if you like).',
+  'Curly hair no longer falls over the face, long hair falls more naturally down the back, and beards hang in front of the arm instead of behind it. Eyebrows now always show under a fringe.',
+  'Shoes sit properly on the feet: boots line up with the leg, trousers tuck into tall boots and rest on low shoes, and the back bunny slipper keeps its colour.',
+  'You can colour your shoes.',
+  'The bucket hat looks like a bucket hat, and the sport visor wraps around the face.',
+  'Hat pictures in the shops, the Wardrobe and the Boardwalk now show your own angler wearing them.',
+  'Capes billow out behind you and move with the wind; storms make them flap harder.',
+  '## Aquarium and Home',
+  'Not every aquarium decoration gives income now: some make the buffs your fish give stronger, and some are showpieces that boost income from shiny and hybrid fish. A few older pieces changed kind (at a matching value).',
+  'New decorations for the aquarium and for your dock.',
+  'The decoration shops can be sorted by price, name or bonus (cozy at Home) and filtered by what you own, what is for sale and, in the aquarium, the bonus kind.',
+  '## The water',
+  'Light changes at dusk and dawn now fade smoothly, without the little stutters.',
+  'Weather fades in and out instead of switching at once: rain starts with a few drops and builds up, and eases off before it stops.',
+  'Lantern light at night is softer, and its reflection on the water is a gentle shimmer instead of a block.',
+  'Ripples around the dock posts pass behind the posts properly.',
+  'Shiny fish glow, catch the light and sparkle.',
+  '## Small changes',
+  'Stats now shows your time played (it starts counting from this update).',
+  'Boosts shown on the water no longer overlap the Rest button.',
+  'The lo-fi music only crackles where the track loops round (and softly once halfway), not all the time.',
+  'Scrollbars are thinner and only show while you scroll or point at a list.',
+ ]},
  {v:'0.3', name:'The Big Glow-Up', items:[
   '## A whole new look',
   'Every water has been painted again from scratch, each with its own landmark, wildlife and light, from misty mornings through golden evenings to starry nights. Something always moves: birds, ripples, smoke, glimmers on the water.',

@@ -316,10 +316,10 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
     if(night<.5 && L.id==='coast' && r>.995){ const t=now+.05; for(let i=0;i<2;i++){ const o=mv('sawtooth',950,t+i*.25,.22,.012,.02,[BUS.amb]); o.frequency.exponentialRampToValueAtTime(600,t+i*.25+.2); } }
     if(L.id==='trench' && r>.996) mv('sine',1250,now+.05,2.5,.02,.01,[BUS.amb, n.wet]); }
   // music
-  const stName=curStyle(), st=STYLES[stName]; n.ving.gain.setTargetAtTime(stName==='lofi'&&S.settings.musicOn?.16:0, now, .5);
+  const stName=curStyle(), st=STYLES[stName]; if(!(stName==='lofi'&&S.settings.musicOn)) n.ving.gain.setTargetAtTime(0, now, .3); /* 0.4: the record crackle is no longer a constant layer, see below */
   if(!S.settings.musicOn){ MUS.next=Math.max(MUS.next,now+.1); return; }
   const stepLen=60/st.bpm/2;
-  while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; }
+  while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; if(stName==='lofi'){ const Lb=st.progs.length*8, bi=MUS.bar%Lb, bl=stepLen*8; /* a little record crackle only where the track loops round, and once softly halfway */ if(bi===0||bi===Math.floor(Lb/2)){ const pk=bi===0?.14:.07, hold=bi===0?bl*1.5:bl*.6; n.ving.gain.cancelScheduledValues(t0); n.ving.gain.setValueAtTime(n.ving.gain.value,t0); n.ving.gain.linearRampToValueAtTime(pk,t0+bl*.25); n.ving.gain.setValueAtTime(pk,t0+hold); n.ving.gain.linearRampToValueAtTime(0,t0+hold+bl); } } }
     const prog=st.progs[Math.floor(MUS.bar/8)%st.progs.length], ch=prog[MUS.bar%4]; const root=ch[0], ivs=ch[1]; const t=t0+(s%2?st.swing*stepLen:0); const barLen=stepLen*8;
     if(V3ON && V3MUS[stName]){ V3MUS[stName](t,s,root,ivs,stepLen,n,MUS.bar); MUS.step++; MUS.next+=stepLen; continue; }
     if(s===0){ const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=stName==='night'?900:1100; lp.connect(n.dry); lp.connect(n.wet);

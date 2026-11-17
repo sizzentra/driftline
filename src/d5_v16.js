@@ -79,7 +79,8 @@ function relicHTML(){ return `<div class="jsec"><h2>Pearl relics</h2><p class="s
 
 // ---------- rare weathers ----------
 let fishRain=null;
-function drawWeatherX(t,wx,hz){ if(!S.settings.effects) return;
+function drawWeatherX(t,wx,hz){ if(!S.settings.effects||WXA<.01) return; g.save(); g.globalAlpha=WXA; drawWeatherX0(t,wx,hz); g.restore(); }
+function drawWeatherX0(t,wx,hz){
   if(wx.k==='Aurora'){ for(let b=0;b<3;b++){ g.strokeStyle=['rgba(90,255,170,','rgba(160,120,255,','rgba(90,220,255,'][b]+'.22)'; g.lineWidth=16-b*4; g.beginPath(); for(let x=0;x<=W;x+=12){ const y=hz*(.2+b*.12)+Math.sin(x*.008+t*.4+b)*hz*.08+Math.sin(x*.02+t*.7)*6; x?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); } }
   if(wx.k==='Blood Moon'){ g.fillStyle='rgba(140,10,30,.16)'; g.fillRect(0,0,W,H); const gr=g.createRadialGradient(W*.8,hz*.35,4,W*.8,hz*.35,40); gr.addColorStop(0,'rgba(255,90,80,.95)'); gr.addColorStop(.5,'rgba(200,30,40,.6)'); gr.addColorStop(1,'rgba(200,30,40,0)'); g.fillStyle=gr; g.beginPath(); g.arc(W*.8,hz*.35,40,0,7); g.fill(); }
   // Spawning Run: silvery fish leap out of the water in short arcs and splash back, ripples spreading where they land

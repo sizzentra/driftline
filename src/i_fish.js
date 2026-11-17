@@ -534,6 +534,6 @@ function drawCreature3(c,sp,x,y,L,o={}){
 if(/[?&]test\b/.test(location.search)){
   window.__fishSheet=(opt={})=>{ const list=(opt.ids?opt.ids.map(i=>SP.find(s=>s.id===i)).filter(Boolean):SP.filter(s=>!opt.loc||s.loc===opt.loc)).slice(opt.from||0,opt.to||9999), cols=opt.cols||10, cw=opt.cell||110, chh=Math.round(cw*.62), rows=Math.ceil(list.length/cols);
     const cv2=document.createElement('canvas'); cv2.width=cols*cw; cv2.height=rows*chh; const x=cv2.getContext('2d'); x.fillStyle=opt.bg||'#1c3a4a'; x.fillRect(0,0,cv2.width,cv2.height);
-    list.forEach((s,i)=>{ const cx=(i%cols)*cw+cw/2, cy=Math.floor(i/cols)*chh+chh*.46; x.save(); drawCreature(x,s,cx,cy,cw*(opt.scale||.62),{wag:opt.wag||0.6,sil:opt.sil}); x.restore(); x.fillStyle='rgba(255,255,255,.75)'; x.font='9px sans-serif'; x.textAlign='center'; x.fillText(s.id,cx,Math.floor(i/cols)*chh+chh-3); });
+    list.forEach((s,i)=>{ const cx=(i%cols)*cw+cw/2, cy=Math.floor(i/cols)*chh+chh*.46; x.save(); drawCreature(x,s,cx,cy,cw*(opt.scale||.62),{wag:opt.wag||0.6,sil:opt.sil,shiny:opt.shiny}); x.restore(); x.fillStyle='rgba(255,255,255,.75)'; x.font='9px sans-serif'; x.textAlign='center'; x.fillText(s.id,cx,Math.floor(i/cols)*chh+chh-3); });
     if(opt.save) __post(opt.save,cv2.toDataURL()); return [cv2.width,cv2.height,list.length]; };
 }

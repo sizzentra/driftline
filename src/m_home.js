@@ -75,7 +75,10 @@ function drawDockStyle(c,o){ if(!o.wl||dockStyleCur()==='pontoon') return drawDo
   c.save(); c.beginPath(); c.rect(-1e4,wl,3e4,1e4); c.clip(); c.globalAlpha*=.2; drawDockStyle0(c,o); c.restore();
   c.save(); c.strokeStyle='rgba(235,248,255,.38)'; c.lineWidth=1; const ph=(o.t||0)*1.6;
   if(dockStyleCur()==='stone'){ c.fillStyle='rgba(235,248,255,.22)'; c.fillRect(o.x0,wl,o.x1-o.x0,1.2); }
-  else for(const px of (o.posts||[])){ const cx=px+o.pw*.5; c.beginPath(); c.ellipse(cx,wl+1,o.pw*(1.15+.12*Math.sin(ph+px)),Math.max(1.2,o.pw*.22),0,0,7); c.stroke(); }
+  else for(const px of (o.posts||[])){ const cx=px+o.pw*.5, rx=o.pw*(1.15+.12*Math.sin(ph+px)), ry=Math.max(1.2,o.pw*.22);
+    // the near half of the ring passes in front of the post; the far half goes behind it (hidden where the post stands)
+    c.beginPath(); c.ellipse(cx,wl+1,rx,ry,0,0,Math.PI); c.stroke();
+    c.save(); c.beginPath(); c.rect(cx-rx-4,wl-ry-4,rx-o.pw*.5+4,ry*2+8); c.rect(px+o.pw,wl-ry-4,rx-o.pw*.5+4,ry*2+8); c.clip(); c.beginPath(); c.ellipse(cx,wl+1,rx,ry,0,Math.PI,Math.PI*2); c.stroke(); c.restore(); }
   c.restore(); }
 // pets on the dock: each pet can be dragged to its own spot in Home (saved as a 0..1 position along the dock)
 const petBig = id => id==='horse'||id==='cow';

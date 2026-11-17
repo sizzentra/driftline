@@ -36,7 +36,7 @@ function v3hillBand(c,baseY,pts,col){ c.fillStyle=col; c.beginPath(); c.moveTo(0
   const [xl,hl]=pts[pts.length-1]; c.lineTo(xl*W,baseY-hl); c.lineTo(W,baseY-hl); c.lineTo(W,baseY+2); c.closePath(); c.fill(); }
 // water base: gradient, mirrored reflection of the land, calm bands, a bright waterline
 function v3water(x,P,hz,cnv,reflA=.38){ const wg=x.createLinearGradient(0,hz,0,H); wg.addColorStop(0,P.wTop); wg.addColorStop(.32,P.wMid); wg.addColorStop(1,P.wBot); x.fillStyle=wg; x.fillRect(0,hz,W,H-hz);
-  x.save(); x.globalAlpha=reflA; x.beginPath(); x.rect(0,hz,W,H*.3); x.clip(); x.translate(0,hz); x.scale(1,-.72); x.translate(0,-hz); x.drawImage(cnv,0,0,cnv.width,Math.round(hz*DPR),0,0,W,hz); x.restore();
+  x.save(); x.globalAlpha=reflA; x.beginPath(); x.rect(0,hz,W,H*.3); x.clip(); x.translate(0,hz); x.scale(1,-.72); x.translate(0,-hz); x.drawImage(cnv,0,0,cnv.width,Math.round(hz*cnv.height/H),0,0,W,hz); x.restore();
   const rb=x.createLinearGradient(0,hz,0,hz+H*.3); rb.addColorStop(0,v3rgba(P.wTop,0)); const rf=Math.min(1,H*.3/Math.max(1,H-hz)), rc=rf<.32?mix(P.wTop,P.wMid,rf/.32):mix(P.wMid,P.wBot,(rf-.32)/.68); rb.addColorStop(1,v3rgba(rc,1)); x.fillStyle=rb; x.fillRect(0,hz,W,H*.3);
   x.fillStyle=v3rgba(P.wTop,.35); for(let i=0;i<9;i++){ const y=hz+3+i*i*1.6; x.fillRect(0,y,W,1); }
   x.fillStyle=v3rgba(P.rim,.28+P.d*.2); x.fillRect(0,hz,W,1.2); }
@@ -235,7 +235,7 @@ function v3pier(P,t,night,dockY){
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.48));
   const lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.008, ly=dockY-H*.1;
   if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba(255,214,140,.85)',lit*.55*(.95+.05*Math.sin(t*5.3)));
-    const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,200,120,'+(.3*lit)+')'); pg.addColorStop(1,'rgba(255,200,120,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
+    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,200,120',.3*lit); v3lanternReflect(lx,dockY+H*.075,lit,t); }
   // pilings: thick, round-shaded, barnacles and weed at the tide line, X bracing between them
   const pw=Math.max(6,W*.013), xs=[W*.015,W*.085,W*.155];
   g.strokeStyle=N(mix(wd,'#000000',.4)); g.lineWidth=Math.max(2,W*.003);
@@ -371,7 +371,7 @@ V3SCENES.frost = {
 function v3icePlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#0a1020',night*.4), lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.012, ly=dockY-H*.085;
   if(lit>.05){ v3glow(g,lx,ly,H*.18,'rgba(255,210,140,.85)',lit*.55*(.94+.06*Math.sin(t*6.3)));
-    const pg=g.createRadialGradient(lx-W*.02,dockY,0,lx-W*.02,dockY,W*.09); pg.addColorStop(0,'rgba(255,200,130,'+(.3*lit)+')'); pg.addColorStop(1,'rgba(255,200,130,0)'); g.fillStyle=pg; g.fillRect(lx-W*.12,dockY-H*.03,W*.2,H*.06); }
+    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,200,130',.3*lit); }
   const ed=PW+W*.012, path=()=>{ g.beginPath(); g.moveTo(-2,dockY); g.lineTo(ed-W*.01,dockY); g.lineTo(ed,dockY+H*.02); g.lineTo(ed+W*.006,H*.78); g.lineTo(ed-W*.004,H+2); g.lineTo(-2,H+2); g.closePath(); };
   const ig=g.createLinearGradient(0,dockY,0,H); ig.addColorStop(0,N(P.ice)); ig.addColorStop(.3,N(mix(P.ice,P.iceD,.6))); ig.addColorStop(1,N(mix(P.iceD,P.wBot,.6))); g.fillStyle=ig; path(); g.fill();
   g.save(); path(); g.clip();
@@ -759,7 +759,7 @@ V3SCENES.trench = {
 function v3raft(P,t,night,dockY,pb){
   const y=dockY+pb, PW=W*.19, N=c=>mix(c,'#020608',.2+night*.4), lit=.6+night*.4;
   const lx=PW-W*.012, ly=y-H*.1; v3glow(g,lx,ly,H*.2,'rgba(170,255,235,.85)',lit*.5*(.92+.08*Math.sin(t*3.1)));
-  const pg=g.createRadialGradient(lx-W*.02,y,0,lx-W*.02,y,W*.1); pg.addColorStop(0,'rgba(150,255,230,'+(.22*lit)+')'); pg.addColorStop(1,'rgba(150,255,230,0)'); g.fillStyle=pg; g.fillRect(lx-W*.13,y-H*.03,W*.22,H*.08);
+  v3lightPool(lx-W*.02,y-1,W*.095,'150,255,230',.22*lit); v3lanternReflect(lx,y+H*.03,lit*.8,t,'170,255,235');
   // the logs, end-on rounds on the right, bark streaks, rope lashings
   const lh=H*.022, wood=N('#6a5038');
   for(let k=0;k<2;k++){ const yy=y-H*.004+k*lh*.75; g.fillStyle=k?N('#4a3828'):wood; g.beginPath(); g.roundRect?g.roundRect(-12,yy,PW+W*.02+12,lh,lh/2):g.rect(-12,yy,PW+W*.02+12,lh); g.fill();
@@ -980,7 +980,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const sg=x.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); x.fillStyle=sg; x.fillRect(0,0,w,hz+1);
   if(P.night>.1){ const r=v3rng(9); x.fillStyle="#ffffff"; for(let i=0;i<70;i++){ x.globalAlpha=P.night*(.3+.6*Math.abs(Math.sin(t*.7+i))); const s=.8+r()*1.4; x.fillRect(r()*w,r()*hz*.8,s,s); } x.globalAlpha=1; }
   { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||"#6aa"); wg.addColorStop(.35,P.wMid||"#357"); wg.addColorStop(1,P.wBot||"#123"); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
-  if(V3CACHE){ const src=V3CACHE.c, sH=src.height, sW=src.width, srcHz=HZ()*DPR, top=srcHz-sH*.3, band=sH*.42; x.drawImage(src,0,Math.max(0,top),sW,band,0,hz-h*.5*(.3/.42)*1.4,w,h*.5*1.4); }
+  if(V3CACHE){ const src=V3CACHE.c, sH=src.height, sW=src.width, srcHz=HZ()*sH/H, top=srcHz-sH*.3, band=sH*.42; x.drawImage(src,0,Math.max(0,top),sW,band,0,hz-h*.5*(.3/.42)*1.4,w,h*.5*1.4); }
   else { const wg=x.createLinearGradient(0,hz,0,h); wg.addColorStop(0,P.wTop||'#6aa'); wg.addColorStop(1,P.wBot||'#123'); x.fillStyle=wg; x.fillRect(0,hz,w,h-hz); }
   // a soft vignette so the dock reads first
   const vg=x.createRadialGradient(w*.5,h*.62,h*.2,w*.5,h*.62,w*.7); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,18,.45)'); x.fillStyle=vg; x.fillRect(0,0,w,h);
