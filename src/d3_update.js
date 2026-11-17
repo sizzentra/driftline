@@ -71,6 +71,7 @@ const PATCHES = [
   'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
   'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
 'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
+'Menus on phones held sideways: the side buttons are bigger, the space between them counts as part of a button, and they react as your finger lifts.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',

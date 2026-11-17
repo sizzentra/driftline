@@ -1274,8 +1274,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
 // 1. Pulling a list past its top or bottom never drags the page (iPhone Safari rubber-bands the whole page otherwise, sliding
 //    pages under the top panels). A drag is let through only to a box that can still scroll that way; sideways drags (tab rows,
 //    sliders) are untouched.
-{ let lx=0, ly=0; document.addEventListener('touchstart',e=>{ if(e.touches.length===1){ lx=e.touches[0].clientX; ly=e.touches[0].clientY; } },{passive:true});
-  document.addEventListener('touchmove',e=>{ if(e.touches.length!==1) return; const tx=e.touches[0].clientX, ty=e.touches[0].clientY, dx=tx-lx, dy=ty-ly; lx=tx; ly=ty;
+{ let lx=0, ly=0, sx=0, sy=0; document.addEventListener('touchstart',e=>{ if(e.touches.length===1){ sx=lx=e.touches[0].clientX; sy=ly=e.touches[0].clientY; } },{passive:true});
+  document.addEventListener('touchmove',e=>{ if(e.touches.length!==1) return; const tx=e.touches[0].clientX, ty=e.touches[0].clientY, dx=tx-lx, dy=ty-ly; lx=tx; ly=ty; if(Math.hypot(tx-sx,ty-sy)<10) return; // a tap that wobbles a little stays a tap: only clear drags are looked at
     if(Math.abs(dx)>Math.abs(dy)) return; if(!dy) return;
     for(let n=e.target; n&&n!==document.documentElement; n=n.parentElement){ if(n.nodeType!==1) continue; const oy=getComputedStyle(n).overflowY;
       if((oy==='auto'||oy==='scroll')&&n.scrollHeight>n.clientHeight+1){ if((dy>0&&n.scrollTop>0)||(dy<0&&n.scrollTop+n.clientHeight<n.scrollHeight-1)) return; break; } }
@@ -1340,3 +1340,19 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   const all=()=>{ for(const s of document.styleSheets){ if(s._noHover) continue; try{ strip(s); s._noHover=true; }catch(e){} } };
   all(); setTimeout(all,0); addEventListener('load',all);
   new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
+// Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
+// the touch was a click; that decision sometimes failed on iPhone and needed a second tap. The phone's own click that follows is ignored.
+{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home';
+  let down=null, skipEl=null, skipUntil=0, synth=false;
+  document.addEventListener('pointerdown',e=>{ down=null; if(e.pointerType==='mouse'||!e.isPrimary) return; const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) down={el,x:e.clientX,y:e.clientY,id:e.pointerId}; },true);
+  document.addEventListener('pointercancel',()=>{ down=null; },true);
+  document.addEventListener('pointerup',e=>{ const d=down; down=null; if(!d||e.pointerId!==d.id||Math.hypot(e.clientX-d.x,e.clientY-d.y)>14) return;
+    const el=e.target.closest&&e.target.closest(NAV); if(el!==d.el||!el.isConnected) return; skipEl=el; skipUntil=performance.now()+800; synth=true; try{ el.click(); }finally{ synth=false; } },true);
+  document.addEventListener('click',e=>{ if(synth||!skipEl) return; if(performance.now()>skipUntil){ skipEl=null; return; } if(e.target===skipEl||skipEl.contains(e.target)){ e.stopImmediatePropagation(); e.preventDefault(); skipEl=null; } },true);
+  document.head.insertAdjacentHTML('beforeend',`<style>
+/* bigger side buttons on short landscape screens, and no dead gap between them: each button's tap area reaches halfway into the gap */
+@media (orientation:landscape) and (max-height:560px){
+  body #menuov #tabs.secmode .secb,#menuov .mo-back,#menuov .mo-home{min-height:40px!important}
+  body #menuov #tabs.secmode .secb::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
+}
+</style>`); }
