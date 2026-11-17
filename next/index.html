@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0610';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0808';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2783,6 +2783,7 @@ const PATCHES = [
   'The menu opens on the Overview, a page of live cards for the everyday jobs: sell your catch, claim bounties, collect and feed your aquarium, follow live events and challenges, check your hunts, see upgrades you can afford and change bait. Tap a card’s title to fold it away. Anything else waiting for you shows as a button at the top, and the Menu button shows how many things are waiting.',
   'In the menu, switch categories straight away from the tabs at the top (or the bar at the bottom on phones), and the Overview button takes you back to the cards. Back to fishing, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
   'Your line waits while a menu is open: a cast, a bite or a fight pauses and carries on when you come back, never lost.',
+  'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
@@ -12243,7 +12244,8 @@ body.pc-wide #tabs.secmode .secdot{right:4px}
 </style>`);
 // in the wide layout the tip line sits on the water (as on phones), and the water is a little taller to fill its column
 (function(){ const hint=$('hint'), stage=$('stage'); if(!hint||!stage) return; const home=hint.parentElement; let placed=false;
-  const apply=()=>{ const wide=document.body.classList.contains('pc-wide'); if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
+  // fishing mode (0.4) keeps the tip on the water in every layout; #tabs may live inside the menu by then
+  const apply=()=>{ const bc=document.body.classList, wide=bc.contains('pc-wide')||bc.contains('dl-fish'); if(!wide&&placed&&$('tabs')&&$('tabs').parentNode!==home) return; if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
   addEventListener('resize',()=>setTimeout(apply,10)); setTimeout(apply,60); })();
 const _stageHOverride_036c=stageHOverride;
 stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*1.15),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
@@ -12272,8 +12274,9 @@ function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:
   const all=SP.filter(s=>S.journal[s.id]).length; return {t:'Every species here found', sub:all+' / '+SP.length+' in the Fish Log', p:all/SP.length, tab:'journal'}; }
 (function(){ const stage=$('stage'); if(!stage) return; const el=document.createElement('button'); el.id='goalchip'; el.type='button'; stage.appendChild(el);
   el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; setTab(gl.tab); try{ menuSync(); }catch(er){} const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
-  let last=''; const tick=()=>{ const show=['idle','waiting','result','rest'].includes(G.st)&&!S.settings.hideGoal; let html='';
-    if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.title=gl.tab?'Open the page for this goal':''; }
+  // in the top bar (fishing mode) the chip always shows, so the bar never shifts when a fight starts
+  let last=''; const tick=()=>{ const show=(el.closest('.hud')||['idle','waiting','result','rest'].includes(G.st))&&!S.settings.hideGoal; let html='';
+    if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':gl.live?'Live':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.classList.toggle('live',!!gl.live); el.title=(gl.sub?gl.sub+'. ':'')+(gl.tab?'Open the page for this goal':''); }
     if(html!==last){ last=html; el.innerHTML=html; el.hidden=!html; } };
   setInterval(tick,700); tick(); })();
 
@@ -13017,7 +13020,7 @@ drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const bi
   if(bc.contains('phone-app')){ g.font='800 11.5px system-ui'; const t1=g.measureText(nm).width; g.font='700 11px system-ui'; const t2=g.measureText(rest).width; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,Math.max(t1,t2)+18,36,11); g.fill();
     g.fillStyle='#ffffff'; g.font='800 11.5px system-ui'; g.fillText(nm,19,24); g.fillStyle=col; g.font='700 11px system-ui'; g.fillText(rest,19,39); return; }
   const txt=rest; g.font='700 '+(big?12:11)+'px system-ui'; const tw=g.measureText(txt).width, h=big?22:20; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,tw+(big?20:16),h,h/2); g.fill(); g.fillStyle=col; g.fillText(txt,big?20:18,big?25:24); };
-document.head.insertAdjacentHTML('beforeend','<style>body.phone-app #goalchip{top:54px}</style>');
+// (the goal chip now lives in the top bar)
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* ---------- fishing mode: one column, the water to the bottom edge ---------- */
 html.dl-fish{height:100%;overflow:hidden}
@@ -13076,6 +13079,93 @@ body.card-open #menubtn{opacity:0;pointer-events:none}
 /* the Overview inside the menu: cards across the full width */
 #menuov #panel .dash{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 @container (min-width:640px){#menuov #panel .dash .dw.wide{grid-column:span 2}}
+</style>`);
+
+// =====================================================================
+// The goal / Live chip moves off the water into the top bar, right after "Fishing at", and the top bar chips size to
+// what they hold: the short numbers stay compact, the water and the goal take the room that is left.
+// =====================================================================
+(function(){ const hud=document.querySelector('.hud'), gc=$('goalchip'), loc=hud&&hud.querySelector('.stat.loc'); if(!hud||!gc||!loc) return;
+  loc.after(gc); gc.classList.add('hudgoal');
+  const tag=(id,c)=>{ const e=$(id); const s=e&&e.closest('.stat'); if(s) s.classList.add(c); };
+  tag('money','st-coins'); tag('lvl','st-lvl'); tag('coolerct','st-cool'); tag('buffct','st-buff'); tag('bait','st-bait'); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > #goalchip{position:relative!important;left:auto;top:auto!important;z-index:auto;display:flex;flex-direction:column;justify-content:center;gap:0;max-width:none;min-width:0;padding:4px 11px 5px;border-radius:10px;border:1px solid var(--line);background:var(--panel);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;overflow:hidden;text-align:left}
+.hud > #goalchip .gl-k{font-size:11px;letter-spacing:.08em;white-space:nowrap;line-height:1.2}
+.hud > #goalchip .gl-t{font-family:var(--display);font-size:14px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hud > #goalchip .gl-s{display:none!important}
+.hud > #goalchip .gl-bar{position:absolute;left:0;right:0;bottom:0;height:3px;margin:0;border-radius:0;background:#ffffff12}
+.hud > #goalchip .gl-bar b{border-radius:0}
+.hud > #goalchip.live{border-color:#7fe3c466}
+.hud > #goalchip.ready{border-color:#ffd36a99;box-shadow:0 0 12px #ffd36a26}
+/* wide screens: compact number chips, the water and the goal share what is left */
+@media (min-width:701px){
+  body.dl-fish .hud{gap:6px!important}
+  body.dl-fish .hud > *{flex:0 1 auto!important}
+  body.dl-fish .hud > .st-coins{flex:.3 1 104px!important;min-width:84px}
+  body.dl-fish .hud > .st-lvl{flex:.3 1 112px!important;min-width:92px}
+  body.dl-fish .hud > .stat.loc{flex:0 0 auto!important;max-width:none;min-width:128px}
+  body.dl-fish .hud > #goalchip{flex:1.5 1 230px!important;max-width:440px;min-width:150px}
+  body.dl-fish .hud > .st-cool{flex:.3 1 84px!important;min-width:70px}
+  body.dl-fish .hud > .st-buff{flex:.3 1 96px!important;min-width:76px}
+  body.dl-fish .hud > .st-bait{flex:.4 1 150px!important;min-width:124px}
+  body.dl-fish .hud > .hudbtns,body.dl-fish .hud > .brand{flex:0 0 auto!important}
+}
+@media (min-width:701px) and (max-width:1099px){
+  body.dl-fish .hud > .st-buff{display:none!important}
+  body.dl-fish .hud > .stat.loc{min-width:112px;padding-right:10px!important}
+  body.dl-fish .hud > #goalchip{min-width:120px}
+}
+/* phones held upright: the goal is a slim full-width row under the four chips */
+body.phone-app.dl-fish .hud > #goalchip{grid-column:1 / -1;order:9;height:30px!important;flex-direction:row;align-items:center;justify-content:flex-start;gap:9px;padding:0 10px 2px}
+body.phone-app.dl-fish .hud > #goalchip .gl-k{font-size:9.5px;flex:0 0 auto}
+body.phone-app.dl-fish .hud > #goalchip .gl-t{font-size:12.5px;flex:1 1 auto;min-width:0}
+/* phones held sideways: one row of six */
+@media (orientation:landscape) and (max-height:560px){
+  body.dl-fish .hud{grid-template-columns:minmax(70px,.7fr) minmax(66px,.7fr) max-content minmax(0,1.9fr) minmax(64px,.55fr) minmax(92px,.85fr)!important}
+  body.dl-fish .hud > #goalchip{padding:2px 8px 4px}
+  body.dl-fish .hud > #goalchip .gl-k{font-size:9px}
+  body.dl-fish .hud > #goalchip .gl-t{font-size:12px}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* tablets and narrow windows (701-899 px): two rows, the numbers on top, the water and the goal side by side under them */
+@media (min-width:701px) and (max-width:899px) and (min-height:561px){
+  body.dl-fish .hud{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,1.25fr) auto!important;grid-template-areas:"coins lvl cool bait btns" "loc loc goal goal goal"!important;gap:6px!important}
+  body.dl-fish .hud > *{height:44px!important;min-width:0!important;max-width:none!important}
+  body.dl-fish .hud > .st-coins{grid-area:coins}body.dl-fish .hud > .st-lvl{grid-area:lvl}body.dl-fish .hud > .st-cool{grid-area:cool}body.dl-fish .hud > .st-bait{grid-area:bait}body.dl-fish .hud > .hudbtns{grid-area:btns}
+  body.dl-fish .hud > .stat.loc{grid-area:loc}body.dl-fish .hud > #goalchip{grid-area:goal}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* very wide screens: every chip stops growing at a sensible width; any room left sits before the buttons on the right */
+@media (min-width:900px){
+  body.dl-fish .hud > .st-coins{max-width:150px}body.dl-fish .hud > .st-lvl{max-width:170px}
+  body.dl-fish .hud > .stat.loc{flex:.6 0 auto!important;max-width:320px}body.dl-fish .hud > #goalchip{max-width:520px}
+  body.dl-fish .hud > .st-cool{max-width:120px}body.dl-fish .hud > .st-buff{max-width:140px}body.dl-fish .hud > .st-bait{max-width:220px}
+  body.dl-fish .hud > .hudbtns{margin-left:auto}
+}
+</style>`);
+// the water redraws at its new size whenever its box changes (window resize, rotation, the top bar changing height),
+// not only on the window's resize event
+if(window.ResizeObserver){ const st=$("stage"); let tmr=0, lw=0, lh=0;
+  new ResizeObserver(es=>{ const r=es[0].contentRect, w=Math.round(r.width), h=Math.round(r.height); if(Math.abs(w-lw)<2&&Math.abs(h-lh)<2) return; lw=w; lh=h; clearTimeout(tmr); tmr=setTimeout(()=>{ try{ resize(); }catch(e){} },30); }).observe(st); }
+// a goal too long for one line wraps onto two compact lines (the label runs in front of it) instead of being cut
+{ const gc=$('goalchip'); if(gc){ const fit=()=>{ const t=gc.querySelector('.gl-t'); gc.classList.remove('long'); if(t&&gc.closest('.hud')&&t.scrollWidth>t.clientWidth+1) gc.classList.add('long'); };
+  new MutationObserver(fit).observe(gc,{childList:true}); addEventListener('resize',()=>setTimeout(fit,80)); addEventListener('orientationchange',()=>setTimeout(fit,350)); setTimeout(fit,100);
+  if(/[?&]test\b/.test(location.search)) window.__fitGoal=fit; } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > #goalchip.long{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;padding:7px 10px 0!important;line-height:1.16}
+.hud > #goalchip.long .gl-k{display:inline;margin-right:6px;font-size:9.5px;line-height:1.16}
+.hud > #goalchip.long .gl-t{display:inline;white-space:normal;font-size:12.5px;line-height:1.16}
+@media (min-width:701px) and (max-width:899px) and (min-height:561px){.hud > #goalchip.long{padding-top:5px!important}}
+body.phone-app.dl-fish .hud > #goalchip.long{height:auto!important;min-height:30px;padding:5px 10px 6px!important}
+@media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long{padding:4px 8px 0!important;line-height:1.1}.hud > #goalchip.long .gl-k{font-size:8.5px}.hud > #goalchip.long .gl-t{font-size:11px;line-height:1.1}}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the level bar always stays inside its chip */
+body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:100%!important;align-self:stretch}
+@media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long .gl-t{font-size:10.5px}}
 </style>`);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
