@@ -6,6 +6,23 @@
 const GAME_VERSION = '0.3.6';
 const PATCHES = [
  {v:'0.3.6', name:'Fifty Fathoms', items:[
+  '## Fishing feel',
+  'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
+  'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',
+  'When a fish is close to your line’s limit, the game warns you as you hook it.',
+  '## Better choices',
+  'Rare odds stack properly now: every source of better odds (bait, rods, skills, hotspots, far casts) keeps counting as you add more, so upgrades you can feel.',
+  'Bait, rods and the Lucky Charm skill show your real chance of an epic or better fish at the water you are on, and how much a choice changes it.',
+  'Baits rebalanced so each has a place: every water’s own bait is now the best choice there, and no single bait wins everywhere. Lava Worms, Stardust and Golden Chum are much cheaper.',
+  '## Events',
+  'Four new challenges you can start any time from the Events page: Rare Run, Mixed Bag, Steady Hands and Trophy Weigh-in, each sized to your gear and odds, with coins, Scales and tickets to win.',
+  'A Shoal Run passes through every water for 8 minutes every 90 minutes: bites come faster and rare fish are more common. The Events page counts down to the next one.',
+  'Live events and challenges show their progress right on the water.',
+  '## Clear direction',
+  'A goal on the water always shows what to do next and how close you are, from your first catch to the next water to filling the Fish Log. Tap it to open the right page.',
+  'On PC, the page you open sits beside the water on wide screens, or below it in one screen with only the page scrolling, so you never have to scroll past the water again.',
+  'The top bar is slimmer. Time and weather moved onto the water, and the weather now says what it does.',
+  'Your game also saves when the tab is closed or put in the background, a broken streak is saved at once, and very large coin amounts read cleanly (T, Qa...).',
   '## More to catch',
   'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
   '20 joke fish have slipped in too, two in every water. You will know them when you see them.',

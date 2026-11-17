@@ -42,7 +42,7 @@ function pcFit(){ const w=document.querySelector('.wrap'); if(!w) return; if(!do
   addEventListener('resize',apply); document.addEventListener('fullscreenchange',()=>setTimeout(apply,80)); setTimeout(apply,0); })();
 const _stageHOverride_036=stageHOverride;
 stageHOverride=function(W,H){ const o=_stageHOverride_036(W,H); if(o) return o; if(!document.body.classList.contains('pc-app')) return 0;
-  return Math.max(300,Math.min(Math.round(W*.5),Math.round(innerHeight*.5))); };
+  return Math.max(260,Math.min(Math.round(W*.5),Math.round(innerHeight*.38))); };
 { let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), same=S.tab===lastTab, keep=P?P.scrollTop:0; const r=_rp.apply(this,arguments); try{ if(document.body.classList.contains('pc-app')&&P) P.scrollTop=same?keep:0; }catch(e){} lastTab=S.tab; return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html.pc-app{overflow:hidden;height:100%}
@@ -54,7 +54,7 @@ body.pc-app #panel::-webkit-scrollbar{width:8px} body.pc-app #panel::-webkit-scr
 </style>`);
 // Wide PC screens: the page sits in its own full-height column beside the water instead of under it, so it always has
 // room (at 1280x800 the stacked layout left it about 125 px). The section bar sits at the top of that column.
-const PC_WIDE=()=>document.body.classList.contains('pc-app')&&innerWidth>=1100&&innerWidth/innerHeight>=1.35;
+const PC_WIDE=()=>document.body.classList.contains('pc-app')&&innerWidth>=980&&innerWidth/innerHeight>=1.2;
 (function(){ const apply=()=>{ const v=PC_WIDE(); if(document.body.classList.contains('pc-wide')!==v){ document.body.classList.toggle('pc-wide',v); try{ resize(); }catch(e){} } };
   addEventListener('resize',()=>setTimeout(apply,0)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,120)); setTimeout(apply,30); })();
 const _stageHOverride_036b=stageHOverride;
@@ -75,7 +75,7 @@ body.pc-wide #tabs.secmode .secdot{right:4px}
   const apply=()=>{ const wide=document.body.classList.contains('pc-wide'); if(wide&&!placed){ stage.appendChild(hint); placed=true; } else if(!wide&&placed&&!document.body.classList.contains('phone-app')){ const tabs=$('tabs'); home.insertBefore(hint,tabs); placed=false; } };
   addEventListener('resize',()=>setTimeout(apply,10)); setTimeout(apply,60); })();
 const _stageHOverride_036c=stageHOverride;
-stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W/1.24),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
+stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*1.15),Math.round(innerHeight-top-22))); } return _stageHOverride_036c(W,H); };
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-wide #stage{position:relative}
 body.pc-wide #stage > #hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:3;margin:0;max-width:calc(100% - 200px);width:max-content;padding:5px 12px;border-radius:12px;background:#0a1220b8;border:1px solid #ffffff1a;color:#dbe7f3;font-size:12.5px;line-height:1.35;text-align:center;pointer-events:none}
@@ -125,7 +125,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #goalchip .gl-bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
 #goalchip.ready{border-color:#ffd36aaa;box-shadow:0 0 0 1px #ffd36a55,0 0 18px #ffd36a33}
 #goalchip.ready .gl-k{color:#ffd36a}
-@media (max-width:520px){ #goalchip{top:34px;padding:4px 9px 5px;max-width:calc(100% - 120px)} #goalchip .gl-t{font-size:12px} #goalchip .gl-s{font-size:10.5px} }
+@media (max-width:520px),(max-height:520px){ #goalchip{top:34px;padding:4px 9px 5px;max-width:calc(100% - 130px)} #goalchip .gl-k{font-size:8.5px} #goalchip .gl-t{font-size:11.5px} #goalchip .gl-s{display:none} #goalchip .gl-bar{margin-top:3px;height:3px} }
 </style>`);
 
 // ---------------------------------------------------------------------
@@ -134,3 +134,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // ---------------------------------------------------------------------
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ try{ save(); }catch(e){} } });
 addEventListener('pagehide',()=>{ try{ save(); }catch(e){} });
+// narrower PC windows stack the water over the page: a compact section bar leaves the page more room
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-app:not(.pc-wide) #tabs.secmode .secb{min-height:42px;padding:4px 8px;font-size:13px}
+body.pc-app:not(.pc-wide) #tabs.secmode .subp{min-height:34px}
+body.pc-app:not(.pc-wide) #hint{margin:2px 0}
+</style>`);
