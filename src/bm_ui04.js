@@ -1189,8 +1189,10 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
   body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}
 }
 /* page tabs stay pinned at the top of the page while it scrolls */
-#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc} /* the solid band fills the gap above and beside the tabs so nothing scrolls into view around them */
-#menuov #panel .bwx-nav:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
+#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 6px 12px -6px #02060fcc}
+/* once the tabs are pinned (the page has scrolled under them), a solid band fills the gap above and beside them so nothing shows around them */
+#menuov #panel .bwx-nav.stuck{box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc!important}
+#menuov #panel .bwx-nav.stuck:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
 @media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
 @media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
 </style>`);
@@ -1296,7 +1298,7 @@ document.addEventListener('dblclick',e=>{ if(!e.target.closest('input,textarea')
 // pinned page tabs: a tap on the band that covers the gap around them never reaches a card hidden underneath
 document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #panel'); if(!P||!e.target.closest||!P.contains(e.target)) return;
   for(const v of P.querySelectorAll(':scope > .bwx-nav')){ if(v.contains(e.target)) return; const r=v.getBoundingClientRect(), pr=P.getBoundingClientRect();
-    if(r.top-pr.top>12||r.height<8) continue; // only while the tabs sit at the top of the page
+    if(!v.classList.contains('stuck')||r.height<8) continue; // only while the tabs are pinned
     if(e.clientY>=pr.top&&e.clientY<=r.bottom+10){ e.preventDefault(); e.stopPropagation(); return; } } },true);
 // Menu pictures that never change (fish in the Fish Log and aquarium lists, dock decorations) are drawn once and reused.
 // Redrawing dozens of them on every page switch made tapping between pages slow on phones.
@@ -1323,3 +1325,18 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     if(e.timeStamp>=busyUntil&&!raf){ go(t,!!sb); busyUntil=performance.now(); return; } // the tap came while nothing was being built: switch right now
     want=t; reveal=reveal||!!sb; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const w=want, rv=reveal; want=null; reveal=false; go(w,rv); busyUntil=performance.now(); }); },true);
   addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){} } }); }
+// the page tabs count as pinned only once the page has scrolled under them (that's when the cover band shows)
+{ const P=$('panel'); let q=0;
+  const sync=()=>{ q=0; if(!P) return; const pr=P.getBoundingClientRect(), pad=parseFloat(getComputedStyle(P).paddingTop)||0;
+    for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
+  const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
+  if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); sync(); return r; }; }
+// Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
+// before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
+if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
+      if(r.selectorText!==undefined){ if(!r.selectorText.includes(':hover')) continue; const keep=r.selectorText.split(',').filter(s=>!s.includes(':hover')); if(keep.length) r.selectorText=keep.join(','); else list.deleteRule(i); }
+      else if(r.cssRules) strip(r); } };
+  const all=()=>{ for(const s of document.styleSheets){ if(s._noHover) continue; try{ strip(s); s._noHover=true; }catch(e){} } };
+  all(); setTimeout(all,0); addEventListener('load',all);
+  new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }

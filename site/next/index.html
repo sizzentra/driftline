@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1433';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1449';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2843,6 +2843,7 @@ const PATCHES = [
   'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
   'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
   'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
+'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -13947,8 +13948,10 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
   body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}
 }
 /* page tabs stay pinned at the top of the page while it scrolls */
-#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc} /* the solid band fills the gap above and beside the tabs so nothing scrolls into view around them */
-#menuov #panel .bwx-nav:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
+#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 6px 12px -6px #02060fcc}
+/* once the tabs are pinned (the page has scrolled under them), a solid band fills the gap above and beside them so nothing shows around them */
+#menuov #panel .bwx-nav.stuck{box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc!important}
+#menuov #panel .bwx-nav.stuck:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
 @media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
 @media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
 </style>`);
@@ -14054,7 +14057,7 @@ document.addEventListener('dblclick',e=>{ if(!e.target.closest('input,textarea')
 // pinned page tabs: a tap on the band that covers the gap around them never reaches a card hidden underneath
 document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #panel'); if(!P||!e.target.closest||!P.contains(e.target)) return;
   for(const v of P.querySelectorAll(':scope > .bwx-nav')){ if(v.contains(e.target)) return; const r=v.getBoundingClientRect(), pr=P.getBoundingClientRect();
-    if(r.top-pr.top>12||r.height<8) continue; // only while the tabs sit at the top of the page
+    if(!v.classList.contains('stuck')||r.height<8) continue; // only while the tabs are pinned
     if(e.clientY>=pr.top&&e.clientY<=r.bottom+10){ e.preventDefault(); e.stopPropagation(); return; } } },true);
 // Menu pictures that never change (fish in the Fish Log and aquarium lists, dock decorations) are drawn once and reused.
 // Redrawing dozens of them on every page switch made tapping between pages slow on phones.
@@ -14081,6 +14084,21 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     if(e.timeStamp>=busyUntil&&!raf){ go(t,!!sb); busyUntil=performance.now(); return; } // the tap came while nothing was being built: switch right now
     want=t; reveal=reveal||!!sb; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const w=want, rv=reveal; want=null; reveal=false; go(w,rv); busyUntil=performance.now(); }); },true);
   addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){} } }); }
+// the page tabs count as pinned only once the page has scrolled under them (that's when the cover band shows)
+{ const P=$('panel'); let q=0;
+  const sync=()=>{ q=0; if(!P) return; const pr=P.getBoundingClientRect(), pad=parseFloat(getComputedStyle(P).paddingTop)||0;
+    for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
+  const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
+  if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); sync(); return r; }; }
+// Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
+// before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
+if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
+      if(r.selectorText!==undefined){ if(!r.selectorText.includes(':hover')) continue; const keep=r.selectorText.split(',').filter(s=>!s.includes(':hover')); if(keep.length) r.selectorText=keep.join(','); else list.deleteRule(i); }
+      else if(r.cssRules) strip(r); } };
+  const all=()=>{ for(const s of document.styleSheets){ if(s._noHover) continue; try{ strip(s); s._noHover=true; }catch(e){} } };
+  all(); setTimeout(all,0); addEventListener('load',all);
+  new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -14414,21 +14432,23 @@ fuzz(){ QA.sys='Adversarial';
 }};
 // fixed-phase helper for synchronous tests (the async __setPhase also hunts for clear weather)
 function __setPhaseSync(ph){ for(let k=0;k<80;k++){ const cur=(window.__realNow()/1000%CYCLE)/CYCLE; window.__off=((ph-cur+1)%1)*CYCLE*1000+k*CYCLE*1000; if(weather().k==='Clear') return true; } return false; }
-window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window.__off; const os=save; save=function(){}; const ot=toast; toast=function(){};
+window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window.__off; QA.realSave=QA.realSave||save; QA.realToast=QA.realToast||toast; clearTimeout(QA.settleT); const os=QA.realSave, ot=QA.realToast; save=function(){}; toast=function(){};
   try{ for(const g of (groups||Object.keys(GROUPS))) GROUPS[g]();
     // async: save codes
     QA.sys='Saves'; const i=QA.R.findIndex(r=>r.name.startsWith('save code')); try{ dockStore(); const ref=JSON.parse(snap()); const c=await makeCode(); const o=await readCode(c); const diff=['money','lvl','journal','unlocked','hunts','docks','dock','gear','cooler','tank'].filter(k=>JSON.stringify(o[k])!==JSON.stringify(ref[k])); if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:!diff.length&&c.startsWith('DL'),detail:!diff.length?'code '+c.length+' chars':'differs: '+diff.join(',')}; }catch(e){ if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:false,detail:'THREW '+e.message}; }
-  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+  } finally{ window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+    // a test can start something that pays out later (a prize-wheel spin lands after 3.8 s): saving stays off and the state is put back again once it has finished
+    const settle=()=>{ if(WH.spinning){ QA.settleT=setTimeout(settle,400); return; } restore(keep); G.st='idle'; S.tab=DASH; save=os; toast=ot; }; QA.settleT=setTimeout(settle,1800);
     // close any event card a test left open (a challenge finished by a test shows its result card a moment later)
     const shut=()=>{ const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; if(G.st==='event') G.st='idle'; } }; shut(); setTimeout(shut,1600); }
   const fails=QA.R.filter(r=>!r.ok); return {pass:QA.R.length-fails.length, fail:fails.length, fails, all:QA.R}; };
 window.__inv=inv;
 // __sweep(acts, ks, is): every action with every bad id and index, saving switched off and the save restored afterwards;
 // returns the errors with where they came from (the random fuzz only shows the message)
-window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), os=save, ot=toast, errs=[]; save=function(){}; toast=function(){};
+window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), errs=[]; QA.realSave=QA.realSave||save; QA.realToast=QA.realToast||toast; clearTimeout(QA.settleT); const os=QA.realSave, ot=QA.realToast; save=function(){}; toast=function(){};
   const h=e=>errs.push((e.error&&e.error.stack?e.error.stack.split('\n').slice(0,5).join(' <- '):String(e.message))); addEventListener('error',h); let n=0;
   try{ S.money=Math.max(S.money,5e6); for(const a of acts) for(const k of ks) for(const i of is){ G.st=n%3?'idle':'waiting'; const b0=errs.length; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } n++; if(errs.length>b0) errs[errs.length-1]=a+' k='+k+' i='+i+' :: '+errs[errs.length-1]; if(S.tab!==DASH) setTab(DASH); } }
-  finally{ removeEventListener('error',h); save=os; toast=ot; restore(keep); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
+  finally{ removeEventListener('error',h); restore(keep); const settle=()=>{ if(WH.spinning){ QA.settleT=setTimeout(settle,400); return; } restore(keep); G.st='idle'; save=os; toast=ot; }; QA.settleT=setTimeout(settle,1800); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
   return {n, errs:[...new Set(errs)].slice(0,10)}; };
 })();
 // test-mode profiler: where a page's render time goes (wraps the heavy drawing helpers while it runs)

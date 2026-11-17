@@ -171,21 +171,23 @@ fuzz(){ QA.sys='Adversarial';
 }};
 // fixed-phase helper for synchronous tests (the async __setPhase also hunts for clear weather)
 function __setPhaseSync(ph){ for(let k=0;k<80;k++){ const cur=(window.__realNow()/1000%CYCLE)/CYCLE; window.__off=((ph-cur+1)%1)*CYCLE*1000+k*CYCLE*1000; if(weather().k==='Clear') return true; } return false; }
-window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window.__off; const os=save; save=function(){}; const ot=toast; toast=function(){};
+window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window.__off; QA.realSave=QA.realSave||save; QA.realToast=QA.realToast||toast; clearTimeout(QA.settleT); const os=QA.realSave, ot=QA.realToast; save=function(){}; toast=function(){};
   try{ for(const g of (groups||Object.keys(GROUPS))) GROUPS[g]();
     // async: save codes
     QA.sys='Saves'; const i=QA.R.findIndex(r=>r.name.startsWith('save code')); try{ dockStore(); const ref=JSON.parse(snap()); const c=await makeCode(); const o=await readCode(c); const diff=['money','lvl','journal','unlocked','hunts','docks','dock','gear','cooler','tank'].filter(k=>JSON.stringify(o[k])!==JSON.stringify(ref[k])); if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:!diff.length&&c.startsWith('DL'),detail:!diff.length?'code '+c.length+' chars':'differs: '+diff.join(',')}; }catch(e){ if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:false,detail:'THREW '+e.message}; }
-  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+  } finally{ window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+    // a test can start something that pays out later (a prize-wheel spin lands after 3.8 s): saving stays off and the state is put back again once it has finished
+    const settle=()=>{ if(WH.spinning){ QA.settleT=setTimeout(settle,400); return; } restore(keep); G.st='idle'; S.tab=DASH; save=os; toast=ot; }; QA.settleT=setTimeout(settle,1800);
     // close any event card a test left open (a challenge finished by a test shows its result card a moment later)
     const shut=()=>{ const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; if(G.st==='event') G.st='idle'; } }; shut(); setTimeout(shut,1600); }
   const fails=QA.R.filter(r=>!r.ok); return {pass:QA.R.length-fails.length, fail:fails.length, fails, all:QA.R}; };
 window.__inv=inv;
 // __sweep(acts, ks, is): every action with every bad id and index, saving switched off and the save restored afterwards;
 // returns the errors with where they came from (the random fuzz only shows the message)
-window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), os=save, ot=toast, errs=[]; save=function(){}; toast=function(){};
+window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), errs=[]; QA.realSave=QA.realSave||save; QA.realToast=QA.realToast||toast; clearTimeout(QA.settleT); const os=QA.realSave, ot=QA.realToast; save=function(){}; toast=function(){};
   const h=e=>errs.push((e.error&&e.error.stack?e.error.stack.split('\n').slice(0,5).join(' <- '):String(e.message))); addEventListener('error',h); let n=0;
   try{ S.money=Math.max(S.money,5e6); for(const a of acts) for(const k of ks) for(const i of is){ G.st=n%3?'idle':'waiting'; const b0=errs.length; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } n++; if(errs.length>b0) errs[errs.length-1]=a+' k='+k+' i='+i+' :: '+errs[errs.length-1]; if(S.tab!==DASH) setTab(DASH); } }
-  finally{ removeEventListener('error',h); save=os; toast=ot; restore(keep); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
+  finally{ removeEventListener('error',h); restore(keep); const settle=()=>{ if(WH.spinning){ QA.settleT=setTimeout(settle,400); return; } restore(keep); G.st='idle'; save=os; toast=ot; }; QA.settleT=setTimeout(settle,1800); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
   return {n, errs:[...new Set(errs)].slice(0,10)}; };
 })();
 // test-mode profiler: where a page's render time goes (wraps the heavy drawing helpers while it runs)
