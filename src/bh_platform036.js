@@ -49,7 +49,7 @@ body.phone-land .hudbtns #settingsbtn::before{content:"⚙";font-size:18px;line-
 // QC (test mode only): open every menu page and report sideways overflow, things off the screen and clipped button text
 if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=[]; const vw=document.documentElement.clientWidth, vh=innerHeight;
   const check=where=>{ const sw=document.documentElement.scrollWidth; if(sw>vw+1) out.push(where+': page '+sw+'>'+vw);
-    document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height) return; const cs=getComputedStyle(e); if(cs.position==='fixed'||cs.visibility==='hidden') return;
+    document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height) return; const cs=getComputedStyle(e); if(cs.position==='fixed'||cs.visibility==='hidden') return; if(window.__inHScroll&&__inHScroll(e)) return;
       if(r.right>vw+2&&!e.closest('.subbar')&&!e.closest('[data-hscroll]')) out.push(where+': off-screen '+(e.id||e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'" r='+Math.round(r.right));
       if((e.tagName==='BUTTON'||e.classList.contains('chip'))&&e.scrollWidth>e.clientWidth+2&&cs.overflow!=='visible'&&cs.textOverflow!=='ellipsis') out.push(where+': clipped "'+e.textContent.trim().slice(0,30)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }

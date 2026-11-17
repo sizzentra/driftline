@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0911';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0928';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2786,7 +2786,7 @@ const PATCHES = [
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   'On a phone held sideways, the menu’s categories run down the left side, so every page gets the whole height of the screen. Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
   'Every menu page is more compact: tighter cards and more of them per row on every screen, two cards per row on phones held upright, five fish per row in the Fish Log on small phones, and the Hunt button is a small target on each fish card.',
-  'The water now has a category bar along the bottom: Menu plus Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. On a phone held sideways the menu keeps a slim icon rail so pages get almost the whole screen.',
+  'The water now has a category bar: Menu plus Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. It runs along the bottom when your phone is upright and down the right side when it is sideways, where the menu keeps its slim rail too, so pages get almost the whole screen. Bait in use now sits under the Bait tab.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
@@ -11678,7 +11678,7 @@ body.phone-land .hudbtns #settingsbtn::before{content:"⚙";font-size:18px;line-
 // QC (test mode only): open every menu page and report sideways overflow, things off the screen and clipped button text
 if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=[]; const vw=document.documentElement.clientWidth, vh=innerHeight;
   const check=where=>{ const sw=document.documentElement.scrollWidth; if(sw>vw+1) out.push(where+': page '+sw+'>'+vw);
-    document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height) return; const cs=getComputedStyle(e); if(cs.position==='fixed'||cs.visibility==='hidden') return;
+    document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height) return; const cs=getComputedStyle(e); if(cs.position==='fixed'||cs.visibility==='hidden') return; if(window.__inHScroll&&__inHScroll(e)) return;
       if(r.right>vw+2&&!e.closest('.subbar')&&!e.closest('[data-hscroll]')) out.push(where+': off-screen '+(e.id||e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'" r='+Math.round(r.right));
       if((e.tagName==='BUTTON'||e.classList.contains('chip'))&&e.scrollWidth>e.clientWidth+2&&cs.overflow!=='visible'&&cs.textOverflow!=='ellipsis') out.push(where+': clipped "'+e.textContent.trim().slice(0,30)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
@@ -13218,7 +13218,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // pages that redraw themselves (not through renderPanel) get the same tidy-up: watch the page for new content
 function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
-  const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")) hr.classList.add("dl-head");
+  const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")){ const wide=[...hr.children].slice(1).some(c=>c.matches("select,input,.fld")||c.querySelector("select,input,.fld")); hr.classList.toggle("dl-head",!wide); hr.classList.toggle("dl-headw",wide); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
 menuTidy=menuTidy2;
 { const P=$('panel'); if(P&&window.MutationObserver){ let q=false; new MutationObserver(()=>{ if(q) return; q=true; queueMicrotask(()=>{ q=false; try{ menuTidy2(); }catch(e){} }); }).observe(P,{childList:true}); } }
@@ -13470,6 +13470,94 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #catdock .cdb.live::before{top:5px;left:calc(50% - 21px)}
 }
 </style>`);
+// a page header with controls (the Cooler's sell filters) uses the whole width: the text, then the controls and the button side by side
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel > .row.dl-headw{flex-wrap:wrap!important;align-items:flex-end;gap:8px}
+#menuov #panel > .row.dl-headw > :first-child{flex:1 1 100%;min-width:0}
+#menuov #panel > .row.dl-headw > :not(:first-child){flex:1 1 auto;min-width:0;margin:0!important}
+#menuov #panel > .row.dl-headw > .btn{flex:0 0 auto}
+#menuov #panel .sellf{padding:8px 10px!important;gap:6px 10px!important}
+#menuov #panel .sellf .fld-title{width:100%;margin:0!important}
+</style>`);
+// "Bait in use" belongs to the bait: it shows only under Bait and Special lures, as one slim line under those tabs
+{ const _rs04=renderShop; renderShop=function(P){ _rs04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; if(tackleView!=='bait'&&tackleView!=='lures'){ cur.remove(); return; } const nav=[...P.children].find(c=>c.classList.contains('bwx-nav')); if(nav) nav.after(cur); cur.classList.add('tk-slim'); }catch(e){} }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .tk-cur.tk-slim{margin:0 0 8px!important;padding:6px 10px!important;gap:4px 8px!important;min-height:0;font-size:13px}
+#panel .tk-cur.tk-slim .meta{font-size:12px}
+#panel .tk-cur.tk-slim .btn{margin-left:auto}
+body.v3 #menuov #panel .tk-cur.tk-slim .btn{min-height:32px!important;padding:4px 10px}
+</style>`);
+
+// =====================================================================
+// Phones held sideways: the categories live in a rail on the RIGHT, both on the water and in the menu, so the thumb
+// finds them in the same place; the page scroll never rubber-bands past its top.
+// =====================================================================
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel{overscroll-behavior:contain;overscroll-behavior-y:none}
+@media (orientation:landscape) and (max-height:560px){
+  /* on the water: a slim rail down the right edge, growing up from the bottom corner */
+  #catdock{left:auto!important;right:6px!important;top:auto!important;bottom:6px!important;transform:none!important;flex-direction:column;gap:2px;padding:3px;border-radius:14px}
+  #catdock .cdb,#catdock #menubtn{flex-direction:row!important;justify-content:flex-start;gap:7px!important;width:112px;min-width:0!important;height:31px!important;padding:0 9px!important;font-size:11px!important;border-radius:10px}
+  #catdock svg{width:17px!important;height:17px!important;flex:0 0 auto}
+  #catdock .cddot,#catdock .mbdot{top:50%!important;right:6px!important;transform:translateY(-50%);min-width:17px!important;height:17px!important;line-height:17px!important;font-size:10px!important}
+  #catdock .cdb.live::before{top:4px!important;left:4px!important;width:7px;height:7px}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:10px!important;left:calc(50% - 62px)!important;max-width:calc(100% - 330px)!important}
+  body.dl-fish .resttog{bottom:8px!important}
+  .dlprev{bottom:calc(10px + env(safe-area-inset-bottom))!important;right:calc(140px + env(safe-area-inset-right))!important}
+  /* in the menu: the icon rail on the right, the page tabs and coin / search / settings above the page */
+  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 52px!important;grid-template-areas:"tools sub back" "body body home" "body body secs"!important}
+  #menuov .mo-tools{justify-self:start}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #catdock .cdb,#catdock #menubtn{width:134px;padding:0 28px 0 9px!important}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{left:calc(50% - 72px)!important;max-width:calc(100% - 350px)!important}
+  .dlprev{right:calc(160px + env(safe-area-inset-right))!important}
+}
+</style>`);
+// Fish Log on phones: the water list is one sideways-scrolling row (the chosen water scrolled into view), not five rows
+{ const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:760px){
+  #menuov #panel .chips:has(> [data-act="encloc"]){flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .chips:has(> [data-act="encloc"])::-webkit-scrollbar{display:none}
+  #menuov #panel .chips:has(> [data-act="encloc"]) > *{flex:0 0 auto}
+  #menuov #panel .tile.hunt-bar p,#menuov #panel .tile.hunt-bar .meta{font-size:12px;line-height:1.35}
+}
+</style>`);
+{ const _t3=menuTidy2; menuTidy2=function(){ _t3(); try{ if(S.tab!=='journal') return; const t=[...$('panel').querySelectorAll(':scope > .tile')].find(x=>/Angler rank/i.test(x.textContent)); if(t) t.classList.add('jrank'); }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* Bait in use: always one line */
+#panel .tk-cur.tk-slim{flex-wrap:nowrap!important;white-space:nowrap}
+#panel .tk-cur.tk-slim > *{min-width:0;overflow:hidden;text-overflow:ellipsis}
+#panel .tk-cur.tk-slim > .btn{flex:0 0 auto;overflow:visible}
+/* Fish Log rank card on narrow pages: the progress sits under the text instead of squeezing it */
+@container (max-width:560px){
+  #menuov #panel .tile.jrank{flex-wrap:wrap!important;gap:6px!important;margin-bottom:8px!important}
+  #menuov #panel .tile.jrank > :first-child{flex:1 1 100%}
+  #menuov #panel .tile.jrank > :last-child{flex:1 1 100%;min-width:0!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* sideways phones: the one row above the page is as slim as a tap allows */
+@media (orientation:landscape) and (max-height:560px){
+  body #menuov #tabs.secmode .subp{min-height:32px!important;padding:0 11px!important;font-size:12.5px!important}
+  #menuov .mo-tb{width:34px!important;height:34px!important}
+  #menuov .mo-coin{min-height:32px!important;padding:0 9px!important}
+  #menuov .mo-back,#menuov .mo-home,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
+  #menuov .mo-in{row-gap:4px!important;padding-top:max(5px,env(safe-area-inset-top))!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav){padding:3px!important;margin:6px 0!important;gap:4px}
+  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav) > button{min-height:30px!important;height:30px;font-size:12.5px}
+}
+@media (max-width:700px) and (orientation:portrait){
+  #menuov #panel .bwx-nav:not(.wd-nav) > button{min-height:34px!important}
+}
+</style>`);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
 // window.__qa(groups?) runs real game code in the real page and returns [{sys, name, ok, detail}].
@@ -13610,7 +13698,7 @@ if(/[?&]test\b/.test(location.search)) window.__profUI=(page,n=3)=>{ const acc={
   try{ for(let i=0;i<n;i++){ setTab(DASH); setTab(page); } } finally{ un.forEach(u=>u()); setTab(DASH); }
   return Object.fromEntries(Object.entries(acc).map(([k,v])=>[k,+(v/n).toFixed(1)])); };
 // test-mode layout check: the dashboard, every page (via __audit / __trunc) and the menu header in each category
-if(/[?&]test\b/.test(location.search)) window.__layoutQC=async()=>{ const chk=()=>{ const out=[]; const vw=document.documentElement.clientWidth; document.querySelectorAll('#panel *, .hud *, #tabs *, #menuov .mo-top *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height||!e.offsetParent) return; const cs=getComputedStyle(e); if(cs.position==='fixed') return; if(r.right>vw+2&&!e.closest('.subbar')) out.push('off '+(e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'"'); const t=(e.textContent||'').trim(); if(t&&e.children.length<=2&&e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.push('cut "'+t.slice(0,30)+'"'); }); if(document.documentElement.scrollWidth>vw+1) out.push('page scrolls sideways'); return out; };
+if(/[?&]test\b/.test(location.search)) window.__layoutQC=async()=>{ const chk=()=>{ const out=[]; const vw=document.documentElement.clientWidth; document.querySelectorAll('#panel *, .hud *, #tabs *, #menuov .mo-top *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height||!e.offsetParent) return; if(window.__inHScroll&&__inHScroll(e)) return; const cs=getComputedStyle(e); if(cs.position==='fixed') return; if(r.right>vw+2&&!e.closest('.subbar')) out.push('off '+(e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'"'); const t=(e.textContent||'').trim(); if(t&&e.children.length<=2&&e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.push('cut "'+t.slice(0,30)+'"'); }); if(document.documentElement.scrollWidth>vw+1) out.push('page scrolls sideways'); return out; };
   const r={size:innerWidth+'x'+innerHeight, layout:document.body.className.replace(/\bv3\b|plat-\w+/g,'').trim()}; closeMenu(); await new Promise(x=>setTimeout(x,500)); { const w=document.querySelector('.wrap').getBoundingClientRect(), s=$('stage').getBoundingClientRect(), c=$('cv').getBoundingClientRect(); r.fishing={stageFillsToBottom:Math.abs(w.bottom-s.bottom)<=2, canvasFillsStage:Math.abs(c.height-s.height)<=2&&Math.abs(c.width-s.width)<=2, menuButton:!!$('menubtn')&&$('menubtn').getBoundingClientRect().bottom<=s.bottom+1, pageScrolls:document.documentElement.scrollHeight>innerHeight+1, hudCut:chk().filter(x=>!/#panel/.test(x))}; } openMenu(DASH); await new Promise(x=>setTimeout(x,500)); r.dash=chk(); r.audit=(await __audit()).out; r.trunc=await __trunc(); const heads=[]; for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(x=>setTimeout(x,150)); heads.push(...chk().filter(x=>!/#panel/.test(x))); } r.head=[...new Set(heads)]; closeMenu(); const f=r.fishing; r.clean=!r.dash.length&&!r.audit.length&&!r.trunc.length&&!r.head.length&&f.stageFillsToBottom&&f.canvasFillsStage&&f.menuButton&&!f.pageScrolls&&!f.hudCut.length; return r; };
 // test builds: ?test&open=<page> opens that menu page right after load (for screenshots of a menu page)
 if(/[?&]test\b/.test(location.search)){ const m=location.search.match(/[?&]open=([\w-]+)/); if(m) setTimeout(()=>{ try{ openMenu(m[1]==='dash'?undefined:m[1]); }catch(e){} },700); }
@@ -13619,6 +13707,8 @@ if(/[?&]test\b/.test(location.search)&&/[?&]noanim\b/.test(location.search)) doc
 if(/[?&]test\b/.test(location.search)) window.__density=async()=>{ const tabs=['dash',...[...document.querySelectorAll('#tabs > [data-tab]')].map(b=>b.dataset.tab).filter(t=>t!=='settings'),'settings','stats','save']; const seen=new Set(), out={}; let total=0;
   for(const t of tabs){ if(seen.has(t)) continue; seen.add(t); try{ if(t==='dash') openMenu(); else openMenu(t); }catch(e){} await new Promise(r=>setTimeout(r,180)); const P=$('panel'); const h=P.scrollHeight, v=P.clientHeight; out[t]=+(h/v).toFixed(2); total+=h/v; }
   closeMenu(); return {size:innerWidth+'x'+innerHeight, screens:+total.toFixed(1), pages:out}; };
+// test builds: an element inside a row that scrolls sideways on purpose (page tabs, the Fish Log water row) is not "off-screen"
+if(/[?&]test\b/.test(location.search)) window.__inHScroll=e=>{ for(let p=e.parentElement;p&&p.id!=='panel';p=p.parentElement){ const o=getComputedStyle(p).overflowX; if((o==='auto'||o==='scroll')&&p.scrollWidth>p.clientWidth+1) return true; } return false; };
 
 // ---------- loop ----------
 let last=performance.now();

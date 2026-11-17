@@ -556,7 +556,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // pages that redraw themselves (not through renderPanel) get the same tidy-up: watch the page for new content
 function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
-  const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")) hr.classList.add("dl-head");
+  const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")){ const wide=[...hr.children].slice(1).some(c=>c.matches("select,input,.fld")||c.querySelector("select,input,.fld")); hr.classList.toggle("dl-head",!wide); hr.classList.toggle("dl-headw",wide); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
 menuTidy=menuTidy2;
 { const P=$('panel'); if(P&&window.MutationObserver){ let q=false; new MutationObserver(()=>{ if(q) return; q=true; queueMicrotask(()=>{ q=false; try{ menuTidy2(); }catch(e){} }); }).observe(P,{childList:true}); } }
@@ -806,5 +806,93 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #catdock .cdb,#catdock #menubtn{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
   #catdock .cddot,#catdock .mbdot{top:-6px!important;right:calc(50% - 25px)!important}
   #catdock .cdb.live::before{top:5px;left:calc(50% - 21px)}
+}
+</style>`);
+// a page header with controls (the Cooler's sell filters) uses the whole width: the text, then the controls and the button side by side
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel > .row.dl-headw{flex-wrap:wrap!important;align-items:flex-end;gap:8px}
+#menuov #panel > .row.dl-headw > :first-child{flex:1 1 100%;min-width:0}
+#menuov #panel > .row.dl-headw > :not(:first-child){flex:1 1 auto;min-width:0;margin:0!important}
+#menuov #panel > .row.dl-headw > .btn{flex:0 0 auto}
+#menuov #panel .sellf{padding:8px 10px!important;gap:6px 10px!important}
+#menuov #panel .sellf .fld-title{width:100%;margin:0!important}
+</style>`);
+// "Bait in use" belongs to the bait: it shows only under Bait and Special lures, as one slim line under those tabs
+{ const _rs04=renderShop; renderShop=function(P){ _rs04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; if(tackleView!=='bait'&&tackleView!=='lures'){ cur.remove(); return; } const nav=[...P.children].find(c=>c.classList.contains('bwx-nav')); if(nav) nav.after(cur); cur.classList.add('tk-slim'); }catch(e){} }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .tk-cur.tk-slim{margin:0 0 8px!important;padding:6px 10px!important;gap:4px 8px!important;min-height:0;font-size:13px}
+#panel .tk-cur.tk-slim .meta{font-size:12px}
+#panel .tk-cur.tk-slim .btn{margin-left:auto}
+body.v3 #menuov #panel .tk-cur.tk-slim .btn{min-height:32px!important;padding:4px 10px}
+</style>`);
+
+// =====================================================================
+// Phones held sideways: the categories live in a rail on the RIGHT, both on the water and in the menu, so the thumb
+// finds them in the same place; the page scroll never rubber-bands past its top.
+// =====================================================================
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel{overscroll-behavior:contain;overscroll-behavior-y:none}
+@media (orientation:landscape) and (max-height:560px){
+  /* on the water: a slim rail down the right edge, growing up from the bottom corner */
+  #catdock{left:auto!important;right:6px!important;top:auto!important;bottom:6px!important;transform:none!important;flex-direction:column;gap:2px;padding:3px;border-radius:14px}
+  #catdock .cdb,#catdock #menubtn{flex-direction:row!important;justify-content:flex-start;gap:7px!important;width:112px;min-width:0!important;height:31px!important;padding:0 9px!important;font-size:11px!important;border-radius:10px}
+  #catdock svg{width:17px!important;height:17px!important;flex:0 0 auto}
+  #catdock .cddot,#catdock .mbdot{top:50%!important;right:6px!important;transform:translateY(-50%);min-width:17px!important;height:17px!important;line-height:17px!important;font-size:10px!important}
+  #catdock .cdb.live::before{top:4px!important;left:4px!important;width:7px;height:7px}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:10px!important;left:calc(50% - 62px)!important;max-width:calc(100% - 330px)!important}
+  body.dl-fish .resttog{bottom:8px!important}
+  .dlprev{bottom:calc(10px + env(safe-area-inset-bottom))!important;right:calc(140px + env(safe-area-inset-right))!important}
+  /* in the menu: the icon rail on the right, the page tabs and coin / search / settings above the page */
+  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 52px!important;grid-template-areas:"tools sub back" "body body home" "body body secs"!important}
+  #menuov .mo-tools{justify-self:start}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #catdock .cdb,#catdock #menubtn{width:134px;padding:0 28px 0 9px!important}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{left:calc(50% - 72px)!important;max-width:calc(100% - 350px)!important}
+  .dlprev{right:calc(160px + env(safe-area-inset-right))!important}
+}
+</style>`);
+// Fish Log on phones: the water list is one sideways-scrolling row (the chosen water scrolled into view), not five rows
+{ const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:760px){
+  #menuov #panel .chips:has(> [data-act="encloc"]){flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .chips:has(> [data-act="encloc"])::-webkit-scrollbar{display:none}
+  #menuov #panel .chips:has(> [data-act="encloc"]) > *{flex:0 0 auto}
+  #menuov #panel .tile.hunt-bar p,#menuov #panel .tile.hunt-bar .meta{font-size:12px;line-height:1.35}
+}
+</style>`);
+{ const _t3=menuTidy2; menuTidy2=function(){ _t3(); try{ if(S.tab!=='journal') return; const t=[...$('panel').querySelectorAll(':scope > .tile')].find(x=>/Angler rank/i.test(x.textContent)); if(t) t.classList.add('jrank'); }catch(e){} }; menuTidy=menuTidy2; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* Bait in use: always one line */
+#panel .tk-cur.tk-slim{flex-wrap:nowrap!important;white-space:nowrap}
+#panel .tk-cur.tk-slim > *{min-width:0;overflow:hidden;text-overflow:ellipsis}
+#panel .tk-cur.tk-slim > .btn{flex:0 0 auto;overflow:visible}
+/* Fish Log rank card on narrow pages: the progress sits under the text instead of squeezing it */
+@container (max-width:560px){
+  #menuov #panel .tile.jrank{flex-wrap:wrap!important;gap:6px!important;margin-bottom:8px!important}
+  #menuov #panel .tile.jrank > :first-child{flex:1 1 100%}
+  #menuov #panel .tile.jrank > :last-child{flex:1 1 100%;min-width:0!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* sideways phones: the one row above the page is as slim as a tap allows */
+@media (orientation:landscape) and (max-height:560px){
+  body #menuov #tabs.secmode .subp{min-height:32px!important;padding:0 11px!important;font-size:12.5px!important}
+  #menuov .mo-tb{width:34px!important;height:34px!important}
+  #menuov .mo-coin{min-height:32px!important;padding:0 9px!important}
+  #menuov .mo-back,#menuov .mo-home,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
+  #menuov .mo-in{row-gap:4px!important;padding-top:max(5px,env(safe-area-inset-top))!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav){padding:3px!important;margin:6px 0!important;gap:4px}
+  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav) > button{min-height:30px!important;height:30px;font-size:12.5px}
+}
+@media (max-width:700px) and (orientation:portrait){
+  #menuov #panel .bwx-nav:not(.wd-nav) > button{min-height:34px!important}
 }
 </style>`);
