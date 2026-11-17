@@ -177,11 +177,15 @@ const SIDE_OUT=(()=>{
       clipC(c,f,-15,()=>{ c.fillStyle=bel; c.beginPath(); c.ellipse(7,-30,4.4,13,0,0,7); c.fill(); c.strokeStyle=v3rgba(sh(H(lk,'#3aa8a0'),.3),.6); c.lineWidth=.45;
         for(let y=-46,r=0;y<-15;y+=3,r++) for(let x=-9+(r%2)*1.5;x<4;x+=3){ c.beginPath(); c.arc(x,y,1.5,0,Math.PI); c.stroke(); } });
       dot(c,-3.4,-41.4,.6,'rgba(255,255,255,.4)'); },
-    hotdog(c,lk,D,f){ const bun=D('#d8a05a'), bunD=D('#b07a3a'), saus=D('#c8442a'), mus=D('#f2d23a'), r=(x,y,w,h,q)=>{ c.beginPath(); c.roundRect?c.roundRect(x,y,w,h,q):c.rect(x,y,w,h); c.fill(); };
-      c.fillStyle=bun; r(-9.6,-50,5.4,38,2.8); c.fillStyle=bunD; c.fillRect(-9.6,-30,5.4,1);
-      c.fillStyle=saus; r(-5.6,-54,10.6,44,5); c.fillStyle='rgba(255,255,255,.18)'; c.fillRect(2.4,-51,1.4,37);
-      c.strokeStyle=mus; c.lineWidth=1.3; c.beginPath(); for(let y=-50;y<-14;y+=3) c.lineTo(4.6+((y/3)&1)*1.8,y); c.stroke();
-      c.fillStyle=bun; r(3.4,-50,5.6,38,2.8); c.fillStyle='rgba(255,240,210,.35)'; c.fillRect(7.4,-47,1.1,32); },
+    hotdog(c,lk,D,f){ const bun=D('#d8a05a'), bunD=D('#b07a3a'), bunL=D('#f0c888'), saus=D('#c8442a'), sausL=D('#e8664a'), mus=D('#f2d23a');
+      // seen from the side: the sausage runs top to bottom and peeks out front and back, the near half of the bun wraps your side
+      c.fillStyle=saus; c.beginPath(); c.roundRect?c.roundRect(-10.2,-55,20.6,45,8):c.rect(-10.2,-55,20.6,45); c.fill();
+      c.fillStyle=sausL; c.beginPath(); c.roundRect?c.roundRect(7.6,-52,1.4,38,.7):c.rect(7.6,-52,1.4,38); c.fill();
+      c.strokeStyle=mus; c.lineWidth=1.2; c.lineJoin='round'; c.beginPath(); for(let y=-51,i=0;y<-14;y+=2.6,i++) c.lineTo(8.6+(i%2?1.4:-.4),y); c.stroke();
+      c.fillStyle=bun; c.beginPath(); c.moveTo(-7.6,-47); c.bezierCurveTo(-9.4,-38,-9.4,-22,-7.4,-14); c.quadraticCurveTo(-.4,-11.4,6.6,-14); c.bezierCurveTo(8.2,-22,8.2,-38,6.4,-47); c.quadraticCurveTo(-.6,-50.4,-7.6,-47); c.fill();
+      c.fillStyle=bunL; c.beginPath(); c.ellipse(-1,-44.6,5.6,1.6,0,0,7); c.fill(); c.fillStyle=bunD; c.beginPath(); c.ellipse(-.4,-15.2,6.4,1.4,0,0,7); c.fill();
+      c.fillStyle='rgba(255,240,210,.22)'; c.beginPath(); c.ellipse(4,-32,1.6,12,0,0,7); c.fill(); c.fillStyle='rgba(120,70,20,.18)'; c.beginPath(); c.ellipse(-6,-32,1.8,13,0,0,7); c.fill();
+      for(const [x,y] of [[-2,-38],[1.6,-33],[-3.4,-27],[2.2,-23],[-.6,-42]]){ c.fillStyle='rgba(250,240,200,.7)'; c.beginPath(); c.ellipse(x,y,.5,.3,.4,0,7); c.fill(); } },
     tuxshirt(c,lk,D,f){ const w=D('#f4f4f2'), k=D('#1a1a20');
       clipT(c,f,()=>{ c.fillStyle=w; c.fillRect(-9,-50,19,28);
         // the printed jacket: lapel and coat down the front, buttons on the shirt line
@@ -247,7 +251,7 @@ a3Neck = function(c,id,D,col,t,w,lean){ if(!id||id==='none') return; const sway=
 // ---------- things that sit over the front shoulder (drawn after the front arm) ----------
 // shoulder joint: (0.8*w, -44) with radius ~2.5
 function a3OverArm(c,lk,D,B,t){ const w=B.w, o=lk.outfit;
-  if(o==='captain'){ const gold=D('#f2c84a'); c.fillStyle=gold; c.beginPath(); c.ellipse(.8*w,-46.3,2.6*w,.9,0,0,7); c.fill(); for(let k=0;k<5;k++) c.fillRect(.8*w-2*w+k*w,-45.8,.45,1.6); }
+  if(o==='captain'){ const gold=D('#f2c84a'); c.fillStyle=gold; c.beginPath(); c.ellipse(.5*w,-48,2.6*w,.9,0,0,7); c.fill(); for(let k=0;k<5;k++) c.fillRect(.5*w-2*w+k*w,-47.5,.45,1.6); }
   if(o==='overalls'){ const den=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#3a6f9a'); c.strokeStyle=den; c.lineWidth=1.7; c.beginPath(); c.moveTo(2.4,-38.4); c.quadraticCurveTo(3.2,-45.2,.6*w,-46.8); c.quadraticCurveTo(-2.4*w,-47.2,-3.4*w,-46.6); c.stroke(); }
   if(o==='lifejacket'){ c.strokeStyle=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#ff7a2a'); c.lineWidth=2; c.beginPath(); c.moveTo(3,-41); c.quadraticCurveTo(2.6,-46.6,.4*w,-47); c.quadraticCurveTo(-2.2*w,-47.2,-3.2*w,-45.6); c.stroke(); }
   const bk=lk.back; if(['backpack','tacklepack','plushpack','sharkfin','guitar'].includes(bk)){ const cl=D(mix(bk==='plushpack'?'#5aa8c8':bk==='sharkfin'?'#3a4450':(lk.accCol||'#c8553a'),'#000000',.35));
@@ -351,3 +355,31 @@ a3Back = function(c,id,D,col,t,w,lean,st){ if(!['cape','royalcape','tatteredcape
   if(id==='royalcape'){ c.fillStyle=D('#d8a830'); c.fillRect(-12*w-flare,yb-3.6,20*w+flare,.8); }
   c.restore();
   if(id==='royalcape'){ c.fillStyle=D('#f4f0ea'); c.beginPath(); c.ellipse(-1.4*w,-46.8,6.6*w,2.6,0,0,7); c.fill(); for(let i=0;i<6;i++){ c.fillStyle=D('#1a1a1a'); c.beginPath(); c.arc(-5.6*w+i*2*w,-46.4+(i%2)*.6,.35,0,7); c.fill(); } } };
+
+// ---------- curly hair, rebuilt: one full, voluminous mass (no scalp showing) with springy curls all over it ----------
+// head centre (0,-56), radius 7.5, face to the right; the hairline sits above the brow and runs behind the ear
+function curlMass(c){ c.beginPath(); c.moveTo(7.2,-59.7); c.bezierCurveTo(9.2,-64.6,6.4,-70.6,-.4,-70.8); c.bezierCurveTo(-8.6,-71,-11.8,-65.2,-11.6,-58.6); c.bezierCurveTo(-11.4,-53.6,-9.6,-50.2,-6.6,-49.4); c.bezierCurveTo(-4,-49.8,-1.8,-50.6,-.9,-52.4); c.bezierCurveTo(-.2,-54.2,-.6,-56.4,.4,-57.8); c.bezierCurveTo(2,-59.4,4.6,-59.2,7.2,-59.7); c.closePath(); }
+function drawCurls3(c,hair,hairC,D,t){ const dk=D(mix(hairC,'#000000',.22)), dk2=D(mix(hairC,'#000000',.14)), lt=D(mix(hairC,'#ffffff',.22));
+  // the mass itself, then a ring of curls breaking up its outline
+  c.fillStyle=hair; curlMass(c); c.fill();
+  const rim=[[6.6,-61.6,1.9],[7.2,-64.4,2.2],[5.6,-67.4,2.5],[2.6,-69.6,2.7],[-1,-70.4,2.8],[-4.6,-69.8,2.7],[-7.8,-67.8,2.7],[-10,-64.6,2.6],[-11,-61,2.5],[-11,-57.2,2.4],[-10,-53.8,2.3],[-8.2,-51,2.1],[-5.6,-50.2,1.8]];
+  for(const [x,y,r] of rim){ c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }
+  // fringe curls at the hairline, kept above the brow
+  for(const [x,y,r] of [[6.4,-60.2,1.5],[4.4,-60.4,1.6],[2.4,-60.2,1.6],[.6,-59.2,1.5],[-.2,-56.8,1.4],[-.5,-54.4,1.3]]){ c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }
+  // texture: shaded undersides and lit tops on curls across the whole mass
+  c.save(); curlMass(c); for(const [x,y,r] of rim){ c.moveTo(x+r,y); c.arc(x,y,r,0,7); } c.clip();
+  const inner=[[3.8,-64.6],[0,-66.2],[-3.8,-66],[-7.2,-63.6],[-8.2,-59.4],[-7.6,-55.2],[-5,-61.8],[-1.6,-62.8],[1.8,-63.2],[4.8,-62.8],[-4.4,-57.4],[-6,-52.8]];
+  /* ringlets: a soft shadow crescent on the lower side of each curl and a lit crescent on top (no dots, so they never read as faces) */
+  c.lineCap='round'; for(const [x,y] of [...rim.map(r=>[r[0],r[1]]),...inner]){ c.strokeStyle=v3rgba(dk,.55); c.lineWidth=.55; c.beginPath(); c.arc(x-.2,y+.1,1.55,Math.PI*.55,Math.PI*1.25); c.stroke(); c.strokeStyle=v3rgba(lt,.6); c.lineWidth=.5; c.beginPath(); c.arc(x+.25,y-.1,1.2,Math.PI*1.35,Math.PI*1.95); c.stroke(); }
+  for(const [x,y] of inner){ c.fillStyle=v3rgba(dk2,.35); c.beginPath(); c.ellipse(x-.6,y+1.2,1.4,.7,-.3,0,7); c.fill(); }
+  c.restore();
+  // a soft sheen across the top for volume
+  c.save(); c.globalAlpha*=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-1,-67.6,5.4,1.6,-.15,0,7); c.fill(); c.restore(); }
+
+// ---------- side-view proportions: a narrower body front to back, and a real shoulder for the arm ----------
+var SIDE_K=.84;
+function a3Deltoid(c,sh,el,w,col,fabs){ const r=w*.6, cx=sh.x-.1, cy=sh.y-.15, a=Math.atan2(el.y-sh.y,el.x-sh.x);
+  const path=()=>{ c.beginPath(); c.ellipse(cx,cy,r*1.08,r,a,0,7); };
+  const gr=c.createLinearGradient(cx-r,cy-r,cx+r,cy+r); gr.addColorStop(0,mix(col,'#fff4e2',.16)); gr.addColorStop(.55,col); gr.addColorStop(1,mix(col,'#000000',.22)); c.fillStyle=gr; path(); c.fill();
+  if(fabs&&fabs.length){ c.save(); path(); c.clip(); for(const f of fabs) drawFabric(c,f,null,cx-r*1.4,cy-r*1.4,r*2.8,r*2.8); c.restore(); }
+  c.save(); path(); c.clip(); c.strokeStyle='rgba(255,244,226,.28)'; c.lineWidth=.6; c.beginPath(); c.arc(cx,cy,r*.82,Math.PI*1.1,Math.PI*1.7); c.stroke(); c.restore(); }

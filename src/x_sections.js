@@ -8,7 +8,7 @@ const SECT={};
 function sectionize(P,tab,groups,before){ groups=groups.filter(g=>g.nodes.length); if(groups.length<2) return;
   const cur=groups.some(g=>g.name===SECT[tab])?SECT[tab]:groups[0].name;
   const nav=document.createElement('div'); nav.className='bwx-nav sect-nav'; nav.setAttribute('role','tablist');
-  nav.innerHTML=groups.map(g=>`<button role="tab" type="button" data-sect="${esc(g.name)}" aria-selected="${g.name===cur}">${esc(g.name)}${g.badge?` <span class="badge g">${g.badge}</span>`:''}</button>`).join('');
+  nav.innerHTML=groups.map(g=>`<button role="tab" type="button" data-sect="${esc(g.name)}" aria-selected="${g.name===cur}">${esc(g.name)}${g.badge?` <span class="sdot">${g.badge}</span>`:''}</button>`).join('');
   const show=name=>{ for(const g of groups) for(const n of g.nodes) n.style.display = g.name===name ? '' : 'none'; nav.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.sect===name))); };
   nav.addEventListener('click',e=>{ const b=e.target.closest('[data-sect]'); if(!b) return; e.stopPropagation(); SECT[tab]=b.dataset.sect; show(b.dataset.sect); });
   const anchor=before||groups[0].nodes[0]; anchor.parentNode.insertBefore(nav,anchor); show(cur); }
@@ -67,7 +67,7 @@ const PERK_GROUPS=[['Catching',['patience','caster','reader','nightowl','weather
 const _applySections_1 = applySections;
 applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) return;
   if(S.tab==='skills'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children]; const idOf=t=>{ const b=t.querySelector('[data-act="perk"]'); return b?b.dataset.k:''; };
-    const groups=PERK_GROUPS.map(([n,ids])=>{ const nodes=T.filter(t=>ids.includes(idOf(t))); const free=nodes.filter(t=>{ const b=t.querySelector('[data-act="perk"]'); return b&&!b.disabled; }).length; return {name:n,nodes}; });
+    const groups=PERK_GROUPS.map(([n,ids])=>{ const nodes=T.filter(t=>ids.includes(idOf(t))); const free=nodes.filter(t=>{ const b=t.querySelector('[data-act="perk"]'); return b&&!b.disabled; }).length; return {name:n,nodes,badge:free}; });
     const known=new Set(PERK_GROUPS.flatMap(g=>g[1])), other=T.filter(t=>!known.has(idOf(t))); if(other.length) groups.push({name:'Other',nodes:other});
     grid.classList.add('skill-grid'); sectionize(P,'skills',groups,grid); }
   if(S.tab==='save'){ const K=[...P.children], grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const head=K.slice(0,2), link=K.filter(c=>!head.includes(c)&&c!==grid&&c.tagName!=='P');

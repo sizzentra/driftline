@@ -359,7 +359,7 @@ function draw(now){
   if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
   { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
   const sc=clamp(H/420,.7,1.25); let ax=W*.12, ay=dockY+pb;
-  drawPetScene(ax,ay,sc,t,night);
+  const pax=ax, pay=ay; /* pets are drawn after the angler (below), so clothes and the angler never hide them */
   const RP=G.st==='rest'?restPose(dockY,pb,sc):null; if(RP){ ax=RP.ax; ay=RP.ay; }
   let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; } if(RP){ hx=RP.hx; hy=RP.hy+Math.sin(t*.8)*.6; }
   const tip=TIP(); let tx=tip.x, ty=tip.y+pb; if(RP){ tx=ax+hx*sc+W*.075; ty=ay+hy*sc-H*.13; }
@@ -371,6 +371,7 @@ function draw(now){
   const hand=hp&&hp.x!=null?{x:hp.x,y:hp.y}:{x:ax+hx*sc,y:ay+hy*sc};
   if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
+  drawPetScene(pax,pay,sc,t,night);
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
   if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;
@@ -381,7 +382,7 @@ function draw(now){
     const onWater = G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest';
     const br = onWater ? clamp(6.5*(1-.4*clamp((G.bob.x-W*.3)/(W*.6),0,1)),3,7) : 5; const bx2=G.bob.x, by2=G.bob.y+dip;
     if(G.st==='waiting'||G.st==='bite'){ g.strokeStyle=G.inHot?'rgba(255,215,110,.6)':'rgba(255,255,255,.25)'; g.beginPath(); g.ellipse(G.bob.x,G.bob.y+2,br*2.2+Math.sin(t*3),br*.7,0,0,7); g.stroke(); }
-    g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); }
+    g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); g.strokeStyle='rgba(10,18,28,.45)'; g.lineWidth=1; g.beginPath(); g.arc(bx2,by2+br*.18,br*1.02,0,7); g.stroke(); }
   else { const f=G.fish, k=lp.k, sz=(f&&f.kind==='fish') ? clamp(30+Math.sqrt(f.kg)*7,30,90)*(.7+.5*k) : 46*(.7+.5*k);
     g.save(); g.translate(lp.x,lp.y+sz*.15); g.rotate(Math.sin(t*22)*.35*(1-k*.5)-.4*(1-k));
     if(f && f.kind==='fish') drawCreature(g,f.sp,0,0,sz,{shiny:f.shiny,wag:t*26,flip:true});
@@ -408,7 +409,10 @@ function draw(now){
     g.strokeStyle='rgba(255,255,255,.5)'; g.beginPath(); g.moveTo(bxx+bw*farAt(),byy-2); g.lineTo(bxx+bw*farAt(),byy+16); g.stroke();
     const inHot = G.hot && Math.abs(G.power-G.hot.p)<=G.hot.r;
     g.fillStyle=inHot?'#ffc94d':'#e6efe8'; g.font='700 12px system-ui'; g.textAlign='center'; g.fillText(inHot?'Over the hotspot: release!':G.power>farAt()?'Far cast: better fish':'Cast power', W/2, byy-9);
-    const x=castX(G.power); g.strokeStyle=inHot?'rgba(255,201,77,.95)':'rgba(255,106,61,.6)'; g.setLineDash([4,4]); g.beginPath(); g.ellipse(x,waterY(x),10,3,0,0,7); g.stroke(); g.setLineDash([]); }
+    const x=castX(G.power), wy=waterY(x); /* the aim marker: a dark halo under a bright ring and a centre pin, so it reads on bright water and in strong light */
+    g.lineWidth=4.5; g.strokeStyle='rgba(6,14,22,.55)'; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke();
+    g.lineWidth=2; g.strokeStyle=inHot?'rgba(255,214,90,1)':'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;
+    g.fillStyle='rgba(6,14,22,.55)'; g.beginPath(); g.arc(x,wy,3.4,0,7); g.fill(); g.fillStyle=inHot?'#ffe08a':'#ffffff'; g.beginPath(); g.arc(x,wy,2,0,7); g.fill(); g.lineWidth=1; }
   if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=S.gear.finder; let col='#ffc94d', lab='';
     if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5?pf.sp.name:RAR[pf.sp.r].k) : pf.kind==='hat'?'Something wearable':'Junk'; }
     g.save(); g.translate(G.bob.x,G.bob.y-34); g.scale(s,s); g.fillStyle=col; g.font='800 34px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.fillText('!',0,0); g.restore();
@@ -442,7 +446,7 @@ function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getB
   if(cnv.width!==Math.round(w*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); }
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
-  S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=26+rel*16+sp.r*5; const spd=.18+(i*.071)%.25;
+  S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=Math.min(h*.3,w*.22,(16+8.5*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.75,1.4)); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const spd=.18+(i*.071)%.25;
     const ph=t*spd+i*1.9; const x=w*(.5+.42*Math.sin(ph)); const dir=Math.cos(ph)>=0; const y=h*(.16+((i*.137)%0.6))+Math.sin(t*1.3+i)*6;
     drawCreature(c,sp,x,y,L,{shiny:!!f.sh,wag:t*8+i,flip:!dir}); });
   c.fillStyle='rgba(220,245,255,.35)'; for(let i=0;i<12;i++){ const x=(i*73)%w+Math.sin(t+i)*4, y=h-((t*30+i*40)%h); c.beginPath(); c.arc(x,y,1.5+(i%3),0,7); c.fill(); }

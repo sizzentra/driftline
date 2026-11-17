@@ -103,3 +103,29 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   c.save(); for(let i=0;i<4;i++){ const q=((t*.7+i*.27+ph)%1), a=(i*1.9+ph*6), d=L*(.32+.14*((i*7)%3)), sx=x+Math.cos(a)*d, sy=y+Math.sin(a)*d*.55, s=Math.sin(q*Math.PI)*Math.max(1.4,L*.07);
     if(s<.2) continue; c.fillStyle='rgba(255,246,200,'+(.9*Math.sin(q*Math.PI))+')'; c.beginPath(); c.moveTo(sx,sy-s*1.6); c.quadraticCurveTo(sx,sy,sx+s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy+s*1.6); c.quadraticCurveTo(sx,sy,sx-s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy-s*1.6); c.fill(); }
   c.restore(); return r; };
+
+// ---------- 0.3.2: the pineapple house redrawn (its pattern stays inside the fruit), plus two more seaside homes ----------
+[['snoozyrock','Snoozy Rock',6500,.04,'show'],['tikihouse','Grumpy Tiki House',9500,.05,'income']]
+  .forEach(a=>{ if(DECORI[a[0]]) return; const d={id:a[0],name:a[1],price:a[2],b:+(a[3]*2).toFixed(3)}; DECOR.push(d); DECORI[d.id]=d; DECOR_KIND[a[0]]=a[4]; });
+Object.assign(TANK_ART,{
+  pineapple(c,t){ const body=()=>{ c.beginPath(); c.ellipse(0,-36,25,36,0,0,7); };
+    const g=c.createLinearGradient(-25,0,25,0); g.addColorStop(0,'#c8781a'); g.addColorStop(.45,'#f0a838'); g.addColorStop(1,'#d88a20'); c.fillStyle=g; body(); c.fill();
+    c.save(); body(); c.clip(); c.strokeStyle='rgba(150,80,10,.55)'; c.lineWidth=1.6; for(let i=-6;i<=6;i++){ c.beginPath(); c.moveTo(i*9-30,-80); c.lineTo(i*9+30,0); c.stroke(); c.beginPath(); c.moveTo(i*9+30,-80); c.lineTo(i*9-30,0); c.stroke(); }
+    c.fillStyle='rgba(255,220,130,.5)'; for(let r=0;r<8;r++) for(let i=-3;i<=3;i++){ const x=i*9+(r%2)*4.5, y=-68+r*9; c.beginPath(); c.arc(x,y,1.1,0,7); c.fill(); }
+    c.fillStyle='rgba(255,240,200,.2)'; c.beginPath(); c.ellipse(8,-48,6,20,-.15,0,7); c.fill(); c.restore();
+    for(let i=0;i<7;i++){ const a=-Math.PI/2+(i-3)*.36+Math.sin(t*1.1+i)*.05, L=26-Math.abs(i-3)*3; c.fillStyle=i%2?'#3a8a3a':'#4fa84a'; c.beginPath(); c.moveTo(-3,-70); c.quadraticCurveTo(Math.cos(a)*L*.5-4,-70+Math.sin(a)*L*.6,Math.cos(a)*L,-70+Math.sin(a)*L); c.quadraticCurveTo(Math.cos(a)*L*.5+4,-70+Math.sin(a)*L*.6,3,-70); c.fill(); }
+    c.fillStyle='#4a90b8'; c.beginPath(); c.arc(-8,-44,6,0,7); c.fill(); c.strokeStyle='#8a5a20'; c.lineWidth=2; c.stroke(); c.strokeStyle='rgba(255,255,255,.5)'; c.lineWidth=1; c.beginPath(); c.moveTo(-8,-50); c.lineTo(-8,-38); c.moveTo(-14,-44); c.lineTo(-2,-44); c.stroke();
+    c.fillStyle='#7a8a96'; c.beginPath(); c.moveTo(4,0); c.lineTo(4,-16); c.arc(10,-16,6,Math.PI,0); c.lineTo(16,0); c.closePath(); c.fill(); c.fillStyle='#5a6a76'; c.beginPath(); c.arc(14,-8,1,0,7); c.fill(); },
+  snoozyrock(c,t){ const g=c.createLinearGradient(-36,-40,30,0); g.addColorStop(0,'#a07a5a'); g.addColorStop(.6,'#7a5a40'); g.addColorStop(1,'#5a4030'); c.fillStyle=g; c.beginPath(); c.moveTo(-38,0); c.bezierCurveTo(-38,-30,-18,-42,0,-42); c.bezierCurveTo(18,-42,38,-30,38,0); c.closePath(); c.fill();
+    c.fillStyle='rgba(60,40,26,.35)'; for(const [x,y,r] of [[-20,-14,4],[14,-24,3],[22,-8,5],[-6,-30,2.6]]){ c.beginPath(); c.ellipse(x,y,r,r*.7,0,0,7); c.fill(); }
+    c.fillStyle='rgba(255,230,200,.18)'; c.beginPath(); c.ellipse(-10,-30,12,5,-.3,0,7); c.fill();
+    const sw=Math.sin(t*.9)*.12; c.save(); c.translate(0,-42); c.rotate(sw); c.strokeStyle='#5a4030'; c.lineWidth=2; c.beginPath(); c.moveTo(0,0); c.lineTo(0,-16); c.stroke(); c.fillStyle='#e8d0a0'; c.beginPath(); c.moveTo(0,-16); c.lineTo(9,-13); c.lineTo(0,-10); c.closePath(); c.fill(); c.restore();
+    c.fillStyle='rgba(255,255,255,.75)'; c.font='bold 9px sans-serif'; c.textAlign='center'; const z=(t*.5)%1; c.globalAlpha=1-z; c.fillText('z',18+z*8,-44-z*18); c.globalAlpha=1; },
+  tikihouse(c,t){ const g=c.createLinearGradient(-26,0,26,0); g.addColorStop(0,'#5a6a7a'); g.addColorStop(.5,'#8a98a8'); g.addColorStop(1,'#5a6676'); c.fillStyle=g;
+    c.beginPath(); c.moveTo(-24,0); c.lineTo(-22,-74); c.quadraticCurveTo(0,-92,22,-74); c.lineTo(24,0); c.closePath(); c.fill();
+    c.fillStyle='#4a5868'; c.beginPath(); c.moveTo(-22,-62); c.lineTo(22,-62); c.lineTo(20,-56); c.lineTo(-20,-56); c.closePath(); c.fill(); // the heavy brow
+    for(const x of [-11,11]){ c.fillStyle='#2a3a4a'; c.beginPath(); c.ellipse(x,-48,5,6,0,0,7); c.fill(); const lit=.5+.3*Math.sin(t*1.3+x); c.fillStyle='rgba(255,220,140,'+lit+')'; c.beginPath(); c.ellipse(x,-48,3.6,4.6,0,0,7); c.fill(); }
+    c.fillStyle='#6a7888'; c.beginPath(); c.moveTo(-5,-56); c.lineTo(5,-56); c.lineTo(7,-24); c.quadraticCurveTo(0,-20,-7,-24); c.closePath(); c.fill(); // long nose
+    c.fillStyle='#3a2a1a'; c.beginPath(); c.moveTo(-8,0); c.lineTo(-8,-12); c.arc(0,-12,8,Math.PI,0); c.lineTo(8,0); c.closePath(); c.fill(); c.fillStyle='#c8a050'; c.beginPath(); c.arc(5,-6,1,0,7); c.fill();
+    c.strokeStyle='rgba(30,40,50,.35)'; c.lineWidth=1; for(const y of [-34,-16]){ c.beginPath(); c.moveTo(-23,y); c.lineTo(-10,y+1); c.moveTo(10,y+1); c.lineTo(23,y); c.stroke(); } },
+});

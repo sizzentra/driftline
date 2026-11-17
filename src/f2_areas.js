@@ -134,7 +134,10 @@ V3SCENES.river = {
     v3fishRing(P,t,hz,6.1,.45,.9);
     // a heron stands in the shallows by the far bank, dipping its head now and then
     { const hx=W*.955, hy=hz+H*.05, s=H*.0016, dip=((t%11)>9.6)?Math.sin(((t%11)-9.6)/1.4*Math.PI):0, hc=mix('#8a94a4',P.front,night*.6);
-      g.strokeStyle=hc; g.lineWidth=s*2.6; g.beginPath(); g.moveTo(hx-s*3,hy); g.lineTo(hx-s*2,hy-s*16); g.moveTo(hx+s*1,hy); g.lineTo(hx,hy-s*16); g.stroke();
+      /* thin, true-to-life legs with a little backward knee, standing in a slow ripple */
+      { const lc=mix('#c8a060',P.front,.35+night*.4); g.strokeStyle=lc; g.lineWidth=Math.max(.6,s*.95); g.lineCap='round'; g.beginPath(); g.moveTo(hx-s*3.2,hy+s*1); g.lineTo(hx-s*2.6,hy-s*8); g.lineTo(hx-s*2.2,hy-s*16); g.moveTo(hx+s*.8,hy+s*1); g.lineTo(hx+s*.2,hy-s*8); g.lineTo(hx-s*.4,hy-s*16); g.stroke();
+        g.fillStyle=lc; g.beginPath(); g.arc(hx-s*2.6,hy-s*8,s*.8,0,7); g.arc(hx+s*.2,hy-s*8,s*.8,0,7); g.fill();
+        for(let k=0;k<2;k++){ const ph=((t*.35+k*.5)%1); g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.4*(1-ph)); g.lineWidth=Math.max(.5,s*.7); g.beginPath(); g.ellipse(hx-s*1.2,hy+s*1.2,s*(4+ph*9),s*(1+ph*2.2),0,0,7); g.stroke(); } }
       g.fillStyle=hc; g.beginPath(); g.ellipse(hx-s*2,hy-s*20,s*8,s*5,-.3,0,7); g.fill(); g.strokeStyle=hc; g.lineWidth=s*2.2; g.beginPath(); g.moveTo(hx+s*4,hy-s*23); g.quadraticCurveTo(hx+s*9,hy-s*30+dip*s*10,hx+s*6+dip*s*8,hy-s*34+dip*s*18); g.stroke();
       g.fillStyle=hc; g.beginPath(); g.arc(hx+s*6+dip*s*8,hy-s*35+dip*s*18,s*2.6,0,7); g.fill(); g.fillStyle=mix('#e8b030',P.front,night*.5); g.beginPath(); g.moveTo(hx+s*8+dip*s*8,hy-s*35.5+dip*s*18); g.lineTo(hx+s*15+dip*s*10,hy-s*34+dip*s*22); g.lineTo(hx+s*8+dip*s*8,hy-s*34+dip*s*18); g.fill(); }
     // a kingfisher darts low over the water now and then
@@ -991,7 +994,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
   const items=dockView(), s=2.6, PP=dockPositions(items,(.46-HOME_X0)/(HOME_X1-HOME_X0),(.64-HOME_X0)/(HOME_X1-HOME_X0));
   if(items.includes('cottage')) drawDockItem(x,'cottage',w*.12,dy-th*.4,2.4*.9,t,P.night);
   items.forEach(id=>{ if(id==='cottage'||PP[id]==null) return; drawDockItem(x,id,w*(HOME_X0+PP[id]*(HOME_X1-HOME_X0)),dy-th*.4,s*dockItemScale(id),t,P.night); });
-  homePetsDraw(x,w,dy-th*.4,t); drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8});
+  drawAngler(x,w*.58,dy-th*.4,2.6,S.look,{t,night:P.night*.8}); homePetsDraw(x,w,dy-th*.4,t); /* pets in front of the angler */
   return true; }
 
 // a lit round stage for the Wardrobe and Pets previews: a soft spotlight, a wooden disc with a rim and a shadow

@@ -3,8 +3,29 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.1';
+const GAME_VERSION = '0.3.2';
 const PATCHES = [
+ {v:'0.3.2', name:'Prized Catches', items:[
+  '## Fishing',
+  'A fish on the run now takes line back when you stop reeling, and rarer, fresher fish pull harder. Reeling while it runs holds the line but strains it much more, so big fish give longer, fairer fights even with great gear.',
+  'Shiny fish now leap in Fish Frenzy: they glow, move quicker on trickier paths, and each one is worth five fish. Other leapers have a few new jumps too.',
+  'The marker showing where your cast will land is much easier to see in bright light, and the float has a soft outline.',
+  'Fixed: the shadow of a predator could keep swimming beside your float after you landed the fish it was after.',
+  'Fixed: rolling the mouse wheel to reel no longer scrolls the page when the fight ends.',
+  '## Aquarium',
+  'Weight matters on display: a fish that is heavy for its kind earns more and gives stronger buffs, and every fish now shows at its true size (big fish are big, heavy ones a little bigger still). Your best catches belong in the tank.',
+  'The pineapple house has been redrawn, and two new seaside homes have moved in.',
+  '## Looks',
+  'Your angler has a slimmer side profile with real shoulders, and better arms.',
+  'Curly hair is full and voluminous, starting right at the face.',
+  'The hot dog suit is now seen from the side like everything else.',
+  'Pets are drawn in front of your angler, so clothes and the angler never hide them.',
+  'The heron at Stonebrook River has slender legs and stands in a gentle ripple.',
+  '## Small changes',
+  'Number badges on tabs that need you: newly completed feats on Feats (marked New inside), and the Skills sections where you can spend a point.',
+  'The game remembers full screen: if you left it in full screen, it goes back to full screen on your first tap.',
+  'The free crate counter at the Boardwalk no longer breaks over two lines.',
+ ]},
  {v:'0.3.1', name:'Dressed for the Weather', items:[
   '## Your angler',
   'Clothes are now drawn from the side, the way your angler actually stands: buttons, zips and buckles sit at the front, hoods, collars and bows at the back, and pockets on the side. Every outfit was redrawn this way.',

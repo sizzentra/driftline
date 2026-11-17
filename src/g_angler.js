@@ -114,7 +114,7 @@ function a3Body(c,x,y,s,lk,o,live){
     c.fillStyle=D('#c9a070'); c.beginPath(); c.arc(bx-.2,-4.3,.38,0,7); c.arc(bx+1.3,-3.9,.38,0,7); c.fill();
     c.fillStyle='rgba(255,236,210,'+(dark?.1:.24)+')'; c.beginPath(); c.ellipse(bx+3.6,-3.3,1.6,.6,-.35,0,7); c.fill(); };
   const aB=-3.6-stance, aF=3.2+stance*.8, shoe=lk.shoes||'boots';
-  c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
+  c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); c.scale(SIDE_K,1); a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
   if(!o.sit){ leg(-3*B.w,aB,legD,true); a3Shoe(c,shoe,aB-.2,true,D,sk,t); leg(2.6*B.w,aF,legC,false); a3Shoe(c,shoe,aF-.2,false,D,sk,t); }
   else { // sitting: thighs forward from the hips, shins hanging over the dock edge (kicking gently) or down to the floor in front of the chair
     const hy0=-o.sit.seat, L1=9.4*B.l, L2=9.6*B.l;
@@ -136,12 +136,12 @@ function a3Body(c,x,y,s,lk,o,live){
   if(hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
   c.restore();
   // back arm: shoulder -> elbow -> hand on the grip behind the front hand
-  const shB={x:-1.4*B.w,y:-44}, elB=a3IK(shB.x,shB.y,BH.x,BH.y,7.8,7.6,1), slD=D(mix(sleeve,'#000000',.2));
+  const shB={x:-1.2*B.w,y:-45.4}, elB=a3IK(shB.x,shB.y,BH.x,BH.y,7.8,7.6,1), slD=D(mix(sleeve,'#000000',.2));
   a3Limb(c,shB,elB,4.6*B.lw,4*B.lw,slD,.5); a3Limb(c,elB,BH,4*B.lw,3.4*B.lw,slD,.5); for(const sf of sleeveFab){ a3LimbFab(c,shB,elB,4.6*B.lw,4*B.lw,sf); a3LimbFab(c,elB,BH,4*B.lw,3.4*B.lw,sf); }
   c.fillStyle=skD; c.beginPath(); c.arc(BH.x,BH.y,2.15,0,7); c.fill();
   // torso (or coat), pattern clipped to the body, outfit, then volume
   const coat=['raincoat','captain','tidecoat','bathrobe'].includes(lk.outfit), hem={raincoat:-16,captain:-14.5,tidecoat:-16,bathrobe:-12}[lk.outfit];
-  c.save(); c.translate(0,br*.3); c.scale(B.w,1);
+  c.save(); c.translate(0,br*.3); c.scale(B.w*SIDE_K,1); /* side view: the body is narrower front to back than it is wide */
   c.fillStyle=shirt; a3TorsoPath(c,f); c.fill();
   { c.save(); a3TorsoPath(c,f); c.clip(); drawTwoTone(c,lk,D,-10,-49,20,27); if(lk.pat&&lk.pat!=='none') drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
   if(lk.outFab&&lk.outFab!=='none'&&outfitFabrics(lk.outfit).includes(lk.outFab)) a3FabricOutfit(c,lk,D,f,t); else drawOutfit3(c,lk,D,f,t);
@@ -149,14 +149,14 @@ function a3Body(c,x,y,s,lk,o,live){
   a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-5.4,-47.6); c.bezierCurveTo(-8.6,-46.8,-8.8,-40,-8.2,-34); c.bezierCurveTo(-7.8,-29,-8.4,-24,-8,-21.6); c.quadraticCurveTo(0,-20.6,8.2+A3BELLY*2,-21.6); c.bezierCurveTo(8.8+A3BELLY*2.6,-28,8.6+A3BELLY*2,-38,4.6,-47.6); c.quadraticCurveTo(-.6,-49,-5.4,-47.6); c.closePath(); }:bodyPath,-8.4,8.6,-48,coat?hem:-22.4,1);
   // soft shadow under the chin and where the front arm crosses the chest
   c.save(); bodyPath(); c.clip(); c.fillStyle='rgba(20,10,20,.22)'; c.beginPath(); c.ellipse(1.2,-46.2,4.6,2.2,0,0,7); c.fill();
-  const elF0=a3IK(.8,-44,HH.x/B.w,HH.y,7.8,7.6,1); c.strokeStyle='rgba(10,6,20,.16)'; c.lineWidth=5.4; c.beginPath(); c.moveTo(.8,-43); c.lineTo(elF0.x+.4,elF0.y+1.4); c.stroke(); c.restore();
+  const elF0=a3IK(.6,-45.4,HH.x/(B.w*SIDE_K),HH.y,7.8,7.6,1); c.strokeStyle='rgba(10,6,20,.16)'; c.lineWidth=5.4; c.beginPath(); c.moveTo(.8,-43); c.lineTo(elF0.x+.4,elF0.y+1.4); c.stroke(); c.restore();
   // belt: only where the waist shows (shirt, vest, life jacket, tuxedo T-shirt); every jacket, sweater, coat or costume covers it
   if(['none','vest','lifejacket','tuxshirt'].includes(out||'none')){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.save(); a3TorsoPath(c,f); c.clip(); c.fillStyle=bg; c.beginPath(); c.moveTo(-9,-25.5); c.quadraticCurveTo(0,-26.1,9,-25.9); c.lineTo(9,-23.5); c.quadraticCurveTo(0,-23.8,-9,-23.2); c.closePath(); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(-3.6,-25.8,.7,2.6); c.restore();
     /* side view: the buckle sits at the front of the waist, seen almost edge-on */ const fx=sideFront(-24.6,f); c.fillStyle=D('#e2bc6a'); c.beginPath(); c.roundRect?c.roundRect(fx-1.7,-26.2,2,3.1,.5):c.rect(fx-1.7,-26.2,2,3.1); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(fx-1.2,-25.3,.9,1.3); c.fillStyle='rgba(255,255,230,.5)'; c.fillRect(fx-1.5,-26,1.6,.45); }
   c.restore();
   // ---- neck and head (the head tilts on the neck: looks down at the float, up while the cast flies)
   { const ng=c.createLinearGradient(-2.2,0,2.2,0); ng.addColorStop(0,skD); ng.addColorStop(.7,sk); ng.addColorStop(1,mix(sk,'#fff2e0',.12)); c.fillStyle=ng; c.beginPath(); c.moveTo(-2.1,-51); c.lineTo(-2.3,-45.6); c.quadraticCurveTo(0,-44.6,2.4,-45.6); c.lineTo(2.2,-51); c.closePath(); c.fill(); }
-  a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean);
+  c.save(); c.scale(SIDE_K,1); a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
   c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(1.1,1.1); c.translate(0,50);
   c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.fill();
@@ -206,7 +206,8 @@ function a3Body(c,x,y,s,lk,o,live){
     c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(HC,0,0); c.restore(); }
   c.restore();
   // ---- front arm over the body: round shoulder, elbow that bends, hand on the rod
-  const shF={x:.8*B.w,y:-44}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
+  const shF={x:.6*B.w,y:-45.4}, elF=a3IK(shF.x,shF.y,HH.x,HH.y,7.8,7.6,1);
+  a3Deltoid(c,shF,elF,5*B.lw,sleeve,sleeveFab); /* a rounded shoulder cap, so the arm hangs from a real shoulder */
   a3Limb(c,shF,elF,5*B.lw,4.3*B.lw,sleeve,1); a3Limb(c,elF,HH,4.3*B.lw,3.6*B.lw,sleeve,1); for(const sf of sleeveFab){ a3LimbFab(c,shF,elF,5*B.lw,4.3*B.lw,sf); a3LimbFab(c,elF,HH,4.3*B.lw,3.6*B.lw,sf); } a3OverArm(c,lk,D,B,t); if(beardOn){ c.save(); c.setTransform(headM); drawFace(c,Object.assign({},lk,{glasses:'none'}),D,hair); c.restore(); }
   if(!['wetsuit','spacesuit'].includes(lk.outfit)){ const d2=Math.hypot(HH.x-elF.x,HH.y-elF.y)||1, ux=(HH.x-elF.x)/d2, uy=(HH.y-elF.y)/d2; c.fillStyle=D(mix(sleeve==shirt?lk.shirt:sleeve,'#000000',.18)); c.beginPath(); c.ellipse(HH.x-ux*2.6,HH.y-uy*2.6,1.1,2,Math.atan2(uy,ux),0,7); c.fill(); }
   { const gr=c.createRadialGradient(HH.x+.6,HH.y-.9,.3,HH.x,HH.y,2.8); gr.addColorStop(0,mix(sk,'#fff4e6',.2)); gr.addColorStop(1,skD); c.fillStyle=gr; c.beginPath(); c.arc(HH.x,HH.y,2.45,0,7); c.fill(); }
@@ -224,8 +225,7 @@ function drawHair3(c,hs,hair,hairC,D,t){
       c.strokeStyle=dk; c.lineWidth=.35; c.beginPath(); c.moveTo(-4.4,-55); c.bezierCurveTo(-4.8,-52,-4.6,-49.6,-4.9,-47.4); c.stroke(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); c.moveTo(-3.4,-55.6); c.bezierCurveTo(-3.8,-53,-3.7,-50.6,-4.1,-48.4); c.stroke(); break;
     case 'ponytail': case 'bun': cap(); c.fillStyle=hair; c.fillRect(-7.2,-60,1.4,1); break;
     case 'buzz': c.save(); c.globalAlpha*=.8; c.fillStyle=hair; c.beginPath(); c.arc(0,-56.6,7.85,Math.PI*1.02,Math.PI*1.97); c.quadraticCurveTo(4,-59.6,0,-59.4); c.quadraticCurveTo(-2.4,-58.6,-2.6,-55); c.lineTo(-6.8,-54.6); c.closePath(); c.fill(); c.restore(); break;
-    case 'curly': c.fillStyle=hair; /* curls stop above the brow: the face stays clear */ for(let i=0;i<9;i++){ const a=Math.PI*(1.0+i*.098); c.beginPath(); c.arc(Math.cos(a)*7.2,-57+Math.sin(a)*7,2.6,0,7); c.fill(); } c.beginPath(); c.arc(-6.6,-53.4,2.4,0,7); c.arc(-4.6,-55,2.2,0,7); c.fill(); c.beginPath(); c.arc(4.4,-61.6,1.7,0,7); c.fill(); c.beginPath(); c.arc(6.1,-60.8,1.3,0,7); c.fill();
-      c.strokeStyle=lt; c.lineWidth=.45; for(let i=0;i<6;i++){ const a=Math.PI*(1.1+i*.15); c.beginPath(); c.arc(Math.cos(a)*7.2,-57+Math.sin(a)*7,1.4,Math.PI*1.1,Math.PI*1.8); c.stroke(); } break;
+    case 'curly': drawCurls3(c,hair,hairC,D,t); break;
     case 'spiky': cap(); c.fillStyle=hair; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0-1.7,-61.6); c.lineTo(x0+.6,-68.2+((i*5)%3)); c.lineTo(x0+1.7,-61.6); } c.fill(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0,-62); c.lineTo(x0+.5,-66.6+((i*5)%3)); } c.stroke(); break;
     case 'bald': c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); break;
     default: cap();

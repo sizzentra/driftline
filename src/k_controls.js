@@ -22,7 +22,7 @@ stage.addEventListener('pointerdown',e=>{ if(G.st==='reeling'){ CTRL.crankCx=e.c
 stage.addEventListener('pointermove',e=>{ if(G.st!=='reeling'||!(e.buttons&1)&&e.pointerType==='mouse'&&!CTRL.start) return;
   if(CTRL.crankA==null){ const dx=e.clientX-CTRL.crankCx, dy=e.clientY-CTRL.crankCy; if(dx*dx+dy*dy>=14*14){ CTRL.crankA=Math.atan2(dy,dx); G.hold=false; } return; } G.hold=false; crankMove(e); });
 stage.addEventListener('pointerup',()=>{ CTRL.crankA=null; CTRL.start=false; });
-stage.addEventListener('wheel',e=>{ if(G.st!=='reeling') return; e.preventDefault(); G.crank=Math.min(.3,(G.crank||0)+Math.min(1,Math.abs(e.deltaY)/100)*.09); },{passive:false});
+stage.addEventListener('wheel',e=>{ const now=performance.now(); if(G.st!=='reeling'){ /* keep wheel reeling from scrolling the page as the fight ends (catch or escape) */ if(now-(stage._reelT||-1e9)<1600||G.st==='landing'){ e.preventDefault(); stage._reelT=now; } return; } stage._reelT=now; e.preventDefault(); G.crank=Math.min(.3,(G.crank||0)+Math.min(1,Math.abs(e.deltaY)/100)*.09); },{passive:false});
 
 // gamepad: polled only while a pad is connected
 window.addEventListener('gamepadconnected',e=>{ CTRL.padIdx=e.gamepad.index; toast('Controller connected: A to cast and reel, right trigger to reel gently.'); });

@@ -424,8 +424,9 @@ function fight(dt){
   // how hard you are reeling right now: 1 = holding; since 0.3 also a crank or a partly pulled trigger (0..1)
   const rin = V3ON ? reelInput(dt) : (G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin);
   if(rin>0){
-    G.d -= reel*reelK*rdt*(G.run?.25:1)*(B.drag?.75:1);
-    let add = (G.run?70:22)*ratio*tired*(B.heavy?1.35:1);
+    // 0.3.2: while the fish runs, reeling only holds the line (none is gained) and strains it much harder
+    if(!G.run) G.d -= reel*reelK*rdt*(B.drag?.75:1);
+    let add = (G.run?95:22)*ratio*tired*(B.heavy?1.35:1);
     G.temper = Math.min(3, G.temper + rdt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
     const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
@@ -436,7 +437,9 @@ function fight(dt){
   if(rin<1){
     G.temper = Math.max(0, G.temper - odt*1.8*(maxed('softtouch')?2:1));
     G.ten = Math.max(0, G.ten - 55*odt);
-    if(G.run) G.d += (1.5 + f.str*.18) * (.35+.65*G.sta) * odt;
+    // a running fish takes line back: rarer and fresher fish pull harder, relative to how fast you can reel, so strong
+    // gear shortens fights without ever making a big fish trivial
+    if(G.run){ const r=f.kind==='fish'&&f.sp?Math.min(5,f.sp.r):1; G.d += Math.max(1.5 + f.str*.18, reel*(.24+.11*r)) * (.35+.65*G.sta) * odt; }
     if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * odt;
     G.sta = Math.max(0, G.sta - .045*odt);
   }

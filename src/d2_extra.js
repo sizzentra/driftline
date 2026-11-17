@@ -128,24 +128,28 @@ $('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-ev]');
     $('evin').innerHTML=`<h3>${prizes[pickI].k==='big'?'Jackpot!':'Not bad!'}</h3><p class="sub">You got: <b>${esc(won)}</b></p><div class="badges" style="margin:10px 0">${labels.map((l,i)=>`<span class="badge ${i===pickI?'g':''}">Chest ${i+1}: ${l}</span>`).join('')}</div><button class="btn" data-ev="skip">Keep fishing</button>`;
     renderBait(); checkFeats(); save(); lastHud=''; return; } });
 function updateEvents(dt){
-  if(G.st==='frenzy' && G.fz){ const fz=G.fz; fz.t+=dt; fz.next-=dt; if(fz.next<=0 && fz.t<fz.dur-.8){ fz.next=rnd(.25,.5); const pool=SP.filter(s=>s.loc===S.loc&&s.r<=1); fz.jumpers.push({p:rnd(.15,.98), t:0, dur:rnd(1.1,1.7), h:rnd(.1,.24), sp:pick(pool), hit:0}); }
+  if(G.st==='frenzy' && G.fz){ const fz=G.fz; fz.t+=dt; fz.next-=dt; if(fz.next<=0 && fz.t<fz.dur-.8){ fz.next=rnd(.25,.5); const pool=SP.filter(s=>s.loc===S.loc&&s.r<=1); /* 0.3.2: about one in nine leapers is shiny: worth 5 fish, quicker, and on a trickier path */ const sh=Math.random()<.11, pat=sh?pick(['skip','zig','high']):(Math.random()<.25?pick(['skip','zig']):'arc'); fz.jumpers.push({p:rnd(.15,.98), t:0, dur:sh?rnd(.8,1.15):rnd(1.1,1.7), h:rnd(.1,.24), sp:pick(pool), hit:0, sh, pat}); }
     for(const j of fz.jumpers) j.t+=dt; fz.jumpers=fz.jumpers.filter(j=>j.t<j.dur && !(j.hit && j.t-j.hit>.4));
-    if(fz.t>=fz.dur){ const each=bestLoot()*.25; const coins=earn(fz.caught*each*coinMult()); S.gstats.frenzy++; S.gstats.frenzyFish+=fz.caught; G.st='idle'; G.fz=null; sfx.catch(fz.caught>=10?4:2);
-      toast('Frenzy over: '+fz.caught+' fish, +'+fmt(coins)+' coins'); checkFeats(); save(); lastHud=''; } }
+    if(fz.t>=fz.dur){ const each=bestLoot()*.25, shN=fz.sh||0; const coins=earn((fz.caught+shN*4)*each*coinMult()); S.gstats.frenzy++; S.gstats.frenzyFish+=fz.caught; G.st='idle'; G.fz=null; sfx.catch(fz.caught>=10?4:2);
+      toast('Frenzy over: '+fz.caught+' fish'+(shN?' ('+shN+' shiny!)':'')+', +'+fmt(coins)+' coins'); checkFeats(); save(); lastHud=''; } }
   if(G.star){ G.star.t+=dt; if(G.star.t>G.star.dur) G.star=null; }
   else if(nightness(phase())>.7 && (G.st==='idle'||G.st==='waiting') && Math.random()<dt/80){ G.star={x0:rnd(.3,.9)*W, y0:rnd(.04,.16)*H, t:0, dur:2.8}; }
 }
-function jumperPos(j){ const k=j.t/j.dur; const x=castX(j.p)+ (k-.5)*30, y=waterY(castX(j.p)) - Math.sin(k*Math.PI)*H*j.h; return {x,y,k}; }
+function jumperPos(j){ const k=j.t/j.dur, bx=castX(j.p), wy=waterY(bx), hh=H*j.h;
+  if(j.pat==='skip'){ const hop=k<.42?k/.42:(k-.42)/.58, ht=k<.42?.5:1; return {x:bx+(k-.5)*56, y:wy-Math.sin(hop*Math.PI)*hh*ht, k}; }
+  if(j.pat==='zig') return {x:bx+(k-.5)*24+Math.sin(k*Math.PI*3)*22, y:wy-Math.sin(k*Math.PI)*hh*1.1, k};
+  if(j.pat==='high') return {x:bx+(k-.5)*48, y:wy-Math.sin(k*Math.PI)*hh*1.6, k};
+  return {x:bx+(k-.5)*30, y:wy-Math.sin(k*Math.PI)*hh, k}; }
 function starPos(){ const s=G.star, k=s.t/s.dur; return {x:s.x0-k*W*.35, y:s.y0+k*H*.12, k}; }
 function canvasXY(e){ const r=cv.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
 function frenzyHit(e){ if(!e||!G.fz) return; const m=canvasXY(e); let best=null, bd=38*38; for(const j of G.fz.jumpers){ if(j.hit) continue; const p=jumperPos(j); const d=(p.x-m.x)**2+(p.y-m.y)**2; if(d<bd){ bd=d; best=j; } }
-  if(best){ best.hit=best.t; G.fz.caught++; const p=jumperPos(best); splash(p.x,p.y,10); tone(900+G.fz.caught*30,.08,'triangle',.06); } }
+  if(best){ best.hit=best.t; G.fz.caught++; if(best.sh){ G.fz.sh=(G.fz.sh||0)+1; sfx.shiny(); } const p=jumperPos(best); splash(p.x,p.y,best.sh?18:10); tone(900+G.fz.caught*30,.08,'triangle',.06); } }
 function starHit(e){ if(!e||!G.star) return false; const m=canvasXY(e), p=starPos(); if((p.x-m.x)**2+(p.y-m.y)**2>44*44) return false;
   const fo=pick(FORTUNES); addBuff(fo[1],fo[2],10,'Falling star'); S.gstats.stars++; G.star=null; sfx.shiny(); toast('You caught a falling star! Your wish: '+fmtB(fo[1],fo[2])+' for 10 min'); checkFeats(); save(); lastHud=''; return true; }
 function drawEvents(t){ drawWeatherX(t,weather(),HZ());
   if(G.star){ const p=starPos(); const a=Math.sin(p.k*Math.PI); const gr=g.createLinearGradient(p.x,p.y,p.x+70,p.y-24); gr.addColorStop(0,'rgba(255,245,200,'+a+')'); gr.addColorStop(1,'rgba(255,245,200,0)'); g.strokeStyle=gr; g.lineWidth=3; g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x+70,p.y-24); g.stroke(); g.fillStyle='rgba(255,250,220,'+a+')'; g.beginPath(); g.arc(p.x,p.y,3.5,0,7); g.fill(); }
-  if(G.st==='frenzy' && G.fz){ for(const j of G.fz.jumpers){ const p=jumperPos(j); g.save(); g.translate(p.x,p.y); if(j.hit){ g.globalAlpha=Math.max(0,1-(j.t-j.hit)/.4); g.fillStyle='#ffc94d'; g.font='800 16px system-ui'; g.textAlign='center'; g.fillText('+1',0,-14-(j.t-j.hit)*40); }
-      else { g.rotate(-Math.cos(p.k*Math.PI)*.9); drawCreature(g,j.sp,0,0,30,{wag:t*20,flip:true}); } g.restore(); } } }
+  if(G.st==='frenzy' && G.fz){ for(const j of G.fz.jumpers){ const p=jumperPos(j); g.save(); g.translate(p.x,p.y); if(j.hit){ g.globalAlpha=Math.max(0,1-(j.t-j.hit)/.4); g.fillStyle='#ffc94d'; g.font='800 '+(j.sh?20:16)+'px system-ui'; g.textAlign='center'; g.fillText(j.sh?'+5 ✦':'+1',0,-14-(j.t-j.hit)*40); }
+      else { if(j.sh){ v3glow(g,0,0,30,'rgba(255,224,120,.95)',.55+.25*Math.sin(t*14)); } g.rotate(-Math.cos(p.k*Math.PI)*.9); drawCreature(g,j.sp,0,0,j.sh?34:30,{wag:t*(j.sh?28:20),flip:true,shiny:j.sh}); } g.restore(); } } }
 function drawFrenzyHUD(t){ const fz=G.fz; if(!fz) return; const left=Math.max(0,fz.dur-fz.t); const txt='Fish frenzy  ·  '+fz.caught+' caught  ·  '+left.toFixed(1)+' s'; g.font='800 15px "Bricolage Grotesque", system-ui'; const tw=g.measureText(txt).width;
   g.fillStyle='rgba(5,14,20,.78)'; rr(W/2-tw/2-14,12,tw+28,30,15); g.fill(); g.fillStyle='#ffc94d'; g.textAlign='center'; g.fillText(txt,W/2,32); }
 
