@@ -156,3 +156,42 @@ body.pc-app.side-off #tabs,body.pc-app.side-off #panel{display:none!important}
 body.pc-wide.side-off .wrap{grid-template-columns:minmax(0,1fr)}
 body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
 </style>`);
+
+// ---------------------------------------------------------------------
+// "Where is that?" Every page says where you are; the search opens on a map of every page with what it is for; badges
+// say what is waiting; and search knows the newer things.
+// ---------------------------------------------------------------------
+const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, and your daily reward', events:'Challenges, the event calendar and the derby',
+  shop:'Line, reel and other gear, bait and special lures', rods:'Your rods, upgrades and attachments', skills:'Spend skill points on small steady gains', paths:'Big choices that shape your style',
+  aquarium:'Fish that earn coins and boosts while you play', trophy:'Fish you keep forever', journal:'Every species and oddity, found and missing', feats:'Goals with rewards',
+  home:'Your dock and its decorations', pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',
+  settings:'Sound, controls, display, patch notes and saves', stats:'Every number in the game, and your odds', save:'Move your progress to another device'};
+SEARCH_IDX.push(
+ ['Events: challenges','events',null,'challenge rare run mixed bag long cast steady hands treasure dive weigh in trophy'],
+ ['Events: calendar','events',null,'calendar schedule shoal run golden hour market rush live next'],
+ ['Daily reward','bounties',null,'daily login gift reward streak'],
+ ['Fish odds','shop',['tackleview','bait'],'odds chance epic rare legendary percent bait best'],
+ ['Hide menus','settings',null,'hide menus collapse full water bigger screen'],
+ ['Keyboard shortcuts','settings',null,'keyboard shortcuts keys hotkeys help']);
+// a breadcrumb at the top of every page
+(function(){ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){} return r; }; })();
+// the search opens on a map of every page, grouped by section
+(function(){ const res=$('searchres'), q=$('searchq'); if(!res||!q) return; const ov=$('searchov');
+  const map=()=>{ if(q.value.trim()) return; const secs=MENU_SECS.concat([{id:'more',name:'Settings',tabs:MENU_MORE.tabs}]);
+    res.innerHTML='<div class="sv-map">'+secs.map(s=>`<div class="sv-sec"><div class="sv-sec-h">${esc(s.name)}</div>${s.tabs.filter(t=>t==='settings'||menuTabBtn(t)||t==='stats'||t==='save').map(t=>`<button type="button" class="sv-r sv-p" data-tab="${t}"><b>${esc(menuTabLabel(t)[1]||t)}</b><span class="meta">${esc(PAGE_DESC[t]||'')}</span></button>`).join('')}</div>`).join('')+'</div>'; };
+  new MutationObserver(()=>{ if(!ov.hidden&&!q.value.trim()&&!res.querySelector('.sv-map')) map(); }).observe(res,{childList:true});
+  res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){} },true);
+  q.placeholder='Search, or pick a page below'; })();
+// badges say what is waiting
+setInterval(()=>{ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
+    const tip=parts.length?sec.name+': '+parts.join(', '):sec.name; if(b.title!==tip) b.title=tip; });
+  T.querySelectorAll('.subp').forEach(p=>{ const t=p.dataset.sub, n=menuDot(t), tip=(menuTabLabel(t)[1]||'')+(PAGE_DESC[t]?': '+PAGE_DESC[t]:'')+(n?' ('+n+' waiting)':''); if(p.title!==tip) p.title=tip; }); },1500);
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel > .crumb{display:flex;align-items:center;gap:6px;font:800 10.5px var(--display,system-ui);letter-spacing:.09em;text-transform:uppercase;color:#7f97b2;margin:2px 0 4px}
+#panel > .crumb b{color:#cfdcea;font-weight:800}
+#panel > .crumb span::after{content:"›";margin-left:6px;color:#55708f}
+#searchres .sv-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px 14px;max-height:min(60vh,520px);overflow:auto;padding:2px}
+#searchres .sv-sec-h{font:800 10.5px var(--display,system-ui);letter-spacing:.09em;text-transform:uppercase;color:#97abc2;margin:2px 0 4px}
+#searchres .sv-p{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left}
+#searchres .sv-p .meta{font-size:11.5px;line-height:1.3}
+</style>`);
