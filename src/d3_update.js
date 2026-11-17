@@ -6,6 +6,9 @@
 const GAME_VERSION = '0.4';
 const PATCHES = [
  {v:'0.4', name:'Fifty Fathoms', items:[
+  '## Hunts',
+  'New in the Fish Log: Hunts. Pick up to 3 fish you are still missing at each water, and each one turns up twice as often whenever it can bite. Every water keeps its own hunts, and catching a hunted fish completes its hunt.',
+  'Hunted fish are marked HUNTING in the log, the water shows how many hunts you have there, and a fish’s page shows your real chance of catching it.',
   '## Fishing feel',
   'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
   'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',
@@ -40,7 +43,7 @@ const PATCHES = [
   'Four new relics, and the fish in your aquarium now go to the Trophy Room when you set sail instead of being lost.',
   'Tiny hybrids are worth keeping: the smaller a hybrid is for its kind, the bigger its aquarium boost.',
   '## A new look',
-  'Every scene has real depth now: a slow camera drift moves the sky, the land and the blurred foreground at different speeds, with each water framed by something close to the lens in its own theme.',
+  'Every scene has real depth now: a slow camera drift moves the sky, the land and the water at different speeds.',
   'Ember Springs looks properly volcanic, with scorched hills and burnt trees instead of green grass.',
   'Fish are drawn with rounded bodies, a lateral line and a wet sheen, and every fin, spine, crown and feeler now grows out of the body. Nothing floats or looks pasted on.',
   'Your angler has more natural proportions, softer shading and a contact shadow. Clothes have a woven texture with creases at the elbows and knees.',
