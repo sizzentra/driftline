@@ -213,7 +213,7 @@ function catchOdds(opts={}){ const keep={bait:S.baitSel, rod:S.rods&&S.rods.eq, 
   try{ if(opts.bait) S.baitSel=opts.bait; if(opts.rod&&S.rods) S.rods.eq=opts.rod; if(opts.lucky!=null) S.perks=Object.assign({},S.perks,{lucky:opts.lucky});
     const p=phase(), b=BAIT[S.baitSel], rare=rareScore(distanceMods(), !!opts.far, !!opts.hot, p), pool=SP.filter(s=>s.loc===(opts.loc||S.loc) && timeOk(s,p));
     const ws=pool.map(s=>opts.mul?rarBase(s,pool)*opts.mul(rare,RAR[s.r].f):catchW(s,pool,rare,b)), tot=ws.reduce((a,c)=>a+c,0)||1, by=[0,0,0,0,0,0]; pool.forEach((s,i)=>by[s.r]+=ws[i]/tot);
-    const ev=opts.ev?pool.reduce((a,s,i)=>a+ws[i]/tot*opts.ev(s),0):0; return {by, epic:by[3]+by[4]+by[5], legend:by[4]+by[5], ev, rare}; }
+    const ev=opts.ev?pool.reduce((a,s,i)=>a+ws[i]/tot*opts.ev(s),0):0; return {by, epic:by[3]+by[4]+by[5], legend:by[4]+by[5], ev, rare, shares:pool.map((s,i)=>[s,ws[i]/tot])}; }
   finally{ S.baitSel=keep.bait; if(S.rods) S.rods.eq=keep.rod; S.perks=keep.perks; } }
 const fmtOdds = x => x>=.1 ? (x*100).toFixed(0)+'%' : x>=.01 ? (x*100).toFixed(1)+'%' : (x*100).toFixed(2)+'%';
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
