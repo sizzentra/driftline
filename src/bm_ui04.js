@@ -898,9 +898,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 // the menu page never rubber-bands past its top or bottom (an older rule with a stronger selector kept "contain")
 document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscroll-behavior:none!important}</style>');
-{ const P=$('panel'); let y0=0; P.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true});
-  P.addEventListener('touchmove',e=>{ if(!MENU_OPEN||e.touches.length!==1) return; const dy=e.touches[0].clientY-y0; const atTop=P.scrollTop<=0, atEnd=P.scrollTop+P.clientHeight>=P.scrollHeight-1;
-    if((atTop&&dy>0)||(atEnd&&dy<0)){ let n=e.target; while(n&&n!==P){ const cs=getComputedStyle(n); if(/(auto|scroll)/.test(cs.overflowY)&&n.scrollHeight>n.clientHeight+1) return; n=n.parentElement; } if(e.cancelable) e.preventDefault(); } },{passive:false}); }
+// (the touch guard that used to sit here is replaced by the page-wide one at the end of this file, which also leaves
+//  sideways swipes alone and covers the top bars)
 
 // =====================================================================
 // Two more chips in the top bar while fishing: Aquarium (income per hour; gold when coins are waiting) and Fish Log
@@ -1260,3 +1259,30 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
  #menuov #panel:has(> .tank) > .badges{order:4;margin-top:8px}
  #menuov #panel:has(> .tank) > .dl-head > :not(.bank){order:5;margin-top:6px}
 }</style>`);
+// heavy fog is drawn behind the dock, the angler and the pets (it used to be laid over them, washing out your own angler);
+// the far shore and the middle distance still fade into it, and a light veil stays over the near water (2026-11-17)
+{ let FOG_EARLY=false; const _dwx=drawWeatherX, _vp=v3Platform;
+  drawWeatherX=function(t,wx,hz){ if(wx&&wx.k==='Fog'&&!FOG_EARLY) return; return _dwx.apply(this,arguments); };
+  v3Platform=function(L,t,night,dockY,pb){ try{ const wx=weather(); if(wx.k==='Fog'){ FOG_EARLY=true; _dwx(t,wx,HZ()); } }catch(e){} finally{ FOG_EARLY=false; } return _vp.apply(this,arguments); }; }
+// ---------- touch: no bouncing past the top bars, no long-press menus, no text selection, no zoom (director, 2026-11-17) ----------
+// 1. Pulling a list past its top or bottom never drags the page (iPhone Safari rubber-bands the whole page otherwise, sliding
+//    pages under the top panels). A drag is let through only to a box that can still scroll that way; sideways drags (tab rows,
+//    sliders) are untouched.
+{ let lx=0, ly=0; document.addEventListener('touchstart',e=>{ if(e.touches.length===1){ lx=e.touches[0].clientX; ly=e.touches[0].clientY; } },{passive:true});
+  document.addEventListener('touchmove',e=>{ if(e.touches.length!==1) return; const tx=e.touches[0].clientX, ty=e.touches[0].clientY, dx=tx-lx, dy=ty-ly; lx=tx; ly=ty;
+    if(Math.abs(dx)>Math.abs(dy)) return; if(!dy) return;
+    for(let n=e.target; n&&n!==document.documentElement; n=n.parentElement){ if(n.nodeType!==1) continue; const oy=getComputedStyle(n).overflowY;
+      if((oy==='auto'||oy==='scroll')&&n.scrollHeight>n.clientHeight+1){ if((dy>0&&n.scrollTop>0)||(dy<0&&n.scrollTop+n.clientHeight<n.scrollHeight-1)) return; break; } }
+    if(e.cancelable) e.preventDefault(); },{passive:false}); }
+// 2. No long-press callout (copy / share / look up), no text selection and no image dragging anywhere in the game, except in
+//    text fields (pet names, save codes); no pinch or double-tap zoom.
+document.head.insertAdjacentHTML('beforeend',`<style>
+html,body{overscroll-behavior:none;touch-action:manipulation}
+body,body *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+body input,body textarea,body select,body [contenteditable="true"]{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
+img,canvas,svg{-webkit-user-drag:none}
+</style>`);
+document.addEventListener('contextmenu',e=>{ if(!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault(); });
+document.addEventListener('selectstart',e=>{ if(!e.target.closest||!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault(); });
+for(const ev of ['gesturestart','gesturechange']) document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
+document.addEventListener('dblclick',e=>{ if(!e.target.closest('input,textarea')) e.preventDefault(); },{passive:false});

@@ -8,14 +8,22 @@
 // =====================================================================
 const WX3={};
 function wx3sun(hz){ const p=phase(), sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45; return {x:W*(.1+.8*k), y:hz-Math.sin(k*Math.PI)*hz*.8+10, up}; }
+// where the rainbow stands, shared by the sky arc and its reflection: like a real one it is on the side away from the
+// sun and sinks lower as the sun climbs, so it never rings the sun (it used to sit right around it; 2026-11-17)
+// the blood moon takes the moon's own place at night (it used to hang beside the normal moon: two moons); by day it keeps its spot
+function wx3BloodMoon(hz){ const s=wx3sun(hz); return s.up?{x:W*.78,y:hz*.32}:{x:s.x,y:s.y}; }
+function wx3BloodMoonDisc(mx,my,a){ const r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
+  g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
+function wx3Rainbow(hz){ const s=wx3sun(hz), R=H*.66; if(!s.up) return {cx:W*.62, cy:hz+H*.28, R};
+  const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.2+.36*elev); return {cx, cy, R}; }
 function wx3k(){ try{ return weather().k; }catch(e){ return 'Clear'; } }
 const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------
 function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0;
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const cx=W*.62, cy=hz+H*.28, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
-      g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); }
-      g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI*1.06,Math.PI*1.94); g.stroke(); g.restore(); } }
+  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
+      g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI,Math.PI*2); g.stroke(); }
+      g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI,Math.PI*2); g.stroke(); g.restore(); } }
   if(k==="Aurora"){ const A=a*(.55+.45*night);
     // the curtains are drawn into a small offscreen picture (half resolution, about 20 refreshes a second: they move slowly
     // and are soft, so nobody can tell) and added to the sky in one step. Drawing ~240 additive strips straight onto a
@@ -30,8 +38,9 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
         for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; o.globalAlpha=.16+.12*Math.sin(X*.03+t*1.3+b*2); o.save(); o.translate(0,dy); o.fillRect(X,y0-hz*.24,sw+1,hz*.32); o.restore(); } } }
     g.save(); g.globalCompositeOperation='lighter'; g.globalAlpha=A; g.drawImage(AU.c,0,0,cw/q,chh/q); g.restore(); }
   if(k==='Blood Moon'){ const tint=g.createLinearGradient(0,0,0,hz); tint.addColorStop(0,'rgba(60,0,12,'+(.35*a)+')'); tint.addColorStop(1,'rgba(150,20,30,'+(.25*a)+')'); g.fillStyle=tint; g.fillRect(0,0,W,hz+1);
-    const mx=W*.78, my=hz*.32, r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
-    g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
+    // by day the blood moon hangs in its own spot here; at night it is drawn in the moon's place by the scene (wx3BloodMoonDisc),
+    // so the land in front covers it just like the normal moon
+    if(wx3sun(hz).up){ const bm=wx3BloodMoon(hz); wx3BloodMoonDisc(bm.x,bm.y,a); } }
   if(k==='Gilded'){ const s=wx3sun(hz), A=a*(1-night*.8)*.14; if(s.up&&A>.01){ g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<7;i++){ const ang=Math.PI*.15+i*Math.PI*.1+Math.sin(t*.12+i)*.03, L=H*1.2, w=.05+(i%3)*.02; g.fillStyle='rgba(255,210,120,'+(A*(.6+.4*Math.sin(t*.6+i*1.7)))+')'; g.beginPath(); g.moveTo(s.x,s.y); g.lineTo(s.x+Math.cos(ang-w)*L,s.y+Math.sin(ang-w)*L); g.lineTo(s.x+Math.cos(ang+w)*L,s.y+Math.sin(ang+w)*L); g.closePath(); g.fill(); } g.restore(); } }
   if(k==='Storm'||k==='Rain'){ const A=a*(k==='Storm'?.55:.32); g.fillStyle=k==='Storm'?'rgba(40,46,56,'+A+')':'rgba(70,78,90,'+A+')';
     for(let i=0;i<6;i++){ const sp=k==='Storm'?.025:.012, cw=W*(.22+(i%3)*.08), cx=((i*.31+t*sp*(1+i%2*.4))%1.4)*W-W*.2, cy=hz*(.12+(i%3)*.14); g.beginPath(); g.ellipse(cx,cy,cw*.5,hz*.05,0,0,7); g.ellipse(cx+cw*.25,cy+hz*.02,cw*.35,hz*.045,0,0,7); g.ellipse(cx-cw*.28,cy+hz*.025,cw*.3,hz*.04,0,0,7); g.fill(); } }
@@ -47,10 +56,19 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
   if(k==='Storm'&&FX){ g.fillStyle=v3rgba('#e8f0f4',.4*a); for(let i=0,n=Math.round(20*gfxK());i<n;i++){ const y=hz+H*.03+Math.pow((i*.137)%1,1.4)*(H-hz)*.9, u=(y-hz)/(H-hz), x=((((i*97.3)%1000)/1000*W+t*W*(.03+u*.04))%(W*1.1))-W*.05, l=W*(.012+u*.03); g.globalAlpha=a*(.4+.4*Math.sin(t*2+i)); g.fillRect(x,y,l,Math.max(1,u*2.4)); } g.globalAlpha=1; }
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.13; if(A>.01){ const cx=W*.62, cy=hz-H*.28+hz*0, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012; g.save(); g.beginPath(); g.rect(0,hz,W,H*.22); g.clip(); g.translate(0,hz*2); g.scale(1,-1); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A; g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,hz+H*.28,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); } g.restore(); }
+  if(k==='Rainbow'){ const A=a*(1-night*.85)*.2; if(A>.01){
+      // the rainbow's reflection: the sky arc mirrored in the horizon (centre hz-.28H, the mirror of the sky arc's hz+.28H),
+      // faded smoothly with depth and laid on in thin rippling strips like the land's reflection. It used to be a sharp,
+      // full-strength copy cut off by a hard straight edge (director, 2026-11-17).
+      const depth=Math.min(H-hz,H*.3), q=.5, cw=Math.max(8,Math.ceil(W*q)), ch=Math.max(4,Math.ceil(depth*q)), RB=wx3Water.rb||(wx3Water.rb={c:document.createElement('canvas')}), RP=wx3Rainbow(hz), key=cw+'|'+ch+'|'+Math.round(H)+'|'+Math.round(hz)+'|'+Math.round(RP.cx/2)+'|'+Math.round(RP.cy/2);
+      if(RB.key!==key){ RB.key=key; if(RB.c.width!==cw||RB.c.height!==ch){ RB.c.width=cw; RB.c.height=ch; } const o=RB.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,ch); o.setTransform(q,0,0,q,0,0);
+        const cx=RP.cx, R=RP.R, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012; o.lineWidth=bw*1.25;
+        for(let i=0;i<7;i++){ o.strokeStyle=cols[i]; o.beginPath(); o.arc(cx,-(RP.cy-hz),R-i*bw,0,Math.PI); o.stroke(); }
+        o.setTransform(1,0,0,1,0,0); o.globalCompositeOperation='destination-in'; const fg=o.createLinearGradient(0,0,0,ch); fg.addColorStop(0,'rgba(0,0,0,1)'); fg.addColorStop(.45,'rgba(0,0,0,.55)'); fg.addColorStop(1,'rgba(0,0,0,0)'); o.fillStyle=fg; o.fillRect(0,0,cw,ch); o.globalCompositeOperation='source-over'; }
+      g.save(); g.globalAlpha=A; const sh=Math.max(2,H/220); for(let y=0;y<depth;y+=sh){ const u=y/depth, dx=Math.sin(y*.21+t*1.7)*(.6+u*3.2)+Math.sin(y*.07-t*.9)*(.4+u*1.4); g.drawImage(RB.c,0,y*q,cw,Math.max(1,sh*q),dx,hz+y,W,sh+.5); } g.restore(); }
     if(FX){ g.fillStyle='rgba(255,250,230,'+(.6*a*(1-night))+')'; for(let i=0;i<10;i++){ const x=W*((i*.173+t*.01)%1), y=hz+H*(.03+((i*37)%10)/40); if(Math.sin(t*3+i*2)>.6) g.fillRect(x,y,1.6,1.6); } } }
   if(k==="Aurora"){ const A=a*(.5+.5*night); g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<14;i++){ const x=W*((i*.071+Math.sin(t*.2+i)*.01)%1), y=hz+H*(.01+((i*13)%9)/80), cl=i%3===1?'150,110,255':'90,255,170'; g.fillStyle='rgba('+cl+','+(A*(.12+.1*Math.sin(t*1.5+i)))+')'; g.fillRect(x,y,W*(.03+(i%4)*.01),1.6); } g.restore(); }
-  if(k==='Blood Moon'){ const mx=W*.78; g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<10;i++){ const y=hz+H*(.012+i*i*.006), w=W*(.012+i*.004)*(1+.2*Math.sin(t*2+i)); g.fillStyle='rgba(255,60,50,'+(a*.22*(1-i/10))+')'; g.fillRect(mx-w/2+Math.sin(t*1.3+i)*3,y,w,Math.max(1,H*.003)); } g.restore();
+  if(k==='Blood Moon'){ const mx=wx3BloodMoon(hz).x; g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<10;i++){ const y=hz+H*(.012+i*i*.006), w=W*(.012+i*.004)*(1+.2*Math.sin(t*2+i)); g.fillStyle='rgba(255,60,50,'+(a*.22*(1-i/10))+')'; g.fillRect(mx-w/2+Math.sin(t*1.3+i)*3,y,w,Math.max(1,H*.003)); } g.restore();
     const rg=g.createLinearGradient(0,hz,0,H); rg.addColorStop(0,'rgba(120,10,20,'+(a*.18)+')'); rg.addColorStop(1,'rgba(40,0,8,'+(a*.25)+')'); g.fillStyle=rg; g.fillRect(0,hz,W,H-hz); }
   if(k==='Gilded'){ const A=a*(1-night*.7); g.fillStyle='rgba(255,215,120,'+(A*.07)+')'; g.fillRect(0,hz,W,H-hz); if(FX){ for(let i=0;i<22;i++){ const x=W*((i*.113+t*.004*(1+i%3))%1), y=hz+H*(.02+((i*41)%30)/60), tw=Math.sin(t*4+i*1.7); if(tw>.3){ g.fillStyle='rgba(255,226,140,'+(A*.8*tw)+')'; g.fillRect(x,y,2+tw*2,1.4); } } } }
   if(k==='Fog'){ for(let i=0;i<5;i++){ const y=hz+H*(.01+i*.035), x=((i*.37+t*.006*(1+i*.3))%1.6)*W-W*.3, w=W*(.5+(i%2)*.2); const fg=g.createRadialGradient(x+w/2,y,0,x+w/2,y,w*.5); fg.addColorStop(0,'rgba(215,222,228,'+(a*.28)+')'); fg.addColorStop(1,'rgba(215,222,228,0)'); g.save(); g.translate(0,y); g.scale(1,.12); g.translate(0,-y); g.fillStyle=fg; g.fillRect(x,y-w*.5,w,w); g.restore(); } }

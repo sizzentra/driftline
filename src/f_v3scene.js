@@ -264,6 +264,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const vis=(1-gloom*.85)*(up?1:clamp(night*1.2,0,1))*(1-(SC.overcast||0));
   if(up){ v3glow(g,sx,sy,H*.42,v3rgba(P.glow,.9),vis*(.55+P.d*.4)); g.fillStyle=mix(P.glow,'#ffffff',.5); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.045,0,7); g.fill(); g.globalAlpha=1; }
   else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); g.save(); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sx,sy,H*.03,0,Math.PI*2); g.moveTo(sx+H*.013+H*.028,sy-H*.009); g.arc(sx+H*.013,sy-H*.009,H*.028,0,Math.PI*2); g.fill('evenodd'); g.restore(); }
+  if(!up&&typeof wx3BloodMoonDisc==='function'&&wx3k()==='Blood Moon'&&wx3A()>.01) wx3BloodMoonDisc(sx,sy,wx3A()); // the blood moon is the moon (2026-11-17)
   // soft clouds: a bumpy top made of overlapping puffs, a flat base, lighter on top, lit underside; drifting
   for(let i=0;i<(SC.noClouds?0:3);i++){ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015);
     const cg=g.createLinearGradient(0,cy-chh,0,cy); cg.addColorStop(0,v3rgba(mix(P.cloud,'#ffffff',.25),.85*(1-gloom*.3))); cg.addColorStop(1,v3rgba(P.cloud,.8*(1-gloom*.3)));

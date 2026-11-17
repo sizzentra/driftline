@@ -129,13 +129,25 @@ ui(){ QA.sys='UI';
     clearAt(.3); for(const L of LOCS){ const cr=coins(L.id); cr.slice(0,2).forEach(bk=>{ if(BAIT[bk].loc&&BAIT[bk].loc!==L.id) e.push(bk+' is a top-2 pick at '+L.id); }); }
     window.__off=off0; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
   T('Boardwalk pays prizes: duck, scratch and higher-or-lower never pay coins; wear prizes are never duplicates or prize-counter items; owning everything pays tickets',()=>{ const e=[]; S.money=1e12; const m0=S.money, B=bestLoot(); let cost=0;
-    for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; }
+    // feats are paused while the games run: a hat won at the duck pond can finish "Hat trick" (2,000 coins), which is the feat paying, not the game
+    const cf=checkFeats; checkFeats=function(){}; try{ for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; } } finally{ checkFeats=cf; }
     if(S.money!==m0-cost) e.push('games paid '+fmt(S.money-(m0-cost))+' coins');
     const seen=new Set(); let r, guard=0; while((r=bwWearPrize(guard%3===0))&&guard++<2000){ const key=r.wear.kind+':'+r.wear.id; if(seen.has(key)) e.push('duplicate '+key); seen.add(key); if((r.wear.kind==='petacc'&&r.wear.id in PRIZE_ACC)||(r.wear.kind==='pettint'&&r.wear.id in PRIZE_TINT)) e.push('prize-counter item '+key); }
     if(!seen.size) e.push('no wear prizes at all'); if(bwWearPool().length||bwPool().some(x=>!bwOwned(x))) e.push('pool not empty after drawing everything');
     const t0=S.tickets; wheelPrize(WHEEL.findIndex(w=>w[0]==='JACKPOT')); if(S.tickets!==t0+400) e.push('jackpot with everything owned gave '+(S.tickets-t0)+' tickets');
     for(const k of ['small','big']){ S.tokens[k]=1; crateRes=null; act('crate',{k,free:1}); if(!crateRes||!crateRes.title) e.push(k+' crate gave nothing'); } crateRes=null;
     return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:seen.size+' wear prizes drawn, all different'}; });
+  T('touch: a page never bounces past its top or bottom or under the top bars; scrolling and sideways swipes still work; no selection or long-press menu except in text fields',()=>{ if(typeof Touch!=='function'||typeof TouchEvent!=='function') return {ok:true,detail:'no touch events in this browser'};
+    const drag=(el,dx,dy)=>{ const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+Math.min(r.height/2,20), mk=(cx,cy)=>new Touch({identifier:7,target:el,clientX:cx,clientY:cy});
+      el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[mk(x,y)],changedTouches:[mk(x,y)]})); const ev=new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[mk(x+dx,y+dy)],changedTouches:[mk(x+dx,y+dy)]}); el.dispatchEvent(ev);
+      el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],changedTouches:[mk(x+dx,y+dy)]})); return ev.defaultPrevented; };
+    const e=[]; openMenu('journal'); const P=$('panel'), it=P.querySelector('button')||P; P.scrollTop=0; if(!drag(it,0,30)) e.push('pull down at the top not blocked');
+    if(P.scrollHeight>P.clientHeight+40){ P.scrollTop=40; if(drag(it,0,30)) e.push('scrolling up mid-page blocked'); P.scrollTop=0; if(drag(it,0,-30)) e.push('scrolling down from the top blocked'); }
+    const top=document.querySelector('#menuov .mo-in > *'); if(top&&!drag(top,0,30)) e.push('drag on the top bar not blocked'); if(drag(it,-40,3)) e.push('sideways swipe blocked');
+    const us=el=>{ const s=getComputedStyle(el); return s.userSelect||s.webkitUserSelect; }; if(us(it)!=='none') e.push('menu button selectable');
+    openMenu('pets'); const nm=$('petname'); if(nm&&us(nm)!=='text') e.push('pet name field not selectable'); closeMenu();
+    if(!/user-scalable=no/.test((document.querySelector('meta[name=viewport]')||{}).content||'')) e.push('viewport allows zoom');
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true}; });
   T('the cast power bar and its label sit above the hint at the bottom of the water, inside the water',()=>{ closeMenu(); const h=$('hint'), cv=$('cv'); if(!h||!cv) return {ok:false,detail:'missing'}; const was=h.textContent; if(!h.textContent.trim()) h.textContent='Release to cast. A far cast or a hotspot improves your odds.';
     const cr=cv.getBoundingClientRect(), hr=h.getBoundingClientRect(); if(!cr.height) return {ok:true,detail:'water not on screen'}; const k=cr.height/H, y=castBarY(), top=cr.top+(y-22)*k, bot=cr.top+(y+18)*k; h.textContent=was;
     const e=[]; if(top<cr.top) e.push('bar above the water'); if(hr.height&&bot>hr.top+1&&top<hr.bottom) e.push('bar '+Math.round(top)+'-'+Math.round(bot)+' overlaps hint '+Math.round(hr.top)+'-'+Math.round(hr.bottom)); return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:innerWidth+'x'+innerHeight}; });
@@ -148,7 +160,7 @@ ui(){ QA.sys='UI';
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
 },
 fuzz(){ QA.sys='Adversarial';
-  T('3,000 random actions (spam, bad ids, bad indexes): no errors, rules always hold',()=>{ const errs=[]; const h=e=>errs.push(String(e.message||e.reason)); addEventListener('error',h); addEventListener('unhandledrejection',h); const os=window.toast;
+  T('3,000 random actions (spam, bad ids, bad indexes): no errors, rules always hold',()=>{ const errs=[]; const h=e=>errs.push(String(e.message||e.reason)+(e.error&&e.error.stack?' @ '+e.error.stack.split(String.fromCharCode(10)).slice(1,4).join(' <- '):'')); addEventListener('error',h); addEventListener('unhandledrejection',h); const os=window.toast;
       const pick=a=>a[Math.floor(Math.random()*a.length)], ks={buygear:Object.keys(GEAR), buybait:Object.keys(BAIT), perk:Object.keys(PERKS), unlock:LOCS.map(l=>l.id), goto:LOCS.map(l=>l.id), dockdecor:Object.keys(DOCKI), dockwood:DOCK_WOODS.map(w=>w[0]), dockstyle:DOCK_STYLES.map(s=>s[0]), buypet:Object.keys(PETI), pet:Object.keys(PETI), rodbuy:RODS.map(r=>r.id), rodeq:RODS.map(r=>r.id), rodup:RODS.map(r=>r.id), usebait:Object.keys(BAIT), dockcopy:LOCS.map(l=>l.id), dockpick:LOCS.map(l=>l.id), chalgo:Object.keys(CHAL), dcol:DW_ORDER, crate:['small','big','legend'], spec:typeof SPECS!=='undefined'?Object.keys(SPECS):[], relic:typeof RELICS!=='undefined'?RELICS.map(r=>r.id||r[0]):[], aqtheme:THEMES.map(t=>t[0]), aqsand:SANDS.map(t=>t[0]), decor:DECOR.map(d=>d.id), encloc:LOCS.map(l=>l.id), bloc:LOCS.map(l=>l.id), enc:SP.map(s=>s.id)};
       const acts=['buygear','buybait','perk','respec','unlock','goto','claim','reroll','collect','sellall','sell','totank','untank','buytank','feed','passclaim','dockdecor','dockwood','dockstyle','dockcopy','dockpick','buypet','pet','rodbuy','rodeq','rodup','usebait','chalgo','chalquit','dcol','retire','cancel','spin','crate','scratch','taskclaim','taskbonus','dhunts','buyoffer','bwbuy','prize','attbuy','rodatt','spec','relic','aqtheme','aqsand','decor','petacc','pettint','look','flip','hilostart','hilo','claw','buyscratch','scratchall','frenzy','duckpick','statsec','tackleview','bwview','encloc','bloc','enc','petedit','pet2','pet2off','tryon','tryoff','dockpv','dockpvoff','aqpv','aqpvoff','petpv','petpvoff','autobait','duckagain','hilocash','wqclaim','wqbonus'];
       let stepFail=null; try{ S.money=Math.max(S.money,5e6); S.scales=Math.max(S.scales,500); for(let n=0;n<(window.__qaN||3000);n++){ const a=pick(acts), k=ks[a]?(Math.random()<.9?pick(ks[a]):pick(['__bad','',undefined])):undefined, i=String(Math.floor(Math.random()*12)-2);
@@ -163,9 +175,18 @@ window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window._
   try{ for(const g of (groups||Object.keys(GROUPS))) GROUPS[g]();
     // async: save codes
     QA.sys='Saves'; const i=QA.R.findIndex(r=>r.name.startsWith('save code')); try{ dockStore(); const ref=JSON.parse(snap()); const c=await makeCode(); const o=await readCode(c); const diff=['money','lvl','journal','unlocked','hunts','docks','dock','gear','cooler','tank'].filter(k=>JSON.stringify(o[k])!==JSON.stringify(ref[k])); if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:!diff.length&&c.startsWith('DL'),detail:!diff.length?'code '+c.length+' chars':'differs: '+diff.join(',')}; }catch(e){ if(i>=0) QA.R[i]={sys:'Saves',name:QA.R[i].name,ok:false,detail:'THREW '+e.message}; }
-  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){} }
+  } finally{ save=os; toast=ot; window.__off=off; restore(keep); G.st='idle'; S.tab=DASH; try{ closeMenu(); setTab(DASH); }catch(e){}
+    // close any event card a test left open (a challenge finished by a test shows its result card a moment later)
+    const shut=()=>{ const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; if(G.st==='event') G.st='idle'; } }; shut(); setTimeout(shut,1600); }
   const fails=QA.R.filter(r=>!r.ok); return {pass:QA.R.length-fails.length, fail:fails.length, fails, all:QA.R}; };
 window.__inv=inv;
+// __sweep(acts, ks, is): every action with every bad id and index, saving switched off and the save restored afterwards;
+// returns the errors with where they came from (the random fuzz only shows the message)
+window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), os=save, ot=toast, errs=[]; save=function(){}; toast=function(){};
+  const h=e=>errs.push((e.error&&e.error.stack?e.error.stack.split('\n').slice(0,5).join(' <- '):String(e.message))); addEventListener('error',h); let n=0;
+  try{ S.money=Math.max(S.money,5e6); for(const a of acts) for(const k of ks) for(const i of is){ G.st=n%3?'idle':'waiting'; const b0=errs.length; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } n++; if(errs.length>b0) errs[errs.length-1]=a+' k='+k+' i='+i+' :: '+errs[errs.length-1]; if(S.tab!==DASH) setTab(DASH); } }
+  finally{ removeEventListener('error',h); save=os; toast=ot; restore(keep); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
+  return {n, errs:[...new Set(errs)].slice(0,10)}; };
 })();
 // test-mode profiler: where a page's render time goes (wraps the heavy drawing helpers while it runs)
 if(/[?&]test\b/.test(location.search)) window.__profUI=(page,n=3)=>{ const acc={}; const wrap=(name,get,set)=>{ const f=get(); set(function(){ const a=performance.now(); try{ return f.apply(this,arguments); } finally{ acc[name]=(acc[name]||0)+performance.now()-a; } }); return ()=>set(f); };
