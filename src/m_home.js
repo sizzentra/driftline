@@ -84,3 +84,5 @@ function homePetX(wh,w){ const pos=S.dock[wh==='2'?'pet2Pos':'petPos']; if(pos!=
 function homePetsDraw(x,w,y,t){ if(S.pet2&&PETI[S.pet2]) drawPetStyled(x,S.pet2,homePetX('2',w),y,2.6*.9*(petBig(S.pet2)?.85:1),t); if(S.pet) drawPetStyled(x,S.pet,homePetX('1',w),y,2.6*(petBig(S.pet)?.85:1),t); }
 // the same spots on the water (the dock there runs from W*.008 to W*.178)
 function scenePetX(pos){ return W*.008+pos*(W*.17); }
+// five evenly spaced support posts under every dock (the water scene and Home always match)
+function dockPosts5(x0,x1,pw){ const a=x0+(x1-x0)*.04, b=x1-(x1-x0)*.04-pw; return [0,1,2,3,4].map(i=>a+i*(b-a)/4); }

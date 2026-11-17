@@ -4,6 +4,10 @@
 // Hat units: origin near the eye line, the head is a dome around (0,-0.6); short hair reaches about
 // r=8.2, a bald head about r=6.4. Bases sit at r~6.8 so they rest on every hairstyle and on a bald head.
 // =====================================================================
+// front-facing pets (Lily, Dax & Niko) never get the side-view brim trim
+let HAT_TRIM_OFF=false;
+// toppers sit on top of the head and never reach the eyes, so they are not raised on front-facing pets
+const HAT_TOPPER=new Set(["fishhat","duckonhead","bunnyears","tiara","catears","mohawk","flower","crown","halo","antlers","party","clawplush","pumpkin","knight","astro","diver","fishbowl"]);
 (function(){
   const CX=0, CY=0.7, P=(r,a)=>[CX+Math.cos(a)*r, CY+Math.sin(a)*r];
   const arcBand=(c,r0,r1,a0,a1,fill)=>{ c.fillStyle=fill; c.beginPath(); c.arc(CX,CY,r1,a0,a1); c.arc(CX,CY,r0,a1,a0,true); c.closePath(); c.fill(); };
@@ -44,9 +48,17 @@
   const _drawHat_fit = drawHat;
   // brims that would reach down over the eye curve up at the front instead (the hat stays on the head)
   const TRIM={pirate:-1.5,sombrero:-1.5,mushroom:-1.4,bucket:-1.5};
-  const _drawHat_trim = function(c,id,col,t){ const ty=TRIM[id]; if(ty===undefined) return false; c.save(); c.beginPath(); c.rect(-40,-60,80,80);
+  const _drawHat_trim = function(c,id,col,t){ const ty=TRIM[id]; if(ty===undefined||HAT_TRIM_OFF) return false; c.save(); c.beginPath(); c.rect(-40,-60,80,80);
     c.moveTo(1.4,20); c.lineTo(1.4,ty+.6); c.quadraticCurveTo(1.6,ty,3.2,ty-.15); c.quadraticCurveTo(8,ty-.5,30,ty-1.6); c.lineTo(30,20); c.closePath(); c.clip('evenodd'); _drawHat_fit(c,id,col,t); c.restore(); return true; };
-  drawHat = function(c,id,col,t=0){ if(_drawHat_trim(c,id,col,t)) return; const seat={fishhat:3.2,duckonhead:2.8}[id]; if(seat){ c.save(); c.translate(0,seat); _drawHat_fit(c,id,col,t); c.restore(); return; } const f=FIT[id]; if(f){ c.save(); c.lineCap='round'; c.lineJoin='round'; f(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); };
+  // front-facing pets (Lily, Dax & Niko): ear pieces sit on both sides of the head; the side-view versions and seat offsets above are for the angler only
+  const FRONT={
+    ushanka(c,col,t){ const dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.3); for(const s of [-1,1]){ c.fillStyle=dk; c.beginPath(); if(c.roundRect) c.roundRect(s*7.4-1.9,-4,3.8,9.4,1.8); else c.rect(s*7.4-1.9,-4,3.8,9.4); c.fill(); c.strokeStyle=lt; c.lineWidth=.35; for(let i=0;i<3;i++){ c.beginPath(); c.moveTo(s*7.4-1.2+i*1.2,-3.2); c.lineTo(s*7.4-1.2+i*1.2,4.6); c.stroke(); } }
+      c.fillStyle=col; c.beginPath(); c.arc(0,-1.6,8.8,Math.PI,0); c.closePath(); c.fill(); c.fillStyle=lt; c.beginPath(); if(c.roundRect) c.roundRect(-9.6,-3.4,19.2,3.4,1.6); else c.rect(-9.6,-3.4,19.2,3.4); c.fill(); c.strokeStyle=dk; c.lineWidth=.3; for(let x=-8.6;x<9;x+=1.4){ c.beginPath(); c.moveTo(x,-3.2); c.lineTo(x,-.3); c.stroke(); } },
+    aviator(c,col,t){ c.fillStyle='#6a4220'; for(const s of [-1,1]){ c.beginPath(); if(c.roundRect) c.roundRect(s*7-1.7,-2.6,3.4,7.2,1.4); else c.rect(s*7-1.7,-2.6,3.4,7.2); c.fill(); }
+      c.fillStyle='#8a5a2a'; c.beginPath(); c.arc(0,-1.5,8.3,Math.PI,0); c.closePath(); c.fill(); c.fillStyle='rgba(255,255,255,.15)'; c.beginPath(); c.ellipse(-2.6,-7,3,1.4,-.3,0,7); c.fill();
+      for(const x of [-2.4,2.4]){ c.fillStyle='#9ad0e8'; c.beginPath(); c.ellipse(x,-6,2.2,1.7,0,0,7); c.fill(); c.strokeStyle='#3a3a3a'; c.lineWidth=.6; c.stroke(); } c.strokeStyle='#3a3a3a'; c.lineWidth=.5; c.beginPath(); c.moveTo(-.2,-6); c.lineTo(.2,-6); c.stroke(); },
+  };
+  drawHat = function(c,id,col,t=0){ if(HAT_TRIM_OFF){ const fr=FRONT[id]; if(fr){ c.save(); c.lineCap='round'; fr(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); } if(_drawHat_trim(c,id,col,t)) return; const seat={fishhat:3.2,duckonhead:2.8}[id]; if(seat){ c.save(); c.translate(0,seat); _drawHat_fit(c,id,col,t); c.restore(); return; } const f=FIT[id]; if(f){ c.save(); c.lineCap='round'; c.lineJoin='round'; f(c,col,t); c.restore(); return; } return _drawHat_fit(c,id,col,t); };
   // these rest on the hair, so the hair under them is never trimmed flat
   for(const id of ['fishhat','duckonhead','mohawk']) A3_HAT_OPEN.add(id);
 })();

@@ -64,7 +64,7 @@ body.v3 .tile, body.v3 .fishrow, body.v3 .spec, body.v3 .jcard, body.v3 .passcel
   background:var(--glass); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--lit), 0 6px 18px #02060f66 }
 body.v3 .tile{ position:relative; overflow:hidden }
 body.v3 .tile::before{ content:""; position:absolute; left:14px; right:14px; top:0; height:1px; background:linear-gradient(90deg,transparent,#ffffff22,transparent); pointer-events:none }
-body.v3 .tile:hover, body.v3 .jcard:hover, body.v3 .spec:hover:not(:disabled){ border-color:#5a7ea8aa; transform:translateY(-1px); box-shadow:var(--lit), 0 10px 26px #02060f88 }
+body.v3 .tile:has(button:not(:disabled),[data-act],a,select,input):hover, body.v3 .jcard:hover, body.v3 .spec:hover:not(:disabled){ border-color:#5a7ea8aa; transform:translateY(-1px); box-shadow:var(--lit), 0 10px 26px #02060f88 }
 body.v3 .tile.done{ border-color:#ffd36a66; box-shadow:var(--lit), 0 0 0 1px #ffd36a22, 0 6px 18px #02060f66, 0 0 26px #ffd36a14 }
 body.v3 .tile h4{ color:#fff }
 body.v3 .spec.on, body.v3 .jcard.sel{ border-color:var(--gold); box-shadow:var(--lit), 0 0 0 1px #ffd36a44, 0 0 24px #ffd36a22 }

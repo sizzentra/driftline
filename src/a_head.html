@@ -50,7 +50,7 @@ button,select{font:inherit;color:inherit}
 /* 2.0 polish */
 html,body{background:radial-gradient(1200px 600px at 50% -10%,#14303c 0%,#0a161d 60%) fixed,#0a161d}
 .tile{background:linear-gradient(180deg,#132a34,#0f222b);box-shadow:0 1px 0 #ffffff08 inset,0 6px 18px #0004;transition:border-color .15s,transform .15s}
-.tile:hover{border-color:#2f5866}
+.tile:has(button:not(:disabled),[data-act],a,select,input):hover{border-color:#2f5866}
 .btn{box-shadow:0 2px 0 #0003,0 4px 12px #ff6a3d22;transition:transform .12s,filter .12s}
 .btn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
 .btn:active:not(:disabled){transform:translateY(1px)}

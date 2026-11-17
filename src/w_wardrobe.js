@@ -65,7 +65,7 @@ function wChips(k,list,cur,label){ return `<div class="chips">${list.map(([v,n])
 function wSw(k,list,cur){ return `<div class="chips">${list.map(([v,cl,n])=>`<button class="sw" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}" style="background:${cl}" title="${esc(n||cl)}"></button>`).join('')}</div>`; }
 function wThumbGrid(k,kind,items,cur){ return `<div class="wd-thumbs">${items.map(([id,n])=>`<button class="wd-th" data-act="look" data-k="${k}" data-v="${id}" aria-pressed="${cur===id}"><canvas width="96" height="96" data-wthumb="${kind}:${id}"></canvas><span>${esc(n)}</span></button>`).join('')}</div>`; }
 renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
-  const secs=[['body','Body'],['clothes','Clothes'],['hats','Hats'],['glasses','Glasses'],['shoes','Shoes'],['neckback','Neck & back'],['shop','Shop']];
+  const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['shop','Shop','🛍️']];
   let body='';
   if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
     <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
@@ -86,7 +86,7 @@ renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].
       <p class="sub">${wShop==='featured'?`A changing selection of things you don’t own yet. New stock in <b id="shopleft">${mmss(Math.ceil(SHOP_LEN-(Date.now()/1000%SHOP_LEN)))}</b>.`:`Every ${W_CATS.find(c=>c[0]===wShop)[1].toLowerCase()} the shop sells, cheapest first. Try anything on before you buy.`}</p>
       <div class="wd-items">${list.length?list.map((it,i)=>wItemCard(it,wShop==='featured'&&it.feat)).join(''):'<div class="empty">You own everything here. Nice.</div>'}</div>`; }
   P.innerHTML=`<h2>Wardrobe</h2><div class="stylewrap wd"><div class="preview wd-prev">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div class="wd-main">
-    <div class="bwx-nav wd-nav" role="tablist">${secs.map(([k,n])=>`<button role="tab" data-act="wsec" data-k="${k}" aria-selected="${wSec===k}">${n}</button>`).join('')}</div>${body}</div></div>`;
+    <div class="bwx-nav wd-nav" role="tablist">${secs.map(([k,n,ic])=>`<button role="tab" data-act="wsec" data-k="${k}" aria-selected="${wSec===k}"><span class="wi" aria-hidden="true">${ic}</span><span class="wl">${n}</span></button>`).join('')}</div>${body}</div></div>`;
   drawLookPreview();
   P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
   P.querySelectorAll('canvas[data-wthumb]').forEach(c=>{ const [kind,id]=c.dataset.wthumb.split(':'); if(id==='none'){ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); cx.fillStyle='rgba(200,220,240,.4)'; cx.font='700 '+Math.round(c.height*.3)+'px system-ui'; cx.textAlign='center'; cx.fillText('—',c.width/2,c.height*.6); return; } wThumb(c.getContext('2d'),kind,id,c.width,c.height); }); };
@@ -106,7 +106,7 @@ extraAct2 = function(b){ const a=b.dataset.act, k=b.dataset.k||'';
 document.head.insertAdjacentHTML('beforeend',`<style>
 .stylewrap.wd{grid-template-columns:minmax(220px,300px) 1fr;align-items:start}
 .wd-prev{position:sticky;top:8px}
-.wd-nav{flex-wrap:wrap} .wd-nav button{min-width:84px}
+.wd-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.wd-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:8px 2px 7px;font-size:11.5px;line-height:1.15;transition:background .15s,color .15s}.wd-nav button:hover:not([aria-selected="true"]){background:#ffffff0d;color:var(--ink)}.wd-nav .wi{font-size:18px;line-height:1;filter:saturate(.85)}.wd-nav button[aria-selected="true"] .wi{filter:none}.wd-nav .wl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}@container (max-width:520px){.wd-nav{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .wd-cats .chipb .meta{font-size:11px;opacity:.8}
 .wd-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
 .wd-item{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:14px;background:var(--glass,#16243a);border:1px solid var(--line);box-shadow:inset 0 1px 0 #ffffff10}

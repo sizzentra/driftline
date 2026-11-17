@@ -185,8 +185,8 @@ function drawLilyGear(c,lk,t){
   if(lk.acc==='glasses'){ c.fillStyle='#14100e'; c.beginPath(); c.ellipse(-2,-1.15,1.55,1.15,0,0,7); c.ellipse(2,-1.15,1.55,1.15,0,0,7); c.fill(); c.strokeStyle='#14100e'; c.lineWidth=.45; c.beginPath(); c.moveTo(-.5,-1.4); c.quadraticCurveTo(0,-1.8,.5,-1.4); c.moveTo(-3.5,-1.3); c.lineTo(-4.6,-1.8); c.moveTo(3.5,-1.3); c.lineTo(4.6,-1.8); c.stroke(); c.fillStyle='rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-2.5,-1.6,.5,.28,-.4,0,7); c.ellipse(1.5,-1.6,.5,.28,-.4,0,7); c.fill(); }
   if(lk.acc==='bow'){ c.save(); c.translate(-3.7,-3.7); c.rotate(-.35); c.fillStyle=col; c.beginPath(); c.moveTo(0,0); c.quadraticCurveTo(-2.2,-1.6,-2.1,.1); c.quadraticCurveTo(-2,1.5,0,0); c.moveTo(0,0); c.quadraticCurveTo(2.2,-1.6,2.1,.1); c.quadraticCurveTo(2,1.5,0,0); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(0,0,.55,0,7); c.fill(); c.restore(); }
   if(lk.acc==='flower'){ const fx=3.7, fy=-3.8; c.fillStyle='#ff9ad0'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(fx+Math.cos(i*1.257)*.75,fy+Math.sin(i*1.257)*.75,.62,.42,i*1.257,0,7); c.fill(); } c.fillStyle='#ffd84a'; c.beginPath(); c.arc(fx,fy,.42,0,7); c.fill(); }
-  if(lk.hat && lk.hat!=="none"){ c.save(); c.translate(0,-.4); c.scale(.75,.75); drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?"#888888":(lk.hatCol||"#c8553a"),t); c.restore(); }
-  if(lk.acc==="partyhat"){ c.save(); c.translate(.6,-.6); c.rotate(.22); c.scale(.66,.66); drawHat(c,"party",col,t); c.restore(); }
+  if(lk.hat && lk.hat!=="none"){ c.save(); c.translate(0,-.4-(HAT_TOPPER.has(lk.hat)?0:(LILY.hatLift==null?1.3:LILY.hatLift))); c.scale(.75,.75); HAT_TRIM_OFF=true; drawHat(c,lk.hat,HATI[lk.hat]&&HATI[lk.hat].fixed?"#888888":(lk.hatCol||"#c8553a"),t); HAT_TRIM_OFF=false; c.restore(); }
+  if(lk.acc==="partyhat"){ c.save(); c.translate(.6,-.6-(LILY.hatLift==null?1.3:LILY.hatLift)); c.rotate(.22); c.scale(.66,.66); drawHat(c,"party",col,t); c.restore(); }
   c.restore(); c.restore();
 }
 

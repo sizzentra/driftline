@@ -65,7 +65,7 @@ const PATCHES = [
   'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
   'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
   'Drag your pets along the dock in Home too; they stay where you put them on the water.',
-  'Your dock stands in the water instead of towering over it, and the Home picture now matches the dock you fish from.',
+  'Your dock stands in the water on five posts instead of towering over it, and the Home picture matches the dock you fish from.',
   'The tank stays in view while you decorate, so every water, floor and decoration shows as you pick it.',
   '## Changes to rewards and progress',
   'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
@@ -88,7 +88,11 @@ const PATCHES = [
   'Buying, equipping or switching something updates the menu in place, without a flash or jump.',
   'On PC the info bar above the water fits on one line.',
   'Mountains look smoother, and the Waters pictures are sharper.',
-  'Tide Pass levels never show the same reward twice.',
+  'Tide Pass levels never show the same reward twice. When you already own everything a level could give, it gives Scales or tickets instead, never the same as the level beside it.',
+  'New Events tab: the fishing derby lives there now, with every medal’s rewards spelled out.',
+  'The Wardrobe tabs have icons, and pets fill the Customize stage whatever their size.',
+  'Pets: hats sit a little higher on front-facing pets so their eyes always show, and ear pieces (ushanka, aviator) sit on both ears.',
+  'Boxes only light up under your mouse when there is something in them to click.',
   '## Fixes',
   'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
   'The streak message now shows the streak you actually lost (it used to always say 0).',
@@ -332,7 +336,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,big?4.2:6.5,now/1000,0,petPreviewLook(id)); x.restore();
+  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -470,3 +474,10 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }
   return undefined; }
+// the Customize stage fits each pet: measured once (drawn small offscreen), then scaled to fill the stage
+const PET_FIT={};
+function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;
+  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; const keepN=PET_NIGHT; PET_NIGHT=0; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'})); PET_NIGHT=keepN;
+    const d=x.getImageData(0,0,o.width,o.height).data; let x0=1e9,y0=1e9,x1=-1,y1=-1; for(let yy=0;yy<o.height;yy++) for(let xx=0;xx<o.width;xx++){ if(d[(yy*o.width+xx)*4+3]>30){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; } }
+    if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){}
+  return PET_FIT[id]=s; }

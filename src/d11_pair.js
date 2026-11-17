@@ -14,7 +14,7 @@
 // =====================================================================
 const PAIR={seenPet:null, pets:0, playT:-9999, yipT:-9999, lastSt:'', force:null, dax:{}, niko:{}};
 const DXC={BK:'#151316', BK2:'#252226', HI:'#3d3944', WH:'#efebe5', GR:'#a8a29a', GR2:'#7a756f', TN:'#6b4a38', RIM:'#5a3a26', IRIS:'#3a2010', NOSE:'#09080a', PK:'#f08a98'};
-const NKC={CR:'#e6c48c', CR2:'#cfa266', CR3:'#f2d9aa', WH:'#f7f1e7', WH2:'#e2d8c8', EAR:'#eca8a2', EAR2:'#d88c86', RIM:'#6a4228', IRIS:'#4a2a14', NOSE:'#7d4a42', PK:'#f08a98'};
+const NKC={CR:'#e9d4ab', CR2:'#d6b483', CR3:'#f3e5c8', WH:'#f8f4ec', WH2:'#e6dfd2', EAR:'#efbcb2', EAR2:'#dc9f96', RIM:'#5e3c26', IRIS:'#3e2412', NOSE:'#93605a', PK:'#f08a98'}; // pale cream, golden-tan only on the back and crown (from his photo)
 function pairEyes(c,h,o,P,lookX){ const {ci,ln}=h;
   if(o.eyes==='happy'){ c.strokeStyle='#120c0a'; c.lineWidth=.55; for(const s of [-1,1]){ c.beginPath(); c.arc(s*2,-.9,.95,Math.PI*1.1,Math.PI*1.9); c.stroke(); } return; }
   if(o.eyes==='closed'||o.blink){ ln([-2.9,-1,-1.1,-.85],'#120c0a',.5); ln([1.1,-.85,2.9,-1],'#120c0a',.5); return; }
@@ -90,49 +90,60 @@ function drawPair(c,t,h){ const {el,ln}=h;
   let boop=!sleep&&!busy()&&(t%23)>15&&(t%23)<17.2, paw=!sleep&&!busy()&&!boop&&(t%19)>8&&(t%19)<9.6, tilt=!boop&&!paw&&(t%7)>5.2&&(t%7)<6.6, twitch=(t%9)>7.6&&(t%9)<8.1;
   let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){} let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
   if(PAIR.force){ const f=PAIR.force; petted=f==='petted'; play=f==='play'; yip=f==='yip'; watching=f==='watch'; sleep=f==='sleep'; boop=f==='boop'; paw=f==='paw'; tilt=f==='tilt'; twitch=f==='twitch'; shiver=f==='shiver'; if(play) PAIR.playT=now-700; if(yip) PAIR.yipT=now-300; }
-  const lk=PAIR.lk||{}, cape=lk.acc==='cape'?(lk.accCol||'#d8303a'):null, blink=h.blink;
+  // each dog has its own look (colour, hat, accessory); the colour is applied per dog, never to hearts, bubbles or z's
+  const dLk=(PAIR.lk&&PAIR.lk!==S.petLook.daxniko_niko)?PAIR.lk:_petLook_pair('daxniko'), nLk=Object.assign({},pairNikoLook(),(dLk.__pv&&PAIR.nikoPv)||{}), blink=h.blink; PAIR.nLk=nLk;
+  const capeOf=l=>l.acc==='cape'?(l.accCol||'#d8303a'):null, dCape=capeOf(dLk), nCape=capeOf(nLk);
+  const tint=(l,fn)=>{ c.save(); c.filter=tintFilter(l,t); fn(); c.restore(); }; c.filter='none';
   if(sleep){ // curled up together: Niko's cream loaf behind, Dax tucked in front of him
     const br=Math.sin(t*1.6)*.3;
-    el(9.6,-3.4,6.4,3.6+br,NKC.CR); el(4.6,-3.2,3.2,2.8,NKC.CR); el(11.8,-1.2,2.4,.8,NKC.WH); ln([15.6,-2.2,16.8,-.6,14.6,.2],NKC.CR2,.9);
-    if(cape){ c.fillStyle=cape; c.beginPath(); c.ellipse(9.6,-5.4-br*.4,5.2,1.6,0,0,7); c.fill(); }
+    tint(nLk,()=>{ el(9.6,-3.4,6.4,3.6+br,NKC.CR); el(4.6,-3.2,3.2,2.8,NKC.CR); el(11.8,-1.2,2.4,.8,NKC.WH); ln([15.6,-2.2,16.8,-.6,14.6,.2],NKC.CR2,.9); });
+    if(nCape){ c.fillStyle=nCape; c.beginPath(); c.ellipse(9.6,-5.4-br*.4,5.2,1.6,0,0,7); c.fill(); }
     PAIR.niko.head=pairFrame(4.4,-6.2,-.1,.78); PAIR.niko.neck=pairFrame(4.4,-2,-.04,.78);
-    c.save(); c.translate(4.4,-6.2); c.rotate(-.1); c.scale(.78,.78); nikoFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
-    el(-2,-2.7,5.4,2.9+br*.8,DXC.BK); el(-6.4,-2.5,2.6,2.4,DXC.BK); ln([2.6,-.8,5.4,-.4,7.4,-1.2],DXC.BK,.8); ln([-4,-5,-1,-5.6],DXC.HI,.3); ln([.4,-5.4,2.4,-5],DXC.HI,.28);
-    if(cape){ c.fillStyle=mix(cape,'#000000',.1); c.beginPath(); c.ellipse(-2,-4.6-br*.3,4.4,1.4,0,0,7); c.fill(); }
-    el(-8.6,-.7,2.2,.75,DXC.BK2);
+    tint(nLk,()=>{ c.translate(4.4,-6.2); c.rotate(-.1); c.scale(.78,.78); nikoFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); });
+    tint(dLk,()=>{ el(-2,-2.7,5.4,2.9+br*.8,DXC.BK); el(-6.4,-2.5,2.6,2.4,DXC.BK); ln([2.6,-.8,5.4,-.4,7.4,-1.2],DXC.BK,.8); ln([-4,-5,-1,-5.6],DXC.HI,.3); ln([.4,-5.4,2.4,-5],DXC.HI,.28); });
+    if(dCape){ c.fillStyle=dCape; c.beginPath(); c.ellipse(-2,-4.6-br*.3,4.4,1.4,0,0,7); c.fill(); }
+    tint(dLk,()=>{ el(-8.6,-.7,2.2,.75,DXC.BK2); });
     PAIR.dax.head=pairFrame(-6.6,-4.6,.12,.7); PAIR.dax.neck=pairFrame(-6.6,-.8,.05,.7);
-    c.save(); c.translate(-6.6,-4.6); c.rotate(.12); c.scale(.7,.7); daxFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); c.restore();
+    tint(dLk,()=>{ c.translate(-6.6,-4.6); c.rotate(.12); c.scale(.7,.7); daxFace(c,h,{eyes:'closed',mouth:'smile',ears:'back',t}); });
     c.save(); for(let k=0;k<3;k++){ const ph=(t*.5+k/3)%1; c.globalAlpha=Math.sin(ph*Math.PI)*.9; c.fillStyle='#cfe6ff'; c.font='bold '+(3+ph*2.5)+'px system-ui'; c.fillText('z',8+ph*5,-11-ph*9); } c.restore();
     return; }
   if(play){ // a play bow together: chests down, rumps up, tails going, little paw prints
-    const k=(now-PAIR.playT)/2400, b=Math.abs(Math.sin(k*Math.PI*6))*1.4;
+    const k=(now-PAIR.playT)/2400, b=Math.abs(Math.sin(k*Math.PI*6))*1.4, nb=-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4;
     c.save(); for(let i=0;i<6;i++){ c.globalAlpha=.28; c.fillStyle='#e8d8c8'; c.beginPath(); c.ellipse(-8+i*3.4,.7,.9,.45,0,0,7); c.fill(); } c.restore();
-    c.save(); c.translate(0,-b); el(DAX_X-1.6,-6.6,3,3,DXC.BK); ln([DAX_X-3.4,-8,DAX_X-6.4,-11+Math.sin(t*24)*1.6],DXC.BK,.9); el(DAX_X+.6,-3.4,3.8,2.6,DXC.BK); el(DAX_X+1.4,-.6,3,.8,DXC.BK2); el(DAX_X+.9,-3.6,.8,1.6,DXC.WH);
+    c.save(); c.translate(0,-b);
+    tint(dLk,()=>{ el(DAX_X-1.6,-6.6,3,3,DXC.BK); ln([DAX_X-3.4,-8,DAX_X-6.4,-11+Math.sin(t*24)*1.6],DXC.BK,.9); el(DAX_X+.6,-3.4,3.8,2.6,DXC.BK); el(DAX_X+1.4,-.6,3,.8,DXC.BK2); el(DAX_X+.9,-3.6,.8,1.6,DXC.WH); });
+    if(dCape){ c.fillStyle=dCape; c.beginPath(); c.ellipse(DAX_X-1,-6.8,3.6,1.5,-.35,0,7); c.fill(); }
+    tint(dLk,()=>{ c.translate(DAX_X+.9,-6.4); c.rotate(.3); c.scale(.8,.8); daxFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:1}); }); c.restore();
     PAIR.dax.head=pairFrame(DAX_X+.9,-6.4-b,.3,.8); PAIR.dax.neck=pairFrame(DAX_X+.9,-2.4-b,.1,.8);
-    c.save(); c.translate(DAX_X+.9,-6.4); c.rotate(.3); c.scale(.8,.8); daxFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:1}); c.restore(); c.restore();
-    c.save(); c.translate(0,-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4); el(NIKO_X+1.8,-7.2,3.2,3.2,NKC.CR); ln([NIKO_X+3.8,-8.6,NIKO_X+7,-11.6+Math.sin(t*24+1)*1.6],NKC.CR2,1); el(NIKO_X-.6,-3.6,4,2.7,NKC.CR); el(NIKO_X-1.4,-.6,3.2,.8,NKC.WH); el(NIKO_X-.8,-3.6,2.2,1.8,NKC.WH);
-    const nb=-Math.abs(Math.sin(k*Math.PI*6+1.4))*1.4; PAIR.niko.head=pairFrame(NIKO_X-.6,-7+nb,-.3,.86); PAIR.niko.neck=pairFrame(NIKO_X-.6,-2.6+nb,-.1,.86);
-    c.save(); c.translate(NIKO_X-.6,-7); c.rotate(-.3); c.scale(.86,.86); nikoFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:-1}); c.restore(); c.restore();
+    c.save(); c.translate(0,nb);
+    tint(nLk,()=>{ el(NIKO_X+1.8,-7.2,3.2,3.2,NKC.CR); ln([NIKO_X+3.8,-8.6,NIKO_X+7,-11.6+Math.sin(t*24+1)*1.6],NKC.CR2,1); el(NIKO_X-.6,-3.6,4,2.7,NKC.CR); el(NIKO_X-1.4,-.6,3.2,.8,NKC.WH); el(NIKO_X-.8,-3.6,2.2,1.8,NKC.WH); });
+    if(nCape){ c.fillStyle=nCape; c.beginPath(); c.ellipse(NIKO_X+1.2,-7.4,3.8,1.6,.35,0,7); c.fill(); }
+    tint(nLk,()=>{ c.translate(NIKO_X-.6,-7); c.rotate(-.3); c.scale(.86,.86); nikoFace(c,h,{eyes:'happy',mouth:'tongue',ears:'perk',t,look:-1}); }); c.restore();
+    PAIR.niko.head=pairFrame(NIKO_X-.6,-7+nb,-.3,.86); PAIR.niko.neck=pairFrame(NIKO_X-.6,-2.6+nb,-.1,.86);
     c.save(); c.globalAlpha=Math.max(0,1-k)*.9; c.fillStyle='#ff8ab8'; const hy=-17-k*6; c.beginPath(); c.moveTo(1,hy+1.6); c.bezierCurveTo(-1.6,hy,-.8,hy-1.8,1,hy-.6); c.bezierCurveTo(2.8,hy-1.8,3.6,hy,1,hy+1.6); c.fill(); c.restore();
     return; }
   // sitting side by side, facing you, like in their photo
-  if(cape){ pairCape(c,DAX_X,-12,3.6,cape,t); pairCape(c,NIKO_X,-14,4,cape,t); }
+  if(dCape) pairCape(c,DAX_X,-12,3.6,dCape,t); if(nCape) pairCape(c,NIKO_X,-14,4,nCape,t);
   const wag=petted||yip||watching||boop?22:8, jit=shiver?Math.sin(t*60)*.28:0, yk=(now-PAIR.yipT)/1600;
   const look=watching?1:0;
   const dHop=yip?Math.max(0,Math.sin(yk*Math.PI*3))*2.2:petted?Math.max(0,Math.sin(now/120))*.7:0;
   const nHop=petted?Math.max(0,Math.sin(now/120+1))*.7:0;
-  daxSit(c,h,DAX_X,{t,wag,jit,hop:dHop,paw,hx:boop?1.6:0,hy:boop?.6:0,rot:boop?.32:tilt?-.42:petted?.14:-.1+Math.sin(t*1.3)*.05,
-    face:{eyes:petted?'happy':'open',mouth:(petted||watching||paw||yip)?'tongue':'smile',ears:petted?'back':(watching||yip||tilt)?'perk':'out',blink,t,look}});
-  nikoSit(c,h,NIKO_X,{t,wag,jit:jit*.8,hop:nHop,hx:boop?-1.2:0,hy:boop?.5:0,rot:boop?-.26:petted?-.12:.06+Math.sin(t*1.1+1)*.05,
-    face:{eyes:petted?'happy':'open',mouth:yip?'yip':(petted||watching)?'tongue':'smile',ears:petted?'back':(watching||yip)?'perk':'up',twitch,blink,t,look}});
+  tint(dLk,()=>daxSit(c,h,DAX_X,{t,wag,jit,hop:dHop,paw,hx:boop?1.6:0,hy:boop?.6:0,rot:boop?.32:tilt?-.42:petted?.14:-.1+Math.sin(t*1.3)*.05,
+    face:{eyes:petted?'happy':'open',mouth:(petted||watching||paw||yip)?'tongue':'smile',ears:petted?'back':(watching||yip||tilt)?'perk':'out',blink,t,look}}));
+  tint(nLk,()=>nikoSit(c,h,NIKO_X,{t,wag,jit:jit*.8,hop:nHop,hx:boop?-1.2:0,hy:boop?.5:0,rot:boop?-.26:petted?-.12:.06+Math.sin(t*1.1+1)*.05,
+    face:{eyes:petted?'happy':'open',mouth:yip?'yip':(petted||watching)?'tongue':'smile',ears:petted?'back':(watching||yip)?'perk':'up',twitch,blink,t,look}}));
   if(boop){ const k=PAIR.force?.45:((t%23)-15)/2.2; c.save(); c.globalAlpha=Math.sin(Math.min(1,k)*Math.PI)*.95; c.fillStyle='#ff8ab8'; const hy=-21-k*4, hx=1.2; c.beginPath(); c.moveTo(hx,hy+1.4); c.bezierCurveTo(hx-1.5,hy,hx-.8,hy-1.6,hx,hy-.5); c.bezierCurveTo(hx+.8,hy-1.6,hx+1.5,hy,hx,hy+1.4); c.fill(); c.restore(); }
   if(yip){ c.save(); c.globalAlpha=Math.min(1,(1-yk)*3); c.fillStyle='rgba(255,255,255,.95)'; c.beginPath(); c.ellipse(13,-27,6.4,3.8,0,0,7); c.fill(); c.beginPath(); c.moveTo(10.4,-24.4); c.lineTo(9,-21); c.lineTo(12.6,-24); c.fill();
     c.fillStyle='#1b1513'; c.font='bold 4.4px system-ui'; c.textAlign='center'; c.fillText('Yip!',13,-25.6); c.restore(); } }
-// their gear: the same hat and accessory on both (matching!), each in its own head and neck frame;
-// the star balloon is tied to Niko only, so there is never a tangle
-function drawPairGear(c,lk,t){ const keep=[LILY.head,LILY.neck];
-  for(const d of [PAIR.dax,PAIR.niko]){ if(!d.head||!d.neck) continue; LILY.head=d.head; LILY.neck=d.neck; drawLilyGear(c,(lk.acc==='balloon'&&d!==PAIR.niko)?Object.assign({},lk,{acc:'none'}):lk,t); }
-  LILY.head=keep[0]; LILY.neck=keep[1]; }
+// their gear: each dog wears its own hat and accessory in its own head and neck frame, in every pose.
+// Dax's head frame is mirrored so a cap's visor points away from Niko (rotation mirrored back so it still
+// tilts with his head); hats sit a little higher on both so their eyes always show.
+function drawPairGear(c,lk,t){ if(!lk||lk===S.petLook.daxniko_niko) lk=_petLook_pair('daxniko'); const keep=[LILY.head,LILY.neck,LILY.hatLift], nLk=PAIR.nLk||pairNikoLook(); LILY.hatLift=1.3;
+  for(const d of [PAIR.dax,PAIR.niko]){ if(!d.head||!d.neck) continue; const dax=d===PAIR.dax;
+    const L2=dax?lk:nLk, noFlip=L2.hat==='sixsevencap'; // hats with writing are never mirrored
+    LILY.head=(dax&&!noFlip)?Object.assign({},d.head,{flip:true,rot:-d.head.rot}):d.head; LILY.neck=dax?d.neck:Object.assign({},d.neck,{flip:true,rot:-d.neck.rot}); // Niko's balloon floats to his right, Dax's to his left
+    drawLilyGear(c,L2,t); }
+  LILY.head=keep[0]; LILY.neck=keep[1]; LILY.hatLift=keep[2]; }
 // ---------- gift ----------
 const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko have joined you!', items:[
   'Dax and Niko are here, drawn from a photo of the real pair: Dax with his black scruffy coat, folded ear tips, greying muzzle and little white chest blaze, and Niko with his cream coat, big pink-lined ears, white blaze and white paws.',
@@ -143,7 +154,7 @@ const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko h
   'Dax gives you his paw now and then. When you land a fish, Niko yips and Dax hops.',
   'They perk up and watch the water while you fish. On cold water they shiver a little (they are Chihuahuas, after all).',
   'At night they curl up and nap together.',
-  'Dress them up in the Pets tab: colours, accessories and hats. They always match.' ]};
+  'Dress them up in the Pets tab: pick Dax or Niko and give each their own colour, accessory and hat (or match them).' ]};
 const _redeemGift_pair = redeemGift;
 redeemGift = function(code){ const k=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(k && btoa(k)==='WkFDU1BVUFM='){
@@ -157,7 +168,26 @@ if(/[?&]test\b/.test(location.search)){
     const accs=opts.accs||['none','bandana','bow','bowtie','scarf','bell','flower','glasses','cape','balloon','partyhat'];
     const cw=opts.cell||150, ch=Math.round(cw*.8), sc=cw/42; const rows=opts.hats||accs; const o=document.createElement('canvas'); o.width=cw*poses.length; o.height=ch*rows.length; const x=o.getContext('2d'); const t=performance.now()/1000;
     rows.forEach((a,r)=>poses.forEach((p,cI)=>{ PAIR.force=p; const lk=Object.assign({},petLook('daxniko'),opts.hats?{acc:'none',hat:a,hatCol:'#3f7a6a'}:{acc:a,accCol:'#d8303a',hat:opts.hat||'none',hatCol:'#3f7a6a'});
-      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch); drawPetStyled(x,'daxniko',cI*cw+cw*.46,r*ch+ch*.88,sc,t,0,lk); x.restore();
+      x.save(); x.beginPath(); x.rect(cI*cw,r*ch,cw,ch); x.clip(); x.fillStyle=(r+cI)%2?'#2e3858':'#283150'; x.fillRect(cI*cw,r*ch,cw,ch); const nk0=S.petLook.daxniko_niko; S.petLook.daxniko_niko=Object.assign({},lk,opts.niko||{}); drawPetStyled(x,'daxniko',cI*cw+cw*.46,r*ch+ch*.88,sc,t,0,lk); S.petLook.daxniko_niko=nk0; x.restore();
       x.fillStyle='#cfd8ff'; x.font='10px system-ui'; x.fillText(p+' / '+a,cI*cw+4,r*ch+12); }));
     PAIR.force=null; window.__post(opts.save||'pair',o.toDataURL()); return rows.length*poses.length; };
 }
+// ---------- separate looks: Dax uses the pet's own look (S.petLook.daxniko, which also holds their shared name),
+// Niko has his own (S.petLook.daxniko_niko). In Customize a Dax / Niko switch picks who you are dressing.
+let PAIR_EDIT='dax', PAIR_UI=false;
+function pairNikoLook(){ const d=_petLook_pair('daxniko'); const n=(S.petLook.daxniko_niko=S.petLook.daxniko_niko||{tint:'none',hat:'none',hatCol:'#c8553a',acc:'none',accCol:'#d8303a'}); n.name=d.name; return n; }
+const _petLook_pair = petLook;
+petLook = function(id=editPet()){ if(id==='daxniko' && PAIR_UI && PAIR_EDIT==='niko') return pairNikoLook(); return _petLook_pair(id); };
+// try-on previews go to the dog you are dressing
+const _petPreviewLook_pair = petPreviewLook;
+petPreviewLook = function(id=editPet()){ if(id!=='daxniko') return _petPreviewLook_pair(id); const base=Object.assign({},_petLook_pair('daxniko'),{__pv:true}); PAIR.nikoPv=null;
+  if(PET_PV){ if(PAIR_EDIT==='niko') PAIR.nikoPv={[PET_PV.kind]:PET_PV.id}; else base[PET_PV.kind]=PET_PV.id; } return base; };
+// clicks and redraws in the Pets menu edit the chosen dog; everything else (the dock, Home) reads Dax's look for the pet
+const pairUIOn = () => S.tab==='pets' && editPet()==='daxniko';
+$('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-pairdog]'); if(b){ PAIR_EDIT=b.dataset.pairdog; renderPanel(); return; } if(pairUIOn()){ PAIR_UI=true; setTimeout(()=>{ PAIR_UI=false; },0); } },true);
+document.addEventListener('click',()=>{ PAIR_UI=false; });
+const _renderPanel_pair = renderPanel;
+renderPanel = function(){ const on=pairUIOn(), was=PAIR_UI; if(on) PAIR_UI=true; try{ _renderPanel_pair(); if(on) pairSwitchInject(); } finally { PAIR_UI=was; } };
+function pairSwitchInject(){ const wrap=document.querySelector('#panel .petwrap'); if(!wrap||wrap.querySelector('.pairdog')) return; const first=[...wrap.querySelectorAll('h5')].find(h=>/Colour|Color/.test(h.textContent)); if(!first) return;
+  first.insertAdjacentHTML('beforebegin',`<div class="pairdog"><h5>Dressing</h5><div class="chips"><button class="chipb" data-pairdog="dax" aria-pressed="${PAIR_EDIT==='dax'}">Dax</button><button class="chipb" data-pairdog="niko" aria-pressed="${PAIR_EDIT==='niko'}">Niko</button></div></div>`); }
+// a fresh exclusive starts both dogs plain

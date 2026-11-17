@@ -13,14 +13,17 @@ function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats
 function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
   ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
 // upcoming levels pick in order and never promise the same item twice (so no repeats, back to back or otherwise)
+// when you already own everything a clothing or decoration level could give, it falls back to Scales or tickets
+// (never the same as the level next to it)
+const PASS_FB_SCALES={k:'scales', name:'50 Scales', d:'Scales level up rods.'}, PASS_FB_TIX={k:'tickets', name:'300 tickets', d:'Tickets buy Boardwalk prizes.'};
 function passPickItem(L,pool){ if(!pool.length) return null; const decor=pool[0].kind==='dock'||pool[0].kind==='aq', used=new Set(); let pick=null;
   for(let l=(S.pass.claimed||0)+1; l<=L; l++){ if(PASS_SPECIAL[l]) continue; const slot=(passPlainIndex(l)-1)%5; if(decor?slot!==3:!(slot===0||slot===2)) continue;
     let i=hashStr('tide'+l)%pool.length, n=0; while(used.has(pool[i].kind+pool[i].id)&&n<pool.length){ i=(i+1)%pool.length; n++; } pick=pool[i]; used.add(pick.kind+pick.id); }
   return pick; }
 function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
-passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
-  if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'}; }
-  if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'}; }
+passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Claimed before 0.3.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
+  if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'};  return slot===0?PASS_FB_SCALES:PASS_FB_TIX; }
+  if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'};  return PASS_FB_SCALES; }
   if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'};
   return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
 const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
@@ -31,6 +34,7 @@ const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('
   if(p.k==='wear'){ const it=p.it, o=S.owned; ({hat:o.hats,gls:o.glasses,out:o.outfits,pat:o.pats,shoe:o.shoes,neck:o.necks,back:o.backs})[it.kind].push(it.id); return it.name; }
   if(p.k==='decor'){ (p.it.kind==='dock'?S.dock.owned:S.aq.owned).push(p.it.id); return p.it.name; }
   if(p.k==='big'){ S.tokens.big++; return p.name; }
+  if(p.k==='scales'){ S.scales+=50; return p.name; } if(p.k==='tickets'){ S.tickets+=300; return p.name; }
   S.scales+=25; S.tickets+=150; return p.name; };
 grantPass = function(L){ const r=grantPass_(L); S.pass.got=S.pass.got||{}; S.pass.got[L]=r; return r; };
 const _passArt_0 = passArt;
