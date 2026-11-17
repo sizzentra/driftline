@@ -57,7 +57,12 @@ function drawAngler3(c,x,y,s,lk,o={}){
   // and a faint second edge on the front from the light off the water
   bx.globalCompositeOperation='copy'; bx.drawImage(O.a,0,0); bx.globalCompositeOperation='source-in'; bx.fillStyle=o.glow||'#fff6e0'; bx.fillRect(0,0,w,h);
   bx.globalCompositeOperation='destination-out'; bx.drawImage(O.a,-d*.8,d*.3); bx.globalCompositeOperation='source-over';
-  ax.globalAlpha=.16; ax.drawImage(O.b,0,0); ax.globalAlpha=1; ax.globalCompositeOperation='source-over';
+  ax.globalAlpha=.16; ax.drawImage(O.b,0,0); ax.globalAlpha=1;
+  // 0.3.6 realism: soft volume (light from above, shade toward the feet) and the back side a touch darker
+  { const vg=ax.createLinearGradient(0,(BT-62)*ps,0,(BT+6)*ps); vg.addColorStop(0,'rgba(255,248,232,'+(.1*(1-night*.7))+')'); vg.addColorStop(.42,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,20,'+(.2+night*.12)+')'); ax.fillStyle=vg; ax.fillRect(0,0,w,h);
+    const hg=ax.createLinearGradient((BX-16)*ps,0,(BX+14)*ps,0); hg.addColorStop(0,'rgba(4,8,20,'+(.14+night*.08)+')'); hg.addColorStop(.6,'rgba(0,0,0,0)'); ax.fillStyle=hg; ax.fillRect(0,0,w,h); }
+  ax.globalCompositeOperation='source-over';
+  if(!o.sit&&!o.noShadow){ c.save(); const sg=c.createRadialGradient(x,y+s,0,x,y+s,15*s); sg.addColorStop(0,'rgba(0,6,16,.3)'); sg.addColorStop(1,'rgba(0,6,16,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(x,y+s,15*s,3.2*s,0,0,7); c.fill(); c.restore(); }
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
   const map=p=>({x:x+(p.x-BX*ps)/ps*s,y:y+(p.y-BT*ps)/ps*s});
