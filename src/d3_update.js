@@ -13,6 +13,7 @@ const PATCHES = [
   'In the menu, switch categories straight away from the tabs at the top (or the bar at the bottom on phones), and the Overview button takes you back to the cards. Back to fishing, Esc or your phone’s back gesture takes you to the water. Your coins stay in view.',
   'Your line waits while a menu is open: a cast, a bite or a fight pauses and carries on when you come back, never lost.',
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
+  'On a phone held sideways, the menu’s categories run down the left side, so every page gets the whole height of the screen. Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',

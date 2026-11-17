@@ -508,3 +508,126 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:100%!important;align-self:stretch}
 @media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long .gl-t{font-size:10.5px}}
 </style>`);
+
+// =====================================================================
+// Menus on short landscape screens (phones held sideways): the categories become a rail down the left, so the page
+// gets the whole height under one slim row (the page's own tabs and the coin / search / settings buttons).
+// =====================================================================
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:clamp(132px,18vw,176px) minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back sub tools" "home body body" "secs body body"!important;column-gap:12px!important;row-gap:5px!important;padding-top:max(6px,env(safe-area-inset-top))!important}
+  #menuov .mo-back,#menuov .mo-home{width:100%;box-sizing:border-box;justify-content:flex-start;min-height:36px!important;padding:0 10px!important;border-radius:12px;align-self:start}
+  #menuov .mo-home .mo-hl{display:inline!important;font-size:13px}
+  body #menuov #tabs.secmode .secbar{grid-area:secs;display:flex!important;flex-direction:column;align-self:stretch;gap:4px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:2px 0 10px!important;margin:0!important;min-height:0;background:none!important;border:0!important;box-shadow:none!important}
+  body #menuov #tabs.secmode .secbar::-webkit-scrollbar{display:none}
+  body #menuov #tabs.secmode .secb{flex:0 0 auto;flex-direction:row!important;justify-content:flex-start;gap:9px!important;min-height:36px!important;padding:0 10px!important;font-size:13px!important;border-radius:12px!important}
+  body #menuov #tabs.secmode .secb .seci svg{width:18px;height:18px}
+  body #menuov #tabs.secmode .secb .secfull{display:inline!important}body #menuov #tabs.secmode .secb .secshort{display:none!important}
+  body #menuov #tabs.secmode .secdot{top:50%!important;right:8px!important;transform:translateY(-50%)}
+  body #menuov #tabs.secmode .secb .seclive{top:50%!important;left:auto!important;right:8px;transform:translateY(-50%)}
+  body #menuov #tabs.secmode .subbar{grid-area:sub;align-self:center;padding:0!important;gap:6px!important;margin:0!important}
+  body #menuov #tabs.secmode .subp{min-height:34px!important;padding:0 12px!important;font-size:13px!important}
+  body #menuov #panel{padding-top:2px!important}
+  body #menuov #panel > h2:first-child,body #menuov #panel h2{font-size:18px!important;margin:0 0 3px!important;line-height:1.2}
+  body #menuov #panel p.sub{font-size:12px!important;margin:0 0 8px!important;line-height:1.35}
+}
+</style>`);
+// In the menu the highlighted tab already names the page, so a page title that only repeats it is hidden (more room
+// for the page itself). The wardrobe's own tabs (Body, Clothes, Hats...) move up into that row across the full width.
+{ const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){} }; }
+function menuTidy(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
+  const h=P.querySelector(':scope > h2'); if(h){ const lbl=on?on.textContent.replace(/\s+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&(t===lbl||lbl.endsWith(' '+t)||lbl.includes(t))); }
+  const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel > h2.dl-dup{display:none!important}
+#menuov #panel > .wd-nav.wd-top{display:flex!important;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 10px;padding:1px;grid-template-columns:none!important}
+#menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
+#menuov #panel > .wd-nav.wd-top button{flex:1 0 auto;flex-direction:row!important;gap:6px!important;min-height:36px!important;height:36px;padding:0 12px!important;border-radius:11px;white-space:nowrap}
+#menuov #panel > .wd-nav.wd-top .wl{white-space:nowrap!important;line-height:1!important;font-size:13px}
+#menuov #panel > .wd-nav.wd-top .wl br{display:none}
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel > .wd-nav.wd-top{margin-bottom:8px}
+  #menuov #panel > .wd-nav.wd-top button{min-height:32px!important;height:32px;padding:0 10px!important}
+  #menuov #panel .stylewrap.wd{grid-template-columns:auto minmax(0,1fr)!important;gap:14px;align-items:start}
+  #menuov #panel .wd-prev{position:sticky!important;top:0;height:calc(100dvh - 104px - env(safe-area-inset-top));max-height:420px;min-height:170px;margin:0!important;max-width:none!important;aspect-ratio:298/321;width:auto!important}
+  #menuov #panel .wd-prev canvas{width:100%!important;height:100%!important;display:block}
+}
+</style>`);
+// pages that redraw themselves (not through renderPanel) get the same tidy-up: watch the page for new content
+function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
+  const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
+  const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")) hr.classList.add("dl-head");
+  const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
+menuTidy=menuTidy2;
+{ const P=$('panel'); if(P&&window.MutationObserver){ let q=false; new MutationObserver(()=>{ if(q) return; q=true; queueMicrotask(()=>{ q=false; try{ menuTidy2(); }catch(e){} }); }).observe(P,{childList:true}); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel h2.dl-dup{display:none!important}
+/* a page header keeps its number (Scales, skill points...) beside the description instead of on a line of its own */
+#menuov #panel > .row.dl-head{flex-wrap:wrap!important;align-items:flex-start;gap:8px 14px}
+#menuov #panel > .row.dl-head > :first-child{flex:1 1 300px;min-width:0}
+#menuov #panel > .row.dl-head > :not(:first-child){flex:0 1 auto;min-width:0;margin-left:auto}
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel .pts{font-size:26px!important;line-height:1.05}
+  #menuov #panel > .row.dl-head .sub{margin-top:0}
+}
+@media (max-width:560px){#menuov #panel > .row.dl-head{flex-wrap:wrap!important}}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  body #menuov #tabs.secmode .secb .seclive,body #menuov #tabs.secmode .secb .secdot{position:static!important;transform:none!important;flex:0 0 auto;margin-left:auto}
+  body #menuov #tabs.secmode .secb .seclive ~ .secdot{margin-left:5px}
+  body #menuov #tabs.secmode .secb .secl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:clamp(140px,20vw,196px) minmax(0,1fr) auto!important}
+  body #menuov #tabs.secmode .secb .seclive{height:15px;line-height:15px;padding:0 4px;font-size:8px}
+  #menuov #panel .bwx-hero{height:92px!important;min-height:0!important;overflow:hidden}
+  #menuov #panel .bwx-hero canvas{width:100%!important;height:100%!important;object-fit:cover;object-position:50% 30%}
+}
+/* narrow sideways phones: LIVE becomes a small pulsing dot so the category name always fits */
+@media (orientation:landscape) and (max-height:560px) and (max-width:820px){
+  body #menuov #tabs.secmode .secb .seclive{width:9px;height:9px;padding:0;border-radius:50%;font-size:0;line-height:0}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){ #menuov .mo-in{grid-template-columns:clamp(160px,20vw,196px) minmax(0,1fr) auto!important} }
+@media (orientation:landscape) and (max-height:560px) and (max-width:820px){
+  body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
+  body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
+  #menuov .mo-back,#menuov .mo-home{padding:0 8px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* a page's own section tabs stay one slim row (scrolls sideways if it has to) */
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel .bwx-nav.sect-nav{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:4px;padding:3px!important;margin:8px 0!important;grid-template-columns:none!important}
+  #menuov #panel .bwx-nav.sect-nav::-webkit-scrollbar{display:none}
+  #menuov #panel .bwx-nav.sect-nav > button{flex:1 0 auto;min-height:32px!important;height:32px;padding:0 12px!important;white-space:nowrap;font-size:13px}
+  #menuov #panel > .tile:not(:last-child){margin-top:8px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:clamp(170px,20vw,196px) minmax(0,1fr) auto!important}
+  body #menuov #tabs.secmode .secb .seclive{width:9px!important;height:9px!important;padding:0!important;border-radius:50%;font-size:0!important;line-height:0!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  #menuov .mo-in{grid-template-columns:clamp(176px,20vw,196px) minmax(0,1fr) auto!important}
+  body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
+  /* section tabs and wardrobe tabs wrap onto a second slim row instead of hiding options off the edge */
+  #menuov #panel .bwx-nav.sect-nav,#menuov #panel > .wd-nav.wd-top{flex-wrap:wrap!important;overflow:visible!important}
+  #menuov #panel .bwx-nav.sect-nav > button,#menuov #panel > .wd-nav.wd-top button{flex:1 1 auto!important;padding:0 9px!important}
+  #menuov #panel > .wd-nav.wd-top{gap:4px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:600px) and (orientation:portrait){
+  #menuov #panel > .wd-nav.wd-top{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:3px!important;overflow:visible!important}
+  #menuov #panel > .wd-nav.wd-top button{flex-direction:column!important;gap:2px!important;height:auto!important;min-height:50px!important;padding:4px 1px!important;min-width:0}
+  #menuov #panel > .wd-nav.wd-top .wl{white-space:normal!important;font-size:10px!important;line-height:1.1!important;text-align:center}
+}
+</style>`);
