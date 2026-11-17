@@ -9,7 +9,7 @@
 //    cut off or pushes the page sideways.
 //  - PC keeps the roomy layout.
 // =====================================================================
-const DL_PLAT=(function(){ const ua=navigator.userAgent||'', ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), android=/Android/i.test(ua);
+const DL_PLAT=(function(){ const ua=navigator.userAgent||'', ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)||(/[?&]test(&|$)/.test(location.search)&&/[?&]ios(&|$)/.test(location.search)), android=/Android/i.test(ua);
   const p=ios?'ios':android?'android':'pc', app=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
   for(const el of [document.documentElement,document.body]){ if(!el) continue; el.classList.add('plat-'+p); if(app) el.classList.add('plat-app'); }
   if(ios){ const vp=document.querySelector('meta[name=viewport]'); if(vp&&!/maximum-scale/.test(vp.content)) vp.content+=',maximum-scale=1'; } /* iOS still allows pinch zoom; this only stops the jump-zoom on focus */
@@ -22,7 +22,15 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
 // the side-scrolling tab rows re-check their fade edges whenever their size changes (fonts load later on iOS)
 (function(){ if(!window.ResizeObserver) return; const ro=new ResizeObserver(es=>{ for(const e of es) e.target.dispatchEvent(new Event('scroll')); });
   const hook=()=>document.querySelectorAll('.subbar').forEach(s=>{ if(!s.__ro){ s.__ro=1; ro.observe(s); } }); hook(); setInterval(hook,2000); })();
+// iPhone, held upright: Safari's floating toolbar sits over the bottom of the page, so a bar pinned to the page bottom
+// hides under it. The layout already stops at the visible height (100dvh), so the menu bar is placed by that measured
+// height instead, landing exactly in the strip reserved for it.
+(function(){ if(!DL_PLAT.ios) return; const probe=document.createElement('div'); probe.style.cssText='position:fixed;left:0;top:0;width:0;height:100dvh;visibility:hidden;pointer-events:none'; document.body.appendChild(probe);
+  let last=''; const place=()=>{ const b=document.querySelector('#tabs.secmode .secbar'); if(!b) return; const on=document.body.classList.contains('phone-app')&&getComputedStyle(b).position==='fixed';
+    const v=on?Math.round(probe.offsetHeight-b.offsetHeight)+'px':''; if(v===last) return; last=v; b.style.top=v; b.style.bottom=on?'auto':''; };
+  place(); addEventListener('resize',place); addEventListener('orientationchange',()=>setTimeout(place,250)); if(window.visualViewport) visualViewport.addEventListener('resize',place); setInterval(place,800); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
+.plat-ios #bait{height:22px;line-height:22px;padding-top:0!important;padding-bottom:0!important;margin:0;font-size:15px;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .plat-ios *,.plat-android *{-webkit-tap-highlight-color:transparent}
 .plat-ios select{-webkit-appearance:none;appearance:none;padding-right:15px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23cfe0f0' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 2px center!important}
