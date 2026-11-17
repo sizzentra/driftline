@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0014';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0016';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2506,7 +2506,7 @@ const GAME_VERSION = '0.3.4.2';
 const PATCHES = [
  {v:'0.3.4.2', name:'Cooler and Catch Card Fixes', items:[
   'Sell all’s price filter is now a box you type into: enter any amount (like 2500, 50k or 1.2m) to only sell fish worth less than that. Leave it empty for any price, or tap × to clear it.',
-  'New “Sell shinies too” box next to it: tick it to let Sell all sell shiny fish (shiny Epic and rarer fish stay protected while Protect rare fish is on).',
+  'New “Sell shinies too” toggle next to it: turn it on to let Sell all sell shiny fish (shiny Epic and rarer fish stay protected while Protect rare fish is on).',
   'The catch card shows just one aquarium earnings line again (it was keeping the lines from earlier catches, so the top number belonged to a different fish).',
  ]},
  {v:'0.3.4.1', name:'Aquarium Numbers Hotfix', items:[
@@ -10320,8 +10320,8 @@ renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[da
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
   // 0.3.4.3: the price is typed in (plain numbers or 50k / 1.2m); empty means any price
   const pv=+s.sellP>0?fmtShort(+s.sellP):'';
-  btn.insertAdjacentHTML('beforebegin',`<div class="sellf"><span class="meta">Sell</span>${sel('sellR',SELL_RAR,s.sellR||'all')}<label class="sellp"><span>under</span><input data-sp type="text" inputmode="decimal" autocomplete="off" placeholder="any price" value="${pv}" aria-label="Only sell fish worth less than this"></label>${+s.sellP>0?'<button class="btn alt sm" data-spclear title="Clear the price limit">×</button>':''}<label class="sellsh"><input type="checkbox" data-ssh ${sellShinyOn()?'checked':''}><span>Sell shinies too</span></label></div>`);
-  const ssh=P.querySelector('[data-ssh]'); if(ssh) ssh.onchange=()=>{ S.settings.sellShiny=ssh.checked; save(); renderPanel(); };
+  btn.insertAdjacentHTML('beforebegin',`<div class="sellf"><span class="meta">Sell</span>${sel('sellR',SELL_RAR,s.sellR||'all')}<label class="sellp"><span>under</span><input data-sp type="text" inputmode="decimal" autocomplete="off" placeholder="any price" value="${pv}" aria-label="Only sell fish worth less than this"></label>${+s.sellP>0?'<button class="btn alt sm" data-spclear title="Clear the price limit">×</button>':''}<button class="chipb sellsh" data-ssh aria-pressed="${sellShinyOn()}" title="When on, Sell all also sells shiny fish"><span class="ssh-star" aria-hidden="true">✦</span> Sell shinies too</button></div>`);
+  const ssh=P.querySelector('[data-ssh]'); if(ssh) ssh.onclick=()=>{ S.settings.sellShiny=!sellShinyOn(); save(); renderPanel(); };
   P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); });
   const inp=P.querySelector('[data-sp]'); if(inp){ const apply=()=>{ const v=sellParse(inp.value); if(v===+S.settings.sellP||(!v&&!(+S.settings.sellP))){ inp.value=v?fmtShort(v):''; return; } S.settings.sellP=v; save(); renderPanel(); };
     inp.addEventListener('change',apply); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }); }
@@ -10365,7 +10365,7 @@ const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPane
 const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){} };
 
 document.head.insertAdjacentHTML('beforeend',`<style>
-.sellsh{display:flex;align-items:center;gap:6px;font-size:13px;color:#cfe0ec;cursor:pointer;min-height:32px}.sellsh input{width:18px;height:18px;accent-color:#f4c86a;margin:0}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
+.sellsh{display:inline-flex;align-items:center;gap:6px;color:#cfe0ec}.sellsh .ssh-star{color:#8fa6ba;transition:color .2s}.sellsh[aria-pressed="true"]{color:#ffe7a8}.sellsh[aria-pressed="true"] .ssh-star{color:#ffd36a;text-shadow:0 0 8px #ffd36a99}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
 .aqh{font-size:11px;color:#9fe0c0;font-weight:600;white-space:nowrap}.aqinc{text-align:center;margin:-2px 0 6px;color:#9fe0c0}
 .shine{position:absolute;pointer-events:none}.shine i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;background:radial-gradient(circle,#fff8d0 0 18%,rgba(255,230,140,.6) 30%,transparent 62%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:shinetw 1.9s ease-in-out infinite;opacity:0}
 .shine.prism i{background:radial-gradient(circle,#fff 0 18%,rgba(255,140,230,.7) 32%,transparent 62%)}
