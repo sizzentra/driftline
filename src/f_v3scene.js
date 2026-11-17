@@ -130,7 +130,8 @@ const V3POND = {
     // reflection: the land above, mirrored and squashed, then broken into calm bands
     x.save(); x.globalAlpha=.38; x.beginPath(); x.rect(0,hz,W,H*.3); x.clip(); x.translate(0,hz); x.scale(1,-.72); x.translate(0,-hz);
     x.drawImage(cnv,0,0,cnv.width,Math.round(hz*DPR),0,0,W,hz); x.restore();
-    const rb=x.createLinearGradient(0,hz,0,hz+H*.3); rb.addColorStop(0,v3rgba(P.wTop,0)); rb.addColorStop(1,v3rgba(P.wMid,1)); x.fillStyle=rb; x.fillRect(0,hz,W,H*.3);
+    /* 0.4: the band ends on exactly the water colour beneath it (it ended on a flat colour, leaving a straight seam) */ const rt=Math.min(1,(H*.3)/(H-hz)), rEnd=rt<=.32?mix(P.wTop,P.wMid,rt/.32):mix(P.wMid,P.wBot,(rt-.32)/.68);
+    const rb=x.createLinearGradient(0,hz,0,hz+H*.3); rb.addColorStop(0,v3rgba(P.wTop,0)); rb.addColorStop(1,v3rgba(rEnd,1)); x.fillStyle=rb; x.fillRect(0,hz,W,H*.3);
     x.fillStyle=v3rgba(P.wTop,.35); for(let i=0;i<9;i++){ const y=hz+3+i*i*1.6; x.fillRect(0,y,W,1); }
     // the waterline: a thin bright edge where shore meets water
     x.fillStyle=v3rgba(P.rim,.28+P.d*.2); x.fillRect(0,hz,W,1.2);

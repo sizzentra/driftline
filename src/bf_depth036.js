@@ -32,7 +32,10 @@ function dofSprite(id,slot,kind,w,h,P,night){ const key=id+'|'+slot+'|'+Math.rou
   const k=.12, sw=Math.max(8,Math.round(w*k)), sh=Math.max(8,Math.round(h*k)), a=document.createElement('canvas'); a.width=sw; a.height=sh; const ax=a.getContext('2d'); ax.scale(k,k); dofDraw(ax,kind,w,h,P,night);
   const b=document.createElement('canvas'); b.width=Math.round(w*.5); b.height=Math.round(h*.5); const bx=b.getContext('2d'); bx.imageSmoothingEnabled=true; bx.imageSmoothingQuality='high'; bx.drawImage(a,0,0,b.width,b.height);
   s=DOF_CACHE[key]={cv:b}; const keys=Object.keys(DOF_CACHE); if(keys.length>40) delete DOF_CACHE[keys[0]]; return s; }
-for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=V3PAR.rm.matches, sway=(rm?0:Math.sin(t*.6)*W*.004)-V3PAR.dx*1.3;
+// 0.4 (director): the blurred foreground read as grey smears (Willow Pond's corner most of all); the scenes draw their own
+// sharp foreground and the camera drift gives the depth, so the blurred layer is switched off on every water
+const DOF_ON=false;
+if(DOF_ON) for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=V3PAR.rm.matches, sway=(rm?0:Math.sin(t*.6)*W*.004)-V3PAR.dx*1.3;
   g.save(); g.globalAlpha=.92; g.imageSmoothingEnabled=true;
   if(set.br){ const w=W*.26, h=H*.34, s=dofSprite(id,'br',set.br,w,h,P,night); g.drawImage(s.cv,W-w*.92+sway,H-h*.9,w,h); }
   if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w*.94+sway*1.2,-h*.12,w,h); }
