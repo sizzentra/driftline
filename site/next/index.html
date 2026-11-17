@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2350';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0005';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2502,8 +2502,12 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.4';
+const GAME_VERSION = '0.3.4.1';
 const PATCHES = [
+ {v:'0.3.4.1', name:'Aquarium Numbers Hotfix', items:[
+  'The coins-per-hour shown in your cooler now always belong to the right fish (some rows were showing another fish’s number).',
+  'Before you move a fish into the aquarium, the number shown now includes its own aquarium boost, so it matches exactly what the Aquarium tab shows once it is on display.',
+ ]},
  {v:'0.3.4', name:'Sea Legs', items:[
   '## Fishing',
   'Holding the reel now always reels. While a fish runs you still bring line in, just slowly, and the tension climbs much faster, so watch it.',
@@ -10315,13 +10319,15 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
   c.insertAdjacentHTML('afterend',`<button class="btn ${left?'alt':''}" id="feedbtn2" data-act="feed" ${left?'disabled':''} title="Feeding gives +25% aquarium income for 30 minutes">${left?'Fed · hungry in '+Math.ceil(left/60000)+' min':'Feed fish'}</button>`); const fb=P.querySelector('#feedbtn2'); if(fb) fb.addEventListener('click',()=>setTimeout(()=>{ if(S.tab==='aquarium') renderPanel(); },60)); };
 
 // ---------- what a fish would earn in the aquarium: on the catch card and on the To aquarium button ----------
-function aqIncomeTxt(f){ try{ return 'Earns '+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
+// what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
+function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
+function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
 const _showCard_034 = showCard;
 showCard = function(o){ const ce=G.lastEntry; _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
   q.insertAdjacentHTML('afterend',`<div class="meta aqinc">${inc}${S.tank.length>=aqCap()?' (aquarium full)':''}</div>`); };
 const _renderCooler_034b = renderCooler;
-renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach((row,i)=>{ const f=S.cooler[i]; if(!f) return; const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' / h in tank</div>'); }); };
+renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); };
 
 // ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
 const DEMAND={slot:-1,id:null};
@@ -10726,7 +10732,7 @@ offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); ref
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>
-<div style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.4 preview</div>
+<div style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.4.1 preview</div>
 <div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
   <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
   <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>

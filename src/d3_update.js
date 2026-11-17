@@ -3,8 +3,12 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.4';
+const GAME_VERSION = '0.3.4.1';
 const PATCHES = [
+ {v:'0.3.4.1', name:'Aquarium Numbers Hotfix', items:[
+  'The coins-per-hour shown in your cooler now always belong to the right fish (some rows were showing another fish’s number).',
+  'Before you move a fish into the aquarium, the number shown now includes its own aquarium boost, so it matches exactly what the Aquarium tab shows once it is on display.',
+ ]},
  {v:'0.3.4', name:'Sea Legs', items:[
   '## Fishing',
   'Holding the reel now always reels. While a fish runs you still bring line in, just slowly, and the tension climbs much faster, so watch it.',

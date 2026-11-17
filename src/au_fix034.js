@@ -23,13 +23,15 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
   c.insertAdjacentHTML('afterend',`<button class="btn ${left?'alt':''}" id="feedbtn2" data-act="feed" ${left?'disabled':''} title="Feeding gives +25% aquarium income for 30 minutes">${left?'Fed · hungry in '+Math.ceil(left/60000)+' min':'Feed fish'}</button>`); const fb=P.querySelector('#feedbtn2'); if(fb) fb.addEventListener('click',()=>setTimeout(()=>{ if(S.tab==='aquarium') renderPanel(); },60)); };
 
 // ---------- what a fish would earn in the aquarium: on the catch card and on the To aquarium button ----------
-function aqIncomeTxt(f){ try{ return 'Earns '+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
+// what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
+function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
+function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
 const _showCard_034 = showCard;
 showCard = function(o){ const ce=G.lastEntry; _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
   q.insertAdjacentHTML('afterend',`<div class="meta aqinc">${inc}${S.tank.length>=aqCap()?' (aquarium full)':''}</div>`); };
 const _renderCooler_034b = renderCooler;
-renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach((row,i)=>{ const f=S.cooler[i]; if(!f) return; const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(Math.max(1,Math.round(fishRate(f)*60)))+' / h in tank</div>'); }); };
+renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); };
 
 // ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
 const DEMAND={slot:-1,id:null};
