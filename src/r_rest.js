@@ -41,3 +41,16 @@ restBtn(); if(S.settings.rest){ setTimeout(()=>{ if(G.st==='idle'){ G.st='rest';
 if(/[?&]test\b/.test(location.search)) window.__rst=RST;
 if(/[?&]test\b/.test(location.search)) window.__bal={ SP, SPI, LOCS, GEAR, RODS, ROD_I, BAIT, PERKS, RAR, RAR_ROD:ROD_RARE, chooseCatch, rollFish, salePrice, sellMult, gv, fishRate, aqCap, TANK_COST, passNeed, PASS_XP, restBiteTime,
   bestLoot, crateCost, wheelCost, clawCost, locCost, coinMult, xpMult, G, S:()=>S, distanceMods, hybridChance, PRISM_SHARE, PRISM_VALUE, ATTS, ATT_COST:typeof ATT_COST!=='undefined'?ATT_COST:null, rodUpCost:typeof rodUpCost!=='undefined'?rodUpCost:null, TANK_RATE, AQ_MAG2, BEH, xpNeed, fight, hookIt, endFight, aqBuffsOf, junkChance, pickJunk, curLoc, bonus };
+// QC (test mode only): fight simulator. Plays real fights with the real fight code: a simulated angler lets go when the
+// tension passes a threshold or the fish runs or leaps, with a reaction delay. Restores the game state afterwards.
+if(/[?&]test\b/.test(location.search)) window.__fightSim=(opts)=>{ const B=__bal, S0=S, snap=JSON.stringify(S); const gsnap={}; for(const k of Object.keys(G)){ try{ gsnap[k]=typeof G[k]==='object'&&G[k]!==null?JSON.parse(JSON.stringify(G[k])):G[k]; }catch(e){} } const out=[]; const os=window.save;
+ try{ window.save=()=>{};
+  for(const [loc,lvl,g,rod] of opts.places) for(const r of opts.rars) for(const [name,lag,thr] of opts.players){ S.loc=loc; S.lvl=lvl; ['rod','reel','line','hook','cooler','finder'].forEach((k,i)=>S.gear[k]=g[i]); S.rod=rod; S.baitSel='worm'; S.perks={};
+   const pool=SP.filter(s=>s.loc===loc&&s.r===r); if(!pool.length) continue; let caught=0,ts=0,N=opts.N||100,peak=0;
+   for(let i=0;i<N;i++){ const sp=pool[i%pool.length]; G.fish=rollFish(sp,{}); G.fish.kind='fish'; G.fish.shiny=0; G.st='reeling'; G.lastCast=.8; G.d0=G.d=6+.8*gv('rod')*.6; G.maxOut=gv('rod')+28; G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=.8; G.ev=null; G.evT=1.6; G.hold=false; G.fightT=0; G.eatAt=null; G.eat=null; G.behT=0; G.tickT=1; G.surge=null; G.surgeN=0;
+    let t=0; const dt=1/60, hist=[]; let pk=0;
+    while(t<90){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-1-Math.round(lag/dt))]; G.hold = name==='holder'?true:!(o.ten>thr || o.run || o.ev || o.tmp>1.2); fight(dt); pk=Math.max(pk,G.ten); t+=dt; if(G.st!=='reeling') break; }
+    if(G.st==='landing'){ caught++; ts+=t; } peak+=pk; }
+   out.push(loc+' '+['C','U','R','E','L','M'][r]+' '+name+': '+Math.round(caught/N*100)+'% in '+(caught?(ts/caught).toFixed(1):'-')+'s peak '+Math.round(peak/N)); }
+ }catch(e){ out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
+ return out; };

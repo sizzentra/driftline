@@ -206,7 +206,8 @@ function chooseCatch(){
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
   G.st='reeling'; G.crank=0; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
-  G.fightT=0; G.saved=false; G.eat=null; G.eatDone=false; G.behT=0;
+  G.fightT=0; G.saved=false; G.eat=null; G.eatDone=false; G.behT=0; G.surge=null; G.surgeN=0;
+  if(G.fish.kind==='fish'){ const rr=G.fish.str/gv('line'); if(rr>.75) setTimeout(()=>toast('Heavy fish! It is close to your line’s limit: let it run, reel when it rests.'),300); else if(fightWill(G.fish)>=.66&&G.fish.shiny!==2) setTimeout(()=>toast('Something big is on the line. Watch it closely.'),300); }
   G.eatAt = G.forceEat ? (G.forceEat=false, .5) : (G.fish.kind==='fish' && !isPredator(G.fish.sp) && G.fish.sp.r<=2 && Math.random()<.1) ? rnd(1.4,3.8) : null;
   if(G.fish.kind==='fish' && G.fish.shiny===2) setTimeout(()=>toast('It shimmers like nothing you have seen. It will fight every way a fish can.'),400);
   if(G.fish.kind==='fish' && G.fish.hy) setTimeout(()=>toast(G.fish.kg>(G.fish.sp.min+G.fish.sp.max)/2?'This feels far too heavy for what it looks like...':'Strangely light on the line...'),600);
@@ -413,11 +414,26 @@ function update(dt){ if(V3ON) padPoll(); if(G.st==='rest') restTick(dt);
   else { G.hotNext-=dt*hotRate(); if(G.hotNext<=0){ G.hot={p:rnd(.2,.97), r:.065, t:0, life:rnd(14,22)*(1+.05*pr('reader'))*(maxed('reader')?2:1)}; G.hotNext=rnd(14,32); } }
   updateEvents(dt);
 }
+// 0.3.6 rare fights. A fish's will by rarity (common 0 ... mythic 1). Shinies that switch behaviour count as legendary.
+const FIGHT_WILL=[0,0,.18,.38,.66,.88];
+function fightWill(f){ if(!f||f.kind!=='fish'||!f.sp) return 0; return Math.max(FIGHT_WILL[Math.min(5,f.sp.r)]||0, f.shiny===2?.66:0); }
+// Legendary and mythic fish have a signature surge: halfway in (and again near the end for mythics) they make one long,
+// heavy run with a burst of spray, then go still for a moment, then leap. Watching the fish beats it; holding loses it.
+function surgeTick(dt,f){ if(G.surge){ G.surge.t+=dt; const s=G.surge;
+    if(s.phase==='run'){ G.run=true; G.runT=Math.max(G.runT,.2); if(s.t>=s.dur){ s.phase='calm'; s.t=0; G.run=false; G.runT=1.6; } }
+    else if(s.phase==='calm'){ G.run=false; G.runT=Math.max(G.runT,.3); if(s.t>=.95){ s.phase='done'; G.ev='jump'; G.evDur=1; G.evT=2.5; splash(G.bob.x,G.bob.y,22); sfx.jump(); if(V3ON) vib([40,30,80]); G.surge=null; } }
+    return; }
+  const frac=G.d/G.d0, n=G.surgeN||0, at=n===0?.62:.28, max=f.sp.r>=5||f.shiny===2?2:1;
+  if(n<max && frac<at && G.fightT>1.2){ G.surgeN=n+1; G.surge={phase:'run',t:0,dur:rnd(1.8,2.4)}; G.run=true; G.ev=null; splash(G.bob.x,G.bob.y,26); sfx.warn(); setTimeout(()=>sfx.warn(),140); if(V3ON) vib([70,40,70]); } }
 function fight(dt){
   maybeEatEvent(dt); eatTick(dt);
   if(G.fish.shiny===2){ G.behT=(G.behT||0)-dt; if(G.behT<=0){ G.behT=rnd(2.2,3.6); const ks=Object.keys(BEH); G.fish.beh=ks[Math.floor(Math.random()*ks.length)]; } }
   const f=G.fish, B=BEH[f.beh]||BEH.calm, line=gv('line'), reel=reelSpeed(); const ratio=clamp(f.str/line,.05,4);
-  G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta); if(G.run){ splash(G.bob.x,G.bob.y,6); G.ev=null; } }
+  // 0.3.6: a fish's will grows with its rarity, whatever your gear (commons are unchanged): longer runs, shorter rests,
+  // slower to tire, and reeling into a rare fish's run strains the line on its own
+  const RK=fightWill(f);
+  if(RK>=.6) surgeTick(dt,f);
+  G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta)*(1+.45*RK)*(G.fightT>14?Math.max(.3,1-(G.fightT-14)/12):1) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta)*(1-.3*RK); if(G.run){ splash(G.bob.x,G.bob.y,6+RK*6); G.ev=null; } }
   if(!G.run && (B.shake||B.jump) && !G.ev){ G.evT-=dt; if(G.evT<=0){ G.ev=B.jump?'jump':'shake'; G.evDur=B.jump?.85:.5; G.evT=rnd(1.3,3)/(.5+f.aggr)*(.6+.4/(.3+G.sta)); if(B.jump){ splash(G.bob.x,G.bob.y,14); sfx.jump(); } else sfx.warn(); } }
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
   const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
@@ -431,8 +447,9 @@ function fight(dt){
     G.temper = Math.min(3, G.temper + rdt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
     const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
+    if(G.run) add += 52*RK*Math.min(1,.45+ratio)*(G.surge?2.2:1)*(.4+.6*G.sta); /* rare runs strain any line */
     G.ten += add*steady*rdt;
-    G.sta = Math.max(0, G.sta - (G.run?.18:.09)*rdt*(B.heavy?.6:1));
+    G.sta = Math.max(0, G.sta - (G.run?.18:.09)*rdt*(B.heavy?.6:1)*(1-.35*RK));
     G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
   }
   if(rin<1){
@@ -440,9 +457,9 @@ function fight(dt){
     G.ten = Math.max(0, G.ten - 55*odt);
     // a running fish takes line back: rarer and fresher fish pull harder, relative to how fast you can reel, so strong
     // gear shortens fights without ever making a big fish trivial
-    if(G.run){ const r=f.kind==='fish'&&f.sp?Math.min(5,f.sp.r):1; G.d += Math.max(1.5 + f.str*.18, reel*(.24+.11*r)) * (.35+.65*G.sta) * odt; }
-    if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * odt;
-    G.sta = Math.max(0, G.sta - .045*odt);
+    if(G.run){ const r=f.kind==='fish'&&f.sp?Math.min(5,f.sp.r):1, fat=G.fightT>12?Math.min(1,(G.fightT-12)/10):0; G.d += Math.max(1.5 + f.str*.18, reel*(.24+.11*r)) * (.35+.65*G.sta) * (1-.65*fat) * odt; } /* 0.3.6: a long fight tires the fish, so it builds to a finish */
+    if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * (G.fightT>12?Math.max(.3,1-(G.fightT-12)/10):1) * odt;
+    G.sta = Math.max(0, G.sta - .045*odt*(1-.35*RK));
   }
   if(G.run && rin<.5) G.ten = Math.max(G.ten, 6);
   if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }
