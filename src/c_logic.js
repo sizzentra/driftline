@@ -367,6 +367,8 @@ function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTim
 function down(e){
   if(G.star && starHit(e)) return;
   if(G.st!=='reeling' && G.st!=='frenzy' && G.st!=='charging' && G.st!=='result' && petHit(e)) return;
+  // the dock side of the water never casts (or reels in early): a missed tap on your pet does nothing
+  if(e && (G.st==='idle'||G.st==='waiting') && canvasXY(e).x < W*.2) return;
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
