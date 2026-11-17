@@ -3,9 +3,9 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.6';
+const GAME_VERSION = '0.4';
 const PATCHES = [
- {v:'0.3.6', name:'Fifty Fathoms', items:[
+ {v:'0.4', name:'Fifty Fathoms', items:[
   '## Fishing feel',
   'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
   'Long fights build to a finish: a fish tires as the fight goes on, so it never drags.',

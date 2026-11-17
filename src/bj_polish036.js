@@ -140,3 +140,19 @@ body.pc-app:not(.pc-wide) #tabs.secmode .secb{min-height:42px;padding:4px 8px;fo
 body.pc-app:not(.pc-wide) #tabs.secmode .subp{min-height:34px}
 body.pc-app:not(.pc-wide) #hint{margin:2px 0}
 </style>`);
+
+// ---------------------------------------------------------------------
+// PC: hide the menus (the same switch phones use, remembered on this device). The handle on the water's right edge, or
+// the M key, collapses the page column so the water fills the window, and brings it back.
+// ---------------------------------------------------------------------
+const _stageHOverride_036d=stageHOverride;
+stageHOverride=function(W,H){ const b=document.body.classList; if(b.contains('pc-app')&&b.contains('side-off')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*.62),Math.round(innerHeight-top-22))); } return _stageHOverride_036d(W,H); };
+addEventListener('keydown',e=>{ if(e.key!=='m'&&e.key!=='M'||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; if(!document.body.classList.contains('pc-app')) return; const b=$('sidetog'); if(b){ e.preventDefault(); b.click(); } });
+(function(){ const b=$('sidetog'); if(b) b.addEventListener('click',()=>setTimeout(()=>{ try{ pcFit(); resize(); }catch(e){} },60)); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-app .sidetog{display:flex!important;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:64px;border-radius:10px;align-items:center;justify-content:center;background:#08121ec8;border:1px solid #ffffff22;color:#e6efe8;font-size:20px;font-weight:800;z-index:5;cursor:pointer;box-shadow:0 4px 14px #0006}
+body.pc-app .sidetog:hover{border-color:#ffd36a88;color:#ffd36a}
+body.pc-app.side-off #tabs,body.pc-app.side-off #panel{display:none!important}
+body.pc-wide.side-off .wrap{grid-template-columns:minmax(0,1fr)}
+body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
+</style>`);
