@@ -1231,3 +1231,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .hud .stat.bait-x:focus-within{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
 .hud .stat.bait-x:hover{border-color:#ffffff30}
 </style>`);
+// the cast power bar sits just above the hint bubble at the bottom of the water (it used to be drawn underneath it,
+// hidden by the "Release to cast" hint on tablets and sideways phones; director, 2026-11-17)
+function castBarY(){ let y=H-34; try{ const h=$('hint'), cv=$('cv'); if(h&&cv&&h.offsetParent&&h.textContent.trim()&&+getComputedStyle(h).opacity>.05){ const hr=h.getBoundingClientRect(), cr=cv.getBoundingClientRect();
+    if(cr.height>0&&hr.height>0&&hr.bottom>cr.top&&hr.top<cr.bottom){ const top=(hr.top-cr.top)*H/cr.height; if(top>H*.4) y=Math.min(y,top-26); } } }catch(e){} return y; }
+if(/[?&]test\b/.test(location.search)) window.__castBarY=()=>({y:castBarY(), H});

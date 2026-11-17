@@ -57,6 +57,7 @@ const PATCHES = [
   'Smoother everywhere: Aurora weather is far lighter to draw, the Pets page opens about twice as fast, and the top bar does less work while you fish.',
   'The numbers add up: each aquarium fish’s coins per hour add up exactly to the total, short amounts never round up (999,999 coins used to read 1000K), and weekly quests pay exactly what they show.',
   'A sleeping bat’s accessories now hang with it instead of floating.',
+  'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
   'Keyboard shortcuts on PC: M opens and closes the menu, 1 to 5 open a category, [ and ] move between pages, / searches and Esc closes menus and cards. Press ? to see them all.',
   'Bait can restock itself: switch on Auto-restock on the Tackle page and one more pack is bought when you run out, if you have the coins.',

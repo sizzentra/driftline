@@ -404,7 +404,7 @@ function draw(now){
   if(FX && G.flash>0){ g.fillStyle='rgba(235,240,255,'+(G.flash*.45)+')'; g.fillRect(0,0,W,H); }
   drawVignette(night); drawDerbyHUD();
   // overlays
-  if(G.st==='charging'){ const bw=Math.min(240,W*.4), bxx=(W-bw)/2, byy=H-34; g.fillStyle='rgba(5,14,20,.7)'; rr(bxx-4,byy-4,bw+8,22,8); g.fill();
+  if(G.st==='charging'){ const bw=Math.min(240,W*.4), bxx=(W-bw)/2, byy=castBarY(); g.fillStyle='rgba(5,14,20,.7)'; rr(bxx-4,byy-4,bw+8,22,8); g.fill();
     const grd=g.createLinearGradient(bxx,0,bxx+bw,0); grd.addColorStop(0,'#7fc8a9'); grd.addColorStop(.8,'#ffc94d'); grd.addColorStop(1,'#ff6a3d'); g.fillStyle=grd; rr(bxx,byy,bw*G.power,14,5); g.fill();
     g.strokeStyle='rgba(255,255,255,.5)'; g.beginPath(); g.moveTo(bxx+bw*farAt(),byy-2); g.lineTo(bxx+bw*farAt(),byy+16); g.stroke();
     const inHot = G.hot && Math.abs(G.power-G.hot.p)<=G.hot.r;
