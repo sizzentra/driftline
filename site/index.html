@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.17-1645';
+window.DL_VERSION='2026.11.17-1723';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2780,8 +2780,9 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.2';
+const GAME_VERSION = '0.4.3';
 const PATCHES = [
+{v:'0.4.3', name:'Quick Links', items:['Tap Fishing at in the top bar to choose a water, and tap Cooler to open your cooler, just like Aquarium and Fish Log.','Bait has moved off the top bar: choose it on the Bait list in Tackle, which shows the bait you are using.','Settings has its own gear in the top bar on phones, held upright or sideways.','Fish Log stays in the top bar on every phone held sideways, including the Home Screen app.']},
 {v:'0.4.2', name:'iPhone Hotfix', items:['iPhone: holding your finger on the water to reel no longer brings up the magnifier bubble, in Safari and in the Home Screen app.']},
 {v:'0.4.1', name:'Catching Up', items:[  'Back after a while? The update notes now show everything that arrived while you were away, all in one place, newest first.',  'The 0.4 notes now start with the biggest additions: new fish, voyages, events and more.', ]},
  {v:'0.4', name:'Fifty Fathoms', items:[
@@ -13991,7 +13992,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) a
     const SHORT={worm:'Worms',bread:'Bread',cricket:'Crickets',crawler:'Crawlers',corn:'Corn',minnows:'Minnows',glitter:'Glitter',deepjig:'Deep Jigs',berries:'Berries',goldchum:'Gold Chum',lavaworm:'Lava',stardust:'Stardust',mythbait:'Myth',spinner:'Spinner',glow:'Glow',icefly:'Ice Flies',chum:'Chum',shrimp:'Shrimp',squid:'Squid',stinky:'Cheese',disco:'Disco',magnet:'Magnet',golden:'Golden'};
     const nm=document.createElement('b'); nm.className='bnm'; nm.setAttribute('aria-hidden','true'); sel.after(nm); chip.classList.add('bait-x');
     const paint=()=>{ try{ const k=BAIT[S.baitSel]?S.baitSel:'worm', b=BAIT[k], n=k==='worm'?null:(S.bait[k]||0);
-      const lt='Bait'+(n!=null?' · '+fmtShort(n):''); if(lbl.textContent!==lt) lbl.textContent=lt;
+      const lt='Bait'+(n!=null?' · '+(n>=1e6?fmtShort(n):n>=1000?Math.floor(n/1000)+'K':n):''); // compact so the biggest stash still fits if(lbl.textContent!==lt) lbl.textContent=lt;
       const t=b.name+(n!=null?' ('+fmt(n)+' left)':''); if(chip.title!==t+'. Tap to change bait') chip.title=t+'. Tap to change bait';
       // measured on the real text (letter spacing and the loaded font included); redone only when the bait or the width changes
       const avail=nm.clientWidth, key=k+'|'+avail+'|'+(document.fonts?document.fonts.status:''); if(avail>0&&nm._fitKey===key) return; nm._fitKey=avail>0?key:'';
@@ -14149,6 +14150,51 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
 // tools there. The game reads these surfaces through pointer events, which still arrive.
 document.addEventListener('touchstart',e=>{ const t=e.target; if(t&&t.tagName==='CANVAS'&&(t.id==='cv'||t.id==='tankcv'||t.id==='homecv')&&e.cancelable) e.preventDefault(); },{passive:false});
 document.head.insertAdjacentHTML('beforeend',`<style>#cv,#tankcv,#homecv{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}</style>`);
+// Top bar (director, 2026-11-17): every chip that has a page opens it. Fishing at opens Waters (quick water changes), Cooler opens
+// the Cooler, like Aquarium and Fish Log. Bait is not on the top bar any more: it is chosen on the Bait list in Tackle, which shows the
+// bait in use. Its place goes to a Settings gear (phones had none). Fish Log stays on sideways phones at every width.
+{ const cool=$('coolerct'), cc=cool&&cool.closest('.stat'), loc=document.querySelector('.hud > .stat.loc');
+  const link=(el,go,title)=>{ if(!el) return; el.classList.add('hudx','hud-link'); el.setAttribute('role','button'); el.tabIndex=0; el.title=title;
+    ['pointerdown','touchstart','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+    const act=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} go(); };
+    el.addEventListener('click',act); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') act(e); }); };
+  link(loc,()=>openMenu('map'),'Fishing at: tap to choose a water');
+  link(cc,()=>openMenu('cooler'),'Cooler: fish you are carrying (tap to open)');
+  const sel=$('bait'); if(sel){ sel.tabIndex=-1; sel.setAttribute('aria-hidden','true'); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > .hud-link{cursor:pointer}
+.hud > .hud-link:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+html body .hud > .st-bait{display:none!important}
+/* phones upright: coins, level, cooler, aquarium, Fish Log and a gear on top; where you fish and the goal underneath */
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.04fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1fr) 32px!important;gap:4px!important}
+body.phone-app.dl-fish .hud > .st-log{grid-column:5!important;grid-row:1!important;order:0!important;height:auto!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:0!important;padding-left:6px!important;padding-right:4px!important}
+body.phone-app.dl-fish .hud > .st-log .lbl{display:block!important}
+body.phone-app.dl-fish .hud > .st-log b::before{content:none!important}
+body.phone-app.dl-fish .hud > .hudbtns{display:flex!important;grid-column:6;grid-row:1;align-items:stretch;min-width:0}
+body.phone-app.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
+body.phone-app.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .stat.loc{display:flex!important;grid-column:1 / 3!important;grid-row:2!important;height:30px!important;flex-direction:row!important;align-items:center!important;gap:5px!important;min-width:0;overflow:hidden}
+body.phone-app.dl-fish .hud > .stat.loc .lbl{display:none!important}
+body.phone-app.dl-fish .hud > .stat.loc b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+body.phone-app.dl-fish .hud > .stat.loc b::before{content:"📍 ";font-size:11px}
+body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 7!important;grid-row:2!important}
+/* phones sideways: one row, Fish Log at every width, a gear at the end */
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px!important;gap:5px!important}
+  html body.dl-fish .hud > .st-log{display:flex!important}
+  html body.dl-fish .hud > .hudbtns{display:flex!important;min-width:0}
+  html body.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
+  html body.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px!important;gap:4px!important}
+  html body.dl-fish .hud > .st-log{display:flex!important}
+}
+/* tablets and windows 701-1099 px (two rows): the bait cell is gone */
+@media (min-width:701px) and (max-width:1099px) and (min-height:561px){
+  html body.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,1fr) minmax(0,.9fr) auto!important;grid-template-areas:"coins lvl cool aq lg btns" "loc loc goal goal goal goal"!important}
+}
+</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
