@@ -3,8 +3,9 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.3';
+const GAME_VERSION = '0.4.4';
 const PATCHES = [
+{v:'0.4.4', name:'PC Click Fix', items:['PC: clicking Back to fishing, the categories and the page tabs in the menu works again.','Tapping your next goal takes you to the right place: the Fish Log opens on the water the goal is about.','Phones: the top bar has a search button, and the Settings page no longer shows a second gear.']},
 {v:'0.4.3', name:'Quick Links', items:['Tap Fishing at in the top bar to choose a water, and tap Cooler to open your cooler, just like Aquarium and Fish Log.','Bait has moved off the top bar: choose it on the Bait list in Tackle, which shows the bait you are using.','Settings has its own gear in the top bar on phones, held upright or sideways.','Fish Log stays in the top bar on every phone held sideways, including the Home Screen app.']},
 {v:'0.4.2', name:'iPhone Hotfix', items:['iPhone: holding your finger on the water to reel no longer brings up the magnifier bubble, in Safari and in the Home Screen app.']},
 {v:'0.4.1', name:'Catching Up', items:[  'Back after a while? The update notes now show everything that arrived while you were away, all in one place, newest first.',  'The 0.4 notes now start with the biggest additions: new fish, voyages, events and more.', ]},

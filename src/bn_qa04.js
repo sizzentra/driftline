@@ -151,6 +151,13 @@ ui(){ QA.sys='UI';
   T('the cast power bar and its label sit above the hint at the bottom of the water, inside the water',()=>{ closeMenu(); const h=$('hint'), cv=$('cv'); if(!h||!cv) return {ok:false,detail:'missing'}; const was=h.textContent; if(!h.textContent.trim()) h.textContent='Release to cast. A far cast or a hotspot improves your odds.';
     const cr=cv.getBoundingClientRect(), hr=h.getBoundingClientRect(); if(!cr.height) return {ok:true,detail:'water not on screen'}; const k=cr.height/H, y=castBarY(), top=cr.top+(y-22)*k, bot=cr.top+(y+18)*k; h.textContent=was;
     const e=[]; if(top<cr.top) e.push('bar above the water'); if(hr.height&&bot>hr.top+1&&top<hr.bottom) e.push('bar '+Math.round(top)+'-'+Math.round(bot)+' overlaps hint '+Math.round(hr.top)+'-'+Math.round(hr.bottom)); return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:innerWidth+'x'+innerHeight}; });
+  T('mouse: menu buttons answer a normal click (Back, categories, page tabs), and Next goal opens the Fish Log on the goal water',()=>{ const e=[]; openMenu('settings');
+    const P=(el,t)=>el.dispatchEvent(new PointerEvent(t,{bubbles:true,cancelable:true,pointerId:1,pointerType:'mouse',isPrimary:true,button:0})), M=(el)=>{ P(el,'pointerdown'); P(el,'pointerup'); el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true})); };
+    const up=document.querySelector('#tabs .secb[data-sec="up"]'); if(up){ M(up); if(menuSecOf(S.tab)!==MENU_SECS.find(s=>s.id==='up')) e.push('category click ignored ('+S.tab+')'); } else e.push('no category button');
+    const pill=[...document.querySelectorAll('#tabs .subp')].find(p=>p.dataset.sub!==S.tab); if(pill){ const t=pill.dataset.sub; M(pill); if(S.tab!==t) e.push('page tab click ignored'); }
+    const back=document.querySelector('#menuov .mo-back'); M(back); if(__ui.isOpen()) e.push('Back click ignored');
+    encLoc='junk'; const gl=nextGoal(); const g=$('goalchip'); if(g&&gl.tab==='journal'){ M(g); if(S.tab!=='journal') e.push('goal opened '+S.tab); else if(encLoc!==(gl.loc||S.loc)) e.push('goal opened the Fish Log on '+encLoc); } closeMenu(); setTab(DASH);
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'categories, page tabs, Back, goal'}; });
   T('top bar: no bait chip; Fishing at, Cooler, Aquarium, Fish Log and Settings are on screen, fit, and each opens its page; bait is picked in Tackle',()=>{ const e=[]; closeMenu(); setTab(DASH);
     const bc=document.querySelector('.hud > .st-bait'); if(bc&&getComputedStyle(bc).display!=='none') e.push('bait chip still shown');
     const want=[['.hud > .stat.loc','map'],['.hud > .st-cool','cooler'],['.hud > .st-aq','aquarium'],['.hud > .st-log','journal'],['.hud #settingsbtn','settings']];

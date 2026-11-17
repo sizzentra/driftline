@@ -21,7 +21,7 @@ const MENU_MORE={id:'more', name:'More', tabs:['settings','stats','save']}; // r
 function menuSecOf(tab){ return MENU_SECS.find(s=>s.tabs.includes(tab)) || (MENU_MORE.tabs.includes(tab)?MENU_MORE:null); }
 function menuTabBtn(t){ return $('tabs').querySelector(':scope > [data-tab="'+t+'"]'); }
 // the label of a page: the old tab's emoji + name; Settings has no tab button any more, so it is named here
-function menuTabLabel(t){ if(t==='settings') return ['⚙️','Settings']; const b=menuTabBtn(t), l=(b&&b.dataset.label)||t, i=l.indexOf(' '); return i>0?[l.slice(0,i),l.slice(i+1)]:['',l]; }
+function menuTabLabel(t){ if(t==='settings') return ['🎛️','Settings']; /* not a second gear: the gear button above already opens this section */ const b=menuTabBtn(t), l=(b&&b.dataset.label)||t, i=l.indexOf(' '); return i>0?[l.slice(0,i),l.slice(i+1)]:['',l]; }
 function menuTabsIn(sec){ return sec.tabs.filter(t=>t==='settings'||menuTabBtn(t)); }
 function menuDot(t){ const b=menuTabBtn(t), d=b&&b.querySelector('.dot'); return d?(parseInt(d.textContent,10)||0):0; }
 function menuLast(){ const s=S.settings; if(!s.secLast||typeof s.secLast!=='object') s.secLast={}; return s.secLast; }

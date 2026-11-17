@@ -1350,7 +1350,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
   const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
   document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
-  document.addEventListener('pointerup',e=>{ lastTouch=performance.now(); const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
+  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); // a mouse never counts as touch (it used to, and swallowed every menu click on PC) downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
@@ -1391,24 +1391,26 @@ body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.04fr) minmax(0,1fr)
 body.phone-app.dl-fish .hud > .st-log{grid-column:5!important;grid-row:1!important;order:0!important;height:auto!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:0!important;padding-left:6px!important;padding-right:4px!important}
 body.phone-app.dl-fish .hud > .st-log .lbl{display:block!important}
 body.phone-app.dl-fish .hud > .st-log b::before{content:none!important}
-body.phone-app.dl-fish .hud > .hudbtns{display:flex!important;grid-column:6;grid-row:1;align-items:stretch;min-width:0}
-body.phone-app.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
-body.phone-app.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .hudbtns{display:contents!important}
+body.phone-app.dl-fish .hud > .hudbtns > #settingsbtn{grid-column:6;grid-row:1;width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .hudbtns > #searchbtn{display:flex!important;grid-column:6;grid-row:2;width:100%;min-width:0;height:30px!important;padding:0!important;align-items:center;justify-content:center;font-size:15px}
+body.phone-app.dl-fish .hud > .hudbtns > #searchbtn .sbl{display:none!important}
 body.phone-app.dl-fish .hud > .stat.loc{display:flex!important;grid-column:1 / 3!important;grid-row:2!important;height:30px!important;flex-direction:row!important;align-items:center!important;gap:5px!important;min-width:0;overflow:hidden}
 body.phone-app.dl-fish .hud > .stat.loc .lbl{display:none!important}
 body.phone-app.dl-fish .hud > .stat.loc b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 body.phone-app.dl-fish .hud > .stat.loc b::before{content:"📍 ";font-size:11px}
-body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 7!important;grid-row:2!important}
+body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 6!important;grid-row:2!important}
 /* phones sideways: one row, Fish Log at every width, a gear at the end */
 @media (orientation:landscape) and (max-height:560px){
-  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px!important;gap:5px!important}
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px 40px!important;gap:5px!important}
   html body.dl-fish .hud > .st-log{display:flex!important}
-  html body.dl-fish .hud > .hudbtns{display:flex!important;min-width:0}
-  html body.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
-  html body.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
+  html body.dl-fish .hud > .hudbtns{display:contents!important}
+  html body.dl-fish .hud > .hudbtns > #searchbtn{display:flex!important;width:100%;min-width:0;padding:0!important;height:100%;align-items:center;justify-content:center;font-size:16px}
+  html body.dl-fish .hud > .hudbtns > #searchbtn .sbl{display:none!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
 }
 @media (orientation:landscape) and (max-height:560px) and (max-width:799px){
-  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px!important;gap:4px!important}
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px 36px!important;gap:4px!important}
   html body.dl-fish .hud > .st-log{display:flex!important}
 }
 /* tablets and windows 701-1099 px (two rows): the bait cell is gone */
