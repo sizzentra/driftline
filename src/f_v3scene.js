@@ -242,6 +242,9 @@ const V3SCENES = { pond: V3POND };
 const V3PLAT = { dock:(P,t,night,dockY)=>v3dock(P,t,night,dockY) };
 
 // ---------- entry points called from draw() ----------
+// the camera drifts slowly side to side (two slow waves, never a loop you notice); off for reduced motion
+const V3PAR={dx:0,amp:0,rm:matchMedia('(prefers-reduced-motion:reduce)')};
+function v3par(t){ V3PAR.amp=W*.008; if(V3PAR.rm.matches||window.__noPar){ V3PAR.dx=0; return 0; } return V3PAR.dx=V3PAR.amp*(Math.sin(t*.105)*.68+Math.sin(t*.043+1.3)*.32); }
 function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(!V3ON || !V3SCENES[L.id]) return false;
   const P=v3palette(L.id,night,dusk,gloom), SC=V3SCENES[L.id];
@@ -250,6 +253,8 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   // sky
   const sg=g.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); g.fillStyle=sg; g.fillRect(0,0,W,hz+1);
   if(wx&&wx.k==='Gilded'){ const gg=g.createLinearGradient(0,0,0,hz); gg.addColorStop(0,'rgba(255,200,90,0)'); gg.addColorStop(1,'rgba(255,196,90,'+(.26*(1-night*.65)*WXA)+')'); g.fillStyle=gg; g.fillRect(0,0,W,hz+1); }
+  // 0.3.6 parallax: a slow camera drift; the sky moves least, the land and water more, the out-of-focus foreground most
+  const px=v3par(t); g.save(); g.translate(px*.35,0);
   // stars (twinkling) after dusk
   if(night>.05 && gloom<.5 && !SC.overcast){ if(!v3Scene.st||v3Scene.st.w!==W){ const r=v3rng(3); v3Scene.st={w:W,a:Array.from({length:90},()=>[r()*W,r()*hz*.85,r(),.6+r()*1.1])}; }
     g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
@@ -266,9 +271,12 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
     g.fill(); g.restore();
     g.fillStyle=v3rgba(P.cloudLit,.75*(1-gloom*.5)); g.beginPath(); g.moveTo(cx+cw*.05,cy); g.quadraticCurveTo(cx+cw*.5,cy+chh*.16,cx+cw*.95,cy); g.quadraticCurveTo(cx+cw*.5,cy-chh*.12,cx+cw*.05,cy); g.fill(); }
   if(SC.sky) SC.sky(P,t,hz);
-  // the still land and water, from the cache
+  g.restore();
+  // the still land and water, from the cache (scaled a hair so the drift never shows an edge)
+  g.save(); if(px){ const os=1+V3PAR.amp*2.4/W; g.translate(W/2+px,hz); g.scale(os,os); g.translate(-W/2,-hz); }
   v3landDraw(L,P,hz);
-  SC.live(P,t,hz,{x:sx,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
+  SC.live(P,t,hz,{x:sx+px*.35-px,y:sy,up,vis:up?vis*(sy<hz?1:0):vis*.6});
+  g.restore();
   if(tl) g.restore();
   return true;
 }

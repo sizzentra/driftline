@@ -6,10 +6,10 @@
 // =====================================================================
 const DOF_CACHE={};
 const DOF_SETS={
- pond:   {br:'reeds',  tr:'leaves'},
- river:  {br:'grass',  tr:'leaves'},
+ pond:   {br:'reeds'},
+ river:  {br:'grass'},
  coast:  {br:'dune'},
- frost:  {br:'ice',    tr:'snowbranch'},
+ frost:  {br:'ice'},
  reef:   {br:'coral'},
  trench: {br:'kelp'},
  ember:  {br:'lavarock'},
@@ -32,8 +32,33 @@ function dofSprite(id,slot,kind,w,h,P,night){ const key=id+'|'+slot+'|'+Math.rou
   const k=.12, sw=Math.max(8,Math.round(w*k)), sh=Math.max(8,Math.round(h*k)), a=document.createElement('canvas'); a.width=sw; a.height=sh; const ax=a.getContext('2d'); ax.scale(k,k); dofDraw(ax,kind,w,h,P,night);
   const b=document.createElement('canvas'); b.width=Math.round(w*.5); b.height=Math.round(h*.5); const bx=b.getContext('2d'); bx.imageSmoothingEnabled=true; bx.imageSmoothingQuality='high'; bx.drawImage(a,0,0,b.width,b.height);
   s=DOF_CACHE[key]={cv:b}; const keys=Object.keys(DOF_CACHE); if(keys.length>40) delete DOF_CACHE[keys[0]]; return s; }
-for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=matchMedia('(prefers-reduced-motion:reduce)').matches, sway=rm?0:Math.sin(t*.6)*W*.004;
+for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=V3PAR.rm.matches, sway=(rm?0:Math.sin(t*.6)*W*.004)-V3PAR.dx*1.3;
   g.save(); g.globalAlpha=.92; g.imageSmoothingEnabled=true;
   if(set.br){ const w=W*.26, h=H*.34, s=dofSprite(id,'br',set.br,w,h,P,night); g.drawImage(s.cv,W-w*.92+sway,H-h*.9,w,h); }
-  if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w+sway*1.4,-h*.12,w,h); }
+  if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w*.94+sway*1.2,-h*.12,w,h); }
   g.restore(); }); }
+
+// ---------------------------------------------------------------------
+// 0.3.6 photographic finish for every water. (1) Surface grain baked into the cached scenery once per light level:
+// flat painted shapes pick up a fine stone/foliage texture, the biggest single step away from the "flat drawing"
+// look, at zero cost per frame. (2) A lens vignette and a soft horizon haze drawn over the scene (one cached image).
+// ---------------------------------------------------------------------
+const FIN036={grain:null, vig:null};
+function finGrain(){ if(FIN036.grain) return FIN036.grain; const n=160, c=document.createElement('canvas'); c.width=c.height=n; const x=c.getContext('2d'), im=x.createImageData(n,n), d=im.data; let s=91;
+  const r=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
+  for(let i=0;i<n*n;i++){ const v=r(), lum=v<.5?0:255, a=Math.abs(v-.5)*2; d[i*4]=d[i*4+1]=d[i*4+2]=lum; d[i*4+3]=Math.round(a*a*44); }
+  x.putImageData(im,0,0); return FIN036.grain=c; }
+const _v3land_036=v3land;
+v3land=function(L,P,hz){ const before=V3CACHE&&V3CACHE.key, C=_v3land_036(L,P,hz);
+  if(C.key!==before && !C.fin){ C.fin=1; try{ const x=C.c.getContext('2d'); x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop';
+    const k=Math.max(1,Math.round(C.c.width/1400)); const hzq=Math.round(hz*C.c.height/H)+2; x.globalAlpha=.42; x.fillStyle=x.createPattern(finGrain(),'repeat'); if(k>1&&x.fillStyle.setTransform) x.fillStyle.setTransform(new DOMMatrix().scale(k,k)); x.fillRect(0,0,C.c.width,hzq);
+    // light falls from above: the tops of things lighter, the ground near the camera darker
+    x.globalAlpha=1; const hzp=hz*C.c.height/H, lg=x.createLinearGradient(0,0,0,C.c.height); lg.addColorStop(0,'rgba(255,248,235,.06)'); lg.addColorStop(Math.min(.98,hzp/C.c.height),'rgba(255,248,235,0)'); lg.addColorStop(1,'rgba(0,4,12,.16)'); x.fillStyle=lg; x.fillRect(0,0,C.c.width,C.c.height);
+    x.restore(); }catch(e){} }
+  return C; };
+function finVignette(){ const key=W+'x'+H; if(FIN036.vig&&FIN036.vig.key===key) return FIN036.vig.c;
+  const c=document.createElement('canvas'), q=Math.min(1,600/Math.max(W,H)); c.width=Math.max(8,Math.round(W*q)); c.height=Math.max(8,Math.round(H*q)); const x=c.getContext('2d'), w=c.width, h=c.height, R=Math.hypot(w,h)/2;
+  const rg=x.createRadialGradient(w*.5,h*.46,R*.42,w*.5,h*.5,R*1.02); rg.addColorStop(0,'rgba(2,4,12,0)'); rg.addColorStop(.6,'rgba(2,4,12,.16)'); rg.addColorStop(1,'rgba(2,4,12,.42)'); x.fillStyle=rg; x.fillRect(0,0,w,h);
+  FIN036.vig={key,c}; return c; }
+const _v3Fore_036=v3Fore;
+v3Fore=function(L,t,night){ const r=_v3Fore_036(L,t,night); if(r&&!window.__noVig){ g.save(); g.imageSmoothingEnabled=true; g.drawImage(finVignette(),0,0,W,H); g.restore(); } return r; };
