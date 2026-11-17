@@ -161,8 +161,8 @@ const sfx = {
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
-  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const maxH=portrait?window.innerHeight*.56:shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
-  H=clamp(Math.round(W*(portrait?.82:fs?.56:shortLand?.62:.5)),shortLand?180:250,Math.round(maxH)); DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
+  const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
+  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=Math.min(2,window.devicePixelRatio||1); cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0); }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});

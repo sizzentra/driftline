@@ -5,7 +5,12 @@
 // =====================================================================
 const GAME_VERSION = '0.3.5.1';
 const PATCHES = [
- {v:'0.3.5.1', name:'Phone Fit Hotfix', items:[
+ {v:'0.3.5.1', name:'Made for Phones', items:[
+  'Phones held upright now show everything on one screen: the water stays in view, and only the page you have open scrolls, right above the section bar. No more scrolling the water away and back.',
+  'New full-screen button on the water (phones held upright): one tap and the water fills the screen, one more and the menus come back. It shares its setting with the sideways menu button.',
+  'Rest is now a proper button on the water, next to the full-screen button, and it glows while you rest.',
+  'The tips line sits on the water instead of taking up its own row, and the top bar is slimmer.',
+  'Event cards such as patch notes and treasure choices fit on one screen on phones.',
   'The aquarium fits on phones again, held upright or sideways: a wide tank like on PC, with decorations sized to fit.',
   'Fish rows in the Cooler and Aquarium no longer squeeze the fish’s name and details when the menu is narrow: the buttons sit on their own line underneath.',
   'Menus feel snappier on phones: switching pages is instant and the section bar is lighter to draw, so taps respond faster.',
