@@ -399,6 +399,8 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
 // ---------- aquarium ----------
 const fishRate = f => aqFishBase(f)*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
+// each fish's coins per hour as whole numbers that add up exactly to the shown total (largest remainders get the spare coins)
+function aqShownRates(){ const v=S.tank.map(f=>fishRate(f)*60), fl=v.map(Math.floor); let left=Math.floor(v.reduce((a,b)=>a+b,0))-fl.reduce((a,b)=>a+b,0); v.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(left>0){ fl[i]++; left--; } }); return fl; }
 function accrue(){ const now=Date.now(); if(!S.tankT){ S.tankT=now; return 0; } const mins=Math.min(offlineCap(),Math.max(0,(now-S.tankT)/60000)); const add=tankRate()*mins; S.tankBank+=add; S.tankT=now; return add; }
 function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTimeout(()=>toast('While you were away your aquarium earned '+fmt(add)+' coins'),900); }
 

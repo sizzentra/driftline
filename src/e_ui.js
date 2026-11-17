@@ -23,13 +23,16 @@ function hud(){
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
-  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(b) b.innerHTML=tabHTML(b.dataset.label)+dot(n); };
+  const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(!b) return; const h=tabHTML(b.dataset.label)+dot(n); if(b._tabH!==h){ b._tabH=h; b.innerHTML=h; } }; // only touch the button when its badge changed
   setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
   setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
-function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M';
-  /* 0.3.6: trillions and beyond keep a short form (7.7 trillion used to read "7700.00B") */ const U=['B','T','Qa','Qi','Sx','Sp','Oc','No','Dc']; let i=0, v=n/1e9; while(v>=1000&&i<U.length-1){ v/=1000; i++; } return (v<10?v.toFixed(2):v<100?v.toFixed(1):v.toFixed(0))+U[i]; }
+function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n);
+  // short forms round down like every other coin number (rounding to nearest showed 999,999 as "1000K")
+  const tr=(v,d)=>{ const p=Math.pow(10,d); return (Math.floor(v*p+1e-6)/p).toFixed(d); };
+  if(n<1e6) return tr(n/1e3,0)+'K'; if(n<1e9){ const v=n/1e6; return tr(v,v<10?2:1)+'M'; }
+  /* 0.3.6: trillions and beyond keep a short form (7.7 trillion used to read "7700.00B") */ const U=['B','T','Qa','Qi','Sx','Sp','Oc','No','Dc']; let i=0, v=n/1e9; while(v>=1000&&i<U.length-1){ v/=1000; i++; } return tr(v,v<10?2:v<100?1:0)+U[i]; }
 function setHint(){ let h='';
   switch(G.st){
     case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
@@ -121,7 +124,7 @@ function renderSkills(P){ const free=ptsFree(), cost=50*S.lvl;
     <div class="meta">${p.d}</div><div class="val" style="font-size:14px">Each rank: ${p.per}</div>
     <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${r>=p.max?'Maxed':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>';
 }
-function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COST[S.tankSlots];
+function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
   P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
@@ -133,7 +136,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); const next=TANK_COS
   ${next!=null?`<button class="btn alt" data-act="buytank" ${S.money>=next?'':'disabled'}>Increase tank size · <span class="coin">${fmt(next)}</span></button>`:'<span class="sub">Your tank is as big as it gets</span>'}</div>`+
   (S.tank.length ? '<div class="list">'+S.tank.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh?1:0}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span></small></div>
-   <div class="val"><span class="coin">${fmt(fishRate(f)*60)}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
+   <div class="val"><span class="coin">${fmt((AQS||(AQS=aqShownRates()))[i])}</span><span class="sub"> / h</span></div><div class="acts"><button class="btn alt sm" data-act="untank" data-i="${i}" ${S.cooler.length<gv('cooler')?'':'disabled'}>Back to cooler</button></div></div>`; }).join('')+'</div>'
    : '<div class="empty">No fish on display yet. In the Cooler, press <b>To aquarium</b> on a fish you want to keep.</div>') + aqCustomHTML();
   paintFish(P); paintDecor(P);
 }
@@ -275,8 +278,14 @@ function renderPets(P){ const pp=PETI[S.pet];
     return `<div class="tile ${here||comp?'done':''}"><canvas width="240" height="140" data-pet="${p.id}" data-own="${own?1:0}" style="width:120px;height:70px;cursor:default"></canvas><h4>${own?esc(petName(p.id)):p.src==='shop'?p.name:'???'}${own&&bondLevel(p.id)?` <span class="meta" style="color:#ff6a9a">♥${bondLevel(p.id)}</span>`:''}</h4>
       <div class="meta">${own||p.src==='shop'?esc(p.d)+' ':''}<span class="aq">${fmtB(p.k,val)}</span></div>${act}</div>`; }).join('')+'</div>';
   paintPetCustom();
-  P.querySelectorAll('canvas[data-pet]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
-    else mysteryThumb(cx,c.width,c.height,c.dataset.pet); });
+  // the first portraits are drawn at once, the rest in small batches right after (and any that scroll into view first are
+  // drawn straight away): setting up 60+ fresh canvases in one go made the Pets page slow to open (2026-11-17 QC)
+  const paint=c=>{ if(c.dataset.done) return; c.dataset.done=1; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); const bigp=c.dataset.pet==='horse'||c.dataset.pet==='cow'; if(c.dataset.own==='1') drawPetStyled(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0); else if(PETI[c.dataset.pet].src==='shop') drawPet(cx,c.dataset.pet,120,128,bigp?2.6:4.4,0);
+    else mysteryThumb(cx,c.width,c.height,c.dataset.pet); };
+  const cvs=[...P.querySelectorAll('canvas[data-pet]')]; cvs.slice(0,8).forEach(paint);
+  let io=null; if(window.IntersectionObserver){ io=new IntersectionObserver(es=>{ for(const e of es) if(e.isIntersecting){ io.unobserve(e.target); paint(e.target); } },{rootMargin:'300px 0px'}); cvs.slice(8).forEach(c=>io.observe(c)); }
+  let i=8; const batch=()=>{ if(!cvs[0]||!cvs[0].isConnected){ if(io) io.disconnect(); return; } for(let n=0;n<6&&i<cvs.length;n++,i++) paint(cvs[i]); if(i<cvs.length) setTimeout(batch,16); else if(io) io.disconnect(); };
+  if(cvs.length>8) setTimeout(batch,16);
 }
 
 // ---------- save codes ----------

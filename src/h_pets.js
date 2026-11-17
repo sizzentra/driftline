@@ -129,7 +129,7 @@ function pet3Face(c,k,fm,hr,P){ const {el,ci}=k;
 // wide, flat or odd heads (frog, slime, crab, jellyfish...) don't match a circle, so a bow placed on the circle floated
 // above them. Measured once per pet by drawing the pet alone off screen, then remembered.
 const PET_TOP={};
-function petTopK(id,xk,t){ const key=id+'|'+xk; if(key in PET_TOP) return PET_TOP[key]; PET_TOP[key]=null;
+function petTopK(id,xk,t){ /* a head turned upside down or on its side (the bat hanging asleep): the outline scan would find the perch, not the head, so use the head circle */ const F0=PET3_FR[id]; if(F0&&F0.head&&Math.cos(F0.head.rot||0)<.5) return null; const key=id+'|'+xk; if(key in PET_TOP) return PET_TOP[key]; PET_TOP[key]=null;
   try{ const S=320, cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d',{willReadFrequently:true});
     const lk=Object.assign({},petLook(id),{acc:'none',hat:'none'}); drawPetStyled(x,id,S/2,S*.8,4,t||0,0,lk); const F=PET3_FR[id]; if(!F) return null;
     const hd=F.head, col=Math.round(hd.x+(hd.flip?-1:1)*xk*hd.r); if(col<1||col>S-2) return null; const d=x.getImageData(col-1,0,3,S).data;
@@ -144,7 +144,7 @@ function drawGear3(c,id,lk,t){ const F=PET3_FR[id]; if(!F) return false; const h
     if(lk.acc==='bowtie'){ c.fillStyle=col; c.beginPath(); c.moveTo(.3,.1); c.lineTo(-.25,-.25); c.lineTo(-.25,.45); c.closePath(); c.moveTo(.3,.1); c.lineTo(.85,-.25); c.lineTo(.85,.45); c.closePath(); c.fill(); c.fillStyle=dk; c.beginPath(); c.arc(.3,.1,.13,0,7); c.fill(); }
     if(lk.acc==='bell'){ c.strokeStyle=col; c.lineWidth=.22; c.beginPath(); c.moveTo(-.9,-.15); c.quadraticCurveTo(0,.15,.9,-.15); c.stroke(); c.fillStyle='#ffcc33'; c.beginPath(); c.arc(.25,.28,.24,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.7)'; c.beginPath(); c.arc(.18,.2,.07,0,7); c.fill(); }
     c.restore(); }
-  if(lk.acc==='cape'){ c.save(); c.translate(nk.x,nk.y); c.rotate(nk.rot); c.scale(nk.r,nk.r); c.fillStyle='#e8c060'; c.beginPath(); c.arc(-.55,-.15,.14,0,7); c.fill(); c.restore(); }
+  if(lk.acc==='cape'&&Math.cos(nk.rot||0)>-.5){ c.save(); c.translate(nk.x,nk.y); c.rotate(nk.rot); c.scale(nk.r,nk.r); c.fillStyle='#e8c060'; c.beginPath(); c.arc(-.55,-.15,.14,0,7); c.fill(); c.restore(); }
   if(lk.acc==='balloon'){ const tx=nk.x-nk.r*.4, ty=nk.y, bx=tx-hd.r*2.4+Math.sin(t*1.5)*1.2, by=ty-hd.r*5.2, R=hd.r*1.05;
     c.strokeStyle='rgba(235,235,235,.9)'; c.lineWidth=.35; c.beginPath(); c.moveTo(tx,ty); c.quadraticCurveTo(tx-hd.r*1.8,ty-hd.r*2,bx,by+R); c.stroke();
     c.fillStyle='#ffd84a'; c.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5+Math.sin(t*1.2)*.08, rr=i%2?R*.46:R; c.lineTo(bx+Math.cos(a)*rr,by+Math.sin(a)*rr); } c.closePath(); c.fill(); }

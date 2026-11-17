@@ -16,12 +16,19 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
   if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const cx=W*.62, cy=hz+H*.28, R=H*.66, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
       g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI*1.04,Math.PI*1.96); g.stroke(); }
       g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI*1.06,Math.PI*1.94); g.stroke(); g.restore(); } }
-  if(k==="Aurora"){ const A=a*(.55+.45*night); const cs=['90,255,170','150,110,255','90,220,255'];
-    g.save(); g.globalCompositeOperation='lighter'; const sw=Math.max(4,W/80); for(let b=0;b<3;b++){ const y0=hz*(.18+b*.11);
-      // one shared gradient per ribbon (light at the curtain's foot, fading up); each strip just moves and dims it
-      const gr=g.createLinearGradient(0,y0+hz*.08,0,y0-hz*.24); gr.addColorStop(0,'rgba('+cs[b]+',0)'); gr.addColorStop(.25,'rgba('+cs[b]+',1)'); gr.addColorStop(1,'rgba('+cs[b]+',0)'); g.fillStyle=gr;
-      for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; g.globalAlpha=A*(.16+.12*Math.sin(X*.03+t*1.3+b*2)); g.save(); g.translate(0,dy); g.fillRect(X,y0-hz*.24,sw+1,hz*.32); g.restore(); } }
-    g.restore(); }
+  if(k==="Aurora"){ const A=a*(.55+.45*night);
+    // the curtains are drawn into a small offscreen picture (half resolution, about 20 refreshes a second: they move slowly
+    // and are soft, so nobody can tell) and added to the sky in one step. Drawing ~240 additive strips straight onto a
+    // full-density screen every frame tripled the scene's cost on phones (2026-11-17 QC).
+    const AU=wx3Sky.au||(wx3Sky.au={c:document.createElement('canvas'),t:-1,w:0,h:0}), q=.5, cw=Math.max(8,Math.ceil(W*q)), chh=Math.max(8,Math.ceil(hz*.62*q));
+    if(AU.w!==cw||AU.h!==chh||Math.abs(t-AU.t)>.05){ if(AU.w!==cw||AU.h!==chh){ AU.c.width=cw; AU.c.height=chh; AU.w=cw; AU.h=chh; }
+      AU.t=t; const o=AU.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,chh); o.setTransform(q,0,0,q,0,0); o.globalCompositeOperation='lighter';
+      const cs=['90,255,170','150,110,255','90,220,255'], sw=Math.max(4,W/80);
+      for(let b=0;b<3;b++){ const y0=hz*(.18+b*.11);
+        // one shared gradient per ribbon (light at the curtain's foot, fading up); each strip just moves and dims it
+        const gr=o.createLinearGradient(0,y0+hz*.08,0,y0-hz*.24); gr.addColorStop(0,'rgba('+cs[b]+',0)'); gr.addColorStop(.25,'rgba('+cs[b]+',1)'); gr.addColorStop(1,'rgba('+cs[b]+',0)'); o.fillStyle=gr;
+        for(let X=0;X<=W;X+=sw){ const dy=Math.sin(X*.006+t*.25+b*1.7)*hz*.06+Math.sin(X*.017+t*.5)*hz*.02; o.globalAlpha=.16+.12*Math.sin(X*.03+t*1.3+b*2); o.save(); o.translate(0,dy); o.fillRect(X,y0-hz*.24,sw+1,hz*.32); o.restore(); } } }
+    g.save(); g.globalCompositeOperation='lighter'; g.globalAlpha=A; g.drawImage(AU.c,0,0,cw/q,chh/q); g.restore(); }
   if(k==='Blood Moon'){ const tint=g.createLinearGradient(0,0,0,hz); tint.addColorStop(0,'rgba(60,0,12,'+(.35*a)+')'); tint.addColorStop(1,'rgba(150,20,30,'+(.25*a)+')'); g.fillStyle=tint; g.fillRect(0,0,W,hz+1);
     const mx=W*.78, my=hz*.32, r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
     g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }

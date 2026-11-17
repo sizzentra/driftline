@@ -260,11 +260,11 @@ body #menuov #panel{display:block!important;flex:1 1 auto;min-height:0;max-heigh
 #menuov > #toast{position:fixed;top:calc(74px + env(safe-area-inset-top));z-index:60}
 @media (min-width:861px){body #menuov #tabs.secmode .secb{flex-direction:row;gap:8px;font-size:14px;min-height:46px;padding:4px 10px}body #menuov #tabs.secmode .secdot{right:8px}}
 @media (max-width:1100px){#menuov .mo-in{grid-template-areas:"back title tools" "secs secs secs" "sub sub sub" "body body body"}}
-@media (max-width:640px){#menuov .mo-in{column-gap:8px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}#menuov .mo-back{min-height:42px;padding:0 12px 0 10px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Fishing";font-size:13px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{min-height:36px;padding:0 9px;font-size:13px}#menuov .mo-pause span{display:none}}
+@media (max-width:640px){#menuov .mo-in{column-gap:8px;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}#menuov .mo-back{min-height:42px;padding:0 12px 0 10px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:13px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{min-height:36px;padding:0 9px;font-size:13px}#menuov .mo-pause span{display:none}}
 /* phones held upright: the categories stay docked along the bottom edge, in menus too */
 @media (max-width:700px) and (orientation:portrait){#menuov .mo-in{grid-template-areas:"back title tools" "sub sub sub" "body body body"}body #menuov #panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}#menuov > #toast{top:calc(60px + env(safe-area-inset-top))}}
 /* phones held sideways: one compact row */
-@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-title{display:none}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Fishing";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-title{display:none}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
 html.menu-open,body.menu-open{overflow:hidden!important}
 body.menu-open #towater,body.menu-open .dlprev{display:none!important}
 .wrap.wrapin{animation:wrapin .2s ease-out}
@@ -911,7 +911,7 @@ document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscr
   const aq=mk('st-aq','Aquarium','aquarium','Aquarium: coins per hour (tap to open)'), lg=mk('st-log','Fish Log','journal','Fish Log: species found (tap to open)');
   after.after(aq); aq.after(lg);
   [aq,lg].forEach(b=>{ ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(b.dataset.go); }); });
-  const tick=()=>{ try{ const r=Math.round(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
+  const tick=()=>{ try{ const r=Math.floor(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
     const got=SP.filter(s=>S.journal[s.id]).length, lt=got+'/'+SP.length, lv=lg.querySelector('b'); if(lv.textContent!==lt) lv.textContent=lt; }catch(e){} };
   tick(); setInterval(tick,1500); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -1014,7 +1014,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
   #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
-  #menuov .mo-back::after{content:"Fishing"!important;font-size:12px!important}
+  #menuov .mo-back::after{content:"Back"!important;font-size:12px!important}
   #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
   #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
   body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
@@ -1093,7 +1093,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
 }
 </style>`);
-{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
+{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:560px){
@@ -1149,4 +1149,85 @@ body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;lef
 }
 @media (max-width:700px) and (orientation:portrait){ .dlprev{bottom:calc(76px + env(safe-area-inset-bottom))!important} }
 @media (min-width:701px) and (min-height:561px){ .dlprev{bottom:calc(74px + env(safe-area-inset-bottom))!important} }
+</style>`);
+
+// =====================================================================
+// No Menu button (director, 2026-11-17): the five categories are the way into the menu; M still toggles it on a keyboard.
+// The landscape side panels fold to icons and back (one setting for the water's panel and the menu's rail).
+// Page tabs (Wardrobe tabs, section tabs) stay pinned while a page scrolls.
+// =====================================================================
+MB.remove();
+{ const mini=()=>!!(S.settings&&S.settings.dockMini); const apply=()=>{ document.body.classList.toggle('dock-mini',mini()); document.querySelectorAll('.cdmini').forEach(b=>{ b.setAttribute('aria-pressed',String(mini())); const t=mini()?'Expand panel':'Collapse panel'; b.title=t; b.setAttribute('aria-label',t); const l=b.querySelector('.cdml'); if(l&&l.textContent!==t) l.textContent=t; }); };
+  const mk=()=>{ const b=document.createElement('button'); b.type='button'; b.className='cdmini'; b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="cdml">Collapse panel</span>';
+    ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.dockMini=!mini(); apply(); save(); dispatchEvent(new Event('resize')); }); return b; };
+  CD.prepend(mk()); const sb=$('tabs')&&$('tabs').querySelector('.secbar'); if(sb) sb.appendChild(mk()); apply(); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* only landscape phones have side panels to fold */
+@media (orientation:landscape) and (max-height:560px){
+  body .cdmini,body #menuov #tabs .secbar > .cdmini{display:flex!important}
+  .cdmini{display:flex;align-items:center;justify-content:flex-start;gap:6px;flex:0 0 auto;height:26px;padding:0 9px;border-radius:9px;border:1px solid #ffffff14;background:#ffffff08;color:#9fb2c8;font:700 10.5px var(--display,system-ui);cursor:pointer;touch-action:manipulation}
+  .cdmini:hover{color:#fff;border-color:#ffffff30}
+  .cdmini svg{transition:transform .2s}
+  body.dock-mini .cdmini{justify-content:center;padding:0}
+  body.dock-mini .cdmini svg{transform:rotate(180deg)}
+  body.dock-mini .cdmini .cdml{display:none}
+  body #menuov #tabs.secmode .secbar > .cdmini{margin-top:auto;width:100%}
+  /* folded: icons only, the water and the pages get the room */
+  body.dock-mini.dl-fish .wrap > #catdock .cdb{width:46px!important;padding:0!important;justify-content:center!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cdl{display:none!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cddot{top:-4px!important;right:-4px!important;transform:none!important}
+  body.dock-mini.dl-fish .wrap > #catdock .cdb.live::before{top:3px!important;left:3px!important}
+  body.dock-mini #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 52px!important}
+  body.dock-mini #menuov .mo-back{justify-content:center!important;padding:0!important;font-size:0!important}
+  body.dock-mini #menuov .mo-back::after{content:none!important}
+  body.dock-mini #menuov #tabs.secmode .secb{justify-content:center!important;padding:0!important}
+  body.dock-mini #menuov #tabs.secmode .secb .secl{display:none!important}
+  body.dock-mini #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;transform:none!important}
+  body.dock-mini.dl-fish .wrap > #stage > #hint{left:50%!important;max-width:calc(100% - 28px)!important}
+  body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}
+}
+/* page tabs stay pinned at the top of the page while it scrolls */
+#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 6px 12px -6px #02060fcc}
+@media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
+@media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
+</style>`);
+// landscape phones: the wardrobe's section tabs stay on one line (Shop used to wrap onto a row of its own); on the
+// narrowest screens the row scrolls sideways instead of squeezing the labels
+document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) and (orientation:landscape){
+ #menuov #panel > .wd-nav.wd-top{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
+ #menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
+ #menuov #panel > .wd-nav.wd-top > button{flex:1 0 auto!important}
+}</style>`);
+// ---------- top bar bait chip: the whole name always fits (2026-11-17) ----------
+// The closed picker used to show "Name (count)" in a ~55 px chip, so most names were cut off at every size. Now the count
+// sits on the label line ("BAIT · 12", with the picker arrow) and the name gets its own line: the full name, its text a
+// little smaller if needed, and a short form only when even that can't fit. The real picker still covers the whole chip,
+// so a tap opens the phone's own list with every bait and count.
+{ const sel=$('bait'), chip=sel&&sel.closest('.stat'), lbl=chip&&chip.querySelector('.lbl');
+  if(chip&&lbl){
+    const SHORT={worm:'Worms',bread:'Bread',cricket:'Crickets',crawler:'Crawlers',corn:'Corn',minnows:'Minnows',glitter:'Glitter',deepjig:'Deep Jigs',berries:'Berries',goldchum:'Gold Chum',lavaworm:'Lava',stardust:'Stardust',mythbait:'Myth',spinner:'Spinner',glow:'Glow',icefly:'Ice Flies',chum:'Chum',shrimp:'Shrimp',squid:'Squid',stinky:'Cheese',disco:'Disco',magnet:'Magnet',golden:'Golden'};
+    const nm=document.createElement('b'); nm.className='bnm'; nm.setAttribute('aria-hidden','true'); sel.after(nm); chip.classList.add('bait-x');
+    const paint=()=>{ try{ const k=BAIT[S.baitSel]?S.baitSel:'worm', b=BAIT[k], n=k==='worm'?null:(S.bait[k]||0);
+      const lt='Bait'+(n!=null?' · '+fmtShort(n):''); if(lbl.textContent!==lt) lbl.textContent=lt;
+      const t=b.name+(n!=null?' ('+fmt(n)+' left)':''); if(chip.title!==t+'. Tap to change bait') chip.title=t+'. Tap to change bait';
+      // measured on the real text (letter spacing and the loaded font included); redone only when the bait or the width changes
+      const avail=nm.clientWidth, key=k+'|'+avail+'|'+(document.fonts?document.fonts.status:''); if(avail>0&&nm._fitKey===key) return; nm._fitKey=avail>0?key:'';
+      let best=null; const fits=(s,fs)=>{ nm.textContent=s; nm.style.fontSize=fs+'px'; return nm.scrollWidth<=nm.clientWidth+.5; };
+      if(avail>0){ for(const s of [b.name, SHORT[k]||b.name]){ for(let fs=15;fs>=11;fs--){ if(fits(s,fs)){ best=[s,fs]; break; } } if(best) break; } }
+      if(!best) best=[SHORT[k]||b.name,11];
+      if(nm.textContent!==best[0]) nm.textContent=best[0]; const f=best[1]+'px'; if(nm.style.fontSize!==f) nm.style.fontSize=f; }catch(e){} };
+    { const _rb=renderBait; renderBait=function(){ const r=_rb.apply(this,arguments); paint(); return r; }; }
+    sel.addEventListener('change',()=>setTimeout(paint,0)); addEventListener('resize',()=>requestAnimationFrame(paint));
+    if(window.ResizeObserver) new ResizeObserver(()=>paint()).observe(chip);
+    if(document.fonts&&document.fonts.ready) document.fonts.ready.then(paint);
+    paint();
+    if(/[?&]test\b/.test(location.search)) window.__baitChip=paint;
+  } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud .stat.bait-x{position:relative;min-width:0}
+.hud .stat.bait-x > #bait{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;margin:0!important;padding:0!important;opacity:0!important;z-index:2;cursor:pointer;font-size:16px!important}
+.hud .stat.bait-x > .lbl{display:block;padding-right:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' fill='none' stroke='%23c9d7e8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;box-sizing:border-box}
+.hud .stat.bait-x > .bnm{display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font:700 15px/22px var(--display,"Bricolage Grotesque"),"Segoe UI",system-ui,sans-serif;color:#eef3f8}
+.hud .stat.bait-x:focus-within{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+.hud .stat.bait-x:hover{border-color:#ffffff30}
 </style>`);
