@@ -3,7 +3,7 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
-- **Live version: 0.3 "The Big Glow-Up"** (shipped 2026-11-16, director approved; was 2.2.2) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
+- **Live version: 0.3.1 "Dressed for the Weather"** (shipped 2026-11-16, director approved; 0.3 "The Big Glow-Up" shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
   - **2.2 "Closer Together":** moving progress with a 6-digit code, gift codes, and Lily.
@@ -13,7 +13,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **0.4 "Dressed for the Weather": in progress, PREVIEW ONLY at /next/ (2026-11-16).** The director's list after 0.3:
+- **0.3.1 "Dressed for the Weather": SHIPPED 2026-11-16** (director: "this is 3.1", so it is 0.3.1, not 0.4; publish.ps1, commit d4afb7d). Its patch-notes entry stays as shipped. The director's list after 0.3:
   - **Side-view clothing** (`src/ak_side.js`): side-profile torso and coat paths (`sideTorsoPath` / `sideCoatPath`); `sideFront(y,f)` places front-edge details; all 27 outfits in `SIDE_OUT`; neckwear in `SIDE_NECK` hangs at the chest front; `a3OverArm` draws straps and epaulettes after the front arm; the belt buckle sits at the front.
   - **Body and face:** rounded builds (belly `A3BELLY*2.0`); beards drawn after the front arm (except inside full helmets); curly fringe kept off the face; long hair reshaped; brows drawn over the fringe; face options `NOSES` / `BROWS` / `MOUTHS` / `BLUSHES` (in b2_wear, validated in migrate).
   - **Shoes:** centred and scaled on the ankle (`A3LW`); trousers tucked into `SHOE_TALL`; hem at `SHOE_TOPY`; shoe colour `lk.shoeCol` (recolours `SHOE_MAIN`).
@@ -25,7 +25,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - **Small fixes:** the Rest button no longer overlaps the boost chips; the lo-fi crackle only plays at the loop point and once halfway.
   - **Not reproduced:** "pets behind dock objects". Pets are already drawn after every dock item, so ask the director for the exact case.
   - **QC:** PC 76 views, phone portrait and landscape 48 views, zero errors; with the same save, draw cost is within about 0.3 ms of 0.3.
-  - **Patch notes:** the 0.4 entry is at the top of d3_update; GAME_VERSION is 0.4; the preview badge says "0.4 preview".
+  - **Patch notes:** the 0.3.1 entry is at the top of d3_update; GAME_VERSION is 0.3.1.
   - **New test hooks:** `__lookSheet(looks,{k,up,ax,o})`, `__landCost`, `__v3st`, `__prof`, `__landSplit`, `__fishSheet({shiny})`, and `tools/crop.ps1` (enlarges a sheet region).
 - **0.3 overhaul: SHIPPED to the main game 2026-11-16** (publish.ps1, commit d480a89). Any new work is a new version with its own patch-notes entry; the 0.3 entry stays as shipped. History of the rounds:
   - Preview: https://sizzentra.github.io/driftline/next/ (its own save; it copies the real save once; badge "0.3 preview").
