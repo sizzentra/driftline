@@ -3,8 +3,35 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.5.1';
+const GAME_VERSION = '0.3.6';
 const PATCHES = [
+ {v:'0.3.6', name:'Fifty Fathoms', items:[
+  '## More to catch',
+  'Every water now holds 50 fish: 167 new species, spread across every rarity, each with its own look and a short note in the Fish Log.',
+  '20 joke fish have slipped in too, two in every water. You will know them when you see them.',
+  'The oddity collection grows to 100, with 20 new finds to fish up.',
+  '## Voyages',
+  'Setting sail now leaves a lasting legacy: every voyage adds +10% coins forever (up to ten voyages, then +5% for each one after), and voyages bring in more pearls the more of them you make.',
+  'Six voyage milestones give you a head start on every new voyage, from starting coins and an unlocked river to a bigger cooler, a bait stash and better tackle.',
+  'Four new relics, and the fish in your aquarium now go to the Trophy Room when you set sail instead of being lost.',
+  'Tiny hybrids are worth keeping: the smaller a hybrid is for its kind, the bigger its aquarium boost.',
+  '## A new look',
+  'Every scene has real depth now: a slow camera drift moves the sky, the land and the blurred foreground at different speeds, with each water framed by something close to the lens in its own theme.',
+  'Ember Springs looks properly volcanic, with scorched hills and burnt trees instead of green grass.',
+  'Fish are drawn with rounded bodies, a lateral line and a wet sheen, and every fin, spine, crown and feeler now grows out of the body. Nothing floats or looks pasted on.',
+  'Your angler has more natural proportions, softer shading and a contact shadow. Clothes have a woven texture with creases at the elbows and knees.',
+  'Over 30 hats are redrawn to fit the head properly, from caps with curved visors to woven straw hats, jewelled crowns and a glowing lantern. Many outfits gain buttons, drawstrings, belts and trims.',
+  'Pet bows and flowers sit on each pet’s head instead of floating above it.',
+  'Decorations and oddities have real edges, texture and a shadow on the sand, and two oddities that showed as grey circles have proper drawings.',
+  '## Menus and phones',
+  'iPhone gets its own fixes: the bottom menu bar sits above Safari’s toolbar, text no longer enlarges when you turn the phone, tapping a picker no longer zooms the page, and the full-screen button explains how to play full screen from your home screen.',
+  'Phones held sideways use compact tabs that always fit, even beside the notch.',
+  'Pages have clear titles, filter rows are labelled, and Sell all lets you choose what to sell by rarity, price and shinies.',
+  'New search button at the top: find any page, setting or item by name (press / on PC).',
+  'The Fish Log can show only the fish you are missing, or the ones you can catch right now.',
+  'Better catches feel better: the catch card grows more dramatic with each rarity, with its own frame, light, sound and vibration.',
+  'Buttons are easier to tap on phones, and nothing on any page runs off the side of the screen.',
+ ]},
  {v:'0.3.5.1', name:'Made for Phones', items:[
   'Phones held upright now show everything on one screen: the water stays in view, and only the page you have open scrolls, right above the section bar. No more scrolling the water away and back.',
   'New full-screen button on the water (phones held upright): one tap and the water fills the screen, one more and the menus come back. It shares its setting with the sideways menu button.',
