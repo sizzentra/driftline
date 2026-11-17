@@ -102,10 +102,10 @@ const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slic
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
 
 // ---------- phones in landscape: hide / show the menu sidebar so the water fills the screen ----------
-(function(){ const b=$('sidetog'); if(!b) return; let mode='on'; try{ const v=localStorage.getItem('driftline-side-off'); mode=v==='1'?'off':v==='w'?'wide':'on'; }catch(e){}
-  // 0.3: three steps. Menus beside the water -> menus wide (the water gets smaller) -> menus hidden (the water fills the screen)
-  const L={on:['‹','Widen menus'],wide:['›','Hide menus'],off:['‹','Show menus']};
+(function(){ const b=$('sidetog'); if(!b) return; let mode='on'; try{ const v=localStorage.getItem('driftline-side-off'); mode=v==='1'?'off':'on'; }catch(e){} /* 0.3.5: a saved "wide" setting from 0.3 opens as normal */
+  // 0.3.5 (director): back to two steps. Menus beside the water <-> menus hidden (the water fills the screen)
+  const L={on:['›','Hide menus'],off:['‹','Show menus']};
   const apply=()=>{ document.body.classList.toggle('side-off',mode==='off'); document.body.classList.toggle('side-wide',mode==='wide'); b.textContent=L[mode][0]; b.title=L[mode][1]; b.setAttribute('aria-label',L[mode][1]); b.setAttribute('aria-expanded',String(mode!=='off')); };
   ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-  b.addEventListener('click',e=>{ e.stopPropagation(); mode=mode==='on'?'wide':mode==='wide'?'off':'on'; try{ localStorage.setItem('driftline-side-off',mode==='off'?'1':mode==='wide'?'w':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
+  b.addEventListener('click',e=>{ e.stopPropagation(); mode=mode==='on'?'off':'on'; try{ localStorage.setItem('driftline-side-off',mode==='off'?'1':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
   apply(); })();

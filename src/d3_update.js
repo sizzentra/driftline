@@ -3,8 +3,24 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.4.2';
+const GAME_VERSION = '0.3.5';
 const PATCHES = [
+ {v:'0.3.5', name:'A Tidier Tackle Box', items:[
+  '## Menus',
+  'The menus are reorganised into five sections: Fishing, Gear, Collection, Home and Rewards. Pick a section, then a page. The game remembers which page you last had open in each one.',
+  'Notification badges add up onto their section, so you can always see where something is waiting.',
+  'Settings, Stats and Save live behind the gear button at the top.',
+  'The water never gets covered: on PC the sections sit right under it, and on phones held upright they sit along the bottom of the screen.',
+  'A “Back to the water” button appears when you scroll deep into a menu, and a “Menus” button takes you back down.',
+  'Phones held sideways: the menu button is back to two steps, menus beside the water or the water full screen.',
+  '## Trophy Room',
+  'New in Collection: the Trophy Room. Mount any fish you love on a plaque and it stays there forever. Trophies earn nothing and give no boosts, but a new voyage never touches them. Press Keep on a fish in your Cooler or Aquarium.',
+  '## Catches',
+  'The catch card fits on one screen on phones, no scrolling.',
+  'What a fish would earn in your aquarium now sits beside its weight, price and XP on the catch card.',
+  '## Graphics',
+  'High graphics are now the only setting, on every device.',
+ ]},
  {v:'0.3.4.2', name:'Cooler and Catch Card Fixes', items:[
   'Sell all’s price filter is now a box you type into: enter any amount (like 2500, 50k or 1.2m) to only sell fish worth less than that. Leave it empty for any price, or tap × to clear it.',
   'New “Sell shinies too” toggle next to it: turn it on to let Sell all sell shiny fish (shiny Epic and rarer fish stay protected while Protect rare fish is on).',

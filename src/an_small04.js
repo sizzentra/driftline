@@ -49,10 +49,10 @@ if(/[?&]test\b/.test(location.search)) window.__findWx=(k,ph0=0,ph1=1)=>{ for(le
 // High draws the scenery at full screen sharpness and adds more life: denser rain rings and whitecaps, more drifting
 // leaves, plankton and glints. Auto picks for you; the choice is saved on this device.
 var GFX_TOUCH = !!(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
-function gfxHigh(){ const v=S&&S.settings&&S.settings.gfx; return v==='high' || (v!=='balanced' && !GFX_TOUCH); }
+function gfxHigh(){ return true; } /* 0.3.5 (director): High runs better on phones too, so it is the only mode; Balanced is gone */
 function gfxK(){ return gfxHigh()?1.6:1; }
 const _renderSettings_gfx = renderSettings;
-renderSettings = function(P){ _renderSettings_gfx(P); const cur=S.settings.gfx||'auto', grid=P.querySelector('.grid'); if(!grid) return;
+renderSettings = function(P){ _renderSettings_gfx(P); return; /* 0.3.5: no Graphics choice any more */ const cur=S.settings.gfx||'auto', grid=P.querySelector('.grid'); if(!grid) return;
   const opt=[['auto','Auto ('+(GFX_TOUCH?'Balanced':'High')+' here)'],['high','High'],['balanced','Balanced']];
   grid.insertAdjacentHTML('afterbegin',`<div class="tile"><h4>Graphics</h4><div class="meta">High draws everything at full sharpness and adds more life to the water and weather. Balanced is lighter on phones and older devices.</div><div class="chips" style="margin-top:8px">${opt.map(([k,n])=>`<button class="chipb" type="button" data-gfx="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div></div>`);
   grid.querySelectorAll('[data-gfx]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.settings.gfx=b.dataset.gfx==='auto'?undefined:b.dataset.gfx; if(!S.settings.gfx) delete S.settings.gfx; save(); if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; renderPanel(); }); };

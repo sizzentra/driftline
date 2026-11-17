@@ -40,7 +40,8 @@ function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour 
 const _showCard_034 = showCard;
 showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
-  q.insertAdjacentHTML('afterend',`<div class="meta aqinc">${inc}${S.tank.length>=aqCap()?' (aquarium full)':''}</div>`); };
+  // 0.3.5: a compact fourth stat beside Weight, Sells for and XP (the full sentence is on hover)
+  const full=S.tank.length>=aqCap(), nums=$('cardnums'); if(nums) nums.insertAdjacentHTML('beforeend',`<div class="aqinc${full?' full':''}" title="${inc}${full?' (your aquarium is full)':''}"><span>Aquarium</span><b class="coin">${fmt(aqRateIf(ce))}<small>/h</small></b></div>`); };
 const _renderCooler_034b = renderCooler;
 renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); };
 
@@ -65,7 +66,7 @@ const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _show
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 .sellsh{display:inline-flex;align-items:center;gap:6px;color:#cfe0ec}.sellsh .ssh-star{color:#8fa6ba;transition:color .2s}.sellsh[aria-pressed="true"]{color:#ffe7a8}.sellsh[aria-pressed="true"] .ssh-star{color:#ffd36a;text-shadow:0 0 8px #ffd36a99}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
-.aqh{font-size:11px;color:#9fe0c0;font-weight:600;white-space:nowrap}.aqinc{text-align:center;margin:-2px 0 6px;color:#9fe0c0}
+.aqh{font-size:11px;color:#9fe0c0;font-weight:600;white-space:nowrap}.card .nums .aqinc b{color:#9fe0c0}.card .nums .aqinc b small{font-size:.62em;margin-left:1px;opacity:.85}.card .nums .aqinc.full b{opacity:.7}@media (max-width:560px){.card .nums{gap:12px;flex-wrap:wrap}.card .nums b{font-size:16px}.card .nums span{font-size:10px;letter-spacing:.05em}}
 .shine{position:absolute;pointer-events:none}.shine i{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;background:radial-gradient(circle,#fff8d0 0 18%,rgba(255,230,140,.6) 30%,transparent 62%);clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:shinetw 1.9s ease-in-out infinite;opacity:0}
 .shine.prism i{background:radial-gradient(circle,#fff 0 18%,rgba(255,140,230,.7) 32%,transparent 62%)}
 @keyframes shinetw{0%,100%{opacity:0;transform:scale(.4) rotate(0)}45%{opacity:1;transform:scale(1.15) rotate(25deg)}70%{opacity:.4;transform:scale(.8) rotate(40deg)}}
