@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1017';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1029';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2788,10 +2788,9 @@ const PATCHES = [
   'Every menu page is more compact: tighter cards and more of them per row on every screen, two cards per row on phones held upright, five fish per row in the Fish Log on small phones, and the Hunt button is a small target on each fish card.',
   'The water now has a category bar: Menu plus Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. It runs along the bottom when your phone is upright and down the right side when it is sideways, where the menu keeps its slim rail too, so pages get almost the whole screen. Bait in use now sits under the Bait tab.',
   'The top bar now also shows your aquarium income per hour (it glows gold when coins are waiting) and how many species you have found. Tap either one to open it.',
-  '## Weekly quests, forecasts and photos',
+  '## Weekly quests and forecasts',
   'Weekly quests: four bigger goals every week, right under your daily tasks in Bounties. Each pays coins and Scales, and finishing all four earns a big Mystery Crate. New quests arrive every Monday.',
   'Weather forecast: the Events page shows the weather coming to every water and when, so you can plan for rare weather like Gilded, Aurora or a Blood Moon. A heads-up arrives a minute before rare weather starts.',
-  'Save your catch: tap the camera on a catch card to make a picture of your fish with its name and weight, ready to share or keep.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
@@ -13787,6 +13786,36 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.v3 .btn:disabled,body.v3 .btn[disabled],body.v3 #menuov .btn:disabled{background:linear-gradient(180deg,#26324a,#1e2838)!important;color:#a9b9cc!important;border:1px solid #3a4a62!important;box-shadow:none!important;filter:none!important;opacity:1!important;text-shadow:none!important;cursor:not-allowed}
 body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important}
 </style>`);
+
+// =====================================================================
+// The category bar never covers the water (director, 2026-11-17): it is its own part of the screen, a column to the
+// right of the water on sideways phones and a bar under the water everywhere else. Only Rest and the tip stay on it.
+// =====================================================================
+{ const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
+  const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
+  // the picture is exactly the water's box (the bar below or beside it is not part of the water)
+  const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.dl-fish .wrap > #catdock{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;z-index:2;flex:0 0 auto;margin:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(180deg,#14223a,#0f1a2e);border:1px solid var(--line,#26385180)}
+/* on the water: Rest bottom left, the tip just above it in the middle */
+body.dl-fish .resttog{bottom:10px!important;left:10px!important}
+body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;left:50%!important;transform:translateX(-50%)!important;max-width:calc(100% - 28px)!important}
+/* PC and tablets: a bar under the water, centred */
+@media (min-width:701px) and (min-height:561px){ html body.dl-fish .wrap > #catdock{align-self:center;border-radius:16px} }
+/* phones upright: a full-width bar under the water */
+@media (max-width:700px) and (orientation:portrait){ html body.dl-fish .wrap > #catdock{align-self:stretch;width:auto;border-radius:15px;padding:3px} }
+/* phones sideways: the water on the left, the categories in their own column on the right */
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .wrap{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-rows:auto minmax(0,1fr)!important;column-gap:6px!important;row-gap:5px!important}
+  html body.dl-fish .wrap > .hud{grid-column:1 / -1!important;grid-row:1!important}
+  html body.dl-fish .wrap > #stage{grid-column:1!important;grid-row:2!important;min-height:0!important;height:auto!important}
+  html body.dl-fish .wrap > #catdock{grid-column:2;grid-row:2;align-self:stretch;flex-direction:column!important;justify-content:space-evenly;gap:2px;padding:4px;border-radius:14px}
+  body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:12px!important;left:calc(50% + 40px)!important;max-width:calc(100% - 120px)!important}
+  .dlprev{right:calc(150px + env(safe-area-inset-right))!important;bottom:calc(14px + env(safe-area-inset-bottom))!important}
+}
+@media (max-width:700px) and (orientation:portrait){ .dlprev{bottom:calc(76px + env(safe-area-inset-bottom))!important} }
+@media (min-width:701px) and (min-height:561px){ .dlprev{bottom:calc(74px + env(safe-area-inset-bottom))!important} }
+</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -13794,7 +13823,7 @@ body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important
 //     wherever it happens, with no extra hooks.
 //  2. Weather forecast: the weather follows a fixed schedule (weatherAt), so the Events page shows what is coming,
 //     and a heads-up arrives just before rare weather starts.
-//  3. Save your catch: a camera button on the catch card makes a picture of the fish to share or save.
+
 // =====================================================================
 
 // ---------- 1. weekly quests ----------
@@ -13855,36 +13884,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @container (min-width:560px){ #menuov #panel .wxf{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px} #menuov #panel .wxf > h4,#menuov #panel .wxf > .meta{grid-column:1 / -1} }
 </style>`);
 
-// ---------- 3. save your catch as a picture ----------
-function catchPicture(){ const name=($('cardname')||{}).textContent||'Fish', rar=($('cardrar')||{}).textContent||'', rc=getComputedStyle($('cardrar')||document.body).color, fish=$('cardfish');
-  const nums=[...(($('cardnums')||{}).children||[])].map(e=>e.innerText.replace(/\s+/g,' ').trim()).filter(Boolean).slice(0,4);
-  const W2=1080, H2=1350, c=document.createElement('canvas'); c.width=W2; c.height=H2; const x=c.getContext('2d');
-  const bg=x.createLinearGradient(0,0,0,H2); bg.addColorStop(0,'#16284a'); bg.addColorStop(.55,'#0d1a30'); bg.addColorStop(1,'#070d18'); x.fillStyle=bg; x.fillRect(0,0,W2,H2);
-  const gl=x.createRadialGradient(W2/2,560,40,W2/2,560,520); gl.addColorStop(0,'rgba(255,211,106,.22)'); gl.addColorStop(1,'rgba(255,211,106,0)'); x.fillStyle=gl; x.fillRect(0,0,W2,H2);
-  x.textAlign='center'; x.fillStyle='#ffd36a'; x.font='800 54px system-ui,sans-serif'; x.fillText('Driftline',W2/2,120);
-  x.fillStyle='#9fb2c8'; x.font='600 34px system-ui,sans-serif'; x.fillText(curLoc().name+' · '+new Date().toLocaleDateString(),W2/2,176);
-  if(fish&&fish.width){ const fw=900, fh=fw*fish.height/fish.width; x.drawImage(fish,(W2-fw)/2,560-fh/2,fw,fh); }
-  x.fillStyle=rc||'#ffffff'; x.font='800 40px system-ui,sans-serif'; x.fillText(rar.toUpperCase(),W2/2,880);
-  x.fillStyle='#ffffff'; x.font='800 76px system-ui,sans-serif'; let fs=76; while(x.measureText(name).width>W2-120&&fs>40){ fs-=4; x.font='800 '+fs+'px system-ui,sans-serif'; } x.fillText(name,W2/2,970);
-  // the weight, big and gold; then the card's own badges (new species, personal record, shiny...) if any
-  const kg=(nums.find(t=>/kg/i.test(t))||'').replace(/^weight\s*/i,''); if(kg){ x.fillStyle='#ffd36a'; x.font='800 64px system-ui,sans-serif'; x.fillText(kg,W2/2,1070); }
-  const badges=[...(($('cardbadges')||{}).children||[])].map(e=>e.textContent.trim()).filter(t=>t&&!/streak/i.test(t)).slice(0,3).join('  ·  ');
-  if(badges){ x.fillStyle='#bfe8ff'; x.font='700 34px system-ui,sans-serif'; let bs=34; while(x.measureText(badges).width>W2-120&&bs>22){ bs-=2; x.font='700 '+bs+'px system-ui,sans-serif'; } x.fillText(badges,W2/2,1140); }
-  x.fillStyle='#6f86a0'; x.font='600 28px system-ui,sans-serif'; x.fillText('Caught in Driftline',W2/2,H2-60); return c; }
-async function shareCatch(){ try{ const c=catchPicture(); const blob=await new Promise(r=>c.toBlob(r,'image/png')); if(!blob) throw new Error('no image'); const nm='driftline-'+(($('cardname')||{}).textContent||'catch').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';
-    const file=new File([blob],nm,{type:'image/png'}); if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'My Driftline catch'}); return 'shared'; }
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=nm; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },2000); toast('Picture saved'); return 'saved'; }
-  catch(e){ if(e&&e.name==='AbortError') return 'cancelled'; toast('Could not make the picture on this device.'); return 'failed'; } }
-{ const _sc=showCard; showCard=function(o){ _sc.apply(this,arguments); try{ const cin=$('cardin'); if(!cin||cin.querySelector('.cardpic')) return; const b=document.createElement('button'); b.type='button'; b.className='cardpic'; b.title='Save a picture of this catch'; b.setAttribute('aria-label','Save a picture of this catch'); b.textContent='📸';
-    ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); shareCatch(); }); cin.appendChild(b); }catch(e){} }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-#cardin{position:relative}
-#cardin .cardpic{position:absolute;top:8px;right:8px;width:38px;height:38px;border-radius:12px;border:1px solid #ffffff2a;background:#0b1626cc;color:#fff;font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center;touch-action:manipulation;z-index:2}
-#cardin .cardpic:hover{border-color:#ffd36a99}
-</style>`);
-if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, catchPicture, weekKey};
+if(/[?&]test\b/.test(location.search)) window.__feat={ensureWeekly, wqHave, wqReady, weeklyHTML, wxForecast, forecastHTML, weekKey};
 document.head.insertAdjacentHTML('beforeend','<style>#panel .badge.n{background:#ffffff0d;color:#c9d7e8;border-color:#ffffff24}</style>');
-document.head.insertAdjacentHTML('beforeend','<style>#card #cardin{position:relative!important}#card #cardin > .cardpic{position:absolute!important;top:8px!important;right:8px!important;left:auto!important;bottom:auto!important;width:38px!important;height:38px!important;min-height:0!important;margin:0!important;padding:0!important}</style>');
 document.head.insertAdjacentHTML('beforeend','<style>@container (min-width:560px){ #menuov #panel .tile.dtasks > :not(.toggle){grid-column:1 / -1} #menuov #panel .tile.dtasks > .btn{justify-self:start} }</style>');
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
@@ -14000,7 +14001,6 @@ ui(){ QA.sys='UI';
   T('contrast: every button and label on every menu page is readable (ratio 3+)',()=>{ const bad=[]; const pages=[...MENU_SECS.flatMap(s=>s.tabs),...MENU_MORE.tabs]; for(const t of pages){ openMenu(t); for(const c of __contrast()) bad.push(t+': '+c); } closeMenu(); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:pages.length+' pages readable'}; });
   T('weekly quests: progress from counters, each pays once, crate once, week rollover and damaged saves rebuild',()=>{ const e=[]; S.weekly=null; const w=ensureWeekly(); if(w.quests.length!==4) e.push('quests '+w.quests.length); for(const q of w.quests){ const m={caught:()=>S.stats.caught+=q.n,shiny:()=>S.stats.shiny+=q.n,earned:()=>S.stats.earned+=q.n,tasks:()=>S.gstats.tasks+=q.n,hot:()=>S.stats.hot+=q.n,chal:()=>S.stats.chalWins=(S.stats.chalWins||0)+q.n,species:()=>{}}; m[q.t](); } const sc0=S.scales; w.quests.forEach((q,i)=>{ if(q.t==='species') q.base-=q.n; act('wqclaim',{i}); act('wqclaim',{i}); }); const want=w.quests.reduce((a,q)=>a+q.scales,0); if(S.scales-sc0!==want) e.push('scales '+(S.scales-sc0)+' want '+want); const big=S.tokens.big; act('wqbonus',{}); act('wqbonus',{}); if(S.tokens.big-big!==1) e.push('crate '+(S.tokens.big-big)); S.weekly.wk='2000-01-03'; if(ensureWeekly().wk!==weekKey()) e.push('rollover'); S.weekly={wk:1,quests:[null]}; if(!Array.isArray(ensureWeekly().quests)||ensureWeekly().quests.length!==4) e.push('rebuild'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:'claims, crate, rollover and rebuild ok'}; });
   T('weather forecast matches the real weather schedule, in order and in the future',()=>{ const e=[]; const f=wxForecast(6), now=Date.now()/1000; let last=0; for(const x of f){ const slot=Math.round((x.at+now)/WX_LEN); if(weatherAt(slot).k!==x.k) e.push(x.k+' at slot '+slot); if(x.at<=0||x.at<last) e.push('order '+x.at); last=x.at; } if(!f.length) e.push('empty'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:f.map(x=>x.k).join(', ')}; });
-  T('catch picture: 1080 x 1350, fish and text drawn',()=>{ const c=catchPicture(); const d=c.getContext('2d').getImageData(0,0,c.width,c.height).data; let bright=0; for(let i=0;i<d.length;i+=4*101){ if(d[i]+d[i+1]+d[i+2]>420) bright++; } return c.width===1080&&c.height===1350&&bright>50?{ok:true,detail:bright+' bright samples'}:{ok:false,detail:c.width+'x'+c.height+' bright '+bright}; });
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
 },
 fuzz(){ QA.sys='Adversarial';
@@ -14030,7 +14030,7 @@ if(/[?&]test\b/.test(location.search)) window.__profUI=(page,n=3)=>{ const acc={
   return Object.fromEntries(Object.entries(acc).map(([k,v])=>[k,+(v/n).toFixed(1)])); };
 // test-mode layout check: the dashboard, every page (via __audit / __trunc) and the menu header in each category
 if(/[?&]test\b/.test(location.search)) window.__layoutQC=async()=>{ const chk=()=>{ const out=[]; const vw=document.documentElement.clientWidth; document.querySelectorAll('#panel *, .hud *, #tabs *, #menuov .mo-top *').forEach(e=>{ const r=e.getBoundingClientRect(); if(!r.width||!r.height||!e.offsetParent) return; if(window.__inHScroll&&__inHScroll(e)) return; const cs=getComputedStyle(e); if(cs.position==='fixed') return; if(r.right>vw+2&&!e.closest('.subbar')) out.push('off '+(e.className||e.tagName)+' "'+(e.textContent||'').trim().slice(0,20)+'"'); const t=(e.textContent||'').trim(); if(t&&e.children.length<=2&&e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.push('cut "'+t.slice(0,30)+'"'); }); if(document.documentElement.scrollWidth>vw+1) out.push('page scrolls sideways'); return out; };
-  const r={size:innerWidth+'x'+innerHeight, layout:document.body.className.replace(/\bv3\b|plat-\w+/g,'').trim()}; closeMenu(); await new Promise(x=>setTimeout(x,500)); { const w=document.querySelector('.wrap').getBoundingClientRect(), s=$('stage').getBoundingClientRect(), c=$('cv').getBoundingClientRect(); r.fishing={stageFillsToBottom:Math.abs(w.bottom-s.bottom)<=2, canvasFillsStage:Math.abs(c.height-s.height)<=2&&Math.abs(c.width-s.width)<=2, menuButton:!!$('menubtn')&&$('menubtn').getBoundingClientRect().bottom<=s.bottom+1, pageScrolls:document.documentElement.scrollHeight>innerHeight+1, hudCut:chk().filter(x=>!/#panel/.test(x))}; } openMenu(DASH); await new Promise(x=>setTimeout(x,500)); r.dash=chk(); r.audit=(await __audit()).out; r.trunc=await __trunc(); const heads=[]; for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(x=>setTimeout(x,150)); heads.push(...chk().filter(x=>!/#panel/.test(x))); } r.head=[...new Set(heads)]; closeMenu(); const f=r.fishing; r.clean=!r.dash.length&&!r.audit.length&&!r.trunc.length&&!r.head.length&&f.stageFillsToBottom&&f.canvasFillsStage&&f.menuButton&&!f.pageScrolls&&!f.hudCut.length; return r; };
+  const r={size:innerWidth+'x'+innerHeight, layout:document.body.className.replace(/\bv3\b|plat-\w+/g,'').trim()}; closeMenu(); await new Promise(x=>setTimeout(x,500)); { const w=document.querySelector('.wrap').getBoundingClientRect(), s=$('stage').getBoundingClientRect(), c=$('cv').getBoundingClientRect(); r.fishing={stageFillsToBottom:Math.abs(w.bottom-Math.max(s.bottom,$('catdock').getBoundingClientRect().bottom))<=2, waterUncovered:(()=>{ const d=$('catdock').getBoundingClientRect(); return !(d.left<s.right-1&&d.right>s.left+1&&d.top<s.bottom-1&&d.bottom>s.top+1); })(), canvasFillsStage:Math.abs(c.height-s.height)<=2&&Math.abs(c.width-s.width)<=2, menuButton:!!$('menubtn')&&$('menubtn').getBoundingClientRect().bottom<=w.bottom+1&&$('menubtn').offsetParent!==null, pageScrolls:document.documentElement.scrollHeight>innerHeight+1, hudCut:chk().filter(x=>!/#panel/.test(x))}; } openMenu(DASH); await new Promise(x=>setTimeout(x,500)); r.dash=chk(); r.audit=(await __audit()).out; r.trunc=await __trunc(); const heads=[]; for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(x=>setTimeout(x,150)); heads.push(...chk().filter(x=>!/#panel/.test(x))); } r.head=[...new Set(heads)]; closeMenu(); const f=r.fishing; r.clean=!r.dash.length&&!r.audit.length&&!r.trunc.length&&!r.head.length&&f.stageFillsToBottom&&f.waterUncovered&&f.canvasFillsStage&&f.menuButton&&!f.pageScrolls&&!f.hudCut.length; return r; };
 // test builds: ?test&open=<page> opens that menu page right after load (for screenshots of a menu page)
 if(/[?&]test\b/.test(location.search)){ const m=location.search.match(/[?&]open=([\w-]+)/); if(m) setTimeout(()=>{ try{ openMenu(m[1]==='dash'?undefined:m[1]); }catch(e){} },700); }
 if(/[?&]test\b/.test(location.search)&&/[?&]noanim\b/.test(location.search)) document.head.insertAdjacentHTML('beforeend','<style>*,*::before,*::after{animation:none!important;transition:none!important}</style>');
