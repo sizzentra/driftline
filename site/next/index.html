@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1814';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1834';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1326,7 +1326,7 @@ function landFish(){
   const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*(spec('mythseeker')&&sp.r===0?.7:1)*((!j||j.n<3)?1+.05*pr('naturalist'):1));
   if(isNew && maxed('naturalist')) S.scales+=5;
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
-  S.cooler.push(coolerEntry(f)); S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
+  { const ce=coolerEntry(f); S.cooler.push(ce); G.lastEntry=ce; } S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
   const preyB=[]; for(const p of (f.prey||[])){ journalAdd(p); S.stats.caught++; if(S.cooler.length<gv('cooler')){ S.cooler.push(coolerEntry(p)); preyB.push(['k','Swallowed '+p.sp.name+' ('+kgStr(p.kg)+'): in your cooler']); } else { const c2=earn(salePrice(coolerEntry(p))); preyB.push(['k','Swallowed '+p.sp.name+': sold for '+fmt(c2)]); } }
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)*(relic('luckyscale')?1.2:1)); if(scl) S.scales+=scl;
@@ -1342,7 +1342,7 @@ function landFish(){
   const rk=checkRank(); if(rk) b.push(['g',rk]);
   if(lvUps) b.push(['g','Level up! Lv '+S.lvl+' · +'+lvUps+' skill point']); bdone.forEach(()=>b.push(['g','Bounty ready'])); if(setNow) b.push(['g',LOCS[locIdx(sp.loc)].name+' complete: +'+fmt(setNow)]);
   showCard({draw:c=>fishCanvas(c,sp,true,f.shiny,f.pv), shiny:!!f.shiny, rar:(f.shiny===2?PRISM[f.pv].n+' prismatic ':f.shiny?'Shiny ':'')+(f.hy?'hybrid ':'')+RAR[sp.r].k, rarCol:f.shiny===2?PRISM[f.pv].c:f.shiny?'var(--gold)':RAR[sp.r].c, name:sp.name,
-    nums:[['Weight',kgStr(f.kg)],['Worth',fmt(f.value),1],['XP','+'+xp]], desc:sp.note, badges:b});
+    nums:[['Weight',kgStr(f.kg)],['Sells for',fmt(salePrice({id:sp.id,value:f.value})),1],['XP','+'+xp]], desc:sp.note, badges:b});
   f.shiny ? (sfx.catch(sp.r), sfx.shiny(), f.shiny===2&&setTimeout(()=>sfx.shiny(),350)) : sfx.catch(sp.r); checkFeats(); save(); refreshAll();
 }
 function landJunk(){
@@ -2485,6 +2485,7 @@ const PATCHES = [
   'Rebuilt from the ground up: rounded, lit shapes, arms and legs that bend, poses that flow into each other, both hands on the rod, and a soft light along your outline that matches the sky.',
   'Seven body types and nine eye colours. Every outfit fits every build.',
   'Hats sit properly: hair shows underneath instead of poking through, your eyes are never covered, and helmets show your face through the glass.',
+  'Outfit designs (checks, stripes, flowers, scales) carry on down the sleeves, and the belt only shows where your waist does, not over jackets, sweaters or costumes.',
   '## Music and sound',
   'A cozy music theme for every water. Pick “Follow the water” in Settings, or choose any theme. The old styles are still there.',
   'The lofi music no longer has a constant hiss in the background; its record crackle is now soft and occasional.',
@@ -2506,9 +2507,10 @@ const PATCHES = [
   'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
   'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
   'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
-  'Hats got a fitting pass: the bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn to sit properly on your head.',
+  'Hats got a fitting pass: every hat sits on your head and stops just above your eyes. The bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn; the tiara, flower crown, bunny ears, mohawk, fish hat and duck rest on your head instead of floating; headphones and the viking helmet are drawn side-on, the way you would wear them.',
   'Stubble, mustaches and beards are redrawn to follow your jaw.',
-  'Shirt patterns can go on your outfit too: when you wear both, choose “Pattern goes on: Shirt or Outfit” in the Wardrobe.',
+  'Shirt patterns are now fabrics: materials like denim, knit, corduroy, tweed or silk, always in your own colours. Every fabric works on shirts, and outfits offer the fabrics that suit them (sleeves included). Flannel and pinstripe stay as fabrics; any other shirt designs you owned were refunded in coins.',
+  'Shirts can be two-tone.',
   'Colour choices show their colour before you pick them, for your angler and your pets.',
   'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
   'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
@@ -2516,6 +2518,8 @@ const PATCHES = [
   'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
   'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
   'Every mini-game can be skipped, and Settings can turn them off completely.',
+  'Less menu work: sell a fish or put it in the aquarium straight from the catch card, or sell everything at once with Sell all on the water. The Cooler opens from the Cooler counter at the top instead of taking a spot in the menu.',
+  'The catch card shows what the fish sells for, bonuses included.',
   '## Changes to the aquarium and Home',
   'Every decoration is redrawn, on your dock and in your tank, with light, detail and a little movement.',
   'Aquarium decorations give twice the aquarium income bonus they used to.',
@@ -2524,6 +2528,9 @@ const PATCHES = [
   'Tanks hold 1.5 times as many fish, and the button now says Increase tank size.',
   'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
   'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
+  'Drag your pets along the dock in Home too; they stay where you put them on the water.',
+  'Your dock stands in the water instead of towering over it, and the Home picture now matches the dock you fish from.',
+  'The tank stays in view while you decorate, so every water, floor and decoration shows as you pick it.',
   '## Changes to rewards and progress',
   'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
   'Bounties: every water now keeps its own board of 3 bounties, and they wait there until you finish them. Your existing bounties moved to the water they belong to.',
@@ -2541,7 +2548,11 @@ const PATCHES = [
   'Skills are split into Catching, Rare finds, Fighting, Coins & XP and Aquarium & pets.',
   'The Save tab is split into Move to another device, Save codes and App.',
   'Settings is no longer listed twice: open it with the ⚙ button at the top.',
-  'Your rod: attachment slots show what each attachment does without clicking.',
+  'Your rod: one tidy row per attachment slot, and each attachment shows what it does without clicking.',
+  'Buying, equipping or switching something updates the menu in place, without a flash or jump.',
+  'On PC the info bar above the water fits on one line.',
+  'Mountains look smoother, and the Waters pictures are sharper.',
+  'Tide Pass levels never show the same reward twice.',
   '## Fixes',
   'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
   'The streak message now shows the streak you actually lost (it used to always say 0).',
@@ -2688,7 +2699,7 @@ function rodSVG(col,lvl,id){ if(id==null&&col==="#2a4a55") return `<span style="
 function renderRods(P){ const r=rod(), atts=rodAtts();
   const stats=r=>{ const keys=Object.keys(r.st); return keys.length?keys.map(k=>statTxt(k,r.st[k])).join(' · '):'No special stats'; };
   const slotRow=(i)=>{ const cur=atts[i]||''; const opts=ATTS.filter(a=>S.atts[a.id] && (a.id===cur || !atts.includes(a.id)));
-    return `<div class="toggle"><div><b>Slot ${i+1}</b><div class="meta">${cur?ATT_I[cur].name+' '+'I'.repeat(S.atts[cur])+': '+statTxt(ATT_I[cur].k,attVal(cur)):'Empty'}</div></div>
+    return `<div class="slotrow"><b>Slot ${i+1}</b>
       <div class="chips"><button class="chipb" data-act="rodatt" data-k="${i}:" aria-pressed="${!cur}">None</button>${opts.map(a=>`<button class="chipb" data-act="rodatt" data-k="${i}:${a.id}" aria-pressed="${cur===a.id}" title="${esc(a.d)}">${a.name} <span class="meta">${statTxt(a.k,attVal(a.id))}</span></button>`).join('')}</div></div>`; };
   const up=rodUpCost(r.id), L=rodLvl();
   P.innerHTML=`<div class="row spread"><div><h2>Rods</h2><p class="sub">Your rod shapes every cast. Collect rods, upgrade them with coins and <b>Scales</b>, and fit attachments. Scales come from Rare and better fish.</p></div>
@@ -5755,8 +5766,8 @@ function a3Body(c,x,y,s,lk,o,live){
   // soft shadow under the chin and where the front arm crosses the chest
   c.save(); bodyPath(); c.clip(); c.fillStyle='rgba(20,10,20,.22)'; c.beginPath(); c.ellipse(1.2,-46.2,4.6,2.2,0,0,7); c.fill();
   const elF0=a3IK(.8,-44,HH.x/B.w,HH.y,7.8,7.6,1); c.strokeStyle='rgba(10,6,20,.16)'; c.lineWidth=5.4; c.beginPath(); c.moveTo(.8,-43); c.lineTo(elF0.x+.4,elF0.y+1.4); c.stroke(); c.restore();
-  // belt (hidden under long coats and full suits)
-  if(!coat&&!['wetsuit','spacesuit','overalls','puffer','bathrobe','pajamas','apron'].includes(out)){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.fillStyle=bg; c.beginPath(); c.moveTo(-7.7,-25.7); c.quadraticCurveTo(0,-26.3,7.8,-25.7); c.lineTo(7.8,-23.4); c.quadraticCurveTo(0,-24,-7.7,-23.4); c.closePath(); c.fill();
+  // belt: only where the waist shows (shirt, vest, life jacket, tuxedo T-shirt); every jacket, sweater, coat or costume covers it
+  if(['none','vest','lifejacket','tuxshirt'].includes(out||'none')){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.fillStyle=bg; c.beginPath(); c.moveTo(-7.7,-25.7); c.quadraticCurveTo(0,-26.3,7.8,-25.7); c.lineTo(7.8,-23.4); c.quadraticCurveTo(0,-24,-7.7,-23.4); c.closePath(); c.fill();
     c.fillStyle=D('#e2bc6a'); c.beginPath(); c.roundRect?c.roundRect(1.1,-26.1,3.1,3,.6):c.rect(1.1,-26.1,3.1,3); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(1.9,-25.2,1.5,1.2); c.fillStyle='rgba(255,255,230,.5)'; c.fillRect(1.3,-25.9,2.6,.45); }
   c.restore();
   // ---- neck and head (the head tilts on the neck: looks down at the float, up while the cast flies)
@@ -7997,7 +8008,7 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
     sectionize(P,tab,[{name:'Your pets · '+mine.length,nodes:mine},{name:'Find more · '+more.length,nodes:more},{name:'Customize',nodes:cust}],cust[0]||grid); }
   else if(tab==='feats'){ const grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children], todo=T.filter(t=>!t.classList.contains('done')), done=T.filter(t=>t.classList.contains('done'));
     sectionize(P,tab,[{name:'To do · '+todo.length,nodes:todo},{name:'Done · '+done.length,nodes:done}],grid); }
-  else if(tab==='aquarium'){ const dec=K.find(c=>c.classList.contains('jsec')), head=K.slice(0,2), tank=K.filter(c=>!head.includes(c)&&c!==dec); sectionize(P,tab,[{name:'Your tank',nodes:tank},{name:'Decorate',nodes:dec?[dec]:[]}]); }
+  else if(tab==='aquarium'){ const dec=K.find(c=>c.classList.contains('jsec')), view=K.filter(c=>c.classList.contains('tank')||(c.tagName==='P'&&/Drag a decoration/.test(c.textContent))), head=K.slice(0,2).concat(view), tank=K.filter(c=>!head.includes(c)&&c!==dec); sectionize(P,tab,[{name:'Your tank',nodes:tank},{name:'Decorate',nodes:dec?[dec]:[]}]); }
   else if(tab==='home'){ const i=K.findIndex(c=>c.tagName==='H5'&&/Decorations/.test(c.textContent)); if(i<0) return; const head=K.findIndex(c=>c.classList.contains('row')); const dock=K.slice(head+1,i).filter(c=>!c.classList.contains('pvbar')); sectionize(P,tab,[{name:'Dock',nodes:dock},{name:'Decorations',nodes:K.slice(i)}]); }
   else if(tab==='rods'){ const i1=K.findIndex(c=>c.tagName==='H2'&&/Rod rack/.test(c.textContent)), i2=K.findIndex(c=>c.tagName==='H2'&&/Attachments/.test(c.textContent)); if(i1<0||i2<0) return;
     sectionize(P,tab,[{name:'Your rod',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
@@ -8050,6 +8061,10 @@ applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) retur
 document.head.insertAdjacentHTML('beforeend',`<style>body.v3 #panel .grid.skill-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px} body.v3 #panel .grid.skill-grid > .tile{padding:10px 12px;gap:5px}</style>`);
 // Pets > Customize: preview beside the options when there is room, stacked when the menu column is narrow (phones, landscape).
 document.head.insertAdjacentHTML('beforeend',`<style>#panel{container-type:inline-size}.stylewrap.petwrap{grid-template-columns:200px minmax(0,1fr)}.stylewrap.petwrap>*{min-width:0}@container (max-width:520px){.stylewrap.petwrap{grid-template-columns:minmax(0,1fr)}.stylewrap.petwrap>.preview{max-width:240px;width:100%;margin:0 auto}}</style>`);
+// Your rod: one compact row per attachment slot (the chips already name each attachment and its effect)
+document.head.insertAdjacentHTML('beforeend',`<style>.slotrow{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}.slotrow:first-of-type{border-top:0}.slotrow>b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.slotrow .chips{margin:0}@media (max-width:480px){.slotrow{grid-template-columns:1fr;gap:4px}}</style>`);
+// Wardrobe: stack the preview above the options whenever the menu column is narrow (phones sideways, small windows)
+document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:560px){.stylewrap.wd{grid-template-columns:minmax(0,1fr)!important}.stylewrap.wd>*{min-width:0}.wd-prev{position:relative!important;top:auto!important;max-width:260px;width:100%;margin:0 auto}}</style>`);
 
 // =====================================================================
 // 0.3 Tide Pass regular levels: customisation instead of pocket change. Each level shows exactly which
@@ -8064,7 +8079,11 @@ function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats
   ...BACKS.filter(x=>x[3]==='shop'&&!S.owned.backs.includes(x[0])).map(x=>({kind:'back',id:x[0],name:x[1],cat:'Worn on your back'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
 function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
   ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
-function passPickItem(L,pool){ return pool.length ? pool[hashStr('tide'+L)%pool.length] : null; }
+// upcoming levels pick in order and never promise the same item twice (so no repeats, back to back or otherwise)
+function passPickItem(L,pool){ if(!pool.length) return null; const decor=pool[0].kind==='dock'||pool[0].kind==='aq', used=new Set(); let pick=null;
+  for(let l=(S.pass.claimed||0)+1; l<=L; l++){ if(PASS_SPECIAL[l]) continue; const slot=(passPlainIndex(l)-1)%5; if(decor?slot!==3:!(slot===0||slot===2)) continue;
+    let i=hashStr('tide'+l)%pool.length, n=0; while(used.has(pool[i].kind+pool[i].id)&&n<pool.length){ i=(i+1)%pool.length; n++; } pick=pool[i]; used.add(pick.kind+pick.id); }
+  return pick; }
 function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
 passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
   if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'}; }
@@ -8413,6 +8432,41 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
+// =====================================================================
+// 0.3 cooler, less menu: sell or display a fish right from the catch card, a "Sell all" pill on the
+// water, the Cooler counter at the top opens the cooler (it no longer takes a spot in the menu grid),
+// and an optional auto-sell when the cooler is full.
+// =====================================================================
+function coolerSellAll(){ const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return 0; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); save(); return [sell.length,tot]; }
+// ---- catch card: Sell / To aquarium for the fish you just landed (tap anywhere else to keep it)
+const _showCard_cq = showCard;
+showCard = function(o){ _showCard_cq(o); const old=$('cardq'); if(old) old.remove(); const ce=G.lastEntry; G.lastEntry=null; if(!ce||!S.cooler.includes(ce)) return;
+  const tankFree=S.tank.length<aqCap(), price=salePrice(ce), d=document.createElement('div'); d.id='cardq'; d.className='cardq';
+  d.innerHTML=`<button class="btn sm" data-q="sell">Sell · <span class="coin">${fmt(price)}</span></button><button class="btn alt sm" data-q="tank" ${tankFree?'':'disabled title="Your aquarium is full"'}>To aquarium</button>`;
+  const tap=$('cardin').querySelector('.tap'); $('cardin').insertBefore(d,$('cardbadges'));
+  d.addEventListener('pointerdown',e=>{ e.stopPropagation(); const b=e.target.closest('[data-q]'); if(!b||b.disabled) return; const i=S.cooler.indexOf(ce); if(i<0){ hideCard(); return; }
+    if(b.dataset.q==='sell'){ const c=earn(salePrice(ce)); S.cooler.splice(i,1); sfx.coin(); toast('Sold for '+fmt(c)+' coins.'); }
+    else if(S.tank.length<aqCap()){ accrue(); S.tank.push(ce); S.cooler.splice(i,1); toast(SPI[ce.id].name+' is on display'+(aqEff(ce)?': '+aqTxt(ce):'')+'.'); }
+    save(); hideCard(); coolerPill(); if(S.tab==='cooler'||S.tab==='aquarium') renderPanel(); });
+  if(tap) tap.textContent='Tap anywhere else to keep it in your cooler'; };
+// ---- the "Sell all" pill on the water
+function coolerPill(){ let p=$('sellpill'); const st=$('stage'); if(!st) return; if(!p){ p=document.createElement('button'); p.id='sellpill'; p.type='button'; p.className='sellpill'; st.appendChild(p);
+    p.addEventListener('click',e=>{ e.stopPropagation(); const r=coolerSellAll(); if(r){ toast('Sold '+r[0]+' fish for '+fmt(r[1])+' coins'+(S.cooler.length?' (rare fish kept)':'')+'.'); } coolerPill(); if(S.tab==='cooler') renderPanel(); });
+    p.addEventListener('pointerdown',e=>e.stopPropagation()); }
+  const sell=S.cooler.filter(f=>!isProtected(f)), tot=sell.reduce((a,f)=>a+salePrice(f),0), busy=G.st!=='idle'&&G.st!=='rest';
+  p.hidden=!sell.length||busy; if(sell.length) p.innerHTML='Sell all · <span class="coin">'+fmt(tot)+'</span>'; }
+setInterval(()=>{ try{ coolerPill(); }catch(e){} },700);
+// ---- the Cooler counter at the top opens the cooler; the menu grid no longer has a Cooler button
+(function(){ const chip=$('coolerct')&&$('coolerct').closest('.stat'); if(chip){ chip.classList.add('statbtn'); chip.setAttribute('role','button'); chip.tabIndex=0; chip.title='Open your cooler';
+    const go=()=>{ setTab('cooler'); save(); $('panel').scrollIntoView({behavior:'smooth',block:'start'}); }; chip.addEventListener('click',go); chip.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); }
+  const tb=document.querySelector('#tabs [data-tab="cooler"]'); if(tb) tb.remove(); if(S.tab==='cooler') S.tab='cooler'; })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+.cardq{display:flex;gap:8px;justify-content:center;margin:6px 0 8px}.cardq .btn{min-width:120px}@media (max-width:560px){.card canvas{width:128px!important;height:64px!important}.cardq .btn{min-width:0;flex:1}.card #carddesc{font-size:12px}}
+.sellpill{position:absolute;left:84px;bottom:10px;z-index:3;border:1px solid rgba(255,255,255,.18);background:rgba(10,20,34,.72);color:var(--ink);font:600 12px system-ui;padding:6px 12px;border-radius:999px;cursor:pointer;backdrop-filter:blur(4px)}
+.sellpill:hover{background:rgba(20,34,54,.85)}.sellpill[hidden]{display:none}
+.hud .statbtn{cursor:pointer}.hud .statbtn:hover{border-color:var(--gold)}.hud .statbtn:focus-visible{outline:2px solid var(--gold)}
+</style>`);
+
 // ---------- loop ----------
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
@@ -8445,7 +8499,7 @@ let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').m
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M'; return (n/1e9).toFixed(2)+'B'; }
 function setHint(){ let h='';
   switch(G.st){
-    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
+    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Tap <b>Sell all</b> on the water, or <b>Cooler</b> at the top to choose what to keep.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
     case 'charging': h='Release to cast. A <b>far cast</b> or a <b>hotspot</b> improves your odds.'; break;
     case 'flying': h='&nbsp;'; break;
     case 'waiting': h='Watch the bobber. Small twitches are nibbles: <b>wait for the big splash</b>.'; break;

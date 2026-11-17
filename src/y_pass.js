@@ -12,7 +12,11 @@ function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats
   ...BACKS.filter(x=>x[3]==='shop'&&!S.owned.backs.includes(x[0])).map(x=>({kind:'back',id:x[0],name:x[1],cat:'Worn on your back'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
 function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
   ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
-function passPickItem(L,pool){ return pool.length ? pool[hashStr('tide'+L)%pool.length] : null; }
+// upcoming levels pick in order and never promise the same item twice (so no repeats, back to back or otherwise)
+function passPickItem(L,pool){ if(!pool.length) return null; const decor=pool[0].kind==='dock'||pool[0].kind==='aq', used=new Set(); let pick=null;
+  for(let l=(S.pass.claimed||0)+1; l<=L; l++){ if(PASS_SPECIAL[l]) continue; const slot=(passPlainIndex(l)-1)%5; if(decor?slot!==3:!(slot===0||slot===2)) continue;
+    let i=hashStr('tide'+l)%pool.length, n=0; while(used.has(pool[i].kind+pool[i].id)&&n<pool.length){ i=(i+1)%pool.length; n++; } pick=pool[i]; used.add(pick.kind+pick.id); }
+  return pick; }
 function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
 passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
   if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'}; }

@@ -147,8 +147,8 @@ function a3Body(c,x,y,s,lk,o,live){
   // soft shadow under the chin and where the front arm crosses the chest
   c.save(); bodyPath(); c.clip(); c.fillStyle='rgba(20,10,20,.22)'; c.beginPath(); c.ellipse(1.2,-46.2,4.6,2.2,0,0,7); c.fill();
   const elF0=a3IK(.8,-44,HH.x/B.w,HH.y,7.8,7.6,1); c.strokeStyle='rgba(10,6,20,.16)'; c.lineWidth=5.4; c.beginPath(); c.moveTo(.8,-43); c.lineTo(elF0.x+.4,elF0.y+1.4); c.stroke(); c.restore();
-  // belt (hidden under long coats and full suits)
-  if(!coat&&!['wetsuit','spacesuit','overalls','puffer','bathrobe','pajamas','apron'].includes(out)){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.fillStyle=bg; c.beginPath(); c.moveTo(-7.7,-25.7); c.quadraticCurveTo(0,-26.3,7.8,-25.7); c.lineTo(7.8,-23.4); c.quadraticCurveTo(0,-24,-7.7,-23.4); c.closePath(); c.fill();
+  // belt: only where the waist shows (shirt, vest, life jacket, tuxedo T-shirt); every jacket, sweater, coat or costume covers it
+  if(['none','vest','lifejacket','tuxshirt'].includes(out||'none')){ const bg=c.createLinearGradient(0,-25.8,0,-23.2); bg.addColorStop(0,D('#5a4028')); bg.addColorStop(1,D('#2a1c10')); c.fillStyle=bg; c.beginPath(); c.moveTo(-7.7,-25.7); c.quadraticCurveTo(0,-26.3,7.8,-25.7); c.lineTo(7.8,-23.4); c.quadraticCurveTo(0,-24,-7.7,-23.4); c.closePath(); c.fill();
     c.fillStyle=D('#e2bc6a'); c.beginPath(); c.roundRect?c.roundRect(1.1,-26.1,3.1,3,.6):c.rect(1.1,-26.1,3.1,3); c.fill(); c.fillStyle=D('#3a2a1a'); c.fillRect(1.9,-25.2,1.5,1.2); c.fillStyle='rgba(255,255,230,.5)'; c.fillRect(1.3,-25.9,2.6,.45); }
   c.restore();
   // ---- neck and head (the head tilts on the neck: looks down at the float, up while the cast flies)

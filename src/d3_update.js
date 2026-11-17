@@ -20,6 +20,7 @@ const PATCHES = [
   'Rebuilt from the ground up: rounded, lit shapes, arms and legs that bend, poses that flow into each other, both hands on the rod, and a soft light along your outline that matches the sky.',
   'Seven body types and nine eye colours. Every outfit fits every build.',
   'Hats sit properly: hair shows underneath instead of poking through, your eyes are never covered, and helmets show your face through the glass.',
+  'Outfit designs (checks, stripes, flowers, scales) carry on down the sleeves, and the belt only shows where your waist does, not over jackets, sweaters or costumes.',
   '## Music and sound',
   'A cozy music theme for every water. Pick “Follow the water” in Settings, or choose any theme. The old styles are still there.',
   'The lofi music no longer has a constant hiss in the background; its record crackle is now soft and occasional.',
@@ -41,9 +42,10 @@ const PATCHES = [
   'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
   'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
   'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
-  'Hats got a fitting pass: the bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn to sit properly on your head.',
+  'Hats got a fitting pass: every hat sits on your head and stops just above your eyes. The bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn; the tiara, flower crown, bunny ears, mohawk, fish hat and duck rest on your head instead of floating; headphones and the viking helmet are drawn side-on, the way you would wear them.',
   'Stubble, mustaches and beards are redrawn to follow your jaw.',
-  'Shirt patterns can go on your outfit too: when you wear both, choose “Pattern goes on: Shirt or Outfit” in the Wardrobe.',
+  'Shirt patterns are now fabrics: materials like denim, knit, corduroy, tweed or silk, always in your own colours. Every fabric works on shirts, and outfits offer the fabrics that suit them (sleeves included). Flannel and pinstripe stay as fabrics; any other shirt designs you owned were refunded in coins.',
+  'Shirts can be two-tone.',
   'Colour choices show their colour before you pick them, for your angler and your pets.',
   'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
   'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
@@ -51,6 +53,8 @@ const PATCHES = [
   'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
   'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
   'Every mini-game can be skipped, and Settings can turn them off completely.',
+  'Less menu work: sell a fish or put it in the aquarium straight from the catch card, or sell everything at once with Sell all on the water. The Cooler opens from the Cooler counter at the top instead of taking a spot in the menu.',
+  'The catch card shows what the fish sells for, bonuses included.',
   '## Changes to the aquarium and Home',
   'Every decoration is redrawn, on your dock and in your tank, with light, detail and a little movement.',
   'Aquarium decorations give twice the aquarium income bonus they used to.',
@@ -59,6 +63,9 @@ const PATCHES = [
   'Tanks hold 1.5 times as many fish, and the button now says Increase tank size.',
   'Aquarium income per fish is 25% lower, and each fish now earns at most a set share of what an hour of fishing its own water pays (a larger share for rarer fish). A full tank is still a strong passive bonus, but fishing always pays more.',
   'Drag decorations to move them, in your tank and on your dock. Dock decorations are now sized properly next to you.',
+  'Drag your pets along the dock in Home too; they stay where you put them on the water.',
+  'Your dock stands in the water instead of towering over it, and the Home picture now matches the dock you fish from.',
+  'The tank stays in view while you decorate, so every water, floor and decoration shows as you pick it.',
   '## Changes to rewards and progress',
   'Tide Pass: levels now take about 2.7 times as much XP. Special Tide rewards come at levels 3, 5, 8, 10, 12, 15, 18, 20 and every five levels after, including Tide-only shoes, a scarf, a cape, a shell backpack and, at level 50, Tide Wings. Other levels give clothing or decorations you do not own yet, Big Mystery Crates, or 25 Scales with 150 tickets, and every level shows exactly what you get before you claim it.',
   'Bounties: every water now keeps its own board of 3 bounties, and they wait there until you finish them. Your existing bounties moved to the water they belong to.',
@@ -76,7 +83,11 @@ const PATCHES = [
   'Skills are split into Catching, Rare finds, Fighting, Coins & XP and Aquarium & pets.',
   'The Save tab is split into Move to another device, Save codes and App.',
   'Settings is no longer listed twice: open it with the ⚙ button at the top.',
-  'Your rod: attachment slots show what each attachment does without clicking.',
+  'Your rod: one tidy row per attachment slot, and each attachment shows what it does without clicking.',
+  'Buying, equipping or switching something updates the menu in place, without a flash or jump.',
+  'On PC the info bar above the water fits on one line.',
+  'Mountains look smoother, and the Waters pictures are sharper.',
+  'Tide Pass levels never show the same reward twice.',
   '## Fixes',
   'Buying the last two Rod length upgrades could make every catch the same fish. Fixed.',
   'The streak message now shows the streak you actually lost (it used to always say 0).',
@@ -223,7 +234,7 @@ function rodSVG(col,lvl,id){ if(id==null&&col==="#2a4a55") return `<span style="
 function renderRods(P){ const r=rod(), atts=rodAtts();
   const stats=r=>{ const keys=Object.keys(r.st); return keys.length?keys.map(k=>statTxt(k,r.st[k])).join(' · '):'No special stats'; };
   const slotRow=(i)=>{ const cur=atts[i]||''; const opts=ATTS.filter(a=>S.atts[a.id] && (a.id===cur || !atts.includes(a.id)));
-    return `<div class="toggle"><div><b>Slot ${i+1}</b><div class="meta">${cur?ATT_I[cur].name+' '+'I'.repeat(S.atts[cur])+': '+statTxt(ATT_I[cur].k,attVal(cur)):'Empty'}</div></div>
+    return `<div class="slotrow"><b>Slot ${i+1}</b>
       <div class="chips"><button class="chipb" data-act="rodatt" data-k="${i}:" aria-pressed="${!cur}">None</button>${opts.map(a=>`<button class="chipb" data-act="rodatt" data-k="${i}:${a.id}" aria-pressed="${cur===a.id}" title="${esc(a.d)}">${a.name} <span class="meta">${statTxt(a.k,attVal(a.id))}</span></button>`).join('')}</div></div>`; };
   const up=rodUpCost(r.id), L=rodLvl();
   P.innerHTML=`<div class="row spread"><div><h2>Rods</h2><p class="sub">Your rod shapes every cast. Collect rods, upgrade them with coins and <b>Scales</b>, and fit attachments. Scales come from Rare and better fish.</p></div>

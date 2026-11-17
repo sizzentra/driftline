@@ -224,7 +224,7 @@ function landFish(){
   const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*(spec('mythseeker')&&sp.r===0?.7:1)*((!j||j.n<3)?1+.05*pr('naturalist'):1));
   if(isNew && maxed('naturalist')) S.scales+=5;
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
-  S.cooler.push(coolerEntry(f)); S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
+  { const ce=coolerEntry(f); S.cooler.push(ce); G.lastEntry=ce; } S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
   const preyB=[]; for(const p of (f.prey||[])){ journalAdd(p); S.stats.caught++; if(S.cooler.length<gv('cooler')){ S.cooler.push(coolerEntry(p)); preyB.push(['k','Swallowed '+p.sp.name+' ('+kgStr(p.kg)+'): in your cooler']); } else { const c2=earn(salePrice(coolerEntry(p))); preyB.push(['k','Swallowed '+p.sp.name+': sold for '+fmt(c2)]); } }
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)*(relic('luckyscale')?1.2:1)); if(scl) S.scales+=scl;
@@ -240,7 +240,7 @@ function landFish(){
   const rk=checkRank(); if(rk) b.push(['g',rk]);
   if(lvUps) b.push(['g','Level up! Lv '+S.lvl+' · +'+lvUps+' skill point']); bdone.forEach(()=>b.push(['g','Bounty ready'])); if(setNow) b.push(['g',LOCS[locIdx(sp.loc)].name+' complete: +'+fmt(setNow)]);
   showCard({draw:c=>fishCanvas(c,sp,true,f.shiny,f.pv), shiny:!!f.shiny, rar:(f.shiny===2?PRISM[f.pv].n+' prismatic ':f.shiny?'Shiny ':'')+(f.hy?'hybrid ':'')+RAR[sp.r].k, rarCol:f.shiny===2?PRISM[f.pv].c:f.shiny?'var(--gold)':RAR[sp.r].c, name:sp.name,
-    nums:[['Weight',kgStr(f.kg)],['Worth',fmt(f.value),1],['XP','+'+xp]], desc:sp.note, badges:b});
+    nums:[['Weight',kgStr(f.kg)],['Sells for',fmt(salePrice({id:sp.id,value:f.value})),1],['XP','+'+xp]], desc:sp.note, badges:b});
   f.shiny ? (sfx.catch(sp.r), sfx.shiny(), f.shiny===2&&setTimeout(()=>sfx.shiny(),350)) : sfx.catch(sp.r); checkFeats(); save(); refreshAll();
 }
 function landJunk(){
