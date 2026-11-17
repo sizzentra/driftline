@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1835';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-1845';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1469,6 +1469,8 @@ function offlineIncome(){ const add=accrue(); if(add>=1 && S.tank.length) setTim
 function down(e){
   if(G.star && starHit(e)) return;
   if(G.st!=='reeling' && G.st!=='frenzy' && G.st!=='charging' && G.st!=='result' && petHit(e)) return;
+  // the dock side of the water never casts (or reels in early): a missed tap on your pet does nothing
+  if(e && (G.st==='idle'||G.st==='waiting') && canvasXY(e).x < W*.2) return;
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
@@ -2518,7 +2520,8 @@ const PATCHES = [
   'Cast distance matters more: longer casts lean toward rarer and heavier fish (about 20% more value at full power than a medium cast). Short casts lean slightly the other way, but never inside a hotspot.',
   'Fish Rain is gone, and the bonus it gave to junk is gone with it.',
   'Every mini-game can be skipped, and Settings can turn them off completely.',
-  'Less menu work: sell a fish or put it in the aquarium straight from the catch card, or sell everything at once with Sell all on the water. The Cooler opens from the Cooler counter at the top instead of taking a spot in the menu.',
+  'Sell a fish or put it in the aquarium straight from the catch card. Tap anywhere else to keep it in your cooler, as before.',
+  'Tapping on the dock side of the water no longer casts or reels in early, so a missed tap on your pet does nothing.',
   'The catch card shows what the fish sells for, bonuses included.',
   '## Changes to the aquarium and Home',
   'Every decoration is redrawn, on your dock and in your tank, with light, detail and a little movement.',
@@ -8433,12 +8436,9 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
 // =====================================================================
-// 0.3 cooler, less menu: sell or display a fish right from the catch card, a "Sell all" pill on the
-// water, the Cooler counter at the top opens the cooler (it no longer takes a spot in the menu grid),
-// and an optional auto-sell when the cooler is full.
+// 0.3 catch card quick actions: sell the fish you just landed or put it straight in the aquarium.
+// Tapping anywhere else keeps it in the cooler, as always. (The Cooler stays a normal menu tab.)
 // =====================================================================
-function coolerSellAll(){ const sell=S.cooler.filter(f=>!isProtected(f)); if(!sell.length) return 0; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>isProtected(f)); sfx.coin(); save(); return [sell.length,tot]; }
-// ---- catch card: Sell / To aquarium for the fish you just landed (tap anywhere else to keep it)
 const _showCard_cq = showCard;
 showCard = function(o){ _showCard_cq(o); const old=$('cardq'); if(old) old.remove(); const ce=G.lastEntry; G.lastEntry=null; if(!ce||!S.cooler.includes(ce)) return;
   const tankFree=S.tank.length<aqCap(), price=salePrice(ce), d=document.createElement('div'); d.id='cardq'; d.className='cardq';
@@ -8447,24 +8447,10 @@ showCard = function(o){ _showCard_cq(o); const old=$('cardq'); if(old) old.remov
   d.addEventListener('pointerdown',e=>{ e.stopPropagation(); const b=e.target.closest('[data-q]'); if(!b||b.disabled) return; const i=S.cooler.indexOf(ce); if(i<0){ hideCard(); return; }
     if(b.dataset.q==='sell'){ const c=earn(salePrice(ce)); S.cooler.splice(i,1); sfx.coin(); toast('Sold for '+fmt(c)+' coins.'); }
     else if(S.tank.length<aqCap()){ accrue(); S.tank.push(ce); S.cooler.splice(i,1); toast(SPI[ce.id].name+' is on display'+(aqEff(ce)?': '+aqTxt(ce):'')+'.'); }
-    save(); hideCard(); coolerPill(); if(S.tab==='cooler'||S.tab==='aquarium') renderPanel(); });
+    save(); hideCard(); if(S.tab==='cooler'||S.tab==='aquarium') renderPanel(); });
   if(tap) tap.textContent='Tap anywhere else to keep it in your cooler'; };
-// ---- the "Sell all" pill on the water
-function coolerPill(){ let p=$('sellpill'); const st=$('stage'); if(!st) return; if(!p){ p=document.createElement('button'); p.id='sellpill'; p.type='button'; p.className='sellpill'; st.appendChild(p);
-    p.addEventListener('click',e=>{ e.stopPropagation(); const r=coolerSellAll(); if(r){ toast('Sold '+r[0]+' fish for '+fmt(r[1])+' coins'+(S.cooler.length?' (rare fish kept)':'')+'.'); } coolerPill(); if(S.tab==='cooler') renderPanel(); });
-    p.addEventListener('pointerdown',e=>e.stopPropagation()); }
-  const sell=S.cooler.filter(f=>!isProtected(f)), tot=sell.reduce((a,f)=>a+salePrice(f),0), busy=G.st!=='idle'&&G.st!=='rest';
-  p.hidden=!sell.length||busy; if(sell.length) p.innerHTML='Sell all · <span class="coin">'+fmt(tot)+'</span>'; }
-setInterval(()=>{ try{ coolerPill(); }catch(e){} },700);
-// ---- the Cooler counter at the top opens the cooler; the menu grid no longer has a Cooler button
-(function(){ const chip=$('coolerct')&&$('coolerct').closest('.stat'); if(chip){ chip.classList.add('statbtn'); chip.setAttribute('role','button'); chip.tabIndex=0; chip.title='Open your cooler';
-    const go=()=>{ setTab('cooler'); save(); $('panel').scrollIntoView({behavior:'smooth',block:'start'}); }; chip.addEventListener('click',go); chip.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); }
-  const tb=document.querySelector('#tabs [data-tab="cooler"]'); if(tb) tb.remove(); if(S.tab==='cooler') S.tab='cooler'; })();
 document.head.insertAdjacentHTML('beforeend',`<style>
 .cardq{display:flex;gap:8px;justify-content:center;margin:6px 0 8px}.cardq .btn{min-width:120px}@media (max-width:560px){.card canvas{width:128px!important;height:64px!important}.cardq .btn{min-width:0;flex:1}.card #carddesc{font-size:12px}}
-.sellpill{position:absolute;left:84px;bottom:10px;z-index:3;border:1px solid rgba(255,255,255,.18);background:rgba(10,20,34,.72);color:var(--ink);font:600 12px system-ui;padding:6px 12px;border-radius:999px;cursor:pointer;backdrop-filter:blur(4px)}
-.sellpill:hover{background:rgba(20,34,54,.85)}.sellpill[hidden]{display:none}
-.hud .statbtn{cursor:pointer}.hud .statbtn:hover{border-color:var(--gold)}.hud .statbtn:focus-visible{outline:2px solid var(--gold)}
 </style>`);
 
 // ---------- loop ----------
@@ -8499,7 +8485,7 @@ let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').m
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n); if(n<1e6) return (n/1e3).toFixed(n<1e5?1:0)+'K'; if(n<1e9) return (n/1e6).toFixed(n<1e7?2:1)+'M'; return (n/1e9).toFixed(2)+'B'; }
 function setHint(){ let h='';
   switch(G.st){
-    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Tap <b>Sell all</b> on the water, or <b>Cooler</b> at the top to choose what to keep.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
+    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
     case 'charging': h='Release to cast. A <b>far cast</b> or a <b>hotspot</b> improves your odds.'; break;
     case 'flying': h='&nbsp;'; break;
     case 'waiting': h='Watch the bobber. Small twitches are nibbles: <b>wait for the big splash</b>.'; break;
