@@ -195,3 +195,35 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #searchres .sv-p{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left}
 #searchres .sv-p .meta{font-size:11.5px;line-height:1.3}
 </style>`);
+
+// ---------------------------------------------------------------------
+// Quality of life
+// ---------------------------------------------------------------------
+// 1) Bait restocks itself (one pack) when it runs out, if you can afford it. Switch it on or off on the Tackle page.
+const _hookIt_04=hookIt;
+hookIt=function(){ const sel=S.baitSel; _hookIt_04.apply(this,arguments);
+  try{ const b=BAIT[sel]; if(sel!=='worm'&&S.settings.autoBait&&S.bait[sel]===0&&b&&!b.junk&&b.price>0&&S.money>=b.price){ S.money-=b.price; S.bait[sel]+=b.pack; S.baitSel=sel; renderBait(); save(); setTimeout(()=>toast('Restocked '+b.name+': '+b.pack+' more for '+fmtShort(b.price)+' coins.'),700); } }catch(e){} };
+const _renderShop_04=renderShop;
+renderShop=function(P){ _renderShop_04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; const on=!!S.settings.autoBait; const b=document.createElement('button'); b.className='btn alt sm'; b.dataset.act='autobait'; b.setAttribute('aria-pressed',on); b.title='When your bait runs out, buy one more pack automatically if you have the coins'; b.textContent=on?'Auto-restock: on':'Auto-restock: off'; b.style.marginLeft='auto'; cur.appendChild(b); }catch(e){} };
+const _extraAct2_qol=extraAct2;
+extraAct2=function(b){ if(b.dataset.act==='autobait'){ S.settings.autoBait=!S.settings.autoBait; save(); toast(S.settings.autoBait?'Bait will restock itself when it runs out (if you have the coins).':'Bait restocking is off.'); return 'render'; } return _extraAct2_qol(b); };
+// 2) A full cooler shows on the water before you try to cast
+const _nextGoal_qol=nextGoal;
+nextGoal=function(){ if(S.cooler&&S.cooler.length>=gv('cooler')&&!S.chal) return {t:'Your cooler is full', sub:'Tap to sell or keep your catch', p:1, tab:'cooler', ready:true}; return _nextGoal_qol(); };
+// 3) Keyboard shortcuts on PC: 1-5 sections, [ ] previous and next page, M hide menus, / search, Esc closes, ? shows them
+const KEYS=[['1 - 5','Open a section (Fishing, Gear, Collection, Home, Rewards)'],['[  ]','Previous / next page in the section'],['Space','Cast and reel (hold)'],['M','Hide or show the menus'],['/','Search, or browse every page'],['Esc','Close a card or the search'],['?','Show these shortcuts']];
+function showKeys(){ if(G.st!=='idle'&&G.st!=='waiting') return; G.st='event'; $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">Keyboard</div><h3>Shortcuts</h3><div class="list keys">${KEYS.map(k=>`<div class="row spread prize"><kbd>${k[0]}</kbd><span>${k[1]}</span></div>`).join('')}</div><button class="btn" data-ev="skip">Got it</button>`; $('evcard').hidden=false; }
+SEARCH_IDX.forEach((e,i)=>{ if(e[0]==='Keyboard shortcuts') SEARCH_IDX[i]=['Keyboard shortcuts','__keys',null,'keyboard shortcuts keys hotkeys help']; });
+{ const _sg=searchGo; searchGo=function(e){ if(e&&e[1]==='__keys'){ showKeys(); return; } return _sg.apply(this,arguments); }; }
+addEventListener('keydown',e=>{ if(e.ctrlKey||e.metaKey||e.altKey) return; const tag=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+  const sov=$('searchov'); if(sov&&!sov.hidden) return;
+  if(e.key==='Escape'){ const card=$('card'); if(card&&!card.hidden&&G.st==='result'){ hideCard(); e.preventDefault(); return; }
+    const ev=$('evcard'); if(ev&&!ev.hidden){ const btns=ev.querySelectorAll('button'), skip=ev.querySelector('[data-ev="skip"]'); if(skip&&btns.length===1){ skip.click(); e.preventDefault(); } } return; }
+  if(e.key==='?'){ e.preventDefault(); showKeys(); return; }
+  if(/^[1-5]$/.test(e.key)){ const b=document.querySelectorAll('#tabs .secb')[+e.key-1]; if(b){ e.preventDefault(); b.click(); } return; }
+  if(e.key==='['||e.key===']'){ const ps=[...document.querySelectorAll('#tabs .subbar .subp')]; if(!ps.length) return; const i=ps.findIndex(p=>p.dataset.sub===S.tab); const n=ps[(i+(e.key===']'?1:ps.length-1))%ps.length]; if(n){ e.preventDefault(); n.click(); } } });
+document.head.insertAdjacentHTML('beforeend',`<style>
+#evin .keys kbd{display:inline-block;min-width:54px;text-align:center;padding:2px 8px;border-radius:7px;background:#ffffff14;border:1px solid #ffffff2a;border-bottom-width:2px;font:800 12px ui-monospace,Consolas,monospace;color:#fff}
+#evin .keys .prize{gap:12px;align-items:center}
+#evin .keys .prize span{flex:1;text-align:left;color:#cfdcea}
+</style>`);
