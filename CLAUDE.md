@@ -3,7 +3,7 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
-- **Live version: 2.2.2** (2026-11-16) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
+- **Live version: 0.3 "The Big Glow-Up"** (shipped 2026-11-16, director approved; was 2.2.2) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
   - **2.2 "Closer Together":** moving progress with a 6-digit code, gift codes, and Lily.
@@ -13,7 +13,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **0.3 overhaul: RELEASE CANDIDATE, awaiting final approval** (2026-11-16):
+- **0.3 overhaul: SHIPPED to the main game 2026-11-16** (publish.ps1, commit d480a89). Any new work is a new version with its own patch-notes entry; the 0.3 entry stays as shipped. History of the rounds:
   - Preview: https://sizzentra.github.io/driftline/next/ (its own save; it copies the real save once; badge "0.3 preview").
   - Build: `build.ps1 -Preview`. Publish: `publish_preview.ps1` (never rebuilds friends' game).
   - New renderer: `src/f_v3scene.js` (B2 style; on only when `DL_PREVIEW` is set or the URL has `?v3`). It hooks into `draw()` in `d_draw.js` via `v3Scene` / `v3Platform` / `v3Fore`.
