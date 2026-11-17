@@ -1498,3 +1498,31 @@ body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:pchI
     if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
     const x=c.getContext('2d'); const view={width:lw,height:lh,getContext:()=>{ x.setTransform(k,0,0,k,0,0); return x; }};
     try{ return _ph3(view); } finally{ x.setTransform(1,0,0,1,0,0); } }; }
+// Settings is labelled wherever there is room (director, 2026-11-17): "⚙ Settings" on sideways phones (the goal gives up the room)
+// and on PC, where the fishing header and the menu header use the very same button so both rows still line up. Phones held
+// upright keep the gear alone: their top row has no room left for a word.
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px max-content!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{font-size:12.5px!important;font-weight:800;padding:0 12px!important;gap:6px;white-space:nowrap;width:auto!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn::before{content:none!important}
+  html body.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px max-content!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{padding:0 10px!important}
+}
+#pchead .pch-tb[data-pch="settings"],body.pch-on #menuov .mo-tb[data-mo="settings"]{width:auto!important;padding:0 14px 0 12px!important;display:inline-flex!important;align-items:center;gap:7px;font:800 14px var(--display,system-ui)!important;white-space:nowrap}
+#pchead .pch-tb[data-pch="settings"]::before,body.pch-on #menuov .mo-tb[data-mo="settings"]::before{content:"⚙";font-size:18px;line-height:1}
+#pchead .pch-tb[data-pch="settings"]::after,body.pch-on #menuov .mo-tb[data-mo="settings"]::after{content:"Settings"}
+#pchead .pch-tb[data-pch="settings"],body.pch-on #menuov .mo-tb[data-mo="settings"]{font-size:0!important}
+#pchead .pch-tb[data-pch="settings"]::after,body.pch-on #menuov .mo-tb[data-mo="settings"]::after{font-size:14px}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the smallest sideways phones (about 667 px): a tighter Settings button and a capped water name keep the goal readable */
+@media (orientation:landscape) and (max-height:560px) and (max-width:700px){
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{padding:0 8px!important;font-size:11.5px!important}
+  html body.dl-fish .hud > .stat.loc{max-width:92px!important;overflow:hidden}
+  html body.dl-fish .hud > .stat.loc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0}
+}
+</style>`);
