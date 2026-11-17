@@ -164,8 +164,12 @@ function drawFishBody3(c,sp,d,L,col,belly,o,wag){
   if(!o.sil){ c.save(); f3BodyPath(c,L,hh,d); c.clip();
     c.fillStyle=f3Grad(c,v3rgba(belly,0),belly,hh*.05,hh*.75); c.fillRect(-L*.5,0,L,hh*1.2);
     f3Pattern(c,L,hh,Object.assign({id:sp.id},d),col,belly,pcol);
-    if(d.pat!=='scales'&&L>70){ c.strokeStyle='rgba(255,255,255,.07)'; c.lineWidth=.6; for(let row=-2;row<=2;row++) for(let k=-4;k<=6;k++){ c.beginPath(); c.arc(k*L*.05+(row&1)*L*.025,row*hh*.3,L*.026,Math.PI*.6,Math.PI*1.4); c.stroke(); } }
-    c.fillStyle='rgba(255,255,255,.1)'; c.beginPath(); c.ellipse(L*.05,-hh*.66,L*.26,hh*.1,-.05,0,7); c.fill();
+    if(d.pat!=='scales'&&L>44){ c.strokeStyle=L>70?'rgba(255,255,255,.07)':'rgba(255,255,255,.06)'; c.lineWidth=.6; for(let row=-2;row<=2;row++) for(let k=-4;k<=6;k++){ c.beginPath(); c.arc(k*L*.05+(row&1)*L*.025,row*hh*.3,L*.026,Math.PI*.6,Math.PI*1.4); c.stroke(); } }
+    // 0.3.6 realism: the lateral line, an inner edge shadow for a rounded body, and a wet sheen along the upper flank
+    if(L>34&&!d.ghost&&!d.clear){ c.strokeStyle=v3rgba(mix(col,'#000000',.45),.32); c.lineWidth=Math.max(.5,L*.006); c.beginPath(); c.moveTo(L*.26,-hh*.18); c.bezierCurveTo(L*.05,-hh*.26,-L*.2,-hh*.12,-L*.42,-hh*.02); c.stroke(); }
+    c.save(); for(const [w,a] of [[.62,.06],[.4,.06],[.22,.06]]){ c.strokeStyle='rgba(6,10,20,'+a+')'; c.lineWidth=hh*w; f3BodyPath(c,L,hh,d); c.stroke(); } c.strokeStyle='rgba(6,10,20,.1)'; c.lineWidth=hh*.18; c.beginPath(); c.moveTo(-L*.5,hh*.96); c.lineTo(L*.5,hh*.96); c.stroke(); c.restore();
+    { const sg=c.createLinearGradient(0,-hh*.95,0,-hh*.25); sg.addColorStop(0,'rgba(255,255,255,0)'); sg.addColorStop(.55,'rgba(255,255,255,.2)'); sg.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(L*.08,-hh*.6,L*.3,hh*.16,-.06,0,7); c.fill(); }
+    c.fillStyle='rgba(255,255,255,.16)'; c.beginPath(); c.ellipse(L*.3,-hh*.42,L*.06,hh*.07,-.3,0,7); c.fill();
     if(d.ember){ c.fillStyle=f3Grad(c,'rgba(255,120,40,0)','rgba(255,120,40,.35)',0,hh); c.fillRect(-L*.5,0,L,hh); }
     if(d.frost){ c.fillStyle='rgba(220,240,255,.18)'; c.fillRect(-L*.5,-hh,L,hh*.5); }
     if(d.cosmic){ const r=v3rng(fish3Hash(sp.id)); c.fillStyle='rgba(255,255,255,.85)'; for(let i=0;i<10;i++) c.fillRect(-L*.3+r()*L*.7,-hh*.8+r()*hh*1.4,Math.max(.8,L*.01),Math.max(.8,L*.01)); }
