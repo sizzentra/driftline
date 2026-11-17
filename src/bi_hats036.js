@@ -195,3 +195,31 @@ Object.assign(HAT036,{
     c.strokeStyle='#f4d24a'; c.lineWidth=.4; c.beginPath(); for(let i=0;i<=12;i++){ const x=-6.2+i*1.1, y=-5.2+(i%2?-.7:.6); i?c.lineTo(x,y):c.moveTo(x,y); } c.stroke();
     c.fillStyle='rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(2.4,-11.4,2.6,1.2,-.5,0,7); c.fill(); },
 });
+// ---------------------------------------------------------------------
+// 0.3.6 outfit detail: real construction on the outfits that still read flat (drawn over the outfit, clipped to it)
+// ---------------------------------------------------------------------
+const _drawOutfit3_036=drawOutfit3;
+drawOutfit3=function(c,lk,D,f,t){ _drawOutfit3_036(c,lk,D,f,t); const o=lk.outfit; if(!OUT036[o]) return; c.save(); c.globalCompositeOperation="source-atop"; c.lineCap="round"; c.lineJoin="round"; try{ OUT036[o](c,lk,D,f,t||0); }catch(e){} c.restore(); };
+const OUT036={
+  hoodie(c,lk,D,f){ const oc=D(a3OC(lk,'#d8a020')), dk=mix(oc,'#000000',.32), lt=mix(oc,'#ffffff',.3), fx=sideFront(-44,f);
+    c.strokeStyle=D('#f4f0e8'); c.lineWidth=.45; c.beginPath(); c.moveTo(fx-1.2,-46); c.quadraticCurveTo(fx-.6,-42,fx-.9,-38.6); c.moveTo(fx-2.2,-46.2); c.quadraticCurveTo(fx-1.8,-42.6,fx-2.2,-39.4); c.stroke();
+    c.fillStyle=D('#c8c0b0'); c.beginPath(); c.arc(fx-.9,-38.4,.45,0,7); c.arc(fx-2.2,-39.2,.45,0,7); c.fill();
+    const py=-30.6, px=sideFront(-28,f); c.strokeStyle=v3rgba(dk,.7); c.lineWidth=.35; c.beginPath(); c.moveTo(px-.6,py-3.6); c.quadraticCurveTo(px-5.4,py-3.8,px-7,py+3); c.stroke();
+    c.strokeStyle=v3rgba(lt,.35); c.lineWidth=.25; c.beginPath(); c.moveTo(px-1,py-3.1); c.quadraticCurveTo(px-5,py-3.3,px-6.5,py+2.8); c.stroke();
+    c.fillStyle=v3rgba(dk,.55); c.fillRect(-9.6,-24.6,19.6,1.8); c.strokeStyle=v3rgba(dk,.6); c.lineWidth=.2; for(let x=-9;x<10;x+=.8){ c.beginPath(); c.moveTo(x,-24.6); c.lineTo(x,-22.8); c.stroke(); } },
+  raincoat(c,lk,D,f){ const oc=D(a3OC(lk,'#f2c230')), dk=mix(oc,'#000000',.4);
+    c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.moveTo(1.6,-44); c.quadraticCurveTo(3.2,-32,2,-18); c.lineTo(3,-18); c.quadraticCurveTo(4.4,-32,2.8,-44); c.closePath(); c.fill();
+    c.fillStyle='rgba(255,255,255,.12)'; c.beginPath(); c.moveTo(-3,-42); c.quadraticCurveTo(-2,-30,-3,-18); c.lineTo(-2.4,-18); c.quadraticCurveTo(-1.2,-30,-2.4,-42); c.closePath(); c.fill();
+    for(const y of [-40,-34,-28,-22]){ const x=sideFront(y,f)-1.5; c.strokeStyle=D('#3a2a1a'); c.lineWidth=.35; c.beginPath(); c.moveTo(x-1.2,y); c.lineTo(x+.6,y); c.stroke(); c.fillStyle=D('#c8a060'); c.beginPath(); if(c.roundRect) c.roundRect(x-.5,y-.45,1.4,.9,.4); else c.rect(x-.5,y-.45,1.4,.9); c.fill(); }
+    c.strokeStyle=v3rgba(dk,.5); c.lineWidth=.3; c.beginPath(); c.moveTo(-9.6,-17.4); c.lineTo(10,-17.4); c.stroke(); },
+  bathrobe(c,lk,D,f){ const oc=D(a3OC(lk,'#f0e6f4')), dk=mix(oc,'#000000',.22);
+    c.save(); c.globalAlpha*=.5; c.fillStyle=v3rgba(dk,.6); for(let r=0;r<16;r++) for(let k=0;k<12;k++){ const x=-9.4+k*1.65+(r%2)*.8, y=-46+r*2.1; c.beginPath(); c.arc(x,y,.32,0,7); c.fill(); } c.restore();
+    const bx=sideFront(-30,f)-1.6; c.fillStyle=mix(oc,'#000000',.12); c.beginPath(); c.ellipse(bx,-29.8,1.4,1.1,0,0,7); c.fill();
+    c.beginPath(); c.moveTo(bx-.6,-29.2); c.quadraticCurveTo(bx-1.6,-25.8,bx-1,-22.4); c.lineTo(bx+.2,-22.6); c.quadraticCurveTo(bx-.4,-25.8,bx+.4,-29); c.closePath(); c.fill();
+    c.beginPath(); c.moveTo(bx+.2,-29.2); c.quadraticCurveTo(bx+1,-26.4,bx+1.8,-23.6); c.lineTo(bx+2.8,-23.9); c.quadraticCurveTo(bx+1.8,-26.6,bx+1.2,-29.2); c.closePath(); c.fill();
+    c.strokeStyle=v3rgba(dk,.6); c.lineWidth=.25; c.beginPath(); c.moveTo(bx-1.1,-23); c.lineTo(bx+.1,-23.2); c.moveTo(bx+1.9,-24.2); c.lineTo(bx+2.7,-24.4); c.stroke(); },
+  clownsuit(c,lk,D,f){ const fx=sideFront(-44,f);
+    for(const [y,cl] of [[-40,'#e8303a'],[-33,'#2a8ae8'],[-26,'#f4c82a']]){ const x=sideFront(y,f)-1.4, gg=c.createRadialGradient(x-.4,y-.5,.2,x,y,1.6); gg.addColorStop(0,mix(cl,'#ffffff',.5)); gg.addColorStop(1,cl); c.fillStyle=gg; for(let i=0;i<7;i++){ const a=i/7*Math.PI*2; c.beginPath(); c.arc(x+Math.cos(a)*.7,y+Math.sin(a)*.7,.8,0,7); c.fill(); } }
+    c.fillStyle=D('#ffffff'); for(let i=0;i<9;i++){ const x=-6.4+i*1.6+(fx-6)*.0; c.beginPath(); c.ellipse(x,-46.4+Math.sin(i*1.3)*.3,1.2,1.5,(i-4)*.12,0,7); c.fill(); }
+    c.strokeStyle='rgba(160,160,180,.6)'; c.lineWidth=.22; for(let i=0;i<9;i++){ const x=-6.4+i*1.6; c.beginPath(); c.moveTo(x,-47.6); c.lineTo(x,-45.2); c.stroke(); } },
+};
