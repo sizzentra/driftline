@@ -311,5 +311,11 @@ function m33village(x,P,hz){ const wall=mix(P.lh,P.farHaze,.22), wallS=mix(wall,
     x.strokeStyle=mix(P.stoneD,P.farHaze,.2); x.lineWidth=.8; x.beginPath(); x.moveTo(X+w/2,top-H*.036); x.lineTo(X+w/2,top-H*.046); x.moveTo(X+w/2-1.6,top-H*.042); x.lineTo(X+w/2+1.6,top-H*.042); x.stroke();
     x.fillStyle=green; x.beginPath(); x.ellipse(X+w/2,base+H*.002,w*.8,H*.003,0,0,7); x.fill(); } }
 // the Starfall waterfalls are drawn over the scenery so they visibly pour past the cloud bank into the lake
-m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; for(const k in F){ const [tt,fx,fy,w]=F[k]; m33fall(tt,fx,fy,w,hz);
+m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; for(const k in F){ const [tt,X,Y,w,h]=F[k], fx=X+w*1.02, fy=Y+h*.03;
+  // the source: a spring pool on the island, a stream across the grass, and the water spilling over the lip
+  { const px=X+w*.25, py=Y-h*.075, wc='rgba(200,230,255,.85)'; g.fillStyle=v3rgba(mix(P.isl,'#000000',.25),.6); g.beginPath(); g.ellipse(px,py+h*.012,w*.2,h*.04,0,0,7); g.fill(); g.fillStyle=wc; g.beginPath(); g.ellipse(px,py,w*.17,h*.03,0,0,7); g.fill(); g.fillStyle='rgba(255,255,255,'+(.45+.3*Math.sin(tt*2.4))+')'; g.beginPath(); g.ellipse(px-w*.05,py-h*.006,w*.06,h*.008,0,0,7); g.fill();
+    g.strokeStyle=wc; g.lineCap='round'; g.lineWidth=Math.max(1.4,w*.05); g.beginPath(); g.moveTo(px+w*.12,py); g.quadraticCurveTo(X+w*.6,Y-h*.06,X+w*.82,Y-h*.035); g.quadraticCurveTo(X+w*.96,Y-h*.02,fx,fy); g.stroke();
+    g.strokeStyle='rgba(255,255,255,.7)'; g.lineWidth=.8; for(let q=0;q<3;q++){ const u=((tt*.6+q/3)%1), sx=px+w*.12+(fx-px-w*.12)*u, sy=py+(fy-py)*u*u-h*.02*Math.sin(u*Math.PI); g.beginPath(); g.moveTo(sx,sy); g.lineTo(sx+w*.05,sy+h*.004); g.stroke(); }
+    g.fillStyle='rgba(230,245,255,.8)'; g.beginPath(); g.ellipse(fx-w*.01,fy,w*.05,h*.022,.4,0,7); g.fill(); }
+  m33fall(tt,fx,fy,w,hz);
   g.save(); g.globalAlpha=.18; const rg=g.createLinearGradient(0,hz+H*.012,0,hz+H*.08); rg.addColorStop(0,'rgba(240,236,255,.9)'); rg.addColorStop(1,'rgba(240,236,255,0)'); g.fillStyle=rg; g.fillRect(fx-Math.max(1.4,w*.06),hz+H*.014,Math.max(2.8,w*.12),H*.066); g.restore(); } });

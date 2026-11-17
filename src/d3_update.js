@@ -10,7 +10,7 @@ const PATCHES = [
   'Several waters got a lot more love so none of them feel empty: new landmarks on the horizon, new wildlife, things floating by and new details in the foreground. Each one now has a signature of its own (go and find them).',
   'Some of the places you stand on have been refined, with more depth and detail.',
   'The lighthouse at Saltmarsh Coast now glows softly instead of throwing a hard beam, and its light shimmers on the water.',
-  'The waterfalls at Starfall Sea now pour all the way into the lake, with mist and spray where they land.',
+  'The waterfalls at Starfall Sea now start from a spring on their island, run across the grass, spill over the edge and pour all the way into the lake, with mist and spray where they land.',
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
