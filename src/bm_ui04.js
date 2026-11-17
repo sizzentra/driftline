@@ -896,3 +896,116 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .bwx-nav:not(.wd-nav) > button{min-height:34px!important}
 }
 </style>`);
+// the menu page never rubber-bands past its top or bottom (an older rule with a stronger selector kept "contain")
+document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscroll-behavior:none!important}</style>');
+{ const P=$('panel'); let y0=0; P.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true});
+  P.addEventListener('touchmove',e=>{ if(!MENU_OPEN||e.touches.length!==1) return; const dy=e.touches[0].clientY-y0; const atTop=P.scrollTop<=0, atEnd=P.scrollTop+P.clientHeight>=P.scrollHeight-1;
+    if((atTop&&dy>0)||(atEnd&&dy<0)){ let n=e.target; while(n&&n!==P){ const cs=getComputedStyle(n); if(/(auto|scroll)/.test(cs.overflowY)&&n.scrollHeight>n.clientHeight+1) return; n=n.parentElement; } if(e.cancelable) e.preventDefault(); } },{passive:false}); }
+
+// =====================================================================
+// Two more chips in the top bar while fishing: Aquarium (income per hour; gold when coins are waiting) and Fish Log
+// (species found). Each opens its page. Sized per layout so nothing moves or gets cut.
+// =====================================================================
+(function(){ const hud=document.querySelector('.hud'), cool=$('coolerct'); if(!hud||!cool) return; const after=cool.closest('.stat');
+  const mk=(cls,lbl,go,title)=>{ const b=document.createElement('button'); b.type='button'; b.className='stat hudx '+cls; b.dataset.go=go; b.title=title; b.innerHTML='<span class="lbl">'+lbl+'</span><b>–</b>'; return b; };
+  const aq=mk('st-aq','Aquarium','aquarium','Aquarium: coins per hour (tap to open)'), lg=mk('st-log','Fish Log','journal','Fish Log: species found (tap to open)');
+  after.after(aq); aq.after(lg);
+  [aq,lg].forEach(b=>{ ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(b.dataset.go); }); });
+  const tick=()=>{ try{ const r=Math.round(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
+    const got=SP.filter(s=>S.journal[s.id]).length, lt=got+'/'+SP.length, lv=lg.querySelector('b'); if(lv.textContent!==lt) lv.textContent=lt; }catch(e){} };
+  tick(); setInterval(tick,1500); })();
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > .hudx{font:inherit;color:inherit;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.hud > .hudx:hover{border-color:#5a7ea8aa}
+.hud > .st-aq.ready{border-color:#ffd36a99;box-shadow:0 0 12px #ffd36a2e}
+.hud > .st-aq.ready b{color:var(--gold,#ffd36a)}
+/* wide screens */
+@media (min-width:701px){
+  body.dl-fish .hud > .st-aq{flex:.3 1 96px!important;min-width:78px;max-width:140px}
+  body.dl-fish .hud > .st-log{flex:.3 1 96px!important;min-width:78px;max-width:140px}
+}
+@media (min-width:701px) and (max-width:1099px){ body.dl-fish .hud > .hudx .lbl{font-size:9.5px;letter-spacing:0} body.dl-fish .hud > #goalchip{min-width:110px} }
+/* tablets / narrow windows (two rows): the water, the goal, aquarium and log share the second row */
+@media (min-width:701px) and (max-width:899px) and (min-height:561px){
+  body.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) minmax(0,1.25fr) auto!important;grid-template-areas:"coins lvl cool bait btns" "loc goal goal aq lg"!important}
+  body.dl-fish .hud > .st-aq{grid-area:aq}body.dl-fish .hud > .st-log{grid-area:lg}
+}
+/* phones upright: coins, level, cooler, aquarium, bait on top; the Fish Log rides on the right of the goal row */
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.72fr) minmax(0,.95fr) minmax(0,1.2fr)!important}
+body.phone-app.dl-fish .hud > #goalchip{grid-column:1 / 5!important}
+body.phone-app.dl-fish .hud > .st-log{grid-column:5;order:10;height:30px!important;flex-direction:row;align-items:center;justify-content:center;gap:4px;padding:0 6px!important}
+body.phone-app.dl-fish .hud > .st-log .lbl{display:none}
+body.phone-app.dl-fish .hud > .st-log b::before{content:"📖 ";font-size:11px}
+body.phone-app.dl-fish .hud > .st-log b{font-size:12.5px}
+body.phone-app.dl-fish .hud > .stat{padding-left:7px!important;padding-right:5px!important}
+body.phone-app.dl-fish .hud > .stat .lbl{font-size:9px;letter-spacing:.04em}
+body.phone-app.dl-fish .hud > .stat b{font-size:14px}
+/* phones sideways: compact chips; below 800 px wide the Fish Log is left to the goal and the menu */
+@media (orientation:landscape) and (max-height:560px){
+  body.dl-fish .hud{grid-template-columns:minmax(66px,.8fr) minmax(62px,.7fr) max-content minmax(0,1.9fr) minmax(54px,.55fr) minmax(60px,.65fr) minmax(60px,.65fr) minmax(88px,.85fr)!important}
+  body.dl-fish .hud > .stat{padding-left:7px!important;padding-right:5px!important}
+  body.dl-fish .hud > .stat .lbl{font-size:8.5px!important;letter-spacing:.03em}
+  body.dl-fish .hud > .stat b{font-size:12.5px!important}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  body.dl-fish .hud{grid-template-columns:minmax(64px,.8fr) minmax(60px,.7fr) max-content minmax(0,1.9fr) minmax(52px,.55fr) minmax(58px,.65fr) minmax(86px,.85fr)!important}
+  body.dl-fish .hud > .st-log{display:none!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.05fr) minmax(0,.82fr) minmax(0,.78fr) minmax(0,1fr) minmax(0,1.05fr)!important;gap:4px!important}
+body.phone-app.dl-fish .hud > .stat b{font-size:13px!important}
+body.phone-app.dl-fish .hud > .stat{padding-left:6px!important;padding-right:4px!important}
+body.phone-app.dl-fish .hud .coin::before{margin-right:3px}
+@media (max-width:379px){ body.phone-app.dl-fish .hud > .stat b{font-size:12px!important} body.phone-app.dl-fish .hud > .stat .lbl{font-size:8.5px!important} body.phone-app.dl-fish .hud > .stat{padding-left:5px!important;padding-right:3px!important} }
+</style>`);
+// phones: the cooler count without spaces ("140/140") so the biggest cooler still fits its chip
+{ const c=$('coolerct'); if(c&&window.MutationObserver){ const fix=()=>{ const bc=document.body.classList; if(!(bc.contains('phone-app')||bc.contains('phone-land'))) return; const t=c.textContent; if(/\s\/\s/.test(t)) c.textContent=t.replace(/\s*\/\s*/,'/'); }; new MutationObserver(fix).observe(c,{childList:true,characterData:true,subtree:true}); fix(); addEventListener('resize',()=>setTimeout(fix,60)); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.06fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1.16fr)!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* ===== top bar, final sizing (every value, even the biggest, fits; nothing jumps) ===== */
+/* PCs 1100 px and wider: one row; the number chips are as wide as they need, the goal takes the rest */
+@media (min-width:1100px) and (min-height:561px){
+  html body.dl-fish .hud{display:flex!important;flex-wrap:nowrap!important}
+  html body.dl-fish .hud > .st-coins{flex:0 0 auto!important;min-width:104px;max-width:none}
+  html body.dl-fish .hud > .st-lvl{flex:0 0 120px!important;max-width:none}
+  html body.dl-fish .hud > .stat.loc{flex:0 0 auto!important;max-width:none}
+  html body.dl-fish .hud > #goalchip{flex:1 1 0!important;min-width:120px;max-width:520px}
+  html body.dl-fish .hud > .st-cool{flex:0 0 auto!important;min-width:84px;max-width:none}
+  html body.dl-fish .hud > .st-aq{flex:0 0 auto!important;min-width:100px;max-width:none}
+  html body.dl-fish .hud > .st-log{flex:0 0 auto!important;min-width:90px;max-width:none}
+  html body.dl-fish .hud > .st-buff{flex:0 0 auto!important;min-width:90px;max-width:none}
+  html body.dl-fish .hud > .st-bait{flex:0 1 160px!important;min-width:124px;max-width:200px}
+  html body.dl-fish .hud > .stat b{white-space:nowrap}
+}
+@media (min-width:1100px) and (max-width:1599px) and (min-height:561px){
+  html body.dl-fish .hud > .brand,html body.dl-fish .hud > .st-buff{display:none!important}
+  html body.dl-fish .hud #searchbtn .sbl{display:none}
+  html body.dl-fish .hud #settingsbtn{font-size:0!important;width:48px;padding:0!important}
+  html body.dl-fish .hud #settingsbtn::before{content:"⚙";font-size:19px}
+}
+/* tablets and windows 701-1099 px: two rows - the numbers on top, the water and the goal under them */
+@media (min-width:701px) and (max-width:1099px) and (min-height:561px){
+  html body.dl-fish .hud{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1.3fr) auto!important;grid-template-areas:"coins lvl cool aq lg bait btns" "loc loc goal goal goal goal goal"!important;gap:6px!important}
+  html body.dl-fish .hud > *{height:44px!important;min-width:0!important;max-width:none!important;flex:none!important}
+  html body.dl-fish .hud > .brand,html body.dl-fish .hud > .st-buff{display:none!important}
+  html body.dl-fish .hud > .st-coins{grid-area:coins}html body.dl-fish .hud > .st-lvl{grid-area:lvl}html body.dl-fish .hud > .st-cool{grid-area:cool}html body.dl-fish .hud > .st-aq{grid-area:aq}html body.dl-fish .hud > .st-log{grid-area:lg}html body.dl-fish .hud > .st-bait{grid-area:bait}html body.dl-fish .hud > .hudbtns{grid-area:btns}html body.dl-fish .hud > .stat.loc{grid-area:loc}html body.dl-fish .hud > #goalchip{grid-area:goal}
+  html body.dl-fish .hud > .stat b{font-size:15px!important}
+  html body.dl-fish .hud > .stat{padding-left:8px!important;padding-right:6px!important}
+}
+/* phones sideways: one fixed grid sized for the biggest values */
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .hud{display:grid!important;grid-template-columns:76px 64px max-content minmax(0,1fr) 62px 72px 62px 88px!important;gap:5px!important}
+  html body.dl-fish .hud > *{min-width:0!important;max-width:none!important;flex:none!important}
+  html body.dl-fish .hud > .brand,html body.dl-fish .hud > .st-buff,html body.dl-fish .hud > .hudbtns{display:none!important}
+  html body.dl-fish .hud > .stat b{font-size:12.5px!important}
+  html body.dl-fish .hud > .stat .lbl{font-size:8.5px!important}
+  html body.dl-fish .hud > .stat{padding-left:6px!important;padding-right:4px!important}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  html body.dl-fish .hud{grid-template-columns:76px 62px max-content minmax(0,1fr) 62px 72px 86px!important}
+  html body.dl-fish .hud > .st-log{display:none!important}
+}
+</style>`);
