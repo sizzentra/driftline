@@ -9,7 +9,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - **Trophy room (name undecided):** new voyage currently keeps the aquarium (a balance problem). Plan: the aquarium empties on a new voyage; a trophy room keeps chosen fish forever with no income or buffs. Look: walnut panels, carved plaques under spotlights, brass nameplates, gold frames for legendaries. Open: spots per species?, last chance to move aquarium fish on retire?, free or a fee?
   - **Decoration overhaul** (director): "outdated"; much more realism and detail, correct placement and physics on every dock, every fishing spot and the aquarium.
   - **Hat polish** (director): more detail and polish on every hat.
-- **Live version: 0.3.4.1 (aquarium numbers hotfix, 2026-11-17) on top of 0.3.4 "Sea Legs"** (shipped 2026-11-16, director approved; 0.3.3.1, 0.3.3, 0.3.2, 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
+- **Live version: 0.3.4.2 (cooler and catch card fixes: typed price filter, Sell shinies too toggle, catch card income line, 2026-11-17) on top of 0.3.4 "Sea Legs"** (shipped 2026-11-16, director approved; 0.3.3.1, 0.3.3, 0.3.2, 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
   - **2.2 "Closer Together":** moving progress with a 6-digit code, gift codes, and Lily.
