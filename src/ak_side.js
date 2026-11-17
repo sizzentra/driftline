@@ -374,7 +374,6 @@ function curlMass(c){ c.beginPath(); c.moveTo(6.8,-60.2); c.bezierCurveTo(8.6,-6
 const CURL_CELLS=(()=>{ const out=[]; let s=7; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; for(let y=-68.8;y<=-50;y+=2.05) for(let x=-9.6;x<=7.6;x+=2.15){ if(rnd()<.12) continue; out.push([x+(rnd()-.5)*1.5,y+(rnd()-.5)*1.3,1.0+rnd()*.7,rnd()*Math.PI*2]); } return out; })();
 // points along the outline, for the little curls that make its edge bumpy
 const CURL_EDGE=(()=>{ const pts=[], ctrl=[[6.8,-60.2],[7.9,-62.6],[7.6,-65.4],[5.6,-67.9],[2.8,-69.3],[0,-69.6],[-3,-69.4],[-5.8,-68.3],[-8,-66.2],[-9.4,-63.2],[-9.8,-59.6],[-9.6,-56.2],[-9,-53.2],[-7.8,-50.8],[-6,-49.4],[-3.8,-49.6]]; for(let i=0;i<ctrl.length-1;i++){ const [x0,y0]=ctrl[i],[x1,y1]=ctrl[i+1], n=Math.max(1,Math.round(Math.hypot(x1-x0,y1-y0)/1.5)); for(let k=0;k<n;k++){ const u=k/n; pts.push([x0+(x1-x0)*u,y0+(y1-y0)*u]); } } return pts; })();
-HAIRSTYLES.splice(HAIRSTYLES.findIndex(h=>h[0]==='curly')+1,0,['coils','Coils']);
 function a3EarOver(){ if(!A3SKIN) return null; return A3SKIN; }
 function drawEar3(c){ const s=a3EarOver(); if(!s) return; const [sk,skD]=s; c.fillStyle=sk; c.beginPath(); c.ellipse(-1.8,-55.4,1.8,2.3,0,0,7); c.fill(); c.fillStyle=skD; c.beginPath(); c.ellipse(-1.6,-55.3,.85,1.25,0,0,7); c.fill(); c.fillStyle='rgba(255,240,225,.3)'; c.beginPath(); c.ellipse(-2.4,-56.2,.5,.9,0,0,7); c.fill(); }
 
@@ -411,14 +410,17 @@ const CURLY_LOBES=[ // x, y, rx, ry, rotation, curl type
   [1.2,-61.8,2.3,1.8,.2,'S'],[5.4,-61.5,2.4,1.8,.35,'C'],[.4,-58.6,1.4,1.3,.8,'C'],[6.8,-59.8,1.35,1.25,.7,'C'],
   [-1.9,-57,1.9,2.1,-1,'C'],[-2.4,-54.2,1.6,1.8,-1.2,'S'],[-4.4,-52.2,1.5,1.5,-1.3,'C']]; /* curls fall over the ear */
 function curlyCap(c){ c.beginPath(); c.moveTo(6.6,-60.2); c.bezierCurveTo(7.4,-63.6,4.6,-66.4,0,-66.4); c.bezierCurveTo(-4.8,-66.4,-8.2,-63.4,-8.4,-58.6); c.bezierCurveTo(-8.5,-55,-7.8,-52.2,-6.2,-50.8); c.bezierCurveTo(-4.8,-51.2,-3.6,-52,-3.2,-53.2); c.bezierCurveTo(-2.4,-55.8,-1.4,-57.6,.6,-58.6); c.bezierCurveTo(2.6,-59.6,4.6,-59.6,6.6,-60.2); c.closePath(); }
-function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
+var A3HATON=false;
+// under a hat the curls sit tight to the head: only the ones below the brim, pulled in so nothing pokes out around it
+function curlyLobes(){ if(!A3HATON) return CURLY_LOBES; return CURLY_LOBES.filter(L=>L[1]>-61.5).map(([x,y,rx,ry,r,ty])=>[x*.86,y+(y<-58?1:0),rx*.8,ry*.8,r,ty]); }
+function drawCurly3(c,hair,hairC,D,t){ const LOBES=curlyLobes(), base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
   const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
   // soft outline: the whole shape a touch larger in the shadow tone, then the base colour over it
-  c.fillStyle=shade; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,.32); c.fill(); }
-  c.fillStyle=base; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,0); c.fill(); }
+  c.fillStyle=shade; (A3HATON?0:(curlyCap(c),c.fill())); for(const L of LOBES){ lobe(L,.32); c.fill(); }
+  c.fillStyle=base; (A3HATON?0:(curlyCap(c),c.fill())); for(const L of LOBES){ lobe(L,0); c.fill(); }
   // each cluster: a shadow under its lower edge, the curl's line, and a light sweep on top
   c.lineCap='round'; c.lineJoin='round';
-  for(const [x,y,rx,ry,r,ty] of CURLY_LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
+  for(const [x,y,rx,ry,r,ty] of LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
     c.save(); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.clip();
     c.fillStyle=v3rgba(shade,.7); c.beginPath(); c.ellipse(x+sn*s*.35,y+cs*s*.45,rx*.95,ry*.55,r,0,7); c.fill();
     c.fillStyle=base; c.beginPath(); c.ellipse(x-sn*s*.15,y-cs*s*.2,rx*.86,ry*.72,r,0,7); c.fill();
@@ -430,3 +432,14 @@ function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), shade=D(mix(hairC,'#
     c.strokeStyle=v3rgba(light,.85); c.lineWidth=.5; c.beginPath(); c.ellipse(x-sn*s*.08,y-cs*s*.12,rx*.68,ry*.58,r,Math.PI*1.2,Math.PI*1.72); c.stroke();
     c.restore(); }
   }
+if(S&&S.look&&S.look.hairStyle==='coils') S.look.hairStyle='curly';
+
+// ---------- spiky hair (0.3.3.1): swept-back tufts that grow out of the scalp along the curve of the head, varied
+// in length, each lit on its leading edge; under a hat only the short fringe and sides show ----------
+function drawSpiky3(c,hair,hairC,D,t,cap){ cap(); if(A3HATON) return; const base=D(hairC), dk=D(mix(hairC,'#000000',.3)), lt=D(mix(hairC,'#ffffff',.3));
+  const tufts=[[1.15,3.2],[1.28,4.4],[1.42,5.2],[1.56,5.4],[1.7,5],[1.84,4.4],[1.97,3.4]]; // angle on the head (x PI), length
+  for(let pass=0;pass<2;pass++) for(const [a,L] of tufts){ const ang=a*Math.PI, bx=Math.cos(ang)*7.3, by=-57+Math.sin(ang)*7.3, nx=Math.cos(ang), ny=Math.sin(ang), sw=-.55; // sweep toward the back
+    const dx=nx*Math.cos(sw)-ny*Math.sin(sw), dy=nx*Math.sin(sw)+ny*Math.cos(sw), tx=bx+dx*L, ty=by+dy*L, w=1.9, px=-ny*w, py=nx*w;
+    c.fillStyle=pass?base:dk; c.beginPath(); c.moveTo(bx-px*(pass?1:1.15),by-py*(pass?1:1.15)); c.quadraticCurveTo(bx+dx*L*.55-px*.4,by+dy*L*.55-py*.4,tx,ty); c.quadraticCurveTo(bx+dx*L*.45+px*.6,by+dy*L*.45+py*.6,bx+px*(pass?1:1.15),by+py*(pass?1:1.15)); c.closePath(); c.fill();
+    if(pass){ c.strokeStyle=v3rgba(lt,.7); c.lineWidth=.45; c.beginPath(); c.moveTo(bx-px*.4,by-py*.4); c.quadraticCurveTo(bx+dx*L*.5-px*.2,by+dy*L*.5-py*.2,tx,ty); c.stroke(); } }
+  c.fillStyle=base; c.beginPath(); c.arc(0,-57,7.6,Math.PI*1.08,Math.PI*1.95); c.lineTo(6,-60); c.quadraticCurveTo(0,-62.4,-6.6,-58); c.closePath(); c.fill(); }

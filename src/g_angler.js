@@ -195,7 +195,7 @@ function a3Body(c,x,y,s,lk,o,live){
   else if(mood==='focus'){ c.beginPath(); c.moveTo(4.4,-52.7); c.lineTo(6.4,-52.9); c.stroke(); }
   else a3Mouth(c,lk.mouth,D);
   const beardOn=lk.beard&&lk.beard!=='none'&&!A3_HAT_FULL.has(lk.hat||'none'); drawFace(c,beardOn?Object.assign({},lk,{beard:'none'}):lk,D,hair); const headM=c.getTransform(); /* the beard is drawn after the front arm: the face juts out in front of the shoulder */
-  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } drawHair3(c,hs,hairF,hairC,D,t); c.restore(); }
+  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } A3HATON=hatCover; drawHair3(c,hs,hairF,hairC,D,t); A3HATON=false; c.restore(); }
   a3Brow(c,lk.brows,D(mix(hairC,'#000000',.15)),ex,browY+.4,mood); /* brows sit over the fringe so they always show */
   // hats sit above the eye line, so the face always reads (no hole is ever cut into a hat)
   // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
@@ -226,8 +226,8 @@ function drawHair3(c,hs,hair,hairC,D,t){
     case 'ponytail': case 'bun': cap(); c.fillStyle=hair; c.fillRect(-7.2,-60,1.4,1); break;
     case 'buzz': c.save(); c.globalAlpha*=.8; c.fillStyle=hair; c.beginPath(); c.arc(0,-56.6,7.85,Math.PI*1.02,Math.PI*1.97); c.quadraticCurveTo(4,-59.6,0,-59.4); c.quadraticCurveTo(-2.4,-58.6,-2.6,-55); c.lineTo(-6.8,-54.6); c.closePath(); c.fill(); c.restore(); break;
     case 'curly': drawCurly3(c,hair,hairC,D,t); break;
-    case 'coils': drawCoils3(c,hair,hairC,D,t); break;
-    case 'spiky': cap(); c.fillStyle=hair; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0-1.7,-61.6); c.lineTo(x0+.6,-68.2+((i*5)%3)); c.lineTo(x0+1.7,-61.6); } c.fill(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0,-62); c.lineTo(x0+.5,-66.6+((i*5)%3)); } c.stroke(); break;
+    case 'coils': drawCurly3(c,hair,hairC,D,t); break; /* Coils was removed (0.3.3.1): old saves show Curly */
+    case 'spiky': drawSpiky3(c,hair,hairC,D,t,cap); break;
     case 'bald': c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); break;
     default: cap();
   }

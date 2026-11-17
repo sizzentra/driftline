@@ -3,8 +3,13 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.3';
+const GAME_VERSION = '0.3.3.1';
 const PATCHES = [
+ {v:'0.3.3.1', name:'Hair Hotfix', items:[
+  'Curly hair no longer pokes out around hats: under a hat the curls sit neatly below the brim.',
+  'Spiky hair has been redrawn: swept-back spikes that grow from the head, and it sits properly under hats.',
+  'The Coils hairstyle has been removed for now. If you were wearing it, you now have Curly.',
+ ]},
  {v:'0.3.3', name:'Every Water Special', items:[
   '## The waters',
   'Several waters got a lot more love so none of them feel empty: new landmarks on the horizon, new wildlife, things floating by and new details in the foreground. Each one now has a signature of its own (go and find them).',
