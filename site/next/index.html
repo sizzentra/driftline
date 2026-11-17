@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0059';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0154';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1076,6 +1076,229 @@ const PETS = [
  ['snowman','Little Snowman','calm',.2,'prize',2000,'Won with tickets at the Prize Counter. Somehow never melts.'],
 ].map(a=>({id:a[0],name:a[1],k:a[2],v:a[3],src:a[4],price:a[5],d:a[6]}));
 const PETI = Object.fromEntries(PETS.map(p=>[p.id,p]));
+// =====================================================================
+// 0.3.6 "Fifty Fathoms": every water grows to 50 fish, plus a school of silly meme fish on top.
+// New fish take their numbers from the median of their own water and rarity (value, weight, strength), with a
+// little steady per-fish variety, so the balance curve of each water stays exactly where it was.
+// Rarity odds per water do not change with more species (see rarBase in au_fix034.js): each rarity keeps its share.
+// Format: [id, name, rarity 0-4, size factor, time any/day/night, behaviour, shape, pattern 0-2, colour, belly, body height, note]
+// =====================================================================
+(function(){
+const NEW={
+ pond:[
+  ['mosquitofish','Mosquitofish',0,.8,'day','dart','f',0,'#8f9a80','#e6e2c8',.34,'Eats its weight in mosquitoes. A hero, honestly.'],
+  ['rosyred','Rosy Red Minnow',0,.9,'any','dart','f',0,'#e0866a','#ffd8c0',.32,'Bred pink. Fled the bait shop. Living the dream.'],
+  ['bitterling','Bitterling',0,.8,'day','calm','f',1,'#9ab0c8','#f0d8e8',.4,'Lays its eggs inside mussels. Rent-free.'],
+  ['pondsmelt','Pond Smelt',0,1,'night','dart','f',0,'#b8c8c0','#eef2ea',.26,'Smells faintly of cucumber. Nobody knows why.'],
+  ['goldenorfe','Golden Orfe',1,1,'day','run','f',0,'#e8a03a','#fff0c0',.36,'A golden streak that loves the surface.'],
+  ['warmouth','Warmouth',1,.9,'any','thrash','f',2,'#6a5a3a','#d8b878',.48,'Big mouth, bad attitude, great fun.'],
+  ['spottedgar','Spotted Gar',1,1.2,'night','sulk','e',2,'#7a7a4a','#d8d0a0',.2,'A living fossil with a needle nose.'],
+  ['blackcrappie','Black Crappie',2,1,'night','thrash','f',2,'#3a4a3a','#c8d0b0',.5,'Speckled like a starry night.'],
+  ['lilytrout','Lily Trout',2,.9,'day','jump','f',2,'#5a8a6a','#f0e0b0',.34,'Hides under lily pads and leaps for flies.'],
+  ['mudpuppy','Mudpuppy',2,1.1,'night','sulk','e',2,'#6a5a4a','#a89878',.3,'Not a fish. Not a puppy. Still a catch.'],
+  ['ghostgar','Ghost Gar',3,1.1,'night','run','e',0,'#d8e0e8','#ffffff',.2,'Pale as moonlight. Seen at midnight only.'],
+  ['willowpike','Willow Pike',3,1,'any','run','e',1,'#5a7a3a','#e8e0a0',.24,'Ambushes from the willow roots.'],
+  ['pondking','Old King Carp',4,1,'night','sulk','f',2,'#8a6a2a','#f0d090',.5,'Older than the boathouse and twice as grumpy.'],
+ ],
+ river:[
+  ['stoneroller','Stoneroller',0,.9,'day','dart','f',0,'#8a8070','#e0d8c0',.32,'Rolls pebbles to build its nest.'],
+  ['logperch','Logperch',0,1,'any','dart','f',1,'#a89060','#f0e8c8',.28,'Flips stones with its nose looking for snacks.'],
+  ['brookstickle','Brook Stickleback',0,.8,'any','thrash','f',1,'#6a7a4a','#d8e0b0',.3,'Five spines and zero fear.'],
+  ['fallfish','Fallfish',1,1,'day','run','f',0,'#a8b0b8','#eef2f4',.32,'Builds stone piles taller than itself.'],
+  ['goldeye','Goldeye',1,1,'night','jump','f',0,'#c8c0a0','#f8f0d0',.36,'Golden eyes that see in murky water.'],
+  ['mooneye','Mooneye',1,.9,'night','jump','f',0,'#b8c8d8','#f4f8fc',.36,'A silver moon of a fish.'],
+  ['riverbuffalo','Bigmouth Buffalo',1,1.2,'any','sulk','f',0,'#6a6a5a','#c8c0a8',.46,'Heavy, slow and strong as an ox.'],
+  ['brooktrout','Brook Trout',2,.9,'day','jump','f',2,'#4a6a4a','#f0a060',.34,'Worm-marked back, flame-orange belly.'],
+  ['rainbowtrout','Rainbow Trout',2,1,'any','jump','f',2,'#6a8a9a','#f0b0c0',.34,'A rainbow stripe down each side.'],
+  ['blueriverchub','Blue River Chub',2,1,'day','run','f',0,'#4a7aa8','#e0ecf4',.36,'Turns bright blue in spring.'],
+  ['lakesturgeon','Lake Sturgeon',3,1,'any','sulk','s',2,'#6a6a6a','#d0d0c8',.26,'Bony plates and a hundred-year memory.'],
+  ['rapidsrunner','Rapids Runner',3,1,'day','run','f',1,'#3a6a8a','#d8e8f0',.3,'Only rests in white water.'],
+  ['brookdragon','Brook Dragon',4,1,'night','run','e',1,'#2a6a5a','#e0c070',.26,'A trout with a dragon’s temper.'],
+ ],
+ coast:[
+  ['blenny','Shore Blenny',0,.8,'day','dart','f',2,'#8a7a5a','#e8dcc0',.32,'Hops between rock pools like a tiny frog.'],
+  ['goby','Rock Goby',0,.8,'any','dart','f',2,'#7a6a5a','#d8c8a8',.3,'Sits on rocks. Judges you.'],
+  ['sandsmelt','Sand Smelt',0,1,'day','dart','f',0,'#c0c8c0','#f4f6f0',.26,'A silver stripe that flashes in the surf.'],
+  ['shorecrab','Shore Crab',0,1,'any','thrash','c',0,'#4a6a3a','#d8c890',.4,'Pinches first, asks never.'],
+  ['garfishcoast','Coastal Garfish',1,1,'day','jump','e',0,'#4a8a8a','#e8f4f0',.18,'Green bones and a beak like a heron.'],
+  ['pipefish','Pipefish',1,.6,'day','calm','e',1,'#7a8a5a','#e8e0b0',.16,'A seahorse that forgot to curl up.'],
+  ['tubgurnard','Tub Gurnard',1,1,'any','sulk','f',0,'#c86a4a','#f8d0b0',.4,'Walks on its fins and grunts when caught.'],
+  ['ballanwrasse','Ballan Wrasse',2,1,'day','thrash','f',2,'#5a8a5a','#f0c890',.42,'Changes from female to male as it grows.'],
+  ['bassmarsh','Saltmarsh Bass',2,1.1,'night','run','f',0,'#7a8a9a','#e8eef0',.36,'Hunts the marsh channels after dark.'],
+  ['lumpsucker','Lumpsucker',2,.9,'any','sulk','p',2,'#6a8a5a','#d8e0a0',.6,'Glues itself to rocks with a suction cup belly.'],
+  ['tope','Tope Shark',2,1,'any','run','s',0,'#7a8a96','#e8eef2',.26,'A slim, tireless little shark.'],
+  ['angelshark','Angel Shark',3,1,'night','sulk','r',2,'#a89878','#e8dcc0',.2,'Half shark, half rug, all ambush.'],
+  ['tarpon','Silver Tarpon',3,1,'day','jump','f',0,'#c8d0d8','#f8fafc',.32,'The silver king of jumpers.'],
+  ['lighthousegrouper','Lighthouse Grouper',4,1,'night','sulk','f',2,'#c87a3a','#f8e0a0',.48,'Lives under the lighthouse and glows like it.'],
+ ],
+ frost:[
+  ['arcticgrayling','Arctic Grayling',0,1,'day','jump','f',2,'#7a8aa8','#e8eef8',.32,'A sail-like fin dotted with purple.'],
+  ['snowminnow','Snow Minnow',0,.8,'any','dart','f',0,'#d8e0e8','#ffffff',.3,'White as the ice it hides under.'],
+  ['frostsculpin','Frost Sculpin',0,1,'night','sulk','f',2,'#7a8890','#d8e0e4',.4,'Mostly head. Mostly grumpy.'],
+  ['iceshrimp','Ice Shrimp',0,.8,'any','dart','c',0,'#f0b0a0','#fff0e8',.3,'Translucent and crunchy.'],
+  ['arcticchar','Arctic Char',1,1,'night','run','f',2,'#4a5a7a','#f0906a',.34,'Red-bellied and cold-blooded.'],
+  ['blizzardcisco','Blizzard Cisco',1,1,'any','dart','f',0,'#b8c8d8','#f4f8fc',.3,'Schools so tight they look like snowfall.'],
+  ['polarwolf','Polar Wolffish',1,1.1,'night','thrash','e',1,'#6a7a8a','#c8d4dc',.3,'Teeth like an ice pick.'],
+  ['frostburbot','Frost Burbot',2,1,'night','sulk','e',2,'#7a7a5a','#d8d8b8',.28,'Spawns under the ice in the dead of winter.'],
+  ['glacierperch','Glacier Perch',2,1,'any','thrash','f',1,'#6a9ab8','#e8f4fc',.4,'Striped blue like a crevasse.'],
+  ['narwhalfish','Narwhal Fish',2,1.1,'any','run','f',0,'#9aa8b8','#eef2f6',.3,'Has a little tusk. Very proud of it.'],
+  ['northernlight','Northern Lightfish',2,.9,'night','dart','f',0,'#6ad8b8','#c8f8ff',.32,'Glows green when the aurora is out.'],
+  ['tuskpike','Tusk Pike',3,1,'any','run','e',1,'#5a6a7a','#dce4ea',.24,'Breaks through thin ice to grab prey.'],
+  ['whitecharmer','White Charmer',3,1,'night','calm','f',0,'#e8f0f8','#ffffff',.34,'So pale you can see its heartbeat.'],
+  ['blizzardking','Blizzard King',4,1,'night','sulk','s',1,'#8aa8c8','#f0f6fc',.28,'Arrives with the blizzard. Leaves with your line.'],
+ ],
+ reef:[
+  ['neongoby','Neon Goby',0,.8,'day','dart','f',1,'#3a8ad8','#c8f0ff',.3,'Runs a cleaning station for bigger fish.'],
+  ['royalgramma','Royal Gramma',0,.9,'day','dart','f',0,'#a84ad8','#ffd84a',.34,'Half purple, half gold, fully fabulous.'],
+  ['firegoby','Fire Goby',0,.8,'day','dart','f',0,'#f0f0e8','#e8483a',.3,'Flicks its red tail like a lit match.'],
+  ['blueChromis','Blue Chromis',0,1,'any','dart','f',0,'#4aa8e8','#d8f4ff',.38,'A blue confetti cloud over the coral.'],
+  ['mandarinfish','Psychedelic Mandarin',1,.8,'night','calm','f',2,'#3a8ae8','#f8a03a',.4,'Looks like someone painted it in a dream.'],
+  ['harlequintusk','Harlequin Tuskfish',1,1,'day','thrash','f',1,'#e86a3a','#7ad8f8',.44,'Blue teeth and orange stripes. Iconic.'],
+  ['flamehawk','Flame Hawkfish',1,.8,'day','dart','f',0,'#e8302a','#ff8a6a',.4,'Perches on coral like a tiny red hawk.'],
+  ['cowfish','Longhorn Cowfish',1,.9,'day','calm','p',2,'#f0d040','#fff4b0',.6,'Has horns. Moos internally.'],
+  ['picassotrigger','Picasso Triggerfish',1,1,'day','thrash','f',1,'#c8c0a0','#f8f0d8',.5,'Abstract art with fins.'],
+  ['regalangel','Regal Angelfish',2,1,'day','calm','f',1,'#e8a03a','#4a6ad8',.6,'Royal blue and gold bands.'],
+  ['moorishidol','Moorish Idol',2,.9,'day','calm','f',1,'#f8f0d0','#2a2a30',.7,'Trails a long white streamer from its fin.'],
+  ['bumphead','Bumphead Parrotfish',2,1.2,'day','sulk','f',0,'#4a8a8a','#b8e0d0',.5,'Head-butts coral for breakfast.'],
+  ['ribboneel','Ribbon Eel',3,1,'night','calm','e',0,'#2a6ae8','#f8e040',.12,'An electric-blue ribbon with a yellow smile.'],
+  ['reeforacle','Reef Oracle',4,1,'night','calm','f',2,'#c8a0f0','#fff0ff',.5,'The coral seems to listen when it swims by.'],
+ ],
+ shelf:[
+  ['horsemackerel','Horse Mackerel',0,1,'any','dart','f',1,'#5a7a8a','#e8f0f4',.3,'Scutes along its side like a zipper.'],
+  ['anchovy','Anchovy',0,.6,'day','dart','f',0,'#8aa0b0','#f4f8fa',.26,'Travels in balls of a million friends.'],
+  ['pilchard','Pilchard',0,.8,'any','dart','f',0,'#6a8aa8','#f0f4f8',.3,'Shimmers like a scattered handful of coins.'],
+  ['butterfish','Butterfish',0,1,'any','calm','f',0,'#c0c8b8','#f4f4ea',.5,'Smooth, round and suspiciously buttery.'],
+  ['saury','Pacific Saury',0,1,'night','jump','e',0,'#4a6a9a','#e0ecf4',.18,'Skips over the waves at dusk.'],
+  ['bluerunner','Blue Runner',1,1,'day','run','f',0,'#4a7ab8','#e8f0f8',.34,'Never stops. Never tires. Never rests.'],
+  ['rainbowrunner','Rainbow Runner',1,1,'day','run','f',1,'#2a8ad8','#f8e870',.3,'Blue and yellow stripes at full speed.'],
+  ['dorado','Gold Dorado',1,1.1,'day','jump','f',0,'#e8c03a','#7ad870',.4,'Flashes gold, green and blue when hooked.'],
+  ['lookdown','Lookdown',2,.9,'day','calm','f',0,'#d8dce4','#ffffff',.8,'Always looks disappointed in you.'],
+  ['sharksucker','Sharksucker',2,1,'any','sulk','f',1,'#5a5a6a','#d0d0d8',.26,'Hitchhikes on sharks. Rent-free since forever.'],
+  ['sunfishocean','Sun-dappled Sunfish',2,1.2,'day','calm','p',2,'#a8b8c8','#eef2f6',.8,'Lies flat on the waves to sunbathe.'],
+  ['bluefintuna','Bluefin Tuna',2,1.2,'day','run','s',0,'#2a3a6a','#d8e0ec',.32,'Built like a torpedo, fights like one too.'],
+  ['spearmarlin','Spear Marlin',3,1,'day','jump','s',0,'#2a4a7a','#e0e8f4',.26,'Its bill is longer than your arm.'],
+  ['shelfwarden','Shelf Warden',4,1,'any','run','s',1,'#3a5a7a','#e8c070',.3,'Patrols the drop-off like it owns it.'],
+ ],
+ deep:[
+  ['viperling','Viperling',0,.8,'night','dart','e',0,'#2a3a4a','#6a8aa0',.2,'Fangs too big for its tiny face.'],
+  ['bristlejaw','Bristlejaw',0,1,'night','dart','f',0,'#3a3a44','#7a7a88',.3,'Mouth full of bristles, belly full of plankton.'],
+  ['glasshead','Glasshead',0,.8,'night','calm','f',0,'#a8c8d8','#e8f8ff',.36,'You can see its brain. It is thinking about you.'],
+  ['deeplantern','Deep Lanternfish',0,1,'night','dart','f',2,'#2a3a5a','#8ad8f8',.32,'Covered in tiny lights like a city at night.'],
+  ['ribbonfish','Ribbonfish',0,1.1,'night','calm','e',0,'#c8d0e0','#f4f6fa',.14,'A silver ribbon that floats head-up.'],
+  ['blackdragon','Black Dragonfish',1,1,'night','thrash','e',2,'#1a1a24','#3a6aa8',.18,'Sees in red light nobody else can.'],
+  ['stoplight','Stoplight Loosejaw',1,1,'night','dart','e',2,'#2a2a34','#e8483a',.2,'A red light under each eye. Stop.'],
+  ['snipe','Abyssal Snipe Eel',1,1,'night','calm','e',0,'#5a4a3a','#a8987a',.12,'A beak that never quite closes.'],
+  ['ghostshark','Ghost Shark',2,1,'night','sulk','s',0,'#a8b0c0','#e8eef4',.26,'A pale wanderer from the edge of the dark.'],
+  ['pacificblackdragon','Night Scalefin',2,1,'night','run','f',2,'#1a2a3a','#4a8ab8',.3,'Scales that drink the light.'],
+  ['deepcod','Abyss Cod',2,1.1,'any','sulk','f',2,'#5a5a4a','#c8c0a0',.36,'A cod that took a wrong turn very far down.'],
+  ['fangjaw','Fangjaw',2,1,'night','thrash','f',0,'#2a2030','#8a4a5a',.36,'All teeth. Literally.'],
+  ['spookfish','Spookfish',2,.9,'night','calm','f',0,'#9aa0b0','#e0e4ec',.3,'Has mirrors for eyes. Spooky indeed.'],
+  ['deepcrown','Deep Crown',4,1,'night','sulk','s',2,'#2a2a4a','#c8a8f0',.3,'A crown of light glows on its brow.'],
+ ],
+ trench:[
+  ['seasnail','Hadal Seasnail',0,1,'any','calm','e',0,'#e8d8e8','#fff4ff',.3,'Pink, jelly-soft and perfectly happy at 8 km down.'],
+  ['brittlefish','Brittlefish',0,.8,'night','dart','f',0,'#c8b0a0','#f0e0d8',.32,'Snaps like a cracker if you stare too hard.'],
+  ['trenchshrimp','Trench Shrimp',0,.8,'any','dart','c',0,'#e86a5a','#ffc8b8',.3,'Bright red where red is invisible.'],
+  ['seatoad','Sea Toad',0,1,'night','sulk','p',2,'#8a6a5a','#d8c0b0',.6,'Walks along the bottom on its fins.'],
+  ['abyssworm','Abyss Worm',0,1,'any','sulk','e',0,'#c87a8a','#f0c8d0',.14,'It is a worm. It is also enormous.'],
+  ['tripodling','Tripodling',1,1,'any','calm','f',0,'#6a5a5a','#c0b0a8',.3,'Stands on three long fins and waits.'],
+  ['gulperling','Gulperling',1,1,'night','calm','e',0,'#1a1a24','#4a4a5a',.18,'Mostly mouth with a little fish attached.'],
+  ['glowsquid','Glow Squid',1,1,'night','dart','q',2,'#3a4a8a','#8ae8ff',.4,'Signals in waves of blue light.'],
+  ['ghostoctopus','Ghost Octopus',2,1,'night','calm','q',0,'#e8e8f0','#ffffff',.5,'So pale it was named after a cartoon ghost.'],
+  ['bigfin','Bigfin Squid',2,1.2,'night','calm','q',0,'#c8a8a0','#f0e0d8',.4,'Arms with elbows. Nobody likes that.'],
+  ['ambereye','Ambereye',2,1,'night','dart','f',0,'#3a2a20','#e8a03a',.3,'Eyes like two drops of amber.'],
+  ['hadalkeeper','Hadal Keeper',2,1,'night','sulk','f',2,'#4a4a5a','#a8a8c0',.36,'Guards the deepest point on the map.'],
+  ['trenchtitan','Trench Titan',3,1,'night','sulk','s',0,'#2a2a3a','#6a6a88',.28,'Older than the continents. Maybe.'],
+  ['voidjelly','Void Jelly',3,1,'night','calm','j',0,'#2a1a4a','#a87ae8',.6,'A hole in the dark that glows at the edges.'],
+  ['abyssheart','Heart of the Abyss',4,1,'night','sulk','f',2,'#3a1a3a','#e84a8a',.4,'It beats. You can hear it through the line.'],
+ ],
+ ember:[
+  ['cindertetra','Cinder Tetra',0,.8,'any','dart','f',0,'#e86a3a','#ffd8a0',.32,'Swims in sparks.'],
+  ['ashminnow','Ash Minnow',0,.8,'day','dart','f',0,'#8a8078','#d8d0c8',.3,'Grey as the ash it hides in.'],
+  ['magmaloach','Magma Loach',0,1,'night','sulk','e',2,'#c84a2a','#f8a060',.2,'Burrows into warm mud and naps.'],
+  ['sparkguppy','Spark Guppy',0,.8,'day','dart','f',1,'#f8a03a','#fff0a0',.32,'Its tail fizzles like a sparkler.'],
+  ['pumicefish','Pumice Fish',0,1,'any','calm','p',2,'#c8b8a8','#f0e8e0',.6,'Floats because it is full of holes.'],
+  ['ventshrimp','Vent Shrimp',0,.8,'any','dart','c',0,'#f86a4a','#ffd0b8',.3,'Grills itself on the vents. Smells great.'],
+  ['sootgoby','Soot Goby',0,.9,'night','dart','f',2,'#3a3030','#8a7a70',.3,'Leaves little black smudges everywhere.'],
+  ['brimstonedace','Brimstone Dace',0,1,'any','run','f',0,'#e8c03a','#fff4b0',.32,'Yellow as sulphur. Smells like it too.'],
+  ['geyserguppy','Geyser Guppy',0,.8,'day','jump','f',0,'#7ad8e8','#f0fcff',.32,'Rides the geysers just for fun.'],
+  ['lavaperch','Lava Perch',1,1,'any','thrash','f',1,'#d8483a','#ffc070',.44,'Glowing stripes that cool to black.'],
+  ['obsidianeel','Obsidian Eel',1,1,'night','run','e',0,'#1a1a20','#5a4a6a',.18,'Sharp as volcanic glass. Handle carefully.'],
+  ['flametrout','Flame Trout',1,1,'day','jump','f',2,'#e8783a','#ffe0a0',.34,'Leaps from the springs trailing steam.'],
+  ['basaltbass','Basalt Bass',1,1.1,'any','sulk','f',0,'#4a4a4a','#a8a098',.42,'Six-sided scales like basalt columns.'],
+  ['emberjelly','Ember Jelly',1,.9,'night','calm','j',0,'#f86a2a','#ffd060',.6,'Drifts like a floating coal.'],
+  ['steamwhisker','Steam Whisker',1,1,'night','sulk','f',2,'#7a6a5a','#d8c8b0',.38,'A catfish that breathes steam.'],
+  ['scoriacrab','Scoria Crab',1,1,'any','thrash','c',2,'#8a3a2a','#e8a080',.4,'Its shell is made of rough red lava rock.'],
+  ['magmapike','Magma Pike',2,1,'any','run','e',1,'#c83a2a','#ffb060',.24,'Molten stripes from snout to tail.'],
+  ['sulfurangel','Sulfur Angel',2,.9,'day','calm','f',1,'#f0d040','#fff8c0',.6,'Elegant, yellow and slightly toxic.'],
+  ['calderacarp','Caldera Carp',2,1.1,'any','sulk','f',2,'#c8682a','#f8d090',.48,'Lives in the hottest pool and loves it.'],
+  ['ashray','Ash Ray',2,1,'night','calm','r',2,'#6a6060','#c8c0b8',.2,'Glides over the bottom like falling ash.'],
+  ['blazefin','Blazefin',2,1,'day','jump','f',0,'#f8582a','#ffd080',.36,'Its fins flicker like real flames.'],
+  ['cindersquid','Cinder Squid',2,1,'night','dart','q',2,'#a82a2a','#f87a5a',.4,'Squirts smoke instead of ink.'],
+  ['infernoshark','Inferno Shark',3,1,'any','run','s',1,'#8a2a1a','#f8903a',.28,'Hunts where the water boils.'],
+  ['glasswyrm','Glass Wyrm',3,1,'night','run','e',0,'#2a1a2a','#c86aa8',.18,'A serpent of black glass with a pink glow.'],
+  ['pyroclast','Pyroclast',3,1,'day','thrash','f',2,'#5a3a2a','#f8783a',.44,'Bursts out of the water like an eruption.'],
+  ['moltenkoi','Molten Koi',3,1,'any','calm','f',2,'#f8a03a','#fff0c0',.46,'Gold that never cooled.'],
+  ['ashphoenix','Ash Phoenix',4,1,'day','jump','f',1,'#e8482a','#ffe060',.4,'Burns out, then rises from its own ashes.'],
+  ['calderaqueen','Caldera Queen',4,1,'night','sulk','s',2,'#4a1a1a','#f8a040',.3,'Rules the crater lake from its hottest pool.'],
+ ],
+ starfall:[
+  ['stardustfry','Stardust Fry',0,.8,'night','dart','f',2,'#4a5ab8','#d8e8ff',.3,'Sprinkled with tiny stars.'],
+  ['moonminnow','Moon Minnow',0,.8,'night','dart','f',0,'#c8d0e8','#ffffff',.3,'Waxes and wanes with the moon.'],
+  ['nebulagoby','Nebula Goby',0,.9,'any','dart','f',2,'#8a4ac8','#f0b8f8',.3,'A little swirl of purple space dust.'],
+  ['cloudperch','Cloud Perch',0,1,'day','calm','f',0,'#e8eef8','#ffffff',.42,'Soft as a cloud, floats like one too.'],
+  ['twilightdace','Twilight Dace',0,1,'any','run','f',0,'#6a5ab8','#f8c8a0',.3,'Coloured like the sky after sunset.'],
+  ['starshrimp','Star Shrimp',0,.8,'night','dart','c',0,'#f8d86a','#fff8d0',.3,'Five legs, five points, one star.'],
+  ['skyguppy','Sky Guppy',0,.8,'day','jump','f',0,'#7ac8f8','#f0faff',.32,'Leaps so high it touches the clouds.'],
+  ['meteorite','Meteorite Minnow',0,.9,'night','run','f',2,'#5a4a4a','#e8a06a',.3,'Hit the lake at the speed of light. Liked it.'],
+  ['quasarling','Quasarling',0,.8,'night','dart','f',0,'#f8f0ff','#a8c8ff',.32,'Tiny, but brighter than a thousand suns.'],
+  ['lunarpike','Lunar Pike',1,1,'night','run','e',2,'#9aa8c8','#f0f4ff',.24,'Pale craters dot its back.'],
+  ['cometcarp','Comet Carp',1,1,'any','sulk','f',2,'#4a6ad8','#d8e8ff',.46,'Trails a little tail of light.'],
+  ['aurorajelly','Aurora Jelly',1,.9,'night','calm','j',0,'#6ae8b8','#e0c8ff',.6,'Shimmers green and violet.'],
+  ['solarray','Solar Ray',1,1,'day','calm','r',0,'#f8b03a','#fff0c0',.2,'Warm to the touch, even at night.'],
+  ['gemini','Gemini Twinfish',1,1,'any','dart','f',1,'#6a8ad8','#f8d870',.36,'Always seen in pairs. Never apart.'],
+  ['astralcrab','Astral Crab',1,1,'night','thrash','c',2,'#3a3a8a','#c8b8ff',.4,'Carries a tiny galaxy on its shell.'],
+  ['voidtetra','Void Tetra',1,.8,'night','dart','f',0,'#1a1a3a','#8a6ae8',.32,'A shard of night sky with fins.'],
+  ['celestialkoi','Celestial Koi',2,1,'night','calm','f',2,'#f0f0ff','#f8c040',.46,'Its spots are real constellations.'],
+  ['eclipseray','Eclipse Ray',2,1,'any','calm','r',0,'#1a1a2a','#f8d870',.2,'A dark disc with a burning ring.'],
+  ['galaxyeel','Galaxy Eel',2,1,'night','run','e',2,'#2a1a5a','#f0a8ff',.18,'Swims in a spiral like the Milky Way.'],
+  ['moonsquid','Moon Squid',2,1,'night','dart','q',0,'#d8dcf0','#ffffff',.4,'Glows silver like a full moon.'],
+  ['starlance','Starlance',2,1,'day','jump','e',0,'#f8f0c0','#ffffff',.2,'A shooting star that decided to stay.'],
+  ['nebulaangel','Nebula Angel',2,.9,'any','calm','f',2,'#a84ae8','#7ad8f8',.6,'Painted in nebula pinks and blues.'],
+  ['supernova','Supernova Snapper',3,1,'night','thrash','f',1,'#f86a3a','#fff0a0',.44,'Burns brightest just before you land it.'],
+  ['blackholebass','Black Hole Bass',3,1,'night','sulk','f',0,'#0a0a14','#4a3a6a',.42,'Swallows the light around your bobber.'],
+  ['zodiacgar','Zodiac Gar',3,1,'any','run','e',2,'#3a4a8a','#f8e0a0',.2,'Twelve marks along its side.'],
+  ['cosmicwhale','Starwhale Calf',3,1.2,'night','calm','s',2,'#2a3a7a','#c8e0ff',.32,'A baby made of stardust. Mum is up there somewhere.'],
+  ['celestialdragon','Celestial Dragon',4,1,'night','run','e',1,'#3a2a8a','#f8d870',.26,'Coils across the lake like a constellation come alive.'],
+  ['dawnbringer','Dawnbringer',4,1,'day','jump','s',0,'#f8b06a','#fff4d0',.3,'Rises with the sun, every single morning.'],
+ ],
+};
+// silly meme fish, two per water, on top of the fifty
+const MEME={
+ pond:[['bruh','Bruh Fish',1,1,'any','calm','f',0,'#9aa0a8','#e0e4e8',.38,'Caught it. Bruh.'],['minecraftfish','Buffering Fish',2,1,'any','calm','p',1,'#4a8ad8','#f8c040',.6,'Round, slow and always loading. Please wait.']],
+ river:[['rizzler','The Rizzler',2,1,'day','jump','f',0,'#e86ab8','#ffe0f0',.36,'Winked at your bobber. You fell for it.'],['ratiofish','Ratio Fish',1,1,'any','thrash','f',1,'#4a4a5a','#c8c8d0',.32,'Tried to ratio you. Got caught instead.']],
+ coast:[['cringefish','Cringe Fish',1,1,'any','dart','f',2,'#c8a03a','#fff0b0',.38,'It did a little dance when you reeled it in. Please stop.'],['gigachad','Gigachad Grouper',3,1.1,'day','sulk','f',0,'#7a6a5a','#e8d8c0',.5,'Jawline sharper than your hook.']],
+ frost:[['brainfreeze','Brain Freeze',1,1,'any','dart','p',0,'#a8d8f8','#ffffff',.6,'Eats ice cream too fast. Every time.'],['chillguy','Just a Chill Guy',2,1,'any','calm','f',0,'#8a7a6a','#e8dcc8',.4,'Hands in pockets. Fins in pockets. Unbothered.']],
+ reef:[['bussin','Bussin Bass',1,1,'day','jump','f',1,'#f8a03a','#ffe8a0',.38,'No cap, this fish is bussin.'],['nemoactually','Not That Clownfish',1,.8,'day','dart','f',1,'#f8783a','#ffffff',.42,'Says it is not famous. Signs autographs anyway.']],
+ shelf:[['sheesh','Sheeesh Shark',2,1,'any','run','s',0,'#7a8ab8','#e8eef8',.28,'Makes a long hissing noise when it sees a big catch.'],['delulu','Delulu Dolphinfish',2,1,'day','jump','f',0,'#4ad8b8','#f8f080',.38,'Thinks it is the main character. It might be.']],
+ deep:[['lowbattery','Low Battery Lanternfish',1,1,'night','calm','f',0,'#3a3a4a','#e84a3a',.32,'Light blinking at 1%. Please charge.'],['backrooms','Backrooms Fish',3,1,'night','calm','f',0,'#d8c870','#f8f0b0',.34,'Smells like damp carpet. Hums like fluorescent lights.']],
+ trench:[['bottomtext','Bottom Text',2,1,'any','sulk','f',0,'#5a5a5a','#ffffff',.36,'Lives at the bottom. Captioned accordingly.'],['ohno','Oh No Fish',1,1,'night','dart','p',0,'#e8c8a0','#fff0e0',.6,'Its only expression is mild panic.']],
+ ember:[['spicy','Too Spicy Fish',1,1,'any','thrash','f',1,'#e8302a','#ffb03a',.38,'Burned your tongue just by looking at it.'],['lavachicken','Lava Chicken',2,1,'any','calm','p',2,'#f8c03a','#ff6a2a',.6,'Nobody knows how a chicken got in here. It seems fine.']],
+ starfall:[['ufo','Unidentified Floating Object',2,1,'night','calm','r',0,'#8af8b8','#d8ffe8',.2,'The truth is out there. Specifically, on your line.'],['tobyfish','Space Toby',1,1,'night','dart','f',0,'#d8d8e8','#ffffff',.34,'Floats around saying it is the chosen one.']],
+};
+const TH={calm:.12,dart:.6,run:.32,thrash:.5,jump:.42,dive:.26,sulk:.2}, AG={calm:.2,dart:.4,run:.6,thrash:.62,jump:.5,dive:.5,sulk:.4};
+const hs=s=>{ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0)/4294967296; };
+const med=a=>{ const s=a.slice().sort((x,y)=>x-y); return s.length?s[Math.floor(s.length/2)]:0; };
+const ref={}; for(const s of SP){ const k=s.loc+'|'+s.r; (ref[k]=ref[k]||[]).push(s); }
+const R=(loc,r)=>{ const a=ref[loc+'|'+r]||ref[loc+'|'+Math.max(0,r-1)]||[]; return {base:med(a.map(s=>s.base)),min:med(a.map(s=>s.min)),max:med(a.map(s=>s.max)),str:med(a.map(s=>s.str))}; };
+const nice=v=>v<1?+v.toFixed(2):v<10?+v.toFixed(1):Math.round(v);
+const add=(loc,e,meme)=>{ const [id,name,r,size,time,beh,shape,pat,col,belly,h,note]=e; if(SPI[id]) return; const m=R(loc,r), j=hs(id), j2=hs(id+'x');
+  const vk=(meme?1.05:1)*(.82+.4*j), base=Math.max(1,Math.round(m.base*vk)), min=nice(m.min*size*(.85+.3*j2)), max=nice(Math.max(min*1.6,m.max*size*(.85+.3*j)));
+  const s={id,loc,name,r,min,max,base,str:+(m.str*(.9+.2*j2)).toFixed(1),time,th:+(TH[beh]+(j-.5)*.08).toFixed(2),col,belly,h,beh,aggr:+(AG[beh]+(j2-.5)*.1).toFixed(2),shape,pat,note};
+  if(meme) s.meme=1; SP.push(s); SPI[id]=s; };
+for(const loc in NEW) NEW[loc].forEach(e=>add(loc,e,false));
+for(const loc in MEME) MEME[loc].forEach(e=>add(loc,e,true));
+})();
 
 // =====================================================================
 // 0.3 wardrobe data: body types, eye colours, shoes, neckwear and back pieces.
@@ -1182,7 +1405,7 @@ const curLoc = () => LOCS[locIdx(S.loc)];
 const kgStr = kg => kg < 10 ? kg.toFixed(2)+' kg' : kg < 100 ? kg.toFixed(1)+' kg' : fmt(kg)+' kg';
 const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
 const PEARL_COIN=.25, PEARL_RARE=.03, PEARL_DIV=250000; // 0.3: pearls are rarer but each one does more
-const coinMult = () => 1 + PEARL_COIN*S.pearls;
+const coinMult = () => 1 + PEARL_COIN*S.pearls + voyageLegacy(); /* 0.3.6: plus the Legacy of every voyage completed */
 const hashStr = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; };
 // boosts (timed), aquarium fish and the pet all feed the same bonus keys
 function buffSum(k){ const t=Date.now(); let s=0; for(const b of S.buffs) if(b.k===k && b.until>t) s+=b.v; return s; }
@@ -1197,7 +1420,7 @@ function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BON
 const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
 const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
-const pearlsFor = () => Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV));
+const pearlsFor = () => { const n=Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV)*voyagePearlMult()); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
 function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
@@ -6434,8 +6657,8 @@ m33wrap('ember','land',function(x,P,hz){ const hill=()=>{ x.beginPath(); x.moveT
   x.restore();
   // a thin rim of light along the ridge line
   x.strokeStyle=v3rgba(P.rim,.35); x.lineWidth=Math.max(1,H*.002); x.beginPath(); x.moveTo(-2,hz-H*.135); x.bezierCurveTo(W*.06,hz-H*.15,W*.14,hz-H*.12,W*.22,hz-H*.06); x.stroke();
-  const sc=mix('#4a5a32',P.farHaze,.15+P.night*.5); x.fillStyle=sc; for(let i=0;i<20;i++){ const X=W*(.005+i*.011), y=embHillY(hz,X); x.beginPath(); x.arc(X,y,H*(.003+((i*7)%3)*.0015),Math.PI,0); x.fill(); }
-  for(const tx of [.05,.13]){ const X=W*tx, y=embHillY(hz,X); x.strokeStyle=mix('#3a2a20',P.farHaze,.2); x.lineWidth=Math.max(1.2,H*.0025); x.beginPath(); x.moveTo(X,y); x.quadraticCurveTo(X+H*.008,y-H*.02,X+H*.004,y-H*.035); x.stroke(); x.fillStyle=sc; for(const [dx,dy,rr] of [[0,-.036,.008],[-.008,-.03,.006],[.01,-.032,.006]]){ x.beginPath(); x.arc(X+H*dx,y+H*dy,H*rr,0,7); x.fill(); } } });
+  const sc=mix('#5a4636',P.farHaze,.15+P.night*.5); /* 0.3.6: dry, scorched scrub */ x.fillStyle=sc; for(let i=0;i<20;i++){ const X=W*(.005+i*.011), y=embHillY(hz,X); x.beginPath(); x.arc(X,y,H*(.003+((i*7)%3)*.0015),Math.PI,0); x.fill(); }
+  for(const tx of [.05,.13]){ const X=W*tx, y=embHillY(hz,X); x.strokeStyle=mix('#3a2a20',P.farHaze,.2); x.lineWidth=Math.max(1.2,H*.0025); x.beginPath(); x.moveTo(X,y); x.quadraticCurveTo(X+H*.008,y-H*.02,X+H*.004,y-H*.035); x.stroke(); x.beginPath(); x.moveTo(X+H*.006,y-H*.024); x.lineTo(X-H*.008,y-H*.034); x.moveTo(X+H*.005,y-H*.03); x.lineTo(X+H*.016,y-H*.042); x.moveTo(X+H*.004,y-H*.035); x.lineTo(X+H*.002,y-H*.046); x.stroke(); } }); /* 0.3.6: bare, burnt trees: nothing grows green beside a volcano */
 
 // the basalt headland: tall hexagonal columns of varied height, each with a lit facet, a shaded facet and a tilted
 // cap; talus at the foot, green on top
@@ -6448,7 +6671,7 @@ m33wrap('ember','land',function(x,P,hz){ const x0=W*.79, rock=mix(P.rock,'#2a242
   x.restore();
   // a soft cap of grass and scrub over the top, and a skirt of rounded boulders at the foot
   // grass along the exact top edge of the headland, with tufts poking up and a lit fringe
-  const gc=mix('#4a6a34',P.farHaze,.2+P.night*.5); x.save(); head(); x.clip(); x.strokeStyle=gc; x.lineWidth=H*.012; x.lineJoin='round'; x.beginPath(); x.moveTo(x0-W*.01,hz-H*.03); x.bezierCurveTo(x0-W*.01+W*.0,hz-H*.03,x0+W*.02,hz-H*.09,x0+W*.07,hz-H*.11); x.bezierCurveTo(x0+W*.12,hz-H*.125,x0+W*.18,hz-H*.12,W+4,hz-H*.115); x.stroke(); x.restore();
+  const gc=mix('#3e3430',P.farHaze,.15+P.night*.5); /* 0.3.6: scorched, ashy grass (no green at a volcano) */ x.save(); head(); x.clip(); x.strokeStyle=gc; x.lineWidth=H*.012; x.lineJoin='round'; x.beginPath(); x.moveTo(x0-W*.01,hz-H*.03); x.bezierCurveTo(x0-W*.01+W*.0,hz-H*.03,x0+W*.02,hz-H*.09,x0+W*.07,hz-H*.11); x.bezierCurveTo(x0+W*.12,hz-H*.125,x0+W*.18,hz-H*.12,W+4,hz-H*.115); x.stroke(); x.restore();
   for(let i=0;i<26;i++){ const X=x0+W*.03+i*W*.0065; const yt=X<x0+W*.07?hz-H*(.03+.08*((X-x0)/(W*.07))):hz-H*(.11+.012*Math.sin(Math.min(1,(X-x0-W*.07)/(W*.14))*Math.PI*.6)); x.strokeStyle=gc; x.lineWidth=1; x.beginPath(); x.moveTo(X,yt+1); x.lineTo(X+(i%3-1)*1.2,yt-H*(.006+(i%4)*.002)); x.stroke(); }
   const r=v3rng(29); for(let i=0;i<12;i++){ const X=x0-W*.02+r()*W*.2, s=H*(.004+r()*.006); x.fillStyle=r()<.5?rock:mix(rock,dark,.5); x.beginPath(); x.ellipse(X,hz-s*.3,s*1.3,s*.8,0,Math.PI,0); x.fill(); }
   const hz2=x.createLinearGradient(0,hz-H*.03,0,hz); hz2.addColorStop(0,v3rgba(P.farHaze,0)); hz2.addColorStop(1,v3rgba(P.farHaze,.3)); x.fillStyle=hz2; x.fillRect(x0-W*.03,hz-H*.03,W*.25,H*.03); });
@@ -6751,6 +6974,45 @@ m33wrap('ember','live',function(P,t,hz){ const FX=S.settings.effects, night=P.ni
   g.restore();
   // each vein ends in a glowing, slowly advancing lava front
   V.forEach((pts,vi)=>{ const e=pts[8]; v3glow(g,e[0],e[1],H*.02,v3rgba(lava2,.9),.25+.12*Math.sin(t*1.9+vi)+night*.15); }); });
+// =====================================================================
+// 0.3.6 depth of field: out-of-focus things close to the camera frame each water, the strongest cue that the
+// scene is deep and not flat. Each map gets its own, in theme (reeds at the pond, a lava rock at Ember Springs...),
+// kept to the corners away from the angler and the bobber, swaying gently. The blur is made by drawing small and
+// scaling up (works in every browser, phones included) and cached, so it costs one image per frame.
+// =====================================================================
+const DOF_CACHE={};
+const DOF_SETS={
+ pond:   {br:'reeds',  tr:'leaves'},
+ river:  {br:'grass',  tr:'leaves'},
+ coast:  {br:'dune'},
+ frost:  {br:'ice',    tr:'snowbranch'},
+ reef:   {br:'coral'},
+ trench: {br:'kelp'},
+ ember:  {br:'lavarock'},
+ starfall:{br:'crystal'},
+};
+function dofDraw(x,kind,w,h,P,night){ const dk=mix(P.rockD||'#1a2028','#05080e',.35+night*.3), mid=mix(P.rock||P.far||'#2a3440','#05080e',.25+night*.3);
+  x.lineCap='round'; x.lineJoin='round';
+  if(kind==='reeds'||kind==='grass'||kind==='dune'){ const n=kind==='dune'?9:12; for(let i=0;i<n;i++){ const bx=w*(.2+i*.07), lean=(i%3-1)*w*.08+w*.06, top=h*(kind==='dune'?.45:.12)+((i*37)%5)*h*.06; x.strokeStyle=i%2?dk:mid; x.lineWidth=w*(kind==='dune'?.02:.026); x.beginPath(); x.moveTo(bx,h); x.quadraticCurveTo(bx+lean*.3,h*.6,bx+lean,top); x.stroke();
+      if(kind==='reeds'&&i%4===1){ x.fillStyle=mix('#4a3020',dk,.4); x.beginPath(); x.ellipse(bx+lean*.92,top+h*.1,w*.025,h*.09,lean*.004,0,7); x.fill(); } } }
+  else if(kind==='leaves'||kind==='snowbranch'){ x.strokeStyle=dk; x.lineWidth=w*.04; x.beginPath(); x.moveTo(w,h*.05); x.quadraticCurveTo(w*.6,h*.2,w*.12,h*.42); x.stroke(); x.lineWidth=w*.022; x.beginPath(); x.moveTo(w*.62,h*.2); x.quadraticCurveTo(w*.5,h*.5,w*.42,h*.7); x.stroke();
+    for(let i=0;i<14;i++){ const u=i/14, px=w*(1-u*.85), py=h*(.06+u*.36)+((i*53)%7-3)*h*.02; if(kind==='leaves'){ x.fillStyle=i%2?dk:mid; x.beginPath(); x.ellipse(px,py+h*.05,w*.07,h*.035,.6+i*.3,0,7); x.fill(); } else { x.fillStyle=mix('#e8f0f8',P.far||'#888',.25+night*.5); x.beginPath(); x.ellipse(px,py-h*.01,w*.06,h*.022,-.1,0,7); x.fill(); } } }
+  else if(kind==='ice'){ x.fillStyle=mix('#cfe4f2',dk,.45+night*.3); x.beginPath(); x.moveTo(w*.15,h); x.lineTo(w*.3,h*.42); x.lineTo(w*.55,h*.3); x.lineTo(w*.78,h*.5); x.lineTo(w,h*.38); x.lineTo(w,h); x.closePath(); x.fill(); x.fillStyle=v3rgba('#ffffff',.35*(1-night*.6)); x.beginPath(); x.moveTo(w*.32,h*.44); x.lineTo(w*.55,h*.32); x.lineTo(w*.5,h*.5); x.closePath(); x.fill(); }
+  else if(kind==='coral'){ for(const [bx,c2] of [[.35,'#a04a5a'],[.62,'#c87a3a'],[.85,'#7a4a9a']]){ x.strokeStyle=mix(c2,dk,.55+night*.3); x.lineWidth=w*.05; x.beginPath(); x.moveTo(w*bx,h); x.lineTo(w*bx,h*.45); x.moveTo(w*bx,h*.7); x.quadraticCurveTo(w*(bx-.12),h*.55,w*(bx-.14),h*.3); x.moveTo(w*bx,h*.62); x.quadraticCurveTo(w*(bx+.1),h*.45,w*(bx+.12),h*.25); x.stroke(); } }
+  else if(kind==='kelp'){ for(let i=0;i<5;i++){ const bx=w*(.3+i*.15); x.strokeStyle=mix('#2a5a3a',dk,.5+night*.3); x.lineWidth=w*.05; x.beginPath(); x.moveTo(bx,h); x.bezierCurveTo(bx-w*.1,h*.7,bx+w*.1,h*.4,bx-w*.04,h*.05+i*h*.06); x.stroke(); } }
+  else if(kind==='lavarock'){ x.fillStyle=mix('#2a1c1a','#05030a',.2+night*.3); x.beginPath(); x.moveTo(w*.08,h); x.lineTo(w*.22,h*.55); x.lineTo(w*.4,h*.4); x.lineTo(w*.62,h*.48); x.lineTo(w*.8,h*.3); x.lineTo(w,h*.36); x.lineTo(w,h); x.closePath(); x.fill();
+    x.strokeStyle=v3rgba('#ff8a3a',.85); x.lineWidth=w*.014; x.beginPath(); x.moveTo(w*.3,h*.62); x.lineTo(w*.42,h*.72); x.lineTo(w*.4,h*.9); x.moveTo(w*.7,h*.5); x.lineTo(w*.78,h*.66); x.lineTo(w*.9,h*.72); x.stroke(); }
+  else if(kind==='crystal'){ for(const [bx,hh,cl] of [[.4,.62,'#b89aff'],[.58,.82,'#9a7ae8'],[.75,.5,'#d8c0ff'],[.9,.7,'#a888f0']]){ x.fillStyle=mix(cl,'#120a24',.35+night*.25); x.beginPath(); x.moveTo(w*(bx-.07),h); x.lineTo(w*(bx-.04),h*(1-hh)+h*.06); x.lineTo(w*bx,h*(1-hh)); x.lineTo(w*(bx+.04),h*(1-hh)+h*.06); x.lineTo(w*(bx+.07),h); x.closePath(); x.fill(); x.fillStyle=v3rgba('#ffffff',.25); x.beginPath(); x.moveTo(w*(bx-.02),h*(1-hh)+h*.08); x.lineTo(w*bx,h*(1-hh)+h*.02); x.lineTo(w*(bx+.005),h*.9); x.closePath(); x.fill(); } } }
+function dofSprite(id,slot,kind,w,h,P,night){ const key=id+'|'+slot+'|'+Math.round(w)+'x'+Math.round(h)+'|'+Math.round(night*6); let s=DOF_CACHE[key]; if(s) return s;
+  // draw small, then scale up with smoothing: a soft, lens-like blur that works everywhere
+  const k=.12, sw=Math.max(8,Math.round(w*k)), sh=Math.max(8,Math.round(h*k)), a=document.createElement('canvas'); a.width=sw; a.height=sh; const ax=a.getContext('2d'); ax.scale(k,k); dofDraw(ax,kind,w,h,P,night);
+  const b=document.createElement('canvas'); b.width=Math.round(w*.5); b.height=Math.round(h*.5); const bx=b.getContext('2d'); bx.imageSmoothingEnabled=true; bx.imageSmoothingQuality='high'; bx.drawImage(a,0,0,b.width,b.height);
+  s=DOF_CACHE[key]={cv:b}; const keys=Object.keys(DOF_CACHE); if(keys.length>40) delete DOF_CACHE[keys[0]]; return s; }
+for(const id in DOF_SETS){ m33wrap(id,'fore',function(P,t){ if(G.st==='result'&&false) return; const set=DOF_SETS[id], night=P.night||0, rm=matchMedia('(prefers-reduced-motion:reduce)').matches, sway=rm?0:Math.sin(t*.6)*W*.004;
+  g.save(); g.globalAlpha=.92; g.imageSmoothingEnabled=true;
+  if(set.br){ const w=W*.26, h=H*.34, s=dofSprite(id,'br',set.br,w,h,P,night); g.drawImage(s.cv,W-w*.92+sway,H-h*.9,w,h); }
+  if(set.tr){ const w=W*.3, h=H*.3, s=dofSprite(id,'tr',set.tr,w,h,P,night); g.drawImage(s.cv,W-w+sway*1.4,-h*.12,w,h); }
+  g.restore(); }); }
 
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
@@ -6810,7 +7072,12 @@ function drawAngler3(c,x,y,s,lk,o={}){
   // and a faint second edge on the front from the light off the water
   bx.globalCompositeOperation='copy'; bx.drawImage(O.a,0,0); bx.globalCompositeOperation='source-in'; bx.fillStyle=o.glow||'#fff6e0'; bx.fillRect(0,0,w,h);
   bx.globalCompositeOperation='destination-out'; bx.drawImage(O.a,-d*.8,d*.3); bx.globalCompositeOperation='source-over';
-  ax.globalAlpha=.16; ax.drawImage(O.b,0,0); ax.globalAlpha=1; ax.globalCompositeOperation='source-over';
+  ax.globalAlpha=.16; ax.drawImage(O.b,0,0); ax.globalAlpha=1;
+  // 0.3.6 realism: soft volume (light from above, shade toward the feet) and the back side a touch darker
+  { const vg=ax.createLinearGradient(0,(BT-62)*ps,0,(BT+6)*ps); vg.addColorStop(0,'rgba(255,248,232,'+(.1*(1-night*.7))+')'); vg.addColorStop(.42,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,20,'+(.2+night*.12)+')'); ax.fillStyle=vg; ax.fillRect(0,0,w,h);
+    const hg=ax.createLinearGradient((BX-16)*ps,0,(BX+14)*ps,0); hg.addColorStop(0,'rgba(4,8,20,'+(.14+night*.08)+')'); hg.addColorStop(.6,'rgba(0,0,0,0)'); ax.fillStyle=hg; ax.fillRect(0,0,w,h); }
+  ax.globalCompositeOperation='source-over';
+  if(!o.sit&&!o.noShadow){ c.save(); const sg=c.createRadialGradient(x,y+s,0,x,y+s,15*s); sg.addColorStop(0,'rgba(0,6,16,.3)'); sg.addColorStop(1,'rgba(0,6,16,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(x,y+s,15*s,3.2*s,0,0,7); c.fill(); c.restore(); }
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
   const map=p=>({x:x+(p.x-BX*ps)/ps*s,y:y+(p.y-BT*ps)/ps*s});
@@ -7989,11 +8256,12 @@ function f3Tail(c,L,hh,d,col,wag){ const st=-L*.31, tl=L*.2*(d.tailK||1), sp=hh*
   else if(t==='coel'){ c.moveTo(0,-hh*.3); c.quadraticCurveTo(-tl*.6,-sp*1.1,-tl*.9,-sp*.5); c.lineTo(-tl*1.3,-sp*.15); c.lineTo(-tl*1.3,sp*.15); c.lineTo(-tl*.9,sp*.5); c.quadraticCurveTo(-tl*.6,sp*1.1,0,hh*.3); }
   else { c.moveTo(0,-hh*.2); c.quadraticCurveTo(-tl*.6,-sp*.55,-tl*1.05,-sp*1.05); c.quadraticCurveTo(-tl*.75,-sp*.2,-tl*.62,0); c.quadraticCurveTo(-tl*.75,sp*.2,-tl*1.05,sp*1.05); c.quadraticCurveTo(-tl*.6,sp*.55,0,hh*.2); }
   c.closePath(); c.fill();
-  if(L>40){ c.strokeStyle='rgba(0,0,0,.14)'; c.lineWidth=Math.max(.6,L*.006); c.beginPath(); for(let k=-2;k<=2;k++){ c.moveTo(-tl*.1,k*hh*.06); c.lineTo(-tl*.9,k*sp*.38); } c.stroke(); }
+  // fin rays, kept inside the tail's own outline (they used to poke past rounded tails as stray lines)
+  if(L>40){ c.save(); c.clip(); c.strokeStyle='rgba(0,0,0,.14)'; c.lineWidth=Math.max(.6,L*.006); c.beginPath(); for(let k=-2;k<=2;k++){ c.moveTo(-tl*.1,k*hh*.06); c.lineTo(-tl*.95,k*sp*.42); } c.stroke(); c.restore(); }
   c.restore(); }
 
 function f3Dorsal(c,L,hh,d,col){ const x0=L*(d.dorsalX||0), top=-hh*(d.hump?1.2:.95); c.fillStyle=col; c.beginPath(); const k=d.dorsal;
-  if(k==='spiny'){ c.moveTo(-L*.2+x0,top*.85); for(let i=0;i<=7;i++){ const xx=-L*.2+x0+i*L*.05, hh2=hh*(.42-Math.abs(i-2.5)*.04); c.lineTo(xx,top-hh2); c.lineTo(xx+L*.025,top-hh2*.55); } c.lineTo(L*.18+x0,top*.95); }
+  if(k==='spiny'){ c.moveTo(-L*.25+x0,top*.55); c.lineTo(-L*.21+x0,top*.88); for(let i=0;i<=7;i++){ const xx=-L*.2+x0+i*L*.05, hh2=hh*(.42-Math.abs(i-2.5)*.04); c.lineTo(xx,top-hh2); c.lineTo(xx+L*.025,top-hh2*.55); } c.lineTo(L*.18+x0,top*.95); }
   else if(k==='sail'){ const big=d.sailBig?1.5:1; c.moveTo(-L*.18,top*.8); c.quadraticCurveTo(-L*.1,top-hh*1.4*big,L*.2,top-hh*1.1*big); c.quadraticCurveTo(L*.24,top-hh*.3,L*.28,top*.85); }
   else if(k==='shark'){ c.moveTo(-L*.05+x0,top*.9); c.lineTo(L*.02+x0,top-hh*.95); c.quadraticCurveTo(L*.06+x0,top-hh*.4,L*.14+x0,top*.92); }
   else if(k==='long'){ c.moveTo(-L*.3,top*.4); c.quadraticCurveTo(-L*.05,top-hh*.35,L*.22,top*.85); c.lineTo(L*.2,top); c.quadraticCurveTo(-L*.05,top*.9,-L*.3,top*.3); }
@@ -8001,9 +8269,14 @@ function f3Dorsal(c,L,hh,d,col){ const x0=L*(d.dorsalX||0), top=-hh*(d.hump?1.2:
   else if(k==='trigger'){ c.moveTo(-L*.25,top*.7); c.quadraticCurveTo(-L*.15,top-hh*.45,-L*.02,top*.9); c.moveTo(L*.08,top*.95); c.lineTo(L*.1,top-hh*.45); c.lineTo(L*.14,top*.9); }
   else if(k==='spines3'){ for(let i=0;i<3;i++){ const xx=-L*.08+i*L*.08; c.moveTo(xx,top*.95); c.lineTo(xx+L*.012,top-hh*.45); c.lineTo(xx+L*.025,top*.95); } }
   else if(k==='triple'){ for(let i=0;i<3;i++){ const xx=-L*.24+i*L*.15; c.moveTo(xx,top*.85); c.quadraticCurveTo(xx+L*.05,top-hh*.4,xx+L*.12,top*.9); } }
-  else if(k==='lion'){ c.strokeStyle=col; c.lineWidth=Math.max(1,L*.012); for(let i=0;i<10;i++){ const xx=-L*.22+i*L*.045; c.moveTo(xx,top*.9); c.lineTo(xx-L*.03,top-hh*(.55+Math.sin(i)*.15)); } c.stroke(); c.globalAlpha*=.4; c.moveTo(-L*.22,top*.9); for(let i=0;i<10;i++){ const xx=-L*.22+i*L*.045; c.lineTo(xx-L*.03,top-hh*(.5+Math.sin(i)*.15)); } c.lineTo(L*.2,top*.9); c.fill(); c.globalAlpha/=.4; return; }
+  else if(k==='lion'){ c.strokeStyle=col; c.lineWidth=Math.max(1,L*.012); for(let i=0;i<10;i++){ const xx=-L*.22+i*L*.045; c.moveTo(xx,top*.9); c.lineTo(xx-L*.03,top-hh*(.55+Math.sin(i)*.15)); } c.stroke(); c.globalAlpha*=.4; c.moveTo(-L*.22,top*.9); for(let i=0;i<10;i++){ const xx=-L*.22+i*L*.045; c.lineTo(xx-L*.03,top-hh*(.5+Math.sin(i)*.15)); } c.lineTo(L*.2,top*.9); c.fill(); c.globalAlpha/=.4; c.beginPath(); c.moveTo(-L*.21,top*.85); c.lineTo(L*.19,top*.85); c.lineTo(L*.15,0); c.lineTo(-L*.17,0); c.closePath(); c.fill(); return; }
   else { c.moveTo(-L*.16+x0,top*.85); c.quadraticCurveTo(-L*.02+x0,top-hh*(.5+d.fin*.3),L*.16+x0,top*.88); }
-  c.closePath(); c.fill(); }
+  c.closePath(); c.fill();
+  // 0.3.6: the fin's membrane runs down into the body (which is drawn over it), so the fin always grows out of
+  // the real outline of the back, however the body curves, never floating above it
+  const B={spiny:[-.2,.18],sail:[-.18,.28],shark:[-.05,.14],long:[-.3,.22],trail:[-.1,.12],trigger:[-.25,.14],spines3:[-.08,.105],triple:[-.24,.18]}[k]||[-.16,.16];
+  const sx=['sail','long','trail','trigger','spines3','triple'].includes(k)?0:x0; /* those shapes ignore the per-fish nudge */
+  c.beginPath(); c.moveTo(L*B[0]+sx+L*.01,top*.8); c.lineTo(L*B[1]+sx-L*.01,top*.8); c.lineTo(L*B[1]*.8+sx,0); c.lineTo(L*B[0]*.8+sx,0); c.closePath(); c.fill(); }
 
 function f3Pattern(c,L,hh,d,col,belly,pcol){ const p=d.pat; c.fillStyle=pcol;
   if(p==='vbars'){ for(let i=-2;i<=3;i++){ c.beginPath(); c.ellipse(i*L*.1,-hh*.1,L*.03,hh*.95,0,0,7); c.fill(); } }
@@ -8034,6 +8307,7 @@ function drawFishBody3(c,sp,d,L,col,belly,o,wag){
   f3Tail(c,L,hh,d,fin,wag);
   // anal fin and pelvic fin
   c.fillStyle=fin; c.beginPath(); c.moveTo(-L*.2,hh*.75); c.quadraticCurveTo(-L*.14,hh*1.35,-L*.03,hh*.92); c.closePath(); c.fill();
+  c.beginPath(); c.moveTo(-L*.19,hh*.8); c.lineTo(-L*.04,hh*.88); c.lineTo(-L*.05,0); c.lineTo(-L*.17,0); c.closePath(); c.fill(); /* 0.3.6: anchored into the belly */
   if(d.dorsal==='trail'){ c.beginPath(); c.moveTo(-L*.1,hh*.9); c.quadraticCurveTo(-L*.2,hh*1.9,-L*.42,hh*2.1); c.quadraticCurveTo(-L*.22,hh*1.3,L*.1,hh*.95); c.fill(); }
   f3Dorsal(c,L,hh,d,fin);
   if(d.plan==='mahi'){ c.beginPath(); c.moveTo(L*.36,-hh*.85); c.quadraticCurveTo(0,-hh*1.5,-L*.3,-hh*.4); c.lineTo(-L*.3,-hh*.2); c.quadraticCurveTo(0,-hh*1.1,L*.36,-hh*.6); c.fill(); }
@@ -8044,13 +8318,17 @@ function drawFishBody3(c,sp,d,L,col,belly,o,wag){
   if(!o.sil){ c.save(); f3BodyPath(c,L,hh,d); c.clip();
     c.fillStyle=f3Grad(c,v3rgba(belly,0),belly,hh*.05,hh*.75); c.fillRect(-L*.5,0,L,hh*1.2);
     f3Pattern(c,L,hh,Object.assign({id:sp.id},d),col,belly,pcol);
-    if(d.pat!=='scales'&&L>70){ c.strokeStyle='rgba(255,255,255,.07)'; c.lineWidth=.6; for(let row=-2;row<=2;row++) for(let k=-4;k<=6;k++){ c.beginPath(); c.arc(k*L*.05+(row&1)*L*.025,row*hh*.3,L*.026,Math.PI*.6,Math.PI*1.4); c.stroke(); } }
-    c.fillStyle='rgba(255,255,255,.1)'; c.beginPath(); c.ellipse(L*.05,-hh*.66,L*.26,hh*.1,-.05,0,7); c.fill();
+    if(d.pat!=='scales'&&L>44){ c.strokeStyle=L>70?'rgba(255,255,255,.07)':'rgba(255,255,255,.06)'; c.lineWidth=.6; for(let row=-2;row<=2;row++) for(let k=-4;k<=6;k++){ c.beginPath(); c.arc(k*L*.05+(row&1)*L*.025,row*hh*.3,L*.026,Math.PI*.6,Math.PI*1.4); c.stroke(); } }
+    // 0.3.6 realism: the lateral line, an inner edge shadow for a rounded body, and a wet sheen along the upper flank
+    if(L>34&&!d.ghost&&!d.clear){ c.strokeStyle=v3rgba(mix(col,'#000000',.45),.32); c.lineWidth=Math.max(.5,L*.006); c.beginPath(); c.moveTo(L*.26,-hh*.18); c.bezierCurveTo(L*.05,-hh*.26,-L*.2,-hh*.12,-L*.42,-hh*.02); c.stroke(); }
+    c.save(); for(const [w,a] of [[.62,.06],[.4,.06],[.22,.06]]){ c.strokeStyle='rgba(6,10,20,'+a+')'; c.lineWidth=hh*w; f3BodyPath(c,L,hh,d); c.stroke(); } c.strokeStyle='rgba(6,10,20,.1)'; c.lineWidth=hh*.18; c.beginPath(); c.moveTo(-L*.5,hh*.96); c.lineTo(L*.5,hh*.96); c.stroke(); c.restore();
+    { const sg=c.createLinearGradient(0,-hh*.95,0,-hh*.25); sg.addColorStop(0,'rgba(255,255,255,0)'); sg.addColorStop(.55,'rgba(255,255,255,.2)'); sg.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(L*.08,-hh*.6,L*.3,hh*.16,-.06,0,7); c.fill(); }
+    c.fillStyle='rgba(255,255,255,.16)'; c.beginPath(); c.ellipse(L*.3,-hh*.42,L*.06,hh*.07,-.3,0,7); c.fill();
     if(d.ember){ c.fillStyle=f3Grad(c,'rgba(255,120,40,0)','rgba(255,120,40,.35)',0,hh); c.fillRect(-L*.5,0,L,hh); }
     if(d.frost){ c.fillStyle='rgba(220,240,255,.18)'; c.fillRect(-L*.5,-hh,L,hh*.5); }
     if(d.cosmic){ const r=v3rng(fish3Hash(sp.id)); c.fillStyle='rgba(255,255,255,.85)'; for(let i=0;i<10;i++) c.fillRect(-L*.3+r()*L*.7,-hh*.8+r()*hh*1.4,Math.max(.8,L*.01),Math.max(.8,L*.01)); }
-    c.restore();
-    c.strokeStyle=v3rgba(mix(col,'#000000',.5),.45); c.lineWidth=Math.max(.7,L*.009); c.beginPath(); c.arc(L*.3,0,hh*.62,-1,1); c.stroke(); }
+    c.strokeStyle=v3rgba(mix(col,'#000000',.5),.45); c.lineWidth=Math.max(.7,L*.009); c.beginPath(); c.arc(L*.3,0,hh*.62,-1,1); c.stroke(); /* gill line, kept inside the body outline */
+    c.restore(); }
   // pectoral fin (translucent, beats)
   c.fillStyle=o.sil||v3rgba(fin,.75); c.save(); c.translate(L*.2,hh*.2); c.rotate(.5+Math.sin(wag*1.7)*.25); c.beginPath(); const pl=d.pectoral==='long'?L*.3:d.wings?L*.32:L*.12; c.ellipse(-pl*.5,0,pl*.55,hh*(d.wings?.35:.18),0,0,7); c.fill(); if(d.wings&&!o.sil){ c.strokeStyle='rgba(0,0,0,.18)'; c.lineWidth=.6; for(let k=-2;k<=2;k++){ c.beginPath(); c.moveTo(0,0); c.lineTo(-pl,k*hh*.12); c.stroke(); } } c.restore();
   // head features
@@ -8074,11 +8352,11 @@ function drawFishBody3(c,sp,d,L,col,belly,o,wag){
 function f3Aura(c,sp,d,L,o,t){ if(o.sil) return; const hh=L*d.h*.5;
   if(d.glow&&!d.ghost){ v3glow(c,0,0,L*.55,v3rgba(mix(sp.col,'#ffffff',.4),.6),.18+.08*Math.sin(t*2+L)); }
   if(d.flame||d.ember&&sp.r>=3){ for(let i=0;i<5;i++){ const k=((t*1.4+i/5)%1), fx=-L*.2+i*L*.1, fy=-hh*1.05-k*L*.12; c.fillStyle=v3rgba(i%2?'#ffb040':'#ff6a20',.7*(1-k)); c.beginPath(); c.arc(fx,fy,L*.02*(1-k*.6),0,7); c.fill(); } }
-  if(d.crystal){ c.fillStyle='rgba(200,240,255,.75)'; for(let i=0;i<4;i++){ const xx=-L*.18+i*L*.1; c.beginPath(); c.moveTo(xx-L*.015,-hh*.9); c.lineTo(xx,-hh*1.45); c.lineTo(xx+L*.015,-hh*.9); c.fill(); } }
+  if(d.crystal){ c.fillStyle="rgba(200,240,255,.75)"; for(let i=0;i<4;i++){ const xx=-L*.18+i*L*.1; c.beginPath(); c.moveTo(xx-L*.018,-hh*.62); c.lineTo(xx,-hh*1.45); c.lineTo(xx+L*.018,-hh*.62); c.fill(); } }
   if(d.stars){ c.fillStyle='#ffffff'; for(let i=0;i<6;i++){ const a=t*.6+i, xx=Math.cos(a)*L*.4, yy=Math.sin(a)*hh*1.4; c.globalAlpha=.4+.4*Math.sin(t*3+i); c.fillRect(xx,yy,Math.max(1,L*.012),Math.max(1,L*.012)); } c.globalAlpha=1; }
-  if(d.crown||d.legend&&sp.r>=5){ const cx=L*.18, cy=-hh*1.05, s=Math.max(3,L*.06); c.fillStyle='#ffd34a'; c.beginPath(); c.moveTo(cx-s,cy); c.lineTo(cx-s,cy-s*.6); c.lineTo(cx-s*.5,cy-s*.25); c.lineTo(cx,cy-s*.8); c.lineTo(cx+s*.5,cy-s*.25); c.lineTo(cx+s,cy-s*.6); c.lineTo(cx+s,cy); c.closePath(); c.fill(); c.fillStyle='#ff4a6a'; c.beginPath(); c.arc(cx,cy-s*.3,s*.15,0,7); c.fill(); }
+  if(d.crown||d.legend&&sp.r>=5){ const cx=L*.18, cy=-hh*.84, s=Math.max(3,L*.06); c.fillStyle='#ffd34a'; c.beginPath(); c.moveTo(cx-s,cy); c.lineTo(cx-s,cy-s*.6); c.lineTo(cx-s*.5,cy-s*.25); c.lineTo(cx,cy-s*.8); c.lineTo(cx+s*.5,cy-s*.25); c.lineTo(cx+s,cy-s*.6); c.lineTo(cx+s,cy); c.closePath(); c.fill(); c.fillStyle='#ff4a6a'; c.beginPath(); c.arc(cx,cy-s*.3,s*.15,0,7); c.fill(); }
   if(d.storm){ c.strokeStyle='rgba(220,235,255,'+(.4+.4*Math.max(0,Math.sin(t*5)))+')'; c.lineWidth=Math.max(1,L*.012); c.beginPath(); c.moveTo(-L*.1,-hh*1.1); c.lineTo(-L*.05,-hh*.7); c.lineTo(-L*.12,-hh*.6); c.lineTo(-L*.04,-hh*.2); c.stroke(); }
-  if(d.pulse){ const k=(t*.8)%1; c.strokeStyle='rgba(180,220,255,'+(.6*(1-k))+')'; c.lineWidth=1.2; c.beginPath(); c.ellipse(0,0,L*(.3+k*.4),hh*(1+k*1.5),0,0,7); c.stroke(); }
+  if(d.pulse){ const k=(t*.8)%1, R=L*(.32+k*.3), pg=c.createRadialGradient(0,0,R*.4,0,0,R); pg.addColorStop(0,'rgba(170,215,255,0)'); pg.addColorStop(.75,'rgba(170,215,255,'+(.22*(1-k))+')'); pg.addColorStop(1,'rgba(170,215,255,0)'); c.save(); c.globalCompositeOperation='lighter'; c.fillStyle=pg; c.beginPath(); c.ellipse(0,0,R,R*.62,0,0,7); c.fill(); c.restore(); } /* 0.3.6: a soft pulse of light instead of a thin ring */
   if(d.eclipse){ v3glow(c,-L*.05,0,L*.35,'rgba(255,220,150,.9)',.3); }
   if(d.starTip){ c.fillStyle='#fff2a0'; c.save(); c.translate(L*.1,-hh*1.4); c.rotate(t); c.beginPath(); for(let i=0;i<5;i++){ const a=i/5*Math.PI*2; c.lineTo(Math.cos(a)*L*.05,Math.sin(a)*L*.05); c.lineTo(Math.cos(a+.63)*L*.02,Math.sin(a+.63)*L*.02); } c.fill(); c.restore(); v3glow(c,L*.1,-hh*1.4,L*.12,'rgba(255,240,160,.9)',.5); }
 }
@@ -8122,7 +8400,9 @@ function f3Shark(c,sp,d,L,col,belly,o,wag){ const hh=L*d.h*.5*(d.big?1.1:1), fin
     if(d.flame){ c.fillStyle=f3Grad(c,'rgba(255,120,30,0)','rgba(255,120,30,.45)',-hh*.2,hh); c.fillRect(-L*.4,-hh,L,hh*2); c.strokeStyle='rgba(255,180,60,.7)'; c.lineWidth=Math.max(1,L*.01); for(let i=0;i<4;i++){ c.beginPath(); c.moveTo(-L*.2+i*L*.12,-hh*.6); c.lineTo(-L*.15+i*L*.12,0); c.lineTo(-L*.2+i*L*.12,hh*.4); c.stroke(); } }
     if(d.crystal){ c.fillStyle='rgba(220,245,255,.25)'; c.fillRect(-L*.4,-hh,L,hh*.6); }
     if(d.ghost){ c.fillStyle='rgba(220,240,255,.2)'; c.fillRect(-L*.4,-hh,L,hh*2); }
-    c.fillStyle='rgba(255,255,255,.14)'; c.beginPath(); c.ellipse(L*.05,-hh*.65,L*.3,hh*.12,0,0,7); c.fill(); c.restore();
+    for(const [w,a] of [[.62,.06],[.4,.06],[.22,.06]]){ c.strokeStyle='rgba(6,10,20,'+a+')'; c.lineWidth=hh*w; body(); c.stroke(); } /* 0.3.6: rounded volume like the other fish */
+    { const sg=c.createLinearGradient(0,-hh*.95,0,-hh*.3); sg.addColorStop(0,'rgba(255,255,255,0)'); sg.addColorStop(.55,'rgba(255,255,255,.18)'); sg.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(L*.05,-hh*.62,L*.32,hh*.15,0,0,7); c.fill(); }
+    c.restore();
     c.strokeStyle=v3rgba(mix(col,'#000000',.5),.5); c.lineWidth=Math.max(.7,L*.006); for(let k=0;k<(d.slow?6:5);k++){ c.beginPath(); c.moveTo(L*(.26-k*.025),-hh*.25); c.quadraticCurveTo(L*(.25-k*.025),hh*.05,L*(.26-k*.025),hh*.3); c.stroke(); } }
   c.fillStyle=o.sil||fin; c.save(); c.translate(L*.14,hh*.55); c.rotate(.6+Math.sin(wag*1.2)*.1); c.beginPath(); c.moveTo(0,0); c.lineTo(-L*.1,hh*.9); c.lineTo(L*.04,hh*.1); c.closePath(); c.fill(); c.restore();
   if(d.head==='hammer'){ c.fillStyle=o.sil||col; c.beginPath(); c.ellipse(L*.44,0,L*.05,hh*1.15,0,0,7); c.fill(); f3Eye(c,L*.45,-hh*1.05,Math.max(1.2,L*.022),o,d); f3Eye(c,L*.45,hh*1.05,Math.max(1.2,L*.022),o,d); }
@@ -8173,7 +8453,7 @@ function f3Box(c,sp,d,L,col,belly,o,wag){ const w=L*.3, h=L*.22, fin=o.sil||mix(
   if(!o.sil){ c.save(); body(); c.clip(); c.strokeStyle=v3rgba(mix(col,'#000000',.4),.45); c.lineWidth=Math.max(.6,L*.008); const s=h*.42; for(let row=-3;row<=3;row++) for(let k=-4;k<=4;k++){ const cx=k*s*1.5, cy=row*s*.87+(k&1)*s*.43; c.beginPath(); for(let j=0;j<6;j++){ const a=j/6*Math.PI*2; c.lineTo(cx+Math.cos(a)*s*.5,cy+Math.sin(a)*s*.5); } c.closePath(); c.stroke(); }
     c.fillStyle='rgba(20,20,30,.45)'; const rr=v3rng(fish3Hash(sp.id)); for(let i=0;i<10;i++){ c.beginPath(); c.arc(-w*.8+rr()*w*1.6,-h*.8+rr()*h*1.6,Math.max(.8,L*.014),0,7); c.fill(); }
     c.fillStyle='rgba(255,255,255,.2)'; c.fillRect(-w,-h,w*2,h*.35); c.restore(); }
-  if(d.spikes&&!o.sil){ c.fillStyle=mix(col,'#ffffff',.3); for(let i=0;i<5;i++){ c.beginPath(); c.moveTo(-w*.6+i*w*.35,-h*.95); c.lineTo(-w*.5+i*w*.35,-h*1.35); c.lineTo(-w*.4+i*w*.35,-h*.95); c.fill(); } }
+  if(d.spikes&&!o.sil){ c.fillStyle=mix(col,'#ffffff',.3); for(let i=0;i<5;i++){ c.beginPath(); c.moveTo(-w*.6+i*w*.35,-h*.62); c.lineTo(-w*.5+i*w*.35,-h*1.35); c.lineTo(-w*.4+i*w*.35,-h*.62); c.fill(); } }
   f3Eye(c,w*.55,-h*.35,Math.max(1.4,L*.035),o,d); if(!o.sil){ c.fillStyle='#3a1a1a'; c.beginPath(); c.ellipse(w*.98,h*.05,w*.06,h*.08,0,0,7); c.fill(); }
 }
 
@@ -8187,7 +8467,9 @@ function f3Horse(c,sp,d,L,col,belly,o,wag){ const s=L*.5, fin=o.sil||mix(col,bel
     c.strokeStyle=v3rgba(mix(col,'#000000',.4),.5); c.lineWidth=Math.max(.6,s*.02); for(let k=0;k<9;k++){ const yy=-s*.55+k*s*.1; c.beginPath(); c.moveTo(s*.02,yy); c.lineTo(s*.34-Math.abs(k-4)*s*.02,yy+s*.02); c.stroke(); } }
   c.fillStyle=o.sil||v3rgba(fin,.75); c.beginPath(); c.ellipse(-s*.04,-s*.15,s*.08,s*.14+Math.sin(wag*3)*s*.03,0,0,7); c.fill();
   c.beginPath(); c.moveTo(s*.08,-s*.98); c.lineTo(s*.12,-s*1.1); c.lineTo(s*.2,-s*.97); c.fill();
-  if(d.frills&&!o.sil){ c.fillStyle=mix(col,'#8ac860',.4); for(const [x,y,a] of [[.3,-.55,-.6],[.32,-.2,.2],[-.05,-.4,-2.5],[.2,.25,.5],[-.05,.5,-2.2],[.15,-.95,-1.2]]){ c.save(); c.translate(s*x,s*y); c.rotate(a+Math.sin(wag+x*9)*.15); c.beginPath(); c.ellipse(s*.12,0,s*.12,s*.04,0,0,7); c.ellipse(s*.2,s*.04,s*.07,s*.03,.6,0,7); c.fill(); c.restore(); } }
+  if(d.frills&&!o.sil){ c.fillStyle=mix(col,'#8ac860',.4); c.strokeStyle=mix(col,'#8ac860',.3); c.lineWidth=Math.max(1,s*.03); c.lineCap='round';
+    for(const [x,y] of [[.3,-.55],[.32,-.2],[-.05,-.4],[.2,.25],[-.05,.5],[.15,-.95]]){ c.beginPath(); c.moveTo(s*x,s*y); c.lineTo(s*(.12+(x-.12)*.15),s*y*.95); c.stroke(); } c.lineCap='butt'; /* 0.3.6: each leaf grows on a little stem from the body */
+    for(const [x,y,a] of [[.3,-.55,-.6],[.32,-.2,.2],[-.05,-.4,-2.5],[.2,.25,.5],[-.05,.5,-2.2],[.15,-.95,-1.2]]){ c.save(); c.translate(s*x,s*y); c.rotate(a+Math.sin(wag+x*9)*.15); c.beginPath(); c.ellipse(s*.12,0,s*.12,s*.04,0,0,7); c.ellipse(s*.2,s*.04,s*.07,s*.03,.6,0,7); c.fill(); c.restore(); } }
   f3Eye(c,s*.2,-s*.85,Math.max(1.2,s*.06),o,d); c.restore(); }
 
 function f3Mola(c,sp,d,L,col,belly,o,wag){ const r=L*.36, fin=o.sil||mix(col,'#000000',.15), fl=Math.sin(wag*.5)*.2;
@@ -8211,7 +8493,7 @@ function f3Angler(c,sp,d,L,col,belly,o,wag,t){ const r=L*.3, lx=r*1.25, ly=-r*1.
 function f3Blob(c,sp,d,L,col,belly,o,wag){ const r=L*.3;
   if(d.plan==='seapig'){ // a sea pig: tube-foot legs underneath, two waving feelers on top, no tail
     c.fillStyle=o.sil||mix(col,'#ffffff',.15); for(let i=0;i<5;i++){ const lx=-r*.6+i*r*.32; c.beginPath(); c.ellipse(lx,r*.62+Math.sin(wag+i)*r*.04,r*.07,r*.16,0,0,7); c.fill(); }
-    for(const [ax,ph] of [[r*.1,0],[r*.35,1.3]]){ c.strokeStyle=o.sil||mix(col,'#ffffff',.2); c.lineWidth=Math.max(1,r*.07); c.lineCap='round'; c.beginPath(); c.moveTo(ax,-r*.6); c.quadraticCurveTo(ax+Math.sin(wag+ph)*r*.15,-r*.95,ax+r*.1+Math.sin(wag*1.3+ph)*r*.12,-r*1.15); c.stroke(); c.lineCap='butt'; }
+    for(const [ax,ph] of [[r*.1,0],[r*.35,1.3]]){ c.strokeStyle=o.sil||mix(col,'#ffffff',.2); c.lineWidth=Math.max(1,r*.07); c.lineCap='round'; c.beginPath(); c.moveTo(ax,-r*.28); c.quadraticCurveTo(ax+Math.sin(wag+ph)*r*.15,-r*.95,ax+r*.1+Math.sin(wag*1.3+ph)*r*.12,-r*1.15); c.stroke(); c.lineCap='butt'; }
     c.fillStyle=o.sil||col; c.beginPath(); c.ellipse(0,r*.1,r*1.0,r*.62,0,0,7); c.fill();
     if(!o.sil){ c.fillStyle='rgba(255,255,255,.25)'; c.beginPath(); c.ellipse(-r*.1,-r*.25,r*.55,r*.15,0,0,7); c.fill(); c.fillStyle=v3rgba(mix(col,'#a03a5a',.4),.4); for(let i=0;i<6;i++){ c.beginPath(); c.arc(-r*.6+i*r*.25,r*.05+((i*3)%2)*r*.15,r*.05,0,7); c.fill(); } }
     f3Eye(c,r*.7,-r*.05,Math.max(1.1,r*.07),o,d); return; }
@@ -8397,10 +8679,10 @@ function drawCreature3(c,sp,x,y,L,o={}){
       c.lineWidth=Math.max(.6,L*.007); c.beginPath(); for(const k of [0,1]){ c.moveTo(L*(.44-k*.04),hh*.42); c.quadraticCurveTo(L*(.45-k*.04),hh*.7,L*(.4-k*.05),hh*.9); } c.stroke(); c.lineCap='butt';
       if(!o.sil){ const ex=L*.37, ey=-hh*.32, er=Math.max(1.2,L*.028); c.fillStyle='#f4f0e6'; c.beginPath(); c.arc(ex,ey,er,0,7); c.fill(); c.fillStyle='#14141a'; c.beginPath(); c.arc(ex+er*.15,ey,er*.6,0,7); c.fill(); c.fillStyle='#ffffff'; c.beginPath(); c.arc(ex+er*.35,ey-er*.3,er*.22,0,7); c.fill(); } }
     // gar: diamond (ganoid) scale lattice and the dorsal and anal fins set far back by the tail
-    if(d.snout==='gar'){ const hh=L*dd.h*.5, fc=o.sil||mix(col,'#000000',.25); c.fillStyle=fc; c.beginPath(); c.moveTo(-L*.24,-hh*.85); c.quadraticCurveTo(-L*.32,-hh*1.55,-L*.4,-hh*.65); c.closePath(); c.moveTo(-L*.24,hh*.85); c.quadraticCurveTo(-L*.32,hh*1.55,-L*.4,hh*.65); c.closePath(); c.fill();
+    if(d.snout==='gar'){ const hh=L*dd.h*.5, fc=o.sil||mix(col,'#000000',.25); c.fillStyle=fc; c.beginPath(); c.moveTo(-L*.22,-hh*.2); c.lineTo(-L*.24,-hh*.6); c.quadraticCurveTo(-L*.32,-hh*1.5,-L*.4,-hh*.4); c.lineTo(-L*.38,-hh*.15); c.closePath(); c.moveTo(-L*.22,hh*.2); c.lineTo(-L*.24,hh*.6); c.quadraticCurveTo(-L*.32,hh*1.5,-L*.4,hh*.4); c.lineTo(-L*.38,hh*.15); c.closePath(); c.fill(); /* 0.3.6: rooted in the body near the tail, not floating */
       if(!o.sil){ c.save(); f3BodyPath(c,L,hh,dd); c.clip(); c.strokeStyle=v3rgba(mix(col,'#000000',.55),.35); c.lineWidth=Math.max(.5,L*.005); c.beginPath(); const st=L*.045; for(let X=-L*.6;X<L*.6;X+=st){ c.moveTo(X,-hh); c.lineTo(X+hh*2,hh); c.moveTo(X,hh); c.lineTo(X+hh*2,-hh); } c.stroke(); c.restore(); } }
     if(d.scutes&&!o.sil){ const hh=L*dd.h*.5; c.fillStyle=mix(col,'#ffffff',.3); for(let i=0;i<9;i++){ const xx=-L*.28+i*L*.075; c.beginPath(); c.moveTo(xx-L*.015,-hh*.9+Math.abs(i-4)*hh*.03); c.lineTo(xx,-hh*1.1+Math.abs(i-4)*hh*.03); c.lineTo(xx+L*.015,-hh*.9+Math.abs(i-4)*hh*.03); c.fill(); } }
-    if(d.fur&&!o.sil){ const hh=L*dd.h*.5; c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=Math.max(.6,L*.006); c.beginPath(); for(let i=0;i<18;i++){ const xx=-L*.3+i*L*.04; c.moveTo(xx,-hh*.9); c.lineTo(xx-L*.01,-hh*1.08); } c.stroke(); }
+    if(d.fur&&!o.sil){ const hh=L*dd.h*.5; c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=Math.max(.6,L*.006); c.beginPath(); for(let i=3;i<15;i++){ const xx=-L*.3+i*L*.04; c.moveTo(xx,-hh*.7); c.lineTo(xx-L*.01,-hh*1.08); } c.stroke(); }
     if(d.glass&&!o.sil){ const hh=L*dd.h*.5; c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=Math.max(.7,L*.008); c.beginPath(); c.moveTo(-L*.2,-hh*.7); c.lineTo(L*.1,hh*.4); c.moveTo(0,-hh*.8); c.lineTo(L*.2,0); c.stroke(); }
     if(d.wings&&d.plan==='fusi'&&!o.sil&&false){}
   }
@@ -8417,6 +8699,44 @@ if(/[?&]test\b/.test(location.search)){
     list.forEach((s,i)=>{ const cx=(i%cols)*cw+cw/2, cy=Math.floor(i/cols)*chh+chh*.46; x.save(); drawCreature(x,s,cx,cy,cw*(opt.scale||.62),{wag:opt.wag||0.6,sil:opt.sil,shiny:opt.shiny}); x.restore(); x.fillStyle='rgba(255,255,255,.75)'; x.font='9px sans-serif'; x.textAlign='center'; x.fillText(s.id,cx,Math.floor(i/cols)*chh+chh-3); });
     if(opt.save) __post(opt.save,cv2.toDataURL()); return [cv2.width,cv2.height,list.length]; };
 }
+// =====================================================================
+// 0.3.6: the details that make each new fish recognisable (body plan, snout, eyes, glow, patterns),
+// so none of them reads as a plain plank or a copy of its neighbour.
+// =====================================================================
+Object.assign(FISH3_OVR,{
+ // shrimp are shrimp, not crabs
+ iceshrimp:{plan:'shrimp', clear:1}, trenchshrimp:{plan:'shrimp'}, ventshrimp:{plan:'shrimp', flame:1}, starshrimp:{plan:'shrimp', stars:1},
+ // gars, pipefish and needle noses: long bodies with a proper snout
+ spottedgar:{plan:'long', snout:'snipe', teeth:1, pat:'spots', tail:'round'}, ghostgar:{plan:'long', snout:'snipe', ghost:1, tail:'round'},
+ garfishcoast:{plan:'long', snout:'snipe', thin:1, pat:'hstripe'}, pipefish:{plan:'eel', thin:1, snout:'snipe', pat:'chain'}, zodiacgar:{plan:'long', snout:'snipe', stars:1, pat:'dots'},
+ saury:{plan:'long', snout:'snipe', thin:1, pat:'hstripe'}, starlance:{plan:'long', snout:'snipe', glow:1, starTip:1},
+ // salamander-ish and worms
+ mudpuppy:{plan:'long', barbel:'short', tail:'round', pat:'blotch'}, abyssworm:{plan:'worm'}, seasnail:{plan:'blenny', clear:1},
+ // eels with character
+ ribboneel:{plan:'eel', thin:1, mouth:'open', frills:1}, viperling:{plan:'eel', mouth:'open', teeth:1, glow:1}, stoplight:{plan:'eel', glow:1, eye:'glow'},
+ snipe:{plan:'eel', thin:1, snout:'snipe'}, gulperling:{plan:'gulper'}, ribbonfish:{plan:'eel', thin:1, crest:1}, obsidianeel:{plan:'eel', glass:1},
+ galaxyeel:{plan:'eel', stars:1, glow:1}, glasswyrm:{plan:'eel', glass:1, crest:1}, celestialdragon:{plan:'eel', crest:1, stars:1, big:1}, blackdragon:{plan:'eel', mouth:'open', glow:1},
+ magmaloach:{plan:'eel', barbel:'short', flame:1}, polarwolf:{plan:'eel', mouth:'open', teeth:1}, frostburbot:{plan:'long', barbel:'chin', tail:'round', pat:'marble'},
+ brookdragon:{plan:'long', snout:'duck', teeth:1, crest:1, pat:'spots'}, willowpike:{plan:'long', snout:'duck', teeth:1, pat:'chain'}, tuskpike:{plan:'long', snout:'duck', teeth:1},
+ lunarpike:{plan:'long', snout:'duck', craters:1}, magmapike:{plan:'long', snout:'duck', teeth:1, flame:1}, lakesturgeon:{plan:'long', snout:'snipe', barbel:'short', thorns:1},
+ // eyes, glass and glow
+ goldeye:{eye:'big'}, mooneye:{eye:'big', tail:'lunate'}, glasshead:{clear:1, eye:'big'}, spookfish:{eye:'big', ghost:1}, ambereye:{eye:'glow'}, whitecharmer:{clear:1},
+ northernlight:{aurora:1, glow:1}, deeplantern:{glow:1, pat:'dots'}, lowbattery:{glow:1, eye:'glow'}, quasarling:{glow:1}, voidtetra:{stars:1},
+ // shapes from the name
+ narwhalfish:{snout:'snipe'}, lookdown:{plan:'deep'}, moorishidol:{plan:'deep', dorsal:'long'}, regalangel:{plan:'deep'}, nebulaangel:{plan:'deep', stars:1}, sulfurangel:{plan:'deep'},
+ dorado:{tail:'lunate', plan:'tuna'}, bluefintuna:{plan:'tuna'}, bluerunner:{plan:'tuna', tail:'lunate'}, rainbowrunner:{plan:'tuna', pat:'hstripes'}, horsemackerel:{plan:'tuna', pat:'tiger'},
+ spearmarlin:{plan:'shark', snout:'snipe'}, tarpon:{plan:'tuna', pat:'scales'}, bumphead:{plan:'grouper'}, deepcod:{barbel:'chin', dorsal:'triple'}, lighthousegrouper:{plan:'grouper', glow:1},
+ blenny:{plan:'blenny'}, goby:{plan:'blenny'}, neongoby:{plan:'blenny', pat:'neon'}, firegoby:{plan:'blenny'}, sootgoby:{plan:'blenny'}, nebulagoby:{plan:'blenny', stars:1}, brittlefish:{plan:'blenny', clear:1},
+ cometcarp:{plan:'carp', comet:1}, calderacarp:{plan:'carp', flame:1}, pondking:{plan:'carp', big:1, crown:1}, celestialkoi:{plan:'koi', stars:1}, moltenkoi:{plan:'koi', flame:1},
+ ashphoenix:{flame:1, frills:1}, blazefin:{flame:1}, supernova:{glow:1, flame:1}, blackholebass:{stars:1}, cosmicwhale:{plan:'shark', stars:1, slow:1}, dawnbringer:{plan:'shark', glow:1, frills:1},
+ infernoshark:{plan:'shark', flame:1}, calderaqueen:{plan:'shark', big:1, flame:1, crown:1}, blizzardking:{plan:'shark', big:1, crystal:1}, shelfwarden:{plan:'shark', big:1}, deepcrown:{plan:'shark', crown:1, glow:1},
+ trenchtitan:{plan:'shark', big:1, slow:1, ghost:1}, ghostshark:{plan:'shark', ghost:1}, abyssheart:{plan:'grouper', glow:1, eye:'glow'}, reeforacle:{plan:'deep', glow:1, frills:1},
+ ashray:{plan:'ray', pat:'dots'}, solarray:{plan:'manta', glow:1}, eclipseray:{plan:'manta', rings:1}, angelshark:{plan:'ray', pat:'dots'},
+ // meme fish that look like their joke
+ chillguy:{shades:1}, bruh:{grump:1}, minecraftfish:{plan:'ball', pat:'vbars'}, gigachad:{plan:'grouper', big:1}, brainfreeze:{plan:'ball', crystal:1}, ohno:{plan:'ball', eye:'big'},
+ tobyfish:{helmet:1}, ufo:{plan:'manta', rings:1, glow:1}, rizzler:{plan:'fusi', glow:1}, sheesh:{plan:'shark', mouth:'open'}, cringefish:{grump:1}, bussin:{flame:1},
+ backrooms:{plan:'fusi', glow:1}, bottomtext:{plan:'grouper'}, spicy:{flame:1}, lavachicken:{plan:'ball', flame:1}, delulu:{plan:'tuna', stars:1}, nemoactually:{plan:'fusi', pat:'vbars'}, ratiofish:{grump:1},
+});
 // =====================================================================
 // 0.3 MUSIC: a cozy theme for every water, all made live in the browser (no audio files).
 // "Follow the water" picks the theme of the area you fish in; the old three styles stay as choices.
@@ -9289,6 +9609,88 @@ drawJunkZ = function(c,id,R,Ci,E,P,Ln){ const T=(txt,x,y,sz,col)=>{ c.fillStyle=
     case 'ancientcoin': Ci(0,0,52,'#c8963a'); Ci(0,0,44,'#e8b850'); E(4,-4,16,22,'#b8862a'); E(-6,-18,10,6,'#b8862a'); for(let i=0;i<14;i++){ const a=i/14*Math.PI*2; Ci(Math.cos(a)*48,Math.sin(a)*48,2.5,'#8a6a1a'); } break;
     case 'megtooth': P([-46,40,0,-66,46,40,0,30],'#f0e8d0'); P([-46,40,0,30,46,40,30,54,-30,54],'#8a7a5a'); for(let i=0;i<6;i++){ c.fillStyle='rgba(120,100,70,.35)'; c.fillRect(-40+i*8,30-i*14,4,8); } break;
     default: _drawJunkZ_0(c,id,R,Ci,E,P,Ln); } };
+// =====================================================================
+// 0.3.6: fourteen more oddities, bringing the collection to 100.
+// Format: [id, name, tier 0-3, effect {c: coins (× best catch), buff: [kind, amount, minutes]}, note]
+// Drawings use the shared helpers so unfound ones show as proper silhouettes in the Fish Log.
+// =====================================================================
+[['flipflop','Single Flip-Flop',0,{c:.3},'The left one. The right one is living its best life somewhere sunny.'],
+ ['traffic','Traffic Cone',0,{c:.4},'Nobody knows how these get everywhere. Not even the lake.'],
+ ['controller','Game Controller',0,{buff:['reel',.3,5]},'The A button is worn smooth. Your reeling thumb feels stronger.'],
+ ['teacup','Floral Teacup',0,{buff:['calm',.3,5]},'Still has a tea stain. Very calming.'],
+ ['clock','Alarm Clock',0,{buff:['bite',.3,5]},'Rings every morning. The fish are awake now.'],
+ ['boombox','Boombox',1,{c:1.5,buff:['hot',.3,5]},'It still plays one song. The fish gather to listen.'],
+ ['telescope','Brass Spyglass',1,{buff:['rare',.25,5]},'Look through it and the deep water seems closer.'],
+ ['lantern','Ship Lantern',1,{c:2},'The glass is cracked but the brass is beautiful.'],
+ ['camera','Old Camera',1,{c:1.2,buff:['shiny',.3,5]},'One photo left on the roll. It is of a shiny fish.'],
+ ['ducktrophy','Duck Trophy',1,{c:1.8,buff:['trophy',.3,5]},'"Best Quack 2009". A proud moment for someone.'],
+ ['scarab','Golden Scarab',2,{c:5},'An old brooch that glitters like it has a secret.'],
+ ['music','Music Box',2,{c:3,buff:['xp',.35,5]},'Wind it up. A little tune about the sea.'],
+ ['geode','Split Geode',2,{c:4,buff:['sell',.25,5]},'Purple crystals inside. Collectors love these.'],
+ ['kraken','Kraken Figurehead',3,{c:14,buff:['rare',.4,8]},'Carved from a sunken ship’s bow. Its eyes follow you.'],
+].forEach(a=>{ if(JUNKI[a[0]]) return; const j={id:a[0],name:a[1],t:a[2],e:a[3],q:a[4]}; JUNK.push(j); JUNKI[j.id]=j; });
+
+const _drawJunkZ_036 = drawJunkZ;
+drawJunkZ = function(c,id,R,Ci,E,P,Ln){ switch(id){
+  case 'flipflop': E(0,4,30,64,'#3ab8d8',-.25); E(0,4,22,56,'#5ad0e8',-.25); Ln([-4,-30,-22,10],'#f8f0e0',6); Ln([-4,-30,16,8],'#f8f0e0',6); Ci(-4,-30,6,'#e8e0d0'); break;
+  case 'traffic': P([-50,50,50,50,40,36,-40,36],'#2a2a30'); P([-36,36,36,36,10,-62,-10,-62],'#f8782a'); P([-26,6,26,6,20,-18,-20,-18],'#f8f8f0'); P([-16,-32,16,-32,12,-46,-12,-46],'#f8f8f0'); break;
+  case 'controller': E(-30,6,30,26,'#3a3a44'); E(30,6,30,26,'#3a3a44'); R(-30,-16,60,40,'#3a3a44'); R(-44,0,22,7,'#1a1a20'); R(-36,-8,7,22,'#1a1a20'); Ci(30,-6,6,'#e8483a'); Ci(42,6,6,'#4ac860'); Ci(18,6,6,'#3a8ae8'); Ci(30,18,6,'#f4d23a'); break;
+  case 'teacup': E(0,40,52,10,'#f4f0e8'); P([-44,-20,44,-20,30,34,-30,34],'#f8f4ee'); E(0,-20,44,10,'#e8dcc8'); E(0,-20,36,7,'#8a5a2a'); Ln([44,-6,62,0,58,22,34,22],'#f8f4ee',8); Ci(-18,6,7,'#e86a8a'); Ci(4,12,6,'#e86a8a'); Ci(20,2,6,'#7ac870'); break;
+  case 'clock': Ci(-30,-44,16,'#c8302a'); Ci(30,-44,16,'#c8302a'); Ci(0,0,50,'#c8302a'); Ci(0,0,40,'#f8f4ea'); Ln([0,0,0,-28],'#2a2a30',5); Ln([0,0,20,8],'#2a2a30',5); Ln([-30,46,-40,60],'#2a2a30',7); Ln([30,46,40,60],'#2a2a30',7); break;
+  case 'boombox': R(-70,-30,140,70,'#5a5a64'); R(-60,-56,120,10,'#3a3a44'); R(-60,-56,8,30,'#3a3a44'); R(52,-56,8,30,'#3a3a44'); Ci(-38,10,24,'#2a2a30'); Ci(-38,10,12,'#7a7a84'); Ci(38,10,24,'#2a2a30'); Ci(38,10,12,'#7a7a84'); R(-14,-20,28,14,'#8ad8f8'); break;
+  case 'telescope': P([-70,10,40,-30,46,-14,-64,26],'#c8963a'); P([30,-26,70,-40,74,-26,36,-12],'#e8b850'); E(-68,18,8,10,'#5a3a1a'); Ln([-10,0,-20,50],'#7a5a3a',6); Ln([-10,0,14,48],'#7a5a3a',6); break;
+  case 'lantern': R(-6,-74,12,14,'#2a2a30'); P([-40,-58,40,-58,30,-44,-30,-44],'#c8963a'); R(-30,-44,60,80,'rgba(255,220,140,.75)'); Ci(0,0,14,'#ffd060'); Ln([-30,-44,-30,36],'#c8963a',6); Ln([30,-44,30,36],'#c8963a',6); P([-40,36,40,36,34,50,-34,50],'#c8963a'); break;
+  case 'camera': R(-64,-34,128,74,'#2a2a30'); R(-30,-48,40,16,'#2a2a30'); Ci(0,4,30,'#5a5a64'); Ci(0,4,20,'#1a1a24'); Ci(-6,-2,6,'#8ab8e8'); R(34,-26,20,10,'#e8e4dc'); break;
+  case 'ducktrophy': R(-34,44,68,14,'#3a2a1a'); R(-10,20,20,24,'#d8b048'); E(0,0,40,24,'#e8c058'); Ci(26,-24,18,'#e8c058'); P([40,-26,60,-20,40,-14],'#c8963a'); Ci(30,-30,3,'#5a3a1a'); break;
+  case 'scarab': E(0,6,44,52,'#c8963a'); E(0,6,36,44,'#e8c058'); Ln([0,-38,0,50],'#a87a28',4); Ci(0,-48,14,'#c8963a'); Ci(-14,-10,7,'#3a8ae8'); Ci(14,-10,7,'#3a8ae8'); Ci(0,22,8,'#e8483a'); Ln([-40,-20,-64,-34],'#c8963a',5); Ln([40,-20,64,-34],'#c8963a',5); break;
+  case 'music': R(-56,-10,112,56,'#8a5a2a'); P([-56,-10,56,-10,40,-46,-40,-46],'#a8703a'); R(-44,2,88,32,'#6a4020'); Ci(0,18,10,'#e8c058'); Ln([56,10,74,10,74,-6],'#c8963a',6); Ci(-26,-30,5,'#e8c058'); Ci(-6,-34,5,'#e8c058'); break;
+  case 'geode': E(0,0,58,50,'#7a6a5a'); E(0,0,44,36,'#4a2a6a'); P([-30,0,-14,-26,0,-6,14,-30,30,0,14,26,0,8,-14,28],'#a86ad8'); P([-10,-4,0,-18,10,-4,0,10],'#e0b8ff'); break;
+  case 'kraken': { for(let i=0;i<5;i++){ const x0=-32+i*16, dir=i<2?-1:i>2?1:(i%2?1:-1); for(let k=0;k<=12;k++){ const u=k/12, x=x0+dir*Math.sin(u*Math.PI*.9)*16, y=18+u*50; Ci(x,y,7-u*4.6,'#4a6a5a'); } Ci(x0+dir*2,66,3,'#4a6a5a'); }
+    E(0,-16,40,46,'#5a7a6a'); E(-8,-36,14,8,'#6a8a7a',-.4); Ci(-14,-22,9,'#f8e070'); Ci(14,-22,9,'#f8e070'); E(-14,-22,2.4,6,'#1a1a1a'); E(14,-22,2.4,6,'#1a1a1a'); P([-50,20,50,20,40,30,-40,30],'#8a5a2a'); break; }
+  default: _drawJunkZ_036(c,id,R,Ci,E,P,Ln); } };
+[['cassette','Mixtape',0,{buff:['xp',.25,5]},'"Fishing Bangers Vol. 3". Someone made this with love.'],
+ ['snorkel','Snorkel Mask',0,{c:.4},'Fogged up, but it has seen the bottom of the lake.'],
+ ['yoyo','Glow Yo-yo',1,{buff:['reel',.35,5]},'Walk the dog. Reel the fish. Same wrist.'],
+ ['horseshoe','Lucky Horseshoe',1,{buff:['shiny',.35,5]},'Hang it the right way up and luck pours in.'],
+ ['mermaidcomb','Mermaid’s Comb',2,{c:4.5,buff:['calm',.35,5]},'Mother-of-pearl, with a single long green hair caught in it.'],
+ ['shipbell','Sunken Ship’s Bell',3,{c:12,buff:['treasure',.5,8]},'Engraved with a ship’s name nobody can find on any chart.'],
+].forEach(a=>{ if(JUNKI[a[0]]) return; const j={id:a[0],name:a[1],t:a[2],e:a[3],q:a[4]}; JUNK.push(j); JUNKI[j.id]=j; });
+const _drawJunkZ_036b = drawJunkZ;
+drawJunkZ = function(c,id,R,Ci,E,P,Ln){ switch(id){
+  case 'cassette': R(-70,-40,140,84,'#2a2a30'); R(-56,-28,112,40,'#f0d8a0'); Ci(-28,-8,13,'#3a3a44'); Ci(28,-8,13,'#3a3a44'); Ci(-28,-8,5,'#f0d8a0'); Ci(28,-8,5,'#f0d8a0'); P([-40,44,40,44,30,24,-30,24],'#4a4a54'); break;
+  case 'snorkel': E(-10,0,58,38,'#2a7ab8'); E(-10,0,46,28,'rgba(190,230,255,.75)'); R(52,-70,14,80,'#f8d23a'); E(59,-72,10,6,'#f8d23a'); R(-74,-8,16,16,'#1a4a7a'); break;
+  case 'yoyo': Ln([0,-80,0,-24],'#e8e4dc',3); Ci(0,8,40,'#7af0a8'); Ci(0,8,28,'#4ac880'); Ci(0,8,8,'#e8f8ee'); break;
+  case 'horseshoe': Ln([-34,50,-40,0,-26,-40,0,-52,26,-40,40,0,34,50],'#9aa0a8',18); for(const [x,y] of [[-38,30],[-36,-14],[-14,-46],[14,-46],[36,-14],[38,30]]) Ci(x,y,3.5,'#3a3a44'); break;
+  case 'mermaidcomb': P([-60,-10,60,-10,52,-34,-52,-34],'#e8dcf0'); for(let i=0;i<12;i++) R(-54+i*9.6,-10,5,46,'#d8c8e8'); E(0,-28,26,10,'#f0e8ff'); Ln([20,20,40,40,30,64],'#4ac880',2); break;
+  case 'shipbell': { R(-6,-72,12,16,'#5a4a2a'); const prof=k=>{ const pts=[]; for(let i=0;i<=16;i++){ const u=i/16, y=-58+u*98, w=(10+28*Math.pow(u,1.6)+16*Math.pow(u,6))*k; pts.push(w,y); } return pts; }; const side=k=>{ const a=prof(k), out=[]; for(let i=0;i<a.length;i+=2) out.push(a[i],a[i+1]); for(let i=a.length-2;i>=0;i-=2) out.push(-a[i],a[i+1]); return out; };
+    P(side(1),'#c8963a'); P(side(.62).map((v,i)=>i%2?v+4:v),'#e8b850'); R(-56,38,112,8,'#a87a28'); Ci(0,52,9,'#7a5a1a'); break; }
+  default: _drawJunkZ_036b(c,id,R,Ci,E,P,Ln); } };
+if(/[?&]test\b/.test(location.search)) window.__junkN=()=>JUNK.length;
+if(/[?&]test\b/.test(location.search)) window.__oddSheet=(ids,save)=>{ const cols=7, cv=document.createElement('canvas'); const rows=Math.ceil(ids.length/cols); cv.width=cols*150; cv.height=rows*2*130; const x=cv.getContext('2d'); x.fillStyle='#1c3a4a'; x.fillRect(0,0,cv.width,cv.height);
+  ids.forEach((id,i)=>{ const cx=(i%cols)*150+75, cy=Math.floor(i/cols)*130+60; drawJunkAt(x,id,cx,cy,.55,null); drawJunkAt(x,id,cx,cy+rows*130,.55,'#0a1a24'); x.fillStyle='#fff'; x.font='10px sans-serif'; x.textAlign='center'; x.fillText(id,cx,cy+58); }); __post(save,cv.toDataURL()); return ids.length; };
+
+// ---------- lighting for every oddity, everywhere: shading from the top-left, a soft highlight, darker lower
+// edges and a real drop shadow that follows its outline. Rendered once per size into a cached sprite, so it costs
+// nothing per frame (oddities on the line, the catch card, the Fish Log). Silhouettes (unfound) stay flat.
+const ODD_SPR={}; let ODD_SPR_N=0;
+const _drawJunkAt_036 = drawJunkAt;
+const ODD_LIVE={discoball:1,ring:1,goldtoilet:1}; /* these twinkle, so they are drawn live (with the shadow) instead of cached */
+drawJunkAt = function(c,id,x,y,s,sil){ if(!s) return _drawJunkAt_036(c,id,x,y,s,sil); if(sil) return oddSil(c,id,x,y,s,sil); if(ODD_LIVE[id]){ c.save(); c.shadowColor='rgba(0,0,0,.35)'; c.shadowBlur=8*s; c.shadowOffsetY=5*s; _drawJunkAt_036(c,id,x,y,s,null); c.restore(); return; }
+  const m=c.getTransform?c.getTransform():{a:1}, eff=Math.max(.05,Math.abs(m.a||1)*s), q=Math.max(.1,Math.round(eff*20)/20), key=id+'|'+q;
+  let spr=ODD_SPR[key];
+  if(!spr){ const S=Math.ceil(300*q), cv=document.createElement('canvas'); cv.width=S; cv.height=S; const x2=cv.getContext('2d');
+    _drawJunkAt_036(x2,id,S/2,S/2,q,null);
+    x2.globalCompositeOperation='source-atop';
+    const lg=x2.createLinearGradient(S*.2,S*.15,S*.8,S*.85); lg.addColorStop(0,'rgba(255,250,235,.26)'); lg.addColorStop(.45,'rgba(255,255,255,0)'); lg.addColorStop(1,'rgba(10,14,24,.34)'); x2.fillStyle=lg; x2.fillRect(0,0,S,S);
+    const rg=x2.createRadialGradient(S*.38,S*.32,0,S*.38,S*.32,S*.3); rg.addColorStop(0,'rgba(255,255,255,.2)'); rg.addColorStop(1,'rgba(255,255,255,0)'); x2.fillStyle=rg; x2.fillRect(0,0,S,S);
+    spr=ODD_SPR[key]={cv,S}; if(++ODD_SPR_N>240){ for(const k in ODD_SPR){ delete ODD_SPR[k]; } ODD_SPR_N=0; ODD_SPR[key]=spr; } }
+  const d=spr.S/q*s; c.save(); c.shadowColor='rgba(0,0,0,.38)'; c.shadowBlur=Math.max(2,10*s*(m.a||1)); c.shadowOffsetY=Math.max(1,6*s*(m.a||1));
+  c.drawImage(spr.cv,x-d/2,y-d/2,d,d); c.restore(); };
+// silhouettes (unfound oddities) are one solid shape: drawn, then filled with the silhouette colour, so text or
+// hard-coded colours inside a drawing can never give the item away
+function oddSil(c,id,x,y,s,col){ const m=c.getTransform?c.getTransform():{a:1}, eff=Math.max(.05,Math.abs(m.a||1)*s), q=Math.max(.1,Math.round(eff*20)/20), key='sil|'+id+'|'+q+'|'+col;
+  let spr=ODD_SPR[key]; if(!spr){ const S=Math.ceil(300*q), cv=document.createElement('canvas'); cv.width=S; cv.height=S; const x2=cv.getContext('2d'); _drawJunkAt_036(x2,id,S/2,S/2,q,col); x2.globalCompositeOperation='source-in'; x2.fillStyle=col; x2.fillRect(0,0,S,S); spr=ODD_SPR[key]={cv,S}; ODD_SPR_N++; }
+  const d=spr.S/q*s; c.drawImage(spr.cv,x-d/2,y-d/2,d,d); }
 
 // =====================================================================
 // 0.3 Boardwalk, redesigned in the game's own look: a painted night pier at the top, a wallet,
@@ -10081,6 +10483,43 @@ Object.assign(TANK_ART,{
     c.fillStyle='#3a2a1a'; c.beginPath(); c.moveTo(-8,0); c.lineTo(-8,-12); c.arc(0,-12,8,Math.PI,0); c.lineTo(8,0); c.closePath(); c.fill(); c.fillStyle='#c8a050'; c.beginPath(); c.arc(5,-6,1,0,7); c.fill();
     c.strokeStyle='rgba(30,40,50,.35)'; c.lineWidth=1; for(const y of [-34,-16]){ c.beginPath(); c.moveTo(-23,y); c.lineTo(-10,y+1); c.moveTo(10,y+1); c.lineTo(23,y); c.stroke(); } },
 });
+// =====================================================================
+// 0.3.6 decorations sit in the world: every decoration gets a soft contact shadow sized to its real footprint,
+// and still decorations are drawn from a cached, already-lit sprite (the lighting used to be rebuilt every frame
+// for every decoration, which cost the aquarium frame time). Decorations that move (bubbles, flickers, sparkles)
+// are detected automatically and keep drawing live. Sprites are trimmed to the item, so phones stay light.
+// =====================================================================
+const DEC036={probe:{}, spr:{}, n:0};
+const _drawDecor_036=drawDecor;
+function decProbe(id){ let p=DEC036.probe[id]; if(p) return p;
+  const W=320, H=360, ox=160, oy=320, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d');
+  const shot=t=>{ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W,H); try{ _drawDecor_036(x,id,ox,oy,1,t); }catch(e){} return x.getImageData(0,0,W,H).data; };
+  const a=shot(1.13), b=shot(2.71); let diff=0, minx=W, maxx=-1, miny=H, maxy=-1, fx0=W, fx1=-1;
+  for(let yy=0;yy<H;yy+=2) for(let xx=0;xx<W;xx+=2){ const i=(yy*W+xx)*4, al=a[i+3]; if(al>10){ if(xx<minx)minx=xx; if(xx>maxx)maxx=xx; if(yy<miny)miny=yy; if(yy>maxy)maxy=yy; if(yy>oy-22&&yy<oy+6){ if(xx<fx0)fx0=xx; if(xx>fx1)fx1=xx; } }
+    diff+=Math.abs(al-b[i+3])+Math.abs(a[i]-b[i]); }
+  const moving=diff>4000;
+  if(maxx<0){ minx=ox-40; maxx=ox+40; miny=oy-80; maxy=oy; }
+  if(fx1<0){ fx0=minx+(maxx-minx)*.15; fx1=maxx-(maxx-minx)*.15; }
+  p=DEC036.probe[id]={moving, bx0:minx-ox-6, by0:miny-oy-6, bx1:maxx-ox+6, by1:Math.max(maxy-oy+6,10), fw:Math.max(16,fx1-fx0), fc:(fx0+fx1)/2-ox};
+  return p; }
+// measuring a decoration takes a few milliseconds, so it happens in idle time, one at a time (never a hitch);
+// until then the decoration simply draws live
+const DEC_Q=[], DEC_QS=new Set();
+function decQueue(id){ if(DEC036.probe[id]||DEC_QS.has(id)) return; DEC_QS.add(id); DEC_Q.push(id); if(DEC_Q.length===1) decIdle(); }
+function decIdle(){ const run=()=>{ const id=DEC_Q.shift(); if(id){ decProbe(id); DEC_QS.delete(id); } if(DEC_Q.length) decIdle(); };
+  if(window.requestIdleCallback) requestIdleCallback(run,{timeout:600}); else setTimeout(run,60); }
+drawDecor = function(c,id,x,y,s,t){ if(!(s>0)) return _drawDecor_036(c,id,x,y,s,t);
+  const p=DEC036.probe[id]; if(!p){ decQueue(id); return _drawDecor_036(c,id,x,y,s,t); }
+  // contact shadow on the sand
+  c.save(); const rx=p.fw*.55*s, ry=Math.max(2,6*s), sx=x+p.fc*s, sy=y+1.5*s, g=c.createRadialGradient(sx,sy,0,sx,sy,rx); g.addColorStop(0,'rgba(0,10,22,.34)'); g.addColorStop(.6,'rgba(0,10,22,.16)'); g.addColorStop(1,'rgba(0,10,22,0)'); c.fillStyle=g; c.beginPath(); c.ellipse(sx,sy,rx,ry,0,0,7); c.fill(); c.restore();
+  if(p.moving) return _drawDecor_036(c,id,x,y,s,t);
+  const m=c.getTransform?c.getTransform():null; if(!m||m.b||m.c) return _drawDecor_036(c,id,x,y,s,t);
+  const eff=Math.abs(m.a)*s, q=Math.max(.2,Math.round(eff*10)/10), key=id+'|'+q; let sp=DEC036.spr[key];
+  if(!sp){ const w=Math.ceil((p.bx1-p.bx0)*q), h=Math.ceil((p.by1-p.by0)*q); if(w<2||h<2||w*h>4e6) return _drawDecor_036(c,id,x,y,s,t);
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h; const x2=cv.getContext('2d'); x2.setTransform(q,0,0,q,-p.bx0*q,-p.by0*q); try{ _drawDecor_036(x2,id,0,0,1,1.13); }catch(e){}
+    sp=DEC036.spr[key]={cv}; if(++DEC036.n>70){ DEC036.spr={}; DEC036.n=1; DEC036.spr[key]=sp; } }
+  c.drawImage(sp.cv,x+p.bx0*s,y+p.by0*s,(p.bx1-p.bx0)*s,(p.by1-p.by0)*s); };
+if(/[?&]test\b/.test(location.search)) window.__decProbe=()=>Object.fromEntries(Object.entries(DEC036.probe).map(([k,v])=>[k,v.moving?'live':'cached']));
 
 // =====================================================================
 // 0.3 Stats tab: everything that shapes your fishing in one place, read straight from the same
@@ -10793,6 +11232,266 @@ body.phone-app #evcard .in,body.phone-land #evcard .in{max-height:100%;overflow-
 // hide the water controls while an event card is open, like for catches
 { const ev=$('evcard'); if(ev) new MutationObserver(()=>document.body.classList.toggle('ev-open',!ev.hidden)).observe(ev,{attributes:true,attributeFilter:['hidden']}); }
 document.head.insertAdjacentHTML('beforeend',`<style>body.ev-open #resttog,body.ev-open.phone-app .sidetog{opacity:0;pointer-events:none}</style>`);
+// =====================================================================
+// 0.3.6 voyages revamped. Every voyage you complete now counts for something on top of the pearls:
+//  - Legacy: +10% coins and XP for each completed voyage (+5% each after the tenth), and a little rare luck.
+//  - Pearl yield grows with experience: +15% pearls per completed voyage, up to triple.
+//  - Voyage milestones unlock permanent perks at 1, 2, 3, 5, 7 and 10 voyages.
+//  - Four new, stronger relics.
+//  - Setting sail moves your aquarium fish into the Trophy Room (kept forever, but no longer earning), so the
+//    aquarium's income and boosts are earned again each voyage. If the Trophy Room is full they stay in the tank.
+// =====================================================================
+function voyageLegacy(){ const v=(S&&S.tides)||0; return .10*Math.min(v,10) + .05*Math.max(0,v-10); }
+function voyagePearlMult(){ const v=(S&&S.tides)||0; return Math.min(3, 1+.15*v); }
+const VOYAGE_MS=[
+ {n:1,  name:'A Head Start',       d:'Begin every voyage with 10,000 coins.'},
+ {n:2,  name:'Familiar Waters',    d:'Begin every voyage with Stonebrook River already unlocked.'},
+ {n:3,  name:'A Bigger Cooler',    d:'+2 cooler space at every cooler size, forever.'},
+ {n:5,  name:'Bait Stash',         d:'Begin every voyage with 20 Glow Lures.'},
+ {n:7,  name:'Old Tackle',         d:'Begin every voyage with every piece of tackle at level 2 or better.'},
+ {n:10, name:'Sea Legs',           d:'Begin every voyage with Saltmarsh Coast already unlocked too.'},
+];
+const voyMs = n => ((S&&S.tides)||0) >= n;
+
+// new relics (they appear in the Pearl relics list and use the same trade button)
+[['tankkeeper','Tank Keeper',3,'Your aquarium earns 30% more.'],
+ ['widenet','Wide Net',3,'+3 cooler space at every cooler size.'],
+ ['abyssal','Abyssal Charm',4,'Noticeably better odds of rare fish, everywhere.'],
+ ['pearlseeker','Pearl Seeker',4,'+1 extra pearl every time you set sail.'],
+].forEach(a=>{ if(!RELICS.some(r=>r.id===a[0])) RELICS.push({id:a[0],name:a[1],cost:a[2],d:a[3]}); });
+
+// relic and Legacy effects flow through the normal bonus pipeline (aquarium income, rare odds)
+{ const _bonus=bonus; bonus=function(k){ let v=_bonus(k); if(k==='tank'&&relic('tankkeeper')) v+=.3; if(k==='rare'){ if(relic('abyssal')) v+=.12; v+=.02*Math.min((S.tides||0),10); } return v; }; }
+
+// cooler space from the milestone and the relic: added to every cooler size once (gear data is not saved)
+const COOLER_BASE=GEAR.cooler.lv.slice();
+function voyApplyCooler(){ const extra=(voyMs(3)?2:0)+(relic('widenet')?3:0); GEAR.cooler.lv=COOLER_BASE.map(v=>v+extra); }
+voyApplyCooler();
+
+// setting sail: remember the aquarium, then apply the milestones once the voyage has reset
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b||!canRetire()) return;
+  const before=S.tides, tank=S.tank.slice();
+  setTimeout(()=>{ if(S.tides===before) return; // the voyage did not happen
+    // aquarium fish go to the Trophy Room (as many as fit); the rest stay on display
+    let moved=0; if(tank.length){ const V=vaultList(); for(const f of tank){ if(V.length>=VAULT_MAX) break; const e2=Object.assign({},f); e2.kept=Date.now(); if(!e2.loc&&SPI[f.id]) e2.loc=SPI[f.id].loc; V.push(e2); moved++; } S.tank.splice(0,moved); }
+    if(voyMs(1)) S.money+=10000;
+    if(voyMs(2)&&!S.unlocked.includes('river')) S.unlocked.push('river');
+    if(voyMs(10)&&!S.unlocked.includes('coast')) S.unlocked.push('coast');
+    if(voyMs(5)) S.bait.glow=(S.bait.glow||0)+20;
+    if(voyMs(7)) for(const k in S.gear) S.gear[k]=Math.max(S.gear[k],Math.min(2,GEAR[k].lv.length-1));
+    voyApplyCooler(); save(); try{ renderPanel(); refreshAll&&refreshAll(); }catch(er){}
+    const ms=VOYAGE_MS.find(m=>m.n===S.tides);
+    setTimeout(()=>toast((moved?moved+' aquarium fish '+(moved===1?'was':'were')+' mounted in your Trophy Room. ':'')+(ms?'New voyage milestone: '+ms.name+'!':'Legacy is now +'+Math.round(voyageLegacy()*100)+'%.')),900);
+  },0); },true);
+
+// the voyage panel, rebuilt around the new rewards
+renderVoyage=function(){ const n=pearlsFor(), ok=canRetire(), v=S.tides||0, leg=Math.round(voyageLegacy()*100), legNext=Math.round((voyageLegacy()+(v>=10?.05:.10))*100), pm=voyagePearlMult(), full=vaultList().length+S.tank.length>VAULT_MAX;
+  const box = confirmBox==='retire' ? `<div class="tile voy-confirm"><h4>Set sail again?</h4>
+    <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond${voyMs(2)?' (and the waters your milestones keep)':''}. Your aquarium fish are mounted in your Trophy Room${full?' (as many as fit; the rest stay on display)':''}, kept forever. You keep your level, skills, Fish Log, feats, Trophy Room, pets, hats, clothes, relics and Wisdom Pearls.</div>
+    <div class="meta" style="margin-top:6px;color:var(--kelp)">After this voyage: Legacy +${legNext}%${VOYAGE_MS.find(m=>m.n===v+1)?' and a new milestone: '+VOYAGE_MS.find(m=>m.n===v+1).name:''}.</div>
+    <div class="row" style="margin-top:8px"><button class="btn" data-act="retireok">Set sail with +${n} pearl${n===1?'':'s'}</button><button class="btn alt" data-act="cancel">Keep fishing</button></div></div>` : '';
+  const msRows=VOYAGE_MS.map(m=>{ const got=v>=m.n; return `<div class="voy-ms ${got?'got':''}"><span class="voy-n">${got?'✓':m.n}</span><div><b>${m.name}</b><div class="meta">${m.d}</div></div><span class="meta">${got?'Unlocked':'after '+m.n+' voyage'+(m.n>1?'s':'')}</span></div>`; }).join('');
+  return `<div class="jsec"><h2>Set sail again</h2><p class="sub">Once you reach Hollow Trench you can start over from Willow Pond. You earn Wisdom Pearls (each one +25% coins and XP, and better rare odds, forever), your Legacy grows with every voyage, and milestones unlock permanent perks.</p>
+  <div class="grid"><div class="tile"><div class="row spread"><h4>Voyage ${v+1}</h4><span class="meta">${S.pearls} pearl${S.pearls===1?'':'s'} · +${Math.round((coinMult()-1)*100)}% coins and XP</span></div>
+  <div class="voy-stats"><div><span class="meta">Legacy</span><b>+${leg}%</b><span class="meta">from ${v} voyage${v===1?'':'s'}</span></div><div><span class="meta">Pearl finder</span><b>×${pm.toFixed(2)}</b><span class="meta">more pearls each voyage</span></div><div><span class="meta">This voyage</span><b class="coin">${fmtShort(S.stats.runEarned)}</b><span class="meta">coins earned</span></div></div>
+  <div class="meta">Next pearl at <span class="coin">${fmt(Math.ceil(Math.pow((Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV)*pm)+1)/pm,2)*PEARL_DIV))}</span> coins earned. Boardwalk winnings count for at most a quarter of it.</div>
+  <div class="val">Setting sail now gives +${n} pearl${n===1?'':'s'}</div>
+  <button class="btn" data-act="retire" ${ok&&!confirmBox?'':'disabled'}>${S.unlocked.includes('trench')?(n?'Set sail again':'Earn more coins first'):'Reach Hollow Trench first'}</button></div>${box}
+  <div class="tile"><h4>Voyage milestones</h4><div class="voy-list">${msRows}</div></div></div></div>`; };
+
+document.head.insertAdjacentHTML('beforeend',`<style>
+.voy-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
+.voy-stats>div{display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;border-radius:12px;border:1px solid var(--line,#26385180);background:#0e1828}
+.voy-stats b{font-family:var(--display);font-size:20px;color:var(--ink,#eef3f8)}
+.voy-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.voy-ms{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 10px;border-radius:12px;border:1px solid var(--line,#26385180);background:#0e1828}
+.voy-ms .voy-n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 13px var(--display);background:#17253a;color:#97abc2;border:1px solid var(--line,#26385180)}
+.voy-ms.got{border-color:#7fe3c455}.voy-ms.got .voy-n{background:linear-gradient(180deg,#7fe3c4,#3fb894);color:#062018;border-color:#bff5e2}
+.voy-ms>span.meta{white-space:nowrap;font-size:11.5px}
+.voy-confirm{border-color:var(--danger)!important}
+@container (max-width:520px){.voy-stats{grid-template-columns:1fr 1fr}.voy-ms{grid-template-columns:28px minmax(0,1fr)}.voy-ms>span.meta{grid-column:2}}
+</style>`);
+
+// ---------- tiny hybrids: smaller than their species' normal range = stronger aquarium boosts ----------
+// ×1 just below the normal minimum, rising to ×3 at about 1/15 of it (on top of the usual hybrid ×1.5).
+function tinyHybridK(f){ const sp=f&&SPI[f.id]; if(!sp||!f.hy||!(f.kg>0)||f.kg>=sp.min) return 1; return Math.min(3, 1+.75*Math.log(sp.min/f.kg)); }
+{ const _aq=aqBuffsOf; aqBuffsOf=function(f){ const L=_aq(f), k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; }; }
+{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){} }; }
+// =====================================================================
+// 0.3.6 UI clarity (research-led: visible navigation, labels above controls, 44pt touch targets, findability):
+//  - every page title matches its name in the menu
+//  - filter rows and dropdowns get a clear title above them
+//  - the Cooler's sell filter becomes labelled fields
+//  - bigger tap targets on touch screens
+//  - a menu search in the top bar: type "bait", "relics", "hats"... and jump straight there
+// =====================================================================
+const PAGE_TITLE={shop:'Tackle',journal:'Fish Log',games:'Boardwalk',save:'Save'};
+const CHIP_LABEL={bounties:'Water',journal:'Water',aquarium:'Show decorations that give',pets:'Show pets that boost'};
+function uiTidy(P){ if(!P) return; const t=S.tab;
+  // titles that match the menu
+  const h=P.querySelector('h2'); if(h&&PAGE_TITLE[t]&&h.textContent.trim()!==PAGE_TITLE[t]) h.textContent=PAGE_TITLE[t];
+  // a title above the page's first untitled filter row
+  if(CHIP_LABEL[t]){ const titled=c=>{ const p=c.previousElementSibling; return p&&(/H4|H5|LABEL/.test(p.tagName)||p.classList.contains('ctl-l')); }; const row=[...P.querySelectorAll('.chips')].find(c=>!titled(c)&&(t!=='aquarium'||/Any bonus/.test(c.textContent))&&(t!=='pets'||/^All/.test(c.textContent.trim()))); if(row&&!(row.previousElementSibling&&row.previousElementSibling.classList.contains('ctl-l'))){ const pv=row.previousElementSibling; if(!(pv&&/H4|H5|LABEL/.test(pv.tagName))) row.insertAdjacentHTML('beforebegin',`<div class="ctl-l">${CHIP_LABEL[t]}</div>`); } }
+  // the Cooler's sell filter: labelled fields
+  if(t==='cooler'){ const f=P.querySelector('.sellf'); if(f&&!f.classList.contains('lab')){ f.classList.add('lab'); const s=f.querySelector(':scope > .meta'); if(s) s.remove();
+      const wrap=(el,l)=>{ if(!el) return; const d=document.createElement('div'); d.className='fld'; d.innerHTML=`<span class="fld-l">${l}</span>`; el.parentNode.insertBefore(d,el); d.appendChild(el); };
+      wrap(f.querySelector('[data-sf="sellR"]'),'Rarity'); const pr=f.querySelector('.sellp'); if(pr){ const sp=pr.querySelector('span'); if(sp) sp.remove(); wrap(pr,'Price under'); const x=f.querySelector('[data-spclear]'); if(x) pr.parentNode.appendChild(x); }
+      wrap(f.querySelector('[data-ssh]'),'Shinies');
+      f.insertAdjacentHTML('afterbegin','<div class="fld-title">Sell all: what to sell</div>'); } }
+  // any text box without a name gets one read out by screen readers and shown as a title
+  P.querySelectorAll('input[type=text]:not([aria-label]):not([id])').forEach(i=>{ if(!i.closest('label')&&!(i.previousElementSibling&&/LABEL|SPAN|B/.test(i.previousElementSibling.tagName))) i.setAttribute('aria-label',i.placeholder||'Text'); }); }
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ uiTidy($('panel')); }catch(e){} return r; }; }
+
+// ---------- menu search ----------
+const SEARCH_IDX=[
+ ['Cooler','cooler',null,'fish sell sell all filter shiny price cooler space'],
+ ['Waters','map','Waters','travel water unlock location pond river coast frost reef shelf deep trench ember starfall map'],
+ ['Set sail again (voyages)','map','Set sail again','voyage prestige pearls wisdom legacy milestones start over retire'],
+ ['Pearl relics','map','Pearl relics','relic pearls permanent bonus'],
+ ['Bounties','bounties',null,'bounty harbourmaster daily tasks reward login streak'],
+ ['Events','events',null,'derby frenzy event medals'],
+ ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
+ ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],
+ ['Tackle: special lures','shop',['tackleview','lures'],'special lures junk lures magnet golden disco'],
+ ['Rods: your rod','rods','Your rod','rod equip upgrade'],
+ ['Rods: rod rack','rods','Rod rack','rods collection buy rod'],
+ ['Rods: attachments','rods','Attachments','attachments slots rod parts'],
+ ['Skills','skills',null,'skill points perks talents level'],
+ ['Paths','paths',null,'path specialisation specialization choose style'],
+ ['Aquarium: your tank','aquarium','Your tank','aquarium tank income collect feed boosts'],
+ ['Aquarium: decorate','aquarium','Decorate','aquarium decorations theme sand decor'],
+ ['Trophy Room','trophy',null,'trophy room keep mount museum forever collection storage'],
+ ['Fish Log','journal',null,'fish log encyclopedia species oddities junk collection missing'],
+ ['Feats','feats',null,'feats achievements goals'],
+ ['Home: dock','home','Dock','home dock style wood'],
+ ['Home: decorations','home','Decorations','home dock decorations furniture cozy'],
+ ['Pets: your pets','pets','Your pets','pets companion favourite'],
+ ['Pets: find more','pets','Find more','pets adopt buy new pets'],
+ ['Pets: customize','pets','Customize','pet name colour hat customize'],
+ ['Wardrobe: body','style',['wsec','body'],'wardrobe body skin hair build face beard'],
+ ['Wardrobe: clothes','style',['wsec','clothes'],'clothes shirt jacket outfit colour pattern'],
+ ['Wardrobe: hats','style',['wsec','hats'],'hats cap hat'],
+ ['Wardrobe: glasses','style',['wsec','glasses'],'glasses sunglasses'],
+ ['Wardrobe: shoes','style',['wsec','shoes'],'shoes boots'],
+ ['Wardrobe: neck & back','style',['wsec','neckback'],'scarf cape backpack neck back'],
+ ['Wardrobe: shop','style',['wsec','shop'],'clothes shop buy outfit'],
+ ['Tide Pass','pass',null,'tide pass levels rewards claim'],
+ ['Boardwalk: games','games',['bwview','games'],'boardwalk wheel spin scratch duck higher lower claw mini games tickets'],
+ ['Boardwalk: prize counter','games',['bwview','prizes'],'prizes tickets counter'],
+ ['Settings: sound','settings','Sound','sound music volume ambient'],
+ ['Settings: controls','settings','Controls','controls cast aim keyboard'],
+ ['Settings: display','settings','Display','display effects motion full screen'],
+ ['Settings: gameplay','settings','Gameplay','gameplay protect rare fish minigames'],
+ ['Settings: patch notes','settings','Patch notes','patch notes updates whats new changes'],
+ ['Settings: save & codes','settings','Save & codes','save code backup restore erase'],
+ ['Stats','stats',null,'stats numbers odds income'],
+ ['Save: move to another device','save','Move to another device','transfer phone pc move progress code'],
+];
+function searchGo(e){ const [,tab,sect]=e; if(S.tab!==tab){ setTab(tab); save(); } const P=$('panel');
+  setTimeout(()=>{ if(Array.isArray(sect)){ const b=P.querySelector(`[data-act="${sect[0]}"][data-k="${sect[1]}"]`); if(b&&b.getAttribute('aria-selected')!=='true'&&b.getAttribute('aria-pressed')!=='true') b.click(); }
+    else if(sect){ const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===sect||x.dataset.sect.startsWith(sect)); if(b) b.click(); }
+    try{ if(document.body.classList.contains('phone-app')) P.scrollTop=0; else $('tabs').scrollIntoView({behavior:'smooth',block:'start'}); }catch(er){} },30); }
+function searchFind(q){ q=q.toLowerCase().trim(); if(!q) return SEARCH_IDX.slice(0,8); const words=q.split(/\s+/);
+  return SEARCH_IDX.map(e=>{ const tw=e[0].toLowerCase().split(/[^a-z0-9]+/), hw=(e[0]+' '+e[3]).toLowerCase().split(/[^a-z0-9]+/); let s=0; for(const w of words){ if(tw.some(x=>x.startsWith(w))) s+=3; else if(hw.some(x=>x.startsWith(w))) s+=1; else return null; } return [s,e]; }).filter(Boolean).sort((a,b)=>b[0]-a[0]).slice(0,8).map(x=>x[1]); }
+(function(){ const sb=$('settingsbtn'); if(!sb||$('searchbtn')) return;
+  const box=document.createElement('div'); box.className='hudbtns'; sb.parentNode.insertBefore(box,sb); box.innerHTML='<button class="ghost" id="searchbtn" type="button" aria-label="Search the menus" title="Search the menus"><span aria-hidden="true">🔍</span><span class="sbl"> Search</span></button>'; box.appendChild(sb);
+  const ov=document.createElement('div'); ov.id='searchov'; ov.hidden=true; ov.innerHTML='<div class="sv-in" role="dialog" aria-label="Search the menus"><label class="ctl-l" for="searchq">Search the menus</label><input id="searchq" type="search" autocomplete="off" placeholder="Try bait, relics, hats, aquarium…"><div id="searchres" role="listbox"></div><button class="btn alt sm" id="searchclose" type="button">Close</button></div>'; document.body.appendChild(ov);
+  const q=ov.querySelector('#searchq'), res=ov.querySelector('#searchres'); let list=[], sel=0;
+  const draw=()=>{ list=searchFind(q.value); sel=Math.min(sel,Math.max(0,list.length-1)); res.innerHTML=list.length?list.map((e,i)=>{ const sec=menuSecOf(e[1]); return `<button type="button" class="sv-r${i===sel?' on':''}" data-i="${i}" role="option" aria-selected="${i===sel}"><b>${e[0]}</b><span class="meta">${sec?sec.name:'Menu'}</span></button>`; }).join(''):'<div class="meta" style="padding:10px 4px">Nothing found. Try another word.</div>'; };
+  const open=()=>{ ov.hidden=false; q.value=''; sel=0; draw(); setTimeout(()=>q.focus(),20); }, close=()=>{ ov.hidden=true; };
+  $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
+  ov.addEventListener('click',e=>{ if(e.target===ov||e.target.id==='searchclose'){ close(); return; } const b=e.target.closest('.sv-r'); if(b){ const it=list[+b.dataset.i]; close(); if(it) searchGo(it); } });
+  q.addEventListener('input',()=>{ sel=0; draw(); });
+  q.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ sel=Math.min(list.length-1,sel+1); draw(); e.preventDefault(); } else if(e.key==='ArrowUp'){ sel=Math.max(0,sel-1); draw(); e.preventDefault(); } else if(e.key==='Enter'){ const it=list[sel]; if(it){ close(); searchGo(it); } e.preventDefault(); } else if(e.key==='Escape'){ close(); } e.stopPropagation(); });
+  window.addEventListener('keydown',e=>{ if(e.key==='/'&&ov.hidden&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')){ e.preventDefault(); open(); } });
+})();
+if(/[?&]test\b/.test(location.search)) window.__search=q=>searchFind(q).map(e=>e[0]);
+
+document.head.insertAdjacentHTML('beforeend',`<style>
+.ctl-l{display:block;font:800 11px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#97abc2;margin:10px 0 6px}
+.sellf.lab{display:grid;grid-template-columns:auto auto auto;align-items:end;gap:10px 14px;margin:6px 0 10px;padding:10px 12px;border:1px solid var(--line,#26385180);border-radius:14px;background:#0e1828}
+.sellf.lab .fld-title{grid-column:1/-1;font:800 13px var(--display,system-ui);color:var(--ink,#eef3f8)}
+.sellf.lab .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.sellf.lab .fld-l{font:800 10.5px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#97abc2}
+.sellf.lab .sellp{display:flex;align-items:center;gap:6px}
+.sellf.lab [data-spclear]{align-self:end}
+@container (max-width:520px){.sellf.lab{grid-template-columns:1fr 1fr}.sellf.lab .fld:last-of-type{grid-column:1/-1}}
+.hudbtns{display:flex;gap:6px;align-items:stretch}
+.hudbtns>button{flex:1 1 auto;white-space:nowrap}
+#searchbtn{display:inline-flex;align-items:center;justify-content:center;gap:4px}
+@media (max-width:1199px){#searchbtn .sbl{display:none}}
+body.phone-app .hudbtns #settingsbtn{font-size:0;padding:0;display:flex;align-items:center;justify-content:center}
+body.phone-app .hudbtns #settingsbtn::before{content:"⚙";font-size:19px;line-height:1}
+#searchov{position:fixed;inset:0;z-index:60;background:#02060fcc;display:flex;align-items:flex-start;justify-content:center;padding:max(12vh,24px) 14px 14px}
+#searchov[hidden]{display:none}
+#searchov .sv-in{width:min(520px,100%);background:linear-gradient(180deg,#1a2a44,#111c2e);border:1px solid #4a6a9466;border-radius:20px;padding:14px;box-shadow:0 24px 70px #02060fdd;display:flex;flex-direction:column;gap:8px}
+#searchov input{font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid #ffd36a88;background:#0a1220;color:#eef3f8;outline:none}
+#searchov input:focus{box-shadow:0 0 0 3px #ffd36a33}
+#searchres{display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow-y:auto}
+.sv-r{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:46px;padding:8px 12px;border-radius:12px;border:1px solid transparent;background:#0e1828;color:#eef3f8;font:inherit;text-align:left;cursor:pointer}
+.sv-r:hover,.sv-r.on{border-color:#ffd36a88;background:#16243a}
+#searchclose{align-self:flex-end}
+/* touch screens: tap targets of at least 44px (buttons) and 40px (chips), per Apple / Material guidance */
+@media (pointer:coarse){ body.v3 .btn{min-height:44px} body.v3 .btn.sm{min-height:40px} body.v3 .chipb{min-height:40px} body.v3 #panel .acts .btn{min-height:40px} }
+</style>`);
+
+// ---------- rarity you can feel: each step up looks, sounds and buzzes better than the one below ----------
+// common: clean · uncommon: tinted frame · rare: glowing frame · epic: slow light rays · legendary: golden rays,
+// rising sparkles and a shimmer over the name · mythic: prismatic rays, more sparkles and a pulsing frame
+const RAR_FEEL={ buzz:[[0],[18],[22,40,22],[30,40,30,40,30],[40,50,40,50,80],[60,40,60,40,60,40,140]] };
+function rarFanfare(r){ try{ if(r>=4){ const base=r===5?[523,659,784,1047,1319]:[392,523,659,784,1047]; base.forEach((f,i)=>tone(f,.5,'triangle',.06,0,.12+i*.09)); tone(r===5?1568:1319,.9,'sine',.05,0,.62); }
+    else if(r===3){ [659,880,1109].forEach((f,i)=>tone(f,.32,'triangle',.05,0,.1+i*.07)); } }catch(e){}
+  try{ if(r>=1&&typeof vib==='function') vib(RAR_FEEL.buzz[r]); }catch(e){} }
+{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
+    if(r>=3){ ci.insertAdjacentHTML('afterbegin',`<div class="rf rf-rays" aria-hidden="true"></div>`); }
+    if(r>=4){ let s='<div class="rf rf-sparks" aria-hidden="true">'; const n=r===5?14:9; for(let i=0;i<n;i++) s+=`<i style="left:${6+((i*37)%88)}%;animation-delay:${(i*.23).toFixed(2)}s;animation-duration:${(2.2+(i%4)*.35).toFixed(2)}s"></i>`; ci.insertAdjacentHTML('afterbegin',s+'</div>'); }
+    if(r>=0) rarFanfare(r); }catch(e){} }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#cardin{position:relative;isolation:isolate}
+#cardin > *:not(.rf):not(.shine){position:relative;z-index:1}
+#cardin > .shine{z-index:2}
+#cardin .rf{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;overflow:hidden}
+#cardin[data-rar="1"]{border-color:#7fe3a888!important}
+#cardin[data-rar="2"]{border-color:#6ab8ff!important;box-shadow:inset 0 1px 0 #ffffff1a,0 24px 70px #02060fdd,0 0 34px #6ab8ff44!important}
+#cardin[data-rar="3"]{border-color:#c48aff!important;box-shadow:inset 0 1px 0 #ffffff1a,0 24px 70px #02060fdd,0 0 44px #c48aff55!important}
+#cardin[data-rar="4"]{border-color:#ffc94d!important;box-shadow:inset 0 1px 0 #fff3c066,0 24px 70px #02060fdd,0 0 60px #ffc94d66!important}
+#cardin[data-rar="5"]{border-color:#ff6ad5!important;box-shadow:inset 0 1px 0 #ffd6f566,0 24px 70px #02060fdd,0 0 70px #ff6ad577!important;animation:rfPulse 2.4s ease-in-out infinite}
+.rf-rays{-webkit-mask-image:radial-gradient(circle at 50% 24%,#000 0 22%,transparent 62%);mask-image:radial-gradient(circle at 50% 24%,#000 0 22%,transparent 62%)}
+.rf-rays::before{content:"";position:absolute;left:50%;top:26%;width:220%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;opacity:.5;animation:rfSpin 18s linear infinite}
+#cardin[data-rar="3"] .rf-rays::before{background:repeating-conic-gradient(from 0deg,#c48aff2e 0 8deg,transparent 8deg 24deg);opacity:.55}
+#cardin[data-rar="4"] .rf-rays::before{background:repeating-conic-gradient(from 0deg,#ffd36a3a 0 7deg,transparent 7deg 20deg);opacity:.75;animation-duration:12s}
+#cardin[data-rar="5"] .rf-rays::before{background:repeating-conic-gradient(from 0deg,#ff6ad53a 0 6deg,#7ae8ff2e 6deg 12deg,transparent 12deg 20deg);opacity:.85;animation-duration:9s}
+.rf-sparks i{position:absolute;bottom:-6px;width:5px;height:5px;border-radius:50%;background:#fff3c0;box-shadow:0 0 8px #ffd36a;opacity:0;animation:rfRise 2.6s ease-in infinite}
+#cardin[data-rar="5"] .rf-sparks i:nth-child(odd){background:#ffd6f6;box-shadow:0 0 8px #ff6ad5}
+#cardin[data-rar="4"] #cardname,#cardin[data-rar="5"] #cardname{background:linear-gradient(100deg,#fff 0 38%,#fff6d0 46%,#fff 54% 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rfShine 3.2s ease-in-out infinite}
+@keyframes rfSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes rfRise{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-240px) scale(1.1)}}
+@keyframes rfShine{0%,30%{background-position:100% 0}70%,100%{background-position:0 0}}
+@keyframes rfPulse{0%,100%{box-shadow:inset 0 1px 0 #ffd6f566,0 24px 70px #02060fdd,0 0 54px #ff6ad555}50%{box-shadow:inset 0 1px 0 #ffd6f566,0 24px 70px #02060fdd,0 0 90px #ff6ad599}}
+@media (prefers-reduced-motion:reduce){.rf-rays::before,.rf-sparks i,#cardin[data-rar] #cardname,#cardin[data-rar="5"]{animation:none!important}#cardin[data-rar="4"] #cardname,#cardin[data-rar="5"] #cardname{color:#fff;background:none}}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* catch card stats: values never break mid-number; with four stats they wrap as whole units when space is short */
+.card .nums{flex-wrap:wrap;gap:8px 16px}
+.card .nums b{white-space:nowrap}
+.card .nums div{align-items:center;min-width:64px}
+</style>`);
+
+// ---------- Fish Log: find what you are missing (the weak spot of most collection logs) ----------
+// "Show: All · Missing · Catchable now" (missing fish you can catch here at this time of day), and a hint on each
+// missing fish: when it is active and how it fights.
+{ const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ if(encLoc==='junk') return; const L=LOCS[locIdx(encLoc)]; if(!L) return; const mode=S.settings.logShow||'all', p=phase(), open=S.unlocked.includes(L.id);
+    const list=spAt(L.id), miss=list.filter(s=>!S.journal[s.id]), now=miss.filter(s=>timeOk(s,p)&&open);
+    const row=[...P.querySelectorAll('.chips')].find(c=>c.querySelector('[data-act="encloc"]')); if(!row) return;
+    row.insertAdjacentHTML('afterend',`<div class="ctl-l">Show</div><div class="chips logshow">${[['all','All '+list.length],['missing','Missing '+miss.length],['now','Catchable now '+now.length]].map(([k,n])=>`<button class="chipb" type="button" data-logshow="${k}" aria-pressed="${mode===k}">${n}</button>`).join('')}</div>`);
+    P.querySelectorAll('.jgrid .jcard[data-k]').forEach(c=>{ const s=SPI[c.dataset.k]; if(!s) return; const got=!!S.journal[s.id], ok=timeOk(s,p)&&open;
+      if(mode==='missing'&&got || mode==='now'&&(got||!ok)) c.style.display='none';
+      if(!got){ const B=BEH[s.beh], html=(B?B.n:'')+(ok?' · <b class="lognow">Now</b>':''), sm=[...c.querySelectorAll('small')].find(x=>/Not caught yet/.test(x.textContent));
+        if(sm){ sm.classList.add('loghint'); sm.innerHTML=html; } else c.insertAdjacentHTML('beforeend','<small class="loghint">'+html+'</small>'); } });
+    if(mode!=='all'&&!P.querySelector('.jgrid .jcard[data-k]:not([style*="none"])')) P.querySelector('.jgrid').insertAdjacentHTML('beforebegin',`<div class="empty">${mode==='now'?'Nothing new to catch here right now. Try the other time of day, or another water.':'You have found every fish here. Well done!'}</div>`);
+    P.querySelectorAll('[data-logshow]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.settings.logShow=b.dataset.logshow; save(); renderPanel(); });
+  }catch(e){} }; }
+document.head.insertAdjacentHTML('beforeend',`<style>.jcard .loghint{color:#97abc2;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.jcard .lognow{color:var(--kelp,#7fe3c4);font-weight:800}</style>`);
 
 // ---------- loop ----------
 let last=performance.now();
@@ -11147,7 +11846,7 @@ offlineIncome(); fillBounties(); ensureDaily(); accrueSpins(); checkFeats(); ref
 if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cast your first line'),600);
 })();
 </script>
-<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.5.1 preview</div>
+<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">0.3.6 preview (in progress)</div>
 <div id="updbar" hidden style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:20;display:flex;gap:10px;align-items:center;background:#10222b;border:1px solid #ffc94d;color:#e6efe8;padding:8px 10px 8px 16px;border-radius:999px;font:700 14px system-ui,sans-serif;box-shadow:0 10px 30px #0008;max-width:calc(100% - 32px)">
   <span>🎣 A new Driftline update is ready <span style="opacity:.7;font-weight:400">· your progress is safe</span></span>
   <button id="updbtn" type="button" style="background:#ff6a3d;color:#1d0d06;border:0;border-radius:999px;padding:6px 14px;font:inherit;cursor:pointer">Update &amp; see what’s new</button>
