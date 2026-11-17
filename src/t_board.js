@@ -16,7 +16,7 @@ function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=(
   if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and at home.'};
   if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase()+'.'};
   if(id==='scales10') return {cat:'Scales', d:'Scales level up your rods and buy rod attachments and special bait.'};
-  if(id==='crate') return {cat:'Mystery crate', d:'Opens into coins, lures, clothes, decor, and sometimes a pet.'};
+  if(id==='crate') return {cat:'Mystery crate', d:'Opens into clothes, lures, decor and now and then a pet.'};
   if(id==='myth') return {cat:'Bait', d:'Three Myth Bait: legendary fish are far more likely to bite.'};
   return {cat:'Prize', d:p[1]}; }
 const BW_GAMES = [['wheel','🎡','#ff8a5c'],['crates','🎁','#b9a2ff'],['duck','🦆','#5ad8e8'],['hilo','🃏','#7fe3c4'],['flip','🪙','#ffd36a'],['scratch','🎫','#ff9ac0'],['claw','🧸','#ff7ab0']];
@@ -24,24 +24,24 @@ function bwCard(icon,col,title,meta,body,foot){ return `<div class="bwx-card" st
 function bwGamesHTML(){ const tk=S.tokens, base=bestLoot(), nextIn=Math.max(0,Math.ceil((SPIN_EVERY-(Date.now()-S.wheelT))/60000));
   const crateRow=(k,name,desc)=>`<div class="bwx-row"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmtShort(crateCost(k))}</span></button>`}</div>`;
   const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>${Math.round(f*100)}% · <span class="coin">${fmtShort(Math.max(0,amt))}</span></button>`; };
-  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'🎁':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
+  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'🎁':p.k==='wear'?'👕':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
   return `<div class="bwx-grid">
    ${bwCard('🎡','#ff8a5c','Lucky wheel','A free spin every hour, up to '+SPIN_BANK+' saved.'+(S.freeSpins<SPIN_BANK?' Next in '+nextIn+' min.':''),
      `<div class="wheelwrap"><div class="wheelring"><canvas id="wheelcv" width="520" height="520"></canvas></div>${WH.result?`<div class="val bwx-res">${esc(WH.result)}</div>`:''}</div>`,
      S.freeSpins>0?`<button class="btn" data-act="spin" data-k="free" ${WH.spinning?'disabled':''}>Free spin (${S.freeSpins} left)</button>`:`<button class="btn" data-act="spin" ${WH.spinning||S.money<wheelCost()?'disabled':''}>Spin · <span class="coin">${fmtShort(wheelCost())}</span></button>`)}
-   ${bwCard('🎁','#b9a2ff','Mystery crates','Coins, lures, clothes, decor, rods, and pets you can’t get anywhere else.',
-     crateRow('small','Small crate','Mostly coins and lures. Sometimes a pet.')+crateRow('big','Big crate','Clothes, decor and the rarer pets.')+crateRow('legend','Legendary crate','The really good stuff.')+(crateRes?`<div class="reveal bwx-res"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''),'')}
-   ${bwCard('🦆','#5ad8e8','Duck pond','Pick a rubber duck. Every duck wins something.',
+   ${bwCard('🎁','#b9a2ff','Mystery crates','Clothes, decor, lures and pets you can’t get anywhere else, plus Boardwalk-only wear.',
+     crateRow('small','Small crate','Mostly clothes and lures. Sometimes decor or a pet.')+crateRow('big','Big crate','Clothes, Boardwalk-only wear, decor and the rarer pets.')+crateRow('legend','Legendary crate','The really good stuff.')+(crateRes?`<div class="reveal bwx-res"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''),'')}
+   ${bwCard('🦆','#5ad8e8','Duck pond','Pick a rubber duck. Every duck wins tickets, and a few hide a crate or something to wear.',
      duck?`<div class="ducks">${ducks}</div>${duck.pick>=0?`<div class="val bwx-res">${esc(duck.msg||'')}</div>`:''}`:'<div class="bwx-art">🦆 🦆 🦆</div>',
      `<button class="btn${duck&&duck.pick<0?' alt':''}" data-act="duckagain" ${S.money>=base&&!(duck&&duck.pick<0)?'':'disabled'}>${duck?'Play again':'Play'} · <span class="coin">${fmtShort(base)}</span></button>`)}
-   ${bwCard('🃏','#7fe3c4','Higher or lower','Guess the next fish card. Every right guess grows the pot by half. Cash out any time.',
-     hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val bwx-res">Pot <span class="coin">${fmt(hilo.pot)}</span> · streak ${hilo.streak}</div>`:`${hilo&&hilo.done?`<div class="val bwx-res">${esc(hilo.msg)}</div>`:'<div class="bwx-art">🂠 🂡</div>'}`,
+   ${bwCard('🃏','#7fe3c4','Higher or lower','Guess the next fish card. Every right guess grows the ticket pot by half. Cash out any time.',
+     hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val bwx-res">Pot 🎟 ${fmt(hilo.pot)} tickets · streak ${hilo.streak}</div>`:`${hilo&&hilo.done?`<div class="val bwx-res">${esc(hilo.msg)}</div>`:'<div class="bwx-art">🂠 🂡</div>'}`,
      hilo&&!hilo.done?`<button class="btn sm" data-act="hilo" data-k="hi">Higher ▲</button><button class="btn sm" data-act="hilo" data-k="lo">Lower ▼</button><button class="btn alt sm" data-act="hilocash" ${hilo.streak?'':'disabled'}>Cash out</button>`:`<button class="btn" data-act="hilostart" ${S.money>=base*2?'':'disabled'}>Deal · <span class="coin">${fmtShort(base*2)}</span></button>`)}
    ${bwCard('🪙','#ffd36a','Coin flip','Heads you double it, tails the Fishmonger keeps it. '+S.gstats.flips+' flips, '+S.gstats.flipWins+' won.',
      flipRes?`<div class="val bwx-res" style="color:${flipRes.win?'var(--gold)':'var(--muted)'}">${esc(flipRes.txt)}</div>`:'<div class="bwx-art">🪙</div>', betBtn(.1)+betBtn(.25)+betBtn(.5))}
-   ${bwCard('🎫','#ff9ac0','Scratch card','Three of a kind wins: 🐟 ×2 · 🦀 ×4 · 🐚 ×8 · 💎 ×20 · 👑 ×60 (times '+fmtShort(base)+').',
+   ${bwCard('🎫','#ff9ac0','Scratch card','Three of a kind wins: 🐟 30 · 🦀 60 · 🐚 120 tickets · 💎 a crate · 👑 Boardwalk-only wear.',
      scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div>`
-      :scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val bwx-res" style="color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:'<div class="bwx-art">🎫</div>',
+      :scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val bwx-res" style="color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! '+(scratch.txt||''):'No match this time.'}</div>`:'<div class="bwx-art">🎫</div>',
      scratch&&!scratch.done?'<button class="btn alt sm" data-act="scratchall">Reveal all</button>':`<button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmtShort(base*2)}</span></button>`)}
    ${bwCard('🧸','#ff7ab0','Claw machine','Plushies, tickets and secrets. The claw is… mostly honest.',
      `<canvas id="clawcv" width="420" height="260" class="bwx-claw"></canvas>${claw?`<div class="val bwx-res" style="color:${claw.win?'var(--gold)':'var(--muted)'}">${esc(claw.txt)}</div>`:''}`,
@@ -84,7 +84,7 @@ renderBoardwalk = function(P){ accrueSpins();
   if(bwView==='games'){ paintClaw(); drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
     if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
     else if(k==='rod'){ x.save(); x.scale(1.8,1.8); v3Rod(x,{x:16,y:80},{x:118,y:16},66,50,ROD_I[crateRes.id],0,0,false); x.restore(); }
-    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
+    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else if(k==='wear') bwDrawWear(x,240,180,crateRes.wear); else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
   if(bwView==='prizes'){ paintPrizes(P);
     // prizes added in later updates: draw them from the real pet, rod and hat art instead of the generic token
     P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const id=c.dataset.prize, p=PRIZES.find(q=>q[0]===id); if(!p) return; const tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase(), x=c.getContext('2d');

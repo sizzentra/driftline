@@ -121,7 +121,8 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 // scroll the pill row (not the page) so the open page's pill sits fully in view, clear of the edge fades
 function menuPillView(sb,p){ if(!sb||!p) return; if(sb.scrollWidth>sb.clientWidth+2){ const s=sb.getBoundingClientRect(), r=p.getBoundingClientRect(), pad=34;
     if(r.right>s.right-pad) sb.scrollLeft+=r.right-(s.right-pad); else if(r.left<s.left+pad) sb.scrollLeft-=(s.left+pad)-r.left; }
-  sb.classList.toggle('more-r',sb.scrollLeft+sb.clientWidth<sb.scrollWidth-4); sb.classList.toggle('more-l',sb.scrollLeft>4); }
+  const edges=()=>{ sb.classList.toggle('more-r',sb.scrollLeft+sb.clientWidth<sb.scrollWidth-4); sb.classList.toggle('more-l',sb.scrollLeft>4); };
+  edges(); requestAnimationFrame(edges); } // again next frame: the row can still change width after this (the edge fade must match the final scroll)
 
 // ---------- the catch card on phones (upright and sideways): everything on one card, no scrolling ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
