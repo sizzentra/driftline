@@ -83,7 +83,10 @@ function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.sc
       c.fillStyle='rgba(220,220,220,.35)'; for(let i=0;i<4;i++){ const k=((t*.25+i/4)%1); c.beginPath(); c.arc(10.5+k*6,-46-k*22,2+k*4,0,7); c.fill(); } c.restore(); break; }
     case 'tideflag': R(-.6,-26,1.2,26,'#ddd'); c.fillStyle=D('#2a8aa8'); c.beginPath(); c.moveTo(.6,-26); c.quadraticCurveTo(7,-24+Math.sin(t*3)*1.5,13,-26+Math.sin(t*3+1)); c.lineTo(13,-18+Math.sin(t*3+1)); c.quadraticCurveTo(7,-16+Math.sin(t*3)*1.5,.6,-18); c.fill(); c.strokeStyle='#fff'; c.lineWidth=.8; c.beginPath(); c.moveTo(3,-22); c.quadraticCurveTo(6,-24,9,-22); c.stroke(); break;
     case 'shipwheel': { c.save(); c.translate(0,-11); c.rotate(Math.sin(t*.5)*.3); c.strokeStyle=D('#8a5a2a'); c.lineWidth=1.6; c.beginPath(); c.arc(0,0,7,0,7); c.stroke(); for(let i=0;i<8;i++){ const a=i*Math.PI/4; c.beginPath(); c.moveTo(0,0); c.lineTo(Math.cos(a)*10,Math.sin(a)*10); c.stroke(); } Ci(0,0,2,'#c8a050'); c.restore(); R(-.8,-4,1.6,4,'#6a4228'); break; }
-    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); R(-2.4,-25.4,4.8,2.8,night>.25?'#fff2a8':'#d8d0a0'); if(night>.25){ c.fillStyle='rgba(255,240,170,.14)'; c.beginPath(); c.moveTo(0,-24); const a=t*1.5; c.lineTo(Math.cos(a)*70,-24-14); c.lineTo(Math.cos(a)*70,-24+14); c.fill(); } break; }
+    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); if(night>.25){ /* lit at night: the lamp glows at full brightness (night shading used to grey it out) and the beam sweeps out and fades */
+        const k=Math.min(1,(night-.25)/.35), a=t*1.5, L=86*Math.abs(Math.cos(a))+14, dir=Math.cos(a)<0?-1:1, bg=c.createLinearGradient(0,-24,dir*L,-24); bg.addColorStop(0,'rgba(255,240,170,'+(.42*k)+')'); bg.addColorStop(1,'rgba(255,240,170,0)');
+        c.fillStyle=bg; c.beginPath(); c.moveTo(0,-24); c.lineTo(dir*L,-24-12); c.lineTo(dir*L,-24+12); c.closePath(); c.fill(); glow(0,-24,11,'rgba(255,236,160,'+(.8*k)+')'); c.fillStyle='#fff2a8'; c.fillRect(-2.4,-25.4,4.8,2.8); }
+      else R(-2.4,-25.4,4.8,2.8,'#d8d0a0'); break; }
   }
   c.restore(); }
 
@@ -95,12 +98,12 @@ const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag 
   8:['tint','tidal','Tidal pet colour','Pet colour: recolours any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
   12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
   18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
-  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for your Home dock.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
+  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for any of your docks.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
   35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
   45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
 // regular levels cycle through these, every amount shown before you claim it
 function passPlain(L){ const base=bestLoot(); if(L>PASS_MAX) return {k:'bonus', name:'Coins and 20 Scales', d:fmt(Math.round(base*12*coinMult()))+' coins and 20 Scales.'};
-  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Coins and lures, sometimes a pet.'}][L%5]; }
+  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Mostly clothes and lures, sometimes decor or a pet.'}][L%5]; }
 function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);

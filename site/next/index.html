@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1215';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1238';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2830,6 +2830,10 @@ const PATCHES = [
   'Smoother everywhere: Aurora weather is far lighter to draw, the Pets page opens about twice as fast, and the top bar does less work while you fish.',
   'The numbers add up: each aquarium fish’s coins per hour add up exactly to the total, short amounts never round up (999,999 coins used to read 1000K), and weekly quests pay exactly what they show.',
   'A sleeping bat’s accessories now hang with it instead of floating.',
+  'Backpacks and everything worn on the back have straps that run from the pack over your shoulder: the backpack, tackle pack, plush and seashell packs, scuba tank, jetpack, rod quiver, guitar, shark fin, turtle shell, creel, net, lantern and banner poles.',
+  'Necklaces show on your chest instead of hiding behind your arm: the gold chain, pearls, shells, medal, whistle, fish on a string, flower lei, feather boa, bow tie and tie.',
+  'The Tiny Lighthouse on your dock now glows at night, and its beam sweeps across the water.',
+  'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
   'Keyboard shortcuts on PC: M opens and closes the menu, 1 to 5 open a category, [ and ] move between pages, / searches and Esc closes menus and cards. Press ? to see them all.',
@@ -3768,7 +3772,10 @@ function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
   return `<div class="pvbar"><span>Previewing in your tank: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="aqpvoff">Stop</button></span></div>`; }
 // prize counter thumbnails
 function paintPrizes(P){ P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const x=c.getContext('2d'), id=c.dataset.prize; x.clearRect(0,0,c.width,c.height); const t=0;
-  const pet=(lk)=>drawPetStyled(x,S.pet,48,70,S.pet==='horse'||S.pet==='cow'?1.6:2.6,t,0,Object.assign({},petLook(),lk));
+  // pet prizes: drawn awake (the scene's night used to put them to sleep), sized to fit, a balloon smaller so it shows;
+  // a colour is shown on a pet whose coat it changes (Dax is black, so a hue shift barely shows on him)
+  const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon', n0=PET_NIGHT; PET_NIGHT=0;
+    try{ drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); } finally{ PET_NIGHT=n0; } };
   if(id==='teddy') drawPet(x,'teddy',48,72,3,t); else if(id==='carousel') drawDecor(x,'carousel',48,74,.55,t); else if(id==='golden'||id==='rainbow') pet({tint:id}); else if(id==='balloon'||id==='partyhat') pet({acc:id});
   else if(id==='sixsevencap'||id==='carnival'||id==='fishbowl') hatPreview(x,96,80,id,S.look.hatCol); else if(id==='spacesuit') drawAngler(x,48,78,1.05,Object.assign({},S.look,{outfit:'spacesuit',hat:'none'}),{});
   else if(id==='crate') drawJunk(x,96,80,'chest'); else if(id==='myth') drawJunk(x,96,80,'goldlure'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(48+Math.cos(a)*22,40+Math.sin(a)*22); } x.fill(); x.fillStyle='#0a161d'; x.font='800 14px system-ui'; x.textAlign='center'; x.fillText('10',48,45); } }); }
@@ -3895,7 +3902,10 @@ function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.sc
       c.fillStyle='rgba(220,220,220,.35)'; for(let i=0;i<4;i++){ const k=((t*.25+i/4)%1); c.beginPath(); c.arc(10.5+k*6,-46-k*22,2+k*4,0,7); c.fill(); } c.restore(); break; }
     case 'tideflag': R(-.6,-26,1.2,26,'#ddd'); c.fillStyle=D('#2a8aa8'); c.beginPath(); c.moveTo(.6,-26); c.quadraticCurveTo(7,-24+Math.sin(t*3)*1.5,13,-26+Math.sin(t*3+1)); c.lineTo(13,-18+Math.sin(t*3+1)); c.quadraticCurveTo(7,-16+Math.sin(t*3)*1.5,.6,-18); c.fill(); c.strokeStyle='#fff'; c.lineWidth=.8; c.beginPath(); c.moveTo(3,-22); c.quadraticCurveTo(6,-24,9,-22); c.stroke(); break;
     case 'shipwheel': { c.save(); c.translate(0,-11); c.rotate(Math.sin(t*.5)*.3); c.strokeStyle=D('#8a5a2a'); c.lineWidth=1.6; c.beginPath(); c.arc(0,0,7,0,7); c.stroke(); for(let i=0;i<8;i++){ const a=i*Math.PI/4; c.beginPath(); c.moveTo(0,0); c.lineTo(Math.cos(a)*10,Math.sin(a)*10); c.stroke(); } Ci(0,0,2,'#c8a050'); c.restore(); R(-.8,-4,1.6,4,'#6a4228'); break; }
-    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); R(-2.4,-25.4,4.8,2.8,night>.25?'#fff2a8':'#d8d0a0'); if(night>.25){ c.fillStyle='rgba(255,240,170,.14)'; c.beginPath(); c.moveTo(0,-24); const a=t*1.5; c.lineTo(Math.cos(a)*70,-24-14); c.lineTo(Math.cos(a)*70,-24+14); c.fill(); } break; }
+    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); if(night>.25){ /* lit at night: the lamp glows at full brightness (night shading used to grey it out) and the beam sweeps out and fades */
+        const k=Math.min(1,(night-.25)/.35), a=t*1.5, L=86*Math.abs(Math.cos(a))+14, dir=Math.cos(a)<0?-1:1, bg=c.createLinearGradient(0,-24,dir*L,-24); bg.addColorStop(0,'rgba(255,240,170,'+(.42*k)+')'); bg.addColorStop(1,'rgba(255,240,170,0)');
+        c.fillStyle=bg; c.beginPath(); c.moveTo(0,-24); c.lineTo(dir*L,-24-12); c.lineTo(dir*L,-24+12); c.closePath(); c.fill(); glow(0,-24,11,'rgba(255,236,160,'+(.8*k)+')'); c.fillStyle='#fff2a8'; c.fillRect(-2.4,-25.4,4.8,2.8); }
+      else R(-2.4,-25.4,4.8,2.8,'#d8d0a0'); break; }
   }
   c.restore(); }
 
@@ -3907,12 +3917,12 @@ const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag 
   8:['tint','tidal','Tidal pet colour','Pet colour: recolours any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
   12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
   18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
-  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for your Home dock.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
+  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for any of your docks.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
   35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
   45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
 // regular levels cycle through these, every amount shown before you claim it
 function passPlain(L){ const base=bestLoot(); if(L>PASS_MAX) return {k:'bonus', name:'Coins and 20 Scales', d:fmt(Math.round(base*12*coinMult()))+' coins and 20 Scales.'};
-  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Coins and lures, sometimes a pet.'}][L%5]; }
+  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Mostly clothes and lures, sometimes decor or a pet.'}][L%5]; }
 function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
@@ -7653,18 +7663,15 @@ function a3Neck(c,id,D,col,t,w,lean){ if(!id||id==='none') return; const ac=D(co
       wrap(ac); if(id!=='scarf'){ c.save(); c.beginPath(); c.ellipse(.4,-46.2,5.6*w,2.3,0,0,7); c.moveTo(1.6,-45.4); c.lineTo(2.6+sway,-45.6+L); c.lineTo(5.6+sway,-46+L); c.lineTo(4.4,-45.6); c.clip(); c.fillStyle=D('#f4ece0'); for(let y=-48;y<-44+L;y+=2.4) c.fillRect(-8,y,16,1); c.restore(); } break; }
     case 'cowl': wrap(ac,dk); c.fillStyle=a3Grad(c,-50,-46,ac,.2,.2); c.beginPath(); c.ellipse(.4,-47.6,4.6*w,1.8,0,0,7); c.fill(); c.strokeStyle=dk; c.lineWidth=.3; for(let i=-4;i<=4;i+=1.3){ c.beginPath(); c.moveTo(i*w,-48.6); c.lineTo(i*w*1.1,-44.6); c.stroke(); } break;
     case 'bandana': { c.fillStyle=a3Grad(c,-47,-39,ac,.15,.3); c.beginPath(); c.moveTo(-4.6*w,-46.6); c.lineTo(5*w,-46.6); c.lineTo(.8,-39.4); c.closePath(); c.fill(); for(let i=0;i<5;i++) dot(-2+i*1.2,-45.4+(i%2)*1.2,.3,D('#f4f0e8')); break; }
-    case 'bowtie': c.fillStyle=ac; c.beginPath(); c.moveTo(.6,-45.2); c.lineTo(-2.2,-46.8); c.lineTo(-2.2,-43.6); c.closePath(); c.moveTo(.6,-45.2); c.lineTo(3.4,-46.8); c.lineTo(3.4,-43.6); c.closePath(); c.fill(); dot(.6,-45.2,.8,dk); break;
-    case 'tie': c.fillStyle=a3Grad(c,-46,-31,ac,.15,.25); c.beginPath(); c.moveTo(-.2,-45.6); c.lineTo(1.6,-45.6); c.lineTo(1.2,-44.4); c.lineTo(2.2,-33); c.lineTo(.7,-31.4); c.lineTo(-.6,-33); c.lineTo(.4,-44.4); c.closePath(); c.fill(); c.strokeStyle=dk; c.lineWidth=.3; for(let y=-42;y<-33;y+=2){ c.beginPath(); c.moveTo(.2,y); c.lineTo(1.8,y-1); c.stroke(); } break;
+    // (2026-11-17) the bow tie, tie, pendants, medal, whistle and fish are drawn on the chest front over the arm (a3NeckFront in
+    // ak_side.js); here only what wraps the back of the neck is drawn, so nothing can show twice when the arm moves
+    case 'bowtie': case 'tie': case 'medal': case 'whistle': case 'fishneck': break;
     case 'lei': { const cs=['#ff6a8a','#ffd84a','#ff9a3a','#e86ad8']; for(let i=0;i<11;i++){ const a=Math.PI*(.05+i*.09), x=Math.cos(a)*5.6*w, y=-46+Math.sin(a)*4.6; dot(x,y,1.25,D(cs[i%4])); dot(x,y,.4,D('#fff4c0')); } break; }
     case 'shells': case 'pearls': case 'goldchain': { const big=id==='goldchain'; c.strokeStyle=D(big?'#e8b830':'#d8c8a0'); c.lineWidth=big?1:.4; c.beginPath(); c.ellipse(.4,-45.4,5*w,big?5.4:4.2,0,.15,Math.PI-.15); c.stroke();
       if(id==='pearls') for(let i=0;i<9;i++){ const a=Math.PI*(.1+i*.1); dot(.4+Math.cos(a)*5*w,-45.4+Math.sin(a)*4.2,.6,D('#f8f4ee')); }
-      if(id==='shells'){ for(const [x,y] of [[-2.2,-42],[.4,-41.3],[3,-42]]){ c.fillStyle=D('#f4d8c0'); c.beginPath(); c.moveTo(x,y+1.2); c.lineTo(x-1,y-.4); c.quadraticCurveTo(x,y-1.2,x+1,y-.4); c.closePath(); c.fill(); } }
-      if(big){ c.fillStyle=a3Grad(c,-42,-36,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(.4,-38.6,2.2,0,7); c.fill(); c.fillStyle=D('#a87a18'); c.font='bold 3px sans-serif'; c.textAlign='center'; c.fillText('$',.4,-37.5); } break; }
-    case 'medal': c.strokeStyle=D('#2a5ad8'); c.lineWidth=1; c.beginPath(); c.moveTo(-3,-46.4); c.lineTo(.4,-40); c.lineTo(3.6,-46.4); c.stroke(); c.fillStyle=a3Grad(c,-41,-36,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(.4,-38.4,2,0,7); c.fill(); c.fillStyle=D('#c8961e'); c.beginPath(); c.arc(.4,-38.4,1.1,0,7); c.fill(); break;
-    case 'whistle': c.strokeStyle=D('#e83a3a'); c.lineWidth=.4; c.beginPath(); c.moveTo(-2.6,-46); c.lineTo(.8,-40.6); c.lineTo(3.4,-46); c.stroke(); c.fillStyle=D('#c8ccd4'); c.beginPath(); c.ellipse(1.2,-39.8,1.4,.9,0,0,7); c.fill(); c.fillRect(1.8,-40.6,1.6,.9); break;
+      break; }
     case 'ascot': wrap(ac); c.fillStyle=a3Grad(c,-46,-39,ac,.2,.3); c.beginPath(); c.moveTo(-.6,-45.6); c.quadraticCurveTo(-1.8,-41.6,.6,-39.4); c.quadraticCurveTo(2.8,-41.6,1.8,-45.6); c.closePath(); c.fill(); dot(.6,-43,.4,D('#ffd84a')); break;
     case 'boa': { const cs=[ac,lt,ac]; for(let i=0;i<16;i++){ const a=Math.PI*(-.05+i*.075), x=Math.cos(a)*5.8*w, y=-46.2+Math.sin(a)*3.6+(i>12?(i-12)*1.4:0); dot(x+(i>12?sway*.3:0),y,1.6,cs[i%3]); } break; }
-    case 'fishneck': c.strokeStyle=D('#e8e0c8'); c.lineWidth=.35; c.beginPath(); c.moveTo(-2.4,-46); c.lineTo(.8,-39.4); c.lineTo(3.4,-46); c.stroke(); { c.save(); c.translate(1+sway*.3,-37); c.rotate(.2+sway*.05); c.fillStyle=a3Grad(c,-1.6,1.6,D('#8ac8e8'),.3,.3); c.beginPath(); c.ellipse(0,0,3,1.5,0,0,7); c.fill(); c.beginPath(); c.moveTo(-2.6,0); c.lineTo(-4.4,-1.4); c.lineTo(-4.4,1.4); c.closePath(); c.fill(); dot(1.6,-.3,.35,'#14141a'); c.restore(); } break;
   } }
 
 // ---------- back pieces (behind the upper body; shoulders around (-6,-45)); drawn in upper-body space ----------
@@ -9616,9 +9623,40 @@ function a3OverArm(c,lk,D,B,t){ const w=B.w, o=lk.outfit;
   if(o==='captain'){ const gold=D('#f2c84a'); c.fillStyle=gold; c.beginPath(); c.ellipse(.5*w,-48,2.6*w,.9,0,0,7); c.fill(); for(let k=0;k<5;k++) c.fillRect(.5*w-2*w+k*w,-47.5,.45,1.6); }
   if(o==='overalls'){ const den=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#3a6f9a'); c.strokeStyle=den; c.lineWidth=1.7; c.beginPath(); c.moveTo(2.4,-38.4); c.quadraticCurveTo(3.2,-45.2,.6*w,-46.8); c.quadraticCurveTo(-2.4*w,-47.2,-3.4*w,-46.6); c.stroke(); }
   if(o==='lifejacket'){ c.strokeStyle=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#ff7a2a'); c.lineWidth=2; c.beginPath(); c.moveTo(3,-41); c.quadraticCurveTo(2.6,-46.6,.4*w,-47); c.quadraticCurveTo(-2.2*w,-47.2,-3.2*w,-45.6); c.stroke(); }
-  const bk=lk.back; if(['backpack','tacklepack','plushpack','sharkfin','guitar'].includes(bk)){ const cl=D(mix(bk==='plushpack'?'#5aa8c8':bk==='sharkfin'?'#3a4450':(lk.accCol||'#c8553a'),'#000000',.35));
-    c.strokeStyle=cl; c.lineWidth=1.3; c.beginPath(); c.moveTo(-3*w,-46.4); c.quadraticCurveTo(.8*w,-48,2.8*w,-44.6); c.quadraticCurveTo(3.4*w,-42,2.6*w,-39.6); c.stroke(); }
+  // the shoulder strap of anything worn like a backpack: it starts on the pack's own top edge (the pack is drawn with the
+  // side squash SIDE_K, so its x is scaled here too), crosses the shoulder blade, goes over the shoulder and down the chest.
+  // It used to start on top of the shoulder, a gap away from the pack, so it looked unattached (director, 2026-11-17).
+  const bk=lk.back, bx=-7.4*w, STRAP={backpack:[bx+.6,-45,null], tacklepack:[bx+.6,-45,null], plushpack:[bx+1.8,-43.2,'#5aa8c8'], scuba:[bx+.2,-45.2,'#2a2a30'], jetpack:[bx+.4,-44.6,'#3a3a44'],
+    rodquiver:[bx+.1,-45.2,'#4a3018'], sharkfin:[-6.6*w/SIDE_K,-46.2,'#3a4450'], guitar:[bx-.4,-35.4,'#2a2a2a'], // fin: where the blade meets the back; guitar: from the bowl, across the back
+    // carried pieces start where they meet the back (x already in shoulder space, so divided by SIDE_K here)
+    creel:[-6.4*w/SIDE_K,-38.2,'#4a3018'], turtleshell:[-6.4*w/SIDE_K,-44.6,'#4a3018'], shellpack:[-6.4*w/SIDE_K,-43.6,'#4a3018'],
+    netback:[-6.3*w/SIDE_K,-46,'#4a3018'], lanternpole:[-6.3*w/SIDE_K,-46,'#4a3018'], flagpole:[-6.3*w/SIDE_K,-46,'#4a3018']}[bk];
+  if(STRAP){ const [px,py,base]=STRAP, sx=px*SIDE_K, cl=base&&!/^#2|^#3a3|^#4a3/.test(base)?D(mix(base,'#000000',.35)):base?D(base):D(mix(lk.accCol||'#c8553a','#000000',.35));
+    c.strokeStyle=cl; c.lineWidth=1.3; c.lineCap='round'; c.beginPath(); c.moveTo(sx,py); c.quadraticCurveTo((sx-3*w)/2,Math.min(py,-46.4)-1.3,-3*w,-46.6);
+    c.quadraticCurveTo(.8*w,-48,2.8*w,-44.6); c.quadraticCurveTo(3.4*w,-42,2.6*w,-39.6); c.stroke(); }
+  a3NeckFront(c,lk,D,t);
 }
+// the front of a necklace, over the arm: in side view the front arm hid almost all of it (only a pendant tip showed), so
+// the part that runs from the front of the neck down the chest is drawn here, along the real chest edge (director, 2026-11-17)
+function a3NeckFront(c,lk,D,t){ const id=lk.neck; if(!id||id==='none') return; const f=lk.g==='f', sway=Math.sin(t*1.8)*.4;
+  const P0={x:2.1,y:-47.1}, P1={x:sideFront(-40.8,f)-1.2,y:-40.8}, C={x:sideFront(-44.6,f)+.5,y:-45};
+  const q=k=>({x:(1-k)*(1-k)*P0.x+2*(1-k)*k*C.x+k*k*P1.x, y:(1-k)*(1-k)*P0.y+2*(1-k)*k*C.y+k*k*P1.y});
+  const cord=(cl,lw)=>{ c.strokeStyle=D(cl); c.lineWidth=lw; c.lineCap='round'; c.beginPath(); c.moveTo(P0.x,P0.y); c.quadraticCurveTo(C.x,C.y,P1.x,P1.y); c.stroke(); };
+  const dot=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
+  const ac=D(lk.accCol||'#c8553a'), lt=D(mix(lk.accCol||'#c8553a','#ffffff',.25)), dk=D(mix(lk.accCol||'#c8553a','#000000',.28));
+  switch(id){
+    case 'goldchain': cord('#e8b830',1); { const px=P1.x, py=P1.y+2.2; c.strokeStyle=D('#e8b830'); c.lineWidth=.5; c.beginPath(); c.moveTo(P1.x,P1.y); c.lineTo(px,py-1.6); c.stroke();
+      c.fillStyle=a3Grad(c,py-2,py+2,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(px,py,2,0,7); c.fill(); c.fillStyle=D('#a87a18'); c.font='bold 2.8px sans-serif'; c.textAlign='center'; c.fillText('$',px,py+1); } break;
+    case 'pearls': cord('#d8c8a0',.35); for(let i=0;i<=6;i++){ const p=q(i/6); dot(p.x,p.y,.62,D('#f8f4ee')); } break;
+    case 'shells': cord('#d8c8a0',.4); for(const k of [.45,.75,1]){ const p=q(k); c.fillStyle=D('#f4d8c0'); c.beginPath(); c.moveTo(p.x,p.y+1.3); c.lineTo(p.x-1,p.y-.3); c.quadraticCurveTo(p.x,p.y-1.2,p.x+1,p.y-.3); c.closePath(); c.fill(); } break;
+    case 'medal': cord('#2a5ad8',1); { const px=P1.x, py=P1.y+2; c.fillStyle=a3Grad(c,py-2,py+2,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(px,py,1.9,0,7); c.fill(); c.fillStyle=D('#c8961e'); c.beginPath(); c.arc(px,py,1,0,7); c.fill(); } break;
+    case 'whistle': cord('#e83a3a',.45); { const px=P1.x, py=P1.y+1.1; c.fillStyle=D('#c8ccd4'); c.beginPath(); c.ellipse(px,py,1.3,.85,0,0,7); c.fill(); c.fillRect(px+.4,py-.8,1.5,.85); } break;
+    case 'fishneck': cord('#e8e0c8',.35); { c.save(); c.translate(P1.x+.4+sway*.3,P1.y+2.2); c.rotate(.2+sway*.05); c.fillStyle=a3Grad(c,-1.6,1.6,D('#8ac8e8'),.3,.3); c.beginPath(); c.ellipse(0,0,2.6,1.3,0,0,7); c.fill(); c.beginPath(); c.moveTo(-2.2,0); c.lineTo(-3.8,-1.2); c.lineTo(-3.8,1.2); c.closePath(); c.fill(); dot(1.4,-.3,.32,'#14141a'); c.restore(); } break;
+    case 'lei': { const cs=['#ff6a8a','#ffd84a','#ff9a3a','#e86ad8']; for(let i=0;i<=6;i++){ const p=q(i/6); dot(p.x,p.y,1.2,D(cs[i%4])); dot(p.x,p.y,.38,D('#fff4c0')); } break; }
+    case 'boa': { const cs=[ac,lt,ac]; for(let i=0;i<=7;i++){ const p=q(i/7); dot(p.x,p.y,1.5,cs[i%3]); } for(let i=1;i<=3;i++) dot(P1.x+.4+sway*.3*i,P1.y+i*1.5,1.35,cs[i%3]); break; }
+    case 'bowtie': { const x=2.9, y=-46.1; c.fillStyle=ac; c.beginPath(); c.moveTo(x,y); c.lineTo(x-1.5,y-1.2); c.lineTo(x-1.5,y+1.2); c.closePath(); c.moveTo(x,y); c.lineTo(x+1.5,y-1.2); c.lineTo(x+1.5,y+1.2); c.closePath(); c.fill(); dot(x,y,.6,dk); break; }
+    case 'tie': { const x0=sideFront(-45,f)-1, x1=sideFront(-36,f)-1.3; c.fillStyle=a3Grad(c,-46,-33,ac,.15,.25); c.beginPath(); c.moveTo(2.6,-46.2); c.lineTo(3.8,-46.2); c.lineTo(x0+.6,-44.6); c.lineTo(x1+.9,-35.4); c.lineTo(x1,-33.8); c.lineTo(x1-.8,-35.4); c.lineTo(x0-.4,-44.6); c.closePath(); c.fill(); break; }
+  } }
 
 // ---------- face options: nose, brows, resting mouth (moods keep their own mouths) ----------
 function a3Nose(c,id,sk,skD){ const hi='rgba(255,248,236,.5)';
@@ -9967,7 +10005,7 @@ function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=(
   if(hat) return {cat:'Hat', d:'A hat for your angler, only from the Boardwalk.'};
   if(id==='spacesuit') return {cat:'Outfit', d:'A full space suit for your angler.'};
   if(dec||id==='carousel') return {cat:'Aquarium decor', d:'A spinning carousel for your tank: +'+Math.round(((dec&&dec.b)||.04)*100)+'% aquarium income.'};
-  if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and at home.'};
+  if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and on your dock.'};
   if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase()+'.'};
   if(id==='scales10') return {cat:'Scales', d:'Scales level up your rods and buy rod attachments and special bait.'};
   if(id==='crate') return {cat:'Mystery crate', d:'Opens into clothes, lures, decor and now and then a pet.'};
@@ -10367,7 +10405,7 @@ function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) 
 passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Claimed before 0.3.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
   if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'};  return slot===0?PASS_FB_SCALES:PASS_FB_TIX; }
   if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'};  return PASS_FB_SCALES; }
-  if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'};
+  if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'};
   return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
 const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
@@ -12057,8 +12095,8 @@ const SEARCH_IDX=[
  ['Waters','map','Waters','travel water unlock location pond river coast frost reef shelf deep trench ember starfall map'],
  ['Set sail again (voyages)','map','Set sail again','voyage prestige pearls wisdom legacy milestones start over retire'],
  ['Pearl relics','map','Pearl relics','relic pearls permanent bonus'],
- ['Bounties','bounties',null,'bounty harbourmaster daily tasks reward login streak'],
- ['Events','events',null,'derby frenzy event medals'],
+ ['Bounties','bounties',null,'bounty harbourmaster daily tasks reward login streak weekly quests week crate'],
+ ['Events','events',null,'derby frenzy event medals challenges calendar weather forecast rain storm aurora'],
  ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
  ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],
  ['Tackle: special lures','shop',['tackleview','lures'],'special lures junk lures magnet golden disco'],
@@ -12086,7 +12124,8 @@ const SEARCH_IDX=[
  ['Wardrobe: shop','style',['wsec','shop'],'clothes shop buy outfit'],
  ['Tide Pass','pass',null,'tide pass levels rewards claim'],
  ['Boardwalk: games','games',['bwview','games'],'boardwalk wheel spin scratch duck higher lower claw mini games tickets'],
- ['Boardwalk: prize counter','games',['bwview','prizes'],'prizes tickets counter'],
+ ['Boardwalk: prize counter','games',['bwview','prizes'],'prizes tickets counter hats pet colours cosmetics'],
+ ['Boardwalk: counter specials','games',['bwview','specials'],'specials boardwalk only wear clothes shoes neckwear outfit costume tickets'],
  ['Settings: sound','settings','Sound','sound music volume ambient'],
  ['Settings: controls','settings','Controls','controls cast aim keyboard'],
  ['Settings: display','settings','Display','display effects motion full screen'],
@@ -12366,7 +12405,7 @@ body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
 // "Where is that?" Every page says where you are; the search opens on a map of every page with what it is for; badges
 // say what is waiting; and search knows the newer things.
 // ---------------------------------------------------------------------
-const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, and your daily reward', events:'Challenges, the event calendar and the derby',
+const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, daily tasks and weekly quests', events:'Challenges, the event calendar, the derby and the weather forecast',
   shop:'Line, reel and other gear, bait and special lures', rods:'Your rods, upgrades and attachments', skills:'Spend skill points on small steady gains', paths:'Big choices that shape your style',
   aquarium:'Fish that earn coins and boosts while you play', trophy:'Fish you keep forever', journal:'Every species and oddity, found and missing', feats:'Goals with rewards',
   home:'Your dock and its decorations', pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',
@@ -13926,6 +13965,17 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 function castBarY(){ let y=H-34; try{ const h=$('hint'), cv=$('cv'); if(h&&cv&&h.offsetParent&&h.textContent.trim()&&+getComputedStyle(h).opacity>.05){ const hr=h.getBoundingClientRect(), cr=cv.getBoundingClientRect();
     if(cr.height>0&&hr.height>0&&hr.bottom>cr.top&&hr.top<cr.bottom){ const top=(hr.top-cr.top)*H/cr.height; if(top>H*.4) y=Math.min(y,top-26); } } }catch(e){} return y; }
 if(/[?&]test\b/.test(location.search)) window.__castBarY=()=>({y:castBarY(), H});
+// Boardwalk prize counter and counter specials on phones: two cards a row with a shorter picture (one tall card a row
+// wasted most of the screen; 2026-11-17 QC)
+document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:560px){
+ #menuov #panel .bwx-prizes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
+ #menuov #panel .bwx-prize{padding:9px;gap:6px;border-radius:14px}
+ #menuov #panel .bwx-prize canvas{height:78px}
+ #menuov #panel .bwx-pt b{font-size:13.5px;line-height:1.2}
+ #menuov #panel .bwx-pt .meta{font-size:11.5px;line-height:1.3}
+ #menuov #panel .bwx-pf{flex-wrap:wrap;justify-content:stretch;gap:5px}
+ #menuov #panel .bwx-pf .btn{flex:1 1 auto;min-width:0;padding-left:6px;padding-right:6px}
+}</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for

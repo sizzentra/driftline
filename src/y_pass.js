@@ -24,7 +24,7 @@ function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) 
 passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Claimed before 0.3.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
   if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'};  return slot===0?PASS_FB_SCALES:PASS_FB_TIX; }
   if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'};  return PASS_FB_SCALES; }
-  if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, decor and the rarer pets.'};
+  if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'};
   return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
 const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
   if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);

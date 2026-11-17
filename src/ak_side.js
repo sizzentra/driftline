@@ -258,9 +258,40 @@ function a3OverArm(c,lk,D,B,t){ const w=B.w, o=lk.outfit;
   if(o==='captain'){ const gold=D('#f2c84a'); c.fillStyle=gold; c.beginPath(); c.ellipse(.5*w,-48,2.6*w,.9,0,0,7); c.fill(); for(let k=0;k<5;k++) c.fillRect(.5*w-2*w+k*w,-47.5,.45,1.6); }
   if(o==='overalls'){ const den=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#3a6f9a'); c.strokeStyle=den; c.lineWidth=1.7; c.beginPath(); c.moveTo(2.4,-38.4); c.quadraticCurveTo(3.2,-45.2,.6*w,-46.8); c.quadraticCurveTo(-2.4*w,-47.2,-3.4*w,-46.6); c.stroke(); }
   if(o==='lifejacket'){ c.strokeStyle=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#ff7a2a'); c.lineWidth=2; c.beginPath(); c.moveTo(3,-41); c.quadraticCurveTo(2.6,-46.6,.4*w,-47); c.quadraticCurveTo(-2.2*w,-47.2,-3.2*w,-45.6); c.stroke(); }
-  const bk=lk.back; if(['backpack','tacklepack','plushpack','sharkfin','guitar'].includes(bk)){ const cl=D(mix(bk==='plushpack'?'#5aa8c8':bk==='sharkfin'?'#3a4450':(lk.accCol||'#c8553a'),'#000000',.35));
-    c.strokeStyle=cl; c.lineWidth=1.3; c.beginPath(); c.moveTo(-3*w,-46.4); c.quadraticCurveTo(.8*w,-48,2.8*w,-44.6); c.quadraticCurveTo(3.4*w,-42,2.6*w,-39.6); c.stroke(); }
+  // the shoulder strap of anything worn like a backpack: it starts on the pack's own top edge (the pack is drawn with the
+  // side squash SIDE_K, so its x is scaled here too), crosses the shoulder blade, goes over the shoulder and down the chest.
+  // It used to start on top of the shoulder, a gap away from the pack, so it looked unattached (director, 2026-11-17).
+  const bk=lk.back, bx=-7.4*w, STRAP={backpack:[bx+.6,-45,null], tacklepack:[bx+.6,-45,null], plushpack:[bx+1.8,-43.2,'#5aa8c8'], scuba:[bx+.2,-45.2,'#2a2a30'], jetpack:[bx+.4,-44.6,'#3a3a44'],
+    rodquiver:[bx+.1,-45.2,'#4a3018'], sharkfin:[-6.6*w/SIDE_K,-46.2,'#3a4450'], guitar:[bx-.4,-35.4,'#2a2a2a'], // fin: where the blade meets the back; guitar: from the bowl, across the back
+    // carried pieces start where they meet the back (x already in shoulder space, so divided by SIDE_K here)
+    creel:[-6.4*w/SIDE_K,-38.2,'#4a3018'], turtleshell:[-6.4*w/SIDE_K,-44.6,'#4a3018'], shellpack:[-6.4*w/SIDE_K,-43.6,'#4a3018'],
+    netback:[-6.3*w/SIDE_K,-46,'#4a3018'], lanternpole:[-6.3*w/SIDE_K,-46,'#4a3018'], flagpole:[-6.3*w/SIDE_K,-46,'#4a3018']}[bk];
+  if(STRAP){ const [px,py,base]=STRAP, sx=px*SIDE_K, cl=base&&!/^#2|^#3a3|^#4a3/.test(base)?D(mix(base,'#000000',.35)):base?D(base):D(mix(lk.accCol||'#c8553a','#000000',.35));
+    c.strokeStyle=cl; c.lineWidth=1.3; c.lineCap='round'; c.beginPath(); c.moveTo(sx,py); c.quadraticCurveTo((sx-3*w)/2,Math.min(py,-46.4)-1.3,-3*w,-46.6);
+    c.quadraticCurveTo(.8*w,-48,2.8*w,-44.6); c.quadraticCurveTo(3.4*w,-42,2.6*w,-39.6); c.stroke(); }
+  a3NeckFront(c,lk,D,t);
 }
+// the front of a necklace, over the arm: in side view the front arm hid almost all of it (only a pendant tip showed), so
+// the part that runs from the front of the neck down the chest is drawn here, along the real chest edge (director, 2026-11-17)
+function a3NeckFront(c,lk,D,t){ const id=lk.neck; if(!id||id==='none') return; const f=lk.g==='f', sway=Math.sin(t*1.8)*.4;
+  const P0={x:2.1,y:-47.1}, P1={x:sideFront(-40.8,f)-1.2,y:-40.8}, C={x:sideFront(-44.6,f)+.5,y:-45};
+  const q=k=>({x:(1-k)*(1-k)*P0.x+2*(1-k)*k*C.x+k*k*P1.x, y:(1-k)*(1-k)*P0.y+2*(1-k)*k*C.y+k*k*P1.y});
+  const cord=(cl,lw)=>{ c.strokeStyle=D(cl); c.lineWidth=lw; c.lineCap='round'; c.beginPath(); c.moveTo(P0.x,P0.y); c.quadraticCurveTo(C.x,C.y,P1.x,P1.y); c.stroke(); };
+  const dot=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
+  const ac=D(lk.accCol||'#c8553a'), lt=D(mix(lk.accCol||'#c8553a','#ffffff',.25)), dk=D(mix(lk.accCol||'#c8553a','#000000',.28));
+  switch(id){
+    case 'goldchain': cord('#e8b830',1); { const px=P1.x, py=P1.y+2.2; c.strokeStyle=D('#e8b830'); c.lineWidth=.5; c.beginPath(); c.moveTo(P1.x,P1.y); c.lineTo(px,py-1.6); c.stroke();
+      c.fillStyle=a3Grad(c,py-2,py+2,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(px,py,2,0,7); c.fill(); c.fillStyle=D('#a87a18'); c.font='bold 2.8px sans-serif'; c.textAlign='center'; c.fillText('$',px,py+1); } break;
+    case 'pearls': cord('#d8c8a0',.35); for(let i=0;i<=6;i++){ const p=q(i/6); dot(p.x,p.y,.62,D('#f8f4ee')); } break;
+    case 'shells': cord('#d8c8a0',.4); for(const k of [.45,.75,1]){ const p=q(k); c.fillStyle=D('#f4d8c0'); c.beginPath(); c.moveTo(p.x,p.y+1.3); c.lineTo(p.x-1,p.y-.3); c.quadraticCurveTo(p.x,p.y-1.2,p.x+1,p.y-.3); c.closePath(); c.fill(); } break;
+    case 'medal': cord('#2a5ad8',1); { const px=P1.x, py=P1.y+2; c.fillStyle=a3Grad(c,py-2,py+2,D('#ffd84a'),.4,.3); c.beginPath(); c.arc(px,py,1.9,0,7); c.fill(); c.fillStyle=D('#c8961e'); c.beginPath(); c.arc(px,py,1,0,7); c.fill(); } break;
+    case 'whistle': cord('#e83a3a',.45); { const px=P1.x, py=P1.y+1.1; c.fillStyle=D('#c8ccd4'); c.beginPath(); c.ellipse(px,py,1.3,.85,0,0,7); c.fill(); c.fillRect(px+.4,py-.8,1.5,.85); } break;
+    case 'fishneck': cord('#e8e0c8',.35); { c.save(); c.translate(P1.x+.4+sway*.3,P1.y+2.2); c.rotate(.2+sway*.05); c.fillStyle=a3Grad(c,-1.6,1.6,D('#8ac8e8'),.3,.3); c.beginPath(); c.ellipse(0,0,2.6,1.3,0,0,7); c.fill(); c.beginPath(); c.moveTo(-2.2,0); c.lineTo(-3.8,-1.2); c.lineTo(-3.8,1.2); c.closePath(); c.fill(); dot(1.4,-.3,.32,'#14141a'); c.restore(); } break;
+    case 'lei': { const cs=['#ff6a8a','#ffd84a','#ff9a3a','#e86ad8']; for(let i=0;i<=6;i++){ const p=q(i/6); dot(p.x,p.y,1.2,D(cs[i%4])); dot(p.x,p.y,.38,D('#fff4c0')); } break; }
+    case 'boa': { const cs=[ac,lt,ac]; for(let i=0;i<=7;i++){ const p=q(i/7); dot(p.x,p.y,1.5,cs[i%3]); } for(let i=1;i<=3;i++) dot(P1.x+.4+sway*.3*i,P1.y+i*1.5,1.35,cs[i%3]); break; }
+    case 'bowtie': { const x=2.9, y=-46.1; c.fillStyle=ac; c.beginPath(); c.moveTo(x,y); c.lineTo(x-1.5,y-1.2); c.lineTo(x-1.5,y+1.2); c.closePath(); c.moveTo(x,y); c.lineTo(x+1.5,y-1.2); c.lineTo(x+1.5,y+1.2); c.closePath(); c.fill(); dot(x,y,.6,dk); break; }
+    case 'tie': { const x0=sideFront(-45,f)-1, x1=sideFront(-36,f)-1.3; c.fillStyle=a3Grad(c,-46,-33,ac,.15,.25); c.beginPath(); c.moveTo(2.6,-46.2); c.lineTo(3.8,-46.2); c.lineTo(x0+.6,-44.6); c.lineTo(x1+.9,-35.4); c.lineTo(x1,-33.8); c.lineTo(x1-.8,-35.4); c.lineTo(x0-.4,-44.6); c.closePath(); c.fill(); break; }
+  } }
 
 // ---------- face options: nose, brows, resting mouth (moods keep their own mouths) ----------
 function a3Nose(c,id,sk,skD){ const hi='rgba(255,248,236,.5)';
