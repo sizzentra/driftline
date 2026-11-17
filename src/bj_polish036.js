@@ -127,3 +127,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #goalchip.ready .gl-k{color:#ffd36a}
 @media (max-width:520px){ #goalchip{top:34px;padding:4px 9px 5px;max-width:calc(100% - 120px)} #goalchip .gl-t{font-size:12px} #goalchip .gl-s{font-size:10.5px} }
 </style>`);
+
+// ---------------------------------------------------------------------
+// Saving: also when the page is hidden or closed (phones put tabs to sleep and iOS may discard them), so nothing done
+// since the last save is ever lost
+// ---------------------------------------------------------------------
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ try{ save(); }catch(e){} } });
+addEventListener('pagehide',()=>{ try{ save(); }catch(e){} });
