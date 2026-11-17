@@ -3,6 +3,12 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
+- **0.3.4 "Sea Legs" is on the preview only** (https://sizzentra.github.io/driftline/next/, 2026-11-16, commit 8877500), waiting for the director's OK to ship with `publish.ps1 "Driftline 0.3.4: Sea Legs"`. Name and number are placeholders; the director picks them. Contents (Cam's list, Part 1): reel always reels while held (slowly during runs, tension rises), a run sound, rarity normalised per water + per-species rate (`rarBase`, `RAR_REF`) and late-game luck with diminishing returns (`RARE_SOFT=3`), fishmonger asks for local fish 80%, Sell all filters (rarity / price / both), Feed beside Collect, aquarium income on card, cooler row and tank button, twinkling shiny pictures, Bounties opens on the current water, Boardwalk winnings capped at 25% of Wisdom Pearl progress (`bwEarn`, `S.stats.runBw`), Brine Shelf (dolphins removed, flying fish, cargo ship + soft horn, buoy bell), Midnight Deep ghost ships, storm chop + squalls + bigger swell + rain sound, Trench eyes (1 to 4 pairs, sizes/colours), flowing lava + crater bombs, eased dusk/dawn (finer light steps, V3FADE 3.4 s). New files: `src/au_fix034.js` (must load right before `e_ui.js`, which closes the script), `src/av_sea034.js`.
+- **Next round, waiting on the director's decisions** (asked 2026-11-16 during 0.3.4):
+  - **Menu regroup:** 18 tabs into 5 sections in a bottom bar (Fishing: Cooler, Waters, Bounties, Events / Gear: Tackle, Rods, Skills, Paths / Collection: Aquarium, Trophy Room, Fish Log, Feats / Home: Dock, Pets, Wardrobe / Rewards: Tide Pass, Boardwalk), sub-tabs as pills, Settings/Stats/Save behind the gear icon, badges roll up. Mockup: https://claude.ai/artifact/SDwdHBavtNBDXo1nbdJ63Y. Director: "where it should be, rather than everything there"; top and bottom bars are fine.
+  - **Trophy room (name undecided):** new voyage currently keeps the aquarium (a balance problem). Plan: the aquarium empties on a new voyage; a trophy room keeps chosen fish forever with no income or buffs. Look: walnut panels, carved plaques under spotlights, brass nameplates, gold frames for legendaries. Open: spots per species?, last chance to move aquarium fish on retire?, free or a fee?
+  - **Decoration overhaul** (director): "outdated"; much more realism and detail, correct placement and physics on every dock, every fishing spot and the aquarium.
+  - **Hat polish** (director): more detail and polish on every hat.
 - **Live version: 0.3.3.1 (hair hotfix on top of 0.3.3 "Every Water Special")** (shipped 2026-11-16, director approved; 0.3.2, 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
@@ -351,6 +357,10 @@ Names stay; fish and gameplay are unchanged.
 7. **Save size:** saves grow with the fish journal. Keep codes and links compact (drop derived data before encoding).
 
 ## Future plans (ideas, nothing decided)
+- **Cam's big concepts (2026-11-16), lead dev's recommendation, in order:**
+  1. **Per-water events** (best value: makes every water feel alive and rewards being there). Start with the ones that have a gameplay hook, each as a short timed event with a toast and a visible scene moment: Brine Shelf marlins/sailfish runs (bigger fish for a minute), Midnight Deep spectres (drop treasure, shiny boost), Frostbite blizzard (flash-freezes a fish: an instant catch), fishing boats raising a hotspot, Saltmarsh spotlight vessel, Trench jellyfish bloom, Ember eruption, Willow shooting stars, Starfall cosmic event (bigger fish). Build them on one shared event system (weight, duration, effect, scene hook), not ten one-offs.
+  2. **Backyard pond** (strong long-term goal, pairs with the trophy room): stock with caught fish (2 of a type to breed), its weight pool comes from what you add, low bite chance, gold to cleanse a type. Design after the trophy room so the two don't overlap.
+  3. **New maps** (Amazon rainforest, Cherry Blossom/Japan, Canadian Rockies, Florida Keys): good, but each needs a full water (fish list, scene, weather, events, thumbnails) at the 0.3.3 quality bar. One per release at most, after per-water events exist so they launch with their own.
 - **Friends without accounts:**
   - Visit a friend's dock from a code (read-only).
   - Send gifts or fish to a friend with a code (it can use the same relay).
