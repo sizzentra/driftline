@@ -13,6 +13,22 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
+- **0.3.3 "Every Water Special": PREVIEW ONLY at /next/ (2026-11-16), awaiting the director's go-ahead.**
+  - **`src/ao_maps033.js`:** each scene hook is wrapped with `m33wrap(id,hook,fn)`; it skips zero-size canvases, because some loops step by W/n.
+    - **Coast:** headland and village with lit windows that fade, a sailboat, a seal on a rock, tide-pool rocks.
+    - **Shelf:** island with a sea arch, a whale (rises, blows, shows its tail), kelp mats with a gull, a full-width swell.
+    - **Deep:** a rock pillar with spray, a pitching ship, visible lightning bolts, whitecaps, swell.
+    - **Frost:** camp with tents, a snowman and smooth tip-up flags; the ice platform gets layers, bubbles and a frozen fish.
+    - **Ember:** lava islets with glowing cracks and steam, a vent, pumice that fades at the edges.
+    - **River:** rowboat, otters, drifting leaves.
+    - **Trench:** plankton that brightens near the float.
+    - **Starfall:** crystal platform facets, veins, moss, and shards hung from the slab edge (`m33crystalEdge`).
+    - **Shelf dolphins (`m33dolphins`):** a shadow under the water, a leap clipped at the waterline, splashes and rings.
+  - **`src/ap_weather033.js`:** weather on three layers, all ×`WXA`: sky (`wx3Sky`: rainbow, aurora curtains with one gradient per ribbon, blood moon, Gilded rays, storm scud), water (`wx3Water`: rain rings faded in one by one, whitecaps, reflections, fog wisps, spawning rings), and top (`drawWeatherX0`: fog banks, generic lightning bolt, red vignette).
+  - **Hair:** `curly` = `drawCurly3`, the tousled design from the director's right-hand reference; new `coils` = `drawCoils3`, round coils from the left-hand reference. Both use `curlMass` and redraw the ear (`A3SKIN`).
+  - **Graphics setting** (`S.settings.gfx`, an_small04): auto = High on non-touch devices; High = full-DPR scenery and denser weather and life (`gfxHigh`, `gfxK`).
+  - **Other:** tank fish have a minimum size of 14; `__findWx(k,ph0,ph1)` test hook; `tools/grid.ps1`.
+  - **QC:** every water and weather at PC, portrait and landscape, zero errors; steady-state draw cost 1.4–2.3 ms per weather.
 - **0.3.2 "Prized Catches": SHIPPED 2026-11-16** (director approved; publish.ps1, commit 82b5a4c). Its patch-notes entry stays as shipped. Play notes from a friend plus director requests:
   - **Aquarium weight:** income cap ×`aqWeightK` (0.75 to 1.7 by weight within the species); buffs get a weight factor (`aqBuffsOf` wrap in n_play); tank size by real kg (log scale, d_draw `drawTank`).
   - **Fights:** a running fish takes line when you're not reeling, at `max(base, reel*(.24+.11*rarity))*stamina`; reeling during a run gains no line and adds 95 tension instead of 70. Bot fights: pond 6–10 s, ember legendary 18 s, all landed.
