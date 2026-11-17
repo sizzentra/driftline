@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2236';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.16-2241';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -900,7 +900,7 @@ const WEATHERS = [
   {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},
   {k:'Rainbow', w:3, shiny:2, xp:1.3, note:'A rainbow over the water. Shinies ×2 and XP +30%.'},
   {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
-  {k:'Fog',    w:15, fog:true, note:'Night-only fish bite at any hour.'},
+  {k:'Fog',    w:15, fog:true, note:'Thick fog rolls in: hard to see far, and night-only fish bite at any hour.'},
   {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
   {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
@@ -1228,6 +1228,7 @@ function isNight(p=phase()){ const t=tod(p); return t==='Night'||t==='Dusk'; }
 function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog || (maxed('nightowl') && tod(p)==='Dawn'); return !isNight(p) || tod(p)==='Dusk'; }
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
+const WX_NAME={Fog:'Heavy fog'}; function wxName(k){ return WX_NAME[k]||k; }
 function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
 // how strongly the current weather shows (0..1): it builds up over the first half minute and fades out over the
 // last one when the next slot brings different weather (looks only; the gameplay effect is the whole slot)
@@ -2023,7 +2024,7 @@ function drawHotspot(t){ const hs=G.hot; if(!hs) return; const fade=Math.min(1,h
 function draw(now){
   const L=curLoc(), p=phase(), t=now/1000, hz=HZ(), wx=weather(); const night=nightness(p);
   const dusk = Math.max(0, 1-Math.abs(p-.5)/.06) + Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7;
-  const wa=wxAmt(); WXA=wa; const gloom = (wx.k==='Storm' ? .55 : wx.k==='Rain' ? .3 : wx.k==='Fog' ? .15 : 0)*wa + (L.id==='deep'?.1:0);
+  const wa=wxAmt(); WXA=wa; const gloom = (wx.k==='Storm' ? .7 : wx.k==='Rain' ? .38 : wx.k==='Fog' ? .3 : 0)*wa + (L.id==='deep'?.1:0);
   if(!v3Scene(L,t,p,night,dusk,gloom,hz,wx)){
   const sg=g.createLinearGradient(0,0,0,hz);
   let top=mix(L.sky[0],'#0b1430',night), bot=mix(L.sky[1],'#24305a',night); if(dusk>0) bot=mix(bot,'#f2875a',clamp(dusk,0,1)*.8);
@@ -2255,7 +2256,7 @@ function drawPetX(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
 }
 
 // ---------- scene chip (time & weather, shown on narrow screens) ----------
-function drawSceneChip(p,wx){ if(W>=700) return; const nf=nextFlip(); const txt=tod(p)+' · '+wx.k+' · '+mmss(wxLeft()); g.font='700 11px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.6)'; rr(10,10,tw+16,20,10); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,18,24); }
+function drawSceneChip(p,wx){ if(W>=700) return; const nf=nextFlip(); const txt=tod(p)+' · '+wxName(wx.k)+' · '+mmss(wxLeft()); g.font='700 11px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.6)'; rr(10,10,tw+16,20,10); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,18,24); }
 
 // ---------- random events & mini-games ----------
 let pendingEvent=null, catchesSinceEvent=0;
@@ -2516,6 +2517,8 @@ const PATCHES = [
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
+  'Fog is now Heavy fog: it hides the far shore and veils everything beyond your float. Storms and rain darken the whole scene much more.',
+  'Every water has more depth: haze where the land meets the horizon, soft motes drifting close by, and water that darkens toward you.',
   'Weather and its effects still build up and fade away smoothly.',
   '## Aquarium',
   'The aquarium is much bigger, so you can actually see your fish and decorations, and the fish are sized to match.',
@@ -5013,7 +5016,7 @@ V3SCENES.frost = {
       g.fillStyle=P.snow; g.beginPath(); g.moveTo(X-w*.85,Y-w*.02); g.lineTo(X-w*.55,Y-w*.12); g.lineTo(X+w*.4,Y-w*.14); g.lineTo(X+w*.85,Y-w*.03); g.closePath(); g.fill();
       g.strokeStyle=v3rgba(P.rim,.4); g.lineWidth=1; g.beginPath(); g.moveTo(X-w*.55,Y-w*.12); g.lineTo(X+w*.4,Y-w*.14); g.stroke(); }
     // the arctic fox trots along the shelf now and then, stops, looks around
-    { const per=31, k=(t%per)/per; if(k<.4){ const e=k/.4, fxp=W*(.98-e*.6), stop=Math.abs(e-.5)<.06, fy=hz+H*.016, s=H*.0042, step=stop?0:Math.sin(t*12), fc=mix('#f8f8ff',P.snowD,.15+night*.5);
+    { const per=40, k=(t%per)/per; if(k<.7){ const e=k/.7, ep=e<.44?e/.44*.5:e<.56?.5:.5+(e-.56)/.44*.5, fxp=W*(1.06-ep*1.14), stop=e>=.44&&e<.56, /* crosses the whole shelf: in from the right, out on the left */ fy=hz+H*.016, s=H*.0042, step=stop?0:Math.sin(t*12), fc=mix('#f8f8ff',P.snowD,.15+night*.5);
         g.fillStyle=fc; g.beginPath(); g.ellipse(fxp,fy-s*3.2,s*3.2,s*1.6,0,0,7); g.fill(); g.beginPath(); g.arc(fxp-s*3.2,fy-s*4.4,s*1.4,0,7); g.fill();
         g.beginPath(); g.moveTo(fxp-s*4.2,fy-s*4.4); g.lineTo(fxp-s*5.4,fy-s*4); g.lineTo(fxp-s*4,fy-s*3.6); g.fill(); g.beginPath(); g.moveTo(fxp-s*3.6,fy-s*5.4); g.lineTo(fxp-s*3.4,fy-s*6.6); g.lineTo(fxp-s*2.8,fy-s*5.5); g.fill();
         g.beginPath(); g.ellipse(fxp+s*4.4,fy-s*3.6,s*2.6,s*1.1,-.4+(stop?Math.sin(t*6)*.2:0),0,7); g.fill();
@@ -6392,6 +6395,34 @@ v3Thumb = function(id){ if(V3THUMB[id]) return V3THUMB[id]; const L=LOCS.find(l=
   catch(e){ V3THUMB[id]=null; console.warn('thumb '+id,e); }
   finally{ THUMB_CLEAR=false; WXA=oWXA; v3palette.k=null; }
   return V3THUMB[id]; };
+// =====================================================================
+// 0.3.3 depth and heavy weather.
+// Depth on every water: atmospheric haze where the land meets the horizon (far things recede), soft out-of-focus
+// motes in the near foreground, and a gentle darkening at the bottom edge, so the scene reads in layers.
+// Heavy fog swallows the distance and thins the near view; storms darken everything a step further.
+// All weather parts follow WXA, so they build and fade smoothly.
+// =====================================================================
+const DEPTH_MOTE={ pond:'255,250,230', river:'255,250,230', coast:'255,255,255', frost:'255,255,255', reef:'255,255,240', shelf:'255,255,255', deep:'200,215,230', trench:'120,240,220', ember:'255,170,90', starfall:'210,190,255' };
+for(const id in V3SCENES){
+  // haze over the far land: drawn right after the cached scenery
+  m33wrap(id,'live',function(P,t,hz){ const hg=g.createLinearGradient(0,hz-H*.16,0,hz+H*.02); hg.addColorStop(0,v3rgba(P.farHaze,0)); hg.addColorStop(.75,v3rgba(P.farHaze,.16)); hg.addColorStop(1,v3rgba(P.farHaze,.06)); g.fillStyle=hg; g.fillRect(0,hz-H*.16,W,H*.18);
+    // the water darkens and gains contrast as it comes toward you
+    const wg=g.createLinearGradient(0,hz+H*.15,0,H); wg.addColorStop(0,'rgba(0,0,0,0)'); wg.addColorStop(1,'rgba(4,8,16,.16)'); g.fillStyle=wg; g.fillRect(0,hz+H*.15,W,H-hz-H*.15); });
+  // near layer: out-of-focus motes drifting slowly across the bottom of the view, and a soft vignette at the edge
+  m33wrap(id,'fore',function(P,t){ if(S.settings.effects){ const col=DEPTH_MOTE[id]||'255,255,255', n=gfxHigh()?6:4;
+      for(let i=0;i<n;i++){ const sp=.006+(i%3)*.003, x=W*((((i*.27+t*sp)%1.3)+1.3)%1.3-.15), y=H*(.68+((i*37)%25)/100)+Math.sin(t*.4+i)*H*.02, r=H*(.025+(i%3)*.012), a=(.05+.04*Math.sin(t*.5+i*1.3))*(id==='trench'||id==='ember'?1.4:1);
+        const gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba('+col+','+a+')'); gr.addColorStop(.6,'rgba('+col+','+(a*.5)+')'); gr.addColorStop(1,'rgba('+col+',0)'); g.fillStyle=gr; g.fillRect(x-r,y-r,r*2,r*2); } }
+    const vg=g.createLinearGradient(0,H*.82,0,H); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(2,4,10,.18)'); g.fillStyle=vg; g.fillRect(0,H*.82,W,H*.18); });
+}
+// heavy fog: a thick wall at the horizon that hides the far shore, a milky veil over the middle distance,
+// and banks drifting past close by; the float stays readable but everything beyond it fades
+const _drawWeatherX0_fog = drawWeatherX0;
+drawWeatherX0 = function(t,wx,hz){ _drawWeatherX0_fog(t,wx,hz);
+  if(wx.k==='Fog'){ const fg=g.createLinearGradient(0,0,0,H); fg.addColorStop(0,'rgba(214,220,226,.55)'); fg.addColorStop(hz/H*.85,'rgba(214,220,226,.82)'); fg.addColorStop(hz/H+.05,'rgba(214,220,226,.7)'); fg.addColorStop(Math.min(.98,hz/H+.22),'rgba(214,220,226,.26)'); fg.addColorStop(1,'rgba(214,220,226,.1)'); g.fillStyle=fg; g.fillRect(0,0,W,H);
+    for(let i=0;i<4;i++){ const y=H*(.5+i*.12), x=((i*.41+t*.012*(1+i*.35))%1.8)*W-W*.4, w=W*.8; const bg=g.createRadialGradient(x+w/2,y,0,x+w/2,y,w*.5); bg.addColorStop(0,'rgba(226,230,234,.3)'); bg.addColorStop(1,'rgba(226,230,234,0)'); g.save(); g.translate(0,y); g.scale(1,.22); g.translate(0,-y); g.fillStyle=bg; g.fillRect(x,y-w*.5,w,w); g.restore(); } }
+  if(wx.k==='Storm'){ g.fillStyle='rgba(8,12,20,.2)'; g.fillRect(0,0,W,H); const vg=g.createRadialGradient(W/2,H*.5,H*.3,W/2,H*.5,W*.8); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,6,.35)'); g.fillStyle=vg; g.fillRect(0,0,W,H); }
+  if(wx.k==='Rain'){ g.fillStyle='rgba(30,40,54,.12)'; g.fillRect(0,0,W,H); }
+};
 
 // =====================================================================
 // Driftline 0.3: the angler, rebuilt in the B2 style (preview only until 0.3 ships).
@@ -9738,7 +9769,7 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
     <div class="tile"><h4>Fighting</h4>${statRow('Reel speed',reelSpeed().toFixed(2)+' m/s')}${statRow('Line strength',gv('line')+' kg')}${statRow('Line tension',mulS(tensionMult()),'Lower is better')}${statRow('Temper build-up',mulS(tempMult()),'Lower is better')}${statRow('Max line out',Math.round(gv('rod')*rodCast()+28+rodSpool())+' m')}</div>
     <div class="tile"><h4>Coins & XP</h4>${statRow('Sale price',mulS(sm),'Level, Haggler, rank, boosts, pearls')}${statRow('XP',mulS(xm))}${statRow('Wisdom Pearls',mulS(cm),S.pearls+' pearl'+(S.pearls===1?'':'s'))}${statRow('Streak bonus cap','+'+Math.round(streakCap()*100)+'% XP')}
       ${statRow('Aquarium',fmt(Math.round(tankRate()*60))+' / hour',S.tank.length+' fish · up to '+Math.round(offlineCap()/60)+' h away')}${statRow('Cozy level',cozy()+' ♥','+'+cozyBonus()+'% XP, +'+(cozyBonus()*.5)+'% bite speed and sale price')}</div>
-    <div class="tile"><h4>Right now</h4>${statRow('Water',esc(curLoc().name))}${statRow('Weather',esc(wx.k),esc(wx.note||''))}${statRow('Time of day',isNight()?'Night':'Day')}${statRow('Active boosts',S.buffs.filter(x=>x.until>Date.now()).length||'None')}${statRow('Skill points',ptsFree()+' free · '+ptsSpent()+' spent')}</div>
+    <div class="tile"><h4>Right now</h4>${statRow('Water',esc(curLoc().name))}${statRow('Weather',esc(wxName(wx.k)),esc(wx.note||''))}${statRow('Time of day',isNight()?'Night':'Day')}${statRow('Active boosts',S.buffs.filter(x=>x.until>Date.now()).length||'None')}${statRow('Skill points',ptsFree()+' free · '+ptsSpent()+' spent')}</div>
   </div>`; }
 function renderStats(P){ P.innerHTML=`<h2>Stats</h2><p class="sub">Everything that shapes your fishing, worked out exactly like the game does.</p>
   <div class="bwx-nav" role="tablist">${[['overview','Overview'],['bonuses','Bonuses'],['gear','Gear']].map(([k,n])=>`<button role="tab" data-act="statsec" data-k="${k}" aria-selected="${statSec===k}">${n}</button>`).join('')}</div>${statsHTML()}${window.DL_PREVIEW?testerHTML():''}`; }
@@ -9968,8 +9999,8 @@ function hud(){
   if(key===lastHud) return; lastHud=key;
   $('money').textContent=fmtShort(S.money); $('money').title=fmt(S.money)+' coins'; $('lvl').textContent=S.lvl; $('xpfill').style.width=(S.xp/xpNeed(S.lvl)*100)+'%';
   $('locname').textContent=curLoc().name; $('tod').textContent=tod(p); $('todnext').textContent=nf.label+' '+mmss(nf.s);
-  $('wx').textContent=wx.k; $('wxnext').textContent='Changes in '+mmss(wl); $('wxchip').title=wx.note; $('wx').style.color = wx.k==='Gilded'?'var(--gold)':wx.k==='Storm'?'#9fb4ff':'';
-  if(wx.k!==lastWx){ if(lastWx) toast('Weather: '+wx.k+'. '+wx.note); lastWx=wx.k; }
+  $('wx').textContent=wxName(wx.k); $('wxnext').textContent='Changes in '+mmss(wl); $('wxchip').title=wx.note; $('wx').style.color = wx.k==='Gilded'?'var(--gold)':wx.k==='Storm'?'#9fb4ff':'';
+  if(wx.k!==lastWx){ if(lastWx) toast('Weather: '+wxName(wx.k)+'. '+wx.note); lastWx=wx.k; }
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
