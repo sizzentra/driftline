@@ -416,8 +416,8 @@ function curlyLobes(){ if(!A3HATON) return CURLY_LOBES; return CURLY_LOBES.filte
 function drawCurly3(c,hair,hairC,D,t){ const LOBES=curlyLobes(), base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
   const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
   // soft outline: the whole shape a touch larger in the shadow tone, then the base colour over it
-  c.fillStyle=shade; (A3HATON?0:(curlyCap(c),c.fill())); for(const L of LOBES){ lobe(L,.32); c.fill(); }
-  c.fillStyle=base; (A3HATON?0:(curlyCap(c),c.fill())); for(const L of LOBES){ lobe(L,0); c.fill(); }
+  c.fillStyle=shade; curlyBase(c); for(const L of LOBES){ lobe(L,.32); c.fill(); }
+  c.fillStyle=base; curlyBase(c); for(const L of LOBES){ lobe(L,0); c.fill(); }
   // each cluster: a shadow under its lower edge, the curl's line, and a light sweep on top
   c.lineCap='round'; c.lineJoin='round';
   for(const [x,y,rx,ry,r,ty] of LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
@@ -443,3 +443,6 @@ function drawSpiky3(c,hair,hairC,D,t,cap){ cap(); if(A3HATON) return; const base
     c.fillStyle=pass?base:dk; c.beginPath(); c.moveTo(bx-px*(pass?1:1.15),by-py*(pass?1:1.15)); c.quadraticCurveTo(bx+dx*L*.55-px*.4,by+dy*L*.55-py*.4,tx,ty); c.quadraticCurveTo(bx+dx*L*.45+px*.6,by+dy*L*.45+py*.6,bx+px*(pass?1:1.15),by+py*(pass?1:1.15)); c.closePath(); c.fill();
     if(pass){ c.strokeStyle=v3rgba(lt,.7); c.lineWidth=.45; c.beginPath(); c.moveTo(bx-px*.4,by-py*.4); c.quadraticCurveTo(bx+dx*L*.5-px*.2,by+dy*L*.5-py*.2,tx,ty); c.stroke(); } }
   c.fillStyle=base; c.beginPath(); c.arc(0,-57,7.6,Math.PI*1.08,Math.PI*1.95); c.lineTo(6,-60); c.quadraticCurveTo(0,-62.4,-6.6,-58); c.closePath(); c.fill(); }
+// the curly base mass: full size normally; under a hat a slightly smaller copy so it fills the scalp (no bald spot)
+// without poking out around the brim
+function curlyBase(c){ if(!A3HATON){ curlyCap(c); c.fill(); return; } c.save(); c.translate(0,-56); c.scale(.9,.92); c.translate(0,56); curlyCap(c); c.restore(); c.fill(); }
