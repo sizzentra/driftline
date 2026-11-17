@@ -3,7 +3,7 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
-- **Live version: 0.3.1 "Dressed for the Weather"** (shipped 2026-11-16, director approved; 0.3 "The Big Glow-Up" shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
+- **Live version: 0.3.2 "Prized Catches"** (shipped 2026-11-16, director approved; 0.3.1 and 0.3 shipped earlier the same day) at https://sizzentra.github.io/driftline/. Every release is committed on `main`; `gh-pages` holds the published `site/`.
 - **Recent releases:**
   - **2.1 "More of Everything":** new content of every kind, two pets at once (★ favourite plus companion), and the tab grid.
   - **2.2 "Closer Together":** moving progress with a 6-digit code, gift codes, and Lily.
@@ -13,7 +13,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - Confirm the 6-digit transfer works between their real phone and PC. It was only tested in two windows on one PC. The first, direct-connection version failed on their phone, which is why it now uses a relay.
   - Confirm Lily looks right to Cam. Lily is his exclusive pet, drawn from a photo of his dog (see "Exclusive gifts").
   - Confirm the sidebar button is the one they meant: landscape phones only. They may also want a toggle in portrait.
-- **0.3.2 "Prized Catches": PREVIEW ONLY at /next/ (2026-11-16), awaiting the director's go-ahead to ship.** Play notes from a friend plus director requests:
+- **0.3.2 "Prized Catches": SHIPPED 2026-11-16** (director approved; publish.ps1, commit 82b5a4c). Its patch-notes entry stays as shipped. Play notes from a friend plus director requests:
   - **Aquarium weight:** income cap ×`aqWeightK` (0.75 to 1.7 by weight within the species); buffs get a weight factor (`aqBuffsOf` wrap in n_play); tank size by real kg (log scale, d_draw `drawTank`).
   - **Fights:** a running fish takes line when you're not reeling, at `max(base, reel*(.24+.11*rarity))*stamina`; reeling during a run gains no line and adds 95 tension instead of 70. Bot fights: pond 6–10 s, ember legendary 18 s, all landed.
   - **Shiny frenzy fish:** 11%, worth 5 fish, `pat` skip/zig/high; `__frenzy()` test hook.
