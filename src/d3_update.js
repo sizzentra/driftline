@@ -3,8 +3,11 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.4.1';
+const GAME_VERSION = '0.3.4.2';
 const PATCHES = [
+ {v:'0.3.4.2', name:'Catch Card Fix', items:[
+  'The catch card shows just one aquarium earnings line again (it was keeping the lines from earlier catches, so the top number belonged to a different fish).',
+ ]},
  {v:'0.3.4.1', name:'Aquarium Numbers Hotfix', items:[
   'The coins-per-hour shown in your cooler now always belong to the right fish (some rows were showing another fish’s number).',
   'Before you move a fish into the aquarium, the number shown now includes its own aquarium boost, so it matches exactly what the Aquarium tab shows once it is on display.',

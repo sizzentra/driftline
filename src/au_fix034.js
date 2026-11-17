@@ -27,7 +27,7 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
 function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
 function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
 const _showCard_034 = showCard;
-showCard = function(o){ const ce=G.lastEntry; _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
+showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
   q.insertAdjacentHTML('afterend',`<div class="meta aqinc">${inc}${S.tank.length>=aqCap()?' (aquarium full)':''}</div>`); };
 const _renderCooler_034b = renderCooler;
