@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1316';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1348';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2839,6 +2839,7 @@ const PATCHES = [
   'A Blood Moon takes the place of the moon instead of hanging beside it, and the land in front covers it like the moon.',
   'In fog, your angler, dock and boat stay clear while the far shore fades away.',
   'Phones: lists no longer bounce past the top bars, holding a finger down no longer opens copy or zoom menus, and the game no longer zooms in on a double tap or pinch.',
+'Menus: the tab bar at the top of a page now fully covers what scrolls under it, with no gap above or beside it.',
   'Prize counter pictures show your pet awake, and on phones prizes and counter specials sit two to a row. Search finds weekly quests, the weather forecast and the counter specials.',
   'The cast power bar sits above the hint at the bottom of the water, so the hint never covers it on tablets and sideways phones.',
   '## Handy extras',
@@ -13836,7 +13837,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   /* Rods: level and upgrade side by side under the rod */
   #menuov #panel .rodnow > .row.spread > :last-child{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left!important}
   /* section tabs: one row that scrolls sideways */
-  #menuov #panel .bwx-nav.sect-nav{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;display:flex!important;-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  #menuov #panel .bwx-nav.sect-nav{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none;display:flex!important}
+  /* fade on the right edge drawn as a layer, not a mask: a mask would also clip the band that covers the gap above the tabs */
+  #menuov #panel .bwx-nav.sect-nav::after{content:"";position:sticky;right:0;flex:0 0 26px;margin-left:-26px;align-self:stretch;background:linear-gradient(90deg,#0d183000,#0d1830);pointer-events:none;border-radius:0 14px 14px 0}
+  #menuov #panel .bwx-nav.sect-nav::before{content:none!important} /* an absolute layer inside a sideways scroller would make it scroll; the shadow band still covers the gap */
   #menuov #panel .bwx-nav.sect-nav::-webkit-scrollbar{display:none}
   #menuov #panel .bwx-nav.sect-nav > button{flex:0 0 auto!important;white-space:nowrap}
   /* Bounties: the water list scrolls sideways like the Fish Log's */
@@ -13940,7 +13944,8 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
   body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}
 }
 /* page tabs stay pinned at the top of the page while it scrolls */
-#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 6px 12px -6px #02060fcc}
+#menuov #panel > .wd-nav.wd-top,#menuov #panel > .bwx-nav,#menuov #panel .bwx-nav.sect-nav{position:sticky!important;top:0;z-index:6;background:#0d1830!important;box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc} /* the solid band fills the gap above and beside the tabs so nothing scrolls into view around them */
+#menuov #panel .bwx-nav:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
 @media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
 @media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
 </style>`);
@@ -14040,6 +14045,11 @@ document.addEventListener('contextmenu',e=>{ if(!e.target.closest('input,textare
 document.addEventListener('selectstart',e=>{ if(!e.target.closest||!e.target.closest('input,textarea,[contenteditable="true"]')) e.preventDefault(); });
 for(const ev of ['gesturestart','gesturechange']) document.addEventListener(ev,e=>e.preventDefault(),{passive:false});
 document.addEventListener('dblclick',e=>{ if(!e.target.closest('input,textarea')) e.preventDefault(); },{passive:false});
+// pinned page tabs: a tap on the band that covers the gap around them never reaches a card hidden underneath
+document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #panel'); if(!P||!e.target.closest||!P.contains(e.target)) return;
+  for(const v of P.querySelectorAll(':scope > .bwx-nav')){ if(v.contains(e.target)) return; const r=v.getBoundingClientRect(), pr=P.getBoundingClientRect();
+    if(r.top-pr.top>12||r.height<8) continue; // only while the tabs sit at the top of the page
+    if(e.clientY>=pr.top&&e.clientY<=r.bottom+10){ e.preventDefault(); e.stopPropagation(); return; } } },true);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
