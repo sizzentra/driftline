@@ -631,3 +631,87 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel > .wd-nav.wd-top .wl{white-space:normal!important;font-size:10px!important;line-height:1.1!important;text-align:center}
 }
 </style>`);
+
+// =====================================================================
+// Compact menus: one shared density layer for every page in the full-screen menu. Cards, grids, headings and gaps
+// are tighter, grids fit more columns, and the narrower the page the tighter it gets. Tap targets stay >= 40 px.
+// =====================================================================
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel{padding-bottom:12px!important}
+#menuov #panel .grid:not([class*=" "]){grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:8px;margin-top:8px}
+#menuov #panel .tile{padding:9px 11px;gap:4px;border-radius:11px}
+#menuov #panel .tile h4{font-size:15px;line-height:1.25}
+#menuov #panel .tile .meta{font-size:12.5px;line-height:1.35}
+#menuov #panel h5{margin:10px 0 5px;font-size:12.5px}
+#menuov #panel h3{margin:10px 0 6px}
+#menuov #panel .sub{margin-top:1px}
+@media (pointer:coarse){ body.v3 #menuov .btn{min-height:40px} body.v3 #menuov .btn.sm,body.v3 #menuov .chipb{min-height:36px} }
+@container (max-width:620px){
+  #menuov #panel .grid:not([class*=" "]){grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:6px}
+  #menuov #panel .tile{padding:8px 10px;gap:3px}
+  #menuov #panel .tile h4{font-size:14.5px}
+  #menuov #panel h5{margin:8px 0 4px}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* more per row everywhere: these grids fit as many columns as their width allows */
+#menuov #panel .jgrid{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))!important;gap:6px!important}
+#menuov #panel .jcard{padding:6px 2px!important}
+#menuov #panel .bwx-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,215px),1fr))!important;gap:8px!important}
+#menuov #panel .ev-grid,#menuov #panel .skill-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,215px),1fr))!important;gap:8px!important}
+#menuov #panel[data-tab035="pets"] .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,170px),1fr))!important}
+/* stats: cards of different heights flow into columns like a newspaper (no gaps under short cards) */
+#menuov #panel .st-grid{display:block!important;columns:250px;column-gap:8px}
+#menuov #panel .st-grid > *{break-inside:avoid;margin:0 0 8px!important;display:flex}
+@media (orientation:landscape) and (max-height:560px){
+  #menuov #panel .bwx-cb canvas{max-height:150px!important;width:auto!important;max-width:100%}
+  #menuov #panel .wheelwrap,#menuov #panel .wheelring{max-width:150px;max-height:150px;margin:0 auto}
+  #menuov #panel .sw2.v3th{height:62px!important;min-height:0!important}
+  #menuov #panel .sw2.v3th canvas,#menuov #panel .sw2.v3th img{height:100%!important;object-fit:cover}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .st-row{padding:4px 0}#menuov #panel .st-row small{line-height:1.2}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* filter chips: a little slimmer everywhere in the menu */
+#menuov #panel .chips{gap:5px}
+#menuov #panel .chipb{padding:3px 10px;font-size:12.5px}
+/* Fish Log on narrower pages: the Hunt button becomes a round target on the card's corner (one row less per fish) */
+@container (max-width:760px){
+  #menuov #panel .jcell{position:relative}
+  #menuov #panel .jcell > .hunt-t{position:absolute;top:4px;right:4px;margin:0!important;width:32px;height:32px;min-height:32px;padding:0!important;border-radius:50%;font-size:0!important;display:grid;place-items:center;z-index:2;background:#0b1626d9}
+  #menuov #panel .jcell > .hunt-t::before{content:"🎯";font-size:15px;line-height:1}
+  #menuov #panel .jcell > .hunt-t.on{background:#ffb36a}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the smallest sideways phones: an icon rail (names on long-press / hover), so pages get the width */
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){
+  #menuov .mo-in{grid-template-columns:52px minmax(0,1fr) auto!important;column-gap:10px!important}
+  #menuov .mo-back,#menuov .mo-home{justify-content:center;padding:0!important;font-size:0!important}
+  #menuov .mo-back::after{content:none!important}
+  #menuov .mo-back svg:not(.mo-bi){display:none!important}
+  #menuov .mo-home .mo-hl{display:none!important}
+  body #menuov #tabs.secmode .secb{justify-content:center;padding:0!important;position:relative}
+  body #menuov #tabs.secmode .secb .secl{display:none!important}
+  body #menuov #tabs.secmode .secb .seci svg{width:20px;height:20px}
+  body #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;left:auto!important;transform:none!important;min-width:17px;height:17px;font-size:10px;line-height:17px;margin:0!important}
+  body #menuov #tabs.secmode .secb .seclive{position:absolute!important;top:3px!important;left:4px!important;right:auto!important;margin:0!important}
+  #menuov .mo-hdot{top:-5px!important;right:-5px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* upright phones: two cards per row instead of one wherever a card still reads well at half width */
+@container (max-width:520px){
+  #menuov #panel .grid:not([class*=" "]){grid-template-columns:repeat(auto-fill,minmax(min(100%,156px),1fr))}
+  #menuov #panel .ev-grid,#menuov #panel .skill-grid,#menuov #panel .bwx-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,156px),1fr))!important}
+  #menuov #panel[data-tab035="pets"] .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr))!important}
+  #menuov #panel .sw2.v3th{height:70px!important;min-height:0!important}
+  #menuov #panel .sw2.v3th canvas,#menuov #panel .sw2.v3th img{height:100%!important;object-fit:cover}
+  #menuov #panel .tile .btn{white-space:normal;line-height:1.2}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@container (max-width:520px){ #menuov #panel .bwx-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,172px),1fr))!important} }
+#menuov #panel .bwx-card .btn{white-space:normal;line-height:1.2}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:520px){ #menuov #panel .bwx-grid{grid-template-columns:minmax(0,1fr)!important} }</style>`);

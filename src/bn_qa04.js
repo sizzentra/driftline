@@ -143,3 +143,7 @@ if(/[?&]test\b/.test(location.search)) window.__layoutQC=async()=>{ const chk=()
 // test builds: ?test&open=<page> opens that menu page right after load (for screenshots of a menu page)
 if(/[?&]test\b/.test(location.search)){ const m=location.search.match(/[?&]open=([\w-]+)/); if(m) setTimeout(()=>{ try{ openMenu(m[1]==='dash'?undefined:m[1]); }catch(e){} },700); }
 if(/[?&]test\b/.test(location.search)&&/[?&]noanim\b/.test(location.search)) document.head.insertAdjacentHTML('beforeend','<style>*,*::before,*::after{animation:none!important;transition:none!important}</style>');
+// test builds: __density() opens every menu page and reports how tall it is (less = more fits on one screen)
+if(/[?&]test\b/.test(location.search)) window.__density=async()=>{ const tabs=['dash',...[...document.querySelectorAll('#tabs > [data-tab]')].map(b=>b.dataset.tab).filter(t=>t!=='settings'),'settings','stats','save']; const seen=new Set(), out={}; let total=0;
+  for(const t of tabs){ if(seen.has(t)) continue; seen.add(t); try{ if(t==='dash') openMenu(); else openMenu(t); }catch(e){} await new Promise(r=>setTimeout(r,180)); const P=$('panel'); const h=P.scrollHeight, v=P.clientHeight; out[t]=+(h/v).toFixed(2); total+=h/v; }
+  closeMenu(); return {size:innerWidth+'x'+innerHeight, screens:+total.toFixed(1), pages:out}; };

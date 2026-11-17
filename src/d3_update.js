@@ -14,6 +14,7 @@ const PATCHES = [
   'Your line waits while a menu is open: a cast, a bite or a fight pauses and carries on when you come back, never lost.',
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   'On a phone held sideways, the menu’s categories run down the left side, so every page gets the whole height of the screen. Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
+  'Every menu page is more compact: tighter cards and more of them per row on every screen, two cards per row on phones held upright, five fish per row in the Fish Log on small phones, and the Hunt button is a small target on each fish card.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
