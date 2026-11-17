@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1644';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1718';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2780,8 +2780,9 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.2';
+const GAME_VERSION = '0.4.3';
 const PATCHES = [
+{v:'0.4.3', name:'Quick Links', items:['Tap Fishing at in the top bar to choose a water, and tap Cooler to open your cooler, just like Aquarium and Fish Log.','Bait has moved off the top bar: choose it on the Bait list in Tackle, which shows the bait you are using.','Settings has its own gear in the top bar on phones, held upright or sideways.','Fish Log stays in the top bar on every phone held sideways, including the Home Screen app.']},
 {v:'0.4.2', name:'iPhone Hotfix', items:['iPhone: holding your finger on the water to reel no longer brings up the magnifier bubble, in Safari and in the Home Screen app.']},
 {v:'0.4.1', name:'Catching Up', items:[  'Back after a while? The update notes now show everything that arrived while you were away, all in one place, newest first.',  'The 0.4 notes now start with the biggest additions: new fish, voyages, events and more.', ]},
  {v:'0.4', name:'Fifty Fathoms', items:[
@@ -13991,7 +13992,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) a
     const SHORT={worm:'Worms',bread:'Bread',cricket:'Crickets',crawler:'Crawlers',corn:'Corn',minnows:'Minnows',glitter:'Glitter',deepjig:'Deep Jigs',berries:'Berries',goldchum:'Gold Chum',lavaworm:'Lava',stardust:'Stardust',mythbait:'Myth',spinner:'Spinner',glow:'Glow',icefly:'Ice Flies',chum:'Chum',shrimp:'Shrimp',squid:'Squid',stinky:'Cheese',disco:'Disco',magnet:'Magnet',golden:'Golden'};
     const nm=document.createElement('b'); nm.className='bnm'; nm.setAttribute('aria-hidden','true'); sel.after(nm); chip.classList.add('bait-x');
     const paint=()=>{ try{ const k=BAIT[S.baitSel]?S.baitSel:'worm', b=BAIT[k], n=k==='worm'?null:(S.bait[k]||0);
-      const lt='Bait'+(n!=null?' · '+fmtShort(n):''); if(lbl.textContent!==lt) lbl.textContent=lt;
+      const lt='Bait'+(n!=null?' · '+(n>=1e6?fmtShort(n):n>=1000?Math.floor(n/1000)+'K':n):''); // compact so the biggest stash still fits if(lbl.textContent!==lt) lbl.textContent=lt;
       const t=b.name+(n!=null?' ('+fmt(n)+' left)':''); if(chip.title!==t+'. Tap to change bait') chip.title=t+'. Tap to change bait';
       // measured on the real text (letter spacing and the loaded font included); redone only when the bait or the width changes
       const avail=nm.clientWidth, key=k+'|'+avail+'|'+(document.fonts?document.fonts.status:''); if(avail>0&&nm._fitKey===key) return; nm._fitKey=avail>0?key:'';
@@ -14149,6 +14150,51 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
 // tools there. The game reads these surfaces through pointer events, which still arrive.
 document.addEventListener('touchstart',e=>{ const t=e.target; if(t&&t.tagName==='CANVAS'&&(t.id==='cv'||t.id==='tankcv'||t.id==='homecv')&&e.cancelable) e.preventDefault(); },{passive:false});
 document.head.insertAdjacentHTML('beforeend',`<style>#cv,#tankcv,#homecv{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}</style>`);
+// Top bar (director, 2026-11-17): every chip that has a page opens it. Fishing at opens Waters (quick water changes), Cooler opens
+// the Cooler, like Aquarium and Fish Log. Bait is not on the top bar any more: it is chosen on the Bait list in Tackle, which shows the
+// bait in use. Its place goes to a Settings gear (phones had none). Fish Log stays on sideways phones at every width.
+{ const cool=$('coolerct'), cc=cool&&cool.closest('.stat'), loc=document.querySelector('.hud > .stat.loc');
+  const link=(el,go,title)=>{ if(!el) return; el.classList.add('hudx','hud-link'); el.setAttribute('role','button'); el.tabIndex=0; el.title=title;
+    ['pointerdown','touchstart','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+    const act=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} go(); };
+    el.addEventListener('click',act); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') act(e); }); };
+  link(loc,()=>openMenu('map'),'Fishing at: tap to choose a water');
+  link(cc,()=>openMenu('cooler'),'Cooler: fish you are carrying (tap to open)');
+  const sel=$('bait'); if(sel){ sel.tabIndex=-1; sel.setAttribute('aria-hidden','true'); } }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.hud > .hud-link{cursor:pointer}
+.hud > .hud-link:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+html body .hud > .st-bait{display:none!important}
+/* phones upright: coins, level, cooler, aquarium, Fish Log and a gear on top; where you fish and the goal underneath */
+body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.04fr) minmax(0,1fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1fr) 32px!important;gap:4px!important}
+body.phone-app.dl-fish .hud > .st-log{grid-column:5!important;grid-row:1!important;order:0!important;height:auto!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:0!important;padding-left:6px!important;padding-right:4px!important}
+body.phone-app.dl-fish .hud > .st-log .lbl{display:block!important}
+body.phone-app.dl-fish .hud > .st-log b::before{content:none!important}
+body.phone-app.dl-fish .hud > .hudbtns{display:flex!important;grid-column:6;grid-row:1;align-items:stretch;min-width:0}
+body.phone-app.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
+body.phone-app.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .stat.loc{display:flex!important;grid-column:1 / 3!important;grid-row:2!important;height:30px!important;flex-direction:row!important;align-items:center!important;gap:5px!important;min-width:0;overflow:hidden}
+body.phone-app.dl-fish .hud > .stat.loc .lbl{display:none!important}
+body.phone-app.dl-fish .hud > .stat.loc b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+body.phone-app.dl-fish .hud > .stat.loc b::before{content:"📍 ";font-size:11px}
+body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 7!important;grid-row:2!important}
+/* phones sideways: one row, Fish Log at every width, a gear at the end */
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px!important;gap:5px!important}
+  html body.dl-fish .hud > .st-log{display:flex!important}
+  html body.dl-fish .hud > .hudbtns{display:flex!important;min-width:0}
+  html body.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
+  html body.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px!important;gap:4px!important}
+  html body.dl-fish .hud > .st-log{display:flex!important}
+}
+/* tablets and windows 701-1099 px (two rows): the bait cell is gone */
+@media (min-width:701px) and (max-width:1099px) and (min-height:561px){
+  html body.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,1fr) minmax(0,.9fr) auto!important;grid-template-areas:"coins lvl cool aq lg btns" "loc loc goal goal goal goal"!important}
+}
+</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -14462,10 +14508,14 @@ ui(){ QA.sys='UI';
   T('the cast power bar and its label sit above the hint at the bottom of the water, inside the water',()=>{ closeMenu(); const h=$('hint'), cv=$('cv'); if(!h||!cv) return {ok:false,detail:'missing'}; const was=h.textContent; if(!h.textContent.trim()) h.textContent='Release to cast. A far cast or a hotspot improves your odds.';
     const cr=cv.getBoundingClientRect(), hr=h.getBoundingClientRect(); if(!cr.height) return {ok:true,detail:'water not on screen'}; const k=cr.height/H, y=castBarY(), top=cr.top+(y-22)*k, bot=cr.top+(y+18)*k; h.textContent=was;
     const e=[]; if(top<cr.top) e.push('bar above the water'); if(hr.height&&bot>hr.top+1&&top<hr.bottom) e.push('bar '+Math.round(top)+'-'+Math.round(bot)+' overlaps hint '+Math.round(hr.top)+'-'+Math.round(hr.bottom)); return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:innerWidth+'x'+innerHeight}; });
-  T('top bar bait chip: every bait name and count fits with nothing cut off, and the real picker covers the chip',()=>{ const e=[]; const nm=document.querySelector('.st-bait .bnm'), lb=document.querySelector('.st-bait .lbl'), sel=$('bait'); if(!nm||!lb) return {ok:false,detail:'chip missing'};
-    for(const k of Object.keys(BAIT)){ S.bait[k]=999999; S.baitSel=k; renderBait(); if(nm.clientWidth&&nm.scrollWidth>nm.clientWidth+1) e.push(k+' name cut'); if(lb.clientWidth&&lb.scrollWidth>lb.clientWidth+1) e.push(k+' label cut'); if(sel.value!==k) e.push(k+' picker shows '+sel.value); }
-    const c=sel.closest('.stat').getBoundingClientRect(), s=sel.getBoundingClientRect(); if(c.width&&(Math.abs(c.width-s.width)>2||Math.abs(c.height-s.height)>2)) e.push('picker does not cover the chip');
-    return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:Object.keys(BAIT).length+' baits at '+innerWidth+'x'+innerHeight}; });
+  T('top bar: no bait chip; Fishing at, Cooler, Aquarium, Fish Log and Settings are on screen, fit, and each opens its page; bait is picked in Tackle',()=>{ const e=[]; closeMenu(); setTab(DASH);
+    const bc=document.querySelector('.hud > .st-bait'); if(bc&&getComputedStyle(bc).display!=='none') e.push('bait chip still shown');
+    const want=[['.hud > .stat.loc','map'],['.hud > .st-cool','cooler'],['.hud > .st-aq','aquarium'],['.hud > .st-log','journal'],['.hud #settingsbtn','settings']];
+    for(const [q,tab] of want){ const el=document.querySelector(q); if(!el){ e.push(q+' missing'); continue; } const r=el.getBoundingClientRect(); if(!r.width||getComputedStyle(el).display==='none'){ e.push(q+' hidden'); continue; }
+      if(r.right>innerWidth+1) e.push(q+' off screen'); for(const x of el.querySelectorAll('b,.lbl')) if(x.clientWidth&&x.scrollWidth>x.clientWidth+1) e.push(q+' text cut');
+      el.click(); if(S.tab!==tab) e.push(q+' opened '+S.tab); closeMenu(); setTab(DASH); }
+    const k=Object.keys(BAIT).find(b=>b!=='worm'); S.bait[k]=3; act('usebait',{k}); if(S.baitSel!==k) e.push('Use in Tackle did not switch bait');
+    return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:'5 links at '+innerWidth+'x'+innerHeight}; });
   T('short numbers (K, M, B...) never round up past the real amount',()=>{ const e=[]; const mul={K:1e3,M:1e6,B:1e9,T:1e12,Qa:1e15}; const vals=[99999,100000,999999,1e6-1,1e6,9999999,1e7,99999999,999999999,1e9,9.999e9,999.99e9,1e12,7.7e12,999999e9]; for(let i=0;i<300;i++) vals.push(Math.floor(Math.pow(10,5+Math.random()*10)));
     for(const v of vals){ const s=fmtShort(v), m=s.match(/^([\d.]+)(K|M|B|T|Qa)$/); if(!m){ if(v>=100000) e.push(v+' -> '+s); continue; } const back=parseFloat(m[1])*mul[m[2]]; if(back>v*(1+1e-9)) e.push(v+' -> '+s); if(parseFloat(m[1])>=1000) e.push(v+' -> '+s); } return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true,detail:vals.length+' numbers'}; });
   T('menu opens and closes: state, focus, the line waits',()=>{ closeMenu(); G.st='waiting'; G.waitT=1.234; openMenu('rods'); const o=__ui.isOpen(); update(.5); update(.5); const w=G.waitT; closeMenu(); const c=!__ui.isOpen(); G.st='idle'; return (o&&c&&w===1.234)?true:{ok:false,detail:'open '+o+' closed '+c+' waitT '+w}; });
