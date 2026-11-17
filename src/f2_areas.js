@@ -836,12 +836,6 @@ V3SCENES.ember = {
     for(let i=0;i<5;i++){ const k=((t*.5+i*.37)%1), bx=W*(.35+i*.12), by=hz+H*(.1+((i*41)%30)/100); g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.5*(1-k)); g.lineWidth=1; g.beginPath(); g.ellipse(bx,by,2+k*W*.012,1+k*H*.004,0,0,7); g.stroke(); }
     // embers drifting up everywhere, flickering
     g.save(); g.globalCompositeOperation='lighter'; const nE=FX?40:15; for(let i=0;i<nE;i++){ const sp=.4+((i*13)%10)/15, X=((i*89.3+Math.sin(t*.8+i)*W*.02)%W), Y=H-((t*H*.06*sp+i*57.7)%(H*1.05)), a=.4+.6*Math.abs(Math.sin(t*4+i*1.7)); g.fillStyle=v3rgba(i%3?P.lava2:P.lava,a*(.5+night*.5)); g.fillRect(X,Y,1.6,1.6); } g.restore();
-    // a fire salamander crawls along the lowest terrace now and then
-    { const per=26, k=(t%per)/per; if(k<.35){ const e=k/.35, sx=W*(.02+e*.27), sy=hz-H*.014+(e>.5?0:0), s=H*.004, wig=Math.sin(t*10)*.3; g.save(); g.translate(sx,sy-H*(.05-Math.min(3,Math.floor(e*4))*.012)+H*.0); g.restore();
-        const yy=hz-H*(.05-Math.min(3,Math.floor(e*4))*.012)-s*.8; g.fillStyle=mix('#1a1a1a',P.rockD,.2); g.beginPath(); g.ellipse(sx,yy,s*3,s*.9,0,0,7); g.fill(); g.beginPath(); g.ellipse(sx+s*3.2,yy-s*.2,s*1.1,s*.8,0,0,7); g.fill();
-        g.strokeStyle=mix('#1a1a1a',P.rockD,.2); g.lineWidth=s*.7; g.beginPath(); g.moveTo(sx-s*2.8,yy); g.quadraticCurveTo(sx-s*4.5,yy+wig*s*2,sx-s*6,yy-wig*s); g.stroke();
-        g.lineWidth=s*.5; g.beginPath(); for(const [lx,ph] of [[-1.6,0],[1.6,Math.PI]]){ g.moveTo(sx+lx*s,yy); g.lineTo(sx+lx*s+Math.sin(t*10+ph)*s,yy+s*1.2); g.moveTo(sx+lx*s,yy); g.lineTo(sx+lx*s-Math.sin(t*10+ph)*s,yy-s*1.2); } g.stroke();
-        g.fillStyle=P.lava2; for(let j=0;j<4;j++){ g.beginPath(); g.arc(sx-s*2+j*s*1.3,yy-s*.2,s*.38,0,7); g.fill(); } v3glow(g,sx,yy,s*6,v3rgba(P.lava,.8),.3); } }
     v3fishRing(P,t,hz,7.1,.4,.85);
   },
   fore(P,t){ // glowing moths flutter at the bottom right

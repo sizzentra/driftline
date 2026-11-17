@@ -42,10 +42,10 @@ function v3range(c,o){
   const n=v3noise(o.seed), m=v3noise(o.seed+101), step=1.5/Math.min(DPR||1,2), raw=[];
   for(let X=0;X<=W+step;X+=step){ const f=X/W;
     let env=0; for(const [c0,a,w0] of o.massifs){ const d=Math.abs(f-c0)/w0; env=Math.max(env,a*Math.exp(-d*2.3)); }
-    const r=.55*(1-Math.abs(2*n(f*3+1.3)-1))+.3*(1-Math.abs(2*n(f*7+5.1)-1))+.15*n(f*16+9.7);
+    const r=.62*(1-Math.abs(2*n(f*3+1.3)-1))+.3*(1-Math.abs(2*n(f*7+5.1)-1))+.08*n(f*16+9.7); /* 0.3.3: less fine noise, softer crests */
     raw.push(o.amp*(.06+env*(.72+.28*r)+.05*r)); }
   // a light smoothing pass keeps crests crisp but never jagged
-  const cols=raw.map((h,i)=>o.base-((raw[i-1]??h)+h*2+(raw[i+1]??h))/4);
+  const K=Math.max(3,Math.round(6/step)), cols=raw.map((h,i)=>{ let s=0,wsum=0; for(let j=-K;j<=K;j++){ const v=raw[Math.min(raw.length-1,Math.max(0,i+j))], w=1-Math.abs(j)/(K+1); s+=v*w; wsum+=w; } return o.base-s/wsum; }); /* a wide soft smoothing: natural, rounded ridges */
   const path=()=>{ c.beginPath(); c.moveTo(0,o.base); for(let i=0;i<cols.length;i++) c.lineTo(i*step,cols[i]); c.lineTo(W,o.base); c.closePath(); };
   const sk=Math.max(4,Math.round(8/step)), sl=i=>{ const a=cols[Math.max(0,i-sk)], b=cols[Math.min(cols.length-1,i+sk)]; return (b-a)/(2*sk*step); };
   c.save(); path(); c.clip();
@@ -259,7 +259,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(up){ v3glow(g,sx,sy,H*.42,v3rgba(P.glow,.9),vis*(.55+P.d*.4)); g.fillStyle=mix(P.glow,'#ffffff',.5); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.045,0,7); g.fill(); g.globalAlpha=1; }
   else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); g.save(); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sx,sy,H*.03,0,Math.PI*2); g.moveTo(sx+H*.013+H*.028,sy-H*.009); g.arc(sx+H*.013,sy-H*.009,H*.028,0,Math.PI*2); g.fill('evenodd'); g.restore(); }
   // soft clouds: a bumpy top made of overlapping puffs, a flat base, lighter on top, lit underside; drifting
-  for(let i=0;i<3;i++){ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015);
+  for(let i=0;i<(SC.noClouds?0:3);i++){ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015);
     const cg=g.createLinearGradient(0,cy-chh,0,cy); cg.addColorStop(0,v3rgba(mix(P.cloud,'#ffffff',.25),.85*(1-gloom*.3))); cg.addColorStop(1,v3rgba(P.cloud,.8*(1-gloom*.3)));
     g.save(); g.beginPath(); g.rect(cx-cw*.2,cy-chh*2,cw*1.4,chh*2); g.clip(); g.fillStyle=cg; g.beginPath();
     for(const [f,rw,rh] of [[.14,.16,.38],[.3,.2,.7],[.5,.24,.95],[.68,.19,.66],[.84,.15,.42],[.42,.3,.4],[.7,.28,.3]]) g.ellipse(cx+cw*f,cy-chh*rh*.35,cw*rw,chh*rh*.75,0,0,7);
