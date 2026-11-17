@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0846';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-0911';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2786,6 +2786,7 @@ const PATCHES = [
   'The top bar keeps what you check most: your coins, level, the water you are fishing at, your next goal (or LIVE with the event or challenge running), cooler and bait. Tap the goal to open its page.',
   'On a phone held sideways, the menu’s categories run down the left side, so every page gets the whole height of the screen. Page titles that only repeat the highlighted tab are gone, and the Wardrobe’s tabs sit in one slim row above your angler.',
   'Every menu page is more compact: tighter cards and more of them per row on every screen, two cards per row on phones held upright, five fish per row in the Fish Log on small phones, and the Hunt button is a small target on each fish card.',
+  'The water now has a category bar along the bottom: Menu plus Fishing, Upgrades, Collection, Challenges and Customize, each one tap away and showing how many things are waiting there. On a phone held sideways the menu keeps a slim icon rail so pages get almost the whole screen.',
   '## Docks',
   'Home is now the Dock, and every water has its own. Each dock keeps its own wood, style, decorations and where everything and your pets stand.',
   'A water you have not fished at yet starts with a copy of the dock you arrive with. You can also copy any other dock’s layout from the Dock page, and the cozy bonus of each dock counts while you fish at its water.',
@@ -13346,7 +13347,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the smallest sideways phones: an icon rail (names on long-press / hover), so pages get the width */
-@media (orientation:landscape) and (max-height:560px) and (max-width:760px){
+@media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:52px minmax(0,1fr) auto!important;column-gap:10px!important}
   #menuov .mo-back,#menuov .mo-home{justify-content:center;padding:0!important;font-size:0!important}
   #menuov .mo-back::after{content:none!important}
@@ -13376,6 +13377,99 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .bwx-card .btn{white-space:normal;line-height:1.2}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:520px){ #menuov #panel .bwx-grid{grid-template-columns:minmax(0,1fr)!important} }</style>`);
+
+// =====================================================================
+// The category bar on the water: Menu (the Overview) plus the five categories, one tap from fishing into any part of
+// the menu. Each category opens the page you last used in it and shows how many things are waiting there.
+// =====================================================================
+const CD=document.createElement('nav'); CD.id='catdock'; CD.setAttribute('aria-label','Menu categories');
+CD.innerHTML=MENU_SECS.map(s=>`<button type="button" class="cdb" data-cd="${s.id}" title="${esc(s.name)}" aria-label="${esc(s.name)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.icon}</svg><span class="cdl">${s.short}</span><span class="cddot" hidden></span></button>`).join('');
+$('stage').appendChild(CD); CD.prepend(MB); MB.querySelector('svg').setAttribute('width','20');
+['pointerdown','touchstart','mousedown'].forEach(ev=>CD.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+CD.addEventListener('click',e=>{ const b=e.target.closest('[data-cd]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const sec=MENU_SECS.find(s=>s.id===b.dataset.cd); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; openMenu(list.includes(last)?last:list[0]); });
+setInterval(()=>{ if(MENU_OPEN) return; for(const b of CD.querySelectorAll('.cdb')){ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.cddot'), t=n>99?'99+':String(n); if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
+  if(sec.id==='chal'){ const live=!!(S.chal||liveScheds().length); b.classList.toggle('live',live); } } },1000);
+document.head.insertAdjacentHTML('beforeend',`<style>
+#catdock{position:absolute;z-index:6;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:3px;padding:4px;border-radius:17px;background:linear-gradient(180deg,#152540e0,#0c1628ec);border:1px solid #ffffff1c;box-shadow:0 10px 26px #02060fb3;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#catdock .cdb,#catdock #menubtn{position:relative!important;inset:auto!important;transform:none;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:64px;height:48px!important;min-height:0!important;padding:0 6px!important;margin:0;border-radius:13px;border:1px solid transparent;background:transparent;color:#c9d7e8;font:800 11px/1.1 var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:none!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s,border-color .15s}
+#catdock .cdb:hover{background:#ffffff10;color:#fff}
+#catdock .cdb:active,#catdock #menubtn:active{transform:scale(.95)}
+#catdock #menubtn{border-color:#ffd36a77;background:linear-gradient(180deg,#2a3f63,#1a2a48);color:#fff1c8}
+#catdock #menubtn:hover{border-color:var(--gold,#ffd36a)}
+#catdock .cdb:focus-visible,#catdock #menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:1px}
+#catdock .cdl,#catdock .mbl{white-space:nowrap}
+#catdock .cddot,#catdock .mbdot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
+#catdock .cddot[hidden],#catdock .mbdot[hidden]{display:none!important}
+#catdock .cdb.live::before{content:"";position:absolute;top:5px;left:calc(50% - 21px);width:8px;height:8px;border-radius:50%;background:#ff5a6a;box-shadow:0 0 8px #ff5a6a;animation:livepulse 1.6s ease-in-out infinite}
+body.card-open #catdock{opacity:0;pointer-events:none}
+/* the tip line and the Rest button sit clear of the bar */
+body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
+/* PC and tablets: icon and name side by side */
+@media (min-width:701px) and (min-height:561px){
+  #catdock .cdb,#catdock #menubtn{flex-direction:row;gap:7px;height:42px!important;padding:0 12px!important;font-size:13px;min-width:0}
+  #catdock .cddot,#catdock .mbdot{top:-7px!important;right:-6px!important}
+  #catdock .cdb.live::before{top:4px;left:4px}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:66px!important}
+}
+/* phones held upright: the bar spans the bottom of the water, Rest sits just above it */
+@media (max-width:700px) and (orientation:portrait){
+  #catdock{left:6px;right:6px;bottom:6px;transform:none;justify-content:space-between;gap:2px;padding:3px;border-radius:15px}
+  #catdock .cdb,#catdock #menubtn{flex:1 1 0;min-width:0;padding:0 1px!important;height:50px!important;font-size:10.5px}
+  #catdock .cdl,#catdock .mbl{overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  body.dl-fish .resttog{bottom:66px!important;left:8px!important}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:104px!important}
+}
+/* phones held sideways: a compact bar in the bottom middle, Rest on the left of the same row */
+@media (orientation:landscape) and (max-height:560px){
+  #catdock{bottom:6px;padding:3px;gap:2px;border-radius:14px}
+  #catdock .cdb,#catdock #menubtn{min-width:58px;height:42px!important;font-size:10px;padding:0 4px!important}
+  #catdock svg{width:18px;height:18px}
+  body.dl-fish .resttog{bottom:12px!important}
+  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:56px!important}
+}
+@media (max-width:360px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px} }
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:700px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px;letter-spacing:0} #catdock svg{width:21px;height:21px} }
+/* the preview badge (preview builds only) sits at the top middle of the water, clear of the bar */
+.dlprev{top:calc(env(safe-area-inset-top) + 4px)!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;opacity:.7}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+.dlprev{top:auto!important;bottom:calc(70px + env(safe-area-inset-bottom))!important;left:auto!important;right:calc(14px + env(safe-area-inset-right))!important;transform:none!important;font-size:10px!important;padding:2px 8px!important;opacity:.65}
+@media (max-width:700px) and (orientation:portrait){ .dlprev{bottom:calc(72px + env(safe-area-inset-bottom))!important} }
+@media (orientation:landscape) and (max-height:560px){ .dlprev{bottom:calc(58px + env(safe-area-inset-bottom))!important} }
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){ #menuov .mo-in{grid-template-columns:52px minmax(0,1fr) auto!important;column-gap:10px!important} }</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* notices inside the menu: a compact pill at the bottom, never over the page's content */
+#menuov > #toast{top:auto!important;bottom:calc(14px + env(safe-area-inset-bottom))!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;max-width:min(480px,calc(100% - 40px))!important;width:max-content;font-size:13px!important;line-height:1.3!important;padding:8px 14px!important;border-radius:12px!important}
+@media (max-width:700px) and (orientation:portrait){ #menuov > #toast{bottom:calc(76px + env(safe-area-inset-bottom))!important} }
+@media (orientation:landscape) and (max-height:560px){ #menuov > #toast{font-size:12px!important;padding:6px 12px!important;max-width:min(420px,60%)!important} }
+/* phones: slimmer chips, shorter page intros, a slimmer category bar */
+@media (max-width:700px),(max-height:560px){
+  body.v3 #menuov .chipb{min-height:32px!important}
+  #menuov #panel .chipb{padding:2px 10px;font-size:12.5px}
+  #menuov #panel p.sub,#menuov #panel > .row.dl-head .sub{font-size:12.5px!important;line-height:1.35}
+}
+@media (max-width:700px) and (orientation:portrait){
+  body #menuov #tabs.secmode .secb{min-height:46px!important}
+  body #menuov #panel{padding-bottom:12px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:72px!important}
+@media (min-width:701px) and (min-height:561px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important} }
+@media (max-width:700px) and (orientation:portrait){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:114px!important} }
+@media (orientation:landscape) and (max-height:560px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:64px!important} }
+@media (max-width:379px) and (orientation:portrait){ #catdock{left:4px;right:4px;gap:1px;padding:3px 2px} #catdock .cdb,#catdock #menubtn{font-size:9px!important;letter-spacing:-.15px!important} }
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (min-width:701px) and (max-width:1099px) and (min-height:561px){
+  #catdock .cdb,#catdock #menubtn{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
+  #catdock .cddot,#catdock .mbdot{top:-6px!important;right:calc(50% - 25px)!important}
+  #catdock .cdb.live::before{top:5px;left:calc(50% - 21px)}
+}
+</style>`);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
 // window.__qa(groups?) runs real game code in the real page and returns [{sys, name, ok, detail}].
