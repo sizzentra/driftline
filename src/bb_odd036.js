@@ -80,3 +80,16 @@ drawJunkAt = function(c,id,x,y,s,sil){ if(!s) return _drawJunkAt_036(c,id,x,y,s,
 function oddSil(c,id,x,y,s,col){ const m=c.getTransform?c.getTransform():{a:1}, eff=Math.max(.05,Math.abs(m.a||1)*s), q=Math.max(.1,Math.round(eff*20)/20), key='sil|'+id+'|'+q+'|'+col;
   let spr=ODD_SPR[key]; if(!spr){ const S=Math.ceil(300*q), cv=document.createElement('canvas'); cv.width=S; cv.height=S; const x2=cv.getContext('2d'); _drawJunkAt_036(x2,id,S/2,S/2,q,col); x2.globalCompositeOperation='source-in'; x2.fillStyle=col; x2.fillRect(0,0,S,S); spr=ODD_SPR[key]={cv,S}; ODD_SPR_N++; }
   const d=spr.S/q*s; c.drawImage(spr.cv,x-d/2,y-d/2,d,d); }
+// 0.3.6: the Rusty Old Rod and the Lost Tackle Box had no drawing (they showed a plain grey circle)
+const _drawJunkZ_036c = drawJunkZ;
+drawJunkZ = function(c,id,R,Ci,E,P,Ln){ switch(id){
+  case 'oldrod': Ln([88,-84,90,-26],'#d8d4c8',1.6); Ln([90,-26,90,-14,84,-9,79,-15],'#a8a8b0',3);
+    Ln([-60,52,16,-22],'#7a4a2c',9); Ln([16,-22,88,-84],'#9a6a44',5); for(const [x,y] of [[-6,-4],[30,-34],[60,-60],[84,-80]]){ Ci(x,y,4.5,'#5a5a5a'); Ci(x,y,2,'#2a3a4a'); }
+    for(const [x,y,r] of [[-30,24,4],[4,-10,3],[44,-46,3]]) Ci(x,y,r,'#a0522d');
+    Ln([-90,80,-60,52],'#c8a070',16); Ln([-86,76,-64,56],'#d8b888',4);
+    Ci(-46,62,17,'#5a4a3e'); Ci(-46,62,10,'#7a6a5a'); Ci(-46,62,3.5,'#3a2a22'); Ln([-46,62,-30,74],'#3a2a20',4); Ci(-30,74,4.5,'#2a1e16'); break;
+  case 'tackbox': P([-72,-8,72,-8,64,-34,-64,-34],'#4a7a5a'); R(-70,-8,140,66,'#3a6a4a'); R(-70,-8,140,6,'#5a8a6a'); R(-70,50,140,8,'#2a5038');
+    Ln([-26,-34,-26,-52,26,-52,26,-34],'#22302a',8); R(-9,-14,18,13,'#c8a040'); R(-5,-10,10,4,'#8a6a20');
+    P([-50,-8,-44,-20,-38,-8],'#ff7a3a'); P([30,-8,36,-18,42,-8],'#f8d23a'); Ln([-44,-20,-44,-26,-40,-28],'#b8b8c0',2.5);
+    E(46,58,15,6,'#ff8a3a'); Ci(56,56,2.2,'#1a1a1a'); Ln([30,60,24,70,30,74],'#b8b8c0',2.5); break;
+  default: _drawJunkZ_036c(c,id,R,Ci,E,P,Ln); } };
