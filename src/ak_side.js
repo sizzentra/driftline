@@ -145,7 +145,11 @@ const SIDE_OUT=(()=>{
         c.fillStyle=D('#f4ecd8'); c.beginPath(); c.moveTo(-4.4,-46.8); c.quadraticCurveTo(-.4,-48.6,3.8,-46.6); for(let y=-45;y<=-31;y+=2) c.lineTo(sideFront(y,f)-.4,y); c.lineTo(sideFront(-31,f)-1.8,-31); for(let y=-33;y>=-44;y-=2) c.lineTo(sideFront(y,f)-1.8,y); c.quadraticCurveTo(-.4,-46.6,-4.4,-45.4); c.closePath(); c.fill();
         c.fillStyle=dk; c.fillRect(-9,-31,19,3.6); c.fillStyle=D('#ffd23a'); c.fillRect(-9,-29.8,19,.8); });
       // the sash bow at the back
-      c.fillStyle=dk; c.beginPath(); c.roundRect?c.roundRect(-10.6,-31.8,3.6,5,1):c.rect(-10.6,-31.8,3.6,5); c.fill(); c.fillStyle=D('#ffd23a'); c.fillRect(-10.6,-29.8,3.6,.7); },
+      // 0.3.6: a folded drum bow tied onto the back (it used to be a box floating behind it)
+      c.fillStyle=dk; c.beginPath(); c.moveTo(-6.2,-33.4); c.quadraticCurveTo(-10.4,-34.4,-11.4,-32); c.lineTo(-11.6,-27.4); c.quadraticCurveTo(-10.6,-25.4,-6.4,-26.2); c.closePath(); c.fill();
+      c.fillStyle='rgba(255,255,255,.14)'; c.beginPath(); c.moveTo(-7,-32.8); c.quadraticCurveTo(-10,-33.4,-10.8,-31.6); c.lineTo(-10.9,-30.6); c.quadraticCurveTo(-9.8,-32,-7,-31.6); c.closePath(); c.fill();
+      c.strokeStyle='rgba(0,0,0,.25)'; c.lineWidth=.35; c.beginPath(); c.moveTo(-11.3,-29.6); c.quadraticCurveTo(-9,-29.2,-6.6,-29.8); c.stroke();
+      c.fillStyle=D('#ffd23a'); c.beginPath(); c.moveTo(-6.4,-30.2); c.quadraticCurveTo(-9,-29.6,-11.5,-30.1); c.lineTo(-11.5,-29.4); c.quadraticCurveTo(-9,-28.9,-6.4,-29.5); c.closePath(); c.fill(); },
     denim(c,lk,D,f){ const col=D(H(lk,'#4a6a9a')), dk=D(sh(H(lk,'#4a6a9a'),.28)), st=D('#e8b060');
       clipT(c,f,()=>{ c.fillStyle=col; c.fillRect(-9,-50,19,28); line(c,[[-7,-40.6],[sideFront(-40.6,f),-41]],st,.3,[.6,.5]); frontSeam(c,f,1.2,-46,-23,st,.3,[.6,.5]);
         pocket(c,.6,-40,3.8,3.6,dk,dk,D('#c8c8d0')); c.fillStyle=dk; c.fillRect(-9,-25,19,2.6); line(c,[[-9,-24.5],[9,-24.5]],st,.25,[.6,.5]); });
@@ -172,7 +176,7 @@ const SIDE_OUT=(()=>{
     fishsuit(c,lk,D,f,t){ const col=D(H(lk,'#3aa8a0')), dk=D(sh(H(lk,'#3aa8a0'),.3)), bel=D('#f4ecd8');
       // a dorsal fin along the back and a tail at the bottom, so the costume reads from the side
       c.fillStyle=dk; c.beginPath(); c.moveTo(-6.6,-46); c.quadraticCurveTo(-11+Math.sin(t*3)*.4,-44,-11.4,-38); c.quadraticCurveTo(-9,-36.8,-7.4,-34); c.closePath(); c.fill();
-      c.beginPath(); c.moveTo(-8,-18); c.lineTo(-12.6,-14+Math.sin(t*4)); c.lineTo(-12,-20.4+Math.sin(t*4)*.6); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(-6,-21.2); c.quadraticCurveTo(-9.6,-20.6,-12.2,-21.6+Math.sin(t*4)*.6); c.quadraticCurveTo(-11.2,-18,-12.8,-14+Math.sin(t*4)); c.quadraticCurveTo(-9.4,-15.6,-6,-15.4); c.closePath(); c.fill(); /* 0.3.6: the tail grows out of the costume's back */
       c.fillStyle=col; sideCoatPath(c,f,-15); c.fill();
       clipC(c,f,-15,()=>{ c.fillStyle=bel; c.beginPath(); c.ellipse(7,-30,4.4,13,0,0,7); c.fill(); c.strokeStyle=v3rgba(sh(H(lk,'#3aa8a0'),.3),.6); c.lineWidth=.45;
         for(let y=-46,r=0;y<-15;y+=3,r++) for(let x=-9+(r%2)*1.5;x<4;x+=3){ c.beginPath(); c.arc(x,y,1.5,0,Math.PI); c.stroke(); } });

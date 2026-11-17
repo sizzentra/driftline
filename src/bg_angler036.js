@@ -119,3 +119,6 @@ drawHat=function(c,id,col,t=0){ const f=HAT036[id]; if(!f||(typeof HAT_TRIM_OFF!
 // QC (test mode only): every wearable, pet, decoration and junk id, read from the game's own lists
 if(/[?&]test\b/.test(location.search)) window.__lists=()=>{ const id=x=>Array.isArray(x)?x[0]:(x&&x.id); const L={hats:HATS,outfits:OUTFITS,glasses:GLASSES,shoes:SHOES,necks:NECKS,backs:BACKS,beards:BEARDS,pets:PETS,decor:DECOR,junk:JUNK};
   const o={}; for(const k in L) o[k]=L[k].map(id).filter(Boolean); return o; };
+// heart shades get an arm to the ear like every other pair (they sat on the face like a sticker)
+const _drawFace_036=drawFace;
+drawFace=function(c,lk,D,hair){ _drawFace_036(c,lk,D,hair); if(lk&&lk.glasses==='heart'){ const ex=4.4, ey=-57; c.save(); c.strokeStyle=D?D('#c82a68'):'#c82a68'; c.lineWidth=.5; c.lineCap='round'; c.beginPath(); c.moveTo(ex-2.1,ey-.5); c.quadraticCurveTo(1,ey-.9,-1.3,ey+.9); c.stroke(); c.restore(); } };

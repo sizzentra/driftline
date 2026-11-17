@@ -13,10 +13,13 @@ function a3TorsoPath(c,f){ c.beginPath(); const bb=A3BELLY*2.6;
 // a longer coat silhouette reaching hemY, flaring slightly
 function a3CoatPath(c,f,hemY){ c.beginPath(); c.moveTo(f?-7.4:-7.9,-45.8); c.quadraticCurveTo(f?-8.2:-9.1,-36,-8.8,-26); c.lineTo(-9.8,hemY); c.quadraticCurveTo(0,hemY+1.6,9.8,hemY); c.lineTo(9+A3BELLY*1.6,-26); c.quadraticCurveTo((f?9:9.5)+A3BELLY*2.4,-34,f?7.7:8.1,-45.8); c.quadraticCurveTo(0,-48.6,f?-7.4:-7.9,-45.8); c.closePath(); }
 function a3Shade(c,pathFn,D){ c.save(); pathFn(); c.clip(); const sg=c.createLinearGradient(-9,0,9,0); sg.addColorStop(0,'rgba(10,8,20,.28)'); sg.addColorStop(.45,'rgba(10,8,20,0)'); sg.addColorStop(.85,'rgba(255,230,190,0)'); sg.addColorStop(1,'rgba(255,225,185,.32)'); c.fillStyle=sg; c.fillRect(-11,-50,22,40); c.restore(); }
+// an outfit's own colour: the player's pick, or the outfit's default when the save still holds the shared default gold
+// (0.3.6: sleeves and trousers used the gold literally, so a navy captain's coat had gold sleeves)
+function a3OC(lk,def){ return lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:def; }
 function a3Sleeve(lk,D,shirt){ const o=lk.outfit, oc=D(lk.outCol||'#d8a020');
-  switch(o){ case 'raincoat': case 'hoodie': case 'puffer': case 'sweater': case 'cardigan': case 'captain': case 'lumberjack': return o==='captain'?D(lk.outCol||'#1a2a4a'):o==='lumberjack'?D(lk.outCol||'#b8342a'):oc;
-    case 'wetsuit': return D('#1c1c26'); case 'spacesuit': return D('#e8ecf0'); case 'tidecoat': return D('#1a3a5a'); case 'bathrobe': return D(lk.outCol||'#f0e6f4'); case 'pajamas': return D(lk.outCol||'#7a9ad8'); default: return shirt; } }
-function a3Legs(lk,D){ const o=lk.outfit; if(o==='wetsuit') return D('#1c1c26'); if(o==='spacesuit') return D('#e8ecf0'); if(o==='overalls') return D(lk.outCol||'#3a6f9a'); if(o==='pajamas') return D(lk.outCol||'#7a9ad8'); return D(lk.pants); }
+  switch(o){ case 'raincoat': case 'hoodie': case 'puffer': case 'sweater': case 'cardigan': case 'captain': case 'lumberjack': return o==='captain'?D(a3OC(lk,'#1a2a4a')):o==='lumberjack'?D(a3OC(lk,'#b8342a')):oc;
+    case 'wetsuit': return D('#1c1c26'); case 'spacesuit': return D('#e8ecf0'); case 'tidecoat': return D('#1a3a5a'); case 'bathrobe': return D(a3OC(lk,'#f0e6f4')); case 'pajamas': return D(a3OC(lk,'#7a9ad8')); default: return shirt; } }
+function a3Legs(lk,D){ const o=lk.outfit; if(o==='wetsuit') return D('#1c1c26'); if(o==='spacesuit') return D('#e8ecf0'); if(o==='overalls') return D(a3OC(lk,'#3a6f9a')); if(o==='pajamas') return D(a3OC(lk,'#7a9ad8')); return D(lk.pants); }
 
 // ---------- 0.3 angler body: rounded, lit limbs that bend, eased poses, a rim light from the sky ----------
 // eased pose state for the angler on the water (other previews draw a still pose)
