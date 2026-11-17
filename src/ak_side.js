@@ -384,28 +384,6 @@ const CURLY_TIPS=(()=>{ const out=[], E=CURL_EDGE; for(let i=0;i<E.length;i+=1){
 // loose locks inside the curly mass: fewer and bigger than the coil grid, kept inside the outline
 const CURLY_LOCKS=(()=>{ const cv=document.createElement('canvas'), x=cv.getContext('2d'), out=[]; let s=5; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; curlMass(x);
   for(let y=-68.6;y<=-51;y+=2.6) for(let X=-9.2;X<=6.8;X+=2.8){ const px=X+(rnd()-.5)*1.4, py=y+(rnd()-.5)*1.2; if(x.isPointInPath(px,py)) out.push([px,py,1.1+rnd()*.5,rnd()*6.28]); } return out; })();
-function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000000',.42)), dk2=D(mix(hairC,'#000000',.22)), lt=D(mix(hairC,'#ffffff',.32)), lt2=D(mix(hairC,'#ffffff',.55));
-  const gr=c.createLinearGradient(2,-70,-6,-49); gr.addColorStop(0,D(mix(hairC,'#ffffff',.14))); gr.addColorStop(.55,base); gr.addColorStop(1,D(mix(hairC,'#000000',.22)));
-  const flick=(x,y,nx,ny,L,sd)=>{ // a pointed lock curling to one side
-    const bx=-ny*sd, by=nx*sd, tipx=x+nx*L*.7+bx*L*1.05, tipy=y+ny*L*.7+by*L*1.05; c.beginPath(); c.moveTo(x-bx*1.1,y-by*1.1); c.quadraticCurveTo(x+nx*L*1.25-bx*.1,y+ny*L*1.25-by*.1,tipx,tipy); c.quadraticCurveTo(x+nx*L*.45+bx*.4,y+ny*L*.45+by*.4,x+bx*1.1,y+by*1.1); c.closePath(); /* a short lock that hooks over to one side */ };
-  // dark outline layer first (the flicks and mass, slightly fattened), then the colour over it
-  c.fillStyle=dk; c.strokeStyle=dk; c.lineWidth=.9; c.lineJoin='round'; curlMass(c); c.fill(); c.stroke(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); c.stroke(); }
-  // the curl dropping over the temple, in front of the ear
-  const temple=()=>{ c.beginPath(); c.moveTo(1.4,-58.6); c.quadraticCurveTo(2.6,-55.6,1.2,-52.4); c.quadraticCurveTo(.8,-53.6,-.2,-52.8); c.quadraticCurveTo(.6,-55.6,-.4,-57.6); c.closePath(); }; temple(); c.fill(); c.stroke();
-  c.fillStyle=gr; curlMass(c); c.fill(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); } temple(); c.fill();
-  // swooping crescent locks inside, each lit on top and shaded underneath
-  c.save(); curlMass(c); c.clip(); c.lineCap='round';
-  for(const [x,y,r,rot] of CURLY_LOCKS){ const R=r*1.5, a=rot, ox=x+Math.cos(a+Math.PI*.6)*R*.38, oy=y+Math.sin(a+Math.PI*.6)*R*.38;
-    // a crescent lock: lit body, dark lower edge, a light streak along its top
-    const lock=()=>{ c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.arc(ox,oy,R*.6,a+Math.PI*1.3,a,true); c.closePath(); };
-    c.fillStyle=y<-61?D(mix(hairC,'#ffffff',.16)):D(mix(hairC,'#ffffff',.06)); lock(); c.fill(); c.strokeStyle=v3rgba(dk,.8); c.lineWidth=.38; c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.stroke();
-    c.strokeStyle=v3rgba(y<-61?lt2:lt,.7); c.lineWidth=.36; c.beginPath(); c.arc(x,y,R*.82,a+Math.PI*.25,a+Math.PI*1.0); c.stroke(); }
-  c.restore();
-  // strand lines on the flicks so they read as hair
-  c.strokeStyle=v3rgba(lt,.55); c.lineWidth=.32; for(const [x,y,nx,ny,L,sd] of CURLY_TIPS){ if(y>-58&&x>-2) continue; c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+nx*L*.5,y+ny*L*.5,x+nx*L*.8-ny*sd*L*.35,y+ny*L*.8+nx*sd*L*.35); c.stroke(); }
-  c.save(); c.globalAlpha*=.14; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-.6,-66.6,5,1.4,-.12,0,7); c.fill(); c.restore();
-  drawEar3(c); }
-
 // ---------- COILS (director's reference, left-hand image): tight round coils. Every curl is its own round coil with a
 // spiral in it and a dark outline, piled into a dome that falls to the jaw behind.
 const COIL_BLOBS=(()=>{ const out=[]; let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
@@ -422,3 +400,33 @@ function drawCoils3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000
     c.strokeStyle=v3rgba(dk,.85); c.lineWidth=.38; c.beginPath(); c.arc(x,y,r*.72,a,a+Math.PI*1.45); c.stroke(); c.beginPath(); c.arc(x+Math.cos(a)*r*.18,y+Math.sin(a)*r*.18,r*.38,a+Math.PI,a+Math.PI*2.5); c.stroke();
     c.strokeStyle=v3rgba(y<-61?lt2:lt,.75); c.lineWidth=.32; c.beginPath(); c.arc(x,y,r*.82,Math.PI*1.15,Math.PI*1.65); c.stroke(); }
   drawEar3(c); }
+
+// ---------- CURLY (0.3.3 redesign, per the director's brief): modern, medium-length, slightly messy curls that follow the
+// skull. About eleven soft curl clusters (C, S and loose spiral shapes) at irregular sizes and angles, moderate volume on
+// top, a couple of curls falling toward the forehead, small tight curls at the temple, a compact back tapering to the
+// nape. Three tones per colour (shadow, base, light) and only a soft outline. Head centre (0,-56), radius 7.5.
+const CURLY_LOBES=[ // x, y, rx, ry, rotation, curl type
+  [-6.3,-52.6,1.6,1.7,-1.4,'S'],[-7.3,-55.8,1.9,2.0,-1.2,'C'],[-7.2,-59.4,2.0,2.1,-1.0,'P'],[-5.9,-62.6,2.4,2.2,-.6,'C'],
+  [-3.2,-64.6,2.9,2.2,-.25,'S'],[.1,-65,3.0,2.2,-.05,'C'],[3.2,-64,2.8,2.1,.15,'S'],[-3.4,-60.8,2.4,2.1,.45,'P'],
+  [1.2,-61.8,2.3,1.8,.2,'S'],[5.4,-61.5,2.4,1.8,.35,'C'],[.4,-58.6,1.4,1.3,.8,'C'],[6.8,-59.8,1.35,1.25,.7,'C'],
+  [-1.9,-57,1.9,2.1,-1,'C'],[-2.4,-54.2,1.6,1.8,-1.2,'S'],[-4.4,-52.2,1.5,1.5,-1.3,'C']]; /* curls fall over the ear */
+function curlyCap(c){ c.beginPath(); c.moveTo(6.6,-60.2); c.bezierCurveTo(7.4,-63.6,4.6,-66.4,0,-66.4); c.bezierCurveTo(-4.8,-66.4,-8.2,-63.4,-8.4,-58.6); c.bezierCurveTo(-8.5,-55,-7.8,-52.2,-6.2,-50.8); c.bezierCurveTo(-4.8,-51.2,-3.6,-52,-3.2,-53.2); c.bezierCurveTo(-2.4,-55.8,-1.4,-57.6,.6,-58.6); c.bezierCurveTo(2.6,-59.6,4.6,-59.6,6.6,-60.2); c.closePath(); }
+function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
+  const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
+  // soft outline: the whole shape a touch larger in the shadow tone, then the base colour over it
+  c.fillStyle=shade; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,.32); c.fill(); }
+  c.fillStyle=base; curlyCap(c); c.fill(); for(const L of CURLY_LOBES){ lobe(L,0); c.fill(); }
+  // each cluster: a shadow under its lower edge, the curl's line, and a light sweep on top
+  c.lineCap='round'; c.lineJoin='round';
+  for(const [x,y,rx,ry,r,ty] of CURLY_LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
+    c.save(); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.clip();
+    c.fillStyle=v3rgba(shade,.7); c.beginPath(); c.ellipse(x+sn*s*.35,y+cs*s*.45,rx*.95,ry*.55,r,0,7); c.fill();
+    c.fillStyle=base; c.beginPath(); c.ellipse(x-sn*s*.15,y-cs*s*.2,rx*.86,ry*.72,r,0,7); c.fill();
+    c.strokeStyle=v3rgba(line,.75); c.lineWidth=.42; c.beginPath();
+    if(ty==='C'){ c.ellipse(x,y,rx*.6,ry*.58,r,Math.PI*.15,Math.PI*1.35); }
+    else if(ty==='S'){ const [a1,b1]=P(-rx*.55,ry*.2), [a2,b2]=P(0,-ry*.25), [a3,b3]=P(rx*.55,ry*.15), [m1,n1]=P(-rx*.3,-ry*.55), [m2,n2]=P(rx*.3,ry*.6); c.moveTo(a1,b1); c.quadraticCurveTo(m1,n1,a2,b2); c.quadraticCurveTo(m2,n2,a3,b3); }
+    else { c.ellipse(x,y,rx*.62,ry*.6,r,Math.PI*1.0,Math.PI*2.2); c.moveTo(...P(rx*.62*Math.cos(Math.PI*2.2),ry*.6*Math.sin(Math.PI*2.2))); c.ellipse(x+cs*s*.12,y+sn*s*.12,rx*.32,ry*.3,r,Math.PI*.2,Math.PI*1.4); }
+    c.stroke();
+    c.strokeStyle=v3rgba(light,.85); c.lineWidth=.5; c.beginPath(); c.ellipse(x-sn*s*.08,y-cs*s*.12,rx*.68,ry*.58,r,Math.PI*1.2,Math.PI*1.72); c.stroke();
+    c.restore(); }
+  }

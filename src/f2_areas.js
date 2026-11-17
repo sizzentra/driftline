@@ -201,8 +201,10 @@ V3SCENES.coast = {
     // the lighthouse lamp; after dusk its beam sweeps round, flaring when it faces you
     { const lx=W*.86, ly=hz-H*.03-H*.2-H*.018, lit=clamp(night*1.4+d*1.1,0,1);
       if(lit>.04){ const a=t*.7, face=Math.cos(a), dir=Math.sin(a)>0?1:-1, len=W*(.35+.25*Math.abs(Math.sin(a)));
-        if(Math.abs(face)<.97){ const spread=H*.028*(1+Math.abs(face)*2); const bg=g.createLinearGradient(lx,ly,lx-dir*len,ly); bg.addColorStop(0,'rgba(255,240,190,'+(.4*lit)+')'); bg.addColorStop(1,'rgba(255,240,190,0)'); g.fillStyle=bg; g.beginPath(); g.moveTo(lx,ly-H*.004); g.lineTo(lx-dir*len,ly-spread); g.lineTo(lx-dir*len,ly+spread*.7); g.lineTo(lx,ly+H*.004); g.closePath(); g.fill(); }
-        const flare=Math.max(0,face)**8; v3glow(g,lx,ly,H*(.05+flare*.18),'rgba(255,236,170,.95)',lit*(.55+flare*.45));
+        /* 0.3.3: no hard beam; a layered soft glow that swells as the turning lamp faces you, and a shimmer on the water */
+        const sw=.5+.5*face, soft=sw*sw;
+        v3glow(g,lx,ly,H*.3,'rgba(255,226,160,.9)',lit*(.08+.1*soft)); v3glow(g,lx,ly,H*(.1+.04*soft),'rgba(255,236,180,.95)',lit*(.32+.3*soft)); v3glow(g,lx,ly,H*.035,'rgba(255,250,225,1)',lit*(.6+.35*soft));
+        if(typeof v3lanternReflect==='function') v3lanternReflect(lx,hz+2,lit*(.55+.35*soft),t,'255,226,160');
         g.fillStyle=v3rgba('#fff6d0',.5+lit*.5); g.fillRect(lx-H*.012,ly-H*.008,H*.024,H*.016); }
       else { g.fillStyle=v3rgba(mix(P.farHaze,'#ffffff',.4),.7); g.fillRect(lx-H*.012,ly-H*.008,H*.024,H*.016); g.fillStyle=v3rgba(P.rim,.6); g.fillRect(lx+H*.003,ly-H*.007,H*.004,H*.014); } }
     v3glitter(P,t,hz,sun);
@@ -927,8 +929,7 @@ V3SCENES.starfall = {
       g.fillStyle=v3rgba(mix(P.isl,'#ffffff',.35),.6); g.beginPath(); g.moveTo(X-w*.8,Y-h*.06); g.quadraticCurveTo(X-w*.2,Y-h*.14,X+w*.3,Y-h*.1); g.quadraticCurveTo(X-w*.2,Y-h*.09,X-w*.8,Y-h*.06); g.fill();
       if(top==='tree'){ const tx=X-w*.3, ty=Y-h*.1; g.strokeStyle=mix('#6a4a3a',P.islD,.3+P.night*.4); g.lineWidth=Math.max(1.2,w*.05); g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo(tx+w*.05,ty-h*.25,tx+w*.02,ty-h*.42); g.stroke(); g.fillStyle=mix(P.cry,P.isl,.35); for(const [dx,dy,rr] of [[0,-.48,.2],[-.14,-.4,.15],[.15,-.4,.16],[.02,-.6,.13]]){ g.beginPath(); g.arc(tx+w*dx,ty+h*dy,w*rr,0,7); g.fill(); } g.fillStyle=v3rgba('#ffffff',.25); g.beginPath(); g.arc(tx-w*.04,ty-h*.53,w*.07,0,7); g.fill(); }
       else { const tx=X+w*.2, ty=Y-h*.1; for(const [dx,hh,ww,c] of [[0,.45,.1,P.cry2],[-.14,.3,.07,P.cry],[.12,.25,.06,P.cry]]){ const cx2=tx+w*dx; g.fillStyle=c; g.beginPath(); g.moveTo(cx2-w*ww,ty); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2,ty-h*hh); g.lineTo(cx2+w*ww*.7,ty-h*hh*.78); g.lineTo(cx2+w*ww,ty); g.closePath(); g.fill(); g.fillStyle=v3rgba('#ffffff',.3); g.beginPath(); g.moveTo(cx2,ty-h*hh); g.lineTo(cx2-w*ww*.7,ty-h*hh*.8); g.lineTo(cx2-w*ww*.2,ty); g.lineTo(cx2,ty); g.closePath(); g.fill(); } v3glow(g,tx,ty-h*.25,w*.6,v3rgba(P.cry2,.7),.25+.25*P.night); }
-      if(fall){ const fx=X+w*.85, fy=Y+h*.05; const fg=g.createLinearGradient(0,fy,0,hz); fg.addColorStop(0,v3rgba('#ffffff',.7)); fg.addColorStop(1,v3rgba('#ffffff',0)); g.fillStyle=fg; g.fillRect(fx,fy,Math.max(1.5,w*.05),hz-fy-H*.01);
-        g.fillStyle=v3rgba('#ffffff',.5); for(let k=0;k<4;k++){ const kk=((t*.8+k*.25)%1); g.fillRect(fx,fy+kk*(hz-fy-H*.02),Math.max(1.5,w*.05),3); } g.fillStyle=v3rgba('#ffffff',.35); g.beginPath(); g.ellipse(fx,hz-H*.012,w*.15,H*.006,0,0,7); g.fill(); } }
+      if(fall) (M33.falls=M33.falls||{})[ix]=[t+ph,X+w*.85,Y+h*.05,w]; }
     // crystals glint
     for(let i=0;i<5;i++){ const k=(t*.25+i*.31)%1, a=Math.max(0,Math.sin(k*Math.PI))**8; if(a<.05) continue; const gx=W*[.3,.33,.78,.82,.9][i], gy=hz-H*[.06,.04,.08,.05,.065][i]; g.fillStyle=v3rgba('#ffffff',a); g.fillRect(gx-H*.008,gy,H*.016,1); g.fillRect(gx,gy-H*.008,1,H*.016); }
     // the Milky Way and the planet's glow mirrored in the still water
