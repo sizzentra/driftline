@@ -442,11 +442,11 @@ function drawFightHUD(t){
   g.fillStyle='#8aa5a2'; g.fillText(BEH[G.fish.beh]?BEH[G.fish.beh].n:'', px+10, py+56); g.fillText('Temper', px+pw*.5, py+56); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+48,bw,7,3); g.fill(); g.fillStyle=G.temper>1.7?'#ff5468':'#c38bff'; rr(px+pw*.5+44,py+48,bw*clamp(G.temper/3,0,1),7,3); g.fill();
   const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
 }
-function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w) return;
+function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
   if(cnv.width!==Math.round(w*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); }
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
-  S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=Math.min(h*.3,w*.22,(16+8.5*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.75,1.4)); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const spd=.18+(i*.071)%.25;
+  S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=Math.max(14,Math.min(h*.3,w*.22,(16+8.5*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.75,1.4))); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const spd=.18+(i*.071)%.25;
     const ph=t*spd+i*1.9; const x=w*(.5+.42*Math.sin(ph)); const dir=Math.cos(ph)>=0; const y=h*(.16+((i*.137)%0.6))+Math.sin(t*1.3+i)*6;
     drawCreature(c,sp,x,y,L,{shiny:!!f.sh,wag:t*8+i,flip:!dir}); });
   c.fillStyle='rgba(220,245,255,.35)'; for(let i=0;i<12;i++){ const x=(i*73)%w+Math.sin(t+i)*4, y=h-((t*30+i*40)%h); c.beginPath(); c.arc(x,y,1.5+(i%3),0,7); c.fill(); }

@@ -3,8 +3,22 @@
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.3.2';
+const GAME_VERSION = '0.3.3';
 const PATCHES = [
+ {v:'0.3.3', name:'Every Water Special', items:[
+  '## The waters',
+  'Several waters got a lot more love so none of them feel empty: new landmarks on the horizon, new wildlife, things floating by and new details in the foreground. Each one now has a signature of its own (go and find them).',
+  'Some of the places you stand on have been refined, with more depth and detail.',
+  'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
+  '## Weather',
+  'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
+  'Weather and its effects still build up and fade away smoothly.',
+  '## Your angler',
+  'Curly hair has been redone from scratch: loose, tousled curls.',
+  'New hairstyle: Coils, tight round curls.',
+  '## Graphics',
+  'New Graphics setting (Settings): High or Balanced. Computers use High automatically, with sharper scenery and more life on the water and in the weather; phones and tablets use Balanced.',
+ ]},
  {v:'0.3.2', name:'Prized Catches', items:[
   '## Fishing',
   'A fish on the run now takes line back when you stop reeling, and rarer, fresher fish pull harder. Reeling while it runs holds the line but strains it much more, so big fish give longer, fairer fights even with great gear.',

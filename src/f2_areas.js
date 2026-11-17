@@ -573,11 +573,7 @@ V3SCENES.shelf = {
       if(lit>.1&&blink) v3glow(g,bx,by-s*8.6,s*7,'rgba(255,90,70,.9)',lit*.7);
       if(FX&&Math.abs(Math.sin(t*2.2))>.97){ g.strokeStyle=v3rgba(P.rim,.5); g.lineWidth=1; for(const sd of [-1,1]){ g.beginPath(); g.arc(bx,by-s*7,s*(3+sd*0)+s,sd>0?-.5:Math.PI-.5+1,sd>0?.5:Math.PI+.5-1+1); g.stroke(); } } }
     // dolphins arc out of the water together now and then
-    { const per=14, k=(t%per)/per; if(k<.3){ for(let i=0;i<2;i++){ const e=clamp((k/.3)*1.25-i*.25,0,1); if(e<=0||e>=1) continue; const dx=W*(.45+e*.18+i*.05), base=hz+H*(.24+i*.05), arc=Math.sin(e*Math.PI), s=H*.012, ang=(e-.5)*2.2;
-        g.save(); g.translate(dx,base-arc*H*.05); g.rotate(ang); g.fillStyle=mix('#6a7a8a',P.wMid,night*.5); g.beginPath(); g.moveTo(-s*3.5,0); g.quadraticCurveTo(-s*1,-s*1.8,s*2.6,-s*.4); g.lineTo(s*3.8,-s*.2); g.lineTo(s*2.6,s*.3); g.quadraticCurveTo(0,s*1.2,-s*3.5,0); g.fill();
-        g.beginPath(); g.moveTo(-s*.4,-s*1.1); g.lineTo(-s*1.4,-s*2.4); g.lineTo(s*.6,-s*1.2); g.fill(); g.beginPath(); g.moveTo(-s*3.3,0); g.lineTo(-s*4.6,-s*1); g.lineTo(-s*4.2,0); g.lineTo(-s*4.6,s*1); g.closePath(); g.fill();
-        g.fillStyle=mix('#d8dce0',P.wMid,night*.5); g.beginPath(); g.moveTo(-s*2.5,s*.3); g.quadraticCurveTo(0,s*1.1,s*2.4,s*.3); g.quadraticCurveTo(0,s*.5,-s*2.5,s*.3); g.fill(); g.restore();
-        if(e<.12||e>.88){ g.fillStyle=v3rgba(foam,.7); for(let j=0;j<5;j++){ g.beginPath(); g.arc(dx+(j-2)*s*.8,base-Math.abs(Math.sin(j+t*9))*s*1.6,1.2,0,7); g.fill(); } } } } }
+    m33dolphins(P,t,hz,foam,night);
     // an albatross glides high on long still wings
     if(night<.7){ const per=40, k=(t%per)/per, ax=W*(-.1+k*1.25), ay=hz*(.28+Math.sin(k*Math.PI*2)*.06), s=H*.009, tilt=Math.sin(t*.5)*.08;
       g.save(); g.translate(ax,ay); g.rotate(tilt); g.strokeStyle=mix('#f4f4f0',P.top,night*.8); g.lineWidth=Math.max(1.2,s*.35); g.beginPath(); g.moveTo(-s*5,-s*.6); g.quadraticCurveTo(-s*2.5,-s*1.2,0,0); g.quadraticCurveTo(s*2.5,-s*1.2,s*5,-s*.6); g.stroke();

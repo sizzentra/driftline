@@ -69,7 +69,7 @@ function v3land(L,P,hz){
   // only the light changed (same place and size): keep the old picture to fade from; otherwise start clean
   const same=V3CACHE && V3CACHE.base===L.id+'|'+W+'|'+H+'|'+DPR;
   const spare=V3PREV&&V3PREV.c, old=V3CACHE;
-  const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
+  const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
   const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); /* still scenery at most 2x: sharp on every phone, far less to repaint */
   V3SCENES[L.id].land(x,P,hz,c);
   V3PREV=same?{c:old.c,t0:performance.now()}:null;

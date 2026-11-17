@@ -356,26 +356,7 @@ a3Back = function(c,id,D,col,t,w,lean,st){ if(!['cape','royalcape','tatteredcape
   c.restore();
   if(id==='royalcape'){ c.fillStyle=D('#f4f0ea'); c.beginPath(); c.ellipse(-1.4*w,-46.8,6.6*w,2.6,0,0,7); c.fill(); for(let i=0;i<6;i++){ c.fillStyle=D('#1a1a1a'); c.beginPath(); c.arc(-5.6*w+i*2*w,-46.4+(i%2)*.6,.35,0,7); c.fill(); } } };
 
-// ---------- curly hair, rebuilt: one full, voluminous mass (no scalp showing) with springy curls all over it ----------
 // head centre (0,-56), radius 7.5, face to the right; the hairline sits above the brow and runs behind the ear
-function curlMass(c){ c.beginPath(); c.moveTo(7.2,-59.7); c.bezierCurveTo(9.2,-64.6,6.4,-70.6,-.4,-70.8); c.bezierCurveTo(-8.6,-71,-11.8,-65.2,-11.6,-58.6); c.bezierCurveTo(-11.4,-53.6,-9.6,-50.2,-6.6,-49.4); c.bezierCurveTo(-4,-49.8,-1.8,-50.6,-.9,-52.4); c.bezierCurveTo(-.2,-54.2,-.6,-56.4,.4,-57.8); c.bezierCurveTo(2,-59.4,4.6,-59.2,7.2,-59.7); c.closePath(); }
-function drawCurls3(c,hair,hairC,D,t){ const dk=D(mix(hairC,'#000000',.22)), dk2=D(mix(hairC,'#000000',.14)), lt=D(mix(hairC,'#ffffff',.22));
-  // the mass itself, then a ring of curls breaking up its outline
-  c.fillStyle=hair; curlMass(c); c.fill();
-  const rim=[[6.6,-61.6,1.9],[7.2,-64.4,2.2],[5.6,-67.4,2.5],[2.6,-69.6,2.7],[-1,-70.4,2.8],[-4.6,-69.8,2.7],[-7.8,-67.8,2.7],[-10,-64.6,2.6],[-11,-61,2.5],[-11,-57.2,2.4],[-10,-53.8,2.3],[-8.2,-51,2.1],[-5.6,-50.2,1.8]];
-  for(const [x,y,r] of rim){ c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }
-  // fringe curls at the hairline, kept above the brow
-  for(const [x,y,r] of [[6.4,-60.2,1.5],[4.4,-60.4,1.6],[2.4,-60.2,1.6],[.6,-59.2,1.5],[-.2,-56.8,1.4],[-.5,-54.4,1.3]]){ c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }
-  // texture: shaded undersides and lit tops on curls across the whole mass
-  c.save(); curlMass(c); for(const [x,y,r] of rim){ c.moveTo(x+r,y); c.arc(x,y,r,0,7); } c.clip();
-  const inner=[[3.8,-64.6],[0,-66.2],[-3.8,-66],[-7.2,-63.6],[-8.2,-59.4],[-7.6,-55.2],[-5,-61.8],[-1.6,-62.8],[1.8,-63.2],[4.8,-62.8],[-4.4,-57.4],[-6,-52.8]];
-  /* ringlets: a soft shadow crescent on the lower side of each curl and a lit crescent on top (no dots, so they never read as faces) */
-  c.lineCap='round'; for(const [x,y] of [...rim.map(r=>[r[0],r[1]]),...inner]){ c.strokeStyle=v3rgba(dk,.55); c.lineWidth=.55; c.beginPath(); c.arc(x-.2,y+.1,1.55,Math.PI*.55,Math.PI*1.25); c.stroke(); c.strokeStyle=v3rgba(lt,.6); c.lineWidth=.5; c.beginPath(); c.arc(x+.25,y-.1,1.2,Math.PI*1.35,Math.PI*1.95); c.stroke(); }
-  for(const [x,y] of inner){ c.fillStyle=v3rgba(dk2,.35); c.beginPath(); c.ellipse(x-.6,y+1.2,1.4,.7,-.3,0,7); c.fill(); }
-  c.restore();
-  // a soft sheen across the top for volume
-  c.save(); c.globalAlpha*=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-1,-67.6,5.4,1.6,-.15,0,7); c.fill(); c.restore(); }
-
 // ---------- side-view proportions: a narrower body front to back, and a real shoulder for the arm ----------
 var SIDE_K=.84;
 function a3Deltoid(c,sh,el,w,col,fabs){ const r=w*.6, cx=sh.x-.1, cy=sh.y-.15, a=Math.atan2(el.y-sh.y,el.x-sh.x);
@@ -383,3 +364,61 @@ function a3Deltoid(c,sh,el,w,col,fabs){ const r=w*.6, cx=sh.x-.1, cy=sh.y-.15, a
   const gr=c.createLinearGradient(cx-r,cy-r,cx+r,cy+r); gr.addColorStop(0,mix(col,'#fff4e2',.16)); gr.addColorStop(.55,col); gr.addColorStop(1,mix(col,'#000000',.22)); c.fillStyle=gr; path(); c.fill();
   if(fabs&&fabs.length){ c.save(); path(); c.clip(); for(const f of fabs) drawFabric(c,f,null,cx-r*1.4,cy-r*1.4,r*2.8,r*2.8); c.restore(); }
   c.save(); path(); c.clip(); c.strokeStyle='rgba(255,244,226,.28)'; c.lineWidth=.6; c.beginPath(); c.arc(cx,cy,r*.82,Math.PI*1.1,Math.PI*1.7); c.stroke(); c.restore(); }
+
+// ---------- curly hair (0.3.3, from the director's reference): a full round mass with a bumpy outline of small curls,
+// packed with spiral curls shaded darker underneath and lit on top; it frames the face, falls to the jaw behind,
+// and the ear stays visible in front of it. Head centre (0,-56), radius 7.5, face to the right.
+var A3SKIN=null;
+function curlMass(c){ c.beginPath(); c.moveTo(6.8,-60.2); c.bezierCurveTo(8.6,-64.4,6.4,-69.4,0,-69.6); c.bezierCurveTo(-6.4,-69.8,-9.8,-65.4,-9.8,-59.6); c.bezierCurveTo(-9.8,-54.6,-8.6,-50.8,-6,-49.4); c.bezierCurveTo(-3.6,-49.6,-1.6,-50.6,-.6,-52.6); c.bezierCurveTo(.2,-55,0,-57,1.2,-58.4); c.bezierCurveTo(2.8,-59.8,4.8,-59.6,6.8,-60.2); c.closePath(); }
+// curl positions inside the mass: an irregular scatter (sizes, spacing and spiral angles vary, like real curls)
+const CURL_CELLS=(()=>{ const out=[]; let s=7; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; for(let y=-68.8;y<=-50;y+=2.05) for(let x=-9.6;x<=7.6;x+=2.15){ if(rnd()<.12) continue; out.push([x+(rnd()-.5)*1.5,y+(rnd()-.5)*1.3,1.0+rnd()*.7,rnd()*Math.PI*2]); } return out; })();
+// points along the outline, for the little curls that make its edge bumpy
+const CURL_EDGE=(()=>{ const pts=[], ctrl=[[6.8,-60.2],[7.9,-62.6],[7.6,-65.4],[5.6,-67.9],[2.8,-69.3],[0,-69.6],[-3,-69.4],[-5.8,-68.3],[-8,-66.2],[-9.4,-63.2],[-9.8,-59.6],[-9.6,-56.2],[-9,-53.2],[-7.8,-50.8],[-6,-49.4],[-3.8,-49.6]]; for(let i=0;i<ctrl.length-1;i++){ const [x0,y0]=ctrl[i],[x1,y1]=ctrl[i+1], n=Math.max(1,Math.round(Math.hypot(x1-x0,y1-y0)/1.5)); for(let k=0;k<n;k++){ const u=k/n; pts.push([x0+(x1-x0)*u,y0+(y1-y0)*u]); } } return pts; })();
+HAIRSTYLES.splice(HAIRSTYLES.findIndex(h=>h[0]==='curly')+1,0,['coils','Coils']);
+function a3EarOver(){ if(!A3SKIN) return null; return A3SKIN; }
+function drawEar3(c){ const s=a3EarOver(); if(!s) return; const [sk,skD]=s; c.fillStyle=sk; c.beginPath(); c.ellipse(-1.8,-55.4,1.8,2.3,0,0,7); c.fill(); c.fillStyle=skD; c.beginPath(); c.ellipse(-1.6,-55.3,.85,1.25,0,0,7); c.fill(); c.fillStyle='rgba(255,240,225,.3)'; c.beginPath(); c.ellipse(-2.4,-56.2,.5,.9,0,0,7); c.fill(); }
+
+// ---------- CURLY (director's reference, right-hand image): loose tousled curls. A full mass whose edge breaks into
+// curled, pointed flicks, with swooping crescent locks inside, a curl dropping over the temple, falling to the jaw behind.
+const CURLY_TIPS=(()=>{ const out=[], E=CURL_EDGE; for(let i=0;i<E.length;i+=1){ const p=E[i], q=E[Math.min(E.length-1,i+1)], o=E[Math.max(0,i-1)], tx=q[0]-o[0], ty=q[1]-o[1], L=Math.hypot(tx,ty)||1; out.push([p[0],p[1],-ty/L,tx/L,1.3+((i*7)%4)*.32,(i%3)?1:-1]); /* outward normal */ } return out; })();
+// loose locks inside the curly mass: fewer and bigger than the coil grid, kept inside the outline
+const CURLY_LOCKS=(()=>{ const cv=document.createElement('canvas'), x=cv.getContext('2d'), out=[]; let s=5; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; curlMass(x);
+  for(let y=-68.6;y<=-51;y+=2.6) for(let X=-9.2;X<=6.8;X+=2.8){ const px=X+(rnd()-.5)*1.4, py=y+(rnd()-.5)*1.2; if(x.isPointInPath(px,py)) out.push([px,py,1.1+rnd()*.5,rnd()*6.28]); } return out; })();
+function drawCurly3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000000',.42)), dk2=D(mix(hairC,'#000000',.22)), lt=D(mix(hairC,'#ffffff',.32)), lt2=D(mix(hairC,'#ffffff',.55));
+  const gr=c.createLinearGradient(2,-70,-6,-49); gr.addColorStop(0,D(mix(hairC,'#ffffff',.14))); gr.addColorStop(.55,base); gr.addColorStop(1,D(mix(hairC,'#000000',.22)));
+  const flick=(x,y,nx,ny,L,sd)=>{ // a pointed lock curling to one side
+    const bx=-ny*sd, by=nx*sd, tipx=x+nx*L*.7+bx*L*1.05, tipy=y+ny*L*.7+by*L*1.05; c.beginPath(); c.moveTo(x-bx*1.1,y-by*1.1); c.quadraticCurveTo(x+nx*L*1.25-bx*.1,y+ny*L*1.25-by*.1,tipx,tipy); c.quadraticCurveTo(x+nx*L*.45+bx*.4,y+ny*L*.45+by*.4,x+bx*1.1,y+by*1.1); c.closePath(); /* a short lock that hooks over to one side */ };
+  // dark outline layer first (the flicks and mass, slightly fattened), then the colour over it
+  c.fillStyle=dk; c.strokeStyle=dk; c.lineWidth=.9; c.lineJoin='round'; curlMass(c); c.fill(); c.stroke(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); c.stroke(); }
+  // the curl dropping over the temple, in front of the ear
+  const temple=()=>{ c.beginPath(); c.moveTo(1.4,-58.6); c.quadraticCurveTo(2.6,-55.6,1.2,-52.4); c.quadraticCurveTo(.8,-53.6,-.2,-52.8); c.quadraticCurveTo(.6,-55.6,-.4,-57.6); c.closePath(); }; temple(); c.fill(); c.stroke();
+  c.fillStyle=gr; curlMass(c); c.fill(); for(const f of CURLY_TIPS){ flick(...f); c.fill(); } temple(); c.fill();
+  // swooping crescent locks inside, each lit on top and shaded underneath
+  c.save(); curlMass(c); c.clip(); c.lineCap='round';
+  for(const [x,y,r,rot] of CURLY_LOCKS){ const R=r*1.5, a=rot, ox=x+Math.cos(a+Math.PI*.6)*R*.38, oy=y+Math.sin(a+Math.PI*.6)*R*.38;
+    // a crescent lock: lit body, dark lower edge, a light streak along its top
+    const lock=()=>{ c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.arc(ox,oy,R*.6,a+Math.PI*1.3,a,true); c.closePath(); };
+    c.fillStyle=y<-61?D(mix(hairC,'#ffffff',.16)):D(mix(hairC,'#ffffff',.06)); lock(); c.fill(); c.strokeStyle=v3rgba(dk,.8); c.lineWidth=.38; c.beginPath(); c.arc(x,y,R,a,a+Math.PI*1.3); c.stroke();
+    c.strokeStyle=v3rgba(y<-61?lt2:lt,.7); c.lineWidth=.36; c.beginPath(); c.arc(x,y,R*.82,a+Math.PI*.25,a+Math.PI*1.0); c.stroke(); }
+  c.restore();
+  // strand lines on the flicks so they read as hair
+  c.strokeStyle=v3rgba(lt,.55); c.lineWidth=.32; for(const [x,y,nx,ny,L,sd] of CURLY_TIPS){ if(y>-58&&x>-2) continue; c.beginPath(); c.moveTo(x,y); c.quadraticCurveTo(x+nx*L*.5,y+ny*L*.5,x+nx*L*.8-ny*sd*L*.35,y+ny*L*.8+nx*sd*L*.35); c.stroke(); }
+  c.save(); c.globalAlpha*=.14; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-.6,-66.6,5,1.4,-.12,0,7); c.fill(); c.restore();
+  drawEar3(c); }
+
+// ---------- COILS (director's reference, left-hand image): tight round coils. Every curl is its own round coil with a
+// spiral in it and a dark outline, piled into a dome that falls to the jaw behind.
+const COIL_BLOBS=(()=>{ const out=[]; let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
+  for(const [x,y] of CURL_EDGE) out.push([x,y,1.55+rnd()*.5,rnd()*6.28]);
+  const cv=document.createElement('canvas'), cx=cv.getContext('2d'); curlMass(cx); for(let y=-68.4;y<=-50.6;y+=2.3) for(let x=-8.8;x<=6.6;x+=2.4){ if(rnd()<.06) continue; const px=x+(rnd()-.5)*1.1, py=y+(rnd()-.5)*1; if(cx.isPointInPath(px,py)) out.push([px,py,1.45+rnd()*.55,rnd()*6.28]); } /* only inside the hair outline */
+  return out.sort((a,b)=>b[1]-a[1]); })(); // lowest first, so the upper coils overlap the ones below
+function drawCoils3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000000',.48)), dk2=D(mix(hairC,'#000000',.25)), lt=D(mix(hairC,'#ffffff',.3)), lt2=D(mix(hairC,'#ffffff',.55));
+  // a dark backing so gaps between coils read as depth, not scalp
+  c.fillStyle=dk2; curlMass(c); c.fill(); c.lineCap='round';
+  for(const [x,y,r,a] of COIL_BLOBS){
+    const g2=c.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r); g2.addColorStop(0,y<-61?lt:D(mix(hairC,'#ffffff',.15))); g2.addColorStop(.7,base); g2.addColorStop(1,D(mix(hairC,'#000000',.18)));
+    c.fillStyle=g2; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); c.strokeStyle=dk; c.lineWidth=.32; c.stroke();
+    // the spiral: an outer sweep and an inner turn
+    c.strokeStyle=v3rgba(dk,.85); c.lineWidth=.38; c.beginPath(); c.arc(x,y,r*.72,a,a+Math.PI*1.45); c.stroke(); c.beginPath(); c.arc(x+Math.cos(a)*r*.18,y+Math.sin(a)*r*.18,r*.38,a+Math.PI,a+Math.PI*2.5); c.stroke();
+    c.strokeStyle=v3rgba(y<-61?lt2:lt,.75); c.lineWidth=.32; c.beginPath(); c.arc(x,y,r*.82,Math.PI*1.15,Math.PI*1.65); c.stroke(); }
+  drawEar3(c); }

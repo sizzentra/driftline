@@ -42,3 +42,17 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   if(!want) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } };
   ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); })();
 if(/[?&]test\b/.test(location.search)) window.__frenzy=()=>{ G.st='frenzy'; G.fz={t:0,dur:10,next:0,jumpers:[],caught:0}; return 'ok'; };
+// test: jump the clock to a moment with the given weather, inside a phase range, away from the weather's fade edges
+if(/[?&]test\b/.test(location.search)) window.__findWx=(k,ph0=0,ph1=1)=>{ for(let i=0;i<60000;i++){ window.__off+=29000; const now=Date.now(), ph=(now/1000%360)/360, s=now/1000/WX_LEN, into=(s-Math.floor(s))*WX_LEN; if(ph>ph0&&ph<ph1&&into>45&&into<WX_LEN-45&&weather().k===k) return true; } return false; };
+
+// ---------- Graphics quality: High (the default on computers) or Balanced (the default on phones and tablets).
+// High draws the scenery at full screen sharpness and adds more life: denser rain rings and whitecaps, more drifting
+// leaves, plankton and glints. Auto picks for you; the choice is saved on this device.
+var GFX_TOUCH = !!(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
+function gfxHigh(){ const v=S&&S.settings&&S.settings.gfx; return v==='high' || (v!=='balanced' && !GFX_TOUCH); }
+function gfxK(){ return gfxHigh()?1.6:1; }
+const _renderSettings_gfx = renderSettings;
+renderSettings = function(P){ _renderSettings_gfx(P); const cur=S.settings.gfx||'auto', grid=P.querySelector('.grid'); if(!grid) return;
+  const opt=[['auto','Auto ('+(GFX_TOUCH?'Balanced':'High')+' here)'],['high','High'],['balanced','Balanced']];
+  grid.insertAdjacentHTML('afterbegin',`<div class="tile"><h4>Graphics</h4><div class="meta">High draws everything at full sharpness and adds more life to the water and weather. Balanced is lighter on phones and older devices.</div><div class="chips" style="margin-top:8px">${opt.map(([k,n])=>`<button class="chipb" type="button" data-gfx="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div></div>`);
+  grid.querySelectorAll('[data-gfx]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.settings.gfx=b.dataset.gfx==='auto'?undefined:b.dataset.gfx; if(!S.settings.gfx) delete S.settings.gfx; save(); if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; renderPanel(); }); };

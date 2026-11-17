@@ -75,7 +75,7 @@ function a3Fingers(c,h1,h2,ra,s,sk,skD){ c.save();
 
 function a3Body(c,x,y,s,lk,o,live){
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl, t=o.t||0, f=lk.g==='f';
-  const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt);
+  const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt); A3SKIN=[sk,skD];
   const hs = !lk.hairStyle||lk.hairStyle==='auto' ? (f?'long':'short') : lk.hairStyle;
   const st=o.forceSt||(live?G.st:'idle');
   const mood = !live&&!o.forceSt ? 'calm' : st==='bite' ? 'surprised' : st==='reeling' ? 'focus' : (st==='landing'||(live&&G.lastCatchT&&performance.now()-G.lastCatchT<1800)) ? 'happy' : 'calm';
@@ -225,7 +225,8 @@ function drawHair3(c,hs,hair,hairC,D,t){
       c.strokeStyle=dk; c.lineWidth=.35; c.beginPath(); c.moveTo(-4.4,-55); c.bezierCurveTo(-4.8,-52,-4.6,-49.6,-4.9,-47.4); c.stroke(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); c.moveTo(-3.4,-55.6); c.bezierCurveTo(-3.8,-53,-3.7,-50.6,-4.1,-48.4); c.stroke(); break;
     case 'ponytail': case 'bun': cap(); c.fillStyle=hair; c.fillRect(-7.2,-60,1.4,1); break;
     case 'buzz': c.save(); c.globalAlpha*=.8; c.fillStyle=hair; c.beginPath(); c.arc(0,-56.6,7.85,Math.PI*1.02,Math.PI*1.97); c.quadraticCurveTo(4,-59.6,0,-59.4); c.quadraticCurveTo(-2.4,-58.6,-2.6,-55); c.lineTo(-6.8,-54.6); c.closePath(); c.fill(); c.restore(); break;
-    case 'curly': drawCurls3(c,hair,hairC,D,t); break;
+    case 'curly': drawCurly3(c,hair,hairC,D,t); break;
+    case 'coils': drawCoils3(c,hair,hairC,D,t); break;
     case 'spiky': cap(); c.fillStyle=hair; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0-1.7,-61.6); c.lineTo(x0+.6,-68.2+((i*5)%3)); c.lineTo(x0+1.7,-61.6); } c.fill(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); for(let i=0;i<6;i++){ const x0=-7+i*2.7; c.moveTo(x0,-62); c.lineTo(x0+.5,-66.6+((i*5)%3)); } c.stroke(); break;
     case 'bald': c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); break;
     default: cap();
