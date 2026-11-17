@@ -120,6 +120,7 @@ function isNight(p=phase()){ const t=tod(p); return t==='Night'||t==='Dusk'; }
 function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') return isNight(p) || !!weather().fog || (maxed('nightowl') && tod(p)==='Dawn'); return !isNight(p) || tod(p)==='Dusk'; }
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
+const WX_NAME={Fog:'Heavy fog'}; function wxName(k){ return WX_NAME[k]||k; }
 function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
 // how strongly the current weather shows (0..1): it builds up over the first half minute and fades out over the
 // last one when the next slot brings different weather (looks only; the gameplay effect is the whole slot)

@@ -325,7 +325,7 @@ function drawHotspot(t){ const hs=G.hot; if(!hs) return; const fade=Math.min(1,h
 function draw(now){
   const L=curLoc(), p=phase(), t=now/1000, hz=HZ(), wx=weather(); const night=nightness(p);
   const dusk = Math.max(0, 1-Math.abs(p-.5)/.06) + Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7;
-  const wa=wxAmt(); WXA=wa; const gloom = (wx.k==='Storm' ? .55 : wx.k==='Rain' ? .3 : wx.k==='Fog' ? .15 : 0)*wa + (L.id==='deep'?.1:0);
+  const wa=wxAmt(); WXA=wa; const gloom = (wx.k==='Storm' ? .7 : wx.k==='Rain' ? .38 : wx.k==='Fog' ? .3 : 0)*wa + (L.id==='deep'?.1:0);
   if(!v3Scene(L,t,p,night,dusk,gloom,hz,wx)){
   const sg=g.createLinearGradient(0,0,0,hz);
   let top=mix(L.sky[0],'#0b1430',night), bot=mix(L.sky[1],'#24305a',night); if(dusk>0) bot=mix(bot,'#f2875a',clamp(dusk,0,1)*.8);

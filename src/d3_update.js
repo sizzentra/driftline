@@ -18,6 +18,8 @@ const PATCHES = [
   'The dolphins at the Brine Shelf now break the surface properly: you see them coming under the water, they leap out with a splash and dive back in.',
   '## Weather',
   'Every kind of weather now changes the whole scene, not just the sky: the water reacts, the light shifts and some weathers bring something special to look at. A few that showed nothing at all now have their own look.',
+  'Fog is now Heavy fog: it hides the far shore and veils everything beyond your float. Storms and rain darken the whole scene much more.',
+  'Every water has more depth: haze where the land meets the horizon, soft motes drifting close by, and water that darkens toward you.',
   'Weather and its effects still build up and fade away smoothly.',
   '## Aquarium',
   'The aquarium is much bigger, so you can actually see your fish and decorations, and the fish are sized to match.',

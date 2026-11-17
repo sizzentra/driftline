@@ -104,7 +104,7 @@ function drawPetX(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
 }
 
 // ---------- scene chip (time & weather, shown on narrow screens) ----------
-function drawSceneChip(p,wx){ if(W>=700) return; const nf=nextFlip(); const txt=tod(p)+' · '+wx.k+' · '+mmss(wxLeft()); g.font='700 11px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.6)'; rr(10,10,tw+16,20,10); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,18,24); }
+function drawSceneChip(p,wx){ if(W>=700) return; const nf=nextFlip(); const txt=tod(p)+' · '+wxName(wx.k)+' · '+mmss(wxLeft()); g.font='700 11px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.6)'; rr(10,10,tw+16,20,10); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,18,24); }
 
 // ---------- random events & mini-games ----------
 let pendingEvent=null, catchesSinceEvent=0;
