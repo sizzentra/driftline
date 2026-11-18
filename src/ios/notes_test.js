@@ -6,6 +6,7 @@ const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy A
   'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
   'Your tank and Add fish are one section now, laid out like Decorate: Boosts, On display, and Add from your Cooler, each with its own heading.',
   'Fish Log: a Normal / Shiny switch under the fish picture shows what a fish you have caught looks like when it is shiny.',
+  'Your boost timers sit in the top-left corner under the time and weather, so the Rest and Bait buttons no longer cover them.',
   'Weather news no longer covers the screen: it shows as a small line under the time and weather on the water, and waits while a menu, a card or a catch is open, so it never sits on top of what you are doing.',
   '## Smoother frames',
   'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',

@@ -91,3 +91,6 @@ PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:[
   'Smoother: shiny sparkles run at your screen’s full frame rate, and the aquarium tank too.',
   '## Fixes',
   'Long water names (Stonebrook River) fit in the header instead of being cut off.']});
+PATCHES.unshift({v:'0.4.8.4', name:'Clear Corners', items:[
+  '## Fix',
+  'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
