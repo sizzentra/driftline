@@ -228,3 +228,14 @@ const touchText=s=>{ if(!s||!/Space|Click|Release/.test(s)) return s; let t=s; f
         :`<h4>Play it like an app</h4><p class="meta">${ip?'In Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>.':'Open the browser menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).'} Driftline then opens full screen from its own icon and keeps your progress.</p>`;
       tile.insertAdjacentHTML('beforeend','<p class="meta" style="margin-top:8px">Playing on a computer too? There is a Windows app; bring your progress with <b>Move progress</b>.</p>');
     }catch(e){ console.error(e); } return r; }; }
+/* badges never cut off or covering a neighbour (director, 2026-11-18, screenshot: the side rail's "2" on Fishing was cut off at the
+   top, the "1" for Upgrades sat over the button above). In menus the rail is a scrolling box, and its badges poked 12 px above each
+   button: the first one was clipped, the others covered the button above. Rail badges now sit inside their button, as a count at
+   the right end of the row (centred); collapsed, in the button's top-right corner. */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov .secbar .secb,html body.phone-app #menuov .secbar .secb{position:relative!important}
+html body.phone-land #menuov #tabs .secbar .secb .secdot,html body.phone-app #menuov #tabs .secbar .secb .secdot{top:50%!important;bottom:auto!important;right:4px!important;left:auto!important;transform:translateY(-50%)!important;margin:0!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land.dock-mini #menuov #tabs .secbar .secb .secdot{top:3px!important;right:1px!important;bottom:auto!important;left:auto!important;transform:none!important} html body.phone-land.dock-mini #menuov #tabs .secbar .secb:has(.secdot){justify-content:flex-start!important;padding-left:2px!important} /* collapsed rail: the badge in the top-right corner, the icon moves left to make room (only on buttons with a badge) */
+</style>`);
