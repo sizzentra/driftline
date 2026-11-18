@@ -39,7 +39,7 @@ function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).s
 
 // the Trophy Room page, and Keep buttons on cooler and aquarium fish
 const _renderPanel_tp=renderPanel;
-renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; P.classList.remove('pagein'); void P.offsetWidth; P.classList.add('pagein'); } }catch(e){} return; } return _renderPanel_tp.apply(this,arguments); };
+renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){} return; } return _renderPanel_tp.apply(this,arguments); };
 function vaultButtons(P){ const add=(row,attr,i)=>{ const acts=row.querySelector('.acts'); if(!acts||acts.querySelector('[data-vk],[data-vt]')) return; acts.insertAdjacentHTML('afterbegin',`<button class="btn alt sm tp-keep" ${attr}="${i}" title="Mount it in the Trophy Room forever (no income or boosts, never lost on a new voyage)">🏛️ Keep</button>`); };
   if(S.tab==='cooler') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="totank"][data-i]'); if(ib) add(row,'data-vk',ib.dataset.i); });
   if(S.tab==='aquarium') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="untank"][data-i]'); if(ib) add(row,'data-vt',ib.dataset.i); }); }

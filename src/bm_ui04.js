@@ -86,7 +86,7 @@ MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
 document.body.appendChild(MO);
 function menuMount(){ const {T,P,toast}=menuEls(); MO.querySelector('.mo-nav').appendChild(T); MO.querySelector('.mo-body').appendChild(P); if(toast) MO.appendChild(toast);
-  G.hold=false; try{ spaceDown=false; }catch(e){} MO.hidden=false; MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show');
+  G.hold=false; try{ spaceDown=false; }catch(e){} MO.hidden=false; if(document.body.classList.contains('pch-on')){ MO.classList.add('mo-show'); try{ const sb=MO.querySelector('#tabs .subbar'); if(sb&&sb.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) sb.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'}); }catch(e){} } else { MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show'); }
   document.body.classList.add('menu-open'); document.documentElement.classList.add('menu-open');
   if(!menuHist){ try{ history.pushState({dlmenu:1},''); menuHist=true; }catch(e){} }
   const sb=T.querySelector('.secb.on')||MO.querySelector('.mo-back'); try{ (document.activeElement&&document.activeElement.blur)&&document.activeElement.blur(); sb&&sb.focus({preventScroll:true}); }catch(e){} }
@@ -1312,7 +1312,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     const o=keep(['a',id,myst?1:0,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>{ const x=o.getContext('2d'); if(myst) mysteryThumb(x,o.width,o.height,id); else drawDecor(x,id,80,id==='duck'?70:112,1,0); }); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
   // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
   const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
-  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },3000); }
+  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },1000); }
 // Tapping fast between sections and pages: the first tap switches at once (highlight and page together); taps that arrive
 // while a page is still being built only remember where you want to go, and that one page is built on the next frame.
 // The save that remembers your last page waits until the tapping stops instead of writing on every tap.
@@ -1551,14 +1551,20 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
 // page or section change and window resize.
 { let q=0; const P=()=>$('panel');
+  // one measurement at the current zoom gives the exact zoom that fits (the page's height scales with it), so the page is laid
+  // out once or twice instead of up to four times (each pass cost ~17 ms on the biggest pages: that was menu lag in full screen).
+  // Every page remembers its zoom (per section and window size) and starts from it, so reopening it usually needs no change at all.
+  const cache=new Map(), key=()=>S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+innerWidth+'x'+innerHeight;
   const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
     if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
-    p.style.zoom=''; const ch=p.clientHeight, sh=p.scrollHeight; if(!ch||sh<=ch+2) return;
-    let z=Math.max(.76,ch/sh); p.style.zoom=String(z);
-    for(let i=0;i<3;i++){ const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2<=ch2+2||z<=.76) break; z=Math.max(.76,z*ch2/sh2-.004); p.style.zoom=String(+z.toFixed(3)); } };
+    if(p.classList.contains('fl-on')){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log sizes its own columns
+    const z0=+p.style.zoom||1, ch=p.clientHeight, sh=p.scrollHeight; if(!ch||!sh) return;
+    let z=sh<=ch+2?Math.min(1,z0*ch/sh):Math.max(.76,z0*ch/sh-.003); if(z>.997) z=1;
+    if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<2) soon(); } cache.set(key(),z); };
+  let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); soon(); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(soon,30); },true);
+  const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
   addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
   if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -1633,7 +1639,7 @@ body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overf
     if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
     (grid||P.lastChild).after(fb);
     // columns filled by hand: each group card goes into the shortest column (the browser's own balancing left columns empty)
-    const w=P.clientWidth, n=w>=1300?5:w>=1000?4:3, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
+    const w=innerWidth-32, n=w>=1300?5:w>=1000?4:3 /* the page is the window minus its margins: no measuring right after building it */, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
     const secs=[...fb.children], size=s=>s.querySelectorAll('.fb-row').length+2.2, pos=new Map(secs.map((s,i)=>[s,i]));
     secs.slice().sort((a,b)=>size(b)-size(a)).forEach(sec=>{ const i=h.indexOf(Math.min(...h)); cols[i].appendChild(sec); h[i]+=size(sec); }); /* biggest groups first: even columns */
     cols.forEach(c=>[...c.children].sort((a,b)=>pos.get(a)-pos.get(b)).forEach(s=>c.appendChild(s))); /* each column keeps the usual group order */
@@ -2229,3 +2235,11 @@ body.pch-on #panel .pc-pn .pn-sec.wide ul{columns:2 320px;column-gap:30px}
 body.pch-on #panel .pc-pn .pn-sec:only-child ul{columns:2 320px;column-gap:30px}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>body.pch-on #panel .pc-pn .pcpn-h{display:none}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the goal sits in the strip above the water now: no see-through blur behind it (it cost work every frame for nothing) */
+html body.pch-on #pcscene #goalchip{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the page tabs' entrance is played by script now (no forced layout), so the class-based copy is switched off */
+body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
+</style>`);
