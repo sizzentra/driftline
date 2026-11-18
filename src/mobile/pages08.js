@@ -39,12 +39,13 @@
     journal:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Species found',(num(t,/(\d+) of (\d+) species/)||'0')+' / '+(num(t,/(\d+) of (\d+) species/,2)||'?')],['Mastery stars',num(txt(P.querySelector('.jrank b')),/(\d+)/)||'0']]; } },
     pets:{ cells:(P,hd,sub)=>{ const t=txt(sub); let fav=''; try{ fav=S.pet&&PETI[S.pet]?PETI[S.pet].name:''; }catch(e){} return [['Favourite',fav||'None yet'],['Pets found',(num(t,/(\d+) of (\d+) found/)||'0')+' / '+(num(t,/(\d+) of (\d+) found/,2)||'?')]]; } },
     settings:{ cells:()=>[['Settings for',(typeof IS_IPHONE==='function'&&IS_IPHONE())?'This iPhone':'This device'],['Saved','Automatically']] },
-    stats:{ cells:P=>[['Time played',txt(P.querySelector('.st-play b'))||'—'],['Level',String(S.lvl)]] },
+    stats:{ cells:P=>{ const t=P.textContent||'', b=t.match(/Bite speed[^×]{0,80}(×\s?[\d.]+)/), s=t.match(/Sale price[^×]{0,80}(×\s?[\d.]+)/); /* not Time played: the first card already shows it */
+      return [['Level',String(S.lvl)], b?['Bite speed',b[1].replace(/\s/g,'')]:null, s?['Sale price',s[1].replace(/\s/g,'')]:null]; } },
     games:{ unwrap:'.bwx', note:P=>txt(P.querySelector('.bwx-ht p')), side:P=>P.querySelector('.bwx-hero'), drop:'.bwx-wallet',
       cells:P=>{ const wl=P.querySelector('.bwx-wallet'); if(!wl) return []; const sp=[...wl.children].map(txt); const f=re=>sp.find(s=>re.test(s));
-        return [['Coins',(f(/^[\d.,]+[KMBT]?$/)||txt(wl.querySelector('.coin'))||'—')],['Tickets',(num(f(/tickets/)||'',/([\d,]+)/)||'0')],['Scales',(num(f(/Scales/)||'',/([\d,]+)/)||'0')],f(/free spin/)?['Free spins',num(f(/free spin/),/(\d+)/)||'0']:null]; } },
+        return [/* coins: already in the menu's top row */ ['Tickets',(num(f(/tickets/)||'',/([\d,]+)/)||'0')],['Scales',(num(f(/Scales/)||'',/([\d,]+)/)||'0')],f(/free spin/)?['Free spins',num(f(/free spin/),/(\d+)/)||'0']:null]; } },
     trophy:{ note:P=>txt(P.querySelector('.tp-sub')), drop:'.tp-head',
-      cells:P=>{ const c=P.querySelector('.tp-count'); return [['Mounted',txt(c&&c.querySelector('b'))||'0'],['Species',(txt(c&&c.querySelector('span'))||'').replace(/\s*species$/,'')||'—']]; } },
+      cells:P=>{ const c=P.querySelector('.tp-count'); return [['Mounted',txt(c&&c.querySelector('b'))||'0'],['Species',(txt(c&&c.querySelector('span'))||'').replace(/\s*species$/,'').replace(' of ',' / ')||'—']]; } },
     save:{ cells:(P,hd,sub)=>{ const v=[...P.querySelectorAll(':scope > p.sub')].map(txt).find(t=>/^Version/.test(t)); let ago='just now'; try{ const s=Math.round((Date.now()-(S.savedAt||Date.now()))/1000); ago=s<60?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago'; }catch(e){} return [['Last saved',ago],['Version',v?v.replace(/^Version\s*/,''):'—']]; } }
   };
   let prev=null; /* only a refresh of the page you are on keeps its place; opening a page starts at the top */
@@ -65,7 +66,11 @@
       bank.style.gridTemplateColumns=`repeat(${Math.max(1,cells.length)},minmax(0,1fr))`+(acts.length?` repeat(${acts.length},auto)`:'');
       // the sheet: tabs + one scrolling body
       const sheet=h('div','aq07-sheet pg08-sheet'), body=h('div','aq07-body pg08-body'+(bodyCls?' '+bodyCls:''));
-      const note=cfg.note?cfg.note(P):sub?txt(sub):''; if(cfg.side){ const sd=cfg.side(P); if(sd){ sd.classList.add('pg08-sidev'); bar.appendChild(sd); } }
+      let note=cfg.note?cfg.note(P):sub?txt(sub):'';
+      /* the intro never repeats what the summary already shows ("1 of 8 slots" next to "1 / 8", "+34%" next to "+34%") */
+      if(note&&cells.length){ const pats=[]; for(const [,v] of cells){ const s=String(v), m=s.match(/^([\d,]+)\s*\/\s*([\d,]+)$/); if(m) pats.push(new RegExp('\\b'+m[1]+' of '+m[2]+'\\b')); else if(/\d/.test(s)) pats.push(new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))); }
+        if(pats.length){ const parts=note.replace(/([.!?])\s+/g,'$1\u0001').split(/\u0001|\s+·\s+/); /* no look-behind: older iPhones can't parse it */ const keep=parts.filter(p=>!pats.some(re=>re.test(p))); note=keep.join(/\s·\s/.test(note)&&!/[.!?]\s/.test(note)?' · ':' ').trim(); } }
+      if(cfg.side){ const sd=cfg.side(P); if(sd){ sd.classList.add('pg08-sidev'); bar.appendChild(sd); } }
       if(cfg.drop) P.querySelectorAll(cfg.drop).forEach(x=>x.remove()); const extra=hd?[...hd.children].filter(c=>!c.contains(sub)&&!c.querySelector('h2')&&!c.querySelector('.pts')&&!(c.classList.contains('tile')&&tab==='pass')&&!c.querySelector('[data-act="respec"]')):[];
       if(note&&tab!=='save'&&tab!=='settings'){ body.appendChild(h('p','aq07-note pg08-note',esc(note))); bar.appendChild(h('p','pg08-side',esc(note))); } /* upright the intro opens the body; sideways it sits under the summary */
       extra.forEach(x=>body.appendChild(x));

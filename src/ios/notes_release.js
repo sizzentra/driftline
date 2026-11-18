@@ -125,3 +125,8 @@ PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:[
   'Page tabs at the top of a menu (Events, Bounties, Feats, Tide Pass, Boardwalk and the others) take every tap: the row could shift a few pixels under your finger, which made taps feel unresponsive and the tabs jiggle.',
   'Section bars inside pages (Gear / Bait, Waters / Set sail again...) no longer slide sideways when they stick to the top.',
   'On smaller phones held sideways, the page tabs show their names only so they always fit, and badges sit on the tab corner.']});
+PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
+  'Stats is easy to reach: it sits in Collection now (side menu), and tapping your Level in the top bar opens it.',
+  'Every tab lives in one place: Settings no longer repeats Save. The gift code and the backup and erase tools are in Save, Save codes.',
+  'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.']});
+

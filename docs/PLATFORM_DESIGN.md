@@ -164,3 +164,5 @@ Run `__spec` at each, upright and sideways, with its safe areas simulated. Refer
 - **Shared look:** the same colour language everywhere. Rarity colours come from `RAR`. Gold means rewards, teal means actions, red means warnings.
 - **Copy:** plain, short, friendly words with a light cozy humour; never jargon.
 - **Rewards and data:** worked out once in the shared core, so every platform shows the same numbers.
+
+**One place for each thing (director, 2026-11-18: "things that appear in multiple locations... tabs, headers").** A tab, section or summary value appears once per screen. Settings and Save are separate tabs (no Save section inside Settings); a page's summary strip and intro never repeat each other; the menu top row's coins are not repeated in a page summary. Shortcuts in the fishing top bar (Cooler, Aquarium, Fish Log, Tasks, Tide Pass, Level → Stats) are status + quick opens by design. Stats lives in Collection; the settings gear holds Settings and Save.
