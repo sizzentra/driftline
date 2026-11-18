@@ -154,7 +154,7 @@ const DW={
     const row=([b,i])=>{ const d=bDone(b), bt=bountyText(b); let what, p=d?1:0, pt;
       if(bt){ what=bt.what; if(b.type==='style'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
       else { const sp=SPI[b.sp]; if(!sp) return ''; what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+LOCS[locIdx(sp.loc)].name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?"an":"a"} ${sp.name} of ${kgStr(b.kg)} or more`; if(b.type==='count'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
-      const rw=Math.round(b.reward*coinMult()*(spec('collector')?.8:1));
+      const rw=Math.round(b.reward*coinMult()*1);
       return `<div class="dwq${d?' done':''}"><div class="dwqt"><b>${esc(what)}</b><span class="meta"><span class="coin">${fmtShort(rw)}</span>${b.scales?' + '+b.scales+' Scales':''}${pt?' · '+pt:d?'':' · not yet'}</span>${pt&&!d?dwBar(p):''}</div>${d?`<button class="btn sm" data-act="claim" data-i="${i}">Claim</button>`:''}</div>`; };
     return dwBox('bounty',{icon:'📜', title:'Bounties', wide:true, state:ready?'ready':'', sum:ready?`${ready} ready`:`${here.length} here`, body:
       (here.length?here.slice(0,3).map(row).join(''):'<div class="meta">No bounties at this water right now.</div>')+
@@ -1556,7 +1556,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
   // Every page remembers its zoom (per section and window size) and starts from it, so reopening it usually needs no change at all.
   const ceil=new Map(), cache=new Map(), key=()=>{ const p=P(), on=p&&p.querySelector('.bwx-nav [aria-pressed="true"],.bwx-nav [aria-selected="true"],.bwx-nav .on,.fr-cat[aria-pressed="true"]'); return S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+(on?on.textContent.trim().slice(0,24):'')+'|'+innerWidth+'x'+innerHeight; }; /* per page, per section tab (sections that redraw the page too), per window size */
   const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
-    if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
+    if(!on||document.body.classList.contains('pc-fhd')){ if(p.style.zoom) p.style.zoom=''; return; } /* full HD: one fixed size on every page (director, 2026-11-17: headers and sizes must never change between tabs; a zoom per page also moved buttons under the cursor right after a click) */
     if(p.classList.contains('fl-on')||p.classList.contains('aq-on')||p.classList.contains('od-on')||[...p.querySelectorAll('.pc-pn')].some(e=>e.offsetParent!==null)){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log and the patch-notes reader size themselves to the screen
     const z0=+p.style.zoom||1, ch=p.clientHeight, sh=p.scrollHeight; if(!ch||!sh) return;
     // full HD (body.pc-fhd): a page with room to spare grows until it fills the screen (up to 125%), so it reads well from the chair;
@@ -1635,7 +1635,7 @@ body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overf
     ['Gear',['rods4','rods8','rod10','atts10','buff4']],
     ['Boardwalk & events',['derby1','derby10','gold3','claw10','crates10']],
     ['Progress',['rich','rich1m','rich10m','rank5','rank20','rank50','demand10','tasks10','tasks100','streak10','streak30','pass25','pass50','tide1','tide3','paths5']]];
-  CATS[1][1].push('sp250');
+  CATS[1][1].push('sp250'); FEAT_CATS_REF=CATS; /* shared with the category completion bonuses (br_pc05.js) */
   const catOf=f=>{ if(/^Master of /.test(f.name)) return 'Waters'; const c=CATS.find(([,ids])=>ids.includes(f.id)); return c?c[0]:'More'; };
   const order=CATS.map(c=>c[0]).concat('More');
   // PC: every feat on one screen - a card per group laid out in columns, one compact line per feat (name, progress, bar, reward;
@@ -2405,7 +2405,7 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
       ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
       statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
     if(statsBtn.parentElement!==box) box.appendChild(statsBtn); return true; };
-  const tick=()=>{ try{ if(statsBtn){ const v='Sales ×'+sellMult().toFixed(2); /* your total sale multiplier: what every fish is worth to you */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; } }catch(e){} };
+  const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; } }catch(e){} };
   setInterval(tick,1500);
   // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
   const place=()=>{ const box=document.querySelector('.pch-stats'), tools=document.querySelector('#menuov .mo-tools'), ph=document.querySelector('#pchead .pch-tools'); if(!box||!tools||!ph) return;

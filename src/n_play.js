@@ -54,7 +54,7 @@ function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=n
 
 // ---------- a fish of a given species, rolled the 0.3 way (used for normal catches, prey and predators) ----------
 function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{rare:0,weight:1};
-  const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?2:spec('shinyhunter')?.7:1) * dm.weight;
+  const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?1.6:1) * dm.weight;
   let kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb), hy=null;
   // hybrid: the weight of another fish from the same waters
   if(!ctx.noHybrid && Math.random()<hybridChance()){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
@@ -65,7 +65,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   const trophy = !hy && rel > .9;
   // hybrids: the further from normal size, the bigger the multiplier, capped at ×25 so a lucky hybrid is a jackpot, not a broken economy
   let value = Math.max(1,Math.round(sp.base*(hy?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85))));
-  value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*(spec('tinker')?.95:1)*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
+  value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
   const f={kind:'fish', sp, kg, rel:clamp(rel,0,1), str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, pv, hy, ab, ab2, trophy, storm: wx.k==='Storm', hot:G.inHot, prey:null};

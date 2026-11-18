@@ -33,13 +33,13 @@ RELICS.push({id:'derbyhorn',name:'Seashell Horn',cost:3,d:'Derby rivals score 10
 OUTFITS.push(['bathrobe','Fluffy bathrobe',3200,'shop'],['pajamas','Striped pajamas',2200,'shop'],['lumberjack','Lumberjack jacket',4200,'shop']);
 
 // ---------- a fifth path ----------
-SPEC_TIERS.push({lvl:75, name:'Waters', opts:[
-  ['seafarer','Seafarer','Rare odds +25% on the open sea and in the deep.','Rare odds −10% in fresh water.'],
-  ['freshwater','River Soul','Rare odds +25% in ponds, rivers and the frozen lake.','Rare odds −10% at sea.'],
-  ['elemental','Elementalist','Fish from the springs, the sky lake and the ice are worth 20% more.','Fish from everywhere else are worth 5% less.']]});
+SPEC_TIERS.push({lvl:25, name:'Waters', opts:[
+  ['seafarer','Seafarer','Rare odds +20% on the open sea and in the deep.',''],
+  ['freshwater','River Soul','Rare odds +20% in ponds, rivers and the frozen lake.',''],
+  ['elemental','Elementalist','Fish from the springs, the sky lake and the ice are worth 15% more.','']]});
 const FRESH=['pond','river','frost'], SALT=['coast','shelf','deep','trench','reef'];
-function specLocRare(loc){ return spec('seafarer') ? (SALT.includes(loc)?1.25:.9) : spec('freshwater') ? (FRESH.includes(loc)?1.25:.9) : 1; }
-function specLocValue(loc){ return spec('elemental') ? (['ember','starfall','frost'].includes(loc)?1.2:.95) : 1; }
+function specLocRare(loc){ return spec('seafarer') ? (SALT.includes(loc)?1.2:1) : spec('freshwater') ? (FRESH.includes(loc)?1.2:1) : 1; }
+function specLocValue(loc){ return spec('elemental') ? (['ember','starfall','frost'].includes(loc)?1.15:1) : 1; }
 
 // ---------- new skills' mastery effects ----------
 Object.assign(MASTERY_FX,{

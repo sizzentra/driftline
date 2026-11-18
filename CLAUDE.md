@@ -3,6 +3,30 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
+- **PC full-HD round 4 on PREVIEW (2026-11-17, not live, version NOT bumped; ask the director for the number when publishing).** All in `src/br_pc05.js` (PC-only layout under `body.pc-fhd`, plus some game rules for every platform). Full HD now has ONE fixed size on every page (the fit zoom is off under pc-fhd: it resized headers between tabs and moved buttons under the cursor). The fishing scene isn't drawn while a full-HD menu is open, except on Dock (smoother aquarium). Themed tooltip `#dltip` replaces native titles in menus/header. Pages rebuilt for full HD:
+  - **Cooler:** short Keep / To aquarium / Sell guide; aligned Sell all fields.
+  - **Aquarium:** one compact header bar.
+  - **Fish Log:** rarity chips filter the grid.
+  - **Stats:** "Shown on your header" picker (`S.settings.hdrStat`, `hdrStatText()`).
+  - **Dock:** the preview is a live crop of the real fishing scene (`DK_CROP`, drag maps to the in-game dock fractions) + Your dock | Decorations columns, cozy in the Decorations header.
+  - **Wardrobe:** rail | preview | option cards.
+  - **Pets:** Fish Log-style: filters | grid | details + dress-up.
+  - **Bait:** its own page in Fishing (hidden tab `bait`); special lures included.
+  - **Equipment:** the shop's gear (tab label swaps on fhd).
+  - **Rods:** your rod | rack | attachments, plus a levels/Scales explainer.
+  - **Events:** even grid; the forecast moved to Travel.
+  - **Boardwalk:** its own header section `BOARD_SEC`, slim banner with tabs inside.
+  - **Tide Pass:** level | road | weekly Tide goals (weekly quests moved off Bounties on fhd).
+  - **Oddities:** one tier at a time, unfound = "???".
+  - **Header:** teal category buttons, 6 sections.
+
+  Game rules (all platforms):
+  - Paths rebalanced: no downsides, unlocks at 5/10/15/20/25, smaller upsides.
+  - Bounties pay a bonus (`b.x`: bait, special lure, Scales or Pass XP).
+  - A finished Feats category gives a permanent boost (`FEAT_CAT_BONUS`, via `bonus()`).
+  - A completed Fish Log water makes its fish worth +10% (`specLocValue`).
+
+  Patch notes still to write. **NEXT (director, 2026-11-17): split PC / Android / iPhone into separate builds** (shared core + one layer per platform, same site address so saves stay; back up the save first). Plan agreed in principle, not started.
 - **NEXT: nothing scheduled (0.4.5 shipped).** Standing rules (director, 2026-11-17): platforms are tested separately and keep platform-specific changes in their own layer (body classes: `pch-on` PC, `phone-app` upright, `phone-land` sideways, tablets = none of these) so one platform never alters another; give every platform love; critique harshly (hard to find for new players? missing? how does it look on each platform?). **PC: nothing may sit on top of the fishing scene**; the header is one row. Write patch-note text with ’ (single-quoted JS strings) and run `__qa()` on the exact build before every push (an apostrophe broke the preview once).
 - **0.4 "Fifty Fathoms" SHIPPED 2026-11-17** (director: "Patch is ready to go live"). Release build checked (GAME_VERSION 0.4, no DL_PREVIEW, no test hooks, no gift codes in plain text), live loads with zero errors. The last rounds before release were iPhone touch fixes in `src/bm_ui04.js`: tap-only controls (`touch-action: manipulation`), no `:hover` rules on touch screens, menu navigation acts on finger lift with the phone's own clicks ignored (except touches that didn't act), Back/Overview shield, no-bounce guard with a 10 px dead zone, bigger side buttons; kept thumbnails (fish/decor/dock), fast-tap coalescing, `resize()` skips unchanged sizes and redraws at once. Details: `docs/QA_0.4_report.md`. Any new work is a new version with its own patch-notes entry; the 0.4 entry stays as shipped.
 - **0.3.6 "Fifty Fathoms" IN PROGRESS (2026-11-17, overnight, director asleep; preview only, never publish.ps1 without approval).** Done and committed so far:

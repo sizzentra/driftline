@@ -8,8 +8,8 @@
 function renderPaths(P){ const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
     return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· unlocks at level ${T.lvl}</span></h4>${cur?`<span class="badge g">${T.opts.find(o=>o[0]===cur)[1]}</span>`:locked?`<span class="meta">Level ${S.lvl} / ${T.lvl}</span>`:'<span class="badge">Choose one</span>'}</div>
      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
-       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
-  P.innerHTML=`<h2>Paths</h2><p class="sub">Four forks on your angler’s road. Each choice gives something and takes something, so pick what fits how you like to fish. You can switch later for a fee.</p>
+       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span>${o[3]?`<span class="down">▼ ${o[3]}</span>`:''}${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
+  P.innerHTML=`<h2>Paths</h2><p class="sub">Five forks on your angler’s road. Each one is a specialty: pick the one that fits how you like to fish. You can switch later for a fee.</p>
    <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">${SPEC_TIERS.map(specRow).join('')}</div>`; }
 
 // ---------- Home: dock style, decorations, cozy ----------

@@ -105,7 +105,7 @@ const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.2:0) - (spec('curator')?.1:0)) * coinMult();
+const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.12:0) - 0) * coinMult();
 const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * coinMult();
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => { const n=Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV)*voyagePearlMult()); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
@@ -114,7 +114,7 @@ const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxe
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
-const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.6:1));
+const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.65:1));
 const farAt = () => .8 - .02*pr('caster');
 const hotRate = () => (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1);
 const streakCap = () => .5 + .1*pr('streaker');
@@ -210,12 +210,12 @@ function beginWait(){ G.st='waiting'; G.waitT=0; const b=BAIT[S.baitSel]; const 
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
 // shared by fishing and the Stats tab, so the sheet always shows the real numbers
-function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.25:spec('patient')?.8:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
+function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearls||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.3:spec('speedy')?.9:1)*specLocRare(S.loc); return rare; }
-function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?2:spec('trophyking')?.7:1) * (relic('luckypearl')?1.5:1); }
-const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.8:1)*(weather().treasure||1);
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc); return rare; }
+function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?1.6:1) * (relic('luckypearl')?1.5:1); }
+const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.6:1)*(weather().treasure||1);
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
 const fishHatsLeft = () => HATS.filter(h=>h.src==='fish' && !S.owned.hats.includes(h.id));
 function chooseCatch(){
@@ -232,7 +232,7 @@ function chooseCatch(){
 // 0.3.6: how much better rare odds make each rarity. Compounding, so every source of rare odds keeps mattering as they
 // stack (it used to be a flat sum, where each new source counted for less and less). Commons are never boosted.
 const rareMul = (rare,f) => f ? Math.pow(1+Math.max(0,rare)*.6, f*1.25) : 1;
-function catchW(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.6:1); }
+function catchW(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.4:1); }
 // the real chance of each rarity on your next normal cast here (no hotspot, not a far cast), from the same weights as a
 // catch; opts can try a different bait or rod or extra Lucky Charm ranks, so cards can show exactly what a choice changes
 function catchOdds(opts={}){ const keep={bait:S.baitSel, rod:S.rods&&S.rods.eq, perks:S.perks};
@@ -267,7 +267,7 @@ function landFish(){
   journalAdd(f);
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = Math.min(streakCap(),.05*(S.streak-1));
   if(G.perfect && relic('goldhook')) f.value=Math.round(f.value*1.1);
-  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*(spec('mythseeker')&&sp.r===0?.7:1)*((!j||j.n<3)?1+.05*pr('naturalist'):1));
+  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*((!j||j.n<3)?1+.05*pr('naturalist'):1));
   if(isNew && maxed('naturalist')) S.scales+=5;
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   { const ce=coolerEntry(f); S.cooler.push(ce); G.lastEntry=ce; } S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
@@ -404,7 +404,7 @@ function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const 
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
-const fishRate = f => aqFishBase(f)*(spec('merchant')?.85:spec('curator')?1.35:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
+const fishRate = f => aqFishBase(f)*(spec('curator')?1.25:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();
 const tankRate = () => S.tank.reduce((a,f)=>a+fishRate(f),0);
 // each fish's coins per hour as whole numbers that add up exactly to the shown total (largest remainders get the spare coins)
 function aqShownRates(){ const v=S.tank.map(f=>fishRate(f)*60), fl=v.map(Math.floor); let left=Math.floor(v.reduce((a,b)=>a+b,0))-fl.reduce((a,b)=>a+b,0); v.map((x,i)=>[x-fl[i],i]).sort((a,b)=>b[0]-a[0]).forEach(([,i])=>{ if(left>0){ fl[i]++; left--; } }); return fl; }
@@ -477,8 +477,8 @@ function fight(dt){
   G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta)*(1+.45*RK)*(G.fightT>14?Math.max(.3,1-(G.fightT-14)/12):1) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta)*(1-.3*RK); if(G.run){ splash(G.bob.x,G.bob.y,6+RK*6); G.ev=null; } }
   if(!G.run && (B.shake||B.jump) && !G.ev){ G.evT-=dt; if(G.evT<=0){ G.ev=B.jump?'jump':'shake'; G.evDur=B.jump?.85:.5; G.evT=rnd(1.3,3)/(.5+f.aggr)*(.6+.4/(.3+G.sta)); if(B.jump){ splash(G.bob.x,G.bob.y,14); sfx.jump(); } else sfx.warn(); } }
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
-  const tired=.45+.55*G.sta, steady=tensionMult()*(spec('brawler')?1.15:1); G.fightT=(G.fightT||0)+dt;
-  const reelK=(spec('brawler')?1.25:spec('gentle')?.9:1)*(maxed('strong')&&G.fightT<2?2:1);
+  const tired=.45+.55*G.sta, steady=tensionMult(); G.fightT=(G.fightT||0)+dt;
+  const reelK=(spec('brawler')?1.2:1)*(maxed('strong')&&G.fightT<2?2:1);
   // how hard you are reeling right now: 1 = holding; since 0.3 also a crank or a partly pulled trigger (0..1)
   const rin = V3ON ? reelInput(dt) : (G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin);
   if(rin>0){
@@ -487,7 +487,7 @@ function fight(dt){
     let add = (G.run?95:22)*ratio*tired*(B.heavy?1.35:1);
     G.temper = Math.min(3, G.temper + rdt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
-    const evK=spec('acrobat')?.4:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK; if(G.run && spec('acrobat')) add*=1.15;
+    const evK=spec('acrobat')?.5:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK;
     if(G.run) add += 52*RK*Math.min(1,.45+ratio)*(G.surge?2.2:1)*(.4+.6*G.sta); /* rare runs strain any line */
     G.ten += add*steady*rdt;
     G.sta = Math.max(0, G.sta - (G.run?.18:.09)*rdt*(B.heavy?.6:1)*(1-.35*RK));

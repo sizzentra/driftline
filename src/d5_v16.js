@@ -3,24 +3,24 @@
 // Update 1.6: skill specialisations & mastery effects, pearl relics,
 // rare weathers, richer bounties
 // =====================================================================
-// ---------- specialisations: one choice per tier, each with a trade-off ----------
+// ---------- specialisations: one choice per tier (rebalanced 2026-11-17: pure upsides, unlock at levels 5-25) ----------
 const SPEC_TIERS = [
  {lvl:5,  name:'Style', opts:[
-   ['speedy','Quick Draw','Bites come 25% faster.','Rare odds −10%.'],
-   ['patient','Still Waters','Rare odds +30%.','Bites come 20% slower.'],
-   ['tinker','Tinkerer','Junk and treasure ×1.8.','Fish are worth 5% less.']]},
- {lvl:15, name:'Fight', opts:[
-   ['brawler','Brawler','Reel 25% faster.','Line tension +15%.'],
-   ['gentle','Gentle Giant','Fish tempers rise 40% slower.','Reel 10% slower.'],
-   ['acrobat','Acrobat','Jumps and head-shakes strain your line 60% less.','Runs pull 15% harder.']]},
- {lvl:30, name:'Trade', opts:[
-   ['merchant','Merchant','Sale price +20%.','Aquarium income −15%.'],
-   ['curator','Curator','Aquarium income +35% and 2 extra decoration spots.','Sale price −10%.'],
-   ['collector','Collector','Mastery stars give +15% value each (not 10%), new species give triple XP.','Bounty rewards −20%.']]},
- {lvl:50, name:'Legacy', opts:[
-   ['mythseeker','Myth Seeker','Legendary and rarer fish ×1.6.','Common fish give 30% less XP.'],
-   ['shinyhunter','Shiny Hunter','Shiny fish twice as common.','Trophy-size fish 30% rarer.'],
-   ['trophyking','Trophy King','Trophy-size fish twice as common, and worth ×2 (not ×1.5).','Shiny fish 30% rarer.']]},
+   ['speedy','Quick Draw','Bites come 20% faster.',''],
+   ['patient','Still Waters','Rare odds +20%.',''],
+   ['tinker','Tinkerer','Junk and treasure ×1.6.','']]},
+ {lvl:10, name:'Fight', opts:[
+   ['brawler','Brawler','Reel 20% faster.',''],
+   ['gentle','Gentle Giant','Fish tempers rise 35% slower.',''],
+   ['acrobat','Acrobat','Jumps and head-shakes strain your line 50% less.','']]},
+ {lvl:15, name:'Trade', opts:[
+   ['merchant','Merchant','Sale price +12%.',''],
+   ['curator','Curator','Aquarium income +25% and 2 extra decoration spots.',''],
+   ['collector','Collector','Mastery stars give +15% value each (not 10%), new species give triple XP.','']]},
+ {lvl:20, name:'Legacy', opts:[
+   ['mythseeker','Myth Seeker','Legendary and rarer fish ×1.4.',''],
+   ['shinyhunter','Shiny Hunter','Shiny fish ×1.6.',''],
+   ['trophyking','Trophy King','Trophy-size fish ×1.6, and worth ×2 (not ×1.5).','']]},
 ];
 const spec = id => !!(S.specs && Object.values(S.specs).includes(id));
 const specFee = tier => 2000*(tier+1)*(tier+1);
@@ -49,7 +49,7 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
     return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· level ${T.lvl}</span></h4>${cur?`<span class="badge g">${SPEC_TIERS[ti].opts.find(o=>o[0]===cur)[1]}</span>`:locked?'<span class="meta">Locked</span>':'<span class="badge">Choose one</span>'}</div>
      <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
        return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
-  P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Specialisations</b> are big choices with a trade-off, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
+  P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Paths</b> are big specialties, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
    <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between"><span class="meta">Looking for specialisations? They have their own <b>Paths</b> tab now.</span><button class="btn alt sm" data-tabgo="paths">Open Paths</button></div>
    <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
