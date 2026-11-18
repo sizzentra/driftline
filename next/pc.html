@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-0016';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-0028';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -15580,6 +15580,17 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .fl-perk{color:#ffd36a;font-weight:800} #panel .fl-perk.got{color:#7fe3c4}</style>`);
 
 // =====================================================================
+// Test notes (shared helper). Each platform's own notes file (src/pc, src/android, src/ios) calls addTestNotes(...) with
+// its text. In a preview build the notes go on top of the patch notes list and open once per device and notes text; the
+// live game ignores them. They carry no version number (the director picks it at release).
+// =====================================================================
+function addTestNotes(n){ try{ if(!window.DL_PREVIEW||!n||!Array.isArray(n.items)) return; PATCHES.unshift(n);
+    const id='dl-test-notes:'+(window.DL_BUILD||'')+':'+n.name+':'+n.items.length; let seen=''; try{ seen=localStorage.getItem('dl-test-notes')||''; }catch(e){}
+    if(seen===id) return; let tries=0;
+    const go=()=>{ if(G.st!=='idle'||(typeof MENU_OPEN!=='undefined'&&MENU_OPEN)){ if(++tries<20) setTimeout(go,1500); return; }
+      try{ localStorage.setItem('dl-test-notes',id); }catch(e){} try{ showPatchNotes(n); }catch(e){} };
+    setTimeout(go,3500); }catch(e){} }
+// =====================================================================
 // PC full-HD round 4 (director, 2026-11-17, full screen 1920x1080): Cooler guide, Aquarium header, Fish Log rarity filter,
 // Stats header picker, Customize rework, Challenges, Boardwalk, Oddities, Tackle shop split, header cleanup.
 // Layout parts only act under body.pc-fhd (PC layout at 1800x950 and up); phones and smaller windows are untouched.
@@ -16205,6 +16216,41 @@ html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;borde
 html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
 html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
+// =====================================================================
+// PC test notes (preview builds only; the live game never shows them). They sit on top of the patch notes list and open
+// once when the test build starts. The version number is chosen by the director at release, so they carry no number.
+// Spoiler-free, plain words, every change mentioned (patch-notes rule).
+// =====================================================================
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'The Full Screen Rework', items:[
+  '## Full screen PC',
+  'Every page now has one fixed size: headers no longer jump when you switch tabs, and clicks always land on the button you aimed at.',
+  'Menus open under the header, which never moves. The section buttons and the Cooler, Aquarium, Fish Log and Stats buttons use one clear clickable colour and turn gold while open; click a gold one again to close it.',
+  'Menus feel smoother: the water rests while a menu covers it.',
+  'Hover hints now match the game’s look.',
+  'The Boardwalk has its own button in the header.',
+  '## Pages',
+  'Cooler: a short guide explains Keep, To aquarium and Sell, and the Sell all choices line up neatly.',
+  'Aquarium: one compact header with your earnings inside it, and the tank animations stay smooth.',
+  'Fish Log: the rarity row works as a filter too. Click a rarity to see only those fish, click again for all.',
+  'Stats: choose what the Stats button in the header shows.',
+  'Dock: the picture shows your real spot at the water you’re fishing, with your decorations and pets where they stand. Your dock and the decorations sit side by side, and the cozy level sits with the decorations.',
+  'Wardrobe: categories on the left, your angler in the middle and the options in tidy cards.',
+  'Pets: everything on one screen. Filter by what pets boost, pick one to see it, dress it up or bring it along.',
+  'Bait has its own page under Fishing, special lures included. The tackle shop’s upgrades are now called Equipment.',
+  'Rods: your rod, the rod rack and attachments side by side, with a short explanation of rod levels and Scales.',
+  'Skills: the unexplained numbers beside the column titles are gone.',
+  'Events: one even screen. The weather forecast moved to Travel, where you plan where to fish.',
+  'Tide Pass: your weekly goals now live here, next to the reward road.',
+  'Boardwalk: a slim banner with the game tabs inside it, and the games fill the screen.',
+  'Oddities: their own page in Collection, one tier at a time. Unfound ones stay a mystery until they turn up.',
+  '## Rewards and balance',
+  'Paths are rethought: no more downsides, and they open much earlier.',
+  'Bounties pay a bonus on top of their coins.',
+  'Finishing a whole Feats category gives a permanent boost.',
+  'Completing a water’s Fish Log makes its fish worth more, forever.',
+  '## Behind the scenes',
+  'PC, Android and iPhone each have their own version of the game now, so a fix for one never disturbs another. Your progress is shared between them as before.']};
+addTestNotes(TEST_NOTES);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
 // window.__qa(groups?) runs real game code in the real page and returns [{sys, name, ok, detail}].
