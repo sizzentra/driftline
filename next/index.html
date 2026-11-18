@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1935';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-1941';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -900,7 +900,7 @@ const WEATHERS = [
   {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},
   {k:'Rainbow', w:3, shiny:2, xp:1.3, note:'A rainbow over the water. Shinies ×2 and XP +30%.'},
   {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
-  {k:'Fog',    w:15, fog:true, note:'Thick fog rolls in: hard to see far, and night-only fish bite at any hour.'},
+  {k:'Fog',    w:15, fog:true, note:'Thick fog makes the water as dark as night: hard to see far, and night-only fish come out even by day.'},
   {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
   {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},
@@ -2785,7 +2785,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // =====================================================================
 const GAME_VERSION = '0.4.5';
 const PATCHES = [
-{v:'0.4.5', name:'The Big Polish', items:['## PC','One clean header row: level and coins, the sections, your cooler, aquarium and Fish Log, then full screen, search and settings. It stays exactly in place when a menu opens.','The fishing scene is bigger and nothing sits on top of it any more: where you fish, the weather, your next goal, tips, your streak and Rest run along a thin strip just above the water.','Day, night and weather now change continuously, frame by frame: no more steps or pops in the light, at any frame rate.','The Fish Log is one organized screen: every water with its progress on the left, the water’s fish in the middle sorted by rarity, and your hunts plus the picked fish’s records on the right. Start a hunt with the target in a card’s corner.','Feats are one organized board: every feat on one screen, grouped into Catching, Collection, Waters, Legends and myths, Pets, Aquarium and home, Style, Gear, Boardwalk and events, and Progress, each with its count. Finished ones are ticked.','Patch notes are made for a big screen: a wide, dimmed card with the notes sorted into sections side by side.','The count badges on the category tabs are no longer cut off at the top.','A full screen button sits beside search (it turns into Exit full screen while you are in it), and F does the same.','Settings has a PC page: sound, controls, display, gameplay and PC options together on one screen, with full screen, the frame rate counter and every keyboard shortcut.','Set sail again, Pets and Decorate fit on one screen now, and Set sail again is no longer squeezed into narrow columns.','## Everywhere','Feats are grouped by kind, with the closest to finishing first in each group.','## Phones','Held upright, the goal keeps to one line so the water always fills its frame.','Pets: the filter for your own pets no longer shows on Find more.','## iPhone','Opening the Home Screen app sideways no longer pushes the game down below an empty band, and the game re-checks the notch area whenever you turn the phone.']},
+{v:'0.4.5', name:'The Big Polish', items:['## PC','One clean header row: level and coins, the sections, your cooler, aquarium and Fish Log, then full screen, search and settings. It stays exactly in place when a menu opens.','The fishing scene is bigger and nothing sits on top of it any more: where you fish, the weather, your next goal, your streak and Rest run along a thin strip just above the water.','Day, night and weather now change continuously, frame by frame: no more steps or pops in the light, at any frame rate.','The Fish Log is one organized screen: every water with its progress on the left, the water’s fish in the middle sorted by rarity, and your hunts plus the picked fish’s records on the right. Start a hunt with the target in a card’s corner.','Feats are one organized board: every feat on one screen, grouped into Catching, Collection, Waters, Legends and myths, Pets, Aquarium and home, Style, Gear, Boardwalk and events, and Progress, each with its count. Finished ones are ticked.','Patch notes are made for a big screen: a wide, dimmed card with the notes sorted into sections side by side.','The count badges on the category tabs are no longer cut off at the top.','A full screen button sits beside search (it turns into Exit full screen while you are in it), and F does the same.','Settings has a PC page: sound, controls, display, gameplay and PC options together on one screen, with full screen, the frame rate counter and every keyboard shortcut.','Set sail again, Pets and Decorate fit on one screen now, and Set sail again is no longer squeezed into narrow columns.','## Everywhere','Weather fits the time of day: rainbows and golden Gilded light only by day, auroras and blood moons only at night. When one of them is due at the wrong hour, it waits for its time, and the forecast shows when it really comes.','Fog says what it does: it makes the water as dark as night, so night fish come out even by day.','Feats are grouped by kind, with the closest to finishing first in each group.','## Phones','Held upright, the goal keeps to one line so the water always fills its frame.','Pets: the filter for your own pets no longer shows on Find more.','## iPhone','Opening the Home Screen app sideways no longer pushes the game down below an empty band, and the game re-checks the notch area whenever you turn the phone.']},
 {v:'0.4.4', name:'PC Polish', items:['PC: clicking Back to fishing, the categories and the page tabs in the menu works again.','Tapping your next goal takes you to the right place: the Fish Log opens on the water the goal is about.','Phones: the top bar has a search button, and the Settings page no longer shows a second gear.','PC: the fishing screen now has the same top bar as the menu, in the same place. The categories sit at the top next to your coins, search and settings, your stats sit right under them, and the water reaches all the way down.','PC: opening and closing the menu is smoother: the top bar stays perfectly still and only the page below changes.','PC: the Dock preview is drawn at full sharpness on big screens.','Settings is labelled next to its gear on PC and on phones held sideways, so it is easy to spot.','PC: much smoother. Sunsets, sunrises and weather changes no longer cause hitches, the first minute after starting is smooth too, and very large or high-resolution screens keep up with fast monitors.','PC: dusk, dawn and weather changes flow smoothly, with many more, smaller steps.','PC: menu pages fit the screen at once: a page that is a little too tall scales itself down to fit, and the Dock and aquarium previews are sized for the screen.','The Dock preview is live: the time of day and every animation keep moving while you decorate.','New in Settings, Display: Frame rate shows how smoothly the game runs.']},
 {v:'0.4.3', name:'Quick Links', items:['Tap Fishing at in the top bar to choose a water, and tap Cooler to open your cooler, just like Aquarium and Fish Log.','Bait has moved off the top bar: choose it on the Bait list in Tackle, which shows the bait you are using.','Settings has its own gear in the top bar on phones, held upright or sideways.','Fish Log stays in the top bar on every phone held sideways, including the Home Screen app.']},
 {v:'0.4.2', name:'iPhone Hotfix', items:['iPhone: holding your finger on the water to reel no longer brings up the magnifier bubble, in Safari and in the Home Screen app.']},
@@ -6627,7 +6627,7 @@ const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------
 function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0;
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
+  if(k==='Rainbow'){ const A=a*Math.max(0,1-night*1.6)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
       g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI,Math.PI*2); g.stroke(); }
       g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI,Math.PI*2); g.stroke(); g.restore(); } }
   if(k==="Aurora"){ const A=a*(.55+.45*night);
@@ -6662,7 +6662,7 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
   if(k==='Storm'&&FX){ g.fillStyle=v3rgba('#e8f0f4',.4*a); for(let i=0,n=Math.round(20*gfxK());i<n;i++){ const y=hz+H*.03+Math.pow((i*.137)%1,1.4)*(H-hz)*.9, u=(y-hz)/(H-hz), x=((((i*97.3)%1000)/1000*W+t*W*(.03+u*.04))%(W*1.1))-W*.05, l=W*(.012+u*.03); g.globalAlpha=a*(.4+.4*Math.sin(t*2+i)); g.fillRect(x,y,l,Math.max(1,u*2.4)); } g.globalAlpha=1; }
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.2; if(A>.01){
+  if(k==='Rainbow'){ const A=a*Math.max(0,1-night*1.6)*.2; if(A>.01){
       // the rainbow's reflection: the sky arc mirrored in the horizon (centre hz-.28H, the mirror of the sky arc's hz+.28H),
       // faded smoothly with depth and laid on in thin rippling strips like the land's reflection. It used to be a sharp,
       // full-strength copy cut off by a hard straight edge (director, 2026-11-17).
@@ -13919,7 +13919,7 @@ body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important
 // right of the water on sideways phones and a bar under the water everywhere else. Only Rest and the tip stay on it.
 // =====================================================================
 { const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
-  const hint=$('hint'); const keepHint=()=>{ if(document.body.classList.contains('pch-on')) return; if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
+  const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
   // the picture is exactly the water's box (the bar below or beside it is not part of the water)
   const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -14767,7 +14767,7 @@ body.pch-on #panel .grid.sect-one > .pc-col{display:none}
   const apply=()=>{ if(!build()) return; const p=parts(), br=document.querySelector('#pchead .pch-brand');
     if(pc()){ if(br){ br.classList.add('pch-me'); br.removeAttribute('aria-hidden'); park(p.lv,br); park(p.co,br); }
       park(p.cool,stats); park(p.aq,stats); park(p.log,stats);
-      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('hint'),scene,scene.querySelector('.pcs-boosts')); park($('resttog'),scene); tick(); }
+      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('resttog'),scene); tick(); }
     else [p.lv,p.co,p.cool,p.aq,p.log,p.loc,p.goal,$('hint'),$('resttog')].forEach(e=>e&&home(e)); };
   // the day and weather ("Day · Rain  bites +35% · 0:58"), boosts and streak, as the canvas drew them on the water
   const tick=()=>{ if(!built||!pc()) return; try{ const w=weather(), tag=WX_TAG[w.k], l=tod(phase())+' · '+wxName(w.k), v=(tag?tag+' · ':'changes in ')+mmss(wxLeft());
@@ -14860,6 +14860,42 @@ html body.phone-land .dlprev{top:4px!important}
     addEventListener('orientationchange',soon); addEventListener('resize',soon); addEventListener('pageshow',soon); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) soon(); });
     soon(); }
   document.head.insertAdjacentHTML('beforeend','<style>html.sa-recalc body{padding-bottom:calc(env(safe-area-inset-bottom) + 0.01px)}</style>'); }
+// No rainbows at night (director, 2026-11-17: "no nighttime rainbows pls yuck"): the rainbow is drawn only in daylight and fades
+// out fully as dusk falls (it hung on at 15% before). The weather and its bonus stay: a day here lasts 6 minutes and a weather 4,
+// so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
+{
+  // Fog's tag says what it does: night fish come out by day (at night there is nothing extra to say)
+  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){} }
+// =====================================================================
+// Weather that fits the time of day (director, 2026-11-17: "no nighttime rainbows", "all weather needs to be time appropriate").
+// Rainbow and Gilded light happen only by day, Aurora and Blood Moon only at night; rain, storm, fog, the spawning run and clear
+// skies can happen any time. A day here lasts 6 minutes and a weather spell 4, so a spell that needs the other time of day waits
+// for it (or ends when it passes) and the sky is clear in between. The weather is worked out as stretches of time, so what you
+// see, its bonus, its countdown, its fade in and out and the forecast always agree. These spells now only run for part of their
+// slot, so they are drawn twice as often, which keeps their share of the day about the same.
+// =====================================================================
+{ const RULE={'Rainbow':'day','Gilded':'day','Aurora':'night','Blood Moon':'night'};
+  const W=k=>WEATHERS.find(w=>w.k===k), CLEAR=W('Clear');
+  // twice the draws for the time-bound spells, taken from Clear (the weights still add up to 100)
+  try{ const add={Rainbow:3,Gilded:6,Aurora:4,'Blood Moon':3}; let took=0; for(const k in add){ const w=W(k); if(w){ w.w+=add[k]; took+=add[k]; } } if(CLEAR) CLEAR.w-=took; }catch(e){}
+  const slotW=weatherAt; // the raw schedule: one roll every WX_LEN seconds
+  const night=t=>nightness((((t%CYCLE)+CYCLE)%CYCLE)/CYCLE)>.5;
+  const kindAt=t=>{ const w=slotW(Math.floor(t/WX_LEN)), r=RULE[w.k]; return !r||(r==='night')===night(t)?w:CLEAR; };
+  // the stretch of time around t with the same weather: [start, end)
+  let memo=null; const STEP=2;
+  const seg=t=>{ if(memo&&t>=memo.start&&t<memo.end) return memo; const w=kindAt(t); let a=Math.floor(t), b=Math.floor(t)+1;
+    for(let i=0;i<600&&kindAt(a-STEP).k===w.k;i++) a-=STEP; for(let i=0;i<600&&kindAt(b).k===w.k;i++) b+=STEP;
+    while(a>0&&kindAt(a-1).k===w.k) a--; while(b>a&&kindAt(b-1).k!==w.k) b--; // tighten to the second
+    return memo={w,start:a,end:b}; };
+  const now=()=>Date.now()/1000;
+  weather=function(){ return seg(now()).w; };
+  wxLeft=function(){ return Math.max(1,Math.ceil(seg(now()).end-now())); };
+  wxAmt=function(){ const t=now(), s=seg(t); let a=1; if(kindAt(s.start-1).k!==s.w.k) a=Math.min(a,(t-s.start)/WX_FADE); if(kindAt(s.end).k!==s.w.k) a=Math.min(a,(s.end-t)/WX_FADE); return clamp(a,0,1); };
+  // the forecast: the next stretches, as they will really happen
+  wxForecast=function(n=6){ const t0=now(); let s=seg(t0); const out=[]; for(let i=0;out.length<n&&i<40;i++){ const nx=seg(s.end); if(!nx||nx.end<=s.end) break; out.push({k:nx.w.k,note:nx.w.note,at:nx.start-t0,len:nx.end-nx.start}); s=nx; } memo=null; return out; };
+  // the raw slot schedule as seen at the start of each slot (used by the "starts in under a minute" heads-up)
+  weatherAt=function(slot){ return kindAt(slot*WX_LEN+1); };
+  if(/[?&]test\b/.test(location.search)) window.__wxTime={kindAt,seg,night,RULE}; }
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -15133,7 +15169,7 @@ ui(){ QA.sys='UI';
   T('menu: no Overview; opening the menu shows the last page used and closing returns to fishing',()=>{ const errs=[]; openMenu('rods'); closeMenu(); openMenu(); if(S.tab!=='rods') errs.push('opened '+S.tab); if($('panel').querySelector('.dash')) errs.push('overview rendered'); if(document.querySelector('#menuov .mo-home')) errs.push('overview button'); closeMenu(); if(MENU_OPEN||S.tab!==DASH) errs.push('did not close'); return errs.length?{ok:false,detail:errs.join('; ')}:{ok:true,detail:'Menu opens the last page; no Overview'}; });
   T('contrast: every button and label on every menu page is readable (ratio 3+)',()=>{ const bad=[]; const pages=[...MENU_SECS.flatMap(s=>s.tabs),...MENU_MORE.tabs]; for(const t of pages){ openMenu(t); for(const c of __contrast()) bad.push(t+': '+c); } closeMenu(); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:pages.length+' pages readable'}; });
   T('weekly quests: progress from counters, each pays once, crate once, week rollover and damaged saves rebuild',()=>{ const e=[]; S.weekly=null; const w=ensureWeekly(); if(w.quests.length!==4) e.push('quests '+w.quests.length); for(const q of w.quests){ const m={caught:()=>S.stats.caught+=q.n,shiny:()=>S.stats.shiny+=q.n,earned:()=>S.stats.earned+=q.n,tasks:()=>S.gstats.tasks+=q.n,hot:()=>S.stats.hot+=q.n,chal:()=>S.stats.chalWins=(S.stats.chalWins||0)+q.n,species:()=>{}}; m[q.t](); } const sc0=S.scales; w.quests.forEach((q,i)=>{ if(q.t==='species') q.base-=q.n; act('wqclaim',{i}); act('wqclaim',{i}); }); const want=w.quests.reduce((a,q)=>a+q.scales,0); if(S.scales-sc0!==want) e.push('scales '+(S.scales-sc0)+' want '+want); const big=S.tokens.big; act('wqbonus',{}); act('wqbonus',{}); if(S.tokens.big-big!==1) e.push('crate '+(S.tokens.big-big)); S.weekly.wk='2000-01-03'; if(ensureWeekly().wk!==weekKey()) e.push('rollover'); S.weekly={wk:1,quests:[null]}; if(!Array.isArray(ensureWeekly().quests)||ensureWeekly().quests.length!==4) e.push('rebuild'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:'claims, crate, rollover and rebuild ok'}; });
-  T('weather forecast matches the real weather schedule, in order and in the future',()=>{ const e=[]; const f=wxForecast(6), now=Date.now()/1000; let last=0; for(const x of f){ const slot=Math.round((x.at+now)/WX_LEN); if(weatherAt(slot).k!==x.k) e.push(x.k+' at slot '+slot); if(x.at<=0||x.at<last) e.push('order '+x.at); last=x.at; } if(!f.length) e.push('empty'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:f.map(x=>x.k).join(', ')}; });
+  T('weather forecast matches the real weather schedule, in order and in the future',()=>{ const e=[]; const f=wxForecast(6), now=Date.now()/1000; let last=0; for(const x of f){ const t=x.at+now+1, real=(window.__wxTime?__wxTime.kindAt(t):weatherAt(Math.floor(t/WX_LEN))).k; if(real!==x.k) e.push(x.k+' forecast, '+real+' real at +'+Math.round(x.at)+' s'); if(window.__wxTime){ const R=__wxTime.RULE[x.k]; if(R&&(R==='night')!==__wxTime.night(t)) e.push(x.k+' at the wrong time of day'); } if(x.at<=0||x.at<last) e.push('order '+x.at); last=x.at; } if(!f.length) e.push('empty'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:f.map(x=>x.k).join(', ')}; });
   T('no Menu button: the category bar opens the pages; "Collapse panel" shrinks both side panels and is remembered',()=>{ const e=[]; if($('menubtn')&&$('menubtn').isConnected) e.push('Menu button still on screen'); if(!$('catdock')||!$('catdock').querySelector('.cdb[data-cd]')) e.push('no category bar');
     const tg=document.querySelectorAll('.cdmini'); if(tg.length!==2) e.push(tg.length+' collapse buttons'); if(!matchMedia('(orientation:landscape) and (max-height:560px)').matches){ openMenu('rods'); tg.forEach(b=>{ if(getComputedStyle(b).display!=='none') e.push('collapse button shown outside landscape phones'); }); closeMenu(); } const was=!!(S.settings&&S.settings.dockMini);
     if(tg[0]){ tg[0].click(); if(!!S.settings.dockMini===was||document.body.classList.contains('dock-mini')===was) e.push('toggle on'); tg[0].click(); if(!!S.settings.dockMini!==was||document.body.classList.contains('dock-mini')!==was) e.push('toggle back'); }
