@@ -5,15 +5,16 @@
 # All builds sit side by side on the same site address, so they share one save.
 # Run:  powershell -ExecutionPolicy Bypass -File build.ps1            -> site/ (the live game; publish.ps1 calls this)
 #       powershell -ExecutionPolicy Bypass -File build.ps1 -Preview   -> site/next/ (preview, its own save)
-# New work for ONE platform goes into a file listed only in that platform's layer. The core is for things every platform
+# New work for ONE platform goes into src/pc/, src/mobile/ (Android + iPhone), src/android/ or src/ios/: either listed in
+# $layers, or placed inside a shared file with a line "//@layer <platform> <file>". The core is for things every platform
 # shares: the game itself, its rules and the save.
 param([switch]$Preview)
 $root = $PSScriptRoot
 $v = (Get-Date).ToString('yyyy.MM.dd-HHmm')
 $utf8 = New-Object System.Text.UTF8Encoding $false
-$core = 'a_head.html','a2_v3ui.js','b_data.js','az_fish036.js','b2_wear.js','c_logic.js','n_play.js','k_controls.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','m_home.js','d8_v21.js','d9_link.js','d10_lily.js','d11_pair.js','f_v3scene.js','f2_areas.js','f3_foliage.js','ao_maps033.js','ap_weather033.js','aq_life033.js','ar_ember033.js','as_depth033.js','at_starfall033.js','av_sea034.js','bf_depth036.js','g_angler.js','l_wear.js','ag_hatfit.js','h_pets.js','i_fish.js','ba_art036.js','j_music.js','q_boardwalk.js','w_wardrobe.js','ah_fabric.js','ak_side.js','s_odd.js','bb_odd036.js','t_board.js','u_tackle.js','v_shop.js','o_sort.js','p_games.js','r_rest.js','x_sections.js','y_pass.js','ab_decor.js','ac_dockart.js','ad_tankart.js','ae_tankart2.js','al_decor04.js','be_decor036.js','z_stats.js','aj_events.js','af_smooth.js','am_shoptools.js','an_small04.js','ai_cooler.js','au_fix034.js','aw_menu035.js','ax_trophy035.js','ay_phone035.js','bg_angler036.js','bh_platform036.js','bi_hats036.js','bc_voyage036.js','bd_ui036.js','bj_polish036.js','bk_events036.js','bl_hunts04.js','bo_guard04.js','bm_ui04.js','bq_feat04.js','bs_rules05.js'
+$core = 'a_head.html','a2_v3ui.js','b_data.js','az_fish036.js','b2_wear.js','c_logic.js','n_play.js','k_controls.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','m_home.js','d8_v21.js','d9_link.js','d10_lily.js','d11_pair.js','f_v3scene.js','f2_areas.js','f3_foliage.js','ao_maps033.js','ap_weather033.js','aq_life033.js','ar_ember033.js','as_depth033.js','at_starfall033.js','av_sea034.js','bf_depth036.js','g_angler.js','l_wear.js','ag_hatfit.js','h_pets.js','i_fish.js','ba_art036.js','j_music.js','q_boardwalk.js','w_wardrobe.js','ah_fabric.js','ak_side.js','s_odd.js','bb_odd036.js','t_board.js','u_tackle.js','v_shop.js','o_sort.js','p_games.js','r_rest.js','x_sections.js','y_pass.js','ab_decor.js','ac_dockart.js','ad_tankart.js','ae_tankart2.js','al_decor04.js','be_decor036.js','z_stats.js','aj_events.js','af_smooth.js','am_shoptools.js','an_small04.js','ai_cooler.js','au_fix034.js','aw_menu035.js','ax_trophy035.js','mobile:mobile/ay_phone035.js','bg_angler036.js','bh_platform036.js','bi_hats036.js','bc_voyage036.js','bd_ui036.js','bj_polish036.js','bk_events036.js','bl_hunts04.js','bo_guard04.js','bm_ui04.js','bq_feat04.js','bs_rules05.js'
 # each platform's own files, added after the core (empty lists are ready for that platform's own work)
-$layers = @{ pc = @('br_pc05.js'); android = @(); ios = @() }
+$layers = @{ pc = @('pc/br_pc05.js'); android = @(); ios = @() }
 $names = @{ pc = 'PC'; android = 'Android'; ios = 'iPhone' }
 $top0 = [IO.File]::ReadAllText((Join-Path $root 'src\shell_top.html')).Replace('__VERSION__', $v)
 $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))
@@ -24,7 +25,13 @@ foreach ($p in 'pc','android','ios') {
   $parts = $core + $layers[$p]
   if ($Preview) { $parts = $parts + 'bn_qa04.js' }  # the QA suite only exists in previews, never in the live game
   $parts = $parts + 'e_ui.js'
-  $body = ($parts | ForEach-Object { [IO.File]::ReadAllText((Join-Path $root "src\$_")) }) -join ''
+  # a part named "pc:...", "mobile:..." (Android + iPhone), "android:..." or "ios:..." belongs to those builds only
+  $want = @($p); if ($p -ne 'pc') { $want += 'mobile' }
+  $parts = $parts | Where-Object { $_ -notmatch '^(pc|mobile|android|ios):' -or $want -contains ($_ -split ':')[0] } | ForEach-Object { ($_ -split ':')[-1] }
+  # inside a shared file, a line "//@layer <platform> <file>" is replaced by that platform file's code (same spot, same order)
+  # in that platform's build, and by nothing in the others
+  $layerLine = [regex]'(?m)^//@layer (pc|mobile|android|ios) (\S+)\s*$'
+  $body = ($parts | ForEach-Object { $layerLine.Replace([IO.File]::ReadAllText((Join-Path $root "src\$_")), { param($m) if ($want -contains $m.Groups[1].Value) { [IO.File]::ReadAllText((Join-Path $root ('src\' + $m.Groups[2].Value))) } else { '' } }) }) -join ''
   $top = $top0.Replace("window.DL_VERSION=", "window.DL_BUILD='$p'; window.DL_VERSION=")
   $badge = ''
   if ($Preview) {

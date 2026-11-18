@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='android'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2329';
+window.DL_BUILD='android'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2339';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1510,6 +1510,8 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
+// the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
+function stageHOverride(W,H){ return 0; }
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,cv.parentElement.clientWidth||r.width); /* the inside of the water frame, not its border: the picture is drawn at exactly the size it is shown, never rescaled (it was 2 px too wide, which blurred it a little and cost a rescale every frame) */ const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
   H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=renderDPR(W,H);
@@ -13140,6 +13142,7 @@ if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be rea
 { const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
 // phones held sideways: the top bar's seven chips share the width by what they hold, so the water name always fits
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){.hud{grid-template-columns:minmax(0,.9fr) minmax(0,.85fr) minmax(0,1.65fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,.95fr)!important}}</style>`);
+
 // =====================================================================
 // Fishing mode = the water fills the screen (the top bar stays above it). Every layout (PC wide, PC stacked, tablet,
 // phone upright, phone sideways) uses the same column: top bar, then the water down to the bottom edge. The menus,
@@ -13328,6 +13331,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   body #menuov #panel p.sub{font-size:12px!important;margin:0 0 8px!important;line-height:1.35}
 }
 </style>`);
+
 // In the menu the highlighted tab already names the page, so a page title that only repeats it is hidden (more room
 // for the page itself). The wardrobe's own tabs (Body, Clothes, Hats...) move up into that row across the full width.
 { const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){} }; }
@@ -13650,6 +13654,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   .dlprev{right:calc(160px + env(safe-area-inset-right))!important}
 }
 </style>`);
+
 // Fish Log on phones: the water list is one sideways-scrolling row (the chosen water scrolled into view), not five rows
 { const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){} }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13692,6 +13697,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .bwx-nav:not(.wd-nav) > button{min-height:34px!important}
 }
 </style>`);
+
 // the menu page never rubber-bands past its top or bottom (an older rule with a stronger selector kept "contain")
 document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscroll-behavior:none!important}</style>');
 // (the touch guard that used to sit here is replaced by the page-wide one at the end of this file, which also leaves
@@ -13756,6 +13762,7 @@ body.phone-app.dl-fish .hud .coin::before{margin-right:3px}
 </style>`);
 // phones: the cooler count without spaces ("140/140") so the biggest cooler still fits its chip
 { const c=$('coolerct'); if(c&&window.MutationObserver){ const fix=()=>{ const bc=document.body.classList; if(!(bc.contains('phone-app')||bc.contains('phone-land'))) return; const t=c.textContent; if(/\s\/\s/.test(t)) c.textContent=t.replace(/\s*\/\s*/,'/'); }; new MutationObserver(fix).observe(c,{childList:true,characterData:true,subtree:true}); fix(); addEventListener('resize',()=>setTimeout(fix,60)); } }
+
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.06fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1.16fr)!important}
 </style>`);
@@ -13820,6 +13827,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   body #menuov #tabs.secmode .secb .seclive{top:4px!important;left:4px!important}
 }
 </style>`);
+
 
 // =====================================================================
 // No Overview page (director, 2026-11-17): the Menu button, M and keys open the page you used last; the categories
@@ -13999,6 +14007,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) a
  #menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
  #menuov #panel > .wd-nav.wd-top > button{flex:1 0 auto!important}
 }</style>`);
+
 // ---------- top bar bait chip: the whole name always fits (2026-11-17) ----------
 // The closed picker used to show "Name (count)" in a ~55 px chip, so most names were cut off at every size. Now the count
 // sits on the label line ("BAIT · 12", with the picker arrow) and the name gets its own line: the full name, its text a
@@ -14048,6 +14057,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:560px){
  #menuov #panel .bwx-pf{flex-wrap:wrap;justify-content:stretch;gap:5px}
  #menuov #panel .bwx-pf .btn{flex:1 1 auto;min-width:0;padding-left:6px;padding-right:6px}
 }</style>`);
+
 // Aquarium on sideways phones and tablets: the tank comes straight under the earnings bar, so the whole tank is on screen
 // (with the side panel collapsed it fills the width); the boosts and the description follow it (director, 2026-11-17)
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){
@@ -14061,6 +14071,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
  #menuov #panel:has(> .tank) > .badges{order:4;margin-top:8px}
  #menuov #panel:has(> .tank) > .dl-head > :not(.bank){order:5;margin-top:6px}
 }</style>`);
+
 // heavy fog is drawn behind the dock, the angler and the pets (it used to be laid over them, washing out your own angler);
 // the far shore and the middle distance still fade into it, and a light veil stays over the near water (2026-11-17)
 { let FOG_EARLY=false; const _dwx=drawWeatherX, _vp=v3Platform;
@@ -14162,11 +14173,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   body #menuov #tabs.secmode .secb::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
 }
 </style>`); }
-// iPhone: holding a finger on the water (hold to reel) brought up iOS's magnifier loupe over the game. Touches on the game's
-// own drawing surfaces belong to the game: their default action is cancelled at touchstart, so iOS never starts its press-and-hold
-// tools there. The game reads these surfaces through pointer events, which still arrive.
-document.addEventListener('touchstart',e=>{ const t=e.target; if(t&&t.tagName==='CANVAS'&&(t.id==='cv'||t.id==='tankcv'||t.id==='homecv')&&e.cancelable) e.preventDefault(); },{passive:false});
-document.head.insertAdjacentHTML('beforeend',`<style>#cv,#tankcv,#homecv{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}</style>`);
+
 // Top bar (director, 2026-11-17): every chip that has a page opens it. Fishing at opens Waters (quick water changes), Cooler opens
 // the Cooler, like Aquarium and Fish Log. Bait is not on the top bar any more: it is chosen on the Bait list in Tackle, which shows the
 // bait in use. Its place goes to a Settings gear (phones had none). Fish Log stays on sideways phones at every width.
@@ -14214,86 +14221,9 @@ body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 6!important;grid-row:2!i
   html body.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,1fr) minmax(0,.9fr) auto!important;grid-template-areas:"coins lvl cool aq lg btns" "loc loc goal goal goal goal"!important}
 }
 </style>`);
-// =====================================================================
-// PC header (director, 2026-11-17): on PC the fishing screen uses the same top row as the menu, in the same place, so opening
-// and closing the menu only changes what is below it. Row 1: Driftline | the five categories | coins, search, settings.
-// Row 2: level, where you fish, the goal, cooler, aquarium, Fish Log (the menu shows its page tabs on this row). The category
-// bar under the water is gone on PC and the water reaches down to the bottom. Phones and tablets are unchanged.
-// =====================================================================
-{ const wrap=document.querySelector('.wrap'), hud=document.querySelector('.hud'), stage=$('stage');
-  const PCH=document.createElement('div'); PCH.id='pchead';
-  PCH.innerHTML=`<div class="pch-brand" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 7-5 10-5 3 0 5 2 7 5-2 3-4 5-7 5-3 0-7-1-10-5z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16" cy="11" r=".9" fill="currentColor"/></svg><span>Driftline</span></div><div class="pch-cats"></div><div class="pch-tools"><span class="pch-coin" title="Coins"><span class="coin" id="pchcoin">0</span></span><button type="button" class="pch-tb" data-pch="search" aria-label="Search the menus" title="Search the menus">🔍</button><button type="button" class="pch-tb" data-pch="settings" aria-label="Settings" title="Settings">⚙</button></div>`;
-  if(wrap&&hud) wrap.insertBefore(PCH,hud);
-  const cats=PCH.querySelector('.pch-cats'), coin=PCH.querySelector('#pchcoin');
-  PCH.querySelector('.pch-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-pch]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const t=$(b.dataset.pch==='search'?'searchbtn':'settingsbtn'); if(t) t.click(); });
-  const label=(full)=>CD.querySelectorAll('.cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=full?sec.name:(sec.short||sec.name); if(l.textContent!==t) l.textContent=t; } });
-  const on=()=>{ const b=document.body.classList; return b.contains('plat-pc')&&b.contains('pc-app')&&!b.contains('phone-app')&&!b.contains('phone-land')&&innerWidth>=800; };
-  let was=null; const apply=()=>{ const v=on(); if(v===was) return; was=v; document.body.classList.toggle('pch-on',v);
-    if(v){ if(CD.parentElement!==cats) cats.appendChild(CD); label(true); } else { if(CD.parentElement===cats&&stage) stage.after(CD); label(false); }
-    try{ requestAnimationFrame(()=>resize()); }catch(e){} };
-  const tick=()=>{ if(!was) return; try{ const v=fmtShort(S.money); if(coin.textContent!==v){ coin.textContent=v; PCH.querySelector('.pch-coin').title=fmt(S.money)+' coins'; } }catch(e){} };
-  addEventListener('resize',()=>setTimeout(apply,30)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,140));
-  new MutationObserver(()=>apply()).observe(document.body,{attributes:true,attributeFilter:['class']});
-  apply(); setTimeout(apply,80); setInterval(tick,400); tick(); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-#pchead{display:none}
-html body.pch-on.dl-fish .wrap{padding-left:4px!important;padding-right:4px!important;box-sizing:border-box}
-html body.pch-on.dl-fish #pchead{display:grid;grid-template-columns:190px minmax(0,1fr) auto;column-gap:14px;align-items:stretch;height:46px;margin:2px 0 0;flex:0 0 auto}
-body.pch-on #menuov .mo-back{width:190px;justify-content:flex-start;box-sizing:border-box}
-#pchead .pch-brand{display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:14px;border:1px solid #7fe3c433;background:linear-gradient(180deg,#132c3c,#0e2131);color:#dff7ef;font:800 16px var(--display,system-ui);letter-spacing:.01em;box-shadow:inset 0 1px 0 #ffffff12;user-select:none}
-#pchead .pch-brand svg{color:#7fe3c4;flex:0 0 auto}
-#pchead .pch-cats{margin-left:14px;min-width:0}
-html body.pch-on #pchead #catdock{position:static!important;inset:auto!important;transform:none!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;height:46px;width:100%;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;z-index:auto}
-html body.pch-on #pchead #catdock > #menubtn,html body.pch-on #pchead #catdock > .cdmini{display:none!important}
-html body.pch-on #pchead #catdock .cdb{position:relative!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:46px!important;min-width:0!important;padding:4px 10px!important;border-radius:16px!important;border:1px solid #26385180!important;background:linear-gradient(180deg,#16243a,#111c2e)!important;box-shadow:inset 0 1px 0 #ffffff12,inset 0 0 0 1px #ffffff06,0 4px 14px #02060f55!important;color:#a9bdd4!important;font:800 14px var(--display,system-ui)!important;transform:none!important;transition:border-color .15s,color .15s,background .15s!important}
-html body.pch-on #pchead #catdock .cdb svg{width:22px;height:22px;color:#7f97b2;flex:0 0 auto}
-html body.pch-on #pchead #catdock .cdb .cdl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
-html body.pch-on #pchead #catdock .cdb:hover{color:#eef3f8!important;border-color:#5a7ea866!important}
-html body.pch-on #pchead #catdock .cdb:hover svg{color:#7fe3c4}
-html body.pch-on #pchead #catdock .cdb:active{transform:scale(.985)!important}
-html body.pch-on #pchead #catdock .cddot{position:absolute!important;top:-7px!important;right:8px!important;left:auto!important;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a)!important;color:#2a1206!important;font:800 12px/20px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008!important}
-html body.pch-on #pchead #catdock .cdb.live::before{top:6px!important;left:8px!important}
-#pchead .pch-tools{display:flex;align-items:center;gap:8px}
-#pchead .pch-coin{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;box-sizing:border-box;border-radius:12px;background:#0d1a2c;border:1px solid #26385180;font:800 15px var(--display,system-ui);white-space:nowrap;color:#eef3f8}
-#pchead .pch-tb{width:42px;height:42px;border-radius:12px;border:1px solid #26385180;background:#111c2e;color:#dbe7f3;font-size:18px;cursor:pointer;transition:border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;padding:0}
-#pchead .pch-tb:hover{border-color:#5a7ea8aa;color:#fff}
-#pchead .pch-tb:focus-visible,html body.pch-on #pchead #catdock .cdb:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
-/* row 2: the info chips, the height and place of the menu's page tabs */
-html body.pch-on.dl-fish .hud{display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;grid-template-areas:none!important;gap:8px!important;height:50px;margin:-2px 0 0!important;padding:0!important;flex:0 0 auto}
-html body.pch-on.dl-fish .hud > *{height:50px!important;grid-area:auto!important}
-html body.pch-on.dl-fish .hud > .st-coins,html body.pch-on.dl-fish .hud > .hudbtns,html body.pch-on.dl-fish .hud > .brand,html body.pch-on.dl-fish .hud > .st-buff,html body.pch-on.dl-fish .hud > .st-bait{display:none!important}
-html body.pch-on.dl-fish .hud > .st-lvl{flex:0 0 190px!important;max-width:none!important;box-sizing:border-box}
-html body.pch-on.dl-fish .hud > .stat.loc{flex:0 0 auto!important;max-width:none!important}
-html body.pch-on.dl-fish .hud > #goalchip{flex:1 1 0!important;min-width:140px!important;max-width:none!important}
-html body.pch-on.dl-fish .hud > .st-cool,html body.pch-on.dl-fish .hud > .st-aq,html body.pch-on.dl-fish .hud > .st-log{flex:0 0 auto!important;max-width:none!important;min-width:96px}
-html body.pch-on.dl-fish .hud > .stat b{white-space:nowrap}
-html body.pch-on.dl-fish #stage{margin-left:0!important;margin-right:0!important}
-html body.pch-on.dl-fish .wrap > #catdock{display:none!important}
-/* up to 1100 px the menu puts its categories on their own row under Back; the header does the same so both still line up */
-@media (max-width:1100px){ html body.pch-on.dl-fish #pchead{grid-template-rows:46px 46px;row-gap:6px;height:auto} #pchead .pch-brand{grid-row:1;grid-column:1} #pchead .pch-tools{grid-row:1;grid-column:3} #pchead .pch-cats{grid-row:2;grid-column:1 / -1;margin-left:0} html body.pch-on.dl-fish .hud > .st-cool,html body.pch-on.dl-fish .hud > .st-aq,html body.pch-on.dl-fish .hud > .st-log{min-width:0} }
-</style>`);
-// PC: switching between the fishing screen and the menu keeps the top row perfectly still (it is the same row in both) and only
-// fades what changes under it: the info chips or page tabs, and the water or the page. The menu sits on the same background.
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #menuov{background:radial-gradient(1400px 700px at 50% -15%,#1b2c4a 0%,#0e1830 45%,#0a1220 75%) #0a1220!important}
-body.pch-on #menuov.mo-show{animation:none!important}
-body.pch-on #menuov.mo-show #tabs .subbar{animation:pchIn .2s ease-out both} /* the page itself already fades in on PC (pagein) */
-body.pch-on .wrap.wrapin{animation:none!important}
-body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:pchIn .2s ease-out both}
-@keyframes pchIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){body.pch-on #menuov.mo-show #tabs .subbar,body.pch-on #menuov.mo-show #panel,body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:none!important}}
-</style>`);
-// PC: the Dock preview was always drawn as a 900x360 picture and stretched across the wide full-screen card, so it looked soft.
-// It now draws at the card's real size on screen (screen scaling included), with the same layout: the drawing still works in
-// 900x360 units and is scaled up, so nothing moves. Dragging decorations keeps working (it reads the canvas size).
-{ const _ph3=paintHome3;
-  paintHome3=function(c){ if(!c||c.id!=='homecv') return _ph3(c); if(!document.body.classList.contains('pch-on')){ if(c.dataset.lw&&c.width!==+c.dataset.lw){ c.width=+c.dataset.lw; c.height=+c.dataset.lh; } return _ph3(c); }
-    const lw=+c.dataset.lw||c.width, lh=+c.dataset.lh||c.height; c.dataset.lw=lw; c.dataset.lh=lh;
-    const r=c.getBoundingClientRect(); if(!r.width) return _ph3(c);
-    const k=Math.max(1,Math.min(3,r.width*Math.min(2,window.devicePixelRatio||1)/lw)), cw=Math.round(lw*k), ch=Math.round(lh*k);
-    if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
-    const x=c.getContext('2d'); const view={width:lw,height:lh,getContext:()=>{ x.setTransform(k,0,0,k,0,0); return x; }};
-    try{ return _ph3(view); } finally{ x.setTransform(1,0,0,1,0,0); } }; }
+
+
+
 // Settings is labelled wherever there is room (director, 2026-11-17): "⚙ Settings" on sideways phones (the goal gives up the room)
 // and on PC, where the fishing header and the menu header use the very same button so both rows still line up. Phones held
 // upright keep the gear alone: their top row has no room left for a word.
@@ -14343,79 +14273,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // A water thumbnail is drawn on the game canvas; afterwards the game's own scenery picture is put back, so the next frame does not
 // have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
 { const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
-// PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
-// 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
-// page or section change and window resize.
-{ let q=0; const P=()=>$('panel');
-  // one measurement at the current zoom gives the exact zoom that fits (the page's height scales with it), so the page is laid
-  // out once or twice instead of up to four times (each pass cost ~17 ms on the biggest pages: that was menu lag in full screen).
-  // Every page remembers its zoom (per section and window size) and starts from it, so reopening it usually needs no change at all.
-  const ceil=new Map(), cache=new Map(), key=()=>{ const p=P(), on=p&&p.querySelector('.bwx-nav [aria-pressed="true"],.bwx-nav [aria-selected="true"],.bwx-nav .on,.fr-cat[aria-pressed="true"]'); return S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+(on?on.textContent.trim().slice(0,24):'')+'|'+innerWidth+'x'+innerHeight; }; /* per page, per section tab (sections that redraw the page too), per window size */
-  const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
-    if(!on||document.body.classList.contains('pc-fhd')){ if(p.style.zoom) p.style.zoom=''; return; } /* full HD: one fixed size on every page (director, 2026-11-17: headers and sizes must never change between tabs; a zoom per page also moved buttons under the cursor right after a click) */
-    if(p.classList.contains('fl-on')||p.classList.contains('aq-on')||p.classList.contains('od-on')||[...p.querySelectorAll('.pc-pn')].some(e=>e.offsetParent!==null)){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log and the patch-notes reader size themselves to the screen
-    const z0=+p.style.zoom||1, ch=p.clientHeight, sh=p.scrollHeight; if(!ch||!sh) return;
-    // full HD (body.pc-fhd): a page with room to spare grows until it fills the screen (up to 125%), so it reads well from the chair;
-    // its real content height is measured from its first box to its last (the page's own height never drops below the screen's)
-    const big=document.body.classList.contains('pc-fhd'), MAXZ=big?1.25:1; let z;
-    if(big){ const R=p.getBoundingClientRect(), cs=getComputedStyle(p); let top=Infinity, bot=-Infinity; for(const c of p.children){ if(c.offsetParent===null&&getComputedStyle(c).position!=='fixed') continue; const r=c.getBoundingClientRect(); if(!r.height) continue; top=Math.min(top,r.top); bot=Math.max(bot,r.bottom); }
-      if(bot>top){ const pad=(parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom))*z0, need=bot-top+pad, avail=R.height; z=z0*avail/need-.004; } else z=1;
-      if(sh>ch+2) ceil.set(key(),Math.min(ceil.get(key())||9,z0-.004)); /* this zoom overflowed: never grow back to it */
-      z=Math.max(.76,Math.min(MAXZ,ceil.get(key())||9,z)); }
-    else z=sh<=ch+2?Math.min(1,z0*ch/sh):Math.max(.76,z0*ch/sh-.003);
-    if(Math.abs(z-1)<.004) z=1;
-    if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<4) soon(); } cache.set(key(),z); };
-  let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
-  const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
-  const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
-  addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
-  window.__pcfitSoon=()=>{ passes=0; soon(); }; // a page that changes its own content (a category picked) asks for a fresh fit
-  if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
-body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
-body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
-body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
-</style>`);
-// =====================================================================
-// PC: continuous day, night and weather (director, 2026-11-17: the light changes must be as smooth as the frame rate). The light
-// follows the clock, so the scenery for 3 s from now can be drawn ahead of time, between frames; every frame blends from the
-// current picture to that one by exactly how far the clock has moved. No steps, no pops, at any frame rate. If something else is
-// changing the light right now (it does not match the clock), the stepped fade is used for that moment instead. Phones unchanged.
-// =====================================================================
-{ const POOL=[document.createElement('canvas'),document.createElement('canvas'),document.createElement('canvas')], D=3000;
-  let A=null, B=null, base='', bq=0, fallbackUntil=0; const _ld=v3landDraw;
-  const pcOn=()=>document.body.classList.contains('pch-on');
-  const lightAt=ms=>{ const real=Date.now, off=ms-real(); Date.now=()=>real()+off;
-    try{ const L=curLoc(), p=phase(), wx=weather(), night=nightness(p);
-      const dusk=Math.max(0,1-Math.abs(p-.5)/.06)+Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7, wa=wxAmt();
-      const gloom=(wx.k==='Storm'?.7:wx.k==='Rain'?.38:wx.k==='Fog'?.3:0)*wa+(L.id==='deep'?.1:0); return {night,dusk,gloom}; }
-    finally{ Date.now=real; } };
-  const buildAt=(L,ms,hz)=>{ const lt=lightAt(ms), keep=[V3CACHE,V3PREV,v3palette.k,v3palette.v];
-    const tgt=POOL.find(c=>(!A||c!==A.c)&&(!B||c!==B.c));
-    try{ const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms}; }
-    finally{ v3land.now=false; V3CACHE=keep[0]; V3PREV=keep[1]; v3palette.k=keep[2]; v3palette.v=keep[3]; } };
-  v3landDraw=function(L,P,hz){ const now=Date.now(); if(!pcOn()||now<fallbackUntil){ A=B=null; base=''; return _ld.apply(this,arguments); }
-    const b=L.id+'|'+W+'|'+H+'|'+DPR;
-    if(b!==base||!A||now<A.ms-50||now>(B?B.ms:A.ms)+D*2){
-      // does the clock explain the light on screen? (events and tests can set it by hand)
-      const lt=lightAt(now), d=clamp(lt.dusk,0,1)*(1-lt.night*.45);
-      if(Math.abs(lt.night-(P.night||0))>.03||Math.abs(d-(P.d||0))>.03||Math.abs(lt.gloom-(P.gloom||0))>.03){ fallbackUntil=now+4000; A=B=null; base=''; return _ld.apply(this,arguments); }
-      base=b; clearTimeout(bq); bq=0; B=null; A=buildAt(L,now,hz); V3CACHE={key:'#pchA',base:b,c:A.c}; V3PREV=null; }
-    if(B&&now>=B.ms){ A=B; B=null; V3CACHE={key:'#pchA',base:b,c:A.c}; }
-    if(!B&&!bq){ const ms=A.ms+D; bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
-    g.drawImage(A.c,0,0,W,H);
-    if(B){ const a=clamp((now-A.ms)/(B.ms-A.ms),0,1); if(a>0){ g.globalAlpha=a; g.drawImage(B.c,0,0,W,H); g.globalAlpha=1; } } };
-  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil}); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: the count badges on the category tabs sit on the tab's top edge, fully inside the screen (they were cut off by 4 px);
-   the menu's category badges move the same way so both header rows still match */
-html body.pch-on #pchead #catdock .cddot{top:-3px!important}
-body.pch-on #menuov #tabs.secmode .secdot{top:-3px!important}
-/* phones upright: the goal keeps to one line, so the top bar never changes height (the water was not re-measured when it did) */
-body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
-</style>`);
+
+
 // opening or closing the menu changes the layout under the water: measure the water again on the next frame (does not depend on
 // the browser's size watcher, which some browsers deliver late)
 { const _mm=menuMode; menuMode=function(){ const was=MENU_OPEN, r=_mm.apply(this,arguments); if(was!==MENU_OPEN) requestAnimationFrame(()=>{ try{ resize(); }catch(e){} }); return r; }; }
@@ -14483,197 +14342,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .grid > .feat-cat:first-child{margin-top:0}
 #panel .grid > .feat-cat .meta{text-transform:none;letter-spacing:0;font-weight:700;color:#8fa6bf}
 </style>`);
-// PC: patch notes made for a big screen (director, 2026-11-17: hard to read). A wide card on a dimmed game, each update split into
-// titled section cards laid out side by side; lists without headings are grouped by what they are about (PC, Phones, iPhone,
-// Menus, Everywhere) and the prefix is dropped. Phones keep the narrow card.
-{ const _ph=patchHTML;
-  const groups=p=>{ const out=[]; let cur=null; const hasH=p.items.some(i=>i.startsWith('## '));
-    if(hasH){ for(const i of p.items){ if(i.startsWith('## ')){ cur={t:i.slice(3),items:[]}; out.push(cur); } else { if(!cur){ cur={t:'What changed',items:[]}; out.push(cur); } cur.items.push(i); } } return out; }
-    const PRE=[['PC','PC'],['Phones','Phones'],['iPhone','iPhone'],['Menus on phones held sideways','Phones'],['Menus','Menus']], by={};
-    for(const i of p.items){ const m=i.match(/^([A-Za-z ]+?):\s+(.*)$/); let g='Everywhere', txt=i; if(m){ const hit=PRE.find(([k])=>k===m[1]); if(hit){ g=hit[1]; txt=m[2].charAt(0).toUpperCase()+m[2].slice(1); } } (by[g]=by[g]||[]).push(txt); }
-    return ['Everywhere','Menus','PC','Phones','iPhone'].filter(g=>by[g]).map(g=>({t:g,items:by[g]})); };
-  // changes for every platform first, platform-only changes at the end (director, 2026-11-17)
-  const PLAT=['PC','Phones','iPhone','Android','Tablets'], organized=p=>{ const gs=groups(p); return gs.filter(g=>!PLAT.includes(g.t)).concat(PLAT.flatMap(t=>gs.filter(g=>g.t===t))); };
-  patchHTML=function(p){ if(!document.body.classList.contains('pch-on')){ const gs=organized(p); if(gs.length<2&&!p.items.some(i=>i.startsWith('## '))) return _ph(p); return _ph(Object.assign({},p,{items:gs.flatMap(g=>['## '+g.t].concat(g.items))})); }
-    const gs=organized(p); return `<div class="pn-head"><div class="rar" style="color:var(--gold)">${p.label?esc(p.label):'Update '+esc(p.v)}</div><h3>${esc(p.name)}</h3></div><div class="pn-grid">${gs.map(g=>`<section class="pn-sec"><h4>${esc(g.t)}</h4><ul>${g.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>`; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #evcard{background:rgba(4,9,18,.66)!important}
-body.pch-on #evin:has(.pn-grid){width:min(1080px,92vw)!important;max-width:none!important;max-height:86vh!important;padding:22px 26px!important;text-align:left}
-body.pch-on #evin:has(.pn-grid) > .rar,body.pch-on #evin:has(.pn-grid) > h3,body.pch-on #evin:has(.pn-grid) > p.sub{text-align:center}
-body.pch-on #evin .pn-head{text-align:center;margin:6px 0 10px}
-body.pch-on #evin .pn-head h3{font-size:24px;margin:2px 0 0}
-body.pch-on #evin .pn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
-body.pch-on #evin .pn-sec{background:#0e1a2c;border:1px solid #ffffff14;border-radius:14px;padding:12px 14px 10px}
-body.pch-on #evin .pn-sec h4{margin:0 0 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #evin .pn-sec ul{margin:0;padding-left:18px;max-height:none!important;overflow:visible!important}
-body.pch-on #evin .pn-sec li{font-size:14.5px;line-height:1.5;color:#dbe6f2;margin:0 0 6px}
-body.pch-on #evin .pn-sec li:last-child{margin-bottom:0}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .featboard{display:grid;gap:10px;align-items:start;margin-top:4px}
-body.pch-on #panel .fb-col{display:flex;flex-direction:column;gap:9px;min-width:0}
 
 
-body.pch-on #panel .fb-cat{margin:0;background:linear-gradient(180deg,#132238,#0f1b2d);border:1px solid #ffffff14;border-radius:14px;padding:8px 10px 4px;box-shadow:inset 0 1px 0 #ffffff0d}
-body.pch-on #panel .fb-cat header{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #panel .fb-cat header .fb-n{letter-spacing:0;color:#8fa6bf;font-weight:700}
-body.pch-on #panel .fb-cat ul{list-style:none;margin:0;padding:0}
-body.pch-on #panel .fb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:2px;padding:3px 4px 4px;border-top:1px solid #ffffff0a}
-body.pch-on #panel .fb-row:first-child{border-top:0}
-body.pch-on #panel .fb-name{font:700 13px var(--display,system-ui);color:#eef3f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #panel .fb-cnt{font:700 12px var(--display,system-ui);color:#9fb2c8;white-space:nowrap}
-body.pch-on #panel .fb-bar{display:block;height:3px;border-radius:4px;background:#ffffff14;overflow:hidden;align-self:center}
-body.pch-on #panel .fb-bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pch-on #panel .fb-rew{font-size:11.5px;color:#c9d7e8;white-space:nowrap;text-align:right}
-body.pch-on #panel .fb-row.done{opacity:.55}
-body.pch-on #panel .fb-row.done .fb-name{color:#7fe3c4}
-body.pch-on #panel .fb-row.done .fb-bar b{background:#7fe3c4}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: Next goal is as wide as its text needs (at most 460 px); cooler, aquarium and Fish Log sit together at the right */
-html body.pch-on.dl-fish .hud > #goalchip{flex:0 1 auto!important;width:auto!important;max-width:460px!important;min-width:200px!important}
-html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}
-</style>`);
-// =====================================================================
-// PC: the Fish Log as one organized screen (director, 2026-11-17: "hunt on pc doesn't look good, we need a better fish log setup
-// for pc"). Three columns: WATERS (every water with its progress, the Show filter under it) | the water's fish grouped by rarity |
-// HUNTS + the picked fish's records. The hunt button on each card becomes a small target in its corner, so the grid stays calm.
-// Built from the page the other platforms use (same buttons, same actions), so phones and tablets are unchanged.
-// =====================================================================
-{ const _rj=renderJournal;
-  const fitH=()=>{}; // the columns take the page's height through CSS (flex), so nothing is measured
-  renderJournal=function(P){ _rj(P); if(!document.body.classList.contains('pch-on')||innerWidth<1100) return; /* the three columns need room */ try{
-    P.style.zoom=''; const kids=[...P.children]; const pick=f=>kids.find(f);
-    const crumb=pick(c=>c.classList.contains('crumb')), head=pick(c=>c.classList.contains('dl-head')),
-      water=pick(c=>c.classList.contains('chips')&&c.querySelector('[data-act="encloc"]')), show=pick(c=>c.classList.contains('logshow')), sec=pick(c=>c.classList.contains('jsec'));
-    if(!water) return;
-    const top=document.createElement('div'); top.className='fl-top';
-    const sum=head&&head.querySelector('p.sub'); const ts=totalStars(), rk=anglerRank();
-    top.innerHTML=`<div class="fl-rank" title="Catch a species 3, 10, 30 and 100 times for its stars. Each star adds +10% to that fish’s value. Every 8 stars is a new rank, with coins and a free Mystery Crate."><span class="rar">Angler rank ${rk}</span><b>${ts} ★</b><span class="meta">+${rk}% to every sale</span><span class="fl-rbar"><i style="width:${ts%8/8*100}%"></i></span><span class="meta">${ts%8} / 8 to rank ${rk+1}</span></div><div class="fl-sum">${Object.keys(S.journal).length} of ${SP.length} species found · ${fmt(S.stats.caught)} fish landed · ${S.stats.shiny} shiny · ${fmt(S.stats.earned)} coins earned</div>`;
-    const wrap=document.createElement('div'); wrap.className='fl-pc';
-    // left: waters
-    const side=document.createElement('aside'); side.className='fl-side';
-    side.insertAdjacentHTML('beforeend','<h5>Waters</h5>'); const wl=document.createElement('div'); wl.className='fl-waters';
-    [...water.querySelectorAll('[data-act="encloc"]')].forEach(b=>{ const m=b.textContent.trim().match(/^(.*?)\s+(\d+)\/(\d+)$/); if(m){ const k=b.dataset.k, here=k===S.loc, done=+m[2]>=+m[3];
-        const locked=k!=='junk'&&!S.unlocked.includes(k);
-        b.className='fl-w'+(done?' done':'')+(locked?' locked':''); b.innerHTML=`<span class="fl-wn">${esc(m[1])}${here?' <em title="You are fishing here">●</em>':''}</span><span class="fl-wc">${locked?'🔒':m[2]+' / '+m[3]}</span><span class="fl-wb"><i style="width:${+m[2]/+m[3]*100}%"></i></span>`; }
-      wl.appendChild(b); });
-    side.appendChild(wl);
-    if(show){ side.insertAdjacentHTML('beforeend','<h5>Show</h5>'); show.classList.add('fl-show'); side.appendChild(show); }
-    if(sec){ sec.classList.add('fl-sec'); side.appendChild(sec); }
-    // middle: the fish
-    const main=document.createElement('section'); main.className='fl-main';
-    const grid=P.querySelector('.jgrid'); const L=encLoc!=='junk'?LOCS[locIdx(encLoc)]:null;
-    const mh=document.createElement('div'); mh.className='fl-mh';
-    if(L){ const got=caughtAt(L.id), n=spAt(L.id).length; mh.innerHTML=`<div><h3>${esc(L.name)}</h3><span class="meta">${got} / ${n} found${S.setDone[L.id]?' · complete':` · find them all for <span class="coin">${fmt(L.bonus)}</span>`}${S.unlocked.includes(L.id)?'':' · water locked'}</span></div><span class="fl-mbar"><i style="width:${got/n*100}%"></i></span><div class="fl-leg">${[...new Set(spAt(L.id).map(x=>x.r))].sort((a,b)=>a-b).map(r=>{ const all=spAt(L.id).filter(x=>x.r===r), g=all.filter(x=>S.journal[x.id]).length; return `<span style="--rc:${RAR[r].c}"><i></i>${RAR[r].k} <b>${g}/${all.length}</b></span>`; }).join('')}</div>`; }
-    else mh.innerHTML=`<div><h3>Oddities</h3><span class="meta">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</span></div>`;
-    main.appendChild(mh);
-    const emp=P.querySelector('.empty'); if(emp) main.appendChild(emp);
-    if(grid){ main.appendChild(grid);
-      if(L){ // rarity headings: the grid is sorted by rarity already
-        let last=-1; [...grid.children].forEach(cell=>{ const c=cell.matches('.jcard')?cell:cell.querySelector('.jcard'); const s=c&&SPI[c.dataset.k]; if(!s) return;
-          if(s.r!==last){ last=s.r; cell.classList.add('fl-first'); cell.dataset.rk=RAR[s.r].k; }
-          cell.style.setProperty('--rc',RAR[s.r].c);
-          // the rarity shows as the colour stripe and the legend: the card keeps day/night and the bait hint on one short line
-          const sm=[...c.querySelectorAll('small')], first=sm.find(x=>!x.classList.contains('loghint')&&!x.classList.contains('sh')&&x.textContent.indexOf(RAR[s.r].k)===0);
-          if(first){ const rest=first.textContent.slice(RAR[s.r].k.length).replace(/^\s*·\s*/,''); const hint=c.querySelector('small.loghint');
-            if(hint){ if(rest) hint.insertAdjacentText('afterbegin',(rest==='day'?'☀':rest==='night'?'☾':rest)+' '); first.remove(); } else if(rest) first.textContent=rest; else first.remove(); }
-          c.title=(S.journal[s.id]?s.name:'Not caught yet')+' · '+RAR[s.r].k+(s.time!=='any'?' · '+(s.time==='night'?'night only':'day only'):''); }); } }
-    // right: hunts + the picked fish
-    const right=document.createElement('aside'); right.className='fl-right';
-    const bar=P.querySelector('.hunt-bar'); if(bar) right.appendChild(bar);
-    const det=P.querySelector('.tile.detail');
-    if(det) right.appendChild(det);
-    else if(L) right.insertAdjacentHTML('beforeend',`<div class="tile fl-pickhint"><b>Click a fish</b><span class="meta">See its records, size range, when it bites and your chance to catch it here. Fish you are missing can be hunted with the 🎯 in a card’s corner.</span></div>`);
-    if(L) wrap.append(side,main,right); else { wrap.classList.add('fl-wide'); wrap.append(side,main); }
-    // remove what is left of the old layout and put the new one in
-    kids.forEach(c=>{ if(c!==crumb&&c.parentNode===P) c.remove(); });
-    const ttl=document.createElement('h2'); ttl.className='dl-dup'; ttl.hidden=true; ttl.textContent='Fish Log'; // the page title the tidy pass looks for (else it would rename the fish card's heading)
-    P.append(ttl,top,wrap); P.classList.add('fl-on');
-    fitH(P); requestAnimationFrame(()=>fitH(P));
-    const selCard=grid&&grid.querySelector('.jcard.sel'); if(selCard){ const r=selCard.getBoundingClientRect(), m=main.getBoundingClientRect(); if(r.bottom>m.bottom||r.top<m.top) selCard.scrollIntoView({block:'nearest'}); }
-  }catch(e){ console.error(e); } };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('fl-on'); return _rp.apply(this,arguments); };
-  addEventListener('resize',()=>setTimeout(()=>{ const P=$('panel'); if(P&&P.classList.contains('fl-on')) fitH(P); },80)); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel.fl-on{overflow:hidden!important;display:flex!important;flex-direction:column!important}
-body.pch-on #panel.fl-on > *{flex:0 0 auto}
-body.pch-on #panel.fl-on > .fl-pc{flex:1 1 0;min-height:0}
-body.pch-on #panel .fl-top{display:flex;align-items:center;gap:18px;margin:2px 0 10px;flex-wrap:wrap}
-body.pch-on #panel .fl-rank{display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:12px;background:#0e1a2c;border:1px solid #ffffff14;cursor:help}
-body.pch-on #panel .fl-rank .rar{color:var(--gold,#ffd36a)}
-body.pch-on #panel .fl-rank b{font:800 15px var(--display,system-ui);color:#ffe6a8}
-body.pch-on #panel .fl-rbar,body.pch-on #panel .fl-mbar,body.pch-on #panel .fl-wb{display:block;height:4px;border-radius:4px;background:#ffffff14;overflow:hidden}
-body.pch-on #panel .fl-rbar{width:90px}
-body.pch-on #panel .fl-rbar i,body.pch-on #panel .fl-mbar i,body.pch-on #panel .fl-wb i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pch-on #panel .fl-sum{flex:1;min-width:0;font-size:12.5px;color:#9fb2c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #panel .fl-pc{display:grid;grid-template-columns:210px minmax(0,1fr) 320px;gap:14px;min-height:0}
-body.pch-on #panel .fl-pc.fl-wide{grid-template-columns:210px minmax(0,1fr)}
-body.pch-on #menuov #panel .fl-wide .fl-main .jgrid{row-gap:5px!important;padding-top:0}
-@media (min-width:1700px) and (min-height:1000px){ body.pch-on #menuov #panel .fl-pc:not(.fl-wide) .fl-main .jgrid{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))!important;row-gap:14px!important} body.pch-on #panel .fl-pc:not(.fl-wide) .fl-main .jcard canvas{max-height:58px} body.pch-on #panel .fl-pc:not(.fl-wide) .fl-main .jcard b{font-size:13px!important} body.pch-on #panel .fl-pc:not(.fl-wide) .fl-main .jcard small{font-size:11px!important} body.pch-on #panel .fl-pc{grid-template-columns:230px minmax(0,1fr) 360px} body.pch-on #panel .fl-pc.fl-wide{grid-template-columns:230px minmax(0,1fr)} }
-body.pch-on #panel .fl-wide .fl-main .jcard canvas{max-height:32px}
-body.pch-on #panel .fl-pc > *{min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#ffffff22 transparent}
-body.pch-on #panel .fl-pc h5{margin:4px 2px 6px;font:800 11.5px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#8fa6bf}
-body.pch-on #panel .fl-side h5:not(:first-child){margin-top:14px}
-body.pch-on #panel .fl-waters{display:flex;flex-direction:column;gap:3px}
-body.pch-on #panel .fl-w{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:4px;column-gap:8px;align-items:center;text-align:left;padding:7px 10px 8px;border-radius:10px;border:1px solid transparent;background:#ffffff06;color:#dbe6f2;cursor:pointer;font:700 13px var(--display,system-ui)}
-body.pch-on #panel .fl-w:hover{background:#ffffff10;border-color:#ffffff1c}
-body.pch-on #panel .fl-w[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff66;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pch-on #panel .fl-w .fl-wn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #panel .fl-w .fl-wn em{font-style:normal;color:#7fe3c4;font-size:10px;vertical-align:1px}
-body.pch-on #panel .fl-w .fl-wc{font-size:11.5px;color:#9fb2c8;font-variant-numeric:tabular-nums}
-body.pch-on #panel .fl-w .fl-wb{grid-column:1 / -1}
-body.pch-on #panel .fl-w.done .fl-wc{color:#7fe3c4}
-body.pch-on #panel .fl-w.locked{opacity:.55}
-body.pch-on #panel .fl-show{display:flex!important;flex-direction:column;flex-wrap:nowrap!important;gap:3px;margin:0!important}
-body.pch-on #panel .fl-show .chipb{justify-content:flex-start;text-align:left;width:100%;border-radius:10px}
-body.pch-on #panel .fl-sec{margin-top:14px;font-size:11.5px;line-height:1.5}
-body.pch-on #panel .fl-main{display:flex;flex-direction:column;gap:8px;padding-right:4px}
-body.pch-on #panel .fl-mh{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;position:sticky;top:0;z-index:3;background:linear-gradient(#0b1626 85%,#0b162600);padding-bottom:8px}
-body.pch-on #panel .fl-mh h3{display:inline-block;margin:0 12px 0 0!important;vertical-align:-2px;font:800 19px var(--display,system-ui);color:#fff}
-body.pch-on #menuov #panel .fl-main .jgrid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))!important;gap:11px 5px!important;margin:0!important}
-body.pch-on #panel .fl-rh{grid-column:1 / -1;display:flex;align-items:center;gap:8px;margin:6px 2px 0;font:800 12px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase}
-body.pch-on #panel .fl-rh:first-child{margin-top:0}
-body.pch-on #panel .fl-rh i{width:8px;height:8px;border-radius:50%}
-body.pch-on #panel .fl-rh .meta{letter-spacing:0;text-transform:none}
-body.pch-on #panel .fl-main .jcell,body.pch-on #panel .fl-main .jgrid > .jcard{position:relative}
-body.pch-on #panel .fl-main .jcard{padding:5px 4px 6px!important;gap:1px!important;min-height:0!important;box-shadow:inset 0 3px 0 color-mix(in srgb,var(--rc,#ffffff) 75%,transparent)}
-body.pch-on #panel .fl-main .fl-first::after{content:attr(data-rk);position:absolute;left:5px;top:-7px;z-index:2;padding:0 5px;border-radius:5px;background:var(--rc);color:#08111d;font:900 8.5px/13px var(--display,system-ui);letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
-body.pch-on #panel .fl-main .jgrid{padding-top:7px}
-body.pch-on #panel .fl-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:11.5px;color:#9fb2c8}
-body.pch-on #panel .fl-leg span{display:inline-flex;align-items:center;gap:5px}
-body.pch-on #panel .fl-leg i{width:9px;height:9px;border-radius:3px;background:var(--rc)}
-body.pch-on #panel .fl-leg b{color:#e6eef7;font-weight:700}
-body.pch-on #panel .fl-main .jcard canvas{width:100%!important;height:auto!important;aspect-ratio:2/1;max-height:38px;object-fit:contain}
-body.pch-on #panel .fl-main .jcard b{font-size:12px!important;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body.pch-on #panel .fl-main .jcard small{font-size:10.5px!important;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body.pch-on #panel .fl-main .jcard.sel{outline:2px solid #ffd36a;outline-offset:-1px}
-body.pch-on #panel .fl-main .jcard .hunt-tag{top:4px;left:4px;font-size:8.5px;padding:1px 5px}
-/* the hunt toggle: a small target in the card's top right corner (shown on hover, always shown while hunting) */
-body.pch-on #panel .fl-main .hunt-t{position:absolute;top:4px;right:4px;z-index:2;margin:0;width:26px;height:26px;min-height:0!important;padding:0;border-radius:50%;display:grid;place-items:center;font-size:0;background:#06101ccc;border:1px solid #ffffff26;opacity:0;transition:opacity .12s}
-body.pch-on #panel .fl-main .hunt-t::before{content:"🎯";font-size:13px}
-body.pch-on #panel .fl-main .jcell:hover .hunt-t,body.pch-on #panel .fl-main .hunt-t:focus-visible,body.pch-on #panel .fl-main .hunt-t.on{opacity:1}
-body.pch-on #panel .fl-main .hunt-t.on{background:#ffb36a;border-color:#ffb36a}
-body.pch-on #panel .fl-main .hunt-t:hover{border-color:#ffb36a;background:#2a1a0c}
-body.pch-on #panel .fl-main .hunt-t.on:hover{background:#ffc78a}
-body.pch-on #panel .fl-right{display:flex;flex-direction:column;gap:10px}
-body.pch-on #panel .fl-right .hunt-bar{margin:0!important}
-body.pch-on #panel .fl-right .hunt-bar .meta{font-size:12px;line-height:1.45}
-body.pch-on #panel .fl-right .tile.detail{margin:0!important;display:flex!important;flex-direction:column!important;gap:6px;padding:12px!important}
-body.pch-on #panel .fl-right .tile.detail canvas{width:100%!important;height:auto!important;max-width:none!important;aspect-ratio:2/1}
-body.pch-on #panel .fl-right .tile.detail h2{font-size:19px;margin:2px 0}
-body.pch-on #panel .fl-right .tile.detail .kv{grid-template-columns:1fr 1fr!important;gap:4px 10px!important;font-size:12px}
-body.pch-on #panel .fl-right .tile.detail .sub{font-size:12px}
-body.pch-on #panel .fl-pickhint{display:flex;flex-direction:column;gap:6px;padding:14px!important;border-style:dashed!important}
-body.pch-on #panel .fl-pickhint b{font:800 14px var(--display,system-ui)}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: Set sail again: the voyage card on the left, the milestones beside it in two columns (it was squeezed into two narrow
-   grid cells, one word per line) */
-body.pch-on #panel .grid:has(> .tile .voy-list){grid-template-columns:minmax(300px,380px) minmax(0,1fr)!important;align-items:start}
-body.pch-on #panel .tile .voy-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-body.pch-on #panel .voy-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
-</style>`);
 // Pets > Find more: the "Show pets that boost" label stayed above a filter that is hidden on that tab (all platforms).
 // PC: the shop cards are compact and the pets still to discover become short wide rows, so the page fits the screen.
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
@@ -14691,212 +14361,10 @@ body.pch-on #panel .tile.pet-hid h4{display:none}
 body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
 body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
 </style>`);
-// PC, Pets > Find more: headings over the pets you can adopt and the ones still to find; they follow the section tabs
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return r;
-      const add=(sel,txt)=>{ const list=[...g.querySelectorAll(':scope > '+sel)]; if(!list.length) return; const h=document.createElement('div'); h.className='pet-h'; h.dataset.for=sel; h.innerHTML=`<span>${txt}</span><span class="meta">${list.length}</span>`; g.insertBefore(h,list[0]); };
-      add('.pet-sale','Adopt'); add('.pet-hid','Still to find');
-      const sync=()=>g.querySelectorAll('.pet-h').forEach(h=>{ const n=[...g.querySelectorAll(':scope > '+h.dataset.for)].filter(t=>t.style.display!=='none').length; h.style.display=n?'':'none'; h.querySelector('.meta').textContent=n; });
-      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .grid > .pet-h{grid-column:1 / -1;display:flex;align-items:baseline;gap:8px;margin:6px 2px -2px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#cfe0f2}
-body.pch-on #panel .grid > .pet-h:first-child{margin-top:0}
-body.pch-on #panel .grid > .pet-h .meta{letter-spacing:0}
-body.pch-on #panel .tile.pet-hid canvas{align-self:center}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the pet filter belongs to "Your pets": the page hides it on the other tabs, and the one-row phone style must not show it again */
-#menuov #panel .chips.pet-filter[style*="display: none"],#menuov #panel .chips.pet-filter[style*="display:none"]{display:none!important}
-</style>`);
-// =====================================================================
-// PC quality of life (director, 2026-11-17: "on pc there's no exit button?", "a settings rework for pc where pc has exclusive
-// controls and options. Nothing new, just QOL", "gold got moved? I liked it next to level").
-// - Coins are back next to Level on the info row; the header keeps the same width so it still lines up with the menu's row.
-// - A full screen button beside search, in the header and in the menus (Exit full screen when you are in it), and the F key.
-// - Settings on PC: Sound, Controls, Display, Gameplay and a PC group on one page ("General"), patch notes and save as before.
-// Phones and tablets are unchanged.
-// =====================================================================
-const pcFs={ api:()=>!!document.fullscreenElement,
-  // full screen by F11 (browser menu) cannot be left from the page: it fills the screen without the fullscreen API
-  f11:()=>!document.fullscreenElement&&innerHeight>=screen.height-2&&innerWidth>=screen.width-2,
-  on(){ return this.api()||this.f11(); },
-  toggle(){ const d=document; try{ if(d.fullscreenElement){ d.exitFullscreen(); return; } if(this.f11()){ toast('Press F11 to leave full screen.'); return; } const p=d.documentElement.requestFullscreen&&d.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>toast('This browser did not allow full screen.')); }catch(e){} } };
-{ const ICON_IN='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
-    ICON_OUT='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
-  const mk=cls=>{ const b=document.createElement('button'); b.type='button'; b.className=cls+' pc-fsb'; b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); pcFs.toggle(); setTimeout(sync,250); },true); return b; };
-  const bs=[]; const add=(host,cls)=>{ if(!host) return; const b=mk(cls); const ref=host.querySelector('[data-pch="search"],[data-mo="search"]'); host.insertBefore(b,ref||null); bs.push(b); };
-  const sync=()=>{ const on=pcFs.on(); bs.forEach(b=>{ b.innerHTML=on?ICON_OUT:ICON_IN; const t=on?'Exit full screen (Esc or F)':'Full screen (F)'; b.title=t; b.setAttribute('aria-label',t); b.setAttribute('aria-pressed',on); });
-    document.querySelectorAll('#panel [data-act="fullscreen"]').forEach(x=>{ x.textContent=on?'Exit full screen':'Full screen'; const m=x.closest('.toggle')&&x.closest('.toggle').querySelector('.meta'); if(m&&m.dataset.pcfs) m.textContent=on?(pcFs.api()?'You are in full screen. Esc also leaves it.':'Full screen from the browser: press F11 to leave it.'):'Fill the whole screen with the game. F does it too.'; }); };
-  const init=()=>{ add(document.querySelector('#pchead .pch-tools'),'pch-tb'); add(document.querySelector('#menuov .mo-tools'),'mo-tb'); sync(); };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
-  document.addEventListener('fullscreenchange',()=>setTimeout(sync,60)); addEventListener('resize',()=>setTimeout(sync,120));
-  window.pcFsSync=sync;
-  // F: full screen on PC (not while typing)
-  addEventListener('keydown',e=>{ if((e.key!=='f'&&e.key!=='F')||e.ctrlKey||e.metaKey||e.altKey||e.repeat) return; if(!document.body.classList.contains('pch-on')) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; e.preventDefault(); pcFs.toggle(); setTimeout(sync,250); });
-  // the shortcut list: current section names, and F
-  try{ const k=KEYS.find(x=>x[0]==='1 - 5'); if(k) k[1]='Open a section (Fishing, Upgrades, Collections, Challenges, Customization)'; if(!KEYS.some(x=>x[0]==='F')) KEYS.splice(KEYS.findIndex(x=>x[0]==='M')+1,0,['F','Full screen on or off (PC)']); }catch(e){} }
-// Settings on PC
-{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ const grid=P.querySelector(':scope > .grid'); if(!grid) return; const s=S.settings;
-    // the full screen and frame rate rows move from Display into the PC group
-    const disp=[...grid.children].find(t=>/^Display/.test((t.querySelector('h4')||{}).textContent||'')); let fpsRow=null;
-    if(disp){ disp.querySelectorAll('.toggle').forEach(r=>{ if(r.querySelector('[data-act="fullscreen"]')) r.remove(); else if(r.querySelector('[data-k="showFps"]')) fpsRow=r; }); if(fpsRow) fpsRow.remove(); }
-    let auto=true; try{ auto=localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){}
-    const t=document.createElement('div'); t.className='tile pc-set'; t.innerHTML=`<h4>PC</h4>
-      <div class="toggle"><div><b>Full screen</b><div class="meta" data-pcfs="1"></div></div><button class="btn sm" data-act="fullscreen" type="button">Full screen</button></div>
-      <div class="toggle"><div><b>Back to full screen</b><div class="meta">If you leave the game in full screen, it goes back to full screen the next time you play.</div></div><button class="btn ${auto?'':'alt'} sm" data-pcauto="1" type="button" aria-pressed="${auto}">${auto?'On':'Off'}</button></div>
-      ${fpsRow?fpsRow.outerHTML:''}
-      <h5>Keyboard</h5><div class="pc-keys">${KEYS.map(k=>`<div><kbd>${esc(k[0])}</kbd><span>${esc(k[1])}</span></div>`).join('')}</div>`;
-    grid.appendChild(t);
-    const ab=t.querySelector('[data-pcauto]'); ab.addEventListener('click',e=>{ e.stopPropagation(); let v=true; try{ v=localStorage.getItem('dl-fs-auto')==='0'; localStorage.setItem('dl-fs-auto',v?'1':'0'); }catch(er){} ab.textContent=v?'On':'Off'; ab.classList.toggle('alt',!v); ab.setAttribute('aria-pressed',v); });
-    if(window.pcFsSync) pcFsSync(); }catch(e){ console.error(e); } };
-  // one "General" page on PC instead of a tab per small group
-  const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const P=$('panel'); const old=P.querySelector(':scope > .sect-nav'); if(old) old.remove();
-      const K=[...P.children], grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const tiles=[...grid.children], h=(t,re)=>re.test((t.querySelector('h4')||{}).textContent||'');
-      const general=tiles.filter(t=>!h(t,/^Patch notes/)), notes=tiles.filter(t=>h(t,/^Patch notes/)), save=K.filter(c=>c!==grid&&(c.classList.contains('tile')||c.tagName==='DETAILS'));
-      if(SECT.settings&&!['General','Patch notes','Save & codes'].includes(SECT.settings)) SECT.settings='General';
-      sectionize(P,'settings',[{name:'General',nodes:general},{name:'Patch notes',nodes:notes},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
-      const sync=()=>{ const on=(P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent==='General'; grid.classList.toggle('sect-one',!on); grid.classList.toggle('pc-setgrid',on); };
-      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-.pc-fsb{display:none!important}
-html body.pch-on .pc-fsb{display:inline-grid!important;place-items:center}
-html body.pch-on .pc-fsb svg{display:block}
-/* coins next to Level again on PC; the header keeps the menu row's width so the two rows still line up */
-/* (coins sit with Level in the header corner, see below) */
 
-/* Settings, General page */
-body.pch-on #menuov #panel .grid.pc-setgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:start;gap:12px!important}
-body.pch-on #panel .pc-set .pc-keys{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 10px;align-items:center;margin-top:4px}
-body.pch-on #panel .pc-set .pc-keys > div{display:contents}
-body.pch-on #panel .pc-set kbd{display:inline-block;min-width:46px;text-align:center;padding:2px 7px;border-radius:7px;background:#ffffff14;border:1px solid #ffffff2a;border-bottom-width:2px;font:800 11.5px ui-monospace,Consolas,monospace;color:#fff}
-body.pch-on #panel .pc-set .pc-keys span{font-size:12.5px;color:#cfdcea}
-</style>`);
-// PC Settings, General: three balanced columns (Sound | Controls + Gameplay | Display + PC) instead of rows with gaps
-{ const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const g=$('panel').querySelector(':scope > .grid.pc-setgrid, :scope > .grid'); if(!g||g.querySelector(':scope > .pc-col')) return;
-      const tiles=[...g.children], by=re=>tiles.find(t=>re.test((t.querySelector('h4')||{}).textContent||''));
-      const plan=[[/^Sound/],[/^Controls/,/^Gameplay/],[/^Display/,/^PC$/]]; const cols=plan.map(res=>{ const c=document.createElement('div'); c.className='pc-col'; res.forEach(re=>{ const t=by(re); if(t) c.appendChild(t); }); return c; });
-      if(cols.some(c=>c.children.length)) g.prepend(...cols); }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .grid > .pc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
-body.pch-on #panel .grid.sect-one > .pc-col{display:none}
-</style>`);
-// =====================================================================
-// PC: one header row (director, 2026-11-17: "make this header super clean; if 1 row is possible, that's the dream, allowing the
-// fishing scene to get larger"; "level and money as close to the fishing scene as possible").
-//   [ Level · Coins ] [ Fishing  Upgrades  Collections  Challenges  Customization ]        [ Cooler  Aquarium  Fish Log ] [ ⛶ 🔍 ⚙ ]
-// - The left block is as wide as "Back to fishing" in the menus, and the section tabs have the same fixed width and position in
-//   both, so nothing moves when a menu opens.
-// - What belongs to the water sits on the water: one badge in its top-left corner with where you fish, the day and weather, and
-//   your next goal (the weather chip the canvas drew there is replaced by it on PC).
-// - The info row is gone on PC, so the water gets its height. Every chip keeps its own clicks and live updates (they are moved,
-//   not copied) and goes back to the info row on every other layout.
-// =====================================================================
-{ const pc=()=>document.body.classList.contains('pch-on');
-  let scene=null, wx=null, stats=null, built=false;
-  const marks=new Map(); // element -> comment that marks its home in the info row
-  const park=(el,host,before)=>{ if(!el||!host) return; if(!marks.has(el)){ const c=document.createComment('pc-home'); el.parentNode.insertBefore(c,el); marks.set(el,c); } if(el.parentElement!==host||(before!==undefined&&el.nextSibling!==before)) host.insertBefore(el,before||null); };
-  const home=el=>{ const c=marks.get(el); if(c&&c.parentNode&&el.previousSibling!==c) c.parentNode.insertBefore(el,c.nextSibling); };
-  const parts=()=>{ const st=id=>{ const e=$(id); return e&&e.closest('.stat'); }; return { lv:st('lvl'), co:st('money'), cool:st('coolerct'), aq:document.querySelector('.stat.st-aq'), log:document.querySelector('.stat.st-log'), loc:document.querySelector('.stat.loc'), goal:$('goalchip') }; };
-  const build=()=>{ if(built) return true; const tools=document.querySelector('#pchead .pch-tools'), stg=$('stage'); if(!tools||!stg) return false;
-    stats=document.createElement('div'); stats.className='pch-stats'; tools.prepend(stats);
-    // the strip directly above the water (director, 2026-11-17: nothing may cover the fishing scene)
-    scene=document.createElement('div'); scene.id='pcscene'; scene.innerHTML='<div class="pcs-wx"><span class="lbl"></span><b></b></div><span class="pcs-gap"></span><span class="pcs-boosts"></span><span class="pcs-streak"></span>'; wx=scene.firstChild; stg.parentNode.insertBefore(scene,stg);
-    built=true; return true; };
-  const apply=()=>{ if(!build()) return; const p=parts(), br=document.querySelector('#pchead .pch-brand');
-    if(pc()){ if(br){ br.classList.add('pch-me'); br.removeAttribute('aria-hidden'); park(p.lv,br); park(p.co,br); }
-      park(p.cool,stats); park(p.aq,stats); park(p.log,stats);
-      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('resttog'),scene); tick(); }
-    else [p.lv,p.co,p.cool,p.aq,p.log,p.loc,p.goal,$('hint'),$('resttog')].forEach(e=>e&&home(e)); };
-  // the day and weather ("Day · Rain  bites +35% · 0:58"), boosts and streak, as the canvas drew them on the water
-  const tick=()=>{ if(!built||!pc()) return; try{ const w=weather(), tag=WX_TAG[w.k], l=tod(phase())+' · '+wxName(w.k), v=(tag?tag+' · ':'changes in ')+mmss(wxLeft());
-      const a=wx.firstChild, b=wx.lastChild; if(a.textContent!==l) a.textContent=l; if(b.textContent!==v) b.textContent=v; wx.classList.toggle('special',!!tag); wx.classList.toggle('gilded',w.k==='Gilded');
-      const sk=scene.querySelector('.pcs-streak'), st=S.streak>=2?'Streak '+S.streak+' · +'+Math.round(Math.min(streakCap(),.05*S.streak)*100)+'% XP':''; if(sk.textContent!==st) sk.textContent=st; sk.classList.toggle('hot',S.streak>=10);
-      const bo=scene.querySelector('.pcs-boosts'), now=Date.now(), bt=S.settings.boostsOnScreen?activeBuffs().slice(0,3).map(x=>fmtB(x.k,x.v)+' '+mmss(Math.ceil((x.until-now)/1000))).join('   '):''; if(bo.textContent!==bt) bo.textContent=bt; }catch(e){} };
-  setInterval(tick,1000);
-  const _sc=drawSceneChip; drawSceneChip=function(){ if(pc()) return; return _sc.apply(this,arguments); };
-  const init=()=>{ apply(); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(apply,300); setTimeout(apply,1200); addEventListener('resize',()=>setTimeout(apply,200)); };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init(); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the tabs' width, shared by the header and the menus: as wide as fits between the left block and the right block, at most 700 */
-html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 500px - 56px))}
-html body.pch-on.dl-fish .hud{display:none!important}
-html body.pch-on.dl-fish #pchead{grid-template-columns:190px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important;column-gap:14px!important;grid-template-rows:46px!important;height:46px!important}
-html body.pch-on #pchead .pch-brand{grid-column:1!important;grid-row:1!important}
-html body.pch-on #pchead .pch-cats{grid-column:2!important;grid-row:1!important;margin-left:14px!important}
-html body.pch-on #pchead .pch-tools{grid-column:4!important;grid-row:1!important}
-html body.pch-on #pchead .pch-coin{display:none!important}
-html body.pch-on #menuov .mo-in{grid-template-columns:190px 0 var(--pcTabs) minmax(0,1fr) auto!important;grid-template-areas:"back home secs . tools" "sub sub sub sub sub" "body body body body body"!important}
-/* left block: Level and coins */
-html body.pch-on #pchead .pch-brand.pch-me{display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);padding:0;overflow:hidden;cursor:default}
-html body.pch-on #pchead .pch-me > *:not(.stat){display:none}
-html body.pch-on #pchead .pch-me > .stat{display:flex!important;flex-direction:column;justify-content:center;gap:3px;min-width:0;padding:4px 12px;margin:0;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;flex:none!important;max-width:none!important;height:auto!important}
-html body.pch-on #pchead .pch-me > .stat + .stat{border-left:1px solid #7fe3c42a!important}
-html body.pch-on #pchead .pch-me .st-lvl .lbl{display:flex;align-items:baseline;gap:6px}
-html body.pch-on #pchead .pch-me #lvl{font-size:15px!important;color:#fff}
-html body.pch-on #pchead .pch-me #money{font-size:15px}
-/* right block: cooler, aquarium, Fish Log as compact counters */
-html body.pch-on #pchead .pch-stats{display:flex;gap:6px;height:46px}
-html body.pch-on #pchead .pch-stats > .stat{display:flex!important;flex-direction:column;justify-content:center;gap:2px;height:46px!important;box-sizing:border-box;padding:4px 12px!important;margin:0!important;min-width:0!important;max-width:none!important;flex:0 0 auto!important;border-radius:14px!important}
-html body.pch-on #pchead .pch-stats > .stat b{font-size:14px;white-space:nowrap}
-/* the strip directly above the water: one line, nothing on the picture itself */
-html body:not(.pch-on) #pcscene,html body.pch-on:not(.dl-fish) #pcscene{display:none}
-html body.pch-on.dl-fish #pcscene{display:flex;align-items:center;gap:4px;height:30px;margin:6px 0 4px;padding:0 4px;flex:0 0 auto;min-width:0;overflow:hidden}
-html body.pch-on #pcscene > *{flex:0 1 auto;min-width:0}
-html body.pch-on #pcscene > .stat,html body.pch-on #pcscene > #goalchip,html body.pch-on #pcscene > .pcs-wx{position:static!important;inset:auto!important;transform:none!important;display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:7px!important;margin:0!important;padding:4px 10px!important;width:auto!important;height:auto!important;max-width:none!important;border:0!important;border-radius:9px!important;background:none!important;box-shadow:none!important}
-html body.pch-on #pcscene > .pcs-wx{border-left:1px solid #ffffff14!important;border-right:1px solid #ffffff14!important;border-radius:0!important}
-html body.pch-on #pcscene > .hud-link:hover,html body.pch-on #pcscene > #goalchip:hover{background:#ffffff0d!important}
-html body.pch-on #pcscene .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8ea4b9;white-space:nowrap}
-html body.pch-on #pcscene b{font-size:13px;color:#eef4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body.pch-on #pcscene .pcs-wx.special b{color:#bfe8ff}
-html body.pch-on #pcscene .pcs-wx.gilded b{color:#ffc94d}
-html body.pch-on #pcscene #goalchip > .gl-s{display:none!important}
-html body.pch-on #pcscene #goalchip > .gl-k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8ea4b9;white-space:nowrap}
-html body.pch-on #pcscene #goalchip > .gl-t{font-size:13px;font-weight:800;color:#eef4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body.pch-on #pcscene #goalchip > .gl-bar{position:static!important;display:inline-block!important;width:46px;height:4px;border-radius:4px;background:#ffffff1a;overflow:hidden;align-self:center;margin:0!important}
-html body.pch-on #pcscene #goalchip > .gl-bar b{display:block;height:100%;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-html body.pch-on #pcscene .pcs-gap{flex:1 1 auto}
-html body.pch-on #pcscene > #hint{position:static!important;inset:auto!important;transform:none!important;margin:0 8px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;font-size:12px!important;color:#8ea4b9!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:none!important;flex:0 1 auto;opacity:1!important}
-html body.pch-on #pcscene .pcs-boosts{font-size:12px;font-weight:700;color:#7fc8a9;white-space:nowrap;flex:0 0 auto}
-html body.pch-on #pcscene .pcs-streak{font-size:12px;font-weight:800;color:#e6efe8;white-space:nowrap;flex:0 0 auto}
-html body.pch-on #pcscene .pcs-streak.hot{color:#ffc94d}
-html body.pch-on #pcscene .pcs-boosts:empty,html body.pch-on #pcscene .pcs-streak:empty{display:none}
-html body.pch-on #pcscene > #resttog{position:static!important;inset:auto!important;transform:none!important;margin:0 0 0 6px!important;flex:0 0 auto}
-/* narrower PC windows: icon-only section tabs (names on hover) in both rows, and a tighter right block */
-@media (max-width:1320px){
-  html body.pch-on{--pcTabs:max(240px,min(700px,calc(100vw - 32px - 190px - 480px - 56px)))}
-  html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
-  html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs .secb{padding:4px 6px!important}
-  html body.pch-on #pchead .pch-stats > .stat{padding:4px 9px!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #pcscene > #goalchip{position:relative!important;inset:auto!important;transform:none!important;left:auto!important;top:auto!important}
-/* short section names on PC (Collection, Customize) in both rows, with room for icon, name and badge */
-html body.pch-on #menuov #tabs.secmode .secb .secfull{display:none!important}
-html body.pch-on #menuov #tabs.secmode .secb .secshort{display:inline!important}
-html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs.secmode .secb{gap:6px!important;padding-left:8px!important;padding-right:8px!important}
-</style>`);
-{ const shortNames=()=>{ if(!document.body.classList.contains('pch-on')) return; document.querySelectorAll('#pchead #catdock .cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=sec.short||sec.name; if(l.textContent!==t) l.textContent=t; b.title=sec.name; } }); };
-  new MutationObserver(()=>setTimeout(shortNames,0)).observe(document.body,{attributes:true,attributeFilter:['class']}); addEventListener('resize',()=>setTimeout(shortNames,60)); setTimeout(shortNames,200); }
-// iPhone Home Screen app (director, 2026-11-17, screenshot): opened sideways, the whole game sat ~55 points too low, below an
-// empty band. iOS can keep the safe-area numbers of the other orientation after launching or turning the phone, so the layout
-// left room for a notch that isn't there (and, the other way round, upright could sit under the notch). Two fixes:
-// 1. Sideways, an iPhone never needs room at the top (the status bar is hidden), so that layout no longer reads the top inset.
-// 2. After a launch or a turn, iOS is made to read the safe areas again (the viewport setting is re-applied and styles refreshed).
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-land.dl-fish{padding-top:6px!important}
-html body.phone-land #menuov .mo-in{padding-top:5px!important}
-html body.phone-land #menuov > #toast{top:60px!important}
-html body.phone-land #menuov #panel .wd-prev{height:calc(100dvh - 150px)!important}
-html body.phone-land .dlprev{top:4px!important}
-</style>`);
-{ const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  if(ios){ const vp=document.querySelector('meta[name=viewport]'); let q=0;
-    const refresh=()=>{ try{ if(vp){ const c=vp.getAttribute('content'); vp.setAttribute('content',c+' '); vp.setAttribute('content',c); }
-        const r=document.documentElement; r.classList.add('sa-recalc'); void r.offsetHeight; r.classList.remove('sa-recalc'); try{ resize(); }catch(e){} }catch(e){} };
-    const soon=()=>{ clearTimeout(q); [80,400,1000].forEach(ms=>setTimeout(refresh,ms)); };
-    addEventListener('orientationchange',soon); addEventListener('resize',soon); addEventListener('pageshow',soon); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) soon(); });
-    soon(); }
-  document.head.insertAdjacentHTML('beforeend','<style>html.sa-recalc body{padding-bottom:calc(env(safe-area-inset-bottom) + 0.01px)}</style>'); }
+
+
+
 // No rainbows at night (director, 2026-11-17: "no nighttime rainbows pls yuck"): the rainbow is drawn only in daylight and fades
 // out fully as dusk falls (it hung on at 15% before). The weather and its bonus stay: a day here lasts 6 minutes and a weather 4,
 // so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
@@ -14933,679 +14401,9 @@ html body.phone-land .dlprev{top:4px!important}
   // the raw slot schedule as seen at the start of each slot (used by the "starts in under a minute" heads-up)
   weatherAt=function(slot){ return kindAt(slot*WX_LEN+1); };
   if(/[?&]test\b/.test(location.search)) window.__wxTime={kindAt,seg,night,RULE}; }
-// =====================================================================
-// PC patch notes, as a reader (director, 2026-11-17, hotfix: "pc patch notes look garbage"). One card of a fixed size: the
-// title and "Let's fish!" on top, the updates you missed listed on the left (newest first; click one to read it), and the
-// chosen update on the right with its sections in balanced columns (no holes; platform sections last). Only the notes scroll,
-// and only when an update is long. A single update gets the same card without the list. Phones keep their own card.
-// =====================================================================
-{ const _sw=showWhatsNew, _sp=showPatchNotes;
-  const pc=()=>document.body.classList.contains('pch-on');
-  // short sections side by side; long ones (more than 5 points) full width below, their points flowing in columns
-  const body=p=>{ const d=document.createElement('div'); d.innerHTML=patchHTML(p); const g=d.querySelector('.pn-grid'); if(g){ g.classList.add('pnr-grid'); const secs=[...g.children]; secs.filter(s=>s.querySelectorAll('li').length>5).forEach(s=>{ s.classList.add('wide'); g.appendChild(s); }); } return d.innerHTML; };
-  const open=(list,title,sub,after)=>{ G.st='event'; let cur=0;
-    const rail=list.length>1?`<nav class="pnr-rail">${list.map((p,i)=>`<button type="button" class="pnr-it" data-i="${i}" aria-pressed="${i===0}"><span class="pnr-v">${p.label?esc(p.label):'Update '+esc(p.v)}</span><b>${esc(p.name)}</b>${i===0?'<span class="pnr-new">Newest</span>':''}</button>`).join('')}</nav>`:'';
-    $('evin').innerHTML=`<div class="pnr${list.length>1?'':' one'}"><header class="pnr-top"><div><div class="rar" style="color:var(--gold)">${title}</div><h3>${sub}</h3></div><button class="btn" data-ev="skip">Let’s fish!</button></header><div class="pnr-main">${rail}<article class="pnr-body">${body(list[0])}</article></div></div>`;
-    const art=$('evin').querySelector('.pnr-body');
-    $('evin').querySelectorAll('.pnr-it').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); const i=+b.dataset.i; if(i===cur) return; cur=i; art.innerHTML=body(list[i]); art.scrollTop=0; $('evin').querySelectorAll('.pnr-it').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.i===i))); }));
-    $('evcard').hidden=false; if(after) setTimeout(()=>toast(after),400); };
-  showWhatsNew=function(seen,after){ if(!pc()) return _sw.apply(this,arguments); const all=missedPatches(seen); if(all.length<=1) return showPatchNotes(PATCHES[0],after);
-    const list=all.slice(0,20); open(list,`${all.length} updates since you last played`,'What’s new',after); };
-  showPatchNotes=function(p=PATCHES[0],after){ if(!pc()) return _sp.apply(this,arguments); open([p],p.label?esc(p.label):'Update '+esc(p.v),esc(p.name),after); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #evin:has(.pnr){width:min(1180px,94vw)!important;max-width:none!important;height:min(760px,88vh)!important;max-height:none!important;padding:0!important;overflow:hidden!important;text-align:left;display:flex;flex-direction:column}
-body.pch-on #evin .pnr{display:flex;flex-direction:column;height:100%;min-height:0}
-body.pch-on #evin .pnr-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px 14px;border-bottom:1px solid #ffffff14;flex:0 0 auto}
-body.pch-on #evin .pnr-top h3{margin:2px 0 0;font-size:24px}
-body.pch-on #evin .pnr-top .btn{flex:0 0 auto;padding:9px 20px}
-body.pch-on #evin .pnr-main{display:grid;grid-template-columns:240px minmax(0,1fr);flex:1 1 auto;min-height:0}
-body.pch-on #evin .pnr.one .pnr-main{grid-template-columns:minmax(0,1fr)}
-body.pch-on #evin .pnr-rail{display:flex;flex-direction:column;gap:4px;padding:12px;border-right:1px solid #ffffff14;overflow:auto;min-height:0}
-body.pch-on #evin .pnr-it{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;align-items:center;text-align:left;padding:9px 12px;border-radius:11px;border:1px solid transparent;background:none;color:#cfdcea;cursor:pointer;font:inherit}
-body.pch-on #evin .pnr-it:hover{background:#ffffff0b}
-body.pch-on #evin .pnr-it[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff55;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pch-on #evin .pnr-it .pnr-v{grid-column:1;font:800 10.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #evin .pnr-it b{grid-column:1;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #evin .pnr-it .pnr-new{grid-column:2;grid-row:1 / 3;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:#7fe3c422;color:#7fe3c4}
-body.pch-on #evin .pnr-body{overflow:auto;min-height:0;padding:16px 22px 20px;scrollbar-width:thin}
-body.pch-on #evin .pnr-body .pn-head{text-align:left;margin:0 0 12px}
-body.pch-on #evin .pnr-body .pn-head h3{font-size:20px}
-body.pch-on #evin .pnr-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(270px,1fr))!important;gap:14px!important;align-items:stretch!important}
-body.pch-on #evin .pnr-grid .pn-sec.wide{grid-column:1 / -1}
-body.pch-on #evin .pnr-grid .pn-sec.wide ul{columns:3 260px;column-gap:28px}
-body.pch-on #evin .pnr-grid .pn-sec li{font-size:14px;line-height:1.5;break-inside:avoid}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #evin .pnr.one .pnr-body .pn-head{display:none}
-/* the tip line never shows as an empty bubble, and hides while a card (patch notes, events) is open over the water */
-#hint:empty{display:none!important}
-body.ev-open #hint{visibility:hidden!important}
-</style>`);
-// PC header down to 800 px wide (director, 2026-11-17: "the bar is back on the bottom for header categories" — a half-width
-// window or browser zoom made the page narrower than 900 px, and the old layout came back). Under 1000 px it goes compact:
-// icon-only tabs, the counters as icon + number (names on hover), the gear without its label. Crossing the width limit also
-// re-checks the layout straight away.
-try{ [800,1000,1320].forEach(w=>matchMedia('(min-width:'+w+'px)').addEventListener('change',()=>dispatchEvent(new Event('resize')))); }catch(e){}
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:1000px){
-  html body.pch-on{--pcTabs:max(200px,min(700px,calc(100vw - 32px - 190px - 330px - 56px)))}
-  html body.pch-on #pchead .pch-stats{gap:4px}
-  html body.pch-on #pchead .pch-stats > .stat{padding:4px 8px!important;flex-direction:row!important;align-items:center;gap:5px}
-  html body.pch-on #pchead .pch-stats > .stat .lbl{display:none!important}
-  html body.pch-on #pchead .pch-stats > .st-cool::before{content:"🧊";font-size:13px}
-  html body.pch-on #pchead .pch-stats > .st-aq::before{content:"🐠";font-size:13px}
-  html body.pch-on #pchead .pch-stats > .st-log::before{content:"📖";font-size:13px}
-  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
-  html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
-}
-/* patch notes reader: a short update spreads across the card instead of sitting in one narrow box */
-body.pch-on #evin .pnr-grid{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))!important}
-body.pch-on #evin .pnr-grid .pn-sec:only-child ul{columns:2 300px;column-gap:28px}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:1000px){
-  html body.pch-on{--pcTabs:max(176px,min(700px,calc(100vw - 32px - 190px - 400px - 56px)))}
-  html body.pch-on #pchead .pch-tools{gap:4px!important}
-  html body.pch-on #pchead .pch-stats > .stat{padding:4px 6px!important;gap:3px}
-  html body.pch-on #pchead .pch-stats > .stat b{font-size:12.5px!important}
-  html body.pch-on #pchead .pch-stats > .stat::before{font-size:11.5px!important}
-  html body.pch-on #pchead .pch-tb,html body.pch-on #menuov .mo-tb{width:38px!important;min-width:38px!important}
-  html body.pch-on #pchead #catdock,html body.pch-on #menuov #tabs .secbar{gap:3px!important}
-  html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs.secmode .secb{padding-left:4px!important;padding-right:4px!important;min-width:0!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* a single update: the card is as tall as its notes (up to the same limit), not a fixed size */
-body.pch-on #evin:has(.pnr.one){height:auto!important;max-height:min(760px,88vh)!important}
-body.pch-on #evin .pnr.one .pnr-main{flex:0 1 auto}
-</style>`);
-// =====================================================================
-// PC, Settings > Patch notes, as a reader (director, 2026-11-17: "way too hard to read"): every update listed on the left
-// (newest first, gift notes on top), the chosen one on the right in section boxes at normal size. The tab fills the page and
-// scrolls inside itself, so the page no longer shrinks to fit 40 updates. Phones keep their list.
-// =====================================================================
-{ let pick=null; const _rs=renderSettings;
-  const listAll=()=>(S.owned.pets.includes('lily')?[LILY_PATCH]:[]).concat(S.owned.pets.includes('daxniko')?[PAIR_PATCH]:[]).concat(PATCHES);
-  const body=p=>{ const d=document.createElement('div'); d.innerHTML=patchHTML(p); const g=d.querySelector('.pn-grid'); if(g){ g.classList.add('pnr-grid'); [...g.children].filter(s=>s.querySelectorAll('li').length>5).forEach(s=>{ s.classList.add('wide'); g.appendChild(s); }); } return d.innerHTML; };
-  renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{
-    const tile=[...P.querySelectorAll('.tile')].find(t=>/^Patch notes/.test((t.querySelector('h4')||{}).textContent||'')); if(!tile) return;
-    const all=listAll(); if(!pick||!all.some(p=>p.v===pick)) pick=PATCHES[0].v;
-    tile.classList.add('pc-pn'); tile.innerHTML=`<h4 class="pcpn-h">Patch notes</h4><div class="pcpn-rail"><div class="meta">You’re on Driftline ${esc(GAME_VERSION)}</div>${all.map(p=>`<button type="button" class="pnr-it" data-v="${esc(p.v)}" aria-pressed="${p.v===pick}"><span class="pnr-v">${p.label?esc(p.label):'Update '+esc(p.v)}</span><b>${esc(p.name)}</b>${p===PATCHES[0]?'<span class="pnr-new">Latest</span>':''}</button>`).join('')}</div><article class="pcpn-body"></article>`;
-    const art=tile.querySelector('.pcpn-body'); const show=v=>{ const p=all.find(x=>x.v===v)||PATCHES[0]; pick=p.v; art.innerHTML=body(p); art.scrollTop=0; tile.querySelectorAll('.pnr-it').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===pick))); };
-    tile.querySelectorAll('.pnr-it').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); show(b.dataset.v); }));
-    show(pick); }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .tile.pc-pn{display:grid!important;grid-template-columns:260px minmax(0,1fr);gap:0;padding:0!important;height:calc(100vh - 226px);min-height:420px;overflow:hidden}
-body.pch-on #panel .pc-pn .pcpn-rail{display:flex;flex-direction:column;gap:3px;padding:12px;border-right:1px solid #ffffff14;overflow:auto;min-height:0;scrollbar-width:thin}
-body.pch-on #panel .pc-pn .pcpn-rail > .meta{margin:0 4px 8px}
-body.pch-on #panel .pc-pn .pnr-it{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;align-items:center;text-align:left;padding:8px 11px;border-radius:10px;border:1px solid transparent;background:none;color:#cfdcea;cursor:pointer;font:inherit;flex:0 0 auto}
-body.pch-on #panel .pc-pn .pnr-it:hover{background:#ffffff0b}
-body.pch-on #panel .pc-pn .pnr-it[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff55;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pch-on #panel .pc-pn .pnr-v{grid-column:1;font:800 10.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #panel .pc-pn .pnr-it b{grid-column:1;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #panel .pc-pn .pnr-new{grid-column:2;grid-row:1 / 3;font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:#7fe3c422;color:#7fe3c4}
-body.pch-on #panel .pc-pn .pcpn-body{overflow:auto;min-height:0;padding:16px 22px 20px;scrollbar-width:thin}
-body.pch-on #panel .pc-pn .pn-head{text-align:left;margin:0 0 12px}
-body.pch-on #panel .pc-pn .pn-head h3{font-size:22px;margin:2px 0 0}
-body.pch-on #panel .pc-pn .pnr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;align-items:stretch}
-body.pch-on #panel .pc-pn .pn-sec{background:#0e1a2c;border:1px solid #ffffff14;border-radius:14px;padding:12px 14px 10px}
-body.pch-on #panel .pc-pn .pn-sec h4{margin:0 0 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #panel .pc-pn .pn-sec ul{margin:0;padding-left:18px}
-body.pch-on #panel .pc-pn .pn-sec li{font-size:14.5px;line-height:1.55;color:#dbe6f2;margin:0 0 6px;break-inside:avoid}
-body.pch-on #panel .pc-pn .pn-sec.wide{grid-column:1 / -1}
-body.pch-on #panel .pc-pn .pn-sec.wide ul{columns:2 320px;column-gap:30px}
-body.pch-on #panel .pc-pn .pn-sec:only-child ul{columns:2 320px;column-gap:30px}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>body.pch-on #panel .pc-pn .pcpn-h{display:none}</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: the goal sits in the strip above the water now: no see-through blur behind it (it cost work every frame for nothing) */
-html body.pch-on #pcscene #goalchip{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* PC: the page tabs' entrance is played by script now (no forced layout), so the class-based copy is switched off */
-body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
-</style>`);
-// =====================================================================
-// PC full HD (director, 2026-11-17: "give ALL pc menus optimization... save this window size's changes exclusive to this
-// resolution"). body.pc-fhd = the PC layout on a screen of at least 1800 x 950 (a 1080p monitor in full screen). Everything
-// written for it below is scoped to that class, so laptops, smaller windows and phones keep their own layouts.
-// =====================================================================
-{ const apply=()=>{ const b=document.body.classList, v=b.contains('pch-on')&&innerWidth>=1800&&innerHeight>=950; if(v!==b.contains('pc-fhd')) b.toggle('pc-fhd',v); };
-  addEventListener('resize',()=>setTimeout(apply,40)); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); apply(); }
-// PC full HD: pages whose sections are small show them all side by side, each under its own heading, instead of one section
-// at a time behind tabs (director, 2026-11-17: Skills showed five little cards in a corner of an empty screen).
-{ const ALL=new Set(['skills','save']); const _sz=sectionize;
-  sectionize=function(P,tab,groups,before){ const gs=(groups||[]).filter(g=>g.nodes.length);
-    if(!document.body.classList.contains('pc-fhd')||!ALL.has(tab)||gs.length<2) return _sz.apply(this,arguments);
-    const anchor=before||gs[0].nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor); /* mark the spot before anything moves */ const board=document.createElement('div'); board.className='fhd-board fhd-'+tab; board.style.setProperty('--n',gs.length);
-    for(const g of gs){ const col=document.createElement('section'); col.className='fhd-col';
-      const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid');
-      col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span>${g.badge?`<span class="sdot">${g.badge}</span>`:''}</header>`;
-      const body=document.createElement('div'); body.className='fhd-body'+(inGrid?' '+[...par.classList].join(' '):''); col.appendChild(body);
-      for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } board.appendChild(col); }
-    mark.parentNode?mark.parentNode.replaceChild(board,mark):P.appendChild(board);
-    // a grid left empty by the move goes away
-    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); }); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel .fhd-board{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px;align-items:start;margin-top:8px}
-body.pc-fhd #panel .fhd-col{display:flex;flex-direction:column;gap:10px;min-width:0}
-body.pc-fhd #panel .fhd-h{display:flex;align-items:center;gap:8px;padding:0 4px 6px;border-bottom:1px solid #ffffff1c;font:800 13px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#cfe0f2}
-body.pc-fhd #panel .fhd-body{display:flex!important;flex-direction:column!important;gap:10px!important;margin:0!important;grid-template-columns:none!important}
-body.pc-fhd #panel .fhd-body > *{width:auto!important;margin:0!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD Feats reader */
-body.pc-fhd #panel .featrd{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start;margin-top:6px}
-body.pc-fhd #panel .fr-rail{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:16px;background:#0c1626;border:1px solid #ffffff12}
-body.pc-fhd #panel .fr-total{padding:4px 8px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;font-size:13px;color:#9fb2c8;display:grid;gap:6px}
-body.pc-fhd #panel .fr-total b{font:800 20px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fr-cat{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:6px;align-items:center;text-align:left;padding:9px 12px 10px;border-radius:11px;border:1px solid transparent;background:none;color:#dbe6f2;cursor:pointer;font:700 14px var(--display,system-ui)}
-body.pc-fhd #panel .fr-cat:hover{background:#ffffff0b}
-body.pc-fhd #panel .fr-cat[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff55;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pc-fhd #panel .fr-cat .fr-bar{grid-column:1 / -1}
-body.pc-fhd #panel .fr-n{font:700 12.5px var(--display,system-ui);color:#9fb2c8;letter-spacing:0;text-transform:none}
-body.pc-fhd #panel .fr-bar{display:block;height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}
-body.pc-fhd #panel .fr-bar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pc-fhd #panel .fr-main h3{margin:2px 2px 14px;font:800 22px var(--display,system-ui);color:#fff;display:flex;align-items:baseline;gap:12px}
-body.pc-fhd #panel .fr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-body.pc-fhd #panel .fr-card{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff14}
-body.pc-fhd #panel .fr-card header{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-body.pc-fhd #panel .fr-card header b{font:800 16px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fr-card .fr-cnt{font:800 13px var(--display,system-ui);color:#cfe0f2;white-space:nowrap}
-body.pc-fhd #panel .fr-card p{margin:0;font-size:13.5px;line-height:1.45;color:#a9bccf;flex:1}
-body.pc-fhd #panel .fr-card .fr-bar{height:7px}
-body.pc-fhd #panel .fr-card .fr-rew{font-size:13px;color:#dbe6f2}
-body.pc-fhd #panel .fr-card.done{opacity:.6}
-body.pc-fhd #panel .fr-card.done header b{color:#7fe3c4}
-body.pc-fhd #panel .fr-card.done .fr-bar b{background:#7fe3c4}
-</style>`);
-// full HD Rods: "Your rod" and its attachments side by side on one tab (they belong together), the rod rack on the other
-{ const _sz=sectionize;
-  sectionize=function(P,tab,groups,before){ if(tab!=='rods'||!document.body.classList.contains('pc-fhd')) return _sz.apply(this,arguments);
-    const gs=(groups||[]).filter(g=>g.nodes.length), you=gs.find(g=>/Your rod/i.test(g.name)), att=gs.find(g=>/Attach/i.test(g.name)), rest=gs.filter(g=>g!==you&&g!==att);
-    if(!you||!att) return _sz.apply(this,arguments);
-    const anchor=before||you.nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor);
-    const pair=document.createElement('div'); pair.className='fhd-rodpair';
-    const mk=(g,cls)=>{ const col=document.createElement('section'); col.className='fhd-col '+cls; col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span></header>`; const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid'); const body=document.createElement('div'); body.className='fhd-body2'+(inGrid?' '+[...par.classList].join(' '):''); for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } col.appendChild(body); return col; };
-    pair.append(mk(you,'fhd-you'),mk(att,'fhd-att')); mark.parentNode.replaceChild(pair,mark);
-    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); });
-    return _sz.call(this,P,tab,[{name:you.name,nodes:[pair]}].concat(rest),pair); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel .fhd-rodpair{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:18px;align-items:start}
-body.pc-fhd #panel .fhd-rodpair .fhd-body2{margin:0!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2{display:block!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h2,body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h3{display:none}
-body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2{display:flex!important;flex-direction:column;gap:10px}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD Wardrobe: a bigger character on the left, the options flowing in three columns instead of short rows down one side */
-body.pc-fhd #menuov #panel .stylewrap.wd{grid-template-columns:minmax(420px,32%) minmax(0,1fr)!important;column-gap:28px!important;align-items:start}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev{width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;aspect-ratio:auto}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev canvas{width:100%!important;height:auto!important}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main{columns:3 320px;column-gap:30px;display:block!important}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > *{break-inside:avoid}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5{break-after:avoid;margin-top:14px}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5:first-child{margin-top:0}
-</style>`);
-// full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #menuov #panel > .grid.fhd-gear{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
-body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;gap:8px!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD Cooler (and any fish list): fish as cards in two columns, so name, value and buttons sit together; bigger fish */
-body.pc-fhd #menuov #panel .list:has(> .fishrow){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-body.pc-fhd #menuov #panel .list > .fishrow{border:1px solid #ffffff14;border-radius:14px;background:#0e1a2c;padding:10px 14px!important;margin:0!important;gap:14px}
-body.pc-fhd #menuov #panel .list > .fishrow{grid-template-columns:96px minmax(0,1fr) auto auto!important}
-body.pc-fhd #menuov #panel .list > .fishrow canvas{width:96px!important;height:48px!important}
-body.pc-fhd #menuov #panel .list > .fishrow .nm b{font-size:16px}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the patch-notes reader stays hidden on the other Settings tabs (its layout rule must not override the tab's "hidden") */
-body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.pc-pn[style*="display:none"]{display:none!important}
-</style>`);
-// =====================================================================
-// PC: every page in exactly one place (director, 2026-11-17: "Settings should just open settings. Why is stats hidden there?
-// Clicking aquarium opens the aquarium, why is it also somewhere else?"). Their choices:
-// - Cooler, Aquarium and Fish Log open from their header buttons only; they leave the section tabs (Fishing = Waters,
-//   Collection = Trophy Room).
-// - Stats gets its own header button next to them.
-// - The gear opens Settings only; the Save page's content lives in Settings > Save & codes (it duplicated "Move progress").
-// - The header buttons have an icon and look like buttons; in the menus they stay in the top row, the open one lit.
-// Phones and tablets keep their sections as they are.
-// =====================================================================
-{ const pc=()=>document.body.classList.contains('pch-on');
-  const ORIG=MENU_SECS.map(s=>[s,s.tabs.slice()]), MORE0=MENU_MORE.tabs.slice(), SOLO=['cooler','aquarium','journal','stats'];
-  let mode=null; const applyIA=()=>{ const on=pc(); if(on===mode) return; mode=on;
-    for(const [s,tabs] of ORIG) s.tabs.splice(0,s.tabs.length,...(on?tabs.filter(t=>!SOLO.includes(t)):tabs));
-    MENU_MORE.tabs.splice(0,MENU_MORE.tabs.length,...(on?['settings']:MORE0));
-    try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
-  // a page reached from a header button has no section: its name shows as the one page tab, so the row is never empty
-  const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ if(!pc()) return; const T=$('tabs'), sb=T&&T.querySelector('.subbar'); if(!sb) return;
-      if((!menuSecOf(S.tab)&&S.tab!==DASH)||(menuSecOf(S.tab)||{}).id==='more'){ menuSubKey='solo|'+S.tab; sb.innerHTML=''; sb.hidden=true; } /* the lit header button (or the lit gear) already says where you are */
-      document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); }catch(e){} };
-  // header buttons: icon + label + value, the look of a button; Stats joins them
-  const ICON={cooler:'<path d="M4 9h16v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M3 9l1.6-4h14.8L21 9"/><path d="M10 13h4"/>',
-    aquarium:'<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M7 12.5c1.6-2 4.2-2.4 6-.5l1.6-1.2v3.4L13 13c-1.8 1.9-4.4 1.5-6-.5z"/><path d="M3 17c3 .7 5 .7 9 0s6-.7 9 0"/>',
-    journal:'<path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/>',
-    stats:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'};
-  const svg=k=>`<svg class="pcs-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
-  let statsBtn=null; const decorate=()=>{ const box=document.querySelector('.pch-stats'); if(!box) return false;
-    const map=[[$('coolerct')&&$('coolerct').closest('.stat'),'cooler'],[document.querySelector('.stat.st-aq'),'aquarium'],[document.querySelector('.stat.st-log'),'journal']];
-    for(const [el,k] of map){ if(!el||el.dataset.page) continue; el.dataset.page=k; el.insertAdjacentHTML('afterbegin',svg(k)); }
-    if(!statsBtn){ statsBtn=document.createElement('div'); statsBtn.className='stat st-stats hudx hud-link'; statsBtn.dataset.page='stats'; statsBtn.setAttribute('role','button'); statsBtn.tabIndex=0; statsBtn.title='Stats: your total sale multiplier and everything else that shapes your fishing (click to open)';
-      statsBtn.innerHTML=svg('stats')+'<span class="lbl">Stats</span><b class="pcs-sv"></b>';
-      const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu('stats'); };
-      ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-      statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
-    if(statsBtn.parentElement!==box) box.appendChild(statsBtn); return true; };
-  const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; } }catch(e){} };
-  setInterval(tick,1500);
-  // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
-  const place=()=>{ const box=document.querySelector('.pch-stats'), tools=document.querySelector('#menuov .mo-tools'), ph=document.querySelector('#pchead .pch-tools'); if(!box||!tools||!ph) return;
-    const inMenu=false; /* the header stays visible in menus now, with its buttons in place */ if(inMenu&&box.parentElement!==tools) tools.insertBefore(box,tools.querySelector('.mo-coin')||tools.firstChild); else if(!inMenu&&box.parentElement!==ph) ph.prepend(box); };
-  { const _om=openMenu, _cm=closeMenu; openMenu=function(){ const r=_om.apply(this,arguments); try{ place(); }catch(e){} return r; }; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ place(); }catch(e){} return r; }; } // move the buttons at once, not a moment later
-  const init=()=>{ applyIA(); decorate(); tick(); place();
-    new MutationObserver(()=>{ applyIA(); if(!statsBtn) decorate(); place(); }).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(()=>{ decorate(); place(); },600); };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
-  // Settings > Save & codes on PC: the Save page's content (move progress, your save code, load a code, the app), the gift code
-  // and the reset; the duplicate "Move progress" tile goes
-  const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!pc()) return; try{
-      const mv=[...P.children].find(c=>c.classList.contains('tile')&&/Move progress/.test(c.textContent)); if(mv) mv.remove();
-      const box=document.createElement('div'); box.className='tile pc-save'; const gift=[...P.children].find(c=>c.classList.contains('tile')&&/Gift code/.test(c.textContent));
-      P.insertBefore(box,gift||P.querySelector(':scope > details')||null); renderSave(box);
-      box.querySelectorAll(':scope > h2, :scope > p.sub').forEach(e=>e.remove()); box.insertAdjacentHTML('afterbegin','<h4>Save and move progress</h4>'); }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the header buttons: icon, label, value; they look like buttons and light up while their page is open */
-html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{display:grid!important;height:46px!important;box-sizing:border-box;padding:4px 12px!important;margin:0!important;min-width:0!important;max-width:none!important;flex:0 0 auto!important;border-radius:14px!important;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:9px;row-gap:1px;align-items:center;cursor:pointer;border:1px solid #ffffff22!important;background:linear-gradient(180deg,#172a42,#10203a)!important;box-shadow:inset 0 1px 0 #ffffff12,0 2px 6px #0006!important;transition:background .15s,border-color .15s,transform .1s}
-html body.pch-on .pch-stats > .stat:hover{border-color:#7fb8ff88!important;background:linear-gradient(180deg,#1c3352,#132744)!important}
-html body.pch-on .pch-stats > .stat:active{transform:translateY(1px)}
-html body.pch-on .pch-stats > .stat.on{border-color:#ffd36a!important;background:linear-gradient(180deg,#3a3016,#2a230f)!important;box-shadow:inset 0 0 0 1px #ffd36a55!important}
-html body.pch-on .pch-stats > .stat:focus-visible{outline:2px solid #ffd36a;outline-offset:2px}
-html body.pch-on .pch-stats .pcs-ic{grid-row:1 / 3;color:#9fd0ff}
-html body.pch-on .pch-stats > .stat.on .pcs-ic{color:#ffd36a}
-html body.pch-on .pch-stats > .stat .lbl{grid-column:2;line-height:1.1}
-html body.pch-on .pch-stats > .stat b{grid-column:2;line-height:1.15}
-html body.pch-on .pch-stats > .st-stats .pcs-sv{font-size:13px!important;color:#e6eef7}
-/* in the menu's top row */
-html body.pch-on #menuov .mo-tools > .pch-stats{display:flex;gap:6px;height:46px;margin-right:6px}
-/* hide the game header behind an open menu (it was covered anyway, and drawing it cost time) */
-html body.pch-on.menu-open #pchead{visibility:hidden}
-/* tabs' width now leaves room for four header buttons */
-html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 720px - 56px))}
-@media (max-width:1580px){
-  html body.pch-on{--pcTabs:max(200px,min(700px,calc(100vw - 32px - 190px - 600px - 56px)))}
-  html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
-  html body.pch-on .pch-stats > .stat .lbl{display:none!important}
-  html body.pch-on .pch-stats > .stat{padding:4px 9px!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on .pch-stats > .stat::before{content:none!important;display:none!important}
-html body.pch-on #pchead .pch-stats > .stat.on,html body.pch-on #menuov .pch-stats > .stat.on{border-color:#ffd36a!important}
-</style>`);
-// PC: no name shown twice on one screen (director, 2026-11-17: "stuff is in multiple places")
-// - a section tab never repeats its page's name: Waters > "Travel", Dock > "Your dock"
-{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(document.body.classList.contains('pch-on')&&groups){ const ren={map:{Waters:'Travel'},home:{Dock:'Your dock'}}[tab]; if(ren){ groups=groups.map(g=>ren[g.name]?Object.assign({},g,{name:ren[g.name]}):g); if(SECT[tab]&&ren[SECT[tab]]) SECT[tab]=ren[SECT[tab]]; } } return _sz.call(this,P,tab,groups,before); }; }
-// - Feats on full HD: the rail already shows the total and each category's count
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='feats'&&document.body.classList.contains('pc-fhd')){ const P=$('panel'); const sub=P.querySelector(':scope > p.sub, :scope > .row p.sub'); if(sub&&P.querySelector('.featrd')) sub.style.display='none'; } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* - Rods: the "Your rod" tab already names that column */
-body.pc-fhd #panel .fhd-rodpair .fhd-you > .fhd-h{display:none}
-/* - Trophy Room and Boardwalk: their page tab already carries the name; Boardwalk's wallet repeated your coins */
-body.pch-on #panel h2.tp-title{display:none}
-body.pch-on #panel .bwx-ht > h2{display:none}
-body.pch-on #panel .bwx-wallet > span:has(> b.coin){display:none}
-/* - Feats: the category title keeps the name; its count is on the rail */
-body.pc-fhd #panel .fr-main h3 .fr-n{display:none}
-</style>`);
-// PC Settings: the volume sliders and the on/off switches both said "Music" and "Nature sounds"; the switches say what they do
-{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ P.querySelectorAll('.toggle b').forEach(b=>{ const t=b.textContent.trim(); if(t==='Music') b.textContent='Play music'; else if(t==='Nature sounds') b.textContent='Play nature sounds'; }); }catch(e){} }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* narrower PC windows: the right side (four header buttons + tools) must always fit */
-@media (max-width:1580px){
-  html body.pch-on{--pcTabs:max(180px,min(700px,calc(100vw - 32px - 190px - 690px - 70px)))}
-  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
-  html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
-  html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{padding:4px 9px!important;column-gap:7px}
-  html body.pch-on .pch-stats > .stat b{font-size:13px!important}
-}
-@media (max-width:1200px){
-  html body.pch-on .pch-stats > .st-stats .pcs-sv{display:none!important}
-  html body.pch-on .pch-stats > .stat .pcs-ic{width:19px;height:19px}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:1100px){
-  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 690px - 70px)))}
-  html body.pch-on.dl-fish #pchead{grid-template-columns:150px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important}
-  html body.pch-on #menuov .mo-in{grid-template-columns:150px 0 var(--pcTabs) minmax(0,1fr) auto!important}
-  html body.pch-on #menuov .mo-back{font-size:12.5px!important;padding-left:10px!important;padding-right:10px!important;gap:6px!important}
-  html body.pch-on #pchead .pch-me > .stat{padding:4px 8px!important}
-  html body.pch-on #pchead .pch-me #lvl,html body.pch-on #pchead .pch-me #money{font-size:13.5px!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:1100px){ html body.pch-on #menuov .mo-back{width:150px!important;min-width:0!important;max-width:150px!important;box-sizing:border-box;white-space:nowrap;overflow:hidden} }</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* very small PC windows: the four header buttons become icons (name and number on hover) so the row always fits */
-@media (max-width:980px){
-  html body.pch-on .pch-stats > .stat .lbl,html body.pch-on .pch-stats > .stat b{display:none!important}
-  html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{width:42px;padding:0!important;display:grid!important;place-items:center;grid-template-columns:1fr!important}
-  html body.pch-on .pch-stats .pcs-ic{grid-row:auto!important}
-  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 420px - 56px)))}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:980px){ html body.pch-on #menuov .mo-tools .pc-fsb{display:none!important} }</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* small PC windows: the strip above the water keeps where you fish, the weather and the goal readable */
-@media (max-width:980px){ html body.pch-on #pcscene .pcs-streak{display:none!important} html body.pch-on #pcscene > .pcs-wx > .lbl{display:none!important} html body.pch-on #pcscene > .stat.loc > .lbl{display:none!important} }
-</style>`);
-// =====================================================================
-// PC: the menus open below the game header, which never moves (director, 2026-11-17: "when clicking the cooler tab from the
-// fishing scene, or other tabs, the fullscreen ui shifts, which isn't correct"). The header's section tabs, its four buttons
-// and its tools work in the menus too and light up for what is open; clicking a lit one again closes the menu, so every one
-// of them is an obvious on/off toggle. "Back to fishing" leads the second row, beside the page tabs.
-// =====================================================================
-{ const pc=()=>document.body.classList.contains('pch-on');
-  const setTop=()=>{ const ph=document.getElementById('pchead'); if(!ph||!pc()) return; const b=Math.round(ph.getBoundingClientRect().bottom); if(b>0) document.documentElement.style.setProperty('--pcTop',(b+8)+'px'); };
-  addEventListener('resize',()=>setTimeout(setTop,60)); new MutationObserver(()=>setTimeout(setTop,0)).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(setTop,300);
-  const lit=()=>{ if(!pc()) return; const sec=MENU_OPEN?menuSecOf(S.tab):null;
-    document.querySelectorAll('#pchead #catdock .cdb[data-cd]').forEach(b=>{ const on=!!sec&&b.dataset.cd===sec.id; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
-    const g=document.querySelector('#pchead [data-pch="settings"]'); if(g) g.classList.toggle('on',MENU_OPEN&&!!sec&&sec.id==='more');
-    document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); };
-  const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ lit(); }catch(e){} };
-  const _cm=closeMenu; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ lit(); }catch(e){} return r; };
-  // a lit button closes the menu (captured first, so the button's own "open" does not run)
-  document.addEventListener('click',e=>{ if(!pc()||!MENU_OPEN) return; const b=e.target.closest&&e.target.closest('#pchead .pch-stats > .stat.on, #pchead #catdock .cdb.on, #pchead [data-pch="settings"].on'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); try{ closeMenu(); }catch(er){} },true); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #menuov{top:var(--pcTop,66px)!important;height:calc(100vh - var(--pcTop,66px))!important;height:calc(100dvh - var(--pcTop,66px))!important;background:#0a1220!important}
-html body.pch-on.menu-open #pchead{visibility:visible!important}
-html body.pch-on #menuov .mo-in{grid-template-columns:auto minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"back sub" "body body"!important;padding-top:0!important;row-gap:8px!important}
-html body.pch-on #menuov #tabs .secbar,html body.pch-on #menuov .mo-tools,html body.pch-on #menuov .mo-home{display:none!important}
-html body.pch-on #menuov .mo-back{grid-area:back;width:auto!important;max-width:none!important;height:40px;align-self:center}
-html body.pch-on #menuov #tabs{grid-area:sub;min-width:0}
-html body.pch-on #menuov #tabs .subbar{min-height:40px}
-/* lit section tab and gear in the header */
-html body.pch-on #pchead #catdock .cdb.on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;color:#2a1c05!important;border-color:#ffe6a3!important}
-html body.pch-on #pchead #catdock .cdb.on svg{color:#2a1c05!important}
-html body.pch-on #pchead [data-pch="settings"].on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;color:#2a1c05!important;border-color:#ffe6a3!important}
-/* the four header buttons: raised, bright edge, a chevron that turns into a close mark while their page is open */
-html body.pch-on #pchead .pch-stats > .stat{grid-template-columns:auto auto 14px!important;background:linear-gradient(180deg,#24456a,#173252)!important;border:1px solid #7fb8ff66!important;box-shadow:inset 0 1px 0 #ffffff26,0 3px 0 #0b1a2e,0 4px 10px #0008!important}
-html body.pch-on #pchead .pch-stats > .stat:hover{background:linear-gradient(180deg,#2c5480,#1d3c61)!important;border-color:#a8d2ff!important;box-shadow:inset 0 1px 0 #ffffff33,0 3px 0 #0b1a2e,0 0 0 3px #7fb8ff33,0 4px 12px #000a!important}
-html body.pch-on #pchead .pch-stats > .stat:active{transform:translateY(2px);box-shadow:inset 0 1px 0 #ffffff1a,0 1px 0 #0b1a2e!important}
-html body.pch-on #pchead .pch-stats > .stat::after{content:"›";grid-column:3;grid-row:1 / 3;font:900 18px/1 system-ui;color:#a8d2ff;justify-self:end;opacity:.85}
-html body.pch-on #pchead .pch-stats > .stat.on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12,0 0 0 3px #ffd36a44!important}
-html body.pch-on #pchead .pch-stats > .stat.on .lbl,html body.pch-on #pchead .pch-stats > .stat.on b,html body.pch-on #pchead .pch-stats > .stat.on .pcs-ic{color:#2a1c05!important}
-html body.pch-on #pchead .pch-stats > .stat.on::after{content:"✕";font-size:12px;color:#2a1c05;opacity:1}
-@media (max-width:980px){ html body.pch-on #pchead .pch-stats > .stat::after{display:none} }
-</style>`);
-// =====================================================================
-// PC full HD Cooler (director, 2026-11-17: "needs better spaced out UI... utilize space properly, so many empty gaps"):
-// your fish fill the main area as cards; one panel on the right holds the cooler's space, what "Sell all" sells, the Sell all
-// button and the Fishmonger's request.
-// =====================================================================
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='cooler'||!document.body.classList.contains('pc-fhd')) return r;
-      const P=$('panel'), hdr=P.querySelector(':scope > .dl-headw'); if(!hdr||P.querySelector('.fhd-cool')) return r;
-      const sub=hdr.querySelector('p.sub'), sellf=hdr.querySelector('.sellf'), btn=hdr.querySelector('[data-act="sellall"]'), demand=P.querySelector(':scope > .tile'), list=P.querySelector(':scope > .list, :scope > .empty');
-      const n=S.cooler.length, cap=gv('cooler');
-      const wrap=document.createElement('div'); wrap.className='fhd-cool';
-      const main=document.createElement('section'); main.className='fc-main'; main.innerHTML=`<h3>Your fish <span class="fc-n">${n} of ${cap}</span></h3>`;
-      if(list) main.appendChild(list); if(!n) main.insertAdjacentHTML('beforeend','<div class="fc-empty">Your cooler is empty. Catch something!</div>');
-      const side=document.createElement('aside'); side.className='fc-side';
-      side.innerHTML=`<div class="fc-cap"><div class="fc-capt"><b>Cooler</b><span>${n} / ${cap}</span></div><i class="fc-bar${n>=cap?' full':''}"><b style="width:${Math.min(100,n/cap*100)}%"></b></i></div>`;
-      if(sub){ sub.classList.add('fc-sub'); side.appendChild(sub); }
-      if(sellf) side.appendChild(sellf); if(btn){ btn.classList.add('fc-sell'); side.appendChild(btn); }
-      if(demand){ demand.removeAttribute('style'); demand.classList.add('fc-demand'); side.appendChild(demand); }
-      wrap.append(main,side); hdr.replaceWith(wrap); }catch(e){ console.error(e); } return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel .fhd-cool{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:22px;align-items:start;margin-top:4px}
-body.pc-fhd #panel .fc-main h3{margin:2px 2px 12px;font:800 20px var(--display,system-ui);color:#fff;display:flex;align-items:baseline;gap:12px}
-body.pc-fhd #panel .fc-n{font:700 14px var(--display,system-ui);color:#9fb2c8}
-body.pc-fhd #menuov #panel .fhd-cool .list:has(> .fishrow){grid-template-columns:repeat(auto-fill,minmax(440px,1fr))!important;gap:12px!important}
-body.pc-fhd #panel .fc-empty{padding:40px;text-align:center;color:#9fb2c8;border:1px dashed #ffffff22;border-radius:16px}
-body.pc-fhd #panel .fc-side{position:sticky;top:0;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;background:#0e1a2c;border:1px solid #ffffff14}
-body.pc-fhd #panel .fc-capt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-body.pc-fhd #panel .fc-capt b{font:800 20px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fc-capt span{font:800 16px var(--display,system-ui);color:#cfe0f2}
-body.pc-fhd #panel .fc-bar{display:block;height:8px;border-radius:8px;background:#ffffff14;overflow:hidden}
-body.pc-fhd #panel .fc-bar b{display:block;height:100%;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pc-fhd #panel .fc-bar.full b{background:linear-gradient(90deg,#ff8a6a,#ff5468)}
-body.pc-fhd #panel .fc-sub{margin:0;font-size:13px;line-height:1.5;color:#a9bccf}
-body.pc-fhd #panel .fc-side .sellf{display:flex!important;flex-direction:column!important;gap:10px!important;padding:14px!important;border-radius:14px;background:#0a1424;border:1px solid #ffffff10;margin:0!important;width:auto!important}
-body.pc-fhd #panel .fc-side .sellf .fld{display:grid!important;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:10px;width:auto!important;margin:0!important}
-body.pc-fhd #panel .fc-side .sellf .fld-title{font:800 12px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#cfe0f2}
-body.pc-fhd #panel .fc-side .sellf select,body.pc-fhd #panel .fc-side .sellf input{width:100%!important}
-body.pc-fhd #panel .fc-side .fc-sell{width:100%;padding:14px!important;font-size:16px!important}
-body.pc-fhd #panel .fc-side .fc-demand{margin:0!important;display:grid!important;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:12px!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD fish cards: picture, name and value on top, the buttons on a row of their own (the name was squeezed to one word per line) */
-body.pc-fhd #menuov #panel .list > .fishrow{grid-template-columns:96px minmax(0,1fr) auto!important;grid-template-areas:"pic nm val" "pic acts acts"!important;row-gap:8px!important;align-items:center}
-body.pc-fhd #menuov #panel .list > .fishrow > canvas{grid-area:pic}
-body.pc-fhd #menuov #panel .list > .fishrow > .nm{grid-area:nm;min-width:0}
-body.pc-fhd #menuov #panel .list > .fishrow > .val{grid-area:val;text-align:right}
-body.pc-fhd #menuov #panel .list > .fishrow > .acts{grid-area:acts;display:flex!important;gap:8px;justify-content:flex-start}
-body.pc-fhd #menuov #panel .list > .fishrow > .acts > *{flex:1 1 0}
-</style>`);
-// =====================================================================
-// PC full HD Aquarium (director, 2026-11-17): "Your tank" and "Decorate" combined on one screen, side by side, each in its own
-// box that scrolls by itself (switching tabs changed the page's size, and hid half of what matters); a taller tank; a one-line
-// description; the earnings box contained in the header.
-// =====================================================================
-{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(tab!=='aquarium'||!document.body.classList.contains('pc-fhd')) return _sz.apply(this,arguments);
-    const gs=(groups||[]).filter(g=>g.nodes.length); if(gs.length<2) return _sz.apply(this,arguments);
-    const anchor=before||gs[0].nodes[0], mark=document.createComment('aq'); anchor.parentNode.insertBefore(mark,anchor);
-    const split=document.createElement('div'); split.className='aq-split';
-    for(const g of gs){ const col=document.createElement('section'); col.className='aq-col'; col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span></header>`; const body=document.createElement('div'); body.className='aq-body'; for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } col.appendChild(body); split.appendChild(col); }
-    mark.parentNode.replaceChild(split,mark); P.classList.add('aq-on'); }; }
-{ const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('aq-on'); const r=_rp.apply(this,arguments); try{ if(S.tab==='aquarium'&&document.body.classList.contains('pc-fhd')){ const sub=P.querySelector(':scope > .dl-head p.sub'); if(sub){ sub.title=sub.textContent; sub.classList.add('aq-sub'); } } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel.aq-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:8px}
-body.pc-fhd #panel.aq-on > *{flex:0 0 auto;margin-top:0!important;margin-bottom:0!important}
-body.pc-fhd #panel.aq-on > .aq-split{flex:1 1 0;min-height:0}
-body.pc-fhd #panel.aq-on > .dl-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px}
-body.pc-fhd #panel .aq-sub{margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;cursor:help}
-body.pc-fhd #panel.aq-on .bank{display:flex!important;align-items:center;gap:14px;padding:10px 14px!important;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff1c;box-sizing:border-box;max-width:100%;flex-wrap:nowrap}
-body.pc-fhd #panel.aq-on .bank > *{min-width:0;flex:0 0 auto}
-body.pc-fhd #menuov #panel.aq-on #tankcv{height:36vh!important}
-body.pc-fhd #panel.aq-on > p.sub{font-size:12px}
-body.pc-fhd #panel .aq-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-body.pc-fhd #panel .aq-col{display:flex;flex-direction:column;min-height:0;border-radius:16px;background:#0c1626;border:1px solid #ffffff14;padding:12px 14px}
-body.pc-fhd #panel .aq-col > .fhd-h{flex:0 0 auto;margin-bottom:10px}
-body.pc-fhd #panel .aq-body{flex:1 1 0;min-height:0;overflow:auto;scrollbar-width:thin;padding-right:6px;display:flex;flex-direction:column;gap:10px}
-body.pc-fhd #menuov #panel .aq-body .list:has(> .fishrow){grid-template-columns:1fr!important;gap:8px!important}
-body.pc-fhd #panel .aq-body .jsec{display:block!important;margin:0!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the four header buttons: colour says "clickable" (director, 2026-11-17: no shapes, navy on navy blended in): a teal fill with a
-   bright edge, brighter on hover, gold while open */
-html body.pch-on #pchead .pch-stats > .stat::after{content:none!important;display:none!important}
-html body.pch-on #pchead .pch-stats > .stat{grid-template-columns:auto auto!important;background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:inset 0 1px 0 #ffffff40,0 3px 0 #0b3a3c,0 4px 10px #0008!important}
-html body.pch-on #pchead .pch-stats > .stat .lbl{color:#c8fff0!important}
-html body.pch-on #pchead .pch-stats > .stat b{color:#ffffff!important}
-html body.pch-on #pchead .pch-stats > .stat .pcs-ic{color:#e6fff8!important}
-html body.pch-on #pchead .pch-stats > .stat:hover{background:linear-gradient(180deg,#27a39d,#197a7b)!important;border-color:#b8fff0!important;box-shadow:inset 0 1px 0 #ffffff55,0 3px 0 #0b3a3c,0 0 0 3px #7fe3c440,0 4px 12px #000a!important}
-html body.pch-on #pchead .pch-stats > .stat.on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12,0 0 0 3px #ffd36a44!important}
-html body.pch-on #pchead .pch-stats > .stat.on .lbl,html body.pch-on #pchead .pch-stats > .stat.on b,html body.pch-on #pchead .pch-stats > .stat.on .pcs-ic{color:#2a1c05!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel.aq-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:8px}
-html body.pc-fhd #menuov #panel.aq-on > *{flex:0 0 auto}
-html body.pc-fhd #menuov #panel.aq-on > .aq-split{flex:1 1 0;min-height:0}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel .aq-body .list:has(> .fishrow){grid-template-columns:repeat(2,minmax(0,1fr))!important}
-html body.pc-fhd #menuov #panel .aq-body .jsec > h2:first-child,html body.pc-fhd #menuov #panel .aq-body .jsec > h3:first-child,html body.pc-fhd #menuov #panel .aq-body .jsec > .row:first-child h2{display:none!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>html body.pc-fhd #menuov #panel .aq-body .jsec > .row:first-child > :first-child{display:none!important}</style>`);
-// =====================================================================
-// PC Fish Log, round 2 (director, 2026-11-17): hunting clearer (three slots, a strong glow on hunted fish), a Normal / Shiny
-// switch in the details, the Show filter in the fish column's header styled like the rarity row, and the hunt target's
-// tooltip in the game's own look.
-// =====================================================================
-{ let shinyView=false; const _rj=renderJournal;
-  renderJournal=function(P){ _rj(P); if(!P.classList.contains('fl-on')) return; try{
-      const L=encLoc!=='junk'?LOCS[locIdx(encLoc)]:null;
-      // Show filter -> the fish column's header, next to the rarity row
-      const show=P.querySelector('.fl-show'), mh=P.querySelector('.fl-mh'); if(show&&mh){ show.previousElementSibling&&show.previousElementSibling.tagName==='H5'&&show.previousElementSibling.remove(); show.classList.add('fl-show2'); mh.appendChild(show); }
-      // hunt slots
-      const bar=P.querySelector('.fl-right .hunt-bar'); if(bar&&L&&S.unlocked.includes(L.id)){ const hs=huntsAt(L.id);
-        const slots=[...Array(HUNT_MAX)].map((_,i)=>{ const id=hs[i], s=id&&SPI[id]; return s?`<button type="button" class="hs-slot on" data-huntsel="${id}" style="--rc:${RAR[s.r].c}"><i></i><span>${esc(huntLabel(s))}</span><em>2× as often</em></button>`:`<div class="hs-slot"><span>Empty slot</span><em>Hover a missing fish and click 🎯</em></div>`; }).join('');
-        bar.innerHTML=`<div class="hs-head"><span class="rar">Hunts</span><b>${hs.length} / ${HUNT_MAX}</b><span class="meta">at ${esc(L.name)}</span></div><div class="hs-slots">${slots}</div><div class="meta hs-help">A hunted fish turns up twice as often whenever it can bite. Catching it ends the hunt.</div>`;
-        bar.querySelectorAll('[data-huntsel]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); encSel=b.dataset.huntsel; renderPanel(); }); }
-      // themed tooltips on the hunt targets
-      P.querySelectorAll('.fl-main .hunt-t').forEach(t=>{ if(t.title){ t.dataset.tip=t.title; t.removeAttribute('title'); } });
-      // Normal / Shiny in the details
-      const det=P.querySelector('.fl-right .tile.detail'), sel=encSel&&SPI[encSel];
-      if(det&&sel){ const caught=!!S.journal[sel.id], cv=det.querySelector('canvas[data-fish]');
-        const sw=document.createElement('div'); sw.className='fl-shsw'; sw.innerHTML=`<button type="button" data-v="0" aria-pressed="${!shinyView}">Normal</button><button type="button" data-v="1" aria-pressed="${shinyView}" ${caught?'':'disabled title="Catch it first"'}>✦ Shiny</button>`;
-        if(cv){ cv.after(sw); if(caught){ cv.dataset.sh=shinyView?'1':'0'; paintFish(det); } }
-        sw.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); if(b.disabled) return; shinyView=b.dataset.v==='1'; sw.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); if(cv){ cv.dataset.sh=shinyView?'1':'0'; paintFish(det); } })); }
-    }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* Show filter as a segmented row in the header */
-body.pch-on #panel .fl-mh .fl-show2{display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:6px;margin:2px 0 0!important}
-body.pch-on #panel .fl-mh .fl-show2 .chipb{width:auto!important;padding:5px 12px!important;border-radius:999px!important;font-size:12.5px!important}
-body.pch-on #panel .fl-mh .fl-show2 .chipb[aria-pressed="true"]{background:#1d3150!important;border-color:#7fb8ff!important;color:#fff!important}
-/* hunt slots */
-body.pch-on #panel .fl-right .hunt-bar{display:flex;flex-direction:column;gap:10px;padding:14px!important}
-body.pch-on #panel .hs-head{display:flex;align-items:baseline;gap:10px}
-body.pch-on #panel .hs-head .rar{color:#ffb36a}
-body.pch-on #panel .hs-head b{font:800 18px var(--display,system-ui);color:#ffe2c4}
-body.pch-on #panel .hs-slots{display:grid;gap:8px}
-body.pch-on #panel .hs-slot{display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px dashed #ffffff26;background:#0a1424;color:#8ea4b9;font:700 13px var(--display,system-ui);text-align:left}
-body.pch-on #panel .hs-slot:not(.on){grid-template-columns:minmax(0,1fr)}
-body.pch-on #panel .hs-slot em{font-style:normal;font-size:11.5px;font-weight:600;color:#6f859b}
-body.pch-on #panel .hs-slot.on{border:1px solid #ffb36a;background:linear-gradient(180deg,#3a2410,#26180a);color:#ffe2c4;cursor:pointer;box-shadow:0 0 14px #ffb36a33}
-body.pch-on #panel .hs-slot.on i{width:10px;height:10px;border-radius:50%;background:var(--rc)}
-body.pch-on #panel .hs-slot.on em{color:#ffb36a}
-body.pch-on #panel .hs-help{font-size:12px!important}
-/* hunted fish stand out in the grid */
-body.pch-on #panel .fl-main .jcard.hunted{border-color:#ffb36a!important;box-shadow:0 0 0 2px #ffb36a,0 0 22px #ffb36a66!important;background:linear-gradient(180deg,#2a1c10,#141d2c)!important}
-body.pch-on #panel .fl-main .jcard .hunt-tag{background:#ffb36a;color:#2a1406;font-size:9px;top:auto;bottom:-1px;left:50%;transform:translateX(-50%);border-radius:6px 6px 0 0;padding:1px 8px}
-/* the hunt target's tooltip in the game's look */
-body.pch-on #panel .fl-main .hunt-t[data-tip]:hover::after{content:attr(data-tip);position:absolute;right:-6px;top:30px;z-index:20;width:190px;padding:8px 10px;border-radius:10px;background:#0b1626;border:1px solid #ffb36a;color:#ffe2c4;font:700 12px/1.35 var(--display,system-ui);text-align:left;box-shadow:0 8px 20px #000a;pointer-events:none;white-space:normal}
-/* Normal / Shiny switch */
-body.pch-on #panel .fl-shsw{display:flex;gap:0;align-self:center;border:1px solid #ffffff22;border-radius:999px;overflow:hidden;margin:2px 0 4px}
-body.pch-on #panel .fl-shsw button{padding:6px 16px;background:#0a1424;color:#cfdcea;border:0;font:800 12.5px var(--display,system-ui);cursor:pointer}
-body.pch-on #panel .fl-shsw button[aria-pressed="true"]{background:#1d3150;color:#fff}
-body.pch-on #panel .fl-shsw button[data-v="1"][aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05}
-body.pch-on #panel .fl-shsw button:disabled{opacity:.45;cursor:not-allowed}
-</style>`);
-// =====================================================================
-// PC: Oddities as their own page in Collection (director, 2026-11-17: "needs its own location in the collection category, and
-// needs to take parts of the successful parts of the fish log for motivation"). Fish Log style: the four tiers on the left
-// with their progress, every oddity in the middle, the picked one's story and reward on the right; the top shows how many pets
-// and hats still hide in oddities. An unfound oddity shows what kind of reward it hides, never what it is.
-// On phones Oddities stay inside the Fish Log, as before.
-// =====================================================================
-{ const T=$('tabs'), after=T&&T.querySelector(':scope > [data-tab="trophy"]'); if(after&&!T.querySelector(':scope > [data-tab="oddities"]')) after.insertAdjacentHTML('afterend','<button role="tab" data-tab="oddities" aria-selected="false" data-label="🧸 Oddities">🧸 Oddities</button>');
-  const pc=()=>document.body.classList.contains('pch-on');
-  const sync=()=>{ const c=MENU_SECS.find(s=>s.id==='coll'); if(!c) return; const has=c.tabs.includes('oddities'); if(pc()&&!has) c.tabs.push('oddities'); else if(!pc()&&has) c.tabs.splice(c.tabs.indexOf('oddities'),1); try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
-  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,800);
-  try{ PAGE_DESC.oddities='Everything you fished up that isn’t a fish'; }catch(e){}
-  const TIERS=['Junk','Odd junk','Rare find','Treasure'];
-  const REWARD=e=>e.pet?['A new pet','pet']:e.hat?['A hat','hat']:e.rod?['A rod','rod']:e.lure?['Special lures','lure']:e.scales?['Scales','scales']:e.special?['Something special','special']:e.buff?['A boost','buff']:['Coins','coins'];
-  let tier='all', sel=null;
-  const render=P=>{ P.style.zoom=''; const items=JUNK.map(J=>({id:J.id,name:J.name,t:J.t,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0}));
-    const found=items.filter(x=>x.n).length, pets=items.filter(x=>x.e.pet), hats=items.filter(x=>x.e.hat);
-    const tiers=TIERS.map((nm,i)=>{ const l=items.filter(x=>x.t===i); return {i,nm,l,f:l.filter(x=>x.n).length}; });
-    const shown=tier==='all'?items:items.filter(x=>x.t===+tier);
-    if(!sel||!items.some(x=>x.id===sel)) sel=null;
-    const it=sel&&items.find(x=>x.id===sel);
-    P.innerHTML=`<h2 class="dl-dup" hidden>Oddities</h2>
-    <div class="od-top"><div class="od-count"><b>${found}</b> of ${items.length} oddities found<i class="od-bar"><b style="width:${found/items.length*100}%"></b></i></div>
-      <div class="od-hint"><span>🐾 Pets hiding in oddities: <b>${pets.filter(x=>x.n).length} / ${pets.length}</b> found</span><span>🎩 Hats: <b>${hats.filter(x=>x.n).length} / ${hats.length}</b></span></div></div>
-    <div class="od-pc"><aside class="od-side"><h5>Tiers</h5>
-      <button type="button" class="fl-w" data-odt="all" aria-pressed="${tier==='all'}"><span class="fl-wn">All oddities</span><span class="fl-wc">${found} / ${items.length}</span><span class="fl-wb"><i style="width:${found/items.length*100}%"></i></span></button>
-      ${tiers.map(t=>`<button type="button" class="fl-w${t.f===t.l.length?' done':''}" data-odt="${t.i}" aria-pressed="${String(tier)===String(t.i)}"><span class="fl-wn">${t.nm}</span><span class="fl-wc">${t.f} / ${t.l.length}</span><span class="fl-wb"><i style="width:${t.f/t.l.length*100}%"></i></span></button>`).join('')}
-      <p class="od-note">Oddities come up now and then while you fish, at every water. The rarer the tier, the rarer the find.</p></aside>
-    <section class="od-main"><div class="od-grid">${shown.map(x=>`<button type="button" class="od-card t${x.t}${x.n?'':' unk'}${x.id===sel?' sel':''}" data-odk="${x.id}" title="${x.n?esc(x.name):'Not found yet'} · ${TIERS[x.t]}"><canvas width="160" height="90" data-junk="${x.id}" data-known="${x.n?1:0}"></canvas><b>${x.n?esc(x.name):'???'}</b><small>${x.n?'×'+x.n:'Hides: '+REWARD(x.e)[0].toLowerCase()}</small></button>`).join('')}</div></section>
-    <aside class="od-right">${it?`<div class="tile od-det"><canvas width="360" height="200" data-junk="${it.id}" data-known="${it.n?1:0}"></canvas><div class="rar">${TIERS[it.t]}</div><h3>${it.n?esc(it.name):'Not found yet'}</h3>${it.n?`<p class="od-q">${esc(it.q)}</p>`:'<p class="od-q">Keep fishing: it can turn up at any water.</p>'}<div class="kv"><div><span>Reward</span> ${REWARD(it.e)[0]}</div><div><span>Times found</span> ${it.n}</div></div></div>`
-      :`<div class="tile fl-pickhint"><b>Click an oddity</b><span class="meta">See what it is, what it gave you and how often you found it. Unfound ones show what kind of reward they hide.</span></div>`}</aside></div>`;
-    P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
-    P.querySelectorAll('[data-odt]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); tier=b.dataset.odt; render(P); }));
-    P.querySelectorAll('[data-odk]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); sel=b.dataset.odk===sel?null:b.dataset.odk; render(P); }));
-    P.classList.add('od-on'); };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('od-on'); if(S.tab==='oddities'){ render(P); try{ menuSync(); if(P.dataset.tab035!=='oddities'){ P.dataset.tab035='oddities'; pageIn(P); } }catch(e){} return; } return _rp.apply(this,arguments); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #menuov #panel.od-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:10px}
-html body.pch-on #menuov #panel.od-on > *{flex:0 0 auto}
-html body.pch-on #menuov #panel.od-on > .od-pc{flex:1 1 0;min-height:0}
-body.pch-on #panel .od-top{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-body.pch-on #panel .od-count{display:flex;align-items:center;gap:12px;font-size:14px;color:#9fb2c8}
-body.pch-on #panel .od-count > b{font:800 22px var(--display,system-ui);color:#fff}
-body.pch-on #panel .od-bar,body.pch-on #panel .od-pc .fl-wb{display:block;height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}
-body.pch-on #panel .od-bar{width:180px}
-body.pch-on #panel .od-bar b,body.pch-on #panel .od-pc .fl-wb i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pch-on #panel .od-hint{display:flex;gap:18px;font-size:13.5px;color:#cfdcea}
-body.pch-on #panel .od-hint b{color:#ffd36a}
-body.pch-on #panel .od-pc{display:grid;grid-template-columns:230px minmax(0,1fr) 340px;gap:14px;min-height:0}
-body.pch-on #panel .od-pc > *{min-height:0;overflow:auto;scrollbar-width:thin}
-body.pch-on #panel .od-side{display:flex;flex-direction:column;gap:4px}
-body.pch-on #panel .od-side h5{margin:2px 2px 6px;font:800 11.5px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#8fa6bf}
-body.pch-on #panel .od-pc .fl-w{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:4px;column-gap:8px;align-items:center;text-align:left;padding:8px 10px 9px;border-radius:10px;border:1px solid transparent;background:#ffffff06;color:#dbe6f2;cursor:pointer;font:700 13.5px var(--display,system-ui)}
-body.pch-on #panel .od-pc .fl-w:hover{background:#ffffff10}
-body.pch-on #panel .od-pc .fl-w[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff66;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pch-on #panel .od-pc .fl-wc{font-size:12px;color:#9fb2c8}
-body.pch-on #panel .od-pc .fl-w.done .fl-wc{color:#7fe3c4}
-body.pch-on #panel .od-pc .fl-wb{grid-column:1 / -1}
-body.pch-on #panel .od-note{margin:12px 4px 0;font-size:12px;line-height:1.5;color:#8ea4b9}
-body.pch-on #panel .od-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
-body.pch-on #panel .od-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border-radius:12px;border:1px solid #ffffff14;background:#0e1a2c;color:#dbe6f2;cursor:pointer;min-width:0}
-body.pch-on #panel .od-card:hover{border-color:#7fb8ff88}
-body.pch-on #panel .od-card.sel{outline:2px solid #ffd36a;outline-offset:-1px}
-body.pch-on #panel .od-card canvas{width:100%;height:auto;max-height:54px;object-fit:contain}
-body.pch-on #panel .od-card b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body.pch-on #panel .od-card small{font-size:11px;color:#9fb2c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body.pch-on #panel .od-card.unk b{color:#7f93a8}
-body.pch-on #panel .od-card.t1{box-shadow:inset 0 3px 0 #8fd0ff99}
-body.pch-on #panel .od-card.t2{box-shadow:inset 0 3px 0 #c79bffaa}
-body.pch-on #panel .od-card.t3{box-shadow:inset 0 3px 0 #ffd36acc}
-body.pch-on #panel .od-det{display:flex;flex-direction:column;gap:8px;padding:14px!important}
-body.pch-on #panel .od-det canvas{width:100%;height:auto}
-body.pch-on #panel .od-det h3{margin:0;font:800 20px var(--display,system-ui);color:#fff}
-body.pch-on #panel .od-det .rar{color:var(--gold,#ffd36a)}
-body.pch-on #panel .od-q{margin:0;font-size:13.5px;line-height:1.5;color:#cfdcea;font-style:italic}
-body.pch-on #panel .od-det .kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:13px}
-/* the Fish Log's water list no longer carries Oddities on PC: they have their own page */
-body.pch-on #panel .fl-w[data-k="junk"]{display:none!important}
-body.pch-on #panel .fl-mh .ctl-l{display:none!important}
-</style>`);
-// =====================================================================
-// Full-HD PC: Stats on one screen (director, 2026-11-17: "Stats takes up so much space and looks un even. Shoot for a combined
-// full screen containing all current 3 tabs"). Four even columns: Catching + Fighting | Coins & XP + Right now + Time played |
-// where every bonus comes from | your gear. Every column ends at the same line. Other sizes keep the three tabs.
-// =====================================================================
-{ const _rs=renderStats;
-  renderStats=function(P){ if(!document.body.classList.contains('pc-fhd')){ P.classList.remove('st-on'); return _rs(P); }
-    const keep=statSec, H={}; for(const k of ['overview','bonuses','gear']){ statSec=k; H[k]=statsHTML(); } statSec=keep;
-    const tmp=document.createElement('div'), tiles=k=>{ tmp.innerHTML=H[k]; return [...tmp.querySelectorAll('.tile')].map(t=>t.outerHTML); };
-    const ov=tiles('overview'); // [Time played, Catching, Fighting, Coins & XP, Right now]
-    const gear=tiles('gear');
-    tmp.innerHTML=H.bonuses; const tbl=tmp.querySelector('.st-table-wrap');
-    P.innerHTML=`<h2 class="dl-dup" hidden>Stats</h2><div class="st-all">
-      <div class="st-col">${ov[1]||''}${ov[2]||''}</div>
-      <div class="st-col">${ov[3]||''}${ov[4]||''}${ov[0]||''}</div>
-      <div class="st-col"><div class="tile st-bon"><h4>Where your bonuses come from</h4><p class="meta">Boosts: timed buffs from oddities and tasks. Aquarium: the fish on display. Pets: favourite and companion. Rod: its level and attachments.</p>${tbl?tbl.outerHTML:''}</div></div>
-      <div class="st-col">${gear.join('')}${window.DL_PREVIEW?testerHTML():''}</div></div>`;
-    P.classList.add('st-on'); };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P&&S.tab!=='stats') P.classList.remove('st-on'); return _rp.apply(this,arguments); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel.st-on .st-all{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:stretch}
-body.pc-fhd #panel.st-on .st-col{display:flex;flex-direction:column;gap:14px;min-width:0}
-body.pc-fhd #panel.st-on .st-col > .tile{margin:0!important;padding:14px 16px!important}
-body.pc-fhd #panel.st-on .st-col > .tile:last-child{flex:1 1 auto}
-body.pc-fhd #panel.st-on .tile h4{margin:0 0 6px;font:800 13px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#ffd36a}
-body.pc-fhd #panel.st-on .st-row{padding:5px 0;font-size:13.5px}
-body.pc-fhd #panel.st-on .st-bon .meta{margin:0 0 8px;font-size:12px;line-height:1.45}
-body.pc-fhd #panel.st-on .st-table-wrap{border:0;border-radius:10px}
-body.pc-fhd #panel.st-on .st-table{background:transparent;font-size:13px}
-body.pc-fhd #panel.st-on .st-table th,body.pc-fhd #panel.st-on .st-table td{padding:7px 5px} body.pc-fhd #panel.st-on .st-table thead th{font-size:10.5px;letter-spacing:.02em} body.pc-fhd #panel.st-on .st-table-wrap{overflow:visible}
-body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important}
-</style>`);
+
+
+
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -15799,24 +14597,10 @@ document.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.clos
 { const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){} _rb(P); try{
       P.querySelectorAll('[data-act="reroll"][data-i],[data-act="claim"][data-i]').forEach(btn=>{ const b=S.bounties[+btn.dataset.i], card=btn.closest('.tile'); if(!b||!card||card.querySelector('.bx')) return; const t=bountyBxText(b.x); if(!t) return;
         const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🪱'):b.x.k==='scales'?'🔷':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
-      if(document.body.classList.contains("pc-fhd")&&typeof BOARD_SEC!=="undefined"){ const wq=P.querySelector(':scope > .tile.wq'); if(wq) wq.remove(); } }catch(e){ console.error(e); } }; }
+    }catch(e){ console.error(e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .bx{display:flex;align-items:center;gap:6px;margin:2px 0 4px;padding:4px 10px;border-radius:999px;background:#7fe3c41a;border:1px solid #7fe3c455;color:#bff3e2;font:700 12px var(--display,system-ui);width:max-content;max-width:100%}
 #panel .bx.sp{background:#ffd36a1f;border-color:#ffd36a77;color:#ffe9b0}
-</style>`);
-
-// ---------- Feats: every category shows the boost it gives when finished; all rail rows the same height ----------
-{ const deco=P=>{ try{ P.querySelectorAll('.fr-cat[data-cat]').forEach(b=>{ if(b.querySelector('.fr-bonus')) return; const t=featBonusText(b.dataset.cat); if(!t) return; b.insertAdjacentHTML('beforeend',`<small class="fr-bonus${featCatDone(b.dataset.cat)?' got':''}">${featCatDone(b.dataset.cat)?'✓ ':'Finish all: '}${esc(t)}</small>`); });
-      const h=P.querySelector('.fr-main h3'), cur=P.querySelector('.fr-cat[aria-pressed="true"]'); if(h&&cur&&!P.querySelector('.fr-main .fr-goal')){ const t=featBonusText(cur.dataset.cat); if(t) h.insertAdjacentHTML('afterend',`<div class="fr-goal${featCatDone(cur.dataset.cat)?' got':''}">${featCatDone(cur.dataset.cat)?'Category complete: ':'Finish every feat here for '}<b>${esc(t)}</b></div>`); } }catch(e){} };
-  const _rpf=renderPanel; renderPanel=function(){ const r=_rpf.apply(this,arguments); if(S.tab==='feats') deco($('panel')); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .fr-cat')) setTimeout(()=>deco($('panel')),0); },true); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel .fr-cat{height:64px!important;box-sizing:border-box!important;align-content:center!important;row-gap:3px!important;padding:8px 12px!important}
-html body.pc-fhd #menuov #panel .fr-cat .fr-bonus{grid-column:1 / -1;font:700 11px var(--display,system-ui);color:#8fa6bf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body.pc-fhd #menuov #panel .fr-cat .fr-bonus.got{color:#7fe3c4}
-html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#ffd36a14;border:1px solid #ffd36a44;color:#ffe9b0;font:700 13px var(--display,system-ui)}
-html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
-html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
 
 // ---------- Fish Log: the completion reward says what it really gives ----------

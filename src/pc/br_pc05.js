@@ -607,3 +607,20 @@ body.pc-fhd #panel .od2 .od-card{padding:8px 6px!important;box-shadow:inset 0 3p
 body.pc-fhd #panel .od2 .od-card canvas{max-height:46px!important}
 body.pc-fhd #panel .od2 .od-card small{color:#7fe3c4!important}
 </style>`);
+
+// ---------- Bounties on full HD: the weekly goals live on the Tide Pass page here, so Bounties doesn't repeat them ----------
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='bounties'&&FHD()){ const wq=$('panel').querySelector(':scope > .tile.wq'); if(wq) wq.remove(); } }catch(e){} return r; }; }
+
+// ---------- Feats: every category shows the boost it gives when finished; all rail rows the same height ----------
+{ const deco=P=>{ try{ P.querySelectorAll('.fr-cat[data-cat]').forEach(b=>{ if(b.querySelector('.fr-bonus')) return; const t=featBonusText(b.dataset.cat); if(!t) return; b.insertAdjacentHTML('beforeend',`<small class="fr-bonus${featCatDone(b.dataset.cat)?' got':''}">${featCatDone(b.dataset.cat)?'✓ ':'Finish all: '}${esc(t)}</small>`); });
+      const h=P.querySelector('.fr-main h3'), cur=P.querySelector('.fr-cat[aria-pressed="true"]'); if(h&&cur&&!P.querySelector('.fr-main .fr-goal')){ const t=featBonusText(cur.dataset.cat); if(t) h.insertAdjacentHTML('afterend',`<div class="fr-goal${featCatDone(cur.dataset.cat)?' got':''}">${featCatDone(cur.dataset.cat)?'Category complete: ':'Finish every feat here for '}<b>${esc(t)}</b></div>`); } }catch(e){} };
+  const _rpf=renderPanel; renderPanel=function(){ const r=_rpf.apply(this,arguments); if(S.tab==='feats') deco($('panel')); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .fr-cat')) setTimeout(()=>deco($('panel')),0); },true); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pc-fhd #menuov #panel .fr-cat{height:64px!important;box-sizing:border-box!important;align-content:center!important;row-gap:3px!important;padding:8px 12px!important}
+html body.pc-fhd #menuov #panel .fr-cat .fr-bonus{grid-column:1 / -1;font:700 11px var(--display,system-ui);color:#8fa6bf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.pc-fhd #menuov #panel .fr-cat .fr-bonus.got{color:#7fe3c4}
+html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#ffd36a14;border:1px solid #ffd36a44;color:#ffe9b0;font:700 13px var(--display,system-ui)}
+html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
+html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
+</style>`);

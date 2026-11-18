@@ -179,6 +179,8 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
+// the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
+function stageHOverride(W,H){ return 0; }
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,cv.parentElement.clientWidth||r.width); /* the inside of the water frame, not its border: the picture is drawn at exactly the size it is shown, never rescaled (it was 2 px too wide, which blurred it a little and cost a rescale every frame) */ const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
   H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=renderDPR(W,H);
