@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2020';
+window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2031';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1510,7 +1510,7 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
-function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
+function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,cv.parentElement.clientWidth||r.width); /* the inside of the water frame, not its border: the picture is drawn at exactly the size it is shown, never rescaled (it was 2 px too wide, which blurred it a little and cost a rescale every frame) */ const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
   H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=renderDPR(W,H);
   // resizing a canvas wipes it: skip when nothing changed, and draw the scene again at once so a blank frame never shows (folding the side panels flashed)
@@ -10995,7 +10995,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
   _renderPanel_2();
-  if(newTab){ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
+  if(newTab){ if(document.body.classList.contains('pch-on')) return; /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
@@ -11248,6 +11248,9 @@ if(/[?&]test\b/.test(location.search)) window.__bwEarn=n=>bwEarn(n);
 // along the bottom edge of the screen. The old tab buttons stay in #tabs, hidden: every existing badge,
 // link (data-tabgo) and setTab() call keeps working, and this layer just mirrors them.
 // =====================================================================
+// the page's fade-in, started without forcing a layout (the old way read a size right after building the page, which made the
+// browser finish laying out a big page early: 8-11 ms per menu change). Same look: from 35% to full, rising 3 px, 0.22 s.
+function pageIn(P){ try{ if(!P||!P.animate||matchMedia('(prefers-reduced-motion:reduce)').matches) return; P.animate([{opacity:.35,transform:'translateY(3px)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'}); }catch(e){} }
 const MENU_SECS=[
   {id:'fish',  name:'Fishing',    tabs:['cooler','map','bounties','events'],
    icon:'<path d="M4 12c3-4.5 9-5.5 13-1l3-2.5v7L17 13c-4 4.5-10 3.5-13-1z"/><circle cx="8.5" cy="11.4" r=".9" fill="currentColor" stroke="none"/>'},
@@ -11291,7 +11294,7 @@ function menuSync(){ const T=$('tabs'); if(!T) return; const sec=menuSecOf(S.tab
   // the pills of the open section (rebuilt only when the section changes)
   const list=sec?menuTabsIn(sec):[], key=(sec?sec.id:'')+'|'+list.join(',');
   if(key!==menuSubKey){ menuSubKey=key; sb.innerHTML=list.map(t=>{ const [ic,nm]=menuTabLabel(t); return `<button type="button" class="subp" data-sub="${t}" aria-pressed="false"><span class="subi" aria-hidden="true">${ic}</span><span>${nm}</span><span class="subdot" hidden></span></button>`; }).join('');
-    sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); }
+    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
   sb.hidden=!list.length; let onP=null; sb.querySelectorAll('.subp').forEach(p=>{ const on=p.dataset.sub===S.tab; p.setAttribute('aria-pressed',on?'true':'false'); p.classList.toggle('on',on); if(on) onP=p; });
   // keep the open page's pill in view when the row scrolls sideways (small phones), without moving the page
   menuPillView(sb,onP); requestAnimationFrame(()=>menuPillView(sb,onP));
@@ -11304,7 +11307,7 @@ function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) retu
 
 // keep both rows in step with whatever opened a page (tab links, the gear button, saves loading, events)
 const _renderPanel_035=renderPanel;
-renderPanel=function(){ const r=_renderPanel_035.apply(this,arguments); try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; P.classList.remove('pagein'); void P.offsetWidth; P.classList.add('pagein'); } }catch(e){} return r; };
+renderPanel=function(){ const r=_renderPanel_035.apply(this,arguments); try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){} return r; };
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the old grid stays in the page (hidden) so the game can keep updating it */
@@ -11362,7 +11365,7 @@ body.side-off #tabs.secmode{display:none!important} /* phones sideways: "Hide me
 }
 </style>`);
 // scroll the pill row (not the page) so the open page's pill sits fully in view, clear of the edge fades
-function menuPillView(sb,p){ if(!sb||!p) return; if(sb.scrollWidth>sb.clientWidth+2){ const s=sb.getBoundingClientRect(), r=p.getBoundingClientRect(), pad=34;
+function menuPillView(sb,p){ if(!sb||!p) return; if(document.body.classList.contains('pch-on')&&sb.closest('#menuov')) return; /* PC: the page tabs always fit, so no measuring */ if(sb.scrollWidth>sb.clientWidth+2){ const s=sb.getBoundingClientRect(), r=p.getBoundingClientRect(), pad=34;
     if(r.right>s.right-pad) sb.scrollLeft+=r.right-(s.right-pad); else if(r.left<s.left+pad) sb.scrollLeft-=(s.left+pad)-r.left; }
   const edges=()=>{ sb.classList.toggle('more-r',sb.scrollLeft+sb.clientWidth<sb.scrollWidth-4); sb.classList.toggle('more-l',sb.scrollLeft>4); };
   edges(); requestAnimationFrame(edges); } // again next frame: the row can still change width after this (the edge fade must match the final scroll)
@@ -11479,7 +11482,7 @@ function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).s
 
 // the Trophy Room page, and Keep buttons on cooler and aquarium fish
 const _renderPanel_tp=renderPanel;
-renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; P.classList.remove('pagein'); void P.offsetWidth; P.classList.add('pagein'); } }catch(e){} return; } return _renderPanel_tp.apply(this,arguments); };
+renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){} return; } return _renderPanel_tp.apply(this,arguments); };
 function vaultButtons(P){ const add=(row,attr,i)=>{ const acts=row.querySelector('.acts'); if(!acts||acts.querySelector('[data-vk],[data-vt]')) return; acts.insertAdjacentHTML('afterbegin',`<button class="btn alt sm tp-keep" ${attr}="${i}" title="Mount it in the Trophy Room forever (no income or boosts, never lost on a new voyage)">🏛️ Keep</button>`); };
   if(S.tab==='cooler') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="totank"][data-i]'); if(ib) add(row,'data-vk',ib.dataset.i); });
   if(S.tab==='aquarium') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="untank"][data-i]'); if(ib) add(row,'data-vt',ib.dataset.i); }); }
@@ -12879,7 +12882,7 @@ MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
 document.body.appendChild(MO);
 function menuMount(){ const {T,P,toast}=menuEls(); MO.querySelector('.mo-nav').appendChild(T); MO.querySelector('.mo-body').appendChild(P); if(toast) MO.appendChild(toast);
-  G.hold=false; try{ spaceDown=false; }catch(e){} MO.hidden=false; MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show');
+  G.hold=false; try{ spaceDown=false; }catch(e){} MO.hidden=false; if(document.body.classList.contains('pch-on')){ MO.classList.add('mo-show'); try{ const sb=MO.querySelector('#tabs .subbar'); if(sb&&sb.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) sb.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'}); }catch(e){} } else { MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show'); }
   document.body.classList.add('menu-open'); document.documentElement.classList.add('menu-open');
   if(!menuHist){ try{ history.pushState({dlmenu:1},''); menuHist=true; }catch(e){} }
   const sb=T.querySelector('.secb.on')||MO.querySelector('.mo-back'); try{ (document.activeElement&&document.activeElement.blur)&&document.activeElement.blur(); sb&&sb.focus({preventScroll:true}); }catch(e){} }
@@ -14105,7 +14108,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     const o=keep(['a',id,myst?1:0,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>{ const x=o.getContext('2d'); if(myst) mysteryThumb(x,o.width,o.height,id); else drawDecor(x,id,80,id==='duck'?70:112,1,0); }); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
   // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
   const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
-  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },3000); }
+  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },1000); }
 // Tapping fast between sections and pages: the first tap switches at once (highlight and page together); taps that arrive
 // while a page is still being built only remember where you want to go, and that one page is built on the next frame.
 // The save that remembers your last page waits until the tapping stops instead of writing on every tap.
@@ -14344,14 +14347,20 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
 // page or section change and window resize.
 { let q=0; const P=()=>$('panel');
+  // one measurement at the current zoom gives the exact zoom that fits (the page's height scales with it), so the page is laid
+  // out once or twice instead of up to four times (each pass cost ~17 ms on the biggest pages: that was menu lag in full screen).
+  // Every page remembers its zoom (per section and window size) and starts from it, so reopening it usually needs no change at all.
+  const cache=new Map(), key=()=>S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+innerWidth+'x'+innerHeight;
   const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
     if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
-    p.style.zoom=''; const ch=p.clientHeight, sh=p.scrollHeight; if(!ch||sh<=ch+2) return;
-    let z=Math.max(.76,ch/sh); p.style.zoom=String(z);
-    for(let i=0;i<3;i++){ const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2<=ch2+2||z<=.76) break; z=Math.max(.76,z*ch2/sh2-.004); p.style.zoom=String(+z.toFixed(3)); } };
+    if(p.classList.contains('fl-on')){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log sizes its own columns
+    const z0=+p.style.zoom||1, ch=p.clientHeight, sh=p.scrollHeight; if(!ch||!sh) return;
+    let z=sh<=ch+2?Math.min(1,z0*ch/sh):Math.max(.76,z0*ch/sh-.003); if(z>.997) z=1;
+    if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<2) soon(); } cache.set(key(),z); };
+  let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); soon(); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(soon,30); },true);
+  const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
   addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
   if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -14426,7 +14435,7 @@ body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overf
     if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
     (grid||P.lastChild).after(fb);
     // columns filled by hand: each group card goes into the shortest column (the browser's own balancing left columns empty)
-    const w=P.clientWidth, n=w>=1300?5:w>=1000?4:3, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
+    const w=innerWidth-32, n=w>=1300?5:w>=1000?4:3 /* the page is the window minus its margins: no measuring right after building it */, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
     const secs=[...fb.children], size=s=>s.querySelectorAll('.fb-row').length+2.2, pos=new Map(secs.map((s,i)=>[s,i]));
     secs.slice().sort((a,b)=>size(b)-size(a)).forEach(sec=>{ const i=h.indexOf(Math.min(...h)); cols[i].appendChild(sec); h[i]+=size(sec); }); /* biggest groups first: even columns */
     cols.forEach(c=>[...c.children].sort((a,b)=>pos.get(a)-pos.get(b)).forEach(s=>c.appendChild(s))); /* each column keeps the usual group order */
@@ -15022,6 +15031,14 @@ body.pch-on #panel .pc-pn .pn-sec.wide ul{columns:2 320px;column-gap:30px}
 body.pch-on #panel .pc-pn .pn-sec:only-child ul{columns:2 320px;column-gap:30px}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>body.pch-on #panel .pc-pn .pcpn-h{display:none}</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the goal sits in the strip above the water now: no see-through blur behind it (it cost work every frame for nothing) */
+html body.pch-on #pcscene #goalchip{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the page tabs' entrance is played by script now (no forced layout), so the class-based copy is switched off */
+body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
+</style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
