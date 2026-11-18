@@ -96,7 +96,23 @@ windows use the regular PC layout (`body.pch-on`).
 
 **The check (required before anything goes to the test apps or live):** `window.__spec()` in a test build (`?test`) measures the screen you are on against these numbers and lists every break, including covered buttons and the status corner reaching the Rest button. Run it on the water and on every menu page (scrolled top and bottom) at every phone size below, on BOTH the Android and iPhone builds; it must return nothing. `__qa()` and `__layoutQC()` must also pass.
 
-**Phone test sizes:** upright 375×667, 390×844, 430×932; sideways 667×375, 734×360, 844×390, 932×430 (the director's iPhone is 932×430 sideways). iPhone with `?test&ios`.
+**Safe areas (director, 2026-11-18, iPhone 17 Pro Max: menus "cut off by my front cameras", "iPhones and Pro Maxes aren't the same size"):** every edge is `max(standard, env(safe-area-inset-*))`, the same rule as the fishing screen, so menus clear the Dynamic Island / camera cutout, the rounded corners and the home bar and match the water on every model. A desktop browser has zero insets, which hid this: **always test with `window.__safeSim(left, right, top, bottom)`** (test builds only; rewrites every `env(safe-area-inset-*)` to the given points). `__spec` fails any button, heading, text or chip that reaches into a simulated inset.
+
+**Phone test sizes = the modern models (director: "stick to the more modern sizes", "15s should have support too"; one standard for all):** CSS points, safe areas upright → sideways.
+
+| Model | Upright | Safe areas (upright → sideways) |
+|---|---|---|
+| iPhone 16 / 17 Pro Max (the director's) | 440×956 | top 62, bottom 34 → left/right 62, bottom 21 |
+| iPhone Air | 420×912 | top 68 → left/right 68, bottom 21 |
+| iPhone 15 Plus / 15 Pro Max / 16 Plus | 430×932 | top 59, bottom 34 → 59, bottom 21 |
+| iPhone 16 Pro / 17 / 17 Pro | 402×874 | top 62, bottom 34 → 62, bottom 21 |
+| iPhone 15 / 15 Pro / 16 | 393×852 | top 59, bottom 34 → 59, bottom 21 |
+| Pixel 9 / 10 | 412×915 | 0 → cutout 32 on one side |
+| Galaxy S24 / S25 | 360×780 | 0 → cutout 32 on one side |
+
+Run `__spec` at each, upright and sideways, with its safe areas simulated. The older small sizes (375×667, 667×375, 734×360) no longer have to pass. iPhone with `?test&ios`.
+
+**Speed:** a menu page must open in about one frame's budget on top of building the page. Never paint or build what is not on screen when a page opens (e.g. the Aquarium's 45 hidden decoration pictures are painted in small batches right after it shows), and never do heavy one-time work inside a tap (the music and ambience buffers are built 0.4 s after the first tap; the tap only unlocks audio). Measure with `__fnTime(names, fn)`.
 
 **Release order (director's QC rule):** fix → `__spec` + `__qa` on both phone builds → phone test apps (`publish_testapps.ps1`) → the director checks them on real phones → only then live, and only when the director says so.
 

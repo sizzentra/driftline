@@ -37,3 +37,22 @@
 { const _vs=v3steps, _vf=v3fade; v3steps=function(){ return MOB()?[9,6,4]:_vs.apply(this,arguments); }; v3fade=function(){ return MOB()?4.2:_vf.apply(this,arguments); };
   const BUSY=/^(charging|flying|bite|reeling|landing)$/;
   const _vl=v3land; v3land=function(L,P,hz){ if(MOB()&&V3CACHE&&!v3land.now&&typeof G==='object'&&BUSY.test(G.st)){ const base=L.id+'|'+W+'|'+H+'|'+DPR; if(V3CACHE.base===base&&V3CACHE.key!==base+'|'+P.key) return V3CACHE; } return _vl.apply(this,arguments); }; }
+
+// ---------- opening menus without a hitch (director, 2026-11-18, iPhone 17 Pro Max: "it lags or takes time for some buttons like
+// aquarium interfaces to load"). Measured on the phone build: the first tap anywhere built every music and ambience sound buffer on
+// the spot (about 17 seconds of generated sound, ~67 ms on a desktop, several times that on a phone), and every Aquarium open painted
+// all 45 decoration pictures although none of them is on screen until you pick Decorate (~8 ms each open, ~19 ms the first time).
+//  - sound: the tap still unlocks the phone's audio at once (iOS needs that inside the tap); building the sounds waits 0.4 s, after
+//    the page has opened, so music simply starts a moment later
+//  - decorations: pictures on screen are painted right away, the hidden ones in small batches right after the page is shown
+// Android + iPhone only. ----------
+{ const _sa=startAudio; let wait=0;
+  startAudio=function(){ if(!MOB()) return _sa.apply(this,arguments); if(MUS.started||wait) return; const a=ac(); if(!a) return;
+    wait=setTimeout(()=>{ wait=0; try{ _sa(); }catch(e){} },400); };
+  const _pd=paintDecor;
+  const paint=list=>{ if(list.length) _pd({ querySelectorAll:()=>list }); };
+  paintDecor=function(P){ if(!MOB()||!P||!P.querySelectorAll) return _pd.apply(this,arguments);
+    queueMicrotask(()=>{ const all=[...P.querySelectorAll('canvas[data-decor]')]; if(!all.length) return;
+      const now=[], later=[]; for(const c of all) (c.getClientRects().length?now:later).push(c); paint(now);
+      const step=()=>{ const part=later.splice(0,8).filter(c=>c.isConnected); paint(part); if(later.length) setTimeout(step,0); };
+      if(later.length) setTimeout(step,0); }); }; }

@@ -102,6 +102,8 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
 PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
   '## Fixes',
+  'Menus now fit every iPhone: they stay clear of the Dynamic Island, the rounded corners and the home bar, and match the fishing screen on every model (the bigger Pro Max screens were cut off under the camera).',
+  'Menus open faster: the Aquarium no longer stalls when you open it, and the very first tap of a session no longer pauses while the music loads.',
   'One look everywhere: every button, tab, badge and label of the same kind now has the same size and style on every page (buttons came in nine different heights, badges in four sizes); the bottom tabs keep their size when a menu opens.',
   'Long button labels ("Unlock · 1,200,000") stay on one line instead of making a taller button.',
   'Upright, a long "Next goal" stays one row tall and no longer pushes the water down.',
