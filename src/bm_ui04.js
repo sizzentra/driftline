@@ -1128,7 +1128,7 @@ body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important
 // right of the water on sideways phones and a bar under the water everywhere else. Only Rest and the tip stay on it.
 // =====================================================================
 { const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
-  const hint=$('hint'); const keepHint=()=>{ if(document.body.classList.contains('pch-on')) return; if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
+  const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
   // the picture is exactly the water's box (the bar below or beside it is not part of the water)
   const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -1976,7 +1976,7 @@ body.pch-on #panel .grid.sect-one > .pc-col{display:none}
   const apply=()=>{ if(!build()) return; const p=parts(), br=document.querySelector('#pchead .pch-brand');
     if(pc()){ if(br){ br.classList.add('pch-me'); br.removeAttribute('aria-hidden'); park(p.lv,br); park(p.co,br); }
       park(p.cool,stats); park(p.aq,stats); park(p.log,stats);
-      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('hint'),scene,scene.querySelector('.pcs-boosts')); park($('resttog'),scene); tick(); }
+      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('resttog'),scene); tick(); }
     else [p.lv,p.co,p.cool,p.aq,p.log,p.loc,p.goal,$('hint'),$('resttog')].forEach(e=>e&&home(e)); };
   // the day and weather ("Day · Rain  bites +35% · 0:58"), boosts and streak, as the canvas drew them on the water
   const tick=()=>{ if(!built||!pc()) return; try{ const w=weather(), tag=WX_TAG[w.k], l=tod(phase())+' · '+wxName(w.k), v=(tag?tag+' · ':'changes in ')+mmss(wxLeft());
@@ -2069,3 +2069,39 @@ html body.phone-land .dlprev{top:4px!important}
     addEventListener('orientationchange',soon); addEventListener('resize',soon); addEventListener('pageshow',soon); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) soon(); });
     soon(); }
   document.head.insertAdjacentHTML('beforeend','<style>html.sa-recalc body{padding-bottom:calc(env(safe-area-inset-bottom) + 0.01px)}</style>'); }
+// No rainbows at night (director, 2026-11-17: "no nighttime rainbows pls yuck"): the rainbow is drawn only in daylight and fades
+// out fully as dusk falls (it hung on at 15% before). The weather and its bonus stay: a day here lasts 6 minutes and a weather 4,
+// so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
+{
+  // Fog's tag says what it does: night fish come out by day (at night there is nothing extra to say)
+  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){} }
+// =====================================================================
+// Weather that fits the time of day (director, 2026-11-17: "no nighttime rainbows", "all weather needs to be time appropriate").
+// Rainbow and Gilded light happen only by day, Aurora and Blood Moon only at night; rain, storm, fog, the spawning run and clear
+// skies can happen any time. A day here lasts 6 minutes and a weather spell 4, so a spell that needs the other time of day waits
+// for it (or ends when it passes) and the sky is clear in between. The weather is worked out as stretches of time, so what you
+// see, its bonus, its countdown, its fade in and out and the forecast always agree. These spells now only run for part of their
+// slot, so they are drawn twice as often, which keeps their share of the day about the same.
+// =====================================================================
+{ const RULE={'Rainbow':'day','Gilded':'day','Aurora':'night','Blood Moon':'night'};
+  const W=k=>WEATHERS.find(w=>w.k===k), CLEAR=W('Clear');
+  // twice the draws for the time-bound spells, taken from Clear (the weights still add up to 100)
+  try{ const add={Rainbow:3,Gilded:6,Aurora:4,'Blood Moon':3}; let took=0; for(const k in add){ const w=W(k); if(w){ w.w+=add[k]; took+=add[k]; } } if(CLEAR) CLEAR.w-=took; }catch(e){}
+  const slotW=weatherAt; // the raw schedule: one roll every WX_LEN seconds
+  const night=t=>nightness((((t%CYCLE)+CYCLE)%CYCLE)/CYCLE)>.5;
+  const kindAt=t=>{ const w=slotW(Math.floor(t/WX_LEN)), r=RULE[w.k]; return !r||(r==='night')===night(t)?w:CLEAR; };
+  // the stretch of time around t with the same weather: [start, end)
+  let memo=null; const STEP=2;
+  const seg=t=>{ if(memo&&t>=memo.start&&t<memo.end) return memo; const w=kindAt(t); let a=Math.floor(t), b=Math.floor(t)+1;
+    for(let i=0;i<600&&kindAt(a-STEP).k===w.k;i++) a-=STEP; for(let i=0;i<600&&kindAt(b).k===w.k;i++) b+=STEP;
+    while(a>0&&kindAt(a-1).k===w.k) a--; while(b>a&&kindAt(b-1).k!==w.k) b--; // tighten to the second
+    return memo={w,start:a,end:b}; };
+  const now=()=>Date.now()/1000;
+  weather=function(){ return seg(now()).w; };
+  wxLeft=function(){ return Math.max(1,Math.ceil(seg(now()).end-now())); };
+  wxAmt=function(){ const t=now(), s=seg(t); let a=1; if(kindAt(s.start-1).k!==s.w.k) a=Math.min(a,(t-s.start)/WX_FADE); if(kindAt(s.end).k!==s.w.k) a=Math.min(a,(s.end-t)/WX_FADE); return clamp(a,0,1); };
+  // the forecast: the next stretches, as they will really happen
+  wxForecast=function(n=6){ const t0=now(); let s=seg(t0); const out=[]; for(let i=0;out.length<n&&i<40;i++){ const nx=seg(s.end); if(!nx||nx.end<=s.end) break; out.push({k:nx.w.k,note:nx.w.note,at:nx.start-t0,len:nx.end-nx.start}); s=nx; } memo=null; return out; };
+  // the raw slot schedule as seen at the start of each slot (used by the "starts in under a minute" heads-up)
+  weatherAt=function(slot){ return kindAt(slot*WX_LEN+1); };
+  if(/[?&]test\b/.test(location.search)) window.__wxTime={kindAt,seg,night,RULE}; }

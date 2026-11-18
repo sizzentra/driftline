@@ -454,7 +454,7 @@ const WEATHERS = [
   {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},
   {k:'Rainbow', w:3, shiny:2, xp:1.3, note:'A rainbow over the water. Shinies ×2 and XP +30%.'},
   {k:'Rain',   w:22, bite:1.35, note:'Bites come 35% faster.'},
-  {k:'Fog',    w:15, fog:true, note:'Thick fog rolls in: hard to see far, and night-only fish bite at any hour.'},
+  {k:'Fog',    w:15, fog:true, note:'Thick fog makes the water as dark as night: hard to see far, and night-only fish come out even by day.'},
   {k:'Storm',  w:11, rare:.5, str:1.2, note:'Much rarer fish, but they fight 20% harder.'},
   {k:'Gilded', w:8,  shiny:3, note:'Shiny fish are 3 times as common.'},
   {k:'Aurora', w:4,  xp:2, note:'The sky is putting on a show. XP ×2.'},

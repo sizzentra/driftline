@@ -21,7 +21,7 @@ const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------
 function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0;
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
+  if(k==='Rainbow'){ const A=a*Math.max(0,1-night*1.6)*.36; if(A>.01){ const {cx,cy,R}=wx3Rainbow(hz), cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012;
       g.save(); g.beginPath(); g.rect(0,0,W,hz); g.clip(); g.lineWidth=bw*1.2; for(let i=0;i<7;i++){ g.globalAlpha=A*(i===0||i===6?.7:1); g.strokeStyle=cols[i]; g.beginPath(); g.arc(cx,cy,R-i*bw,Math.PI,Math.PI*2); g.stroke(); }
       g.globalAlpha=A*.35; g.strokeStyle='#ffffff'; g.lineWidth=bw*6; g.beginPath(); g.arc(cx,cy,R-bw*10,Math.PI,Math.PI*2); g.stroke(); g.restore(); } }
   if(k==="Aurora"){ const A=a*(.55+.45*night);
@@ -56,7 +56,7 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
   if(k==='Storm'&&FX){ g.fillStyle=v3rgba('#e8f0f4',.4*a); for(let i=0,n=Math.round(20*gfxK());i<n;i++){ const y=hz+H*.03+Math.pow((i*.137)%1,1.4)*(H-hz)*.9, u=(y-hz)/(H-hz), x=((((i*97.3)%1000)/1000*W+t*W*(.03+u*.04))%(W*1.1))-W*.05, l=W*(.012+u*.03); g.globalAlpha=a*(.4+.4*Math.sin(t*2+i)); g.fillRect(x,y,l,Math.max(1,u*2.4)); } g.globalAlpha=1; }
-  if(k==='Rainbow'){ const A=a*(1-night*.85)*.2; if(A>.01){
+  if(k==='Rainbow'){ const A=a*Math.max(0,1-night*1.6)*.2; if(A>.01){
       // the rainbow's reflection: the sky arc mirrored in the horizon (centre hz-.28H, the mirror of the sky arc's hz+.28H),
       // faded smoothly with depth and laid on in thin rippling strips like the land's reflection. It used to be a sharp,
       // full-strength copy cut off by a hard straight edge (director, 2026-11-17).
