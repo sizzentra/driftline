@@ -146,7 +146,7 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Phone Fish Log Normal / Shiny | `mobile/fishlog07.js` (PC's own is in `pc/ui_fhd.js`) | resets to Normal for each new fish; Shiny only for caught species |
 
 ## Versions on live (2026-11-18)
-PC is on **0.4.8.2** (PC-only hotfix, branch `hotfix/0.4.8.2`, tag `v0.4.8.2`, published by copying only `site/pc.html` with the live build stamp kept). Android and iPhone are on **0.4.8.1**. The next release must be 0.4.8.3 or higher (or 0.4.9 for new content) so PC never goes backwards; the 0.4.8.2 PC patch note is already in `src/pc/notes_release.js`.
+PC is on **0.4.8.2** (PC-only hotfix; tag `v0.4.8.2` marks its source commit, the published file is main `63d9896`). Android and iPhone are on **0.4.8.3** (tag `v0.4.8.3`, published 2026-11-18 by building the release and committing only `site/android.html`, `site/ios.html` and the router; `site/pc.html` and `site/version.txt` were restored from HEAD and the phone pages keep the live build stamp `2026.11.18-0315`, so nobody gets an update bar: phones pick up 0.4.8.3 the next time the game opens, since the service worker always loads fresh). **Phone-only rounds never push `site/next` (the PC test app):** restore `site/next` from HEAD before committing and publish phones with `publish_testapps.ps1`. The next release on any platform must be 0.4.8.4 or higher; when PC catches up, it takes the shared changes since 0.4.8.1 (willow, open-sea chop, angler, effects) and needs a full PC test.
 
 ### Phone aquarium, round 7e (replaces the "full-width lists" row above)
 `mobile/aquarium07.js` was rewritten: `.aq07-stage` (the tank, grows to fill) + `.aq07-bar` (bank + the Options button `.aq07-tog`) +
@@ -163,3 +163,10 @@ On display / Add from your Cooler. Upright: open = tank 40% of the height; sidew
 | Measured (desktop CPU, similar to a Pixel 10's): | | every water clear/storm, upright and sideways: median 1.1-2.3 ms, worst 8 ms, no long tasks; first frame after a water switch 4-13 ms; aquarium with 12 shiny pictures 2.3 ms sparkles + 2 ms tank |
 | Side panel in menus = side panel on the water (sideways) | `mobile/theme07.js` (round 7g block) | menu grid `auto 1fr 124px` (56px collapsed), right padding 8, top row 40, secbar frame 124 x stretch with padding 5 / gap 5 / border 1, Back 112 (44) in the header row; water collapsed buttons forced to 44. Measured pixel-identical (expanded and collapsed) on 844x390, 915x412, 667x375 |
 | Full screen remembered (phones; matters on Android) | `mobile/fullscreen07.js` on top of the shared `an_small04.js` | an exit counts as "off" only if the page is still visible ~0.7 s later; exits caused by leaving the app keep `dl-fs`=1; returning to the app re-arms the first-tap re-entry |
+
+## Weather news on phones (0.4.8.3)
+`mobile/weather07.js` wraps `toast` on phones: the two weather notices (`e_ui.js` "Weather: ..." when the weather changes, `bq_feat04.js`
+"... weather starts in under a minute") become a small line `#mbwx` under the scene chip (pointer-events none, 5 s). Blocked while
+`MENU_OPEN`, a popup card (`G.st==='event'`, `#evcard` visible, `ev-open`), a cast or a fish (`charging|flying|bite|reeling|landing`) or the
+page is hidden: the newest note waits (1 s check only while one waits) and is dropped if no longer true. Every other notice is unchanged.
+Change either weather message's wording: update the two patterns in `weather07.js`. Test hook (`?test`): `__wxNote()`.
