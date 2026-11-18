@@ -9,6 +9,7 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy 
   '## Smoother frames',
   'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
   'Storms are lighter: the darkening and the soft frame around the picture are drawn in one layer instead of up to four, and storm waves on the open sea draw in a handful of shapes instead of hundreds.',
+  'Held sideways, the side panel stays exactly in place when you open a menu (it used to shift a little); Back sits right above it.',
   'Dawn and dusk are smoother: the light changes in fewer, softer steps, and never while you are casting or have a fish on the line.',
   'The picture of the water is drawn as one solid layer, so your phone has a little less to blend on every frame.',
   'If a water or a storm is too heavy for your phone, the picture gets a touch softer sooner and in smaller steps, and each water remembers what suits your phone, so coming back is smooth straight away.',

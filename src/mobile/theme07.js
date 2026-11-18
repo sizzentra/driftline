@@ -218,3 +218,26 @@ html body.phone-app .hud > .st-aq.ready *,html body.phone-land .hud > .st-aq.rea
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app .hud #coolerct[style*="danger"],html body.phone-land .hud #coolerct[style*="danger"]{color:#ffd36a!important;text-shadow:0 0 6px #ffb34766}
 </style>`);
+// ---------- round 7g (director, 2026-11-18, screenshots: "the side panel needs to remain in the same place when entering full screen on
+// mobile, it shifts slightly"). Sideways, opening a menu moved the side panel 26 px left and 8 px up and changed its frame (the menu used
+// a 16 px screen edge, a 136 px column and a 36 px top row; the water uses 8 px, a 124 px frame and starts the panel at the same height
+// as the water). The menu now uses the water's exact geometry: the same frame, padding, gaps and button positions, with Back in the
+// header row directly above the panel. Collapsed (icon-only) panels match too. ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 124px!important;grid-template-rows:40px minmax(0,1fr)!important;padding-right:8px!important;row-gap:4px!important}
+  html body.phone-land.dock-mini #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 56px!important}
+  html body.phone-land #menuov #tabs .secbar,html body.phone-land #menuov .secbar{box-sizing:border-box!important;width:124px!important;margin:0 0 6px!important;padding:5px!important;gap:5px!important;border:1px solid #ffffff17!important;align-self:stretch!important;justify-content:flex-start!important}
+  html body.phone-land.dock-mini #menuov #tabs .secbar,html body.phone-land.dock-mini #menuov .secbar{width:56px!important}
+  html body.phone-land #menuov #tabs .secbar .secb{margin:0!important}
+  html body.phone-land #menuov #tabs .secbar .cdmini{margin:2px 0 0!important} /* the water's collapse button sits 2 px lower too */
+  html body.phone-land #menuov .mo-back{width:112px!important;margin:0 0 0 6px!important;align-self:center!important;min-height:36px!important;height:36px!important}
+  html body.phone-land.dock-mini #menuov .mo-back{width:44px!important;margin:0 0 0 6px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  /* collapsed: an older rule made the water's icon buttons 46 px (menus 44), so the collapsed panel moved 2 px; both are 44 now */
+  html body.phone-land.dock-mini.dl-fish .wrap > #catdock .cdb,html body.phone-land.dock-mini .wrap > #catdock .cdb{width:44px!important;min-width:44px!important}
+}
+</style>`);
