@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2329';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.17-2339';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1510,6 +1510,8 @@ const sfx = {
 
 // ---------- canvas ----------
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
+// the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
+function stageHOverride(W,H){ return 0; }
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,cv.parentElement.clientWidth||r.width); /* the inside of the water frame, not its border: the picture is drawn at exactly the size it is shown, never rescaled (it was 2 px too wide, which blurred it a little and cost a rescale every frame) */ const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
   H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=renderDPR(W,H);
@@ -11532,92 +11534,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (prefers-reduced-motion:reduce){.tp-star{animation:none}}
 </style>`);
 // =====================================================================
-// 0.3.5.2 phones held upright: one screen, no page scrolling. A compact top bar, the water, the page pills,
-// and the open page scrolling inside its own area just above the section bar. The water never scrolls away.
-// The game's tip line sits on the water as a small overlay instead of taking a row of its own.
-// Switched on by body.phone-app, decided by the same rule the water's size uses (c_logic resize()).
-// =====================================================================
-const PHONE_APP=()=>window.innerHeight>window.innerWidth*1.15 && window.innerWidth<=700;
-(function(){ const hint=$('hint'), stage=$('stage'), wrap=document.querySelector('.wrap'); if(!hint||!stage||!wrap) return;
-  const home=hint.parentElement, next=hint.nextElementSibling; let on=null;
-  function apply(){ const v=PHONE_APP(); if(v===on) return; on=v; document.body.classList.toggle('phone-app',v); document.documentElement.classList.toggle('phone-app',v);
-    // the tip line moves onto the water (and back when the phone is turned)
-    if(v){ if(hint.parentElement!==stage) stage.appendChild(hint); } else if(hint.parentElement!==home){ next&&next.parentElement===home?home.insertBefore(hint,next):home.appendChild(hint); }
-    try{ resize(); }catch(e){} }
-  addEventListener('resize',apply); addEventListener('orientationchange',()=>setTimeout(apply,60)); apply(); })();
-
-// a new page starts at its top (inside its own scroll area on phones); the same page re-drawing keeps its place
-{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), keep=P?P.scrollTop:0, same=S.tab===lastTab; const r=_rp.apply(this,arguments);
-    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){} lastTab=S.tab; return r; }; }
-
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app{height:100dvh;overflow:hidden;padding-top:8px!important;padding-bottom:0!important;overscroll-behavior:none}
-html.phone-app{overflow:hidden;height:100%}
-body.phone-app .wrap{height:calc(100dvh - 8px - 70px - env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;overflow:hidden}
-body.phone-app .wrap > *{flex:0 0 auto}
-body.phone-app #panel{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:2px 2px 14px;scrollbar-width:thin;contain:layout paint}
-body.phone-app #tabs.secmode{padding:0!important;gap:0}
-body.phone-app #tabs.secmode .subbar{padding:2px 2px 2px}
-body.phone-app #tabs.secmode .subp{min-height:34px;padding:0 12px;font-size:12.5px}
-/* a compact top bar: two slim rows */
-body.phone-app .hud{gap:5px}
-body.phone-app .hud>*{height:36px}
-body.phone-app .hud .stat{padding:2px 8px}
-body.phone-app .hud .stat .lbl{font-size:8.5px;letter-spacing:.06em}
-body.phone-app .hud .stat b{font-size:13px}
-body.phone-app .hud .ghost{font-size:12px}
-/* the tip line, on the water */
-body.phone-app #stage > #hint{position:absolute;left:50%;bottom:58px;transform:translateX(-50%);z-index:3;margin:0;max-width:calc(100% - 28px);min-width:110px;width:max-content;padding:4px 10px;border-radius:12px;background:#0a1220b8;border:1px solid #ffffff1a;color:#dbe7f3;font-size:11px;line-height:1.3;text-align:center;pointer-events:none;display:block}
-body.phone-app #stage > #hint:empty{display:none}
-body.phone-app.card-open #stage > #hint{opacity:0}
-/* the water is always in view here, so the jump button is not needed */
-body.phone-app #towater{display:none!important}
-</style>`);
-
-// ---------- full-screen water on phones held upright: the same toggle and saved setting as phones held sideways ----------
-// One tap and the water fills the screen (menus hidden, the top bar stays); one more tap and the menus come back.
-function stageHOverride(W,H){ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
-  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); }
-// re-measure the water whenever the toggle flips (the sideways code already does this; upright needs it too)
-{ const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },40)); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app .sidetog{display:flex!important;position:absolute;right:10px;top:auto;bottom:10px;transform:none;width:40px;height:40px;border-radius:12px;align-items:center;justify-content:center;background:#0a1220c4;border:1px solid #ffffff2e;color:#fff;font-size:0;z-index:4;box-shadow:0 4px 12px #0008}
-body.phone-app .sidetog::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:var(--fsic) center/contain no-repeat;mask:var(--fsic) center/contain no-repeat}
-body.phone-app .sidetog[aria-expanded="true"]{--fsic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5'/%3E%3C/svg%3E")}
-body.phone-app .sidetog[aria-expanded="false"]{--fsic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5'/%3E%3C/svg%3E")}
-body.phone-app.card-open .sidetog{opacity:0;pointer-events:none}
-/* full-screen water (upright): menus and the section bar step away, the water takes the space */
-body.phone-app.side-off #panel,body.phone-app.side-off #tabs.secmode{display:none!important}
-body.phone-app.side-off .wrap{height:calc(100dvh - 8px - env(safe-area-inset-bottom))}
-body.phone-app.side-off #stage > #hint{bottom:62px}
-</style>`);
-// Rest, built into the phone controls: a proper button mirroring the full-screen one (bottom-left / bottom-right)
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #resttog,body.phone-land #resttog{left:10px;bottom:10px;height:40px;min-width:40px;padding:0 13px 0 11px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;font:800 13px var(--display,system-ui);background:#0a1220c4;border:1px solid #ffffff2e;box-shadow:0 4px 12px #0008;z-index:4}
-body.phone-app #resttog[aria-pressed="true"],body.phone-land #resttog[aria-pressed="true"]{background:linear-gradient(180deg,#3a3010e6,#241c08e6);border-color:#ffd36a;color:#ffe6a0;box-shadow:0 0 0 1px #ffd36a44,0 0 18px #ffd36a44}
-</style>`);
-// phones held sideways get the same controls look
-(function(){ const f=()=>document.body.classList.toggle('phone-land',matchMedia('(orientation:landscape) and (max-height:560px)').matches); addEventListener('resize',f); f(); })();
-// small phones: a two-line tip, an icon-only gear button, and more room for coins
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #stage > #hint{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-body.phone-app #stage > #hint:empty{display:none}
-@media (max-width:380px){
-  body.phone-app .hud{grid-template-columns:1.25fr .9fr 1fr .8fr}
-  body.phone-app .hud #settingsbtn{font-size:0;padding:0;display:flex;align-items:center;justify-content:center}
-  body.phone-app .hud #settingsbtn::before{content:"⚙";font-size:19px;line-height:1}
-  body.phone-app #stage > #hint{font-size:10.5px}
-}
-</style>`);
-// event cards (patch notes, chests, choices) float over the whole phone screen too, like the catch card
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #evcard,body.phone-land #evcard{position:fixed;inset:0;z-index:40;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
-body.phone-app #evcard .in,body.phone-land #evcard .in{max-height:100%;overflow-y:auto;overscroll-behavior:contain;width:min(460px,100%)}
-</style>`);
-// hide the water controls while an event card is open, like for catches
-{ const ev=$('evcard'); if(ev) new MutationObserver(()=>document.body.classList.toggle('ev-open',!ev.hidden)).observe(ev,{attributes:true,attributeFilter:['hidden']}); }
-document.head.insertAdjacentHTML('beforeend',`<style>body.ev-open #resttog,body.ev-open.phone-app .sidetog{opacity:0;pointer-events:none}</style>`);
-// =====================================================================
 // 0.3.6 hats redrawn to fit the head. Every hat here is built from the real head outline (hat space: the head's centre
 // is at (0,1.4), the head with hair is about 8 wide each way, the eye sits at (4.4,0.4), the face looks to +x), so
 // nothing floats above the head, sticks out past it as a flat slab, or covers the eye:
@@ -13138,8 +13054,7 @@ for(let i=SEARCH_IDX.length-1;i>=0;i--) if(SEARCH_IDX[i][0]==='Hide menus') SEAR
 if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
 // save codes and the account copy carry the current dock exactly as it is right now
 { const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
-// phones held sideways: the top bar's seven chips share the width by what they hold, so the water name always fits
-document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){.hud{grid-template-columns:minmax(0,.9fr) minmax(0,.85fr) minmax(0,1.65fr) minmax(0,.8fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,.95fr)!important}}</style>`);
+
 // =====================================================================
 // Fishing mode = the water fills the screen (the top bar stays above it). Every layout (PC wide, PC stacked, tablet,
 // phone upright, phone sideways) uses the same column: top bar, then the water down to the bottom edge. The menus,
@@ -13305,29 +13220,7 @@ body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:10
 @media (orientation:landscape) and (max-height:560px){.hud > #goalchip.long .gl-t{font-size:10.5px}}
 </style>`);
 
-// =====================================================================
-// Menus on short landscape screens (phones held sideways): the categories become a rail down the left, so the page
-// gets the whole height under one slim row (the page's own tabs and the coin / search / settings buttons).
-// =====================================================================
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (orientation:landscape) and (max-height:560px){
-  #menuov .mo-in{grid-template-columns:clamp(132px,18vw,176px) minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back sub tools" "home body body" "secs body body"!important;column-gap:12px!important;row-gap:5px!important;padding-top:max(6px,env(safe-area-inset-top))!important}
-  #menuov .mo-back,#menuov .mo-home{width:100%;box-sizing:border-box;justify-content:flex-start;min-height:36px!important;padding:0 10px!important;border-radius:12px;align-self:start}
-  #menuov .mo-home .mo-hl{display:inline!important;font-size:13px}
-  body #menuov #tabs.secmode .secbar{grid-area:secs;display:flex!important;flex-direction:column;align-self:stretch;gap:4px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:2px 0 10px!important;margin:0!important;min-height:0;background:none!important;border:0!important;box-shadow:none!important}
-  body #menuov #tabs.secmode .secbar::-webkit-scrollbar{display:none}
-  body #menuov #tabs.secmode .secb{flex:0 0 auto;flex-direction:row!important;justify-content:flex-start;gap:9px!important;min-height:36px!important;padding:0 10px!important;font-size:13px!important;border-radius:12px!important}
-  body #menuov #tabs.secmode .secb .seci svg{width:18px;height:18px}
-  body #menuov #tabs.secmode .secb .secfull{display:inline!important}body #menuov #tabs.secmode .secb .secshort{display:none!important}
-  body #menuov #tabs.secmode .secdot{top:50%!important;right:8px!important;transform:translateY(-50%)}
-  body #menuov #tabs.secmode .secb .seclive{top:50%!important;left:auto!important;right:8px;transform:translateY(-50%)}
-  body #menuov #tabs.secmode .subbar{grid-area:sub;align-self:center;padding:0!important;gap:6px!important;margin:0!important}
-  body #menuov #tabs.secmode .subp{min-height:34px!important;padding:0 12px!important;font-size:13px!important}
-  body #menuov #panel{padding-top:2px!important}
-  body #menuov #panel > h2:first-child,body #menuov #panel h2{font-size:18px!important;margin:0 0 3px!important;line-height:1.2}
-  body #menuov #panel p.sub{font-size:12px!important;margin:0 0 8px!important;line-height:1.35}
-}
-</style>`);
+
 // In the menu the highlighted tab already names the page, so a page title that only repeats it is hidden (more room
 // for the page itself). The wardrobe's own tabs (Body, Clothes, Hats...) move up into that row across the full width.
 { const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){} }; }
@@ -13622,76 +13515,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.v3 #menuov #panel .tk-cur.tk-slim .btn{min-height:32px!important;padding:4px 10px}
 </style>`);
 
-// =====================================================================
-// Phones held sideways: the categories live in a rail on the RIGHT, both on the water and in the menu, so the thumb
-// finds them in the same place; the page scroll never rubber-bands past its top.
-// =====================================================================
-document.head.insertAdjacentHTML('beforeend',`<style>
-#menuov #panel{overscroll-behavior:contain;overscroll-behavior-y:none}
-@media (orientation:landscape) and (max-height:560px){
-  /* on the water: a slim rail down the right edge, growing up from the bottom corner */
-  #catdock{left:auto!important;right:6px!important;top:auto!important;bottom:6px!important;transform:none!important;flex-direction:column;gap:2px;padding:3px;border-radius:14px}
-  #catdock .cdb,#catdock #menubtn{flex-direction:row!important;justify-content:flex-start;gap:7px!important;width:112px;min-width:0!important;height:31px!important;padding:0 9px!important;font-size:11px!important;border-radius:10px}
-  #catdock svg{width:17px!important;height:17px!important;flex:0 0 auto}
-  #catdock .cddot,#catdock .mbdot{top:50%!important;right:6px!important;transform:translateY(-50%);min-width:17px!important;height:17px!important;line-height:17px!important;font-size:10px!important}
-  #catdock .cdb.live::before{top:4px!important;left:4px!important;width:7px;height:7px}
-  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:10px!important;left:calc(50% - 62px)!important;max-width:calc(100% - 330px)!important}
-  body.dl-fish .resttog{bottom:8px!important}
-  .dlprev{bottom:calc(10px + env(safe-area-inset-bottom))!important;right:calc(140px + env(safe-area-inset-right))!important}
-  /* in the menu: the icon rail on the right, the page tabs and coin / search / settings above the page */
-  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 52px!important;grid-template-areas:"tools sub back" "body body home" "body body secs"!important}
-  #menuov .mo-tools{justify-self:start}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (orientation:landscape) and (max-height:560px){
-  #catdock .cdb,#catdock #menubtn{width:134px;padding:0 28px 0 9px!important}
-  body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{left:calc(50% - 72px)!important;max-width:calc(100% - 350px)!important}
-  .dlprev{right:calc(160px + env(safe-area-inset-right))!important}
-}
-</style>`);
-// Fish Log on phones: the water list is one sideways-scrolling row (the chosen water scrolled into view), not five rows
-{ const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){} }; menuTidy=menuTidy2; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-@container (max-width:760px){
-  #menuov #panel .chips:has(> [data-act="encloc"]){flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
-  #menuov #panel .chips:has(> [data-act="encloc"])::-webkit-scrollbar{display:none}
-  #menuov #panel .chips:has(> [data-act="encloc"]) > *{flex:0 0 auto}
-  #menuov #panel .tile.hunt-bar p,#menuov #panel .tile.hunt-bar .meta{font-size:12px;line-height:1.35}
-}
-</style>`);
-{ const _t3=menuTidy2; menuTidy2=function(){ _t3(); try{ if(S.tab!=='journal') return; const t=[...$('panel').querySelectorAll(':scope > .tile')].find(x=>/Angler rank/i.test(x.textContent)); if(t) t.classList.add('jrank'); }catch(e){} }; menuTidy=menuTidy2; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* Bait in use: always one line */
-#panel .tk-cur.tk-slim{flex-wrap:nowrap!important;white-space:nowrap}
-#panel .tk-cur.tk-slim > *{min-width:0;overflow:hidden;text-overflow:ellipsis}
-#panel .tk-cur.tk-slim > .btn{flex:0 0 auto;overflow:visible}
-/* Fish Log rank card on narrow pages: the progress sits under the text instead of squeezing it */
-@container (max-width:560px){
-  #menuov #panel .tile.jrank{flex-wrap:wrap!important;gap:6px!important;margin-bottom:8px!important}
-  #menuov #panel .tile.jrank > :first-child{flex:1 1 100%}
-  #menuov #panel .tile.jrank > :last-child{flex:1 1 100%;min-width:0!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* sideways phones: the one row above the page is as slim as a tap allows */
-@media (orientation:landscape) and (max-height:560px){
-  body #menuov #tabs.secmode .subp{min-height:32px!important;padding:0 11px!important;font-size:12.5px!important}
-  #menuov .mo-tb{width:34px!important;height:34px!important}
-  #menuov .mo-coin{min-height:32px!important;padding:0 9px!important}
-  #menuov .mo-back,#menuov .mo-home,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
-  #menuov .mo-in{row-gap:4px!important;padding-top:max(5px,env(safe-area-inset-top))!important}
-}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (orientation:landscape) and (max-height:560px){
-  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav){padding:3px!important;margin:6px 0!important;gap:4px}
-  #menuov #panel .bwx-nav:not(.wd-nav):not(.sect-nav) > button{min-height:30px!important;height:30px;font-size:12.5px}
-}
-@media (max-width:700px) and (orientation:portrait){
-  #menuov #panel .bwx-nav:not(.wd-nav) > button{min-height:34px!important}
-}
-</style>`);
+
+
 // the menu page never rubber-bands past its top or bottom (an older rule with a stronger selector kept "contain")
 document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscroll-behavior:none!important}</style>');
 // (the touch guard that used to sit here is replaced by the page-wide one at the end of this file, which also leaves
@@ -13754,8 +13579,7 @@ body.phone-app.dl-fish .hud > .stat{padding-left:6px!important;padding-right:4px
 body.phone-app.dl-fish .hud .coin::before{margin-right:3px}
 @media (max-width:379px){ body.phone-app.dl-fish .hud > .stat b{font-size:12px!important} body.phone-app.dl-fish .hud > .stat .lbl{font-size:8.5px!important} body.phone-app.dl-fish .hud > .stat{padding-left:5px!important;padding-right:3px!important} }
 </style>`);
-// phones: the cooler count without spaces ("140/140") so the biggest cooler still fits its chip
-{ const c=$('coolerct'); if(c&&window.MutationObserver){ const fix=()=>{ const bc=document.body.classList; if(!(bc.contains('phone-app')||bc.contains('phone-land'))) return; const t=c.textContent; if(/\s\/\s/.test(t)) c.textContent=t.replace(/\s*\/\s*/,'/'); }; new MutationObserver(fix).observe(c,{childList:true,characterData:true,subtree:true}); fix(); addEventListener('resize',()=>setTimeout(fix,60)); } }
+
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.06fr) minmax(0,.9fr) minmax(0,.9fr) minmax(0,1fr) minmax(0,1.16fr)!important}
 </style>`);
@@ -13802,22 +13626,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px) and (max-width:799px){
   html body.dl-fish .hud{grid-template-columns:76px 62px max-content minmax(0,1fr) 62px 72px 86px!important}
   html body.dl-fish .hud > .st-log{display:none!important}
-}
-</style>`);
-// sideways phones: the menu rail shows each name next to its icon (it matches the rail on the water)
-document.head.insertAdjacentHTML('beforeend',`<style>
-@media (orientation:landscape) and (max-height:560px){
-  #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
-  #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
-  #menuov .mo-back::after{content:"Back"!important;font-size:12px!important}
-  #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
-  #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
-  body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
-  body #menuov #tabs.secmode .secb .secl{display:inline!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
-  body #menuov #tabs.secmode .secb .seci svg{width:17px;height:17px}
-  body #menuov #tabs.secmode .secb .secdot{top:50%!important;right:5px!important;transform:translateY(-50%)!important}
-  body #menuov #tabs.secmode .secb .seclive{top:4px!important;left:4px!important}
 }
 </style>`);
 
@@ -13992,13 +13800,7 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
 @media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
 @media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
 </style>`);
-// landscape phones: the wardrobe's section tabs stay on one line (Shop used to wrap onto a row of its own); on the
-// narrowest screens the row scrolls sideways instead of squeezing the labels
-document.head.insertAdjacentHTML('beforeend',`<style>@media (max-height:560px) and (orientation:landscape){
- #menuov #panel > .wd-nav.wd-top{flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none;overscroll-behavior-x:contain}
- #menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
- #menuov #panel > .wd-nav.wd-top > button{flex:1 0 auto!important}
-}</style>`);
+
 // ---------- top bar bait chip: the whole name always fits (2026-11-17) ----------
 // The closed picker used to show "Name (count)" in a ~55 px chip, so most names were cut off at every size. Now the count
 // sits on the label line ("BAIT · 12", with the picker arrow) and the name gets its own line: the full name, its text a
@@ -14037,30 +13839,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 function castBarY(){ let y=H-34; try{ const h=$('hint'), cv=$('cv'); if(h&&cv&&h.offsetParent&&h.textContent.trim()&&+getComputedStyle(h).opacity>.05){ const hr=h.getBoundingClientRect(), cr=cv.getBoundingClientRect();
     if(cr.height>0&&hr.height>0&&hr.bottom>cr.top&&hr.top<cr.bottom){ const top=(hr.top-cr.top)*H/cr.height; if(top>H*.4) y=Math.min(y,top-26); } } }catch(e){} return y; }
 if(/[?&]test\b/.test(location.search)) window.__castBarY=()=>({y:castBarY(), H});
-// Boardwalk prize counter and counter specials on phones: two cards a row with a shorter picture (one tall card a row
-// wasted most of the screen; 2026-11-17 QC)
-document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:560px){
- #menuov #panel .bwx-prizes{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
- #menuov #panel .bwx-prize{padding:9px;gap:6px;border-radius:14px}
- #menuov #panel .bwx-prize canvas{height:78px}
- #menuov #panel .bwx-pt b{font-size:13.5px;line-height:1.2}
- #menuov #panel .bwx-pt .meta{font-size:11.5px;line-height:1.3}
- #menuov #panel .bwx-pf{flex-wrap:wrap;justify-content:stretch;gap:5px}
- #menuov #panel .bwx-pf .btn{flex:1 1 auto;min-width:0;padding-left:6px;padding-right:6px}
-}</style>`);
-// Aquarium on sideways phones and tablets: the tank comes straight under the earnings bar, so the whole tank is on screen
-// (with the side panel collapsed it fills the width); the boosts and the description follow it (director, 2026-11-17)
-document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){
- body #menuov #panel:has(> .tank){display:flex!important;flex-direction:column!important}
- #menuov #panel:has(> .tank) > *{order:6;flex:0 0 auto}
- #menuov #panel:has(> .tank) > .crumb{order:0}
- #menuov #panel:has(> .tank) > .dl-head{display:contents}
- #menuov #panel:has(> .tank) > .dl-head > .bank{order:1;margin:0 0 8px}
- #menuov #panel:has(> .tank) > .tank{order:2;margin-top:0}
- #menuov #panel:has(> .tank) > p.sub{order:3;margin:4px 0 0}
- #menuov #panel:has(> .tank) > .badges{order:4;margin-top:8px}
- #menuov #panel:has(> .tank) > .dl-head > :not(.bank){order:5;margin-top:6px}
-}</style>`);
+
+
 // heavy fog is drawn behind the dock, the angler and the pets (it used to be laid over them, washing out your own angler);
 // the far shore and the middle distance still fade into it, and a light veil stays over the near water (2026-11-17)
 { let FOG_EARLY=false; const _dwx=drawWeatherX, _vp=v3Platform;
@@ -14162,11 +13942,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   body #menuov #tabs.secmode .secb::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
 }
 </style>`); }
-// iPhone: holding a finger on the water (hold to reel) brought up iOS's magnifier loupe over the game. Touches on the game's
-// own drawing surfaces belong to the game: their default action is cancelled at touchstart, so iOS never starts its press-and-hold
-// tools there. The game reads these surfaces through pointer events, which still arrive.
-document.addEventListener('touchstart',e=>{ const t=e.target; if(t&&t.tagName==='CANVAS'&&(t.id==='cv'||t.id==='tankcv'||t.id==='homecv')&&e.cancelable) e.preventDefault(); },{passive:false});
-document.head.insertAdjacentHTML('beforeend',`<style>#cv,#tankcv,#homecv{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}</style>`);
+
 // Top bar (director, 2026-11-17): every chip that has a page opens it. Fishing at opens Waters (quick water changes), Cooler opens
 // the Cooler, like Aquarium and Fish Log. Bait is not on the top bar any more: it is chosen on the Bait list in Tackle, which shows the
 // bait in use. Its place goes to a Settings gear (phones had none). Fish Log stays on sideways phones at every width.
@@ -14272,6 +14048,7 @@ html body.pch-on.dl-fish .wrap > #catdock{display:none!important}
 /* up to 1100 px the menu puts its categories on their own row under Back; the header does the same so both still line up */
 @media (max-width:1100px){ html body.pch-on.dl-fish #pchead{grid-template-rows:46px 46px;row-gap:6px;height:auto} #pchead .pch-brand{grid-row:1;grid-column:1} #pchead .pch-tools{grid-row:1;grid-column:3} #pchead .pch-cats{grid-row:2;grid-column:1 / -1;margin-left:0} html body.pch-on.dl-fish .hud > .st-cool,html body.pch-on.dl-fish .hud > .st-aq,html body.pch-on.dl-fish .hud > .st-log{min-width:0} }
 </style>`);
+
 // PC: switching between the fishing screen and the menu keeps the top row perfectly still (it is the same row in both) and only
 // fades what changes under it: the info chips or page tabs, and the water or the page. The menu sits on the same background.
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -14283,6 +14060,7 @@ body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:pchI
 @keyframes pchIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){body.pch-on #menuov.mo-show #tabs .subbar,body.pch-on #menuov.mo-show #panel,body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:none!important}}
 </style>`);
+
 // PC: the Dock preview was always drawn as a 900x360 picture and stretched across the wide full-screen card, so it looked soft.
 // It now draws at the card's real size on screen (screen scaling included), with the same layout: the drawing still works in
 // 900x360 units and is scaled up, so nothing moves. Dragging decorations keeps working (it reads the canvas size).
@@ -14294,6 +14072,7 @@ body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:pchI
     if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
     const x=c.getContext('2d'); const view={width:lw,height:lh,getContext:()=>{ x.setTransform(k,0,0,k,0,0); return x; }};
     try{ return _ph3(view); } finally{ x.setTransform(1,0,0,1,0,0); } }; }
+
 // Settings is labelled wherever there is room (director, 2026-11-17): "⚙ Settings" on sideways phones (the goal gives up the room)
 // and on PC, where the fishing header and the menu header use the very same button so both rows still line up. Phones held
 // upright keep the gear alone: their top row has no room left for a word.
@@ -14378,6 +14157,7 @@ body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!imp
 body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
 body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
 </style>`);
+
 // =====================================================================
 // PC: continuous day, night and weather (director, 2026-11-17: the light changes must be as smooth as the frame rate). The light
 // follows the clock, so the scenery for 3 s from now can be drawn ahead of time, between frames; every frame blends from the
@@ -14416,6 +14196,7 @@ body.pch-on #menuov #tabs.secmode .secdot{top:-3px!important}
 /* phones upright: the goal keeps to one line, so the top bar never changes height (the water was not re-measured when it did) */
 body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
 </style>`);
+
 // opening or closing the menu changes the layout under the water: measure the water again on the next frame (does not depend on
 // the browser's size watcher, which some browsers deliver late)
 { const _mm=menuMode; menuMode=function(){ const was=MENU_OPEN, r=_mm.apply(this,arguments); if(was!==MENU_OPEN) requestAnimationFrame(()=>{ try{ resize(); }catch(e){} }); return r; }; }
@@ -14534,6 +14315,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pch-on.dl-fish .hud > #goalchip{flex:0 1 auto!important;width:auto!important;max-width:460px!important;min-width:200px!important}
 html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}
 </style>`);
+
 // =====================================================================
 // PC: the Fish Log as one organized screen (director, 2026-11-17: "hunt on pc doesn't look good, we need a better fish log setup
 // for pc"). Three columns: WATERS (every water with its progress, the Show filter under it) | the water's fish grouped by rarity |
@@ -14674,6 +14456,7 @@ body.pch-on #panel .grid:has(> .tile .voy-list){grid-template-columns:minmax(300
 body.pch-on #panel .tile .voy-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 body.pch-on #panel .voy-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
 </style>`);
+
 // Pets > Find more: the "Show pets that boost" label stayed above a filter that is hidden on that tab (all platforms).
 // PC: the shop cards are compact and the pets still to discover become short wide rows, so the page fits the screen.
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
@@ -14707,6 +14490,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* the pet filter belongs to "Your pets": the page hides it on the other tabs, and the one-row phone style must not show it again */
 #menuov #panel .chips.pet-filter[style*="display: none"],#menuov #panel .chips.pet-filter[style*="display:none"]{display:none!important}
 </style>`);
+
 // =====================================================================
 // PC quality of life (director, 2026-11-17: "on pc there's no exit button?", "a settings rework for pc where pc has exclusive
 // controls and options. Nothing new, just QOL", "gold got moved? I liked it next to level").
@@ -14779,6 +14563,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #panel .grid > .pc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
 body.pch-on #panel .grid.sect-one > .pc-col{display:none}
 </style>`);
+
 // =====================================================================
 // PC: one header row (director, 2026-11-17: "make this header super clean; if 1 row is possible, that's the dream, allowing the
 // fishing scene to get larger"; "level and money as close to the fishing scene as possible").
@@ -14877,26 +14662,8 @@ html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs.secmode .s
 </style>`);
 { const shortNames=()=>{ if(!document.body.classList.contains('pch-on')) return; document.querySelectorAll('#pchead #catdock .cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=sec.short||sec.name; if(l.textContent!==t) l.textContent=t; b.title=sec.name; } }); };
   new MutationObserver(()=>setTimeout(shortNames,0)).observe(document.body,{attributes:true,attributeFilter:['class']}); addEventListener('resize',()=>setTimeout(shortNames,60)); setTimeout(shortNames,200); }
-// iPhone Home Screen app (director, 2026-11-17, screenshot): opened sideways, the whole game sat ~55 points too low, below an
-// empty band. iOS can keep the safe-area numbers of the other orientation after launching or turning the phone, so the layout
-// left room for a notch that isn't there (and, the other way round, upright could sit under the notch). Two fixes:
-// 1. Sideways, an iPhone never needs room at the top (the status bar is hidden), so that layout no longer reads the top inset.
-// 2. After a launch or a turn, iOS is made to read the safe areas again (the viewport setting is re-applied and styles refreshed).
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-land.dl-fish{padding-top:6px!important}
-html body.phone-land #menuov .mo-in{padding-top:5px!important}
-html body.phone-land #menuov > #toast{top:60px!important}
-html body.phone-land #menuov #panel .wd-prev{height:calc(100dvh - 150px)!important}
-html body.phone-land .dlprev{top:4px!important}
-</style>`);
-{ const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  if(ios){ const vp=document.querySelector('meta[name=viewport]'); let q=0;
-    const refresh=()=>{ try{ if(vp){ const c=vp.getAttribute('content'); vp.setAttribute('content',c+' '); vp.setAttribute('content',c); }
-        const r=document.documentElement; r.classList.add('sa-recalc'); void r.offsetHeight; r.classList.remove('sa-recalc'); try{ resize(); }catch(e){} }catch(e){} };
-    const soon=()=>{ clearTimeout(q); [80,400,1000].forEach(ms=>setTimeout(refresh,ms)); };
-    addEventListener('orientationchange',soon); addEventListener('resize',soon); addEventListener('pageshow',soon); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) soon(); });
-    soon(); }
-  document.head.insertAdjacentHTML('beforeend','<style>html.sa-recalc body{padding-bottom:calc(env(safe-area-inset-bottom) + 0.01px)}</style>'); }
+
+
 // No rainbows at night (director, 2026-11-17: "no nighttime rainbows pls yuck"): the rainbow is drawn only in daylight and fades
 // out fully as dusk falls (it hung on at 15% before). The weather and its bonus stay: a day here lasts 6 minutes and a weather 4,
 // so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
@@ -14981,6 +14748,7 @@ body.pch-on #evin .pnr.one .pnr-body .pn-head{display:none}
 #hint:empty{display:none!important}
 body.ev-open #hint{visibility:hidden!important}
 </style>`);
+
 // PC header down to 800 px wide (director, 2026-11-17: "the bar is back on the bottom for header categories" — a half-width
 // window or browser zoom made the page narrower than 900 px, and the old layout came back). Under 1000 px it goes compact:
 // icon-only tabs, the counters as icon + number (names on hover), the gear without its label. Crossing the width limit also
@@ -15019,6 +14787,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #evin:has(.pnr.one){height:auto!important;max-height:min(760px,88vh)!important}
 body.pch-on #evin .pnr.one .pnr-main{flex:0 1 auto}
 </style>`);
+
 // =====================================================================
 // PC, Settings > Patch notes, as a reader (director, 2026-11-17: "way too hard to read"): every update listed on the left
 // (newest first, gift notes on top), the chosen one on the right in section boxes at normal size. The tab fills the page and
@@ -15065,6 +14834,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the page tabs' entrance is played by script now (no forced layout), so the class-based copy is switched off */
 body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
 </style>`);
+
 // =====================================================================
 // PC full HD (director, 2026-11-17: "give ALL pc menus optimization... save this window size's changes exclusive to this
 // resolution"). body.pc-fhd = the PC layout on a screen of at least 1800 x 950 (a 1080p monitor in full screen). Everything
@@ -15799,24 +15569,10 @@ document.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.clos
 { const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){} _rb(P); try{
       P.querySelectorAll('[data-act="reroll"][data-i],[data-act="claim"][data-i]').forEach(btn=>{ const b=S.bounties[+btn.dataset.i], card=btn.closest('.tile'); if(!b||!card||card.querySelector('.bx')) return; const t=bountyBxText(b.x); if(!t) return;
         const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🪱'):b.x.k==='scales'?'🔷':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
-      if(document.body.classList.contains("pc-fhd")&&typeof BOARD_SEC!=="undefined"){ const wq=P.querySelector(':scope > .tile.wq'); if(wq) wq.remove(); } }catch(e){ console.error(e); } }; }
+    }catch(e){ console.error(e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .bx{display:flex;align-items:center;gap:6px;margin:2px 0 4px;padding:4px 10px;border-radius:999px;background:#7fe3c41a;border:1px solid #7fe3c455;color:#bff3e2;font:700 12px var(--display,system-ui);width:max-content;max-width:100%}
 #panel .bx.sp{background:#ffd36a1f;border-color:#ffd36a77;color:#ffe9b0}
-</style>`);
-
-// ---------- Feats: every category shows the boost it gives when finished; all rail rows the same height ----------
-{ const deco=P=>{ try{ P.querySelectorAll('.fr-cat[data-cat]').forEach(b=>{ if(b.querySelector('.fr-bonus')) return; const t=featBonusText(b.dataset.cat); if(!t) return; b.insertAdjacentHTML('beforeend',`<small class="fr-bonus${featCatDone(b.dataset.cat)?' got':''}">${featCatDone(b.dataset.cat)?'✓ ':'Finish all: '}${esc(t)}</small>`); });
-      const h=P.querySelector('.fr-main h3'), cur=P.querySelector('.fr-cat[aria-pressed="true"]'); if(h&&cur&&!P.querySelector('.fr-main .fr-goal')){ const t=featBonusText(cur.dataset.cat); if(t) h.insertAdjacentHTML('afterend',`<div class="fr-goal${featCatDone(cur.dataset.cat)?' got':''}">${featCatDone(cur.dataset.cat)?'Category complete: ':'Finish every feat here for '}<b>${esc(t)}</b></div>`); } }catch(e){} };
-  const _rpf=renderPanel; renderPanel=function(){ const r=_rpf.apply(this,arguments); if(S.tab==='feats') deco($('panel')); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .fr-cat')) setTimeout(()=>deco($('panel')),0); },true); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel .fr-cat{height:64px!important;box-sizing:border-box!important;align-content:center!important;row-gap:3px!important;padding:8px 12px!important}
-html body.pc-fhd #menuov #panel .fr-cat .fr-bonus{grid-column:1 / -1;font:700 11px var(--display,system-ui);color:#8fa6bf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-html body.pc-fhd #menuov #panel .fr-cat .fr-bonus.got{color:#7fe3c4}
-html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#ffd36a14;border:1px solid #ffd36a44;color:#ffe9b0;font:700 13px var(--display,system-ui)}
-html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
-html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
 
 // ---------- Fish Log: the completion reward says what it really gives ----------
@@ -16431,6 +16187,23 @@ body.pc-fhd #panel .od2 .od-grid{grid-template-columns:repeat(auto-fill,minmax(1
 body.pc-fhd #panel .od2 .od-card{padding:8px 6px!important;box-shadow:inset 0 3px 0 color-mix(in srgb,var(--tc) 70%,transparent)!important}
 body.pc-fhd #panel .od2 .od-card canvas{max-height:46px!important}
 body.pc-fhd #panel .od2 .od-card small{color:#7fe3c4!important}
+</style>`);
+
+// ---------- Bounties on full HD: the weekly goals live on the Tide Pass page here, so Bounties doesn't repeat them ----------
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='bounties'&&FHD()){ const wq=$('panel').querySelector(':scope > .tile.wq'); if(wq) wq.remove(); } }catch(e){} return r; }; }
+
+// ---------- Feats: every category shows the boost it gives when finished; all rail rows the same height ----------
+{ const deco=P=>{ try{ P.querySelectorAll('.fr-cat[data-cat]').forEach(b=>{ if(b.querySelector('.fr-bonus')) return; const t=featBonusText(b.dataset.cat); if(!t) return; b.insertAdjacentHTML('beforeend',`<small class="fr-bonus${featCatDone(b.dataset.cat)?' got':''}">${featCatDone(b.dataset.cat)?'✓ ':'Finish all: '}${esc(t)}</small>`); });
+      const h=P.querySelector('.fr-main h3'), cur=P.querySelector('.fr-cat[aria-pressed="true"]'); if(h&&cur&&!P.querySelector('.fr-main .fr-goal')){ const t=featBonusText(cur.dataset.cat); if(t) h.insertAdjacentHTML('afterend',`<div class="fr-goal${featCatDone(cur.dataset.cat)?' got':''}">${featCatDone(cur.dataset.cat)?'Category complete: ':'Finish every feat here for '}<b>${esc(t)}</b></div>`); } }catch(e){} };
+  const _rpf=renderPanel; renderPanel=function(){ const r=_rpf.apply(this,arguments); if(S.tab==='feats') deco($('panel')); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .fr-cat')) setTimeout(()=>deco($('panel')),0); },true); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pc-fhd #menuov #panel .fr-cat{height:64px!important;box-sizing:border-box!important;align-content:center!important;row-gap:3px!important;padding:8px 12px!important}
+html body.pc-fhd #menuov #panel .fr-cat .fr-bonus{grid-column:1 / -1;font:700 11px var(--display,system-ui);color:#8fa6bf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.pc-fhd #menuov #panel .fr-cat .fr-bonus.got{color:#7fe3c4}
+html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#ffd36a14;border:1px solid #ffd36a44;color:#ffe9b0;font:700 13px var(--display,system-ui)}
+html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
+html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
