@@ -539,3 +539,8 @@ body.pc-fhd #panel.st-on .st-table{background:transparent;font-size:13px}
 body.pc-fhd #panel.st-on .st-table th,body.pc-fhd #panel.st-on .st-table td{padding:7px 5px} body.pc-fhd #panel.st-on .st-table thead th{font-size:10.5px;letter-spacing:.02em} body.pc-fhd #panel.st-on .st-table-wrap{overflow:visible}
 body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important}
 </style>`);
+// HOTFIX 0.4.8.2 (director, 2026-11-18: "QR and code saves no longer generate on PC: Send and Get progress show no 6-digit code, no
+// QR and no box to type a code"). On PC the Send / Get progress section lives in Settings > Save & codes, but it was only redrawn on
+// the Save page (refreshXfer checked S.tab==='save'), so pressing Send made the code and updated the status line but never drew the
+// code, the QR or the code box. It is redrawn in Settings too now. PC only.
+{ const _rx=refreshXfer; refreshXfer=function(){ if(document.body.classList.contains('pch-on')&&S.tab==='settings'){ try{ renderPanel(); }catch(e){ console.error(e); } return; } return _rx.apply(this,arguments); }; }
