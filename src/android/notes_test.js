@@ -11,6 +11,7 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy 
   'The tank stays on screen while you scroll: upright it sits at the top, sideways it is on the left. Every new fish, water colour and decoration shows the moment you pick it.',
   'Earnings, Collect and Feed sit in one strip under the tank.',
   'New Add fish tab: put fish from your Cooler on display without leaving the aquarium.',
+  'Decorating is simpler: tap any card to try it in your tank, and the Buy / Stop bar stays right under the tank. A decoration you try lands in an open spot instead of on top of another one, and keeps that spot if you buy it.',
   '## Also fixed',
   'Tapping a top-bar chip (Fishing at, Cooler, Aquarium, Fish Log) works on the first tap every time.',
   'The live event line in the top bar fits on small phones.',
