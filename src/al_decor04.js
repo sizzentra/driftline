@@ -95,12 +95,12 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));
   // the glint: a soft diagonal band of light crossing the fish every couple of seconds
-  const k=((t*.42+ph)%1.5)/1.5, bx=-R*1.3+k*R*2.6;
+  const k=SHINY3.still?-1:((t*.42+ph)%1.5)/1.5, bx=-R*1.3+k*R*2.6; // still pictures (fish cards, lists) get no frozen glint or stars: they twinkle on their own (ca_shiny06.js)
   ox.save(); ox.globalCompositeOperation='source-atop'; const gr=ox.createLinearGradient(bx-R*.28,-R*.2,bx+R*.28,R*.2); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(.5,'rgba(255,250,225,.72)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ox.fillStyle=gr; ox.fillRect(-R,-R,R*2,R*2);
   ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore();
   c.drawImage(C,0,0,px,px,x-R,y-R,R*2,R*2);
   // sparkles: little four-point stars that pop in and out around the body
-  c.save(); for(let i=0;i<4;i++){ const q=((t*.7+i*.27+ph)%1), a=(i*1.9+ph*6), d=L*(.32+.14*((i*7)%3)), sx=x+Math.cos(a)*d, sy=y+Math.sin(a)*d*.55, s=Math.sin(q*Math.PI)*Math.max(1.4,L*.07);
+  c.save(); for(let i=0;i<(SHINY3.still?0:4);i++){ const q=((t*.7+i*.27+ph)%1), a=(i*1.9+ph*6), d=L*(.32+.14*((i*7)%3)), sx=x+Math.cos(a)*d, sy=y+Math.sin(a)*d*.55, s=Math.sin(q*Math.PI)*Math.max(1.4,L*.07);
     if(s<.2) continue; c.fillStyle='rgba(255,246,200,'+(.9*Math.sin(q*Math.PI))+')'; c.beginPath(); c.moveTo(sx,sy-s*1.6); c.quadraticCurveTo(sx,sy,sx+s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy+s*1.6); c.quadraticCurveTo(sx,sy,sx-s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy-s*1.6); c.fill(); }
   c.restore(); return r; };
 

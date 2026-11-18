@@ -180,7 +180,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 
 // ---------- the aquarium on phones: a wide tank like on PC, decorations sized to fit it ----------
 // (decorations used to scale with the tank's height only, so a tall, narrow phone tank crammed them together)
-function tankK(w,h){ return Math.min(h/230, w/520); }
+function tankK(w,h){ return .82*Math.min(h/230, w/520); } // round 6: fish and decorations a little smaller so every piece can be seen (director)
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:46vh} }
 @media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:62vh} }

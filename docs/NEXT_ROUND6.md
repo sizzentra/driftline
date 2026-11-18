@@ -33,3 +33,6 @@ Platform notes: fix each item in the platform it belongs to (Platform ground rul
     - Maybe add a hydroelectric dam and/or a village in the background.
     - The boat in the background should be closer to, or tied to, the dock.
     - The waterwheel is a nice touch but could use a rework.
+
+## Added by the director (2026-11-18)
+22. **iPhone gets the relevant QoL too** (scroll indicators, performance, hybrid stats, bait access...), and **both phones get the modern PC look** in their own layers: teal = click me, gold = open now, the same navy panels and card style, and the same tidy-page decisions (each page in one place, clear explanations, no clutter). Design it per phone: no PC layouts copied as they are.

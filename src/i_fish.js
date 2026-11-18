@@ -349,8 +349,8 @@ function f3Horse(c,sp,d,L,col,belly,o,wag){ const s=L*.5, fin=o.sil||mix(col,bel
   f3Eye(c,s*.2,-s*.85,Math.max(1.2,s*.06),o,d); c.restore(); }
 
 function f3Mola(c,sp,d,L,col,belly,o,wag){ const r=L*.36, fin=o.sil||mix(col,'#000000',.15), fl=Math.sin(wag*.5)*.2;
-  c.fillStyle=fin; c.save(); c.translate(-r*.1,-r*.8); c.rotate(-.3+fl); c.beginPath(); c.moveTo(-r*.15,0); c.quadraticCurveTo(-r*.25,-r*.9,-r*.05,-r*1.0); c.quadraticCurveTo(r*.1,-r*.5,r*.15,0); c.fill(); c.restore();
-  c.save(); c.translate(-r*.1,r*.8); c.rotate(.3-fl); c.beginPath(); c.moveTo(-r*.15,0); c.quadraticCurveTo(-r*.25,r*.9,-r*.05,r*1.0); c.quadraticCurveTo(r*.1,r*.5,r*.15,0); c.fill(); c.restore();
+  c.fillStyle=fin; c.save(); c.translate(-r*.1,-r*.55); c.rotate(-.3+fl); c.beginPath(); c.moveTo(-r*.2,r*.1); c.quadraticCurveTo(-r*.3,-r*1.1,-r*.05,-r*1.25); c.quadraticCurveTo(r*.12,-r*.7,r*.2,r*.1); c.fill(); c.restore(); /* rooted inside the body (it was drawn at the body's edge and lifted off when tilted) */
+  c.save(); c.translate(-r*.1,r*.55); c.rotate(.3-fl); c.beginPath(); c.moveTo(-r*.2,-r*.1); c.quadraticCurveTo(-r*.3,r*1.1,-r*.05,r*1.25); c.quadraticCurveTo(r*.12,r*.7,r*.2,-r*.1); c.fill(); c.restore();
   const body=()=>{ c.beginPath(); c.moveTo(r*.95,0); c.bezierCurveTo(r*.95,-r*.85,-r*.4,-r*.95,-r*.7,-r*.55); c.quadraticCurveTo(-r*.85,0,-r*.7,r*.55); c.bezierCurveTo(-r*.4,r*.95,r*.95,r*.85,r*.95,0); c.closePath(); };
   c.fillStyle=o.sil||f3Grad(c,mix(col,'#000000',.15),belly,-r,r); body(); c.fill();
   if(!o.sil){ c.save(); body(); c.clip(); c.fillStyle=v3rgba(mix(col,'#000000',.3),.4); for(let k=0;k<8;k++){ c.beginPath(); c.ellipse(-r*.75,-r*.6+k*r*.17,r*.12,r*.05,0,0,7); c.fill(); } c.fillStyle='rgba(255,255,255,.15)'; c.beginPath(); c.ellipse(r*.1,-r*.5,r*.5,r*.15,0,0,7); c.fill(); c.restore(); }

@@ -279,3 +279,21 @@ if(/[?&]test\b/.test(location.search)) window.__timeSum=(names,run)=>{ const T={
 if(/[?&]test\b/.test(location.search)) window.__frameProf=(names,sec=15,slow=6)=>new Promise(done=>{ const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); T[k]=0; eval(k+'=function(){ const t0=performance.now(); try{ return orig["'+k+'"].apply(this,arguments); } finally{ T["'+k+'"]+=performance.now()-t0; } }'); }catch(e){} }
   const R=window.requestAnimationFrame.bind(window), rows=[]; let n=0; window.requestAnimationFrame=cb=>R(t=>{ for(const k in T) T[k]=0; const t0=performance.now(); cb(t); const d=performance.now()-t0; n++; if(d>slow) rows.push(d.toFixed(1)+': '+Object.entries(T).filter(([k,v])=>v>.8).sort((a,b)=>b[1]-a[1]).map(([k,v])=>k+' '+v.toFixed(1)).join(', ')); });
   setTimeout(()=>{ window.requestAnimationFrame=R; for(const k in orig) try{ eval(k+'=orig["'+k+'"]'); }catch(e){} done({frames:n, slow:rows}); },sec*1000); });
+if(/[?&]test\b/.test(location.search)) window.__wev=loc=>waterEV(loc); // test builds: a water's average catch value (bait pricing)
+// shiny sparkle check (round 6): draws one fish in each look into a test strip and says which sparkle kind each got
+window.__spk=function(){ const old=document.getElementById('spktest'); if(old) old.remove(); const sp=SP.find(f=>f.r===3), my=SP.find(f=>f.r===5), out={}, box=document.createElement('div'); box.id='spktest'; box.style.cssText='position:fixed;left:10px;top:120px;z-index:99999;background:#123;padding:8px;display:flex;gap:6px;flex-wrap:wrap;width:700px'; document.body.appendChild(box);
+  for(const [k,f,sh,pv] of [['plain',sp,0,null],['shiny',sp,1,null],['rainbow',sp,2,'rainbow'],['starry',sp,2,'starry'],['spectral',sp,2,'spectral'],['ancient',sp,2,'ancient'],['mythic',my,0,null]]){ const c=document.createElement('canvas'); c.width=220; c.height=110; box.appendChild(c); fishCanvas(c,f,true,sh,pv); out[k]=SPK.has(c)?SPK.get(c).kind+':'+SPK.get(c).spots.length:'none'; }
+  out.tracked=SPK.size; return out; };
+// aquarium look check (round 6): fills the tank with 10 fish of different sizes and 5 decorations (test saves only)
+window.__aqfill=function(){ S.tank=SP.filter((s,i)=>i%47===0).slice(0,10).map(s=>({id:s.id,kg:(s.min+s.max)/2})); S.aq.decor=DECOR.filter(d=>d[0]!=='duck').slice(0,5).map(d=>d[0]||d.id); openMenu('aquarium'); return {tank:S.tank.length, decor:S.aq.decor}; };
+// page-by-page review (round 6): open any menu page by name, and list every page name
+window.__open=t=>{ try{ if(t==='dash') openMenu(); else openMenu(t); }catch(e){ return String(e); } return S.tab; };
+window.__tabs=()=>['dash',...[...document.querySelectorAll('#tabs > [data-tab]')].map(b=>b.dataset.tab)];
+// review save (test builds, local test save only): a cooler with normal, shiny, prismatic and Mythic fish, and their Fish Log entries
+window.__reviewSave=()=>{ const sps=SP.filter(s=>s.loc==='pond'||s.loc==='river'); S.cooler=[]; const kinds=[[0],[1],[2,'rainbow'],[2,'starry'],[2,'spectral'],[2,'ancient'],[0],[1]];
+  kinds.forEach(([sh,pv],i)=>{ const f=coolerEntry(rollFish(sps[(i*5)%sps.length],{})); if(sh){ f.sh=sh; if(pv) f.pv=pv; } S.cooler.push(f); });
+  const my=SP.find(s=>s.r===5); if(my) S.cooler[6]=coolerEntry(rollFish(my,{})); S.cooler=S.cooler.slice(0,gv('cooler')); renderPanel(); return S.cooler.map(f=>f.id+(f.shiny?':'+f.shiny+(f.pv||''):'')); };
+// review: land a fish through the real catch path to see its catch card. o = {sh:0|1|2, pv:'rainbow'|..., hy:true}
+window.__landReview=(o={})=>{ const sps=SP.filter(s=>s.loc===S.loc); const sp=sps[o.i||3]; const f=rollFish(sp,{}); if(o.sh){ f.shiny=o.sh; if(o.pv) f.pv=o.pv; } if(o.hy){ const other=sps.find(s=>s.id!==sp.id); f.hy=other.id; } G.fish=f; landFish(); return {id:sp.id, shiny:f.shiny, pv:f.pv, hy:f.hy}; };
+// review: which look fields change on a save -> load round trip
+window.__lookDiff=()=>{ const a=JSON.parse(JSON.stringify(S.look)), b=migrate(JSON.parse(JSON.stringify(S))).look, out={}; for(const k of new Set([...Object.keys(a||{}),...Object.keys(b||{})])) if(JSON.stringify(a[k])!==JSON.stringify(b[k])) out[k]=[a[k],b[k]]; return out; };

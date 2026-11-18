@@ -61,6 +61,7 @@ V3SCENES.river = {
     // distant rolling hills, layered with haze
     v3hillBand(x,hz+1,[[0,.1*H],[.18,.15*H],[.36,.11*H],[.55,.16*H],[.74,.12*H],[.92,.15*H],[1,.13*H]],mix(P.far,P.farHaze,.25));
     const hg=x.createLinearGradient(0,hz-.16*H,0,hz); hg.addColorStop(0,v3rgba(P.farHaze,0)); hg.addColorStop(1,v3rgba(P.farHaze,.45)); x.fillStyle=hg; x.fillRect(0,hz-.16*H,W,.16*H);
+    riverVillage(x,P,hz);
     v3hillBand(x,hz+1,[[0,.07*H],[.2,.05*H],[.4,.075*H],[.6,.045*H],[.8,.07*H],[1,.06*H]],P.hill);
     // groves of round trees on both banks (back row smaller and hazier)
     const r=v3rng(29);
@@ -73,8 +74,16 @@ V3SCENES.river = {
     v3reeds(x,-W*.01,W*.3,hz+4,H*.03,mix(P.leaf,P.front,.45),75,{heads:mix(P.cabin,"#5a3a1a",.4)}); v3reeds(x,W*.8,W*1.01,hz+4,H*.028,mix(P.leaf,P.front,.45),77);
     v3flowers(x,W*.0,W*.34,hz+H*.004,hz+H*.016,["#f4e06a","#ffffff","#f49ac0"],79,30);
     // the stone arch bridge across the river (arches cut out so the far hills show through; reflections come from the mirror pass)
-    { const x0=W*.42, x1=W*.76, top=hz-H*.085, dh=H*.018, n=3, span=(x1-x0)/n, ar=Math.min(span*.42,(hz-top-dh*.6)/1.15), cyA=hz+1-ar*.15;
+    { const x0=W*.42, x1=W*.76, top=hz-rvH()*.085, dh=rvH()*.018, n=3, span=(x1-x0)/n, ar=Math.min(span*.42,(hz-top-dh*.6)/1.15), cyA=hz+1-ar*.15;
       const arches=(p)=>{ for(let i=0;i<n;i++){ const ax=x0+span*(i+.5); p.moveTo(ax+ar,hz+1); p.arc(ax,cyA,ar,0,Math.PI,true); p.closePath(); } };
+      // round 6 (director: "remove the grass behind each pillar"): through each arch you see the river running on upstream,
+      // a far bank and hazy sky, instead of a wall of green hill
+      x.save(); x.beginPath(); arches(x); x.clip();
+      { const sky=x.createLinearGradient(0,top,0,hz); sky.addColorStop(0,mix(P.mid,P.farHaze,.5)); sky.addColorStop(1,mix(P.bot,P.farHaze,.4)); x.fillStyle=sky; x.fillRect(x0,top,x1-x0,hz-top+2);
+        const bankY=hz-ar*.42; x.fillStyle=mix(P.back,P.farHaze,.55); x.beginPath(); x.moveTo(x0,bankY); for(let xx=x0;xx<=x1;xx+=W*.008) x.lineTo(xx,bankY-H*.006*(1+Math.sin(xx*.21)+Math.sin(xx*.07))); x.lineTo(x1,hz); x.lineTo(x0,hz); x.closePath(); x.fill();
+        const wy=hz-ar*.3, wg=x.createLinearGradient(0,wy,0,hz+1); wg.addColorStop(0,mix(P.wTop,P.farHaze,.45)); wg.addColorStop(1,P.wTop); x.fillStyle=wg; x.fillRect(x0,wy,x1-x0,hz-wy+2);
+        x.strokeStyle=v3rgba(P.rim,.35+P.d*.2); x.lineWidth=.8; x.beginPath(); for(let k=0;k<5;k++){ const yy=wy+(hz-wy)*(.2+k*.18); for(let xx=x0+((k*37)%23);xx<x1;xx+=W*.03){ x.moveTo(xx,yy); x.lineTo(xx+W*(.006+k*.002),yy); } } x.stroke(); }
+      x.restore();
       x.save(); x.beginPath(); x.rect(x0,top,x1-x0,hz-top+1); arches(x); x.fillStyle=P.stone; x.fill('evenodd'); x.clip('evenodd');
       x.strokeStyle=v3rgba(P.stoneD,.55); x.lineWidth=.8; const rowH=H*.011;
       for(let yy=top+rowH,row=0;yy<hz;yy+=rowH,row++){ x.beginPath(); x.moveTo(x0,yy); x.lineTo(x1,yy); for(let xx=x0+(row%2)*W*.011;xx<x1;xx+=W*.022){ x.moveTo(xx,yy); x.lineTo(xx,yy+rowH); } x.stroke(); }
@@ -95,7 +104,7 @@ V3SCENES.river = {
       x.fillStyle=P.stoneD; x.fillRect(x0-W*.006,top-dh,(x1-x0)+W*.012,dh); x.fillStyle=v3rgba(P.rim,.4+P.d*.3); x.fillRect(x0-W*.006,top-dh,(x1-x0)+W*.012,1.2);
       x.fillStyle=P.stoneD; for(let i=0;i<=8;i++) x.fillRect(x0+i*(x1-x0)/8-1,top-dh*2,2.2,dh); x.fillRect(x0-W*.006,top-dh*2.2,(x1-x0)+W*.012,1.4); }
     // the mill on the right bank: stone base, timber upper floor, roof
-    { const mx=W*.88, mb=hz-H*.005, mw=H*.13, mh=H*.08;
+    { const mx=W*.88, mb=hz-H*.005, mw=rvH()*.13, mh=rvH()*.08;
       x.fillStyle=P.stone; x.fillRect(mx-mw/2,mb-mh*.45,mw,mh*.45); x.fillStyle=v3rgba(P.stoneD,.6); for(let i=0;i<4;i++) x.fillRect(mx-mw/2,mb-mh*.45+i*mh*.11,mw,1);
       x.fillStyle=P.cabin; x.fillRect(mx-mw/2,mb-mh,mw,mh*.55); x.fillStyle=mix(P.cabin,'#000000',.3); for(let i=1;i<4;i++) x.fillRect(mx-mw/2+i*mw/4,mb-mh,1.4,mh*.55);
       x.fillStyle=P.roof; x.beginPath(); x.moveTo(mx-mw*.62,mb-mh+1); x.lineTo(mx,mb-mh*1.55); x.lineTo(mx+mw*.62,mb-mh+1); x.closePath(); x.fill();
@@ -103,15 +112,14 @@ V3SCENES.river = {
       x.fillStyle=mix(P.cabin,'#000000',.5); x.fillRect(mx+mw*.12,mb-mh*.85,mw*.14,mh*.22); x.fillRect(mx-mw*.3,mb-mh*.85,mw*.14,mh*.22);
       x.fillStyle=mix(P.leaf,'#000000',.1); for(let i=0;i<6;i++){ x.beginPath(); x.arc(mx-mw/2+i*mw*.2,mb-mh*.45,H*.006,0,7); x.fill(); } }
     v3water(x,P,hz,cnv);
+    riverJetty(x,P,hz);
   },
   live(P,t,hz,sun){ const FX=S.settings.effects, d=P.d, night=P.night;
     // the mill window glows after dusk
-    const lit=clamp(night*1.2+d*.8,0,1), mx=W*.88, mb=hz-H*.005, mw=H*.13, mh=H*.08;
+    const lit=clamp(night*1.2+d*.8,0,1), mx=W*.88, mb=hz-H*.005, mw=rvH()*.13, mh=rvH()*.08;
     if(lit>.05){ for(const wx of [mx+mw*.12,mx-mw*.3]){ v3glow(g,wx+mw*.07,mb-mh*.74,mh*.6,'rgba(255,200,110,.9)',lit*.45); g.fillStyle=v3rgba('#ffcf7a',.3+lit*.7); g.fillRect(wx,mb-mh*.85,mw*.14,mh*.22); } }
-    // the waterwheel turns, dripping
-    { const wx=mx-mw*.62, wy=mb-mh*.18, R=mh*.55, a=t*.9; g.save(); g.translate(wx,wy); g.strokeStyle=P.wood; g.lineWidth=Math.max(1.4,H*.005); g.beginPath(); g.arc(0,0,R,0,7); g.stroke(); g.beginPath(); g.arc(0,0,R*.25,0,7); g.stroke();
-      for(let i=0;i<8;i++){ const aa=a+i*Math.PI/4; g.beginPath(); g.moveTo(Math.cos(aa)*R*.25,Math.sin(aa)*R*.25); g.lineTo(Math.cos(aa)*R,Math.sin(aa)*R); g.stroke(); g.fillStyle=mix(P.wood,'#000000',.2); g.save(); g.translate(Math.cos(aa)*R,Math.sin(aa)*R); g.rotate(aa); g.fillRect(-R*.04,-R*.14,R*.22,R*.28); g.restore(); }
-      g.restore(); if(FX){ g.fillStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.6); for(let i=0;i<5;i++){ const k=((t*1.4+i/5)%1); g.fillRect(wx-R*.6+i*R*.3,wy+R*.2+k*R*.9,1.2,2.2); } for(let i=0;i<8;i++){ const u=i/7, a=.3+.3*Math.sin(t*4+i*2.1); g.fillStyle=v3rgba(mix(P.wTop,"#ffffff",.75),a); g.beginPath(); g.ellipse(wx-R*.9+u*R*1.8,mb+1.5+Math.sin(u*Math.PI)*R*.08,R*.13,R*.05,0,0,7); g.fill(); } } }
+    // the waterwheel (reworked in round 6, see cc_river06.js)
+    riverWheel(P,t,hz,mx,mb,mw,mh,FX);
     v3glitter(P,t,hz,sun);
     v3mist(P,t,hz,.12*(1-night)*(1-d)+.16*d+.08*night);
     // fast current lines flowing right to left at many depths

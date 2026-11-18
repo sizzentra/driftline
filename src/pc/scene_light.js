@@ -38,6 +38,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
    the menu's category badges move the same way so both header rows still match */
 html body.pch-on #pchead #catdock .cddot{top:-3px!important}
 body.pch-on #menuov #tabs.secmode .secdot{top:-3px!important}
-/* phones upright: the goal keeps to one line, so the top bar never changes height (the water was not re-measured when it did) */
-body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
+/* (the phones-upright goal rule moved to src/mobile/perf_round6.js, where phone rules belong) */
 </style>`);
