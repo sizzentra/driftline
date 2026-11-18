@@ -1,6 +1,7 @@
 // iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the iPhone test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy Aquarium', items:[
+  'NEW in this build: Your home (the Dock) works like the aquarium (dock view on top, Options with Your dock and Decorations, tap a card to try it). iPads now use the phone layout scaled up to fill the screen.',
   'NEW in this build: iPhone plays in landscape only (hold it upright and the game pauses with a "turn your iPhone" screen). Settings now belong to this iPhone and are no longer changed by moving your progress. New Frame rate choice in Settings, Display (30 saves battery). Vibration and Full screen are hidden on iPhone because iPhone browsers cannot do them.',
   'NEW in this build: menus fit every iPhone (Pro Max, Pro, Air, Plus and the base models from the 15 on): they stay clear of the Dynamic Island, corners and home bar, the same as the fishing screen. The Aquarium opens faster and the first tap no longer pauses while the music loads. Split screen and small windows now use the normal phone layout.',
   'One look everywhere: every button, tab, badge and label of the same kind has the same size and style on every page; long button labels stay on one line; upright, a long goal no longer pushes the water down; sideways, page-tab badges sit on the corner.',

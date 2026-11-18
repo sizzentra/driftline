@@ -102,6 +102,8 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
 PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
   '## New',
+  'Your home (the Dock) is laid out like the aquarium: your dock fills the screen, with Options to open Your dock and Decorations. Tap a decoration to try it, tap again to buy or place.',
+  'Tablets now get the full phone layout, scaled up to fill the screen, with bigger buttons.',
   'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this phone’s sound, controls or display settings.',
   'Frame rate setting (Settings, Display): 30 to save battery, 60, or Max for the smoothest picture your screen can show.',
   '## Fixes',

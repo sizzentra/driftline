@@ -24,9 +24,9 @@ const MB_UI={ up:{btnH:40, btnFs:15, btnSmH:36, btnSmFs:13, tabH:34, tabFs:12, h
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* buttons: two kinds. Regular (.btn) and small (.btn.sm, and the aquarium bar's compact pair). One line, never wrapping into a taller button */
 ${both('app','#menuov #panel button.btn')}{height:${U.btnH}px!important;min-height:${U.btnH}px!important;font-size:${U.btnFs}px!important;padding:0 14px!important;white-space:nowrap!important;box-sizing:border-box!important}
-${both('app','#menuov #panel button.btn.sm, #menuov #panel.aq07 .aq07-bar .aq07-bank button.btn')}{height:${U.btnSmH}px!important;min-height:${U.btnSmH}px!important;font-size:${U.btnSmFs}px!important;padding:0 10px!important}
+${both('app','#menuov #panel button.btn.sm, #menuov #panel.aq07 .aq07-bar button.btn')}{height:${U.btnSmH}px!important;min-height:${U.btnSmH}px!important;font-size:${U.btnSmFs}px!important;padding:0 10px!important}
 ${both('land','#menuov #panel button.btn')}{height:${L.btnH}px!important;min-height:${L.btnH}px!important;font-size:${L.btnFs}px!important;padding:0 14px!important;white-space:nowrap!important;box-sizing:border-box!important}
-${both('land','#menuov #panel button.btn.sm, #menuov #panel.aq07 .aq07-bar .aq07-bank button.btn')}{height:${L.btnSmH}px!important;min-height:${L.btnSmH}px!important;font-size:${L.btnSmFs}px!important;padding:0 10px!important}
+${both('land','#menuov #panel button.btn.sm, #menuov #panel.aq07 .aq07-bar button.btn')}{height:${L.btnSmH}px!important;min-height:${L.btnSmH}px!important;font-size:${L.btnSmFs}px!important;padding:0 10px!important}
 /* section tabs inside pages (Gear / Bait, Waters / Set sail again, Games / Prize counter...): one style */
 ${both('app','#menuov #panel .bwx-nav:not(.wd-nav) > button')}{height:${U.tabH}px!important;min-height:${U.tabH}px!important;font-size:${U.tabFs}px!important}
 ${both('land','#menuov #panel .bwx-nav:not(.wd-nav) > button')}{height:${L.tabH}px!important;min-height:${L.tabH}px!important;font-size:${L.tabFs}px!important}
