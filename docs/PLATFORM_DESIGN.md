@@ -110,7 +110,7 @@ windows use the regular PC layout (`body.pch-on`).
 | Pixel 9 / 10 | 412×915 | 0 → cutout 32 on one side |
 | Galaxy S24 / S25 | 360×780 | 0 → cutout 32 on one side |
 
-Run `__spec` at each, upright and sideways, with its safe areas simulated. The older small sizes (375×667, 667×375, 734×360) no longer have to pass. iPhone with `?test&ios`.
+Run `__spec` at each, upright and sideways, with its safe areas simulated. Reference (director's screenshots of the Claude app on the 17 Pro Max, 2026-11-18): upright, the header starts 62 pt down and the input ends 34 pt above the bottom; sideways, the bottom bar ends 21 pt up and the corner buttons sit 38 pt from the sides (the camera is mid-edge, so the top corners are free). The table's numbers match it; Driftline keeps everything 62 pt in on both sides for now. The older small sizes (375×667, 667×375, 734×360) no longer have to pass. iPhone with `?test&ios`.
 
 **Speed:** a menu page must open in about one frame's budget on top of building the page. Never paint or build what is not on screen when a page opens (e.g. the Aquarium's 45 hidden decoration pictures are painted in small batches right after it shows), and never do heavy one-time work inside a tap (the music and ambience buffers are built 0.4 s after the first tap; the tap only unlocks audio). Measure with `__fnTime(names, fn)`.
 
