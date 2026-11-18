@@ -39,9 +39,12 @@ A cozy fishing game in the browser, made for the director and their friends. It 
     - The core provides neutral defaults that layers replace (e.g. `stageHOverride` in c_logic.js).
     - A few one-line platform checks remain inside shared drawing and resize functions; they are harmless.
     - Never put platform UI back into a shared file.
-  - **Phone test apps (2026-11-17):** the preview is its own home-screen app, "Driftline Test" (label "DL Test"). The preview build writes `site/next/manifest.webmanifest` (start_url = /next/, so it never opens the live game) and `site/next/sw.js`.
-    - The director installs it from https://sizzentra.github.io/driftline/next/: Safari → Share → Add to Home Screen on iPhone; Chrome → menu → Add to Home screen / Install app on Android.
-    - The router picks the iPhone or Android preview build.
+  - **Phone test apps (2026-11-18): one separate app per phone, in their own GitHub Pages project** `sizzentra/driftline-test` → https://sizzentra.github.io/driftline-test/:
+    - `/android/`: "DL Test Android" (Android preview build). `/iphone/`: "DL Test iPhone" (iPhone preview build). The root page is a chooser.
+    - Why a separate project: Android treated /driftline/next/ as the live app, because an installed live app owns every address under /driftline/.
+    - Same website, so the preview save (`driftline-save-next`) is shared the same way.
+    - `build.ps1 -Preview` writes them into `testapps/` (own manifest with its own id/scope, sw.js, version.txt). **After each preview push run `publish_testapps.ps1`**, which subtree-pushes testapps/ to that repo's gh-pages.
+    - Install: Safari → Share → Add to Home Screen (iPhone); Chrome → ⋮ → Add to Home screen / Install app (Android).
     - iPhone home-screen apps get their own storage, so the preview starts fresh there; bring a save in with Settings › Save & codes › Move progress (6-digit code).
 - **NEXT: nothing scheduled (0.4.5 shipped).** Standing rules (director, 2026-11-17): platforms are tested separately and keep platform-specific changes in their own layer (body classes: `pch-on` PC, `phone-app` upright, `phone-land` sideways, tablets = none of these) so one platform never alters another; give every platform love; critique harshly (hard to find for new players? missing? how does it look on each platform?). **PC: nothing may sit on top of the fishing scene**; the header is one row. Write patch-note text with ’ (single-quoted JS strings) and run `__qa()` on the exact build before every push (an apostrophe broke the preview once).
 - **0.4 "Fifty Fathoms" SHIPPED 2026-11-17** (director: "Patch is ready to go live"). Release build checked (GAME_VERSION 0.4, no DL_PREVIEW, no test hooks, no gift codes in plain text), live loads with zero errors. The last rounds before release were iPhone touch fixes in `src/bm_ui04.js`: tap-only controls (`touch-action: manipulation`), no `:hover` rules on touch screens, menu navigation acts on finger lift with the phone's own clicks ignored (except touches that didn't act), Back/Overview shield, no-bounce guard with a 10 px dead zone, bigger side buttons; kept thumbnails (fish/decor/dock), fast-tap coalescing, `resize()` skips unchanged sizes and redraws at once. Details: `docs/QA_0.4_report.md`. Any new work is a new version with its own patch-notes entry; the 0.4 entry stays as shipped.
@@ -198,7 +201,7 @@ These are absolute. `build.ps1` enforces the first three and refuses to build wh
 
    Changes to the shared core are tested on all three builds.
 7. **Each platform looks the way `docs/PLATFORM_DESIGN.md` says.** New screens follow its standards; if a screen needs something the standard doesn't cover, the standard is updated first (and the director asked when it's a real design choice).
-8. **Test apps:** PC = Driftline Test (desktop). Phones = "DL Test" home-screen app from /next/. Both always load the preview, never the live game. The live game changes only when the director approves a release.
+8. **Test apps:** PC = Driftline Test (desktop, loads /driftline/next/). Android = "DL Test Android", iPhone = "DL Test iPhone", both from sizzentra.github.io/driftline-test/ (publish with `publish_testapps.ps1` after every preview push). Both always load the preview, never the live game. The live game changes only when the director approves a release.
 
 ## Ground rules (director)
 - **Fishing stays the core.** Everything else supports it.
