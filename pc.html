@@ -2785,7 +2785,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.1';
+const GAME_VERSION = '0.4.8.2';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -15423,6 +15423,11 @@ body.pc-fhd #panel.st-on .st-table{background:transparent;font-size:13px}
 body.pc-fhd #panel.st-on .st-table th,body.pc-fhd #panel.st-on .st-table td{padding:7px 5px} body.pc-fhd #panel.st-on .st-table thead th{font-size:10.5px;letter-spacing:.02em} body.pc-fhd #panel.st-on .st-table-wrap{overflow:visible}
 body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important}
 </style>`);
+// HOTFIX 0.4.8.2 (director, 2026-11-18: "QR and code saves no longer generate on PC: Send and Get progress show no 6-digit code, no
+// QR and no box to type a code"). On PC the Send / Get progress section lives in Settings > Save & codes, but it was only redrawn on
+// the Save page (refreshXfer checked S.tab==='save'), so pressing Send made the code and updated the status line but never drew the
+// code, the QR or the code box. It is redrawn in Settings too now. PC only.
+{ const _rx=refreshXfer; refreshXfer=function(){ if(document.body.classList.contains('pch-on')&&S.tab==='settings'){ try{ renderPanel(); }catch(e){ console.error(e); } return; } return _rx.apply(this,arguments); }; }
 // =====================================================================
 // 0.4 additions (2026-11-17):
 //  1. Weekly quests: four bigger goals every week (Monday to Sunday) under the daily tasks, plus a weekly crate for
@@ -16814,6 +16819,10 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
   'Stonebrook River has been reworked: a village on the hill, the river running on through the bridge arches, a rowboat tied at the mill jetty and a new waterwheel.',
   'The Saltmarsh seal is a real seal now.',
   'Aquarium fish and decorations are a little smaller, so every piece can be seen.'
+]});
+PATCHES.unshift({v:'0.4.8.2', name:'Save Codes Fix', items:[
+  '## Fix',
+  'Send and Get progress in Settings > Save & codes work again: Send shows your 6-digit code and the QR code, and Get progress shows the box to type a code.'
 ]});
 // PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
