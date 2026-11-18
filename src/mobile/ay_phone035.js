@@ -4,7 +4,8 @@
 // The game's tip line sits on the water as a small overlay instead of taking a row of its own.
 // Switched on by body.phone-app, decided by the same rule the water's size uses (c_logic resize()).
 // =====================================================================
-const PHONE_APP=()=>window.innerHeight>window.innerWidth*1.15 && window.innerWidth<=700;
+/* any phone-width window that is not a short sideways screen (phone-land) is upright: split-screen and near-square windows used to fall back to an old layout (director, 2026-11-18: build around aspect ratios and safe areas, handle multi-window) */
+const PHONE_APP=()=>window.innerWidth<=700 && !(window.innerWidth>window.innerHeight && window.innerHeight<=560);
 (function(){ const hint=$('hint'), stage=$('stage'), wrap=document.querySelector('.wrap'); if(!hint||!stage||!wrap) return;
   const home=hint.parentElement, next=hint.nextElementSibling; let on=null;
   function apply(){ const v=PHONE_APP(); if(v===on) return; on=v; document.body.classList.toggle('phone-app',v); document.documentElement.classList.toggle('phone-app',v);

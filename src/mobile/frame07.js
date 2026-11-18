@@ -51,6 +51,7 @@ html body.phone-app .hud #goalchip > .gl-t{display:block!important;min-width:0!i
 html body.phone-app .hud #goalchip > .gl-k{flex:0 0 auto!important}
 html body.phone-app .hud #goalchip > .gl-bar{position:absolute!important;left:8px!important;right:8px!important;bottom:3px!important;height:3px!important;margin:0!important}
 html body.phone-land .hud > .stat{min-width:max-content!important}
+@media (max-height:560px){html body.phone-app.dl-fish .wrap{gap:${MB_FRAME.up.stageTop-MB_FRAME.up.row2Top-MB_FRAME.up.row2H}px!important}} /* upright in a short window (split screen): the short-screen gap meant for sideways phones must not move the water */
 </style>`); }
 { const U=MB_FRAME.up, L=MB_FRAME.land;
 document.head.insertAdjacentHTML('beforeend',`<style>

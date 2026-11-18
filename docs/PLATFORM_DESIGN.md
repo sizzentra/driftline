@@ -115,6 +115,14 @@ Run `__spec` at each, upright and sideways, with its safe areas simulated. Refer
 
 **Speed:** a menu page must open in about one frame's budget on top of building the page. Never paint or build what is not on screen when a page opens (e.g. the Aquarium's 45 hidden decoration pictures are painted in small batches right after it shows), and never do heavy one-time work inside a tap (the music and ambience buffers are built 0.4 s after the first tap; the tap only unlocks audio). Measure with `__fnTime(names, fn)`.
 
+**Screen shapes, not pixel sizes (director, 2026-11-18, Android + Apple guidance).** Driftline lays out in CSS points (iOS points / Android dp), never device pixels; device pixel ratio only sets how sharp the canvas is drawn.
+- **Which layout a screen gets** (decided by shape, `ay_phone035` + `bj_polish036`): any window up to 700 pt wide that is not a short sideways screen → upright phone layout (`phone-app`; includes split-screen, pop-up windows and very tall 21:9 phones); sideways and at most 560 pt tall → sideways phone layout (`phone-land`); bigger windows (iPads, Android tablets, unfolded foldables) → the desktop layout (`pc-app`), which works but is built for a mouse (small dock labels, "or Space" in hints). A real tablet layout is a separate design job, not done yet.
+- **Range to test:** tall phones 19.5:9 to 21:9 (360×840, 393×852 … 440×956 and sideways), split-screen (e.g. 440×460), and at the other end 4:3 / 3:2 tablets (820×1180, 1180×820) and foldables. Nothing may scroll sideways or fall off screen at any of them.
+- **Safe areas:** the scene renders inside its frame; every button and text stays inside `env(safe-area-inset-*)` (see above). Never put tap controls right against the bottom edge (home bar / gesture bar).
+- **Touch targets:** Apple asks 44 pt, Android 48 dp. Phone controls are 32–40 pt today (`MB_UI`), chosen to fit the dense rows; growing them (or extending their invisible tap area where rows have room) needs the director's call.
+- **Render scale:** phones draw the canvas at a capped pixel ratio that steps down automatically (2 → 1.15) when frames drop (`perf_round6`), so UI text stays sharp while the scene protects frame rate and heat.
+- **Fairness:** a wider or taller screen must not show more of anything that matters to play (fish, hotspots, bites). Not yet measured across screen shapes.
+
 **Release order (director's QC rule):** fix → `__spec` + `__qa` on both phone builds → phone test apps (`publish_testapps.ps1`) → the director checks them on real phones → only then live, and only when the director says so.
 
 ## Shared across platforms

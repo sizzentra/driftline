@@ -105,6 +105,7 @@ PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
   'Menus now fit every phone: they stay clear of the camera cutout and rounded corners and match the fishing screen on every model.',
   'Menus open faster: the Aquarium no longer stalls when you open it, and the very first tap of a session no longer pauses while the music loads.',
   'On smaller phones held sideways, the top bar no longer cuts off "Aquarium".',
+  'Split screen and pop-up windows now use the normal phone layout instead of an older cramped one.',
   'One look everywhere: every button, tab, badge and label of the same kind now has the same size and style on every page (buttons came in nine different heights, badges in four sizes); the bottom tabs keep their size when a menu opens.',
   'Long button labels ("Unlock · 1,200,000") stay on one line instead of making a taller button.',
   'Upright, a long "Next goal" stays one row tall and no longer pushes the water down.',
