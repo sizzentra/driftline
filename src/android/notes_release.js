@@ -101,6 +101,9 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Weather news also waits while the catch card is open.',
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
 PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
+  '## New',
+  'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this phone’s sound, controls or display settings.',
+  'Frame rate setting (Settings, Display): 30 to save battery, 60, or Max for the smoothest picture your screen can show.',
   '## Fixes',
   'Menus now fit every phone: they stay clear of the camera cutout and rounded corners and match the fishing screen on every model.',
   'Menus open faster: the Aquarium no longer stalls when you open it, and the very first tap of a session no longer pauses while the music loads.',

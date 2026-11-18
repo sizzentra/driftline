@@ -101,6 +101,10 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Weather news also waits while the catch card is open.',
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
 PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
+  '## New',
+  'Driftline now plays in landscape on iPhone: hold your iPhone sideways (if you hold it upright, the game pauses and shows you how).',
+  'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this iPhone’s sound, controls or display settings.',
+  'Frame rate setting (Settings, Display): 30 to save battery, or 60 for the smoothest picture.',
   '## Fixes',
   'Menus now fit every iPhone: they stay clear of the Dynamic Island, the rounded corners and the home bar, and match the fishing screen on every model (the bigger Pro Max screens were cut off under the camera).',
   'Menus open faster: the Aquarium no longer stalls when you open it, and the very first tap of a session no longer pauses while the music loads.',
