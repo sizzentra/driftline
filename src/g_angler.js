@@ -62,7 +62,7 @@ let A3HEAD=.9; // 0.3.6: adult proportions (was 1.1, a cartoon-sized head)
 function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
   const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
-  if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
+  if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
   const ax=O.a.getContext('2d'); ax.setTransform(1,0,0,1,0,0); ax.clearRect(0,0,w,h);
@@ -84,6 +84,7 @@ function drawAngler3(c,x,y,s,lk,o={}){
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
   const map=p=>({x:x+(p.x-BX*ps)/ps*s,y:y+(p.y-BT*ps)/ps*s});
+  if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,map,s/ps); // living cosmetics on top (cb_wearfx06.js)
   return {x:map(res.hand).x,y:map(res.hand).y,back:map(res.back),fingers:()=>a3Fingers(c,map(res.hand),map(res.back),res.ra,s,res.sk,res.skD)}; }
 
 // fingers wrapped over the rod, drawn after the rod so the hands hold it
@@ -96,7 +97,8 @@ function a3Fingers(c,h1,h2,ra,s,sk,skD){ c.save();
     c.restore(); }
   c.restore(); }
 
-function a3Body(c,x,y,s,lk,o,live){
+var A3FXP={}; // where the hat, chest and neck are this frame (read by cb_wearfx06.js)
+function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl, t=o.t||0, f=lk.g==='f';
   const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt); A3SKIN=[sk,skD];
   const hs = !lk.hairStyle||lk.hairStyle==='auto' ? (f?'long':'short') : lk.hairStyle;
@@ -136,10 +138,16 @@ function a3Body(c,x,y,s,lk,o,live){
     c.fillStyle=D('#140d08'); c.beginPath(); c.moveTo(bx-3.5,-1); c.lineTo(bx+5.9,-1); c.quadraticCurveTo(bx+6.2,0,bx+5.2,.25); c.lineTo(bx-3.4,.25); c.closePath(); c.fill();
     c.fillStyle=D('#c9a070'); c.beginPath(); c.arc(bx-.2,-4.3,.38,0,7); c.arc(bx+1.3,-3.9,.38,0,7); c.fill();
     c.fillStyle='rgba(255,236,210,'+(dark?.1:.24)+')'; c.beginPath(); c.ellipse(bx+3.6,-3.3,1.6,.6,-.35,0,7); c.fill(); };
-  const aB=-3.6-stance, aF=3.2+stance*.8, shoe=lk.shoes||'boots';
+  // side view (director: "pants/legs still don't look side view"): both hips sit under the side-on body, one leg in front of the other
+  const aB=-2.3-stance, aF=2.1+stance*.8, shoe=lk.shoes||'boots';
   c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); c.scale(SIDE_K,1); a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
   /* the left leg is the near one from this angle (director, 2026-11-18): the right leg is drawn first and darker, the left one last, in front */
-  if(!o.sit){ leg(2.6*B.w,aF,legD,true); a3Shoe(c,shoe,aF-.2,true,D,sk,t); leg(-3*B.w,aB,legC,false); a3Shoe(c,shoe,aB-.2,false,D,sk,t); }
+  if(!o.sit){ leg(1.1*B.w,aF,legD,true); a3Shoe(c,shoe,aF-.2,true,D,sk,t);
+    // the seat: a soft curve at the back of the hips, which is what makes a figure read as side-on
+    { const sx=-1.6*B.w+Math.sin(lean)*1.2; c.fillStyle=legC; c.beginPath(); c.ellipse(sx,hipY+2.2,2.7*B.lw,3.1,-.15,0,7); c.fill(); c.fillStyle='rgba(0,0,0,.14)'; c.beginPath(); c.ellipse(sx-.6,hipY+3.6,2.2*B.lw,1.6,-.2,0,Math.PI); c.fill(); }
+    const an=leg(-.7*B.w,aB,legC,false); a3Shoe(c,shoe,aB-.2,false,D,sk,t);
+    // a side seam down the near leg
+    if(lk.outfit!=='spacesuit'){ c.strokeStyle='rgba(255,255,255,.10)'; c.lineWidth=.45; c.beginPath(); c.moveTo(-.7*B.w+Math.sin(lean)*1.2+.3,hipY+1.5); c.lineTo(an.x+.4,-6.5); c.stroke(); } }
   else { // sitting: thighs forward from the hips, shins hanging over the dock edge (kicking gently) or down to the floor in front of the chair
     const hy0=-o.sit.seat, L1=9.4*B.l, L2=9.6*B.l;
     for(const [hx0,col,back,ph] of [[1.8*B.w,legD,true,0],[-2.4*B.w,legC,false,1.3]]){ const hp={x:hx0,y:hy0-1.2}, kn={x:hx0+L1,y:hy0-1.5+(back?.4:0)};
@@ -168,6 +176,7 @@ function a3Body(c,x,y,s,lk,o,live){
   c.save(); c.translate(0,br*.3); c.scale(B.w*SIDE_K,1); /* side view: the body is narrower front to back than it is wide */
   c.fillStyle=shirt; a3TorsoPath(c,f); c.fill();
   { c.save(); a3TorsoPath(c,f); c.clip(); drawTwoTone(c,lk,D,-10,-49,20,27); if(lk.pat&&lk.pat!=='none') drawPattern(c,lk.pat,shirt,-10,-49,20,27); c.restore(); }
+  A3FXP.torso=c.getTransform(); // anchors for cb_wearfx06.js
   if(lk.outFab&&lk.outFab!=='none'&&outfitFabrics(lk.outfit).includes(lk.outFab)) a3FabricOutfit(c,lk,D,f,t); else drawOutfit3(c,lk,D,f,t);
   const bodyPath=()=>coat?a3CoatPath(c,f,hem):a3TorsoPath(c,f), out=lk.outfit;
   a3Vol(c,out==='puffer'?()=>{ c.beginPath(); c.moveTo(-5.4,-47.6); c.bezierCurveTo(-8.6,-46.8,-8.8,-40,-8.2,-34); c.bezierCurveTo(-7.8,-29,-8.4,-24,-8,-21.6); c.quadraticCurveTo(0,-20.6,8.2+A3BELLY*2,-21.6); c.bezierCurveTo(8.8+A3BELLY*2.6,-28,8.6+A3BELLY*2,-38,4.6,-47.6); c.quadraticCurveTo(-.6,-49,-5.4,-47.6); c.closePath(); }:bodyPath,-8.4,8.6,-48,coat?hem:-22.4,1);
@@ -180,7 +189,7 @@ function a3Body(c,x,y,s,lk,o,live){
   c.restore();
   // ---- neck and head (the head tilts on the neck: looks down at the float, up while the cast flies)
   { const ng=c.createLinearGradient(-2.2,0,2.2,0); ng.addColorStop(0,skD); ng.addColorStop(.7,sk); ng.addColorStop(1,mix(sk,'#fff2e0',.12)); c.fillStyle=ng; c.beginPath(); c.moveTo(-2.1,-51); c.lineTo(-2.3,-45.6); c.quadraticCurveTo(0,-44.6,2.4,-45.6); c.lineTo(2.2,-51); c.closePath(); c.fill(); }
-  c.save(); c.scale(SIDE_K,1); a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
+  c.save(); c.scale(SIDE_K,1); A3FXP.neck=c.getTransform(); A3FXP.nw=B.w; a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
   c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50);
   c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.fill();
@@ -224,7 +233,7 @@ function a3Body(c,x,y,s,lk,o,live){
   // hats sit above the eye line, so the face always reads (no hole is ever cut into a hat)
   // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
   { const HC=a3HatLayer(c), hx=HC.getContext('2d'); hx.setTransform(1,0,0,1,0,0); hx.clearRect(0,0,HC.width,HC.height); hx.setTransform(c.getTransform());
-    hx.save(); hx.translate(0,-57.4); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
+    hx.save(); hx.translate(0,-57.4); A3FXP.hat=hx.getTransform(); hx.lineCap='round'; hx.lineJoin='round'; drawHat(hx,lk.hat,D(lk.hatCol),t); hx.restore();
     if(hatId!=='none'){ hx.save(); hx.globalCompositeOperation='source-atop'; const g1=hx.createLinearGradient(-9,-74,9,-50); g1.addColorStop(0,'rgba(10,8,22,.34)'); g1.addColorStop(.45,'rgba(10,8,22,0)'); g1.addColorStop(.75,'rgba(255,244,226,.12)'); g1.addColorStop(1,'rgba(255,244,226,.22)'); hx.fillStyle=g1; hx.fillRect(-30,-100,60,60);
       const g2=hx.createLinearGradient(0,-60,0,-52); g2.addColorStop(0,'rgba(10,8,22,0)'); g2.addColorStop(1,'rgba(10,8,22,.28)'); hx.fillStyle=g2; hx.fillRect(-30,-60,60,10); hx.restore(); }
     if(hatId!=='none'&&typeof defineSprite==='function') defineSprite(HC,{d:Math.max(1,Math.round(s*.32)),ao:.1,dark:.3,light:.26}); /* 0.3.6: hats get real edges and texture */
@@ -287,7 +296,7 @@ function drawOutfit3(c,lk,D,f,t){ const o=lk.outfit||'none'; if(o==='none') retu
     case 'captain': { const n=D(base||'#1a2a4a'); c.fillStyle=n; a3CoatPath(c,f,-14.5); c.fill(); c.strokeStyle=D(mix(base||'#1a2a4a','#ffffff',.15)); c.lineWidth=.5; c.beginPath(); c.moveTo(-.4,-44); c.lineTo(-.6,-15); c.stroke();
       for(let i=0;i<4;i++){ c.fillStyle=D('#f2c84a'); c.beginPath(); c.arc(-2.4,-41+i*5.8,.65,0,7); c.arc(2.4,-41+i*5.8,.65,0,7); c.fill(); }
       c.fillStyle=D('#f2c84a'); c.fillRect(4.6,-46.6,4.4,1.6); for(let k=0;k<4;k++) c.fillRect(5+k*1.05,-45,.5,1.8); c.fillStyle=n; c.beginPath(); c.moveTo(-6,-47.4); c.lineTo(0,-42.4); c.lineTo(6.2,-47.4); c.lineTo(5,-49.2); c.lineTo(-4.8,-49.2); c.closePath(); c.fill(); c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(-2,-47.6); c.lineTo(0,-44); c.lineTo(2.2,-47.6); c.closePath(); c.fill(); break; }
-    case 'spacesuit': { const s2=D('#e8ecf0'); clipT(()=>{ R(-10,-50,20,28,s2); R(-10,-27,20,1.8,D('#d8603a')); }); R(-4.2,-40.4,8.4,6,D('#5a6a7a')); R(-3.4,-39.4,2.2,2,D('#ff5a4a')); R(.4,-39.4,2.2,2,D('#5aff9a')); R(-3.4,-36.6,6,.8,D('#9ad8ff'));
+    case 'spacesuit': { const s2=D('#e8ecf0'); clipT(()=>{ R(-10,-50,20,28,s2); R(-10,-27,20,1.8,D('#d8603a')); }); R(-4.2,-40.4,8.4,6,D('#5a6a7a')); R(-3.4,-39.4,2.2,2,D(Math.sin(t*3.2)>0?'#ff5a4a':'#7a2a24')); R(.4,-39.4,2.2,2,D(Math.sin(t*3.2)>0?'#2a6a44':'#5aff9a')); /* the chest lights blink (round 6) */ R(-3.4,-36.6,6,.8,D('#9ad8ff'));
       c.strokeStyle=D('#b8c0c8'); c.lineWidth=.4; c.beginPath(); c.moveTo(-7,-14); c.lineTo(-1.4,-14); c.moveTo(.6,-14); c.lineTo(6.2,-14); c.stroke(); c.fillStyle=D('#c8d0d8'); c.beginPath(); c.ellipse(0,-46.6,7,1.8,0,0,7); c.fill(); break; }
     case 'cardigan': { const col=oc; clipT(()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-10,-50); c.lineTo(-1.6,-50); c.lineTo(-.6,-22); c.lineTo(-10,-22); c.closePath(); c.moveTo(10,-50); c.lineTo(3.2,-50); c.lineTo(1.6,-22); c.lineTo(10,-22); c.closePath(); c.fill(); R(-10,-24.6,20,2.2,dk('#d8a020'));
         c.strokeStyle=dk('#d8a020'); c.lineWidth=.3; for(let xx=-9;xx<10;xx+=1.2){ c.beginPath(); c.moveTo(xx,-24.6); c.lineTo(xx,-22.4); c.stroke(); } });

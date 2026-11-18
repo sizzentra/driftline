@@ -49,10 +49,19 @@ m33wrap('coast','live',function(P,t,hz){ const night=P.night, d=P.d, FX=S.settin
     g.fillStyle=mix(P.stoneD,P.wMid,.25); g.beginPath(); g.moveTo(rx-rw,ry); g.quadraticCurveTo(rx-rw*.7,ry-rh*1.2,rx,ry-rh*1.3); g.quadraticCurveTo(rx+rw*.8,ry-rh*1.1,rx+rw,ry); g.closePath(); g.fill();
     g.fillStyle=v3rgba(P.rim,.25+d*.2); g.beginPath(); g.moveTo(rx-rw*.5,ry-rh*1.05); g.quadraticCurveTo(rx,ry-rh*1.35,rx+rw*.4,ry-rh*1.15); g.lineTo(rx+rw*.3,ry-rh*1); g.quadraticCurveTo(rx,ry-rh*1.15,rx-rw*.5,ry-rh*.9); g.fill();
     const sc=mix('#6a6a72',P.wBot,night*.5), sb=mix('#9a948a',P.wBot,night*.5), hx=rx+rw*.5, hy=ry-rh*1.55-lift*H*.006;
-    g.fillStyle=sc; g.beginPath(); g.ellipse(rx-rw*.05,ry-rh*1.45,rw*.5,rh*.42,-.05,0,7); g.fill();
-    g.beginPath(); g.ellipse(hx,hy,rw*.16,rh*.36,-.3-lift*.4,0,7); g.fill(); g.fillStyle=sb; g.beginPath(); g.ellipse(rx,ry-rh*1.3,rw*.36,rh*.18,0,0,7); g.fill();
-    m33dot(g,hx+rw*.08,hy-rh*.12,Math.max(.6,rw*.025),'#14141a');
-    g.beginPath(); g.moveTo(rx-rw*.55,ry-rh*1.5); g.lineTo(rx-rw*.78,ry-rh*1.85); g.lineTo(rx-rw*.72,ry-rh*1.3); g.fillStyle=sc; g.fill();
+    // round 6 (director: "the most realism"): a real harbour seal: a tapered body with rear flippers, a round head with a snout
+    // on a neck that lifts, a fore flipper, a lighter belly, spots, whiskers and a wet glint
+    const sd=mix(sc,'#000000',.25), neckY=ry-rh*1.72-lift*H*.004;
+    g.fillStyle=sc; g.beginPath(); g.moveTo(rx-rw*.56,ry-rh*1.36); g.quadraticCurveTo(rx-rw*.34,ry-rh*1.98,rx+rw*.05,ry-rh*1.9); g.quadraticCurveTo(rx+rw*.3,ry-rh*1.86,hx-rw*.06,neckY); g.lineTo(hx+rw*.02,hy+rh*.2); g.quadraticCurveTo(rx+rw*.4,ry-rh*1.22,rx+rw*.1,ry-rh*1.2); g.quadraticCurveTo(rx-rw*.3,ry-rh*1.16,rx-rw*.56,ry-rh*1.36); g.closePath(); g.fill();
+    g.fillStyle=sb; g.beginPath(); g.ellipse(rx-rw*.02,ry-rh*1.27,rw*.34,rh*.12,0,0,7); g.fill();
+    g.fillStyle=sd; for(const [sx,sy,sr] of [[-.25,-1.74,.03],[-.05,-1.8,.025],[.12,-1.72,.022],[-.36,-1.6,.02]]){ g.beginPath(); g.ellipse(rx+rw*sx,ry+rh*sy,rw*sr*1.4,rw*sr,0,0,7); g.fill(); }
+    g.fillStyle=sd; g.beginPath(); g.moveTo(rx-rw*.54,ry-rh*1.38); g.lineTo(rx-rw*.74,ry-rh*1.62); g.quadraticCurveTo(rx-rw*.7,ry-rh*1.42,rx-rw*.76,ry-rh*1.2); g.closePath(); g.fill();
+    g.beginPath(); g.ellipse(rx+rw*.16,ry-rh*1.3,rw*.09,rh*.09,.6,0,7); g.fill();
+    g.fillStyle=sc; g.beginPath(); g.ellipse(hx,hy,rw*.15,rh*.34,-.15-lift*.35,0,7); g.fill(); g.beginPath(); g.ellipse(hx+rw*.13,hy+rh*.1,rw*.09,rh*.19,.1,0,7); g.fill();
+    m33dot(g,hx+rw*.215,hy+rh*.06,Math.max(.5,rw*.018),'#141418');
+    m33dot(g,hx+rw*.06,hy-rh*.1,Math.max(.6,rw*.026),'#101014'); m33dot(g,hx+rw*.07,hy-rh*.14,Math.max(.25,rw*.009),v3rgba('#ffffff',.8));
+    g.strokeStyle=v3rgba(mix(sb,'#ffffff',.4),.55); g.lineWidth=Math.max(.4,rw*.008); g.beginPath(); for(const k of [-.06,0,.06]){ g.moveTo(hx+rw*.17,hy+rh*(.14+k)); g.lineTo(hx+rw*.3,hy+rh*(.1+k*2.2)); } g.stroke();
+    g.fillStyle=v3rgba(P.rim,.22+d*.15); g.beginPath(); g.ellipse(rx-rw*.12,ry-rh*1.86,rw*.2,rh*.05,-.08,0,7); g.fill();
     if(FX){ const k=(t*.6)%1; g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),.55*(1-k)); g.lineWidth=1.2; g.beginPath(); g.ellipse(rx,ry+1,rw*(1.05+k*.5),rh*(.35+k*.25),0,0,7); g.stroke(); } }
   // surf foaming along the foot of the cliff
   if(FX){ for(let i=0;i<9;i++){ const q=((t*.45+i*.11)%1), X=W*(.205+i*.007), y=hz+H*.002; g.fillStyle=v3rgba(mix(P.wTop,"#ffffff",.75),.55*Math.sin(q*Math.PI)); g.beginPath(); g.ellipse(X,y-q*H*.004,W*.004*(1+q),H*.0018,0,0,7); g.fill(); } }

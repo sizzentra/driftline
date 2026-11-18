@@ -55,3 +55,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #panel .bt-groups{flex:1 1 0!important;min-height:0!important;overflow:auto!important;scrollbar-width:thin}
 html body.pc-fhd #panel .bt-groups > .bt-grid{flex:none!important;overflow:visible!important;min-height:auto!important}
 </style>`);
+
+// ---------- names never get cut with "…" on smaller PC windows: Feats names and the Oddities hint wrap to a second line ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pch-on #panel .fb-name{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2;overflow-wrap:anywhere}
+html body.pch-on #panel .od-card small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2;text-align:center}
+</style>`);

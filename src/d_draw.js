@@ -353,7 +353,7 @@ function draw(now){
   drawHotspot(t); v3Fx(t);
   drawEat(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
-    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,wag:t*20,flip:true}); g.restore(); }
+    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.fillStyle='#06121a'; g.fillRect(G.bob.x-12,G.bob.y+8,24,14); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
@@ -385,10 +385,10 @@ function draw(now){
     g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); g.strokeStyle='rgba(10,18,28,.45)'; g.lineWidth=1; g.beginPath(); g.arc(bx2,by2+br*.18,br*1.02,0,7); g.stroke(); }
   else { const f=G.fish, k=lp.k, sz=(f&&f.kind==='fish') ? clamp(30+Math.sqrt(f.kg)*7,30,90)*(.7+.5*k) : 46*(.7+.5*k);
     g.save(); g.translate(lp.x,lp.y+sz*.15); g.rotate(Math.sin(t*22)*.35*(1-k*.5)-.4*(1-k));
-    if(f && f.kind==='fish') drawCreature(g,f.sp,0,0,sz,{shiny:f.shiny,wag:t*26,flip:true});
+    if(f && f.kind==='fish') drawCreature(g,f.sp,0,0,sz,{shiny:f.shiny,pv:f.pv,wag:t*26,flip:true});
     else if(f && f.kind==='junk') drawJunkAt(g,f.item.id,0,0,sz/150);
     else if(f && f.kind==='hat'){ g.scale(sz/30,sz/30); drawHat(g,f.hat.id,f.hat.fixed?'#888888':S.look.hatCol,t); }
-    g.restore(); if(f && (f.shiny||f.kind==='hat')){ g.fillStyle='rgba(255,233,168,.9)'; for(let i=0;i<5;i++){ const a=t*4+i*1.25; g.fillRect(lp.x+Math.cos(a)*sz*.6,lp.y+Math.sin(a)*sz*.4,2.5,2.5); } } }
+    g.restore(); if(f && f.kind==='hat'){ /* shiny fish have their own FX now (ca_shiny06.js) */ g.fillStyle='rgba(255,233,168,.9)'; for(let i=0;i<5;i++){ const a=t*4+i*1.25; g.fillRect(lp.x+Math.cos(a)*sz*.6,lp.y+Math.sin(a)*sz*.4,2.5,2.5); } } }
   v3FxTop(); if(!V3ON){ g.fillStyle='rgba(225,240,240,.85)'; for(const q of G.parts){ g.globalAlpha=Math.max(0,1-q.t/q.life); g.fillRect(q.x,q.y,2,2); } g.globalAlpha=1; }
   if(!v3Fore(L,t,night)) drawFore(L,t,night);
   drawEvents(t);
@@ -447,7 +447,7 @@ function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getB
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
   S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=.82*Math.max(14,Math.min(h*.3,w*.22,(22+11*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.8,1.9))); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const M=tankMove(f,sp,i,t,w,h,L);
-    drawCreature(c,sp,M.x,M.y,L,{shiny:!!f.sh,wag:t*M.wag+i,flip:!M.dir}); });
+    drawCreature(c,sp,M.x,M.y,L,{shiny:f.sh||0,pv:f.pv,seedAdd:i,wag:t*M.wag+i,flip:!M.dir}); });
   c.fillStyle='rgba(220,245,255,.35)'; for(let i=0;i<12;i++){ const x=(i*73)%w+Math.sin(t+i)*4, y=h-((t*30+i*40)%h); c.beginPath(); c.arc(x,y,1.5+(i%3),0,7); c.fill(); }
   drawTankFront(c,w,h,t);
 }

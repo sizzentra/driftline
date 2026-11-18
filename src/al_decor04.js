@@ -90,7 +90,7 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   const t=performance.now()/1000, m=c.getTransform(), sc=Math.max(.5,Math.hypot(m.a,m.b)), R=L*1.2, px=Math.ceil(R*2*sc), ph=((hashStr(sp.id)%100)/100);
   if(px<6||px>1600) return _drawCreature3_sh(c,sp,x,y,L,o);
   const pulse=.5+.5*Math.sin(t*2.2+ph*6);
-  if(typeof v3glow==='function') v3glow(c,x,y,L*.72,'rgba(255,222,130,.9)',.16+.12*pulse);
+  if(typeof v3glow==='function') v3glow(c,x,y,L*.72,o.shiny===2&&typeof PRISM!=='undefined'&&PRISM[o.pv]?v3rgba(PRISM[o.pv].c,.9):'rgba(255,222,130,.9)',.16+.12*pulse); // prismatic fish glow in their own colour
   let C=SHINY3.c; if(!C) C=SHINY3.c=document.createElement('canvas'); if(C.width<px||C.height<px){ C.width=Math.max(C.width,px); C.height=Math.max(C.height,px); }
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));
@@ -99,10 +99,9 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   ox.save(); ox.globalCompositeOperation='source-atop'; const gr=ox.createLinearGradient(bx-R*.28,-R*.2,bx+R*.28,R*.2); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(.5,'rgba(255,250,225,.72)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ox.fillStyle=gr; ox.fillRect(-R,-R,R*2,R*2);
   ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore();
   c.drawImage(C,0,0,px,px,x-R,y-R,R*2,R*2);
-  // sparkles: little four-point stars that pop in and out around the body
-  c.save(); for(let i=0;i<(SHINY3.still?0:4);i++){ const q=((t*.7+i*.27+ph)%1), a=(i*1.9+ph*6), d=L*(.32+.14*((i*7)%3)), sx=x+Math.cos(a)*d, sy=y+Math.sin(a)*d*.55, s=Math.sin(q*Math.PI)*Math.max(1.4,L*.07);
-    if(s<.2) continue; c.fillStyle='rgba(255,246,200,'+(.9*Math.sin(q*Math.PI))+')'; c.beginPath(); c.moveTo(sx,sy-s*1.6); c.quadraticCurveTo(sx,sy,sx+s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy+s*1.6); c.quadraticCurveTo(sx,sy,sx-s*1.6,sy); c.quadraticCurveTo(sx,sy,sx,sy-s*1.6); c.fill(); }
-  c.restore(); return r; };
+  // shiny FX (round 6 overhaul, ca_shiny06.js): flares, glitter and per-kind signatures that pop on new spots of the body
+  if(!SHINY3.still&&typeof shinyFxWater==='function') shinyFxWater(c,x,y,L,t,sp,o);
+  return r; };
 
 // ---------- 0.3.2: the pineapple house redrawn (its pattern stays inside the fruit), plus two more seaside homes ----------
 [['snoozyrock','Snoozy Rock',6500,.04,'show'],['tikihouse','Grumpy Tiki House',9500,.05,'income']]

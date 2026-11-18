@@ -24,3 +24,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .sc-arrow{position:absolute;z-index:6;width:18px;height:26px;margin-top:-13px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:linear-gradient(180deg,#1f8a86,#14666a);border:1px solid #7fe3c4;color:#fff;font:900 16px/1 system-ui;font-style:normal;pointer-events:none;box-shadow:0 2px 8px #0009;opacity:.92}
 .sc-arrow[hidden]{display:none}
 </style>`);
+
+// ---------- the water always fills its frame: if the layout around it settles after the water was sized (a chip arriving in the
+// strip, a font loading, a page closing), the water is fitted again. A cheap check once a second; it only acts on a real gap ----------
+setInterval(()=>{ try{ if(document.hidden||(typeof MENU_OPEN!=='undefined'&&MENU_OPEN)) return; const st=$('stage'), c=$('cv'); if(!st||!c||!st.clientHeight) return;
+  const ch=parseFloat(c.style.height)||c.getBoundingClientRect().height; if(Math.abs(st.clientHeight-ch)>3) resize(); }catch(e){} },1000);

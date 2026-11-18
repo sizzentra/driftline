@@ -76,3 +76,30 @@ body.phone-app #menuov .mo-tools .mo-tb.on,body.phone-land #menuov .mo-tools .mo
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app #panel .btn.mt-chosen,body.phone-land #panel .btn.mt-chosen{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important;opacity:1!important}
 </style>`);
+
+// ---------- side panel when the phone is held sideways (director: "side panels need visual updates, proper symmetry expanded
+// and condensed"): the same navy card and button style as the menu's side panel, buttons spread evenly, the open section gold,
+// and the hide/show button always at the bottom (it was at the top on the water and at the bottom in menus) ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  body.phone-land #catdock{background:linear-gradient(180deg,#14243a,#0c1626)!important;border:1px solid #ffffff16!important;box-shadow:0 6px 18px #0008,inset 0 1px 0 #ffffff0d!important;border-radius:18px!important;padding:7px!important;gap:6px!important;justify-content:flex-start!important;align-items:stretch!important;box-sizing:border-box}
+  body.phone-land #catdock .cdb{flex:1 1 0!important;max-height:46px!important;min-height:32px!important;height:auto!important;border-radius:12px!important;background:#0e1a2c!important;border:1px solid #7fe3c455!important;color:#dff7ef!important;box-shadow:none!important;position:relative;box-sizing:border-box;align-items:center!important}
+  body.phone-land #catdock .cdb svg{color:#7fe3c4}
+  body.phone-land.dl-fish:not(.menu-open) #catdock .cdb[data-cd="fish"]{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important}
+  body.phone-land.dl-fish:not(.menu-open) #catdock .cdb[data-cd="fish"] svg{color:#2a1c05}
+  body.phone-land #catdock .cdmini{order:99!important;flex:0 0 28px!important;height:28px!important;min-height:0!important;margin-top:2px!important;border-radius:10px!important;background:#0a1424!important;border:1px solid #ffffff1c!important;color:#9fb2c8!important;display:flex!important;align-items:center;justify-content:center;gap:6px;font-size:11px!important}
+  body.phone-land.dock-mini #catdock .cdb{width:44px!important;justify-content:center!important;padding:0!important}
+  body.phone-land.dock-mini #catdock .cddot{top:-5px!important;right:-5px!important;transform:none!important}
+  body.phone-land.dock-mini #catdock .cdmini{width:44px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  /* the menu's side panel: the same card as on the water, buttons spread evenly, hide/show at the bottom */
+  body.phone-land #menuov .secbar{background:linear-gradient(180deg,#14243a,#0c1626)!important;border:1px solid #ffffff16!important;border-radius:18px!important;padding:7px!important;gap:6px!important;justify-content:flex-start!important;align-items:stretch!important;box-sizing:border-box;max-height:calc(100% - 6px)}
+  body.phone-land #menuov .secbar .secb{flex:1 1 0!important;max-height:46px!important;min-height:32px!important;height:auto!important;box-sizing:border-box}
+  body.phone-land #menuov .secbar .cdmini{order:99!important;flex:0 0 28px!important;height:28px!important;min-height:0!important;margin-top:2px!important;border-radius:10px!important;background:#0a1424!important;border:1px solid #ffffff1c!important;color:#9fb2c8!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;font-size:11px!important;line-height:1!important;padding:0 8px!important}
+  body.phone-land #menuov .secbar .cdmini svg{width:14px!important;height:14px!important;flex:0 0 auto}
+  body.phone-land #catdock .cdb.live::before,body.phone-land #menuov .secbar .secb.live::before{top:5px!important;left:5px!important}
+}
+</style>`);
