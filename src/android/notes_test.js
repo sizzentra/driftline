@@ -1,6 +1,7 @@
 // Android test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the Android test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy Aquarium', items:[
+  'Full screen stays on: if you left the game in full screen, closing or switching away from the app no longer forgets it; your first tap when you come back puts it back.',
   '## Aquarium and Fish Log',
   'The aquarium tank animates smoothly: it no longer skips frames now and then, and it keeps moving (at a steady pace) while you scroll the list.',
   'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
