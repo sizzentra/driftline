@@ -65,3 +65,30 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 | Saltmarsh seal | `ao_maps033.js` | Saltmarsh Coast only |
 | Phone Aquarium header, Cooler guide | `mobile/pages06.js` | Android + iPhone |
 | Phone side panel (sideways) | `mobile/ui_modern06.js` (`#catdock`, `#menuov .secbar`) | Android + iPhone held sideways |
+
+## The angler, part by part (0.4.8.1 round 2). Change one part: check every row it lists
+Everything below is drawn by `drawAngler(c,x,y,s,lk,o)` (`d_draw.js`) -> `drawAngler3` (`g_angler.js`) -> `a3Body`.
+**Every caller (test all of them after any change here):** the fishing scene (`d_draw.js` x2, `f2_areas.js`), resting / sitting on the dock or chair
+(`r_rest.js` passes `o.sit`), the Wardrobe preview (`e_ui.js` drawLookPreview, animated every frame by `cb_wearfx06.js`), Wardrobe item tiles
+(`w_wardrobe.js`, still, no `o.t`), shop try-on (`d6_preview.js`), Boardwalk (`q_boardwalk.js`), Tide Pass (`y_pass.js`), boards (`t_board.js`),
+feats (`bq_feat04.js` x3), `d7_v20.js` x2, back-item previews (`l_wear.js`), and the PC Wardrobe layout (`pc/br_pc05.js` places the same canvas).
+Poses to check: standing (`o` empty), `st:'charging'|'reeling'|'flying'` (only change the live scene angler), `sit:{seat:17,hang:false}` (chair),
+`sit:{seat:.5,hang:true}` (dock edge). Builds: `BUILDI[lk.build]` (w, l, lw, belly). Bodies: `lk.g` = 'm' / 'f'.
+
+| Part | Where | Coordinates and rules | Also affects |
+|---|---|---|---|
+| Torso outline | **`ak_side.js`** `sideTorsoPath` / `sideCoatPath` (they REPLACE `a3TorsoPath` / `a3CoatPath` from `g_angler.js`, which are only fallbacks); front edge at height y = `sideFront(y,f)` | torso-local, back about -7, front about 6.4 (+x), drawn under `scale(B.w*SIDE_K,1)` (`SIDE_K` .84) | every outfit is clipped to it; `a3Vol` shading; shirt patterns; the seat in `a3Body` (`bx0=-5.6*B.w`) matches its back edge |
+| Outfit front details | **`ak_side.js` `SIDE_OUT`** (overrides `drawOutfit3` for all 26 outfits; the `g_angler.js` and `q_boardwalk.js` versions are unused fallbacks), helpers `buttons()`, `frontSeam()`, `pocket()`, `collar()`; fabrics in `ah_fabric.js` | buttons, zips, plackets, drawstrings sit on the FRONT edge (x ≈ 5.5..7.4 torso-local), V collars point to the front (x ≈ 4.6), pockets on the side (x ≈ -2.6..3.6), never the middle (that reads as a front view) | Wardrobe, scene, all callers |
+| Leg-level outfit bands | wetsuit in `ak_side.js` | one band across both shins (legs overlap side-on); any new leg band must span x ≈ -4.4..4.8 torso-local | |
+| Legs | `a3Body` `leg()` | hips at x 1.1*B.w (far, darker, drawn first) and -0.7*B.w (near); ankles `aF`=3.4+stance*.8 (far foot ahead), `aB`=-1.6-stance; sitting hips .9*B.w / -.7*B.w | shoes, seat, pajama stripes, `A3FXP.feet` |
+| Seat | `a3Body` after the far leg | a smooth curve from the waistband into the back of the thigh, coloured `legC` (follows every outfit's leg colour) | outfits with dark/light legs (wetsuit, spacesuit, overalls, pajamas) |
+| Shoes | `a3Shoe`, `a3ShoeBody`, `a3Sole`, `a3Foot` in `l_wear.js` | ground at y 0; heel at bx-3, toe at bx+toe; most shoes use `a3ShoeBody` + `a3Sole`, so changing those two changes almost every shoe; work boots = `default:` | shoe shop tiles, `SHOE_TOPY` (trouser cuff height in `g_angler.js`), `SHOE_TALL` |
+| Back items | `a3Back` in `l_wear.js` | drawn under `scale(SIDE_K,1)` behind the body; `bx=-7.4*w` is the back | `A3FXP.back` |
+| Hats | `drawHat` (`bg_angler036.js`, `bi_hats036.js`, `l_wear.js`) | origin = head centre (translate 0,-57.4); wizard tip (-4.6,-20) | `A3FXP.hat`, glasses FX |
+| Living FX | `cb_wearfx06.js` `wearFxDraw` | reads `A3FXP.hat / torso / neck / back / feet` (filled in `a3Body`); drawn only when `o.t` is given | any new cosmetic: add its effect here, in the right anchor's coordinates |
+
+## Frame-rate rules (director: "use more frames across all systems; push the limits without breaking")
+- Shiny pictures: every display frame (`requestAnimationFrame` in `ca_shiny06.js`), only while a shiny picture is on screen.
+- Wardrobe preview: every display frame while visible (`cb_wearfx06.js`). Measured 1.5 ms plain, 2.5 ms with six FX items (desktop).
+- Phone aquarium tank: full rate (`mobile/perf_round6.js`), paused while the page scrolls (that pause is the lag fix).
+- The water scene runs every frame already; phones pause it while a menu covers it.

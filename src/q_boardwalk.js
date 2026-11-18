@@ -21,7 +21,7 @@ const MEME_OUT = {
     for(let i=0;i<3;i++){ c.beginPath(); c.arc(.5,-39+i*4,.5,0,7); c.fill(); } c.restore(); },
   clownsuit(c,lk,D,f,t){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#e8483a'); c.fillStyle=col; a3CoatPath(c,f,-14); c.fill(); c.save(); a3CoatPath(c,f,-14); c.clip();
     const cs=['#ffd84a','#5ad8ff','#7aff8a','#ffffff']; for(let i=0;i<24;i++){ c.fillStyle=D(cs[i%4]); c.beginPath(); c.arc(-9+((i*7)%19),-46+((i*11)%30),1.2,0,7); c.fill(); } c.restore();
-    for(let i=0;i<3;i++){ c.fillStyle=D(['#ffffff','#ffd84a','#5ad8ff'][i]); c.beginPath(); c.arc(1,-40+i*6,1.4,0,7); c.fill(); }
+    for(let i=0;i<3;i++){ c.fillStyle=D(['#ffffff','#ffd84a','#5ad8ff'][i]); c.beginPath(); c.arc(6.4,-40+i*6,1.4,0,7) /* pom-poms on the front edge (side view) */; c.fill(); }
     c.fillStyle=D('#f4f4f2'); for(let i=0;i<7;i++){ c.beginPath(); c.ellipse(-6+i*2,-46.4,1.6,1.1,0,0,7); c.fill(); } } };
 const _drawOutfit3_0 = drawOutfit3;
 drawOutfit3 = function(c,lk,D,f,t){ const m=MEME_OUT[lk.outfit]; if(m) return m(c,lk,D,f,t); return _drawOutfit3_0(c,lk,D,f,t); };

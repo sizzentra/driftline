@@ -5,9 +5,12 @@
 // =====================================================================
 function a3Grad(c,y0,y1,col,lit,shade){ const gr=c.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,mix(col,'#fff4e2',lit==null?.16:lit)); gr.addColorStop(.6,col); gr.addColorStop(1,mix(col,'#000000',shade==null?.3:shade)); return gr; }
 // a generic shoe profile: ankle top at -h, toe reaching bx+toe, rounded; returns nothing, fills with a lit gradient
-function a3ShoeBody(c,bx,h,toe,col,round){ c.fillStyle=a3Grad(c,-h-.6,0,col); c.beginPath(); c.moveTo(bx-3,-h); c.quadraticCurveTo(bx+.4,-h-.5,bx+1.8,-Math.min(h,5.2)+.1);
-  c.quadraticCurveTo(bx+toe+.4,-4*round,bx+toe,-1.1); c.quadraticCurveTo(bx+toe-.2,-.2,bx+toe-1,-.2); c.lineTo(bx-3.2,-.2); c.quadraticCurveTo(bx-3.8,-h*.5,bx-3,-h); c.fill(); }
-function a3Sole(c,bx,toe,col,th){ c.fillStyle=col; c.beginPath(); c.moveTo(bx-3.5,-th); c.lineTo(bx+toe-.1,-th); c.quadraticCurveTo(bx+toe+.3,0,bx+toe-.8,.25); c.lineTo(bx-3.4,.25); c.closePath(); c.fill(); }
+function a3ShoeBody(c,bx,h,toe,col,round){ // round 6: a truer side-on shoe: rounded heel counter, collar, instep sloping to a low toe with a little toe spring
+  const ih=-Math.min(h,5.2)+.1, tt=-1.05-.25*round; c.fillStyle=a3Grad(c,-h-.6,0,col); c.beginPath(); c.moveTo(bx-2.9,-h); c.quadraticCurveTo(bx+.2,-h-.55,bx+1.7,ih);
+  c.bezierCurveTo(bx+toe*.55,ih+.6,bx+toe-.2,-2.6*round,bx+toe+.15,tt); c.quadraticCurveTo(bx+toe+.25,-.35,bx+toe-.7,-.25); c.lineTo(bx-2.6,-.2); c.bezierCurveTo(bx-3.9,-.4,bx-4,-h*.62,bx-2.9,-h); c.fill();
+  c.strokeStyle='rgba(0,0,0,.18)'; c.lineWidth=.3; c.beginPath(); c.moveTo(bx-3,-h+.35); c.quadraticCurveTo(bx-.6,-h-.05,bx+1.5,ih+.35); c.stroke(); }
+function a3Sole(c,bx,toe,col,th){ c.fillStyle=col; c.beginPath(); c.moveTo(bx-3.6,-th-.25); c.lineTo(bx-1,-th-.25); c.lineTo(bx-.6,-th); c.lineTo(bx+toe-.2,-th); c.quadraticCurveTo(bx+toe+.35,-th*.4,bx+toe-.1,-.2); c.quadraticCurveTo(bx+toe-1,.3,bx+toe-2.4,.25); c.lineTo(bx-3.5,.25); c.quadraticCurveTo(bx-3.9,.1,bx-3.6,-th-.25); c.closePath(); c.fill();
+  c.fillStyle='rgba(255,255,255,.08)'; c.fillRect(bx-3.4,-th-.25,toe+2.8,.25); }
 function a3Foot(c,bx,sk){ c.fillStyle=a3Grad(c,-4.6,0,sk,.12,.22); c.beginPath(); c.moveTo(bx-2.6,-4.8); c.lineTo(bx+1.2,-4.6); c.quadraticCurveTo(bx+5.6,-2.4,bx+5.2,-.6); c.lineTo(bx-2.8,-.6); c.closePath(); c.fill(); }
 function a3Shoe(c,id,bx,dark,D,sk,t){ const k=dark?.82:1, S2=(cl)=>D(dark?mix(cl,'#000000',.25):cl), dot=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
   const shine=(x,y,rx)=>{ c.fillStyle='rgba(255,240,220,'+(dark?.1:.26)+')'; c.beginPath(); c.ellipse(x,y,rx,rx*.4,-.35,0,7); c.fill(); };
@@ -51,7 +54,7 @@ function a3Shoe(c,id,bx,dark,D,sk,t){ const k=dark?.82:1, S2=(cl)=>D(dark?mix(cl
       dot(bx+.6,-5.2,.8,S2('#ffd84a')); shine(bx+6.4,-3.6,2.2); break; }
     default: { // work boots
       const bc=S2('#33241a'); c.fillStyle=a3Grad(c,-6,0,bc,.14,.35);
-      c.beginPath(); c.moveTo(bx-3,-5.4); c.quadraticCurveTo(bx+.4,-6,bx+1.8,-5.1); c.quadraticCurveTo(bx+6.4,-4,bx+6,-1.1); c.quadraticCurveTo(bx+5.8,-.2,bx+5,-.2); c.lineTo(bx-3.2,-.2); c.quadraticCurveTo(bx-3.8,-2.8,bx-3,-5.4); c.fill();
+      c.beginPath(); c.moveTo(bx-3,-5.6); c.quadraticCurveTo(bx+.3,-6.2,bx+1.8,-5.2); c.bezierCurveTo(bx+3.6,-4.6,bx+6.1,-3.2,bx+6.2,-1.4); c.quadraticCurveTo(bx+6.3,-.3,bx+5.3,-.2); c.lineTo(bx-2.6,-.2); c.bezierCurveTo(bx-3.9,-.4,bx-4,-3.6,bx-3,-5.6); c.fill(); c.fillStyle=mix(bc,'#000000',.25); c.beginPath(); c.ellipse(bx-.6,-5.6,2.6,.6,-.05,0,7); c.fill();
       a3Sole(c,bx,6,D('#140d08'),1); dot(bx-.2,-4.3,.38,D('#c9a070')); dot(bx+1.3,-3.9,.38,D('#c9a070')); shine(bx+3.6,-3.3,1.6); }
   } }
 

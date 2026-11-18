@@ -103,3 +103,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   body.phone-land #catdock .cdb.live::before,body.phone-land #menuov .secbar .secb.live::before{top:5px!important;left:5px!important}
 }
 </style>`);
+
+// ---------- the water's name in the header always shows in full: long names (Stonebrook River, Saltmarsh Coast) step the
+// font down a little until they fit, instead of being cut with "…" ----------
+{ const fit=()=>{ const b=document.getElementById('locname'); if(!b||!MOB()) return; b.style.removeProperty('font-size'); let fs=parseFloat(getComputedStyle(b).fontSize)||12.5, n=0; while(b.scrollWidth>b.clientWidth+1&&fs>9.5&&n++<8){ fs-=.5; b.style.setProperty('font-size',fs+'px','important'); } }; /* the phone style sets the size with !important */
+  const b0=document.getElementById('locname'); if(b0) new MutationObserver(fit).observe(b0,{childList:true,characterData:true,subtree:true}); addEventListener('resize',()=>setTimeout(fit,60)); setTimeout(fit,300); setTimeout(fit,1500); }

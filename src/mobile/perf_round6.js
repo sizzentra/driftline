@@ -11,7 +11,7 @@ const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')|
 // 2) the aquarium tank: 30 frames a second on phones, and it holds still while you scroll the page (scrolling stays smooth)
 { let lastT=0, scrollUntil=0; const P=$('panel'); if(P) P.addEventListener('scroll',()=>{ scrollUntil=performance.now()+180; },{passive:true});
   addEventListener('touchmove',()=>{ if(S.tab==='aquarium') scrollUntil=performance.now()+180; },{passive:true});
-  const _dt=drawTank; drawTank=function(now){ if(MOB()){ const t=performance.now(); if(t<scrollUntil) return; if(t-lastT<32) return; lastT=t; } return _dt.apply(this,arguments); }; }
+  const _dt=drawTank; drawTank=function(now){ if(MOB()){ const t=performance.now(); if(t<scrollUntil) return; if(t-lastT<15) return; lastT=t; /* full rate (round 6, director: more frames); still pauses while scrolling */ } return _dt.apply(this,arguments); }; }
 
 // 3) steady frame rate: the water's resolution follows how the phone keeps up. If frames drop for a few seconds (a storm, a
 //    big fight), the water is drawn a little less sharp until the phone keeps up again; never more than two steps.

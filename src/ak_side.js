@@ -53,7 +53,7 @@ const SIDE_OUT=(()=>{
         pocket(c,.6,-39,3.6,3.8,d2,d3,D('#d8c090')); pocket(c,-.4,-31.4,4.2,3.6,d2,d3,D('#d8c090'));
         frontSeam(c,f,1.5,-45,-23,D('#e8d8a0'),.32,[.8,.7]); dot(c,-3.6,-41,.9,D('#c8c8d0')); dot(c,-3.6,-41,.45,D('#8a8a96')); }); },
     lifejacket(c,lk,D,f){ const col=D(H(lk,'#ff7a2a')), d2=D(sh(H(lk,'#ff7a2a'),.25)), k=D('#262630');
-      clipT(c,f,()=>{ c.fillStyle=col; c.fillRect(-9,-50,19,28); c.fillStyle=d2; c.fillRect(-1.4,-46,2.4,24);
+      clipT(c,f,()=>{ c.fillStyle=col; c.fillRect(-9,-50,19,28); c.fillStyle=d2; { const pz=[]; for(let y=-46;y<=-22;y+=1) pz.push([sideFront(y,f)-1.6,y]); c.lineWidth=2.2; c.strokeStyle=d2; c.beginPath(); pz.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.stroke(); }
         for(const y of [-41,-35.4,-29.4]){ line(c,[[-7,y],[-4,y+.8],[-1.6,y]],d2,.45); line(c,[[1.2,y],[4,y+.8],[7.2,y]],d2,.45); }
         c.fillStyle=k; c.fillRect(-9,-34.6,19,1.8); c.fillRect(-9,-28.8,19,1.8);
         for(const y of [-35.2,-29.4]){ const x=sideFront(y+.9,f)-2.6; c.fillStyle=D('#c8c8d0'); c.fillRect(x,y,2,3); c.fillStyle=k; c.fillRect(x+.5,y+.8,1,1.4); }
@@ -92,11 +92,11 @@ const SIDE_OUT=(()=>{
       clipC(c,f,-14.5,()=>{ const p=[]; for(let y=-44;y<=-14.5;y+=1) p.push([Math.min(7.4,sideFront(Math.min(y,-24),f))-1.1,y]); line(c,p,l2,.5); buttons(c,f,2.2,[-41,-35.4,-29.6],gold,.6); dot(c,5.4,-24,.6,gold);
         c.fillStyle=gold; c.fillRect(-8,-18.6,16,.7); c.fillRect(-8,-20,16,.4); });
       c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(2.4,-47.2); c.lineTo(4.4,-46.8); c.lineTo(4.6,-44.2); c.closePath(); c.fill(); collar(c,n,gold,4); },
-    spacesuit(c,lk,D,f){ const s2=D('#e8ecf0'), s3=D('#c8d0d8');
-      clipT(c,f,()=>{ c.fillStyle=s2; c.fillRect(-9,-50,19,28); c.fillStyle=D('#d8603a'); c.fillRect(-9,-27,19,1.8); line(c,[[-1.4,-46],[-1.8,-36],[-1.4,-27]],s3,.4); line(c,[[-6,-44],[-5.6,-30]],s3,.35); });
+    spacesuit(c,lk,D,f,t){ const s2=D('#e8ecf0'), s3=D('#c8d0d8'), on=Math.sin((t||0)*3.2)>0;
+      clipT(c,f,()=>{ c.fillStyle=s2; c.fillRect(-9,-50,19,28); c.fillStyle=D('#d8603a'); c.fillRect(-9,-27,19,1.8); frontSeam(c,f,1.3,-46,-27,s3,.45); line(c,[[-6,-44],[-5.6,-30]],s3,.35); });
       // the chest control box stands out in front of the suit
       const bx=sideFront(-38,f)-1.6; c.fillStyle=D('#5a6a7a'); c.beginPath(); c.roundRect?c.roundRect(bx,-41.4,4.2,6.2,.8):c.rect(bx,-41.4,4.2,6.2); c.fill(); c.fillStyle=D('#3a4652'); c.fillRect(bx+3.4,-41,.8,5.4);
-      dot(c,bx+1.2,-39.6,.55,D('#ff5a4a')); dot(c,bx+2.6,-39.6,.55,D('#5aff9a')); c.fillStyle=D('#9ad8ff'); c.fillRect(bx+.6,-37.6,2.6,.7);
+      dot(c,bx+1.2,-39.6,.55,D(on?'#ff5a4a':'#6a2622')); dot(c,bx+2.6,-39.6,.55,D(on?'#2a6a44':'#5aff9a')); /* the lights blink (round 6) */ c.fillStyle=D('#9ad8ff'); c.fillRect(bx+.6,-37.6,2.6,.7);
       c.fillStyle=s3; c.beginPath(); c.moveTo(-5.2,-46.4); c.quadraticCurveTo(-4.8,-49.6,-2.4,-49.8); c.quadraticCurveTo(2,-49.4,4.2,-46.6); c.quadraticCurveTo(-.4,-47.4,-5.2,-46.4); c.fill(); },
     cardigan(c,lk,D,f){ const col=D(H(lk,'#d8a020')), d2=D(sh(H(lk,'#d8a020'),.22));
       clipT(c,f,()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-9,-50); c.lineTo(2.2,-50); for(let y=-46.4;y<=-22;y+=1.2) c.lineTo(sideFront(y,f)-.9-(y<-40?(y+40)*-.12:0),y); c.lineTo(-9,-22); c.closePath(); c.fill(); c.fillStyle=d2; c.fillRect(-9,-24.8,19,2.4);

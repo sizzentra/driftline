@@ -97,4 +97,6 @@ function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save();
       x.fillStyle=g; x.fillRect(bx-w*.14,0,w*.28,h); x.globalAlpha=1; x.globalCompositeOperation='destination-in'; x.drawImage(o.mask,0,0); x.globalCompositeOperation='source-over';
       c.globalAlpha=.7; c.drawImage(T,0,0,w,h,0,0,w,h); c.globalAlpha=1; }});
   c.restore(); }
-setInterval(()=>{ if(document.hidden||!SPK.size) return; const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } },33);
+// every display frame (director: "use more frames, push the limits without breaking"); runs only while a shiny picture exists
+{ let raf=0; const tick=()=>{ raf=0; if(!SPK.size) return; if(!document.hidden){ const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } } if(SPK.size) raf=requestAnimationFrame(tick); };
+  setInterval(()=>{ if(!raf&&SPK.size) raf=requestAnimationFrame(tick); },250); }
