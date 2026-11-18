@@ -147,3 +147,9 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 
 ## Versions on live (2026-11-18)
 PC is on **0.4.8.2** (PC-only hotfix, branch `hotfix/0.4.8.2`, tag `v0.4.8.2`, published by copying only `site/pc.html` with the live build stamp kept). Android and iPhone are on **0.4.8.1**. The next release must be 0.4.8.3 or higher (or 0.4.9 for new content) so PC never goes backwards; the 0.4.8.2 PC patch note is already in `src/pc/notes_release.js`.
+
+### Phone aquarium, round 7e (replaces the "full-width lists" row above)
+`mobile/aquarium07.js` was rewritten: `.aq07-stage` (the tank, grows to fill) + `.aq07-bar` (bank + the Options button `.aq07-tog`) +
+`.aq07-sheet` (two tabs, then a scrolling `.aq07-body` holding `.aq07-sec-tank` and `.aq07-sec-deco`). `#panel` itself never scrolls.
+Open/closed is `AQ_OPEN`, remembered per phone in localStorage `dl-aq-open`. Your tank merges Add fish, with the headings Boosts /
+On display / Add from your Cooler. Upright: open = tank 40% of the height; sideways: open = tank left, panel right.

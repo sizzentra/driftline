@@ -3,7 +3,8 @@
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy Aquarium', items:[
   '## Aquarium and Fish Log',
   'The aquarium tank animates smoothly: it no longer skips frames now and then, and it keeps moving (at a steady pace) while you scroll the list.',
-  'Held sideways, a full-screen button at the end of the aquarium tabs gives Your tank, Decorate and Add fish the whole width; tap it again to bring the tank back.',
+  'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
+  'Your tank and Add fish are one section now, laid out like Decorate: Boosts, On display, and Add from your Cooler, each with its own heading.',
   'Fish Log: a Normal / Shiny switch under the fish picture shows what a fish you have caught looks like when it is shiny.',
   '## Smoother frames',
   'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
