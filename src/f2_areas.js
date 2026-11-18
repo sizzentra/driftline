@@ -239,8 +239,8 @@ function v3pier(P,t,night,dockY){
   const PW=W*.19, wd=mix(dockWood(),'#8a8a80',.25), N=c=>mix(c,'#0a1020',night*.55);
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.48));
   const lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.008, ly=dockY-H*.1;
-  if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba(255,214,140,.85)',lit*.55*(.95+.05*Math.sin(t*5.3)));
-    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,200,120',.3*lit); v3lanternReflect(lx,dockY+H*.075,lit,t); }
+  if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba('+homeLight('255,214,140')+',.85)',lit*.55*(.95+.05*Math.sin(t*5.3)));
+    v3lightPool(lx-W*.02,dockY-1,W*.085,homeLight('255,200,120'),.3*lit); v3lanternReflect(lx,dockY+H*.075,lit,t,homeLight('255,210,130')); }
   // pilings: thick, round-shaded, barnacles and weed at the tide line, X bracing between them
   const pw=Math.max(6,W*.013), xs=[W*.015,W*.085,W*.155];
   g.strokeStyle=N(mix(wd,'#000000',.4)); g.lineWidth=Math.max(2,W*.003);
@@ -375,8 +375,8 @@ V3SCENES.frost = {
 // an auger in the snow, a red tackle box, and a lantern on a stake
 function v3icePlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#0a1020',night*.4), lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.012, ly=dockY-H*.085;
-  if(lit>.05){ v3glow(g,lx,ly,H*.18,'rgba(255,210,140,.85)',lit*.55*(.94+.06*Math.sin(t*6.3)));
-    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,200,130',.3*lit); }
+  if(lit>.05){ v3glow(g,lx,ly,H*.18,'rgba('+homeLight('255,210,140')+',.85)',lit*.55*(.94+.06*Math.sin(t*6.3)));
+    v3lightPool(lx-W*.02,dockY-1,W*.085,homeLight('255,200,130'),.3*lit); }
   const ed=PW+W*.012, path=()=>{ g.beginPath(); g.moveTo(-2,dockY); g.lineTo(ed-W*.01,dockY); g.lineTo(ed,dockY+H*.02); g.lineTo(ed+W*.006,H*.78); g.lineTo(ed-W*.004,H+2); g.lineTo(-2,H+2); g.closePath(); };
   const ig=g.createLinearGradient(0,dockY,0,H); ig.addColorStop(0,N(P.ice)); ig.addColorStop(.3,N(mix(P.ice,P.iceD,.6))); ig.addColorStop(1,N(mix(P.iceD,P.wBot,.6))); g.fillStyle=ig; path(); g.fill();
   g.save(); path(); g.clip();
@@ -504,7 +504,7 @@ V3SCENES.reef = {
 // starfish, a striped towel, and a tiki torch that lights up after dusk
 function v3sandPlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#0a1020',night*.35), lit=clamp(night*1.2+P.d*.9,0,1), tx=PW-W*.006, ty=dockY-H*.095;
-  if(lit>.05){ v3glow(g,tx,ty,H*.2,'rgba(255,170,80,.9)',lit*.55*(.9+.1*Math.sin(t*9)*Math.sin(t*4.1))); }
+  if(lit>.05){ v3glow(g,tx,ty,H*.2,'rgba('+homeLight('255,170,80')+',.9)',lit*.55*(.9+.1*Math.sin(t*9)*Math.sin(t*4.1))); }
   const ed=PW+W*.035, path=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.006); g.quadraticCurveTo(PW*.6,dockY-H*.012,ed-W*.02,dockY); g.quadraticCurveTo(ed+W*.012,dockY+H*.07,ed+W*.004,H+2); /* 0.3.3: the beach stays left of the shortest cast, so fish always come out of the water */ g.lineTo(-2,H+2); g.closePath(); };
   const sg=g.createLinearGradient(0,dockY,0,H); sg.addColorStop(0,N(P.sand)); sg.addColorStop(1,N(P.sandD)); g.fillStyle=sg; path(); g.fill();
   g.save(); path(); g.clip();
@@ -593,7 +593,7 @@ V3SCENES.shelf = {
 // rails, a coiled rope and a net over the side; it rises and falls with the water (pb)
 function v3boat(P,t,night,dockY,pb){
   const y=dockY+pb, PW=W*.19, N=c=>mix(c,'#0a1020',night*.5), lit=clamp(night*1.2+P.d*.9,0,1);
-  const hull=N('#f2eee2'), hullD=N('#c8c0ae'), trim=N('#2a5a8a'), wood=N(dockWood());
+  const hull=N(homeHull('#f2eee2')), hullD=N(homeHullDark('#f2eee2','#c8c0ae')), trim=N('#2a5a8a'), wood=N(dockWood());
   // hull: flared sides, a raised bow on the right, planks, a waterline, foam where it meets the sea
   const bow=PW+W*.035, hb=y+H*.1;
   const path=()=>{ g.beginPath(); g.moveTo(-12,y-H*.012); g.lineTo(PW,y-H*.012); g.quadraticCurveTo(bow-W*.01,y-H*.018,bow,y-H*.03); g.quadraticCurveTo(bow-W*.01,y+H*.06,PW-W*.03,hb); g.lineTo(-12,hb); g.closePath(); };
@@ -608,7 +608,7 @@ function v3boat(P,t,night,dockY,pb){
   { const cw=W*.06, ch=H*.075, cx0=-12; g.fillStyle=N('#e8e2d4'); g.fillRect(cx0,y-H*.012-ch,cw+12,ch); g.fillStyle=N('#2a5a8a'); g.fillRect(cx0,y-H*.012-ch-H*.008,cw+16,H*.01);
     g.fillStyle='rgba(0,0,0,.15)'; g.fillRect(cx0+cw*.6+12,y-H*.012-ch,cw*.4,ch);
     g.fillStyle=lit>.05?v3rgba('#ffd890',.4+lit*.6):N('#6a9ab8'); g.fillRect(cx0+12+cw*.1,y-H*.012-ch*.82,cw*.75,ch*.3); g.strokeStyle=N('#2a5a8a'); g.lineWidth=1.2; g.strokeRect(cx0+12+cw*.1,y-H*.012-ch*.82,cw*.75,ch*.3); g.beginPath(); g.moveTo(cx0+12+cw*.47,y-H*.012-ch*.82); g.lineTo(cx0+12+cw*.47,y-H*.012-ch*.52); g.stroke();
-    if(lit>.05) v3glow(g,cx0+12+cw*.47,y-H*.012-ch*.67,ch*.9,'rgba(255,210,130,.8)',lit*.4);
+    if(lit>.05) v3glow(g,cx0+12+cw*.47,y-H*.012-ch*.67,ch*.9,'rgba('+homeLight('255,210,130')+',.8)',lit*.4);
     const mx=cx0+12+cw*.5, mt=y-H*.012-ch-H*.09; g.fillStyle=N('#4a4a52'); g.fillRect(mx-1.2,mt,2.4,H*.09); g.strokeStyle=N('#4a4a52'); g.lineWidth=1; g.beginPath(); g.moveTo(mx,mt+H*.01); g.lineTo(PW*.9,y-H*.05); g.stroke();
     const ml=night>.25||P.d>.4; g.fillStyle=ml?'#fff4d0':N('#888'); g.beginPath(); g.arc(mx,mt-2,2.4,0,7); g.fill(); if(ml) v3glow(g,mx,mt-2,H*.05,'rgba(255,244,210,.8)',.6*lit); }
   // coiled rope and a fish crate by the rail
@@ -673,7 +673,7 @@ V3SCENES.deep = {
 // a gantry with a net drum and a hanging net with floats, running lights, rain-streaked; rides the swell (pb)
 function v3trawler(P,t,night,dockY,pb){
   const y=dockY+pb, PW=W*.19, N=c=>mix(c,'#060a14',.25+night*.4), fl=V3SCENES.deep.flash?V3SCENES.deep.flash(t):0;
-  const bow=PW+W*.04, hb=y+H*.12, hull=N('#9a2e24'), hullD=N('#5a1a16');
+  const bow=PW+W*.04, hb=y+H*.12, hull=N(homeHull('#9a2e24')), hullD=N(homeHullDark('#9a2e24','#5a1a16'));
   // floodlight cones first (under the structure)
   const fx=W*.07, fy=y-H*.14; { const cg=g.createLinearGradient(fx,fy,fx+W*.06,y); cg.addColorStop(0,'rgba(255,240,200,.35)'); cg.addColorStop(1,'rgba(255,240,200,0)'); g.fillStyle=cg; g.beginPath(); g.moveTo(fx,fy); g.lineTo(fx+W*.16,y); g.lineTo(fx-W*.02,y); g.closePath(); g.fill(); }
   const path=()=>{ g.beginPath(); g.moveTo(-12,y-H*.014); g.lineTo(PW,y-H*.014); g.quadraticCurveTo(bow-W*.012,y-H*.02,bow,y-H*.045); g.quadraticCurveTo(bow-W*.01,y+H*.07,PW-W*.03,hb); g.lineTo(-12,hb); g.closePath(); };
@@ -693,7 +693,7 @@ function v3trawler(P,t,night,dockY,pb){
   { const cw=W*.075, ch=H*.1, x0=-12; g.fillStyle=N('#e4e0d8'); g.fillRect(x0,y-H*.014-ch,cw+12,ch); g.fillStyle=N('#c8c2b8'); g.fillRect(x0+cw*.7+12,y-H*.014-ch,cw*.3,ch);
     g.fillStyle=N('#1a2a3a'); g.fillRect(x0,y-H*.014-ch-H*.012,cw+18,H*.014);
     g.fillStyle=v3rgba('#ffe0a0',.85); for(let k=0;k<3;k++) g.fillRect(x0+12+cw*(.06+k*.3),y-H*.014-ch*.86,cw*.24,ch*.24);
-    v3glow(g,x0+12+cw*.5,y-H*.014-ch*.75,ch,'rgba(255,220,150,.8)',.35);
+    v3glow(g,x0+12+cw*.5,y-H*.014-ch*.75,ch,'rgba('+homeLight('255,220,150')+',.8)',.35);
     const mx=x0+12+cw*.55, mt=y-H*.014-ch-H*.12; g.fillStyle=N('#3a3a44'); g.fillRect(mx-1.5,mt,3,H*.12);
     const rr=Math.sin(t*2.4); g.fillStyle=N('#5a5a66'); g.fillRect(mx-H*.018*Math.abs(rr),mt+H*.025,H*.036*Math.abs(rr)+1,H*.004);
     g.fillStyle='#ff4a3a'; g.beginPath(); g.arc(mx-H*.01,mt+H*.05,2.2,0,7); g.fill(); g.fillStyle='#3aff8a'; g.beginPath(); g.arc(mx+H*.01,mt+H*.05,2.2,0,7); g.fill(); g.fillStyle='#ffffff'; g.beginPath(); g.arc(mx,mt-2,2.4,0,7); g.fill();
@@ -766,8 +766,8 @@ V3SCENES.trench = {
 // the raft: lashed logs riding low, a crooked mast pole with a lantern of cold light, a crate and a coil of line; rises and falls with the water (pb)
 function v3raft(P,t,night,dockY,pb){
   const y=dockY+pb, PW=W*.19, N=c=>mix(c,'#020608',.2+night*.4), lit=.6+night*.4;
-  const lx=PW-W*.012, ly=y-H*.1; v3glow(g,lx,ly,H*.2,'rgba(170,255,235,.85)',lit*.5*(.92+.08*Math.sin(t*3.1)));
-  v3lightPool(lx-W*.02,y-1,W*.095,'150,255,230',.22*lit); v3lanternReflect(lx,y+H*.03,lit*.8,t,'170,255,235');
+  const lx=PW-W*.012, ly=y-H*.1; v3glow(g,lx,ly,H*.2,'rgba('+homeLight('170,255,235')+',.85)',lit*.5*(.92+.08*Math.sin(t*3.1)));
+  v3lightPool(lx-W*.02,y-1,W*.095,homeLight('150,255,230'),.22*lit); v3lanternReflect(lx,y+H*.03,lit*.8,t,homeLight('170,255,235'));
   // the logs, end-on rounds on the right, bark streaks, rope lashings
   const lh=H*.022, wood=N('#6a5038');
   for(let k=0;k<2;k++){ const yy=y-H*.004+k*lh*.75; g.fillStyle=k?N('#4a3828'):wood; g.beginPath(); g.roundRect?g.roundRect(-12,yy,PW+W*.02+12,lh,lh/2):g.rect(-12,yy,PW+W*.02+12,lh); g.fill();
@@ -855,7 +855,7 @@ V3SCENES.ember = {
 // a stone lantern, a woven basket
 function v3stonePlat(P,t,night,dockY){
   const PW=W*.19, N=c=>mix(c,'#050204',night*.3), lit=.4+night*.6, lx=PW-W*.01, ly=dockY-H*.07;
-  v3glow(g,lx,ly,H*.17,'rgba(255,170,90,.85)',lit*.5*(.92+.08*Math.sin(t*5.7)));
+  v3glow(g,lx,ly,H*.17,'rgba('+homeLight('255,170,90')+',.85)',lit*.5*(.92+.08*Math.sin(t*5.7)));
   const cw=W*.032, cols=Math.ceil((PW+W*.03)/cw)+1;
   for(let i=0;i<cols;i++){ const cx=-W*.01+i*cw, top=dockY-H*.004+((i*7)%3)*H*.004-(i===cols-1?0:0), hx=cw*.5;
     // column body with facets
@@ -946,7 +946,7 @@ V3SCENES.starfall = {
 // and a lantern orb hovering at the end
 function v3crystalPlat(P,t,night,dockY){
   const PW=W*.19, sa=.5+night*.5, ox=PW-W*.01, oy=dockY-H*.085+Math.sin(t*1.3)*H*.004;
-  v3glow(g,ox,oy,H*.2,'rgba(190,160,255,.85)',.45*sa);
+  v3glow(g,ox,oy,H*.2,'rgba('+homeLight('190,160,255')+',.85)',.45*sa);
   const ed=PW+W*.012, pts=[[-2,dockY],[ed,dockY],[ed-W*.02,dockY+H*.08],[PW*.6,dockY+H*.17],[PW*.35,dockY+H*.24],[PW*.15,dockY+H*.15],[-2,dockY+H*.12]];
   const sg=g.createLinearGradient(0,dockY,0,dockY+H*.24); sg.addColorStop(0,mix(P.cry,'#ffffff',.15)); sg.addColorStop(1,mix(P.cry,P.wBot,.6)); g.fillStyle=sg; g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const p of pts) g.lineTo(p[0],p[1]); g.closePath(); g.fill();
   // facets
@@ -988,7 +988,7 @@ function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=per
 function v3Pedestal(x,cx,cy,rw,t){ const rh=rw*.22;
   const sp=x.createRadialGradient(cx,cy-rw*.9,0,cx,cy-rw*.6,rw*1.8); sp.addColorStop(0,'rgba(255,224,170,.28)'); sp.addColorStop(.5,'rgba(255,200,140,.08)'); sp.addColorStop(1,'rgba(255,200,140,0)'); x.fillStyle=sp; x.fillRect(cx-rw*2,cy-rw*2.6,rw*4,rw*3);
   x.fillStyle='rgba(2,6,15,.45)'; x.beginPath(); x.ellipse(cx,cy+rh*1.25,rw*1.08,rh*.9,0,0,7); x.fill();
-  const wd=dockWood(); x.fillStyle=mix(wd,'#000000',.35); x.beginPath(); x.ellipse(cx,cy+rh*.45,rw,rh,0,0,Math.PI); x.lineTo(cx-rw,cy); x.ellipse(cx,cy,rw,rh,0,Math.PI,0,true); x.closePath(); x.fill();
+  const wd='#7a5a3c'; /* its own wood: the Wardrobe and Pets stand no longer copies the dock you are at (director, 2026-11-18) */ x.fillStyle=mix(wd,'#000000',.35); x.beginPath(); x.ellipse(cx,cy+rh*.45,rw,rh,0,0,Math.PI); x.lineTo(cx-rw,cy); x.ellipse(cx,cy,rw,rh,0,Math.PI,0,true); x.closePath(); x.fill();
   x.fillRect(cx-rw,cy,rw*2,rh*.45);
   const tg=x.createLinearGradient(0,cy-rh,0,cy+rh); tg.addColorStop(0,mix(wd,'#ffffff',.18)); tg.addColorStop(1,mix(wd,'#000000',.1)); x.fillStyle=tg; x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.fill();
   x.save(); x.beginPath(); x.ellipse(cx,cy,rw,rh,0,0,7); x.clip(); x.strokeStyle='rgba(0,0,0,.16)'; x.lineWidth=1.5; for(let k=-4;k<=4;k++){ x.beginPath(); x.moveTo(cx+k*rw*.22,cy-rh); x.lineTo(cx+k*rw*.22,cy+rh); x.stroke(); } x.restore();

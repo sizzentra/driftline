@@ -10,7 +10,7 @@
 // Also: Home is now the Dock, and every water has its own dock layout (decorations, wood, style, spots).
 // =====================================================================
 const DASH='dash';
-const DOCK_KEYS=['wood','decor','style','pos','petPos','pet2Pos'];
+const DOCK_KEYS=['wood','decor','style','pos','petPos','pet2Pos','light','hull'];
 
 // ---------- the 5 categories (the menus read MENU_SECS, so changing it in place changes every menu) ----------
 const SEC_ICONS={
@@ -40,7 +40,7 @@ KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or
 
 // ---------- per-water docks ----------
 function dockCopy(d){ d=d||{}; return {wood:d.wood||'oak', decor:Array.isArray(d.decor)?d.decor.filter(x=>typeof x==='string'&&DOCKI[x]).slice(0,DOCK_SLOTS):[], style:typeof d.style==='string'?d.style:'plank',
-  pos:(d.pos&&typeof d.pos==='object')?Object.fromEntries(Object.entries(d.pos).filter(([k,v])=>typeof v==='number'&&isFinite(v))):{}, petPos:typeof d.petPos==='number'?d.petPos:null, pet2Pos:typeof d.pet2Pos==='number'?d.pet2Pos:null}; }
+  pos:(d.pos&&typeof d.pos==='object')?Object.fromEntries(Object.entries(d.pos).filter(([k,v])=>typeof v==='number'&&isFinite(v))):{}, petPos:typeof d.petPos==='number'?d.petPos:null, pet2Pos:typeof d.pet2Pos==='number'?d.pet2Pos:null, ...(d.light&&homeLightOk(d.light)?{light:d.light}:{}), ...(d.hull&&homeHullOk(d.hull)?{hull:d.hull}:{})}; }
 function dockApply(L){ const D=dockCopy(L); for(const k of DOCK_KEYS) S.dock[k]=D[k]; }
 // keep S.dock (what the game draws and edits) showing the dock of the water you are at
 function dockSync(){ if(!S||!S.dock) return; if(!S.docks||typeof S.docks!=='object'||Array.isArray(S.docks)) S.docks={};

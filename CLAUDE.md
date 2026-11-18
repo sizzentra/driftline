@@ -27,6 +27,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - A completed Fish Log water makes its fish worth +10% (`specLocValue`).
 
   Patch notes still to write.
+- **Round 5 (2026-11-18, preview only):**
+  - **Your home** (shared data in `bu_home05.js`): each water's home keeps `light` (lamp/torch/glow colour) and `hull` (boat and trawler paint). The platform drawings read `homeLight()` / `homeHull()`, and `HOME_FEATURES` says what each platform offers.
+  - **PC page:** `pc/br_pc05.js` + `pc/ui_round5.js`. Phones keep the old Dock page until their own screen is designed.
+  - **Hunts:** found fish can be hunted at `HUNT_MULT_FOUND` 1.5× (a shiny hunt, which ends on the first shiny). Missing fish stay at 2× and end on catch.
+  - **Display stand:** Wardrobe/Pets use their own wood (`v3Pedestal`, no longer `dockWood()`).
+  - **PC fixes:** Rods slot pickers; Skills `subgrid` rows; Fish Log Day/Night tags, a live Now and rich hunt slots; Bait auto-restock; Your home preview smoothing 'low' (high cost 6 ms).
+  - **Known:** QA "each water bait is the best bait at its own water" fails on a brand-new level-1 save. It is old (it fails on the code from before this round too); look at bait balance at low levels sometime.
 - **PLATFORM SPLIT DONE (director, 2026-11-17: "separate PC and mobile going forward... Android and iPhones will need their own updates").** `build.ps1` now writes `pc.html`, `android.html`, `ios.html` (shared `$core` + that platform's `$layers` list) and `index.html` = `src/router.html` (picks the build by device, keeps `?`/`#`, `?plat=pc|android|ios` forces one, `?test&ios` → ios). Same folder, same address → one shared save. `window.DL_BUILD` says which build is running. **Rules:**
   - PC-only work goes into PC layer files (today `br_pc05.js`). Android and iPhone work goes into their own layer files (lists empty so far).
   - The core is only for things every platform shares (the game, its rules, the save). Shared game rules live in `bs_rules05.js`.

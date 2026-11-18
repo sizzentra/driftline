@@ -225,10 +225,10 @@ function v3dock(P,t,night,dockY){
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
   const lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.008, ly=dockY-H*.1;
   // lantern light first, so the pole and housing are drawn over it
-  if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba(255,200,110,.85)',lit*.6*(.93+.07*Math.sin(t*7.1)*Math.sin(t*3.3)));
+  if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba('+homeLight('255,200,110')+',.85)',lit*.6*(.93+.07*Math.sin(t*7.1)*Math.sin(t*3.3)));
     // a soft oval pool of light on the boards (no hard edges), and a gentle broken reflection on the water below
-    v3lightPool(lx-W*.02,dockY-1,W*.085,'255,190,110',.3*lit);
-    v3lanternReflect(lx,dockY+H*.075,lit,t); }
+    v3lightPool(lx-W*.02,dockY-1,W*.085,homeLight('255,190,110'),.3*lit);
+    v3lanternReflect(lx,dockY+H*.075,lit,t,homeLight('255,210,130')); }
   // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
   const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
   drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:dockPosts5(-2,PW,pw),pw,wl:dockY+H*.075,wc:P.wMid});

@@ -122,11 +122,11 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
 // side by side, each scrolling on its own; the cozy level sits with the decorations that make it. Your other docks sit
 // beside the preview.
 // =====================================================================
-const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W,W*.62), sh=sw*c.height/c.width, dy=H*.6; return {sx:0, sy:Math.max(0,Math.min(H-sh,dy-sh*.7)), sw, sh}; };
+const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W,W*.62), sh=sw*c.height/c.width, dy=H*.6, L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; /* boats sit lower: their hull shows too */ return {sx:0, sy:Math.max(0,Math.min(H-sh,dy-sh*f)), sw, sh}; };
 { const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
-    const k=DK_CROP(), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='high';
+    const k=DK_CROP(), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low'; /* 'high' cost ~6 ms per refresh (laggy); 'low' ~0.3 ms and looks the same at this scale */
     x.drawImage(cv,k.sx*d,k.sy*d,k.sw*d,k.sh*d,0,0,w,h); };
   // drag decorations and pets along the real dock (positions are the same fractions the game uses)
   document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!FHD()||!c.closest('.dk-top')) return; e.stopImmediatePropagation(); e.preventDefault();
@@ -146,19 +146,26 @@ const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W
       const top=document.createElement('div'); top.className='dk-top';
       const view=document.createElement('div'); view.className='dk-view'; const c=tile.querySelector('#homecv'); c.style.cssText=''; view.appendChild(c);
       view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)} · you fish from ${plat}</span><span class="dk-drag">Drag decorations and pets to move them</span>`);
-      const side=document.createElement('aside'); side.className='dk-side'; side.innerHTML='<h3>Your docks</h3><p class="meta">Every water has its own dock. You are editing this one; pick another water to copy its layout here, or travel there.</p>';
+      const side=document.createElement('aside'); side.className='dk-side'; side.innerHTML='<h3>Your homes</h3><p class="meta">Every water has its own home: a dock, a pier, a boat, an ice camp and more. You are editing this one; pick another water to copy its decorations here, or travel there.</p>';
       if(bar){ const list=bar.querySelector('.dock-h'); if(list){ const sp=list.querySelector(':scope > .meta'); if(sp) sp.remove(); list.classList.add('dk-list'); side.appendChild(list); } const pk=bar.querySelector('.dock-pick'); if(pk){ if(!S.dockPickShow&&!pk.querySelector('button')) pk.remove(); else side.appendChild(pk); } bar.remove(); }
       top.append(view,side);
       const col=(title,extra)=>{ const s=document.createElement('section'); s.className='dk-col'; s.innerHTML=`<header class="fhd-h"><span>${title}</span>${extra||''}</header><div class="dk-body"></div>`; return s; };
       const cz=cozy?cozy.textContent:''; const czLvl=(cozy&&cozy.querySelector('.rar'))?cozy.querySelector('.rar').textContent.replace(/^Cozy level:\s*/,''):''; const czN=cozy&&cozy.querySelector('b')?cozy.querySelector('b').textContent:''; const czFx=cozy&&cozy.querySelector('.meta')?cozy.querySelector('.meta').textContent.replace(/^·\s*/,''):''; const czW=cozy&&cozy.querySelector('.prog i')?cozy.querySelector('.prog i').style.width:'0%';
-      const left=col('Your dock'), right=col(h5[2].textContent.replace(/\s+/g,' ').trim(),`<span class="dk-cozy"><b>${esc(czN)}</b><span>${esc(czLvl)}</span><i><b style="width:${czW}"></b></i></span>`);
+      // Your home: only what works at this water (director, 2026-11-18): wood where the home has wood, the dock's shape only
+      // at a dock, the hull paint on boats, and the home's own light everywhere
+      const feats=HOME_FEATURES[L.plat]||['light'], hname=HOME_NAMES[L.plat]||'home';
+      const left=col('Your '+hname), right=col(h5[2].textContent.replace(/\s+/g,' ').trim());
       const lb=left.querySelector('.dk-body'), rb=right.querySelector('.dk-body');
       const sec=(h,cls)=>{ const box=document.createElement('div'); box.className='dk-sec '+cls; const n=h.nextElementSibling; h.style.display=''; box.appendChild(h); return {box,n}; };
-      { const s1=sec(h5[0],'dk-woods'); if(s1.n&&s1.n.classList.contains('chips')){ s1.n.style.display=''; s1.box.appendChild(s1.n); } lb.appendChild(s1.box); }
-      { const s2=sec(h5[1],'dk-styles'); if(s2.n&&s2.n.classList.contains('chips')){ s2.n.style.display=''; s2.box.appendChild(s2.n); } lb.appendChild(s2.box); }
-      lb.insertAdjacentHTML('beforeend',`<p class="dk-note">The wood colours every wooden platform you fish from. The style shapes the dock itself where the water has one.</p>`);
-      if(czFx) rb.insertAdjacentHTML('beforeend',`<p class="dk-czfx">♥ Cozy level ${esc(czLvl)}: ${esc(czFx)}. Every decoration adds cozy hearts.</p>`);
-      const tools=P.querySelector(':scope > .shoptools'), grid=P.querySelector(':scope > .grid'); h5[2].remove(); if(tools) rb.appendChild(tools); if(grid){ grid.classList.add('dk-grid'); rb.appendChild(grid); }
+      { const s1=sec(h5[0],'dk-woods'); if(s1.n&&s1.n.classList.contains('chips')){ s1.n.style.display=''; s1.box.appendChild(s1.n); } if(feats.includes('wood')) lb.appendChild(s1.box); else if(s1.n) s1.n.remove(); }
+      { const s2=sec(h5[1],'dk-styles'); if(s2.n&&s2.n.classList.contains('chips')){ s2.n.style.display=''; s2.box.appendChild(s2.n); } if(feats.includes('style')) lb.appendChild(s2.box); else if(s2.n) s2.n.remove(); }
+      if(feats.includes('hull')){ const cur=(S.dock&&S.dock.hull)||''; lb.insertAdjacentHTML('beforeend',`<div class="dk-sec dk-hulls"><h5>Hull paint</h5><div class="chips">${HOME_HULLS.map(([id,n,c])=>`<button type="button" class="chipb" data-home="hull:${id}" aria-pressed="${cur===id}"><span class="hm-sw" style="background:${c||'linear-gradient(135deg,#f2eee2,#9a2e24)'}"></span>${esc(n)}</button>`).join('')}</div></div>`); }
+      { const cur=(S.dock&&S.dock.light)||''; lb.insertAdjacentHTML('beforeend',`<div class="dk-sec dk-lights"><h5>Light</h5><div class="chips">${HOME_LIGHTS.map(([id,n,rgb])=>`<button type="button" class="chipb" data-home="light:${id}" aria-pressed="${cur===id}"><span class="hm-sw hm-glow" style="background:${rgb?'radial-gradient(circle,rgb('+rgb+') 0%,rgba('+rgb+',.35) 55%,transparent 72%)':'radial-gradient(circle,#ffd690 0%,#ffb85a55 55%,transparent 72%)'}"></span>${esc(n)}</button>`).join('')}</div></div>`); }
+      lb.insertAdjacentHTML('beforeend',`<p class="dk-note">${feats.includes('style')?'The wood colours your dock; the style shapes it. ':feats.includes('wood')?'The wood colours the wooden parts of your '+esc(hname)+'. ':''}${feats.includes('hull')?'The hull paint colours your '+esc(hname)+'. ':''}The light recolours the ${L.plat==='crystal'?'glow':L.plat==='sand'?'torch':'lamp'} of your ${esc(hname)}. Free to change.</p>`);
+      // decorations: the cozy level and the sort and filter controls stay pinned above the list, which scrolls under them
+      const tools=P.querySelector(':scope > .shoptools'), grid=P.querySelector(':scope > .grid'); h5[2].remove();
+      const pin=document.createElement('div'); pin.className='dk-pin'; pin.innerHTML=`<span class="dk-cozy"><b>${esc(czN)}</b><span>${esc(czLvl)}</span><i><b style="width:${czW}"></b></i>${czFx?`<em>${esc(czFx)}</em>`:''}</span>`; if(tools) pin.appendChild(tools);
+      right.insertBefore(pin,rb); if(grid){ grid.classList.add('dk-grid'); rb.appendChild(grid); }
       const split=document.createElement('div'); split.className='dk-split'; split.append(left,right);
       [...P.children].forEach(ch=>{ if(ch.classList.contains('crumb')||ch.classList.contains('dl-head')||ch.classList.contains('sect-nav')||(ch.tagName==='P'&&/Drag/.test(ch.textContent))) ch.remove(); });
       tile.remove(); P.prepend(top); top.after(split); P.classList.add('dk-on');
@@ -372,7 +379,7 @@ let baitFilt='all';
         ${o!=null?`<div class="bt-odds">Epic or better here: <b>${fmtOdds(o)}</b>${base!=null?` <span>(worms ${fmtOdds(base)})</span>`:''}</div>`:''}
         <div class="bt-acts">${buy}<button class="btn alt sm" data-act="usebait" data-k="${k}" ${have>0&&!using?'':'disabled'}>${using?'In use':'Use'}</button></div></div>`; };
     const nHere=all.filter(here).length, nSp=all.filter(e=>e[1].junk).length, nMine=all.filter(e=>S.bait[e[0]]>0).length;
-    P.innerHTML=`<h2 class="dl-dup" hidden>Bait</h2><div class="bt-top"><div class="bt-cur"><span class="bt-k">Bait in use</span><b>${esc(cur.name)}</b><span class="bt-n">${S.baitSel==='worm'?'Free and endless':(S.bait[S.baitSel]||0)+' left'}</span><div class="badges">${baitChips(cur)}</div>${S.baitSel!=='worm'?'<button class="btn alt sm" data-act="usebait" data-k="worm">Switch to worms</button>':''}</div>
+    P.innerHTML=`<h2 class="dl-dup" hidden>Bait</h2><div class="bt-top"><div class="bt-cur"><span class="bt-k">Bait in use</span><b>${esc(cur.name)}</b><span class="bt-n">${S.baitSel==='worm'?'Free and endless':(S.bait[S.baitSel]||0)+' left'}</span><div class="badges">${baitChips(cur)}</div>${S.baitSel!=='worm'?'<button class="btn alt sm" data-act="usebait" data-k="worm">Switch to worms</button>':''}<button type="button" class="bt-auto" data-act="autobait" aria-pressed="${!!S.settings.autoBait}"><i></i><span><b>Auto-restock ${S.settings.autoBait?'on':'off'}</b><small>When your bait runs out, one more pack is bought if you have the coins</small></span></button></div>
       <div class="bt-why"><b>How bait works</b><span>One bait is used each time you set the hook; worms are free and never run out. Better bait brings faster bites and rarer fish, and some bait is best at one water. Special lures can’t be bought: they come from oddities you fish up and from bounty rewards.</span></div></div>
       <div class="bt-filt">${[['all','For sale',all.filter(e=>!e[1].junk).length],['here','Best here',nHere],['mine','Yours',nMine],['special','Special lures',nSp]].map(([k,n,c])=>`<button type="button" data-btf="${k}" aria-pressed="${baitFilt===k}">${n} <b>${c}</b></button>`).join('')}</div>
       <div class="bt-grid">${shown.length?shown.map(card).join(''):'<div class="fc-empty">Nothing here yet.</div>'}</div>`;

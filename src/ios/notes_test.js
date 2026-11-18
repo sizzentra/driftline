@@ -1,5 +1,8 @@
 // iPhone test notes (preview builds only; the live game never shows them). Only what reaches iPhone is listed.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'Rewards Worth Chasing', items:[
+  '## Latest fixes',
+  'You can hunt fish you have already caught: a shiny hunt, until you land it shiny.',
+  'Wardrobe and Pets stand on their own display stand instead of copying your dock.',
   '## Rewards and balance',
   'Paths are rethought: no more downsides, and they open much earlier.',
   'Bounties pay a bonus on top of their coins: bait for that water, a special lure, Scales or Tide Pass progress. You can see it on each bounty.',

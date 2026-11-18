@@ -26,6 +26,9 @@ windows use the regular PC layout (`body.pch-on`).
 - **Workspace pages:** a preview on top, then two side-by-side boxes that scroll on their own. Used by Aquarium and Dock. Wardrobe uses rail | preview | option cards.
 - **Data pages:** even columns that end on the same line. Used by Stats and Events.
 - Cards in one grid are all the same size. Section titles are small uppercase labels (gold for card titles, grey-blue for rail labels).
+- **Column boards always line up in rows** (director, 2026-11-18: "make that a priority even when making changes"). Skills is the example: the columns share one grid (`subgrid`), so card N of every column starts at the same height. Never let columns stack independently.
+- A setting with many options in a small space becomes one compact picker per line (Rods' attachment slots), never a tall list that pushes other controls out of sight.
+- Pinned controls stay put while their list scrolls: sort, filter and status bars sit above the scrolling area, never inside it (Your home's cozy level and decoration sorting).
 
 **Panels and help**
 - **Panels:** dark navy cards (`#0e1a2c`, border `#ffffff14`, radius 14–16 px). Inner boxes `#0a1424`.

@@ -4,7 +4,7 @@
 // the shelf: one weathered slab of dark basalt with a worn flat top, soft joints, a warm crust, ferns in the cracks,
 // a glowing seam and a little steam vent, standing in the warm water (the part under the surface fades into it)
 function v3stonePlat2(P,t,night,dockY){ const PW=W*.19, ed=PW+W*.014, N=c=>mix(c,'#050204',night*.3), lit=.4+night*.6, lx=PW-W*.012, ly=dockY-H*.07, wl=dockY+H*.07, rock=N('#3a2e2c'), rockL=N('#5a4844'), rockD=N('#1e1616');
-  v3glow(g,lx,ly,H*.17,'rgba(255,170,90,.85)',lit*.45*(.92+.08*Math.sin(t*5.7)));
+  v3glow(g,lx,ly,H*.17,'rgba('+homeLight('255,170,90')+',.85)',lit*.45*(.92+.08*Math.sin(t*5.7)));
   const body=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.004); g.lineTo(ed-W*.03,dockY-H*.006); g.quadraticCurveTo(ed-W*.008,dockY-H*.004,ed,dockY+H*.02); g.quadraticCurveTo(ed+W*.006,dockY+H*.06,ed-W*.004,wl+H*.01); g.lineTo(ed-W*.01,H+2); g.lineTo(-2,H+2); g.closePath(); };
   const bg=g.createLinearGradient(0,dockY,0,H); bg.addColorStop(0,rock); bg.addColorStop(.35,mix(rock,rockD,.4)); bg.addColorStop(1,rockD); g.fillStyle=bg; body(); g.fill();
   g.save(); body(); g.clip();
