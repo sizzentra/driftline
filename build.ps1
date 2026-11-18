@@ -37,13 +37,21 @@ foreach ($p in 'pc','android','ios') {
   if ($Preview) {
     # own save key; copies the real save once on first open and never writes to it
     $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){}")
-    $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="manifest.webmanifest"', 'href="../manifest.webmanifest"').Replace('href="icon-192.png"', 'href="../icon-192.png"')
+    $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
     $badge = '<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">preview · ' + $names[$p] + '</div>'
   }
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $top + $body + $badge + $bottom, $utf8)
 }
 $r = $router
-if ($Preview) { $r = $r.Replace('href="manifest.webmanifest"', 'href="../manifest.webmanifest"').Replace('href="icon-192.png"', 'href="../icon-192.png"') }
+if ($Preview) { $r = $r.Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">') }
 [IO.File]::WriteAllText((Join-Path $out 'index.html'), $r, $utf8)
 [IO.File]::WriteAllText((Join-Path $out 'version.txt'), $v, $utf8)
+if ($Preview) {
+  # the preview is its own home-screen app on phones ("Driftline Test", like the PC test app): it opens /next/ (the router
+  # picks the iPhone or Android preview build), never the live game, and has its own offline helper so phones install it
+  $man = '{"name":"Driftline Test","short_name":"DL Test","description":"Driftline preview build for testing","start_url":"./","scope":"./","id":"./","display":"standalone","orientation":"any","background_color":"#0a161d","theme_color":"#2a2048","icons":[{"src":"../icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"../icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"../icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}'
+  [IO.File]::WriteAllText((Join-Path $out 'manifest.webmanifest'), $man, $utf8)
+  $sw = [IO.File]::ReadAllText((Join-Path $root 'site\sw.js')).Replace("const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];", "const CORE = ['./', 'index.html', 'manifest.webmanifest'];")
+  [IO.File]::WriteAllText((Join-Path $out 'sw.js'), $sw, $utf8)
+}
 if ($Preview) { Write-Output "Built PREVIEW version $v (pc, android, ios)" } else { Write-Output "Built version $v (pc, android, ios)" }
