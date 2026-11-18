@@ -37,7 +37,7 @@ foreach ($f in $coreFiles) {
 if ($broken.Count) { throw ("GROUND RULE BROKEN: platform-specific code was added to a shared file. Move it into src/pc, src/mobile or src/ios.`n  " + ($broken -join "`n  ")) }
 
 New-Item -ItemType Directory -Force $out | Out-Null
-$built = @{}
+$built = @{}; $pages = @{}
 foreach ($p in 'pc','android','ios') {
   $parts = $core + $layers[$p]
   if ($Preview) { $parts = $parts + 'bn_qa04.js' }  # the QA suite only exists in previews, never in the live game
@@ -58,7 +58,8 @@ foreach ($p in 'pc','android','ios') {
     $badge = '<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">preview · ' + $names[$p] + '</div>'
   }
   $built[$p] = $body
-  [IO.File]::WriteAllText((Join-Path $out "$p.html"), $top + $body + $badge + $bottom, $utf8)
+  $pages[$p] = $top + $body + $badge + $bottom
+  [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
 }
 
 # ---------- GROUND RULE CHECK 2: every build holds exactly its own platform's files ----------
@@ -87,5 +88,26 @@ if ($Preview) {
   [IO.File]::WriteAllText((Join-Path $out 'manifest.webmanifest'), $man, $utf8)
   $sw = [IO.File]::ReadAllText((Join-Path $root 'site\sw.js')).Replace("const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];", "const CORE = ['./', 'index.html', 'manifest.webmanifest'];")
   [IO.File]::WriteAllText((Join-Path $out 'sw.js'), $sw, $utf8)
+
+  # ---------- phone test apps (director, 2026-11-18: Android recognised /next/ as the live app, because the live app's scope
+  # covers every address under /driftline/). They live in their own GitHub Pages project, sizzentra.github.io/driftline-test/
+  # (pushed from testapps/ with publish_testapps.ps1), outside the live app's scope, one app per phone:
+  #   /android/  "DL Test Android" = the Android preview build      /iphone/  "DL Test iPhone" = the iPhone preview build
+  # Same website, so the preview save is shared the same way as before.
+  $ta = Join-Path $root 'testapps'
+  foreach ($pair in @(@('android','android','Android'), @('iphone','ios','iPhone'))) {
+    $dir = Join-Path $ta $pair[0]; New-Item -ItemType Directory -Force $dir | Out-Null
+    $label = 'DL Test ' + $pair[2]
+    $page = $pages[$pair[1]].Replace('content="DL Test">', 'content="' + $label + '">')
+    [IO.File]::WriteAllText((Join-Path $dir 'index.html'), $page, $utf8)
+    [IO.File]::WriteAllText((Join-Path $dir 'version.txt'), $v, $utf8)
+    [IO.File]::WriteAllText((Join-Path $dir 'sw.js'), $sw, $utf8)
+    $m = $man.Replace('"name":"Driftline Test"', '"name":"Driftline Test (' + $pair[2] + ')"').Replace('"short_name":"DL Test"', '"short_name":"' + $label + '"')
+    [IO.File]::WriteAllText((Join-Path $dir 'manifest.webmanifest'), $m, $utf8)
+  }
+  foreach ($icon in 'icon-192.png','icon-512.png') { Copy-Item (Join-Path $root "site\$icon") (Join-Path $ta $icon) -Force }
+  $chooser = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Driftline Test</title><link rel="icon" href="icon-192.png"></head><body style="margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0a161d;color:#e6efe8;font:600 16px system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box"><img src="icon-192.png" width="96" height="96" alt="" style="border-radius:22px"><h1 style="margin:0;font-size:24px">Driftline Test</h1><p style="margin:0;opacity:.8;max-width:360px">Pick your phone, then add it to your home screen. It is the preview build; your real game is never touched.</p><a href="iphone/" style="display:block;width:260px;padding:14px;border-radius:14px;background:#1f8a86;color:#fff;text-decoration:none">iPhone test app</a><a href="android/" style="display:block;width:260px;padding:14px;border-radius:14px;background:#1f8a86;color:#fff;text-decoration:none">Android test app</a><p style="margin:0;font-size:12px;opacity:.6">Version ' + $v + '</p></body></html>'
+  [IO.File]::WriteAllText((Join-Path $ta 'index.html'), $chooser, $utf8)
+  [IO.File]::WriteAllText((Join-Path $ta '.nojekyll'), '', $utf8)
 }
 if ($Preview) { Write-Output "Built PREVIEW version $v (pc, android, ios)" } else { Write-Output "Built version $v (pc, android, ios)" }
