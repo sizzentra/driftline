@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-0127';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-0137';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -14172,7 +14172,7 @@ body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
 // changing the light right now (it does not match the clock), the stepped fade is used for that moment instead. Phones unchanged.
 // =====================================================================
 { const POOL=[document.createElement('canvas'),document.createElement('canvas'),document.createElement('canvas')], D=3000;
-  let A=null, B=null, base='', bq=0, fallbackUntil=0; const _ld=v3landDraw;
+  let A=null, B=null, base='', bq=0, fallbackUntil=0, builds=0; const _ld=v3landDraw;
   const pcOn=()=>document.body.classList.contains('pch-on');
   const lightAt=ms=>{ const real=Date.now, off=ms-real(); Date.now=()=>real()+off;
     try{ const L=curLoc(), p=phase(), wx=weather(), night=nightness(p);
@@ -14181,7 +14181,7 @@ body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
     finally{ Date.now=real; } };
   const buildAt=(L,ms,hz)=>{ const lt=lightAt(ms), keep=[V3CACHE,V3PREV,v3palette.k,v3palette.v];
     const tgt=POOL.find(c=>(!A||c!==A.c)&&(!B||c!==B.c));
-    try{ const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms}; }
+    try{ builds++; const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms,lt}; }
     finally{ v3land.now=false; V3CACHE=keep[0]; V3PREV=keep[1]; v3palette.k=keep[2]; v3palette.v=keep[3]; } };
   v3landDraw=function(L,P,hz){ const now=Date.now(); if(!pcOn()||now<fallbackUntil){ A=B=null; base=''; return _ld.apply(this,arguments); }
     const b=L.id+'|'+W+'|'+H+'|'+DPR;
@@ -14191,10 +14191,15 @@ body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
       if(Math.abs(lt.night-(P.night||0))>.03||Math.abs(d-(P.d||0))>.03||Math.abs(lt.gloom-(P.gloom||0))>.03){ fallbackUntil=now+4000; A=B=null; base=''; return _ld.apply(this,arguments); }
       base=b; clearTimeout(bq); bq=0; B=null; A=buildAt(L,now,hz); V3CACHE={key:'#pchA',base:b,c:A.c}; V3PREV=null; }
     if(B&&now>=B.ms){ A=B; B=null; V3CACHE={key:'#pchA',base:b,c:A.c}; }
-    if(!B&&!bq){ const ms=A.ms+D; bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
+    // 2026-11-18 (director: "stutter at Willow Pond constantly every couple seconds, also Frostbite Lake"): drawing the landscape
+    // ahead costs 6-19 ms (Willow Pond the most) and used to happen every 3 s even when the light stayed the same. Now it is drawn
+    // only when the light 3 s from now really differs (dawn, dusk, weather changing); otherwise the picture just carries on.
+    if(!B&&!bq&&now>=(A.chk||0)){ A.chk=now+500; const ms=Math.max(A.ms,now)+D, lt2=lightAt(ms), lt1=A.lt;
+      if(lt1&&Math.abs(lt2.night-lt1.night)<.004&&Math.abs(lt2.dusk-lt1.dusk)<.004&&Math.abs(lt2.gloom-lt1.gloom)<.004){ A.ms=now; }
+      else bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
     g.drawImage(A.c,0,0,W,H);
     if(B){ const a=clamp((now-A.ms)/(B.ms-A.ms),0,1); if(a>0){ g.globalAlpha=a; g.drawImage(B.c,0,0,W,H); g.globalAlpha=1; } } };
-  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil}); }
+  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil, builds}); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the count badges on the category tabs sit on the tab's top edge, fully inside the screen (they were cut off by 4 px);
    the menu's category badges move the same way so both header rows still match */
@@ -16340,6 +16345,29 @@ html body.pc-fhd #menuov #panel .fhd-skills.sk-rows,html body.pc-fhd #menuov #pa
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #panel .fl-main .jcard small.loghint{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.35!important;text-align:center}
 </style>`);
+// =====================================================================
+// PC round 6 (director's list, docs/NEXT_ROUND6.md): steady countdowns and bars, no hint dot, a clear Market Rush icon.
+// =====================================================================
+
+// ---------- countdowns never move anything (items 4 and 7): every digit is the same width on PC, countdown badges and the
+// strip's live chip have a fixed size, so only the words change ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pch-on{font-variant-numeric:tabular-nums}
+html body.pch-on [data-evleft],html body.pch-on [data-wxl],html body.pch-on #shopleft{display:inline-block;min-width:7.2ch;text-align:center;white-space:nowrap;box-sizing:border-box}
+html body.pch-on #pcscene > #goalchip{flex:0 0 auto!important;width:360px!important;min-width:360px!important;max-width:360px!important;overflow:hidden}
+html body.pch-on #pcscene > #goalchip > *{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html body.pch-on #pcscene > .pcs-wx{flex:0 0 auto!important;min-width:250px}
+html body.pch-on #pcscene > .stat{flex:0 0 auto!important}
+@media (max-width:1300px){ html body.pch-on #pcscene > #goalchip{width:280px!important;min-width:280px!important;max-width:280px!important} html body.pch-on #pcscene > .pcs-wx{min-width:200px} }
+</style>`);
+
+// ---------- with hints switched off (or nothing to say) the hint bubble disappears instead of leaving a dark dot (item 10) ----------
+{ const h=$('hint'); if(h){ const sync=()=>{ const empty=!h.textContent.replace(/ /g,' ').trim(); if(h.classList.contains('dl-empty')!==empty) h.classList.toggle('dl-empty',empty); };
+    new MutationObserver(sync).observe(h,{childList:true,characterData:true,subtree:true}); sync(); } }
+document.head.insertAdjacentHTML('beforeend',`<style>html body.pch-on #hint.dl-empty{visibility:hidden!important}</style>`);
+
+// ---------- Market Rush: a money bag Windows always draws clearly, instead of the small coin emoji (item 11) ----------
+{ const m=SCHED.find(e=>e.id==='market'); if(m) m.icon='💰'; }
 // PC release notes (shown once to returning PC players). Kept exactly as shipped once published (patch-notes rule).
 PATCHES.unshift({v:'0.4.8', name:'The Full Screen Rework', items:[
   '## Full screen PC',
@@ -16372,9 +16400,14 @@ PATCHES.unshift({v:'0.4.8', name:'The Full Screen Rework', items:[
   'You can hunt fish you have already caught: a shiny hunt, until you land it shiny.',
   'Wardrobe and Pets stand on their own display stand instead of copying your dock.',
   'PC, Android and iPhone each have their own version of the game now, so a fix for one never disturbs another. Your progress is shared as before.']});
-// PC test notes (preview builds only; the live game never shows them). Empty until the next round: write what the next
-// test build changes here (spoiler-free), and it opens once in the PC test app. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · PC', name:'', items:[]};
+// PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
+// (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'Smoother and Steadier', items:[
+  '## Fixes',
+  'No more stutter every few seconds at Willow Pond and Frostbite Lake (and a little smoother everywhere).',
+  'Countdowns no longer make text or the screen jitter: numbers keep the same width, and the live event chip keeps its size while it counts down.',
+  'With hints switched off, the empty dark bubble at the bottom of the water is gone.',
+  'Market Rush shows a clear money bag instead of a tiny coin.']};
 addTestNotes(TEST_NOTES);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
