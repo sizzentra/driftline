@@ -92,3 +92,18 @@ Poses to check: standing (`o` empty), `st:'charging'|'reeling'|'flying'` (only c
 - Wardrobe preview: every display frame while visible (`cb_wearfx06.js`). Measured 1.5 ms plain, 2.5 ms with six FX items (desktop).
 - Phone aquarium tank: full rate (`mobile/perf_round6.js`), paused while the page scrolls (that pause is the lag fix).
 - The water scene runs every frame already; phones pause it while a menu covers it.
+
+## Phone look, round 7 (one theme). Change any phone surface: check every row
+Theme decision (director 2026-11-18, mockup canvas https://claude.ai/artifact/V6sF2Xn4AE9gKYJSBHfYnF row 2, "Theme 1 calm navy"):
+one navy surface, one thin light edge, corners 12 (chips/buttons) / 14 (cards) / 16 (frames), display face for labels/values/tabs/buttons,
+reading face only for sentences, line icons (no emoji) on chrome, teal label = opens a page, filled teal = action, gold = here/chosen/ready.
+
+| Piece | Defined in | Shows up in / notes |
+|---|---|---|
+| Phone theme (top bar, search/settings icons, Rest/bait, side panel, menu Back/tools, page tabs, section tabs, buttons, cards) | `mobile/theme07.js` (last phone look file; uses `html body.phone-app/phone-land` so it beats `mobile/ui_modern06.js`) | Android + iPhone, upright + sideways. Icons are CSS masks keyed by `data-sub` (add a new page tab: add its icon to `IC`) |
+| Side panel width (sideways) | `mobile/theme07.js` (`.cdb` / `.secb` / `.mo-back` / `.cdmini` all 112 px; mini 40 px) | the water's grid column and the menu's side column follow it; change all four together |
+| Page tabs fit (upright) | `mobile/theme07.js` (`.subbar` grid) | max 5 pages per group; a 6th page needs a check at 375 px |
+| Goal / live-event line fit | `mobile/theme07.js` (fitGoal) and water name fit in `mobile/ui_modern06.js` | narrow phones (667x375, 375x667) |
+| Aquarium (pinned tank, earnings strip, Add fish tab) | `mobile/aquarium07.js` (wraps `renderPanel`, moves `.tank`, `.bank`, `.sect-nav` into `.aq07-pin`, rest into `.aq07-side`) | phones only; `x_sections.js` keeps working because elements are moved, not copied; leaving Add fish re-renders. Old `mobile/ui_aquarium_land.js` rules no longer match (`#panel:has(> .tank)`) |
+| Top-bar taps on finger lift | `bm_ui04.js` NAV list (menu buttons + `.hud` chips) | iPhone missed clicks; PC (mouse) untouched |
+| Menu note position (iPhone sideways) | `ios/ui_homescreen.js` (`#toast` top 60, bottom auto) | without bottom:auto it stretched over the whole menu |
