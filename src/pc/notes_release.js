@@ -58,3 +58,7 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
   'The Saltmarsh seal is a real seal now.',
   'Aquarium fish and decorations are a little smaller, so every piece can be seen.'
 ]});
+PATCHES.unshift({v:'0.4.8.2', name:'Save Codes Fix', items:[
+  '## Fix',
+  'Send and Get progress in Settings > Save & codes work again: Send shows your 6-digit code and the QR code, and Get progress shows the box to type a code.'
+]});

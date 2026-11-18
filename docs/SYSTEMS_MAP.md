@@ -144,3 +144,6 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Phone aquarium tank pacing | `mobile/perf_round6.js` section 2 | every frame at 60 Hz, every other frame at 120 Hz (measured), steady half rate while scrolling. Never a fixed ms cut-off |
 | Phone aquarium full-width lists (sideways) | `mobile/aquarium07.js` (`AQ_FULL`, `.aq07-fs`, `.aq07-full`) | hides `.aq07-pin`; list rules must not use `display:...!important` on elements `x_sections.js` hides inline |
 | Phone Fish Log Normal / Shiny | `mobile/fishlog07.js` (PC's own is in `pc/ui_fhd.js`) | resets to Normal for each new fish; Shiny only for caught species |
+
+## Versions on live (2026-11-18)
+PC is on **0.4.8.2** (PC-only hotfix, branch `hotfix/0.4.8.2`, tag `v0.4.8.2`, published by copying only `site/pc.html` with the live build stamp kept). Android and iPhone are on **0.4.8.1**. The next release must be 0.4.8.3 or higher (or 0.4.9 for new content) so PC never goes backwards; the 0.4.8.2 PC patch note is already in `src/pc/notes_release.js`.
