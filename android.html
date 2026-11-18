@@ -14230,7 +14230,9 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
   const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
   document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
-  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); // a mouse never counts as touch (it used to, and swallowed every menu click on PC) downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
+  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); /* a mouse never counts as touch (it used to, and swallowed every menu click on PC). This note was a // comment mid-line until 2026-11-18, which silently disabled everything after it on this line: the finger was never forgotten, untracked lifts threw an error, and a slid or redrawn tap was neither skipped nor handed to the phone's own click (taps "did nothing at times") */ downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18){ unacted(d.el); return; }
+    // the button was redrawn while the finger was down (live countdowns, a page refresh): tap the button that is under the finger now
+    if(!d.el.isConnected){ const n=document.elementFromPoint(e.clientX,e.clientY), el2=n&&n.closest&&n.closest(NAV); if(!el2||el2.disabled){ unacted(d.el); return; } d.el=el2; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
@@ -15803,19 +15805,45 @@ html body.phone-app #panel .mb-shnote,html body.phone-land #panel .mb-shnote{fon
     setTimeout(()=>{ if(document.hidden||hiddenAt>=t-50){ try{ localStorage.setItem('dl-fs','1'); }catch(e){} } },700); });
   if(/[?&]test\b/.test(location.search)) window.__fsPref=()=>{ try{ return localStorage.getItem('dl-fs'); }catch(e){ return null; } }; }
 // =====================================================================
+// Phones, round 7: your active boosts are never hidden behind the buttons (director, 2026-11-18, screenshots: "the bottom left
+// headers cover the background UI behind it"). The boost timers ("+25% Bite speed  0:26", Settings > Boosts on screen) were drawn
+// in the bottom-left corner of the water, exactly where the phone's Rest and Bait buttons sit, so they peeked out half covered.
+// On phones they now stack in the top-left corner, right under the time and weather chip (a status corner: weather, then boosts),
+// same look as before. The weather note (weather07.js) appears under them. Android + iPhone only.
+// =====================================================================
+var MB_STATUS_B=40; /* the bottom of the top-left status corner (scene chip + boosts), read by weather07.js */
+{ let chipB=32, labB=0, labT=0;
+  // the scene chip's real height (it differs upright / sideways / per weather): read from the box it draws
+  const _sc=drawSceneChip; drawSceneChip=function(){ if(!MOB()) return _sc.apply(this,arguments); const r0=rr; let b=0;
+    rr=function(x,y,w,h){ if(y+h>b) b=y+h; return r0.apply(this,arguments); }; try{ return _sc.apply(this,arguments); } finally{ rr=r0; if(b>0) chipB=b; } };
+  // test builds only: the test label sits under the chip when sideways; start below it (checked once a second, no layout reads per frame)
+  const label=()=>{ const n=performance.now(); if(n-labT<1000) return labB; labT=n; labB=0; const d=document.querySelector('.dlprev'), cv=document.getElementById('cv');
+    if(d&&cv&&document.body.classList.contains('phone-land')){ const a=d.getBoundingClientRect(), c=cv.getBoundingClientRect(); if(a.width&&a.top-c.top<120&&a.left-c.left<200) labB=Math.round(a.bottom-c.top); } return labB; };
+  const _dr=draw; draw=function(){ if(!MOB()) return _dr.apply(this,arguments);
+    const st=S.settings, on=st.boostsOnScreen; st.boostsOnScreen=false; /* the shared bottom-left list is skipped... */
+    try{ _dr.apply(this,arguments); } finally{ st.boostsOnScreen=on; }
+    let y=Math.max(chipB,label())+6; /* ...and drawn here, under the chip */
+    if(on&&typeof G==='object'&&G.st!=='reeling'&&G.st!=='frenzy'&&G.st!=='charging'){ const bs=activeBuffs().slice(0,4);
+      if(bs.length){ g.save(); g.font='700 11px "Bricolage Grotesque", system-ui'; g.textAlign='left'; const now=Date.now();
+        for(const b of bs){ const txt=fmtB(b.k,b.v)+'  '+mmss(Math.max(0,Math.ceil((b.until-now)/1000))); const tw=g.measureText(txt).width;
+          g.fillStyle='rgba(5,14,20,.62)'; rr(10,y,tw+18,20,10); g.fill(); g.fillStyle='#7fc8a9'; g.fillText(txt,19,y+14); y+=24; }
+        g.restore(); y-=4; } }
+    MB_STATUS_B=y; }; }
+// =====================================================================
 // Phones, round 7: weather notices stop covering the screen (director, 2026-11-18: "weather updates on mobile block a lot of UI.
 // It should only be notified outside of full-screen UI, or have its own changes that work better").
 // The two weather notices (the weather changed / a special weather starts in under a minute) used the big centre notice box,
 // which sat over menus, popups and the fight. On phones now:
-//  - they show as a small one-line note under the scene chip (top left of the water), which never takes taps
+//  - they show as a small note under the scene chip and your boosts (top left of the water), which never takes taps
 //  - never while a menu or a popup card (like the news card) is open, or while a cast or a fish is in progress: the note waits and shows when you are back
 //    on the water between catches, and only if it is still true (a warning for weather that already started is dropped)
 // Every other notice is unchanged. Android + iPhone only.
 // =====================================================================
-{ let pend=null, el=null, hideT=0, poll=0; const BUSY=/^(charging|flying|bite|reeling|landing|event)$/; /* event = a popup card is open (news, a choice, a reward) */
+{ let pend=null, el=null, hideT=0, poll=0; const BUSY=/^(charging|flying|bite|reeling|landing|result|event)$/; /* result = the catch card is open; event = a popup card is open (news, a choice, a reward) */
   const blocked=()=>MENU_OPEN||document.hidden||document.body.classList.contains('ev-open')||(()=>{ const ev=document.getElementById('evcard'); return !!(ev&&ev.getClientRects().length); })()||(typeof G==='object'&&BUSY.test(G.st));
   const still=p=>p.kind==='chg'?weather().k===p.k:Math.floor(Date.now()/1000/WX_LEN)===p.cur;
   const show=p=>{ const st=document.getElementById('stage'); if(!st) return; if(!el||!el.isConnected){ el=document.createElement('div'); el.id='mbwx'; el.setAttribute('role','status'); st.appendChild(el); }
+    el.style.top=(typeof MB_STATUS_B==='number'?Math.round(MB_STATUS_B)+2:36)+'px'; /* under the scene chip and your boosts (boosts07.js) */
     el.innerHTML=''; const b=document.createElement('b'); b.textContent=p.head; el.append(b,document.createTextNode(p.rest)); el.dataset.k=p.k;
     el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); clearTimeout(hideT); hideT=setTimeout(()=>el.classList.remove('on'),5000); };
   const tick=()=>{ if(!pend){ clearInterval(poll); poll=0; return; } if(!still(pend)){ pend=null; return; } if(blocked()) return; const p=pend; pend=null; show(p); };
@@ -15828,12 +15856,84 @@ html body.phone-app #panel .mb-shnote,html body.phone-land #panel .mb-shnote{fon
   if(/[?&]test\b/.test(location.search)) window.__wxNote=()=>({pending:pend&&pend.head, shown:!!(el&&el.classList.contains('on')), text:el&&el.textContent}); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #mbwx,html body.phone-land #mbwx{position:absolute;left:10px;top:36px;z-index:6;max-width:min(320px,calc(100% - 20px));box-sizing:border-box;padding:5px 10px;border-radius:10px;background:rgba(8,16,28,.84);border:1px solid #ffffff1c;border-left:3px solid #8fd3ff;color:#c9d8e8;font:700 12px/1.3 var(--display);pointer-events:none;opacity:0;transform:translateY(-4px);transition:opacity .25s,transform .25s;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-html body.phone-land:has(> .dlprev) #mbwx{top:66px} /* test builds only: clear of the test-build label */
 html body.phone-app #mbwx b,html body.phone-land #mbwx b{color:#fff;font-weight:900}
 html body.phone-app #mbwx.on,html body.phone-land #mbwx.on{opacity:1;transform:none}
 html body.phone-app #mbwx[data-k="Storm"],html body.phone-land #mbwx[data-k="Storm"]{border-left-color:#b49cff}
 html body.phone-app #mbwx[data-k="Rain"],html body.phone-land #mbwx[data-k="Rain"]{border-left-color:#7fb4ff}
 </style>`);
+// =====================================================================
+// Phones: the SET MEASUREMENTS (director, 2026-11-18: "I want standards and set measurements for each platform going forward,
+// I'm tired of the same mistakes"). The numbers are written down in docs/PLATFORM_DESIGN.md ("Phone frame: set measurements")
+// and checked by window.__spec() in test builds. Rule: the water screen is the master; a menu matches it wherever the same thing
+// appears (top row, side rail / bottom tabs, edges), so nothing moves or changes size when you open or close a menu.
+//   Upright:  edges 8 px. Top row: top 6, height 36. Second row (water: location + goal; menus: page tabs): top 46.
+//             Bottom tabs: a card 8 px from the sides and 6 px from the bottom, 58 tall (padding 3), buttons 50 tall.
+//   Sideways: edges 8 px. Top row: top 6, height 38 (every chip, Back, coins, search, settings and the page tabs).
+//             Content (the water or the page) starts at top 49 and ends 6 px above the bottom; the right rail is 124 wide,
+//             6 px right of the content, 8 px from the right edge; its buttons are 40 tall, 5 apart.
+// Also here: tapping right after Back works (the old guard blocked the whole screen for 0.45 s; now only where your finger was).
+// Android + iPhone only.
+// =====================================================================
+const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, barH:58, barPad:3, barBtnH:50, barBottom:6},
+                 land:{edge:8, row1Top:6, row1H:38, contentTop:49, bottom:6, railW:124, railWMini:56, railGap:6, railBtnH:40, railBtnGap:5} };
+{ const U=MB_FRAME.up, L=MB_FRAME.land;
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* ---- upright menus: same top row, same edges and the same bottom card as the water ---- */
+html body.phone-app #menuov .mo-in{padding:${U.row1Top}px ${U.edge}px ${U.barBottom}px!important;grid-template-rows:${U.row1H}px auto minmax(0,1fr) ${U.barH}px!important;row-gap:4px!important}
+html body.phone-app #menuov .mo-back{height:${U.row1H}px!important;min-height:${U.row1H}px!important;align-self:start!important}
+html body.phone-app #menuov .mo-tools{align-self:start!important;height:${U.row1H}px!important}
+html body.phone-app #menuov .mo-tools > *{height:${U.row1H}px!important;min-height:${U.row1H}px!important;box-sizing:border-box!important}
+html body.phone-app #menuov .mo-tools > .mo-tb{width:${U.row1H}px!important;min-width:${U.row1H}px!important}
+html body.phone-app #menuov .secbar{margin:0!important;height:${U.barH}px!important;box-sizing:border-box!important;padding:${U.barPad}px!important;gap:2px!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:15px!important;background:#0c1626!important;align-self:stretch!important}
+html body.phone-app #menuov .secbar > .secb{height:${U.barBtnH}px!important;min-height:${U.barBtnH}px!important;border-radius:12px!important}
+/* ---- sideways menus: one top row at the water's height, content edges and rail exactly where the water has them ---- */
+html body.phone-land #menuov .mo-in{padding:${L.row1Top}px ${L.edge}px ${L.bottom}px ${L.edge}px!important;grid-template-rows:${L.row1H}px minmax(0,1fr)!important;row-gap:${L.contentTop-L.row1Top-L.row1H}px!important;column-gap:${L.railGap}px!important}
+html body.phone-land #menuov .mo-back{height:${L.row1H}px!important;min-height:${L.row1H}px!important;align-self:start!important}
+html body.phone-land #menuov .mo-tools{align-self:start!important;height:${L.row1H}px!important}
+html body.phone-land #menuov .mo-tools > *{height:${L.row1H}px!important;min-height:${L.row1H}px!important;box-sizing:border-box!important}
+html body.phone-land #menuov .mo-tools > .mo-tb{width:${L.row1H}px!important;min-width:${L.row1H}px!important}
+html body.phone-land #menuov #tabs .secbar{margin-bottom:0!important;max-height:none!important} /* the frame's bottom gap is the 6 px now; the old extra margin made the menu rail 6 px shorter than the water's */
+html body.phone-land #menuov > #toast{left:calc((100% - ${L.railW+L.railGap}px) / 2)!important} /* notices centred over the page, not the whole screen (the rail sits on the right) */
+html body.phone-land.dock-mini #menuov > #toast{left:calc((100% - ${L.railWMini+L.railGap}px) / 2)!important}
+html body.phone-land #menuov #panel:not(.aq07){padding-top:8px!important} /* breathing room under the top row (the page box itself still starts at 49) */
+html body.phone-land #menuov .subbar{align-self:start!important;height:${L.row1H}px!important;padding-top:0!important;padding-bottom:0!important}
+html body.phone-land #menuov .subbar > .subp{height:${L.row1H}px!important;min-height:${L.row1H}px!important;box-sizing:border-box!important}
+</style>`);
+// ---- Back: the guard against the phone's follow-up tap now covers only a small circle where the finger lifted (it covered the
+// whole screen for 0.45 s, so a quick next tap anywhere did nothing: "unresponsive at times") ----
+let upX=-1, upY=-1; addEventListener('pointerup',e=>{ if(e.pointerType!=='mouse'){ upX=e.clientX; upY=e.clientY; } },true);
+new MutationObserver(ms=>{ if(!MOB()) return; for(const m of ms) for(const n of m.addedNodes){ if(n.nodeType===1&&n.parentNode===document.body&&n.tagName==='DIV'&&n.style.zIndex==='2147483647'&&n.style.inset&&!n.children.length&&upX>=0){
+    const R=36; n.style.inset='auto'; n.style.left=(upX-R)+'px'; n.style.top=(upY-R)+'px'; n.style.width=(2*R)+'px'; n.style.height=(2*R)+'px'; n.style.borderRadius='50%'; } } }).observe(document.body,{childList:true});
+// ---- the measurement check (test builds only): returns every place that breaks the set measurements, on the screen now ----
+if(/[?&]test\b/.test(location.search)) window.__spec=()=>{ for(const a of document.getAnimations()){ try{ if(a.effect&&a.effect.getComputedTiming().iterations!==Infinity) a.finish(); }catch(e){} } /* measure where things end up, not mid slide-in */
+  const out=[], land=document.body.classList.contains('phone-land'), F=land?L:U, vw=innerWidth, vh=innerHeight, RW=document.body.classList.contains('dock-mini')?L.railWMini:L.railW;
+  const R=e=>{ const r=e.getBoundingClientRect(); return {x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height),r:Math.round(r.right),b:Math.round(r.bottom)}; };
+  const vis=s=>[...document.querySelectorAll(s)].filter(e=>e.getBoundingClientRect().width>0&&getComputedStyle(e).visibility!=='hidden');
+  const near=(a,b,t=1)=>Math.abs(a-b)<=t; const bad=(what,got,want)=>out.push(what+': '+got+' (should be '+want+')');
+  const menu=typeof MENU_OPEN!=='undefined'?MENU_OPEN:document.body.classList.contains('menu-open');
+  if(!menu){ for(const e of vis('.hud > *')){ const r=R(e); if(r.y<F.row1Top+10){ if(!near(r.y,F.row1Top)||!near(r.h,F.row1H)) bad('top row '+(e.id||e.className.split(' ').pop()),r.y+'/'+r.h,F.row1Top+'/'+F.row1H); } else if(!land&&!near(r.y,U.row2Top)) bad('second row '+(e.id||e.className.split(' ').pop()),'top '+r.y,'top '+U.row2Top); }
+    const st=document.getElementById('stage'); if(st){ const r=R(st); if(!near(r.x,F.edge)) bad('water left edge',r.x,F.edge); if(land){ if(!near(r.y,L.contentTop)) bad('water top',r.y,L.contentTop); if(!near(r.b,vh-L.bottom)) bad('water bottom',r.b,vh-L.bottom); } else if(!near(r.r,vw-U.edge)) bad('water right edge',r.r,vw-U.edge); }
+    const cd=document.getElementById('catdock'); if(cd){ const r=R(cd); if(land){ if(!near(r.w,RW)||!near(r.r,vw-L.edge)||!near(r.y,L.contentTop)||!near(r.b,vh-L.bottom)) bad('side rail',r.x+','+r.y+' '+r.w+'w',(vw-L.edge-RW)+','+L.contentTop+' '+RW+'w'); } else if(!near(r.x,U.edge)||!near(r.b,vh-U.barBottom)||!near(r.h,U.barH)) bad('bottom tabs',r.x+','+r.b+' '+r.h+'h',U.edge+','+(vh-U.barBottom)+' '+U.barH+'h'); }
+    // nothing drawn on the water may sit under the Rest / Bait buttons (the boost list lives in the top-left status corner)
+    const rt=document.getElementById('resttog'), stg=document.getElementById('stage'); if(rt&&stg&&typeof MB_STATUS_B==='number'&&MB_STATUS_B>R(rt).y-R(stg).y) bad('status corner reaches the Rest button',MB_STATUS_B,'< '+(R(rt).y-R(stg).y)); }
+  else { const mo=document.getElementById('menuov'); for(const e of [...mo.querySelectorAll('.mo-back,.mo-tools > *'+(land?',.subbar > .subp':''))].filter(e=>e.getBoundingClientRect().width>0)){ const r=R(e); if(!near(r.y,F.row1Top)||!near(r.h,F.row1H)) bad('menu top row '+e.className.split(' ')[0],r.y+'/'+r.h,F.row1Top+'/'+F.row1H); }
+    if(!land) for(const e of vis('#menuov .subbar > .subp')){ const r=R(e); if(r.y<U.row2Top-1) bad('page tabs',r.y,'>= '+U.row2Top); }
+    const body=mo.querySelector('.mo-body'); if(body){ const r=R(body); if(!near(r.x,F.edge)) bad('menu left edge',r.x,F.edge); if(land){ if(!near(r.y,L.contentTop)) bad('menu content top',r.y,L.contentTop); if(!near(r.r,vw-L.edge-RW-L.railGap)) bad('menu content right',r.r,vw-L.edge-RW-L.railGap); if(!near(r.b,vh-L.bottom)) bad('menu content bottom',r.b,vh-L.bottom); } }
+    const sb=mo.querySelector('.secbar'); if(sb){ const r=R(sb); if(land){ if(!near(r.w,RW)||!near(r.r,vw-L.edge)||!near(r.y,L.contentTop)||!near(r.b,vh-L.bottom)) bad('menu side rail',r.x+','+r.y+' '+r.w+'w '+r.h+'h',(vw-L.edge-RW)+','+L.contentTop+' '+RW+'w'); } else if(!near(r.x,U.edge)||!near(r.b,vh-U.barBottom)||!near(r.h,U.barH)) bad('menu bottom tabs',r.x+','+r.b+' '+r.h+'h',U.edge+','+(vh-U.barBottom)+' '+U.barH+'h'); } }
+  // every button you can see must take the tap (nothing on top of its middle)
+  const card=document.getElementById('evcard'), cardOn=!!(card&&card.getClientRects().length); /* a popup card is on top by design: only its own buttons count then */
+  const sticky=t=>{ for(let e=t;e&&e!==document.body;e=e.parentElement){ const p=getComputedStyle(e).position; if(p==='sticky') return true; } return false; }; /* scrolled under a sticky bar: scroll back to reach it */
+  /* the top layer is the one that takes taps: Search (z 60) > a menu (45) > the catch card / a popup card (40) > the water */
+  const on=id=>{ const e=document.getElementById(id); return e&&!e.hidden&&e.getClientRects().length&&getComputedStyle(e).display!=='none'?e:null; };
+  const root=on('searchov')||(menu?document.getElementById('menuov'):null)||on('card')||(cardOn?card:null)||document; for(const el of root.querySelectorAll('button,[data-act],[data-sec],[role=button],select,input')){ const r=el.getBoundingClientRect(); if(r.width<4||r.height<4||el.disabled) continue; const cs=getComputedStyle(el); if(cs.visibility==='hidden'||cs.pointerEvents==='none') continue;
+    if(!menu&&el.closest('#menuov')) continue; const cx=r.x+r.width/2, cy=r.y+r.height/2; if(cx<0||cy<0||cx>vw||cy>vh) continue; let p=el.parentElement, clip=false; while(p&&p!==document.body){ const ps=getComputedStyle(p); if(/(auto|scroll|hidden)/.test(ps.overflowY+ps.overflowX)){ const q=p.getBoundingClientRect(); if(cy<q.top+2||cy>q.bottom-2||cx<q.left+2||cx>q.right-2){ clip=true; break; } } p=p.parentElement; } if(clip) continue;
+    const t=document.elementFromPoint(cx,cy); if(t&&!(t===el||el.contains(t))&&!(sticky(t)&&!sticky(el))) bad('covered button "'+(el.innerText||el.getAttribute('aria-label')||'').trim().replace(/\s+/g,' ').slice(0,20)+'"','under '+(t.id||t.className||t.tagName).toString().split(' ')[0],'nothing on top'); }
+  return out; }; }
+// ---- phone wording (found in the full QC pass, 2026-11-18): the bite hint and the catch card spoke about clicks and the Space key,
+// which a phone has neither of ----
+{ const MB_TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches); /* our own check: the core's TOUCH is declared later in the build */
+  const _sh=setHint; setHint=function(){ _sh.apply(this,arguments); if(!MB_TOUCH) return; try{ if(G.st==='bite'&&S.settings.hints){ const h=document.getElementById('hint'), t='<b>Now!</b> Tap the water to set the hook.'; if(h&&h.innerHTML!==t) h.innerHTML=t; } }catch(e){} };
+  const tap=document.querySelector('#card .tap'); if(tap&&MB_TOUCH) tap.textContent='Tap to keep fishing'; }
 // Android release notes (shown once to returning Android players). Kept exactly as shipped once published.
 PATCHES.unshift({v:'0.4.8', name:'Rewards Worth Chasing', items:[
   '## Rewards and balance',
@@ -15927,6 +16027,15 @@ PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:[
   'Smoother: shiny sparkles run at your screen’s full frame rate, and the aquarium tank too.',
   '## Fixes',
   'Long water names (Stonebrook River) fit in the header instead of being cut off.']});
+PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
+  '## Fixes',
+  'Menus line up with the water screen: the top row (Back, coins, search, settings and the page tabs) is one even row at the same height as on the water, page edges match, and upright the bottom tabs are the same card in menus as on the water, so nothing jumps when you open or close a menu.',
+  'Taps right after Back always work (a quick tap used to be ignored for a split second).',
+  'Taps on menu buttons always register: a tap could do nothing if the button refreshed (a live countdown, a page update) while your finger was on it, and a swipe that started on a tab could open that tab by mistake.',
+  'Phone wording: a bite now says "Tap the water to set the hook" and the catch card says "Tap to keep fishing" (they spoke about clicking and the Space key).',
+  'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
+  'Weather news also waits while the catch card is open.',
+  'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
 // Android test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the Android test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy Aquarium', items:[
@@ -15936,6 +16045,13 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy 
   'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
   'Your tank and Add fish are one section now, laid out like Decorate: Boosts, On display, and Add from your Cooler, each with its own heading.',
   'Fish Log: a Normal / Shiny switch under the fish picture shows what a fish you have caught looks like when it is shiny.',
+  'Menus line up with the water screen: one even top row at the same height as on the water, matching edges, and the same bottom tabs, so nothing jumps when you open or close a menu.',
+  'Taps right after Back always work (a quick tap used to be ignored for a split second).',
+  'Taps on menu buttons always register, even when the button refreshes under your finger; a swipe that starts on a tab no longer opens it.',
+  'A bite says "Tap the water to set the hook" and the catch card says "Tap to keep fishing".',
+  'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
+  'Weather news also waits while the catch card is open.',
+  'Your boost timers sit in the top-left corner under the time and weather, so the Rest and Bait buttons no longer cover them.',
   'Weather news no longer covers the screen: it shows as a small line under the time and weather on the water, and waits while a menu, a card or a catch is open, so it never sits on top of what you are doing.',
   '## Smoother frames',
   'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
