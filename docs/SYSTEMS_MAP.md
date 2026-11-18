@@ -170,3 +170,13 @@ On display / Add from your Cooler. Upright: open = tank 40% of the height; sidew
 `MENU_OPEN`, a popup card (`G.st==='event'`, `#evcard` visible, `ev-open`), a cast or a fish (`charging|flying|bite|reeling|landing`) or the
 page is hidden: the newest note waits (1 s check only while one waits) and is dropped if no longer true. Every other notice is unchanged.
 Change either weather message's wording: update the two patterns in `weather07.js`. Test hook (`?test`): `__wxNote()`.
+
+## Phone frame: set measurements (round 7h, 2026-11-18)
+`mobile/frame07.js` holds the phone frame numbers (`MB_FRAME`) and applies them to menus so they match the water screen exactly;
+the table is in `docs/PLATFORM_DESIGN.md` ("Phone frame: set measurements"). `window.__spec()` (test builds) measures the current
+screen and lists every break: top row top/height, second row, edges, water/page area, side rail / bottom tabs, covered buttons
+(a popup card or a menu on top is handled; buttons scrolled under a sticky bar are skipped), and the status corner reaching Rest.
+It finishes entry animations before measuring. **Required** on the water and every menu page (top and bottom) at all seven phone
+sizes on both builds before the test apps; it must return nothing. Change any phone header, rail, tab bar, edge or corner: update
+`MB_FRAME`, the doc table and re-run the sweep. Also in frame07: the Back guard (bm_ui04 shield) shrinks to a 72 px circle at the
+finger. `mobile/boosts07.js`: boost timers drawn top left under the scene chip (`MB_STATUS_B` = bottom of that corner).

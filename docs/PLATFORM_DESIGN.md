@@ -61,7 +61,24 @@ windows use the regular PC layout (`body.pch-on`).
 - No magnifier while holding the water.
 - No focus zoom.
 
-**Phone tests:** 375×812 upright and 734×360 sideways; iPhone with `?test&ios`.
+**Phone frame: set measurements** (director, 2026-11-18: "standards and set measurements for each platform"). The numbers live in ONE place in the code, `MB_FRAME` at the top of `src/mobile/frame07.js`; change them there and here together. **The water screen is the master: a menu matches it wherever the same thing appears**, so nothing moves or changes size when a menu opens or closes.
+
+| | Upright | Sideways |
+|---|---|---|
+| Screen edges (left / right) | 8 px | 8 px |
+| Top row (every chip, Back, coins, search, settings) | top 6, height 36 | top 6, height 38 |
+| Second row | top 46 (water: location + goal; menus: page tabs) | none: page tabs sit in the top row, height 38 |
+| Water / page area | full width minus the edges | starts at top 49, ends 6 px above the bottom, right edge 6 px left of the rail |
+| Categories | bottom card: 8 px from the sides, 6 px from the bottom, 58 tall, padding 3; buttons 50 tall | right rail: 124 wide, 8 px from the right edge; buttons 40 tall, 5 apart |
+| Corners of the water | top left = status corner (time + weather chip, then boost timers, then the weather note); bottom left = Rest and Bait buttons; nothing drawn on the water may sit under a button | same |
+
+**Taps:** every button you can see must take the tap: nothing (no layer, label, guard or fade) may sit on top of its middle. A guard against a phone's follow-up tap covers only the spot under the finger, never the whole screen.
+
+**The check (required before anything goes to the test apps or live):** `window.__spec()` in a test build (`?test`) measures the screen you are on against these numbers and lists every break, including covered buttons and the status corner reaching the Rest button. Run it on the water and on every menu page (scrolled top and bottom) at every phone size below, on BOTH the Android and iPhone builds; it must return nothing. `__qa()` and `__layoutQC()` must also pass.
+
+**Phone test sizes:** upright 375×667, 390×844, 430×932; sideways 667×375, 734×360, 844×390, 932×430 (the director's iPhone is 932×430 sideways). iPhone with `?test&ios`.
+
+**Release order (director's QC rule):** fix → `__spec` + `__qa` on both phone builds → phone test apps (`publish_testapps.ps1`) → the director checks them on real phones → only then live, and only when the director says so.
 
 ## Shared across platforms
 - **Shared look:** the same colour language everywhere. Rarity colours come from `RAR`. Gold means rewards, teal means actions, red means warnings.
