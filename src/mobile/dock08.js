@@ -15,7 +15,7 @@
 { let DK_OPEN=true; try{ DK_OPEN=localStorage.getItem('dl-dk-open')!=='0'; }catch(e){}
   const saveOpen=()=>{ try{ localStorage.setItem('dl-dk-open',DK_OPEN?'1':'0'); }catch(e){} };
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
-  let RO=null; const fit=c=>{ const v=c&&c.parentElement; if(!v) return; const r=v.getBoundingClientRect(); if(r.width<40||r.height<40) return; const H2=Math.max(200,Math.min(1600,Math.round(900*r.height/r.width)));
+  let RO=null; const fit=c=>{ const v=c&&c.parentElement; if(!v) return; if(typeof cv!=='undefined'&&cv&&cv.width>40&&W>40){ try{ paintHome(); }catch(e){} return; } /* live scene view: paintHome sizes the canvas itself */ const r=v.getBoundingClientRect(); if(r.width<40||r.height<40) return; const H2=Math.max(200,Math.min(1600,Math.round(900*r.height/r.width)));
     if(c.width!==900||c.height!==H2){ c.width=900; c.height=H2; try{ paintHome(); }catch(e){} } };
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); const on=MOB()&&S.tab==='home'; if(!on){ P.classList.remove('dk08'); return r; }
       const cv=P.querySelector('#homecv'), tile=cv&&cv.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return r;
@@ -49,7 +49,7 @@
       if(feats.includes("wood")){ const wc=after(wood); move(secH,wood); move(secH,wc); } else { if(wood) wood.remove(); const n=after(wood); if(n) n.remove(); }
       if(feats.includes('style')){ const sc=after(style); move(secH,style); move(secH,sc); } else { const sc=after(style); if(style) style.remove(); if(sc) sc.remove(); }
       if(hm){ move(secH,hm); }
-      if(dockbar){ const lab=dockbar.querySelector('.dock-h > .meta'); if(lab) lab.remove(); secH.appendChild(h('h5',null,'Your docks')); move(secH,dockbar); }
+      if(dockbar){ const lab=dockbar.querySelector('.dock-h > .meta'); if(lab) lab.remove(); secH.appendChild(h('h5',null,'Your homes')); move(secH,dockbar); }
       // Decorations: small cards, tap to try / place
       const secD=h('div','aq07-sec dk08-sec-deco'); body.appendChild(secD);
       secD.appendChild(h('div','row spread aq07-h','<h2>Decorations</h2>'));
@@ -88,3 +88,31 @@ html body.phone-app #menuov #panel.dk08 .dockbar,html body.phone-land #menuov #p
 html body.phone-app #menuov #panel.dk08 .hm-phone > h5:first-child,html body.phone-land #menuov #panel.dk08 .hm-phone > h5:first-child{margin-top:14px!important}
 @media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.dk08 .dk08-bank{grid-template-columns:repeat(3,minmax(0,1fr))!important} }
 </style>`);
+/* ---------- Your home shows the REAL home of every water (director, 2026-11-18: "make sure the home works for ALL maps, in each way
+   that applies to them"). The phone view used to draw a generic wooden dock everywhere (wrong at a boat, trawler, raft, ice camp,
+   beach, stone ledge or crystal shelf). Now, like PC, it shows the live scene of the water you are at, framed on your angler and
+   home: the right home, its hull paint, light, wood, decorations and pets, the sky, weather and time of day. While the page is
+   open the scene keeps drawing 30 times a second (the rest of the time menus pause it, as before); dragging decorations and pets
+   moves them to the exact spots the game uses. Falls back to the drawn view if the scene is not available. ---------- */
+function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('homecv'); if(!c||!c.isConnected||!c.closest('.dk08-view')) return false;
+  if(DK_SCENE_OK.t&&now-DK_SCENE_OK.t<32&&now>=DK_SCENE_OK.t) return false; DK_SCENE_OK.t=now; return true; }
+{ const crop=c=>{ const L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; const top=(typeof MB_STATUS_B==='number'?MB_STATUS_B:40)+4; /* below the weather label and boost timers drawn on the water */ let sw=Math.min(W,W*.62), sh=sw*c.height/c.width; if(sh>H-top){ sh=H-top; sw=Math.min(W,sh*c.width/c.height); } return {sx:0, sy:Math.max(top,Math.min(H-sh,H*.6-sh*f)), sw, sh}; };
+  const live=()=>typeof cv!=='undefined'&&cv&&cv.width>40&&W>40&&H>40;
+  const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!MOB()||!c.closest('.dk08-view')||!live()) return _ph.apply(this,arguments);
+    const r=c.getBoundingClientRect(); if(r.width<20||r.height<20) return; const k=Math.min(2,window.devicePixelRatio||1), w=Math.round(r.width*k), hh=Math.round(r.height*k);
+    if(c.width!==w||c.height!==hh){ c.width=w; c.height=hh; } const b=crop(c), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low';
+    x.drawImage(cv,b.sx*d,b.sy*d,b.sw*d,b.sh*d,0,0,w,hh); };
+  /* drag decorations and pets along the real home (the same fractions the game uses) */
+  document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!MOB()||!c.closest('.dk08-view')||!live()) return; e.stopImmediatePropagation(); e.preventDefault();
+    const b=crop(c), r=c.getBoundingClientRect(), gx=ev=>b.sx+(ev.clientX-r.left)/r.width*b.sw, X0=W*.008, SPAN=W*.17, frac=v=>clamp((v-X0)/SPAN,0,1);
+    const sc=clamp(H/420,.7,1.25), ax=W*.12, items=dockView(), P=dockPositions(items,(ax-40*sc-X0)/(W*.178-X0),(ax+12*sc-X0)/(W*.178-X0));
+    const x0=gx(e); let best=null, bd=W*.02;
+    for(const id in P){ const dd=Math.abs(X0+P[id]*SPAN-x0); if(dd<bd){ bd=dd; best=id; } }
+    for(const wh of ['1','2']){ if(wh==='1'&&!S.pet) continue; if(wh==='2'&&!(S.pet2&&PETI[S.pet2])) continue; const pos=S.dock[wh==='2'?'pet2Pos':'petPos']; if(pos==null) continue; const dd=Math.abs(scenePetX(pos)-x0); if(dd<bd){ bd=dd; best='pet'+wh; } }
+    if(!best) return; try{ c.setPointerCapture(e.pointerId); }catch(er){}
+    const mv=ev=>{ const v=frac(gx(ev)); if(best==='pet1') S.dock.petPos=v; else if(best==='pet2') S.dock.pet2Pos=v; else { S.dock.pos=S.dock.pos||{}; S.dock.pos[best]=v; } };
+    const up=()=>{ c.removeEventListener('pointermove',mv); c.removeEventListener('pointerup',up); c.removeEventListener('pointercancel',up); save(); };
+    c.addEventListener('pointermove',mv); c.addEventListener('pointerup',up); c.addEventListener('pointercancel',up); },true);
+  /* the canvas follows the view's size (sharp at any size) */
+  const _fitRO=window.ResizeObserver?new ResizeObserver(()=>{ try{ if(S.tab==='home'&&MOB()) paintHome(); }catch(e){} }):null;
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const c=$('homecv'); if(_fitRO&&c&&MOB()&&S.tab==='home'&&c.parentElement){ _fitRO.disconnect(); _fitRO.observe(c.parentElement); } }catch(e){} return r; }; }

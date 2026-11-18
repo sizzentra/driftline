@@ -100,9 +100,17 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
   'Weather news also waits while the catch card is open.',
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
-PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
+PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:[
   '## New',
-  'Your home (the Dock) is laid out like the aquarium: your dock fills the screen, with Options to open Your dock and Decorations. Tap a decoration to try it, tap again to buy or place.',
+  'The fish fight is easy to follow: a ring around the fish shows how tight your line is (green, yellow, red), with what to do right above it.',
+  'Hints speak touch only (no keyboard keys), and homes are called homes everywhere, not docks. Save, App shows how to put Driftline on your home screen.',
+  'Driftline now plays in landscape on Android phones: hold your phone sideways (if you hold it upright, the game pauses and shows you how). Tablets keep both ways.',
+  'The top bar is tidier: a small Goal chip shows your next goal in a few words and opens exactly the right page; live events get their own Live chip; Tasks and Tide Pass sit up there too when there is room.',
+  'Your home shows the real home of every water (boat, pier, ice camp, beach, raft, ledge...), live, with only the options that fit it.',
+  'Colour choices are small round swatches, with the chosen colour named next to the heading.',
+  'Every menu page is now organised like the aquarium: the important numbers and the main button first (Sell all, Reset skills...), the sections as tabs at the top, one list that scrolls. Badges show where a reward is waiting.',
+  'The Wardrobe shows your angler big, with the categories in Options. Pages keep your place when something changes, and open faster.',
+  'Your home is laid out like the aquarium: your home fills the screen, with Options to open Your home and Decorations. Tap a decoration to try it, tap again to buy or place.',
   'Tablets now get the full phone layout, scaled up to fill the screen, with bigger buttons.',
   'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this phone’s sound, controls or display settings.',
   'Frame rate setting (Settings, Display): 30 to save battery, 60, or Max for the smoothest picture your screen can show.',

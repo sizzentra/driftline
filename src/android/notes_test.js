@@ -1,7 +1,10 @@
 // Android test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the Android test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy Aquarium', items:[
-  'NEW in this build: Your home (the Dock) works like the aquarium (dock view on top, Options with Your dock and Decorations, tap a card to try it). Tablets now use the phone layout scaled up to fill the screen.',
+  'NEW in this build: fish fight shows a tension ring at the fish with the instruction above it; hints are touch only; homes are never called docks; the layout always switches when you turn the phone; smoother storms at Starfall.',
+  'NEW in this build: Android phones are landscape only (upright pauses the game). Compact Goal chip (opens the right page) and a separate Live chip, plus Tasks and Tide Pass in the top bar. Your home shows the real home of every water. Colour choices are round swatches.',
+  'NEW in this build: every menu page works like the aquarium (key numbers and main button first, sections as tabs, one scrolling list, badges where rewards wait). The Wardrobe shows your angler big with the categories in Options. Pages keep your place when they refresh.',
+  'NEW in this build: Your home works like the aquarium (your home on top, Options with Your home and Decorations, tap a card to try it). Tablets now use the phone layout scaled up to fill the screen.',
   'NEW in this build: settings now belong to this phone and are no longer changed by moving your progress. New Frame rate choice in Settings, Display (30 saves battery, Max uses your screen’s full speed).',
   'NEW in this build: menus fit every modern phone and stay clear of the camera cutout and corners, the same as the fishing screen. The Aquarium opens faster and the first tap no longer pauses while the music loads. Split screen and small windows now use the normal phone layout.',
   'One look everywhere: every button, tab, badge and label of the same kind has the same size and style on every page; long button labels stay on one line; upright, a long goal no longer pushes the water down; sideways, page-tab badges sit on the corner.',
