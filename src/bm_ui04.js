@@ -1554,18 +1554,27 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
   // one measurement at the current zoom gives the exact zoom that fits (the page's height scales with it), so the page is laid
   // out once or twice instead of up to four times (each pass cost ~17 ms on the biggest pages: that was menu lag in full screen).
   // Every page remembers its zoom (per section and window size) and starts from it, so reopening it usually needs no change at all.
-  const cache=new Map(), key=()=>S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+innerWidth+'x'+innerHeight;
+  const ceil=new Map(), cache=new Map(), key=()=>{ const p=P(), on=p&&p.querySelector('.bwx-nav [aria-pressed="true"],.bwx-nav [aria-selected="true"],.bwx-nav .on,.fr-cat[aria-pressed="true"]'); return S.tab+'|'+((typeof SECT==='object'&&SECT[S.tab])||'')+'|'+(on?on.textContent.trim().slice(0,24):'')+'|'+innerWidth+'x'+innerHeight; }; /* per page, per section tab (sections that redraw the page too), per window size */
   const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
     if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
-    if(p.classList.contains('fl-on')){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log sizes its own columns
+    if(p.classList.contains('fl-on')||[...p.querySelectorAll('.pc-pn')].some(e=>e.offsetParent!==null)){ if(p.style.zoom) p.style.zoom=''; return; } // the Fish Log and the patch-notes reader size themselves to the screen
     const z0=+p.style.zoom||1, ch=p.clientHeight, sh=p.scrollHeight; if(!ch||!sh) return;
-    let z=sh<=ch+2?Math.min(1,z0*ch/sh):Math.max(.76,z0*ch/sh-.003); if(z>.997) z=1;
-    if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<2) soon(); } cache.set(key(),z); };
+    // full HD (body.pc-fhd): a page with room to spare grows until it fills the screen (up to 125%), so it reads well from the chair;
+    // its real content height is measured from its first box to its last (the page's own height never drops below the screen's)
+    const big=document.body.classList.contains('pc-fhd'), MAXZ=big?1.25:1; let z;
+    if(big){ const R=p.getBoundingClientRect(), cs=getComputedStyle(p); let top=Infinity, bot=-Infinity; for(const c of p.children){ if(c.offsetParent===null&&getComputedStyle(c).position!=='fixed') continue; const r=c.getBoundingClientRect(); if(!r.height) continue; top=Math.min(top,r.top); bot=Math.max(bot,r.bottom); }
+      if(bot>top){ const pad=(parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom))*z0, need=bot-top+pad, avail=R.height; z=z0*avail/need-.004; } else z=1;
+      if(sh>ch+2) ceil.set(key(),Math.min(ceil.get(key())||9,z0-.004)); /* this zoom overflowed: never grow back to it */
+      z=Math.max(.76,Math.min(MAXZ,ceil.get(key())||9,z)); }
+    else z=sh<=ch+2?Math.min(1,z0*ch/sh):Math.max(.76,z0*ch/sh-.003);
+    if(Math.abs(z-1)<.004) z=1;
+    if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<4) soon(); } cache.set(key(),z); };
   let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
   const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
   document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
   addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
+  window.__pcfitSoon=()=>{ passes=0; soon(); }; // a page that changes its own content (a category picked) asks for a fresh fit
   if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
@@ -1644,10 +1653,27 @@ body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overf
     secs.slice().sort((a,b)=>size(b)-size(a)).forEach(sec=>{ const i=h.indexOf(Math.min(...h)); cols[i].appendChild(sec); h[i]+=size(sec); }); /* biggest groups first: even columns */
     cols.forEach(c=>[...c.children].sort((a,b)=>pos.get(a)-pos.get(b)).forEach(s=>c.appendChild(s))); /* each column keeps the usual group order */
     cols.forEach(c=>fb.appendChild(c)); fb.style.gridTemplateColumns='repeat('+n+',minmax(0,1fr))'; };
+  // full HD: a reader. Categories on the left (count + progress), the chosen category's feats as readable cards on the right
+  // (director, 2026-11-17: the five-column board was cramped and hard to read on a 1080p screen in full screen)
+  let featCat=null;
+  const reader=(P,info)=>{ P.querySelector('.featboard')?.remove(); P.querySelector('.featrd')?.remove();
+    const cats=order.map(cat=>{ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); return {cat,list,nd:list.filter(x=>x.done).length}; }).filter(c=>c.list.length);
+    if(!featCat||!cats.some(c=>c.cat===featCat)) featCat=(cats.find(c=>c.nd<c.list.length)||cats[0]).cat;
+    const total=info.length, done=info.filter(x=>x.done).length;
+    const card=x=>{ const t=x.t, metas=[...t.querySelectorAll(':scope > .meta')], desc=metas[0]?metas[0].textContent:'', cnt=(t.querySelector('.row .meta')||{}).textContent||'', val=t.querySelector('.val'), rew=val?val.innerHTML:'';
+      return `<article class="fr-card${x.done?' done':''}"><header><b>${x.done?'✓ ':''}${esc((t.querySelector('h4')||{}).textContent||'')}</b><span class="fr-cnt">${x.done?'Done':esc(cnt)}</span></header><p>${esc(desc)}</p><i class="fr-bar"><b style="width:${Math.min(100,x.p)}%"></b></i><div class="fr-rew">${rew}</div></article>`; };
+    const fr=document.createElement('div'); fr.className='featrd';
+    fr.innerHTML=`<nav class="fr-rail"><div class="fr-total"><b>${done}</b> of ${total} done<i class="fr-bar"><b style="width:${done/total*100}%"></b></i></div>${cats.map(c=>`<button type="button" class="fr-cat" data-cat="${esc(c.cat)}" aria-pressed="${c.cat===featCat}"><span>${esc(c.cat)}</span><span class="fr-n">${c.nd} / ${c.list.length}</span><i class="fr-bar"><b style="width:${c.nd/c.list.length*100}%"></b></i></button>`).join('')}</nav><section class="fr-main"></section>`;
+    const main=fr.querySelector('.fr-main'); const show=cat=>{ featCat=cat; const c=cats.find(x=>x.cat===cat); main.innerHTML=`<h3>${esc(cat)} <span class="fr-n">${c.nd} of ${c.list.length} done</span></h3><div class="fr-grid">${c.list.map(card).join('')}</div>`; fr.querySelectorAll('.fr-cat').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cat===cat))); };
+    fr.querySelectorAll('.fr-cat').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); show(b.dataset.cat); try{ window.__pcfitSoon&&__pcfitSoon(); }catch(er){} }));
+    const nav=P.querySelector('.sect-nav'), grid=[...P.children].find(c=>c.classList.contains('grid')), more=grid&&grid.nextElementSibling;
+    if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
+    (grid||P.lastChild).after(fr); show(featCat); };
   const organize=P=>{ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return;
     const byName={}; FEATS.forEach(f=>byName[f.name]=f);
     const tiles=[...grid.children].filter(t=>t.classList.contains('tile')); const prog=t=>{ const i=t.querySelector('.prog i'); return i?parseFloat(i.style.width)||0:(t.classList.contains('done')?100:0); };
     const info=tiles.map(t=>{ const nm=(t.querySelector('h4')||{}).textContent||'', f=byName[nm.trim()]; return {t,cat:f?catOf(f):'More',done:t.classList.contains('done'),p:prog(t)}; });
+    if(document.body.classList.contains('pc-fhd')){ reader(P,info); return; }
     if(document.body.classList.contains('pch-on')){ board(P,info); return; }
     grid.querySelectorAll('.feat-cat').forEach(h=>h.remove());
     for(const cat of order){ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); if(!list.length) continue;
@@ -2242,4 +2268,105 @@ html body.pch-on #pcscene #goalchip{-webkit-backdrop-filter:none!important;backd
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the page tabs' entrance is played by script now (no forced layout), so the class-based copy is switched off */
 body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
+</style>`);
+// =====================================================================
+// PC full HD (director, 2026-11-17: "give ALL pc menus optimization... save this window size's changes exclusive to this
+// resolution"). body.pc-fhd = the PC layout on a screen of at least 1800 x 950 (a 1080p monitor in full screen). Everything
+// written for it below is scoped to that class, so laptops, smaller windows and phones keep their own layouts.
+// =====================================================================
+{ const apply=()=>{ const b=document.body.classList, v=b.contains('pch-on')&&innerWidth>=1800&&innerHeight>=950; if(v!==b.contains('pc-fhd')) b.toggle('pc-fhd',v); };
+  addEventListener('resize',()=>setTimeout(apply,40)); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); apply(); }
+// PC full HD: pages whose sections are small show them all side by side, each under its own heading, instead of one section
+// at a time behind tabs (director, 2026-11-17: Skills showed five little cards in a corner of an empty screen).
+{ const ALL=new Set(['skills','save']); const _sz=sectionize;
+  sectionize=function(P,tab,groups,before){ const gs=(groups||[]).filter(g=>g.nodes.length);
+    if(!document.body.classList.contains('pc-fhd')||!ALL.has(tab)||gs.length<2) return _sz.apply(this,arguments);
+    const anchor=before||gs[0].nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor); /* mark the spot before anything moves */ const board=document.createElement('div'); board.className='fhd-board fhd-'+tab; board.style.setProperty('--n',gs.length);
+    for(const g of gs){ const col=document.createElement('section'); col.className='fhd-col';
+      const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid');
+      col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span>${g.badge?`<span class="sdot">${g.badge}</span>`:''}</header>`;
+      const body=document.createElement('div'); body.className='fhd-body'+(inGrid?' '+[...par.classList].join(' '):''); col.appendChild(body);
+      for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } board.appendChild(col); }
+    mark.parentNode?mark.parentNode.replaceChild(board,mark):P.appendChild(board);
+    // a grid left empty by the move goes away
+    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); }); }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-fhd #panel .fhd-board{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px;align-items:start;margin-top:8px}
+body.pc-fhd #panel .fhd-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+body.pc-fhd #panel .fhd-h{display:flex;align-items:center;gap:8px;padding:0 4px 6px;border-bottom:1px solid #ffffff1c;font:800 13px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#cfe0f2}
+body.pc-fhd #panel .fhd-body{display:flex!important;flex-direction:column!important;gap:10px!important;margin:0!important;grid-template-columns:none!important}
+body.pc-fhd #panel .fhd-body > *{width:auto!important;margin:0!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* full HD Feats reader */
+body.pc-fhd #panel .featrd{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start;margin-top:6px}
+body.pc-fhd #panel .fr-rail{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:16px;background:#0c1626;border:1px solid #ffffff12}
+body.pc-fhd #panel .fr-total{padding:4px 8px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;font-size:13px;color:#9fb2c8;display:grid;gap:6px}
+body.pc-fhd #panel .fr-total b{font:800 20px var(--display,system-ui);color:#fff}
+body.pc-fhd #panel .fr-cat{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:6px;align-items:center;text-align:left;padding:9px 12px 10px;border-radius:11px;border:1px solid transparent;background:none;color:#dbe6f2;cursor:pointer;font:700 14px var(--display,system-ui)}
+body.pc-fhd #panel .fr-cat:hover{background:#ffffff0b}
+body.pc-fhd #panel .fr-cat[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff55;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
+body.pc-fhd #panel .fr-cat .fr-bar{grid-column:1 / -1}
+body.pc-fhd #panel .fr-n{font:700 12.5px var(--display,system-ui);color:#9fb2c8;letter-spacing:0;text-transform:none}
+body.pc-fhd #panel .fr-bar{display:block;height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}
+body.pc-fhd #panel .fr-bar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
+body.pc-fhd #panel .fr-main h3{margin:2px 2px 14px;font:800 22px var(--display,system-ui);color:#fff;display:flex;align-items:baseline;gap:12px}
+body.pc-fhd #panel .fr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+body.pc-fhd #panel .fr-card{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff14}
+body.pc-fhd #panel .fr-card header{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+body.pc-fhd #panel .fr-card header b{font:800 16px var(--display,system-ui);color:#fff}
+body.pc-fhd #panel .fr-card .fr-cnt{font:800 13px var(--display,system-ui);color:#cfe0f2;white-space:nowrap}
+body.pc-fhd #panel .fr-card p{margin:0;font-size:13.5px;line-height:1.45;color:#a9bccf;flex:1}
+body.pc-fhd #panel .fr-card .fr-bar{height:7px}
+body.pc-fhd #panel .fr-card .fr-rew{font-size:13px;color:#dbe6f2}
+body.pc-fhd #panel .fr-card.done{opacity:.6}
+body.pc-fhd #panel .fr-card.done header b{color:#7fe3c4}
+body.pc-fhd #panel .fr-card.done .fr-bar b{background:#7fe3c4}
+</style>`);
+// full HD Rods: "Your rod" and its attachments side by side on one tab (they belong together), the rod rack on the other
+{ const _sz=sectionize;
+  sectionize=function(P,tab,groups,before){ if(tab!=='rods'||!document.body.classList.contains('pc-fhd')) return _sz.apply(this,arguments);
+    const gs=(groups||[]).filter(g=>g.nodes.length), you=gs.find(g=>/Your rod/i.test(g.name)), att=gs.find(g=>/Attach/i.test(g.name)), rest=gs.filter(g=>g!==you&&g!==att);
+    if(!you||!att) return _sz.apply(this,arguments);
+    const anchor=before||you.nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor);
+    const pair=document.createElement('div'); pair.className='fhd-rodpair';
+    const mk=(g,cls)=>{ const col=document.createElement('section'); col.className='fhd-col '+cls; col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span></header>`; const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid'); const body=document.createElement('div'); body.className='fhd-body2'+(inGrid?' '+[...par.classList].join(' '):''); for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } col.appendChild(body); return col; };
+    pair.append(mk(you,'fhd-you'),mk(att,'fhd-att')); mark.parentNode.replaceChild(pair,mark);
+    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); });
+    return _sz.call(this,P,tab,[{name:you.name,nodes:[pair]}].concat(rest),pair); }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-fhd #panel .fhd-rodpair{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:18px;align-items:start}
+body.pc-fhd #panel .fhd-rodpair .fhd-body2{margin:0!important}
+body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2{display:block!important}
+body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h2,body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h3{display:none}
+body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2{display:flex!important;flex-direction:column;gap:10px}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* full HD Wardrobe: a bigger character on the left, the options flowing in three columns instead of short rows down one side */
+body.pc-fhd #menuov #panel .stylewrap.wd{grid-template-columns:minmax(420px,32%) minmax(0,1fr)!important;column-gap:28px!important;align-items:start}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev{width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;aspect-ratio:auto}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev canvas{width:100%!important;height:auto!important}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-main{columns:3 320px;column-gap:30px;display:block!important}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > *{break-inside:avoid}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5{break-after:avoid;margin-top:14px}
+body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5:first-child{margin-top:0}
+</style>`);
+// full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pc-fhd #menuov #panel > .grid.fhd-gear{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
+body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;gap:8px!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* full HD Cooler (and any fish list): fish as cards in two columns, so name, value and buttons sit together; bigger fish */
+body.pc-fhd #menuov #panel .list:has(> .fishrow){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body.pc-fhd #menuov #panel .list > .fishrow{border:1px solid #ffffff14;border-radius:14px;background:#0e1a2c;padding:10px 14px!important;margin:0!important;gap:14px}
+body.pc-fhd #menuov #panel .list > .fishrow{grid-template-columns:96px minmax(0,1fr) auto auto!important}
+body.pc-fhd #menuov #panel .list > .fishrow canvas{width:96px!important;height:48px!important}
+body.pc-fhd #menuov #panel .list > .fishrow .nm b{font-size:16px}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the patch-notes reader stays hidden on the other Settings tabs (its layout rule must not override the tab's "hidden") */
+body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.pc-pn[style*="display:none"]{display:none!important}
 </style>`);
