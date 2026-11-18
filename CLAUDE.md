@@ -3,6 +3,8 @@
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
 ## ▶ Where we left off (read first)
+- **0.4.8 "The Full Screen Rework" SHIPPED 2026-11-18 (tag v0.4.8, director approved):** the platform split goes live (router + pc/android/ios builds), the full-screen PC rework, Your home, rewards and Paths changes, shiny hunts; each platform has its own 0.4.8 notes (`src/*/notes_release.js`).
+- **NEXT (director, 2026-11-18): start `docs/NEXT_ROUND6.md` now (0.4.8 is out).** It has 21 items: bug fixes, quality of life, map work, each marked with its platform.
 - **PC full-HD round 4 on PREVIEW (2026-11-17, not live, version NOT bumped; ask the director for the number when publishing).** All in `src/br_pc05.js` (PC-only layout under `body.pc-fhd`, plus some game rules for every platform). Full HD now has ONE fixed size on every page (the fit zoom is off under pc-fhd: it resized headers between tabs and moved buttons under the cursor). The fishing scene isn't drawn while a full-HD menu is open, except on Dock (smoother aquarium). Themed tooltip `#dltip` replaces native titles in menus/header. Pages rebuilt for full HD:
   - **Cooler:** short Keep / To aquarium / Sell guide; aligned Sell all fields.
   - **Aquarium:** one compact header bar.

@@ -14,7 +14,7 @@ $v = (Get-Date).ToString('yyyy.MM.dd-HHmm')
 $utf8 = New-Object System.Text.UTF8Encoding $false
 $core = 'a_head.html','a2_v3ui.js','b_data.js','az_fish036.js','b2_wear.js','c_logic.js','n_play.js','k_controls.js','d_draw.js','d2_extra.js','d3_update.js','d4_style.js','d5_v16.js','d6_preview.js','d7_v20.js','m_home.js','d8_v21.js','d9_link.js','d10_lily.js','d11_pair.js','f_v3scene.js','f2_areas.js','f3_foliage.js','ao_maps033.js','ap_weather033.js','aq_life033.js','ar_ember033.js','as_depth033.js','at_starfall033.js','av_sea034.js','bf_depth036.js','g_angler.js','l_wear.js','ag_hatfit.js','h_pets.js','i_fish.js','ba_art036.js','j_music.js','q_boardwalk.js','w_wardrobe.js','ah_fabric.js','ak_side.js','s_odd.js','bb_odd036.js','t_board.js','u_tackle.js','v_shop.js','o_sort.js','p_games.js','r_rest.js','x_sections.js','y_pass.js','ab_decor.js','ac_dockart.js','ad_tankart.js','ae_tankart2.js','al_decor04.js','be_decor036.js','z_stats.js','aj_events.js','af_smooth.js','am_shoptools.js','an_small04.js','ai_cooler.js','au_fix034.js','aw_menu035.js','ax_trophy035.js','mobile:mobile/ay_phone035.js','bg_angler036.js','bh_platform036.js','bi_hats036.js','bc_voyage036.js','bd_ui036.js','bj_polish036.js','bk_events036.js','bl_hunts04.js','bo_guard04.js','bm_ui04.js','bq_feat04.js','bs_rules05.js','bu_home05.js','bt_testnotes.js'
 # each platform's own files, added after the core (empty lists are ready for that platform's own work)
-$layers = @{ pc = @('pc/br_pc05.js','pc/ui_round5.js','pc/notes_test.js'); android = @('android/notes_test.js'); ios = @('ios/notes_test.js') }
+$layers = @{ pc = @('pc/br_pc05.js','pc/ui_round5.js','pc/notes_release.js','pc/notes_test.js'); android = @('android/notes_release.js','android/notes_test.js'); ios = @('ios/notes_release.js','ios/notes_test.js') }
 $names = @{ pc = 'PC'; android = 'Android'; ios = 'iPhone' }
 $top0 = [IO.File]::ReadAllText((Join-Path $root 'src\shell_top.html')).Replace('__VERSION__', $v)
 $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))
@@ -55,7 +55,9 @@ foreach ($p in 'pc','android','ios') {
     # own save key; copies the real save once on first open and never writes to it
     $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){}")
     $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
-    $badge = '<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">preview · ' + $names[$p] + '</div>'
+    # the test label: a fixed small pill (it stretched into a tall shape on iPhone held sideways), plain ASCII text (a "·" was
+    # read as "Â·" by Windows PowerShell)
+    $badge = '<span class="dlprev" style="position:fixed!important;right:10px!important;bottom:10px!important;top:auto!important;left:auto!important;z-index:30;display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:22px!important;white-space:nowrap!important;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:3px 10px!important;margin:0!important;font:700 11px/14px system-ui,sans-serif!important;pointer-events:none;box-sizing:border-box">test build - ' + $names[$p] + '</span>'
   }
   $built[$p] = $body
   $pages[$p] = $top + $body + $badge + $bottom
