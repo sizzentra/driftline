@@ -15,19 +15,27 @@
       return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas><div class="nm"><span style="color:${RAR[sp.r].c}">${esc(sp.name)}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)} · ${fmt(fishRate(f)*60)} / hour · ${esc(aqTxt(f))}</small></div><div class="acts"><button class="btn sm" data-act="totank" data-i="${i}" ${full?'disabled':''}>To aquarium</button></div></div>`; }).join('')+`</div></div>`; };
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); const on=MOB()&&S.tab==='aquarium'; P.classList.toggle('aq07',on); if(!on){ AQ_ADD=false; return r; }
       const tank=P.querySelector(':scope > .tank'), nav=P.querySelector(':scope > .sect-nav'), bank=P.querySelector('.bank'); if(!tank||!nav) return r;
-      const pin=document.createElement('div'); pin.className='aq07-pin'; tank.before(pin); pin.appendChild(tank); if(bank){ bank.classList.add('aq07-bank'); pin.appendChild(bank); } pin.appendChild(nav);
-      const head=P.querySelector(':scope > .mb-aqh, :scope > .dl-head'); if(head&&MOB()&&!document.body.classList.contains('phone-land')) pin.after(head); /* upright: the tank comes first, the explanation under it */
+      /* round 7b (director: "the aquarium should be bigger without ruining the menu sizes"): only the tank (and upright the tabs) is
+         pinned; the earnings strip heads the scrolling column, which gives its height to the tank */
+      const pin=document.createElement('div'); pin.className='aq07-pin'; tank.before(pin); pin.appendChild(tank); pin.appendChild(nav);
+      const head=P.querySelector(':scope > .mb-aqh, :scope > .dl-head'); if(head&&!document.body.classList.contains('phone-land')) pin.after(head); /* upright: the tank comes first, the explanation under it */
       const addB=document.createElement('button'); addB.type='button'; addB.className='aq07-addtab'; addB.setAttribute('role','tab'); addB.setAttribute('aria-selected',AQ_ADD?'true':'false'); addB.innerHTML='Add fish'+(S.cooler.length?' <span class="aq07-n">'+S.cooler.length+'</span>':''); nav.appendChild(addB);
-      addB.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); if(AQ_ADD) return; AQ_ADD=true; renderPanel(); try{ $('panel').scrollTop=0; }catch(er){} });
-      nav.querySelectorAll('[data-sect]').forEach(b=>b.addEventListener('click',()=>{ if(!AQ_ADD) return; AQ_ADD=false; setTimeout(()=>{ try{ renderPanel(); }catch(er){} },0); },true)); /* the section switch only toggles visibility, so leaving Add fish rebuilds the page */
-      if(AQ_ADD){ nav.querySelectorAll('[data-sect]').forEach(b=>b.setAttribute('aria-selected','false')); [...P.children].forEach(c=>{ if(c!==pin&&!c.classList.contains('crumb')) c.style.display='none'; }); pin.insertAdjacentHTML('afterend',addHTML()); paintFish(P); }
       /* everything after the pinned block goes into one column (sideways it is the right-hand column next to the pinned tank) */
       const side=document.createElement('div'); side.className='aq07-side'; [...P.children].filter(c=>c!==pin&&!c.classList.contains('crumb')).forEach(c=>side.appendChild(c)); pin.after(side);
-      /* sideways the left column is only the tank and the earnings strip (so it always fits the height); the tabs head the right column */
-      if(document.body.classList.contains('phone-land')) side.prepend(nav);
+      if(bank){ bank.classList.add('aq07-bank'); side.prepend(bank); }
+      if(document.body.classList.contains('phone-land')) side.prepend(nav); /* sideways the tabs head the right column */
+      /* Add fish is built hidden with the page and switched by visibility like the other two tabs (it used to rebuild the whole page,
+         about 40 ms, and restart the tank) */
+      const tmp=document.createElement('div'); tmp.innerHTML=addHTML(); const add=tmp.firstElementChild; if(bank) bank.after(add); else if(nav.parentNode===side) nav.after(add); else side.prepend(add); let painted=false;
+      const show=on=>{ AQ_ADD=on; addB.setAttribute('aria-selected',on?'true':'false'); add.classList.toggle('aq07-off',!on); [...side.children].forEach(c=>{ if(c!==add&&c!==nav&&c!==bank) c.classList.toggle('aq07-off',on); }); if(on){ nav.querySelectorAll('[data-sect]').forEach(b=>b.setAttribute('aria-selected','false')); if(!painted){ painted=true; paintFish(add); } } };
+      addB.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); if(!AQ_ADD){ show(true); try{ P.scrollTop=0; }catch(er){} } });
+      nav.querySelectorAll('[data-sect]').forEach(b=>b.addEventListener('click',()=>{ if(AQ_ADD) show(false); },true));
+      show(AQ_ADD);
+      P.dataset.aqLand=document.body.classList.contains('phone-land')?'1':'0'; /* which layout this page was built for */
     }catch(e){ console.error(e); } return r; };
-  /* turning the phone while the aquarium is open rebuilds it for the new layout */
-  let wasLand=null; addEventListener('resize',()=>{ const l=document.body.classList.contains('phone-land'); if(wasLand!==null&&l!==wasLand&&MOB()&&S.tab==='aquarium'){ setTimeout(()=>{ try{ renderPanel(); }catch(e){} },120); } wasLand=l; }); }
+  /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles, against the layout
+     the page was built for, so the very first turn counts too) */
+  let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){} },160); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the pinned block: tank, earnings strip, tabs */
 html body.phone-app #menuov #panel.aq07 > .aq07-pin,html body.phone-land #menuov #panel.aq07 > .aq07-pin{position:sticky;top:0;z-index:6;display:flex;flex-direction:column;gap:8px;background:#0b1626;padding:0 0 8px;box-shadow:0 10px 12px -10px #000c}
@@ -122,4 +130,21 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.aq07 .aq07-pin > .sect-nav,html body.phone-land #menuov #panel.aq07 .aq07-pin > .sect-nav{position:static!important;box-shadow:none!important}
 html body.phone-app #menuov #panel.aq07 .sect-nav.stuck::before,html body.phone-land #menuov #panel.aq07 .sect-nav.stuck::before{display:none!important}
 html body.phone-land #menuov #panel.aq07 .aq07-side > .sect-nav.stuck{box-shadow:0 0 0 6px #0b1626,0 10px 10px -6px #000c!important}
+</style>`);
+// ---------- the tank keeps running through every re-render (director: "each sub menu in aquarium lags the preview"): trying, placing,
+// buying or adding a fish rebuilds the page, which used to throw the tank's canvas away (it came back blank at a default size and
+// redrew from scratch). The live canvas is now carried into the new page, so the tank never blinks or restarts. ----------
+{ const _rp=renderPanel; renderPanel=function(){ const keep=(MOB()&&S.tab==='aquarium')?$('tankcv'):null; const r=_rp.apply(this,arguments);
+    try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app #menuov #panel.aq07 .aq07-off,html body.phone-land #menuov #panel.aq07 .aq07-off{display:none!important}
+html body.phone-app #menuov #panel.aq07 .aq07-side > .aq07-bank,html body.phone-land #menuov #panel.aq07 .aq07-side > .aq07-bank{margin:0 0 10px!important}
+/* bigger tank: upright it takes the room the earnings strip had (about 36% of the screen height); sideways it fills the whole left column */
+html body.phone-app #menuov #panel.aq07 .aq07-pin > .tank{height:clamp(220px,37dvh,340px)!important;max-height:none!important}
+html body.phone-app #menuov #panel.aq07 .aq07-pin > .tank > canvas,html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank > canvas{width:100%!important;height:100%!important;display:block}
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #panel.aq07 .aq07-pin{gap:6px}
+  html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{height:calc(100dvh - 66px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;max-height:none!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-pin:has(> .aq07-try) > .tank{height:calc(100dvh - 124px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
 </style>`);

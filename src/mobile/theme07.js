@@ -166,3 +166,34 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.phone-land.dock-mini #menuov .mo-back span:not(.mo-bi),html body.phone-land.dock-mini #menuov #tabs .cdmini .cdml,html body.phone-land.dock-mini #catdock .cdmini .cdml{display:none!important}
 }
 </style>`);
+// ---------- round 7b (director: "it's hard to tell what's clickable; clicking bait is obvious, the whole top panel doesn't look
+// clickable"; "the main scene UI appears in multiple places"):
+//  - every top-bar chip that opens something now looks like a button: teal outline, a lighter raised surface, a small arrow after its
+//    label and a pressed state. Plain information (coins, level) is flat text with no box, so the difference is obvious at a glance.
+//  - upright, the chip drawn on the water no longer repeats the water's name (the top bar shows it); it keeps time and weather. ----------
+{ const B=(s)=>s.split(',').map(x=>'html body.phone-app '+x.trim()+',html body.phone-land '+x.trim()).join(',');
+document.head.insertAdjacentHTML('beforeend',`<style>
+${B('.hud > .hud-link,.hud > button.stat,.hud > #goalchip,.hud > .hudbtns > button')}{background:linear-gradient(180deg,#1b3550,#13263b)!important;border:1px solid #7fe3c48c!important;box-shadow:inset 0 1px 0 #ffffff1f,0 2px 0 #06101c!important}
+${B('.hud > .hud-link:active,.hud > button.stat:active,.hud > #goalchip:active,.hud > .hudbtns > button:active')}{transform:translateY(1px);box-shadow:inset 0 1px 0 #ffffff14!important;border-color:#7fe3c4!important}
+${B('.hud > .hud-link .lbl,.hud > button.stat .lbl,.hud > #goalchip .gl-k')}{color:#7fe3c4!important}
+${B('.hud > .hud-link .lbl::after,.hud > button.stat .lbl::after,.hud > #goalchip .gl-k::after')}{content:" ›";font-weight:900;letter-spacing:0}
+${B('.hud > .st-aq.ready')}{border-color:#ffe6a3!important}
+${B('.hud > .st-aq.ready .lbl')}{color:#5a3a08!important}
+${B('.hud > .st-coins,.hud > .st-lvl')}{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+</style>`); }
+{ const _dsc=drawSceneChip; drawSceneChip=function(p,wx){ if(!document.body.classList.contains('phone-app')) return _dsc.apply(this,arguments);
+    const tag=WX_TAG[wx.k]; const txt=tod(p)+' · '+wxName(wx.k)+(tag?' ('+tag+')':'')+' · '+mmss(wxLeft()); const col=wx.k==='Gilded'?'#ffc94d':tag?'#bfe8ff':'#e6efe8';
+    g.textAlign='left'; g.font='700 11px "Bricolage Grotesque", system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,tw+18,22,11); g.fill(); g.fillStyle=col; g.fillText(txt,19,25); }; }
+// upright the top-bar chips are narrow: the teal outline alone marks them (the arrow only shows sideways, where there is room)
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app .hud > .hud-link .lbl::after,html body.phone-app .hud > button.stat .lbl::after,html body.phone-app .hud > #goalchip .gl-k::after{content:none!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app .hud > .stat .lbl,html body.phone-app .hud > #goalchip .gl-k{letter-spacing:.15px!important}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){
+  html body.phone-land .hud > .hud-link .lbl::after,html body.phone-land .hud > button.stat .lbl::after,html body.phone-land .hud > #goalchip .gl-k::after{content:none!important}
+  html body.phone-land .hud > .stat .lbl,html body.phone-land .hud > #goalchip .gl-k{letter-spacing:.15px!important}
+}
+</style>`);

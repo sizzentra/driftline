@@ -107,3 +107,14 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Aquarium (pinned tank, earnings strip, Add fish tab) | `mobile/aquarium07.js` (wraps `renderPanel`, moves `.tank`, `.bank`, `.sect-nav` into `.aq07-pin`, rest into `.aq07-side`; sideways the tabs move to the top of `.aq07-side` and the tank height is capped; turning the phone re-renders; Decorate: tap a card to try (`aqpv`) or place, the `.pvbar` try-on bar moves under the tank, a tried decoration gets the widest free spot in `S.aq.pos`, `#tankcv.scrollIntoView` is a no-op there) | phones only; `x_sections.js` keeps working because elements are moved, not copied; leaving Add fish re-renders. Old `mobile/ui_aquarium_land.js` rules no longer match (`#panel:has(> .tank)`) |
 | Top-bar taps on finger lift | `bm_ui04.js` NAV list (menu buttons + `.hud` chips) | iPhone missed clicks; PC (mouse) untouched |
 | Menu note position (iPhone sideways) | `ios/ui_homescreen.js` (`#toast` at the bottom like Android, top auto) | with both top and bottom set it stretched over the whole menu ("Bought…", "Claimed…" messages) |
+
+### Phone look round 7b (2026-11-18)
+| Piece | Defined in | Notes |
+|---|---|---|
+| Aquarium pinned block | `mobile/aquarium07.js` | pinned = tank (+ tabs upright); earnings strip heads `.aq07-side`; tank height upright `clamp(220px,37dvh,340px)`, sideways the full column (`100dvh - 66px`, less while a try-on bar shows) |
+| Aquarium tab switching | `mobile/aquarium07.js` (`show()`) | Add fish is built hidden and toggled by the `.aq07-off` class (never a re-render); Your tank / Decorate stay with `x_sections.js` |
+| Tank canvas survives re-renders | `mobile/aquarium07.js` (last `renderPanel` wrapper) | the old `#tankcv` replaces the new one after every render; anything that needs a fresh tank canvas must remove it first |
+| Rotation rebuild | `mobile/aquarium07.js` (`P.dataset.aqLand` + debounced resize) | the body's phone-land class changes a moment after the resize event |
+| Tappable top-bar chips | `mobile/theme07.js` (round 7b block) | teal outline + raised surface on `.hud-link`, `button.stat`, `#goalchip`, `.hudbtns` buttons; arrow after the label sideways only; coins/level flat. A new tappable chip needs one of those classes |
+| Scene chip on the water (upright) | `mobile/theme07.js` (wraps `drawSceneChip` from `bm_ui04.js`) | one line (time · weather · time left); the water's name is in the top bar |
+| Test hook | `bn_qa04.js` `__prof(names, fn, n)` | times named functions while `fn` runs (preview only) |
