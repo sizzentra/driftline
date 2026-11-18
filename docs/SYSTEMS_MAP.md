@@ -117,4 +117,4 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Rotation rebuild | `mobile/aquarium07.js` (`P.dataset.aqLand` + debounced resize) | the body's phone-land class changes a moment after the resize event |
 | Tappable top-bar chips | `mobile/theme07.js` (round 7b block) | teal outline + raised surface on `.hud-link`, `button.stat`, `#goalchip`, `.hudbtns` buttons; arrow after the label sideways only; coins/level flat. A new tappable chip needs one of those classes |
 | Scene chip on the water (upright) | `mobile/theme07.js` (wraps `drawSceneChip` from `bm_ui04.js`) | one line (time · weather · time left); the water's name is in the top bar |
-| Test hook | `bn_qa04.js` `__prof(names, fn, n)` | times named functions while `fn` runs (preview only) |
+| Test hook | `bn_qa04.js` `__fnTime(names, fn, n)` | times named functions while `fn` runs (preview only) |
