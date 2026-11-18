@@ -1,6 +1,9 @@
 // PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'Alive and Well Dressed', items:[
+  '## Smoother frames',
+  'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
+  'Storm waves on the open sea draw in a handful of shapes instead of hundreds.',
   '## Fairer streaks',
   'Reeling in early, casting by accident or missing a strike never costs you anything: your streak stays. A streak only ends when a fish you have hooked gets away (a snapped line, a fish that slips off or runs out your line).',
   'On a Roll, fully learned: a lost fish now only halves your streak instead of ending it.',

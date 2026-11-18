@@ -14,18 +14,25 @@ const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')|
   const _dt=drawTank; drawTank=function(now){ if(MOB()){ const t=performance.now(); if(t<scrollUntil) return; if(t-lastT<15) return; lastT=t; /* full rate (round 6, director: more frames); still pauses while scrolling */ } return _dt.apply(this,arguments); }; }
 
 // 3) steady frame rate: the water's resolution follows how the phone keeps up. If frames drop for a few seconds (a storm, a
-//    big fight), the water is drawn a little less sharp until the phone keeps up again; never more than two steps.
+//    big fight), the water is drawn a little less sharp until the phone keeps up again (round 7: five steps, see below).
 let MOB_DPR_CAP=2;
 { const _rd=renderDPR; renderDPR=function(w,h){ const d=_rd(w,h); return MOBDPR_ON()?Math.min(d,MOB_DPR_CAP):d; };
   function MOBDPR_ON(){ return MOB(); }
-  const steps=[2,1.6,1.3]; let i=0, acc=0, n=0, slow=0, fast=0, last=0;
-  const tick=t=>{ requestAnimationFrame(tick); if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; } if(last){ const dt=t-last; if(dt<200){ acc+=dt; n++; } } last=t;
-    if(n>=60){ const avg=acc/n; acc=0; n=0;
-      if(avg>21){ slow++; fast=0; if(slow>=2&&i<steps.length-1){ i++; slow=0; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} } }
-      else if(avg<15){ fast++; slow=0; if(fast>=8&&i>0){ i--; fast=0; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} } }
+  // round 7 (director, Pixel 10: ~50 fps on the first waters, 20-30 on others, under 20 in storms): finer steps, it reacts below
+  // ~54 fps (was 48, so a phone holding 50 never got help), each water remembers the sharpness it settled on (switching back starts
+  // there instead of slow again), and the first second after a water change is not counted (one-off loading work).
+  const steps=[2,1.75,1.5,1.3,1.15]; let i=0, acc=0, n=0, slow=0, fast=0, last=0, loc='', skipUntil=0; const byLoc={};
+  const setStep=k=>{ k=Math.max(0,Math.min(steps.length-1,k)); if(k===i) return; i=k; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} };
+  const tick=t=>{ requestAnimationFrame(tick); if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
+    if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+1000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
+    if(t<skipUntil){ last=t; return; }
+    if(last){ const dt=t-last; if(dt<200){ acc+=dt; n++; } } last=t;
+    if(n>=45){ const avg=acc/n; acc=0; n=0;
+      if(avg>18.5){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
+      else if(avg<14){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
       else { slow=0; fast=0; } } };
   requestAnimationFrame(tick);
-  if(/[?&]test\b/.test(location.search)) window.__mobperf=()=>({cap:MOB_DPR_CAP, step:i}); }
+  if(/[?&]test\b/.test(location.search)) window.__mobperf=()=>({cap:MOB_DPR_CAP, step:i, byLoc:Object.assign({},byLoc)}); }
 
 // 4) live events never move the game frame (director: "some live events on Android move the game frame as the counter moves
 //    down while in portrait mode, seen with Market Rush"): the goal / live chip keeps to one line, digits keep the same width,

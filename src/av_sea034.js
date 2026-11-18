@@ -80,10 +80,17 @@ function m34ghost(P,t,hz){ const per=105, k=(t%per)/per, cyc=Math.floor(t/per), 
 
 // ---------- storms at sea: steep short chop, foam streaks, and squalls that smear the view ----------
 function m34chop(P,t,hz,mult){ const st=seaStormK()*mult; if(st<.02) return; const FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7), N=Math.round((FX?70:30)*Math.min(1.6,st)*gfxK());
+  // 2026-11-18 (director: storms drop frames, most on the open sea): every wave used to be two separate fills and a stroke, each
+  // with its own colour string (about 360 fills a frame). The waves now go into a few shared shapes: one fill for all the shadow
+  // sides, one for all the lit faces, and the foam crests in three strengths and three widths. Same picture, a handful of draws.
+  const st1=Math.min(1,st), cShade=v3rgba(P.wBot,.3*st1), cLit=v3rgba(mix(P.wTop,P.wMid,.3),.5*st1);
+  const shade=new Path2D(), lit=new Path2D(), foamP=[0,1,2].map(()=>[0,1,2].map(()=>new Path2D())), foamN=[[0,0,0],[0,0,0],[0,0,0]];
   for(let i=0;i<N;i++){ const r1=((Math.sin(i*12.9898)*43758.5453)%1+1)%1, r2=((Math.sin(i*78.233+4.1)*24634.6345)%1+1)%1, y=hz+H*.015+Math.pow(r2,1.5)*(H-hz)*.95, u=(y-hz)/(H-hz), l=W*(.006+u*.03), x=((r1*W+t*W*(.04+u*.09))%(W*1.12))-W*.06, hb=Math.sin(t*(2.6+(i%5)*.4)+i*1.7), h=l*(.12+.1*hb)*Math.min(1.4,st);
-    if(h<=0) continue; g.fillStyle=v3rgba(P.wBot,.3*Math.min(1,st)); g.beginPath(); g.moveTo(x-l*.6,y+h*.4); g.quadraticCurveTo(x,y+h*1.3,x+l*.6,y+h*.4); g.closePath(); g.fill();
-    g.fillStyle=v3rgba(mix(P.wTop,P.wMid,.3),.5*Math.min(1,st)); g.beginPath(); g.moveTo(x-l*.6,y+h*.4); g.quadraticCurveTo(x-l*.1,y-h,x+l*.5,y+h*.3); g.closePath(); g.fill();
-    if(hb>.35){ g.strokeStyle=v3rgba(foam,(hb-.35)*.9*Math.min(1,st)); g.lineWidth=Math.max(1,u*2.2); g.beginPath(); g.moveTo(x-l*.3,y-h*.45); g.quadraticCurveTo(x-l*.05,y-h*.9,x+l*.3,y-h*.2); g.stroke(); } }
+    if(h<=0) continue; shade.moveTo(x-l*.6,y+h*.4); shade.quadraticCurveTo(x,y+h*1.3,x+l*.6,y+h*.4); shade.closePath();
+    lit.moveTo(x-l*.6,y+h*.4); lit.quadraticCurveTo(x-l*.1,y-h,x+l*.5,y+h*.3); lit.closePath();
+    if(hb>.35){ const a=Math.min(2,Math.floor((hb-.35)/.65*3)), wq=Math.min(2,Math.floor(u*3)); const fp=foamP[a][wq]; foamN[a][wq]++; fp.moveTo(x-l*.3,y-h*.45); fp.quadraticCurveTo(x-l*.05,y-h*.9,x+l*.3,y-h*.2); } }
+  g.fillStyle=cShade; g.fill(shade); g.fillStyle=cLit; g.fill(lit);
+  for(let a=0;a<3;a++) for(let wq=0;wq<3;wq++){ if(!foamN[a][wq]) continue; g.strokeStyle=v3rgba(foam,((a+.5)/3*.65)*.9*st1); g.lineWidth=Math.max(1,((wq+.5)/3)*2.2); g.stroke(foamP[a][wq]); }
   if(!FX) return;
   // rain squalls: grey curtains sweeping across, hiding the horizon as they pass
   const SQ=mult>1.2?4:3; for(let i=0;i<SQ;i++){ const sp=.012+i*.004, cx=(((i*.37+t*sp)%1.5)-.25)*W, cw=W*(.14+i*.05), A=.16*Math.min(1.2,st)*(.7+.3*Math.sin(t*.4+i));

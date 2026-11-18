@@ -127,3 +127,12 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | On a Roll max text | `d5_v16.js` `streaker:` | "A lost fish only halves your streak" |
 | Challenge counts | `bk_events036.js` `CHAL.<id>.onLost(c)` (called from the `endFight` wrapper at the end of that file) | Steady Hands: a late hook does not count, a hooked fish that gets away resets (`nohook` is skipped in the wrapper). Any new "in a row" counter must reset in `onLost`, never in `onCatch` |
 | Scenario hook | `bn_qa04.js` `__inGame(code)` | runs code in the game's scope (preview + ?test only) |
+
+## Frame smoothness (round 7, 2026-11-18)
+| Piece | Defined in | Rule |
+|---|---|---|
+| Willow (Willow Pond) | `f3_foliage.js` `v3willow` / `v3willowDraw(c,P,t,hz,part)` | three cached slices in drawing order, one refreshed per frame (even load, ~1,000 strokes each frame instead of 2,700 every third); layers cover only the measured tree area. `part` undefined still draws the whole tree (any other caller) |
+| Open-sea storm chop | `av_sea034.js` `m34chop` | waves batched into Path2D shapes (2 fills + up to 9 foam strokes per frame instead of ~360 fills) |
+| Combined overlay (phones) | `mobile/perf07.js` | finVignette + drawVignette + storm / rain darkening in one cached ≤600 px picture drawn in `drawVignette`; `window.__noVig` skips the separate one in `v3Fore`; storm/rain full-screen rects inside `drawWeatherX0` are skipped on phones. A new full-screen weather tint must be added here for phones |
+| Automatic sharpness (phones) | `mobile/perf_round6.js` section 3 | steps 2 / 1.75 / 1.5 / 1.3 / 1.15; down below ~54 fps, up above ~71; remembered per water; first second after a water change ignored. `__mobperf()` shows it |
+| Measuring tools (preview, ?test) | `bn_qa04.js` `__inGame`, `__fnTime`; `f_v3scene.js` `__drawCost`, `__landCost`; `af_smooth.js` `__landSplit`, `__timeFns` | synchronous loops batch GPU work: confirm spikes with a timer-driven real-time loop before acting |

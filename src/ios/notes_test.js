@@ -1,6 +1,10 @@
 // iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the iPhone test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy Aquarium', items:[
+  '## Smoother frames',
+  'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
+  'Storms are lighter: the darkening and the soft frame around the picture are drawn in one layer instead of up to four, and storm waves on the open sea draw in a handful of shapes instead of hundreds.',
+  'If a water or a storm is too heavy for your phone, the picture gets a touch softer sooner and in smaller steps, and each water remembers what suits your phone, so coming back is smooth straight away.',
   '## Fairer streaks',
   'Reeling in early, casting by accident or missing a strike never costs you anything: your streak stays. A streak only ends when a fish you have hooked gets away (a snapped line, a fish that slips off or runs out your line).',
   'On a Roll, fully learned: a lost fish now only halves your streak instead of ending it.',

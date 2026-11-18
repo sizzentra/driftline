@@ -53,9 +53,9 @@ function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.cli
     c.strokeStyle='rgba(255,246,230,'+(.1*k)+')'; c.lineWidth=Math.max(.3,W*.035); c.beginPath(); c.moveTo(x0+W*.64,y0+H*.22); c.quadraticCurveTo(x0+W*.72,y0+H*.42,x0+W*.68,y0+H*.62); c.stroke(); }
   c.restore(); }
 // a woven texture (twill) for clothes, sized to the screen's pixels so it stays fine at any zoom
-let A3WEAVE=null;
+let A3WEAVE=null; const A3WEAVE_P=new WeakMap(), A3WEAVE_M=new DOMMatrix();
 function a3Weave(c,x0,y0,x1,y1,a){ if(!A3WEAVE){ const n=6, cv=document.createElement('canvas'); cv.width=cv.height=n; const x=cv.getContext('2d'); for(let i=0;i<n;i++){ x.fillStyle='rgba(0,0,0,.55)'; x.fillRect(i,(i*2)%n,1,1); x.fillStyle='rgba(255,255,255,.4)'; x.fillRect(i,(i*2+3)%n,1,1); } A3WEAVE=cv; }
-  const m=c.getTransform(), p=c.createPattern(A3WEAVE,'repeat'); if(p.setTransform&&m.a) p.setTransform(new DOMMatrix().scale(1/Math.hypot(m.a,m.b)));
+  const m=c.getTransform(); let p=A3WEAVE_P.get(c); if(!p){ p=c.createPattern(A3WEAVE,"repeat"); A3WEAVE_P.set(c,p); } /* 2026-11-18: one pattern per canvas, reused (a new one about 10 times a frame caused regular hitches) */ if(p.setTransform&&m.a){ const k=1/Math.hypot(m.a,m.b); A3WEAVE_M.a=k; A3WEAVE_M.b=0; A3WEAVE_M.c=0; A3WEAVE_M.d=k; A3WEAVE_M.e=0; A3WEAVE_M.f=0; p.setTransform(A3WEAVE_M); }
   c.save(); c.globalAlpha*=a; c.fillStyle=p; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
 
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
