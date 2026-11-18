@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_VERSION='2026.11.17-1723';
+window.DL_VERSION='2026.11.17-1818';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1512,11 +1512,14 @@ const sfx = {
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(280,r.width); const portrait=window.innerHeight>window.innerWidth*1.15;
   const fs=!!document.fullscreenElement, shortLand=!portrait && window.innerHeight<560; const app=portrait&&window.innerWidth<=700; /* 0.3.5.2: phones held upright use the one-screen layout, so the water leaves room for the menu */ const maxH=portrait?window.innerHeight*(app?.40:.56):shortLand?window.innerHeight-70:Math.max(520,window.innerHeight*(fs?.8:.66));
-  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=Math.min(2,window.devicePixelRatio||1);
+  H=clamp(Math.round(W*(portrait?(app?.74:.82):fs?.56:shortLand?.62:.5)),shortLand?180:app?200:250,Math.round(maxH)); if(typeof stageHOverride==="function"){ const o=stageHOverride(W,H); if(o) H=o; } DPR=renderDPR(W,H);
   // resizing a canvas wipes it: skip when nothing changed, and draw the scene again at once so a blank frame never shows (folding the side panels flashed)
   if(cv.width===Math.floor(W*DPR)&&cv.height===Math.floor(H*DPR)&&cv.style.height===H+'px'){ g.setTransform(DPR,0,0,DPR,0,0); return; }
   cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0);
   if(resize.live){ resize.force=true; try{ draw(performance.now()); }catch(e){} resize.force=false; } }
+// drawing size: the screen's sharpness (at most 2x), but a very large picture on a high-scaling PC screen is capped at about 3.2 million
+// pixels (never below normal sharpness), so big full-screen windows stay smooth on fast monitors
+function renderDPR(w,h){ let d=Math.min(2,window.devicePixelRatio||1); const cap=3.2e6; if(d>1&&w*h*d*d>cap) d=Math.max(1,Math.sqrt(cap/(w*h))); return Math.round(d*100)/100; }
 new ResizeObserver(resize).observe(cv.parentElement); resize();
 const HZ = () => H*.42;
 const TIP = () => ({x:W*.215, y:H*.27});
@@ -2665,7 +2668,7 @@ function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class=
      ${tg('musicOn','Music','Calm music that plays while you fish.')}${tg('ambient','Nature sounds','Waves, birds, crickets and wind for each water.')}
      <h5>Music style</h5><div class="chips">${styles.map(([k,n])=>`<button class="chipb" data-act="mstyle" data-k="${k}" aria-pressed="${s.style===k}">${n}</button>`).join('')}</div></div>
    ${V3ON?`<div class="tile"><h4>Controls</h4><h5>Casting</h5><div class="chips"><button class="chipb" data-act="castmode" data-k="meter" aria-pressed="${s.castMode!=='aim'}">Power meter</button><button class="chipb" data-act="castmode" data-k="aim" aria-pressed="${s.castMode==='aim'}">Tap to aim</button></div><div class="meta" style="margin-top:6px">${s.castMode==='aim'?'Tap the spot on the water you want. The line lands close to it, never quite perfect.':'Hold to fill the meter, let go at the right moment.'}</div>${tg('vibrate','Vibration','Phones buzz on a bite, when the line is close to snapping, and on a catch.')}<div class="meta" style="margin-top:6px">Reel by <b>holding</b>, by <b>drawing circles</b> on the water like a crank, or with the <b>mouse wheel</b>. Controllers work too: <b>A</b> casts and reels, the <b>right trigger</b> reels with pressure.</div></div>`:''}
-   <div class="tile"><h4>Display</h4>${tg('effects','Weather effects','Rain, snow, lightning flashes and sparkles.')}${tg('boostsOnScreen','Boost timers on screen','Show active boosts in the corner of the water.')}${tg('hints','Hints','The help line under the water.')}
+   <div class="tile"><h4>Display</h4>${tg('effects','Weather effects','Rain, snow, lightning flashes and sparkles.')}${tg('boostsOnScreen','Boost timers on screen','Show active boosts in the corner of the water.')}${tg('hints','Hints','The help line under the water.')}${tg('showFps','Frame rate','Shows how many frames per second the game draws, in the corner of the water.')}
      <div class="toggle"><div><b>Full screen</b><div class="meta">Fill the whole screen with the game.</div></div><button class="btn alt sm" data-act="fullscreen">Toggle</button></div></div>
    <div class="tile"><h4>Gameplay</h4>${tg('protectRare','Protect rare fish','“Sell all” keeps Epic, Legendary and shiny fish in your cooler.')}${tg('minigames','Mini-games','Now and then a mini-game pops up between catches. Turn this off and they never will.')}
      </div>
@@ -2780,8 +2783,9 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.3';
+const GAME_VERSION = '0.4.4';
 const PATCHES = [
+{v:'0.4.4', name:'PC Polish', items:['PC: clicking Back to fishing, the categories and the page tabs in the menu works again.','Tapping your next goal takes you to the right place: the Fish Log opens on the water the goal is about.','Phones: the top bar has a search button, and the Settings page no longer shows a second gear.','PC: the fishing screen now has the same top bar as the menu, in the same place. The categories sit at the top next to your coins, search and settings, your stats sit right under them, and the water reaches all the way down.','PC: opening and closing the menu is smoother: the top bar stays perfectly still and only the page below changes.','PC: the Dock preview is drawn at full sharpness on big screens.','Settings is labelled next to its gear on PC and on phones held sideways, so it is easy to spot.','PC: much smoother. Sunsets, sunrises and weather changes no longer cause hitches, the first minute after starting is smooth too, and very large or high-resolution screens keep up with fast monitors.','PC: dusk, dawn and weather changes flow smoothly, with many more, smaller steps.','PC: menu pages fit the screen at once: a page that is a little too tall scales itself down to fit, and the Dock and aquarium previews are sized for the screen.','The Dock preview is live: the time of day and every animation keep moving while you decorate.','New in Settings, Display: Frame rate shows how smoothly the game runs.']},
 {v:'0.4.3', name:'Quick Links', items:['Tap Fishing at in the top bar to choose a water, and tap Cooler to open your cooler, just like Aquarium and Fish Log.','Bait has moved off the top bar: choose it on the Bait list in Tackle, which shows the bait you are using.','Settings has its own gear in the top bar on phones, held upright or sideways.','Fish Log stays in the top bar on every phone held sideways, including the Home Screen app.']},
 {v:'0.4.2', name:'iPhone Hotfix', items:['iPhone: holding your finger on the water to reel no longer brings up the magnifier bubble, in Safari and in the Home Screen app.']},
 {v:'0.4.1', name:'Catching Up', items:[  'Back after a while? The update notes now show everything that arrived while you were away, all in one place, newest first.',  'The 0.4 notes now start with the biggest additions: new fish, voyages, events and more.', ]},
@@ -4849,7 +4853,7 @@ function v3palette(id,night,dusk,gloom){
   // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
   const fk=id+'|'+Math.round(night*60)+'|'+Math.round(dusk*40)+'|'+Math.round(gloom*30);
   if(v3palette.k===fk) return v3palette.v;
-  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:id+'|'+Math.round(night*14)+'|'+Math.round(dusk*9)+'|'+Math.round(gloom*6)} /* 0.3.4: finer light steps, so each fade is smaller */;
+  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:(()=>{ const s=v3steps(); return id+'|'+Math.round(night*s[0])+'|'+Math.round(dusk*s[1])+'|'+Math.round(gloom*s[2]); })()} /* 0.3.4: finer light steps, so each fade is smaller */;
   for(const k in P.day){ let c=mix(P.day[k],P.night[k],night); if(d>0) c=mix(c,P.dusk[k],d); if(gloom>0) c=mix(c,'#59616b',gloom*.6); o[k]=c; }
   o.d=d; o.night=night; o.gloom=gloom; v3palette.k=fk; v3palette.v=o; return o;
 }
@@ -4888,12 +4892,18 @@ function v3rgba(hex,a){ const v=hex2rgb(rgb2hex(hex)); return 'rgba('+v[0]+','+v
 
 // ---------- offscreen cache for the still parts ----------
 let V3CACHE=null, V3PREV=null;
-const V3FADE=3.4; // seconds a new light level takes to fade in over the old one
+// light steps: PC (the PC header layout) gets twice as many smaller steps with a shorter fade, so dusk, dawn and weather flow
+// smoothly; light changes are redrawn between frames, so the extra steps never make a frame late. Phones keep the original steps.
+function v3steps(){ return document.body.classList.contains('pch-on')?[24,16,12]:[14,9,6]; }
+function v3fade(){ return document.body.classList.contains('pch-on')?1.8:3.4; } // seconds a new light level takes to fade in
 function v3land(L,P,hz){
   const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key;
   if(V3CACHE && V3CACHE.key===key) return V3CACHE;
   // only the light changed (same place and size): keep the old picture to fade from; otherwise start clean
   const same=V3CACHE && V3CACHE.base===L.id+'|'+W+'|'+H+'|'+DPR;
+  // a light change is redrawn between frames, not inside one (the new light fades in over 3.4 s anyway), so it never makes a
+  // frame late on fast monitors; a new water or a new size is still drawn at once
+  if(same&&!v3land.now){ if(!v3land.q){ v3land.q=setTimeout(()=>{ v3land.q=0; v3land.now=true; try{ v3land(L,P,hz); }catch(e){} v3land.now=false; },0); } return V3CACHE; }
   const spare=V3PREV&&V3PREV.c, old=V3CACHE;
   const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
   const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); /* still scenery at most 2x: sharp on every phone, far less to repaint */
@@ -4903,7 +4913,7 @@ function v3land(L,P,hz){
 }
 // the cached scenery, with the previous light level fading out on top while a new one comes in
 function v3landDraw(L,P,hz){ const C=v3land(L,P,hz); g.drawImage(C.c,0,0,W,H);
-  if(V3PREV){ const k=(performance.now()-V3PREV.t0)/1000/V3FADE; if(k>=1) V3PREV.t0=-1e12; else { g.globalAlpha=1-v3s(k); g.drawImage(V3PREV.c,0,0,W,H); g.globalAlpha=1; } } }
+  if(V3PREV){ const k=(performance.now()-V3PREV.t0)/1000/v3fade(); if(k>=1) V3PREV.t0=-1e12; else { g.globalAlpha=1-v3s(k); g.drawImage(V3PREV.c,0,0,W,H); g.globalAlpha=1; } } }
 
 // =====================================================================
 // WILLOW POND
@@ -6910,7 +6920,7 @@ const THUMB_Q={busy:false};
 function thumbIdle(fn){ (window.requestIdleCallback||((f)=>setTimeout(()=>f({timeRemaining:()=>16}),120)))(fn,{timeout:1500}); }
 const THUMB_FAIL={};
 function thumbNext(){ const id=LOCS.map(l=>l.id).find(id=>V3SCENES[id]&&!V3THUMB[id]&&(THUMB_FAIL[id]||0)<2); if(!id){ THUMB_Q.busy=false; return; } THUMB_Q.busy=true;
-  thumbIdle(()=>{ if(G.st!=='idle'&&G.st!=='waiting'){ setTimeout(thumbNext,1500); return; } v3Thumb(id); if(!V3THUMB[id]) THUMB_FAIL[id]=(THUMB_FAIL[id]||0)+1; const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
+  thumbIdle(()=>{ if((G.st!=='idle'&&G.st!=='waiting')||!MENU_OPEN){ setTimeout(thumbNext,1500); return; } /* only while a menu is open (thumbnails are only seen there): never a hitch while fishing */ v3Thumb(id); if(!V3THUMB[id]) THUMB_FAIL[id]=(THUMB_FAIL[id]||0)+1; const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
 setTimeout(thumbNext,3000);
 v3WaterThumbs = function(P){ P.querySelectorAll('.loc .sw2').forEach((el,i)=>{ const L=LOCS[i]; if(!L) return; const u=V3THUMB[L.id]; if(u){ el.style.background='url('+u+') center/cover'; el.classList.add('v3th'); } }); if(!THUMB_Q.busy) thumbNext(); };
 // =====================================================================
@@ -11250,7 +11260,7 @@ const MENU_MORE={id:'more', name:'More', tabs:['settings','stats','save']}; // r
 function menuSecOf(tab){ return MENU_SECS.find(s=>s.tabs.includes(tab)) || (MENU_MORE.tabs.includes(tab)?MENU_MORE:null); }
 function menuTabBtn(t){ return $('tabs').querySelector(':scope > [data-tab="'+t+'"]'); }
 // the label of a page: the old tab's emoji + name; Settings has no tab button any more, so it is named here
-function menuTabLabel(t){ if(t==='settings') return ['⚙️','Settings']; const b=menuTabBtn(t), l=(b&&b.dataset.label)||t, i=l.indexOf(' '); return i>0?[l.slice(0,i),l.slice(i+1)]:['',l]; }
+function menuTabLabel(t){ if(t==='settings') return ['🎛️','Settings']; /* not a second gear: the gear button above already opens this section */ const b=menuTabBtn(t), l=(b&&b.dataset.label)||t, i=l.indexOf(' '); return i>0?[l.slice(0,i),l.slice(i+1)]:['',l]; }
 function menuTabsIn(sec){ return sec.tabs.filter(t=>t==='settings'||menuTabBtn(t)); }
 function menuDot(t){ const b=menuTabBtn(t), d=b&&b.querySelector('.dot'); return d?(parseInt(d.textContent,10)||0):0; }
 function menuLast(){ const s=S.settings; if(!s.secLast||typeof s.secLast!=='object') s.secLast={}; return s.secLast; }
@@ -12386,14 +12396,14 @@ body.pc-wide .wrap > #panel{grid-row:3}
 function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:'Hold on the water, let go to cast', tab:null};
   const i=LOCS.findIndex(L=>!S.unlocked.includes(L.id));
   if(i>0){ const L=LOCS[i], prev=LOCS[i-1], have=caughtAt(prev.id), cost=locCost(L);
-    if(have<L.need) return {t:'Find '+L.need+' species at '+prev.name, sub:have+' / '+L.need+' found, then '+fmtShort(cost)+' coins opens '+L.name, p:have/L.need, tab:'journal'};
+    if(have<L.need) return {t:'Find '+L.need+' species at '+prev.name, sub:have+' / '+L.need+' found, then '+fmtShort(cost)+' coins opens '+L.name, p:have/L.need, tab:'journal', loc:prev.id};
     if(S.money<cost) return {t:'Save '+fmtShort(cost)+' coins for '+L.name, sub:fmtShort(S.money)+' / '+fmtShort(cost), p:S.money/cost, tab:'map'};
     return {t:L.name+' is ready to open', sub:'Tap to go to Waters', p:1, tab:'map', ready:true}; }
   const here=SP.filter(s=>s.loc===S.loc), got=here.filter(s=>S.journal[s.id]).length;
-  if(got<here.length) return {t:'Fish Log: '+curLoc().name, sub:got+' / '+here.length+' species found here', p:got/here.length, tab:'journal'};
-  const all=SP.filter(s=>S.journal[s.id]).length; return {t:'Every species here found', sub:all+' / '+SP.length+' in the Fish Log', p:all/SP.length, tab:'journal'}; }
+  if(got<here.length) return {t:'Fish Log: '+curLoc().name, sub:got+' / '+here.length+' species found here', p:got/here.length, tab:'journal', loc:S.loc};
+  const all=SP.filter(s=>S.journal[s.id]).length; return {t:'Every species here found', sub:all+' / '+SP.length+' in the Fish Log', p:all/SP.length, tab:'journal', loc:S.loc}; }
 (function(){ const stage=$('stage'); if(!stage) return; const el=document.createElement('button'); el.id='goalchip'; el.type='button'; stage.appendChild(el);
-  el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; setTab(gl.tab); try{ menuSync(); }catch(er){} const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
+  el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(er){} /* open the page on the place the goal is about */ setTab(gl.tab); try{ menuSync(); }catch(er){} const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
   // in the top bar (fishing mode) the chip always shows, so the bar never shifts when a fight starts
   let last=''; const tick=()=>{ const show=(el.closest('.hud')||['idle','waiting','result','rest'].includes(G.st))&&!S.settings.hideGoal; let html='';
     if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':gl.live?'Live':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.classList.toggle('live',!!gl.live); el.title=(gl.sub?gl.sub+'. ':'')+(gl.tab?'Open the page for this goal':''); }
@@ -14129,7 +14139,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
   const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
   document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
-  document.addEventListener('pointerup',e=>{ lastTouch=performance.now(); const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
+  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); // a mouse never counts as touch (it used to, and swallowed every menu click on PC) downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
@@ -14170,30 +14180,181 @@ body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.04fr) minmax(0,1fr)
 body.phone-app.dl-fish .hud > .st-log{grid-column:5!important;grid-row:1!important;order:0!important;height:auto!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:0!important;padding-left:6px!important;padding-right:4px!important}
 body.phone-app.dl-fish .hud > .st-log .lbl{display:block!important}
 body.phone-app.dl-fish .hud > .st-log b::before{content:none!important}
-body.phone-app.dl-fish .hud > .hudbtns{display:flex!important;grid-column:6;grid-row:1;align-items:stretch;min-width:0}
-body.phone-app.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
-body.phone-app.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .hudbtns{display:contents!important}
+body.phone-app.dl-fish .hud > .hudbtns > #settingsbtn{grid-column:6;grid-row:1;width:100%;min-width:0;height:100%;padding:0!important}
+body.phone-app.dl-fish .hud > .hudbtns > #searchbtn{display:flex!important;grid-column:6;grid-row:2;width:100%;min-width:0;height:30px!important;padding:0!important;align-items:center;justify-content:center;font-size:15px}
+body.phone-app.dl-fish .hud > .hudbtns > #searchbtn .sbl{display:none!important}
 body.phone-app.dl-fish .hud > .stat.loc{display:flex!important;grid-column:1 / 3!important;grid-row:2!important;height:30px!important;flex-direction:row!important;align-items:center!important;gap:5px!important;min-width:0;overflow:hidden}
 body.phone-app.dl-fish .hud > .stat.loc .lbl{display:none!important}
 body.phone-app.dl-fish .hud > .stat.loc b{font-size:12.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 body.phone-app.dl-fish .hud > .stat.loc b::before{content:"📍 ";font-size:11px}
-body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 7!important;grid-row:2!important}
+body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 6!important;grid-row:2!important}
 /* phones sideways: one row, Fish Log at every width, a gear at the end */
 @media (orientation:landscape) and (max-height:560px){
-  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px!important;gap:5px!important}
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px 40px!important;gap:5px!important}
   html body.dl-fish .hud > .st-log{display:flex!important}
-  html body.dl-fish .hud > .hudbtns{display:flex!important;min-width:0}
-  html body.dl-fish .hud > .hudbtns #searchbtn{display:none!important}
-  html body.dl-fish .hud > .hudbtns #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
+  html body.dl-fish .hud > .hudbtns{display:contents!important}
+  html body.dl-fish .hud > .hudbtns > #searchbtn{display:flex!important;width:100%;min-width:0;padding:0!important;height:100%;align-items:center;justify-content:center;font-size:16px}
+  html body.dl-fish .hud > .hudbtns > #searchbtn .sbl{display:none!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{width:100%;min-width:0;padding:0!important;height:100%}
 }
 @media (orientation:landscape) and (max-height:560px) and (max-width:799px){
-  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px!important;gap:4px!important}
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px 36px!important;gap:4px!important}
   html body.dl-fish .hud > .st-log{display:flex!important}
 }
 /* tablets and windows 701-1099 px (two rows): the bait cell is gone */
 @media (min-width:701px) and (max-width:1099px) and (min-height:561px){
   html body.dl-fish .hud{grid-template-columns:minmax(0,1fr) minmax(0,.95fr) minmax(0,.85fr) minmax(0,1fr) minmax(0,.9fr) auto!important;grid-template-areas:"coins lvl cool aq lg btns" "loc loc goal goal goal goal"!important}
 }
+</style>`);
+// =====================================================================
+// PC header (director, 2026-11-17): on PC the fishing screen uses the same top row as the menu, in the same place, so opening
+// and closing the menu only changes what is below it. Row 1: Driftline | the five categories | coins, search, settings.
+// Row 2: level, where you fish, the goal, cooler, aquarium, Fish Log (the menu shows its page tabs on this row). The category
+// bar under the water is gone on PC and the water reaches down to the bottom. Phones and tablets are unchanged.
+// =====================================================================
+{ const wrap=document.querySelector('.wrap'), hud=document.querySelector('.hud'), stage=$('stage');
+  const PCH=document.createElement('div'); PCH.id='pchead';
+  PCH.innerHTML=`<div class="pch-brand" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 7-5 10-5 3 0 5 2 7 5-2 3-4 5-7 5-3 0-7-1-10-5z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16" cy="11" r=".9" fill="currentColor"/></svg><span>Driftline</span></div><div class="pch-cats"></div><div class="pch-tools"><span class="pch-coin" title="Coins"><span class="coin" id="pchcoin">0</span></span><button type="button" class="pch-tb" data-pch="search" aria-label="Search the menus" title="Search the menus">🔍</button><button type="button" class="pch-tb" data-pch="settings" aria-label="Settings" title="Settings">⚙</button></div>`;
+  if(wrap&&hud) wrap.insertBefore(PCH,hud);
+  const cats=PCH.querySelector('.pch-cats'), coin=PCH.querySelector('#pchcoin');
+  PCH.querySelector('.pch-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-pch]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const t=$(b.dataset.pch==='search'?'searchbtn':'settingsbtn'); if(t) t.click(); });
+  const label=(full)=>CD.querySelectorAll('.cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=full?sec.name:(sec.short||sec.name); if(l.textContent!==t) l.textContent=t; } });
+  const on=()=>{ const b=document.body.classList; return b.contains('plat-pc')&&b.contains('pc-app')&&!b.contains('phone-app')&&!b.contains('phone-land')&&innerWidth>=900; };
+  let was=null; const apply=()=>{ const v=on(); if(v===was) return; was=v; document.body.classList.toggle('pch-on',v);
+    if(v){ if(CD.parentElement!==cats) cats.appendChild(CD); label(true); } else { if(CD.parentElement===cats&&stage) stage.after(CD); label(false); }
+    try{ requestAnimationFrame(()=>resize()); }catch(e){} };
+  const tick=()=>{ if(!was) return; try{ const v=fmtShort(S.money); if(coin.textContent!==v){ coin.textContent=v; PCH.querySelector('.pch-coin').title=fmt(S.money)+' coins'; } }catch(e){} };
+  addEventListener('resize',()=>setTimeout(apply,30)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,140));
+  new MutationObserver(()=>apply()).observe(document.body,{attributes:true,attributeFilter:['class']});
+  apply(); setTimeout(apply,80); setInterval(tick,400); tick(); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#pchead{display:none}
+html body.pch-on.dl-fish .wrap{padding-left:4px!important;padding-right:4px!important;box-sizing:border-box}
+html body.pch-on.dl-fish #pchead{display:grid;grid-template-columns:190px minmax(0,1fr) auto;column-gap:14px;align-items:stretch;height:46px;margin:2px 0 0;flex:0 0 auto}
+body.pch-on #menuov .mo-back{width:190px;justify-content:flex-start;box-sizing:border-box}
+#pchead .pch-brand{display:flex;align-items:center;gap:10px;padding:0 14px;border-radius:14px;border:1px solid #7fe3c433;background:linear-gradient(180deg,#132c3c,#0e2131);color:#dff7ef;font:800 16px var(--display,system-ui);letter-spacing:.01em;box-shadow:inset 0 1px 0 #ffffff12;user-select:none}
+#pchead .pch-brand svg{color:#7fe3c4;flex:0 0 auto}
+#pchead .pch-cats{margin-left:14px;min-width:0}
+html body.pch-on #pchead #catdock{position:static!important;inset:auto!important;transform:none!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;height:46px;width:100%;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;z-index:auto}
+html body.pch-on #pchead #catdock > #menubtn,html body.pch-on #pchead #catdock > .cdmini{display:none!important}
+html body.pch-on #pchead #catdock .cdb{position:relative!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:46px!important;min-width:0!important;padding:4px 10px!important;border-radius:16px!important;border:1px solid #26385180!important;background:linear-gradient(180deg,#16243a,#111c2e)!important;box-shadow:inset 0 1px 0 #ffffff12,inset 0 0 0 1px #ffffff06,0 4px 14px #02060f55!important;color:#a9bdd4!important;font:800 14px var(--display,system-ui)!important;transform:none!important;transition:border-color .15s,color .15s,background .15s!important}
+html body.pch-on #pchead #catdock .cdb svg{width:22px;height:22px;color:#7f97b2;flex:0 0 auto}
+html body.pch-on #pchead #catdock .cdb .cdl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+html body.pch-on #pchead #catdock .cdb:hover{color:#eef3f8!important;border-color:#5a7ea866!important}
+html body.pch-on #pchead #catdock .cdb:hover svg{color:#7fe3c4}
+html body.pch-on #pchead #catdock .cdb:active{transform:scale(.985)!important}
+html body.pch-on #pchead #catdock .cddot{position:absolute!important;top:-7px!important;right:8px!important;left:auto!important;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a)!important;color:#2a1206!important;font:800 12px/20px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008!important}
+html body.pch-on #pchead #catdock .cdb.live::before{top:6px!important;left:8px!important}
+#pchead .pch-tools{display:flex;align-items:center;gap:8px}
+#pchead .pch-coin{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;box-sizing:border-box;border-radius:12px;background:#0d1a2c;border:1px solid #26385180;font:800 15px var(--display,system-ui);white-space:nowrap;color:#eef3f8}
+#pchead .pch-tb{width:42px;height:42px;border-radius:12px;border:1px solid #26385180;background:#111c2e;color:#dbe7f3;font-size:18px;cursor:pointer;transition:border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;padding:0}
+#pchead .pch-tb:hover{border-color:#5a7ea8aa;color:#fff}
+#pchead .pch-tb:focus-visible,html body.pch-on #pchead #catdock .cdb:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
+/* row 2: the info chips, the height and place of the menu's page tabs */
+html body.pch-on.dl-fish .hud{display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;grid-template-areas:none!important;gap:8px!important;height:50px;margin:-2px 0 0!important;padding:0!important;flex:0 0 auto}
+html body.pch-on.dl-fish .hud > *{height:50px!important;grid-area:auto!important}
+html body.pch-on.dl-fish .hud > .st-coins,html body.pch-on.dl-fish .hud > .hudbtns,html body.pch-on.dl-fish .hud > .brand,html body.pch-on.dl-fish .hud > .st-buff,html body.pch-on.dl-fish .hud > .st-bait{display:none!important}
+html body.pch-on.dl-fish .hud > .st-lvl{flex:0 0 190px!important;max-width:none!important;box-sizing:border-box}
+html body.pch-on.dl-fish .hud > .stat.loc{flex:0 0 auto!important;max-width:none!important}
+html body.pch-on.dl-fish .hud > #goalchip{flex:1 1 0!important;min-width:140px!important;max-width:none!important}
+html body.pch-on.dl-fish .hud > .st-cool,html body.pch-on.dl-fish .hud > .st-aq,html body.pch-on.dl-fish .hud > .st-log{flex:0 0 auto!important;max-width:none!important;min-width:96px}
+html body.pch-on.dl-fish .hud > .stat b{white-space:nowrap}
+html body.pch-on.dl-fish #stage{margin-left:0!important;margin-right:0!important}
+html body.pch-on.dl-fish .wrap > #catdock{display:none!important}
+/* up to 1100 px the menu puts its categories on their own row under Back; the header does the same so both still line up */
+@media (max-width:1100px){ html body.pch-on.dl-fish #pchead{grid-template-rows:46px 46px;row-gap:6px;height:auto} #pchead .pch-brand{grid-row:1;grid-column:1} #pchead .pch-tools{grid-row:1;grid-column:3} #pchead .pch-cats{grid-row:2;grid-column:1 / -1;margin-left:0} html body.pch-on.dl-fish .hud > .st-cool,html body.pch-on.dl-fish .hud > .st-aq,html body.pch-on.dl-fish .hud > .st-log{min-width:0} }
+</style>`);
+// PC: switching between the fishing screen and the menu keeps the top row perfectly still (it is the same row in both) and only
+// fades what changes under it: the info chips or page tabs, and the water or the page. The menu sits on the same background.
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #menuov{background:radial-gradient(1400px 700px at 50% -15%,#1b2c4a 0%,#0e1830 45%,#0a1220 75%) #0a1220!important}
+body.pch-on #menuov.mo-show{animation:none!important}
+body.pch-on #menuov.mo-show #tabs .subbar{animation:pchIn .2s ease-out both} /* the page itself already fades in on PC (pagein) */
+body.pch-on .wrap.wrapin{animation:none!important}
+body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:pchIn .2s ease-out both}
+@keyframes pchIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){body.pch-on #menuov.mo-show #tabs .subbar,body.pch-on #menuov.mo-show #panel,body.pch-on .wrap.wrapin > .hud,body.pch-on .wrap.wrapin > #stage{animation:none!important}}
+</style>`);
+// PC: the Dock preview was always drawn as a 900x360 picture and stretched across the wide full-screen card, so it looked soft.
+// It now draws at the card's real size on screen (screen scaling included), with the same layout: the drawing still works in
+// 900x360 units and is scaled up, so nothing moves. Dragging decorations keeps working (it reads the canvas size).
+{ const _ph3=paintHome3;
+  paintHome3=function(c){ if(!c||c.id!=='homecv') return _ph3(c); if(!document.body.classList.contains('pch-on')){ if(c.dataset.lw&&c.width!==+c.dataset.lw){ c.width=+c.dataset.lw; c.height=+c.dataset.lh; } return _ph3(c); }
+    const lw=+c.dataset.lw||c.width, lh=+c.dataset.lh||c.height; c.dataset.lw=lw; c.dataset.lh=lh;
+    const r=c.getBoundingClientRect(); if(!r.width) return _ph3(c);
+    const k=Math.max(1,Math.min(3,r.width*Math.min(2,window.devicePixelRatio||1)/lw)), cw=Math.round(lw*k), ch=Math.round(lh*k);
+    if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
+    const x=c.getContext('2d'); const view={width:lw,height:lh,getContext:()=>{ x.setTransform(k,0,0,k,0,0); return x; }};
+    try{ return _ph3(view); } finally{ x.setTransform(1,0,0,1,0,0); } }; }
+// Settings is labelled wherever there is room (director, 2026-11-17): "⚙ Settings" on sideways phones (the goal gives up the room)
+// and on PC, where the fishing header and the menu header use the very same button so both rows still line up. Phones held
+// upright keep the gear alone: their top row has no room left for a word.
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.dl-fish .hud{grid-template-columns:72px 60px max-content minmax(0,1fr) 58px 70px 64px 40px max-content!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{font-size:12.5px!important;font-weight:800;padding:0 12px!important;gap:6px;white-space:nowrap;width:auto!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn::before{content:none!important}
+  html body.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:799px){
+  html body.dl-fish .hud{grid-template-columns:66px 60px max-content minmax(0,1fr) 54px 64px 58px 36px max-content!important}
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{padding:0 10px!important}
+}
+#pchead .pch-tb[data-pch="settings"],body.pch-on #menuov .mo-tb[data-mo="settings"]{width:auto!important;padding:0 14px 0 12px!important;display:inline-flex!important;align-items:center;gap:7px;font:800 14px var(--display,system-ui)!important;white-space:nowrap}
+#pchead .pch-tb[data-pch="settings"]::before,body.pch-on #menuov .mo-tb[data-mo="settings"]::before{content:"⚙";font-size:18px;line-height:1}
+#pchead .pch-tb[data-pch="settings"]::after,body.pch-on #menuov .mo-tb[data-mo="settings"]::after{content:"Settings"}
+#pchead .pch-tb[data-pch="settings"],body.pch-on #menuov .mo-tb[data-mo="settings"]{font-size:0!important}
+#pchead .pch-tb[data-pch="settings"]::after,body.pch-on #menuov .mo-tb[data-mo="settings"]::after{font-size:14px}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the smallest sideways phones (about 667 px): a tighter Settings button and a capped water name keep the goal readable */
+@media (orientation:landscape) and (max-height:560px) and (max-width:700px){
+  html body.dl-fish .hud > .hudbtns > #settingsbtn{padding:0 8px!important;font-size:11.5px!important}
+  html body.dl-fish .hud > .stat.loc{max-width:92px!important;overflow:hidden}
+  html body.dl-fish .hud > .stat.loc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0}
+}
+</style>`);
+// The Dock preview is live (director, 2026-11-17): it used to be drawn only when the page was built or something was dragged,
+// so the time of day and the animations stood still and jumped ahead on every redraw (e.g. tapping a water chip). It now redraws
+// about 30 times a second while the Dock page is on screen, and stops as soon as you leave it or the game is hidden.
+{ let live=false, last=0;
+  const step=now=>{ const c=$('homecv'); if(!c||!c.isConnected||S.tab!=='home'||document.hidden||!c.getClientRects().length){ live=false; return; }
+    if(now-last>=32){ last=now; try{ paintHome(); }catch(e){} } requestAnimationFrame(step); };
+  const start=()=>{ if(live||S.tab!=='home') return; live=true; last=0; requestAnimationFrame(step); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ start(); }catch(e){} return r; };
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) start(); }); }
+// Settings > Display > Frame rate: frames per second and the slowest recent frame, in the corner of the water
+{ const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
+  let on=false, ts=[], lastT=0, shown=0;
+  const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); el.textContent=Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'; }
+    requestAnimationFrame(loop); };
+  const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
+  setInterval(sync,700); sync(); }
+document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;right:10px;bottom:10px;z-index:5;padding:3px 8px;border-radius:8px;background:#06101ccc;border:1px solid #ffffff22;color:#9fe8c9;font:700 11px/1.3 ui-monospace,Consolas,monospace;pointer-events:none}#fpsbox[hidden]{display:none}</style>`);
+// A water thumbnail is drawn on the game canvas; afterwards the game's own scenery picture is put back, so the next frame does not
+// have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
+{ const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
+// PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
+// 80% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
+// page or section change and window resize.
+{ let q=0; const P=()=>$('panel');
+  const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
+    if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
+    p.style.zoom=''; const ch=p.clientHeight, sh=p.scrollHeight; if(!ch||sh<=ch+2) return;
+    let z=Math.max(.8,ch/sh); p.style.zoom=String(z);
+    const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2>ch2+2&&z>.8){ z=Math.max(.8,z*ch2/sh2); p.style.zoom=String(+z.toFixed(3)); } };
+  const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); soon(); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(soon,30); },true);
+  addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
+  if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
+body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
+body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
+body.pch-on #menuov #panel #tankcv{height:min(40vh,480px)!important}
 </style>`);
 // =====================================================================
 // 0.4 additions (2026-11-17):
