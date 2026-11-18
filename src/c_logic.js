@@ -256,9 +256,9 @@ function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hook
 function breakStreak(){ const n=S.streak; if(!n) return; const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; if(n>=3) setTimeout(()=>toast(keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"),1200); save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
-  G.st='idle'; G.fish=null; G.inHot=false; breakStreak();
+  G.st='idle'; G.fish=null; G.inHot=false; if(kind!=='nohook') breakStreak(); /* director 2026-11-18: a missed strike keeps the streak; only a hooked fish that gets away ends it */
   if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
-  else if(kind==='nohook'){ sfx.lost(); toast('Too slow: it bit and swam off. Strike on the big splash.'); } /* a missed strike said "slipped off the hook" before */
+  else if(kind==='nohook'){ sfx.lost(); toast(S.streak>=2?'Too slow: it swam off, but your streak of '+S.streak+' is safe. Strike on the big splash.':'Too slow: it bit and swam off. Strike on the big splash.'); } /* a missed strike said "slipped off the hook" before */
   else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);

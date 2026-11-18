@@ -2,9 +2,9 @@
 // (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'Alive and Well Dressed', items:[
   '## Fairer streaks',
-  'Reeling in early or casting by accident never costs you anything: your streak stays. A streak only ends when a fish that bit gets away (a missed strike, a snapped line, a fish that slips off or runs out your line).',
+  'Reeling in early, casting by accident or missing a strike never costs you anything: your streak stays. A streak only ends when a fish you have hooked gets away (a snapped line, a fish that slips off or runs out your line).',
   'On a Roll, fully learned: a lost fish now only halves your streak instead of ending it.',
-  'Steady Hands challenge: a late hook just does not count; only a fish that gets away resets the count.',
+  'Steady Hands challenge: a late hook just does not count; only a hooked fish that gets away resets the count.',
   '## Your angler',
   'Shoes look like real shoes from the side: a rounded heel, a sole with a heel block, and a toe that slopes down. One foot stands a little ahead of the other.',
   'Bodies have their real depth: the hips and seat fill out under the jacket, so legs no longer look pinned under a wide body.',
