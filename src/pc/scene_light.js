@@ -5,7 +5,7 @@
 // changing the light right now (it does not match the clock), the stepped fade is used for that moment instead. Phones unchanged.
 // =====================================================================
 { const POOL=[document.createElement('canvas'),document.createElement('canvas'),document.createElement('canvas')], D=3000;
-  let A=null, B=null, base='', bq=0, fallbackUntil=0; const _ld=v3landDraw;
+  let A=null, B=null, base='', bq=0, fallbackUntil=0, builds=0; const _ld=v3landDraw;
   const pcOn=()=>document.body.classList.contains('pch-on');
   const lightAt=ms=>{ const real=Date.now, off=ms-real(); Date.now=()=>real()+off;
     try{ const L=curLoc(), p=phase(), wx=weather(), night=nightness(p);
@@ -14,7 +14,7 @@
     finally{ Date.now=real; } };
   const buildAt=(L,ms,hz)=>{ const lt=lightAt(ms), keep=[V3CACHE,V3PREV,v3palette.k,v3palette.v];
     const tgt=POOL.find(c=>(!A||c!==A.c)&&(!B||c!==B.c));
-    try{ const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms}; }
+    try{ builds++; const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms,lt}; }
     finally{ v3land.now=false; V3CACHE=keep[0]; V3PREV=keep[1]; v3palette.k=keep[2]; v3palette.v=keep[3]; } };
   v3landDraw=function(L,P,hz){ const now=Date.now(); if(!pcOn()||now<fallbackUntil){ A=B=null; base=''; return _ld.apply(this,arguments); }
     const b=L.id+'|'+W+'|'+H+'|'+DPR;
@@ -24,10 +24,15 @@
       if(Math.abs(lt.night-(P.night||0))>.03||Math.abs(d-(P.d||0))>.03||Math.abs(lt.gloom-(P.gloom||0))>.03){ fallbackUntil=now+4000; A=B=null; base=''; return _ld.apply(this,arguments); }
       base=b; clearTimeout(bq); bq=0; B=null; A=buildAt(L,now,hz); V3CACHE={key:'#pchA',base:b,c:A.c}; V3PREV=null; }
     if(B&&now>=B.ms){ A=B; B=null; V3CACHE={key:'#pchA',base:b,c:A.c}; }
-    if(!B&&!bq){ const ms=A.ms+D; bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
+    // 2026-11-18 (director: "stutter at Willow Pond constantly every couple seconds, also Frostbite Lake"): drawing the landscape
+    // ahead costs 6-19 ms (Willow Pond the most) and used to happen every 3 s even when the light stayed the same. Now it is drawn
+    // only when the light 3 s from now really differs (dawn, dusk, weather changing); otherwise the picture just carries on.
+    if(!B&&!bq&&now>=(A.chk||0)){ A.chk=now+500; const ms=Math.max(A.ms,now)+D, lt2=lightAt(ms), lt1=A.lt;
+      if(lt1&&Math.abs(lt2.night-lt1.night)<.004&&Math.abs(lt2.dusk-lt1.dusk)<.004&&Math.abs(lt2.gloom-lt1.gloom)<.004){ A.ms=now; }
+      else bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
     g.drawImage(A.c,0,0,W,H);
     if(B){ const a=clamp((now-A.ms)/(B.ms-A.ms),0,1); if(a>0){ g.globalAlpha=a; g.drawImage(B.c,0,0,W,H); g.globalAlpha=1; } } };
-  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil}); }
+  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil, builds}); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the count badges on the category tabs sit on the tab's top edge, fully inside the screen (they were cut off by 4 px);
    the menu's category badges move the same way so both header rows still match */
