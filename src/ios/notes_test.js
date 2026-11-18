@@ -1,6 +1,10 @@
 // iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the iPhone test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy Aquarium', items:[
+  '## Fairer streaks',
+  'Reeling in early or casting by accident never costs you anything: your streak stays. A streak only ends when a fish that bit gets away (a missed strike, a snapped line, a fish that slips off or runs out your line).',
+  'On a Roll, fully learned: a lost fish now only halves your streak instead of ending it.',
+  'Steady Hands challenge: a late hook just does not count; only a fish that gets away resets the count.',
   '## One look everywhere',
   'Every button, chip, tab and card now shares one style: the same navy, the same corners, the same lettering, and line icons instead of emoji pictures.',
   'Everything you can tap in the top bar looks like a button now (teal outline, and a small arrow when held sideways). Coins and level are plain text, so you can tell at a glance.',

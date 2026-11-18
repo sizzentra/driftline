@@ -40,7 +40,7 @@ const MASTERY_FX = {
   haggler:'The fishmonger’s wanted fish pays ×3 instead of ×2.',
   keeper:'The aquarium keeps earning for 16 hours while you’re away, not 8.',
   petpal:'Petting sometimes earns a little gift from your pet (once an hour).',
-  streaker:'Reeling in early no longer breaks your streak.',
+  streaker:'A lost fish only halves your streak instead of ending it.',
   nightowl:'Night fish also bite at dawn.',
 };
 const offlineCap = () => maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN;

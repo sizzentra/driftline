@@ -30,8 +30,8 @@ const CHAL={
     onCatch:(c,f)=>{ if(!c.seen.includes(f.sp.id)){ c.seen.push(f.sp.id); c.prog=c.seen.length; return true; } } },
   long:  {name:'Long Cast', icon:'🎯', mins:6, m:.25, rule:c=>'Land '+c.need+' fish from far casts', hint:()=>'Charge your cast past the far mark on the power bar. Far casts also bring better fish. Long Caster lowers the mark.',
     setup:()=>({need:5}), onCatch:(c,f,perfect,far)=>{ if(far){ c.prog++; return true; } } },
-  steady:{name:'Steady Hands', icon:'✋', mins:6, m:.25, rule:c=>'Land '+c.need+' perfect-hook fish in a row', hint:()=>'Strike the instant it bites. A fish hooked late resets the count. A longer hook window (Hook upgrades, Quick Reflexes) helps.',
-    setup:()=>({need:4}), onCatch:(c,f,perfect)=>{ if(perfect){ c.prog++; return true; } if(c.prog){ c.prog=0; toast('Late hook: Steady Hands count back to 0.'); } } },
+  steady:{name:'Steady Hands', icon:'✋', mins:6, m:.25, rule:c=>'Land '+c.need+' perfect-hook fish without losing one', hint:()=>'Strike the instant it bites. A late hook just does not count; only a fish that gets away resets the count. A longer hook window (Hook upgrades, Quick Reflexes) helps.',
+    setup:()=>({need:4}), onCatch:(c,f,perfect)=>{ if(perfect){ c.prog++; return true; } }, onLost:(c)=>{ if(c.prog){ c.prog=0; toast('Fish lost: Steady Hands count back to 0.'); return true; } } }, /* director 2026-11-18: counters reset only on a failed catch, never on a late hook that still lands the fish */
   treasure:{name:'Treasure Dive', icon:'🧭', mins:6, m:.3, rule:c=>'Fish up '+c.need+' piece'+(c.need>1?'s':'')+' of junk or treasure', hint:()=>'Your chance of junk or treasure per bite here: '+fmtOdds(junkChance())+'. Magnet Lures, the Magnet Tip and Scavenger raise it.',
     setup:()=>({need:Math.max(1,Math.min(5,Math.round(6*CATCHES_PER_MIN*junkChance()*.85)))}), onJunk:(c)=>{ c.prog++; return true; } },
   weigh: {name:'Trophy Weigh-in', icon:'⚖️', mins:5, m:.35, rule:()=>'Weigh in your heaviest fish', hint:()=>'Only your heaviest fish counts. Spinners, Trophy Hunter and Feather Flies bring bigger fish.', ranked:true, slow:true,
@@ -128,3 +128,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // the goal chip says "Live" for events
 setInterval(()=>{ const el=$('goalchip'); if(!el) return; const live=!!(S.chal||liveScheds().length); el.classList.toggle('live',live); const k=el.querySelector('.gl-k'); if(k&&live&&k.textContent!=='Live') k.textContent='Live'; },700);
 if(/[?&]test\b/.test(location.search)) window.__ev={chalStart, chalEnd, CHAL, SCHED, schedLeft, schedNext, shoalLeft, shoalNext, bonus:k=>bonus(k), junk:()=>junkChance(), rare:()=>rareScore(distanceMods(),false,false,phase())};
+// a fish that bit and got away (missed strike, snap, slipped off, ran out the line) is the only thing that resets a challenge count
+{ const _ef=endFight; endFight=function(kind){ try{ if(kind!=='caught'&&S.chal){ const C=CHAL[S.chal.id]; if(C&&C.onLost&&C.onLost(S.chal)){ save(); if(S.tab==='events') renderPanel(); } } }catch(e){ console.error(e); } return _ef.apply(this,arguments); }; }

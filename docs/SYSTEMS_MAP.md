@@ -118,3 +118,12 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Tappable top-bar chips | `mobile/theme07.js` (round 7b block) | teal outline + raised surface on `.hud-link`, `button.stat`, `#goalchip`, `.hudbtns` buttons; arrow after the label sideways only; coins/level flat. A new tappable chip needs one of those classes |
 | Scene chip on the water (upright) | `mobile/theme07.js` (wraps `drawSceneChip` from `bm_ui04.js`) | one line (time · weather · time left); the water's name is in the top bar |
 | Test hook | `bn_qa04.js` `__fnTime(names, fn, n)` | times named functions while `fn` runs (preview only) |
+
+## Streaks and "in a row" counters (rule, director 2026-11-18: never punish an early reel or an accidental cast)
+| Piece | Defined in | Rule |
+|---|---|---|
+| Catch streak `S.streak` | `c_logic.js` `breakStreak()` (called only from `endFight` when kind is not `caught`) | ends only when a fish that bit gets away: `nohook` (missed strike), `snap`, `lost` (slipped off), `spool`. Reeling in while `waiting` (`down()`) never touches it. On a Roll maxed (`maxed('streaker')`) keeps half |
+| Streak shown | `d_draw.js` (phones, on the water), `pc/ui_header.js` (PC top bar) | display only |
+| On a Roll max text | `d5_v16.js` `streaker:` | "A lost fish only halves your streak" |
+| Challenge counts | `bk_events036.js` `CHAL.<id>.onLost(c)` (called from the `endFight` wrapper at the end of that file) | Steady Hands: a late hook does not count, a lost fish resets. Any new "in a row" counter must reset in `onLost`, never in `onCatch` |
+| Scenario hook | `bn_qa04.js` `__inGame(code)` | runs code in the game's scope (preview + ?test only) |

@@ -314,3 +314,5 @@ window.__sceneCostWith=(lk={},n=60)=>{ const keep=JSON.stringify(S.look); Object
 // time named functions while fn runs (preview only): __fnTime(['renderPanel','paintFish'], ()=>__open('aquarium'), 10)
 if(/[?&]test\b/.test(location.search)) window.__fnTime=(names,fn,n=1)=>{ const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); if(typeof orig[k]!=='function') continue; T[k]=0; eval(k+'=function(){ const t0=performance.now(); try{ return orig["'+k+'"].apply(this,arguments); } finally{ T["'+k+'"]+=performance.now()-t0; } }'); }catch(e){} }
   const t0=performance.now(); try{ for(let i=0;i<n;i++) fn(); } finally{ for(const k in orig){ try{ eval(k+'=orig["'+k+'"]'); }catch(e){} } } const tot=(performance.now()-t0)/n; const out={total:+tot.toFixed(2)}; for(const k in T) out[k]=+(T[k]/n).toFixed(2); return out; };
+// run a snippet inside the game's own scope (preview + ?test only), for scenario tests: __inGame("endFight('snap'); return S.streak")
+if(/[?&]test\b/.test(location.search)) window.__inGame=(code)=>eval('(()=>{'+code+'})()');

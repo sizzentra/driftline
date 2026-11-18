@@ -253,11 +253,12 @@ function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hook
   if(G.fish.kind==='fish' && G.fish.shiny===2) setTimeout(()=>toast('It shimmers like nothing you have seen. It will fight every way a fish can.'),400);
   if(G.fish.kind==='fish' && G.fish.hy) setTimeout(()=>toast(G.fish.kg>(G.fish.sp.min+G.fish.sp.max)/2?'This feels far too heavy for what it looks like...':'Strangely light on the line...'),600);
   if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
-function breakStreak(){ const n=S.streak; if(n>=3) setTimeout(()=>toast('Streak of '+n+' ended'),1200); S.streak=0; if(n>0) save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
+function breakStreak(){ const n=S.streak; if(!n) return; const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; if(n>=3) setTimeout(()=>toast(keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"),1200); save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
   G.st='idle'; G.fish=null; G.inHot=false; breakStreak();
   if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
+  else if(kind==='nohook'){ sfx.lost(); toast('Too slow: it bit and swam off. Strike on the big splash.'); } /* a missed strike said "slipped off the hook" before */
   else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
@@ -423,7 +424,7 @@ function down(e){
     case 'frenzy': frenzyHit(e); break;
     case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
     case 'idle': if(V3ON && aimCast(e)) break; startCharge(); break;
-    case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
+    case 'waiting': G.st='idle'; G.inHot=false; toast(S.streak>=2?'Reeled in early: no harm done, your streak of '+S.streak+' is safe. Wait for the big splash.':'Reeled in early. Wait for the big splash.'); break; /* director 2026-11-18: an early reel or an accidental cast is never punished */
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;
     case 'result': hideCard(); break;
