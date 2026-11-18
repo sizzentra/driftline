@@ -23,7 +23,7 @@ function v3palette(id,night,dusk,gloom){
   // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
   const fk=id+'|'+Math.round(night*60)+'|'+Math.round(dusk*40)+'|'+Math.round(gloom*30);
   if(v3palette.k===fk) return v3palette.v;
-  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:id+'|'+Math.round(night*14)+'|'+Math.round(dusk*9)+'|'+Math.round(gloom*6)} /* 0.3.4: finer light steps, so each fade is smaller */;
+  const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:(()=>{ const s=v3steps(); return id+'|'+Math.round(night*s[0])+'|'+Math.round(dusk*s[1])+'|'+Math.round(gloom*s[2]); })()} /* 0.3.4: finer light steps, so each fade is smaller */;
   for(const k in P.day){ let c=mix(P.day[k],P.night[k],night); if(d>0) c=mix(c,P.dusk[k],d); if(gloom>0) c=mix(c,'#59616b',gloom*.6); o[k]=c; }
   o.d=d; o.night=night; o.gloom=gloom; v3palette.k=fk; v3palette.v=o; return o;
 }
@@ -62,12 +62,18 @@ function v3rgba(hex,a){ const v=hex2rgb(rgb2hex(hex)); return 'rgba('+v[0]+','+v
 
 // ---------- offscreen cache for the still parts ----------
 let V3CACHE=null, V3PREV=null;
-const V3FADE=3.4; // seconds a new light level takes to fade in over the old one
+// light steps: PC (the PC header layout) gets twice as many smaller steps with a shorter fade, so dusk, dawn and weather flow
+// smoothly; light changes are redrawn between frames, so the extra steps never make a frame late. Phones keep the original steps.
+function v3steps(){ return document.body.classList.contains('pch-on')?[24,16,12]:[14,9,6]; }
+function v3fade(){ return document.body.classList.contains('pch-on')?1.8:3.4; } // seconds a new light level takes to fade in
 function v3land(L,P,hz){
   const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key;
   if(V3CACHE && V3CACHE.key===key) return V3CACHE;
   // only the light changed (same place and size): keep the old picture to fade from; otherwise start clean
   const same=V3CACHE && V3CACHE.base===L.id+'|'+W+'|'+H+'|'+DPR;
+  // a light change is redrawn between frames, not inside one (the new light fades in over 3.4 s anyway), so it never makes a
+  // frame late on fast monitors; a new water or a new size is still drawn at once
+  if(same&&!v3land.now){ if(!v3land.q){ v3land.q=setTimeout(()=>{ v3land.q=0; v3land.now=true; try{ v3land(L,P,hz); }catch(e){} v3land.now=false; },0); } return V3CACHE; }
   const spare=V3PREV&&V3PREV.c, old=V3CACHE;
   const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
   const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); /* still scenery at most 2x: sharp on every phone, far less to repaint */
@@ -77,7 +83,7 @@ function v3land(L,P,hz){
 }
 // the cached scenery, with the previous light level fading out on top while a new one comes in
 function v3landDraw(L,P,hz){ const C=v3land(L,P,hz); g.drawImage(C.c,0,0,W,H);
-  if(V3PREV){ const k=(performance.now()-V3PREV.t0)/1000/V3FADE; if(k>=1) V3PREV.t0=-1e12; else { g.globalAlpha=1-v3s(k); g.drawImage(V3PREV.c,0,0,W,H); g.globalAlpha=1; } } }
+  if(V3PREV){ const k=(performance.now()-V3PREV.t0)/1000/v3fade(); if(k>=1) V3PREV.t0=-1e12; else { g.globalAlpha=1-v3s(k); g.drawImage(V3PREV.c,0,0,W,H); g.globalAlpha=1; } } }
 
 // =====================================================================
 // WILLOW POND

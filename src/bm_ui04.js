@@ -1526,3 +1526,44 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.dl-fish .hud > .stat.loc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0}
 }
 </style>`);
+// The Dock preview is live (director, 2026-11-17): it used to be drawn only when the page was built or something was dragged,
+// so the time of day and the animations stood still and jumped ahead on every redraw (e.g. tapping a water chip). It now redraws
+// about 30 times a second while the Dock page is on screen, and stops as soon as you leave it or the game is hidden.
+{ let live=false, last=0;
+  const step=now=>{ const c=$('homecv'); if(!c||!c.isConnected||S.tab!=='home'||document.hidden||!c.getClientRects().length){ live=false; return; }
+    if(now-last>=32){ last=now; try{ paintHome(); }catch(e){} } requestAnimationFrame(step); };
+  const start=()=>{ if(live||S.tab!=='home') return; live=true; last=0; requestAnimationFrame(step); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ start(); }catch(e){} return r; };
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) start(); }); }
+// Settings > Display > Frame rate: frames per second and the slowest recent frame, in the corner of the water
+{ const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
+  let on=false, ts=[], lastT=0, shown=0;
+  const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); el.textContent=Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'; }
+    requestAnimationFrame(loop); };
+  const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
+  setInterval(sync,700); sync(); }
+document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;right:10px;bottom:10px;z-index:5;padding:3px 8px;border-radius:8px;background:#06101ccc;border:1px solid #ffffff22;color:#9fe8c9;font:700 11px/1.3 ui-monospace,Consolas,monospace;pointer-events:none}#fpsbox[hidden]{display:none}</style>`);
+// A water thumbnail is drawn on the game canvas; afterwards the game's own scenery picture is put back, so the next frame does not
+// have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
+{ const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
+// PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
+// 80% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
+// page or section change and window resize.
+{ let q=0; const P=()=>$('panel');
+  const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
+    if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
+    p.style.zoom=''; const ch=p.clientHeight, sh=p.scrollHeight; if(!ch||sh<=ch+2) return;
+    let z=Math.max(.8,ch/sh); p.style.zoom=String(z);
+    const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2>ch2+2&&z>.8){ z=Math.max(.8,z*ch2/sh2); p.style.zoom=String(+z.toFixed(3)); } };
+  const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); soon(); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(soon,30); },true);
+  addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
+  if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
+body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
+body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
+body.pch-on #menuov #panel #tankcv{height:min(40vh,480px)!important}
+</style>`);
