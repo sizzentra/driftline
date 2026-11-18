@@ -8,7 +8,7 @@
 //    on the water between catches, and only if it is still true (a warning for weather that already started is dropped)
 // Every other notice is unchanged. Android + iPhone only.
 // =====================================================================
-{ let pend=null, el=null, hideT=0, poll=0; const BUSY=/^(charging|flying|bite|reeling|landing|event)$/; /* event = a popup card is open (news, a choice, a reward) */
+{ let pend=null, el=null, hideT=0, poll=0; const BUSY=/^(charging|flying|bite|reeling|landing|result|event)$/; /* result = the catch card is open; event = a popup card is open (news, a choice, a reward) */
   const blocked=()=>MENU_OPEN||document.hidden||document.body.classList.contains('ev-open')||(()=>{ const ev=document.getElementById('evcard'); return !!(ev&&ev.getClientRects().length); })()||(typeof G==='object'&&BUSY.test(G.st));
   const still=p=>p.kind==='chg'?weather().k===p.k:Math.floor(Date.now()/1000/WX_LEN)===p.cur;
   const show=p=>{ const st=document.getElementById('stage'); if(!st) return; if(!el||!el.isConnected){ el=document.createElement('div'); el.id='mbwx'; el.setAttribute('role','status'); st.appendChild(el); }

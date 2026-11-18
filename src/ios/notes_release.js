@@ -95,4 +95,8 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   '## Fixes',
   'Menus line up with the water screen: the top row (Back, coins, search, settings and the page tabs) is one even row at the same height as on the water, page edges match, and upright the bottom tabs are the same card in menus as on the water, so nothing jumps when you open or close a menu.',
   'Taps right after Back always work (a quick tap used to be ignored for a split second).',
+  'Taps on menu buttons always register: a tap could do nothing if the button refreshed (a live countdown, a page update) while your finger was on it, and a swipe that started on a tab could open that tab by mistake.',
+  'Phone wording: a bite now says "Tap the water to set the hook" and the catch card says "Tap to keep fishing" (they spoke about clicking and the Space key).',
+  'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
+  'Weather news also waits while the catch card is open.',
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
