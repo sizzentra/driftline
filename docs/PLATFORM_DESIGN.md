@@ -107,6 +107,7 @@ windows use the regular PC layout (`body.pch-on`).
 | iPhone 15 Plus / 15 Pro Max / 16 Plus | 430×932 | top 59, bottom 34 → 59, bottom 21 |
 | iPhone 16 Pro / 17 / 17 Pro | 402×874 | top 62, bottom 34 → 62, bottom 21 |
 | iPhone 15 / 15 Pro / 16 | 393×852 | top 59, bottom 34 → 59, bottom 21 |
+| iPhone XS Max / 11 Pro Max (6.5", notch; App Store size class) | 414×896 | top 44, bottom 34 → left/right 44, bottom 21 |
 | Pixel 9 / 10 | 412×915 | 0 → cutout 32 on one side |
 | Galaxy S24 / S25 | 360×780 | 0 → cutout 32 on one side |
 
