@@ -23,7 +23,11 @@
       if(AQ_ADD){ nav.querySelectorAll('[data-sect]').forEach(b=>b.setAttribute('aria-selected','false')); [...P.children].forEach(c=>{ if(c!==pin&&!c.classList.contains('crumb')) c.style.display='none'; }); pin.insertAdjacentHTML('afterend',addHTML()); paintFish(P); }
       /* everything after the pinned block goes into one column (sideways it is the right-hand column next to the pinned tank) */
       const side=document.createElement('div'); side.className='aq07-side'; [...P.children].filter(c=>c!==pin&&!c.classList.contains('crumb')).forEach(c=>side.appendChild(c)); pin.after(side);
-    }catch(e){ console.error(e); } return r; }; }
+      /* sideways the left column is only the tank and the earnings strip (so it always fits the height); the tabs head the right column */
+      if(document.body.classList.contains('phone-land')) side.prepend(nav);
+    }catch(e){ console.error(e); } return r; };
+  /* turning the phone while the aquarium is open rebuilds it for the new layout */
+  let wasLand=null; addEventListener('resize',()=>{ const l=document.body.classList.contains('phone-land'); if(wasLand!==null&&l!==wasLand&&MOB()&&S.tab==='aquarium'){ setTimeout(()=>{ try{ renderPanel(); }catch(e){} },120); } wasLand=l; }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the pinned block: tank, earnings strip, tabs */
 html body.phone-app #menuov #panel.aq07 > .aq07-pin,html body.phone-land #menuov #panel.aq07 > .aq07-pin{position:sticky;top:0;z-index:6;display:flex;flex-direction:column;gap:8px;background:#0b1626;padding:0 0 8px;box-shadow:0 10px 12px -10px #000c}
@@ -47,7 +51,27 @@ html body.phone-app #menuov #panel.aq07 .aq07-note,html body.phone-land #menuov 
   html body.phone-land #menuov #panel.aq07 > .aq07-pin{grid-column:1;grid-row:1;box-shadow:none;padding:0}
   html body.phone-land #menuov #panel.aq07 > .aq07-side{grid-column:2;grid-row:1}
   html body.phone-land #menuov #panel.aq07 > .aq07-side > *:first-child{margin-top:0!important}
-  html body.phone-land #menuov #panel.aq07 .aq07-bank{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-  html body.phone-land #menuov #panel.aq07 .aq07-bank .btn{width:100%}
+  html body.phone-land #menuov #panel.aq07 .aq07-bank{padding:6px 8px!important;gap:6px!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-bank .btn{min-height:34px!important;padding:0 9px!important;font-size:12.5px!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-bank b.coin{font-size:14px!important}
+  /* the tank never grows taller than the space left above the earnings strip */
+  html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{max-height:calc(100dvh - 160px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  html body.phone-land #menuov #panel.aq07 .aq07-side > .sect-nav{position:sticky;top:0;z-index:4;margin:0 0 8px!important;display:grid!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);box-shadow:0 8px 10px -8px #000c}
 }
+</style>`);
+// narrow sideways phones (iPhone SE and similar, about 667 px wide): the earnings strip takes two short rows (numbers, then buttons)
+// and the tabs use a smaller label, so nothing squeezes together
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){
+  html body.phone-land #menuov #panel.aq07 .aq07-bank{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;row-gap:5px!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-bank .btn{width:100%;min-height:30px!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{max-height:calc(100dvh - 190px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
+  html body.phone-land #menuov #panel.aq07 .aq07-side > .sect-nav > button{font-size:11.5px!important;padding:0 2px!important;min-height:32px!important;white-space:nowrap}
+}
+</style>`);
+// an older rule gives section bars a fixed column count and each tab a minimum width; here the bar is exactly as many equal
+// columns as it has tabs (3), so they never overlap
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app #menuov #panel.aq07 .sect-nav,html body.phone-land #menuov #panel.aq07 .sect-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important;grid-auto-flow:row!important}
+html body.phone-app #menuov #panel.aq07 .sect-nav > button,html body.phone-land #menuov #panel.aq07 .sect-nav > button{min-width:0!important;width:auto!important;overflow:hidden;text-overflow:ellipsis}
 </style>`);

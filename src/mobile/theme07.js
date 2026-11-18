@@ -154,3 +154,15 @@ html body.phone-app.dl-fish:not(.menu-open) #catdock .cdb[data-cd="fish"] *{colo
 // a little until it fits (it changes every second during an event, so it only works when the text is actually too long)
 { const fitGoal=()=>{ const t=document.querySelector('#goalchip .gl-t'); if(!t||!MOB()) return; if(t.scrollWidth<=t.clientWidth+1&&!t.style.fontSize) return; t.style.removeProperty('font-size'); let fs=parseFloat(getComputedStyle(t).fontSize)||14, n=0; while(t.scrollWidth>t.clientWidth+1&&fs>10&&n++<10){ fs-=.5; t.style.setProperty('font-size',fs+'px','important'); } };
   const g=document.getElementById('goalchip'); if(g) new MutationObserver(()=>fitGoal()).observe(g,{childList:true,characterData:true,subtree:true}); addEventListener('resize',()=>setTimeout(fitGoal,80)); setTimeout(fitGoal,400); }
+// collapsed side panel (director's screenshot 2026-11-18): in menus the full-width rule above outranked the collapsed one, so the
+// buttons stayed 112 px wide inside the 40 px column and were cut off at the screen edge. Collapsed = icon-only squares, centred.
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land.dock-mini #menuov #tabs.secmode .secb,html body.phone-land.dock-mini #menuov #tabs .secbar .secb,
+  html body.phone-land.dock-mini #catdock .cdb{width:44px!important;min-width:44px!important;padding:0!important;justify-content:center!important;gap:0!important}
+  html body.phone-land.dock-mini #menuov #tabs .secb .secl,html body.phone-land.dock-mini #catdock .cdb .cdl{display:none!important}
+  html body.phone-land.dock-mini #menuov #tabs .secb .seci,html body.phone-land.dock-mini #menuov #tabs .secb .seci svg,html body.phone-land.dock-mini #catdock .cdb svg{width:18px!important;height:18px!important;margin:0!important}
+  html body.phone-land.dock-mini #menuov .mo-back,html body.phone-land.dock-mini #menuov #tabs .cdmini,html body.phone-land.dock-mini #catdock .cdmini{width:44px!important;min-width:44px!important;padding:0!important;justify-content:center!important}
+  html body.phone-land.dock-mini #menuov .mo-back span:not(.mo-bi),html body.phone-land.dock-mini #menuov #tabs .cdmini .cdml,html body.phone-land.dock-mini #catdock .cdmini .cdml{display:none!important}
+}
+</style>`);

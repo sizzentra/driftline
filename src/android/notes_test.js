@@ -14,6 +14,7 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'One Look, Easy 
   '## Also fixed',
   'Tapping a top-bar chip (Fishing at, Cooler, Aquarium, Fish Log) works on the first tap every time.',
   'The live event line in the top bar fits on small phones.',
+  'The collapsed side panel shows neat icon buttons in menus too (they were cut off at the screen edge).',
   '## Your angler',
   'Shoes look like real shoes from the side: a rounded heel, a sole with a heel block, and a toe that slopes down. One foot stands a little ahead of the other.',
   'Bodies have their real depth: the hips and seat fill out under the jacket, so legs no longer look pinned under a wide body.',
