@@ -37,7 +37,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 
 // ---------- full screen is remembered on this device: if you left the game in full screen, it goes back to full
 // screen on your first tap or key press (browsers only allow full screen after you touch the page) ----------
-(function(){ let want=false; try{ want=localStorage.getItem('dl-fs')==='1'; }catch(e){}
+(function(){ let want=false; try{ want=localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){}
   document.addEventListener('fullscreenchange',()=>{ try{ localStorage.setItem('dl-fs',document.fullscreenElement?'1':'0'); }catch(e){} });
   if(!want) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } };
   ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); })();

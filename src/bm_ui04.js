@@ -1128,7 +1128,7 @@ body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important
 // right of the water on sideways phones and a bar under the water everywhere else. Only Rest and the tip stay on it.
 // =====================================================================
 { const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
-  const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
+  const hint=$('hint'); const keepHint=()=>{ if(document.body.classList.contains('pch-on')) return; if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
   // the picture is exactly the water's box (the bar below or beside it is not part of the water)
   const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -1548,14 +1548,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
 { const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
 // PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
-// 80% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
+// 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
 // page or section change and window resize.
 { let q=0; const P=()=>$('panel');
   const fit=()=>{ q=0; const p=P(); if(!p) return; const on=document.body.classList.contains('pch-on')&&MENU_OPEN;
     if(!on){ if(p.style.zoom) p.style.zoom=''; return; }
     p.style.zoom=''; const ch=p.clientHeight, sh=p.scrollHeight; if(!ch||sh<=ch+2) return;
-    let z=Math.max(.8,ch/sh); p.style.zoom=String(z);
-    const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2>ch2+2&&z>.8){ z=Math.max(.8,z*ch2/sh2); p.style.zoom=String(+z.toFixed(3)); } };
+    let z=Math.max(.76,ch/sh); p.style.zoom=String(z);
+    for(let i=0;i<3;i++){ const ch2=p.clientHeight, sh2=p.scrollHeight; if(sh2<=ch2+2||z<=.76) break; z=Math.max(.76,z*ch2/sh2-.004); p.style.zoom=String(+z.toFixed(3)); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); soon(); return r; };
   document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(soon,30); },true);
@@ -1565,7 +1565,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
 body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
 body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
-body.pch-on #menuov #panel #tankcv{height:min(40vh,480px)!important}
+body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
 </style>`);
 // =====================================================================
 // PC: continuous day, night and weather (director, 2026-11-17: the light changes must be as smooth as the frame rate). The light
@@ -1839,3 +1839,213 @@ body.pch-on #panel .fl-right .tile.detail .sub{font-size:12px}
 body.pch-on #panel .fl-pickhint{display:flex;flex-direction:column;gap:6px;padding:14px!important;border-style:dashed!important}
 body.pch-on #panel .fl-pickhint b{font:800 14px var(--display,system-ui)}
 </style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: Set sail again: the voyage card on the left, the milestones beside it in two columns (it was squeezed into two narrow
+   grid cells, one word per line) */
+body.pch-on #panel .grid:has(> .tile .voy-list){grid-template-columns:minmax(300px,380px) minmax(0,1fr)!important;align-items:start}
+body.pch-on #panel .tile .voy-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body.pch-on #panel .voy-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+</style>`);
+// Pets > Find more: the "Show pets that boost" label stayed above a filter that is hidden on that tab (all platforms).
+// PC: the shop cards are compact and the pets still to discover become short wide rows, so the page fits the screen.
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
+body.pch-on #menuov #panel > .grid:has(> .pet-hid),body.pch-on #menuov #panel > .grid:has(> .pet-sale){grid-template-columns:repeat(auto-fill,minmax(124px,1fr))!important;gap:8px!important}
+body.pch-on #panel .tile.pet-sale{padding:8px 9px!important;gap:3px!important}
+body.pch-on #panel .tile.pet-sale canvas{width:96px!important;height:56px!important}
+body.pch-on #panel .tile.pet-sale h4{font-size:13.5px!important;margin:0!important}
+body.pch-on #panel .tile.pet-sale .meta{font-size:11px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body.pch-on #panel .tile.pet-sale .btn{padding:5px 8px!important;font-size:12px!important;min-height:0!important}
+body.pch-on #panel .tile.pet-hid{grid-column:span 2;display:grid!important;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
+body.pch-on #panel .tile.pet-hid canvas{grid-row:1 / 3;width:52px!important;height:30px!important}
+body.pch-on #panel .tile.pet-hid h4{display:none}
+body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
+body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
+</style>`);
+// PC, Pets > Find more: headings over the pets you can adopt and the ones still to find; they follow the section tabs
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return r;
+      const add=(sel,txt)=>{ const list=[...g.querySelectorAll(':scope > '+sel)]; if(!list.length) return; const h=document.createElement('div'); h.className='pet-h'; h.dataset.for=sel; h.innerHTML=`<span>${txt}</span><span class="meta">${list.length}</span>`; g.insertBefore(h,list[0]); };
+      add('.pet-sale','Adopt'); add('.pet-hid','Still to find');
+      const sync=()=>g.querySelectorAll('.pet-h').forEach(h=>{ const n=[...g.querySelectorAll(':scope > '+h.dataset.for)].filter(t=>t.style.display!=='none').length; h.style.display=n?'':'none'; h.querySelector('.meta').textContent=n; });
+      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #panel .grid > .pet-h{grid-column:1 / -1;display:flex;align-items:baseline;gap:8px;margin:6px 2px -2px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#cfe0f2}
+body.pch-on #panel .grid > .pet-h:first-child{margin-top:0}
+body.pch-on #panel .grid > .pet-h .meta{letter-spacing:0}
+body.pch-on #panel .tile.pet-hid canvas{align-self:center}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the pet filter belongs to "Your pets": the page hides it on the other tabs, and the one-row phone style must not show it again */
+#menuov #panel .chips.pet-filter[style*="display: none"],#menuov #panel .chips.pet-filter[style*="display:none"]{display:none!important}
+</style>`);
+// =====================================================================
+// PC quality of life (director, 2026-11-17: "on pc there's no exit button?", "a settings rework for pc where pc has exclusive
+// controls and options. Nothing new, just QOL", "gold got moved? I liked it next to level").
+// - Coins are back next to Level on the info row; the header keeps the same width so it still lines up with the menu's row.
+// - A full screen button beside search, in the header and in the menus (Exit full screen when you are in it), and the F key.
+// - Settings on PC: Sound, Controls, Display, Gameplay and a PC group on one page ("General"), patch notes and save as before.
+// Phones and tablets are unchanged.
+// =====================================================================
+const pcFs={ api:()=>!!document.fullscreenElement,
+  // full screen by F11 (browser menu) cannot be left from the page: it fills the screen without the fullscreen API
+  f11:()=>!document.fullscreenElement&&innerHeight>=screen.height-2&&innerWidth>=screen.width-2,
+  on(){ return this.api()||this.f11(); },
+  toggle(){ const d=document; try{ if(d.fullscreenElement){ d.exitFullscreen(); return; } if(this.f11()){ toast('Press F11 to leave full screen.'); return; } const p=d.documentElement.requestFullscreen&&d.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>toast('This browser did not allow full screen.')); }catch(e){} } };
+{ const ICON_IN='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+    ICON_OUT='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+  const mk=cls=>{ const b=document.createElement('button'); b.type='button'; b.className=cls+' pc-fsb'; b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); pcFs.toggle(); setTimeout(sync,250); },true); return b; };
+  const bs=[]; const add=(host,cls)=>{ if(!host) return; const b=mk(cls); const ref=host.querySelector('[data-pch="search"],[data-mo="search"]'); host.insertBefore(b,ref||null); bs.push(b); };
+  const sync=()=>{ const on=pcFs.on(); bs.forEach(b=>{ b.innerHTML=on?ICON_OUT:ICON_IN; const t=on?'Exit full screen (Esc or F)':'Full screen (F)'; b.title=t; b.setAttribute('aria-label',t); b.setAttribute('aria-pressed',on); });
+    document.querySelectorAll('#panel [data-act="fullscreen"]').forEach(x=>{ x.textContent=on?'Exit full screen':'Full screen'; const m=x.closest('.toggle')&&x.closest('.toggle').querySelector('.meta'); if(m&&m.dataset.pcfs) m.textContent=on?(pcFs.api()?'You are in full screen. Esc also leaves it.':'Full screen from the browser: press F11 to leave it.'):'Fill the whole screen with the game. F does it too.'; }); };
+  const init=()=>{ add(document.querySelector('#pchead .pch-tools'),'pch-tb'); add(document.querySelector('#menuov .mo-tools'),'mo-tb'); sync(); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  document.addEventListener('fullscreenchange',()=>setTimeout(sync,60)); addEventListener('resize',()=>setTimeout(sync,120));
+  window.pcFsSync=sync;
+  // F: full screen on PC (not while typing)
+  addEventListener('keydown',e=>{ if((e.key!=='f'&&e.key!=='F')||e.ctrlKey||e.metaKey||e.altKey||e.repeat) return; if(!document.body.classList.contains('pch-on')) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; e.preventDefault(); pcFs.toggle(); setTimeout(sync,250); });
+  // the shortcut list: current section names, and F
+  try{ const k=KEYS.find(x=>x[0]==='1 - 5'); if(k) k[1]='Open a section (Fishing, Upgrades, Collections, Challenges, Customization)'; if(!KEYS.some(x=>x[0]==='F')) KEYS.splice(KEYS.findIndex(x=>x[0]==='M')+1,0,['F','Full screen on or off (PC)']); }catch(e){} }
+// Settings on PC
+{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ const grid=P.querySelector(':scope > .grid'); if(!grid) return; const s=S.settings;
+    // the full screen and frame rate rows move from Display into the PC group
+    const disp=[...grid.children].find(t=>/^Display/.test((t.querySelector('h4')||{}).textContent||'')); let fpsRow=null;
+    if(disp){ disp.querySelectorAll('.toggle').forEach(r=>{ if(r.querySelector('[data-act="fullscreen"]')) r.remove(); else if(r.querySelector('[data-k="showFps"]')) fpsRow=r; }); if(fpsRow) fpsRow.remove(); }
+    let auto=true; try{ auto=localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){}
+    const t=document.createElement('div'); t.className='tile pc-set'; t.innerHTML=`<h4>PC</h4>
+      <div class="toggle"><div><b>Full screen</b><div class="meta" data-pcfs="1"></div></div><button class="btn sm" data-act="fullscreen" type="button">Full screen</button></div>
+      <div class="toggle"><div><b>Back to full screen</b><div class="meta">If you leave the game in full screen, it goes back to full screen the next time you play.</div></div><button class="btn ${auto?'':'alt'} sm" data-pcauto="1" type="button" aria-pressed="${auto}">${auto?'On':'Off'}</button></div>
+      ${fpsRow?fpsRow.outerHTML:''}
+      <h5>Keyboard</h5><div class="pc-keys">${KEYS.map(k=>`<div><kbd>${esc(k[0])}</kbd><span>${esc(k[1])}</span></div>`).join('')}</div>`;
+    grid.appendChild(t);
+    const ab=t.querySelector('[data-pcauto]'); ab.addEventListener('click',e=>{ e.stopPropagation(); let v=true; try{ v=localStorage.getItem('dl-fs-auto')==='0'; localStorage.setItem('dl-fs-auto',v?'1':'0'); }catch(er){} ab.textContent=v?'On':'Off'; ab.classList.toggle('alt',!v); ab.setAttribute('aria-pressed',v); });
+    if(window.pcFsSync) pcFsSync(); }catch(e){ console.error(e); } };
+  // one "General" page on PC instead of a tab per small group
+  const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const P=$('panel'); const old=P.querySelector(':scope > .sect-nav'); if(old) old.remove();
+      const K=[...P.children], grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const tiles=[...grid.children], h=(t,re)=>re.test((t.querySelector('h4')||{}).textContent||'');
+      const general=tiles.filter(t=>!h(t,/^Patch notes/)), notes=tiles.filter(t=>h(t,/^Patch notes/)), save=K.filter(c=>c!==grid&&(c.classList.contains('tile')||c.tagName==='DETAILS'));
+      if(SECT.settings&&!['General','Patch notes','Save & codes'].includes(SECT.settings)) SECT.settings='General';
+      sectionize(P,'settings',[{name:'General',nodes:general},{name:'Patch notes',nodes:notes},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
+      const sync=()=>{ const on=(P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent==='General'; grid.classList.toggle('sect-one',!on); grid.classList.toggle('pc-setgrid',on); };
+      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); }catch(e){ console.error(e); } }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+.pc-fsb{display:none!important}
+html body.pch-on .pc-fsb{display:inline-grid!important;place-items:center}
+html body.pch-on .pc-fsb svg{display:block}
+/* coins next to Level again on PC; the header keeps the menu row's width so the two rows still line up */
+/* (coins sit with Level in the header corner, see below) */
+
+/* Settings, General page */
+body.pch-on #menuov #panel .grid.pc-setgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:start;gap:12px!important}
+body.pch-on #panel .pc-set .pc-keys{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 10px;align-items:center;margin-top:4px}
+body.pch-on #panel .pc-set .pc-keys > div{display:contents}
+body.pch-on #panel .pc-set kbd{display:inline-block;min-width:46px;text-align:center;padding:2px 7px;border-radius:7px;background:#ffffff14;border:1px solid #ffffff2a;border-bottom-width:2px;font:800 11.5px ui-monospace,Consolas,monospace;color:#fff}
+body.pch-on #panel .pc-set .pc-keys span{font-size:12.5px;color:#cfdcea}
+</style>`);
+// PC Settings, General: three balanced columns (Sound | Controls + Gameplay | Display + PC) instead of rows with gaps
+{ const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const g=$('panel').querySelector(':scope > .grid.pc-setgrid, :scope > .grid'); if(!g||g.querySelector(':scope > .pc-col')) return;
+      const tiles=[...g.children], by=re=>tiles.find(t=>re.test((t.querySelector('h4')||{}).textContent||''));
+      const plan=[[/^Sound/],[/^Controls/,/^Gameplay/],[/^Display/,/^PC$/]]; const cols=plan.map(res=>{ const c=document.createElement('div'); c.className='pc-col'; res.forEach(re=>{ const t=by(re); if(t) c.appendChild(t); }); return c; });
+      if(cols.some(c=>c.children.length)) g.prepend(...cols); }catch(e){ console.error(e); } }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #panel .grid > .pc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+body.pch-on #panel .grid.sect-one > .pc-col{display:none}
+</style>`);
+// =====================================================================
+// PC: one header row (director, 2026-11-17: "make this header super clean; if 1 row is possible, that's the dream, allowing the
+// fishing scene to get larger"; "level and money as close to the fishing scene as possible").
+//   [ Level · Coins ] [ Fishing  Upgrades  Collections  Challenges  Customization ]        [ Cooler  Aquarium  Fish Log ] [ ⛶ 🔍 ⚙ ]
+// - The left block is as wide as "Back to fishing" in the menus, and the section tabs have the same fixed width and position in
+//   both, so nothing moves when a menu opens.
+// - What belongs to the water sits on the water: one badge in its top-left corner with where you fish, the day and weather, and
+//   your next goal (the weather chip the canvas drew there is replaced by it on PC).
+// - The info row is gone on PC, so the water gets its height. Every chip keeps its own clicks and live updates (they are moved,
+//   not copied) and goes back to the info row on every other layout.
+// =====================================================================
+{ const pc=()=>document.body.classList.contains('pch-on');
+  let scene=null, wx=null, stats=null, built=false;
+  const marks=new Map(); // element -> comment that marks its home in the info row
+  const park=(el,host,before)=>{ if(!el||!host) return; if(!marks.has(el)){ const c=document.createComment('pc-home'); el.parentNode.insertBefore(c,el); marks.set(el,c); } if(el.parentElement!==host||(before!==undefined&&el.nextSibling!==before)) host.insertBefore(el,before||null); };
+  const home=el=>{ const c=marks.get(el); if(c&&c.parentNode&&el.previousSibling!==c) c.parentNode.insertBefore(el,c.nextSibling); };
+  const parts=()=>{ const st=id=>{ const e=$(id); return e&&e.closest('.stat'); }; return { lv:st('lvl'), co:st('money'), cool:st('coolerct'), aq:document.querySelector('.stat.st-aq'), log:document.querySelector('.stat.st-log'), loc:document.querySelector('.stat.loc'), goal:$('goalchip') }; };
+  const build=()=>{ if(built) return true; const tools=document.querySelector('#pchead .pch-tools'), stg=$('stage'); if(!tools||!stg) return false;
+    stats=document.createElement('div'); stats.className='pch-stats'; tools.prepend(stats);
+    // the strip directly above the water (director, 2026-11-17: nothing may cover the fishing scene)
+    scene=document.createElement('div'); scene.id='pcscene'; scene.innerHTML='<div class="pcs-wx"><span class="lbl"></span><b></b></div><span class="pcs-gap"></span><span class="pcs-boosts"></span><span class="pcs-streak"></span>'; wx=scene.firstChild; stg.parentNode.insertBefore(scene,stg);
+    built=true; return true; };
+  const apply=()=>{ if(!build()) return; const p=parts(), br=document.querySelector('#pchead .pch-brand');
+    if(pc()){ if(br){ br.classList.add('pch-me'); br.removeAttribute('aria-hidden'); park(p.lv,br); park(p.co,br); }
+      park(p.cool,stats); park(p.aq,stats); park(p.log,stats);
+      park(p.loc,scene,wx); park(p.goal,scene,scene.querySelector('.pcs-gap')); park($('hint'),scene,scene.querySelector('.pcs-boosts')); park($('resttog'),scene); tick(); }
+    else [p.lv,p.co,p.cool,p.aq,p.log,p.loc,p.goal,$('hint'),$('resttog')].forEach(e=>e&&home(e)); };
+  // the day and weather ("Day · Rain  bites +35% · 0:58"), boosts and streak, as the canvas drew them on the water
+  const tick=()=>{ if(!built||!pc()) return; try{ const w=weather(), tag=WX_TAG[w.k], l=tod(phase())+' · '+wxName(w.k), v=(tag?tag+' · ':'changes in ')+mmss(wxLeft());
+      const a=wx.firstChild, b=wx.lastChild; if(a.textContent!==l) a.textContent=l; if(b.textContent!==v) b.textContent=v; wx.classList.toggle('special',!!tag); wx.classList.toggle('gilded',w.k==='Gilded');
+      const sk=scene.querySelector('.pcs-streak'), st=S.streak>=2?'Streak '+S.streak+' · +'+Math.round(Math.min(streakCap(),.05*S.streak)*100)+'% XP':''; if(sk.textContent!==st) sk.textContent=st; sk.classList.toggle('hot',S.streak>=10);
+      const bo=scene.querySelector('.pcs-boosts'), now=Date.now(), bt=S.settings.boostsOnScreen?activeBuffs().slice(0,3).map(x=>fmtB(x.k,x.v)+' '+mmss(Math.ceil((x.until-now)/1000))).join('   '):''; if(bo.textContent!==bt) bo.textContent=bt; }catch(e){} };
+  setInterval(tick,1000);
+  const _sc=drawSceneChip; drawSceneChip=function(){ if(pc()) return; return _sc.apply(this,arguments); };
+  const init=()=>{ apply(); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(apply,300); setTimeout(apply,1200); addEventListener('resize',()=>setTimeout(apply,200)); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init(); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the tabs' width, shared by the header and the menus: as wide as fits between the left block and the right block, at most 700 */
+html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 500px - 56px))}
+html body.pch-on.dl-fish .hud{display:none!important}
+html body.pch-on.dl-fish #pchead{grid-template-columns:190px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important;column-gap:14px!important;grid-template-rows:46px!important;height:46px!important}
+html body.pch-on #pchead .pch-brand{grid-column:1!important;grid-row:1!important}
+html body.pch-on #pchead .pch-cats{grid-column:2!important;grid-row:1!important;margin-left:14px!important}
+html body.pch-on #pchead .pch-tools{grid-column:4!important;grid-row:1!important}
+html body.pch-on #pchead .pch-coin{display:none!important}
+html body.pch-on #menuov .mo-in{grid-template-columns:190px 0 var(--pcTabs) minmax(0,1fr) auto!important;grid-template-areas:"back home secs . tools" "sub sub sub sub sub" "body body body body body"!important}
+/* left block: Level and coins */
+html body.pch-on #pchead .pch-brand.pch-me{display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);padding:0;overflow:hidden;cursor:default}
+html body.pch-on #pchead .pch-me > *:not(.stat){display:none}
+html body.pch-on #pchead .pch-me > .stat{display:flex!important;flex-direction:column;justify-content:center;gap:3px;min-width:0;padding:4px 12px;margin:0;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;flex:none!important;max-width:none!important;height:auto!important}
+html body.pch-on #pchead .pch-me > .stat + .stat{border-left:1px solid #7fe3c42a!important}
+html body.pch-on #pchead .pch-me .st-lvl .lbl{display:flex;align-items:baseline;gap:6px}
+html body.pch-on #pchead .pch-me #lvl{font-size:15px!important;color:#fff}
+html body.pch-on #pchead .pch-me #money{font-size:15px}
+/* right block: cooler, aquarium, Fish Log as compact counters */
+html body.pch-on #pchead .pch-stats{display:flex;gap:6px;height:46px}
+html body.pch-on #pchead .pch-stats > .stat{display:flex!important;flex-direction:column;justify-content:center;gap:2px;height:46px!important;box-sizing:border-box;padding:4px 12px!important;margin:0!important;min-width:0!important;max-width:none!important;flex:0 0 auto!important;border-radius:14px!important}
+html body.pch-on #pchead .pch-stats > .stat b{font-size:14px;white-space:nowrap}
+/* the strip directly above the water: one line, nothing on the picture itself */
+html body:not(.pch-on) #pcscene,html body.pch-on:not(.dl-fish) #pcscene{display:none}
+html body.pch-on.dl-fish #pcscene{display:flex;align-items:center;gap:4px;height:30px;margin:6px 0 4px;padding:0 4px;flex:0 0 auto;min-width:0;overflow:hidden}
+html body.pch-on #pcscene > *{flex:0 1 auto;min-width:0}
+html body.pch-on #pcscene > .stat,html body.pch-on #pcscene > #goalchip,html body.pch-on #pcscene > .pcs-wx{position:static!important;inset:auto!important;transform:none!important;display:flex!important;flex-direction:row!important;align-items:baseline!important;gap:7px!important;margin:0!important;padding:4px 10px!important;width:auto!important;height:auto!important;max-width:none!important;border:0!important;border-radius:9px!important;background:none!important;box-shadow:none!important}
+html body.pch-on #pcscene > .pcs-wx{border-left:1px solid #ffffff14!important;border-right:1px solid #ffffff14!important;border-radius:0!important}
+html body.pch-on #pcscene > .hud-link:hover,html body.pch-on #pcscene > #goalchip:hover{background:#ffffff0d!important}
+html body.pch-on #pcscene .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8ea4b9;white-space:nowrap}
+html body.pch-on #pcscene b{font-size:13px;color:#eef4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.pch-on #pcscene .pcs-wx.special b{color:#bfe8ff}
+html body.pch-on #pcscene .pcs-wx.gilded b{color:#ffc94d}
+html body.pch-on #pcscene #goalchip > .gl-s{display:none!important}
+html body.pch-on #pcscene #goalchip > .gl-k{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8ea4b9;white-space:nowrap}
+html body.pch-on #pcscene #goalchip > .gl-t{font-size:13px;font-weight:800;color:#eef4f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.pch-on #pcscene #goalchip > .gl-bar{position:static!important;display:inline-block!important;width:46px;height:4px;border-radius:4px;background:#ffffff1a;overflow:hidden;align-self:center;margin:0!important}
+html body.pch-on #pcscene #goalchip > .gl-bar b{display:block;height:100%;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
+html body.pch-on #pcscene .pcs-gap{flex:1 1 auto}
+html body.pch-on #pcscene > #hint{position:static!important;inset:auto!important;transform:none!important;margin:0 8px!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;font-size:12px!important;color:#8ea4b9!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:none!important;flex:0 1 auto;opacity:1!important}
+html body.pch-on #pcscene .pcs-boosts{font-size:12px;font-weight:700;color:#7fc8a9;white-space:nowrap;flex:0 0 auto}
+html body.pch-on #pcscene .pcs-streak{font-size:12px;font-weight:800;color:#e6efe8;white-space:nowrap;flex:0 0 auto}
+html body.pch-on #pcscene .pcs-streak.hot{color:#ffc94d}
+html body.pch-on #pcscene .pcs-boosts:empty,html body.pch-on #pcscene .pcs-streak:empty{display:none}
+html body.pch-on #pcscene > #resttog{position:static!important;inset:auto!important;transform:none!important;margin:0 0 0 6px!important;flex:0 0 auto}
+/* narrower PC windows: icon-only section tabs (names on hover) in both rows, and a tighter right block */
+@media (max-width:1320px){
+  html body.pch-on{--pcTabs:max(240px,min(700px,calc(100vw - 32px - 190px - 480px - 56px)))}
+  html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
+  html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs .secb{padding:4px 6px!important}
+  html body.pch-on #pchead .pch-stats > .stat{padding:4px 9px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pch-on #pcscene > #goalchip{position:relative!important;inset:auto!important;transform:none!important;left:auto!important;top:auto!important}
+/* short section names on PC (Collection, Customize) in both rows, with room for icon, name and badge */
+html body.pch-on #menuov #tabs.secmode .secb .secfull{display:none!important}
+html body.pch-on #menuov #tabs.secmode .secb .secshort{display:inline!important}
+html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs.secmode .secb{gap:6px!important;padding-left:8px!important;padding-right:8px!important}
+</style>`);
+{ const shortNames=()=>{ if(!document.body.classList.contains('pch-on')) return; document.querySelectorAll('#pchead #catdock .cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=sec.short||sec.name; if(l.textContent!==t) l.textContent=t; b.title=sec.name; } }); };
+  new MutationObserver(()=>setTimeout(shortNames,0)).observe(document.body,{attributes:true,attributeFilter:['class']}); addEventListener('resize',()=>setTimeout(shortNames,60)); setTimeout(shortNames,200); }
