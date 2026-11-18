@@ -34,7 +34,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // page is visible the moment you open it (at 1280x800 it used to start below the fold and every visit needed a page
 // scroll). Full screen and phones keep their own layouts. The water gives up a little height to make room.
 // ---------------------------------------------------------------------
-const PC_APP=()=>!document.body.classList.contains('phone-app')&&!document.body.classList.contains('phone-land')&&innerWidth>=760&&innerHeight>=560&&!document.fullscreenElement&&!window.__noPcApp;
+const PC_APP=()=>!document.body.classList.contains('phone-app')&&!document.body.classList.contains('phone-land')&&innerWidth>=760&&innerHeight>=560&&!window.__noPcApp; // full screen too (director, 2026-11-17: they play in full screen and got the old layout)
 function pcFit(){ const w=document.querySelector('.wrap'); if(!w) return; if(!document.body.classList.contains('pc-app')){ w.style.height=''; return; }
   const top=w.getBoundingClientRect().top+(window.scrollY||0); w.style.height=Math.max(420,Math.round(innerHeight-top-10))+'px'; }
 (function(){ let on=null; const apply=()=>{ const v=PC_APP(); if(v!==on){ on=v; document.body.classList.toggle('pc-app',v); document.documentElement.classList.toggle('pc-app',v); if(v) window.scrollTo(0,0); }
