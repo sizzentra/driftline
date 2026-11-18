@@ -1567,3 +1567,140 @@ body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!imp
 body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
 body.pch-on #menuov #panel #tankcv{height:min(40vh,480px)!important}
 </style>`);
+// =====================================================================
+// PC: continuous day, night and weather (director, 2026-11-17: the light changes must be as smooth as the frame rate). The light
+// follows the clock, so the scenery for 3 s from now can be drawn ahead of time, between frames; every frame blends from the
+// current picture to that one by exactly how far the clock has moved. No steps, no pops, at any frame rate. If something else is
+// changing the light right now (it does not match the clock), the stepped fade is used for that moment instead. Phones unchanged.
+// =====================================================================
+{ const POOL=[document.createElement('canvas'),document.createElement('canvas'),document.createElement('canvas')], D=3000;
+  let A=null, B=null, base='', bq=0, fallbackUntil=0; const _ld=v3landDraw;
+  const pcOn=()=>document.body.classList.contains('pch-on');
+  const lightAt=ms=>{ const real=Date.now, off=ms-real(); Date.now=()=>real()+off;
+    try{ const L=curLoc(), p=phase(), wx=weather(), night=nightness(p);
+      const dusk=Math.max(0,1-Math.abs(p-.5)/.06)+Math.max(0,1-Math.min(Math.abs(p-1),p)/.06)*.7, wa=wxAmt();
+      const gloom=(wx.k==='Storm'?.7:wx.k==='Rain'?.38:wx.k==='Fog'?.3:0)*wa+(L.id==='deep'?.1:0); return {night,dusk,gloom}; }
+    finally{ Date.now=real; } };
+  const buildAt=(L,ms,hz)=>{ const lt=lightAt(ms), keep=[V3CACHE,V3PREV,v3palette.k,v3palette.v];
+    const tgt=POOL.find(c=>(!A||c!==A.c)&&(!B||c!==B.c));
+    try{ const P=v3palette(L.id,lt.night,lt.dusk,lt.gloom); V3CACHE={c:tgt,base:'#pch',key:'#pch'}; V3PREV=null; v3land.now=true; const C=v3land(L,P,hz); return {c:C.c,ms}; }
+    finally{ v3land.now=false; V3CACHE=keep[0]; V3PREV=keep[1]; v3palette.k=keep[2]; v3palette.v=keep[3]; } };
+  v3landDraw=function(L,P,hz){ const now=Date.now(); if(!pcOn()||now<fallbackUntil){ A=B=null; base=''; return _ld.apply(this,arguments); }
+    const b=L.id+'|'+W+'|'+H+'|'+DPR;
+    if(b!==base||!A||now<A.ms-50||now>(B?B.ms:A.ms)+D*2){
+      // does the clock explain the light on screen? (events and tests can set it by hand)
+      const lt=lightAt(now), d=clamp(lt.dusk,0,1)*(1-lt.night*.45);
+      if(Math.abs(lt.night-(P.night||0))>.03||Math.abs(d-(P.d||0))>.03||Math.abs(lt.gloom-(P.gloom||0))>.03){ fallbackUntil=now+4000; A=B=null; base=''; return _ld.apply(this,arguments); }
+      base=b; clearTimeout(bq); bq=0; B=null; A=buildAt(L,now,hz); V3CACHE={key:'#pchA',base:b,c:A.c}; V3PREV=null; }
+    if(B&&now>=B.ms){ A=B; B=null; V3CACHE={key:'#pchA',base:b,c:A.c}; }
+    if(!B&&!bq){ const ms=A.ms+D; bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; B=buildAt(L2,ms,HZ()); }catch(e){} },0); }
+    g.drawImage(A.c,0,0,W,H);
+    if(B){ const a=clamp((now-A.ms)/(B.ms-A.ms),0,1); if(a>0){ g.globalAlpha=a; g.drawImage(B.c,0,0,W,H); g.globalAlpha=1; } } };
+  if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil}); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: the count badges on the category tabs sit on the tab's top edge, fully inside the screen (they were cut off by 4 px);
+   the menu's category badges move the same way so both header rows still match */
+html body.pch-on #pchead #catdock .cddot{top:-3px!important}
+body.pch-on #menuov #tabs.secmode .secdot{top:-3px!important}
+/* phones upright: the goal keeps to one line, so the top bar never changes height (the water was not re-measured when it did) */
+body.phone-app.dl-fish .hud > #goalchip .gl-t{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;display:block;min-width:0}
+</style>`);
+// opening or closing the menu changes the layout under the water: measure the water again on the next frame (does not depend on
+// the browser's size watcher, which some browsers deliver late)
+{ const _mm=menuMode; menuMode=function(){ const was=MENU_OPEN, r=_mm.apply(this,arguments); if(was!==MENU_OPEN) requestAnimationFrame(()=>{ try{ resize(); }catch(e){} }); return r; }; }
+// Feats, organized (director, 2026-11-17: hard to read, not organized): grouped under labelled headings with "x of y done",
+// closest to finishing first inside each group. PC shows every feat at once (no "Show all" button).
+{ const CATS=[['Catching',['c10','c100','c500','c2000','c5000','perfect25','hot10','hot100','frenzy5','frenzy100','snap10','snap50','storm','trench','star1']],
+    ['Collection',['sp10','sp20','sp50','sp100','sp160','spall','shiny','shiny10','shiny50','trophy','trophy50','junk20','junkall','loot5','loot25']],
+    ['Legends & myths',['leg','leg5','leg12','legall','myth1','myth3','mythall']],
+    ['Pets',['pet50','bond10','pets3','petsall']],
+    ['Waters',[]],
+    ['Aquarium & home',['tank6','tank12','decor5','decor15','cozy15','dock8']],
+    ['Style',['hats5','hats15','hatsall','style5']],
+    ['Gear',['rods4','rods8','rod10','atts10','buff4']],
+    ['Boardwalk & events',['derby1','derby10','gold3','claw10','crates10']],
+    ['Progress',['rich','rich1m','rich10m','rank5','rank20','rank50','demand10','tasks10','tasks100','streak10','streak30','pass25','pass50','tide1','tide3','paths5']]];
+  CATS[1][1].push('sp250');
+  const catOf=f=>{ if(/^Master of /.test(f.name)) return 'Waters'; const c=CATS.find(([,ids])=>ids.includes(f.id)); return c?c[0]:'More'; };
+  const order=CATS.map(c=>c[0]).concat('More');
+  // PC: every feat on one screen - a card per group laid out in columns, one compact line per feat (name, progress, bar, reward;
+  // the description on hover); finished feats stay in their group with a tick
+  const board=(P,info)=>{ let fb=P.querySelector('.featboard'); if(fb) fb.remove(); fb=document.createElement('div'); fb.className='featboard';
+    for(const cat of order){ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); if(!list.length) continue; const nd=list.filter(x=>x.done).length;
+      fb.insertAdjacentHTML('beforeend',`<section class="fb-cat"><header><span>${esc(cat)}</span><span class="fb-n">${nd} / ${list.length}</span></header><ul>${list.map(x=>{ const t=x.t, metas=[...t.querySelectorAll(':scope > .meta')], desc=metas[0]?metas[0].textContent:'', cnt=(t.querySelector('.row .meta')||{}).textContent||'', val=t.querySelector('.val'), rew=val?val.innerHTML:'';
+        return `<li class="fb-row${x.done?' done':''}" title="${esc(desc)}"><span class="fb-name">${x.done?'✓ ':''}${esc((t.querySelector('h4')||{}).textContent||'')}</span><span class="fb-cnt">${x.done?'Done':esc(cnt)}</span><i class="fb-bar"><b style="width:${Math.min(100,x.p)}%"></b></i><span class="fb-rew">${rew}</span></li>`; }).join('')}</ul></section>`); }
+    const nav=P.querySelector('.sect-nav'), grid=[...P.children].find(c=>c.classList.contains('grid')), more=grid&&grid.nextElementSibling;
+    if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
+    (grid||P.lastChild).after(fb);
+    // columns filled by hand: each group card goes into the shortest column (the browser's own balancing left columns empty)
+    const w=P.clientWidth, n=w>=1300?5:w>=1000?4:3, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
+    const secs=[...fb.children], size=s=>s.querySelectorAll('.fb-row').length+2.2, pos=new Map(secs.map((s,i)=>[s,i]));
+    secs.slice().sort((a,b)=>size(b)-size(a)).forEach(sec=>{ const i=h.indexOf(Math.min(...h)); cols[i].appendChild(sec); h[i]+=size(sec); }); /* biggest groups first: even columns */
+    cols.forEach(c=>[...c.children].sort((a,b)=>pos.get(a)-pos.get(b)).forEach(s=>c.appendChild(s))); /* each column keeps the usual group order */
+    cols.forEach(c=>fb.appendChild(c)); fb.style.gridTemplateColumns='repeat('+n+',minmax(0,1fr))'; };
+  const organize=P=>{ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return;
+    const byName={}; FEATS.forEach(f=>byName[f.name]=f);
+    const tiles=[...grid.children].filter(t=>t.classList.contains('tile')); const prog=t=>{ const i=t.querySelector('.prog i'); return i?parseFloat(i.style.width)||0:(t.classList.contains('done')?100:0); };
+    const info=tiles.map(t=>{ const nm=(t.querySelector('h4')||{}).textContent||'', f=byName[nm.trim()]; return {t,cat:f?catOf(f):'More',done:t.classList.contains('done'),p:prog(t)}; });
+    if(document.body.classList.contains('pch-on')){ board(P,info); return; }
+    grid.querySelectorAll('.feat-cat').forEach(h=>h.remove());
+    for(const cat of order){ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); if(!list.length) continue;
+      const h=document.createElement('div'); h.className='feat-cat'; h.dataset.cat=cat; const nd=list.filter(x=>x.done).length;
+      h.innerHTML=`<span>${esc(cat)}</span><span class="meta">${nd} of ${list.length} done</span>`; grid.appendChild(h); list.forEach(x=>{ x.t.dataset.cat=cat; grid.appendChild(x.t); }); }
+    const sync=()=>grid.querySelectorAll('.feat-cat').forEach(h=>{ const any=[...grid.querySelectorAll('.tile[data-cat="'+CSS.escape(h.dataset.cat)+'"]')].some(t=>t.style.display!=='none'); h.style.display=any?'':'none'; });
+    sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); const more=grid.nextElementSibling; if(more&&more.tagName==='BUTTON') more.addEventListener('click',()=>setTimeout(sync,0)); };
+  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; const r=_rp.apply(this,arguments); try{ if(S.tab==='feats') organize($('panel')); }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#panel .grid > .feat-cat{grid-column:1 / -1;display:flex;align-items:baseline;gap:10px;margin:10px 2px 0;padding-bottom:4px;border-bottom:1px solid #ffffff14;font:800 13px var(--display,system-ui);letter-spacing:.06em;text-transform:uppercase;color:#cfe0f2}
+#panel .grid > .feat-cat:first-child{margin-top:0}
+#panel .grid > .feat-cat .meta{text-transform:none;letter-spacing:0;font-weight:700;color:#8fa6bf}
+</style>`);
+// PC: patch notes made for a big screen (director, 2026-11-17: hard to read). A wide card on a dimmed game, each update split into
+// titled section cards laid out side by side; lists without headings are grouped by what they are about (PC, Phones, iPhone,
+// Menus, Everywhere) and the prefix is dropped. Phones keep the narrow card.
+{ const _ph=patchHTML;
+  const groups=p=>{ const out=[]; let cur=null; const hasH=p.items.some(i=>i.startsWith('## '));
+    if(hasH){ for(const i of p.items){ if(i.startsWith('## ')){ cur={t:i.slice(3),items:[]}; out.push(cur); } else { if(!cur){ cur={t:'What changed',items:[]}; out.push(cur); } cur.items.push(i); } } return out; }
+    const PRE=[['PC','PC'],['Phones','Phones'],['iPhone','iPhone'],['Menus on phones held sideways','Phones'],['Menus','Menus']], by={};
+    for(const i of p.items){ const m=i.match(/^([A-Za-z ]+?):\s+(.*)$/); let g='Everywhere', txt=i; if(m){ const hit=PRE.find(([k])=>k===m[1]); if(hit){ g=hit[1]; txt=m[2].charAt(0).toUpperCase()+m[2].slice(1); } } (by[g]=by[g]||[]).push(txt); }
+    return ['Everywhere','PC','Menus','Phones','iPhone'].filter(g=>by[g]).map(g=>({t:g,items:by[g]})); };
+  patchHTML=function(p){ if(!document.body.classList.contains('pch-on')) return _ph(p);
+    const gs=groups(p); return `<div class="pn-head"><div class="rar" style="color:var(--gold)">${p.label?esc(p.label):'Update '+esc(p.v)}</div><h3>${esc(p.name)}</h3></div><div class="pn-grid">${gs.map(g=>`<section class="pn-sec"><h4>${esc(g.t)}</h4><ul>${g.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>`; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #evcard{background:rgba(4,9,18,.66)!important}
+body.pch-on #evin:has(.pn-grid){width:min(1080px,92vw)!important;max-width:none!important;max-height:86vh!important;padding:22px 26px!important;text-align:left}
+body.pch-on #evin:has(.pn-grid) > .rar,body.pch-on #evin:has(.pn-grid) > h3,body.pch-on #evin:has(.pn-grid) > p.sub{text-align:center}
+body.pch-on #evin .pn-head{text-align:center;margin:6px 0 10px}
+body.pch-on #evin .pn-head h3{font-size:24px;margin:2px 0 0}
+body.pch-on #evin .pn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
+body.pch-on #evin .pn-sec{background:#0e1a2c;border:1px solid #ffffff14;border-radius:14px;padding:12px 14px 10px}
+body.pch-on #evin .pn-sec h4{margin:0 0 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
+body.pch-on #evin .pn-sec ul{margin:0;padding-left:18px;max-height:none!important;overflow:visible!important}
+body.pch-on #evin .pn-sec li{font-size:14.5px;line-height:1.5;color:#dbe6f2;margin:0 0 6px}
+body.pch-on #evin .pn-sec li:last-child{margin-bottom:0}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #panel .featboard{display:grid;gap:10px;align-items:start;margin-top:4px}
+body.pch-on #panel .fb-col{display:flex;flex-direction:column;gap:9px;min-width:0}
+
+
+body.pch-on #panel .fb-cat{margin:0;background:linear-gradient(180deg,#132238,#0f1b2d);border:1px solid #ffffff14;border-radius:14px;padding:8px 10px 4px;box-shadow:inset 0 1px 0 #ffffff0d}
+body.pch-on #panel .fb-cat header{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
+body.pch-on #panel .fb-cat header .fb-n{letter-spacing:0;color:#8fa6bf;font-weight:700}
+body.pch-on #panel .fb-cat ul{list-style:none;margin:0;padding:0}
+body.pch-on #panel .fb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:2px;padding:3px 4px 4px;border-top:1px solid #ffffff0a}
+body.pch-on #panel .fb-row:first-child{border-top:0}
+body.pch-on #panel .fb-name{font:700 13px var(--display,system-ui);color:#eef3f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.pch-on #panel .fb-cnt{font:700 12px var(--display,system-ui);color:#9fb2c8;white-space:nowrap}
+body.pch-on #panel .fb-bar{display:block;height:3px;border-radius:4px;background:#ffffff14;overflow:hidden;align-self:center}
+body.pch-on #panel .fb-bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
+body.pch-on #panel .fb-rew{font-size:11.5px;color:#c9d7e8;white-space:nowrap;text-align:right}
+body.pch-on #panel .fb-row.done{opacity:.55}
+body.pch-on #panel .fb-row.done .fb-name{color:#7fe3c4}
+body.pch-on #panel .fb-row.done .fb-bar b{background:#7fe3c4}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* PC: Next goal is as wide as its text needs (at most 460 px); cooler, aquarium and Fish Log sit together at the right */
+html body.pch-on.dl-fish .hud > #goalchip{flex:0 1 auto!important;width:auto!important;max-width:460px!important;min-width:200px!important}
+html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}
+</style>`);

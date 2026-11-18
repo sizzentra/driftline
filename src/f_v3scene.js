@@ -21,7 +21,8 @@ const V3PAL = { pond: {
 function v3palette(id,night,dusk,gloom){
   // colours follow the clock in fine steps (cheap); o.key is a coarse light level that the cached scenery
   // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
-  const fk=id+'|'+Math.round(night*60)+'|'+Math.round(dusk*40)+'|'+Math.round(gloom*30);
+  const fq=document.body.classList.contains('pch-on')?[600,400,300]:[60,40,30]; /* PC: colours follow the clock almost continuously */
+  const fk=id+'|'+Math.round(night*fq[0])+'|'+Math.round(dusk*fq[1])+'|'+Math.round(gloom*fq[2]);
   if(v3palette.k===fk) return v3palette.v;
   const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:(()=>{ const s=v3steps(); return id+'|'+Math.round(night*s[0])+'|'+Math.round(dusk*s[1])+'|'+Math.round(gloom*s[2]); })()} /* 0.3.4: finer light steps, so each fade is smaller */;
   for(const k in P.day){ let c=mix(P.day[k],P.night[k],night); if(d>0) c=mix(c,P.dusk[k],d); if(gloom>0) c=mix(c,'#59616b',gloom*.6); o[k]=c; }
