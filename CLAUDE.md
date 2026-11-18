@@ -26,7 +26,12 @@ A cozy fishing game in the browser, made for the director and their friends. It 
   - A finished Feats category gives a permanent boost (`FEAT_CAT_BONUS`, via `bonus()`).
   - A completed Fish Log water makes its fish worth +10% (`specLocValue`).
 
-  Patch notes still to write. **NEXT (director, 2026-11-17): split PC / Android / iPhone into separate builds** (shared core + one layer per platform, same site address so saves stay; back up the save first). Plan agreed in principle, not started.
+  Patch notes still to write.
+- **PLATFORM SPLIT DONE (director, 2026-11-17: "separate PC and mobile going forward... Android and iPhones will need their own updates").** `build.ps1` now writes `pc.html`, `android.html`, `ios.html` (shared `$core` + that platform's `$layers` list) and `index.html` = `src/router.html` (picks the build by device, keeps `?`/`#`, `?plat=pc|android|ios` forces one, `?test&ios` → ios). Same folder, same address → one shared save. `window.DL_BUILD` says which build is running. **Rules:**
+  - PC-only work goes into PC layer files (today `br_pc05.js`). Android and iPhone work goes into their own layer files (lists empty so far).
+  - The core is only for things every platform shares (the game, its rules, the save). Shared game rules live in `bs_rules05.js`.
+  - Test a platform's work on that platform's build only.
+  - Preview: on /next/ only. The live site switches when the next release is published.
 - **NEXT: nothing scheduled (0.4.5 shipped).** Standing rules (director, 2026-11-17): platforms are tested separately and keep platform-specific changes in their own layer (body classes: `pch-on` PC, `phone-app` upright, `phone-land` sideways, tablets = none of these) so one platform never alters another; give every platform love; critique harshly (hard to find for new players? missing? how does it look on each platform?). **PC: nothing may sit on top of the fishing scene**; the header is one row. Write patch-note text with ’ (single-quoted JS strings) and run `__qa()` on the exact build before every push (an apostrophe broke the preview once).
 - **0.4 "Fifty Fathoms" SHIPPED 2026-11-17** (director: "Patch is ready to go live"). Release build checked (GAME_VERSION 0.4, no DL_PREVIEW, no test hooks, no gift codes in plain text), live loads with zero errors. The last rounds before release were iPhone touch fixes in `src/bm_ui04.js`: tap-only controls (`touch-action: manipulation`), no `:hover` rules on touch screens, menu navigation acts on finger lift with the phone's own clicks ignored (except touches that didn't act), Back/Overview shield, no-bounce guard with a 10 px dead zone, bigger side buttons; kept thumbnails (fish/decor/dock), fast-tap coalescing, `resize()` skips unchanged sizes and redraws at once. Details: `docs/QA_0.4_report.md`. Any new work is a new version with its own patch-notes entry; the 0.4 entry stays as shipped.
 - **0.3.6 "Fifty Fathoms" IN PROGRESS (2026-11-17, overnight, director asleep; preview only, never publish.ps1 without approval).** Done and committed so far:
@@ -212,7 +217,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 7. **Self-critique:** "what would the director notice first?" Fix it, re-check, and only then present.
 
 ## How it's built
-- **One HTML file**, built from parts in `src/` by `build.ps1`, in this order: `a_head.html` (layout + CSS), `b_data.js` (data), `c_logic.js`, `d_draw.js`, `d2_extra.js`, `d3_update.js`, `d4_style.js`, `d5_v16.js`, `d6_preview.js`, `d7_v20.js`, `d8_v21.js`, `d9_link.js`, `d10_lily.js`, `e_ui.js`. Around them sit `shell_top.html` and `shell_bottom.html`. The output is `site/index.html` plus `site/version.txt`.
+- **One HTML file per platform (since 2026-11-17: pc.html, android.html, ios.html + a router index.html; see "PLATFORM SPLIT" above)**, built from parts in `src/` by `build.ps1`, in this order: `a_head.html` (layout + CSS), `b_data.js` (data), `c_logic.js`, `d_draw.js`, `d2_extra.js`, `d3_update.js`, `d4_style.js`, `d5_v16.js`, `d6_preview.js`, `d7_v20.js`, `d8_v21.js`, `d9_link.js`, `d10_lily.js`, `e_ui.js`. Around them sit `shell_top.html` and `shell_bottom.html`. The output is `site/index.html` plus `site/version.txt`.
 - **Each big update added its own file:**
   - d5 = 1.6
   - d6 = previews
