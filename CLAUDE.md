@@ -181,9 +181,28 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **The user is the director:** a non-programmer who sets the vision, play-tests and approves. Explain things in plain words and guide step by step.
 - **Claude is the lead developer:** builds, tests on PC and phone sizes, publishes, and writes the patch notes.
 
+## Platform ground rules (director, 2026-11-18: "create ground rules going forward so we'll never have the problem")
+These are absolute. `build.ps1` enforces the first three and refuses to build when one is broken.
+1. **Three builds, one game.** PC, Android and iPhone each have their own build; the router `index.html` picks it. They share one core (the game, its rules, its drawing, the save) and one save.
+2. **Platform UI lives only in its platform's folder:** `src/pc/` (PC), `src/mobile/` (Android + iPhone), `src/android/`, `src/ios/`.
+   - Add a file to `$layers` in build.ps1, or place it with a `//@layer <platform> <file>` line inside a shared file.
+   - **Check 1:** shared files may not gain platform-specific code. Their platform mentions are counted against `$platBaseline`, which may only go down.
+3. **Every build holds exactly its own platform files** and none of the others. **Check 2** looks for every platform file's full text in all three builds.
+4. **Shared rules and data go in the core**, so a save behaves the same everywhere: rewards, balance, items, saving. When a new system comes, its data and rules are written once in the core, then each platform gets its own screens for it, designed for that platform (see `docs/PLATFORM_DESIGN.md`).
+5. **Old platform code still in a shared file is moved before it is changed:** move the section into its platform folder (marker in its place), lower the baseline, then edit it there.
+6. **Test only the platform being worked on,** on its own build:
+   - PC: full screen 1920×1080 (the director's setup), plus 1440 and 800 wide.
+   - Android: 375×812 upright and 734×360 sideways.
+   - iPhone: with `?test&ios`.
+   - Run `__qa()` on the exact build before every push.
+
+   Changes to the shared core are tested on all three builds.
+7. **Each platform looks the way `docs/PLATFORM_DESIGN.md` says.** New screens follow its standards; if a screen needs something the standard doesn't cover, the standard is updated first (and the director asked when it's a real design choice).
+8. **Test apps:** PC = Driftline Test (desktop). Phones = "DL Test" home-screen app from /next/. Both always load the preview, never the live game. The live game changes only when the director approves a release.
+
 ## Ground rules (director)
 - **Fishing stays the core.** Everything else supports it.
-- **Equal care for PC and mobile,** in both portrait AND landscape. Test all three sizes before publishing: 1280×800, 375×812 and 844×390.
+- **Equal care for every platform** (PC, Android, iPhone; phones in portrait AND landscape), each tested on its own build: see "Platform ground rules" above.
 - **Cozy and homey,** with light humour everywhere but never as the focus.
 - **Try before you buy:** every purchase has a preview.
 - **Don't over-buff,** but make every choice meaningful (skills, paths, gear).

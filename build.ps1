@@ -20,7 +20,24 @@ $top0 = [IO.File]::ReadAllText((Join-Path $root 'src\shell_top.html')).Replace('
 $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))
 $router = [IO.File]::ReadAllText((Join-Path $root 'src\router.html')).Replace('__VERSION__', $v)
 $out = if ($Preview) { Join-Path $root 'site\next' } else { Join-Path $root 'site' }
+
+# ---------- GROUND RULE CHECK 1: platform code never grows inside a shared file ----------
+# Each shared file may mention platform layouts at most as often as it did when the split was made (2026-11-17). The numbers
+# may only go DOWN (when old code moves into src/pc, src/mobile or src/ios). New platform UI belongs in a platform file; the
+# build refuses to finish otherwise. If a number goes down, lower it here too.
+$platWords = [regex]'pch-on|pc-fhd|pc-app|pc-wide|PC_APP|pchead|phone-app|phone-land|plat-ios|plat-android|plat-pc'
+$platBaseline = @{ 'af_smooth.js'=1; 'aw_menu035.js'=2; 'bd_ui036.js'=3; 'bh_platform036.js'=15; 'bj_polish036.js'=56; 'bm_ui04.js'=75; 'd_draw.js'=2; 'f_v3scene.js'=3; 'x_sections.js'=1 }
+$coreFiles = ($core + 'e_ui.js') | Where-Object { $_ -notmatch '^(pc|mobile|android|ios):' }
+$broken = @()
+foreach ($f in $coreFiles) {
+  $n = $platWords.Matches([IO.File]::ReadAllText((Join-Path $root "src\$f"))).Count
+  $allowed = if ($platBaseline.ContainsKey($f)) { $platBaseline[$f] } else { 0 }
+  if ($n -gt $allowed) { $broken += "$f has $n platform-specific mentions (allowed: $allowed)" }
+}
+if ($broken.Count) { throw ("GROUND RULE BROKEN: platform-specific code was added to a shared file. Move it into src/pc, src/mobile or src/ios.`n  " + ($broken -join "`n  ")) }
+
 New-Item -ItemType Directory -Force $out | Out-Null
+$built = @{}
 foreach ($p in 'pc','android','ios') {
   $parts = $core + $layers[$p]
   if ($Preview) { $parts = $parts + 'bn_qa04.js' }  # the QA suite only exists in previews, never in the live game
@@ -40,7 +57,24 @@ foreach ($p in 'pc','android','ios') {
     $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
     $badge = '<div class="dlprev" style="position:fixed;right:10px;bottom:10px;z-index:30;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:4px 10px;font:700 11px system-ui,sans-serif;pointer-events:none">preview · ' + $names[$p] + '</div>'
   }
+  $built[$p] = $body
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $top + $body + $badge + $bottom, $utf8)
+}
+
+# ---------- GROUND RULE CHECK 2: every build holds exactly its own platform's files ----------
+# Each platform file is looked for in all three builds: it must be in the builds it belongs to and in no other.
+$owners = @{ pc = @('pc'); mobile = @('android','ios'); android = @('android'); ios = @('ios') }
+foreach ($dir in 'pc','mobile','android','ios') {
+  $d = Join-Path $root "src\$dir"; if (-not (Test-Path $d)) { continue }
+  foreach ($file in Get-ChildItem $d -Filter *.js) {
+    $txt = [IO.File]::ReadAllText($file.FullName); $sig = $txt  # the file's whole text: it is copied into its builds unchanged, so it must appear there exactly, and nowhere else
+    if (-not $sig) { continue }
+    foreach ($p in 'pc','android','ios') {
+      $has = $built[$p].Contains($sig); $should = $owners[$dir] -contains $p
+      if ($has -and -not $should) { throw "GROUND RULE BROKEN: src\$dir\$($file.Name) ended up in the $p build." }
+      if ($should -and -not $has) { throw "GROUND RULE BROKEN: src\$dir\$($file.Name) is missing from the $p build (add it to `$layers or place a //@layer line)." }
+    }
+  }
 }
 $r = $router
 if ($Preview) { $r = $r.Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">') }
