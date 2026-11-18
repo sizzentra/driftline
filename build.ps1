@@ -61,6 +61,10 @@ foreach ($p in 'pc','android','ios') {
     # phones: above the bottom tabs when upright, top left of the water when held sideways (the side menu is on the right)
     if($p -ne 'pc'){ $badge = '<style>html body span.dlprev.dlprev{transform:none!important;right:10px!important;left:auto!important;top:auto!important;bottom:calc(env(safe-area-inset-bottom) + 84px)!important}@media (orientation:landscape){html body span.dlprev.dlprev{right:auto!important;left:calc(env(safe-area-inset-left) + 22px)!important;bottom:auto!important;top:calc(env(safe-area-inset-top) + 92px)!important}}</style>' + $badge }
   }
+  # each phone build carries its own version number (shown in Settings and used for "what's new"); they had been stuck on the
+  # shared 0.4.8.1. A ghost patch adds a sub-number without a new patch note. PC keeps its own (set by its release).
+  $platVer = @{ android = '0.4.8.5.1'; ios = '0.4.8.5.1' }
+  if ($platVer.ContainsKey($p)) { $body = [regex]::Replace($body, "const GAME_VERSION = '[^']*';", "const GAME_VERSION = '" + $platVer[$p] + "';") }
   $built[$p] = $body
   $pages[$p] = $top + $body + $badge + $bottom
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
