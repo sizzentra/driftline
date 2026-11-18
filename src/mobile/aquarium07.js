@@ -17,16 +17,15 @@
       const tank=P.querySelector(':scope > .tank'), nav=P.querySelector(':scope > .sect-nav'), bank=P.querySelector('.bank'); if(!tank||!nav) return r;
       /* round 7b (director: "the aquarium should be bigger without ruining the menu sizes"): only the tank (and upright the tabs) is
          pinned; the earnings strip heads the scrolling column, which gives its height to the tank */
-      const pin=document.createElement('div'); pin.className='aq07-pin'; tank.before(pin); pin.appendChild(tank); pin.appendChild(nav);
+      const pin=document.createElement("div"); pin.className="aq07-pin"; tank.before(pin); pin.appendChild(tank); if(bank){ bank.classList.add("aq07-bank"); pin.appendChild(bank); } pin.appendChild(nav); /* round 7c (director): Feed and Collect sit right under the tank again */
       const head=P.querySelector(':scope > .mb-aqh, :scope > .dl-head'); if(head&&!document.body.classList.contains('phone-land')) pin.after(head); /* upright: the tank comes first, the explanation under it */
       const addB=document.createElement('button'); addB.type='button'; addB.className='aq07-addtab'; addB.setAttribute('role','tab'); addB.setAttribute('aria-selected',AQ_ADD?'true':'false'); addB.innerHTML='Add fish'+(S.cooler.length?' <span class="aq07-n">'+S.cooler.length+'</span>':''); nav.appendChild(addB);
       /* everything after the pinned block goes into one column (sideways it is the right-hand column next to the pinned tank) */
       const side=document.createElement('div'); side.className='aq07-side'; [...P.children].filter(c=>c!==pin&&!c.classList.contains('crumb')).forEach(c=>side.appendChild(c)); pin.after(side);
-      if(bank){ bank.classList.add('aq07-bank'); side.prepend(bank); }
       if(document.body.classList.contains('phone-land')) side.prepend(nav); /* sideways the tabs head the right column */
       /* Add fish is built hidden with the page and switched by visibility like the other two tabs (it used to rebuild the whole page,
          about 40 ms, and restart the tank) */
-      const tmp=document.createElement('div'); tmp.innerHTML=addHTML(); const add=tmp.firstElementChild; if(bank) bank.after(add); else if(nav.parentNode===side) nav.after(add); else side.prepend(add); let painted=false;
+      const tmp=document.createElement('div'); tmp.innerHTML=addHTML(); const add=tmp.firstElementChild; if(nav.parentNode===side) nav.after(add); else side.prepend(add); let painted=false;
       const show=on=>{ AQ_ADD=on; addB.setAttribute('aria-selected',on?'true':'false'); add.classList.toggle('aq07-off',!on); [...side.children].forEach(c=>{ if(c!==add&&c!==nav&&c!==bank) c.classList.toggle('aq07-off',on); }); if(on){ nav.querySelectorAll('[data-sect]').forEach(b=>b.setAttribute('aria-selected','false')); if(!painted){ painted=true; paintFish(add); } } };
       addB.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); if(!AQ_ADD){ show(true); try{ P.scrollTop=0; }catch(er){} } });
       nav.querySelectorAll('[data-sect]').forEach(b=>b.addEventListener('click',()=>{ if(AQ_ADD) show(false); },true));
@@ -146,5 +145,21 @@ html body.phone-app #menuov #panel.aq07 .aq07-pin > .tank > canvas,html body.pho
   html body.phone-land #menuov #panel.aq07 .aq07-pin{gap:6px}
   html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{height:calc(100dvh - 66px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;max-height:none!important}
   html body.phone-land #menuov #panel.aq07 .aq07-pin:has(> .aq07-try) > .tank{height:calc(100dvh - 124px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
+</style>`);
+// ---------- round 7c (director, screenshot 2026-11-18): "move Feed under the aquarium preview and make sure the preview fits properly".
+// The drawing stopped ~80 px short of the tank's bottom on phones: an older rule (".tank canvas") caps the canvas at 62% of the screen
+// height with a 16:9 shape, so inside the taller box it could not grow. Here the canvas always fills the tank exactly, and the tank is
+// sized to the space left above the earnings strip. ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app #menuov #panel.aq07 .aq07-pin > .tank > canvas,html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank > canvas{max-height:none!important;aspect-ratio:auto!important;min-height:0!important}
+html body.phone-app #menuov #panel.aq07 .aq07-pin > .tank{height:clamp(200px,31dvh,300px)!important}
+html body.phone-app #menuov #panel.aq07 .aq07-pin > .aq07-bank,html body.phone-land #menuov #panel.aq07 .aq07-pin > .aq07-bank{margin:0!important}
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{height:calc(100dvh - 120px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-pin:has(> .aq07-try) > .tank{height:calc(100dvh - 124px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){
+  html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{height:calc(100dvh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
 }
 </style>`);

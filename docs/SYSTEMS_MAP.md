@@ -111,11 +111,11 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 ### Phone look round 7b (2026-11-18)
 | Piece | Defined in | Notes |
 |---|---|---|
-| Aquarium pinned block | `mobile/aquarium07.js` | pinned = tank (+ tabs upright); earnings strip heads `.aq07-side`; tank height upright `clamp(220px,37dvh,340px)`, sideways the full column (`100dvh - 66px`, less while a try-on bar shows) |
+| Aquarium pinned block | `mobile/aquarium07.js` | pinned = tank + earnings strip (+ tabs upright), round 7c; the canvas ignores the old `.tank canvas` cap (62vh, 16:9); tank height upright `clamp(220px,37dvh,340px)`, sideways the full column (`100dvh - 66px`, less while a try-on bar shows) |
 | Aquarium tab switching | `mobile/aquarium07.js` (`show()`) | Add fish is built hidden and toggled by the `.aq07-off` class (never a re-render); Your tank / Decorate stay with `x_sections.js` |
 | Tank canvas survives re-renders | `mobile/aquarium07.js` (last `renderPanel` wrapper) | the old `#tankcv` replaces the new one after every render; anything that needs a fresh tank canvas must remove it first |
 | Rotation rebuild | `mobile/aquarium07.js` (`P.dataset.aqLand` + debounced resize) | the body's phone-land class changes a moment after the resize event |
-| Tappable top-bar chips | `mobile/theme07.js` (round 7b block) | teal outline + raised surface on `.hud-link`, `button.stat`, `#goalchip`, `.hudbtns` buttons; arrow after the label sideways only; coins/level flat. A new tappable chip needs one of those classes |
+| Tappable top-bar chips | `mobile/theme07.js` (round 7c block) | the Bait button look (filled teal, mint edge, white text); a full Cooler count turns gold on `.hud-link`, `button.stat`, `#goalchip`, `.hudbtns` buttons; arrow after the label sideways only; coins/level flat. A new tappable chip needs one of those classes |
 | Scene chip on the water (upright) | `mobile/theme07.js` (wraps `drawSceneChip` from `bm_ui04.js`) | one line (time · weather · time left); the water's name is in the top bar |
 | Test hook | `bn_qa04.js` `__fnTime(names, fn, n)` | times named functions while `fn` runs (preview only) |
 

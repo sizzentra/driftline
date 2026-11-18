@@ -197,3 +197,24 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.phone-land .hud > .stat .lbl,html body.phone-land .hud > #goalchip .gl-k{letter-spacing:.15px!important}
 }
 </style>`);
+// ---------- round 7c (director: "the top panel still has buttons that don't look clickable; not sure why they don't match the way
+// Bait looks"): every top-bar chip you can tap now uses exactly the Bait button's look (the same teal fill, mint edge, white text and
+// shadow), so "teal button = tap me" means the same thing on the water and in the top bar. Coins and level stay plain text; the
+// Aquarium chip turns gold when coins are ready to collect. ----------
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app .hud > .hud-link,html body.phone-app .hud > button.stat,html body.phone-app .hud > #goalchip,html body.phone-app .hud > .hudbtns > button,
+html body.phone-land .hud > .hud-link,html body.phone-land .hud > button.stat,html body.phone-land .hud > #goalchip,html body.phone-land .hud > .hudbtns > button{background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:0 3px 10px #0007!important;color:#fff!important}
+html body.phone-app .hud > .hud-link .lbl,html body.phone-app .hud > button.stat .lbl,html body.phone-app .hud > #goalchip .gl-k,
+html body.phone-land .hud > .hud-link .lbl,html body.phone-land .hud > button.stat .lbl,html body.phone-land .hud > #goalchip .gl-k{color:#c8fff0!important}
+html body.phone-app .hud > .hud-link b,html body.phone-app .hud > button.stat b,html body.phone-app .hud > #goalchip .gl-t,
+html body.phone-land .hud > .hud-link b,html body.phone-land .hud > button.stat b,html body.phone-land .hud > #goalchip .gl-t{color:#fff!important}
+html body.phone-app .hud > .hudbtns > button,html body.phone-land .hud > .hudbtns > button{color:#fff!important}
+html body.phone-app .hud > .hud-link:active,html body.phone-app .hud > button.stat:active,html body.phone-app .hud > #goalchip:active,html body.phone-app .hud > .hudbtns > button:active,
+html body.phone-land .hud > .hud-link:active,html body.phone-land .hud > button.stat:active,html body.phone-land .hud > #goalchip:active,html body.phone-land .hud > .hudbtns > button:active{filter:brightness(1.12);transform:translateY(1px)}
+html body.phone-app .hud > .st-aq.ready,html body.phone-land .hud > .st-aq.ready{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important}
+html body.phone-app .hud > .st-aq.ready *,html body.phone-land .hud > .st-aq.ready *{color:#2a1c05!important}
+</style>`);
+// a full cooler still warns: its count (set to the danger colour inline by e_ui.js) shows in warm gold, readable on the teal button
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app .hud #coolerct[style*="danger"],html body.phone-land .hud #coolerct[style*="danger"]{color:#ffd36a!important;text-shadow:0 0 6px #ffb34766}
+</style>`);
