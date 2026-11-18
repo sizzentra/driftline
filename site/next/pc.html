@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-1103';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-1112';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1509,6 +1509,7 @@ const sfx = {
 };
 
 // ---------- canvas ----------
+
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 // the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
 function stageHOverride(W,H){ return 0; }

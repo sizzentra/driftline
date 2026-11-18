@@ -29,3 +29,11 @@
       const wx=weather(), on=S.settings.effects&&typeof WXA==='number'&&WXA>.01, k=on?wx.k:'', a=on?WXA:0;
       const c=build(night||0,k,a); g.save(); g.imageSmoothingEnabled=true; g.drawImage(c,0,0,W,H); g.restore(); }; }
   if(/[?&]test\b/.test(location.search)) window.__ov=()=>OV&&{key:OV.key,w:OV.c.width,h:OV.c.height}; }
+// ---------- the scenery's light (round 7f, director: "make sure performance is completely fixed and solid on both phones"). The still
+// scenery is redrawn whenever the light moves up a step; at Willow Pond that redraw is about 6.5 ms of work (Frostbite, Ember and the
+// river less), so on a phone it can cost a frame. Measured over a whole in-game day: 55 redraws at Willow Pond. On phones now:
+//  - fewer, slightly bigger light steps (55 -> 37 a day at Willow Pond), each fading in a little longer, so the change stays invisible
+//  - never while you charge a cast or have a fish on the line: a light step waits until you are between catches ----------
+{ const _vs=v3steps, _vf=v3fade; v3steps=function(){ return MOB()?[9,6,4]:_vs.apply(this,arguments); }; v3fade=function(){ return MOB()?4.2:_vf.apply(this,arguments); };
+  const BUSY=/^(charging|flying|bite|reeling|landing)$/;
+  const _vl=v3land; v3land=function(L,P,hz){ if(MOB()&&V3CACHE&&!v3land.now&&typeof G==='object'&&BUSY.test(G.st)){ const base=L.id+'|'+W+'|'+H+'|'+DPR; if(V3CACHE.base===base&&V3CACHE.key!==base+'|'+P.key) return V3CACHE; } return _vl.apply(this,arguments); }; }

@@ -153,3 +153,11 @@ PC is on **0.4.8.2** (PC-only hotfix, branch `hotfix/0.4.8.2`, tag `v0.4.8.2`, p
 `.aq07-sheet` (two tabs, then a scrolling `.aq07-body` holding `.aq07-sec-tank` and `.aq07-sec-deco`). `#panel` itself never scrolls.
 Open/closed is `AQ_OPEN`, remembered per phone in localStorage `dl-aq-open`. Your tank merges Add fish, with the headings Boosts /
 On display / Add from your Cooler. Upright: open = tank 40% of the height; sideways: open = tank left, panel right.
+
+## Phone performance, round 7f (2026-11-18)
+| Piece | Defined in | Rule |
+|---|---|---|
+| Light steps on phones | `mobile/perf07.js` (wraps `v3steps`, `v3fade`) | [9,6,4] and a 4.2 s fade (was [14,9,6], 3.4 s): Willow Pond 55 -> 33 scenery redraws per in-game day |
+| No scenery redraw mid-catch | `mobile/perf07.js` (wraps `v3land`) | while `G.st` is charging / flying / bite / reeling / landing, a light-only redraw waits (the old picture stays) |
+| Opaque scene canvas (phones) | `mobile/canvas_opaque.js` via `//@layer mobile` in `c_logic.js` before the first `getContext` | `{alpha:false}`; the scene must keep painting every pixel. The PC build only gains an empty line from the hook |
+| Measured (desktop CPU, similar to a Pixel 10's): | | every water clear/storm, upright and sideways: median 1.1-2.3 ms, worst 8 ms, no long tasks; first frame after a water switch 4-13 ms; aquarium with 12 shiny pictures 2.3 ms sparkles + 2 ms tank |

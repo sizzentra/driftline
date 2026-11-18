@@ -178,6 +178,7 @@ const sfx = {
 };
 
 // ---------- canvas ----------
+//@layer mobile mobile/canvas_opaque.js
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 // the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
 function stageHOverride(W,H){ return 0; }
