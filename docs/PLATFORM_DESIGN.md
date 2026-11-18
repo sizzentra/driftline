@@ -71,7 +71,10 @@ windows use the regular PC layout (`body.pch-on`).
 | Water / page area | full width minus the edges | starts at top 49, ends 6 px above the bottom, right edge 6 px left of the rail |
 | Categories | bottom card: 8 px from the sides, 6 px from the bottom, 58 tall, padding 3; buttons 50 tall | right rail: 124 wide (56 collapsed), 8 px from the right edge, from top 49 to 6 px above the bottom (same on the water and in menus); buttons 40 tall, 5 apart |
 | Notices in menus | centred at the bottom | centred over the page (not the whole screen) |
+| Page tabs in the top row | 4 per row grid (existing upright layout) | one row, never scrolls when it fits; badges on the tab's top corner; side padding follows the screen width; names only (no icons) below 760 px wide |
 | Corners of the water | top left = status corner (time + weather chip, then boost timers, then the weather note); bottom left = Rest and Bait buttons; nothing drawn on the water may sit under a button | same |
+
+**Rows:** a row of buttons either fits or is a real scroll area. Never a row that scrolls by a few pixels (it turns taps into tiny scrolls and shifts under the finger). Header tab rows scroll sideways only. Labels are never cut.
 
 **Taps:** every button you can see must take the tap: nothing (no layer, label, guard or fade) may sit on top of its middle. A guard against a phone's follow-up tap covers only the spot under the finger, never the whole screen.
 

@@ -100,3 +100,8 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
   'Weather news also waits while the catch card is open.',
   'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
+PATCHES.unshift({v:'0.4.8.5', name:'Steady Tabs', items:[
+  '## Fixes',
+  'Page tabs at the top of a menu (Events, Bounties, Feats, Tide Pass, Boardwalk and the others) take every tap: the row could shift a few pixels under your finger, which made taps feel unresponsive and the tabs jiggle.',
+  'Section bars inside pages (Gear / Bait, Waters / Set sail again...) no longer slide sideways when they stick to the top.',
+  'On smaller phones held sideways, the page tabs show their names only so they always fit, and badges sit on the tab corner.']});
