@@ -1746,7 +1746,7 @@ html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}
 // =====================================================================
 { const _rj=renderJournal;
   const fitH=()=>{}; // the columns take the page's height through CSS (flex), so nothing is measured
-  renderJournal=function(P){ _rj(P); if(!document.body.classList.contains('pch-on')) return; try{
+  renderJournal=function(P){ _rj(P); if(!document.body.classList.contains('pch-on')||innerWidth<1100) return; /* the three columns need room */ try{
     P.style.zoom=''; const kids=[...P.children]; const pick=f=>kids.find(f);
     const crumb=pick(c=>c.classList.contains('crumb')), head=pick(c=>c.classList.contains('dl-head')),
       water=pick(c=>c.classList.contains('chips')&&c.querySelector('[data-act="encloc"]')), show=pick(c=>c.classList.contains('logshow')), sec=pick(c=>c.classList.contains('jsec'));
@@ -2369,4 +2369,140 @@ body.pc-fhd #menuov #panel .list > .fishrow .nm b{font-size:16px}
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the patch-notes reader stays hidden on the other Settings tabs (its layout rule must not override the tab's "hidden") */
 body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.pc-pn[style*="display:none"]{display:none!important}
+</style>`);
+// =====================================================================
+// PC: every page in exactly one place (director, 2026-11-17: "Settings should just open settings. Why is stats hidden there?
+// Clicking aquarium opens the aquarium, why is it also somewhere else?"). Their choices:
+// - Cooler, Aquarium and Fish Log open from their header buttons only; they leave the section tabs (Fishing = Waters,
+//   Collection = Trophy Room).
+// - Stats gets its own header button next to them.
+// - The gear opens Settings only; the Save page's content lives in Settings > Save & codes (it duplicated "Move progress").
+// - The header buttons have an icon and look like buttons; in the menus they stay in the top row, the open one lit.
+// Phones and tablets keep their sections as they are.
+// =====================================================================
+{ const pc=()=>document.body.classList.contains('pch-on');
+  const ORIG=MENU_SECS.map(s=>[s,s.tabs.slice()]), MORE0=MENU_MORE.tabs.slice(), SOLO=['cooler','aquarium','journal','stats'];
+  let mode=null; const applyIA=()=>{ const on=pc(); if(on===mode) return; mode=on;
+    for(const [s,tabs] of ORIG) s.tabs.splice(0,s.tabs.length,...(on?tabs.filter(t=>!SOLO.includes(t)):tabs));
+    MENU_MORE.tabs.splice(0,MENU_MORE.tabs.length,...(on?['settings']:MORE0));
+    try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
+  // a page reached from a header button has no section: its name shows as the one page tab, so the row is never empty
+  const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ if(!pc()) return; const T=$('tabs'), sb=T&&T.querySelector('.subbar'); if(!sb) return;
+      if((!menuSecOf(S.tab)&&S.tab!==DASH)||(menuSecOf(S.tab)||{}).id==='more'){ menuSubKey='solo|'+S.tab; sb.innerHTML=''; sb.hidden=true; } /* the lit header button (or the lit gear) already says where you are */
+      document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); }catch(e){} };
+  // header buttons: icon + label + value, the look of a button; Stats joins them
+  const ICON={cooler:'<path d="M4 9h16v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M3 9l1.6-4h14.8L21 9"/><path d="M10 13h4"/>',
+    aquarium:'<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M7 12.5c1.6-2 4.2-2.4 6-.5l1.6-1.2v3.4L13 13c-1.8 1.9-4.4 1.5-6-.5z"/><path d="M3 17c3 .7 5 .7 9 0s6-.7 9 0"/>',
+    journal:'<path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/>',
+    stats:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'};
+  const svg=k=>`<svg class="pcs-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
+  let statsBtn=null; const decorate=()=>{ const box=document.querySelector('.pch-stats'); if(!box) return false;
+    const map=[[$('coolerct')&&$('coolerct').closest('.stat'),'cooler'],[document.querySelector('.stat.st-aq'),'aquarium'],[document.querySelector('.stat.st-log'),'journal']];
+    for(const [el,k] of map){ if(!el||el.dataset.page) continue; el.dataset.page=k; el.insertAdjacentHTML('afterbegin',svg(k)); }
+    if(!statsBtn){ statsBtn=document.createElement('div'); statsBtn.className='stat st-stats hudx hud-link'; statsBtn.dataset.page='stats'; statsBtn.setAttribute('role','button'); statsBtn.tabIndex=0; statsBtn.title='Stats: everything that shapes your fishing (click to open)';
+      statsBtn.innerHTML=svg('stats')+'<span class="lbl">Stats</span><b class="pcs-sv"></b>';
+      const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu('stats'); };
+      ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+      statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
+    if(statsBtn.parentElement!==box) box.appendChild(statsBtn); return true; };
+  const tick=()=>{ try{ if(statsBtn){ const v=fmt(S.stats.caught)+' caught'; const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; } }catch(e){} };
+  setInterval(tick,1500);
+  // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
+  const place=()=>{ const box=document.querySelector('.pch-stats'), tools=document.querySelector('#menuov .mo-tools'), ph=document.querySelector('#pchead .pch-tools'); if(!box||!tools||!ph) return;
+    const inMenu=pc()&&MENU_OPEN; if(inMenu&&box.parentElement!==tools) tools.insertBefore(box,tools.querySelector('.mo-coin')||tools.firstChild); else if(!inMenu&&box.parentElement!==ph) ph.prepend(box); };
+  { const _om=openMenu, _cm=closeMenu; openMenu=function(){ const r=_om.apply(this,arguments); try{ place(); }catch(e){} return r; }; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ place(); }catch(e){} return r; }; } // move the buttons at once, not a moment later
+  const init=()=>{ applyIA(); decorate(); tick(); place();
+    new MutationObserver(()=>{ applyIA(); if(!statsBtn) decorate(); place(); }).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(()=>{ decorate(); place(); },600); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  // Settings > Save & codes on PC: the Save page's content (move progress, your save code, load a code, the app), the gift code
+  // and the reset; the duplicate "Move progress" tile goes
+  const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!pc()) return; try{
+      const mv=[...P.children].find(c=>c.classList.contains('tile')&&/Move progress/.test(c.textContent)); if(mv) mv.remove();
+      const box=document.createElement('div'); box.className='tile pc-save'; const gift=[...P.children].find(c=>c.classList.contains('tile')&&/Gift code/.test(c.textContent));
+      P.insertBefore(box,gift||P.querySelector(':scope > details')||null); renderSave(box);
+      box.querySelectorAll(':scope > h2, :scope > p.sub').forEach(e=>e.remove()); box.insertAdjacentHTML('afterbegin','<h4>Save and move progress</h4>'); }catch(e){ console.error(e); } }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* the header buttons: icon, label, value; they look like buttons and light up while their page is open */
+html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{display:grid!important;height:46px!important;box-sizing:border-box;padding:4px 12px!important;margin:0!important;min-width:0!important;max-width:none!important;flex:0 0 auto!important;border-radius:14px!important;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:9px;row-gap:1px;align-items:center;cursor:pointer;border:1px solid #ffffff22!important;background:linear-gradient(180deg,#172a42,#10203a)!important;box-shadow:inset 0 1px 0 #ffffff12,0 2px 6px #0006!important;transition:background .15s,border-color .15s,transform .1s}
+html body.pch-on .pch-stats > .stat:hover{border-color:#7fb8ff88!important;background:linear-gradient(180deg,#1c3352,#132744)!important}
+html body.pch-on .pch-stats > .stat:active{transform:translateY(1px)}
+html body.pch-on .pch-stats > .stat.on{border-color:#ffd36a!important;background:linear-gradient(180deg,#3a3016,#2a230f)!important;box-shadow:inset 0 0 0 1px #ffd36a55!important}
+html body.pch-on .pch-stats > .stat:focus-visible{outline:2px solid #ffd36a;outline-offset:2px}
+html body.pch-on .pch-stats .pcs-ic{grid-row:1 / 3;color:#9fd0ff}
+html body.pch-on .pch-stats > .stat.on .pcs-ic{color:#ffd36a}
+html body.pch-on .pch-stats > .stat .lbl{grid-column:2;line-height:1.1}
+html body.pch-on .pch-stats > .stat b{grid-column:2;line-height:1.15}
+html body.pch-on .pch-stats > .st-stats .pcs-sv{font-size:13px!important;color:#e6eef7}
+/* in the menu's top row */
+html body.pch-on #menuov .mo-tools > .pch-stats{display:flex;gap:6px;height:46px;margin-right:6px}
+/* hide the game header behind an open menu (it was covered anyway, and drawing it cost time) */
+html body.pch-on.menu-open #pchead{visibility:hidden}
+/* tabs' width now leaves room for four header buttons */
+html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 720px - 56px))}
+@media (max-width:1580px){
+  html body.pch-on{--pcTabs:max(200px,min(700px,calc(100vw - 32px - 190px - 600px - 56px)))}
+  html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
+  html body.pch-on .pch-stats > .stat .lbl{display:none!important}
+  html body.pch-on .pch-stats > .stat{padding:4px 9px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.pch-on .pch-stats > .stat::before{content:none!important;display:none!important}
+html body.pch-on #pchead .pch-stats > .stat.on,html body.pch-on #menuov .pch-stats > .stat.on{border-color:#ffd36a!important}
+</style>`);
+// PC: no name shown twice on one screen (director, 2026-11-17: "stuff is in multiple places")
+// - a section tab never repeats its page's name: Waters > "Travel", Dock > "Your dock"
+{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(document.body.classList.contains('pch-on')&&groups){ const ren={map:{Waters:'Travel'},home:{Dock:'Your dock'}}[tab]; if(ren){ groups=groups.map(g=>ren[g.name]?Object.assign({},g,{name:ren[g.name]}):g); if(SECT[tab]&&ren[SECT[tab]]) SECT[tab]=ren[SECT[tab]]; } } return _sz.call(this,P,tab,groups,before); }; }
+// - Feats on full HD: the rail already shows the total and each category's count
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='feats'&&document.body.classList.contains('pc-fhd')){ const P=$('panel'); const sub=P.querySelector(':scope > p.sub, :scope > .row p.sub'); if(sub&&P.querySelector('.featrd')) sub.style.display='none'; } }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* - Rods: the "Your rod" tab already names that column */
+body.pc-fhd #panel .fhd-rodpair .fhd-you > .fhd-h{display:none}
+/* - Trophy Room and Boardwalk: their page tab already carries the name; Boardwalk's wallet repeated your coins */
+body.pch-on #panel h2.tp-title{display:none}
+body.pch-on #panel .bwx-ht > h2{display:none}
+body.pch-on #panel .bwx-wallet > span:has(> b.coin){display:none}
+/* - Feats: the category title keeps the name; its count is on the rail */
+body.pc-fhd #panel .fr-main h3 .fr-n{display:none}
+</style>`);
+// PC Settings: the volume sliders and the on/off switches both said "Music" and "Nature sounds"; the switches say what they do
+{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ P.querySelectorAll('.toggle b').forEach(b=>{ const t=b.textContent.trim(); if(t==='Music') b.textContent='Play music'; else if(t==='Nature sounds') b.textContent='Play nature sounds'; }); }catch(e){} }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* narrower PC windows: the right side (four header buttons + tools) must always fit */
+@media (max-width:1580px){
+  html body.pch-on{--pcTabs:max(180px,min(700px,calc(100vw - 32px - 190px - 690px - 70px)))}
+  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
+  html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
+  html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{padding:4px 9px!important;column-gap:7px}
+  html body.pch-on .pch-stats > .stat b{font-size:13px!important}
+}
+@media (max-width:1200px){
+  html body.pch-on .pch-stats > .st-stats .pcs-sv{display:none!important}
+  html body.pch-on .pch-stats > .stat .pcs-ic{width:19px;height:19px}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (max-width:1100px){
+  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 690px - 70px)))}
+  html body.pch-on.dl-fish #pchead{grid-template-columns:150px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important}
+  html body.pch-on #menuov .mo-in{grid-template-columns:150px 0 var(--pcTabs) minmax(0,1fr) auto!important}
+  html body.pch-on #menuov .mo-back{font-size:12.5px!important;padding-left:10px!important;padding-right:10px!important;gap:6px!important}
+  html body.pch-on #pchead .pch-me > .stat{padding:4px 8px!important}
+  html body.pch-on #pchead .pch-me #lvl,html body.pch-on #pchead .pch-me #money{font-size:13.5px!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:1100px){ html body.pch-on #menuov .mo-back{width:150px!important;min-width:0!important;max-width:150px!important;box-sizing:border-box;white-space:nowrap;overflow:hidden} }</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* very small PC windows: the four header buttons become icons (name and number on hover) so the row always fits */
+@media (max-width:980px){
+  html body.pch-on .pch-stats > .stat .lbl,html body.pch-on .pch-stats > .stat b{display:none!important}
+  html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{width:42px;padding:0!important;display:grid!important;place-items:center;grid-template-columns:1fr!important}
+  html body.pch-on .pch-stats .pcs-ic{grid-row:auto!important}
+  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 420px - 56px)))}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:980px){ html body.pch-on #menuov .mo-tools .pc-fsb{display:none!important} }</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* small PC windows: the strip above the water keeps where you fish, the weather and the goal readable */
+@media (max-width:980px){ html body.pch-on #pcscene .pcs-streak{display:none!important} html body.pch-on #pcscene > .pcs-wx > .lbl{display:none!important} html body.pch-on #pcscene > .stat.loc > .lbl{display:none!important} }
 </style>`);
