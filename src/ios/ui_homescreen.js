@@ -6,7 +6,7 @@
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land.dl-fish{padding-top:6px!important}
 html body.phone-land #menuov .mo-in{padding-top:5px!important}
-html body.phone-land #menuov > #toast{top:60px!important;bottom:auto!important;height:auto!important} /* bottom:auto: with both top and bottom set the one-line note stretched into a box over the whole menu (2026-11-18) */
+html body.phone-land #menuov > #toast{top:auto!important;bottom:calc(10px + env(safe-area-inset-bottom))!important;height:auto!important} /* top:auto: with both top and bottom set, a one-line note ("Bought Crickets", "Claimed") stretched into a box over the whole menu; it now sits at the bottom like on Android (2026-11-18) */
 html body.phone-land #menuov #panel .wd-prev{height:calc(100dvh - 150px)!important}
 html body.phone-land .dlprev{top:4px!important}
 </style>`);

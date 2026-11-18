@@ -106,4 +106,4 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Goal / live-event line fit | `mobile/theme07.js` (fitGoal) and water name fit in `mobile/ui_modern06.js` | narrow phones (667x375, 375x667) |
 | Aquarium (pinned tank, earnings strip, Add fish tab) | `mobile/aquarium07.js` (wraps `renderPanel`, moves `.tank`, `.bank`, `.sect-nav` into `.aq07-pin`, rest into `.aq07-side`) | phones only; `x_sections.js` keeps working because elements are moved, not copied; leaving Add fish re-renders. Old `mobile/ui_aquarium_land.js` rules no longer match (`#panel:has(> .tank)`) |
 | Top-bar taps on finger lift | `bm_ui04.js` NAV list (menu buttons + `.hud` chips) | iPhone missed clicks; PC (mouse) untouched |
-| Menu note position (iPhone sideways) | `ios/ui_homescreen.js` (`#toast` top 60, bottom auto) | without bottom:auto it stretched over the whole menu |
+| Menu note position (iPhone sideways) | `ios/ui_homescreen.js` (`#toast` at the bottom like Android, top auto) | with both top and bottom set it stretched over the whole menu ("Bought…", "Claimed…" messages) |
