@@ -41,7 +41,7 @@ windows use the regular PC layout (`body.pch-on`).
 ## Android and iPhone (src/mobile/, src/android/, src/ios/)
 
 **Touch**
-- Tap targets are at least 44 px. No hover effects on touch screens.
+- Tap targets (as built, measured): chips and small buttons 32 px tall sideways, 36 upright; regular buttons 38 sideways, 40 upright; top rows 38 / 36; categories 40 (rail) / 50 (bottom card). See "Controls: one look per kind". No hover effects on touch screens.
 - Menu taps act when the finger lifts.
 
 **Upright**
@@ -54,7 +54,7 @@ windows use the regular PC layout (`body.pch-on`).
 
 **Forms**
 - Labels sit above fields.
-- Tabs that don't fit scroll sideways in one row instead of wrapping.
+- Rows of tabs never scroll by a few pixels: header page tabs always fit (they squeeze, and show names only below 760 px wide); in-page section bars fit their row. A picker with more than 4 options (Wardrobe: 7 categories) uses icon-over-label tiles, like the upright page tabs.
 
 **iPhone only**
 - Safe areas are handled for the home-screen app.
@@ -71,10 +71,26 @@ windows use the regular PC layout (`body.pch-on`).
 | Water / page area | full width minus the edges | starts at top 49, ends 6 px above the bottom, right edge 6 px left of the rail |
 | Categories | bottom card: 8 px from the sides, 6 px from the bottom, 58 tall, padding 3; buttons 50 tall | right rail: 124 wide (56 collapsed), 8 px from the right edge, from top 49 to 6 px above the bottom (same on the water and in menus); buttons 40 tall, 5 apart |
 | Notices in menus | centred at the bottom | centred over the page (not the whole screen) |
-| Page tabs in the top row | 4 per row grid (existing upright layout) | one row, never scrolls when it fits; badges on the tab's top corner; side padding follows the screen width; names only (no icons) below 760 px wide |
+| Page tabs in the top row | 4 per row grid (existing upright layout) | one row that never scrolls; badges poke out of the tab's top corner like the side rail's and never cover the name; side padding follows the screen width; names only (no icons) below 760 px wide |
 | Corners of the water | top left = status corner (time + weather chip, then boost timers, then the weather note); bottom left = Rest and Bait buttons; nothing drawn on the water may sit under a button | same |
 
-**Rows:** a row of buttons either fits or is a real scroll area. Never a row that scrolls by a few pixels (it turns taps into tiny scrolls and shifts under the finger). Header tab rows scroll sideways only. Labels are never cut.
+**Controls: one look per kind** (director, 2026-11-18: "cross reference everything that's connected, we need this to stop being so inconsistent"). Numbers in ONE place: `MB_UI` in `src/mobile/frame07.js`; `__spec` checks every one on every page.
+
+| Kind | Upright | Sideways |
+|---|---|---|
+| Regular button (`.btn`) | 40 tall, 15 px text | 38 tall, 15 px text |
+| Small button (`.btn.sm`, the aquarium bar pair) | 36 tall, 13 px | 32 tall, 13 px |
+| Button labels | one line; a label too wide for its button shrinks (never under 12 px) instead of wrapping | same |
+| Section tab (Gear / Bait, Waters / Set sail again...) | 34 tall, 12 px, bold 800, corners 10 | 32 tall, 13 px, bold 800, corners 10 |
+| Badge (every count: bottom tabs, rail, page tabs, section tabs) | 18 px, 10.5 px bold | same |
+| Category labels (bottom tabs / rail), water and menus alike | 10.5 px | 11.5 px |
+| Chip (filters, choices, toggles) | 32 tall, bold 700, corners 10 | same |
+| Description text (`p.sub`) | 12.5 px, #97abc2 | same |
+| Card title (`h4`) | 14.5 px | 15 px |
+| Page heading (`h2`, Trophy Room title, Events / Tide Pass headings) | 21 px, bold 800, white | 18 px, bold 800, white |
+| "Next goal" chip | one row (30 tall) like the location chip; long goals end in "…", progress as a thin line along its bottom | (in the top row) |
+
+**Rows:** a row of buttons either fits or is a real scroll area. Never a row that scrolls by a few pixels (it turns taps into tiny scrolls and shifts under the finger). Held sideways, the header tab row never scrolls at all (it always fits, so badges can sit on the tab corners). Labels are never cut.
 
 **Taps:** every button you can see must take the tap: nothing (no layer, label, guard or fade) may sit on top of its middle. A guard against a phone's follow-up tap covers only the spot under the finger, never the whole screen.
 
