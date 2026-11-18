@@ -1,6 +1,8 @@
 // PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'Alive and Well Dressed', items:[
+  '## Fixed',
+  'Send and Get progress in Settings > Save & codes work again: Send shows your 6-digit code and the QR code, and Get progress shows the box to type a code.',
   '## Smoother frames',
   'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
   'Storm waves on the open sea draw in a handful of shapes instead of hundreds.',

@@ -8,10 +8,18 @@ const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')|
 //    scrolling get the whole frame). The line waits while a menu is open, so nothing on the water is missed.
 { const _dr=draw; draw=function(now){ if(MENU_OPEN&&MOB()) return; return _dr.apply(this,arguments); }; }
 
-// 2) the aquarium tank: 30 frames a second on phones, and it holds still while you scroll the page (scrolling stays smooth)
+// 2) the aquarium tank: a steady pace on phones (round 7 below), a steady half rate while the page scrolls
 { let lastT=0, scrollUntil=0; const P=$('panel'); if(P) P.addEventListener('scroll',()=>{ scrollUntil=performance.now()+180; },{passive:true});
   addEventListener('touchmove',()=>{ if(S.tab==='aquarium') scrollUntil=performance.now()+180; },{passive:true});
-  const _dt=drawTank; drawTank=function(now){ if(MOB()){ const t=performance.now(); if(t<scrollUntil) return; if(t-lastT<15) return; lastT=t; /* full rate (round 6, director: more frames); still pauses while scrolling */ } return _dt.apply(this,arguments); }; }
+  // round 7 (director, 2026-11-18: "horrible stuttering in the aquarium preview"): the old rule skipped any frame that came less than
+  // 15 ms after the last one; on a 60 Hz screen frames arrive every 16.7 ms with a little jitter, so an early one was dropped now and
+  // then (a 33 ms gap, a visible hitch), and the tank froze completely while the list scrolled (it is always on screen now). Now the
+  // pace is steady: every display frame on 60 Hz screens, exactly every other frame on 120 Hz screens (measured, not a cut-off), and a
+  // steady half rate while the page scrolls instead of a freeze.
+  let ema=16.7, rawLast=0, odd=false;
+  const _dt=drawTank; drawTank=function(now){ if(MOB()){ const t=performance.now(), d=t-rawLast; rawLast=t; if(d>2&&d<60) ema=ema*.92+d*.08;
+      const half=ema<11||t<scrollUntil; /* 120 Hz screen, or the page is scrolling */ if(half){ odd=!odd; if(odd) return; } else odd=false; lastT=t; }
+    return _dt.apply(this,arguments); }; }
 
 // 3) steady frame rate: the water's resolution follows how the phone keeps up. If frames drop for a few seconds (a storm, a
 //    big fight), the water is drawn a little less sharp until the phone keeps up again (round 7: five steps, see below).

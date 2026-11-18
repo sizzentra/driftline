@@ -8,7 +8,7 @@
 //  - A third tab, "Add fish", lists the fish in your Cooler with "To aquarium", so the tank can be filled without leaving the page.
 // Android + iPhone only; PC keeps its own aquarium layout.
 // =====================================================================
-{ let AQ_ADD=false;
+{ let AQ_ADD=false, AQ_FULL=false;
   const addHTML=()=>{ const full=S.tank.length>=aqCap(); const rows=S.cooler.map((f,i)=>({f,i})).reverse();
     if(!rows.length) return `<div class="aq07-add"><div class="empty">Your Cooler is empty. Fish you catch can go on display from here.</div></div>`;
     return `<div class="aq07-add"><p class="aq07-note">${full?'The tank is full ('+S.tank.length+' of '+aqCap()+'). Make room or buy a bigger tank to add more.':'Tap <b>To aquarium</b> to put a fish on display. It starts earning right away.'}</p><div class="list">`+rows.map(({f,i})=>{ const sp=SPI[f.id];
@@ -31,6 +31,12 @@
       nav.querySelectorAll('[data-sect]').forEach(b=>b.addEventListener('click',()=>{ if(AQ_ADD) show(false); },true));
       show(AQ_ADD);
       P.dataset.aqLand=document.body.classList.contains('phone-land')?'1':'0'; /* which layout this page was built for */
+      /* round 7d (director: "it could use its own full screen toggle to open up Your tank, Decorate and Add fish in landscape"):
+         sideways, a button at the end of the tabs gives the lists the whole width (the tank steps aside) and brings the tank back */
+      P.classList.toggle('aq07-full',AQ_FULL&&P.dataset.aqLand==='1');
+      if(P.dataset.aqLand==='1'){ const fs=document.createElement('button'); fs.type='button'; fs.className='aq07-fs'; const paintFs=()=>{ fs.setAttribute('aria-pressed',String(AQ_FULL)); fs.setAttribute('aria-label',AQ_FULL?'Show the tank again':'Give the lists the whole screen'); fs.title=fs.getAttribute('aria-label');
+          fs.innerHTML=AQ_FULL?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>'; };
+        paintFs(); nav.appendChild(fs); fs.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); AQ_FULL=!AQ_FULL; P.classList.toggle('aq07-full',AQ_FULL); paintFs(); }); }
     }catch(e){ console.error(e); } return r; };
   /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles, against the layout
      the page was built for, so the very first turn counts too) */
@@ -161,5 +167,18 @@ html body.phone-app #menuov #panel.aq07 .aq07-pin > .aq07-bank,html body.phone-l
 }
 @media (orientation:landscape) and (max-height:560px) and (max-width:760px){
   html body.phone-land #menuov #panel.aq07 .aq07-pin > .tank{height:calc(100dvh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
+</style>`);
+// full-width lists (sideways): the tank steps aside, the tabs keep their place and the full-screen button sits at their end
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #panel.aq07 .aq07-side > .sect-nav{grid-template-columns:repeat(3,minmax(0,1fr)) 40px!important}
+  html body.phone-land #menuov #panel.aq07 .aq07-fs{border:0;border-radius:10px;min-height:36px;background:#13233a;color:#7fe3c4;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  html body.phone-land #menuov #panel.aq07 .aq07-fs[aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05}
+  html body.phone-land #menuov #panel.aq07.aq07-full{grid-template-columns:minmax(0,1fr)!important}
+  html body.phone-land #menuov #panel.aq07.aq07-full > .aq07-pin{display:none!important}
+  html body.phone-land #menuov #panel.aq07.aq07-full > .aq07-side{grid-column:1!important}
+  html body.phone-land #menuov #panel.aq07.aq07-full .aq07-dgrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  html body.phone-land #menuov #panel.aq07.aq07-full .aq07-side .list:not([style*="none"]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} /* only when its tab shows it */
 }
 </style>`);

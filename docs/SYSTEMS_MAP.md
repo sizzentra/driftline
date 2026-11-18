@@ -136,3 +136,11 @@ reading face only for sentences, line icons (no emoji) on chrome, teal label = o
 | Combined overlay (phones) | `mobile/perf07.js` | finVignette + drawVignette + storm / rain darkening in one cached ≤600 px picture drawn in `drawVignette`; `window.__noVig` skips the separate one in `v3Fore`; storm/rain full-screen rects inside `drawWeatherX0` are skipped on phones. A new full-screen weather tint must be added here for phones |
 | Automatic sharpness (phones) | `mobile/perf_round6.js` section 3 | steps 2 / 1.75 / 1.5 / 1.3 / 1.15; down below ~54 fps, up above ~71; remembered per water; first second after a water change ignored. `__mobperf()` shows it |
 | Measuring tools (preview, ?test) | `bn_qa04.js` `__inGame`, `__fnTime`; `f_v3scene.js` `__drawCost`, `__landCost`; `af_smooth.js` `__landSplit`, `__timeFns` | synchronous loops batch GPU work: confirm spikes with a timer-driven real-time loop before acting |
+
+## Round 7e (2026-11-18)
+| Piece | Defined in | Rule |
+|---|---|---|
+| PC Send / Get progress in Settings > Save & codes | `pc/ui_fhd.js` (end: `refreshXfer` wrapper) | the transfer section is drawn by `renderSave` inside Settings on PC, so it must be redrawn there when `XF` changes (core `refreshXfer` only handles the Save page). Live hotfix 0.4.8.2 prepared from tag v0.4.8.1 (PC file only) |
+| Phone aquarium tank pacing | `mobile/perf_round6.js` section 2 | every frame at 60 Hz, every other frame at 120 Hz (measured), steady half rate while scrolling. Never a fixed ms cut-off |
+| Phone aquarium full-width lists (sideways) | `mobile/aquarium07.js` (`AQ_FULL`, `.aq07-fs`, `.aq07-full`) | hides `.aq07-pin`; list rules must not use `display:...!important` on elements `x_sections.js` hides inline |
+| Phone Fish Log Normal / Shiny | `mobile/fishlog07.js` (PC's own is in `pc/ui_fhd.js`) | resets to Normal for each new fish; Shiny only for caught species |
