@@ -102,7 +102,7 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .lis
   try{ PAGE_DESC.oddities='Junk, odd finds and treasure you have pulled from the water'; }catch(e){}
   const _rc=renderCooler; renderCooler=function(P){ if(MOB()&&S.tab==='oddities'&&P){
       /* two tabs (director: "oddities include treasures but they aren't separated"): Oddities (junk, odd junk, rare finds) and Treasures */
-      const card=J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas><b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; };
+      const card=J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default" ${n?'data-odd="'+J.id+'"':''}><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas><b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${n?['Junk','Odd junk','Rare find','Treasure'][J.t]+' · ×'+n:'Not found yet'}</small></div>`; };
       const odd=JUNK.filter(J=>J.t<3).sort((a,b)=>a.t-b.t), tr=JUNK.filter(J=>J.t>=3);
       P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Oddities</h2><p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p></div></div>`+
         `<div class="jsec od8" data-od8="Oddities"><h2>Oddities</h2><p class="meta">Junk, odd junk and rare finds: everyday things the water gives back, from rarest last.</p><div class="jgrid">${odd.map(card).join('')}</div></div>`+

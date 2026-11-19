@@ -157,8 +157,8 @@ function renderJournal(P){
   const chips=[...LOCS.map(L=>[L.id,L.name+' '+caughtAt(L.id)+'/'+spAt(L.id).length]),['junk','Oddities '+nJunkKinds()+'/'+JUNK.length]].map(([k,n])=>`<button class="chipb" data-act="encloc" data-k="${k}" aria-pressed="${encLoc===k}">${n}</button>`).join('');
   let body='';
   if(encLoc==='junk'){
-    body=`<p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas>
-      <b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; }).join('')+'</div>';
+    body=`<p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default" ${n?'data-odd="'+J.id+'"':''}><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas>
+      <b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${n?['Junk','Odd junk','Rare find','Treasure'][J.t]+' · ×'+n:'Not found yet'}</small></div>`; }).join('')+'</div>';
   } else {
     const L=LOCS[locIdx(encLoc)], list=spAt(L.id).slice().sort((a,b)=>a.r-b.r||a.base-b.base), got=caughtAt(L.id), open=S.unlocked.includes(L.id); const sel=encSel && SPI[encSel] && SPI[encSel].loc===L.id ? SPI[encSel] : null;
     let det='';

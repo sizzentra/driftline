@@ -572,11 +572,11 @@ html body.pc-fhd #menuov #panel.bw-on .bwx-cf{margin-top:auto}
 // oddity hides... add a small description... All oddities is way too large a screen"): one tier at a time (no wall of
 // 100), smaller cards, an unfound oddity shows only "???" and its tier, and the details tell its little story.
 // =====================================================================
-{ const T=['Junk','Odd junk','Rare find','Treasure'], TC=['#b9c6c3','#8fd0ff','#c79bff','#ffd36a'];
-  const BLURB=['Everyday flotsam. Somebody lost it, you found it.','Strange little things the water spits out now and then.','Rare finds: odd, old and worth a story.','Treasure. The water gives these up only once in a long while.'];
+{ const T=['Junk','Odd junk','Rare find','Treasure','Not found yet'], TC=['#b9c6c3','#8fd0ff','#c79bff','#ffd36a','#7a8a9a']; /* [2] rarity stays hidden until found */
+  const BLURB=['Everyday flotsam. Somebody lost it, you found it.','Strange little things the water spits out now and then.','Rare finds: odd, old and worth a story.','Treasure. The water gives these up only once in a long while.','Oddities you have not found yet. Find one to learn its rarity, where it turns up and how often.'];
   const REW=e=>e.pet?'A new pet':e.hat?'A hat to wear':e.rod?'A new rod':e.lure?'Special lures':e.scales?'Scales':e.special?'Something special':e.buff?'A timed boost':'Coins';
   let tier=null, sel=null;
-  const render=P=>{ const items=JUNK.map(J=>({id:J.id,name:J.name,t:J.t,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0})), found=items.filter(x=>x.n).length;
+  const render=P=>{ const items=JUNK.map(J=>({id:J.id,name:J.name,t:S.junk[J.id]?J.t:4,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0})), found=items.filter(x=>x.n).length;
     const tiers=T.map((nm,i)=>{ const l=items.filter(x=>x.t===i); return {i,nm,l,f:l.filter(x=>x.n).length}; });
     if(tier==null||!tiers[tier]) tier=(tiers.find(t=>t.f<t.l.length)||tiers[0]).i;
     const cur=tiers[tier]; if(!sel||!items.some(x=>x.id===sel&&x.t===tier)){ const f=cur.l.find(x=>x.n); sel=f?f.id:null; } const it=sel&&items.find(x=>x.id===sel);
@@ -590,7 +590,7 @@ html body.pc-fhd #menuov #panel.bw-on .bwx-cf{margin-top:auto}
         <div class="od-grid">${cur.l.map(x=>`<button type="button" class="od-card${x.n?'':' unk'}${x.id===sel?' sel':''}" data-odk="${x.id}" style="--tc:${TC[tier]}"><canvas width="160" height="90" data-junk="${x.id}" data-known="${x.n?1:0}"></canvas><b>${x.n?esc(x.name):'???'}</b>${x.n>1?`<small>×${x.n}</small>`:''}</button>`).join('')}</div></section>
       <aside class="od-right">${it?`<div class="tile od-det"><canvas width="360" height="200" data-junk="${it.id}" data-known="${it.n?1:0}"></canvas><div class="rar" style="color:${TC[tier]}">${T[tier]}</div><h3>${it.n?esc(it.name):'Not found yet'}</h3>
           <p class="od-q">${it.n?esc(it.q||BLURB[tier]):'Nobody knows what this one is until it turns up on your line. It can come up at any water.'}</p>
-          ${it.n?`<div class="kv"><div><span>What it gave you</span> ${REW(it.e)}</div><div><span>Times found</span> ${it.n}</div></div>`:''}</div>`
+          ${it.n?`<div class="kv"><div><span>What it gave you</span> ${REW(it.e)}</div><div><span>Times found</span> ${it.n}</div>${oddKV(it.id)}</div>`:''}</div>`
         :`<div class="tile fl-pickhint"><b>Pick an oddity</b><span class="meta">Found ones tell their little story and what they gave you. Unfound ones stay a mystery until they turn up.</span></div>`}</aside></div>`;
     P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
     P.querySelectorAll('[data-odt]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); tier=+b.dataset.odt; sel=null; render(P); }));

@@ -3,7 +3,7 @@
 // Extras: mastery & angler rank, aquarium decor, events & mini-games,
 // boardwalk games, music & ambience, settings, extra pets
 // =====================================================================
-const bestLoot = () => Math.max(...S.unlocked.map(id=>LOCS[locIdx(id)].loot));
+const bestLoot = () => Math.max(...S.unlocked.filter(id=>{ const L=LOCS[locIdx(id)]; return L&&!L.eg; }).map(id=>LOCS[locIdx(id)].loot),40); /* [69] end-game waters never raise prices */
 
 // ---------- mastery & angler rank ----------
 const MASTERY = [3,10,30,100];

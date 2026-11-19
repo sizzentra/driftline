@@ -144,8 +144,8 @@ function caughtAt(loc){ return SP.filter(s=>s.loc===loc && S.journal[s.id]).leng
 // scaling"): the next water opens after that many fish caught at the one before, during this voyage.
 const unlockNeed = () => Math.max(5,Math.round(Math.min(50, 10*((S.tides||0)+1))*pathMul('unlock')));
 const voyCatchAt = loc => (S.voyCatch&&S.voyCatch[loc])||0;
-const unlockMet = i => i<=0 || S.unlocked.includes(LOCS[i].id) || voyCatchAt(LOCS[i-1].id) >= unlockNeed();
-const unlockLine = i => { const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
+const unlockMet = i => i<=0 || S.unlocked.includes(LOCS[i].id) || (!LOCS[i].eg && voyCatchAt(LOCS[i-1].id) >= unlockNeed()); /* [69] end-game waters open by voyages, not catches */
+const unlockLine = i => { if(LOCS[i].eg) return 'An end-game water: opens after your '+(LOCS[i].eg===2?'2nd':LOCS[i].eg===3?'3rd':LOCS[i].eg+'th')+' voyage ('+(S.tides||0)+' so far)'; const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
 const spAt = loc => SP.filter(s=>s.loc===loc);
 
 const CYCLE = 360;
@@ -310,7 +310,7 @@ function landFish(){
   f.shiny ? (sfx.catch(sp.r), sfx.shiny(), f.shiny===2&&setTimeout(()=>sfx.shiny(),350)) : sfx.catch(sp.r); checkFeats(); save(); refreshAll();
 }
 function landJunk(){
-  const J=G.fish.item; G.st='result'; G.fish=null; const L=curLoc(), e=J.e, li=locIdx(S.loc); const base=L.loot*rnd(.8,1.2); const b=[]; let coins=0, quote=J.q, found='—';
+  const J=G.fish.item; G.st='result'; G.fish=null; const L=curLoc(), e=J.e, li=locIdx(S.loc); const base=oddBase(L,J)*rnd(.8,1.2); /* [2] based on your best water, more for repeat finds */ const b=[]; let coins=0, quote=J.q, found='—';
   const isNew=!S.junk[J.id]; S.junk[J.id]=(S.junk[J.id]||0)+1; S.stats.treasure++;
   if(e.c) coins += base*e.c;
   if(e.buff){ const [k,v,m]=e.buff; addBuff(k,v,m,J.name); b.push(['k','Boost: '+fmtB(k,v)+' for '+m+' min']); }

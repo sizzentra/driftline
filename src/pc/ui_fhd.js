@@ -439,10 +439,10 @@ body.pch-on #panel .fl-shsw button:disabled{opacity:.45;cursor:not-allowed}
   const sync=()=>{ const c=MENU_SECS.find(s=>s.id==='coll'); if(!c) return; const has=c.tabs.includes('oddities'); if(pc()&&!has) c.tabs.push('oddities'); else if(!pc()&&has) c.tabs.splice(c.tabs.indexOf('oddities'),1); try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,800);
   try{ PAGE_DESC.oddities='Everything you fished up that isn’t a fish'; }catch(e){}
-  const TIERS=['Junk','Odd junk','Rare find','Treasure'];
+  const TIERS=['Junk','Odd junk','Rare find','Treasure','Not found yet']; /* [2] rarity stays hidden until found */
   const REWARD=e=>e.pet?['A new pet','pet']:e.hat?['A hat','hat']:e.rod?['A rod','rod']:e.lure?['Special lures','lure']:e.scales?['Scales','scales']:e.special?['Something special','special']:e.buff?['A boost','buff']:['Coins','coins'];
   let tier='all', sel=null;
-  const render=P=>{ P.style.zoom=''; const items=JUNK.map(J=>({id:J.id,name:J.name,t:J.t,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0}));
+  const render=P=>{ P.style.zoom=''; const items=JUNK.map(J=>({id:J.id,name:J.name,t:S.junk[J.id]?J.t:4,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0}));
     const found=items.filter(x=>x.n).length, pets=items.filter(x=>x.e.pet), hats=items.filter(x=>x.e.hat);
     const tiers=TIERS.map((nm,i)=>{ const l=items.filter(x=>x.t===i); return {i,nm,l,f:l.filter(x=>x.n).length}; });
     const shown=tier==='all'?items:items.filter(x=>x.t===+tier);
@@ -456,7 +456,7 @@ body.pch-on #panel .fl-shsw button:disabled{opacity:.45;cursor:not-allowed}
       ${tiers.map(t=>`<button type="button" class="fl-w${t.f===t.l.length?' done':''}" data-odt="${t.i}" aria-pressed="${String(tier)===String(t.i)}"><span class="fl-wn">${t.nm}</span><span class="fl-wc">${t.f} / ${t.l.length}</span><span class="fl-wb"><i style="width:${t.f/t.l.length*100}%"></i></span></button>`).join('')}
       <p class="od-note">Oddities come up now and then while you fish, at every water. The rarer the tier, the rarer the find.</p></aside>
     <section class="od-main"><div class="od-grid">${shown.map(x=>`<button type="button" class="od-card t${x.t}${x.n?'':' unk'}${x.id===sel?' sel':''}" data-odk="${x.id}" title="${x.n?esc(x.name):'Not found yet'} · ${TIERS[x.t]}"><canvas width="160" height="90" data-junk="${x.id}" data-known="${x.n?1:0}"></canvas><b>${x.n?esc(x.name):'???'}</b><small>${x.n?'×'+x.n:'Hides: '+REWARD(x.e)[0].toLowerCase()}</small></button>`).join('')}</div></section>
-    <aside class="od-right">${it?`<div class="tile od-det"><canvas width="360" height="200" data-junk="${it.id}" data-known="${it.n?1:0}"></canvas><div class="rar">${TIERS[it.t]}</div><h3>${it.n?esc(it.name):'Not found yet'}</h3>${it.n?`<p class="od-q">${esc(it.q)}</p>`:'<p class="od-q">Keep fishing: it can turn up at any water.</p>'}<div class="kv"><div><span>Reward</span> ${REWARD(it.e)[0]}</div><div><span>Times found</span> ${it.n}</div></div></div>`
+    <aside class="od-right">${it?`<div class="tile od-det"><canvas width="360" height="200" data-junk="${it.id}" data-known="${it.n?1:0}"></canvas><div class="rar">${TIERS[it.t]}</div><h3>${it.n?esc(it.name):'Not found yet'}</h3>${it.n?`<p class="od-q">${esc(it.q)}</p>`:'<p class="od-q">Keep fishing: it can turn up at any water.</p>'}<div class="kv">${it.n?oddKV(it.id):""}<div><span>Reward</span> ${REWARD(it.e)[0]}</div><div><span>Times found</span> ${it.n}</div></div></div>`
       :`<div class="tile fl-pickhint"><b>Click an oddity</b><span class="meta">See what it is, what it gave you and how often you found it. Unfound ones show what kind of reward they hide.</span></div>`}</aside></div>`;
     P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
     P.querySelectorAll('[data-odt]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); tier=b.dataset.odt; render(P); }));
