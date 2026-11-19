@@ -247,8 +247,9 @@ for(const line of [...ODD_NEW,...ODD_SPARE]){ if(JUNK.length>=300) break; let [i
   const j={id,name,t:+t,e,q,art,cols:cols.split(','),loc:cond&&cond!=='night'?cond:null,night:cond==='night'};
   JUNK.push(j); JUNKI[id]=j; }
 // where and when an oddity can turn up
-{ const _pj=pickJunk; pickJunk=function(){ const n=isNight(), ws=JUNK.map(j=>(j.loc&&j.loc!==S.loc)||(j.night&&!n)?0:JUNK_W[j.t]*(j.loc?3:1)); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0&&ws[i]>0) return JUNK[i]; } return _pj(); }; }
-function oddOdds(J){ const n=isNight(), tot=JUNK.reduce((a,j)=>a+((j.loc&&j.loc!==S.loc)||(j.night&&!n)?0:JUNK_W[j.t]*(j.loc?3:1)),0)||1; const w=(J.loc&&J.loc!==S.loc)||(J.night&&!n)?0:JUNK_W[J.t]*(J.loc?3:1); return w/tot; }
+function oddW(j,n){ return (j.loc&&j.loc!==S.loc)||(j.night&&!n)?0:JUNK_W[j.t]*(j.loc?3:1); } /* one rule for rolling and for the odds shown */
+{ const _pj=pickJunk; pickJunk=function(){ const n=isNight(), ws=JUNK.map(j=>oddW(j,n)); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0&&ws[i]>0) return JUNK[i]; } return _pj(); }; }
+function oddOdds(J){ const n=isNight(), tot=JUNK.reduce((a,j)=>a+oddW(j,n),0)||1; return oddW(J,n)/tot; }
 // gold: your best water's catch value, a little less in earlier waters, and more for every repeat find
 function oddBase(L,J){ const bl=bestLoot(), f=Math.max(.6,Math.pow(Math.max(1,L.loot)/Math.max(1,bl),.1)), n=(S.junk&&S.junk[J.id])||0; return bl*f*(1+.1*Math.min(20,n))*pathMul('oddgold'); }
 // new effects (pet colours, Nibbles, the singing bass) on top of landJunk

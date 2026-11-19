@@ -204,3 +204,4 @@ const bestNormalLoot = () => Math.max(...S.unlocked.filter(id=>!isEgLoc(id)).map
 function egRefStr(){ const ids=S.unlocked.filter(id=>!isEgLoc(id)), best=ids.map(id=>LOCS[locIdx(id)]).filter(Boolean).sort((a,b)=>b.loot-a.loot)[0]||LOCS[0]; const a=SP.filter(s=>s.loc===best.id&&!s.meme).map(s=>s.str).sort((x,y)=>x-y); return a.length?a[a.length>>1]:3; }
 let EG_SF_STR=0; const egSfStr = () => EG_SF_STR||(EG_SF_STR=(()=>{ const a=SP.filter(s=>s.loc==='starfall'&&!s.meme).map(s=>s.str).sort((x,y)=>x-y); return a[a.length>>1]||40; })());
 function egScale(){ return {v:1.25*bestNormalLoot()/33000, s:1.1*egRefStr()/egSfStr()}; }
+document.head.insertAdjacentHTML('beforeend','<style>#panel .eg-head{grid-column:1/-1;margin:14px 0 2px;padding-top:10px;border-top:1px solid #ffd36a44}#panel .eg-head h3{margin:0 0 2px;color:#ffe6a8}</style>');

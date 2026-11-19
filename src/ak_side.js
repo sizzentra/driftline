@@ -400,49 +400,7 @@ function a3Deltoid(c,sh,el,w,col,fabs){ const r=w*.6, cx=sh.x-.1, cy=sh.y-.15, a
   if(fabs&&fabs.length){ c.save(); path(); c.clip(); for(const f of fabs) drawFabric(c,f,null,cx-r*1.4,cy-r*1.4,r*2.8,r*2.8); c.restore(); }
   c.save(); path(); c.clip(); c.strokeStyle='rgba(255,244,226,.28)'; c.lineWidth=.6; c.beginPath(); c.arc(cx,cy,r*.82,Math.PI*1.1,Math.PI*1.7); c.stroke(); c.restore(); }
 
-// ---------- CURLY (0.3.3 redesign, per the director's brief): modern, medium-length, slightly messy curls that follow the
-// skull. About eleven soft curl clusters (C, S and loose spiral shapes) at irregular sizes and angles, moderate volume on
-// top, a couple of curls falling toward the forehead, small tight curls at the temple, a compact back tapering to the
-// nape. Three tones per colour (shadow, base, light) and only a soft outline. Head centre (0,-56), radius 7.5.
-const CURLY_LOBES=[ // x, y, rx, ry, rotation, curl type
-  [-6.3,-52.6,1.6,1.7,-1.4,'S'],[-7.3,-55.8,1.9,2.0,-1.2,'C'],[-7.2,-59.4,2.0,2.1,-1.0,'P'],[-5.9,-62.6,2.4,2.2,-.6,'C'],
-  [-3.2,-64.6,2.9,2.2,-.25,'S'],[.1,-65,3.0,2.2,-.05,'C'],[3.2,-64,2.8,2.1,.15,'S'],[-3.4,-60.8,2.4,2.1,.45,'P'],
-  [1.2,-61.8,2.3,1.8,.2,'S'],[5.4,-61.5,2.4,1.8,.35,'C'],[.4,-58.6,1.4,1.3,.8,'C'],[6.8,-59.8,1.35,1.25,.7,'C'],
-  [-1.9,-57,1.9,2.1,-1,'C'],[-2.4,-54.2,1.6,1.8,-1.2,'S'],[-4.4,-52.2,1.5,1.5,-1.3,'C']]; /* curls fall over the ear */
-function curlyCap(c){ c.beginPath(); c.moveTo(6.6,-60.2); c.bezierCurveTo(7.4,-63.6,4.6,-66.4,0,-66.4); c.bezierCurveTo(-4.8,-66.4,-8.2,-63.4,-8.4,-58.6); c.bezierCurveTo(-8.5,-55,-7.8,-52.2,-6.2,-50.8); c.bezierCurveTo(-4.8,-51.2,-3.6,-52,-3.2,-53.2); c.bezierCurveTo(-2.4,-55.8,-1.4,-57.6,.6,-58.6); c.bezierCurveTo(2.6,-59.6,4.6,-59.6,6.6,-60.2); c.closePath(); }
+// (0.4.9: the old curly and spiky hair drawings were removed: every hairstyle draws through ct_hair.js now)
 var A3HATON=false;
-// under a hat the curls sit tight to the head: only the ones below the brim, pulled in so nothing pokes out around it
-function curlyLobes(){ if(!A3HATON) return CURLY_LOBES; return CURLY_LOBES.filter(L=>L[1]>-61.5).map(([x,y,rx,ry,r,ty])=>[x*.86,y+(y<-58?1:0),rx*.8,ry*.8,r,ty]); }
-function drawCurly3(c,hair,hairC,D,t){ const LOBES=curlyLobes(), base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
-  const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
-  // soft outline: the whole shape a touch larger in the shadow tone, then the base colour over it
-  c.fillStyle=shade; curlyBase(c); for(const L of LOBES){ lobe(L,.32); c.fill(); }
-  c.fillStyle=base; curlyBase(c); for(const L of LOBES){ lobe(L,0); c.fill(); }
-  // each cluster: a shadow under its lower edge, the curl's line, and a light sweep on top
-  c.lineCap='round'; c.lineJoin='round';
-  for(const [x,y,rx,ry,r,ty] of LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
-    c.save(); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.clip();
-    c.fillStyle=v3rgba(shade,.7); c.beginPath(); c.ellipse(x+sn*s*.35,y+cs*s*.45,rx*.95,ry*.55,r,0,7); c.fill();
-    c.fillStyle=base; c.beginPath(); c.ellipse(x-sn*s*.15,y-cs*s*.2,rx*.86,ry*.72,r,0,7); c.fill();
-    c.strokeStyle=v3rgba(line,.75); c.lineWidth=.42; c.beginPath();
-    if(ty==='C'){ c.ellipse(x,y,rx*.6,ry*.58,r,Math.PI*.15,Math.PI*1.35); }
-    else if(ty==='S'){ const [a1,b1]=P(-rx*.55,ry*.2), [a2,b2]=P(0,-ry*.25), [a3,b3]=P(rx*.55,ry*.15), [m1,n1]=P(-rx*.3,-ry*.55), [m2,n2]=P(rx*.3,ry*.6); c.moveTo(a1,b1); c.quadraticCurveTo(m1,n1,a2,b2); c.quadraticCurveTo(m2,n2,a3,b3); }
-    else { c.ellipse(x,y,rx*.62,ry*.6,r,Math.PI*1.0,Math.PI*2.2); c.moveTo(...P(rx*.62*Math.cos(Math.PI*2.2),ry*.6*Math.sin(Math.PI*2.2))); c.ellipse(x+cs*s*.12,y+sn*s*.12,rx*.32,ry*.3,r,Math.PI*.2,Math.PI*1.4); }
-    c.stroke();
-    c.strokeStyle=v3rgba(light,.85); c.lineWidth=.5; c.beginPath(); c.ellipse(x-sn*s*.08,y-cs*s*.12,rx*.68,ry*.58,r,Math.PI*1.2,Math.PI*1.72); c.stroke();
-    c.restore(); }
-  }
 if(S&&S.look&&S.look.hairStyle==='coils') S.look.hairStyle='curly';
 
-// ---------- spiky hair (0.3.3.1): swept-back tufts that grow out of the scalp along the curve of the head, varied
-// in length, each lit on its leading edge; under a hat only the short fringe and sides show ----------
-function drawSpiky3(c,hair,hairC,D,t,cap){ cap(); if(A3HATON) return; const base=D(hairC), dk=D(mix(hairC,'#000000',.3)), lt=D(mix(hairC,'#ffffff',.3));
-  const tufts=[[1.15,3.2],[1.28,4.4],[1.42,5.2],[1.56,5.4],[1.7,5],[1.84,4.4],[1.97,3.4]]; // angle on the head (x PI), length
-  for(let pass=0;pass<2;pass++) for(const [a,L] of tufts){ const ang=a*Math.PI, bx=Math.cos(ang)*7.3, by=-57+Math.sin(ang)*7.3, nx=Math.cos(ang), ny=Math.sin(ang), sw=-.55; // sweep toward the back
-    const dx=nx*Math.cos(sw)-ny*Math.sin(sw), dy=nx*Math.sin(sw)+ny*Math.cos(sw), tx=bx+dx*L, ty=by+dy*L, w=1.9, px=-ny*w, py=nx*w;
-    c.fillStyle=pass?base:dk; c.beginPath(); c.moveTo(bx-px*(pass?1:1.15),by-py*(pass?1:1.15)); c.quadraticCurveTo(bx+dx*L*.55-px*.4,by+dy*L*.55-py*.4,tx,ty); c.quadraticCurveTo(bx+dx*L*.45+px*.6,by+dy*L*.45+py*.6,bx+px*(pass?1:1.15),by+py*(pass?1:1.15)); c.closePath(); c.fill();
-    if(pass){ c.strokeStyle=v3rgba(lt,.7); c.lineWidth=.45; c.beginPath(); c.moveTo(bx-px*.4,by-py*.4); c.quadraticCurveTo(bx+dx*L*.5-px*.2,by+dy*L*.5-py*.2,tx,ty); c.stroke(); } }
-  c.fillStyle=base; c.beginPath(); c.arc(0,-57,7.6,Math.PI*1.08,Math.PI*1.95); c.lineTo(6,-60); c.quadraticCurveTo(0,-62.4,-6.6,-58); c.closePath(); c.fill(); }
-// the curly base mass: full size normally; under a hat a slightly smaller copy so it fills the scalp (no bald spot)
-// without poking out around the brim
-function curlyBase(c){ if(!A3HATON){ curlyCap(c); c.fill(); return; } c.save(); c.translate(0,-56); c.scale(.9,.92); c.translate(0,56); curlyCap(c); c.restore(); c.fill(); }

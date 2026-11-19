@@ -109,3 +109,7 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 108,2026-11-19,Rods: the five new attachments read "+50% undefined" (labels missing for their stats),ui-logic,my_check,local,2,qa:attachment-labels
 109,2026-11-19,Home shop filter chips threw when clicked after a redraw (stale grid),script-break,my_check,local,1,button fuzz
 110,2026-11-19,PC 1024x640: oddity names cut in the Oddities grid,layout-cut,my_check,live,1,layoutQC at 1024x640
+111,2026-11-19,Phones: live event + long water name squeezed the Bait chip to 15 px (chips shrank so the step-aside rule never ran),layout-cut,my_check,live,2,layoutQC + spec on iPhone with a live event
+112,2026-11-19,QA Deep Cooler test read the cooler before refreshing it (failed after manual state changes),test-bug,my_check,local,0,test fixed
+113,2026-11-19,Paths switch fee showed 339,999 (float rounding),wording,my_check,local,1,outsider visual review
+114,2026-11-19,Prestige Boons squeezed into one narrow column (a word per line),layout-cut,my_check,local,1,outsider visual review

@@ -168,3 +168,6 @@ html body.phone-app.dl-fish .hud > .st-log{grid-column:4!important;grid-row:2!im
 html body.phone-app.dl-fish .hud #settingsbtn{grid-column:5!important;grid-row:1!important}
 html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!important}
 </style>`);
+/* 0.4.9 QC (outsider pass): with a live event and a long water name the Bait chip was squeezed to 15 px ("BA|"): the small chips could shrink, so the bar
+   never overflowed and the "step aside" rule above never ran. Small chips now keep their full width; Tasks, then Live make room as designed. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land .hud > .mb-x{flex-shrink:0!important;min-width:max-content!important}</style>');

@@ -10,5 +10,7 @@ const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9 big patch,
   'Fishing: try holding reel through a rare fish’s runs (it should snap), then let go when it runs (it should land).',
   'NEW in this build: aquarium fish show real sizes and depth; hair rebuilt with volume (all 20 styles); body builds have distinct silhouettes; smaller noses on the Natural face.',
   'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
+  'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
+  'Top bar: with a live event and a long water name, the Bait chip no longer gets squeezed to a sliver; Tasks or the event chip make room instead.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

@@ -544,3 +544,5 @@ body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important
 // the Save page (refreshXfer checked S.tab==='save'), so pressing Send made the code and updated the status line but never drew the
 // code, the QR or the code box. It is redrawn in Settings too now. PC only.
 { const _rx=refreshXfer; refreshXfer=function(){ if(document.body.classList.contains('pch-on')&&S.tab==='settings'){ try{ renderPanel(); }catch(e){ console.error(e); } return; } return _rx.apply(this,arguments); }; }
+/* 0.4.9 QC: Waters cards had their Travel/Unlock buttons at different heights in one row; the button now sits at the bottom of every card */
+document.head.insertAdjacentHTML('beforeend','<style>#panel .grid>.tile.loc{display:flex;flex-direction:column}#panel .grid>.tile.loc>.btn{margin-top:auto}#panel .grid>.tile.loc>.meta:last-of-type{margin-bottom:6px}</style>');

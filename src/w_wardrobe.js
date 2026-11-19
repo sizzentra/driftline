@@ -65,7 +65,7 @@ function wChips(k,list,cur,label){ return `<div class="chips">${list.map(([v,n])
 function wSw(k,list,cur){ return `<div class="chips">${list.map(([v,cl,n])=>`<button class="sw" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}" style="background:${cl}" title="${esc(n||cl)}"></button>`).join('')}</div>`; }
 function wThumbGrid(k,kind,items,cur){ return `<div class="wd-thumbs">${items.map(([id,n])=>`<button class="wd-th" data-act="look" data-k="${k}" data-v="${id}" aria-pressed="${cur===id}"><canvas width="96" height="96" data-wthumb="${kind}:${id}"></canvas><span>${esc(n)}</span></button>`).join('')}</div>`; }
 renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
-  const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['shop','Shop','🛍️']];
+  const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['tidepass','Tide Pass','🌊'],['shop','Shop','🛍️']];
   let body='';
   if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
     <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
@@ -78,6 +78,7 @@ renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].
     <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${wSw('hatCol',cols,lk.hatCol)}`;
   if(wSec==='glasses') body=`<h5>Glasses</h5>${wThumbGrid('glasses','gls',GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(x=>[x[0],x[1]]),lk.glasses||'none')}`;
   if(wSec==='shoes') body=`<h5>Shoes</h5>${wThumbGrid('shoes','shoe',SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(x=>[x[0],x[1]]),lk.shoes||'boots')}${SHOE_NOCOL.has(lk.shoes)?'':`<h5>Shoe colour</h5><div class="chips"><button class="chipb" data-act="look" data-k="shoeCol" data-v="" aria-pressed="${!lk.shoeCol}">Original</button></div>${wSw('shoeCol',cols,lk.shoeCol||'')}`}`;
+  if(wSec==='tidepass'&&typeof passWearHTML==='function') body=passWearHTML();
   if(wSec==='neckback') body=`<h5>Neckwear</h5>${wThumbGrid('neck','neck',NECKS.filter(x=>S.owned.necks.includes(x[0])).map(x=>[x[0],x[1]]),lk.neck||'none')}
     <h5>On your back</h5>${wThumbGrid('back','back',BACKS.filter(x=>S.owned.backs.includes(x[0])).map(x=>[x[0],x[1]]),lk.back||'none')}
     ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory colour</h5>'+wSw('accCol',cols,lk.accCol):''}`;

@@ -43,7 +43,7 @@ function hairOutline(P){ const pts=[], a0=-.62, a1=-Math.PI-.95; /* from the hai
   for(let i=0;i<=26;i++){ const a=a0+(a1-a0)*i/26; let r=HC.r+P.vol*hairVolAt(a); if(P.curl) r+=P.curl*.55*Math.max(0,Math.sin(i*1.6))*hairVolAt(a); pts.push([HC.x+Math.cos(a)*r,HC.y+Math.sin(a)*r]); }
   return pts; }
 function hairShade(c,hairC,D,top,bot){ const g2=c.createLinearGradient(-3,top,3,bot); g2.addColorStop(0,D(mix(hairC,'#ffffff',.3))); g2.addColorStop(.4,D(hairC)); g2.addColorStop(1,D(mix(hairC,'#000000',.38))); return g2; }
-drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[hs]; if(P===undefined) return _old.apply(this,arguments); if(P===null){ c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); return; }
+drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[hs]===undefined?HAIR_P.short:HAIR_P[hs]; /* an unknown style draws as short hair */ if(P===null){ c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); return; }
   const dk=D(mix(hairC,'#000000',.32)), lt=D(mix(hairC,'#ffffff',.32)), fill=hairShade(c,hairC,D,-66,-48);
   // shaved sides: a soft short layer over the whole cap
   if(P.cap==='shave'||P.cap==='thin'){ c.save(); c.globalAlpha*=P.cap==='thin'?.85:.45; c.fillStyle=D(hairC); c.beginPath(); c.arc(HC.x,HC.y,HC.r+.25,-.62,-Math.PI-.95,true); c.lineTo(-3.4,-53.6); c.lineTo(-1.2,-58.4); c.lineTo(3.2,-60.2); c.closePath(); c.fill(); c.restore(); if(P.cap==='thin') return; }

@@ -97,13 +97,22 @@ function drawBobSkin(g,x,y,br,id){ const B=BOBI[id||(S.look&&S.look.bob)]; if(!B
     const ex=Object.keys(PASS_SPECIAL).map(Number).sort((a,b)=>a-b), got=ex.filter(L=>L<=S.pass.claimed).length;
     const html=`<div class="tile pass-ch"><div class="row spread"><h4>Chapter ${ch+1} of ${PASS_CHAPTERS.length}: ${esc(C[1])}</h4><span class="meta">Levels ${C[0]}–${end} · ${got} / ${ex.length} exclusives</span></div>
       <div class="prog" style="margin-top:4px"><i style="width:${clamp((pl-C[0]+1)/(end-C[0]+1),0,1)*100}%;background:var(--kelp)"></i></div>
-      <div class="pass-show">${ex.map(L=>{ const sp=PASS_SPECIAL[L], own=L<=S.pass.claimed; return `<span class="pass-ex ${own?'got':''} ${L<=pl&&!own?'ready':''}" title="${esc(sp[3])}"><b>${L}</b>${own?'✓ ':''}${esc(sp[2])}</span>`; }).join('')}</div></div>`;
+      <div class="pass-show">${ex.filter(L=>L>=C[0]&&L<=end).map(L=>{ const sp=PASS_SPECIAL[L], own=L<=S.pass.claimed; return `<div class="pass-ex ${own?'got':''} ${L<=pl&&!own?'ready':''}" title="${esc(sp[3])}"><canvas width="72" height="72" data-pex="${L}"></canvas><span><b>Lv ${L}</b>${own?' ✓':''}<br>${esc(sp[2])}</span></div>`; }).join('')||'<span class="meta">No exclusives in this chapter.</span>'}</div>
+      <div class="pass-chs">${PASS_CHAPTERS.map((c,i)=>{ const e2=PASS_CHAPTERS[i+1]?PASS_CHAPTERS[i+1][0]-1:PASS_MAX, l=ex.filter(L=>L>=c[0]&&L<=e2), g=l.filter(L=>L<=S.pass.claimed).length; return `<span class="${i===ch?'on':''}">${i+1}. ${esc(c[1])} <b>${g}/${l.length}</b></span>`; }).join('')}</div></div>`;
     const head=P.querySelector('.row.spread'); if(head) head.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){} }; }
+{ const _rp2=renderPass; renderPass=function(P){ _rp2(P); try{ P.querySelectorAll("canvas[data-pex]").forEach(cv=>{ const x=cv.getContext("2d"); x.clearRect(0,0,cv.width,cv.height); passArt(x,cv.width,cv.height,+cv.dataset.pex); }); }catch(e){} }; }
 // ---------- Wardrobe: wear what the Pass gave you ----------
-function passWearHTML(){ const row=(k,list,cur,label)=>{ const own=passOwnList(k); return `<div class="pw-row"><b>${label}</b><div class="pw-chips"><button class="chipb ${!cur||cur==='none'?'on':''}" data-act="passwear" data-k="${k}:none">None</button>${list.map(a=>{ const o=own.includes(a[0]), L=Object.keys(PASS_SPECIAL).find(l=>PASS_SPECIAL[l][0]===k&&PASS_SPECIAL[l][1]===a[0]);
-    return `<button class="chipb ${cur===a[0]?'on':''}" data-act="passwear" data-k="${k}:${a[0]}" ${o?'':'disabled'} title="${o?'Wear it':'Tide Pass level '+L}">${esc(a[1].replace(/ (aura|Bobber|Line)$/,''))}${o?'':' · Lv '+L}</button>`; }).join('')}</div></div>`; };
-  return `<div class="jsec pw-sec"><h3>Tide Pass exclusives</h3><p class="sub">Auras, bobber skins and line colours: only from the Tide Pass.</p>${row('aura',AURAS,S.look.aura,'Aura')}${row('bob',BOBS,S.look.bob,'Bobber')}${row('line',LINES,S.look.line,'Line')}</div>`; }
-{ const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ (P||$('panel')).insertAdjacentHTML('beforeend',passWearHTML()); }catch(e){} return r; }; }
+// Wardrobe › Tide Pass tab: picture tiles (the same tiles as the rest of the Wardrobe), locked ones show the level that brings them
+function passWearHTML(){ const grid=(k,list,cur,label)=>{ const own=passOwnList(k); const tile=(id,name,ok,L)=>`<button class="wd-th${ok?'':' pw-lock'}" data-act="passwear" data-k="${k}:${id}" aria-pressed="${(cur||'none')===id}" ${ok?'':'disabled'} title="${ok?'Wear it':'Tide Pass level '+L}"><canvas width="96" height="96" data-pw="${k}:${id}"></canvas><span>${esc(name)}${ok?'':' · Lv '+L}</span></button>`;
+    return `<h5>${label}</h5><div class="wd-thumbs">${tile('none','None',true,0)}${list.map(a=>{ const L=Object.keys(PASS_SPECIAL).find(l=>PASS_SPECIAL[l][0]===k&&PASS_SPECIAL[l][1]===a[0]); return tile(a[0],a[1].replace(/ (aura|Bobber|Line)$/,''),own.includes(a[0]),L); }).join('')}</div>`; };
+  return `<p class="sub">Only from the Tide Pass. Auras move around your angler, bobber skins and line colours show on the water.</p>${grid('aura',AURAS,S.look.aura,'Aura')}${grid('bob',BOBS,S.look.bob,'Bobber')}${grid('line',LINES,S.look.line,'Line')}`; }
+function passWearPaint(root){ (root||document).querySelectorAll('canvas[data-pw]').forEach(cv=>{ const [k,id]=cv.dataset.pw.split(':'), x=cv.getContext('2d'), w=cv.width, h=cv.height; x.clearRect(0,0,w,h);
+  if(id==='none'){ x.strokeStyle='rgba(200,215,230,.35)'; x.lineWidth=3; x.beginPath(); x.arc(w/2,h/2,h*.22,0,7); x.moveTo(w*.35,h*.65); x.lineTo(w*.65,h*.35); x.stroke(); return; }
+  if(k==='aura') drawAngler(x,w/2,h*.97,h/94,Object.assign({},S.look,{aura:id}),{t:performance.now()/1000});
+  else if(k==='bob') drawBobSkin(x,w/2,h*.55,h*.18,id);
+  else { const L=LINEI[id]; x.lineWidth=4; x.strokeStyle=L[2]==='star'?'hsl(270,90%,80%)':L[2].replace('A',1); x.beginPath(); x.moveTo(w*.12,h*.2); x.quadraticCurveTo(w*.45,h*.95,w*.86,h*.42); x.stroke(); drawBobSkin(x,w*.86,h*.45,h*.08,null); } }); }
+{ const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ if(typeof wSec!=='undefined'&&wSec==='tidepass') passWearPaint(P||$('panel')); }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend','<style>#panel .wd-th.pw-lock{opacity:.5}#panel .wd-th.pw-lock canvas{filter:grayscale(.7) brightness(.7)}</style>');
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='passwear'){ const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
     S.look[k]=id==='none'?'none':id; save(); return 'render'; } return _ea(b); }; }
 if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(String(k));
@@ -111,8 +120,10 @@ if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(
       if(m.look&&m.look[k]!=null&&m.look[k]!=='none'&&!m.owned[key].includes(m.look[k])) m.look[k]='none'; } }catch(e){} return m; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .pass-ch{margin:10px 0}
-#panel .pass-show{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-#panel .pass-ex{font-size:11.5px;padding:3px 8px;border-radius:10px;border:1px solid var(--line,#26385180);background:#0e1828;color:#97abc2;white-space:nowrap}
+#panel .pass-show{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px}
+#panel .pass-ex canvas{width:48px;height:48px;flex:none;border-radius:8px;background:#0a1220}#panel .pass-ex span{line-height:1.25;white-space:normal}
+#panel .pass-chs{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:8px;font-size:11.5px;color:#7f93ab}#panel .pass-chs .on{color:#ffe6a8}#panel .pass-chs b{color:#cde1f5;font-weight:700}
+#panel .pass-ex{display:flex;gap:7px;align-items:center;font-size:11.5px;padding:5px 7px;border-radius:10px;border:1px solid var(--line,#26385180);background:#0e1828;color:#97abc2}
 #panel .pass-ex b{margin-right:5px;color:#cde1f5}#panel .pass-ex.got{border-color:#7fe3c455;color:#bff5e2}#panel .pass-ex.ready{border-color:#ffd36a;color:#ffe6a8}
 #panel .pw-row{display:flex;flex-direction:column;gap:4px;margin-top:8px}#panel .pw-chips{display:flex;flex-wrap:wrap;gap:5px}
 </style>`);

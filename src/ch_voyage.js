@@ -142,3 +142,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 .voy-ps>div:first-child,.voy-boon>div:first-child{min-width:0;flex:1}.voy-ps .row{gap:6px;flex-wrap:nowrap}.voy-boon.on{border-color:#7fe3c455}
 .voy-boon .btn,.voy-ps .btn{white-space:nowrap}
 </style>`);
+/* 0.4.9 QC: the Boons panel took one narrow column, so every Boon wrapped a word per line; it now spans the page with Boons in a grid */
+document.head.insertAdjacentHTML('beforeend','<style>#panel .voy-boons{grid-column:1/-1}#panel .voy-boons .voy-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}#panel .voy-boon{margin-top:0}</style>');

@@ -10,5 +10,6 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'PC display: try a big window or full screen on a 1440p/4K monitor; Settings › Display › Interface size and Picture quality.',
   'NEW in this build: aquarium fish show real sizes and depth; hair rebuilt with volume (all 20 styles); body builds have distinct silhouettes; smaller noses on the Natural face.',
   'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
+  'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

@@ -173,13 +173,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
   c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
-  const HB=typeof hairBack3==='function'&&hairBack3(c,hs,hairF,hairC,D,t,lean,live); /* 0.4.9: the parametric hair system draws the back layer (ct_hair.js) */
-  if(!HB&&hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
-    const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0); c.fillStyle=hairF; c.beginPath(); c.moveTo(-6.4,-62.4); c.bezierCurveTo(-9.6,-60.6,-10.2,-55.6,-9.4,-51); c.bezierCurveTo(-8.8,-47.4,-9.4+sw,-44.4,-8.8+sw,-40.4); c.quadraticCurveTo(-8+sw,-41.4,-7.4+sw,-40.6); c.quadraticCurveTo(-6.8+sw,-41.6,-6.1+sw,-41.2); c.bezierCurveTo(-5.4,-43.6,-4,-45.4,-2.6,-46.4); c.lineTo(-2.4,-58); c.closePath(); c.fill();
-    c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.42; c.beginPath(); c.moveTo(-8,-58); c.bezierCurveTo(-9.2,-53,-8.2,-47,-8+sw,-41.6); c.moveTo(-5.6,-56.6); c.bezierCurveTo(-6.6,-52,-6,-47,-6.6+sw,-42); c.stroke();
-    c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.2,-59.4); c.bezierCurveTo(-9,-55,-8.8,-50.4,-8.4,-47); c.stroke(); }
-  if(!HB&&hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
-  if(!HB&&hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
+  if(typeof hairBack3==='function') hairBack3(c,hs,hairF,hairC,D,t,lean,live); /* long, wavy, bob, mullet, ponytail and braid hair behind the body (ct_hair.js) */
   c.restore();
   // back arm: shoulder -> elbow -> hand on the grip behind the front hand
   const shB={x:-1.2*B.w,y:-45.4}, elB=a3IK(shB.x,shB.y,BH.x,BH.y,7.8,7.6,1), slD=D(mix(sleeve,'#000000',.2));
@@ -264,23 +258,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   // hand positions in this context's pixel space, for the rod and the finger overlay
   return {hand:{x:x+HW.x*s,y:y+HW.y*s}, back:{x:x+BW.x*s,y:y+BW.y*s}, reel:o.sit?null:{x:x+RC.x*s,y:y+RC.y*s,ca,r:3.3*s}, ra, sk, skD}; }
 
-function drawHair3(c,hs,hair,hairC,D,t){
-  const dk=D(mix(hairC,'#000000',.3)), lt=D(mix(hairC,'#ffffff',.25));
-  const cap=(fr)=>{ c.fillStyle=hair; c.beginPath(); c.arc(0,-57,7.95,Math.PI*.98,Math.PI*1.99); c.quadraticCurveTo(7.6,-59.4,6.4,-60.2); c.quadraticCurveTo(4.2,-58.8,1.6,-59.6); c.quadraticCurveTo(-1.6,-59,-2.6,-56.4); c.lineTo(-2.8,-52.6); c.lineTo(-6.6,-53.4); c.closePath(); c.fill();
-    c.strokeStyle=lt; c.lineWidth=.6; c.beginPath(); c.arc(0,-57.4,6.4,Math.PI*1.25,Math.PI*1.6); c.stroke(); };
-  switch(hs){
-    case 'short': cap(); break;
-    case 'long': cap(); c.fillStyle=hair; c.beginPath(); c.moveTo(-2.6,-57); c.bezierCurveTo(-3.5,-53,-3.1,-49.6,-4,-46.1); c.quadraticCurveTo(-4.7,-47.3,-5.3,-46.5); c.quadraticCurveTo(-5.8,-47.6,-6.3,-47.4); c.bezierCurveTo(-6.9,-50.4,-7,-53.4,-6.6,-56); c.closePath(); c.fill();
-      c.strokeStyle=dk; c.lineWidth=.35; c.beginPath(); c.moveTo(-4.4,-55); c.bezierCurveTo(-4.8,-52,-4.6,-49.6,-4.9,-47.4); c.stroke(); c.strokeStyle=lt; c.lineWidth=.4; c.beginPath(); c.moveTo(-3.4,-55.6); c.bezierCurveTo(-3.8,-53,-3.7,-50.6,-4.1,-48.4); c.stroke(); break;
-    case 'ponytail': case 'bun': cap(); c.fillStyle=hair; c.fillRect(-7.2,-60,1.4,1); break;
-    case 'buzz': c.save(); c.globalAlpha*=.8; c.fillStyle=hair; c.beginPath(); c.arc(0,-56.6,7.85,Math.PI*1.02,Math.PI*1.97); c.quadraticCurveTo(4,-59.6,0,-59.4); c.quadraticCurveTo(-2.4,-58.6,-2.6,-55); c.lineTo(-6.8,-54.6); c.closePath(); c.fill(); c.restore(); break;
-    case 'curly': drawCurly3(c,hair,hairC,D,t); break;
-    case 'coils': drawCurly3(c,hair,hairC,D,t); break; /* Coils was removed (0.3.3.1): old saves show Curly */
-    case 'spiky': drawSpiky3(c,hair,hairC,D,t,cap); break;
-    case 'bald': c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); break;
-    default: cap();
-  }
-}
+function drawHair3(c,hs,hair,hairC,D,t){ /* every hairstyle is drawn by the parametric system in ct_hair.js, which replaces this */ }
 
 // ---------- outfits, shaped to the body ----------
 function drawOutfit3(c,lk,D,f,t){ const o=lk.outfit||'none'; if(o==='none') return; const base=lk.outCol, oc=D(base||'#d8a020');
