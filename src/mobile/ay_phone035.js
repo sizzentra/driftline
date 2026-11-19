@@ -44,8 +44,8 @@ body.phone-app #towater{display:none!important}
 
 // ---------- full-screen water on phones held upright: the same toggle and saved setting as phones held sideways ----------
 // One tap and the water fills the screen (menus hidden, the top bar stays); one more tap and the menus come back.
-function stageHOverride(W,H){ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
-  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); }
+stageHOverride=function(W,H){ /* replaces the core one explicitly (a second declaration of the same name is refused by the build) */ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
+  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); };
 // re-measure the water whenever the toggle flips (the sideways code already does this; upright needs it too)
 { const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },40)); }
 document.head.insertAdjacentHTML('beforeend',`<style>

@@ -67,6 +67,11 @@ foreach ($p in 'pc','android','ios') {
   $platVer = @{ pc = '0.4.8.9'; android = '0.4.8.9'; ios = '0.4.8.9' }   # one number for all three since 0.4.8.7 (they release together)
   if ($platVer.ContainsKey($p)) { $body = [regex]::Replace($body, "const GAME_VERSION = '[^']*';", "const GAME_VERSION = '" + $platVer[$p] + "';") }
   $built[$p] = $body
+  # ---------- GROUND RULE CHECK 3: no top-level function declared twice ----------
+  # All files share one scope, so a second "function name(" silently replaces the first (0.4.8.9: a new oddSil hid the old one and
+  # every oddity fight crashed the scene). Replace on purpose with "name = function(...)"; never declare a name twice.
+  $dups = [regex]::Matches($body, '(?m)^function ([A-Za-z_$][A-Za-z0-9_$]*)\(') | ForEach-Object { $_.Groups[1].Value } | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name }
+  if ($dups) { throw ("GROUND RULE BROKEN: function declared twice in the $p build (the first is silently lost): " + ($dups -join ', ')) }
   # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the
   # shared version.txt keeps PC's stamp, and a phone page with a newer stamp saw "update ready" every 5 minutes forever (tapping it
   # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.

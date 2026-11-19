@@ -462,6 +462,9 @@ const RODS = [
  ['spine','Leviathan Spine','feat',0,'pond',3,'#ff6ad5',{rare:.5,reel:.25,tension:.25},'Rumour says it once belonged to something mythic.'],
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3],need:a[4],slots:a[5],col:a[6],st:a[7],d:a[8]}));
 const ROD_I = Object.fromEntries(RODS.map(r=>[r.id,r]));
+/* [24] (director: "Purchasing rods should also incorporate scaling amount of scales ... scales are a harder feat"): shop rods cost Scales too, rising with the rod */
+const ROD_SC = {willow:5, pondrod:10, fibre:20, carbon:40, reefrod:60, frostrod:80, coralrod:120, stormrod:200, abyssrod:320, emberrod:500, starrod:800};
+const rodScales = r => (r&&ROD_SC[r.id])||0;
 // id, name, key, values per tier, description
 const ATTS = [
  ['bobber','Bright Bobber','bite',[.08,.15,.25],'Fish notice your bait sooner.'],
@@ -506,7 +509,7 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
     <h5>Attachments (${r.slots} slot${r.slots>1?'s':''})</h5>${Array.from({length:r.slots},(_,i)=>slotRow(i)).join('')}
     ${!Object.keys(S.atts).length?'<p class="sub">Buy attachments below, then fit them here.</p>':''}</div>
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
-    const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span></button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
+    const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price&&S.scales>=rodScales(x)?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span>${rodScales(x)?' + '+rodScales(x)+' Scales':''}</button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
     return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'How to get it: '+esc(rodHint(x)):esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
   <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has three tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<3?ATT_COST[t]:null;
     return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / 3</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
@@ -713,7 +716,7 @@ function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); 
 function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
   switch(b.dataset.act){
     case 'rodeq': if(S.rods.owned.includes(k)){ S.rods.eq=k; toast('You pick up the '+ROD_I[k].name+'.'); } return 'render';
-    case 'rodbuy': { const r=ROD_I[k]; if(!r||r.src!=='shop'||S.rods.owned.includes(k)||S.money<r.price||!S.unlocked.includes(r.need)) return 'skip'; S.money-=r.price; S.rods.owned.push(k); S.rods.eq=k; sfx.coin(); toast('New rod: '+r.name+'!'); return 'render'; }
+    case 'rodbuy': { const r=ROD_I[k]; if(!r||r.src!=='shop'||S.rods.owned.includes(k)||S.money<r.price||S.scales<rodScales(r)||!S.unlocked.includes(r.need)) return 'skip'; S.money-=r.price; S.scales-=rodScales(r); S.rods.owned.push(k); S.rods.eq=k; sfx.coin(); toast('New rod: '+r.name+'!'); return 'render'; }
     case 'rodup': { const c=rodUpCost(k); if(rodLvl(k)>=10||S.money<c.coins||S.scales<c.scales) return 'skip'; S.money-=c.coins; S.scales-=c.scales; S.rods.lvl[k]=rodLvl(k)+1; sfx.catch(2); toast(ROD_I[k].name+' is now level '+S.rods.lvl[k]); return 'render'; }
     case 'rodatt': { const [si,a]=k.split(':'); const id=S.rods.eq, list=(S.rods.att[id]||[]).slice(); list[+si]=a||''; S.rods.att[id]=list.slice(0,rod().slots); return 'render'; }
     case 'attbuy': { const t=S.atts[k]||0; if(t>=3) return 'skip'; const c=ATT_COST[t]; if(S.money<c[0]||S.scales<c[1]) return 'skip'; S.money-=c[0]; S.scales-=c[1]; S.atts[k]=t+1; sfx.coin(); toast(ATT_I[k].name+' tier '+(t+1)+'!');

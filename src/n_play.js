@@ -8,6 +8,7 @@ const PRISM = {rainbow:{n:'Rainbow',c:'#ff7ad8'}, starry:{n:'Starry',c:'#9ab8ff'
 const PRISM_KEYS = Object.keys(PRISM);
 const PRISM_SHARE = .06;        // share of shiny rolls that come up prismatic instead
 const PRISM_VALUE = 15;         // value multiplier (shiny is ×4)
+const HYBRID_IN_RANGE = [2,2.5,3,3.5,4,5]; // [23] a hybrid inside its own normal weight range: value and aquarium income ×, by rarity
 const HYBRID_BASE = .001;       // 0.1%, up to 1% with the Odd Genes skill
 const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1);
 const PRED_RX = /pike|musky|muskie|bass|gar|barracuda|shark|tuna|grouper|cod|walleye|zander|trout|salmon|snakehead|catfish|wolf|viper|angler|marlin|swordfish|wahoo|kingfish|mackerel|eel|moray|piranha|perch|char|taimen|arapaima|dragon|fang|leviathan|maw/;
@@ -64,16 +65,19 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   const shiny = shRoll ? (Math.random()<PRISM_SHARE?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
   const trophy = !hy && rel > .9;
   // hybrids: the further from normal size, the bigger the multiplier, capped at ×25 so a lucky hybrid is a jackpot, not a broken economy
-  let value = Math.max(1,Math.round(sp.base*(hy?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85))));
+  /* [23] (director): a hybrid that still lands inside its own normal weight range is worth ×2 (common) to ×5 (mythic) of a normal
+     fish its size, in coins and in aquarium income */
+  const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r] : 0;
+  let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))));
   value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
-  const f={kind:'fish', sp, kg, rel:clamp(rel,0,1), str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, pv, hy, ab, ab2, trophy, storm: wx.k==='Storm', hot:G.inHot, prey:null};
+  const f={kind:'fish', sp, kg, rel:clamp(rel,0,1), str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, pv, hy, hx, ab, ab2, trophy, storm: wx.k==='Storm', hot:G.inHot, prey:null};
   // a predator may already have a smaller fish in its belly
   if(!ctx.noPrey && isPredator(sp) && Math.random()<.12+sp.aggr*.12){ const pp=preyPool(sp,SP.filter(s=>s.loc===sp.loc && timeOk(s,phase()))); if(pp.length){ f.prey=[]; const n=Math.random()<.15?2:1; for(let i=0;i<n;i++) f.prey.push(rollFish(pick(pp),{noHybrid:true,noPrey:true})); } }
   return f; }
 // the cooler entry for a landed fish
-function coolerEntry(f){ const e={id:f.sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny||0, tr:f.trophy?1:0}; if(f.pv) e.pv=f.pv; if(f.hy) e.hy=f.hy; if(f.ab) e.ab=f.ab; if(f.ab2) e.ab2=f.ab2; return e; }
+function coolerEntry(f){ const e={id:f.sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny||0, tr:f.trophy?1:0}; if(f.pv) e.pv=f.pv; if(f.hy) e.hy=f.hy; if(f.hx) e.hx=f.hx; if(f.ab) e.ab=f.ab; if(f.ab2) e.ab2=f.ab2; return e; }
 // journal update incl. smallest, prismatic and hybrid records
 function journalAdd(f){ const sp=f.sp, j=S.journal[sp.id], kg=+f.kg.toFixed(3);
   const n={n:(j?j.n:0)+1, best:j?j.best:0, min:j&&j.min!=null?j.min:null, sh:(j&&j.sh)||!!f.shiny, pr:(j&&j.pr)||f.shiny===2, tr:(j&&j.tr)||f.trophy, bv:Math.max((j&&j.bv)||0, f.value), first:(j&&j.first)||Date.now()};
@@ -91,7 +95,7 @@ if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=docu
 // rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
 const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
 function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
-function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const raw=(+f.value||0)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*aqWeightK(f,sp)*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1); return Math.min(raw,cap); }
+function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const raw=(+f.value||0)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*aqWeightK(f,sp)*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1); return Math.min(raw,cap); } /* [23] in-range hybrids lift the cap by the same multiplier */
 // 0.3.2: weight counts in the aquarium. A fish heavy for its kind earns more (its income cap grows from x0.75 for the
 // lightest to x1.7 for a record-breaker) and rolls stronger buffs, so your best prized catches belong on display.
 function aqRel(f,sp){ return sp&&sp.max>sp.min ? clamp(((+f.kg||0)-sp.min)/(sp.max-sp.min),0,1.5) : .5; }

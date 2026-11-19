@@ -93,8 +93,8 @@ body.pc-wide .wrap > #panel{grid-row:3}
 // ---------------------------------------------------------------------
 function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:'Hold on the water, let go to cast', tab:null};
   const i=LOCS.findIndex(L=>!S.unlocked.includes(L.id));
-  if(i>0){ const L=LOCS[i], prev=LOCS[i-1], have=caughtAt(prev.id), cost=locCost(L);
-    if(have<L.need) return {t:'Find '+L.need+' species at '+prev.name, sub:have+' / '+L.need+' found, then '+fmtShort(cost)+' coins opens '+L.name, p:have/L.need, tab:'journal', loc:prev.id};
+  if(i>0){ const L=LOCS[i], prev=LOCS[i-1], have=voyCatchAt(prev.id), need=unlockNeed(), cost=locCost(L);
+    if(have<need) return {t:'Catch '+need+' fish at '+prev.name, sub:have+' / '+need+' caught this voyage, then '+fmtShort(cost)+' coins opens '+L.name, p:have/need, tab:'map', loc:prev.id};
     if(S.money<cost) return {t:'Save '+fmtShort(cost)+' coins for '+L.name, sub:fmtShort(S.money)+' / '+fmtShort(cost), p:S.money/cost, tab:'map'};
     return {t:L.name+' is ready to open', sub:'Tap to go to Waters', p:1, tab:'map', ready:true}; }
   const here=SP.filter(s=>s.loc===S.loc), got=here.filter(s=>S.journal[s.id]).length;

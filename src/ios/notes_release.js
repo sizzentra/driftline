@@ -223,3 +223,5 @@ PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
   'Oddities no longer fight, they snag: their shadow shows what you hooked, and reeling without a pause can snap the line, so reel in short pulls.',
   '## Small things',
   'Stardust works better at Starfall Lake (odds ×2.8).']});
+PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
+  'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.']});

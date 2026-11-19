@@ -63,12 +63,13 @@ function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getC
 // ---------- drawing: junk ----------
 function drawJunk(c,w,h,id,sil){ drawJunkAt(c,id,w/2,h/2,Math.min(w,h)/220,sil); }
 /* 0.4.9: the shadow of a hooked oddity or hat is its own outline (director: "Oddities should have shadows in the water that
-   represent what you're fishing up"), drawn once into a small picture per item and reused every frame */
-const ODD_SIL=new Map();
-function oddSil(f){ const key=f.kind==='junk'?'j:'+f.item.id:'h:'+(f.hat&&f.hat.id); let c=ODD_SIL.get(key); if(c) return c;
-  c=document.createElement('canvas'); c.width=c.height=96; const x=c.getContext('2d');
-  if(f.kind==='junk') drawJunkAt(x,f.item.id,48,52,.36,'#06121a'); else { x.translate(48,60); x.scale(1.6,1.6); drawHat(x,f.hat.id,'#888888',0); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-in'; x.fillStyle='#06121a'; x.fillRect(0,0,96,96); }
-  ODD_SIL.set(key,c); return c; }
+   represent what you're fishing up"). Oddities use drawJunkAt's own cached silhouette (bb_odd036: oddSil); hats get one small
+   cached picture each here. (A first version reused the name oddSil, the older function won, and every frame of an oddity or
+   hat fight crashed: the angler, dock and fight panel vanished. 0.4.8.9.1.) */
+const HAT_SIL=new Map();
+function hookedHatSil(id){ let c=HAT_SIL.get(id); if(c) return c; c=document.createElement('canvas'); c.width=c.height=96; const x=c.getContext('2d');
+  x.translate(48,60); x.scale(1.6,1.6); drawHat(x,id,'#888888',0); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-in'; x.fillStyle='#06121a'; x.fillRect(0,0,96,96); HAT_SIL.set(id,c); return c; }
+function drawHookedOdd(f,x,y){ try{ if(f.kind==='junk'&&f.item) drawJunkAt(g,f.item.id,x,y+20,.3,'#06121a'); else if(f.kind==='hat'&&f.hat) g.drawImage(hookedHatSil(f.hat.id),x-24,y,48,48); }catch(e){ if(!drawHookedOdd.warned){ drawHookedOdd.warned=1; console.error(e); } } }
 function drawJunkAt(c,id,x,y,s,sil){
   c.save(); c.translate(x,y); c.scale(s,s); c.lineJoin='round'; c.lineCap='round';
   const F=col=>sil||col; const R=(x,y,w,h,col)=>{ c.fillStyle=F(col); c.fillRect(x,y,w,h); }; const Ci=(x,y,r,col)=>{ c.fillStyle=F(col); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
@@ -369,7 +370,7 @@ function draw(now){
   drawEat(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
-    else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.drawImage(oddSil(f), G.bob.x-24+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4, 48, 48); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
+    else { g.globalAlpha=.35; if(f.kind!=='fish'){ drawHookedOdd(f, G.bob.x+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
   { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }

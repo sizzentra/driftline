@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='android'; window.DL_VERSION='2026.11.19-0900';
+window.DL_BUILD='android'; window.DL_VERSION='2026.11.19-0937';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2099,12 +2099,13 @@ function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getC
 // ---------- drawing: junk ----------
 function drawJunk(c,w,h,id,sil){ drawJunkAt(c,id,w/2,h/2,Math.min(w,h)/220,sil); }
 /* 0.4.9: the shadow of a hooked oddity or hat is its own outline (director: "Oddities should have shadows in the water that
-   represent what you're fishing up"), drawn once into a small picture per item and reused every frame */
-const ODD_SIL=new Map();
-function oddSil(f){ const key=f.kind==='junk'?'j:'+f.item.id:'h:'+(f.hat&&f.hat.id); let c=ODD_SIL.get(key); if(c) return c;
-  c=document.createElement('canvas'); c.width=c.height=96; const x=c.getContext('2d');
-  if(f.kind==='junk') drawJunkAt(x,f.item.id,48,52,.36,'#06121a'); else { x.translate(48,60); x.scale(1.6,1.6); drawHat(x,f.hat.id,'#888888',0); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-in'; x.fillStyle='#06121a'; x.fillRect(0,0,96,96); }
-  ODD_SIL.set(key,c); return c; }
+   represent what you're fishing up"). Oddities use drawJunkAt's own cached silhouette (bb_odd036: oddSil); hats get one small
+   cached picture each here. (A first version reused the name oddSil, the older function won, and every frame of an oddity or
+   hat fight crashed: the angler, dock and fight panel vanished. 0.4.8.9.1.) */
+const HAT_SIL=new Map();
+function hookedHatSil(id){ let c=HAT_SIL.get(id); if(c) return c; c=document.createElement('canvas'); c.width=c.height=96; const x=c.getContext('2d');
+  x.translate(48,60); x.scale(1.6,1.6); drawHat(x,id,'#888888',0); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-in'; x.fillStyle='#06121a'; x.fillRect(0,0,96,96); HAT_SIL.set(id,c); return c; }
+function drawHookedOdd(f,x,y){ try{ if(f.kind==='junk'&&f.item) drawJunkAt(g,f.item.id,x,y+20,.3,'#06121a'); else if(f.kind==='hat'&&f.hat) g.drawImage(hookedHatSil(f.hat.id),x-24,y,48,48); }catch(e){ if(!drawHookedOdd.warned){ drawHookedOdd.warned=1; console.error(e); } } }
 function drawJunkAt(c,id,x,y,s,sil){
   c.save(); c.translate(x,y); c.scale(s,s); c.lineJoin='round'; c.lineCap='round';
   const F=col=>sil||col; const R=(x,y,w,h,col)=>{ c.fillStyle=F(col); c.fillRect(x,y,w,h); }; const Ci=(x,y,r,col)=>{ c.fillStyle=F(col); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
@@ -2405,7 +2406,7 @@ function draw(now){
   drawEat(t);
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(-Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
-    else { g.globalAlpha=.35; if(f.kind!=='fish'){ g.drawImage(oddSil(f), G.bob.x-24+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4, 48, 48); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
+    else { g.globalAlpha=.35; if(f.kind!=='fish'){ drawHookedOdd(f, G.bob.x+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4); } else drawCreature(g,f.sp,G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4, G.bob.y + 14, len, {sil:'#06121a', wag:t*12, flip:true}); g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
   if(!v3Platform(L,t,night,dockY,pb)) drawPlatform(L,t,night,dockY,pb);
   { const scH=clamp(H/420,.7,1.25); drawHome(L,t,night,dockY,pb,scH); g.fillStyle='rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(W*.12,dockY+pb+1,11*scH,2.4*scH,0,0,7); g.fill(); }
@@ -2834,7 +2835,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.9';
+const GAME_VERSION = '0.4.8.9.1';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -11635,8 +11636,8 @@ body.phone-app #towater{display:none!important}
 
 // ---------- full-screen water on phones held upright: the same toggle and saved setting as phones held sideways ----------
 // One tap and the water fills the screen (menus hidden, the top bar stays); one more tap and the menus come back.
-function stageHOverride(W,H){ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
-  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); }
+stageHOverride=function(W,H){ /* replaces the core one explicitly (a second declaration of the same name is refused by the build) */ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
+  const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); };
 // re-measure the water whenever the toggle flips (the sideways code already does this; upright needs it too)
 { const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },40)); }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -17993,6 +17994,8 @@ PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
   'Oddities no longer fight, they snag: their shadow shows what you hooked, and reeling without a pause can snap the line, so reel in short pulls.',
   '## Small things',
   'Stardust works better at Starfall Lake (odds ×2.8).']});
+PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
+  'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.']});
 // Android test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 3: the fight', items:[
@@ -18009,7 +18012,7 @@ addTestNotes(TEST_NOTES);
 
 // ---------- loop ----------
 let last=performance.now();
-function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
+function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; try{ update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); }catch(e){ if(!frame.err){ frame.err=1; console.error(e); } } hud(); requestAnimationFrame(frame); } /* 0.4.8.9.1: one failing frame never stops the game loop */
 let lastBuffN=-1, lastShopSlot=Math.floor(Date.now()/1000/SHOP_LEN);
 setInterval(()=>{ accrue(); const el=$('tankbank'); if(el){ const t=fmtShort(S.tankBank); if(el.textContent!==t){ el.textContent=t; el.title=fmt(S.tankBank)+' coins'; } } /* short form like the top bar, so big numbers never overflow (2026-11-19) */ const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
   const dl=$('dmleft'); if(dl){ dl.textContent=mmss(wxLeft()); if(wxLeft()>=WX_LEN-1 && S.tab==='cooler') renderPanel(); }
