@@ -413,7 +413,7 @@ const BAIT = {
   berries:{name:'Wild Berries',  speed:1.45,rare:.5,  pack:10, price:600,  loc:'river', locMul:5, note:'Sweet and sticky: odds ×5 at Stonebrook River.'},
   goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:9000, note:'The good stuff. Fast bites and great odds anywhere.'},
   lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:20000, loc:'ember', note:'Heat-proof worms: odds ×2 at Ember Springs.'},
-  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', note:'A pinch of the sky: odds ×2 at Starfall Lake.'},
+  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', locMul:2.5, note:'A pinch of the sky: odds ×2.5 at Starfall Lake.'},
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},

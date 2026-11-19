@@ -11,6 +11,7 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'Natural frame r
   'Smoother fights and storms on phones: the red danger glow on the fight ring and the rain ripples on the water are much cheaper to draw.',
   'Smoother on boats and floating docks: decorations that bob with the water are no longer re-lit every frame.',
   'Switching waters no longer leaves the game stuck at a lower sharpness: the automatic resolution comes back up once the phone keeps up again (it could not on a 60 Hz screen).',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there, was ×2): cheap minnows could beat it by day.',
   'Lighter on phones everywhere: lanterns, lamps, glows and Starfall’s star whale are drawn with ready-made soft lights (they look the same), and coloured pets no longer slow the game down.',
   'The frame counter also shows the current water sharpness (res 2x = full, lower = the game is easing off).',
   'Smoother dusk, dawn and weather changes: the scenery’s light now changes in fewer, softer steps on phones, so the game rebuilds it far less often.',
