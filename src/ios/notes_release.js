@@ -164,6 +164,9 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'Side-panel counts never cover a button’s name, even at 99+.',
   'Opening a menu while an info card is up closes the card first, so Travel here always works.',
   'The update message only appears when there really is an update (it kept coming back on phones).',
-  'Smoother on phones: the game always runs at a steady 60 frames a second on every iPhone and Android phone (the frame-rate choice is gone; Max made fast screens stutter).',
+  'Much smoother with a decorated home: decorations on the dock no longer slow the game down (a well-decorated home could halve the frame rate on Android).',
+  'Opening and closing a menu no longer shows another water’s scenery for a moment.',
+  'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
+  'Phones run at their screen’s own rate; the frame-rate choice is gone from Settings.',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
   'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});

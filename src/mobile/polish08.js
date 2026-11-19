@@ -295,3 +295,30 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage
    now (MB_UI, frame07), so they end above the name; "99+" also gets tight padding and sits 1 px further into the corner, which keeps
    it clear of "Challenges" (the longest name) on the shortest rail (667x375, 32 px buttons). */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdock .cdb .cddot[class],html body.phone-land #menuov .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class],html body.phone-app #menuov .secb .secdot[class]{padding:0 3px!important;letter-spacing:-.4px}html body.phone-land #catdock .cdb .cddot,html body.phone-app #catdock .cdb .cddot{right:-6px!important}</style>`);
+
+/* Wrong scenery after opening a menu (director, 2026-11-18: "clicking settings and exiting brought up the wrong map for a bit"): water
+   thumbnails for the Map page are drawn on the game canvas while any menu is open. v3land then reused the live scenery picture's
+   canvas for the other water (Starfall) and the restore only put the object back, so the real water showed Starfall's scenery until
+   the light changed. Phones: a thumbnail always gets fresh scenery canvases (the live picture is never painted over), and thumbnails
+   are only made while the Map page is open (the only place they show): Settings and other menus no longer pay for them. */
+{ const _vt=v3Thumb; v3Thumb=function(id){ if(!MOB()||V3THUMB[id]) return _vt(id); const c=V3CACHE, p=V3PREV; V3CACHE=null; V3PREV=null; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; try{ v3palette.k=null; }catch(e){} } }; }
+{ const _tn=thumbNext; thumbNext=function(){ if(MOB()&&S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
+
+/* Saves with home decorations were slow on Android (director, 2026-11-18: a fresh install ran at 60 fps / 15-20 ms; the same phone
+   after loading a PC save ran at 25 fps / 50-60 ms). Every decoration on the dock is drawn through litDraw (ab_decor.js): its own
+   offscreen canvas plus several blend passes for the light, every frame, and Android graphics chips pay a flush per canvas switch.
+   A fresh save has no decorations placed; a well-decorated home multiplies the cost. Phones: a lit item that stays put on the water
+   canvas is kept as a finished picture and reused for up to 66 ms (redrawn ~15 times a second); anything that moves (new position)
+   is drawn as before. PC is untouched. */
+{ const _ld=litDraw, LC=new Map();
+  litDraw=function(c,bx0,by0,bx1,by1,fn,o){ if(!(MOB()&&c===g)) return _ld.apply(this,arguments);
+    const m=c.getTransform(), sc=Math.hypot(m.a,m.b), pw=Math.ceil((bx1-bx0)*sc), ph=Math.ceil((by1-by0)*sc);
+    if(!(pw>2&&ph>2)||pw*ph>6e6||m.b||m.c) return _ld.apply(this,arguments);
+    const key=Math.round(bx0*2)+'|'+Math.round(by0*2)+'|'+pw+'|'+ph+'|'+(o?o.top+o.rim+o.rimA:''), now=performance.now(), dx=m.a*bx0+m.e, dy=m.d*by0+m.f;
+    let e=LC.get(key);
+    if(e&&e.c&&now-e.at<66){ c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(e.c,dx,dy); c.restore(); e.seen=now; return; }
+    if(!e||now-e.seen>250){ LC.set(key,{c:null,at:0,seen:now}); if(LC.size>80){ for(const [k,v] of LC) if(now-v.seen>2000) LC.delete(k); } return _ld.apply(this,arguments); } /* first sighting: draw as usual */
+    if(!e.c) e.c=document.createElement('canvas'); if(e.c.width!==pw||e.c.height!==ph){ e.c.width=pw; e.c.height=ph; }
+    const tx=e.c.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(sc,0,0,sc,-bx0*sc,-by0*sc);
+    _ld(tx,bx0,by0,bx1,by1,fn,o); e.at=now; e.seen=now;
+    c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(e.c,dx,dy); c.restore(); }; }

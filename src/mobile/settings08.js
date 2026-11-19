@@ -31,7 +31,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
 { const _fr=frame; let shown=0;
-  const capMs=()=>1000/60; /* phones are locked at 60 frames a second, iPhone and Android alike, no setting (director, 2026-11-18); any old saved fpsCap is ignored */
+  const capMs=()=>0; /* phones run naturally at the screen's own rate, iPhone and Android alike, no setting (director, 2026-11-18: "don't do the 60 fps rule, let them run naturally"; it ran fine before); any old saved fpsCap is ignored */
   frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------
@@ -54,7 +54,7 @@ function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(
 // ---------- test builds only: Graphics test (director, 2026-11-18: Android holds 30 but drops to 25-38 at 60 = each frame costs
 // the phone ~30 ms). Each button switches one part of the water scene off, so the frame counter shows which part is too heavy on
 // that phone. Nothing here exists in the release build (DL_PREVIEW), and every part comes back with one more tap or a restart.
-const GT_PARTS=[['wx','Weather (rain, snow, fog)',['drawWeatherX']],['water','Water shimmer + reflections',['v3water','v3glitter','drawReflect','v3fishRing']],['glow','Lights and glows',['v3glow']],['mist','Mist',['v3mist']],['you','You, pets, dock',['drawAngler3','drawPetStyled','drawDockItem']],['plants','Trees and plants',['v3tree','v3willow','v3reeds','v3bushes','v3flowers','v3leafTree','v3pine','v3snowPine','v3palm']],['lowres','Low resolution (1x)',[]]];
+const GT_PARTS=[['wx','Weather (rain, snow, fog)',['drawWeatherX']],['water','Water shimmer + reflections',['v3water','v3glitter','drawReflect','v3fishRing']],['glow','Lights and glows',['v3glow']],['mist','Mist',['v3mist']],['you','You (the angler)',['drawAngler3']],['pets','Pets',['drawPetStyled']],['dock','Home decorations on the dock',['drawDockItem']],['wear','Moving cosmetic effects',['wearFxDraw']],['odd','Oddities and junk',['drawJunkAt']],['plants','Trees and plants',['v3tree','v3willow','v3reeds','v3bushes','v3flowers','v3leafTree','v3pine','v3snowPine','v3palm']],['lowres','Low resolution (1x)',[]]];
 const GT_OFF=new Set();
 if(window.DL_PREVIEW){
   const wrap=(name,key)=>{ try{ const f=eval(name); if(typeof f!=='function') return; eval(name+'=function(){ if(GT_OFF.has("'+key+'")) return; return f.apply(this,arguments); }'); }catch(e){} };
@@ -64,3 +64,12 @@ if(window.DL_PREVIEW){
     return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
   const _xa=extraAct2; extraAct2=function(b){ if(b.dataset.act==='gtest'){ const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){} try{ resize(); }catch(e){} toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } return _xa(b); };
 }
+
+// ---------- patch notes a phone has already shown stay shown (director, 2026-11-18: after moving progress from PC "my first relaunch
+// brought up the patch notes for the patch previous"): the save carries the last notes seen on the device it came from (PC 0.4.8.2),
+// so the phone showed its own older updates again. Phones remember the newest notes they showed; an arriving save never lowers it.
+{ const K='dl-seen-patch'; const get=()=>{ try{ return localStorage.getItem(K)||''; }catch(e){ return ''; } }, put=v=>{ try{ localStorage.setItem(K,v); }catch(e){} };
+  const fix=s=>{ try{ if(!MOB()||!s||typeof s!=='object') return; const d=get(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){} };
+  const _mg=migrate; migrate=function(){ const s=_mg.apply(this,arguments); fix(s); return s; };
+  const _sv=save; save=function(){ try{ if(MOB()&&S&&S.seenPatch){ const d=get(); if(!d||verNewer(S.seenPatch,d)) put(S.seenPatch); } }catch(e){} return _sv.apply(this,arguments); };
+  try{ fix(S); }catch(e){} }
