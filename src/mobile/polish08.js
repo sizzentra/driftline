@@ -54,10 +54,44 @@
       else if(cost==null) hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Your tank is as big as it gets: ${cap} fish.</p>`); }
   }catch(e){ console.error(e); } return r; }; }
 
+/* Rods (director, 2026-11-18: "Rod rack looks weird when you switch headers. Consider a rework for it to make a lot more sense and
+   look cleaner"). The presets box sat outside the page's sections, so it showed on top of Your rod, Rod rack AND Attachments (the
+   tab you picked was hidden under it). Now:
+   - the presets live in Your rod, under the rod in your hands, and leave with it when you pick Rod rack or Attachments
+   - each preset is one compact row: number + rod name + level / slots / attachments on the left, its buttons on the right
+   - the preset in use shows a gold "In use" tag and only Clear (the old dead "Saved" button is gone: it follows every change anyway);
+     the others show Use, Replace (save the rod in your hands over it) and Clear; an empty one shows "Save current rod" */
+{ const _rph=rodPresetsHTML;
+  rodPresetsHTML=function(){ if(!MOB()) return _rph.apply(this,arguments);
+    const rows=[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
+      if(!R) return `<div class="rp-card rp8-row empty"><div class="rp8-info"><span class="rp-n">Preset ${i+1}</span><em>Empty</em></div><div class="rp8-acts"><button type="button" class="btn alt sm" data-rp="save:${i}">Save current rod</button></div></div>`;
+      const atts=p.att.filter(a=>a&&ATT_I[a]).map(a=>ATT_I[a].name), lv=(S.rods.lvl&&S.rods.lvl[p.rod])||0;
+      const meta=`Level ${lv} / 10 · ${R.slots} slot${R.slots>1?'s':''} · ${atts.length?esc(atts.join(', ')):'no attachments'}`;
+      return `<div class="rp-card rp8-row${on?' on':''}"><div class="rp8-info"><span class="rp-n">Preset ${i+1}${on?' <span class="rp8-tag">In use</span>':''}</span><b>${esc(R.name)}</b><span class="rp-lv">${meta}</span></div><div class="rp8-acts">${on?'':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button><button type="button" class="btn alt sm" data-rp="save:${i}" title="Save the rod in your hands (with its attachments) over this preset">Replace</button>`}<button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('');
+    return `<div class="rp-box rp8"><h5>Presets</h5><p class="meta rp8-why">Save a rod with its attachments, then switch to it in one tap. The preset in use follows every change you make.</p><div class="rp-list">${rows}</div></div>`; };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='rods') return r; const P=$('panel'); const box=P&&P.querySelector('.rp-box'), now=P&&P.querySelector('.tile.rodnow'); if(!box||!now) return r;
+      P.querySelectorAll('h2').forEach(h=>{ if(/^(Rod rack|Attachments)$/.test(h.textContent.trim())) h.classList.add('rp8-dup'); }); /* the tab above already names it */
+      now.after(box); const sync=()=>{ box.style.display=now.style.display; }; sync(); new MutationObserver(sync).observe(now,{attributes:true,attributeFilter:['style']}); /* shown and hidden with Your rod */
+    }catch(e){ console.error(e); } return r; }; }
+
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-app #menuov #panel.aq07 .aq07-bank,html body.phone-land #menuov #panel.aq07 .aq07-bank{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) auto auto!important}
+html body.phone-land #menuov #panel h2.rp8-dup,html body.phone-app #menuov #panel h2.rp8-dup{display:none!important}
+html body.phone-land #menuov #panel .rp-box.rp8,html body.phone-app #menuov #panel .rp-box.rp8{margin:14px 0 4px!important;gap:6px!important}
+html body.phone-land #menuov #panel .rp8 > h5,html body.phone-app #menuov #panel .rp8 > h5{margin:0!important}
+html body.phone-land #menuov #panel .rp8 .rp8-why,html body.phone-app #menuov #panel .rp8 .rp8-why{margin:0 0 4px!important;font-size:12.5px!important;color:#9fb3c8!important}
+html body.phone-land #menuov #panel .rp8 .rp-list,html body.phone-app #menuov #panel .rp8 .rp-list{gap:6px!important}
+html body.phone-land #menuov #panel .rp8 .rp8-row,html body.phone-app #menuov #panel .rp8 .rp8-row{flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px!important;padding:9px 12px!important;min-height:56px;box-sizing:border-box}
+html body.phone-land #menuov #panel .rp8 .rp8-row.empty,html body.phone-app #menuov #panel .rp8 .rp8-row.empty{background:transparent!important}
+html body.phone-land #menuov #panel .rp8 .rp8-info,html body.phone-app #menuov #panel .rp8 .rp8-info{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1 1 auto}
+html body.phone-land #menuov #panel .rp8 .rp8-info b,html body.phone-app #menuov #panel .rp8 .rp8-info b{font:800 14.5px var(--display,system-ui)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.phone-land #menuov #panel .rp8 .rp8-info .rp-lv,html body.phone-app #menuov #panel .rp8 .rp8-info .rp-lv{font-size:11.5px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.phone-land #menuov #panel .rp8 .rp8-info em,html body.phone-app #menuov #panel .rp8 .rp8-info em{font-size:13px}
+html body.phone-land #menuov #panel .rp8 .rp-n,html body.phone-app #menuov #panel .rp8 .rp-n{display:flex;align-items:center;gap:6px}
+html body.phone-land #menuov #panel .rp8 .rp8-tag,html body.phone-app #menuov #panel .rp8 .rp8-tag{padding:1px 7px;border-radius:999px;background:linear-gradient(180deg,#ffd36a,#f0b43c);color:#2a1a04;font:800 10px var(--display,system-ui);letter-spacing:.04em}
+html body.phone-land #menuov #panel .rp8 .rp8-acts,html body.phone-app #menuov #panel .rp8 .rp8-acts{display:flex;gap:6px;flex:0 0 auto;align-items:center}
+html body.phone-app #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell),html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell){grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) auto auto!important}
 html body.phone-app #menuov #panel.aq07 .aq07-bank .mb-tankcell b,html body.phone-land #menuov #panel.aq07 .aq07-bank .mb-tankcell b{font:800 14px var(--display)!important;color:var(--ink)}
-@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.aq07 .aq07-bank{grid-template-columns:repeat(3,minmax(0,1fr))!important} }
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell){grid-template-columns:repeat(6,minmax(0,1fr))!important} html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell) > div{grid-column:span 2} html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell) > .btn{grid-column:span 3} }
 html body.phone-app #menuov #panel.aq07 .mb-tankcap,html body.phone-land #menuov #panel.aq07 .mb-tankcap{font:700 13px var(--display);color:#9fb3c8;white-space:nowrap}
 html body.phone-app #menuov #panel.aq07 .mb-tankwhy,html body.phone-land #menuov #panel.aq07 .mb-tankwhy{margin:2px 0 8px!important;font-size:12.5px!important;line-height:1.4;color:#b8c8d6}
 html body.phone-land .hud > .st-lvl[data-mbtap],html body.phone-app .hud > .st-lvl[data-mbtap]{background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:0 3px 10px #0007!important;color:#fff!important;cursor:pointer}

@@ -86,7 +86,7 @@ html body.phone-app #menuov #panel.dk08 .dk08-bank,html body.phone-land #menuov 
 html body.phone-app #menuov #panel.dk08 .dk08-bank b,html body.phone-land #menuov #panel.dk08 .dk08-bank b{display:block;font:800 14px var(--display)!important;color:#fff;overflow:hidden;text-overflow:ellipsis}
 html body.phone-app #menuov #panel.dk08 .dockbar,html body.phone-land #menuov #panel.dk08 .dockbar{margin:0!important}
 html body.phone-app #menuov #panel.dk08 .hm-phone > h5:first-child,html body.phone-land #menuov #panel.dk08 .hm-phone > h5:first-child{margin-top:14px!important}
-@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.dk08 .dk08-bank{grid-template-columns:repeat(3,minmax(0,1fr))!important} }
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.dk08 .dk08-bank{grid-template-columns:repeat(2,minmax(0,1fr))!important;row-gap:4px!important} html body.phone-land #menuov #panel.dk08 .dk08-bank > div:first-child{grid-column:1 / -1} } /* narrow phones: Cozy (its name can be long) gets its own line, Bonus and Placed share the next */
 </style>`);
 /* ---------- Your home shows the REAL home of every water (director, 2026-11-18: "make sure the home works for ALL maps, in each way
    that applies to them"). The phone view used to draw a generic wooden dock everywhere (wrong at a boat, trawler, raft, ice camp,

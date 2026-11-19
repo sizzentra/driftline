@@ -134,5 +134,7 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.',
   'Mountains look clean again: no more thin stripes running down them or their reflections.',
   'Your home’s live view is smooth now: it plays at your screen’s full frame rate instead of a few frames a second.',
-  'Aquarium: the strip under the tank shows how many fish it holds, and the tank upgrade says what you get (room for how many fish) and why it helps.']});
+  'Aquarium: the strip under the tank shows how many fish it holds, and the tank upgrade says what you get (room for how many fish) and why it helps.',
+  'Rods: each tab shows only its own things. Your rod has the rod in your hands and your presets, now tidy rows: Use, Replace or Clear, and a gold In use tag on the one you’re holding.',
+  'Small iPhones: nothing in the page summaries or tabs is cut off any more (Home, Skills, Wardrobe).']});
 
