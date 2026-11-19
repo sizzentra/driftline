@@ -88,7 +88,7 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-land .hud > #mblive,html body.phone-land .hud > .mb-x{flex:0 1 auto!important}
-html body.phone-app .hud > .mb-x{display:none!important}
+html body.phone-app .hud > .mb-x:not(#mbhome){display:none!important} /* the narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
 html body.phone-land .hud > .mb-x[hidden]{display:none!important}
 html body.phone-land .hud > .mb-x.ready{border-color:#ffd36a!important;box-shadow:0 0 0 1px #ffd36a66!important}
 html body.phone-land .hud > .mb-x.ready .lbl{color:#ffd36a!important}
@@ -152,4 +152,19 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body.phone-land #goalchip,html body.phone-app #goalchip{display:none!important}
 html body.phone-land #baitqk,html body.phone-app #baitqk{display:none!important}
 html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>`);
+/* Narrow layout (split-screen windows; phones themselves are landscape-only), 2026-11-19: the bar was already two rows, but Home was
+   hidden (the only way into your home on phones) and the Coins / Level / Fishing at box was squeezed into two columns, cutting all
+   of its text. Now: the info box takes the whole first row (gear on the right), Cooler, Aquarium, Home and Fish Log share the second
+   row (search on the right), every label readable. */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app.dl-fish .hud{grid-template-columns:repeat(4,minmax(0,1fr)) 32px!important}
+html body.phone-app.dl-fish .hud > .mb-stat8{grid-column:1 / 5!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud > .mb-stat8 > .stat{flex:1 1 0!important}
+html body.phone-app.dl-fish .hud > .st-cool{grid-column:1!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > .st-aq{grid-column:2!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > #mbhome{grid-column:3!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > .st-log{grid-column:4!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud #settingsbtn{grid-column:5!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!important}
 </style>`);

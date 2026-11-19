@@ -20,5 +20,10 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'Alive and Well Dress
   'The Wardrobe preview is animated now, so you see every effect live while you dress up.',
   'Smoother: shiny sparkles run at your screen’s full frame rate.',
   '## Fixes',
-  'The water fits its frame exactly in smaller PC windows.']};
+  'The water fits its frame exactly in smaller PC windows.',
+  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
+  '## Lighter on your computer (looks the same)',
+  'Lanterns, lamps, the sun, the moon and Starfall’s sky glows are stamped from ready-made soft lights instead of being rebuilt on every frame.',
+  'Home decorations that stay still are drawn once and reused; coloured pets are drawn in one step.',
+  'Water pictures for the Map are only made while the Map is open, and the top bar updates 10 times a second instead of every frame (same numbers).']};
 addTestNotes(TEST_NOTES);

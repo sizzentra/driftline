@@ -2,7 +2,11 @@
 // Phones (Android + iPhone), round 6 performance (director, 2026-11-18: "Aquarium tab on Android the only screen that
 // experiences lag while scrolling", "reeling in storms on Android has a severely impacted frame rate").
 // =====================================================================
-const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')||b.contains('phone-land'); };
+/* MOB(): "is the phone layout on?" was re-read from the page's classes on every call, hundreds of times a frame from the per-frame
+   phone paths (2026-11-19, redundancies list C11). It is now a stored answer, refreshed only when the body's classes change. */
+const MOB=(()=>{ let v=null; const upd=()=>{ const b=document.body&&document.body.classList; v=!!b&&(b.contains('phone-app')||b.contains('phone-land')); };
+  try{ if(document.body&&window.MutationObserver) new MutationObserver(upd).observe(document.body,{attributes:true,attributeFilter:['class']}); }catch(e){}
+  return ()=>{ if(v===null) upd(); return v; }; })();
 
 // 1) a menu covers the whole phone screen, so the fishing scene behind it is not drawn (the aquarium tank, the page and its
 //    scrolling get the whole frame). The line waits while a menu is open, so nothing on the water is missed.
@@ -31,7 +35,7 @@ let MOB_DPR_CAP=2;
   // there instead of slow again), and the first second after a water change is not counted (one-off loading work).
   const steps=[2,1.75,1.5,1.3,1.15]; let i=0, acc=0, n=0, slow=0, fast=0, last=0, loc='', skipUntil=0; const byLoc={};
   const setStep=k=>{ k=Math.max(0,Math.min(steps.length-1,k)); if(k===i) return; i=k; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} };
-  const tick=t=>{ requestAnimationFrame(tick); if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
+  const tick=t=>{ if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
     if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+3000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
     if(t<skipUntil){ last=t; return; }
     if(last){ const dt=t-last; if(dt<200){ acc+=dt; n++; } } last=t;
@@ -39,7 +43,7 @@ let MOB_DPR_CAP=2;
       if(avg>slowT){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
       else if(avg<fastT){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
       else { slow=0; fast=0; } } };
-  requestAnimationFrame(tick);
+  { const _fr=frame; frame=function(now){ try{ tick(now); }catch(e){} return _fr.apply(this,arguments); }; } /* runs inside the game loop (redundancies list B7): it used to keep its own animation-frame loop just to time frames */
   if(/[?&]test\b/.test(location.search)) window.__mobperf=()=>({cap:MOB_DPR_CAP, step:i, byLoc:Object.assign({},byLoc)}); }
 
 // 4) live events never move the game frame (director: "some live events on Android move the game frame as the counter moves

@@ -173,3 +173,7 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
   'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});
+PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
+  'Willow Pond runs much smoother on phones.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});

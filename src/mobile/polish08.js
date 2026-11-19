@@ -296,48 +296,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage
    it clear of "Challenges" (the longest name) on the shortest rail (667x375, 32 px buttons). */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdock .cdb .cddot[class],html body.phone-land #menuov .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class],html body.phone-app #menuov .secb .secdot[class]{padding:0 3px!important;letter-spacing:-.4px}html body.phone-land #catdock .cdb .cddot,html body.phone-app #catdock .cdb .cddot{right:-6px!important}</style>`);
 
-/* Wrong scenery after opening a menu (director, 2026-11-18: "clicking settings and exiting brought up the wrong map for a bit"): water
-   thumbnails for the Map page are drawn on the game canvas while any menu is open. v3land then reused the live scenery picture's
-   canvas for the other water (Starfall) and the restore only put the object back, so the real water showed Starfall's scenery until
-   the light changed. Phones: a thumbnail always gets fresh scenery canvases (the live picture is never painted over), and thumbnails
-   are only made while the Map page is open (the only place they show): Settings and other menus no longer pay for them. */
-{ const _vt=v3Thumb; v3Thumb=function(id){ if(!MOB()||V3THUMB[id]) return _vt(id); const c=V3CACHE, p=V3PREV; V3CACHE=null; V3PREV=null; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; try{ v3palette.k=null; }catch(e){} } }; }
-{ const _tn=thumbNext; thumbNext=function(){ if(MOB()&&S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
+/* The scenery-thumbnail fix, the dock decoration cache, glow dots, Starfall sky events and tinted pets moved to src/cd_efficiency.js (2026-11-19): they draw the same picture with less work, so every platform gets them. */
 
-/* Saves with home decorations were slow on Android (director, 2026-11-18: a fresh install ran at 60 fps / 15-20 ms; the same phone
-   after loading a PC save ran at 25 fps / 50-60 ms). Every decoration on the dock is drawn through litDraw (ab_decor.js): its own
-   offscreen canvas plus several blend passes for the light, every frame, and Android graphics chips pay a flush per canvas switch.
-   A fresh save has no decorations placed; a well-decorated home multiplies the cost. Phones: a lit item that stays put on the water
-   canvas is kept as a finished picture and reused for up to 66 ms (redrawn ~15 times a second); anything that moves (new position)
-   is drawn as before. PC is untouched. */
-{ const _ld=litDraw, LC=new Map();
-  litDraw=function(c,bx0,by0,bx1,by1,fn,o){ if(!(MOB()&&c===g)) return _ld.apply(this,arguments);
-    const m=c.getTransform(), sc=Math.hypot(m.a,m.b), pw=Math.ceil((bx1-bx0)*sc), ph=Math.ceil((by1-by0)*sc);
-    if(!(pw>2&&ph>2)||pw*ph>6e6||m.b||m.c) return _ld.apply(this,arguments);
-    const key=Math.round(bx0*2)+'|'+Math.round(by0*2)+'|'+pw+'|'+ph+'|'+(o?o.top+o.rim+o.rimA:''), now=performance.now(), dx=m.a*bx0+m.e, dy=m.d*by0+m.f;
-    let e=LC.get(key);
-    if(e&&e.c&&now-e.at<66){ c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(e.c,dx,dy); c.restore(); e.seen=now; return; }
-    if(!e||now-e.seen>250){ LC.set(key,{c:null,at:0,seen:now}); if(LC.size>80){ for(const [k,v] of LC) if(now-v.seen>2000) LC.delete(k); } return _ld.apply(this,arguments); } /* first sighting: draw as usual */
-    if(!e.c) e.c=document.createElement('canvas'); if(e.c.width!==pw||e.c.height!==ph){ e.c.width=pw; e.c.height=ph; }
-    const tx=e.c.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(sc,0,0,sc,-bx0*sc,-by0*sc);
-    _ld(tx,bx0,by0,bx1,by1,fn,o); e.at=now; e.seen=now;
-    c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(e.c,dx,dy); c.restore(); }; }
-
-/* Boats and floating docks (director, 2026-11-19: "anything with open water and a boat or different dock tanked his fps"): there every
-   decoration bobs with the platform, so the position-keyed litDraw cache above never hit and each item was re-lit from scratch every
-   frame. Phones: each dock item is cached by WHAT it is (id, size, night level, front/back), not where it is: its lit picture is
-   refreshed at most every 66 ms (flags, campfires and wind chimes keep moving) and drawn wherever the platform carries it this frame.
-   Same box as litDraw uses, so the picture is identical. PC is untouched. */
-{ const _dd=drawDockItem, DC=new Map();
-  drawDockItem=function(c,id,x,y,s,t,night,back){ if(!(MOB()&&c===g)) return _dd.apply(this,arguments);
-    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
-    const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
-    if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
-    const key=id+'|'+Math.round(s*200)+'|'+Math.round((night||0)*20)+'|'+(back?1:0)+'|'+pw+'x'+ph, now=performance.now();
-    let e=DC.get(key); if(!e){ e={c:document.createElement('canvas'),at:-1e9,seen:now}; DC.set(key,e); if(DC.size>60){ for(const [kk,v] of DC) if(now-v.seen>3000) DC.delete(kk); } }
-    e.seen=now;
-    if(now-e.at>=66){ if(e.c.width!==pw||e.c.height!==ph){ e.c.width=pw; e.c.height=ph; } const tx=e.c.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,t,night,back); e.at=now; }
-    c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
 
 /* Light and weather transitions on phones (director, 2026-11-19: drops to 30-40 fps "and keeps fluctuating back up to 60", worst in
    weather). Every light step rebuilds the whole scenery picture (v3land: 10-30 ms on a desktop, several times that on a phone); with
@@ -346,29 +306,3 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
    light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
 { const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
 
-/* "Fix it, don't leave it" round (director, 2026-11-19). Phones only; PC is untouched.
-   1) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
-      call, over 30 a frame at Starfall. Phones stamp a ready-made soft dot per colour (128 px, same centre colour, same fade to
-      nothing) at the same size and strength. */
-{ const _gl=v3glow, GS=new Map();
-  const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
-    m=/^#([0-9a-f]{6})$/i.exec(col); if(m){ const v=parseInt(m[1],16); return {rgb:((v>>16)&255)+','+((v>>8)&255)+','+(v&255),a:1}; } return null; };
-  v3glow=function(c,x,y,r,col,a){ if(!MOB()||!(r>0)) return _gl.apply(this,arguments); const p=parse(col); if(!p) return _gl.apply(this,arguments);
-    let s=GS.get(p.rgb); if(!s){ s=document.createElement('canvas'); s.width=s.height=128; const sx=s.getContext('2d'), gr=sx.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,128,128); if(GS.size>96) GS.clear(); GS.set(p.rgb,s); }
-    const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
-/* 2) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
-      work the longer you play. Phones resume from where the last call got to (same events, same timing). */
-{ const _sf=sfEvent; let cs=0, cn=0;
-  sfEvent=function(t){ if(!MOB()) return _sf(t); if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
-    const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
-/* 3) Tinted pets: a canvas colour filter makes every brush stroke of the pet go through the filter separately. Phones draw the pet
-      once without the tint into a small picture, then put it on the water through the filter in one step. */
-{ const _dp=drawPetStyled; let PC=null;
-  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(!MOB()||c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
-    if(!f||f==='none') return _dp.apply(this,arguments);
-    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
-    const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);
-    if(!PC) PC=document.createElement('canvas'); if(PC.width<pw||PC.height<ph){ PC.width=Math.max(PC.width,pw); PC.height=Math.max(PC.height,ph); }
-    const px=PC.getContext('2d'); px.setTransform(1,0,0,1,0,0); px.clearRect(0,0,PC.width,PC.height); px.setTransform(k,0,0,k,-(x+bx)*k,-(y+by)*k);
-    const r=_dp(px,id,x,y,s,t,night,Object.assign({},lk,{tint:undefined}));
-    c.save(); c.setTransform(1,0,0,1,0,0); c.filter=f; c.drawImage(PC,0,0,pw,ph,m.a*(x+bx)+m.e,m.d*(y+by)+m.f,pw,ph); c.restore(); return r; }; }
