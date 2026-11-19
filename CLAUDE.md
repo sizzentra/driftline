@@ -6,6 +6,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/PLATFORM_DESIGN.md`: what every screen looks like per platform (numbers, layouts).
 - `docs/SYSTEMS_MAP.md`: what affects what, plus a log of every round's changes.
 - `docs/LESSONS.md`: error bookmarks (symptom → cause → fix → catch) and what works.
+- `docs/PLAN.md`: the active work list.
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
@@ -132,15 +133,11 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **It should feel like a real app,** with a clean look on phone and PC.
 - **Art direction "Glow Diorama":** rich glow lighting, crisp layered depth, rim light, bloom on lights, everything gently alive. Nothing floats or looks pasted on: attachments are placed from the real outline (`f3TopY`, `f3TopAt`, `horseCX`), never guessed offsets.
 
-## Roadmap (closest first; check SYSTEMS_MAP before starting, parts may exist)
-1. **Lily polish:** a soft rim light so her black coat reads at night; hats following her head tilt; Cam's feedback.
-2. **Transfer safety net:** ntfy.sh is a free relay (~250 messages/day/IP, files expire after ~3 h); if it gets unreliable, move to a tiny own relay (e.g. a free Cloudflare Worker); link buttons stay as the fallback.
-3. **Code tidy-up:** fold the per-update files and the `extraActN` chain into feature files with one action registry, without changing saves.
-4. **Accessibility:** rarity shown by more than colour, a reduced-motion setting, bigger touch targets (director decision pending).
-5. **Save size:** keep codes compact (drop derived data before encoding).
+## Plan
+The one active work list is `docs/PLAN.md` (the director's list in batches, plus older open items). Update its status marks every round.
 
 ## Future plans (ideas, nothing decided)
-- **Cam's concepts:** per-water events with a gameplay hook on one shared event system; a backyard pond (breeding, after the trophy room); new maps (Amazon, Cherry Blossom, Canadian Rockies, Florida Keys), one per release at most, each a full water.
+- **Cam's concepts:** per-water events with a gameplay hook on one shared event system; a backyard pond (breeding, after the trophy room). (The new maps are in docs/PLAN.md.)
 - **Friends without accounts:** visit a dock from a code, send gifts/fish by code, a weekly friends' derby leaderboard.
 - **Seasonal and live content:** holiday decorations, limited-time fish, weekend derbies, seasonal waters.
 - **More personal gifts** using the Lily pattern.
