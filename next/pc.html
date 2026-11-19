@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-1128';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.18-2051';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -11057,7 +11057,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
   _renderPanel_2();
-  if(newTab){ if(document.body.classList.contains('pch-on')) return; /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
+  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(typeof MOB==='function'&&MOB()) return; /* phones (round 8 speed): no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
@@ -11356,7 +11356,7 @@ function menuSync(){ const T=$('tabs'); if(!T) return; const sec=menuSecOf(S.tab
   // the pills of the open section (rebuilt only when the section changes)
   const list=sec?menuTabsIn(sec):[], key=(sec?sec.id:'')+'|'+list.join(',');
   if(key!==menuSubKey){ menuSubKey=key; sb.innerHTML=list.map(t=>{ const [ic,nm]=menuTabLabel(t); return `<button type="button" class="subp" data-sub="${t}" aria-pressed="false"><span class="subi" aria-hidden="true">${ic}</span><span>${nm}</span><span class="subdot" hidden></span></button>`; }).join('');
-    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
+    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else if(typeof MOB==='function'&&MOB()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){} } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
   sb.hidden=!list.length; let onP=null; sb.querySelectorAll('.subp').forEach(p=>{ const on=p.dataset.sub===S.tab; p.setAttribute('aria-pressed',on?'true':'false'); p.classList.toggle('on',on); if(on) onP=p; });
   // keep the open page's pill in view when the row scrolls sideways (small phones), without moving the page
   menuPillView(sb,onP); requestAnimationFrame(()=>menuPillView(sb,onP));
@@ -13976,7 +13976,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); sync(); return r; }; }
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(typeof MOB==='function'&&MOB()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
@@ -13995,7 +13995,9 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
   const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
   document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
-  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); // a mouse never counts as touch (it used to, and swallowed every menu click on PC) downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
+  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); /* a mouse never counts as touch (it used to, and swallowed every menu click on PC). This note was a // comment mid-line until 2026-11-18, which silently disabled everything after it on this line: the finger was never forgotten, untracked lifts threw an error, and a slid or redrawn tap was neither skipped nor handed to the phone's own click (taps "did nothing at times") */ downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18){ unacted(d.el); return; }
+    // the button was redrawn while the finger was down (live countdowns, a page refresh): tap the button that is under the finger now
+    if(!d.el.isConnected){ const n=document.elementFromPoint(e.clientX,e.clientY), el2=n&&n.closest&&n.closest(NAV); if(!el2||el2.disabled){ unacted(d.el); return; } d.el=el2; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
@@ -17107,8 +17109,9 @@ ui(){ QA.sys='UI';
     encLoc='junk'; const gl=nextGoal(); const g=$('goalchip'); if(g&&gl.tab==='journal'){ M(g); if(S.tab!=='journal') e.push('goal opened '+S.tab); else if(encLoc!==(gl.loc||S.loc)) e.push('goal opened the Fish Log on '+encLoc); } closeMenu(); setTab(DASH);
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'categories, page tabs, Back, goal'}; });
   T('top bar: no bait chip; Fishing at, Cooler, Aquarium, Fish Log and Settings are on screen, fit, and each opens its page; bait is picked in Tackle',()=>{ const e=[]; closeMenu(); setTab(DASH);
-    const bc=document.querySelector('.hud > .st-bait'); if(bc&&getComputedStyle(bc).display!=='none') e.push('bait chip still shown');
-    const pcr=document.body.classList.contains('pch-on'); const want=[[pcr?'#pcscene > .stat.loc':'.hud > .stat.loc','map'],[pcr?'#pchead .pch-stats > .st-cool':'.hud > .st-cool','cooler'],[pcr?'#pchead .pch-stats > .st-aq':'.hud > .st-aq','aquarium'],[pcr?'#pchead .pch-stats > .st-log':'.hud > .st-log','journal'],[document.body.classList.contains('pch-on')?'#pchead [data-pch="settings"]':'.hud #settingsbtn','settings']];
+    const mob=typeof MOB==='function'&&MOB(); /* phones (round 8): Coins, Level and Fishing at are one plain info box (not links), Home has a chip, and Bait sits in the top bar */
+    const bc=document.querySelector('.hud > .st-bait'); if(!mob&&bc&&getComputedStyle(bc).display!=='none') e.push('bait chip still shown');
+    const pcr=document.body.classList.contains('pch-on'); const want=mob?[['.hud > .st-cool','cooler'],['.hud > .st-aq','aquarium'],['.hud > #mbhome','home'],['.hud > .st-log','journal'],['.hud #settingsbtn','settings']]:[[pcr?'#pcscene > .stat.loc':'.hud > .stat.loc','map'],[pcr?'#pchead .pch-stats > .st-cool':'.hud > .st-cool','cooler'],[pcr?'#pchead .pch-stats > .st-aq':'.hud > .st-aq','aquarium'],[pcr?'#pchead .pch-stats > .st-log':'.hud > .st-log','journal'],[document.body.classList.contains('pch-on')?'#pchead [data-pch="settings"]':'.hud #settingsbtn','settings']];
     for(const [q,tab] of want){ const el=document.querySelector(q); if(!el){ e.push(q+' missing'); continue; } const r=el.getBoundingClientRect(); if(!r.width||getComputedStyle(el).display==='none'){ e.push(q+' hidden'); continue; }
       if(r.right>innerWidth+1) e.push(q+' off screen'); for(const x of el.querySelectorAll('b,.lbl')) if(x.clientWidth&&x.scrollWidth>x.clientWidth+1) e.push(q+' text cut');
       el.click(); if(S.tab!==tab) e.push(q+' opened '+S.tab); closeMenu(); setTab(DASH); }
