@@ -62,7 +62,7 @@ let A3HEAD=.9; // 0.3.6: adult proportions (was 1.1, a cartoon-sized head)
 function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
   const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
-  if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
+  if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); A3REEL=live&&r.reel?r.reel:null; return {x:r.hand.x,y:r.hand.y,back:r.back,reel:r.reel,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
   /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
@@ -92,7 +92,8 @@ function drawAngler3(c,x,y,s,lk,o={}){
   // map the hand positions back into the caller's space
   const map=p=>({x:x+(p.x-BX*ps)/ps*s,y:y+(p.y-BT*ps)/ps*s});
   if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,map,s/ps); // living cosmetics on top (cb_wearfx06.js)
-  return {x:map(res.hand).x,y:map(res.hand).y,back:map(res.back),fingers:()=>a3Fingers(c,map(res.hand),map(res.back),res.ra,s,res.sk,res.skD)}; }
+  const RL=res.reel?Object.assign(map(res.reel),{ca:res.reel.ca,r:res.reel.r/ps*s}):null; A3REEL=live?RL:null;
+  return {x:map(res.hand).x,y:map(res.hand).y,back:map(res.back),reel:RL,fingers:()=>a3Fingers(c,map(res.hand),map(res.back),res.ra,s,res.sk,res.skD)}; }
 
 // fingers wrapped over the rod, drawn after the rod so the hands hold it
 function a3Fingers(c,h1,h2,ra,s,sk,skD){ c.save();
@@ -104,7 +105,7 @@ function a3Fingers(c,h1,h2,ra,s,sk,skD){ c.save();
     c.restore(); }
   c.restore(); }
 
-var A3FXP={}; // where the hat, chest and neck are this frame (read by cb_wearfx06.js)
+var A3FXP={}, A3REEL=null; /* A3REEL: where the live angler's reel and crank are this frame, for v3Rod */ // where the hat, chest and neck are this frame (read by cb_wearfx06.js)
 function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl, t=o.t||0, f=lk.g==='f';
   const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt);
@@ -129,8 +130,12 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   // upper body space: crouch down, lean around the hips. Hands are given in final space so they meet the rod exactly.
   const lc=Math.cos(lean), ls=Math.sin(lean), hipY=-24+lift;
   const toUp=(px,py)=>{ const X=px, Y=py-lift+24; return {x:X*lc+Y*ls, y:-X*ls+Y*lc-24}; }; // world -> leaned upper-body coordinates
-  const HW={x:hx,y:hy}, BW={x:hx-Math.cos(ra)*6.6,y:hy-Math.sin(ra)*6.6};
-  const HH=toUp(HW.x,HW.y), BH=toUp(BW.x,BW.y);
+  /* [10] (director): the second hand sits on the reel and turns its crank while you reel; the reel hangs just under the rod in front of
+     the rod hand. Left-handed (Settings) swaps the arms: the near arm cranks and the far arm holds the rod. */
+  const reeling=live&&st==='reeling'&&(G.hold||G.crank>0||G.padReel>0), ca=reeling?t*16:2.3+Math.sin(t*.6)*.08, nx=-Math.sin(ra), ny=Math.cos(ra);
+  const RC={x:hx+Math.cos(ra)*2.4+nx*4.4,y:hy+Math.sin(ra)*2.4+ny*4.4}, KN={x:RC.x+Math.cos(ca)*3.3,y:RC.y+Math.sin(ca)*3.3}, lefty=S&&S.settings&&S.settings.hand==='l';
+  const HW={x:hx,y:hy}, BW=o.sit?{x:hx-Math.cos(ra)*6.6,y:hy-Math.sin(ra)*6.6}:KN;
+  const HH=toUp((lefty&&!o.sit?BW:HW).x,(lefty&&!o.sit?BW:HW).y), BH=toUp((lefty&&!o.sit?HW:BW).x,(lefty&&!o.sit?HW:BW).y);
   const legC=a3Legs(lk,D), legD=D(mix(a3Legs(lk,q=>q),'#000000',.22)), sleeve=a3Sleeve(lk,D,(lk.tone==="sleeves"&&lk.shirt2)?D(lk.shirt2):shirt), sleeveFab=a3SleeveLayers(lk,D), cuffC=D(mix(lk.pants||'#3a4a6a','#000000',.25));
   c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round'; c.lineJoin='round';
   // ---- legs: hip -> knee -> ankle, knees bend forward when the hips drop; boots stay planted
@@ -200,10 +205,11 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   c.save(); c.scale(SIDE_K,1); A3FXP.neck=c.getTransform(); A3FXP.nw=B.w; a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
   c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50);
-  c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.fill();
+  const NAT=lk.face==='natural', JW=NAT?[1.3,-52.3,4.7,3.25,.16]:[1.9,-51.9,5.4,3.5,.1]; /* [59] Natural face: a rounder head with a softer jaw */
+  c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(JW[0],JW[1],JW[2],JW[3],JW[4],0,7); c.fill();
   // head volume: lit from the upper front, shade wrapping the back and under the jaw
-  c.save(); c.beginPath(); c.arc(0,-56,7.5,0,7); c.ellipse(1.9,-51.9,5.4,3.5,.1,0,7); c.clip();
-  const hg=c.createRadialGradient(3.2,-59.4,.5,1,-56,10.2); hg.addColorStop(0,'rgba(255,246,232,.34)'); hg.addColorStop(.38,'rgba(255,246,232,0)'); hg.addColorStop(.72,'rgba(90,30,20,0)'); hg.addColorStop(1,'rgba(70,20,16,.4)'); c.fillStyle=hg; c.fillRect(-9,-65,19,18);
+  c.save(); c.beginPath(); c.arc(0,-56,7.5,0,7); c.ellipse(JW[0],JW[1],JW[2],JW[3],JW[4],0,7); c.clip();
+  const hg=c.createRadialGradient(3.2,-59.4,.5,1,-56,10.2); hg.addColorStop(0,'rgba(255,246,232,'+(NAT?.2:.34)+')'); hg.addColorStop(.38,'rgba(255,246,232,0)'); hg.addColorStop(.72,'rgba(90,30,20,0)'); hg.addColorStop(1,'rgba(70,20,16,.4)'); c.fillStyle=hg; c.fillRect(-9,-65,19,18);
   c.fillStyle='rgba(110,40,28,.16)'; c.beginPath(); c.ellipse(-.6,-48.6,6,2.2,.1,0,7); c.fill(); c.restore();
   // ear
   c.fillStyle=sk; c.beginPath(); c.ellipse(-1.8,-55.4,1.8,2.3,0,0,7); c.fill(); c.fillStyle=skD; c.beginPath(); c.ellipse(-1.6,-55.3,.85,1.25,0,0,7); c.fill(); c.fillStyle='rgba(255,240,225,.3)'; c.beginPath(); c.ellipse(-2.4,-56.2,.5,.9,0,0,7); c.fill();
@@ -217,9 +223,9 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   else if(mood==='happy'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.65; c.beginPath(); c.arc(ex,ey+.5,1.1,Math.PI*1.1,Math.PI*1.9); c.stroke(); }
   else { const big=mood==='surprised', ec=(EYES[lk.eye]||EYES[0])[0];
     if(s<3.2){ // small (on the water): a soft dark eye tinted by the eye colour, with a catchlight
-      const er=big?1.15:1, eh=big?1.45:1.3; c.fillStyle=D(mix('#1a1410',ec,.3)); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.36,ey-.46,.38,0,7); c.fill(); }
+      const ES=A3_EYESH[lk.eyeShape]||A3_EYESH.round, er=(big?1.15:1)*ES[0], eh=(big?1.45:1.3)*ES[1]; c.fillStyle=D(mix('#1a1410',ec,.3)); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.36,ey-.46,.38,0,7); c.fill(); }
     else { // close up (Wardrobe, Home): white of the eye, a coloured iris looking forward, pupil, catchlights and an upper lid
-      const rx=big?1.35:1.22, ry=big?1.25:1.02;
+      const ES=A3_EYESH[lk.eyeShape]||A3_EYESH.round, rx=(big?1.35:1.22)*ES[0], ry=(big?1.25:1.02)*ES[1];
       c.save(); c.beginPath(); c.ellipse(ex,ey,rx,ry,0,0,7); c.clip();
       c.fillStyle=D('#fbf7f2'); c.fillRect(ex-2,ey-2,4,4);
       const ix=ex+.34, iy=ey+.06, ir=big?.78:.84, ig=c.createRadialGradient(ix-.15,iy-.2,.05,ix,iy,ir); ig.addColorStop(0,D(mix(ec,'#ffffff',.3))); ig.addColorStop(.7,D(ec)); ig.addColorStop(1,D(mix(ec,'#000000',.45)));
@@ -255,7 +261,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   { const gr=c.createRadialGradient(HH.x+.6,HH.y-.9,.3,HH.x,HH.y,2.8); gr.addColorStop(0,mix(sk,'#fff4e6',.2)); gr.addColorStop(1,skD); c.fillStyle=gr; c.beginPath(); c.arc(HH.x,HH.y,2.45,0,7); c.fill(); }
   c.restore(); c.restore();
   // hand positions in this context's pixel space, for the rod and the finger overlay
-  return {hand:{x:x+HW.x*s,y:y+HW.y*s}, back:{x:x+BW.x*s,y:y+BW.y*s}, ra, sk, skD}; }
+  return {hand:{x:x+HW.x*s,y:y+HW.y*s}, back:{x:x+BW.x*s,y:y+BW.y*s}, reel:o.sit?null:{x:x+RC.x*s,y:y+RC.y*s,ca,r:3.3*s}, ra, sk, skD}; }
 
 function drawHair3(c,hs,hair,hairC,D,t){
   const dk=D(mix(hairC,'#000000',.3)), lt=D(mix(hairC,'#ffffff',.25));
@@ -379,7 +385,10 @@ function v3Rod(c,hand,tip,mx,my,rod,night,t,reeling){ const id=rod?rod.id:'bambo
   if(id==='scrap'){ c.fillStyle=N('#c8c0a0'); const [x,y]=pts[5]; c.fillRect(x-2.5,y-2.4,5,4.8); c.fillStyle=v3rgba('#a0602a',.6); for(const i of [3,7,10]){ const [x2,y2]=pts[i]; c.beginPath(); c.arc(x2,y2,1.2,0,7); c.fill(); } }
   if(id==='spine'){ c.fillStyle=N(mix(base,'#ffffff',.4)); for(let i=1;i<n;i++){ const [x,y]=pts[i]; c.beginPath(); c.moveTo(x-1,y-1.5); c.lineTo(x,y-4.2+i*.15); c.lineTo(x+1,y-1.5); c.fill(); } }
   // the reel under the grip: a spool that spins while you reel
-  { const [x,y]=pts[1], r=3.6; c.fillStyle=N('#3a3a44'); c.fillRect(x-1,y,2,3); c.fillStyle=N(id==='golden'?'#e8b830':id==='carbon'?'#c8c8d0':'#8a8a96'); c.beginPath(); c.arc(x,y+5.4,r,0,7); c.fill();
+  if(A3REEL){ const R=A3REEL, rr=Math.max(2.6,R.r*1.05); A3REEL=null; c.strokeStyle=N('#3a3a44'); c.lineWidth=1.6; c.beginPath(); c.moveTo(pts[1][0],pts[1][1]); c.lineTo(R.x,R.y); c.stroke();
+    c.fillStyle=N(id==='golden'?'#e8b830':id==='carbon'?'#c8c8d0':'#8a8a96'); c.beginPath(); c.arc(R.x,R.y,rr,0,7); c.fill(); c.strokeStyle=N('#2a2a30'); c.lineWidth=.9; c.beginPath(); c.arc(R.x,R.y,rr,0,7); c.stroke();
+    const kx=R.x+Math.cos(R.ca)*R.r, ky=R.y+Math.sin(R.ca)*R.r; c.lineWidth=1.1; c.beginPath(); c.moveTo(R.x,R.y); c.lineTo(kx,ky); c.stroke(); c.fillStyle=N('#2a2a30'); c.beginPath(); c.arc(kx,ky,1.2,0,7); c.fill(); }
+  else { const [x,y]=pts[1], r=3.6; c.fillStyle=N('#3a3a44'); c.fillRect(x-1,y,2,3); c.fillStyle=N(id==='golden'?'#e8b830':id==='carbon'?'#c8c8d0':'#8a8a96'); c.beginPath(); c.arc(x,y+5.4,r,0,7); c.fill();
     c.strokeStyle=N('#2a2a30'); c.lineWidth=.9; c.beginPath(); c.arc(x,y+5.4,r,0,7); c.stroke(); const a=reeling?t*16:0; c.beginPath(); c.moveTo(x,y+5.4); c.lineTo(x+Math.cos(a)*r*1.5,y+5.4+Math.sin(a)*r*1.5); c.stroke(); c.fillStyle=N('#2a2a30'); c.beginPath(); c.arc(x+Math.cos(a)*r*1.5,y+5.4+Math.sin(a)*r*1.5,1.1,0,7); c.fill(); }
   c.lineCap='butt'; }
 if(/[?&]test\b/.test(location.search)) window.__rodSheet=(save)=>{ const o=document.createElement('canvas'); o.width=4*220; o.height=3*150; const x=o.getContext('2d'); x.fillStyle='#4a7a90'; x.fillRect(0,0,o.width,o.height);

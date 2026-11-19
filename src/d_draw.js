@@ -377,8 +377,8 @@ function draw(now){
   const sc=clamp(H/420,.7,1.25); let ax=W*.12, ay=dockY+pb;
   const pax=ax, pay=ay; /* pets are drawn after the angler (below), so clothes and the angler never hide them */
   const RP=G.st==='rest'?restPose(dockY,pb,sc):null; if(RP){ ax=RP.ax; ay=RP.ay; }
-  let hx=9, hy=-35; if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; } if(RP){ hx=RP.hx; hy=RP.hy+Math.sin(t*.8)*.6; }
-  const tip=TIP(); let tx=tip.x, ty=tip.y+pb; if(RP){ tx=ax+hx*sc+W*.075; ty=ay+hy*sc-H*.13; }
+  let hx=9, hy=-35; if(G.st==='idle'||G.st==='waiting'){ hx+=Math.sin(t*1.3)*.5; hy+=Math.sin(t*1.9+.5)*.45; } /* [10] a gentle sway in the hands */ if(G.st==='reeling'&&G.hold){ hx=9+Math.cos(t*14)*2.2; hy=-34+Math.sin(t*14)*2.2; } if(G.st==='charging'){ hx=7-G.power*3; hy=-38-G.power*3; } if(RP){ hx=RP.hx; hy=RP.hy+Math.sin(t*.8)*.6; }
+  const tip=TIP(); let tx=tip.x, ty=tip.y+pb; if(G.st==='idle'||G.st==='waiting'){ tx+=Math.sin(t*1.1)*W*.003; ty+=Math.sin(t*1.6+1)*H*.005; } if(RP){ tx=ax+hx*sc+W*.075; ty=ay+hy*sc-H*.13; }
   if(G.st==='charging'){ tx -= G.power*W*.05; ty += G.power*H*.06; }
   if(G.st==='reeling'){ const bend = clamp(G.ten/100,0,1); tx += bend*W*.03; ty += bend*H*.08 + (G.run?Math.sin(t*25)*1.5:0); }
   if(G.st==='landing'){ ty += H*.04*(1-G.land.t/G.land.dur); }

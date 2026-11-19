@@ -34,12 +34,21 @@ function wearFxDraw(c,lk,t,toC,k){ try{ const A=A3FXP; if(!A||(!A.hat&&!A.torso&
     c.save(); c.globalCompositeOperation='lighter';
     // ---------------- hats (origin = head centre) ----------------
     if(H){ const h=lk.hat;
-      if(h==='wizard'){ // arcane glow, a climbing spiral of sparkles, a tip star that pulses, runes orbiting the brim
-        glow(H,-1.5,-12,13,'150,120,255',.3+.12*Math.sin(t*2.1)); glow(H,-4.6,-20,6,'200,180,255',.5+.35*Math.max(0,Math.sin(t*3.3)));
-        for(let i=0;i<14;i++){ const u=((t*.32+i/14)%1), ang=u*Math.PI*4.5+i*.7, rr=7.6*(1-u*.85), x=-4.6*u+Math.cos(ang)*rr, y=-5.5-14.5*u+Math.sin(ang)*1.7*(1-u); const front=Math.sin(ang)>-.25?1:.35, a=Math.sin(u*Math.PI)*front; for(let tr=1;tr<4;tr++){ const u2=u-tr*.025; if(u2<0) break; const a2=ang-tr*.35; glow(H,-4.6*u2+Math.cos(a2)*7.6*(1-u2*.85),-5.5-14.5*u2+Math.sin(a2)*1.7*(1-u2),.7,'190,170,255',a*.35/tr); }
-          flare(H,x,y,.5+.8*(1-u),i%3?starry:spec,i,a,i%2===0,ang); }
-        const L=life(1.6,0); flare(H,-4.6,-20.4,1.3,starry,0,.4+.6*L.a,true,t*.4);
-        for(let i=0;i<4;i++){ const ang=t*.8+i*Math.PI/2, x=Math.cos(ang)*10.5, y=-6+Math.sin(ang)*2.2; if(Math.sin(ang)<-.15) continue; glow(H,x,y,1.4,'170,150,255',.55); dot(H,x,y,.28,'rgba(240,235,255,.9)'); } }
+      if(h==='wizard'){ // 0.4.9 [50] redone (director: "Wizard hat effects look mid"): stardust falling from a turning tip star, rune glyphs
+        // orbiting the brim (dim behind the head), a spell burst from the tip every few seconds, and a wisp looping around the head
+        const RUNES=[[[0,-1,0,1],[0,-1,.7,-.4],[0,0,.7,.5]],[[-.5,-1,-.5,1],[-.5,-1,.5,0],[.5,0,-.5,1]],[[0,-1,0,1],[-.6,-.3,.6,-.3],[-.6,.3,.6,.3]],[[-.6,1,0,-1],[0,-1,.6,1],[-.35,.25,.35,.25]]];
+        const glyph=(M,x,y,sz,id,a)=>{ if(a<=.02) return; const s=sz*S0(M); ink(()=>{ c.globalCompositeOperation='lighter'; c.lineCap='round'; for(const pass of [[3.2,.18],[1.2,.9]]){ c.strokeStyle='rgba(190,170,255,'+(a*pass[1]).toFixed(2)+')'; c.lineWidth=Math.max(.6,s*.18*pass[0]); c.beginPath(); for(const L of RUNES[id]){ const p0=P(M,x+L[0]*sz,y+L[1]*sz), p1=P(M,x+L[2]*sz,y+L[3]*sz); c.moveTo(p0.x,p0.y); c.lineTo(p1.x,p1.y); } c.stroke(); } }); };
+        glow(H,-1.5,-11,12,'130,100,255',.18+.08*Math.sin(t*1.7));
+        // tip star, slowly turning, brighter on a pulse
+        const pulse=.55+.45*Math.max(0,Math.sin(t*2.6)); glow(H,-4.6,-20.4,5.5,'210,190,255',.45*pulse); flare(H,-4.6,-20.4,1.5,starry,0,.55+.45*pulse,true,t*.5);
+        // stardust drifting down and back off the tip
+        for(let i=0;i<9;i++){ const L=life(1.8+(i%3)*.35,i*.41), u=L.u, x=-4.6-u*(5+((i*37)%5)), y=-20.4+u*u*16+Math.sin(u*6+i)*1.2; const tw=.5+.5*Math.sin(t*9+i*2.1); flare(H,x,y,.35+.35*(1-u),i%2?spec:starry,i,L.a*tw*.9,false,t+i); }
+        // rune glyphs orbiting the brim
+        for(let i=0;i<3;i++){ const ang=t*.7+i*Math.PI*2/3, z=Math.sin(ang), x=Math.cos(ang)*11, y=-5.2+z*2.4; glyph(H,x,y-2,1.8,i%RUNES.length,(z>-.2?1:.3)*(.8+.2*Math.sin(t*3+i))); }
+        // a spell burst from the tip every ~4.5 s
+        { const B=life(4.5,1.3); if(B.u<.35){ const k=B.u/.35; for(let i=0;i<10;i++){ const an=i/10*Math.PI*2+B.n, r=2+k*9; flare(H,-4.6+Math.cos(an)*r,-20.4+Math.sin(an)*r*.8,.55*(1-k)+.2,i%2?starry:gold,i,(1-k)*.9,false,an); } glow(H,-4.6,-20.4,4+k*8,'220,200,255',(1-k)*.35); } }
+        // the wisp: a figure-eight around the head with a fading tail
+        for(let tr=0;tr<7;tr++){ const tt=t-tr*.045, an=tt*1.4, x=Math.sin(an)*12, y=-2+Math.sin(an*2)*4, z=Math.cos(an); if(z<-.35&&tr===0) break; glow(H,x,y,tr?1.8-tr*.18:3.4,tr?'150,200,255':'210,235,255',(tr?.42-tr*.05:.85)*(z<-.35?.35:1)); if(!tr) dot(H,x,y,.6,'rgba(245,250,255,.95)'); } }
       if(h==='witch'){ glow(H,-3,-11,10,'120,255,160',.1+.05*Math.sin(t*1.7)); for(let i=0;i<6;i++){ const q=((t*.4+i/6)%1), x=-4.6+Math.sin(q*7+i)*2.2*q, y=-21-q*10; glow(H,x,y,1.2+q*1.8,i%2?'150,255,170':'190,140,255',.42*(1-q)); }
         for(let i=0;i<2;i++){ const L=life(1.3+i*.4,i*.6); flare(H,-6+sfxHash(L.n,i)*10,-6-sfxHash(L.n,i+5)*12,.55,i?spec:myth,i,L.a,false); } }
       if(h==='crown'||h==='tiara'){ const pts=h==='crown'?[[-3.6,-14.2],[0,-15.8],[3.6,-14.2]]:[[0,-12.6],[-2.6,-11.8],[2.6,-11.8]]; pts.forEach(([x,y],i)=>{ const L=life(1.4+i*.35,i*.5); flare(H,x,y,.9,gold,i,L.a,true); }); }

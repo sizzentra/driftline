@@ -64,6 +64,7 @@ const SEARCH_IDX=[
  ['Settings: controls','settings','Controls','controls cast aim keyboard'],
  ['Settings: display','settings','Display','display effects motion full screen'],
  ['Settings: weights (kg or lb)','settings','Display','weight weights units kg kilograms lb pounds metric imperial'],
+ ['Settings: rod hand (left or right)','settings','Display','left handed right handed lefty hand rod reel'],
  ['Settings: gameplay','settings','Gameplay','gameplay protect rare fish minigames'],
  ['Settings: patch notes','settings','Patch notes','patch notes updates whats new changes'],
  ['Settings: save & codes','settings','Save & codes','save code backup restore erase'],

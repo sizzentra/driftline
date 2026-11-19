@@ -75,6 +75,14 @@ function fishDesign(sp){
   if(d.pat==='none'||d.pat==='scales'){ if(sp.pat===1) d.pat=has('tiger')?'tiger':pick(['vbars','vbars','hstripe']); else if(sp.pat===2) d.pat=pick(['spots','dots','spots','marble']); }
   // a little individual variety
   d.fin=r(); d.dorsalX=(r()-.5)*.08; d.eyeK=.9+r()*.25; d.tailK=.9+r()*.25;
+  // [57] (director: "Why do all the fish have the same eye assets? ... blend those in a bit better"): an eye style per species from what
+  // it is (predators red, gold or slit-eyed; freshwater gold and amber; saltwater silver and blue; eels, catfish and flatfish small and
+  // beady; the deep big or glowing), with an iris colour and a socket shaded from the fish's own body colour
+  { const eh=fish3Hash('eye'+sp.id), pred=typeof isPredator==='function'&&isPredator(sp), salt=/coast|shelf|deep|trench|reef/.test(sp.loc||'');
+    d.eyeS = d.eye==='glow'?'glow' : d.eye==='big'||d.deepsea ? 'big' : (d.plan==='eel'||has('cat','loach','flounder','halibut','sole','lamprey','sturgeon','paddle')) ? 'small' : d.plan==='shark' ? 'slit'
+      : pred ? ['red','gold','slit','red'][eh%4] : salt ? ['silver','blue','silver','gold'][eh%4] : ['gold','amber','round','silver'][eh%4];
+    d.iris = {red:'#c8322a', gold:'#d8a830', amber:'#c87a30', silver:'#c4ccd6', blue:'#4f86c4', slit:'#c8b050', small:mix(sp.col||'#888','#2a2018',.35), big:'#9ab0c0', round:mix(sp.col||'#888','#f4f2ea',.45)}[d.eyeS]||'#c8c0a0';
+    d.sock = mix(sp.col||'#6a7a80','#000000',.38); }
   if(r()<.25&&d.tail==='fork') d.tail='lunate';
   Object.assign(d,FISH3_OVR[sp.id]||{});
   if(sp.r>=4&&!d.crown&&!d.plan.match(/jelly|squid|octopus|crab|lobster|isopod|krill|shrimp/)) d.legend=1;
@@ -82,11 +90,24 @@ function fishDesign(sp){
 }
 
 // ---------- drawing helpers ----------
-function f3Eye(c,x,y,r,o,d){ if(o.sil){ return; } const glow=d.eye==='glow'||(d.glow&&d.deepsea);
+function f3Eye(c,x,y,r,o,d){ if(o.sil){ return; } const st=d.eyeS||'', glow=st==='glow'||d.eye==='glow'||(d.glow&&d.deepsea);
   if(glow){ v3glow(c,x,y,r*3.4,'rgba(200,255,220,.9)',.45); }
-  c.fillStyle=glow?'#d8ffe0':'#f4f2ea'; c.beginPath(); c.arc(x,y,r,0,7); c.fill();
-  c.fillStyle=d.cosmic?'#2a1050':'#0b1418'; c.beginPath(); c.arc(x+r*.18,y,r*.68,0,7); c.fill();
-  c.fillStyle='#ffffff'; c.beginPath(); c.arc(x+r*.38,y-r*.3,Math.max(.6,r*.28),0,7); c.fill(); }
+  if(!st||d.cosmic){ /* fish without a design of their own (special plans, cosmic fish) keep the classic eye */
+    c.fillStyle=glow?'#d8ffe0':'#f4f2ea'; c.beginPath(); c.arc(x,y,r,0,7); c.fill();
+    c.fillStyle=d.cosmic?'#2a1050':'#0b1418'; c.beginPath(); c.arc(x+r*.18,y,r*.68,0,7); c.fill();
+    c.fillStyle='#ffffff'; c.beginPath(); c.arc(x+r*.38,y-r*.3,Math.max(.6,r*.28),0,7); c.fill(); return; }
+  const R=st==='small'?r*.72:st==='big'?r*1.08:r;
+  // socket: a soft darker ring in the body's own colour, so the eye sits in the head instead of on top of it
+  c.fillStyle=v3rgba(d.sock||'#203038',.42); c.beginPath(); c.arc(x,y,R*1.38,0,7); c.fill();
+  if(st==='small'){ c.fillStyle='#0b1012'; c.beginPath(); c.arc(x,y,R,0,7); c.fill(); c.strokeStyle=v3rgba(d.iris,.9); c.lineWidth=Math.max(.4,R*.22); c.beginPath(); c.arc(x,y,R*.82,0,7); c.stroke(); }
+  else { // iris with a darker rim, then the pupil
+    const ig=c.createRadialGradient(x,y,R*.2,x,y,R); ig.addColorStop(0,glow?'#f0fff4':mix(d.iris,'#ffffff',.25)); ig.addColorStop(.75,glow?'#9affc0':d.iris); ig.addColorStop(1,mix(glow?'#4ad890':d.iris,'#000000',.45));
+    c.fillStyle=ig; c.beginPath(); c.arc(x,y,R,0,7); c.fill(); c.fillStyle='#070b0e';
+    if(st==='slit'){ c.beginPath(); c.ellipse(x+R*.08,y,R*.2,R*.78,0,0,7); c.fill(); }
+    else { c.beginPath(); c.arc(x+R*.12,y,R*(st==='big'?.66:st==='silver'||st==='blue'?.56:.5),0,7); c.fill(); } }
+  // a small wet highlight, and a faint shine low on the eye
+  c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(x+R*.34,y-R*.34,Math.max(.5,R*.22),0,7); c.fill();
+  c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(x-R*.18,y+R*.42,R*.38,R*.16,0,0,7); c.fill(); }
 function f3Grad(c,top,bot,y0,y1){ const gr=c.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,top); gr.addColorStop(1,bot); return gr; }
 
 // the side outline of a typical fish body (nose at +L*.46, tail stalk at -L*.32)
