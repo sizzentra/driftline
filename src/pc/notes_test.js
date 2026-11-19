@@ -9,5 +9,6 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'Fight rework: fish must be tired out; holding through rare runs snaps the line. Times with maxed gear: ~2.5 s common to ~36 s mythic.',
   'PC display: try a big window or full screen on a 1440p/4K monitor; Settings › Display › Interface size and Picture quality.',
   'NEW in this build: aquarium fish show real sizes and depth; hair rebuilt with volume (all 20 styles); body builds have distinct silhouettes; smaller noses on the Natural face.',
+  'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

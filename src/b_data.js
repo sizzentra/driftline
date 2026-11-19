@@ -482,7 +482,8 @@ const TANK_RATE = .015;
 const OFFLINE_CAP_MIN = 8*60;
 // bonus keys shared by boosts, aquarium fish and pets
 const BK = {bite:'bite speed', rare:'rare bonus', shiny:'shiny chance', tension:'line tension', reel:'reel speed', sell:'sale price', xp:'XP', treasure:'junk chance', tank:'aquarium income', calm:'fish temper', trophy:'trophy chance', hot:'hotspots'};
-const fmtB = (k,v) => (k==='tension'||k==='calm'?'−':'+')+Math.round(v*100)+'% '+BK[k];
+const BK2 = {snag:'snag strain', fav:'favourite food pull', hybrid:'hybrid chance', nib:'Nibble chance', grip:'rare fish hold-back'}; /* 0.4.9: the newer attachments' stats (QC found "+50% undefined") */
+const fmtB = (k,v) => (k==='tension'||k==='calm'||k==='snag'||k==='grip'?'−':'+')+Math.round(v*100)+'% '+(BK[k]||BK2[k]||k);
 const AQ_KEYS = ['bite','rare','shiny','tension','reel','sell','xp','treasure','tank','calm','trophy','hot'];
 const AQ_MAG = [0,.02,.04,.06,.1,.18];
 const BONUS_CAP = {tension:.6, calm:.7};

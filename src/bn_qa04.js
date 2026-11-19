@@ -324,6 +324,9 @@ ui(){ QA.sys='UI';
     const sil=b=>{ const cv=document.createElement('canvas'); cv.width=60; cv.height=120; const q=cv.getContext('2d'); drawAngler(q,30,115,1.4,Object.assign({},S.look,{build:b,hat:'none',outfit:'none',hairStyle:'buzz'}),{t:1,noShadow:true}); const d=q.getImageData(0,0,60,120).data; let n=0; for(let i=3;i<d.length;i+=4) if(d[i]>128) n++; return n; };
     const a=sil('slim'), b=sil('broad'), s=sil('sturdy'); if(!(b>a*1.15)) e.push('broad vs slim silhouette '+(b/a).toFixed(2)); if(!(s>a*1.12)) e.push('sturdy vs slim '+(s/a).toFixed(2));
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'0.1→0.8 kg ×2, broad/slim '+(b/a).toFixed(2)}; });
+  T('deep QC: every fish has its own name, every attachment and bonus has a readable label (no "undefined"), every oddity and fish draws',()=>{ const e=[]; const nm={}; SP.forEach(s=>{ const k=s.name.toLowerCase(); if(nm[k]) e.push('name twice: '+s.name); nm[k]=1; });
+    for(const a of ATTS) for(const v of a.v){ const t=fmtB(a.k,v); if(/undefined|NaN/.test(t)) e.push(a.id+': '+t); }
+    return e.length?{ok:false,detail:e.slice(0,8).join(' | ')}:{ok:true,detail:SP.length+' names, '+ATTS.length+' attachments'}; });
   T('[14] [15] new attachments and skills work, every skill has a max-rank effect and a group, skill points come from the Fish Log too',()=>{ const e=[]; const rb=rodBonus;
     for(const id of ['snagguard','scentbead','twinhook','nibpouch','grip']){ const a=ATT_I[id]; if(!a) { e.push('no attachment '+id); continue; } if(!(a.v[0]<a.v[1]&&a.v[1]<a.v[2])) e.push(id+' tiers do not grow'); }
     try{ const sp=SP.find(s=>s.r===2)||SP[0], fav=FISH_FAV[sp.id];

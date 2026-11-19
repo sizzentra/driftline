@@ -491,7 +491,7 @@ body.pch-on #panel .od-card{position:relative;display:flex;flex-direction:column
 body.pch-on #panel .od-card:hover{border-color:#7fb8ff88}
 body.pch-on #panel .od-card.sel{outline:2px solid #ffd36a;outline-offset:-1px}
 body.pch-on #panel .od-card canvas{width:100%;height:auto;max-height:54px;object-fit:contain}
-body.pch-on #panel .od-card b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body.pch-on #panel .od-card b{font-size:12.5px;line-height:1.2;white-space:normal;overflow-wrap:anywhere;max-width:100%;text-align:center} /* 0.4.9 QC: names wrap to a second line instead of being cut at small windows */
 body.pch-on #panel .od-card small{font-size:11px;color:#9fb2c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 body.pch-on #panel .od-card.unk b{color:#7f93a8}
 body.pch-on #panel .od-card.t1{box-shadow:inset 0 3px 0 #8fd0ff99}

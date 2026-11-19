@@ -105,3 +105,7 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 104,2026-11-19,Aquarium fish barely changed size with weight (log scale; own weight changed length by at most 25%),art,director,live,2,qa:aquarium-real-sizes
 105,2026-11-19,Hair read as painted-on caps and builds looked alike (no volume above the skull; builds only stretched sideways),art,director,live,2,qa:hair-volume + build silhouettes
 106,2026-11-19,Process: PC __qa ran at one window size only and the phone sweeps (__spec/__layoutQC/__searchQC/__questsQC) were skipped for part 3,process,director,local,2,checklist step 3-4 run every round
+107,2026-11-19,30 fish shared a name with another (some within one water since earlier versions; most new-water fish reused older names),data,my_check,local,1,qa:unique-fish-names
+108,2026-11-19,Rods: the five new attachments read "+50% undefined" (labels missing for their stats),ui-logic,my_check,local,2,qa:attachment-labels
+109,2026-11-19,Home shop filter chips threw when clicked after a redraw (stale grid),script-break,my_check,local,1,button fuzz
+110,2026-11-19,PC 1024x640: oddity names cut in the Oddities grid,layout-cut,my_check,live,1,layoutQC at 1024x640

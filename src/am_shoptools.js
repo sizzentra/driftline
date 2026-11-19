@@ -12,7 +12,7 @@ function shopTools(){ const P=$('panel'); if(!P) return;
 function shopItem(tile,which){ const cv=tile.querySelector(which==='aq'?'canvas[data-decor]':'canvas[data-dock]'); if(!cv) return null; const id=which==='aq'?cv.dataset.decor:cv.dataset.dock;
   const d=which==='aq'?DECORI[id]:DOCKI[id]; if(!d) return null; const own=which==='aq'?S.aq.owned.includes(id):S.dock.owned.includes(id);
   return {id,d,own,name:d.name,price:+d.price||0,forSale:!own&&(+d.price>0)&&(which==='aq'||d.src==='shop'),bonus:which==='aq'?decorVal(d):(+d.cozy||0),kind:which==='aq'?decorKind(id):null}; }
-function shopToolsFor(grid,which){ if(!grid) return; const st=SHOPT[which], tiles=[...grid.children].filter(t=>t.classList.contains('tile'));
+function shopToolsFor(grid,which){ if(!grid||!grid.isConnected||!grid.parentNode) return; /* 0.4.9 QC: a filter chip that outlived a redraw no longer throws */ const st=SHOPT[which], tiles=[...grid.children].filter(t=>t.classList.contains('tile'));
   const items=tiles.map(t=>({t,it:shopItem(t,which)})).filter(x=>x.it);
   // aquarium tiles say what kind of bonus they give
   if(which==='aq') for(const {t,it} of items){ const m=t.querySelector('.meta'); if(m&&/income$/.test(m.textContent.trim())) m.innerHTML=`+${Math.round(it.bonus*100)}% ${DECOR_KIND_NAME[it.kind]}`; if(!t.querySelector('.dkind')){ const b=document.createElement('span'); b.className='dkind k-'+it.kind; b.textContent=DECOR_KIND_SHORT[it.kind]; t.insertBefore(b,t.firstChild); } }
