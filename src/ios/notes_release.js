@@ -150,5 +150,6 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Oddities has its own page in Collection, and the Fish Log lists its waters in neat rows instead of a sideways strip.',
   'Oddities and Treasures are separate tabs, Collection holds the Trophy Room and Oddities (the Aquarium has its own top-bar button), and every menu tab has its icon.',
   'Quests teaches the Aquarium and your home step by step: where every button is, how earning and cozy bonuses work, and tips.',
-  'The frame-rate counter sits in the top corner of the water, clear of the fishing tips.']});
+  'The frame-rate counter sits in the top corner of the water, clear of the fishing tips.',
+  'Bait has its own page, opened from Bait in the top bar: Switch shows every bait and lure you own as big buttons (one tap to use), plus Buy bait and Special lures. Tackle keeps your gear upgrades.']});
 

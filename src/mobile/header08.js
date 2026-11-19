@@ -142,8 +142,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud >
    button on the water (next to Rest) is gone. */
 { const lbl=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
   const ensure=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; let c=document.getElementById('mbbait');
-    if(!c){ c=document.createElement('button'); c.type='button'; c.id='mbbait'; c.className='stat hudx mb-x mb-bait'; c.innerHTML='<span class="lbl">Bait</span><b></b>'; c.title='The bait you fish with. Tap to change it or buy more.';
-      c.addEventListener('pointerdown',e=>e.stopPropagation()); c.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} try{ tackleView='bait'; }catch(er){} openMenu('shop'); }); }
+    if(!c){ c=document.createElement('button'); c.type='button'; c.id='mbbait'; c.className='stat hudx mb-x mb-bait'; c.innerHTML='<span class="lbl">Bait</span><b></b>'; c.title='The bait you fish with. Tap to switch bait, buy more or use a special lure.';
+      c.addEventListener('pointerdown',e=>e.stopPropagation()); c.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('bait'); }); }
     const after=document.getElementById('mbtasks')||document.getElementById('mblive'), cool=hud.querySelector('.st-cool');
     if(cool&&c.nextElementSibling!==cool) cool.before(c); else if(!cool&&after&&c.previousElementSibling!==after) after.after(c);
     const t=lbl(), b=c.querySelector('b'); if(b.textContent!==t) b.textContent=t; };

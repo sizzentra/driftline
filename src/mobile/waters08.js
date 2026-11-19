@@ -116,3 +116,37 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow,html b
 html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb{flex:0 0 auto!important}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel.pg08[data-pg-tab="oddities"] .od8 > h2,html body.phone-app #menuov #panel.pg08[data-pg-tab="oddities"] .od8 > h2{display:none!important} #menuov #panel .od8 > .meta{margin:0 0 8px!important}</style>`); /* the tab names each part */
+/* BAIT: its own page, opened only from Bait in the top bar (director, 2026-11-18: "Bait shouldn't appear in upgrades side panel tab
+   either. It needs its own only openable from the top panel. Bring special lures with it and organize it appropriately. Add easier
+   access to switching bait too"). Three tabs:
+   - Switch (opens first): the bait in use, auto-restock, and every bait and lure you own as big tap-to-use buttons with how many are left
+   - Buy bait: the everyday and better baits, as in Tackle before
+   - Special lures: the lures found in junk
+   Tackle (Upgrades) keeps its Gear. */
+{ const T=$('tabs'); if(T&&!T.querySelector(':scope > [data-tab="bait"]')){ const b=document.createElement('button'); b.setAttribute('role','tab'); b.type='button'; b.dataset.tab='bait'; b.dataset.label='🪱 Bait'; b.setAttribute('aria-selected','false'); b.hidden=true; b.textContent='🪱 Bait'; const sb=T.querySelector('.secbar'); if(sb) T.insertBefore(b,sb); else T.appendChild(b); }
+  try{ SEARCH_IDX.forEach(e=>{ if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='bait'){ e[0]='Bait'; e[1]='bait'; e[2]='Buy bait'; } else if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='lures'){ e[0]='Bait: special lures'; e[1]='bait'; e[2]='Special lures'; } }); SEARCH_IDX.push(['Switch bait','bait','Switch','switch change bait use bait lure']); }catch(e){}
+  try{ PAGE_DESC.bait='Switch bait, buy more, and use the special lures you found'; }catch(e){}
+  const isLure=k=>!!(BAIT[k]&&('junk' in BAIT[k]));
+  const take=(P,view,keep)=>{ const was=tackleView; tackleView=view; try{ renderShop(P); }finally{ tackleView=was; } const f=document.createDocumentFragment(); [...P.children].filter(keep).forEach(c=>f.appendChild(c)); return f; };
+  const _rc=renderCooler; renderCooler=function(P){ if(!(MOB()&&S.tab==='bait'&&P)) return _rc.apply(this,arguments);
+    const buy=take(P,'bait',c=>c.classList.contains('tk-list')), cur=take(P,'bait',c=>c.classList.contains('tk-cur')), lures=take(P,'lures',c=>c.classList.contains('tk-list')||(c.tagName==='P'&&c.classList.contains('sub')&&/bought|junk/i.test(c.textContent)));
+    const own=Object.keys(BAIT).filter(k=>k==='worm'||(S.bait[k]||0)>0);
+    const btn=k=>{ const B=BAIT[k], n=S.bait[k]||0, on=S.baitSel===k; return `<button type="button" class="bt8-b${on?' on':''}${isLure(k)?' lure':''}" data-act="usebait" data-k="${k}" aria-pressed="${on}"><b>${esc(B.name)}</b><span>${k==='worm'?'Endless':'× '+n}${isLure(k)?' · lure':''}</span></button>`; };
+    P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Bait</h2><p class="sub">Better bait brings rarer fish; one bait is used each time you set the hook. Worms never run out.</p></div></div>`+
+      `<div class="jsec bt8" data-bt8="Switch"><h2>Switch</h2><div class="bt8-cur"></div><h5>Your bait</h5><div class="bt8-grid">${own.filter(k=>!isLure(k)).map(btn).join('')}</div>${own.some(isLure)?`<h5>Your special lures</h5><div class="bt8-grid">${own.filter(isLure).map(btn).join('')}</div>`:''}</div>`+
+      `<div class="jsec bt8" data-bt8="Buy bait"><h2>Buy bait</h2></div><div class="jsec bt8" data-bt8="Special lures"><h2>Special lures</h2></div>`;
+    P.querySelector('.bt8-cur').appendChild(cur); P.querySelector('[data-bt8="Buy bait"]').appendChild(buy); P.querySelector('[data-bt8="Special lures"]').appendChild(lures); };
+  /* Tackle on phones: Gear only (bait and lures live on the Bait page) */
+  const _rp=renderPanel; renderPanel=function(){ if(MOB()&&S.tab==='shop'){ try{ tackleView='gear'; }catch(e){} } const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='shop'){ const P=$('panel'); P.querySelectorAll('[data-act="tackleview"]').forEach(b=>{ if(b.dataset.k!=='gear') b.remove(); }); P.querySelectorAll(':scope > .bwx-nav').forEach(n=>{ if(n.querySelectorAll('button').length<2) n.remove(); }); } }catch(e){ console.error(e); } return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="bait"] .bt8 > h2,html body.phone-app #menuov #panel.pg08[data-pg-tab="bait"] .bt8 > h2{display:none!important}
+#menuov #panel .bt8-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin:0 0 6px}
+#menuov #panel .bt8-b{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:48px;padding:7px 11px;border-radius:12px;border:1px solid #ffffff1c;background:linear-gradient(180deg,#16263d,#111e31);color:#e8f1fb;text-align:left;cursor:pointer;font:inherit}
+#menuov #panel .bt8-b b{font:800 13.5px var(--display,system-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+#menuov #panel .bt8-b span{font-size:11.5px;color:#9fb3c8}
+#menuov #panel .bt8-b.lure span{color:#c9a6ff}
+#menuov #panel .bt8-b.on{background:linear-gradient(180deg,#ffd36a,#f0b43c);border-color:#ffd36a;color:#2a1a04}
+#menuov #panel .bt8-b.on span{color:#5a3a08}
+#menuov #panel .bt8-b:active{transform:translateY(1px)}
+#menuov #panel .bt8-cur > .tile{margin:0 0 8px!important}
+</style>`);
