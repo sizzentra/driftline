@@ -62,3 +62,8 @@ PATCHES.unshift({v:'0.4.8.2', name:'Save Codes Fix', items:[
   '## Fix',
   'Send and Get progress in Settings > Save & codes work again: Send shows your 6-digit code and the QR code, and Get progress shows the box to type a code.'
 ]});
+PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
+  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'Water pictures for the Map are only made while the Map is open.',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});

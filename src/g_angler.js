@@ -69,8 +69,8 @@ function drawAngler3(c,x,y,s,lk,o={}){
   /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
      passes, which Android graphics chips pay for with a flush each. On phones it is redrawn at most every 33 ms and reused in between
      (with its hand positions, so the rod and line still attach), and at once when the fishing state, look, night or size changes. */
-  const mobKey=(live&&typeof MOB==='function'&&MOB())?[w,h,Math.round((o.night||0)*40),o.rim||'',o.glow||'',o.sit?1:0,(typeof G==='object'&&G)?G.st:''].join('|'):null, nowMs=performance.now();
-  const reuse=!!(mobKey&&O.res&&O.key===mobKey&&nowMs-O.at<33);
+  const reuseMs=live?PLAT.anglerReuseMs():0, mobKey=reuseMs?[w,h,Math.round((o.night||0)*40),o.rim||'',o.glow||'',o.sit?1:0,(typeof G==='object'&&G)?G.st:''].join('|'):null, nowMs=performance.now();
+  const reuse=!!(mobKey&&O.res&&O.key===mobKey&&nowMs-O.at<reuseMs);
   let res; if(reuse) res=O.res; else {
   const ax=O.a.getContext('2d'); ax.setTransform(1,0,0,1,0,0); ax.clearRect(0,0,w,h);
   res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);

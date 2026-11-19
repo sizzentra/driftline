@@ -100,7 +100,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **Test apps (default):** `build.ps1 -Preview`, commit, `publish_testapps.ps1`. The PC test app follows `/driftline/next/` (published by `publish_preview.ps1`); update it only when PC changed and the director wants PC tested.
 - **Live, phones only (on the director's word):** `build.ps1` (release), then restore `site/pc.html` and `site/version.txt` from HEAD so PC sees no update; ship `site/android.html`, `site/ios.html`, `site/index.html`, `site/version-phone.txt` and `site/manifest-android.webmanifest`; run the gate on the release pages; commit ("Live for Android and iPhone: … (PC unchanged; live stamp kept)"), push `main`, `git subtree push --prefix site origin gh-pages`, tag the version. Check the live pages' stamps afterwards (phones read `version-phone.txt`, PC reads `version.txt`).
 - **Live, everything:** `publish.ps1 -Message "…"` (builds, commits, pushes main and gh-pages) only when the director approves a full release.
-- A release build never contains `DL_PREVIEW`, test hooks or plain-text gift codes.
+- A release build never contains `DL_PREVIEW`, the QA suite (`bn_qa04.js`), tester tools or plain-text gift codes. Small measuring hooks gated by `?test` do ship in shared files (they only wake with `?test` in the address and cost nothing otherwise).
 
 ## How it's built
 - `build.ps1` concatenates `src/shell_top.html` + the shared `$core` list + the platform's `$layers` + `e_ui.js` + `shell_bottom.html` into one IIFE per platform (`site/pc.html`, `android.html`, `ios.html`, router `index.html`); `-Preview` writes `site/next/` and `testapps/`, adds the test hooks (`bn_qa04.js`) and `DL_PREVIEW`.

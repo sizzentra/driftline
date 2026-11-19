@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='pc'; window.DL_VERSION='2026.11.18-0315';
+window.DL_BUILD='pc'; window.DL_VERSION='2026.11.19-0237';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -444,6 +444,20 @@ body.v3 #panel.pin > *{ animation:v3in .22s ease-out both }
 @media (prefers-reduced-motion:reduce){ body.v3 #panel > *{ animation:none } body.v3 .tile:hover, body.v3 .jcard:hover{ transform:none } }
 </style>
 `); }
+// =====================================================================
+// PLAT: platform settings with neutral defaults (2026-11-19). Shared code never asks "is this a phone?"; it reads a named
+// setting here, and a platform layer replaces the setting (phones: src/mobile/perf_round6.js). build.ps1 refuses phone checks
+// (the phone-layout test) in shared files, so platform behaviour always lives in its platform folder.
+// =====================================================================
+const PLAT={
+  willowRepaintS:()=>.03,      // seconds between Willow Pond curtain repaints (f3_foliage)
+  rippleBands:()=>false,       // rain rings drawn as 3 brightness bands instead of one stroke each (ap_weather033)
+  anglerReuseMs:()=>0,         // reuse the lit angler picture for this long (g_angler)
+  glowPx:()=>256,              // size of the ready-made soft glow dot (cd_efficiency)
+  movingDecorMs:()=>0,         // moving dock decorations: 0 = drawn fresh every frame, else cached for this long (cd_efficiency)
+  quietTabSwitch:()=>false,    // tab switches skip the per-card entry animation and its forced layout (af_smooth, aw_menu035, bm_ui04)
+  fpsText:null                 // (fps)=>text for the frame counter, null = default text (bm_ui04)
+};
 // ---------- data ----------
 const RAR = [
   {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1,   val:1,    aq:1,   sc:0},
@@ -859,7 +873,7 @@ const BAIT = {
   berries:{name:'Wild Berries',  speed:1.45,rare:.5,  pack:10, price:600,  loc:'river', locMul:5, note:'Sweet and sticky: odds ×5 at Stonebrook River.'},
   goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:9000, note:'The good stuff. Fast bites and great odds anywhere.'},
   lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:20000, loc:'ember', note:'Heat-proof worms: odds ×2 at Ember Springs.'},
-  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', note:'A pinch of the sky: odds ×2 at Starfall Lake.'},
+  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', locMul:2.5, note:'A pinch of the sky: odds ×2.5 at Starfall Lake.'},
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
@@ -1509,6 +1523,7 @@ const sfx = {
 };
 
 // ---------- canvas ----------
+
 const cv=$('cv'), g=cv.getContext('2d'); let W=800,H=400,DPR=1;
 // the water's height override: none by default; layers and later files replace or wrap it (the phone layer has its own)
 function stageHOverride(W,H){ return 0; }
@@ -1584,11 +1599,12 @@ function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hook
   if(G.fish.kind==='fish' && G.fish.shiny===2) setTimeout(()=>toast('It shimmers like nothing you have seen. It will fight every way a fish can.'),400);
   if(G.fish.kind==='fish' && G.fish.hy) setTimeout(()=>toast(G.fish.kg>(G.fish.sp.min+G.fish.sp.max)/2?'This feels far too heavy for what it looks like...':'Strangely light on the line...'),600);
   if(perfect){ G.sta=.65; G.ten=0; G.runT=rnd(1,1.6); S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
-function breakStreak(){ const n=S.streak; if(n>=3) setTimeout(()=>toast('Streak of '+n+' ended'),1200); S.streak=0; if(n>0) save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
+function breakStreak(){ const n=S.streak; if(!n) return; const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; if(n>=3) setTimeout(()=>toast(keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"),1200); save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
-  G.st='idle'; G.fish=null; G.inHot=false; breakStreak();
+  G.st='idle'; G.fish=null; G.inHot=false; if(kind!=='nohook') breakStreak(); /* director 2026-11-18: a missed strike keeps the streak; only a hooked fish that gets away ends it */
   if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
+  else if(kind==='nohook'){ sfx.lost(); toast(S.streak>=2?'Too slow: it swam off, but your streak of '+S.streak+' is safe. Strike on the big splash.':'Too slow: it bit and swam off. Strike on the big splash.'); } /* a missed strike said "slipped off the hook" before */
   else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
@@ -1754,7 +1770,7 @@ function down(e){
     case 'frenzy': frenzyHit(e); break;
     case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
     case 'idle': if(V3ON && aimCast(e)) break; startCharge(); break;
-    case 'waiting': G.st='idle'; G.inHot=false; if(!maxed('streaker')) breakStreak(); toast('Reeled in early. Wait for the big splash.'); break;
+    case 'waiting': G.st='idle'; G.inHot=false; toast(S.streak>=2?'Reeled in early: no harm done, your streak of '+S.streak+' is safe. Wait for the big splash.':'Reeled in early. Wait for the big splash.'); break; /* director 2026-11-18: an early reel or an accidental cast is never punished */
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;
     case 'result': hideCard(); break;
@@ -2785,7 +2801,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.2';
+const GAME_VERSION = '0.4.8.7';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -3717,7 +3733,7 @@ const MASTERY_FX = {
   haggler:'The fishmonger’s wanted fish pays ×3 instead of ×2.',
   keeper:'The aquarium keeps earning for 16 hours while you’re away, not 8.',
   petpal:'Petting sometimes earns a little gift from your pet (once an hour).',
-  streaker:'Reeling in early no longer breaks your streak.',
+  streaker:'A lost fish only halves your streak instead of ending it.',
   nightowl:'Night fish also bite at dawn.',
 };
 const offlineCap = () => maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN;
@@ -6254,39 +6270,49 @@ function v3reeds(c,x0,x1,base,h,col,seed,o={}){ const r=v3rng(seed); c.strokeSty
 function v3flowers(c,x0,x1,y0,y1,cols,seed,n){ const r=v3rng(seed); for(let i=0;i<n;i++){ const x=x0+r()*(x1-x0), y=y0+r()*(y1-y0), s=.9+r()*1.1; c.fillStyle=cols[i%cols.length]; c.beginPath(); c.arc(x,y,s,0,7); c.fill(); c.fillStyle='rgba(255,250,220,.8)'; c.fillRect(x-.4,y-.4,.8,.8); } }
 
 // ---------- the weeping willow (pond): a forked trunk, arching limbs, long leafy curtains that sway ----------
-const V3WIL={c:null,t:-9,k:''};
-function v3willow(P,t,hz){ const DP=Math.min(DPR||1,2), x0=Math.min(W*.76,W*.905-H*.2), y0=hz-H*.32, w=Math.ceil((W-x0+H*.05)*DP), h=Math.ceil(H*.42*DP), key=W+'|'+H+'|'+P.key;
-  if(!V3WIL.c) V3WIL.c=document.createElement('canvas'); const C=V3WIL.c; if(C.width!==w||C.height!==h){ C.width=w; C.height=h; V3WIL.k=''; }
-  if(V3WIL.k!==key||Math.abs(t-V3WIL.t)>.05){ const c=C.getContext('2d'); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,w,h); c.setTransform(DP,0,0,DP,-x0*DP,-y0*DP); v3willowDraw(c,P,t,hz); V3WIL.t=t; V3WIL.k=key; }
-  g.drawImage(C,x0,y0,w/DP,h/DP); }
-function v3willowDraw(c,P,t,hz){
+const V3WIL={c:[],t:[-9,-9,-9],k:'',turn:0}; const V3WIL_N=3; /* three equal slices of the drawing, in drawing order (tree + first dark strands; ... ; last mid + light strands) */
+// 2026-11-18 (director: "Willow Pond still stuttering"): the willow used to be redrawn whole (about 2,500 leaf strokes) every 0.05 s,
+// so every third frame was a heavy one: an uneven rhythm phones show as a regular stutter. It is now three cached layers, three equal slices
+// of the drawing in its own order, and exactly one is refreshed per frame (each every third frame, the old rhythm), so every frame
+// carries the same third of the work. The leaf colours are solid, so slicing changes nothing in the picture.
+function v3willow(P,t,hz){ const DP=Math.min(DPR||1,2), bxw=W*.905, x0=bxw-H*.17, y0=hz-H*.25, w=Math.ceil((Math.min(W,bxw+H*.15)-x0)*DP), h=Math.ceil(H*.35*DP), key=W+'|'+H+'|'+P.key; /* the layers cover only where the tree is (measured: .157H left, .135H right, .236H up, .089H down) */
+  for(let i=0;i<V3WIL_N;i++){ if(!V3WIL.c[i]) V3WIL.c[i]=document.createElement('canvas'); const C=V3WIL.c[i]; if(C.width!==w||C.height!==h){ C.width=w; C.height=h; V3WIL.k=''; } }
+  const paint=i=>{ const c=V3WIL.c[i].getContext('2d'); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,w,h); c.setTransform(DP,0,0,DP,-x0*DP,-y0*DP); v3willowDraw(c,P,t,hz,i); V3WIL.t[i]=t; };
+  if(V3WIL.k!==key){ const fresh=V3WIL.k===""; V3WIL.k=key; if(fresh){ for(let i=0;i<V3WIL_N;i++) paint(i); } else V3WIL.t=V3WIL.t.map(()=>-9); } /* first time or a new size: all at once; a new light level: each slice catches up on its turn (3 frames) */
+  else { const i=V3WIL.turn; V3WIL.turn=(i+1)%V3WIL_N; if(Math.abs(t-V3WIL.t[i])>PLAT.willowRepaintS()) paint(i); } /* phones (director, 2026-11-19: Willow Pond was the one water that dragged Android down): each slice repaints at most every 0.25 s; the strands sway about 1 px a second, so they move under 0.3 px between repaints (invisible), and the tree costs about an eighth of the work per frame. (A bend of a finished picture instead was tried and rejected: it also slides the trunk.) */
+  for(let i=0;i<V3WIL_N;i++) g.drawImage(V3WIL.c[i],x0,y0,w/DP,h/DP); }
+function v3willowDraw(c,P,t,hz,part){ /* part: undefined = the whole tree; 0, 1, 2 = a third of it in drawing order (0 includes the trunk, limbs and crown) */
+  const ALL=part===undefined, BASE=ALL||part===0;
   const bx=W*.905, by=hz+H*.012, th=H*.1, wood=mix(P.cabin,'#000000',.25), woodL=mix(P.cabin,P.rim,.25), u=H/500;
   const leafD=mix(P.leaf,'#000000',.45), leafM=mix(P.leaf,'#000000',.12), leafL=mix(P.leaf,P.leafHi,.3+P.d*.15);
   const wind=Math.sin(t*.6)*H*.006+Math.sin(t*1.3)*H*.002;
   // reflection first (under everything)
-  c.save(); c.globalAlpha=.14; c.fillStyle=leafM; c.beginPath(); c.ellipse(bx-H*.005,hz+H*.05,H*.12,H*.04,0,0,7); c.fill(); c.restore();
+  if(BASE){ c.save(); c.globalAlpha=.14; c.fillStyle=leafM; c.beginPath(); c.ellipse(bx-H*.005,hz+H*.05,H*.12,H*.04,0,0,7); c.fill(); c.restore();
   // trunk: wide flared base, slight lean, bark lines, lit edge
   c.fillStyle=wood; c.beginPath(); c.moveTo(bx-H*.026,by); c.bezierCurveTo(bx-H*.012,by-H*.012,bx-H*.016,by-th*.55,bx-H*.012,by-th); c.lineTo(bx+H*.01,by-th); c.bezierCurveTo(bx+H*.012,by-th*.55,bx+H*.01,by-H*.014,bx+H*.028,by); c.closePath(); c.fill();
   c.strokeStyle=mix(wood,'#000000',.3); c.lineWidth=Math.max(.7,u*.8); c.beginPath(); for(const dx of [-.006,.002]){ c.moveTo(bx+H*dx,by-H*.01); c.quadraticCurveTo(bx+H*(dx-.003),by-th*.5,bx+H*dx,by-th*.95); } c.stroke();
   c.strokeStyle=v3rgba(P.rim,.25+P.d*.45); c.lineWidth=1; c.beginPath(); c.moveTo(bx+H*.026,by); c.bezierCurveTo(bx+H*.01,by-H*.014,bx+H*.011,by-th*.55,bx+H*.009,by-th); c.stroke();
+  }
   // limbs arching out from the fork
   const limbs=[[-.11,-.07],[-.06,-.11],[.0,-.125],[.06,-.105],[.1,-.06]], fork={x:bx,y:by-th}, tips=[];
   c.strokeStyle=wood; c.lineCap='round';
-  limbs.forEach(([dx,dy],i)=>{ const tx=bx+H*dx+wind*.4, ty=by-th+H*dy, mx=bx+H*dx*.35, my=by-th+H*dy*1.05; c.lineWidth=Math.max(1.2,H*(.009-Math.abs(dx)*.03)); c.beginPath(); c.moveTo(fork.x,fork.y); c.quadraticCurveTo(mx,my,tx,ty); c.stroke(); tips.push([fork.x,fork.y,mx,my,tx,ty]); });
+  limbs.forEach(([dx,dy],i)=>{ const tx=bx+H*dx+wind*.4, ty=by-th+H*dy, mx=bx+H*dx*.35, my=by-th+H*dy*1.05; if(BASE){ c.lineWidth=Math.max(1.2,H*(.009-Math.abs(dx)*.03)); c.beginPath(); c.moveTo(fork.x,fork.y); c.quadraticCurveTo(mx,my,tx,ty); c.stroke(); } tips.push([fork.x,fork.y,mx,my,tx,ty]); });
   // crown tufts along the limbs (irregular top, not a dome)
   const r=v3rng(53), tuft=(col,k,lift)=>{ c.fillStyle=col; c.beginPath(); for(const [x0,y0,mx,my,x1,y1] of tips){ for(let s=.25;s<=1;s+=.15){ const m=1-s, px=m*m*x0+2*m*s*mx+s*s*x1, py=m*m*y0+2*m*s*my+s*s*y1, rr=H*(.014+r()*.012)*k; c.moveTo(px+rr*.8,py-lift); c.ellipse(px+(r()-.5)*H*.01,py-lift+rr*.4,rr*.8,rr*1.25,0,0,7); } } c.fill(); };
-  tuft(leafD,.75,0); tuft(leafM,.6,H*.004); tuft(leafL,.38,H*.008);
+  if(BASE){ tuft(leafD,.75,0); tuft(leafM,.6,H*.004); tuft(leafL,.38,H*.008); }
   // curtains: strands hanging from points along every limb, falling almost to the water, leaves as short slanted dabs
   const fr=v3rng(61), strands=[];
   tips.forEach(([x0,y0,mx,my,x1,y1],li)=>{ for(let s=.12;s<=1.04;s+=.032){ const m=1-s, px=m*m*x0+2*m*s*mx+s*s*x1, py=m*m*y0+2*m*s*my+s*s*y1, outer=Math.abs(px-bx)/(H*.12);
       const len=(by+H*.008-py)*(.7+outer*.22+fr()*.12), ph=fr()*6.28, dir=limbs[li][0]<0?-1:limbs[li][0]>0?1:(((s*100)|0)%2?1:-1); strands.push({px,py,len,ph,dir,out:.4+outer*.8,layer:fr()<.4?0:fr()<.66?1:2,sw:(.5+outer)}); } });
-  const leafPass=(layer,col,lw)=>{ c.strokeStyle=col; c.lineWidth=lw; c.beginPath();
-    for(const S2 of strands){ if(S2.layer!==layer) continue; const sw=(wind+Math.sin(t*1.1+S2.ph)*H*.003)*S2.sw;
+  // strands in drawing order (all dark, then mid, then light), cut into three equal slices; slice 0 starts a little later because it also has the tree
+  const nL=[0,0,0]; for(const S2 of strands) nL[S2.layer]++; const off=[0,nL[0],nL[0]+nL[1]], NS=strands.length, cut=[0,Math.round(NS*.3),Math.round(NS*.65),NS];
+  const leafPass=(layer,col,lw)=>{ c.strokeStyle=col; c.lineWidth=lw; c.beginPath(); let si=-1; const lo=ALL?0:cut[part], hi=ALL?NS:cut[part+1]; if(off[layer]+nL[layer]<=lo||off[layer]>=hi) return;
+    for(const S2 of strands){ if(S2.layer!==layer) continue; si++; const gi=off[layer]+si; if(gi<lo||gi>=hi) continue; const sw=(wind+Math.sin(t*1.1+S2.ph)*H*.003)*S2.sw;
       for(let k=0;k<=1;k+=.06){ const arc=Math.sin(Math.min(1,k*2.6)*Math.PI/2), y=S2.py-Math.sin(Math.min(1,k*3)*Math.PI)*H*.008+S2.len*Math.pow(k,1.25), x=S2.px+S2.dir*S2.out*arc*H*.02+sw*k*k+Math.sin(k*3+S2.ph)*H*.0022, ll=u*(3.8-k*1.5), side=((k*100|0)%2)?1:-1; c.moveTo(x,y); c.lineTo(x+side*ll*.45,y+ll); } }
     c.stroke(); };
   c.lineCap='round'; leafPass(0,leafD,Math.max(1.3,u*2.1)); leafPass(1,leafM,Math.max(1.2,u*1.9)); leafPass(2,leafL,Math.max(1,u*1.6)); c.lineCap='butt';
   // rim light on the sunward tufts at dusk
-  if(P.d>.05){ c.fillStyle=v3rgba(P.rim,.25*P.d); c.beginPath(); for(const [,, ,,x1,y1] of tips){ if(x1<bx) continue; c.moveTo(x1+H*.012,y1-H*.01); c.arc(x1,y1-H*.01,H*.012,0,7); } c.fill(); }
+  if(BASE&&P.d>.05){ c.fillStyle=v3rgba(P.rim,.25*P.d); c.beginPath(); for(const [,, ,,x1,y1] of tips){ if(x1<bx) continue; c.moveTo(x1+H*.012,y1-H*.01); c.arc(x1,y1-H*.01,H*.012,0,7); } c.fill(); }
 }
 // =====================================================================
 // 0.3.3 map love: every water gets a signature of its own and no empty corners.
@@ -6671,8 +6697,14 @@ for(const id in V3SCENES) m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); });
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
   if((k==='Rain'||k==='Storm')&&FX){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
+    /* phones (director, 2026-11-18: storms drop Android to 30-40 fps): rings are grouped into 3 brightness bands and drawn as 3 strokes
+       instead of up to 46 separate ones; PC is unchanged */
+    const mobB=PLAT.rippleBands()?[[],[],[]]:null;
     for(let i=0;i<N;i++){ const per=.55+(i%5)*.07, ph=(t/per+i*.618)%1, cyc=Math.floor(t/per+i*.618), r1=((Math.sin((cyc+i)*12.9898)*43758.5)%1+1)%1, r2=((Math.sin((cyc+i)*78.233)*12345.6)%1+1)%1;
-      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2); g.globalAlpha=(1-ph)*.9*clamp(NM*a-i,0,1); /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2), al=(1-ph)*.9*clamp(NM*a-i,0,1);
+      if(mobB){ if(al>.02) mobB[Math.min(2,Math.floor(al/.3))].push(x,y,rr); continue; }
+      g.globalAlpha=al; /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+    if(mobB) for(let b=0;b<3;b++){ const L=mobB[b]; if(!L.length) continue; g.globalAlpha=.15+b*.3; g.beginPath(); for(let j=0;j<L.length;j+=3){ g.moveTo(L[j]+L[j+2],L[j+1]); g.ellipse(L[j],L[j+1],L[j+2],L[j+2]*.3,0,0,7); } g.stroke(); }
     g.globalAlpha=1;
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
@@ -7176,10 +7208,17 @@ function m34ghost(P,t,hz){ const per=105, k=(t%per)/per, cyc=Math.floor(t/per), 
 
 // ---------- storms at sea: steep short chop, foam streaks, and squalls that smear the view ----------
 function m34chop(P,t,hz,mult){ const st=seaStormK()*mult; if(st<.02) return; const FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7), N=Math.round((FX?70:30)*Math.min(1.6,st)*gfxK());
+  // 2026-11-18 (director: storms drop frames, most on the open sea): every wave used to be two separate fills and a stroke, each
+  // with its own colour string (about 360 fills a frame). The waves now go into a few shared shapes: one fill for all the shadow
+  // sides, one for all the lit faces, and the foam crests in three strengths and three widths. Same picture, a handful of draws.
+  const st1=Math.min(1,st), cShade=v3rgba(P.wBot,.3*st1), cLit=v3rgba(mix(P.wTop,P.wMid,.3),.5*st1);
+  const shade=new Path2D(), lit=new Path2D(), foamP=[0,1,2].map(()=>[0,1,2].map(()=>new Path2D())), foamN=[[0,0,0],[0,0,0],[0,0,0]];
   for(let i=0;i<N;i++){ const r1=((Math.sin(i*12.9898)*43758.5453)%1+1)%1, r2=((Math.sin(i*78.233+4.1)*24634.6345)%1+1)%1, y=hz+H*.015+Math.pow(r2,1.5)*(H-hz)*.95, u=(y-hz)/(H-hz), l=W*(.006+u*.03), x=((r1*W+t*W*(.04+u*.09))%(W*1.12))-W*.06, hb=Math.sin(t*(2.6+(i%5)*.4)+i*1.7), h=l*(.12+.1*hb)*Math.min(1.4,st);
-    if(h<=0) continue; g.fillStyle=v3rgba(P.wBot,.3*Math.min(1,st)); g.beginPath(); g.moveTo(x-l*.6,y+h*.4); g.quadraticCurveTo(x,y+h*1.3,x+l*.6,y+h*.4); g.closePath(); g.fill();
-    g.fillStyle=v3rgba(mix(P.wTop,P.wMid,.3),.5*Math.min(1,st)); g.beginPath(); g.moveTo(x-l*.6,y+h*.4); g.quadraticCurveTo(x-l*.1,y-h,x+l*.5,y+h*.3); g.closePath(); g.fill();
-    if(hb>.35){ g.strokeStyle=v3rgba(foam,(hb-.35)*.9*Math.min(1,st)); g.lineWidth=Math.max(1,u*2.2); g.beginPath(); g.moveTo(x-l*.3,y-h*.45); g.quadraticCurveTo(x-l*.05,y-h*.9,x+l*.3,y-h*.2); g.stroke(); } }
+    if(h<=0) continue; shade.moveTo(x-l*.6,y+h*.4); shade.quadraticCurveTo(x,y+h*1.3,x+l*.6,y+h*.4); shade.closePath();
+    lit.moveTo(x-l*.6,y+h*.4); lit.quadraticCurveTo(x-l*.1,y-h,x+l*.5,y+h*.3); lit.closePath();
+    if(hb>.35){ const a=Math.min(2,Math.floor((hb-.35)/.65*3)), wq=Math.min(2,Math.floor(u*3)); const fp=foamP[a][wq]; foamN[a][wq]++; fp.moveTo(x-l*.3,y-h*.45); fp.quadraticCurveTo(x-l*.05,y-h*.9,x+l*.3,y-h*.2); } }
+  g.fillStyle=cShade; g.fill(shade); g.fillStyle=cLit; g.fill(lit);
+  for(let a=0;a<3;a++) for(let wq=0;wq<3;wq++){ if(!foamN[a][wq]) continue; g.strokeStyle=v3rgba(foam,((a+.5)/3*.65)*.9*st1); g.lineWidth=Math.max(1,((wq+.5)/3)*2.2); g.stroke(foamP[a][wq]); }
   if(!FX) return;
   // rain squalls: grey curtains sweeping across, hiding the horizon as they pass
   const SQ=mult>1.2?4:3; for(let i=0;i<SQ;i++){ const sp=.012+i*.004, cx=(((i*.37+t*sp)%1.5)-.25)*W, cw=W*(.14+i*.05), A=.16*Math.min(1.2,st)*(.7+.3*Math.sin(t*.4+i));
@@ -7290,7 +7329,8 @@ v3Fore=function(L,t,night){ const r=_v3Fore_036(L,t,night); if(r&&!window.__noVi
 let A3BELLY=0;
 function a3TorsoPath(c,f){ c.beginPath(); const bb=A3BELLY*2.6;
   if(f){ c.moveTo(-7.2,-45.6); c.quadraticCurveTo(-7.9,-38.5,-6.3,-33.5); c.quadraticCurveTo(-8.4,-28.5,-7.7,-23.6); c.lineTo(7.7,-23.6); c.quadraticCurveTo(8.4+bb*1.6,-28.5,6.5+bb*.4,-33.5); c.quadraticCurveTo(8.8,-39,7.5,-45.6); c.quadraticCurveTo(0,-48,-7.2,-45.6); }
-  else { c.moveTo(-7.7,-45.6); c.quadraticCurveTo(-8.9,-35,-7.5,-23.6); c.lineTo(7.6,-23.6); c.quadraticCurveTo(9.3+bb*2.2,-33,7.9,-45.6); c.quadraticCurveTo(0,-48.4,-7.7,-45.6); }
+  else { // round 6: a real side-on torso: chest forward, a rounded upper back, a gentle inward curve at the lower back
+    c.moveTo(-7.3,-45.8); c.bezierCurveTo(-9.1,-43.4,-8.9,-37.6,-7.6,-33.6); c.bezierCurveTo(-6.9,-30.6,-7.5,-26.2,-7.7,-23.6); c.lineTo(7.4,-23.6); c.bezierCurveTo(8.1+bb*2.2,-26.4,8.3+bb*1.8,-30.2,7.7+bb*.6,-33.2); c.bezierCurveTo(9,-35.8,9.3,-41.8,7.7,-45.8); c.quadraticCurveTo(0,-48.6,-7.3,-45.8); }
   c.closePath(); }
 // a longer coat silhouette reaching hemY, flaring slightly
 function a3CoatPath(c,f,hemY){ c.beginPath(); c.moveTo(f?-7.4:-7.9,-45.8); c.quadraticCurveTo(f?-8.2:-9.1,-36,-8.8,-26); c.lineTo(-9.8,hemY); c.quadraticCurveTo(0,hemY+1.6,9.8,hemY); c.lineTo(9+A3BELLY*1.6,-26); c.quadraticCurveTo((f?9:9.5)+A3BELLY*2.4,-34,f?7.7:8.1,-45.8); c.quadraticCurveTo(0,-48.6,f?-7.4:-7.9,-45.8); c.closePath(); }
@@ -7334,9 +7374,9 @@ function a3Vol(c,pathFn,x0,x1,y0,y1,k){ k=k==null?1:k; c.save(); pathFn(); c.cli
     c.strokeStyle='rgba(255,246,230,'+(.1*k)+')'; c.lineWidth=Math.max(.3,W*.035); c.beginPath(); c.moveTo(x0+W*.64,y0+H*.22); c.quadraticCurveTo(x0+W*.72,y0+H*.42,x0+W*.68,y0+H*.62); c.stroke(); }
   c.restore(); }
 // a woven texture (twill) for clothes, sized to the screen's pixels so it stays fine at any zoom
-let A3WEAVE=null;
+let A3WEAVE=null; const A3WEAVE_P=new WeakMap(), A3WEAVE_M=new DOMMatrix();
 function a3Weave(c,x0,y0,x1,y1,a){ if(!A3WEAVE){ const n=6, cv=document.createElement('canvas'); cv.width=cv.height=n; const x=cv.getContext('2d'); for(let i=0;i<n;i++){ x.fillStyle='rgba(0,0,0,.55)'; x.fillRect(i,(i*2)%n,1,1); x.fillStyle='rgba(255,255,255,.4)'; x.fillRect(i,(i*2+3)%n,1,1); } A3WEAVE=cv; }
-  const m=c.getTransform(), p=c.createPattern(A3WEAVE,'repeat'); if(p.setTransform&&m.a) p.setTransform(new DOMMatrix().scale(1/Math.hypot(m.a,m.b)));
+  const m=c.getTransform(); let p=A3WEAVE_P.get(c); if(!p){ p=c.createPattern(A3WEAVE,"repeat"); A3WEAVE_P.set(c,p); } /* 2026-11-18: one pattern per canvas, reused (a new one about 10 times a frame caused regular hitches) */ if(p.setTransform&&m.a){ const k=1/Math.hypot(m.a,m.b); A3WEAVE_M.a=k; A3WEAVE_M.b=0; A3WEAVE_M.c=0; A3WEAVE_M.d=k; A3WEAVE_M.e=0; A3WEAVE_M.f=0; p.setTransform(A3WEAVE_M); }
   c.save(); c.globalAlpha*=a; c.fillStyle=p; c.fillRect(x0-2,y0-2,x1-x0+4,y1-y0+4); c.restore(); }
 
 // the figure is painted into a small canvas of its own, then a rim light from the sky is laid along its back edge, then it is placed in the scene
@@ -7347,8 +7387,14 @@ function drawAngler3(c,x,y,s,lk,o={}){
   if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
+  /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
+     passes, which Android graphics chips pay for with a flush each. On phones it is redrawn at most every 33 ms and reused in between
+     (with its hand positions, so the rod and line still attach), and at once when the fishing state, look, night or size changes. */
+  const reuseMs=live?PLAT.anglerReuseMs():0, mobKey=reuseMs?[w,h,Math.round((o.night||0)*40),o.rim||'',o.glow||'',o.sit?1:0,(typeof G==='object'&&G)?G.st:''].join('|'):null, nowMs=performance.now();
+  const reuse=!!(mobKey&&O.res&&O.key===mobKey&&nowMs-O.at<reuseMs);
+  let res; if(reuse) res=O.res; else {
   const ax=O.a.getContext('2d'); ax.setTransform(1,0,0,1,0,0); ax.clearRect(0,0,w,h);
-  const res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
+  res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
   // rim light: the silhouette minus itself shifted toward the front leaves a thin edge on the back and top
   const night=o.night||0, rim=o.rim||(night>.3?'#a9bcff':'#ffe9c8'), d=clamp(1.15*ps,1,2.4), bx=O.b.getContext('2d');
   bx.setTransform(1,0,0,1,0,0); bx.globalCompositeOperation='copy'; bx.drawImage(O.a,0,0); bx.globalCompositeOperation='source-in'; bx.fillStyle=rim; bx.fillRect(0,0,w,h);
@@ -7362,6 +7408,7 @@ function drawAngler3(c,x,y,s,lk,o={}){
   { const vg=ax.createLinearGradient(0,(BT-62)*ps,0,(BT+6)*ps); vg.addColorStop(0,'rgba(255,248,232,'+(.1*(1-night*.7))+')'); vg.addColorStop(.42,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,20,'+(.2+night*.12)+')'); ax.fillStyle=vg; ax.fillRect(0,0,w,h);
     const hg=ax.createLinearGradient((BX-16)*ps,0,(BX+14)*ps,0); hg.addColorStop(0,'rgba(4,8,20,'+(.14+night*.08)+')'); hg.addColorStop(.6,'rgba(0,0,0,0)'); ax.fillStyle=hg; ax.fillRect(0,0,w,h); }
   ax.globalCompositeOperation='source-over';
+  if(mobKey){ O.res=res; O.key=mobKey; O.at=nowMs; } else O.res=null; }
   if(!o.sit&&!o.noShadow){ c.save(); const sg=c.createRadialGradient(x,y+s,0,x,y+s,15*s); sg.addColorStop(0,'rgba(0,6,16,.3)'); sg.addColorStop(1,'rgba(0,6,16,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(x,y+s,15*s,3.2*s,0,0,7); c.fill(); c.restore(); }
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
@@ -7421,18 +7468,19 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
     c.fillStyle=D('#c9a070'); c.beginPath(); c.arc(bx-.2,-4.3,.38,0,7); c.arc(bx+1.3,-3.9,.38,0,7); c.fill();
     c.fillStyle='rgba(255,236,210,'+(dark?.1:.24)+')'; c.beginPath(); c.ellipse(bx+3.6,-3.3,1.6,.6,-.35,0,7); c.fill(); };
   // side view (director: "pants/legs still don't look side view"): both hips sit under the side-on body, one leg in front of the other
-  const aB=-2.3-stance, aF=2.1+stance*.8, shoe=lk.shoes||'boots';
-  c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); c.scale(SIDE_K,1); a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
+  const aB=-1.6-stance, aF=3.4+stance*.8, shoe=lk.shoes||'boots';
+  c.save(); c.translate(0,lift); c.translate(0,-24); c.rotate(lean); c.translate(0,24); c.scale(SIDE_K,1); A3FXP.back=c.getTransform(); A3FXP.bw=B.w; a3Back(c,lk.back,D,lk.accCol,t,B.w,lean,st); c.restore();
   /* the left leg is the near one from this angle (director, 2026-11-18): the right leg is drawn first and darker, the left one last, in front */
-  if(!o.sit){ leg(1.1*B.w,aF,legD,true); a3Shoe(c,shoe,aF-.2,true,D,sk,t);
+  if(!o.sit){ A3FXP.feet={M:c.getTransform(),f:aF-.2,b:aB-.2}; leg(1.1*B.w,aF,legD,true); a3Shoe(c,shoe,aF-.2,true,D,sk,t);
     // the seat: a soft curve at the back of the hips, which is what makes a figure read as side-on
-    { const sx=-1.6*B.w+Math.sin(lean)*1.2; c.fillStyle=legC; c.beginPath(); c.ellipse(sx,hipY+2.2,2.7*B.lw,3.1,-.15,0,7); c.fill(); c.fillStyle='rgba(0,0,0,.14)'; c.beginPath(); c.ellipse(sx-.6,hipY+3.6,2.2*B.lw,1.6,-.2,0,Math.PI); c.fill(); }
+    { // the seat starts at the back of the torso (its real depth, ak_side.js sideTorsoPath) and rounds into the back of the thigh
+      const ox=Math.sin(lean)*1.2, bx0=-5.6*B.w+ox; c.fillStyle=legC; c.beginPath(); c.moveTo(bx0+.3,hipY-1.6); c.bezierCurveTo(bx0-.7*B.lw,hipY+1.2,bx0-.3*B.lw,hipY+5.4,bx0+3.2,hipY+8.8); c.lineTo(.6*B.w+ox,hipY+8.8); c.lineTo(.6*B.w+ox,hipY-1.6); c.closePath(); c.fill();
+      const sg=c.createLinearGradient(bx0-1,0,bx0+3.4,0); sg.addColorStop(0,'rgba(0,0,0,.18)'); sg.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=sg; c.beginPath(); c.moveTo(bx0+.3,hipY-1.6); c.bezierCurveTo(bx0-.7*B.lw,hipY+1.2,bx0-.3*B.lw,hipY+5.4,bx0+3.2,hipY+8.8); c.lineTo(bx0+5,hipY+8.8); c.lineTo(bx0+4,hipY-1.6); c.closePath(); c.fill(); }
     const an=leg(-.7*B.w,aB,legC,false); a3Shoe(c,shoe,aB-.2,false,D,sk,t);
-    // a side seam down the near leg
-    if(lk.outfit!=='spacesuit'){ c.strokeStyle='rgba(255,255,255,.10)'; c.lineWidth=.45; c.beginPath(); c.moveTo(-.7*B.w+Math.sin(lean)*1.2+.3,hipY+1.5); c.lineTo(an.x+.4,-6.5); c.stroke(); } }
+  }
   else { // sitting: thighs forward from the hips, shins hanging over the dock edge (kicking gently) or down to the floor in front of the chair
     const hy0=-o.sit.seat, L1=9.4*B.l, L2=9.6*B.l;
-    for(const [hx0,col,back,ph] of [[1.8*B.w,legD,true,0],[-2.4*B.w,legC,false,1.3]]){ const hp={x:hx0,y:hy0-1.2}, kn={x:hx0+L1,y:hy0-1.5+(back?.4:0)};
+    for(const [hx0,col,back,ph] of [[.9*B.w,legD,true,0],[-.7*B.w,legC,false,1.3]]){ /* side-on: the hips sit together under the body (round 6) */ const hp={x:hx0,y:hy0-1.2}, kn={x:hx0+L1,y:hy0-1.5+(back?.4:0)};
       const an=o.sit.hang?{x:kn.x+2+Math.sin(t*1.25+ph)*1.6,y:kn.y+L2}:{x:kn.x+1.2,y:-5};
       a3Limb(c,hp,kn,6.4*B.lw,5.4*B.lw,col,back?.5:1); a3Limb(c,kn,an,5.2*B.lw,4.4*B.lw,col,back?.5:1);
       c.save(); c.translate(an.x,an.y+5); c.rotate(o.sit.hang?.28+Math.sin(t*1.25+ph)*.08:0); a3Shoe(c,shoe,-.2,back,D,sk,t); c.restore(); } }
@@ -7557,32 +7605,32 @@ function drawOutfit3(c,lk,D,f,t){ const o=lk.outfit||'none'; if(o==='none') retu
   const pocket=(x,y,w,h,cl,fl)=>{ R(x,y,w,h,cl); R(x-.2,y-.2,w+.4,1.2,fl); c.fillStyle=D('#d8c090'); c.beginPath(); c.arc(x+w/2,y+.5,.32,0,7); c.fill(); };
   switch(o){
     case 'vest': { const col=D(base||'#6a7a4a'), d2=dk('#6a7a4a'); clipT(()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-10,-50); c.lineTo(-1.4,-50); c.lineTo(-2,-22); c.lineTo(-10,-22); c.closePath(); c.moveTo(10,-50); c.lineTo(2.6,-50); c.lineTo(2.2,-22); c.lineTo(10,-22); c.closePath(); c.fill();
-        pocket(-7.2,-38.5,4,4,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(3.4,-38.5,4,4,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(-7.2,-31,4,3.6,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(3.4,-31,4,3.6,d2,D(mix(base||'#6a7a4a','#000000',.35)));
-        c.strokeStyle=D('#e8d8a0'); c.lineWidth=.35; c.setLineDash([.8,.7]); c.beginPath(); c.moveTo(-1.8,-45); c.lineTo(-2.2,-23); c.moveTo(2.8,-45); c.lineTo(2.4,-23); c.stroke(); c.setLineDash([]); c.fillStyle=D('#c8c8d0'); c.beginPath(); c.arc(5.4,-41.2,.9,0,7); c.fill(); }); break; }
+        pocket(-2.6,-38.5,4,4,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(3.4,-38.5,4,4,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(-2.6,-31,4,3.6,d2,D(mix(base||'#6a7a4a','#000000',.35))); pocket(3.4,-31,4,3.6,d2,D(mix(base||'#6a7a4a','#000000',.35)));
+        c.strokeStyle=D('#e8d8a0'); c.lineWidth=.35; c.setLineDash([.8,.7]); c.beginPath(); c.moveTo(5,-45); c.lineTo(4.8,-23); c.moveTo(6.6,-45); c.lineTo(6.4,-23); c.stroke(); c.setLineDash([]); c.fillStyle=D('#c8c8d0'); c.beginPath(); c.arc(5.4,-41.2,.9,0,7); c.fill(); }); break; }
     case 'lifejacket': { const col=D(base||'#ff7a2a'); clipT(()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-10,-50); c.lineTo(-1.2,-50); c.quadraticCurveTo(-2.6,-36,-1.4,-23); c.lineTo(-10,-23); c.closePath(); c.moveTo(10,-50); c.lineTo(2.2,-50); c.quadraticCurveTo(3.6,-36,2.4,-23); c.lineTo(10,-23); c.closePath(); c.fill();
         c.strokeStyle=D(mix(base||'#ff7a2a','#000000',.25)); c.lineWidth=.5; for(const yy of [-41,-35,-29]){ c.beginPath(); c.moveTo(-9,yy); c.quadraticCurveTo(-5,yy+1,-1.8,yy); c.moveTo(2.8,yy); c.quadraticCurveTo(6,yy+1,9,yy); c.stroke(); }
         R(-10,-34.4,20,1.8,D('#262630')); R(-10,-28.6,20,1.8,D('#262630')); R(-.6,-35,2.4,3,D('#c8c8d0')); R(-.6,-29.2,2.4,3,D('#c8c8d0')); c.fillStyle='rgba(255,255,255,.75)'; R(5.6,-44,2.6,.9,c.fillStyle); }); break; }
     case 'hoodie': { const col=oc; clipT(()=>{ R(-10,-50,20,28,col); R(-4.4,-33,9,6,dk('#d8a020')); c.strokeStyle=dk('#d8a020'); c.lineWidth=.4; c.beginPath(); c.moveTo(-4.4,-27.2); c.lineTo(4.6,-27.2); c.stroke(); R(-10,-24.8,20,1.4,dk('#d8a020')); });
       c.fillStyle=col; c.beginPath(); c.ellipse(-4.6,-47.4,4.6,2.8,-.25,0,7); c.fill(); c.fillStyle=dk('#d8a020'); c.beginPath(); c.ellipse(-4,-47.2,3,1.6,-.25,0,7); c.fill();
-      c.strokeStyle=D('#f4f0e8'); c.lineWidth=.5; c.beginPath(); c.moveTo(1.4,-46); c.lineTo(1.8,-39.6); c.moveTo(3.4,-46); c.lineTo(3.8,-40.4); c.stroke(); c.fillStyle=D('#f4f0e8'); c.beginPath(); c.arc(1.8,-39.4,.4,0,7); c.arc(3.8,-40.2,.4,0,7); c.fill(); break; }
-    case 'raincoat': { const col=D(base||'#f2c230'); c.fillStyle=col; a3CoatPath(c,f,-16); c.fill(); c.strokeStyle=dk('#f2c230'); c.lineWidth=.55; c.beginPath(); c.moveTo(.4,-45); c.lineTo(.6,-16.4); c.stroke();
-      for(let i=0;i<4;i++){ c.fillStyle=D('#3a3a44'); c.beginPath(); c.arc(1.9,-41.5+i*6.2,.6,0,7); c.fill(); }
+      c.strokeStyle=D('#f4f0e8'); c.lineWidth=.5; c.beginPath(); c.moveTo(5.2,-46); c.lineTo(5.5,-39.6); c.moveTo(6.6,-46); c.lineTo(6.9,-40.4); c.stroke(); c.fillStyle=D('#f4f0e8'); c.beginPath(); c.arc(5.5,-39.4,.4,0,7); c.arc(6.9,-40.2,.4,0,7); c.fill(); break; }
+    case 'raincoat': { const col=D(base||'#f2c230'); c.fillStyle=col; a3CoatPath(c,f,-16); c.fill(); c.strokeStyle=dk('#f2c230'); c.lineWidth=.55; c.beginPath(); c.moveTo(6.8,-45); c.lineTo(7.2,-16.4); c.stroke();
+      for(let i=0;i<4;i++){ c.fillStyle=D('#3a3a44'); c.beginPath(); c.arc(6.1,-41.5+i*6.2,.6,0,7); c.fill(); }
       pocket(-7.6,-28,4.2,4.4,dk('#f2c230'),D(mix(base||'#f2c230','#000000',.32))); pocket(3.8,-28,4.2,4.4,dk('#f2c230'),D(mix(base||'#f2c230','#000000',.32)));
       c.fillStyle=col; c.beginPath(); c.moveTo(-6.4,-47.2); c.lineTo(.2,-42.6); c.lineTo(6.6,-47.2); c.lineTo(5.4,-49.4); c.lineTo(-5.2,-49.4); c.closePath(); c.fill(); c.strokeStyle=dk('#f2c230'); c.beginPath(); c.moveTo(-6.4,-47.2); c.lineTo(.2,-42.6); c.lineTo(6.6,-47.2); c.stroke(); break; }
-    case 'overalls': { const den=D(base||'#3a6f9a'), d2=dk('#3a6f9a'); clipT(()=>{ R(-10,-26,20,4,den); c.fillStyle=den; c.beginPath(); c.moveTo(-5.2,-38); c.lineTo(5.4,-38); c.lineTo(6,-23); c.lineTo(-5.8,-23); c.closePath(); c.fill(); R(-2.2,-34.6,4.6,3.6,d2);
+    case 'overalls': { const den=D(base||'#3a6f9a'), d2=dk('#3a6f9a'); clipT(()=>{ R(-10,-26,20,4,den); c.fillStyle=den; c.beginPath(); c.moveTo(-5.2,-38); c.lineTo(5.4,-38); c.lineTo(6,-23); c.lineTo(-5.8,-23); c.closePath(); c.fill(); R(1.8,-34.6,4.4,3.6,d2);
         c.strokeStyle=D('#e8c060'); c.lineWidth=.32; c.setLineDash([.7,.6]); c.strokeRect(-2.2,-34.6,4.6,3.6); c.setLineDash([]); });
       c.strokeStyle=den; c.lineWidth=1.8; c.beginPath(); c.moveTo(-4.6,-38); c.lineTo(-5.6,-46.2); c.moveTo(4.8,-38); c.lineTo(5.2,-46.4); c.stroke(); c.fillStyle=D('#f2cf5a'); c.beginPath(); c.arc(-4.5,-38.4,.8,0,7); c.arc(4.7,-38.4,.8,0,7); c.fill(); break; }
     case 'puffer': { const col=oc, d2=dk('#d8a020'); c.fillStyle=col; c.beginPath(); c.moveTo(-9.6,-46.2); c.quadraticCurveTo(-10.6,-34,-9.6,-21.6); c.quadraticCurveTo(0,-20.4,9.8,-21.6); c.quadraticCurveTo(10.8,-34,9.8,-46.2); c.quadraticCurveTo(0,-49,-9.6,-46.2); c.fill();
-      c.strokeStyle=d2; c.lineWidth=.6; for(let yy=-41.5;yy<-22;yy+=4.6){ c.beginPath(); c.moveTo(-10,yy); c.quadraticCurveTo(0,yy+1.4,10.2,yy); c.stroke(); } R(.1,-46.6,.8,25,D('#e8e8ee')); c.fillStyle=col; c.beginPath(); c.ellipse(.4,-46.8,7.4,2.2,0,0,7); c.fill(); c.strokeStyle=d2; c.beginPath(); c.ellipse(.4,-46.8,7.4,2.2,0,0,Math.PI); c.stroke(); break; }
-    case 'wetsuit': { const w=D('#1c1c26'); clipT(()=>{ R(-10,-50,20,28,w); R(-10,-41,20,1.8,oc); R(-10,-25.8,20,1.4,oc); }); c.fillStyle=oc; c.fillRect(-6.1,-12.6,5,1.4); c.fillRect(.6,-12.6,5,1.4); R(.5,-47,.8,9,D('#8a8a9a')); break; }
-    case 'captain': { const n=D(base||'#1a2a4a'); c.fillStyle=n; a3CoatPath(c,f,-14.5); c.fill(); c.strokeStyle=D(mix(base||'#1a2a4a','#ffffff',.15)); c.lineWidth=.5; c.beginPath(); c.moveTo(-.4,-44); c.lineTo(-.6,-15); c.stroke();
-      for(let i=0;i<4;i++){ c.fillStyle=D('#f2c84a'); c.beginPath(); c.arc(-2.4,-41+i*5.8,.65,0,7); c.arc(2.4,-41+i*5.8,.65,0,7); c.fill(); }
-      c.fillStyle=D('#f2c84a'); c.fillRect(4.6,-46.6,4.4,1.6); for(let k=0;k<4;k++) c.fillRect(5+k*1.05,-45,.5,1.8); c.fillStyle=n; c.beginPath(); c.moveTo(-6,-47.4); c.lineTo(0,-42.4); c.lineTo(6.2,-47.4); c.lineTo(5,-49.2); c.lineTo(-4.8,-49.2); c.closePath(); c.fill(); c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(-2,-47.6); c.lineTo(0,-44); c.lineTo(2.2,-47.6); c.closePath(); c.fill(); break; }
+      c.strokeStyle=d2; c.lineWidth=.6; for(let yy=-41.5;yy<-22;yy+=4.6){ c.beginPath(); c.moveTo(-10,yy); c.quadraticCurveTo(0,yy+1.4,10.2,yy); c.stroke(); } R(6.3,-46.6,.8,25,D('#e8e8ee')); c.fillStyle=col; c.beginPath(); c.ellipse(.4,-46.8,7.4,2.2,0,0,7); c.fill(); c.strokeStyle=d2; c.beginPath(); c.ellipse(.4,-46.8,7.4,2.2,0,0,Math.PI); c.stroke(); break; }
+    case 'wetsuit': { const w=D('#1c1c26'); clipT(()=>{ R(-10,-50,20,28,w); R(-10,-41,20,1.8,oc); R(-10,-25.8,20,1.4,oc); }); c.fillStyle=oc; c.fillRect(-4.2,-12.6,8.8,1.4); /* one band across both shins: the legs overlap side-on */ R(6.2,-47,.8,9,D('#8a8a9a')); break; }
+    case 'captain': { const n=D(base||'#1a2a4a'); c.fillStyle=n; a3CoatPath(c,f,-14.5); c.fill(); c.strokeStyle=D(mix(base||'#1a2a4a','#ffffff',.15)); c.lineWidth=.5; c.beginPath(); c.moveTo(5.5,-44); c.lineTo(5.6,-15); c.stroke();
+      for(let i=0;i<4;i++){ c.fillStyle=D('#f2c84a'); c.beginPath(); c.arc(4.4,-41+i*5.8,.65,0,7); c.arc(6.6,-41+i*5.8,.65,0,7); c.fill(); }
+      c.fillStyle=D('#f2c84a'); c.fillRect(4.6,-46.6,4.4,1.6); for(let k=0;k<4;k++) c.fillRect(5+k*1.05,-45,.5,1.8); c.fillStyle=n; c.beginPath(); c.moveTo(-6,-47.4); c.lineTo(4.6,-42.6); c.lineTo(7.4,-47.4); c.lineTo(5,-49.2); c.lineTo(-4.8,-49.2); c.closePath(); c.fill(); c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(-2,-47.6); c.lineTo(0,-44); c.lineTo(2.2,-47.6); c.closePath(); c.fill(); break; }
     case 'spacesuit': { const s2=D('#e8ecf0'); clipT(()=>{ R(-10,-50,20,28,s2); R(-10,-27,20,1.8,D('#d8603a')); }); R(-4.2,-40.4,8.4,6,D('#5a6a7a')); R(-3.4,-39.4,2.2,2,D(Math.sin(t*3.2)>0?'#ff5a4a':'#7a2a24')); R(.4,-39.4,2.2,2,D(Math.sin(t*3.2)>0?'#2a6a44':'#5aff9a')); /* the chest lights blink (round 6) */ R(-3.4,-36.6,6,.8,D('#9ad8ff'));
-      c.strokeStyle=D('#b8c0c8'); c.lineWidth=.4; c.beginPath(); c.moveTo(-7,-14); c.lineTo(-1.4,-14); c.moveTo(.6,-14); c.lineTo(6.2,-14); c.stroke(); c.fillStyle=D('#c8d0d8'); c.beginPath(); c.ellipse(0,-46.6,7,1.8,0,0,7); c.fill(); break; }
+      c.strokeStyle=D('#b8c0c8'); c.lineWidth=.4; c.beginPath(); c.moveTo(-4.4,-14); c.lineTo(4.8,-14); c.stroke(); c.fillStyle=D('#c8d0d8'); c.beginPath(); c.ellipse(0,-46.6,7,1.8,0,0,7); c.fill(); break; }
     case 'cardigan': { const col=oc; clipT(()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-10,-50); c.lineTo(-1.6,-50); c.lineTo(-.6,-22); c.lineTo(-10,-22); c.closePath(); c.moveTo(10,-50); c.lineTo(3.2,-50); c.lineTo(1.6,-22); c.lineTo(10,-22); c.closePath(); c.fill(); R(-10,-24.6,20,2.2,dk('#d8a020'));
         c.strokeStyle=dk('#d8a020'); c.lineWidth=.3; for(let xx=-9;xx<10;xx+=1.2){ c.beginPath(); c.moveTo(xx,-24.6); c.lineTo(xx,-22.4); c.stroke(); } });
-      for(let i=0;i<4;i++){ c.fillStyle=D('#f4ecd8'); c.beginPath(); c.arc(-.2+i*.25,-41+i*4.8,.55,0,7); c.fill(); } pocket(3.6,-31,3.8,3.4,dk('#d8a020'),dk('#d8a020')); break; }
+      for(let i=0;i<4;i++){ c.fillStyle=D('#f4ecd8'); c.beginPath(); c.arc(6.2+i*.08,-41+i*4.8,.55,0,7); c.fill(); } pocket(3.6,-31,3.8,3.4,dk('#d8a020'),dk('#d8a020')); break; }
     case 'sweater': { const col=oc, l3=lt2('#d8a020'); clipT(()=>{ R(-10,-50,20,28,col); c.fillStyle=l3; c.beginPath(); for(let xx=-9;xx<10;xx+=3){ c.moveTo(xx,-38.4); c.lineTo(xx+1.5,-36.6); c.lineTo(xx+3,-38.4); c.lineTo(xx+1.5,-40.2); } c.fill();
         c.fillStyle=dk('#d8a020'); c.fillRect(-10,-24.9,20,2.6); c.strokeStyle=D(mix(base||'#d8a020','#000000',.32)); c.lineWidth=.3; for(let xx=-9;xx<10;xx+=1.1){ c.beginPath(); c.moveTo(xx,-24.9); c.lineTo(xx,-22.4); c.stroke(); }
         c.strokeStyle='rgba(0,0,0,.08)'; c.lineWidth=.35; for(let xx=-9;xx<10;xx+=1.6){ c.beginPath(); c.moveTo(xx,-48); c.lineTo(xx,-41); c.moveTo(xx,-35); c.lineTo(xx,-25); c.stroke(); } });
@@ -7590,17 +7638,17 @@ function drawOutfit3(c,lk,D,f,t){ const o=lk.outfit||'none'; if(o==='none') retu
     case 'apron': { const col=D(base||'#e8e0d0'); c.fillStyle=col; c.beginPath(); c.moveTo(-5,-41); c.lineTo(5.6,-41); c.lineTo(6.6,-18); c.quadraticCurveTo(.6,-17,-5.6,-18); c.closePath(); c.fill();
       c.strokeStyle=col; c.lineWidth=.9; c.beginPath(); c.moveTo(-4.4,-41); c.lineTo(-2.2,-47.4); c.moveTo(5,-41); c.lineTo(3,-47.6); c.stroke(); pocket(-2.2,-33.6,5,3.8,dk('#e8e0d0'),dk('#e8e0d0')); c.strokeStyle=dk('#e8e0d0'); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.6,-26.4); c.lineTo(-5.4,-26.4); c.moveTo(6.4,-26.4); c.lineTo(8.2,-26.4); c.stroke(); break; }
     case 'tidecoat': { const n=D('#1a3a5a'); c.fillStyle=n; a3CoatPath(c,f,-16); c.fill(); const glow=D('#5ad8e8'); c.strokeStyle=glow; c.lineWidth=1.1; c.beginPath(); for(let xx=-9.6;xx<=9.6;xx+=.6) c.lineTo(xx,-21.4+Math.sin(xx*.9+t*2)*1.1); c.stroke();
-      c.lineWidth=.7; c.beginPath(); c.moveTo(.2,-45.6); c.lineTo(.4,-22.6); c.stroke(); c.save(); c.globalAlpha*=.35; c.lineWidth=2.4; c.beginPath(); for(let xx=-9.6;xx<=9.6;xx+=.6) c.lineTo(xx,-21.4+Math.sin(xx*.9+t*2)*1.1); c.stroke(); c.restore();
-      c.fillStyle=n; c.beginPath(); c.moveTo(-6.2,-47.2); c.lineTo(.2,-42.8); c.lineTo(6.4,-47.2); c.lineTo(5.2,-49.4); c.lineTo(-5,-49.4); c.closePath(); c.fill(); break; }
+      c.lineWidth=.7; c.beginPath(); c.moveTo(6.6,-45.6); c.lineTo(6.9,-22.6); c.stroke(); c.save(); c.globalAlpha*=.35; c.lineWidth=2.4; c.beginPath(); for(let xx=-9.6;xx<=9.6;xx+=.6) c.lineTo(xx,-21.4+Math.sin(xx*.9+t*2)*1.1); c.stroke(); c.restore();
+      c.fillStyle=n; c.beginPath(); c.moveTo(-6.2,-47.2); c.lineTo(4.6,-43); c.lineTo(7.4,-47.2); c.lineTo(5.2,-49.4); c.lineTo(-5,-49.4); c.closePath(); c.fill(); break; }
     case 'bathrobe': { const col=D(base||'#f0e6f4'), d2=dk('#f0e6f4'); c.fillStyle=col; a3CoatPath(c,f,-12); c.fill();
       c.fillStyle=d2; c.beginPath(); c.moveTo(-5.4,-47); c.quadraticCurveTo(-1,-40,1.4,-33); c.lineTo(3,-33); c.quadraticCurveTo(1.6,-41,6.4,-47); c.lineTo(3.8,-47.6); c.quadraticCurveTo(1.6,-42,1.6,-37); c.quadraticCurveTo(-1.6,-42,-2.6,-47.6); c.closePath(); c.fill();
       R(-9,-29.4,18.6,2.2,d2); c.strokeStyle=d2; c.lineWidth=1; c.beginPath(); c.moveTo(4.4,-28.4); c.lineTo(5.6,-23); c.moveTo(5,-28.4); c.lineTo(7,-24); c.stroke();
       c.fillStyle='rgba(255,255,255,.25)'; for(let i=0;i<14;i++){ c.beginPath(); c.arc(-8+((i*7)%17),-44+((i*11)%30),.5,0,7); c.fill(); } break; }
     case 'pajamas': { const col=D(base||'#7a9ad8'), l3=D('#f4f0f8'); clipT(()=>{ R(-10,-50,20,28,col); c.fillStyle=l3; for(let xx=-9;xx<10;xx+=2.4) c.fillRect(xx,-50,.9,28); });
-      for(let i=0;i<4;i++){ c.fillStyle=l3; c.beginPath(); c.arc(1.2,-42+i*5,.5,0,7); c.fill(); } c.fillStyle=col; c.beginPath(); c.moveTo(-5.6,-47.2); c.lineTo(.6,-43.2); c.lineTo(6,-47.2); c.lineTo(5,-48.8); c.lineTo(-4.8,-48.8); c.closePath(); c.fill(); break; }
+      for(let i=0;i<4;i++){ c.fillStyle=l3; c.beginPath(); c.arc(6.1,-42+i*5,.5,0,7); c.fill(); } c.fillStyle=col; c.beginPath(); c.moveTo(-5.6,-47.2); c.lineTo(4.6,-43.4); c.lineTo(7.2,-47.2); c.lineTo(5,-48.8); c.lineTo(-4.8,-48.8); c.closePath(); c.fill(); break; }
     case 'lumberjack': { const col=D(base||'#b8342a'), d2=D('#1c1416'); clipT(()=>{ R(-10,-50,20,28,col); c.fillStyle=d2; c.globalAlpha*=.75; for(let xx=-10;xx<10;xx+=4.4) c.fillRect(xx,-50,2,28); for(let yy=-50;yy<-22;yy+=4.4) c.fillRect(-10,yy,20,2); c.globalAlpha/=.75;
         c.fillStyle=d2; for(let xx=-10;xx<10;xx+=4.4) for(let yy=-50;yy<-22;yy+=4.4) c.fillRect(xx,yy,2,2); });
-      pocket(-7,-40,4,3.6,col,d2); pocket(3.4,-40,4,3.6,col,d2); c.strokeStyle=d2; c.lineWidth=.5; c.beginPath(); c.moveTo(.6,-45.6); c.lineTo(.8,-23.4); c.stroke(); c.fillStyle=col; c.beginPath(); c.moveTo(-6,-47.2); c.lineTo(.6,-43.6); c.lineTo(6.6,-47.2); c.lineTo(5.4,-49); c.lineTo(-4.8,-49); c.closePath(); c.fill(); break; }
+      pocket(-2.6,-40,4,3.6,col,d2); pocket(3.4,-40,4,3.6,col,d2); c.strokeStyle=d2; c.lineWidth=.5; c.beginPath(); c.moveTo(6.3,-45.6); c.lineTo(6.6,-23.4); c.stroke(); c.fillStyle=col; c.beginPath(); c.moveTo(-6,-47.2); c.lineTo(4.6,-43.8); c.lineTo(7.6,-47.2); c.lineTo(5.4,-49); c.lineTo(-4.8,-49); c.closePath(); c.fill(); break; }
   }
 }
 
@@ -7688,9 +7736,12 @@ if(/[?&]test\b/.test(location.search)) window.__lookSheet=(looks,opts={})=>{ con
 // =====================================================================
 function a3Grad(c,y0,y1,col,lit,shade){ const gr=c.createLinearGradient(0,y0,0,y1); gr.addColorStop(0,mix(col,'#fff4e2',lit==null?.16:lit)); gr.addColorStop(.6,col); gr.addColorStop(1,mix(col,'#000000',shade==null?.3:shade)); return gr; }
 // a generic shoe profile: ankle top at -h, toe reaching bx+toe, rounded; returns nothing, fills with a lit gradient
-function a3ShoeBody(c,bx,h,toe,col,round){ c.fillStyle=a3Grad(c,-h-.6,0,col); c.beginPath(); c.moveTo(bx-3,-h); c.quadraticCurveTo(bx+.4,-h-.5,bx+1.8,-Math.min(h,5.2)+.1);
-  c.quadraticCurveTo(bx+toe+.4,-4*round,bx+toe,-1.1); c.quadraticCurveTo(bx+toe-.2,-.2,bx+toe-1,-.2); c.lineTo(bx-3.2,-.2); c.quadraticCurveTo(bx-3.8,-h*.5,bx-3,-h); c.fill(); }
-function a3Sole(c,bx,toe,col,th){ c.fillStyle=col; c.beginPath(); c.moveTo(bx-3.5,-th); c.lineTo(bx+toe-.1,-th); c.quadraticCurveTo(bx+toe+.3,0,bx+toe-.8,.25); c.lineTo(bx-3.4,.25); c.closePath(); c.fill(); }
+function a3ShoeBody(c,bx,h,toe,col,round){ // round 6: a truer side-on shoe: rounded heel counter, collar, instep sloping to a low toe with a little toe spring
+  const ih=-Math.min(h,5.2)+.1, tt=-1.05-.25*round; c.fillStyle=a3Grad(c,-h-.6,0,col); c.beginPath(); c.moveTo(bx-2.9,-h); c.quadraticCurveTo(bx+.2,-h-.55,bx+1.7,ih);
+  c.bezierCurveTo(bx+toe*.55,ih+.6,bx+toe-.2,-2.6*round,bx+toe+.15,tt); c.quadraticCurveTo(bx+toe+.25,-.35,bx+toe-.7,-.25); c.lineTo(bx-2.6,-.2); c.bezierCurveTo(bx-3.9,-.4,bx-4,-h*.62,bx-2.9,-h); c.fill();
+  c.strokeStyle='rgba(0,0,0,.18)'; c.lineWidth=.3; c.beginPath(); c.moveTo(bx-3,-h+.35); c.quadraticCurveTo(bx-.6,-h-.05,bx+1.5,ih+.35); c.stroke(); }
+function a3Sole(c,bx,toe,col,th){ c.fillStyle=col; c.beginPath(); c.moveTo(bx-3.6,-th-.25); c.lineTo(bx-1,-th-.25); c.lineTo(bx-.6,-th); c.lineTo(bx+toe-.2,-th); c.quadraticCurveTo(bx+toe+.35,-th*.4,bx+toe-.1,-.2); c.quadraticCurveTo(bx+toe-1,.3,bx+toe-2.4,.25); c.lineTo(bx-3.5,.25); c.quadraticCurveTo(bx-3.9,.1,bx-3.6,-th-.25); c.closePath(); c.fill();
+  c.fillStyle='rgba(255,255,255,.08)'; c.fillRect(bx-3.4,-th-.25,toe+2.8,.25); }
 function a3Foot(c,bx,sk){ c.fillStyle=a3Grad(c,-4.6,0,sk,.12,.22); c.beginPath(); c.moveTo(bx-2.6,-4.8); c.lineTo(bx+1.2,-4.6); c.quadraticCurveTo(bx+5.6,-2.4,bx+5.2,-.6); c.lineTo(bx-2.8,-.6); c.closePath(); c.fill(); }
 function a3Shoe(c,id,bx,dark,D,sk,t){ const k=dark?.82:1, S2=(cl)=>D(dark?mix(cl,'#000000',.25):cl), dot=(x,y,r,cl)=>{ c.fillStyle=cl; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
   const shine=(x,y,rx)=>{ c.fillStyle='rgba(255,240,220,'+(dark?.1:.26)+')'; c.beginPath(); c.ellipse(x,y,rx,rx*.4,-.35,0,7); c.fill(); };
@@ -7734,7 +7785,7 @@ function a3Shoe(c,id,bx,dark,D,sk,t){ const k=dark?.82:1, S2=(cl)=>D(dark?mix(cl
       dot(bx+.6,-5.2,.8,S2('#ffd84a')); shine(bx+6.4,-3.6,2.2); break; }
     default: { // work boots
       const bc=S2('#33241a'); c.fillStyle=a3Grad(c,-6,0,bc,.14,.35);
-      c.beginPath(); c.moveTo(bx-3,-5.4); c.quadraticCurveTo(bx+.4,-6,bx+1.8,-5.1); c.quadraticCurveTo(bx+6.4,-4,bx+6,-1.1); c.quadraticCurveTo(bx+5.8,-.2,bx+5,-.2); c.lineTo(bx-3.2,-.2); c.quadraticCurveTo(bx-3.8,-2.8,bx-3,-5.4); c.fill();
+      c.beginPath(); c.moveTo(bx-3,-5.6); c.quadraticCurveTo(bx+.3,-6.2,bx+1.8,-5.2); c.bezierCurveTo(bx+3.6,-4.6,bx+6.1,-3.2,bx+6.2,-1.4); c.quadraticCurveTo(bx+6.3,-.3,bx+5.3,-.2); c.lineTo(bx-2.6,-.2); c.bezierCurveTo(bx-3.9,-.4,bx-4,-3.6,bx-3,-5.6); c.fill(); c.fillStyle=mix(bc,'#000000',.25); c.beginPath(); c.ellipse(bx-.6,-5.6,2.6,.6,-.05,0,7); c.fill();
       a3Sole(c,bx,6,D('#140d08'),1); dot(bx-.2,-4.3,.38,D('#c9a070')); dot(bx+1.3,-3.9,.38,D('#c9a070')); shine(bx+3.6,-3.3,1.6); }
   } }
 
@@ -9197,7 +9248,7 @@ const MEME_OUT = {
     for(let i=0;i<3;i++){ c.beginPath(); c.arc(.5,-39+i*4,.5,0,7); c.fill(); } c.restore(); },
   clownsuit(c,lk,D,f,t){ const col=D(lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:'#e8483a'); c.fillStyle=col; a3CoatPath(c,f,-14); c.fill(); c.save(); a3CoatPath(c,f,-14); c.clip();
     const cs=['#ffd84a','#5ad8ff','#7aff8a','#ffffff']; for(let i=0;i<24;i++){ c.fillStyle=D(cs[i%4]); c.beginPath(); c.arc(-9+((i*7)%19),-46+((i*11)%30),1.2,0,7); c.fill(); } c.restore();
-    for(let i=0;i<3;i++){ c.fillStyle=D(['#ffffff','#ffd84a','#5ad8ff'][i]); c.beginPath(); c.arc(1,-40+i*6,1.4,0,7); c.fill(); }
+    for(let i=0;i<3;i++){ c.fillStyle=D(['#ffffff','#ffd84a','#5ad8ff'][i]); c.beginPath(); c.arc(6.4,-40+i*6,1.4,0,7) /* pom-poms on the front edge (side view) */; c.fill(); }
     c.fillStyle=D('#f4f4f2'); for(let i=0;i<7;i++){ c.beginPath(); c.ellipse(-6+i*2,-46.4,1.6,1.1,0,0,7); c.fill(); } } };
 const _drawOutfit3_0 = drawOutfit3;
 drawOutfit3 = function(c,lk,D,f,t){ const m=MEME_OUT[lk.outfit]; if(m) return m(c,lk,D,f,t); return _drawOutfit3_0(c,lk,D,f,t); };
@@ -9521,7 +9572,7 @@ const SIDE_OUT=(()=>{
         pocket(c,.6,-39,3.6,3.8,d2,d3,D('#d8c090')); pocket(c,-.4,-31.4,4.2,3.6,d2,d3,D('#d8c090'));
         frontSeam(c,f,1.5,-45,-23,D('#e8d8a0'),.32,[.8,.7]); dot(c,-3.6,-41,.9,D('#c8c8d0')); dot(c,-3.6,-41,.45,D('#8a8a96')); }); },
     lifejacket(c,lk,D,f){ const col=D(H(lk,'#ff7a2a')), d2=D(sh(H(lk,'#ff7a2a'),.25)), k=D('#262630');
-      clipT(c,f,()=>{ c.fillStyle=col; c.fillRect(-9,-50,19,28); c.fillStyle=d2; c.fillRect(-1.4,-46,2.4,24);
+      clipT(c,f,()=>{ c.fillStyle=col; c.fillRect(-9,-50,19,28); c.fillStyle=d2; { const pz=[]; for(let y=-46;y<=-22;y+=1) pz.push([sideFront(y,f)-1.6,y]); c.lineWidth=2.2; c.strokeStyle=d2; c.beginPath(); pz.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.stroke(); }
         for(const y of [-41,-35.4,-29.4]){ line(c,[[-7,y],[-4,y+.8],[-1.6,y]],d2,.45); line(c,[[1.2,y],[4,y+.8],[7.2,y]],d2,.45); }
         c.fillStyle=k; c.fillRect(-9,-34.6,19,1.8); c.fillRect(-9,-28.8,19,1.8);
         for(const y of [-35.2,-29.4]){ const x=sideFront(y+.9,f)-2.6; c.fillStyle=D('#c8c8d0'); c.fillRect(x,y,2,3); c.fillStyle=k; c.fillRect(x+.5,y+.8,1,1.4); }
@@ -9560,11 +9611,11 @@ const SIDE_OUT=(()=>{
       clipC(c,f,-14.5,()=>{ const p=[]; for(let y=-44;y<=-14.5;y+=1) p.push([Math.min(7.4,sideFront(Math.min(y,-24),f))-1.1,y]); line(c,p,l2,.5); buttons(c,f,2.2,[-41,-35.4,-29.6],gold,.6); dot(c,5.4,-24,.6,gold);
         c.fillStyle=gold; c.fillRect(-8,-18.6,16,.7); c.fillRect(-8,-20,16,.4); });
       c.fillStyle=D('#f4f4f2'); c.beginPath(); c.moveTo(2.4,-47.2); c.lineTo(4.4,-46.8); c.lineTo(4.6,-44.2); c.closePath(); c.fill(); collar(c,n,gold,4); },
-    spacesuit(c,lk,D,f){ const s2=D('#e8ecf0'), s3=D('#c8d0d8');
-      clipT(c,f,()=>{ c.fillStyle=s2; c.fillRect(-9,-50,19,28); c.fillStyle=D('#d8603a'); c.fillRect(-9,-27,19,1.8); line(c,[[-1.4,-46],[-1.8,-36],[-1.4,-27]],s3,.4); line(c,[[-6,-44],[-5.6,-30]],s3,.35); });
+    spacesuit(c,lk,D,f,t){ const s2=D('#e8ecf0'), s3=D('#c8d0d8'), on=Math.sin((t||0)*3.2)>0;
+      clipT(c,f,()=>{ c.fillStyle=s2; c.fillRect(-9,-50,19,28); c.fillStyle=D('#d8603a'); c.fillRect(-9,-27,19,1.8); frontSeam(c,f,1.3,-46,-27,s3,.45); line(c,[[-6,-44],[-5.6,-30]],s3,.35); });
       // the chest control box stands out in front of the suit
       const bx=sideFront(-38,f)-1.6; c.fillStyle=D('#5a6a7a'); c.beginPath(); c.roundRect?c.roundRect(bx,-41.4,4.2,6.2,.8):c.rect(bx,-41.4,4.2,6.2); c.fill(); c.fillStyle=D('#3a4652'); c.fillRect(bx+3.4,-41,.8,5.4);
-      dot(c,bx+1.2,-39.6,.55,D('#ff5a4a')); dot(c,bx+2.6,-39.6,.55,D('#5aff9a')); c.fillStyle=D('#9ad8ff'); c.fillRect(bx+.6,-37.6,2.6,.7);
+      dot(c,bx+1.2,-39.6,.55,D(on?'#ff5a4a':'#6a2622')); dot(c,bx+2.6,-39.6,.55,D(on?'#2a6a44':'#5aff9a')); /* the lights blink (round 6) */ c.fillStyle=D('#9ad8ff'); c.fillRect(bx+.6,-37.6,2.6,.7);
       c.fillStyle=s3; c.beginPath(); c.moveTo(-5.2,-46.4); c.quadraticCurveTo(-4.8,-49.6,-2.4,-49.8); c.quadraticCurveTo(2,-49.4,4.2,-46.6); c.quadraticCurveTo(-.4,-47.4,-5.2,-46.4); c.fill(); },
     cardigan(c,lk,D,f){ const col=D(H(lk,'#d8a020')), d2=D(sh(H(lk,'#d8a020'),.22));
       clipT(c,f,()=>{ c.fillStyle=col; c.beginPath(); c.moveTo(-9,-50); c.lineTo(2.2,-50); for(let y=-46.4;y<=-22;y+=1.2) c.lineTo(sideFront(y,f)-.9-(y<-40?(y+40)*-.12:0),y); c.lineTo(-9,-22); c.closePath(); c.fill(); c.fillStyle=d2; c.fillRect(-9,-24.8,19,2.4);
@@ -10976,12 +11027,19 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
 function renderStats(P){ P.innerHTML=`<h2>Stats</h2><p class="sub">Everything that shapes your fishing, worked out exactly like the game does.</p>
   <div class="bwx-nav" role="tablist">${[['overview','Overview'],['bonuses','Bonuses'],['gear','Gear']].map(([k,n])=>`<button role="tab" data-act="statsec" data-k="${k}" aria-selected="${statSec===k}">${n}</button>`).join('')}</div>${statsHTML()}${window.DL_PREVIEW?testerHTML():''}`; }
 // ---------- preview-only tester tools: for the director to test everything; the release build never shows them ----------
-function testerHTML(){ return `<details class="tile st-test"><summary><b>Tester tools</b> <span class="meta">· preview only, for testing</span></summary><p class="sub">These only exist in the 0.3 preview (it has its own save, so your real game is untouched).</p>
-  <div class="row" style="gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="tester" data-k="all">Unlock everything</button><button class="btn alt sm" data-act="tester" data-k="coins">+1 billion coins</button><button class="btn alt sm" data-act="tester" data-k="scales">+10,000 Scales & tickets</button><button class="btn alt sm" data-act="tester" data-k="pass">Tide Pass to level 50</button></div></details>`; }
+function testerHTML(){ const B=(k,t,alt)=>`<button class="btn${alt?' alt':''} sm" data-act="tester" data-k="${k}">${t}</button>`;
+  return `<details class="tile st-test" open><summary><b>Tester tools</b> <span class="meta">· test builds only, never in the real game</span></summary><p class="sub">The test build has its own save, so your real game is untouched.</p>
+  <div class="row" style="gap:6px;flex-wrap:wrap">${B('all','Unlock everything')}${B('coins','+1 billion coins',1)}${B('scales','+10,000 Scales & tickets',1)}${B('pearls','+20 Wisdom Pearls',1)}${B('pass','Tide Pass to level 50',1)}${B('lvl','+10 levels',1)}${B('log','Fill the Fish Log + oddities',1)}${B('feats','Finish every feat',1)}${B('cooler','Fill the cooler',1)}${B('time','Skip 8 hours (aquarium, spins)',1)}</div></details>`; }
 function testerUnlock(k){ if(!window.DL_PREVIEW) return; const o=S.owned, U=(arr,ids)=>{ for(const id of ids) if(!arr.includes(id)) arr.push(id); };
   if(k==='coins'){ S.money+=1e9; return 'One billion coins added.'; } if(k==='scales'){ S.scales+=1e4; S.tickets+=1e4; return 'Scales and tickets added.'; }
+  if(k==='pearls'){ S.pearls=(S.pearls||0)+20; return '20 Wisdom Pearls added: spend them in Prestige, Pearl relics.'; }
   if(k==='pass'){ S.pass.lvl=Math.max(S.pass.lvl,50); return 'Tide Pass set to level 50. Claim your rewards in the Tide Pass tab.'; }
-  S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
+  if(k==='lvl'){ for(let i=0;i<10;i++){ try{ addXP(Math.max(1,xpNeed(S.lvl)-S.xp)); }catch(e){ S.lvl++; } } return 'Now level '+S.lvl+'.'; }
+  if(k==='log'){ const now=Date.now(); for(const sp of SP){ if(!S.journal[sp.id]) S.journal[sp.id]={n:1,best:1,min:1,sh:false,pr:false,tr:false,bv:0,first:now}; } for(const j of JUNK) if(!S.junk[j.id]) S.junk[j.id]=1; try{ checkFeats(); }catch(e){} return 'Every fish species and oddity is now in your Fish Log.'; }
+  if(k==='feats'){ let n=0; try{ for(const f of FEATS){ if(!S.feats[f.id]){ S.feats[f.id]=true; n++; } } }catch(e){ return 'Feats could not be finished: '+e.message; } return n+' feats finished (their rewards were not paid out).'; }
+  if(k==='cooler'){ const pool=SP.filter(s=>s.loc===S.loc); let n=0; while(S.cooler.length<gv('cooler')&&n<200){ const sp=pool[n%pool.length]; S.cooler.push({id:sp.id,kg:1,value:100,sh:0,tr:0}); n++; } return n+' fish added to your cooler.'; }
+  if(k==='time'){ const h=8*3600e3; try{ S.tankT=(S.tankT||Date.now())-h; accrue(); }catch(e){} try{ S.wheelT=(S.wheelT||Date.now())-h; accrueSpins(); }catch(e){} return 'Skipped 8 hours: collect your aquarium and spins.'; }
+  S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.pearls=(S.pearls||0)+20; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
   U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=3;
   U(o.hats,HATS.map(h=>h.id)); U(o.cols,SHOP_COLS.map(c=>c[0])); U(o.pats,PATTERNS.map(p=>p[0])); U(o.outfits,OUTFITS.map(x=>x[0])); U(o.glasses,GLASSES.map(x=>x[0])); U(o.shoes,SHOES.map(x=>x[0])); U(o.necks,NECKS.map(x=>x[0])); U(o.backs,BACKS.map(x=>x[0]));
   U(o.pets,PETS.filter(p=>(p.id!=='lily'||o.pets.includes('lily'))&&(p.id!=='daxniko'||o.pets.includes('daxniko'))).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
@@ -11033,7 +11091,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
   _renderPanel_2();
-  if(newTab){ if(document.body.classList.contains('pch-on')) return; /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
+  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(PLAT.quietTabSwitch()) return; /* phones: no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
@@ -11332,7 +11390,7 @@ function menuSync(){ const T=$('tabs'); if(!T) return; const sec=menuSecOf(S.tab
   // the pills of the open section (rebuilt only when the section changes)
   const list=sec?menuTabsIn(sec):[], key=(sec?sec.id:'')+'|'+list.join(',');
   if(key!==menuSubKey){ menuSubKey=key; sb.innerHTML=list.map(t=>{ const [ic,nm]=menuTabLabel(t); return `<button type="button" class="subp" data-sub="${t}" aria-pressed="false"><span class="subi" aria-hidden="true">${ic}</span><span>${nm}</span><span class="subdot" hidden></span></button>`; }).join('');
-    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
+    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else if(PLAT.quietTabSwitch()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){} } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
   sb.hidden=!list.length; let onP=null; sb.querySelectorAll('.subp').forEach(p=>{ const on=p.dataset.sub===S.tab; p.setAttribute('aria-pressed',on?'true':'false'); p.classList.toggle('on',on); if(on) onP=p; });
   // keep the open page's pill in view when the row scrolls sideways (small phones), without moving the page
   menuPillView(sb,onP); requestAnimationFrame(()=>menuPillView(sb,onP));
@@ -11769,7 +11827,7 @@ if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return {label:label||vw+'x'+vh, n:out.length, out:[...new Set(out)].slice(0,40)}; };
 // QC (test mode only): every page, every visible label that is cut off with "…" (text-overflow) or clipped
-if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2) return; const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
+if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2||e.clientWidth<=2) return; /* 1 px labels are hidden on purpose (screen-reader names on swatches) */ const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
     if(e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.add(where+': "'+t.slice(0,28)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,200)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); look(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return [...out].slice(0,60); };
@@ -12538,8 +12596,8 @@ const CHAL={
     onCatch:(c,f)=>{ if(!c.seen.includes(f.sp.id)){ c.seen.push(f.sp.id); c.prog=c.seen.length; return true; } } },
   long:  {name:'Long Cast', icon:'🎯', mins:6, m:.25, rule:c=>'Land '+c.need+' fish from far casts', hint:()=>'Charge your cast past the far mark on the power bar. Far casts also bring better fish. Long Caster lowers the mark.',
     setup:()=>({need:5}), onCatch:(c,f,perfect,far)=>{ if(far){ c.prog++; return true; } } },
-  steady:{name:'Steady Hands', icon:'✋', mins:6, m:.25, rule:c=>'Land '+c.need+' perfect-hook fish in a row', hint:()=>'Strike the instant it bites. A fish hooked late resets the count. A longer hook window (Hook upgrades, Quick Reflexes) helps.',
-    setup:()=>({need:4}), onCatch:(c,f,perfect)=>{ if(perfect){ c.prog++; return true; } if(c.prog){ c.prog=0; toast('Late hook: Steady Hands count back to 0.'); } } },
+  steady:{name:'Steady Hands', icon:'✋', mins:6, m:.25, rule:c=>'Land '+c.need+' perfect-hook fish without losing one', hint:()=>'Strike the instant it bites. A late hook just does not count; only a hooked fish that gets away resets the count. A longer hook window (Hook upgrades, Quick Reflexes) helps.',
+    setup:()=>({need:4}), onCatch:(c,f,perfect)=>{ if(perfect){ c.prog++; return true; } }, onLost:(c)=>{ if(c.prog){ c.prog=0; toast('Fish lost: Steady Hands count back to 0.'); return true; } } }, /* director 2026-11-18: counters reset only on a failed catch, never on a late hook that still lands the fish */
   treasure:{name:'Treasure Dive', icon:'🧭', mins:6, m:.3, rule:c=>'Fish up '+c.need+' piece'+(c.need>1?'s':'')+' of junk or treasure', hint:()=>'Your chance of junk or treasure per bite here: '+fmtOdds(junkChance())+'. Magnet Lures, the Magnet Tip and Scavenger raise it.',
     setup:()=>({need:Math.max(1,Math.min(5,Math.round(6*CATCHES_PER_MIN*junkChance()*.85)))}), onJunk:(c)=>{ c.prog++; return true; } },
   weigh: {name:'Trophy Weigh-in', icon:'⚖️', mins:5, m:.35, rule:()=>'Weigh in your heaviest fish', hint:()=>'Only your heaviest fish counts. Spinners, Trophy Hunter and Feather Flies bring bigger fish.', ranked:true, slow:true,
@@ -12636,6 +12694,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // the goal chip says "Live" for events
 setInterval(()=>{ const el=$('goalchip'); if(!el) return; const live=!!(S.chal||liveScheds().length); el.classList.toggle('live',live); const k=el.querySelector('.gl-k'); if(k&&live&&k.textContent!=='Live') k.textContent='Live'; },700);
 if(/[?&]test\b/.test(location.search)) window.__ev={chalStart, chalEnd, CHAL, SCHED, schedLeft, schedNext, shoalLeft, shoalNext, bonus:k=>bonus(k), junk:()=>junkChance(), rare:()=>rareScore(distanceMods(),false,false,phase())};
+// a fish that bit and got away (missed strike, snap, slipped off, ran out the line) is the only thing that resets a challenge count
+{ const _ef=endFight; endFight=function(kind){ try{ if(kind!=='caught'&&kind!=='nohook'&&S.chal){ const C=CHAL[S.chal.id]; if(C&&C.onLost&&C.onLost(S.chal)){ save(); if(S.tab==='events') renderPanel(); } } }catch(e){ console.error(e); } return _ef.apply(this,arguments); }; }
 // =====================================================================
 // 0.4 Hunts (Fish Log). Pick up to HUNT_MAX fish per water to hunt: each hunted fish's catch weight is multiplied by
 // HUNT_MULT inside catchW, the one weight function the catch roll and every on-screen odds number share, so the bonus
@@ -13950,7 +14010,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); sync(); return r; }; }
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(PLAT.quietTabSwitch()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
@@ -13961,7 +14021,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
 // Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
 // the touch was a click; that decision sometimes failed on iPhone and needed a second tap. The phone's own click that follows is ignored.
-{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home';
+{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home,.hud > .hud-link,.hud > .hudx,.hud #goalchip,.hud .hudbtns > button'; // top-bar chips too (director 2026-11-18: tapping Fishing at sometimes did nothing on iPhone)
   // Every finger is tracked on its own (fast taps with two thumbs overlap). While touch is in use, menu buttons are driven only by
   // finger lifts: the phone's own clicks on them are ignored, so a late click can never undo a newer tap. The one exception is a
   // touch that didn't act (the phone cancelled it, or the finger slid): its click is honoured, since nothing else acted for it.
@@ -13969,7 +14029,9 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const el=e.target.closest&&e.target.closest(NAV); if(el&&!el.disabled) downs.set(e.pointerId,{el,x:e.clientX,y:e.clientY}); else downs.delete(e.pointerId); },true);
   const unacted=el=>{ const now=performance.now(); spare=spare.filter(s=>now-s.t<900); spare.push({el,t:now}); };
   document.addEventListener('pointercancel',e=>{ const d=downs.get(e.pointerId); downs.delete(e.pointerId); if(d) unacted(d.el); },true);
-  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); // a mouse never counts as touch (it used to, and swallowed every menu click on PC) downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18||!d.el.isConnected){ unacted(d.el); return; }
+  document.addEventListener('pointerup',e=>{ if(e.pointerType==='mouse') return; lastTouch=performance.now(); const d=downs.get(e.pointerId); /* a mouse never counts as touch (it used to, and swallowed every menu click on PC). This note was a // comment mid-line until 2026-11-18, which silently disabled everything after it on this line: the finger was never forgotten, untracked lifts threw an error, and a slid or redrawn tap was neither skipped nor handed to the phone's own click (taps "did nothing at times") */ downs.delete(e.pointerId); if(!d) return; if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>18){ unacted(d.el); return; }
+    // the button was redrawn while the finger was down (live countdowns, a page refresh): tap the button that is under the finger now
+    if(!d.el.isConnected){ const n=document.elementFromPoint(e.clientX,e.clientY), el2=n&&n.closest&&n.closest(NAV); if(!el2||el2.disabled){ unacted(d.el); return; } d.el=el2; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
     if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
@@ -14157,7 +14219,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
   let on=false, ts=[], lastT=0, shown=0;
   const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
-    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); el.textContent=Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'; }
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=PLAT.fpsText?PLAT.fpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
     requestAnimationFrame(loop); };
   const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
   setInterval(sync,700); sync(); }
@@ -15423,8 +15485,8 @@ body.pc-fhd #panel.st-on .st-table{background:transparent;font-size:13px}
 body.pc-fhd #panel.st-on .st-table th,body.pc-fhd #panel.st-on .st-table td{padding:7px 5px} body.pc-fhd #panel.st-on .st-table thead th{font-size:10.5px;letter-spacing:.02em} body.pc-fhd #panel.st-on .st-table-wrap{overflow:visible}
 body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important}
 </style>`);
-// HOTFIX 0.4.8.2 (director, 2026-11-18: "QR and code saves no longer generate on PC: Send and Get progress show no 6-digit code, no
-// QR and no box to type a code"). On PC the Send / Get progress section lives in Settings > Save & codes, but it was only redrawn on
+// URGENT FIX (director, 2026-11-18: "QR and code saves no longer generate on PC: Send and Get progress show no 6-digit code, no QR
+// and no box to type a code"). On PC the Send / Get progress section lives in Settings > Save & codes, but it was only redrawn on
 // the Save page (refreshXfer checked S.tab==='save'), so pressing Send made the code and updated the status line but never drew the
 // code, the QR or the code box. It is redrawn in Settings too now. PC only.
 { const _rx=refreshXfer; refreshXfer=function(){ if(document.body.classList.contains('pch-on')&&S.tab==='settings'){ try{ renderPanel(); }catch(e){ console.error(e); } return; } return _rx.apply(this,arguments); }; }
@@ -15845,41 +15907,111 @@ function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save();
       x.fillStyle=g; x.fillRect(bx-w*.14,0,w*.28,h); x.globalAlpha=1; x.globalCompositeOperation='destination-in'; x.drawImage(o.mask,0,0); x.globalCompositeOperation='source-over';
       c.globalAlpha=.7; c.drawImage(T,0,0,w,h,0,0,w,h); c.globalAlpha=1; }});
   c.restore(); }
-setInterval(()=>{ if(document.hidden||!SPK.size) return; const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } },33);
+// every display frame (director: "use more frames, push the limits without breaking"); runs only while a shiny picture exists
+{ let raf=0; const tick=()=>{ raf=0; if(!SPK.size) return; if(!document.hidden){ const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } } if(SPK.size) raf=requestAnimationFrame(tick); };
+  setInterval(()=>{ if(!raf&&SPK.size) raf=requestAnimationFrame(tick); },250); }
 // =====================================================================
 // Living cosmetics (director, round 6: "a lot of customization items don't look cool... make them actually awesome, with new FX
-// when it fits the theme"). Shared for every platform. The angler code (g_angler.js) records where the hat, chest and neck are
-// each frame (A3FXP); after the angler is drawn, these effects are drawn on top in the same places, so they follow every pose,
-// lean and scale: in the scene, the Wardrobe preview, the Boardwalk, the Tide Pass and the boards.
-// Only drawn while the angler is animated (o.t given): still thumbnails stay cached and cheap.
-//   hats:    crown and tiara gems glint; wizard and witch hats trail twinkling stars; the astronaut visor catches a moving
-//            glare; the diving helmet lets out bubbles; the halo shimmers
-//   outfits: the spacesuit's chest lights blink; the Tide coat's hem glows like a wave and sheds glints; the captain's gold
-//            buttons catch the light; the fish suit's scales shimmer
-//   necks:   the big gold chain and the pearls catch the light
+// when it fits the theme"; then: "some hats don't feel magical, no wizard FX is crazy. We want everything to feel alive. Don't just
+// end with hats, or just one option. Everywhere it makes sense"). Shared for every platform.
+// The angler code (g_angler.js) records where the hat, chest, neck, back and feet are each frame (A3FXP). After the angler is
+// drawn, these effects are drawn on top in the same places, so they follow every pose, lean and scale: in the scene, the Wardrobe
+// preview, the Boardwalk, the Tide Pass and the boards. Only while the angler is animated (o.t given); still thumbnails stay cheap.
+// Everything is drawn as light ("lighter"), except things that are not light (smoke, petals, notes, bubbles, confetti).
+//   hats:    wizard (arcane glow, a spiral of sparkles climbing to the tip, a pulsing tip star, orbiting runes), witch (green and
+//            violet wisps off the tip), crown and tiara gems, halo, astronaut glare, diving-helmet bubbles, fishbowl bubbles, top hat
+//            and carnival hat magic bursts, headphones music notes, mushroom spores, flower-crown petals, party confetti, lantern
+//            hat flicker, Tide cap droplets, knight / viking / pirate / graduation / captain / sailor glints
+//   outfits: Tide coat glow and glints, captain buttons, fish-suit scales, clown confetti sparkles, kimono petals, hot-dog steam,
+//            raincoat drips, life-jacket reflective strip, spacesuit lights (inside the suit drawing)
+//   backs:   angel feathers and holy motes, butterfly wing dust, dragon embers, bat shadows, jetpack smoke, lantern moths,
+//            Tide cape and wings droplets, guitar notes
+//   necks:   gold chain, pearls, medal glints, lei petals, Tide scarf droplets
+//   shoes:   glow kicks pulse and sparkle, Tide treads droplets, moon boots stars, roller wheel glints, fish feet bubbles
+//   glasses: lens glints (sunglasses, heart, goggles, monocle, pixel, frames), pixel sparkles, little floating hearts
+// A3FXP (anchors) is declared in g_angler.js, which fills it while drawing.
 // =====================================================================
-// A3FXP (anchors) is declared in g_angler.js, which fills it while drawing
-function wearFxDraw(c,lk,t,toC,k){ try{ const A=A3FXP; if(!A||(!A.hat&&!A.torso&&!A.neck)) return;
-    const P=(M,x,y)=>{ const p=M.transformPoint({x,y}); return toC(p); }, S0=M=>Math.hypot(M.a,M.b)*k;
+function wearFxDraw(c,lk,t,toC,k){ try{ const A=A3FXP; if(!A||(!A.hat&&!A.torso&&!A.neck&&!A.back&&!A.feet)) return;
+    const P=(M,x,y)=>toC(M.transformPoint({x,y})), S0=M=>Math.hypot(M.a,M.b)*k, gold=SFX_PAL.shiny, starry=SFX_PAL.starry, spec=SFX_PAL.spectral, myth=SFX_PAL.mythic;
+    const flare=(M,x,y,sz,pal,i,a,long,rot)=>{ if(a<=.02) return; const p=P(M,x,y); sfxFlare(c,p.x,p.y,sz*S0(M),pal,i,t,a,rot!=null?rot:((i*.7+t*.3)%1-.5),long); };
+    const life=(per,off)=>{ const k2=(t+off)/per, n=Math.floor(k2), u=k2-n; return {n,u,a:u<.1?u/.1:Math.max(0,1-(u-.1)/.6)**1.5}; };
+    const glow=(M,x,y,r,rgb,a)=>{ if(a<=.01) return; const p=P(M,x,y), R=Math.max(1,r*S0(M)); const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,R); g.addColorStop(0,'rgba('+rgb+','+a.toFixed(3)+')'); g.addColorStop(1,'rgba('+rgb+',0)'); c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,R,0,7); c.fill(); };
+    const dot=(M,x,y,r,col)=>{ const p=P(M,x,y), R=Math.max(.5,r*S0(M)); c.fillStyle=col; c.beginPath(); c.arc(p.x,p.y,R,0,7); c.fill(); };
+    const ink=f=>{ c.save(); c.globalCompositeOperation='source-over'; f(); c.restore(); };
+    const note=(M,x,y,sz,a,col)=>{ if(a<=.02) return; const p=P(M,x,y); ink(()=>{ c.globalAlpha=a; c.fillStyle=col; c.font='700 '+Math.max(6,sz*S0(M)).toFixed(1)+'px system-ui,sans-serif'; c.textAlign='center'; c.fillText('♪',p.x,p.y); }); };
+    const petal=(M,x,y,sz,rot,col,a)=>{ if(a<=.02) return; const p=P(M,x,y), s=Math.max(.8,sz*S0(M)); ink(()=>{ c.globalAlpha=a; c.translate(p.x,p.y); c.rotate(rot); c.fillStyle=col; c.beginPath(); c.ellipse(0,0,s,s*.55,0,0,7); c.fill(); }); };
+    const bubble=(M,x,y,r,a)=>{ if(a<=.02) return; const p=P(M,x,y), R=Math.max(.6,r*S0(M)); ink(()=>{ c.strokeStyle='rgba(210,240,255,'+(.75*a).toFixed(2)+')'; c.lineWidth=Math.max(.5,R*.28); c.beginPath(); c.arc(p.x,p.y,R,0,7); c.stroke(); c.fillStyle='rgba(255,255,255,'+(.6*a).toFixed(2)+')'; c.beginPath(); c.arc(p.x-R*.35,p.y-R*.35,R*.25,0,7); c.fill(); }); };
+    const puff=(M,x,y,r,rgba)=>{ const p=P(M,x,y), R=Math.max(.8,r*S0(M)); ink(()=>{ c.fillStyle=rgba; c.beginPath(); c.arc(p.x,p.y,R,0,7); c.fill(); }); };
+    const H=A.hat, T=A.torso, N=A.neck, Bk=A.back, F=A.feet;
     c.save(); c.globalCompositeOperation='lighter';
-    const flare=(M,x,y,sz,pal,i,a,long)=>{ const p=P(M,x,y); sfxFlare(c,p.x,p.y,sz*S0(M),pal,i,t,a,(i*.7+t*.3)%1-.5,long); };
-    const life=(per,off)=>{ const k2=(t+off)/per, n=Math.floor(k2), u=k2-n; return {n,a:u<.1?u/.1:Math.max(0,1-(u-.1)/.6)**1.5}; };
-    const H=A.hat, T=A.torso, N=A.neck, gold=SFX_PAL.shiny;
+    // ---------------- hats (origin = head centre) ----------------
     if(H){ const h=lk.hat;
+      if(h==='wizard'){ // arcane glow, a climbing spiral of sparkles, a tip star that pulses, runes orbiting the brim
+        glow(H,-1.5,-12,13,'150,120,255',.3+.12*Math.sin(t*2.1)); glow(H,-4.6,-20,6,'200,180,255',.5+.35*Math.max(0,Math.sin(t*3.3)));
+        for(let i=0;i<14;i++){ const u=((t*.32+i/14)%1), ang=u*Math.PI*4.5+i*.7, rr=7.6*(1-u*.85), x=-4.6*u+Math.cos(ang)*rr, y=-5.5-14.5*u+Math.sin(ang)*1.7*(1-u); const front=Math.sin(ang)>-.25?1:.35, a=Math.sin(u*Math.PI)*front; for(let tr=1;tr<4;tr++){ const u2=u-tr*.025; if(u2<0) break; const a2=ang-tr*.35; glow(H,-4.6*u2+Math.cos(a2)*7.6*(1-u2*.85),-5.5-14.5*u2+Math.sin(a2)*1.7*(1-u2),.7,'190,170,255',a*.35/tr); }
+          flare(H,x,y,.5+.8*(1-u),i%3?starry:spec,i,a,i%2===0,ang); }
+        const L=life(1.6,0); flare(H,-4.6,-20.4,1.3,starry,0,.4+.6*L.a,true,t*.4);
+        for(let i=0;i<4;i++){ const ang=t*.8+i*Math.PI/2, x=Math.cos(ang)*10.5, y=-6+Math.sin(ang)*2.2; if(Math.sin(ang)<-.15) continue; glow(H,x,y,1.4,'170,150,255',.55); dot(H,x,y,.28,'rgba(240,235,255,.9)'); } }
+      if(h==='witch'){ glow(H,-3,-11,10,'120,255,160',.1+.05*Math.sin(t*1.7)); for(let i=0;i<6;i++){ const q=((t*.4+i/6)%1), x=-4.6+Math.sin(q*7+i)*2.2*q, y=-21-q*10; glow(H,x,y,1.2+q*1.8,i%2?'150,255,170':'190,140,255',.42*(1-q)); }
+        for(let i=0;i<2;i++){ const L=life(1.3+i*.4,i*.6); flare(H,-6+sfxHash(L.n,i)*10,-6-sfxHash(L.n,i+5)*12,.55,i?spec:myth,i,L.a,false); } }
       if(h==='crown'||h==='tiara'){ const pts=h==='crown'?[[-3.6,-14.2],[0,-15.8],[3.6,-14.2]]:[[0,-12.6],[-2.6,-11.8],[2.6,-11.8]]; pts.forEach(([x,y],i)=>{ const L=life(1.4+i*.35,i*.5); flare(H,x,y,.9,gold,i,L.a,true); }); }
-      if(h==='wizard'||h==='witch'){ for(let i=0;i<5;i++){ const ang=t*1.1+i*1.26, x=Math.cos(ang)*8.5, y=-12+Math.sin(ang)*2.6-((t*.6+i*.2)%1)*5, a=.55+.45*Math.sin(t*4+i); if(Math.sin(ang)<-.2) continue; flare(H,x,y,.45,h==='witch'?SFX_PAL.spectral:SFX_PAL.starry,i,a*.8,false); } }
+      if(h==='halo'){ glow(H,0,-17,8,'255,240,190',.18+.06*Math.sin(t*2)); for(let i=0;i<3;i++){ const L=life(1.2+i*.3,i*.4), ang=i*2.1+L.n*1.7; flare(H,Math.cos(ang)*6,-17+Math.sin(ang)*1.4,.6,gold,i,L.a*.9,false); } }
       if(h==='astro'){ const p0=P(H,-.4,.2), R=10.6*S0(H), kx=((t*.4)%1.8)-.4; c.save(); c.beginPath(); c.arc(p0.x,p0.y,R*.92,0,7); c.clip(); const g=c.createLinearGradient(p0.x-R+kx*2*R,p0.y-R,p0.x-R*.4+kx*2*R,p0.y+R); g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.5,'rgba(220,240,255,.35)'); g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.fillRect(p0.x-R,p0.y-R,R*2,R*2); c.restore(); }
-      if(h==='diver'){ for(let i=0;i<4;i++){ const q=((t*.5+i*.25)%1), p=P(H,-5+Math.sin(q*9+i)*1.2,-11-q*16), r=(.6+q*.9)*S0(H); c.strokeStyle='rgba(200,235,255,'+(.7*(1-q)).toFixed(2)+')'; c.lineWidth=Math.max(.6,.25*S0(H)); c.beginPath(); c.arc(p.x,p.y,r,0,7); c.stroke(); } }
-      if(h==='halo'){ for(let i=0;i<3;i++){ const L=life(1.2+i*.3,i*.4), ang=i*2.1+L.n*1.7; flare(H,Math.cos(ang)*6,-17+Math.sin(ang)*1.4,.6,gold,i,L.a*.9,false); } } }
+      if(h==='diver'){ for(let i=0;i<5;i++){ const q=((t*.5+i*.2)%1); bubble(H,-5+Math.sin(q*9+i)*1.2,-11-q*16,.6+q*.9,1-q); } }
+      if(h==='fishbowl'){ for(let i=0;i<4;i++){ const q=((t*.35+i*.25)%1); bubble(H,-3+i*2+Math.sin(q*8+i)*.8,6-q*16,.35+q*.35,Math.sin(q*Math.PI)); } }
+      if(h==='tophat'||h==='carnival'){ const per=4.4, k2=(t%per)/per; if(k2<.32){ const e=k2/.32; for(let j=0;j<5;j++){ const ang=j*1.26+Math.floor(t/per), a=Math.sin(e*Math.PI); flare(H,Math.cos(ang)*(6+e*5),-14+Math.sin(ang)*2.2-e*4,.55,h==='carnival'?myth:gold,j,a*.9,true); } } const L=life(2.1,.3); flare(H,4,-15,.6,gold,7,L.a*.7,false); }
+      if(h==='headphones'){ for(let i=0;i<3;i++){ const q=((t*.33+i/3)%1), side=i%2?1:-1; note(H,side*9+side*q*3,-4-q*14,4.2,Math.sin(q*Math.PI)*.9,i%2?'#bfe6ff':'#ffd6f4'); } }
+      if(h==='mushroom'){ for(let i=0;i<6;i++){ const q=((t*.25+i/6)%1), x=-9+((i*37)%18)+Math.sin(q*6+i)*1.5, y=-3-q*12; glow(H,x,y,.9,'200,255,190',.6*Math.sin(q*Math.PI)); } }
+      if(h==='flower'){ for(let i=0;i<2;i++){ const q=((t*.18+i*.5)%1); petal(H,-6+i*8+Math.sin(q*8)*3,-6+q*34,1,q*9+i,i?'#ffb8d8':'#fff0a8',Math.sin(q*Math.PI)*.9); } }
+      if(h==='party'){ const per=2.6, k2=(t%per)/per; if(k2<.45){ const e=k2/.45; ink(()=>{ for(let j=0;j<7;j++){ const ang=-Math.PI/2+(j-3)*.42, d=e*9, p=P(H,Math.cos(ang)*d,-19+Math.sin(ang)*d+e*e*7), s=Math.max(.6,.5*S0(H)); c.fillStyle=['#ff5a7a','#ffd84a','#5ad8ff','#7aff9a','#c08aff'][j%5]; c.globalAlpha=1-e; c.fillRect(p.x-s,p.y-s*.5,s*2,s); } }); } }
+      if(h==='lanternhat'){ glow(H,0,-18,7,'255,200,110',.32+.08*Math.sin(t*3)+.05*Math.sin(t*11.3)); }
+      if(h==='tidecap'){ for(let i=0;i<2;i++){ const L=life(1.5+i*.4,i*.7); flare(H,-5+sfxHash(L.n,i)*10,-9-sfxHash(L.n,i+3)*5,.5,starry,i,L.a,false); } }
+      if(['knight','viking','pirate','grad','captain','sailor'].includes(h)){ const L=life(2.6,(hashStr(h)%3)*.4), pt={knight:[4,-6],viking:[-7,-12],pirate:[1.5,-10],grad:[5,-11],captain:[3,-9],sailor:[2,-8]}[h]; flare(H,pt[0],pt[1],.7,gold,0,L.a*.85,true); } }
+    // glasses (also on the head): lens glints, pixel sparkles, floating hearts
+    if(H&&lk.glasses&&lk.glasses!=='none'){ const gl=lk.glasses;
+      if(['sunglasses','heart','goggles','monocle','pixel','nerd','round'].includes(gl)){ const L=life(gl==='monocle'?2.4:3.2,.9); flare(H,7.2,-1.6,gl==='nerd'||gl==='round'?.45:.65,gold,3,L.a*.85,true); }
+      if(gl==='pixel'){ ink(()=>{ for(let i=0;i<3;i++){ const q=((t*.6+i/3)%1), p=P(H,9+q*3,-2+((i*5)%4)-1), s=Math.max(.6,.45*S0(H)); c.globalAlpha=Math.sin(q*Math.PI)*.8; c.fillStyle=['#5ae8ff','#ff5ac8','#ffe85a'][i]; c.fillRect(p.x,p.y,s,s); } }); }
+      if(gl==='heart'){ const per=3.6, q=(t%per)/per; if(q<.6){ const e=q/.6, p=P(H,9+e*2,-3-e*9), s=Math.max(4,2.6*S0(H)); ink(()=>{ c.globalAlpha=Math.sin(e*Math.PI)*.85; c.fillStyle='#ff6a9a'; c.font='700 '+s.toFixed(1)+'px system-ui'; c.textAlign='center'; c.fillText('♥',p.x,p.y); }); } } }
+    // ---------------- outfits (torso coordinates) ----------------
     if(T){ const o=lk.outfit;
-      /* spacesuit: its chest lights blink inside the suit drawing (g_angler.js), so the arm still covers them */
-      if(o==='tidecoat'){ for(let i=0;i<6;i++){ const xx=-9+i*3.6, p=P(T,xx,-21.4+Math.sin(xx*.9+t*2)*1.1), sz=2.4*S0(T), a=.25+.2*Math.sin(t*2.4+i); const g=c.createRadialGradient(p.x,p.y,0,p.x,p.y,sz); g.addColorStop(0,'rgba(90,216,232,'+a.toFixed(2)+')'); g.addColorStop(1,'rgba(90,216,232,0)'); c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,sz,0,7); c.fill(); }
-        for(let i=0;i<2;i++){ const L=life(1.6+i*.5,i*.8); flare(T,-7+sfxHash(L.n,i)*14,-40+sfxHash(L.n,i+9)*18,.55,SFX_PAL.starry,i,L.a,false); } }
-      if(o==='captain'){ const L=life(2.2,0); flare(T,1.4,-42+(L.n%4)*6,.6,gold,0,L.a,true); }
-      if(o==='fishsuit'){ for(let i=0;i<3;i++){ const L=life(1.3+i*.3,i*.45); flare(T,-7+sfxHash(L.n,i*3)*14,-47+sfxHash(L.n,i*3+1)*22,.45,SFX_PAL.mythic,i,L.a*.9,false); } } }
+      if(o==='tidecoat'){ for(let i=0;i<6;i++){ const xx=-9+i*3.6; glow(T,xx,-21.4+Math.sin(xx*.9+t*2)*1.1,2.4,'90,216,232',.25+.2*Math.sin(t*2.4+i)); } for(let i=0;i<2;i++){ const L=life(1.6+i*.5,i*.8); flare(T,-7+sfxHash(L.n,i)*14,-40+sfxHash(L.n,i+9)*18,.55,starry,i,L.a,false); } }
+      if(o==='captain'){ const L=life(2.2,0); flare(T,6.6,-41+(L.n%4)*5.8,.6,gold,0,L.a,true); }
+      if(o==='fishsuit'){ for(let i=0;i<3;i++){ const L=life(1.3+i*.3,i*.45); flare(T,-7+sfxHash(L.n,i*3)*14,-47+sfxHash(L.n,i*3+1)*22,.45,myth,i,L.a*.9,false); } }
+      if(o==='clownsuit'){ for(let i=0;i<3;i++){ const L=life(1.1+i*.25,i*.37); flare(T,-7+sfxHash(L.n,i*5)*14,-46+sfxHash(L.n,i*5+1)*24,.45,SFX_PAL.rainbow,i+L.n,L.a,false); } }
+      if(o==='kimono'){ for(let i=0;i<2;i++){ const q=((t*.16+i*.5)%1); petal(T,-6+i*7+Math.sin(q*7+i)*3,-44+q*40,.9,q*8+i,'#ffc0d8',Math.sin(q*Math.PI)*.85); } }
+      if(o==='hotdog'){ for(let i=0;i<3;i++){ const q=((t*.3+i/3)%1); puff(T,-2+i*2.4+Math.sin(q*5+i)*1.4,-52-q*12,1+q*2.4,'rgba(240,240,248,'+(.22*(1-q)).toFixed(3)+')'); } }
+      if(o==='raincoat'){ for(let i=0;i<2;i++){ const q=((t*.7+i*.5)%1); puff(T,-6+i*9,-16+q*7,.35,'rgba(190,225,255,'+(.8*(1-q)).toFixed(2)+')'); } }
+      if(o==='lifejacket'){ const L=life(3,.5); flare(T,-4+(L.n%3)*4,-31,.5,gold,1,L.a*.7,true,0); } }
+    // ---------------- backs (back-item coordinates) ----------------
+    if(Bk){ const b=lk.back, w=A.bw||1;
+      if(b==='angelwings'){ glow(Bk,-10*w,-45,9,'255,245,210',.12+.05*Math.sin(t*1.8)); for(let i=0;i<4;i++){ const q=((t*.22+i/4)%1); glow(Bk,-12*w-q*5+Math.sin(q*7+i)*2,-46+q*20,.9,'255,240,200',.6*Math.sin(q*Math.PI)); }
+        const q=((t*.12)%1); petal(Bk,-14*w-q*6+Math.sin(q*9)*2,-44+q*30,1.1,q*6,'rgba(250,250,255,.95)',Math.sin(q*Math.PI)*.8); }
+      if(b==='butterfly'){ for(let i=0;i<5;i++){ const q=((t*.3+i/5)%1); glow(Bk,-11*w+Math.sin(q*6+i)*3,-48+q*18,.7,i%2?'200,255,255':'255,220,250',.65*Math.sin(q*Math.PI)); } }
+      if(b==='dragonwings'){ for(let i=0;i<5;i++){ const q=((t*.45+i/5)%1); glow(Bk,-12*w+Math.sin(q*5+i)*3,-42-q*14,.7,'255,140,60',.75*(1-q)); } }
+      if(b==='batwings'){ for(let i=0;i<3;i++){ const q=((t*.25+i/3)%1); puff(Bk,-12*w-q*4,-50+Math.sin(q*6+i)*3,1.2+q*1.6,'rgba(60,30,80,'+(.25*(1-q)).toFixed(3)+')'); } }
+      if(b==='jetpack'){ for(let i=0;i<4;i++){ const q=((t*.8+i/4)%1); puff(Bk,-7.4*w-2+Math.sin(q*4+i)*1.4,-24+q*14,.8+q*2.6,'rgba(200,200,210,'+(.22*(1-q)).toFixed(3)+')'); } }
+      if(b==='lanternpole'){ const lx=-13*w, ly=-60.6; glow(Bk,lx,ly,9,'255,210,130',.18+.06*Math.sin(t*7.3)); ink(()=>{ for(let i=0;i<2;i++){ const ang=t*(3.2+i)+i*2, p=P(Bk,lx+Math.cos(ang)*3.4,ly+Math.sin(ang*1.3)*2.4), s=Math.max(.5,.35*S0(Bk)); c.fillStyle='rgba(60,50,40,.85)'; c.beginPath(); c.ellipse(p.x,p.y,s*1.4,s*.7,ang,0,7); c.fill(); } }); }
+      if(b==='tidecape'||b==='tidewings'){ for(let i=0;i<3;i++){ const L=life(1.4+i*.35,i*.5); flare(Bk,-13*w+sfxHash(L.n,i)*8*w,-44+sfxHash(L.n,i+4)*24,.5,starry,i,L.a,false); } }
+      if(b==='guitar'){ const q=((t*.3)%1); note(Bk,-9*w-q*4,-40-q*14,4.4,Math.sin(q*Math.PI)*.8,'#ffe6a8'); } }
+    // ---------------- necks ----------------
     if(N){ const n=lk.neck;
-      if(n==='goldchain'||n==='pearls'){ for(let i=0;i<2;i++){ const L=life(1.5+i*.4,i*.7), a0=.3+sfxHash(L.n,i)*2.5, rx=5*(A.nw||1), ry=n==='goldchain'?5.4:4.2; flare(N,.4+Math.cos(a0)*rx,-45.4+Math.sin(a0)*ry,n==='goldchain'?.6:.45,n==='goldchain'?gold:SFX_PAL.starry,i,L.a,false); } } }
+      if(n==='goldchain'||n==='pearls'){ for(let i=0;i<2;i++){ const L=life(1.5+i*.4,i*.7), a0=.3+sfxHash(L.n,i)*2.5, rx=5*(A.nw||1), ry=n==='goldchain'?5.4:4.2; flare(N,.4+Math.cos(a0)*rx,-45.4+Math.sin(a0)*ry,n==='goldchain'?.6:.45,n==='goldchain'?gold:starry,i,L.a,false); } }
+      if(n==='medal'){ const L=life(2,.2); flare(N,1.2,-38,.7,gold,0,L.a,true); }
+      if(n==='lei'){ const q=((t*.15)%1); petal(N,2+Math.sin(q*7)*2,-42+q*28,.8,q*7,'#ff9ac0',Math.sin(q*Math.PI)*.8); }
+      if(n==='tidescarf'){ const L=life(1.7,.3); flare(N,-3+sfxHash(L.n,1)*6,-44+sfxHash(L.n,2)*5,.5,starry,0,L.a,false); } }
+    // ---------------- shoes (feet, at ground level) ----------------
+    if(F){ const s=lk.shoes||'boots';
+      if(s==='glowkicks'){ for(const fx of [F.f,F.b]) glow(F.M,fx+1.4,-.6,5,'110,240,255',.22+.12*Math.sin(t*3)); for(let i=0;i<2;i++){ const L=life(1.1+i*.3,i*.5); flare(F.M,(i?F.f:F.b)+sfxHash(L.n,i)*5-1,-1.5-sfxHash(L.n,i+2)*2,.5,starry,i,L.a,false); } }
+      if(s==='tidetreads'){ const L=life(1.6,.4); flare(F.M,F.b+sfxHash(L.n,3)*5,-2.2,.5,starry,0,L.a,false); }
+      if(s==='moonboots'){ for(let i=0;i<2;i++){ const L=life(1.8+i*.4,i*.9); flare(F.M,(i?F.f:F.b)+sfxHash(L.n,i)*4,-3-sfxHash(L.n,i+1)*2,.45,starry,i,L.a,false); } }
+      if(s==='rollers'){ const L=life(1.2,0); flare(F.M,F.b+(L.n%3)*1.6,.6,.45,gold,0,L.a,false); }
+      if(s==='fishfeet'){ for(let i=0;i<2;i++){ const q=((t*.4+i*.5)%1); bubble(F.M,F.b+3+i*2,-1-q*9,.4+q*.4,Math.sin(q*Math.PI)); } } }
     c.restore(); }catch(e){} }
+
+// ---------- the Wardrobe preview is alive: while it is on screen it is drawn every display frame, so the angler breathes and every
+// cosmetic effect above plays there too (it used to be drawn once, a still picture). Stops by itself when the page closes ----------
+{ let raf=0; const loop=()=>{ raf=0; const c=document.getElementById('lookcv'); if(!c||!c.isConnected) return; if(!document.hidden){ const r=c.getBoundingClientRect(); if(r.width>0&&r.bottom>0&&r.top<innerHeight) drawLookPreview(); } raf=requestAnimationFrame(loop); };
+  const _rp=renderPanel; renderPanel=function(){ const x=_rp.apply(this,arguments); try{ if(!raf&&document.getElementById('lookcv')) raf=requestAnimationFrame(loop); }catch(e){} return x; }; }
 // =====================================================================
 // Stonebrook River rework (director, round 6: "rework the environment and the water; remove the grass behind each pillar;
 // maybe a dam and/or a village in the background; the boat should be closer to or tied to the dock; the waterwheel could
@@ -15963,12 +16095,80 @@ function riverWheel(P,t,hz,mx,mb,mw,mh,FX){ const R=mh*.62, xL=mx-mw/2, cx=xL-R*
     for(let i=0;i<9;i++){ const u=i/8, al=.3+.3*Math.sin(t*4.5+i*2.1); g.fillStyle=v3rgba(wc,al); g.beginPath(); g.ellipse(cx-R*.95+u*R*1.9,hz+1.5+Math.sin(u*Math.PI)*R*.07,R*.14,R*.05,0,0,7); g.fill(); }
     for(let i=0;i<4;i++){ const k=((t*.9+i/4)%1); g.strokeStyle=v3rgba(wc,.35*(1-k)); g.lineWidth=1; g.beginPath(); g.ellipse(cx-R*.2-k*R*1.4,hz+3+k*R*.12,R*(.25+k*.4),R*(.05+k*.06),0,0,7); g.stroke(); } } }
 // =====================================================================
+// Shared efficiency fixes, every platform (director, 2026-11-19: "Why would we want to just fix this for phones, if it doesn't
+// effect quality negatively?"). Each fix here draws the same picture with less work, so PC, Android and iPhone all get it.
+// They started in src/mobile/polish08.js (phones only) and moved here. Phone-only trade-offs (things that do change the picture a
+// little, like fewer light steps) stay in the phone files.
+// =====================================================================
+/* Platform values (glow dot size, how often moving decorations refresh) come from PLAT (a3_plat.js); phones set their own. */
+
+/* 1) Wrong scenery after opening a menu (director, 2026-11-18: "clicking settings and exiting brought up the wrong map for a bit"):
+   a Map thumbnail for another water reused the live scenery canvases (and the Willow Pond slices), so the real water could show the
+   other water's scenery until the light changed. A thumbnail now always gets fresh canvases; the live ones are never painted over.
+   Thumbnails are only made while the Map page is open (the only place they show): Settings and other menus no longer pay for them. */
+{ const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return _vt(id); const c=V3CACHE, p=V3PREV; V3CACHE=null; V3PREV=null; const wl={c:V3WIL.c,t:V3WIL.t,k:V3WIL.k,turn:V3WIL.turn}; V3WIL.c=[]; V3WIL.t=[-9,-9,-9]; V3WIL.k="";
+    try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; V3WIL.c=wl.c; V3WIL.t=wl.t; V3WIL.k=wl.k; V3WIL.turn=wl.turn; try{ v3palette.k=null; }catch(e){} } }; }
+{ const _tn=thumbNext; thumbNext=function(){ if(S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
+
+/* 2) Dock decorations: every decoration went through litDraw (its own offscreen canvas plus several light passes) every frame, even a
+   chair that never changes. Each item is now kept as a finished picture, by WHAT it is (id, size, light level, front/back), drawn
+   wherever the dock or boat carries it. Still items are lit once and reused until the light level changes; moving ones (flags,
+   campfire, wind chime...) are drawn fresh every frame on PC and refreshed 10 times a second on phones. Same box as litDraw uses. */
+{ const _dd=drawDockItem, DC=new Map(), DA={}; /* DA[id]: true = this decoration moves, false = still */ for(const k of ['birdhouse','bunting','campfire','cottage','minilight','mug','plants','radio','shipwheel','tideflag','windchime']) DA[k]=true; /* from the drawing code (cases that use the clock); other items are tested once */
+  drawDockItem=function(c,id,x,y,s,t,night,back){ if(c!==g) return _dd.apply(this,arguments); const mvMs=PLAT.movingDecorMs(); if(DA[id]&&!mvMs) return _dd.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
+    const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
+    if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
+    const key=id+'|'+Math.round(s*200)+'|'+Math.round((night||0)*20)+'|'+(back?1:0)+'|'+pw+'x'+ph, now=performance.now();
+    let e=DC.get(key); if(!e){ e={c:document.createElement('canvas'),at:-1e9,seen:now}; DC.set(key,e); if(DC.size>60){ for(const [kk,v] of DC) if(now-v.seen>3000) DC.delete(kk); } }
+    e.seen=now;
+    const paint=(cv2,tt)=>{ if(cv2.width!==pw||cv2.height!==ph){ cv2.width=pw; cv2.height=ph; } const tx=cv2.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,tt,night,back); };
+    if(DA[id]===undefined){ try{ const t2=document.createElement('canvas'); paint(e.c,t||0); paint(t2,(t||0)+.37); const a=e.c.getContext('2d').getImageData(0,0,pw,ph).data, b=t2.getContext('2d').getImageData(0,0,pw,ph).data; let same=true; for(let i=0;i<a.length;i+=16){ if(a[i]!==b[i]||a[i+3]!==b[i+3]){ same=false; break; } } DA[id]=!same; e.at=now; }catch(er){ DA[id]=true; }
+      if(DA[id]&&!mvMs){ DC.delete(key); return _dd.apply(this,arguments); } }
+    else if(e.at<0||(DA[id]&&now-e.at>=mvMs)){ paint(e.c,t); e.at=now; }
+    c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
+
+/* 3) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
+   call, over 30 a frame at Starfall. Now a ready-made soft dot per colour (same centre colour, same fade to nothing) is stamped at the
+   same size and strength (256 px on PC for big screens, 128 px on phones). */
+{ const _gl=v3glow, GS=new Map();
+  const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
+    m=/^#([0-9a-f]{6})$/i.exec(col); if(m){ const v=parseInt(m[1],16); return {rgb:((v>>16)&255)+','+((v>>8)&255)+','+(v&255),a:1}; } return null; };
+  v3glow=function(c,x,y,r,col,a){ if(!(r>0)) return _gl.apply(this,arguments); const p=parse(col); if(!p) return _gl.apply(this,arguments);
+    const S2=PLAT.glowPx(), H=S2/2, key=p.rgb+'|'+S2;
+    let s=GS.get(key); if(!s){ s=document.createElement('canvas'); s.width=s.height=S2; const sx=s.getContext('2d'), gr=sx.createRadialGradient(H,H,0,H,H,H); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,S2,S2); if(GS.size>96) GS.clear(); GS.set(key,s); }
+    const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
+
+/* 4) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
+   work the longer you play. It now resumes from where the last call got to (same events, same timing). */
+{ const _sf=sfEvent; let cs=0, cn=0;
+  sfEvent=function(t){ if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
+    const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
+
+/* 5) Tinted pets: a canvas colour filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
+   once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
+{ const _dp=drawPetStyled; let PC=null;
+  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
+    if(!f||f==='none') return _dp.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
+    const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);
+    if(!PC) PC=document.createElement('canvas'); if(PC.width<pw||PC.height<ph){ PC.width=Math.max(PC.width,pw); PC.height=Math.max(PC.height,ph); }
+    const px=PC.getContext('2d'); px.setTransform(1,0,0,1,0,0); px.clearRect(0,0,PC.width,PC.height); px.setTransform(k,0,0,k,-(x+bx)*k,-(y+by)*k);
+    const r=_dp(px,id,x,y,s,t,night,Object.assign({},lk,{tint:undefined}));
+    c.save(); c.setTransform(1,0,0,1,0,0); c.filter=f; c.drawImage(PC,0,0,pw,ph,m.a*(x+bx)+m.e,m.d*(y+by)+m.f,pw,ph); c.restore(); return r; }; }
+
+/* 6) The top bar (hud): it ran every frame (up to 120 times a second), reading the clock, weather, coins and badges and building a
+   comparison key each time, though what it shows changes at most once a second. It now runs at most 10 times a second, and at
+   once whenever something asks for a refresh (lastHud cleared) or the fishing state changes (hints follow the line right away). */
+{ const _hd=hud; let at=0, st=''; hud=function(){ const now=performance.now(); if(lastHud!==''&&G.st===st&&now-at<100) return; at=now; st=G.st; return _hd.apply(this,arguments); }; }
+// =====================================================================
 // Test notes (shared helper). Each platform's own notes file (src/pc, src/android, src/ios) calls addTestNotes(...) with
 // its text. In a preview build the notes go on top of the patch notes list and open once per device and notes text; the
 // live game ignores them. They carry no version number (the director picks it at release).
 // =====================================================================
 function addTestNotes(n){ try{ if(!window.DL_PREVIEW||!n||!Array.isArray(n.items)||!n.items.length) return; PATCHES.unshift(n);
-    const id='dl-test-notes:'+(window.DL_BUILD||'')+':'+n.name+':'+n.items.length; let seen=''; try{ seen=localStorage.getItem('dl-test-notes')||''; }catch(e){}
+    const txt=n.name+'|'+n.items.join('|'); let hsh=0; for(let i=0;i<txt.length;i++) hsh=(hsh*31+txt.charCodeAt(i))|0; /* any change to the text opens the card again (2026-11-18: lines added to an existing item never re-opened it) */
+    const id='dl-test-notes:'+(window.DL_BUILD||'')+':'+hsh; let seen=''; try{ seen=localStorage.getItem('dl-test-notes')||''; }catch(e){}
     if(seen===id) return; let tries=0;
     const go=()=>{ if(G.st!=='idle'||(typeof MENU_OPEN!=='undefined'&&MENU_OPEN)){ if(++tries<20) setTimeout(go,1500); return; }
       try{ localStorage.setItem('dl-test-notes',id); }catch(e){} try{ showPatchNotes(n); }catch(e){} };
@@ -16824,34 +17024,18 @@ PATCHES.unshift({v:'0.4.8.2', name:'Save Codes Fix', items:[
   '## Fix',
   'Send and Get progress in Settings > Save & codes work again: Send shows your 6-digit code and the QR code, and Get progress shows the box to type a code.'
 ]});
+PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
+  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'Water pictures for the Map are only made while the Map is open.',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
 // PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
-// (spoiler-free); it opens once in the PC test app. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · PC', name:'Smoother and Steadier', items:[
-  '## Shiny fish come alive',
-  'Shiny fish sparkle for real: flashes of light that pop on new spots of the fish, flare and fade, with glitter and sweeping shine. It shows everywhere: in the water, the aquarium tank, the catch card and every list.',
-  'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts colour, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
-  '## Your angler',
-  'Legs now stand side-on like the rest of the body, one in front of the other.',
-  'Special cosmetics come alive: crowns and tiaras glint, wizard and witch hats trail stars, the astronaut visor catches the light, the diving helmet bubbles, the Tide coat glows, the spacesuit lights blink, gold chains shine.',
-  'Angel wings and Butterfly wings are redrawn as real wings; the jetpack burns hotter, the Starry cape twinkles and the lantern flickers.',
-  '## Fixes',
-  'No more stutter every few seconds at Willow Pond and Frostbite Lake (and a little smoother everywhere).',
-  'Countdowns no longer make text or the screen jitter: numbers keep the same width, and the live event chip keeps its size while it counts down.',
-  'With hints switched off, the empty dark bubble at the bottom of the water is gone.',
-  'Market Rush shows a clear money bag instead of a tiny coin.',
-  'Prismatic fish keep their colours in the Aquarium list.',
-  'Your angler’s nearer shoe is drawn in front, the Ocean Sunfish’s fins sit on its body, and the Stonebrook otters swim clear of the rocks.',
-  '## Quality of life',
-  'Travel here closes the menu and takes you straight to the new water.',
-  'Rows that scroll sideways show a small arrow at the edge that has more.',
-  'The catch card shows what makes a hybrid special: its usual weight and value boost.',
-  'A Bait chip on the strip under the header shows your bait and opens the Bait page.',
-  'Rods: “Your rods” keeps three presets, each a rod with its attachments; the attachments sit neatly centred.',
-  'Bait: baits that are best at one water now cost in line with that water, and they have their own group on the Bait page, in the order the waters unlock.',
-  '## Waters',
-  'Stonebrook River has been reworked: a village on the hill, the river running on through the bridge arches, a rowboat tied at the mill jetty and a new waterwheel.',
-  'The Saltmarsh seal is a real seal now.',
-  'Aquarium fish and decorations are a little smaller, so every piece can be seen.']};
+// (spoiler-free, one short line per change, curly apostrophes only). Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'Lighter and Smoother', items:[
+  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
+  'Lighter on your computer, everything looks the same: lanterns, lamps, the sun, the moon and Starfall’s sky glows, still home decorations, coloured pets and the top bar all cost less to draw.',
+  'Water pictures for the Map are only made while the Map is open.',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']};
 addTestNotes(TEST_NOTES);
 
 // ---------- loop ----------

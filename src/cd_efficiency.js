@@ -4,7 +4,7 @@
 // They started in src/mobile/polish08.js (phones only) and moved here. Phone-only trade-offs (things that do change the picture a
 // little, like fewer light steps) stay in the phone files.
 // =====================================================================
-const EFF_MOB=()=>typeof MOB==='function'&&MOB();
+/* Platform values (glow dot size, how often moving decorations refresh) come from PLAT (a3_plat.js); phones set their own. */
 
 /* 1) Wrong scenery after opening a menu (director, 2026-11-18: "clicking settings and exiting brought up the wrong map for a bit"):
    a Map thumbnail for another water reused the live scenery canvases (and the Willow Pond slices), so the real water could show the
@@ -19,7 +19,7 @@ const EFF_MOB=()=>typeof MOB==='function'&&MOB();
    wherever the dock or boat carries it. Still items are lit once and reused until the light level changes; moving ones (flags,
    campfire, wind chime...) are drawn fresh every frame on PC and refreshed 10 times a second on phones. Same box as litDraw uses. */
 { const _dd=drawDockItem, DC=new Map(), DA={}; /* DA[id]: true = this decoration moves, false = still */ for(const k of ['birdhouse','bunting','campfire','cottage','minilight','mug','plants','radio','shipwheel','tideflag','windchime']) DA[k]=true; /* from the drawing code (cases that use the clock); other items are tested once */
-  drawDockItem=function(c,id,x,y,s,t,night,back){ if(c!==g) return _dd.apply(this,arguments); const mob=EFF_MOB(); if(DA[id]&&!mob) return _dd.apply(this,arguments);
+  drawDockItem=function(c,id,x,y,s,t,night,back){ if(c!==g) return _dd.apply(this,arguments); const mvMs=PLAT.movingDecorMs(); if(DA[id]&&!mvMs) return _dd.apply(this,arguments);
     const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
     const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
     if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
@@ -28,8 +28,8 @@ const EFF_MOB=()=>typeof MOB==='function'&&MOB();
     e.seen=now;
     const paint=(cv2,tt)=>{ if(cv2.width!==pw||cv2.height!==ph){ cv2.width=pw; cv2.height=ph; } const tx=cv2.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,tt,night,back); };
     if(DA[id]===undefined){ try{ const t2=document.createElement('canvas'); paint(e.c,t||0); paint(t2,(t||0)+.37); const a=e.c.getContext('2d').getImageData(0,0,pw,ph).data, b=t2.getContext('2d').getImageData(0,0,pw,ph).data; let same=true; for(let i=0;i<a.length;i+=16){ if(a[i]!==b[i]||a[i+3]!==b[i+3]){ same=false; break; } } DA[id]=!same; e.at=now; }catch(er){ DA[id]=true; }
-      if(DA[id]&&!mob){ DC.delete(key); return _dd.apply(this,arguments); } }
-    else if(e.at<0||(DA[id]&&now-e.at>=100)){ paint(e.c,t); e.at=now; }
+      if(DA[id]&&!mvMs){ DC.delete(key); return _dd.apply(this,arguments); } }
+    else if(e.at<0||(DA[id]&&now-e.at>=mvMs)){ paint(e.c,t); e.at=now; }
     c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
 
 /* 3) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
@@ -39,7 +39,7 @@ const EFF_MOB=()=>typeof MOB==='function'&&MOB();
   const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
     m=/^#([0-9a-f]{6})$/i.exec(col); if(m){ const v=parseInt(m[1],16); return {rgb:((v>>16)&255)+','+((v>>8)&255)+','+(v&255),a:1}; } return null; };
   v3glow=function(c,x,y,r,col,a){ if(!(r>0)) return _gl.apply(this,arguments); const p=parse(col); if(!p) return _gl.apply(this,arguments);
-    const S2=EFF_MOB()?128:256, H=S2/2, key=p.rgb+'|'+S2;
+    const S2=PLAT.glowPx(), H=S2/2, key=p.rgb+'|'+S2;
     let s=GS.get(key); if(!s){ s=document.createElement('canvas'); s.width=s.height=S2; const sx=s.getContext('2d'), gr=sx.createRadialGradient(H,H,0,H,H,H); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,S2,S2); if(GS.size>96) GS.clear(); GS.set(key,s); }
     const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
 

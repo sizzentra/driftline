@@ -11,7 +11,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
   _renderPanel_2();
-  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(typeof MOB==='function'&&MOB()) return; /* phones (round 8 speed): no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
+  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(PLAT.quietTabSwitch()) return; /* phones: no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 

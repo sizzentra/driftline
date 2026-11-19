@@ -1195,7 +1195,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(typeof MOB==='function'&&MOB()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(PLAT.quietTabSwitch()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
@@ -1324,7 +1324,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
   let on=false, ts=[], lastT=0, shown=0;
   const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
-    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=(typeof MOB==='function'&&MOB()&&typeof mobFpsText==='function')?mobFpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=PLAT.fpsText?PLAT.fpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
     requestAnimationFrame(loop); };
   const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
   setInterval(sync,700); sync(); }

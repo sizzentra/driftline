@@ -72,3 +72,12 @@ body:not(.phone-app):not(.phone-land) #baitqk{display:none!important}
 
 // 6) Rods (phones): the "Your rods" presets at the top of the Rods page
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.rp-box')) return r; const anchor=P.querySelector(':scope > .tile')||P.querySelector(':scope > .grid'); if(anchor) anchor.insertAdjacentHTML('beforebegin',rodPresetsHTML()); else P.insertAdjacentHTML('afterbegin',rodPresetsHTML()); }catch(e){} return r; }; }
+
+// 7) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
+PLAT.willowRepaintS=()=>MOB()?.25:.03;      /* Willow curtain repaints 4x a second (its sway is slow) */
+PLAT.rippleBands=MOB;                       /* storms: rain rings in 3 brightness bands, 3 strokes instead of ~46 */
+PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn ~30x a second, at once on any state change */
+PLAT.glowPx=()=>MOB()?128:256;              /* smaller glow dots */
+PLAT.movingDecorMs=()=>MOB()?100:0;         /* moving decorations refresh 10x a second */
+PLAT.quietTabSwitch=MOB;                    /* tab switches without the per-card animation or a forced layout */
+PLAT.fpsText=fps=>(MOB()&&typeof mobFpsText==='function')?mobFpsText(fps):null;

@@ -52,7 +52,7 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
   if((k==='Rain'||k==='Storm')&&FX){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
     /* phones (director, 2026-11-18: storms drop Android to 30-40 fps): rings are grouped into 3 brightness bands and drawn as 3 strokes
        instead of up to 46 separate ones; PC is unchanged */
-    const mobB=(typeof MOB==='function'&&MOB())?[[],[],[]]:null;
+    const mobB=PLAT.rippleBands()?[[],[],[]]:null;
     for(let i=0;i<N;i++){ const per=.55+(i%5)*.07, ph=(t/per+i*.618)%1, cyc=Math.floor(t/per+i*.618), r1=((Math.sin((cyc+i)*12.9898)*43758.5)%1+1)%1, r2=((Math.sin((cyc+i)*78.233)*12345.6)%1+1)%1;
       const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2), al=(1-ph)*.9*clamp(NM*a-i,0,1);
       if(mobB){ if(al>.02) mobB[Math.min(2,Math.floor(al/.3))].push(x,y,rr); continue; }
