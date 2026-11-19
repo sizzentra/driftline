@@ -67,7 +67,7 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'Water pictures for the Map are only made while the Map is open.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
-PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
   '## New',
   'Settings › Display: choose kilograms or pounds for every fish weight in the game.',
   'Aquarium › Decorate: hide a placed decoration from your tank and keep its bonus, handy for sticking to a theme.',

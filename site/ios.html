@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='ios'; window.DL_VERSION='2026.11.19-0237';
+window.DL_BUILD='ios'; window.DL_VERSION='2026.11.19-0829';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -854,7 +854,7 @@ const SPI = Object.fromEntries(SP.map(s=>[s.id,s]));
 const GEAR = {
   rod:   {name:'Rod length', what:'Longer casts and better odds on far casts', lv:[22,26,31,36,42,48,55,62,70,80], cost:[0,250,1200,5000,18000,50000,130000,300000,900000,2500000], fmt:v=>v+' m cast'},
   reel:  {name:'Reel',   what:'How fast you wind line in', lv:[3.1,3.8,4.6,5.5,6.5,7.6,8.8,10.1,11.5,13.2,15], cost:[0,200,1000,4000,14000,40000,100000,240000,500000,1400000,3500000], fmt:v=>v.toFixed(1)+' m/s'},
-  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100,135,180,230], cost:[0,180,800,3000,10000,30000,80000,200000,450000,1200000,3000000,7000000], fmt:v=>v+' kg test'},
+  line:  {name:'Line',   what:'How much tension before it snaps', lv:[10,14,19,26,35,46,60,78,100,135,180,230], cost:[0,180,800,3000,10000,30000,80000,200000,450000,1200000,3000000,7000000], fmt:v=>Math.round(wNum(v))+' '+wUnit()+' test'},
   hook:  {name:'Hook',   what:'Longer window to set the hook', lv:[.6,.7,.8,.9,1.0,1.1,1.2], cost:[0,150,900,4000,14000,45000,120000], fmt:v=>v.toFixed(1)+' s window'},
   cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85,110,140], cost:[0,120,700,3000,10000,30000,80000,200000,600000,1500000], fmt:v=>v+' fish'},
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
@@ -1352,8 +1352,8 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a',nose:'button',brows:'soft',mouth:'smile',blush:'on'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round'],shoes:['boots','sneakers','barefoot'],necks:['none'],backs:['none']}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
-  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, minigames:true, rest:false, effects:true, boostsOnScreen:true, hints:true, protectRare:true},
-  aq:{theme:'lagoon', sand:'gold', decor:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
+  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, minigames:true, rest:false, effects:true, boostsOnScreen:true, hints:true, protectRare:true, units:'kg'},
+  aq:{theme:'lagoon', sand:'gold', decor:[], hid:[], owned:['lagoon','gold']}, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
   pet2:null, dock:{wood:'oak', decor:[], owned:['oak']}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
@@ -1395,7 +1395,7 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   m.tickets=+o.tickets||0; if(o.freeSpins==null) m.freeSpins = (Date.now()-(o.wheelT||0)>=3600000) ? 1 : 0;
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});
-  m.settings=Object.assign(fresh().settings,o.settings||{}); const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); m.aq=aq;
+  m.settings=Object.assign(fresh().settings,o.settings||{}); if(m.settings.units!=='lb') m.settings.units='kg'; const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); aq.hid=(Array.isArray(aq.hid)?aq.hid:[]).filter(x=>aq.decor.includes(x)); m.aq=aq;
   m.tokens=Object.assign(fresh().tokens,o.tokens||{}); m.gstats=Object.assign(fresh().gstats,o.gstats||{}); delete m.muted;
   m.petLook=Object.assign({},o.petLook||{}); m.bond=Object.assign({},o.bond||{}); m.petTints=uniq(['none',...(o.petTints||[])]); m.petAccs=uniq(['none','bandana',...(o.petAccs||[])]);
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
@@ -1435,7 +1435,10 @@ const gv = k => GEAR[k].lv[S.gear[k]];
 const pr = k => S.perks[k]||0;
 const locIdx = id => LOCS.findIndex(l=>l.id===id);
 const curLoc = () => LOCS[locIdx(S.loc)];
-const kgStr = kg => kg < 10 ? kg.toFixed(2)+' kg' : kg < 100 ? kg.toFixed(1)+' kg' : fmt(kg)+' kg';
+/* weights: one formatter for the whole game, in the unit picked in Settings (director, 2026-11-19: "metric and imperial") */
+const wLb=()=>!!(S&&S.settings&&S.settings.units==='lb'), wNum=kg=>wLb()?kg*2.20462:kg, wUnit=()=>wLb()?'lb':'kg';
+const wFix=(kg,d)=>wNum(kg).toFixed(d)+' '+wUnit();
+const kgStr = kg => { const v=wNum(kg), u=' '+wUnit(); return v < 10 ? v.toFixed(2)+u : v < 100 ? v.toFixed(1)+u : fmt(v)+u; };
 const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
 const PEARL_COIN=.25, PEARL_RARE=.03, PEARL_DIV=250000; // 0.3: pearls are rarer but each one does more
 const coinMult = () => 1 + PEARL_COIN*S.pearls + voyageLegacy(); /* 0.3.6: plus the Legacy of every voyage completed */
@@ -1910,7 +1913,7 @@ function maybeEatEvent(dt){ const f=G.fish; if(!f||f.kind!=='fish'||G.eat||G.eat
   const pred=pick(pool); G.eat={t:0,dur:1.4,sp:pred,swapped:false}; sfx.warn(); }
 function eatTick(dt){ const E=G.eat; if(!E) return; E.t+=dt;
   if(!E.swapped && E.t>=E.dur*.62){ E.swapped=true; const prey=G.fish, nf=rollFish(E.sp,{}); nf.prey=[prey].concat(prey.prey||[]); G.fish=nf; G.sta=1; G.ten=Math.max(G.ten,28); G.temper=0; G.run=true; G.runT=rnd(.8,1.4); G.maxOut+=12;
-    splash(G.bob.x,G.bob.y,28); sfx.gulp(); if(V3ON) vib([60,40,90]); toast('Something bigger just swallowed your '+prey.sp.name.toLowerCase()+'! Land it to keep both.'); }
+    splash(G.bob.x,G.bob.y,28); sfx.gulp(); if(V3ON) vib([60,40,90]); toast(S.gear.finder>=5?'Something bigger just swallowed your '+(S.journal[prey.sp.id]?prey.sp.name.toLowerCase():'catch')+'! Land it to keep both.':'Something bigger just swallowed your catch! Land it to keep both.'); /* the first fish stays a surprise; the top Fish Finder names it if you have caught that species (director, 2026-11-19) */ }
   if(E.t>=E.dur) G.eat=null; }
 function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=null; return; } /* a fight that ends mid-grab takes the shadow with it */ const k=clamp(E.t/(E.dur*.62),0,1), e=1-Math.pow(1-k,2.4), len=60+Math.min(90,Math.sqrt(E.sp.max)*10);
   const x=G.bob.x+(W*.5)*(1-e)+len*.3, y=G.bob.y+16+Math.sin(t*6)*2; g.save(); g.globalAlpha=.45*(E.swapped?Math.max(0,1-(E.t-E.dur*.62)/(E.dur*.38)):1);
@@ -2045,6 +2048,14 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
     c.beginPath(); c.moveTo(-r*.25,-r*.5); c.lineTo(-r*.3,-r*.9); c.moveTo(r*.25,-r*.5); c.lineTo(r*.3,-r*.9); c.stroke(); eye(-r*.3,-r*.95,Math.max(1.2,r*.13)); eye(r*.3,-r*.95,Math.max(1.2,r*.13)); }
   c.restore();
 }
+/* Shadows (o.sil) are one even tone (director, 2026-11-19: "shadows are multitone"): drawn see-through, every overlapping part (fins, tail,
+   body) added up darker. A see-through silhouette is now drawn solid into a small picture, then put down once at the wanted strength. */
+{ const _dc=drawCreature; let SC=null; drawCreature=function(c,sp,x,y,L,o){ const a=c.globalAlpha; if(!o||!o.sil||!(a<.999)||!(L>0)) return _dc.apply(this,arguments);
+    const m=c.getTransform(); if(m.b||m.c||!(m.a>0)||!(m.d>0)) return _dc.apply(this,arguments);
+    const bw=L*2.4, bh=L*1.8, pw=Math.ceil(bw*m.a), ph=Math.ceil(bh*m.d); if(pw<2||ph<2||pw*ph>4e6) return _dc.apply(this,arguments);
+    if(!SC) SC=document.createElement("canvas"); if(SC.width<pw||SC.height<ph){ SC.width=Math.max(SC.width,pw); SC.height=Math.max(SC.height,ph); }
+    const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,(bw/2-x)*m.a,(bh/2-y)*m.d); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
+    c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*(x-bw/2)+m.e,m.d*(y-bh/2)+m.f,pw,ph); c.restore(); }; }
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
@@ -2416,7 +2427,7 @@ function draw(now){
     g.lineWidth=2; g.strokeStyle=inHot?'rgba(255,214,90,1)':'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;
     g.fillStyle='rgba(6,14,22,.55)'; g.beginPath(); g.arc(x,wy,3.4,0,7); g.fill(); g.fillStyle=inHot?'#ffe08a':'#ffffff'; g.beginPath(); g.arc(x,wy,2,0,7); g.fill(); g.lineWidth=1; }
   if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=S.gear.finder; let col='#ffc94d', lab='';
-    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5?pf.sp.name:RAR[pf.sp.r].k) : pf.kind==='hat'?'Something wearable':'Junk'; }
+    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5&&S.journal[pf.sp.id]?pf.sp.name:(fl>=5?'New '+RAR[pf.sp.r].k:RAR[pf.sp.r].k)) /* the top Fish Finder names only species you have caught (director, 2026-11-19) */ : pf.kind==='hat'?'Something wearable':'Junk'; }
     g.save(); g.translate(G.bob.x,G.bob.y-34); g.scale(s,s); g.fillStyle=col; g.font='800 34px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.fillText('!',0,0); g.restore();
     const left=clamp((G.biteEnd-G.waitT)/hookWin(),0,1); g.fillStyle='rgba(255,201,77,.9)'; rr(G.bob.x-20,G.bob.y-26,40*left,4,2); g.fill();
     if(lab){ g.font='700 12px system-ui'; g.textAlign='center'; const tw=g.measureText(lab).width; g.fillStyle='rgba(5,14,20,.75)'; rr(G.bob.x-tw/2-7,G.bob.y-72,tw+14,18,9); g.fill(); g.fillStyle=col; g.fillText(lab,G.bob.x,G.bob.y-59); } }
@@ -2610,7 +2621,6 @@ function drawFrenzyHUD(t){ const fz=G.fz; if(!fz) return; const left=Math.max(0,
 
 // ---------- boardwalk: wheel, crates, coin flip, scratch card ----------
 const WHEEL = [['Coins ×2',22,'#3a6f9a'],['Seashell',16,'#6a7680'],['Lure pack',14,'#4f8a4a'],['Coins ×6',12,'#7a4a9a'],['Lucky boost',12,'#2a8aa8'],['Small crate',10,'#c8553a'],['Big crate',4,'#d87aa0'],['JACKPOT ×40',2,'#d8a020']];
-const WHEEL_FREE_MS = 4*3600*1000;
 const wheelCost = () => Math.round(bestLoot()*3);
 const crateCost = k => Math.round(bestLoot()*({small:5,big:25,legend:120}[k]));
 let WH={angle:0, spinning:false, result:''}, crateRes=null, flipRes=null, scratch=null;
@@ -2653,29 +2663,6 @@ function newScratch(){ const sym=['🐟','🦀','🐚','💎','👑'], prize=[2,
   const cells=[]; if(win) cells.push(w,w,w); const cnt=[0,0,0,0,0]; if(win) cnt[w]=3; while(cells.length<9){ const s=Math.floor(Math.random()*5); if(s===w || cnt[s]>=2) continue; cnt[s]++; cells.push(s); }
   for(let i=cells.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
   scratch={cells, open:Array(9).fill(false), win:w, prize:w>=0?Math.round(bestLoot()*prize[w]*coinMult()):0, done:false, sym}; }
-function renderGames(P){ const free=Date.now()-S.wheelT>=WHEEL_FREE_MS, wait=Math.ceil((WHEEL_FREE_MS-(Date.now()-S.wheelT))/1000); const tk=S.tokens; const base=bestLoot();
-  const crateRow=(k,name,desc)=>`<div class="row spread" style="padding:6px 0;border-bottom:1px solid var(--line)"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>
-    ${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmt(crateCost(k))}</span></button>`}</div>`;
-  const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>Bet ${Math.round(f*100)}% · <span class="coin">${fmt(Math.max(0,amt))}</span></button>`; };
-  P.innerHTML=`<h2>Boardwalk</h2><p class="sub">Games of chance on the pier, for coins only. Prices grow with the best water you’ve unlocked. Angler ranks hand out free crates.</p>
-  <div class="grid">
-   <div class="tile"><h4>Lucky wheel</h4><div class="wheelwrap"><canvas id="wheelcv" width="520" height="520"></canvas>
-     ${free?`<button class="btn" data-act="spin" data-k="free" ${WH.spinning?'disabled':''}>Free spin!</button>`:`<button class="btn" data-act="spin" ${WH.spinning||S.money<wheelCost()?'disabled':''}>Spin · <span class="coin">${fmt(wheelCost())}</span></button><span class="meta">Next free spin in ${Math.floor(wait/3600)?Math.floor(wait/3600)+' h ':''}${Math.ceil(wait%3600/60)} min</span>`}
-     ${WH.result?`<div class="val" style="text-align:center">${esc(WH.result)}</div>`:''}</div></div>
-   <div class="tile"><h4>Mystery crates</h4><div class="meta">Coins, lures, clothes, aquarium decor, and pets you can’t get anywhere else.</div>
-     ${crateRow('small','Small crate','Mostly coins and lures. Sometimes a pet.')}${crateRow('big','Big crate','Clothes, decor, and the rarer pets.')}${crateRow('legend','Legendary crate','Dragons, unicorns, crystal caves.')}
-     ${crateRes?`<div class="reveal" style="text-align:center;margin-top:8px"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''}</div>
-   <div class="tile"><h4>Coin flip with the Fishmonger</h4><div class="meta">Heads you double it, tails he keeps it. A fair coin, he swears.</div>
-     <div class="row">${betBtn(.1)}${betBtn(.25)}${betBtn(.5)}</div>${flipRes?`<div class="val" style="font-size:18px;color:${flipRes.win?'var(--gold)':'var(--muted)'}">${esc(flipRes.txt)}</div>`:''}
-     <div class="meta">${S.gstats.flips} flips · ${S.gstats.flipWins} won</div></div>
-   <div class="tile"><h4>Scratch card</h4><div class="meta">Find three of the same: 🐟 ×2 · 🦀 ×4 · 🐚 ×8 · 💎 ×20 · 👑 ×60 (times ${fmt(base)} coins).</div>
-     ${scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div><div class="row" style="justify-content:center"><button class="btn alt sm" data-act="scratchall">Reveal all</button></div>`
-      :`${scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val" style="text-align:center;color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:''}
-      <button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmt(base*2)}</span></button>`}</div>
-  </div>`;
-  drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
-    if(k==='pet') drawPet(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
-    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
 function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++; if(scratch.win>=0){ bwEarn(scratch.prize); S.gstats.scratchWins++; sfx.catch(scratch.win>=3?4:2); } else sfx.lost(); }
 
 // ---------- settings ----------
@@ -2690,7 +2677,7 @@ function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class=
      ${tg('musicOn','Music','Calm music that plays while you fish.')}${tg('ambient','Nature sounds','Waves, birds, crickets and wind for each water.')}
      <h5>Music style</h5><div class="chips">${styles.map(([k,n])=>`<button class="chipb" data-act="mstyle" data-k="${k}" aria-pressed="${s.style===k}">${n}</button>`).join('')}</div></div>
    ${V3ON?`<div class="tile"><h4>Controls</h4><h5>Casting</h5><div class="chips"><button class="chipb" data-act="castmode" data-k="meter" aria-pressed="${s.castMode!=='aim'}">Power meter</button><button class="chipb" data-act="castmode" data-k="aim" aria-pressed="${s.castMode==='aim'}">Tap to aim</button></div><div class="meta" style="margin-top:6px">${s.castMode==='aim'?'Tap the spot on the water you want. The line lands close to it, never quite perfect.':'Hold to fill the meter, let go at the right moment.'}</div>${tg('vibrate','Vibration','Phones buzz on a bite, when the line is close to snapping, and on a catch.')}<div class="meta" style="margin-top:6px">Reel by <b>holding</b>, by <b>drawing circles</b> on the water like a crank, or with the <b>mouse wheel</b>. Controllers work too: <b>A</b> casts and reels, the <b>right trigger</b> reels with pressure.</div></div>`:''}
-   <div class="tile"><h4>Display</h4>${tg('effects','Weather effects','Rain, snow, lightning flashes and sparkles.')}${tg('boostsOnScreen','Boost timers on screen','Show active boosts in the corner of the water.')}${tg('hints','Hints','The help line under the water.')}${tg('showFps','Frame rate','Shows how many frames per second the game draws, in the corner of the water.')}
+   <div class="tile"><h4>Display</h4>${tg('effects','Weather effects','Rain, snow, lightning flashes and sparkles.')}${tg('boostsOnScreen','Boost timers on screen','Show active boosts in the corner of the water.')}${tg('hints','Hints','The help line under the water.')}<h5>Weights</h5><div class="chips"><button class="chipb" data-act="units" data-k="kg" aria-pressed="${s.units!=='lb'}">Kilograms (kg)</button><button class="chipb" data-act="units" data-k="lb" aria-pressed="${s.units==='lb'}">Pounds (lb)</button></div>${tg('showFps','Frame rate','Shows how many frames per second the game draws, in the corner of the water.')}
      <div class="toggle"><div><b>Full screen</b><div class="meta">Fill the whole screen with the game.</div></div><button class="btn alt sm" data-act="fullscreen">Toggle</button></div></div>
    <div class="tile"><h4>Gameplay</h4>${tg('protectRare','Protect rare fish','“Sell all” keeps Epic, Legendary and shiny fish in your cooler.')}${tg('minigames','Mini-games','Now and then a mini-game pops up between catches. Turn this off and they never will.')}
      </div>
@@ -2712,6 +2699,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;
     case 'mstyle': S.settings.style=k; return;
     case 'castmode': S.settings.castMode=k==='aim'?'aim':'meter'; return;
+    case 'units': S.settings.units=k==='lb'?'lb':'kg'; return;
     case 'fullscreen': { const d=document; try{ if(d.fullscreenElement) d.exitFullscreen(); else d.documentElement.requestFullscreen(); }catch(e){} return 'skip'; }
     case 'spin': { if(WH.spinning) return 'skip'; accrueSpins(); const freeSpin=k==='free' && S.freeSpins>0; if(!freeSpin){ const c=wheelCost(); if(S.money<c) return 'skip'; S.money-=c; } else { if(S.freeSpins>=SPIN_BANK) S.wheelT=Date.now(); S.freeSpins--; } b.disabled=true; taskProgress('game',1); spinWheel(!freeSpin); lastHud=''; return 'skip'; }
     case 'crate': { if(!['small','big','legend'].includes(k)) return; if(b.dataset.free){ if(S.tokens[k]<=0) return; S.tokens[k]--; } else { const c=crateCost(k); if(S.money<c) return; S.money-=c; } openCrate(k); addTickets({small:8,big:25,legend:80}[k]); taskProgress('game',1); return; }
@@ -2724,18 +2712,21 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'feed': { if(Date.now()-S.fedT<3600000) return; S.fedT=Date.now(); addBuff('tank',.25,30,'Fed fish'); feedAnim=performance.now(); sfx.coin(); toast('Your fish are happy: +25% aquarium income for 30 min'); return; }
     case 'aqtheme': { const th=THEMES.find(x=>x[0]===k); if(!th) return; if(!S.aq.owned.includes(k)){ if(S.money<th[2]) return; S.money-=th[2]; S.aq.owned.push(k); sfx.coin(); } S.aq.theme=k; return; }
     case 'aqsand': { const sd=SANDS.find(x=>x[0]===k); if(!sd) return; if(!S.aq.owned.includes(k)){ if(S.money<sd[2]) return; S.money-=sd[2]; S.aq.owned.push(k); sfx.coin(); } S.aq.sand=k; return; }
+    case 'decorhide': { if(!S.aq.decor.includes(k)) return 'skip'; const h=S.aq.hid||(S.aq.hid=[]); S.aq.hid=h.includes(k)?h.filter(x=>x!==k):[...h,k]; return; } /* hide from view, keep the bonus */
     case 'decor': { const d=DECORI[k]; if(!d) return; if(!S.aq.owned.includes(k)){ if(!d.price||S.money<d.price) return; S.money-=d.price; S.aq.owned.push(k); sfx.coin(); }
-      if(S.aq.decor.includes(k)) S.aq.decor=S.aq.decor.filter(x=>x!==k); else if(S.aq.decor.length<aqSlots()) S.aq.decor.push(k); else toast('All decoration spots are used. Remove one first, or build more tanks.'); return; }
+      if(S.aq.decor.includes(k)){ S.aq.decor=S.aq.decor.filter(x=>x!==k); S.aq.hid=(S.aq.hid||[]).filter(x=>x!==k); } else if(S.aq.decor.length<aqSlots()) S.aq.decor.push(k); else toast('All decoration spots are used. Remove one first, or build more tanks.'); return; }
   }
   return 'skip'; }
 function aqCustomHTML(){ const fedLeft=Math.max(0,3600000-(Date.now()-S.fedT));
   const chip=(act,list,cur)=>list.map(x=>{ const own=S.aq.owned.includes(x[0]); const pvk=act==='aqtheme'?'theme':'sand'; const pv=AQ_PV&&AQ_PV.kind===pvk&&AQ_PV.id===x[0]; return `<button class="chipb" data-act="${own?act:'aqpv'}" data-k="${own?x[0]:pvk+':'+x[0]}" aria-pressed="${cur===x[0]||pv}" title="${own?'':'Preview first, then buy'}"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${x[3]};margin-right:6px;vertical-align:-1px"></span>${x[1]}${own?'':' · '+fmt(x[2])}</button>`; }).join('');
   return `<div class="jsec">${aqPvBarHTML()}<div class="row spread"><h2>Decorate</h2><button class="btn ${fedLeft?'alt':''} sm" data-act="feed" ${fedLeft?'disabled':''}>${fedLeft?'Fed. Hungry again in '+Math.ceil(fedLeft/60000)+' min':'Feed your fish (+25% income, 30 min)'}</button></div>
    <h5>Water</h5><div class="chips">${chip('aqtheme',THEMES,S.aq.theme)}</div><h5>Floor</h5><div class="chips">${chip('aqsand',SANDS,S.aq.sand)}</div>
-   <h5>Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used · +${Math.round(decorBonus()*100)}% aquarium income</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DECOR.map(d=>{ const own=S.aq.owned.includes(d.id), placed=S.aq.decor.includes(d.id);
-     return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-decor="${d.id}" data-own="${own?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${own||d.price?d.name:'???'}</b><span class="meta">+${Math.round(d.b*100)}% income</span>
+   <h5>Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used${(S.aq.hid||[]).length?' · '+S.aq.hid.length+' hidden':''}${[['income',decorBonus()],['boost',decorBoost()],['show',decorShow()]].filter(p=>p[1]>0).map(p=>' · +'+Math.round(p[1]*100)+'% '+DECOR_KIND_NAME[p[0]]).join('')}</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DECOR.map(d=>{ const own=S.aq.owned.includes(d.id), placed=S.aq.decor.includes(d.id), hidden=placed&&(S.aq.hid||[]).includes(d.id);
+     return `<div class="tile ${placed?'done':''}${hidden?' dhid':''}" style="position:relative;align-items:center;text-align:center;gap:4px">${placed?`<button type="button" class="dhide" data-act="decorhide" data-k="${d.id}" aria-pressed="${hidden}" title="${hidden?'Hidden from your tank, its bonus still counts. Show it again':'Hide it from your tank and keep its bonus'}">${hidden?'Hidden':'Hide'}</button>`:''}<canvas width="160" height="120" data-decor="${d.id}" data-own="${own?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${own||d.price?d.name:'???'}</b><span class="meta">+${Math.round(d.b*100)}% income</span>
      ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="aqpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`:'<span class="meta">Mystery crates or prizes only</span>'}</div>`; }).join('')}</div></div>`; }
 function paintDecor(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(c.dataset.own!=='1'&&!DECORI[c.dataset.decor].price) mysteryThumb(x,c.width,c.height,c.dataset.decor); else drawDecor(x,c.dataset.decor,80,c.dataset.decor==='duck'?70:112,1,0); }); }
+/* hide a placed decoration from view, keep its bonus (director, 2026-11-19): a small switch in the card's corner */
+document.head.insertAdjacentHTML('beforeend','<style>#panel .dhide{position:absolute;top:34px;right:6px;z-index:2;min-height:32px;padding:0 11px;border-radius:999px;border:1px solid #ffffff2a;background:#0c1626e6;color:#cfe0f0;font:800 11.5px var(--display,system-ui);cursor:pointer}#panel .dhide[aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}#panel .tile.dhid canvas[data-decor]{opacity:.45}</style>');
 
 // ---------- music & ambience (all generated live, nothing to download) ----------
 const MUS={started:false, next:0, step:0, bar:0, idx:4, style:null, timer:null, n:null};
@@ -2805,7 +2796,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.7';
+const GAME_VERSION = '0.4.8.8';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -3359,7 +3350,7 @@ function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
-  for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; }
+  for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; PET_NIGHT=0; /* the night (pets fall asleep) belongs to this scene only: every other pet picture (shop cards, previews) is drawn awake (director, 2026-11-19: the Pets shop showed every pet asleep) */ }
 const inPetBox = (m,b) => b && m.x>=b.x0 && m.x<=b.x1 && m.y>=b.y0 && m.y<=b.y1;
 function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); const hit=inPetBox(m,PET_BOX)?S.pet:inPetBox(m,PET_BOX2)?S.pet2:null; if(!hit) return false;
   const now=performance.now(); if(now-lastPetAt<300) return true; lastPetAt=now; const bx=hit===S.pet?PET_BOX:PET_BOX2; if(hit===S.pet) petT=now; else petT2=now;
@@ -3394,7 +3385,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
+  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -3544,7 +3535,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
 // the Customize stage fits each pet: measured once (drawn small offscreen), then scaled to fill the stage
 const PET_FIT={};
 function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;
-  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; const keepN=PET_NIGHT; PET_NIGHT=0; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'})); PET_NIGHT=keepN;
+  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'}));
     const d=x.getImageData(0,0,o.width,o.height).data; let x0=1e9,y0=1e9,x1=-1,y1=-1; for(let yy=0;yy<o.height;yy++) for(let xx=0;xx<o.width;xx++){ if(d[(yy*o.width+xx)*4+3]>30){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; } }
     if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){}
   return PET_FIT[id]=s; }
@@ -3748,7 +3739,6 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
        return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
   P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Paths</b> are big specialties, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between"><span class="meta">Looking for specialisations? They have their own <b>Paths</b> tab now.</span><button class="btn alt sm" data-tabgo="paths">Open Paths</button></div>
    <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
     return `<div class="tile ${mx?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
      <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div><div class="meta">${p.d} Each rank: ${p.per}.</div>
@@ -3815,7 +3805,6 @@ function extraAct3(b){ const k=b.dataset.k;
 // more shirt patterns
 // =====================================================================
 let PREVIEW=null, PET_PV=null, AQ_PV=null; // what's being tried on right now (never saved)
-const PV_KIND_NAME = {col:'colour', pat:'fabric', hat:'hat', out:'outfit', gls:'glasses', shoe:'shoes', neck:'neckwear', back:'back piece'};
 function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return lk; const {kind,id}=PREVIEW;
   if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; else if(kind==='shoe') lk.shoes=id; else if(kind==='neck') lk.neck=id; else if(kind==='back') lk.back=id; return lk; }
 function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
@@ -3825,7 +3814,7 @@ function petPreviewLook(id=editPet()){ const lk=Object.assign({},petLook(id)); i
 function petPvBarHTML(){ if(!PET_PV) return ''; const p=PET_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='tint'?'pettint':'petacc'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Previewing: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="petpvoff">Stop</button></span></div>`; }
-function aqView(){ const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.slice()}; if(!AQ_PV) return v;
+function aqView(){ const hid=S.aq.hid||[]; const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.filter(id=>!hid.includes(id))}; /* hidden decorations keep their bonus but are not drawn (director, 2026-11-19) */ if(!AQ_PV) return v;
   if(AQ_PV.kind==='theme') v.theme=AQ_PV.id; else if(AQ_PV.kind==='sand') v.sand=AQ_PV.id; else if(!v.decor.includes(AQ_PV.id)) v.decor.push(AQ_PV.id); return v; }
 function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='theme'?'aqtheme':p.kind==='sand'?'aqsand':'decor'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
@@ -3834,8 +3823,8 @@ function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
 function paintPrizes(P){ P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const x=c.getContext('2d'), id=c.dataset.prize; x.clearRect(0,0,c.width,c.height); const t=0;
   // pet prizes: drawn awake (the scene's night used to put them to sleep), sized to fit, a balloon smaller so it shows;
   // a colour is shown on a pet whose coat it changes (Dax is black, so a hue shift barely shows on him)
-  const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon', n0=PET_NIGHT; PET_NIGHT=0;
-    try{ drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); } finally{ PET_NIGHT=n0; } };
+  const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon';
+    drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); };
   if(id==='teddy') drawPet(x,'teddy',48,72,3,t); else if(id==='carousel') drawDecor(x,'carousel',48,74,.55,t); else if(id==='golden'||id==='rainbow') pet({tint:id}); else if(id==='balloon'||id==='partyhat') pet({acc:id});
   else if(id==='sixsevencap'||id==='carnival'||id==='fishbowl') hatPreview(x,96,80,id,S.look.hatCol); else if(id==='spacesuit') drawAngler(x,48,78,1.05,Object.assign({},S.look,{outfit:'spacesuit',hat:'none'}),{});
   else if(id==='crate') drawJunk(x,96,80,'chest'); else if(id==='myth') drawJunk(x,96,80,'goldlure'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(48+Math.cos(a)*22,40+Math.sin(a)*22); } x.fill(); x.fillStyle='#0a161d'; x.font='800 14px system-ui'; x.textAlign='center'; x.fillText('10',48,45); } }); }
@@ -4024,15 +4013,15 @@ function endDerby(){ const d=S.derby; if(!d) return; const place=derbyPlace(), b
   if(medal){ const m=[1,.5,.25][place-1]; const coins=earn(base*25*m*coinMult()), sc=Math.round(30*m), tk=Math.round(150*m); S.scales+=sc; S.tickets+=tk; S.medals[medal]++; addPassXP(300*m); txt=`+${fmt(coins)} coins, +${sc} Scales, +${tk} tickets`; sfx.catch(4); }
   else { S.tickets+=20; txt='+20 tickets for taking part'; sfx.lost(); }
   G.st = G.st==='idle'||G.st==='result'?G.st:G.st; $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">Fishing derby results</div><h3>${medal?['🥇 First place!','🥈 Second place','🥉 Third place'][place-1]:'Fourth place. Next time!'}</h3>
-   <div class="list" style="margin:8px 0">${[{name:'You',score:d.total},...d.rivals].sort((a,b)=>b.score-a.score).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r.name)}</b></span><span>${r.score.toFixed(1)} kg</span></div>`).join('')}</div>
+   <div class="list" style="margin:8px 0">${[{name:'You',score:d.total},...d.rivals].sort((a,b)=>b.score-a.score).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r.name)}</b></span><span>${wFix(r.score,1)}</span></div>`).join('')}</div>
    <p class="sub">${txt}</p><button class="btn" data-ev="skip">Back to fishing</button>`; if(G.st==='idle'){ G.st='event'; $('evcard').hidden=false; } else { setTimeout(()=>{ if(G.st==='idle'){ G.st='event'; $('evcard').hidden=false; } else toast('Derby over: place '+place+'. '+txt); },2500); } checkFeats(); save(); }
 setInterval(()=>{ if(S.derby && Date.now()>=S.derby.until) endDerby(); const dl=$('derbyleft'); if(dl&&S.derby) dl.textContent=mmss(Math.max(0,Math.ceil((S.derby.until-Date.now())/1000)))+' left'; },1000);
 function derbyHTML(){ const d=S.derby; if(d){ const left=Math.max(0,Math.ceil((d.until-Date.now())/1000));
-    return `<div class="tile bwt" style="--c:#ffc94d;margin-bottom:12px"><div class="row spread"><h4>Fishing derby at ${LOCS[locIdx(d.loc)].name}</h4><span class="badge g" id="derbyleft">${mmss(left)} left</span></div><div class="meta">Your total: <b>${d.total.toFixed(1)} kg</b> from ${d.n} fish · you’re in place ${derbyPlace()}${S.loc!==d.loc?' · <span style="color:var(--danger)">travel back there for catches to count!</span>':''}</div>
-     ${d.rivals.map(r=>`<div class="meta">${esc(r.name)}: ${r.score.toFixed(1)} kg</div>`).join('')}</div>`; }
+    return `<div class="tile bwt" style="--c:#ffc94d;margin-bottom:12px"><div class="row spread"><h4>Fishing derby at ${LOCS[locIdx(d.loc)].name}</h4><span class="badge g" id="derbyleft">${mmss(left)} left</span></div><div class="meta">Your total: <b>${wFix(d.total,1)}</b> from ${d.n} fish · you’re in place ${derbyPlace()}${S.loc!==d.loc?' · <span style="color:var(--danger)">travel back there for catches to count!</span>':''}</div>
+     ${d.rivals.map(r=>`<div class="meta">${esc(r.name)}: ${wFix(r.score,1)}</div>`).join('')}</div>`; }
   return `<div class="tile bwt" style="--c:#ffc94d;margin-bottom:12px"><div class="row spread"><div><h4>Fishing derby</h4><div class="meta">Four minutes at ${curLoc().name}: land the heaviest total catch to beat ${RIVALS.map(r=>r[0]).join(', ')}. Medals pay coins, Scales, tickets and Tide Pass XP.</div><div class="meta">Medals: 🥇 ${S.medals.gold} · 🥈 ${S.medals.silver} · 🥉 ${S.medals.bronze}</div></div>
     <button class="btn" data-act="derby" ${S.money>=derbyCost()&&G.st==='idle'?'':'disabled'}>Enter · <span class="coin">${fmt(derbyCost())}</span></button></div></div>`; }
-function drawDerbyHUD(){ const d=S.derby; if(!d) return; const left=Math.max(0,Math.ceil((d.until-Date.now())/1000)); const txt='🏆 Derby '+mmss(left)+' · '+d.total.toFixed(1)+' kg · #'+derbyPlace()+(S.loc!==d.loc?' (wrong water)':'');
+function drawDerbyHUD(){ const d=S.derby; if(!d) return; const left=Math.max(0,Math.ceil((d.until-Date.now())/1000)); const txt='🏆 Derby '+mmss(left)+' · '+wFix(d.total,1)+' · #'+derbyPlace()+(S.loc!==d.loc?' (wrong water)':'');
   g.font='700 12px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.78)'; rr(W-tw-34,40,tw+20,24,12); g.fill(); g.fillStyle='#ffc94d'; g.textAlign='left'; g.fillText(txt,W-tw-24,56); }
 
 // ---------- richer scenery ----------
@@ -6554,29 +6543,6 @@ m33wrap('river','live',function(P,t,hz){ const lc=['#d8a03a','#c8603a','#8aa84a'
     g.save(); g.translate(x,y); g.rotate(r); g.fillStyle=mix(lc[i%3],P.wMid,.2+P.night*.5); g.beginPath(); g.moveTo(-s*1.4,0); g.quadraticCurveTo(0,-s,s*1.4,0); g.quadraticCurveTo(0,s,-s*1.4,0); g.fill(); g.strokeStyle=v3rgba('#000000',.2); g.lineWidth=.6; g.beginPath(); g.moveTo(-s*1.2,0); g.lineTo(s*1.2,0); g.stroke(); g.restore();
     g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.25); g.lineWidth=.8; g.beginPath(); g.ellipse(x,y+1,s*2.2,s*.5,0,0,7); g.stroke(); } });
 
-// ---------------------------------------------------------------------
-// Brine Shelf dolphins, redone: each one shows first as a shadow just under the surface, breaks the water
-// (only the part above the waterline is drawn), follows its arc nose-first, and re-enters with a splash;
-// rings spread where it left and where it went back in. Nothing appears out of thin air.
-// ---------------------------------------------------------------------
-function m33dolphin(c,s,col,belly){ c.fillStyle=col; c.beginPath(); c.moveTo(-s*3.5,0); c.quadraticCurveTo(-s*1,-s*1.8,s*2.6,-s*.4); c.lineTo(s*3.8,-s*.2); c.lineTo(s*2.6,s*.3); c.quadraticCurveTo(0,s*1.2,-s*3.5,0); c.fill();
-  c.beginPath(); c.moveTo(-s*.4,-s*1.1); c.lineTo(-s*1.4,-s*2.4); c.lineTo(s*.6,-s*1.2); c.fill(); c.beginPath(); c.moveTo(-s*3.3,0); c.lineTo(-s*4.6,-s*1); c.lineTo(-s*4.2,0); c.lineTo(-s*4.6,s*1); c.closePath(); c.fill();
-  c.fillStyle=belly; c.beginPath(); c.moveTo(-s*2.5,s*.3); c.quadraticCurveTo(0,s*1.1,s*2.4,s*.3); c.quadraticCurveTo(0,s*.5,-s*2.5,s*.3); c.fill(); }
-function m33dolphins(P,t,hz,foam,night){ const per=16, k=(t%per)/per, FX=S.settings.effects; if(k>.5) return;
-  const col=mix('#6a7a8a',P.wMid,night*.5), belly=mix('#d8dce0',P.wMid,night*.5);
-  for(let i=0;i<2;i++){ const base=hz+H*(.24+i*.05), s=H*.012, x0=W*(.44+i*.05), x1=x0+W*.16, span=x1-x0, lead=.12+i*.08;
-    // phase: approach under water (shadow) -> leap -> re-enter -> rings
-    const q=(k-i*.05)/.5; if(q<0||q>1) continue;
-    if(q<lead){ const e=q/lead, a=Math.sin(e*Math.PI)*.22; g.save(); g.globalAlpha=a; g.translate(x0-W*.05+e*W*.05,base+s*1.6); g.scale(1,.45); m33dolphin(g,s,mix(P.wBot,'#000000',.2),mix(P.wBot,'#000000',.2)); g.restore(); continue; }
-    const lq=(q-lead)/(.62-lead); // 0..1 through the leap
-    if(lq<=1){ const x=x0+span*lq, arc=Math.sin(lq*Math.PI), y=base-arc*H*.055, slope=-Math.cos(lq*Math.PI)*H*.055*Math.PI/span, ang=Math.atan(slope);
-      g.save(); g.beginPath(); g.rect(0,0,W,base+1); g.clip(); g.translate(x,y); g.rotate(ang); m33dolphin(g,s,col,belly); g.restore();
-      // a soft darker band where the body passes through the surface
-      if(arc<.35){ g.fillStyle=v3rgba(P.wBot,.25); g.beginPath(); g.ellipse(lq<.5?x0:x1,base+1,s*2.6,s*.5,0,0,7); g.fill(); }
-      if(FX&&(lq<.16||lq>.84)){ const sx=lq<.5?x0:x1, e=lq<.5?lq/.16:(1-lq)/.16, pw=1-e; for(let j=0;j<7;j++){ const a=-Math.PI/2+(j-3)*.32, rr=s*(1.4+pw*2.4); g.fillStyle=v3rgba(foam,.75*(1-pw*.4)); g.beginPath(); g.arc(sx+Math.cos(a)*rr,base+Math.sin(a)*rr*1.3,Math.max(1,s*.18),0,7); g.fill(); } } }
-    // rings spreading from both splash points
-    for(const [sx,st] of [[x0,lead],[x1,.62]]){ const rq=(q-st)/.3; if(rq>0&&rq<1){ g.strokeStyle=v3rgba(foam,.5*(1-rq)); g.lineWidth=1.2; g.beginPath(); g.ellipse(sx,base+1,s*(1.5+rq*5),s*(.35+rq*1.1),0,0,7); g.stroke(); } } } }
-
 // ---------- Starfall waterfalls: a ribbon that widens and shimmers as it falls, then lands properly in the cloud sea
 // with billowing mist, droplets arcing out, spreading rings and a few glints
 function m33fall(t,fx,fy,w,hz){ const FX=S.settings.effects, by=hz+H*.012, /* lands on the lake itself, in front of the cloud bank */ L=by-fy, w0=Math.max(1.4,w*.05), w1=w0*2.6;
@@ -6657,7 +6623,6 @@ m33wrap('starfall','live',function(P,t,hz){ const F=M33.falls; if(!F) return; fo
 // Everything is multiplied by WXA (the weather's fade in/out, 0..1), so it builds up and dies away
 // smoothly; nothing switches on or off in one frame.
 // =====================================================================
-const WX3={};
 function wx3sun(hz){ const p=phase(), sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45; return {x:W*(.1+.8*k), y:hz-Math.sin(k*Math.PI)*hz*.8+10, up}; }
 // where the rainbow stands, shared by the sky arc and its reflection: like a real one it is on the side away from the
 // sun and sinks lower as the sun climbs, so it never rings the sun (it used to sit right around it; 2026-11-17)
@@ -6857,7 +6822,6 @@ m33wrap('starfall','live',function(P,t,hz){ if(!S.settings.effects) return; for(
 // glowing seams, lava pulses running down its veins, and the hills get scrub, dead trees and rock outcrops.
 // =====================================================================
 V3SCENES.ember.noClouds=true;
-const EMB={ vx:()=>W*.62, vw:()=>W*.26, vh:()=>H*.22 };
 function embCone(x,hz){ const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh; x.beginPath(); x.moveTo(vx-vw,vb); x.quadraticCurveTo(vx-vw*.4,vb-vh*.35,vx-cw,ty); x.lineTo(vx-cw*.4,ty+vh*.03); x.lineTo(vx+cw*.3,ty+vh*.015); x.lineTo(vx+cw,ty); x.quadraticCurveTo(vx+vw*.45,vb-vh*.4,vx+vw,vb); x.closePath(); }
 m33wrap('ember','sky',function(P,t,hz){ const vx=W*.62, ty=hz+1-H*.22, night=P.night;
   // ash plumes: long soft streams leaving the crater and drifting downwind, built from overlapping feathered puffs
@@ -7009,7 +6973,6 @@ drawWeatherX0 = function(t,wx,hz){ _drawWeatherX0_fog(t,wx,hz);
 // swimming slowly across the sky, a comet that crosses now and then, lanterns drifting up off the lake, and
 // star-blossoms that open on the water. Everything eases in and out; nothing pops.
 // =====================================================================
-const SF3={};
 m33wrap('starfall','sky',function(P,t,hz){ const night=P.night, vis=.35+night*.65;
   // nebula clouds: soft colour pools that breathe slowly
   g.save(); g.globalCompositeOperation='lighter';
@@ -7338,7 +7301,6 @@ function a3TorsoPath(c,f){ c.beginPath(); const bb=A3BELLY*2.6;
   c.closePath(); }
 // a longer coat silhouette reaching hemY, flaring slightly
 function a3CoatPath(c,f,hemY){ c.beginPath(); c.moveTo(f?-7.4:-7.9,-45.8); c.quadraticCurveTo(f?-8.2:-9.1,-36,-8.8,-26); c.lineTo(-9.8,hemY); c.quadraticCurveTo(0,hemY+1.6,9.8,hemY); c.lineTo(9+A3BELLY*1.6,-26); c.quadraticCurveTo((f?9:9.5)+A3BELLY*2.4,-34,f?7.7:8.1,-45.8); c.quadraticCurveTo(0,-48.6,f?-7.4:-7.9,-45.8); c.closePath(); }
-function a3Shade(c,pathFn,D){ c.save(); pathFn(); c.clip(); const sg=c.createLinearGradient(-9,0,9,0); sg.addColorStop(0,'rgba(10,8,20,.28)'); sg.addColorStop(.45,'rgba(10,8,20,0)'); sg.addColorStop(.85,'rgba(255,230,190,0)'); sg.addColorStop(1,'rgba(255,225,185,.32)'); c.fillStyle=sg; c.fillRect(-11,-50,22,40); c.restore(); }
 // an outfit's own colour: the player's pick, or the outfit's default when the save still holds the shared default gold
 // (0.3.6: sleeves and trousers used the gold literally, so a navy captain's coat had gold sleeves)
 function a3OC(lk,def){ return lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:def; }
@@ -7433,7 +7395,7 @@ function a3Fingers(c,h1,h2,ra,s,sk,skD){ c.save();
 var A3FXP={}; // where the hat, chest and neck are this frame (read by cb_wearfx06.js)
 function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl, t=o.t||0, f=lk.g==='f';
-  const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt); A3SKIN=[sk,skD];
+  const skin=SKINS[lk.skin]||SKINS[1], sk=D(skin), skD=D(mix(skin,'#5a2a1a',.24)), hairC=HAIRS[lk.hair]||HAIRS[1], hair=D(hairC), shirt=D(lk.shirt);
   const hs = !lk.hairStyle||lk.hairStyle==='auto' ? (f?'long':'short') : lk.hairStyle;
   const st=o.forceSt||(live?G.st:'idle');
   const mood = !live&&!o.forceSt ? 'calm' : st==='bite' ? 'surprised' : st==='reeling' ? 'focus' : (st==='landing'||(live&&G.lastCatchT&&performance.now()-G.lastCatchT<1800)) ? 'happy' : 'calm';
@@ -9923,41 +9885,6 @@ function a3Deltoid(c,sh,el,w,col,fabs){ const r=w*.6, cx=sh.x-.1, cy=sh.y-.15, a
   if(fabs&&fabs.length){ c.save(); path(); c.clip(); for(const f of fabs) drawFabric(c,f,null,cx-r*1.4,cy-r*1.4,r*2.8,r*2.8); c.restore(); }
   c.save(); path(); c.clip(); c.strokeStyle='rgba(255,244,226,.28)'; c.lineWidth=.6; c.beginPath(); c.arc(cx,cy,r*.82,Math.PI*1.1,Math.PI*1.7); c.stroke(); c.restore(); }
 
-// ---------- curly hair (0.3.3, from the director's reference): a full round mass with a bumpy outline of small curls,
-// packed with spiral curls shaded darker underneath and lit on top; it frames the face, falls to the jaw behind,
-// and the ear stays visible in front of it. Head centre (0,-56), radius 7.5, face to the right.
-var A3SKIN=null;
-function curlMass(c){ c.beginPath(); c.moveTo(6.8,-60.2); c.bezierCurveTo(8.6,-64.4,6.4,-69.4,0,-69.6); c.bezierCurveTo(-6.4,-69.8,-9.8,-65.4,-9.8,-59.6); c.bezierCurveTo(-9.8,-54.6,-8.6,-50.8,-6,-49.4); c.bezierCurveTo(-3.6,-49.6,-1.6,-50.6,-.6,-52.6); c.bezierCurveTo(.2,-55,0,-57,1.2,-58.4); c.bezierCurveTo(2.8,-59.8,4.8,-59.6,6.8,-60.2); c.closePath(); }
-// curl positions inside the mass: an irregular scatter (sizes, spacing and spiral angles vary, like real curls)
-const CURL_CELLS=(()=>{ const out=[]; let s=7; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; for(let y=-68.8;y<=-50;y+=2.05) for(let x=-9.6;x<=7.6;x+=2.15){ if(rnd()<.12) continue; out.push([x+(rnd()-.5)*1.5,y+(rnd()-.5)*1.3,1.0+rnd()*.7,rnd()*Math.PI*2]); } return out; })();
-// points along the outline, for the little curls that make its edge bumpy
-const CURL_EDGE=(()=>{ const pts=[], ctrl=[[6.8,-60.2],[7.9,-62.6],[7.6,-65.4],[5.6,-67.9],[2.8,-69.3],[0,-69.6],[-3,-69.4],[-5.8,-68.3],[-8,-66.2],[-9.4,-63.2],[-9.8,-59.6],[-9.6,-56.2],[-9,-53.2],[-7.8,-50.8],[-6,-49.4],[-3.8,-49.6]]; for(let i=0;i<ctrl.length-1;i++){ const [x0,y0]=ctrl[i],[x1,y1]=ctrl[i+1], n=Math.max(1,Math.round(Math.hypot(x1-x0,y1-y0)/1.5)); for(let k=0;k<n;k++){ const u=k/n; pts.push([x0+(x1-x0)*u,y0+(y1-y0)*u]); } } return pts; })();
-function a3EarOver(){ if(!A3SKIN) return null; return A3SKIN; }
-function drawEar3(c){ const s=a3EarOver(); if(!s) return; const [sk,skD]=s; c.fillStyle=sk; c.beginPath(); c.ellipse(-1.8,-55.4,1.8,2.3,0,0,7); c.fill(); c.fillStyle=skD; c.beginPath(); c.ellipse(-1.6,-55.3,.85,1.25,0,0,7); c.fill(); c.fillStyle='rgba(255,240,225,.3)'; c.beginPath(); c.ellipse(-2.4,-56.2,.5,.9,0,0,7); c.fill(); }
-
-// ---------- CURLY (director's reference, right-hand image): loose tousled curls. A full mass whose edge breaks into
-// curled, pointed flicks, with swooping crescent locks inside, a curl dropping over the temple, falling to the jaw behind.
-const CURLY_TIPS=(()=>{ const out=[], E=CURL_EDGE; for(let i=0;i<E.length;i+=1){ const p=E[i], q=E[Math.min(E.length-1,i+1)], o=E[Math.max(0,i-1)], tx=q[0]-o[0], ty=q[1]-o[1], L=Math.hypot(tx,ty)||1; out.push([p[0],p[1],-ty/L,tx/L,1.3+((i*7)%4)*.32,(i%3)?1:-1]); /* outward normal */ } return out; })();
-// loose locks inside the curly mass: fewer and bigger than the coil grid, kept inside the outline
-const CURLY_LOCKS=(()=>{ const cv=document.createElement('canvas'), x=cv.getContext('2d'), out=[]; let s=5; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; }; curlMass(x);
-  for(let y=-68.6;y<=-51;y+=2.6) for(let X=-9.2;X<=6.8;X+=2.8){ const px=X+(rnd()-.5)*1.4, py=y+(rnd()-.5)*1.2; if(x.isPointInPath(px,py)) out.push([px,py,1.1+rnd()*.5,rnd()*6.28]); } return out; })();
-// ---------- COILS (director's reference, left-hand image): tight round coils. Every curl is its own round coil with a
-// spiral in it and a dark outline, piled into a dome that falls to the jaw behind.
-const COIL_BLOBS=(()=>{ const out=[]; let s=11; const rnd=()=>{ s=(s*16807)%2147483647; return s/2147483647; };
-  for(const [x,y] of CURL_EDGE) out.push([x,y,1.55+rnd()*.5,rnd()*6.28]);
-  const cv=document.createElement('canvas'), cx=cv.getContext('2d'); curlMass(cx); for(let y=-68.4;y<=-50.6;y+=2.3) for(let x=-8.8;x<=6.6;x+=2.4){ if(rnd()<.06) continue; const px=x+(rnd()-.5)*1.1, py=y+(rnd()-.5)*1; if(cx.isPointInPath(px,py)) out.push([px,py,1.45+rnd()*.55,rnd()*6.28]); } /* only inside the hair outline */
-  return out.sort((a,b)=>b[1]-a[1]); })(); // lowest first, so the upper coils overlap the ones below
-function drawCoils3(c,hair,hairC,D,t){ const base=D(hairC), dk=D(mix(hairC,'#000000',.48)), dk2=D(mix(hairC,'#000000',.25)), lt=D(mix(hairC,'#ffffff',.3)), lt2=D(mix(hairC,'#ffffff',.55));
-  // a dark backing so gaps between coils read as depth, not scalp
-  c.fillStyle=dk2; curlMass(c); c.fill(); c.lineCap='round';
-  for(const [x,y,r,a] of COIL_BLOBS){
-    const g2=c.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r); g2.addColorStop(0,y<-61?lt:D(mix(hairC,'#ffffff',.15))); g2.addColorStop(.7,base); g2.addColorStop(1,D(mix(hairC,'#000000',.18)));
-    c.fillStyle=g2; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); c.strokeStyle=dk; c.lineWidth=.32; c.stroke();
-    // the spiral: an outer sweep and an inner turn
-    c.strokeStyle=v3rgba(dk,.85); c.lineWidth=.38; c.beginPath(); c.arc(x,y,r*.72,a,a+Math.PI*1.45); c.stroke(); c.beginPath(); c.arc(x+Math.cos(a)*r*.18,y+Math.sin(a)*r*.18,r*.38,a+Math.PI,a+Math.PI*2.5); c.stroke();
-    c.strokeStyle=v3rgba(y<-61?lt2:lt,.75); c.lineWidth=.32; c.beginPath(); c.arc(x,y,r*.82,Math.PI*1.15,Math.PI*1.65); c.stroke(); }
-  drawEar3(c); }
-
 // ---------- CURLY (0.3.3 redesign, per the director's brief): modern, medium-length, slightly messy curls that follow the
 // skull. About eleven soft curl clusters (C, S and loose spiral shapes) at irregular sizes and angles, moderate volume on
 // top, a couple of curls falling toward the forehead, small tight curls at the temple, a compact back tapering to the
@@ -10169,7 +10096,6 @@ function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=(
   if(id==='crate') return {cat:'Mystery crate', d:'Opens into clothes, lures, decor and now and then a pet.'};
   if(id==='myth') return {cat:'Bait', d:'Three Myth Bait: legendary fish are far more likely to bite.'};
   return {cat:'Prize', d:p[1]}; }
-const BW_GAMES = [['wheel','🎡','#ff8a5c'],['crates','🎁','#b9a2ff'],['duck','🦆','#5ad8e8'],['hilo','🃏','#7fe3c4'],['flip','🪙','#ffd36a'],['scratch','🎫','#ff9ac0'],['claw','🧸','#ff7ab0']];
 function bwCard(icon,col,title,meta,body,foot){ return `<div class="bwx-card" style="--c:${col}"><div class="bwx-ch"><span class="bwx-ic">${icon}</span><div><h4>${title}</h4><div class="meta">${meta}</div></div></div><div class="bwx-cb">${body}</div>${foot?`<div class="bwx-cf">${foot}</div>`:''}</div>`; }
 function bwGamesHTML(){ const tk=S.tokens, base=bestLoot(), nextIn=Math.max(0,Math.ceil((SPIN_EVERY-(Date.now()-S.wheelT))/60000));
   const crateRow=(k,name,desc)=>`<div class="bwx-row"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmtShort(crateCost(k))}</span></button>`}</div>`;
@@ -10329,7 +10255,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>#panel .pass-next{display:f
 // premium piece, then a set mix (hats, shoes, back pieces, neckwear, an outfit, glasses, a pattern,
 // a colour), never something you already own.
 // =====================================================================
-const SHOP_LEN2 = 1200;
 shopOffers = function(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN); let h=hashStr('shop2'+slot); const rnd2=()=>{ h=Math.imul(h^(h>>>13),1597334677)>>>0; return h/4294967296; };
   const all={ col:SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), pat:PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' fabric',price:p[2]})), hat:HATS.filter(x=>x.src==='shop').map(x=>({kind:'hat',id:x.id,name:x.name,price:x.price})),
     out:OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), gls:GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]})),
@@ -10483,7 +10408,7 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
   else if(tab==='aquarium'){ const dec=K.find(c=>c.classList.contains('jsec')), view=K.filter(c=>c.classList.contains('tank')||(c.tagName==='P'&&/Drag a decoration/.test(c.textContent))), head=K.slice(0,2).concat(view), tank=K.filter(c=>!head.includes(c)&&c!==dec); sectionize(P,tab,[{name:'Your tank',nodes:tank},{name:'Decorate',nodes:dec?[dec]:[]}]); }
   else if(tab==='home'){ const i=K.findIndex(c=>c.tagName==='H5'&&/Decorations/.test(c.textContent)); if(i<0) return; const head=K.findIndex(c=>c.classList.contains('row')); const dock=K.slice(head+1,i).filter(c=>!c.classList.contains('pvbar')); sectionize(P,tab,[{name:'Dock',nodes:dock},{name:'Decorations',nodes:K.slice(i)}]); }
   else if(tab==='rods'){ const i1=K.findIndex(c=>c.tagName==='H2'&&/Rod rack/.test(c.textContent)), i2=K.findIndex(c=>c.tagName==='H2'&&/Attachments/.test(c.textContent)); if(i1<0||i2<0) return;
-    sectionize(P,tab,[{name:'Your rod',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
+    sectionize(P,tab,[{name:'Your rods',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
   else if(tab==='locs'||tab==='waters'||tab==='map'){ const grid=K.find(c=>c.classList.contains('grid')), js=K.filter(c=>c.classList.contains('jsec')); if(!grid||!js.length) return;
     sectionize(P,tab,[{name:'Waters',nodes:[grid]},...js.map(j=>({name:(j.querySelector('h2')||{}).textContent||'More',nodes:[j]}))]); } }
 const _renderPanel_0 = renderPanel;
@@ -10533,7 +10458,7 @@ applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) retur
 document.head.insertAdjacentHTML('beforeend',`<style>body.v3 #panel .grid.skill-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px} body.v3 #panel .grid.skill-grid > .tile{padding:10px 12px;gap:5px}</style>`);
 // Pets > Customize: preview beside the options when there is room, stacked when the menu column is narrow (phones, landscape).
 document.head.insertAdjacentHTML('beforeend',`<style>#panel{container-type:inline-size}.stylewrap.petwrap{grid-template-columns:200px minmax(0,1fr)}.stylewrap.petwrap>*{min-width:0}@container (max-width:520px){.stylewrap.petwrap{grid-template-columns:minmax(0,1fr)}.stylewrap.petwrap>.preview{max-width:240px;width:100%;margin:0 auto}}</style>`);
-// Your rod: one compact row per attachment slot (the chips already name each attachment and its effect)
+// Your rods: one compact row per attachment slot (the chips already name each attachment and its effect)
 document.head.insertAdjacentHTML('beforeend',`<style>.slotrow{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}.slotrow:first-of-type{border-top:0}.slotrow>b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.slotrow .chips{margin:0}@media (max-width:480px){.slotrow{grid-template-columns:1fr;gap:4px}}</style>`);
 // Wardrobe: stack the preview above the options whenever the menu column is narrow (phones sideways, small windows)
 document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:560px){.stylewrap.wd{grid-template-columns:minmax(0,1fr)!important}.stylewrap.wd>*{min-width:0}.wd-prev{position:relative!important;top:auto!important;max-width:260px;width:100%;margin:0 auto}}</style>`);
@@ -10905,8 +10830,8 @@ Object.assign(DOCK_ART,{
 });
 
 // =====================================================================
-// 0.3.1 shiny fish: a soft glow behind, a glint of light sweeping across the scales, and twinkling sparkles
-// (drawn through one shared layer, so the glint only ever lands on the fish itself)
+// 0.3.1 shiny fish: a soft glow behind, a warm golden tint and twinkling sparkles
+// (drawn through one shared layer, so the tint only lands on the fish itself)
 // =====================================================================
 const SHINY3={c:null};
 const _drawCreature3_sh = drawCreature3;
@@ -10918,10 +10843,7 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   let C=SHINY3.c; if(!C) C=SHINY3.c=document.createElement('canvas'); if(C.width<px||C.height<px){ C.width=Math.max(C.width,px); C.height=Math.max(C.height,px); }
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));
-  // the glint: a soft diagonal band of light crossing the fish every couple of seconds
-  const k=SHINY3.still?-1:((t*.42+ph)%1.5)/1.5, bx=-R*1.3+k*R*2.6; // still pictures (fish cards, lists) get no frozen glint or stars: they twinkle on their own (ca_shiny06.js)
-  ox.save(); ox.globalCompositeOperation='source-atop'; const gr=ox.createLinearGradient(bx-R*.28,-R*.2,bx+R*.28,R*.2); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(.5,'rgba(255,250,225,.72)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ox.fillStyle=gr; ox.fillRect(-R,-R,R*2,R*2);
-  ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore();
+  ox.save(); ox.globalCompositeOperation='source-atop'; ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore(); /* a warm golden tint (the sweeping glint band was removed: director, 2026-11-19, "distracting and clunky") */
   c.drawImage(C,0,0,px,px,x-R,y-R,R*2,R*2);
   // shiny FX (round 6 overhaul, ca_shiny06.js): flares, glitter and per-kind signatures that pop on new spots of the body
   if(!SHINY3.still&&typeof shinyFxWater==='function') shinyFxWater(c,x,y,L,t,sp,o);
@@ -11023,7 +10945,7 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
   return `<div class="st-grid">
     <div class="tile"><h4>Catching</h4>${statRow('Bite speed',mulS(bite),'Bait, level, skills, weather, boosts')}${statRow('Hook window',hookWin().toFixed(2)+' s')}${statRow('Rare odds score',rs.toFixed(2),'Far casts: '+rsFar.toFixed(2))}
       ${statRow('Epic or better',fmtOdds(epNow),'per fish here, '+fmtOdds(epBase)+' with no bonuses')}${statRow('Legendary or better',fmtOdds(legNow),'per fish here, '+fmtOdds(legW)+' with no bonuses')}${statRow('Shiny chance',(sh*100).toFixed(2)+'%')}${statRow('Hybrid chance',(hybridChance()*100).toFixed(2)+'%')}${statRow('Junk chance',(junkChance()*100).toFixed(1)+'%')}${statRow('Far casts count from',Math.round(farAt()*100)+'% power')}</div>
-    <div class="tile"><h4>Fighting</h4>${statRow('Reel speed',reelSpeed().toFixed(2)+' m/s')}${statRow('Line strength',gv('line')+' kg')}${statRow('Line tension',mulS(tensionMult()),'Lower is better')}${statRow('Temper build-up',mulS(tempMult()),'Lower is better')}${statRow('Max line out',Math.round(gv('rod')*rodCast()+28+rodSpool())+' m')}</div>
+    <div class="tile"><h4>Fighting</h4>${statRow('Reel speed',reelSpeed().toFixed(2)+' m/s')}${statRow('Line strength',Math.round(wNum(gv('line')))+' '+wUnit())}${statRow('Line tension',mulS(tensionMult()),'Lower is better')}${statRow('Temper build-up',mulS(tempMult()),'Lower is better')}${statRow('Max line out',Math.round(gv('rod')*rodCast()+28+rodSpool())+' m')}</div>
     <div class="tile"><h4>Coins & XP</h4>${statRow('Sale price',mulS(sm),'Level, Haggler, rank, boosts, pearls')}${statRow('XP',mulS(xm))}${statRow('Wisdom Pearls',mulS(cm),S.pearls+' pearl'+(S.pearls===1?'':'s'))}${statRow('Streak bonus cap','+'+Math.round(streakCap()*100)+'% XP')}
       ${statRow('Aquarium',fmt(Math.round(tankRate()*60))+' / hour',S.tank.length+' fish · up to '+Math.round(offlineCap()/60)+' h away')}${statRow('Cozy level',cozy()+' ♥','+'+cozyBonus()+'% XP, +'+(cozyBonus()*.5)+'% bite speed and sale price')}</div>
     <div class="tile"><h4>Right now</h4>${statRow('Water',esc(curLoc().name))}${statRow('Weather',esc(wxName(wx.k)),esc(wx.note||''))}${statRow('Time of day',isNight()?'Night':'Day')}${statRow('Active boosts',S.buffs.filter(x=>x.until>Date.now()).length||'None')}${statRow('Skill points',ptsFree()+' free · '+ptsSpent()+' spent')}</div>
@@ -11128,7 +11050,6 @@ function shopToolsFor(grid,which){ if(!grid) return; const st=SHOPT[which], tile
   const items=tiles.map(t=>({t,it:shopItem(t,which)})).filter(x=>x.it);
   // aquarium tiles say what kind of bonus they give
   if(which==='aq') for(const {t,it} of items){ const m=t.querySelector('.meta'); if(m&&/income$/.test(m.textContent.trim())) m.innerHTML=`+${Math.round(it.bonus*100)}% ${DECOR_KIND_NAME[it.kind]}`; if(!t.querySelector('.dkind')){ const b=document.createElement('span'); b.className='dkind k-'+it.kind; b.textContent=DECOR_KIND_SHORT[it.kind]; t.insertBefore(b,t.firstChild); } }
-  if(which==='aq'){ const h=[...grid.parentNode.querySelectorAll('h5')].find(x=>/^Decorations/.test(x.textContent)); if(h){ const parts=[['income',decorBonus()],['boost',decorBoost()],['show',decorShow()]].filter(p=>p[1]>0).map(p=>`+${Math.round(p[1]*100)}% ${DECOR_KIND_NAME[p[0]]}`); h.textContent=`Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used`+(parts.length?' · '+parts.join(' · '):''); } }
   let bar=grid.previousElementSibling; if(!bar||!bar.classList||!bar.classList.contains('shoptools')){ bar=document.createElement('div'); bar.className='shoptools'; grid.parentNode.insertBefore(bar,grid); }
   const chip=(grp,v,label,cur)=>`<button type="button" class="chipb" data-st="${grp}" data-v="${v}" aria-pressed="${cur===v}">${label}</button>`;
   const sorts=[['price','Price: low to high'],['pricehi','Price: high to low'],['name','Name A to Z'],['bonus',which==='aq'?'Bonus: biggest first':'Cozy: most first']];
@@ -11253,7 +11174,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 
 // ---------- Sell all filters: by rarity, by price, or both ----------
 const SELL_RAR=[['all','Any rarity'],['0','Common only'],['1','Up to Uncommon'],['2','Up to Rare'],['3','Up to Epic'],['4','Up to Legendary']];
-const SELL_PRICE=[[0,'Any price'],[50,'Under 50'],[200,'Under 200'],[1000,'Under 1k'],[5000,'Under 5k'],[20000,'Under 20k'],[100000,'Under 100k']];
 function sellFilterOn(){ const s=S.settings; return (s.sellR&&s.sellR!=='all')||(+s.sellP>0); }
 // a fish stays in the cooler when it is protected (Protect rare fish setting) or does not match the filter
 // shinies: the "Sell shinies too" box decides on its own (it starts as before: off while Protect rare fish is on)
@@ -12268,7 +12188,7 @@ const SEARCH_IDX=[
  ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
  ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],
  ['Tackle: special lures','shop',['tackleview','lures'],'special lures junk lures magnet golden disco'],
- ['Rods: your rod','rods','Your rod','rod equip upgrade'],
+ ['Rods: your rods','rods','Your rods','rod equip upgrade presets'],
  ['Rods: rod rack','rods','Rod rack','rods collection buy rod'],
  ['Rods: attachments','rods','Attachments','attachments slots rod parts'],
  ['Skills','skills',null,'skill points perks talents level'],
@@ -12297,6 +12217,7 @@ const SEARCH_IDX=[
  ['Settings: sound','settings','Sound','sound music volume ambient'],
  ['Settings: controls','settings','Controls','controls cast aim keyboard'],
  ['Settings: display','settings','Display','display effects motion full screen'],
+ ['Settings: weights (kg or lb)','settings','Display','weight weights units kg kilograms lb pounds metric imperial'],
  ['Settings: gameplay','settings','Gameplay','gameplay protect rare fish minigames'],
  ['Settings: patch notes','settings','Patch notes','patch notes updates whats new changes'],
  ['Settings: save & codes','settings','Save & codes','save code backup restore erase'],
@@ -12315,7 +12236,7 @@ function searchFind(q){ q=q.toLowerCase().trim(); if(!q) return SEARCH_IDX.slice
   const q=ov.querySelector('#searchq'), res=ov.querySelector('#searchres'); let list=[], sel=0;
   const draw=()=>{ list=searchFind(q.value); sel=Math.min(sel,Math.max(0,list.length-1)); res.innerHTML=list.length?list.map((e,i)=>{ const sec=menuSecOf(e[1]); return `<button type="button" class="sv-r${i===sel?' on':''}" data-i="${i}" role="option" aria-selected="${i===sel}"><b>${e[0]}</b><span class="meta">${sec?sec.name:'Menu'}</span></button>`; }).join(''):'<div class="meta" style="padding:10px 4px">Nothing found. Try another word.</div>'; };
   const open=()=>{ ov.hidden=false; q.value=''; sel=0; draw(); setTimeout(()=>q.focus(),20); }, close=()=>{ ov.hidden=true; };
-  $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>box.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); /* the stage under the top bar turns touches into casts, which ate the tap on Android (director, 2026-11-19: search needed press-and-hold); the other top-bar buttons already shield themselves this way */ $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
   ov.addEventListener('click',e=>{ if(e.target===ov||e.target.id==='searchclose'){ close(); return; } const b=e.target.closest('.sv-r'); if(b){ const it=list[+b.dataset.i]; close(); if(it) searchGo(it); } });
   q.addEventListener('input',()=>{ sel=0; draw(); });
   q.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ sel=Math.min(list.length-1,sel+1); draw(); e.preventDefault(); } else if(e.key==='ArrowUp'){ sel=Math.max(0,sel-1); draw(); e.preventDefault(); } else if(e.key==='Enter'){ const it=list[sel]; if(it){ close(); searchGo(it); } e.preventDefault(); } else if(e.key==='Escape'){ close(); } e.stopPropagation(); });
@@ -12595,7 +12516,7 @@ SEARCH_IDX.push(
   res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){} },true);
   q.placeholder='Search, or pick a page below'; })();
 // badges say what is waiting
-setInterval(()=>{ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
+setInterval(()=>{ if(!MENU_OPEN) return; /* tooltips only matter while the menu is open */ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
     const tip=parts.length?sec.name+': '+parts.join(', '):sec.name; if(b.title!==tip) b.title=tip; });
   T.querySelectorAll('.subp').forEach(p=>{ const t=p.dataset.sub, n=menuDot(t), tip=(menuTabLabel(t)[1]||'')+(PAGE_DESC[t]?': '+PAGE_DESC[t]:'')+(n?' ('+n+' waiting)':''); if(p.title!==tip) p.title=tip; }); },1500);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -12708,7 +12629,7 @@ function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal
   else { m=won?C.m:0; title=won?C.name+' complete!':C.name+': out of time'; }
   let txt; if(m>0){ const r=chalReward(m); earn(r.coins); S.scales+=r.scales; S.tickets+=r.tickets; addPassXP(r.xp); txt=`+${fmt(r.coins)} coins, +${r.scales} Scales, +${r.tickets} tickets`; try{ sfx.catch(4); }catch(e){} S.stats.chalWins=(S.stats.chalWins||0)+1; }
   else { S.tickets+=10; txt='+10 tickets for taking part'; try{ sfx.lost(); }catch(e){} }
-  const table=C.ranked?`<div class="list" style="margin:8px 0">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?r[1].toFixed(2)+' kg':'–'}</span></div>`).join('')}</div>`:`<p class="sub">${c.prog} / ${c.need}</p>`;
+  const table=C.ranked?`<div class="list" style="margin:8px 0">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?wFix(r[1],2):'–'}</span></div>`).join('')}</div>`:`<p class="sub">${c.prog} / ${c.need}</p>`;
   const show=()=>{ $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">${C.icon} ${esc(C.name)}</div><h3>${esc(title)}</h3>${table}<p class="sub">${txt}</p><button class="btn" data-ev="skip">Back to fishing</button>`; G.st='event'; $('evcard').hidden=false; };
   if(G.st==='idle') show(); else setTimeout(()=>{ if(G.st==='idle') show(); else toast(C.name+': '+title+'. '+txt); },2500);
   checkFeats(); save(); if(S.tab==='events') renderPanel(); }
@@ -12733,7 +12654,7 @@ setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
 const _nextGoal_036=nextGoal;
 nextGoal=function(){ const c=S.chal; if(c){ const C=CHAL[c.id], left=mmss(Math.max(0,Math.ceil((c.until-Date.now())/1000)));
     const wrong=S.loc!==c.loc?' (at '+LOCS[locIdx(c.loc)].name+')':'';
-    if(C.ranked) return {t:C.icon+' '+C.name+' · '+left+wrong, sub:(c.best?'Your best '+c.best.toFixed(2)+' kg · place '+chalPlace(c):'No fish weighed yet')+' · to beat: '+Math.max(...c.rivals.map(r=>r[1])).toFixed(2)+' kg', p:Math.min(1,c.best/Math.max(...c.rivals.map(r=>r[1]))), tab:'events', live:true};
+    if(C.ranked) return {t:C.icon+' '+C.name+' · '+left+wrong, sub:(c.best?'Your best '+wFix(c.best,2)+' · place '+chalPlace(c):'No fish weighed yet')+' · to beat: '+wFix(Math.max(...c.rivals.map(r=>r[1])),2), p:Math.min(1,c.best/Math.max(...c.rivals.map(r=>r[1]))), tab:'events', live:true};
     return {t:C.icon+' '+C.name+' · '+left+wrong, sub:C.rule(c)+': '+c.prog+' / '+c.need, p:c.prog/c.need, tab:'events', live:true}; }
   const e=liveScheds()[0]; if(e){ const l=schedLeft(e); return {t:e.icon+' '+e.name+' · '+mmss(Math.ceil(l/1000))+' left', sub:e.what+' at every water', p:l/(e.len*MIN), tab:'events', live:true}; }
   return _nextGoal_036(); };
@@ -12748,7 +12669,7 @@ renderEvents=function(P){ const o=catchOdds(), c=S.chal;
     return `<div class="tile ev-active"><div class="row spread"><div><span class="rar" style="color:var(--gold)">Your challenge · ${esc(LOCS[locIdx(c.loc)].name)}</span><h4>${C.icon} ${esc(C.name)}</h4></div><span class="badge g"><span data-evleft="chal">${mmss(left)}</span> left</span></div>
       <div class="meta">${esc(C.rule(c))}${C.ranked?'':': <b>'+c.prog+' / '+c.need+'</b>'}${S.loc!==c.loc?' · <b style="color:#ff9a8a">Only catches at '+esc(LOCS[locIdx(c.loc)].name)+' count</b>':''}</div>
       <i class="ev-bar"><b style="width:${Math.round(pct*100)}%"></b></i>
-      ${C.ranked?`<div class="list" style="margin-top:6px">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?r[1].toFixed(2)+' kg':'–'}</span></div>`).join('')}</div>`:''}
+      ${C.ranked?`<div class="list" style="margin-top:6px">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?wFix(r[1],2):'–'}</span></div>`).join('')}</div>`:''}
       <div class="row" style="margin-top:8px"><button class="btn alt sm" data-act="chalquit">Give up</button></div></div>`; })():'';
   const tiles=Object.entries(CHAL).map(([id,C])=>{ const cd=S.chalCd&&S.chalCd[id]>Date.now(), fake={need:C.slow?1:C.setup(o).need};
     const btn=c?'<button class="btn sm" disabled>Finish your challenge first</button>':cd?`<button class="btn alt sm" disabled>Ready in <span data-evleft="${id}">${mmss(Math.ceil((S.chalCd[id]-Date.now())/1000))}</span></button>`:`<button class="btn sm" data-act="chalgo" data-k="${id}">Start · ${C.mins} min</button>`;
@@ -12986,7 +12907,6 @@ function menuEls(){ return {T:$('tabs'), P:$('panel'), toast:$('toast'), stage:$
 const MO=document.createElement('div'); MO.id='menuov'; MO.hidden=true; MO.setAttribute('role','dialog'); MO.setAttribute('aria-modal','true'); MO.setAttribute('aria-label','Menu');
 MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   <button type="button" class="mo-back" data-mo="close" aria-label="Back to fishing (Esc)" title="Back to fishing (Esc)"><svg class="mo-bi" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SEC_ICONS.fish}</svg><span class="mo-bl">Back to fishing</span></button>
-  <button type="button" class="mo-home" data-mo="home" aria-label="Overview" title="Overview: your cooler, bounties, aquarium, events and more"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mo-hl">Overview</span><span class="mo-hdot" hidden></span></button>
   <div class="mo-title" aria-live="polite"></div>
   <div class="mo-tools"><span class="mo-pause" hidden title="Your line waits while a menu is open">⏸ <span>Line waiting</span></span><span class="mo-coin" title="Your coins"><span class="coin" id="mocoin">0</span></span><button type="button" class="mo-tb" data-mo="search" aria-label="Search the menus" title="Search (/)">🔍</button><button type="button" class="mo-tb" data-mo="settings" aria-label="Settings, stats and save" title="Settings, stats and save">⚙</button></div>
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
@@ -13013,19 +12933,9 @@ function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
 { const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) MENU_WANT=true; menuMode(); _st(t); menuHead(); }; }
 function menuHead(){ if(!MENU_OPEN) return; const sec=menuSecOf(S.tab), t=MO.querySelector('.mo-title'), nm=S.tab===DASH?'Overview':sec?(sec.id==='more'?'Settings':(sec.short||sec.name)):'';
   if(t.textContent!==nm) t.textContent=nm; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy;
-  const h=MO.querySelector('.mo-home'); if(h){ const on=S.tab===DASH; h.classList.toggle('on',on); h.setAttribute('aria-pressed',on?'true':'false'); } }
+  }
 MO.addEventListener('click',e=>{ const b=e.target.closest('[data-mo]'); if(!b) return; e.stopPropagation(); const m=b.dataset.mo;
   if(m==='close') closeMenu(); else if(m==='home'){ if(S.tab!==DASH){ setTab(DASH); save(); } } else if(m==='search'){ const s=$('searchbtn'); if(s) s.click(); } else if(m==='settings'){ const mt=MENU_MORE.tabs, last=menuLast().more; setTab(S.tab!=='settings'&&mt.includes(last)&&menuSecOf(S.tab)!==MENU_MORE?last:'settings'); save(); } });
-// ---------- the Menu button on the water (fishing mode) ----------
-const MB=document.createElement('button'); MB.id='menubtn'; MB.type='button'; MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M)';
-MB.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mbl">Menu</span><span class="mbdot" hidden></span>';
-$('stage').appendChild(MB); ['pointerdown','touchstart','mousedown'].forEach(ev=>MB.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-MB.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(DASH); });
-// what is waiting: the menu badges plus the Overview's ready cards (a full cooler, a finished bounty, coins in the aquarium)
-// how many things are waiting (a page with something new counts once, however big its own number is)
-function waitingCount(){ let n=0; try{ for(const s of MENU_SECS) for(const t of s.tabs) if(menuDot(t)) n++; if(S.cooler.length>=gv('cooler')) n++; if(S.tankBank>=1&&S.tank.length) n++; }catch(e){} return n; }
-setInterval(()=>{ const n=waitingCount(), d=MB.querySelector('.mbdot'), t=n>99?'99+':String(n); const al='Open the menu (M)'+(n?', '+n+' thing'+(n===1?'':'s')+' waiting':''); if(MB.getAttribute('aria-label')!==al){ MB.setAttribute('aria-label',al); MB.title=al; } if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
-  const hd=MO.querySelector('.mo-hdot'); if(hd){ const r=(S.cooler.length>=gv('cooler')?1:0)+(S.tankBank>=1&&S.tank.length?1:0)+S.bounties.filter(bDone).length; if(r){ hd.textContent=r; hd.hidden=false; } else hd.hidden=true; } },1000);
 // M opens and closes the menu (it used to fold the side menus away)
 addEventListener('keydown',e=>{ if((e.key!=='m'&&e.key!=='M')||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; e.preventDefault(); e.stopImmediatePropagation(); toggleMenu(); },true);
 // Esc closes the menu (the search box, a confirmation or a card handle Esc themselves first)
@@ -13041,7 +12951,7 @@ addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePro
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
 { const _ms=menuSync; menuSync=function(){ _ms(); try{ const T=$('tabs'), live=!!(S.chal||liveScheds().length);
-    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } });
+    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } }); if(document.body.classList.contains('chal-live')!==live) document.body.classList.toggle('chal-live',live); /* while LIVE shows, the Challenges count hides (director, 2026-11-19: not both) */
     const sbtn=$('settingsbtn'); if(sbtn&&!MENU_OPEN) sbtn.classList.remove('menu-on'); const mset=MO.querySelector('[data-mo="settings"]'); if(mset) mset.classList.toggle('on',menuSecOf(S.tab)===MENU_MORE); }catch(e){} }; }
 
 // ---------- the dashboard ----------
@@ -13068,13 +12978,13 @@ const DW={
   aq(){ const r=tankRate()*60, n=S.tank.length, left=Math.max(0,3600000-(Date.now()-(S.fedT||0)));
     if(!n&&S.tankBank<1) return dwBox('aq',{icon:'🐠', title:'Aquarium', sum:'0 / h', body:`<div class="meta">Put fish on display and they earn coins while you play, even when you are away.</div><div class="dwacts"><button class="btn alt sm" data-tabgo="aquarium">Open</button></div>`});
     return dwBox('aq',{icon:'🐠', title:'Aquarium', state:S.tankBank>=1?'ready':'', sum:`<span class="coin">${fmtShort(r)}</span> / h`, body:
-      `<div class="dwrow"><span class="meta">${n} / ${aqCap()} fish · waiting</span><b class="dwbig coin" id="tankbank" data-live>${fmt(S.tankBank)}</b></div>
+      `<div class="dwrow"><span class="meta">${n} / ${aqCap()} fish · waiting</span><b class="dwbig coin" id="tankbank" data-live>${fmtShort(S.tankBank)}</b></div>
        <div class="dwacts"><button class="btn sm" id="collectbtn" data-act="collect" ${S.tankBank<1?'disabled':''}>Collect</button>${n?`<button class="btn alt sm" data-act="feed" ${left?'disabled':''} title="Feeding gives +25% aquarium income for 30 minutes">${left?'Fed · '+cd(left,Math.ceil(left/60000)+' min'):'Feed fish'}</button>`:''}<button class="btn alt sm" data-tabgo="aquarium">Open</button></div>`}); },
   event(){ const c=S.chal, lives=liveScheds(), ready=menuDot('events'); let body='', sum='', state='';
     if(c){ const C=CHAL[c.id], left=Math.max(0,c.until-Date.now()), here=S.loc===c.loc; state='ready live';
       const best=C.ranked?Math.max(...c.rivals.map(r=>r[1])):0;
       sum=cd(left)+' left';
-      body+=`<div class="dwq"><div class="dwqt"><b>${C.icon} ${esc(C.name)}${here?'':' · at '+esc(LOCS[locIdx(c.loc)].name)}</b><span class="meta">${C.ranked?(c.best?'Your best '+c.best.toFixed(2)+' kg · place '+chalPlace(c):'No fish weighed yet')+' · to beat '+best.toFixed(2)+' kg':esc(C.rule(c))+': '+c.prog+' / '+c.need}</span>${dwBar(C.ranked?Math.min(1,(c.best||0)/best):c.prog/c.need,'linear-gradient(90deg,#7fe3c4,#ffd36a)')}</div></div>`; }
+      body+=`<div class="dwq"><div class="dwqt"><b>${C.icon} ${esc(C.name)}${here?'':' · at '+esc(LOCS[locIdx(c.loc)].name)}</b><span class="meta">${C.ranked?(c.best?'Your best '+wFix(c.best,2)+' · place '+chalPlace(c):'No fish weighed yet')+' · to beat '+wFix(best,2):esc(C.rule(c))+': '+c.prog+' / '+c.need}</span>${dwBar(C.ranked?Math.min(1,(c.best||0)/best):c.prog/c.need,'linear-gradient(90deg,#7fe3c4,#ffd36a)')}</div></div>`; }
     for(const e of lives){ const l=schedLeft(e); state=state||'live'; if(!sum) sum=e.icon+' live';
       body+=`<div class="dwq"><div class="dwqt"><b>${e.icon} ${esc(e.name)} <span class="dwlive">LIVE</span></b><span class="meta">${esc(e.what)} · ${cd(l)} left</span>${dwBar(l/(e.len*MIN),e.col)}</div></div>`; }
     if(!lives.length){ const nx=SCHED.map(e=>[e,schedNext(e)]).sort((a,b)=>a[1]-b[1])[0]; if(nx){ body+=`<div class="dwrow"><span class="meta">Next: ${nx[0].icon} ${esc(nx[0].name)} in ${cd(nx[1])}</span></div>`; if(!sum) sum='next in '+cd(nx[1]); } }
@@ -13130,6 +13040,7 @@ setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&
 if(/[?&]test\b/.test(location.search)) window.__ui={open:openMenu, close:closeMenu, isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
+body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
 /* ---------- category labels ---------- */
 #tabs.secmode .secb .secshort{display:none}
 @media (max-width:520px){#tabs.secmode .secb .secfull{display:none}#tabs.secmode .secb .secshort{display:inline}}
@@ -13293,29 +13204,13 @@ body.phone-app.dl-fish .hud > .stat.loc,body.phone-app.dl-fish .hud > #buffchip,
   body.dl-fish .hud > #buffchip,body.dl-fish .hud > .hudbtns{display:none!important}
 }
 /* ---------- the Menu button ---------- */
-#menubtn{position:absolute;right:12px;bottom:12px;z-index:6;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px 0 14px;border-radius:15px;border:1px solid #ffd36a99;background:linear-gradient(180deg,#24395cee,#15233ef2);color:#fff3cf;font:800 15px var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:0 8px 22px #02060fcc,0 0 18px #ffd36a2a;transition:transform .12s,box-shadow .18s,border-color .18s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#menubtn:hover{border-color:var(--gold,#ffd36a);box-shadow:0 8px 22px #02060fcc,0 0 26px #ffd36a55;transform:translateY(-1px)}
-#menubtn:active{transform:scale(.97)}
-#menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:3px}
-#menubtn .mbdot{position:absolute;top:-8px;right:-7px;min-width:21px;height:21px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 12px/21px var(--display,system-ui);text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008}
-#menubtn .mbdot[hidden]{display:none}
-body.card-open #menubtn{opacity:0;pointer-events:none}
-@media (max-height:560px){#menubtn{min-height:42px;right:10px;bottom:10px;font-size:14px;padding:0 15px 0 12px}}
-@media (max-width:420px){#menubtn{right:10px;bottom:10px}}
 .dlprev{right:auto!important;left:50%!important;bottom:4px!important;transform:translateX(-50%);opacity:.8}
 /* ---------- the full-screen menu: no pinned bars, every part is a row of one screen-tall grid (works under Safari's toolbars) ---------- */
 #menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:100vh;height:100dvh}
 #menuov .mo-in{grid-template-columns:auto auto minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}
 #menuov .mo-title{display:none!important}
-#menuov .mo-home{grid-area:home;align-self:center;position:relative;display:inline-flex;align-items:center;gap:7px;min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line,#26385180);background:var(--glass,#111c2e);color:#bcd0e4;font:800 14px var(--display,system-ui);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-#menuov .mo-home:hover{border-color:#5a7ea8aa;color:#eef3f8}
-#menuov .mo-home.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6;color:#2a1806}
-#menuov .mo-home:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
-#menuov .mo-hdot{position:absolute;top:-7px;right:-6px;min-width:19px;height:19px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 11px/19px var(--display,system-ui);text-align:center}
-#menuov .mo-hdot[hidden]{display:none}
 @media (max-width:1100px){#menuov .mo-in{grid-template-rows:auto auto auto minmax(0,1fr)!important;grid-template-areas:"back home . tools" "secs secs secs secs" "sub sub sub sub" "body body body body"!important}}
-@media (max-width:640px){#menuov .mo-home{min-height:42px;padding:0 11px}#menuov .mo-home .mo-hl{font-size:13px}}
-@media (max-width:460px){#menuov .mo-home .mo-hl{display:none}#menuov .mo-home{padding:0 11px}#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
+@media (max-width:460px){#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
 #menuov .mo-in{overflow:hidden}
 /* phones held upright: the categories are the bottom row of the same grid (thumb reach), never a pinned bar */
 @media (max-width:700px) and (orientation:portrait){
@@ -13323,7 +13218,7 @@ body.card-open #menubtn{opacity:0;pointer-events:none}
   body #menuov #tabs.secmode .secbar{position:static!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;transform:none!important;margin:0 calc(-1 * max(10px,env(safe-area-inset-right))) 0 calc(-1 * max(10px,env(safe-area-inset-left)));padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}
   body #menuov #panel{padding-bottom:16px!important}
 }
-@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}#menuov .mo-home{min-height:38px;padding:0 10px}#menuov .mo-home .mo-hl{display:none}}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}}
 /* the Overview inside the menu: cards across the full width */
 #menuov #panel .dash{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 @container (min-width:640px){#menuov #panel .dash .dw.wide{grid-column:span 2}}
@@ -13423,8 +13318,7 @@ body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:10
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:clamp(132px,18vw,176px) minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back sub tools" "home body body" "secs body body"!important;column-gap:12px!important;row-gap:5px!important;padding-top:max(6px,env(safe-area-inset-top))!important}
-  #menuov .mo-back,#menuov .mo-home{width:100%;box-sizing:border-box;justify-content:flex-start;min-height:36px!important;padding:0 10px!important;border-radius:12px;align-self:start}
-  #menuov .mo-home .mo-hl{display:inline!important;font-size:13px}
+  #menuov .mo-back{width:100%;box-sizing:border-box;justify-content:flex-start;min-height:36px!important;padding:0 10px!important;border-radius:12px;align-self:start}
   body #menuov #tabs.secmode .secbar{grid-area:secs;display:flex!important;flex-direction:column;align-self:stretch;gap:4px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:2px 0 10px!important;margin:0!important;min-height:0;background:none!important;border:0!important;box-shadow:none!important}
   body #menuov #tabs.secmode .secbar::-webkit-scrollbar{display:none}
   body #menuov #tabs.secmode .secb{flex:0 0 auto;flex-direction:row!important;justify-content:flex-start;gap:9px!important;min-height:36px!important;padding:0 10px!important;font-size:13px!important;border-radius:12px!important}
@@ -13504,7 +13398,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px) and (max-width:820px){
   body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
   body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
-  #menuov .mo-back,#menuov .mo-home{padding:0 8px!important}
+  #menuov .mo-back{padding:0 8px!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13595,16 +13489,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* the smallest sideways phones: an icon rail (names on long-press / hover), so pages get the width */
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:52px minmax(0,1fr) auto!important;column-gap:10px!important}
-  #menuov .mo-back,#menuov .mo-home{justify-content:center;padding:0!important;font-size:0!important}
+  #menuov .mo-back{justify-content:center;padding:0!important;font-size:0!important}
   #menuov .mo-back::after{content:none!important}
   #menuov .mo-back svg:not(.mo-bi){display:none!important}
-  #menuov .mo-home .mo-hl{display:none!important}
   body #menuov #tabs.secmode .secb{justify-content:center;padding:0!important;position:relative}
   body #menuov #tabs.secmode .secb .secl{display:none!important}
   body #menuov #tabs.secmode .secb .seci svg{width:20px;height:20px}
   body #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;left:auto!important;transform:none!important;min-width:17px;height:17px;font-size:10px;line-height:17px;margin:0!important}
   body #menuov #tabs.secmode .secb .seclive{position:absolute!important;top:3px!important;left:4px!important;right:auto!important;margin:0!important}
-  #menuov .mo-hdot{top:-5px!important;right:-5px!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -13630,37 +13522,35 @@ document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:520px
 // =====================================================================
 const CD=document.createElement('nav'); CD.id='catdock'; CD.setAttribute('aria-label','Menu categories');
 CD.innerHTML=MENU_SECS.map(s=>`<button type="button" class="cdb" data-cd="${s.id}" title="${esc(s.name)}" aria-label="${esc(s.name)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.icon}</svg><span class="cdl">${s.short}</span><span class="cddot" hidden></span></button>`).join('');
-$('stage').appendChild(CD); CD.prepend(MB); MB.querySelector('svg').setAttribute('width','20');
+$('stage').appendChild(CD);
 ['pointerdown','touchstart','mousedown'].forEach(ev=>CD.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
 CD.addEventListener('click',e=>{ const b=e.target.closest('[data-cd]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const sec=MENU_SECS.find(s=>s.id===b.dataset.cd); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; openMenu(list.includes(last)?last:list[0]); });
 setInterval(()=>{ if(MENU_OPEN) return; for(const b of CD.querySelectorAll('.cdb')){ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.cddot'), t=n>99?'99+':String(n); if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
   if(sec.id==='chal'){ const live=!!(S.chal||liveScheds().length); b.classList.toggle('live',live); } } },1000);
 document.head.insertAdjacentHTML('beforeend',`<style>
 #catdock{position:absolute;z-index:6;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:3px;padding:4px;border-radius:17px;background:linear-gradient(180deg,#152540e0,#0c1628ec);border:1px solid #ffffff1c;box-shadow:0 10px 26px #02060fb3;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-#catdock .cdb,#catdock #menubtn{position:relative!important;inset:auto!important;transform:none;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:64px;height:48px!important;min-height:0!important;padding:0 6px!important;margin:0;border-radius:13px;border:1px solid transparent;background:transparent;color:#c9d7e8;font:800 11px/1.1 var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:none!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s,border-color .15s}
+#catdock .cdb{position:relative!important;inset:auto!important;transform:none;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:64px;height:48px!important;min-height:0!important;padding:0 6px!important;margin:0;border-radius:13px;border:1px solid transparent;background:transparent;color:#c9d7e8;font:800 11px/1.1 var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:none!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s,border-color .15s}
 #catdock .cdb:hover{background:#ffffff10;color:#fff}
-#catdock .cdb:active,#catdock #menubtn:active{transform:scale(.95)}
-#catdock #menubtn{border-color:#ffd36a77;background:linear-gradient(180deg,#2a3f63,#1a2a48);color:#fff1c8}
-#catdock #menubtn:hover{border-color:var(--gold,#ffd36a)}
-#catdock .cdb:focus-visible,#catdock #menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:1px}
+#catdock .cdb:active{transform:scale(.95)}
+#catdock .cdb:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:1px}
 #catdock .cdl,#catdock .mbl{white-space:nowrap}
-#catdock .cddot,#catdock .mbdot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
-#catdock .cddot[hidden],#catdock .mbdot[hidden]{display:none!important}
+#catdock .cddot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
+#catdock .cddot[hidden]{display:none!important}
 #catdock .cdb.live::before{content:"";position:absolute;top:5px;left:calc(50% - 21px);width:8px;height:8px;border-radius:50%;background:#ff5a6a;box-shadow:0 0 8px #ff5a6a;animation:livepulse 1.6s ease-in-out infinite}
 body.card-open #catdock{opacity:0;pointer-events:none}
 /* the tip line and the Rest button sit clear of the bar */
 body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
 /* PC and tablets: icon and name side by side */
 @media (min-width:701px) and (min-height:561px){
-  #catdock .cdb,#catdock #menubtn{flex-direction:row;gap:7px;height:42px!important;padding:0 12px!important;font-size:13px;min-width:0}
-  #catdock .cddot,#catdock .mbdot{top:-7px!important;right:-6px!important}
+  #catdock .cdb{flex-direction:row;gap:7px;height:42px!important;padding:0 12px!important;font-size:13px;min-width:0}
+  #catdock .cddot{top:-7px!important;right:-6px!important}
   #catdock .cdb.live::before{top:4px;left:4px}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:66px!important}
 }
 /* phones held upright: the bar spans the bottom of the water, Rest sits just above it */
 @media (max-width:700px) and (orientation:portrait){
   #catdock{left:6px;right:6px;bottom:6px;transform:none;justify-content:space-between;gap:2px;padding:3px;border-radius:15px}
-  #catdock .cdb,#catdock #menubtn{flex:1 1 0;min-width:0;padding:0 1px!important;height:50px!important;font-size:10.5px}
+  #catdock .cdb{flex:1 1 0;min-width:0;padding:0 1px!important;height:50px!important;font-size:10.5px}
   #catdock .cdl,#catdock .mbl{overflow:hidden;text-overflow:ellipsis;max-width:100%}
   body.dl-fish .resttog{bottom:66px!important;left:8px!important}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:104px!important}
@@ -13668,15 +13558,15 @@ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
 /* phones held sideways: a compact bar in the bottom middle, Rest on the left of the same row */
 @media (orientation:landscape) and (max-height:560px){
   #catdock{bottom:6px;padding:3px;gap:2px;border-radius:14px}
-  #catdock .cdb,#catdock #menubtn{min-width:58px;height:42px!important;font-size:10px;padding:0 4px!important}
+  #catdock .cdb{min-width:58px;height:42px!important;font-size:10px;padding:0 4px!important}
   #catdock svg{width:18px;height:18px}
   body.dl-fish .resttog{bottom:12px!important}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:56px!important}
 }
-@media (max-width:360px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px} }
+@media (max-width:360px) and (orientation:portrait){ #catdock .cdb{font-size:9.5px} }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:700px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px;letter-spacing:0} #catdock svg{width:21px;height:21px} }
+@media (max-width:700px) and (orientation:portrait){ #catdock .cdb{font-size:9.5px;letter-spacing:0} #catdock svg{width:21px;height:21px} }
 /* the preview badge (preview builds only) sits at the top middle of the water, clear of the bar */
 .dlprev{top:calc(env(safe-area-inset-top) + 4px)!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;opacity:.7}
 </style>`);
@@ -13707,12 +13597,12 @@ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:72px!important}
 @media (min-width:701px) and (min-height:561px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important} }
 @media (max-width:700px) and (orientation:portrait){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:114px!important} }
 @media (orientation:landscape) and (max-height:560px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:64px!important} }
-@media (max-width:379px) and (orientation:portrait){ #catdock{left:4px;right:4px;gap:1px;padding:3px 2px} #catdock .cdb,#catdock #menubtn{font-size:9px!important;letter-spacing:-.15px!important} }
+@media (max-width:379px) and (orientation:portrait){ #catdock{left:4px;right:4px;gap:1px;padding:3px 2px} #catdock .cdb{font-size:9px!important;letter-spacing:-.15px!important} }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (min-width:701px) and (max-width:1099px) and (min-height:561px){
-  #catdock .cdb,#catdock #menubtn{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
-  #catdock .cddot,#catdock .mbdot{top:-6px!important;right:calc(50% - 25px)!important}
+  #catdock .cdb{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
+  #catdock .cddot{top:-6px!important;right:calc(50% - 25px)!important}
   #catdock .cdb.live::before{top:5px;left:calc(50% - 21px)}
 }
 </style>`);
@@ -13743,9 +13633,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   /* on the water: a slim rail down the right edge, growing up from the bottom corner */
   #catdock{left:auto!important;right:6px!important;top:auto!important;bottom:6px!important;transform:none!important;flex-direction:column;gap:2px;padding:3px;border-radius:14px}
-  #catdock .cdb,#catdock #menubtn{flex-direction:row!important;justify-content:flex-start;gap:7px!important;width:112px;min-width:0!important;height:31px!important;padding:0 9px!important;font-size:11px!important;border-radius:10px}
+  #catdock .cdb{flex-direction:row!important;justify-content:flex-start;gap:7px!important;width:112px;min-width:0!important;height:31px!important;padding:0 9px!important;font-size:11px!important;border-radius:10px}
   #catdock svg{width:17px!important;height:17px!important;flex:0 0 auto}
-  #catdock .cddot,#catdock .mbdot{top:50%!important;right:6px!important;transform:translateY(-50%);min-width:17px!important;height:17px!important;line-height:17px!important;font-size:10px!important}
+  #catdock .cddot{top:50%!important;right:6px!important;transform:translateY(-50%);min-width:17px!important;height:17px!important;line-height:17px!important;font-size:10px!important}
   #catdock .cdb.live::before{top:4px!important;left:4px!important;width:7px;height:7px}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:10px!important;left:calc(50% - 62px)!important;max-width:calc(100% - 330px)!important}
   body.dl-fish .resttog{bottom:8px!important}
@@ -13757,7 +13647,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
-  #catdock .cdb,#catdock #menubtn{width:134px;padding:0 28px 0 9px!important}
+  #catdock .cdb{width:134px;padding:0 28px 0 9px!important}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{left:calc(50% - 72px)!important;max-width:calc(100% - 350px)!important}
   .dlprev{right:calc(160px + env(safe-area-inset-right))!important}
 }
@@ -13792,7 +13682,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   body #menuov #tabs.secmode .subp{min-height:32px!important;padding:0 11px!important;font-size:12.5px!important}
   #menuov .mo-tb{width:34px!important;height:34px!important}
   #menuov .mo-coin{min-height:32px!important;padding:0 9px!important}
-  #menuov .mo-back,#menuov .mo-home,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
+  #menuov .mo-back,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
   #menuov .mo-in{row-gap:4px!important;padding-top:max(5px,env(safe-area-inset-top))!important}
 }
 </style>`);
@@ -13923,10 +13813,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
-  #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
+  #menuov .mo-back{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
   #menuov .mo-back::after{content:"Back"!important;font-size:12px!important}
-  #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
-  #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
   body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
   body #menuov #tabs.secmode .secb .secl{display:inline!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
@@ -13944,16 +13832,11 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
 { const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
 openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
-{ const h=MO.querySelector('.mo-home'); if(h) h.remove(); }
-MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M): opens the page you used last';
-document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:none!important}</style>');
 
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
 { const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
-    // Skills: the "Looking for specialisations? Open Paths" pointer is redundant (Paths is the tab right beside it)
-    if(S.tab==='skills'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>/Looking for specialisations/i.test(x.textContent)); if(t) t.remove(); }
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
   }catch(e){} }; menuTidy=menuTidy2; }
@@ -13963,7 +13846,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel > .row.dl-head > :not(:first-child){margin-left:0!important}
 /* Events calendar and daily tasks: side by side on wide enough pages */
 @container (min-width:560px){
-  #menuov #panel .ev-cal{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
+  #menuov #panel .tile.ev-cal{display:grid; /* no !important: it overrode the page tabs hiding the calendar (director, 2026-11-19: Events tabs showed the same things) */ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
   #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
   #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
   #menuov #panel .tile.dtasks{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
@@ -14017,7 +13900,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   /* a wrapped header block (Tide Pass level, cozy level) uses the full width */
   #menuov #panel > .row.dl-head > :not(:first-child){flex:1 1 auto}
   /* Docks and pet filters: one row that scrolls sideways */
-  #menuov #panel .dock-h:has(> .dock-c),#menuov #panel .chips.pet-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .dock-h:has(> .dock-c):not([style*="display: none"]),#menuov #panel .chips.pet-filter:not([style*="display: none"]){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
   #menuov #panel .dock-h:has(> .dock-c)::-webkit-scrollbar,#menuov #panel .chips.pet-filter::-webkit-scrollbar{display:none}
   #menuov #panel .dock-h > *,#menuov #panel .chips.pet-filter > *{flex:0 0 auto}
 }
@@ -14070,7 +13953,6 @@ body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;lef
 // The landscape side panels fold to icons and back (one setting for the water's panel and the menu's rail).
 // Page tabs (Wardrobe tabs, section tabs) stay pinned while a page scrolls.
 // =====================================================================
-MB.remove();
 { const mini=()=>!!(S.settings&&S.settings.dockMini); const apply=()=>{ document.body.classList.toggle('dock-mini',mini()); document.querySelectorAll('.cdmini').forEach(b=>{ b.setAttribute('aria-pressed',String(mini())); const t=mini()?'Expand panel':'Collapse panel'; b.title=t; b.setAttribute('aria-label',t); const l=b.querySelector('.cdml'); if(l&&l.textContent!==t) l.textContent=t; }); };
   const mk=()=>{ const b=document.createElement('button'); b.type='button'; b.className='cdmini'; b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="cdml">Collapse panel</span>';
     ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.dockMini=!mini(); apply(); save(); dispatchEvent(new Event('resize')); }); return b; };
@@ -14257,7 +14139,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
 // Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
 // the touch was a click; that decision sometimes failed on iPhone and needed a second tap. The phone's own click that follows is ignored.
-{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home,.hud > .hud-link,.hud > .hudx,.hud #goalchip,.hud .hudbtns > button'; // top-bar chips too (director 2026-11-18: tapping Fishing at sometimes did nothing on iPhone)
+{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,.hud > .hud-link,.hud > .hudx,.hud #goalchip,.hud .hudbtns > button'; // top-bar chips too (director 2026-11-18: tapping Fishing at sometimes did nothing on iPhone)
   // Every finger is tracked on its own (fast taps with two thumbs overlap). While touch is in use, menu buttons are driven only by
   // finger lifts: the phone's own clicks on them are ignored, so a late click can never undo a newer tap. The one exception is a
   // touch that didn't act (the phone cancelled it, or the finger slid): its click is honoured, since nothing else acted for it.
@@ -14269,7 +14151,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
     // the button was redrawn while the finger was down (live countdowns, a page refresh): tap the button that is under the finger now
     if(!d.el.isConnected){ const n=document.elementFromPoint(e.clientX,e.clientY), el2=n&&n.closest&&n.closest(NAV); if(!el2||el2.disabled){ unacted(d.el); return; } d.el=el2; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
-    if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
+    if(d.el.matches('.mo-back')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
     synth=true; try{ d.el.click(); }finally{ synth=false; } },true);
   document.addEventListener('click',e=>{ if(synth) return; const now=performance.now(); if(now-lastTouch>1000) return; // mouse and keyboard keep normal clicks
@@ -14279,7 +14161,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.head.insertAdjacentHTML('beforeend',`<style>
 /* bigger side buttons on short landscape screens, and no dead gap between them: each button's tap area reaches halfway into the gap */
 @media (orientation:landscape) and (max-height:560px){
-  body #menuov #tabs.secmode .secb,#menuov .mo-back,#menuov .mo-home{min-height:40px!important}
+  body #menuov #tabs.secmode .secb,#menuov .mo-back{min-height:40px!important}
   body #menuov #tabs.secmode .secb::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
 }
 </style>`); }
@@ -14635,8 +14517,8 @@ function bwDrawWear(x,w,h,it){ if(!it) return; const lk=Object.assign({},S.look,
   if(it.kind==='petacc'||it.kind==='pettint'){
     // shown on your favourite pet, awake; a new colour on a pet whose coat it barely changes (Dax is black) is shown on another of your pets
     let id=S.pet; if(it.kind==='pettint'&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id;
-    const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id}), n0=PET_NIGHT; PET_NIGHT=0;
-    try{ drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); } finally{ PET_NIGHT=n0; } return; }
+    const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id});
+    drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); return; }
   if(it.kind==='pat'){ lk.pat=it.id; lk.outfit='none'; const s=h/34; return drawAngler(x,w*.46,h*.5+50*s,s,lk,{}); }
   if(it.kind==='out') lk.outfit=it.id;
   drawAngler(x,w/2,h*.95,h/90,lk,{}); }
@@ -14838,7 +14720,7 @@ function rpSave(i){ if(!S.rods.owned.includes(S.rods.eq)) return false; S.rodPre
 function rpClear(i){ S.rodPresets[i]=null; if(S.rodPreset===i) S.rodPreset=-1; save(); }
 { const _sv=save; save=function(){ rpSync(); return _sv.apply(this,arguments); }; }
 { const _rp=renderPanel; renderPanel=function(){ if(S.tab==='rods') rpSync(); return _rp.apply(this,arguments); }; }
-function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Your rods</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
+function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Presets</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
     if(!R) return `<div class="rp-card empty"><span class="rp-n">Preset ${i+1}</span><em>Empty</em><button type="button" class="btn alt sm" data-rp="save:${i}">Save the rod in your hands here</button></div>`;
     const atts=p.att.filter(a=>a&&ATT_I[a]).map(a=>`<span class="rp-att">${esc(ATT_I[a].name)}</span>`).join('')||'<span class="rp-att none">No attachments</span>';
     return `<div class="rp-card${on?' on':''}"><span class="rp-n">Preset ${i+1}${on?' · in use':''}</span><b>${esc(R.name)}</b><span class="rp-lv">Level ${(S.rods.lvl&&S.rods.lvl[p.rod])||0} / 10 · ${R.slots} slot${R.slots>1?'s':''}</span><div class="rp-atts">${atts}</div><div class="rp-acts">${on?'<span class="badge g">In use</span>':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button>`}<button type="button" class="btn alt sm" data-rp="save:${i}">${on?'Saved':'Replace with current'}</button><button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('')}</div></div>`; }
@@ -14864,11 +14746,11 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 //  - still fish pictures (catch card, Cooler, Aquarium, Fish Log, Trophy Room): a live layer over the picture
 //  - fish in the water and in the aquarium tank (al_decor04.js calls shinyFxWater)
 // What a sparkle is here: a light flash that pops on a new spot of the fish's body, flares (bright core + long rays that
-// stretch and turn), and fades; plus glitter (tiny fast twinkles), sheens sweeping across the body (masked to the fish),
+// stretch and turn), and fades; plus glitter (tiny fast twinkles),
 // and per-kind signatures. Everything is drawn additively ("lighter"), so it reads as light, not as stickers.
 // Variety: every shiny fish rolls one of 4 styles from its species (glint / glitter / shimmer / flare), and each prismatic
-// kind has its own signature: Rainbow = colour-shifting flares + a rainbow sheen, Starry = a twinkling starfield with
-// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up + a warm sheen,
+// kind has its own signature: Rainbow = colour-shifting flares, Starry = a twinkling starfield with
+// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up,
 // Mythic = pink and teal motes circling the fish.
 // Cost: pictures animate only while on screen, 30 times a second; positions come from the fish's own pixels (worked out once
 // per species and size); no per-frame allocations beyond a few gradients.
@@ -14879,7 +14761,6 @@ const SFX_PAL={shiny:{a:'#fff3c4',b:'#ffcf5a',dust:'#ffe7a0'}, mythic:{a:'#ffb0e
 const SFX_STYLES=['glint','glitter','shimmer','flare'];
 function sfxHash(a,b){ let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263); h=Math.imul(h^(h>>>13),1274126177); return ((h^(h>>>16))>>>0)/4294967296; }
 function sfxRgba(hex,a){ const n=parseInt(hex.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+Math.max(0,Math.min(1,a)).toFixed(3)+')'; }
-function sfxCol(P,i,t,which){ return P.hue?'hsl('+Math.round((t*90+i*61)%360)+',100%,'+(which?72:82)+'%)':(which?P.b:P.a); }
 function sfxColA(P,i,t,which,a){ if(!P.hue) return sfxRgba(which?P.b:P.a,a); return 'hsla('+Math.round((t*90+i*61)%360)+',100%,'+(which?72:82)+'%,'+a.toFixed(3)+')'; }
 // one flare: a hot white core, a coloured halo, 2 long rays and 2 short ones, all tapering to nothing
 function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;
@@ -14892,7 +14773,7 @@ function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;
   const L=s*(long?4.2:3); ray(L,s*.16,a); c.rotate(Math.PI/2); ray(L*.82,s*.14,a*.9); c.rotate(Math.PI/4); ray(L*.38,s*.1,a*.55); c.rotate(Math.PI/2); ray(L*.38,s*.1,a*.55); c.restore(); }
 // the life of one sparkle: pops in fast, flares, fades slower; a new spot every cycle
 function sfxLife(u){ return u<.1?u/.1:Math.max(0,1-(u-.1)/.6)**1.6; }
-// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, sheen(fn)|null, motes:boolean}
+// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, motes:boolean}
 function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style, sd=o.seed|0, s=o.size;
   c.save(); c.globalCompositeOperation='lighter';
   const nFlare=o.kind==='shiny'?(st==='glint'?3:st==='glitter'?1:st==='shimmer'?2:3):(o.kind==='mythic'?3:4), nGlit=st==='glitter'?22:o.kind==='starry'?26:o.kind==='shiny'?8:12;
@@ -14905,8 +14786,6 @@ function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style,
   // glitter: tiny fast twinkles, each hops to a new spot every couple of seconds
   for(let i=0;i<nGlit;i++){ const per=1.6+sfxHash(sd,i*5+40)*1.4, k=(t+sfxHash(sd,i*5+41)*per)/per, n=Math.floor(k), u=k-n; const tw=Math.sin(u*Math.PI)**3*(o.kind==='starry'?(.55+.45*Math.sin(t*3+i)):(.6+.4*Math.sin(t*11+i*2.3))); if(tw<.05) continue;
     const p=o.pick(sfxHash(sd+n,i*9+42),sfxHash(sd+n,i*9+43)), r=Math.max(.6,s*(o.kind==='starry'?.16:.12)*(.6+tw*.6)); c.fillStyle=sfxColA(P,i,t,i%2,tw); c.fillRect(p[0]-r,p[1]-r*.25,r*2,r*.5); c.fillRect(p[0]-r*.25,p[1]-r,r*.5,r*2); c.fillStyle='rgba(255,255,255,'+(tw*.9).toFixed(3)+')'; c.fillRect(p[0]-r*.3,p[1]-r*.3,r*.6,r*.6); }
-  // sheen sweeping across the body (masked to the fish by the caller)
-  if(o.sheen&&(st==='shimmer'||o.kind==='rainbow'||o.kind==='ancient'||o.kind==='mythic'||st==='glint')){ const per=st==='shimmer'?2.6:3.8, k=((t+sfxHash(sd,77)*per)%per)/per*1.6-.3; if(k>-.3&&k<1.3) o.sheen(k,P); }
   // per-kind signatures
   if(o.kind==='starry'&&o.w){ const per=5.2, k=(t+sfxHash(sd,88)*per)/per, n=Math.floor(k), u=(k-n)*per; if(u<.6){ const e=u/.6, x0=o.w*(.05+sfxHash(sd+n,1)*.4), y0=o.h*(.08+sfxHash(sd+n,2)*.25), x=x0+e*o.w*.5, y=y0+e*o.h*.35, ln=o.w*.18;
       const lg=c.createLinearGradient(x,y,x-ln,y-ln*.7); lg.addColorStop(0,'rgba(255,255,255,'+(.95*(1-e*.6)).toFixed(3)+')'); lg.addColorStop(1,'rgba(160,200,255,0)'); c.strokeStyle=lg; c.lineWidth=Math.max(1,s*.18); c.beginPath(); c.moveTo(x,y); c.lineTo(x-ln,y-ln*.7); c.stroke(); } }
@@ -14923,20 +14802,20 @@ function shinyStyle(sp,shiny,pv){ const kind=shiny===2?(pv&&SFX_PAL[pv]?pv:'rain
 // ---------- fish in the water and in the tank (called from al_decor04.js with the fish's body drawn on its own layer) ----------
 function shinyFxWater(c,x,y,L,t,sp,o,layer,px,R){ try{ const S0=shinyStyle(sp,o.shiny,o.pv);
     shinyFxDraw(c,t,{kind:S0.kind, style:S0.style, seed:S0.seed+(o.seedAdd||0), size:Math.max(1.1,L*.085), w:L*1.4, h:L*.6, cx:x, cy:y, motes:true,
-      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }, sheen:null}); }catch(e){} }
+      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }}); }catch(e){} }
 
 // ---------- still pictures ----------
-const SPK=new Map(), SPK_SPOTS=new Map(); let SPK_TMP=null;
+const SPK=new Map(), SPK_SPOTS=new Map();
 const spkVis=window.IntersectionObserver?new IntersectionObserver(es=>{ for(const e of es){ const o=SPK.get(e.target); if(o) o.vis=e.isIntersecting; } }):null;
 function spkWants(sp,known,shiny){ return !!(known&&sp&&(shiny||sp.r===5)); }
 function spkDrop(cnv){ if(SPK.has(cnv)){ SPK.delete(cnv); if(spkVis) spkVis.unobserve(cnv); } }
 function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<8||h<8) return; const base=document.createElement('canvas'); base.width=w; base.height=h; base.getContext('2d').drawImage(cnv,0,0);
     const S0=shinyStyle(sp,shiny,pv), key=[sp.id,w,h,S0.kind,typeof V3ON!=='undefined'&&V3ON?1:0].join('|');
     let sp0=SPK_SPOTS.get(key);
-    if(!sp0){ // spots on the fish: solid pixels only, plus a mask of the body for the sheen
+    if(!sp0){ // spots on the fish: solid pixels only
       const d=cnv.getContext('2d').getImageData(0,0,w,h).data, pts=[], st=Math.max(2,Math.round(Math.min(w,h)/40)); for(let yy=0;yy<h;yy+=st) for(let xx=0;xx<w;xx+=st){ if(d[(yy*w+xx)*4+3]>215) pts.push([xx,yy]); }
-      if(!pts.length) return; const m=document.createElement('canvas'); m.width=w; m.height=h; const mx=m.getContext('2d'), id=mx.createImageData(w,h); for(let i=0;i<w*h;i++){ if(d[i*4+3]>200){ id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=255; id.data[i*4+3]=255; } } mx.putImageData(id,0,0);
-      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,mask:m,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
+      if(!pts.length) return;
+      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
     const was=SPK.get(cnv); SPK.set(cnv,Object.assign({base,w,h,vis:was?was.vis:true},S0,sp0)); if(spkVis&&!was) spkVis.observe(cnv); spkDraw(cnv,SPK.get(cnv),performance.now()/1000); }catch(e){} }
 { const _fc=fishCanvas; fishCanvas=function(cnv,sp,known=true,shiny=false,pv=null){ spkDrop(cnv);
     const keep=sparkles; sparkles=function(){}; SHINY3.still=true; try{ _fc.apply(this,arguments); } finally{ sparkles=keep; SHINY3.still=false; }
@@ -14949,12 +14828,7 @@ function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<
 function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.globalCompositeOperation='source-over'; c.clearRect(0,0,w,h); c.drawImage(o.base,0,0);
   const sz=Math.max(1.6,Math.min(w,h)*.06), pts=o.pts;
   shinyFxDraw(c,t,{kind:o.kind, style:o.style, seed:o.seed, size:sz, w, h, cx:o.cx, cy:o.cy, motes:true,
-    pick:(r1)=>pts[Math.floor(r1*pts.length)],
-    sheen:(k,P)=>{ if(!SPK_TMP) SPK_TMP=document.createElement('canvas'); const T=SPK_TMP; if(T.width<w||T.height<h){ T.width=Math.max(T.width,w); T.height=Math.max(T.height,h); } const x=T.getContext('2d');
-      x.globalCompositeOperation='source-over'; x.clearRect(0,0,w,h); const bx=k*w*1.3-w*.15, g=x.createLinearGradient(bx-w*.12,0,bx+w*.12,h*.4);
-      if(P.hue){ ['#ff6a8a','#ffd36a','#7affb0','#6ad8ff','#b08aff'].forEach((cl,i)=>g.addColorStop(i/4,cl)); x.globalAlpha=.55; } else { g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.5,sfxRgba(P.a,.75)); g.addColorStop(1,'rgba(255,255,255,0)'); x.globalAlpha=1; }
-      x.fillStyle=g; x.fillRect(bx-w*.14,0,w*.28,h); x.globalAlpha=1; x.globalCompositeOperation='destination-in'; x.drawImage(o.mask,0,0); x.globalCompositeOperation='source-over';
-      c.globalAlpha=.7; c.drawImage(T,0,0,w,h,0,0,w,h); c.globalAlpha=1; }});
+    pick:(r1)=>pts[Math.floor(r1*pts.length)]});
   c.restore(); }
 // every display frame (director: "use more frames, push the limits without breaking"); runs only while a shiny picture exists
 { let raf=0; const tick=()=>{ raf=0; if(!SPK.size) return; if(!document.hidden){ const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } } if(SPK.size) raf=requestAnimationFrame(tick); };
@@ -15280,24 +15154,9 @@ body.phone-app.dl-fish .hud > #goalchip .gl-s{white-space:nowrap!important;overf
 body.phone-app.dl-fish .hud > #goalchip{overflow:hidden}
 </style>`);
 
-// 5) Bait on the fishing screen (phones): a Bait button beside Rest shows the bait you use and opens the bait list
-{ let btn=null; const label=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return '🪱 '+b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
-  const place=()=>{ if(!MOB()) { if(btn) btn.hidden=true; return; } const st=$('stage'), rest=$('resttog'); if(!st) return;
-    if(!btn){ btn=document.createElement('button'); btn.type='button'; btn.id='baitqk'; btn.className='resttog baitqk'; btn.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} try{ tackleView='bait'; }catch(er){} openMenu('shop'); }); st.appendChild(btn); }
-    btn.hidden=false; const t=label(); if(btn.textContent!==t) btn.textContent=t;
-    if(rest&&rest.offsetWidth){ const l=(rest.offsetLeft+rest.offsetWidth+8)+'px', tp=rest.offsetTop+'px', hh=rest.offsetHeight+'px'; // the Rest style pins left with !important, so ours must too
-      if(btn.style.left!==l) btn.style.setProperty('left',l,'important'); if(btn.style.top!==tp) btn.style.setProperty('top',tp,'important'); if(btn.style.height!==hh) btn.style.setProperty('height',hh,'important'); btn.style.setProperty('bottom','auto','important'); } };
-  setInterval(()=>{ try{ place(); }catch(e){} },1000); setTimeout(place,900); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #baitqk,body.phone-land #baitqk{max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-color:#7fe3c466!important}
-body.card-open #baitqk{opacity:0;pointer-events:none}
-body:not(.phone-app):not(.phone-land) #baitqk{display:none!important}
-</style>`);
 
-// 6) Rods (phones): the "Your rods" presets at the top of the Rods page
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.rp-box')) return r; const anchor=P.querySelector(':scope > .tile')||P.querySelector(':scope > .grid'); if(anchor) anchor.insertAdjacentHTML('beforebegin',rodPresetsHTML()); else P.insertAdjacentHTML('afterbegin',rodPresetsHTML()); }catch(e){} return r; }; }
 
-// 7) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
+// 5) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
 PLAT.willowRepaintS=()=>MOB()?.25:.03;      /* Willow curtain repaints 4x a second (its sway is slow) */
 PLAT.rippleBands=MOB;                       /* storms: rain rings in 3 brightness bands, 3 strokes instead of ~46 */
 PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn ~30x a second, at once on any state change */
@@ -15326,7 +15185,7 @@ body.phone-app .hud button.st-aq.ready .lbl,body.phone-land .hud button.st-aq.re
 /* settings and search */
 body.phone-app .hudbtns > button,body.phone-land .hudbtns > button{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c!important}
 /* Rest and Bait on the fishing screen */
-body.phone-app #resttog,body.phone-app #baitqk,body.phone-land #resttog,body.phone-land #baitqk{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c,0 4px 10px #0007!important}
+body.phone-app #resttog,body.phone-land #resttog{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c,0 4px 10px #0007!important}
 /* page tabs inside a menu: teal outline, the open one gold */
 body.phone-app #menuov .subbar .subp,body.phone-land #menuov .subbar .subp{background:var(--mt-navy)!important;border-color:#7fe3c466!important;color:#dff7ef!important}
 body.phone-app #menuov .subbar .subp.on,body.phone-land #menuov .subbar .subp.on{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12!important}
@@ -15404,7 +15263,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   /* the menu's side panel: the same card as on the water, buttons spread evenly, hide/show at the bottom */
   body.phone-land #menuov .secbar{background:linear-gradient(180deg,#14243a,#0c1626)!important;border:1px solid #ffffff16!important;border-radius:18px!important;padding:7px!important;gap:6px!important;justify-content:flex-start!important;align-items:stretch!important;box-sizing:border-box;max-height:calc(100% - 6px)}
-  body.phone-land #menuov .secbar .secb{flex:1 1 0!important;max-height:46px!important;min-height:32px!important;height:auto!important;box-sizing:border-box}
+  body.phone-land #menuov .secbar .secb{flex:1 1 auto!important; /* content-based (was 1 1 0: when the rail was not stretched, as on the director’s iPhone, its natural height was just its padding and it cut off after Quests, 2026-11-19) */ max-height:46px!important;min-height:32px!important;height:auto!important;box-sizing:border-box}
   body.phone-land #menuov .secbar .cdmini{order:99!important;flex:0 0 28px!important;height:28px!important;min-height:0!important;margin-top:2px!important;border-radius:10px!important;background:#0a1424!important;border:1px solid #ffffff1c!important;color:#9fb2c8!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;font-size:11px!important;line-height:1!important;padding:0 8px!important}
   body.phone-land #menuov .secbar .cdmini svg{width:14px!important;height:14px!important;flex:0 0 auto}
   body.phone-land #catdock .cdb.live::before,body.phone-land #menuov .secbar .secb.live::before{top:5px!important;left:5px!important}
@@ -15551,7 +15410,7 @@ ${B('.hud > .hudbtns > #settingsbtn.menu-on')}{background:var(--th-gold)!importa
 ${LAND('.hud > .hudbtns > #searchbtn,.hud > .hudbtns > #settingsbtn')}{width:40px!important;min-width:40px!important;flex:0 0 40px!important}
 
 /* ---------- on the water: actions are filled teal, notes are navy cards ---------- */
-${B('#resttog,#baitqk')}{border-radius:var(--th-r)!important;font-family:var(--display)!important;font-weight:800!important;background:var(--th-teal)!important;border:1px solid var(--th-teal-b)!important;box-shadow:0 3px 10px #0007!important}
+${B('#resttog')}{border-radius:var(--th-r)!important;font-family:var(--display)!important;font-weight:800!important;background:var(--th-teal)!important;border:1px solid var(--th-teal-b)!important;box-shadow:0 3px 10px #0007!important}
 ${B('#resttog[aria-pressed="true"]')}{background:var(--th-gold)!important;border-color:var(--th-gold-b)!important;color:var(--th-gold-ink)!important}
 
 /* ---------- side panel, sideways: compact, same navy buttons, teal icons, the open one gold ---------- */
@@ -15793,7 +15652,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
         grid.querySelectorAll(':scope > .tile').forEach(t=>{ const c=t.querySelector('canvas[data-decor]'); if(!c) return; const id=c.dataset.decor, own=S.aq.owned.includes(id), placed=S.aq.decor.includes(id), d=DECORI[id];
           const pvB=t.querySelector('[data-act="aqpv"]'), useB=t.querySelector('[data-act="decor"]'); const trying=AQ_PV&&AQ_PV.kind==='decor'&&AQ_PV.id===id;
           t.classList.toggle('aq07-trying',!!trying); t.classList.toggle('aq07-placed',placed);
-          const st=document.createElement('span'); st.className='aq07-st'; st.innerHTML= own?(placed?'In your tank · tap to remove':'Owned · tap to place'):(d&&d.price?(trying?'Trying · buy below the tank':'<span class="coin">'+fmt(d.price)+'</span> · tap to try'):'Crates and prizes only'); t.appendChild(st);
+          const st=document.createElement('span'); st.className='aq07-st'; st.innerHTML= own?(placed?((S.aq.hid||[]).includes(id)?'Hidden · bonus still counts · tap to remove':'In your tank · tap to remove'):'Owned · tap to place'):(d&&d.price?(trying?'Trying · buy below the tank':'<span class="coin">'+fmt(d.price)+'</span> · tap to try'):'Crates and prizes only'); t.appendChild(st);
           t.querySelectorAll(':scope > .row, :scope > .btn').forEach(x=>x.classList.add('aq07-hide'));
           if(own&&useB||(!own&&pvB)){ t.setAttribute('role','button'); t.tabIndex=0; t.addEventListener('click',e=>{ if(e.target.closest('button')) return; if(own) useB.click(); else if(!trying) pvB.click(); }); } }); }
     }catch(e){ console.error(e); } return r; }; }
@@ -15945,14 +15804,24 @@ html body.phone-app #menuov #panel.aq07 .aq07-trying .aq07-st,html body.phone-la
       const caught=!!S.journal[sel.id], cv=det.querySelector('canvas[data-fish]'); if(!cv||det.querySelector('.mb-shsw')) return;
       const sw=document.createElement('div'); sw.className='mb-shsw'; sw.setAttribute('role','group'); sw.setAttribute('aria-label','Show the normal or the shiny look');
       sw.innerHTML=`<button type="button" data-v="0" aria-pressed="${!shinyView}">Normal</button><button type="button" data-v="1" aria-pressed="${shinyView}" ${caught?'':'disabled'}>✦ Shiny</button>${caught?'':'<span class="mb-shnote">Catch it to see its shiny look</span>'}`;
-      cv.after(sw); if(caught){ cv.dataset.sh=shinyView?'1':'0'; paintFish(det); }
+      const row=document.createElement('div'); row.className='mb-flrow'; row.appendChild(sw); cv.after(row); if(caught){ cv.dataset.sh=shinyView?'1':'0'; paintFish(det); }
       sw.querySelectorAll('button').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); if(b.disabled) return; shinyView=b.dataset.v==='1'; sw.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); cv.dataset.sh=shinyView?'1':'0'; paintFish(det); }));
-    }catch(e){ console.error(e); } }; }
+      const bk=document.createElement('button'); bk.type='button'; bk.className='mb-flback'; bk.textContent='↩ Back to the list'; row.appendChild(bk);
+      bk.addEventListener('click',e=>{ e.stopPropagation(); const c=P.querySelector(`.jcard[data-k="${sel.id}"]`); c&&c.scrollIntoView({block:'center',behavior:'smooth'}); });
+    }catch(e){ console.error(e); } };
+  /* director, 2026-11-19 ("is not shown on Android"): the details (with the switch) render at the top of the page while the
+     player taps a fish far down the list, so the tap looked like it did nothing. After the tap (never during a render) the
+     details scroll into view; "Back to the list" returns to that fish's card. */
+  document.addEventListener('click',e=>{ if(!MOB()) return; const c=e.target.closest&&e.target.closest('#panel .jcard[data-act="enc"]'); if(!c) return;
+    const k=c.dataset.k; setTimeout(()=>{ if(encSel!==k) return; const det=document.querySelector('#panel .tile.detail'); det&&det.scrollIntoView({block:'start',behavior:'smooth'}); },0); },true); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #panel .mb-shsw,html body.phone-land #panel .mb-shsw{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 4px;padding:4px;border-radius:12px;background:#0c1626;border:1px solid #ffffff17;width:max-content;max-width:100%;box-sizing:border-box}
 html body.phone-app #panel .mb-shsw button,html body.phone-land #panel .mb-shsw button{border:0;border-radius:10px;min-height:36px;padding:0 14px;background:transparent;color:#9fb3c8;font:800 13px var(--display);cursor:pointer}
 html body.phone-app #panel .mb-shsw button[aria-pressed="true"],html body.phone-land #panel .mb-shsw button[aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05}
 html body.phone-app #panel .mb-shsw button:disabled,html body.phone-land #panel .mb-shsw button:disabled{opacity:.45;cursor:default}
+html body.phone-app #panel .mb-flrow,html body.phone-land #panel .mb-flrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 4px}
+html body.phone-app #panel .mb-flrow .mb-shsw,html body.phone-land #panel .mb-flrow .mb-shsw{margin:0}
+html body.phone-app #panel .mb-flback,html body.phone-land #panel .mb-flback{border:1px solid #ffffff17;border-radius:10px;min-height:44px;padding:0 14px;margin:0;background:#0c1626;color:#cfe0f0;font:800 13px var(--display);cursor:pointer}
 html body.phone-app #panel .mb-shnote,html body.phone-land #panel .mb-shnote{font:700 11.5px var(--display);color:#9fb3c8;padding:0 6px}
 </style>`);
 // =====================================================================
@@ -16098,7 +15967,7 @@ html body.phone-app #mbwx[data-k="Rain"],html body.phone-land #mbwx[data-k="Rain
 //    two are hidden there. The help text speaks about touch only (no mouse wheel, no keyboard).
 // Android + iPhone only.
 // =====================================================================
-const DEV_KEYS=['master','music','sfx','amb','musicOn','ambient','style','castMode','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
+const DEV_KEYS=['master','music','sfx','amb','musicOn','ambient','style','castMode','units','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
 const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));
@@ -16117,9 +15986,15 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
   if(/[?&]test\b/.test(location.search)) window.__devSettings=()=>({store:read(), keys:DEV_KEYS.slice()}); }
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
-{ const _fr=frame; let shown=0;
+{ const _fr=frame; let ema=0, lastRaw=0, k=0;
   const capMs=()=>IS_IPHONE()?0:1000/60; /* Android draws 60 frames a second (on a 120 Hz screen too: director 2026-11-18, "his default was always working perfectly fine"), iPhone runs at its natural rate; no frame-rate setting on either phone, any old saved fpsCap is ignored */
-  frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
+  /* 2026-11-19 (director: "Android: Aquarium preview choppy"): the old limiter skipped by time, so on a 90 Hz screen it drew after
+     11 ms, then 22 ms, then 11... (simulated: half the gaps short, half long) and on 144 Hz 14/21 ms: an uneven rhythm reads as
+     stutter. Now it draws every n-th screen refresh, n = the smallest that stays at or under 60 a second: steady 60 on 60/120 Hz,
+     steady 45 on 90 Hz, steady 48 on 144 Hz. The screen's rate is measured (adaptive screens change it), never assumed. */
+  frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0;
+    if(cap){ const d=now-lastRaw; lastRaw=now; if(d>3&&d<50) ema=ema?ema*.9+d*.1:d; const n=ema?Math.max(1,Math.ceil(cap/ema-.15)):1; if(++k<n){ requestAnimationFrame(frame); return; } k=0; }
+    return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------
 { const _rs=renderSettings;
@@ -16160,6 +16035,24 @@ if(window.DL_PREVIEW){
   const _mg=migrate; migrate=function(){ const s=_mg.apply(this,arguments); fix(s); return s; };
   const _sv=save; save=function(){ try{ if(MOB()&&S&&S.seenPatch){ const d=get(); if(!d||verNewer(S.seenPatch,d)) put(S.seenPatch); } }catch(e){} return _sv.apply(this,arguments); };
   try{ fix(S); }catch(e){} }
+
+// ---------- Settings, Patch notes on phones (director, 2026-11-19, iPhone: "patch notes are hard to open on your own, and are so
+// cluttered compared to the first initial opening. Reading patch notes again sucks and scrolling through is really hard and glitchy"):
+// the tab used to hold every update's full text in one block (~1,850 px inside the scrolling menu). Now it is a short list, newest
+// first; tapping one opens the same card as the first opening (finger scrolling, button always on screen).
+{ const list=()=>(S.owned.pets.includes('lily')?[LILY_PATCH]:[]).concat(S.owned.pets.includes('daxniko')?[PAIR_PATCH]:[]).concat(PATCHES);
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='settings') return r;
+      const t=[...document.querySelectorAll('#panel .tile')].find(x=>{ const h=x.querySelector(':scope > h4'); return h&&h.textContent.trim()==='Patch notes'; }); if(!t||t.classList.contains('pn9')) return r;
+      t.classList.add('pn9'); t.innerHTML=`<h4>Patch notes</h4><div class="meta">You’re on Driftline ${esc(GAME_VERSION)}. Tap an update to read it.</div><div class="pn9-list">${list().map((p,i)=>`<button type="button" class="pn9-row${i>=10?" pn9-old":""}" data-pn9="${i}"><span class="pn9-v">${p.label?esc(p.label):'Update '+esc(p.v)}</span><b>${esc(p.name)}</b></button>`).join('')}</div>${list().length>10?`<button type="button" class="btn alt sm pn9-more">Show ${list().length-10} older updates</button>`:''}`;
+    }catch(e){} return r; };
+  document.addEventListener('click',e=>{ const m=e.target.closest&&e.target.closest('.pn9-more'); if(m&&MOB()){ e.stopPropagation(); const t=m.closest('.pn9'); t.classList.add('pn9-all'); m.remove(); return; } const b=e.target.closest&&e.target.closest('[data-pn9]'); if(!b||!MOB()) return; e.stopPropagation(); const p=list()[+b.dataset.pn9]; if(!p) return; try{ closeMenu(); }catch(er){} showPatchNotes(p); },true);
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #panel .pn9-list,body.phone-land #panel .pn9-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;margin:8px 0}
+body.phone-app #panel .pn9:not(.pn9-all) .pn9-old,body.phone-land #panel .pn9:not(.pn9-all) .pn9-old{display:none}
+body.phone-app #panel .pn9-row,body.phone-land #panel .pn9-row{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#ffffff08;color:inherit;font:inherit;cursor:pointer}
+body.phone-app #panel .pn9-row .pn9-v,body.phone-land #panel .pn9-row .pn9-v{flex:0 0 auto;font-size:12px;color:var(--muted)}
+body.phone-app #panel .pn9-row b,body.phone-land #panel .pn9-row b{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style>`); }
 // =====================================================================
 // Phones, round 8: landscape only, on iPhone AND Android phones (director, 2026-11-18: "iPhone versions should just have landscape
 // available... full forced landscape across the board", then "Also push landscape only on android too").
@@ -16591,7 +16484,7 @@ const Q8_LESSONS=[
  ['odd','Your fish','Oddities','Junk, odd finds and treasure','Not everything that bites is a fish. Junk, odd junk and rare finds go in <b>Oddities</b> (Collection), with <b>Treasures</b> in their own tab beside them: some pay, some boost your fishing, some come with a pet or a hat. Special lures (Bait, in the top bar) pull up more of them.',['oddities',null]],
  ['waters','Getting stronger','New waters','How to open the next water','Each water has 52 fish of its own and is tougher than the last. Find <b>8 species</b> at a water and you can open the next one with coins on the Map. Your goal (Quests) always says how close you are.',['map',null]],
  ['tackle','Getting stronger','Tackle upgrades','Rod length, reel, line, hook, cooler, finder','In Tackle, Gear: <b>Rod length</b> casts farther with better far-cast odds, <b>Reel</b> winds faster, <b>Line</b> takes more tension, <b>Hook</b> gives a longer window, <b>Cooler</b> holds more fish and the <b>Fish Finder</b> reads bites and finds hotspots.',['shop',['tackleview','gear']]],
- ['rods','Getting stronger','Rods, Scales and attachments','Collect rods, upgrade them, fit parts','Your rod shapes every cast. Collect rods in the Rod rack, upgrade them with coins and <b>Scales</b> (Scales come from Rare and better fish) and fit <b>attachments</b>: each has three tiers and fits any rod once you own it. Save a rod and its parts as a <b>preset</b> to switch in one tap.',['rods','Your rod']],
+ ['rods','Getting stronger','Rods, Scales and attachments','Collect rods, upgrade them, fit parts','Your rod shapes every cast. Collect rods in the Rod rack, upgrade them with coins and <b>Scales</b> (Scales come from Rare and better fish) and fit <b>attachments</b>: each has three tiers and fits any rod once you own it. Save a rod and its parts as a <b>preset</b> to switch in one tap.',['rods','Your rods']],
  ['skills','Getting stronger','Skills','Small steady gains with a big finish','Levels give <b>skill points</b>. Skills are small steady gains in five groups, and every skill unlocks a <b>special effect</b> when fully learned. The XP bar next to your level shows how close the next point is. Skills can be reset for coins.',['skills',null]],
  ['paths','Getting stronger','Paths','One big specialty per tier','Paths are big specialties: you pick one per tier, and each changes how you fish in its own way.',['paths',null]],
  ['tasks','Things to do','Daily tasks and weekly quests','Fresh goals every day and week','<b>Tasks</b> (top bar) has three daily tasks (finish all three for a bonus crate; your login streak counts too) and four weekly quests (finish all four for a big Mystery Crate). A number on Tasks means a reward is ready.',['bounties','Daily tasks']],
@@ -16621,7 +16514,7 @@ const Q8_HELP=[
  ['How do I catch rarer fish?','Better bait, far casts, hotspots, Storm weather and the rare-odds skills all help. Your Wisdom Pearls raise rare odds too.',['bait','Buy bait'],'Bait'],
  ['My cooler is full','Open the Cooler and Sell all (with a filter if you want to keep some), put fish in the Aquarium, or Keep the best ones in the Trophy Room. A bigger Cooler is in Tackle.',['cooler',null],'Cooler'],
  ['How do I earn more coins?','Sell bigger and rarer fish, fill the fishmonger\'s wish (double pay), keep the Aquarium full, finish bounties and tasks, and raise your sale bonus with skills and mastery stars.',['bounties','Bounties'],'Bounties'],
- ['Where do Scales come from?','Rare and better fish. You spend them on rod upgrades.',['rods','Your rod'],'Rods'],
+ ['Where do Scales come from?','Rare and better fish. You spend them on rod upgrades.',['rods','Your rods'],'Rods'],
  ['How do I open the next water?','Find 8 species at the water before it, then pay its price on the Map. Your goal shows both.',['map',null],'Map'],
  ['What do I keep when I set sail again?','Your level, skills, Fish Log, feats, Trophy Room, pets, clothes, relics and Wisdom Pearls. Coins, tackle, bait, cooler fish, bounties and waters reset; aquarium fish are mounted in the Trophy Room.',['prestige','Set sail again'],'Prestige'],
  ['Where did my aquarium coins go?','Visitors pay for up to 8 hours while you are away, then stop until you collect. Collect from the strip under the tank (the Aquarium chip turns gold when coins wait).',['aquarium',null],'Aquarium'],
@@ -16741,7 +16634,7 @@ if(/[?&]test\b/.test(location.search)) window.__searchQC=async()=>{ const w=ms=>
     const btn=[...ov.querySelectorAll('.sv-r[data-i]')].find(x=>(x.querySelector('b')||{}).textContent===e[0]); if(!btn){ bad.push('not found: '+e[0]); continue; }
     if(/^(|Menu)$/.test(((btn.querySelector('.meta')||{}).textContent||'').trim())) bad.push('no location: '+e[0]);
     btn.click(); await w(260); n++; if(S.tab!==e[1]||!MENU_OPEN){ bad.push(e[0]+' -> '+S.tab+(MENU_OPEN?'':' (menu closed)')); continue; }
-    if(typeof e[2]==='string'){ const s=$('panel').querySelector('.bwx-nav [aria-selected="true"]'); if(s&&!s.textContent.trim().startsWith(e[2])&&!s.dataset.sect?.startsWith(e[2])) bad.push(e[0]+' section '+s.textContent.trim()); } }
+    if(typeof e[2]==='string'){ const s=$('panel').querySelector('.bwx-nav [aria-selected="true"]'), has=[...$('panel').querySelectorAll('.bwx-nav [data-sect]')].some(x=>x.dataset.sect.startsWith(e[2])); /* a section this save doesn't have (e.g. Find more when every pet is owned) is not a fault */ if(s&&has&&!s.textContent.trim().startsWith(e[2])&&!s.dataset.sect?.startsWith(e[2])) bad.push(e[0]+' section '+s.textContent.trim()); } }
   open(); await w(150); q.value=''; q.dispatchEvent(new Event('input',{bubbles:true})); await w(150); const tabs=[...ov.querySelectorAll('.sv-p')].map(b=>b.dataset.tab);
   for(const t of tabs){ open(); await w(120); q.value=''; q.dispatchEvent(new Event('input',{bubbles:true})); await w(100); const b=[...ov.querySelectorAll('.sv-p')].find(x=>x.dataset.tab===t); if(!b){ bad.push('map missing '+t); continue; } b.click(); await w(260); n++; if(S.tab!==t||!MENU_OPEN) bad.push('map '+t+' -> '+S.tab+(MENU_OPEN?'':' (menu closed)')); }
   try{ closeMenu(); }catch(e){} ov.hidden=true; return {checked:n, mapPages:tabs.length, bad}; };
@@ -16798,7 +16691,7 @@ try{ for(let i=SEARCH_IDX.length-1;i>=0;i--){ const e=SEARCH_IDX[i]; if(e[1]==='
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
     paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / 5']] },
     bounties:{ cells:P=>[['Ready to claim',String(enabled(P)('[data-act="taskclaim"],[data-act="wqclaim"],[data-act="bclaim"],[data-act="bounty"]'))],['Board',locName()]],
-      groups:K=>{ const d=K.find(c=>c.classList.contains('dtasks')), w=K.find(c=>c.classList.contains('wq')); const rest=K.filter(c=>c!==d&&c!==w);
+      groups:K=>{ const w=K.find(c=>c.classList.contains('wq')), d=K.find(c=>c!==w&&c.classList.contains('tile')&&/Daily tasks/i.test((c.querySelector('h4')||{}).textContent||'')); /* the weekly card also wears .dtasks (its grid style), so the daily card is found by its title (director, 2026-11-19: a weekly reward badged the Daily tab) */ const rest=K.filter(c=>c!==d&&c!==w);
         const ready=ns=>ns.reduce((n,e)=>n+[...e.querySelectorAll('button[data-act$="claim"]')].filter(b=>!b.disabled).length,0)||0; /* a badge shows where a reward is waiting */
         return [{name:'Daily tasks',nodes:d?[d]:[],badge:d?ready([d]):0},{name:'Weekly quests',nodes:w?[w]:[],badge:w?ready([w]):0},{name:'Bounties',nodes:rest,badge:ready(rest)}]; } },
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; } },
@@ -17192,7 +17085,7 @@ html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-ap
       h.addEventListener('pointerdown',e=>e.stopPropagation()); h.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('home'); }); }
     if(h.previousElementSibling!==aq) aq.after(h);
     let v='—'; try{ v=cozy()+' ♥'; }catch(e){} const b=h.querySelector('b'); if(b.textContent!==v) b.textContent=v; };
-  setTimeout(ensure,60); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); }
+  ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); } /* built as the page loads (a 60 ms delay let the top bar open without Home and then shift; the QA top-bar check caught it right after a reload) */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}</style>`); /* the info box never squeezes its words; the chips to its right make room (Tasks steps aside first) */
 /* round 8 (director, 2026-11-18: "goal shouldn't be on the top header. Bait should move up there instead"): the goal lives in Quests
    (side panel); Bait sits in the top bar after Tasks: the bait you use (and how many are left), tap to open Tackle, Bait. The Bait
@@ -17204,10 +17097,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud >
     const after=document.getElementById('mbtasks')||document.getElementById('mblive'), cool=hud.querySelector('.st-cool');
     if(cool&&c.nextElementSibling!==cool) cool.before(c); else if(!cool&&after&&c.previousElementSibling!==after) after.after(c);
     const t=lbl(), b=c.querySelector('b'); if(b.textContent!==t) b.textContent=t; };
-  setTimeout(ensure,80); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
+  ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body.phone-land #goalchip,html body.phone-app #goalchip{display:none!important}
-html body.phone-land #baitqk,html body.phone-app #baitqk{display:none!important}
+
 html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>`);
 /* Narrow layout (split-screen windows; phones themselves are landscape-only), 2026-11-19: the bar was already two rows, but Home was
@@ -17347,9 +17240,16 @@ html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!i
       const meta=`Level ${lv} / 10 · ${R.slots} slot${R.slots>1?'s':''} · ${atts.length?esc(atts.join(', ')):'no attachments'}`;
       return `<div class="rp-card rp8-row${on?' on':''}"><div class="rp8-info"><span class="rp-n">Preset ${i+1}${on?' <span class="rp8-tag">In use</span>':''}</span><b>${esc(R.name)}</b><span class="rp-lv">${meta}</span></div><div class="rp8-acts">${on?'':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button><button type="button" class="btn alt sm" data-rp="save:${i}" title="Save the rod in your hands (with its attachments) over this preset">Replace</button>`}<button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('');
     return `<div class="rp-box rp8"><h5>Presets</h5><p class="meta rp8-why">Save a rod with its attachments, then switch to it in one tap. The preset in use follows every change you make.</p><div class="rp-list">${rows}</div></div>`; };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='rods') return r; const P=$('panel'); const box=P&&P.querySelector('.rp-box'), now=P&&P.querySelector('.tile.rodnow'); if(!box||!now) return r;
+  /* 2026-11-19 (director: "Your rods ... should not carry over to the other 2 tabs"): the box was inserted by a second phone block
+     after the page's tabs were built, and this block looked for a '.tile.rodnow' that the page no longer has, so the presets showed
+     on all three tabs. One block now: the box goes right after the first node of the "Your rods" tab and is shown and hidden with it. */
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='rods') return r; const P=$('panel'); if(!P) return r;
+      /* the page engine moves the tab bar above the page body, so the "Your rods" group is found from its content: the body's first item, before the Rod rack heading */
+      const body=P.querySelector('.pg08-body')||P, head=c=>{ const h=c.matches('h2,h4,h5')?c:c.querySelector('h2,h4,h5'); return h?h.textContent.trim():''; };
+      const ks=[...body.children].filter(c=>!c.classList.contains('pg08-note')&&!c.classList.contains('rp-box')&&!c.classList.contains('sect-nav')), rack=ks.findIndex(c=>head(c)==='Rod rack'); const first=rack>0?ks[0]:null; if(!first) return r;
+      let box=P.querySelector('.rp-box'); if(!box){ first.insertAdjacentHTML('afterend',rodPresetsHTML()); box=first.nextElementSibling; } else first.after(box);
       P.querySelectorAll('h2').forEach(h=>{ if(/^(Rod rack|Attachments)$/.test(h.textContent.trim())) h.classList.add('rp8-dup'); }); /* the tab above already names it */
-      now.after(box); const sync=()=>{ box.style.display=now.style.display; }; sync(); new MutationObserver(sync).observe(now,{attributes:true,attributeFilter:['style']}); /* shown and hidden with Your rod */
+      const sync=()=>{ box.style.display=first.style.display; }; sync(); new MutationObserver(sync).observe(first,{attributes:true,attributeFilter:['style']}); /* shown and hidden with Your rods */
     }catch(e){ console.error(e); } return r; }; }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -17461,7 +17361,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
 /* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
    tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='trophy') return r; const P=$('panel'), room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return r;
-      room.classList.add('tp8'); const grid=room.querySelector('.tp-grid'); if(!grid) return r;
+      room.classList.add('tp8'); const emp=room.querySelector('.tp-empty'); if(emp&&!emp.querySelector('.tp8-wall')){ const g=emp.querySelector('.tp-ghost'); if(g) g.remove(); emp.insertAdjacentHTML('afterbegin','<div class="tp8-wall" aria-hidden="true"><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div></div>'); } /* empty room (director, 2026-11-19: "super small ui when empty"): a wall of three empty plaques fills the page */ const grid=room.querySelector('.tp-grid'); if(!grid) return r;
       let bar=room.querySelector('.tp8-bar'); if(!bar){ bar=document.createElement('div'); bar.className='tp8-bar'; bar.innerHTML='<span class="meta">Tap a trophy to see it up close.</span>'; grid.after(bar); }
       grid.querySelectorAll('.tp-item').forEach((it,i)=>{ it.tabIndex=0; it.setAttribute('role','button');
         it.addEventListener('click',e=>{ if(e.target.closest('.tp-out')) return; grid.querySelectorAll('.tp-item.sel').forEach(x=>x.classList.remove('sel')); it.classList.add('sel');
@@ -17533,7 +17433,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8
    bar (title + progress, then what to do + the reward), about half the height */
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .ev-h,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .ev-h{display:none!important}
-html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat),html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat){display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "m" "v";position:relative;align-items:center;gap:2px 8px!important;padding:6px 10px 9px!important;min-height:0!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat):not([style*="display: none"]),html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat):not([style*="display: none"]){display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "m" "v";position:relative;align-items:center;gap:2px 8px!important;padding:6px 10px 9px!important;min-height:0!important}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread{grid-area:t;margin:0!important;gap:8px;flex-wrap:nowrap!important;min-width:0}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4{font-size:13.5px!important;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .meta{grid-area:m;margin:0!important;font-size:11.5px!important;white-space:normal;overflow:visible;line-height:1.25;min-width:0}
@@ -17579,6 +17479,73 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
    light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
 { const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
 
+document.head.insertAdjacentHTML("beforeend",`<style>body.chal-live #catdock .cdb[data-cd="chal"] .cddot{display:none!important}</style>`); /* the side panel follows the same rule: LIVE or a count, not both (2026-11-19) */
+/* Search on phones (director, 2026-11-19, Pixel 10 / Android 17: "pop ups for keyboard are very weird... can't see search results or what
+   you're typing ever"): the box sat 12% down the screen with results up to 52% of the screen tall, so the keyboard covered both. On
+   phones the box now sits at the top and its results only use the space the keyboard leaves (visualViewport). */
+{ const ov=()=>document.getElementById('searchov'); const fit=()=>{ const o=ov(); if(!o||o.hidden||!MOB()) return; const vv=window.visualViewport; const h=vv?vv.height:innerHeight; o.style.setProperty('--sv-h',Math.max(160,Math.round(h))+'px'); };
+  if(window.visualViewport){ visualViewport.addEventListener('resize',fit); visualViewport.addEventListener('scroll',fit); } document.addEventListener('focusin',e=>{ if(e.target&&e.target.id==='searchq') setTimeout(fit,50); });
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #searchov,body.phone-land #searchov{padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))!important;align-items:flex-start}
+body.phone-app #searchov .sv-in,body.phone-land #searchov .sv-in{max-height:calc(var(--sv-h,100vh) - 16px);padding:10px;gap:6px}
+body.phone-app #searchres,body.phone-land #searchres{max-height:none!important;flex:1 1 auto;min-height:0}
+</style>`); }
+/* Aquarium bank (director, 2026-11-19, Android: "Earning and Ready Coins value run underneath each other when numbers get too big"): the
+   number columns had a fixed width (62 px), so 12,345,678 spilled into the next cell. Every cell now takes its content's width, and
+   when the row is too narrow for very large amounts the buttons move to a second line instead of spilling out (checked by __qa). */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel .aq07-bank:has(#tankbank),html body.phone-app #menuov #panel .aq07-bank:has(#tankbank){display:flex!important;flex-wrap:wrap!important;align-items:center;column-gap:6px!important;row-gap:4px!important}html body.phone-land #menuov #panel .aq07-bank:has(#tankbank) > *,html body.phone-app #menuov #panel .aq07-bank:has(#tankbank) > *{flex:0 0 auto!important}</style>`);
+/* Reeling on phones (director, 2026-11-19: "when you're reeling in fish, too much ui covers the screen"): during a fight the bottom
+   hint repeats what the fight banner already says, and Rest does nothing mid-fight, so both fade away while a fish is on the line and
+   come back when it ends. The hint stays for the first 5 catches, while a new player is still learning the controls. */
+{ let on=false; const _fr=frame; frame=function(now){ const want=MOB()&&G.st==='reeling'&&(S.stats.caught||0)>=5; if(want!==on){ on=want; document.body.classList.toggle('dl-reel',on); } return _fr.apply(this,arguments); };
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #hint,body.phone-land #hint,body.phone-app #resttog,body.phone-land #resttog{transition:opacity .25s}
+body.dl-reel #hint,body.dl-reel #resttog{opacity:0!important;pointer-events:none!important}
+</style>`); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .pg08-body:has(> .tp-room.tp8 .tp-empty){display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8:has(.tp-empty){flex:1 1 auto;display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8:has(.tp-empty) .tp-in{flex:1 1 auto;display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8 .tp-empty{flex:1 1 auto;flex-direction:column;justify-content:center;text-align:center;gap:16px!important;padding:12px 0!important}
+#menuov #panel .tp-room.tp8 .tp-empty p{max-width:52ch;margin:0 auto}
+#menuov #panel .tp8-wall{display:flex;justify-content:center;gap:clamp(10px,3vw,28px);width:100%}
+#menuov #panel .tp8-wall .tp-ghost{flex:0 1 150px;height:92px;margin:0!important}
+</style>`);
+/* No name twice (director, 2026-11-19: "Your tank" and "Your boat" stood as the tab AND as the heading right under it; standard:
+   "No name is shown twice on one screen"). After every page draw and tab switch, the first visible heading of the shown part loses
+   a leading repeat of the selected tab's name ("Your tank · holds 24 fish" → "holds 24 fish"), or hides when nothing else is left. */
+{ const dedupe=()=>{ if(!MOB()) return; const P=$('panel'); if(!P) return; const sel=document.querySelector('#menuov .sect-nav [aria-selected="true"]'); if(!sel) return; const N=tabShownName(sel); if(!N) return;
+    const body=P.querySelector('.pg08-body')||P; const h=[...body.querySelectorAll('h2,h3,h4,h5')].find(x=>x.offsetParent!==null); if(!h||h.dataset.dupDone===N) return;
+    const t=h.textContent.trim(); if(t===N){ h.classList.add('dl-dupname'); h.dataset.dupDone=N; return; }
+    if(t.startsWith(N+' ·')||t.startsWith(N+' -')){ const w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT), texts=[]; let n; while(n=w.nextNode()) if(n.textContent.trim()) texts.push(n); const f=texts[0]; if(!f) return; if(f.textContent.trim()===N){ f.textContent=''; if(texts[1]) texts[1].textContent=texts[1].textContent.replace(/^\s*[·-]\s*/,''); } else f.textContent=f.textContent.replace(N,'').replace(/^\s*[·-]\s*/,''); const g=texts.find(x=>x.textContent.trim()); if(g) g.textContent=g.textContent.replace(/^(\s*)(\S)/,(m,s,c)=>s+c.toUpperCase()); h.dataset.dupDone=N; } };
+  /* after every other renderPanel step (later files wrap it again and add their headings after this one runs) */
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); queueMicrotask(()=>{ try{ dedupe(); }catch(e){} }); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')) setTimeout(()=>{ try{ dedupe(); }catch(er){} },0); },true);
+  PHONE_DEDUPE=dedupe; document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .dl-dupname{display:none!important}</style>'); }
+var PHONE_DEDUPE;
+/* Menu rail height (director, 2026-11-19, iPhone screenshots: the rail ended after "Quests"): its height came only from being stretched
+   to its grid row, with buttons sized from 0. Chrome never shows the problem, Safari did. The rail now also asks for the full row
+   height itself, and its buttons size from their content (ui_modern06), so it never depends on one mechanism. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov #tabs .secbar{height:100%!important}</style>');
+/* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
+function tabShownName(b){ return b?([...b.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||b.textContent.trim()):''; }
+/* Doubled Settings (director, 2026-11-19, iPhone screenshot): inside Settings the gear button lit up gold next to the gold Settings
+   tab, two lit "Settings" in one row. The gear only takes you to this section, so while you are in it the gear steps aside; the
+   tabs (Settings, Save) say where you are. */
+document.head.insertAdjacentHTML('beforeend','<style>body.phone-app #menuov .mo-tools [data-mo="settings"].on,body.phone-land #menuov .mo-tools [data-mo="settings"].on{display:none!important}</style>');
+/* Narrow windows (split-screen; phones themselves are landscape-only), 2026-11-19, the director: "test what is best yourself and execute
+   it": the side panel becomes a bottom bar of 8 buttons about 41 px wide. Measured at 360 px: even 8 px text (too small to read) cut
+   "Challenges" and "Customize", so the bar shows icons only there; every button keeps its name as its label (title / aria-label),
+   and the section you are in stays gold. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-app #catdock .cdb .cdl{display:none!important}html body.phone-app #catdock .cdb{justify-content:center!important;align-items:center!important}html body.phone-app #catdock .cdb svg{width:22px!important;height:22px!important}</style>');
+/* the menu's bar matches the bar on the water in narrow windows: all 8 sections visible without sideways scrolling, icons only, and
+   count badges sit inside the button's top right corner (they poked into the next button and were clipped by the bar) */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app #menuov #tabs .secbar{display:flex!important;flex-wrap:nowrap!important;overflow:visible!important}
+html body.phone-app #menuov .secbar .secb{flex:1 1 0!important;min-width:0!important;width:auto!important;justify-content:center!important;padding:0!important}
+html body.phone-app #menuov .secbar .secb .secl,html body.phone-app #menuov .secbar .secb .seclive{display:none!important}
+html body.phone-app #menuov .secbar .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class]{top:2px!important;right:2px!important;transform:none!important}
+</style>`);
 // =====================================================================
 // Phones: the SET MEASUREMENTS (director, 2026-11-18: "I want standards and set measurements for each platform going forward,
 // I'm tired of the same mistakes"). The numbers are written down in docs/PLATFORM_DESIGN.md ("Phone frame: set measurements")
@@ -17592,7 +17559,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
 // Also here: tapping right after Back works (the old guard blocked the whole screen for 0.45 s; now only where your finger was).
 // Android + iPhone only.
 // =====================================================================
-const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:30, stageTop:84, barH:58, barPad:3, barBtnH:50, barBottom:6},
+const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:36, stageTop:90, /* row 2 holds the two-line chips (Cooler, Aquarium, Home, Fish Log) since 2026-11-19 */ barH:58, barPad:3, barBtnH:50, barBottom:6},
                  land:{edge:8, row1Top:6, row1H:38, contentTop:49, bottom:6, railW:124, railWMini:56, railGap:6, railBtnH:40, railBtnGap:5} };
 // ONE look per kind of control (director, 2026-11-18: "cross reference everything that's connected, we need this to stop being so
 // inconsistent"). Measured across every page: buttons came in 9 heights, section tabs in 3 styles, badges in 4 sizes, descriptions in
@@ -17953,34 +17920,70 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Willow Pond runs much smoother on phones.',
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});
-// iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
-// (spoiler-free, one short line per change, curly apostrophes only). The card opens once per device whenever the text changes.
-// Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'Natural frame rate, Settings fix', items:[
-  'Android draws a steady 60 frames a second again (also on 120 Hz screens), iPhone runs at its natural rate. No frame-rate choice in Settings.',
-  'Android stays automatically full screen, like iPhone, and no longer re-asks for full screen on every tap (that caused extra frames and jumpy fps during actions).',
-  'Opening and closing Settings (or any menu) no longer shows another water’s scenery for a moment.',
-  'Water pictures for the Map are only made while the Map is open, so other menus stay light.',
-  'Much smoother with a decorated home: decorations on the dock are no longer re-lit from scratch every frame (a moved save with many decorations made Android drop to about 25 fps).',
-  'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
-  'Smoother fights and storms on phones: the red danger glow on the fight ring and the rain ripples on the water are much cheaper to draw.',
-  'Smoother on boats and floating docks: decorations that bob with the water are no longer re-lit every frame.',
-  'Switching waters no longer leaves the game stuck at a lower sharpness: the automatic resolution comes back up once the phone keeps up again (it could not on a 60 Hz screen).',
-  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there, was ×2): cheap minnows could beat it by day.',
-  'Willow Pond is much lighter on phones: the big willow repaints far less often (its sway is unchanged), and still home decorations are drawn once instead of 15 times a second.',
-  'Lighter on phones everywhere: lanterns, lamps, glows and Starfall’s star whale are drawn with ready-made soft lights (they look the same), and coloured pets no longer slow the game down.',
-  'The frame counter also shows the current water sharpness (res 2x = full, lower = the game is easing off).',
-  'Smoother dusk, dawn and weather changes: the scenery’s light now changes in fewer, softer steps on phones, so the game rebuilds it far less often.',
-  'The top bar updates 10 times a second instead of every frame (the numbers you see are the same), a little less work every frame.',
-  'In narrow windows (split-screen), the top bar shows Home again (it was hidden there) and your coins, level and water are readable instead of cut off.',
-  'Tester tools (Stats), Graphics test: the angler, pets, home decorations, moving cosmetic effects and oddities now have their own buttons. If a moved save makes the game slow, turn them off one at a time and watch the frame counter.']};
+PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
+  '## New',
+  'Settings › Display: choose kilograms or pounds for every fish weight in the game.',
+  'Aquarium › Decorate: hide a placed decoration from your tank and keep its bonus, handy for sticking to a theme.',
+  '## Fixes',
+  'Pets in the shop, Wardrobe and previews are awake again at night (only pets on your dock fall asleep).',
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”, and the presets stay on it.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.',
+  '## Phones',
+  'While you reel in a fish, the hint and the Rest button step aside so you can see the fight (new players keep the hint for their first catches).',
+  'Search opens with a normal tap, sits at the top and keeps its results above the keyboard.',
+  'Settings › Patch notes is a short list; tap an update to read it in the same card as when it first arrived.',
+  'Bounties: a ready weekly quest no longer lights up the Daily tasks tab.',
+  'Feats and Pets: each tab shows only its own cards.',
+  'Aquarium: big Earning and Ready numbers no longer run into each other.',
+  'In narrow windows the top bar keeps Home and shows your coins, level and water in full.',
+  'The side panel in menus always shows every section (on some iPhones it stopped after Quests).',
+  'A tab’s name is no longer repeated as the heading right under it (Your tank, Your boat).',
+  'An empty Trophy Room fills the page with a wall of empty plaques instead of a small strip.',
+  'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.',
+  'Inside Settings only the Settings tab lights up (the gear next to it no longer lights up too).',
+  'In narrow windows the side panel shows its icons, so every section fits without scrolling.',
+  'Fish Log: tapping a fish brings its details into view (they appeared out of sight at the top), with the Normal / Shiny switch and a “Back to the list” button.',
+  'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
+  '## Behind the scenes',
+  'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});
+// iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
+// curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 2: batch 1 finished', items:[
+  'New: Settings › Display › Weights: kilograms or pounds.',
+  'New: Aquarium › Decorate: “Hide” on a placed decoration takes it out of the tank but keeps its bonus.',
+  'Fish Log: tap a fish far down the list: its details (with Normal / Shiny) come into view; “Back to the list” returns you.',
+  'The top bar has Home and Bait from the first moment (it shifted just after opening).',
+  'Clean-up: unused old parts removed (retired Menu and Overview buttons, an old hairstyle, old dolphins and Boardwalk drawings). Nothing should look different; tell me if anything does.',
+  'Settings: only the Settings tab lights up (the gear no longer lights up next to it).',
+  'Narrow windows (split-screen): the side panel shows icons only, so all sections fit.',
+  'Pets in the shop and previews are awake at night (they showed asleep in Pets › Find more).',
+  'Menus: the side panel always shows every section (on iPhone it could stop after Quests). Please check Trophy Room, Your home and the Aquarium.',
+  'A tab’s name is no longer repeated as the heading under it (Your tank, Your boat).',
+  'An empty Trophy Room fills the page with a wall of empty plaques.',
+  'Aquarium coins use the short form for big amounts, so they always fit.',
+  'Settings › Patch notes is a short list; tap an update to read it in the same card as when it first arrived (it used to be one long, hard-to-scroll block).',
+  'While you reel in a fish, the hint and the Rest button step aside so you can see the fight (new players keep the hint for their first catches).',
+  'Search sits at the top and keeps its results above the keyboard.',
+  'Events, Feats, Pets and Bounties: each tab shows only its own things. Rods: the presets stay on “Your rods”.',
+  'Aquarium: big Earning and Ready numbers no longer run into each other.',
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before.',
+  'Fish shadows are one even tone; shiny fish lost the sweeping band of light.',
+  'Challenges show either LIVE or a count, not both. Hints off leaves no empty box.']};
 addTestNotes(TEST_NOTES);
 
 // ---------- loop ----------
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
 let lastBuffN=-1, lastShopSlot=Math.floor(Date.now()/1000/SHOP_LEN);
-setInterval(()=>{ accrue(); const el=$('tankbank'); if(el) el.textContent=fmt(S.tankBank); const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
+setInterval(()=>{ accrue(); const el=$('tankbank'); if(el){ const t=fmtShort(S.tankBank); if(el.textContent!==t){ el.textContent=t; el.title=fmt(S.tankBank)+' coins'; } } /* short form like the top bar, so big numbers never overflow (2026-11-19) */ const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
   const dl=$('dmleft'); if(dl){ dl.textContent=mmss(wxLeft()); if(wxLeft()>=WX_LEN-1 && S.tab==='cooler') renderPanel(); }
   const t=Date.now(); const ended=S.buffs.filter(b=>b.until<=t); if(ended.length){ S.buffs=S.buffs.filter(b=>b.until>t); toast('Boost ended: '+ended.map(b=>b.src).join(', ')); save(); }
   const bn=activeBuffs().length; if(bn!==lastBuffN){ lastBuffN=bn; lastHud=''; }
@@ -18022,7 +18025,7 @@ function setHint(){ let h='';
     case 'result': h='Nice catch.'; break;
     case 'frenzy': h='<b>Tap the leaping fish!</b>'; break;
     case 'event': h='&nbsp;'; break;
-  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ $('hint').innerHTML=h; lastHint=h; } }
+  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ const el=$('hint'); el.innerHTML=h; el.style.visibility=h==='&nbsp;'?'hidden':''; lastHint=h; } } /* an empty hint keeps its space but draws no empty box (director, 2026-11-19: hints off left a blank circle) */
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------
@@ -18092,20 +18095,11 @@ function renderShop(P){
   <div class="grid">${gearTiles}</div><h2 style="margin-top:18px">Bait</h2><div class="grid">${shopBait.map(baitTile).join('')}</div>
   <h2 style="margin-top:18px">Special lures</h2><p class="sub">Can’t be bought. They come out of junk you fish up: cheese, disco balls, magnets, gold.</p><div class="grid">${junkBait.map(baitTile).join('')}</div>`;
 }
-function renderSkills(P){ const free=ptsFree(), cost=50*S.lvl;
-  P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">You get 1 skill point per angler level, plus bonus points from feats. ${ptsSpent()} of ${Object.values(PERKS).reduce((a,p)=>a+p.max,0)} ranks learned.</p></div>
-  <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">points to spend</div></div>
-  <button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-  <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k); return `<div class="tile ${r>=p.max?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
-    <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div>
-    <div class="meta">${p.d}</div><div class="val" style="font-size:14px">Each rank: ${p.per}</div>
-    <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${r>=p.max?'Maxed':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>';
-}
 function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
   P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
-  <div class="bank"><div><div class="sub">Earning</div><b class="coin">${fmt(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank">${fmt(S.tankBank)}</b></div>
+  <div class="bank"><div><div class="sub">Earning</div><b class="coin" title="${fmt(rate*60)} coins an hour">${fmtShort(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank" title="${fmt(S.tankBank)} coins">${fmtShort(S.tankBank)}</b></div>
   <button class="btn" id="collectbtn" data-act="collect" ${S.tankBank>=1?'':'disabled'}>Collect</button></div></div>
   <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Put a fish on display.</span>'}</div>
   <div class="tank"><canvas id="tankcv"></canvas></div>${S.aq.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the sand to move it.</p>`:""}
