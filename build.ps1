@@ -117,6 +117,8 @@ if ($Preview) {
     [IO.File]::WriteAllText((Join-Path $dir 'version-phone.txt'), $v, $utf8)
     [IO.File]::WriteAllText((Join-Path $dir 'sw.js'), $sw, $utf8)
     $m = $man.Replace('"name":"Driftline Test"', '"name":"Driftline Test (' + $pair[2] + ')"').Replace('"short_name":"DL Test"', '"short_name":"' + $label + '"')
+    # Android opens the installed app full screen at once (director, 2026-11-18: "full screen on iPhone happens right away, Android only in settings"): "standalone" keeps the status and navigation bars, and a page may only hide them after a tap
+    if ($pair[0] -eq 'android') { $m = $m.Replace('"display":"standalone"', '"display":"fullscreen","display_override":["fullscreen","standalone"]') }
     [IO.File]::WriteAllText((Join-Path $dir 'manifest.webmanifest'), $m, $utf8)
   }
   foreach ($icon in 'icon-192.png','icon-512.png') { Copy-Item (Join-Path $root "site\$icon") (Join-Path $ta $icon) -Force }

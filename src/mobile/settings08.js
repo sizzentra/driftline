@@ -54,3 +54,17 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 // 30 frames. On phones it now shows drawn frames per second, the screen's rate and the slowest gap between drawn frames.
 const MOB_DRAWN=[]; { const _dw=draw; draw=function(now){ const r=_dw.apply(this,arguments); try{ MOB_DRAWN.push(performance.now()); if(MOB_DRAWN.length>240) MOB_DRAWN.shift(); }catch(e){} return r; }; }
 function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'; }
+
+// ---------- test builds only: Graphics test (director, 2026-11-18: Android holds 30 but drops to 25-38 at 60 = each frame costs
+// the phone ~30 ms). Each button switches one part of the water scene off, so the frame counter shows which part is too heavy on
+// that phone. Nothing here exists in the release build (DL_PREVIEW), and every part comes back with one more tap or a restart.
+const GT_PARTS=[['wx','Weather (rain, snow, fog)',['drawWeatherX']],['water','Water shimmer + reflections',['v3water','v3glitter','drawReflect','v3fishRing']],['glow','Lights and glows',['v3glow']],['mist','Mist',['v3mist']],['you','You, pets, dock',['drawAngler3','drawPetStyled','drawDockItem']],['plants','Trees and plants',['v3tree','v3willow','v3reeds','v3bushes','v3flowers','v3leafTree','v3pine','v3snowPine','v3palm']],['lowres','Low resolution (1x)',[]]];
+const GT_OFF=new Set();
+if(window.DL_PREVIEW){
+  const wrap=(name,key)=>{ try{ const f=eval(name); if(typeof f!=='function') return; eval(name+'=function(){ if(GT_OFF.has("'+key+'")) return; return f.apply(this,arguments); }'); }catch(e){} };
+  for(const [k,,fns] of GT_PARTS) for(const n of fns) wrap(n,k);
+  { const _rd=renderDPR; renderDPR=function(w,h){ return GT_OFF.has('lowres')?1:_rd(w,h); }; }
+  const _th=testerHTML; testerHTML=function(){ const base=_th(); if(!MOB()) return base;
+    return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), set the frame rate to 60, then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
+  const _xa=extraAct2; extraAct2=function(b){ if(b.dataset.act==='gtest'){ const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){} try{ resize(); }catch(e){} toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } return _xa(b); };
+}

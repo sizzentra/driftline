@@ -24,3 +24,11 @@
   try{ if(isAndroid&&localStorage.getItem('dl-fs')===null){ localStorage.setItem('dl-fs','1');
       const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen&&localStorage.getItem('dl-fs-auto')!=='0'){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } };
       ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); } }catch(e){} }
+// Round 3 (director, 2026-11-18: "the full screen fix still doesn't work"): the three places that put full screen back (an_small04
+// and rounds 1-2 above) all tried on pointerdown/keydown. A browser only allows full screen as the result of a finished tap: on touch
+// screens that is pointerup / touchend / click, never pointerdown, so every automatic attempt was refused without a sound (the
+// Settings button worked because it reacts to click). Now: on any finished tap, if full screen is your choice and the page is not
+// in full screen, it goes back (taps on the Full screen button itself are left to that button).
+{ const want3=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ return false; } };
+  const back=e=>{ if(!MOB()||document.fullscreenElement||!document.documentElement.requestFullscreen||!want3()) return; if(e&&e.target&&e.target.closest&&e.target.closest('[data-act="fullscreen"]')) return; try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(er){} };
+  ['pointerup','touchend','click','keyup'].forEach(ev=>document.addEventListener(ev,back,true)); }

@@ -66,8 +66,14 @@ function drawAngler3(c,x,y,s,lk,o={}){
   if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
+  /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
+     passes, which Android graphics chips pay for with a flush each. On phones it is redrawn at most every 33 ms and reused in between
+     (with its hand positions, so the rod and line still attach), and at once when the fishing state, look, night or size changes. */
+  const mobKey=(live&&typeof MOB==='function'&&MOB())?[w,h,Math.round((o.night||0)*40),o.rim||'',o.glow||'',o.sit?1:0,(typeof G==='object'&&G)?G.st:''].join('|'):null, nowMs=performance.now();
+  const reuse=!!(mobKey&&O.res&&O.key===mobKey&&nowMs-O.at<33);
+  let res; if(reuse) res=O.res; else {
   const ax=O.a.getContext('2d'); ax.setTransform(1,0,0,1,0,0); ax.clearRect(0,0,w,h);
-  const res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
+  res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
   // rim light: the silhouette minus itself shifted toward the front leaves a thin edge on the back and top
   const night=o.night||0, rim=o.rim||(night>.3?'#a9bcff':'#ffe9c8'), d=clamp(1.15*ps,1,2.4), bx=O.b.getContext('2d');
   bx.setTransform(1,0,0,1,0,0); bx.globalCompositeOperation='copy'; bx.drawImage(O.a,0,0); bx.globalCompositeOperation='source-in'; bx.fillStyle=rim; bx.fillRect(0,0,w,h);
@@ -81,6 +87,7 @@ function drawAngler3(c,x,y,s,lk,o={}){
   { const vg=ax.createLinearGradient(0,(BT-62)*ps,0,(BT+6)*ps); vg.addColorStop(0,'rgba(255,248,232,'+(.1*(1-night*.7))+')'); vg.addColorStop(.42,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,20,'+(.2+night*.12)+')'); ax.fillStyle=vg; ax.fillRect(0,0,w,h);
     const hg=ax.createLinearGradient((BX-16)*ps,0,(BX+14)*ps,0); hg.addColorStop(0,'rgba(4,8,20,'+(.14+night*.08)+')'); hg.addColorStop(.6,'rgba(0,0,0,0)'); ax.fillStyle=hg; ax.fillRect(0,0,w,h); }
   ax.globalCompositeOperation='source-over';
+  if(mobKey){ O.res=res; O.key=mobKey; O.at=nowMs; } else O.res=null; }
   if(!o.sit&&!o.noShadow){ c.save(); const sg=c.createRadialGradient(x,y+s,0,x,y+s,15*s); sg.addColorStop(0,'rgba(0,6,16,.3)'); sg.addColorStop(1,'rgba(0,6,16,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(x,y+s,15*s,3.2*s,0,0,7); c.fill(); c.restore(); }
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
