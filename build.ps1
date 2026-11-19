@@ -66,7 +66,11 @@ foreach ($p in 'pc','android','ios') {
   $platVer = @{ android = '0.4.8.6.2'; ios = '0.4.8.6.2' }
   if ($platVer.ContainsKey($p)) { $body = [regex]::Replace($body, "const GAME_VERSION = '[^']*';", "const GAME_VERSION = '" + $platVer[$p] + "';") }
   $built[$p] = $body
-  $pages[$p] = $top + $body + $badge + $bottom
+  # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the
+  # shared version.txt keeps PC's stamp, and a phone page with a newer stamp saw "update ready" every 5 minutes forever (tapping it
+  # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.
+  $bot = $bottom; if ($p -ne 'pc') { $bot = $bottom.Replace("fetch('version.txt'", "fetch('version-phone.txt'") }
+  $pages[$p] = $top + $body + $badge + $bot
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
 }
 
@@ -89,6 +93,7 @@ $r = $router
 if ($Preview) { $r = $r.Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">') }
 [IO.File]::WriteAllText((Join-Path $out 'index.html'), $r, $utf8)
 [IO.File]::WriteAllText((Join-Path $out 'version.txt'), $v, $utf8)
+[IO.File]::WriteAllText((Join-Path $out 'version-phone.txt'), $v, $utf8)
 if ($Preview) {
   # the preview is its own home-screen app on phones ("Driftline Test", like the PC test app): it opens /next/ (the router
   # picks the iPhone or Android preview build), never the live game, and has its own offline helper so phones install it
@@ -109,6 +114,7 @@ if ($Preview) {
     $page = $pages[$pair[1]].Replace('content="DL Test">', 'content="' + $label + '">')
     [IO.File]::WriteAllText((Join-Path $dir 'index.html'), $page, $utf8)
     [IO.File]::WriteAllText((Join-Path $dir 'version.txt'), $v, $utf8)
+    [IO.File]::WriteAllText((Join-Path $dir 'version-phone.txt'), $v, $utf8)
     [IO.File]::WriteAllText((Join-Path $dir 'sw.js'), $sw, $utf8)
     $m = $man.Replace('"name":"Driftline Test"', '"name":"Driftline Test (' + $pair[2] + ')"').Replace('"short_name":"DL Test"', '"short_name":"' + $label + '"')
     [IO.File]::WriteAllText((Join-Path $dir 'manifest.webmanifest'), $m, $utf8)
