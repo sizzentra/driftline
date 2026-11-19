@@ -45,25 +45,31 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ [12] Baits by fish: each fish has a favourite and least favourite bait (small effects); rarity-weighted prices; Epic+ favourites hidden until caught with it.
 - ☑ [14] New rod attachments for the newer systems.
 - ☑ [15] More skills and more ways to earn skill points.
-- ☐ [11] Paths: 15 paths across every system, rarer mechanics deeper in; remove a choice; cost to change or remove rises with the feat's level; menu text fixed; reasons to return.
-- ☐ [20] Voyage rework: up to 100 milestones, upgradeable end-of-voyage buffs (weight ranges, derby multipliers, streak buffs every 50/40/30/20/10 with ranks and cooldowns, many more), pearls harder per pearl within a voyage, pearl shop +1% gold / +1% XP (2 pearls a level, 100 levels), many one-level pearl relics; heavier late-game scaling.
-- ☐ [52] Boardwalk: deeper and more varied; tickets first with occasional coin wins (never breaking pearls or the shop); maybe gamble with cooler fish.
+- ☑ [11] Paths: 15 paths across every system, rarer mechanics deeper in; remove a choice; cost to change or remove rises with the feat's level; menu text fixed; reasons to return.
+- ☑ [20] Voyage rework: up to 100 milestones, upgradeable end-of-voyage buffs (weight ranges, derby multipliers, streak buffs every 50/40/30/20/10 with ranks and cooldowns, many more), pearls harder per pearl within a voyage, pearl shop +1% gold / +1% XP (2 pearls a level, 100 levels), many one-level pearl relics; heavier late-game scaling.
+- ☑ [52] Boardwalk: deeper and more varied; tickets first with occasional coin wins (never breaking pearls or the shop); maybe gamble with cooler fish.
 
 ## Batch 4: looks
-- ☐ [10] Rod: gentle sway; the second hand turns the reel; left/right-handed setting; arm length and rod proportions.
-- ☐ [50] Wizard hat effects redone.
-- ☐ [57] Fish eyes: varied, blended into each fish.
-- ☐ [59] Character models: new natural styles (keep the current ones), many more hair, face, nose, eye and mouth options.
-- ☐ [1] More pet base colours: some in the shop, more as Boardwalk rewards.
+- ☑ [10] Rod: gentle sway; the second hand turns the reel; left/right-handed setting; arm length and rod proportions.
+- ☑ [50] Wizard hat effects redone.
+- ☑ [57] Fish eyes: varied, blended into each fish.
+- ☑ [59] Character models: new natural styles (keep the current ones), many more hair, face, nose, eye and mouth options.
+- ☑ [1] More pet base colours: some in the shop, more as Boardwalk rewards.
 
 ## Batch 5: content
-- ☐ [2] Oddities to 300 (memes, household objects, products, ancient and mythical treasures; one singing bass mount; some per water), rarities shown once found, conditions and odds on click, gold scaled to your highest water (a bit less in earlier waters), repeat finds worth more.
-- ☐ [3] Amazon rainforest water (waterfalls, piranhas, arowana).
-- ☐ [4] Cherry Blossom water (Japan, Mount Fuji, eels, carp, koi, anime-referenced fish).
-- ☐ [5] Canadian Rockies water (sturgeon, trout, river monsters, clear water, a little syrup).
-- ☐ [6] Florida Keys water (shallow saltwater sport fishing, chaotic Florida fauna).
-- ☐ [7] Each new water at the standard (52 fish with meme/bonus/rarity split), placed where it fits; Hollow Trench stays last; stutter-tested and as lively as the others.
-- ☐ [69] Six end-game waters (decided 2026-11-19: the director listed six themes for "5" slots and asked me to decide; all six stay, one more unlocks with each voyage from the 2nd to the 7th), outside normal progression, in this order: Animal Farm (voyage 2), Buffet (3), Corporate (4), Nile / Egyptian (5), Robot / cyberpunk (6), Olympus / Mythos (7). Working names: Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
+- ☑ [2] Oddities to 300 (memes, household objects, products, ancient and mythical treasures; one singing bass mount; some per water), rarities shown once found, conditions and odds on click, gold scaled to your highest water (a bit less in earlier waters), repeat finds worth more.
+- ☑ [3] Amazon rainforest water (waterfalls, piranhas, arowana).
+- ☑ [4] Cherry Blossom water (Japan, Mount Fuji, eels, carp, koi, anime-referenced fish).
+- ☑ [5] Canadian Rockies water (sturgeon, trout, river monsters, clear water, a little syrup).
+- ☑ [6] Florida Keys water (shallow saltwater sport fishing, chaotic Florida fauna).
+- ☑ [7] Each new water at the standard (52 fish with meme/bonus/rarity split), placed where it fits; Hollow Trench stays last; stutter-tested and as lively as the others.
+- ☑ [69] Six end-game waters (decided 2026-11-19: the director listed six themes for "5" slots and asked me to decide; all six stay, one more unlocks with each voyage from the 2nd to the 7th), outside normal progression, in this order: Animal Farm (voyage 2), Buffet (3), Corporate (4), Nile / Egyptian (5), Robot / cyberpunk (6), Olympus / Mythos (7). Working names: Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
+
+## Added by the director during the big patch (2026-11-19)
+- ☑ Tide Pass overhaul: 100 levels in 5 chapters, Pass-only auras / bobbers / lines / pet colours, pearls and Boon points, showcase.
+- ☑ PC display: interface size by window (Auto, 85–200%), picture quality, viewport units undo the zoom (pc/ui_display.js).
+- ☑ Visual originality pass: own platform per new water, water-specific fish features, varied body plans, per-oddity details.
+- ☑ Batch 6, the fight meta: fish must be tired out (FIGHT_T by rarity), tension floor in runs, rare/epic surges; holding through runs loses rare+ even maxed. Caps: oddities 20%/cast, hotspots ×4, shiny 15%.
 
 ## Older roadmap (still open)
 - Lily polish: a soft rim light so her black coat reads at night; hats following her head tilt.

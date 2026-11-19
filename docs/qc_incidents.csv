@@ -96,3 +96,8 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 95,2026-11-19,Aquarium rows could sum 1 coin off the total (float rounding across a whole number),ui-logic,my_check,local,1,qa:aquarium-rates-add-up
 96,2026-11-19,A long bait name pushed Search and Settings off the phone top bar at 667 wide,layout-cut,my_check,local,2,qa:top-bar-longest-bait
 97,2026-11-19,Stardust still lost to Live Minnows at Starfall by day on a maxed save (x2.8 not enough),balance,my_check,local,1,qa:water-bait-best
+98,2026-11-19,Later save rules (wrappers around migrate) never ran on the save loaded at start-up; defaults hid it (old pearls would have lost their bonus),save,my_check,local,3,qa:start-up-pass + ck_bootfix
+99,2026-11-19,The original oddity list held duplicate entries (Lava Lamp and Snow Globe twice) and two shared names,data,my_check,local,1,qa:oddities-unique
+100,2026-11-19,PC narrow window: the compact bait list had no Favourite foods heading,ui-logic,my_check,local,1,qa:favourite-foods-group
+101,2026-11-19,Holding reel through runs landed common to epic fish 100% in about 1.5 s with skills maxed (director report),balance,director,live,3,qa:batch6-fight
+102,2026-11-19,Phone Home bar: the cozy name overflowed its cell with a two-digit cozy,layout-cut,my_check,local,1,qa:page-bars

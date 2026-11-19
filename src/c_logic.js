@@ -122,7 +122,7 @@ const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel')
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
 const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.65:1));
 const farAt = () => .8 - .02*pr('caster');
-const hotRate = () => (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1) * pathMul('hotrate');
+const hotRate = () => Math.min(4, (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1) * pathMul('hotrate')); /* batch 6: hotspots at most 4× as often */
 const streakCap = () => .5 + .1*pr('streaker');
 /* [15] more ways to earn skill points: +1 for every 25 species in your Fish Log, +2 for every water whose Fish Log is complete (worked out
    from the Fish Log, so nothing extra is saved and nothing can be lost; cached until the Fish Log changes) */
@@ -233,8 +233,8 @@ function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearlOld||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
   if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc); return rare; }
-function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?1.6:1) * (relic('luckypearl')?1.5:1); }
-const junkChance = () => .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.6:1)*(weather().treasure||1)*pathMul('junk');
+function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return Math.min(.15, (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?2:1) * (spec('shinyhunter')?1.6:1) * (relic('luckypearl')?1.5:1)); } /* batch 6: at most 15% shiny, whatever stacks */
+const junkChance = () => Math.min(.2, .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.6:1)*(weather().treasure||1)*pathMul('junk')); /* batch 6: at most 1 cast in 5 brings up an oddity, however it is stacked */
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
 const fishHatsLeft = () => HATS.filter(h=>h.src==='fish' && !S.owned.hats.includes(h.id));
 function chooseCatch(){
@@ -512,6 +512,10 @@ function snagFight(dt){ const reel=reelSpeed(), rin=V3ON?reelInput(dt):(G.hold?1
   if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }
   const frac=clamp(G.d/G.d0,0,1.6), x0=W*.24, x1=castX(G.lastCast); G.bob.x = x0+(x1-x0)*Math.min(frac,1.25)+(G.ev==='snag'?Math.sin(performance.now()/40)*1.5:0); G.bob.y=waterY(G.bob.x);
   if(G.ten>=100){ G.strain=0; endFight('snap'); } else if(G.d<=0){ G.strain=0; endFight('caught'); } }
+// batch 6 (director, 2026-11-19: "you can just hold down reel and never fail ... make fish harder to catch"): seconds of reeling a maxed
+// angler needs to tire a fish of each rarity (C U R E L M); weaker anglers take longer (Angler strength vs the fish's pull), stronger a bit less.
+const FIGHT_T=[2.6,4.2,7,11,18,30], FIGHT_LANDK=.75, FIGHT_TEN_FLOOR=.62;
+function fightTireT(f,rk,V){ const pr2=clamp(Math.pow(anglerStr()/Math.max(.1,fishPull(f)),.5),.45,1.3); return FIGHT_T[clamp(rk|0,0,5)]*(1+.5*(V-1))/pr2; }
 function fight(dt){
   if(G.fish && G.fish.kind!=='fish'){ snagFight(dt); return; }
   maybeEatEvent(dt); eatTick(dt);
@@ -520,7 +524,7 @@ function fight(dt){
   // 0.3.6: a fish's will grows with its rarity, whatever your gear (commons are unchanged): longer runs, shorter rests,
   // slower to tire, and reeling into a rare fish's run strains the line on its own
   const RK=fightWill(f), rk=fishRank(f), V=fightVoy(), fatAt=12+4*rk; /* a rarer fish tires later: mythics keep their runs ~30 s */
-  if(RK>=.6) surgeTick(dt,f);
+  if(RK>=.15) surgeTick(dt,f); /* batch 6: rare and epic fish surge too (they used to be safe to hold) */
   G.runT-=dt; if(G.runT<=0){ G.run=!G.run; G.runT = G.run ? rnd(.4,1.1)*(.6+f.th)*B.runMul*(.5+.5*G.sta)*(1+.45*RK)*(G.fightT>fatAt+2?Math.max(.3,1-(G.fightT-fatAt-2)/12):1) : rnd(.5,1.7)*(1.3-f.th)*B.restMul/(.4+.6*G.sta)*(1-.3*RK); if(G.run){ splash(G.bob.x,G.bob.y,6+RK*6); G.ev=null; } }
   if(!G.run && (B.shake||B.jump) && !G.ev){ G.evT-=dt; if(G.evT<=0){ G.ev=B.jump?'jump':'shake'; G.evDur=B.jump?.85:.5; G.evT=rnd(1.3,3)/(.5+f.aggr)*(.6+.4/(.3+G.sta)); if(B.jump){ splash(G.bob.x,G.bob.y,14); sfx.jump(); } else sfx.warn(); } }
   if(G.ev){ G.evDur-=dt; if(G.evDur<=0){ if(G.ev==='jump') splash(G.bob.x,G.bob.y,16); G.ev=null; } }
@@ -533,15 +537,15 @@ function fight(dt){
     /* 0.4.9: a fish holds against your reel by rank and voyage, relative to your reel speed: a fresh rare fish keeps you still
        during a run and a fresh legendary or mythic takes line even while you reel; between runs a fresh rare fish slows you */
     const grip=(1-rodBonus('grip'))*(1-.04*pr('grappler')); /* [14] Fighter's Grip, [15] Grappler */ const hold = G.run ? .35-(.1+.09*rk)*Math.sqrt(V)*(.4+.6*G.sta)*grip : 1-.06*rk*Math.sqrt(V)*G.sta*grip;
-    G.d -= reel*reelK*rdt*(B.drag?.75:1)*hold;
+    G.d -= reel*reelK*rdt*(B.drag?.75:1)*hold; G.d = Math.max(G.d, G.d0*FIGHT_LANDK*Math.pow(G.sta,.85)); /* 0.4.9 batch 6: a fresh fish can't be dragged in: tire it out first */
     const rr = G.run ? Math.max(ratio, (.2+.12*rk)*V) : ratio; /* reeling into a rare fish's run strains any line, however strong */
     let add = (G.run?95*rr:22*ratio)*tired*(B.heavy?1.35:1);
     G.temper = Math.min(3, G.temper + rdt*(.3+f.aggr*.9)*tempMult());
     add += 36*G.temper*G.temper*(.4+f.aggr)*Math.pow(ratio,.3)*(.35+.65*G.sta);
     const evK=spec('acrobat')?.5:1; if(G.ev==='jump') add += 170*evK; else if(G.ev==='shake') add += (110*Math.pow(ratio,.25)+30)*evK;
     if(G.run) add += 52*RK*Math.min(1,.45+ratio)*(G.surge?2.2:1)*(.4+.6*G.sta); /* rare runs strain any line */
-    G.ten += add*steady*rdt;
-    G.sta = Math.max(0, G.sta - (G.run?.18:.09)*rdt*(B.heavy?.6:1)*(1-.35*RK)/((1+.25*rk)*(1+.5*(V-1)))); /* 0.4.9: rarer fish and later voyages tire slower */
+    G.ten += add*Math.max(G.run||G.ev?FIGHT_TEN_FLOOR+(rk>=2?.1:0):.35, steady)*rdt; /* batch 6: tension cuts never cancel the strain of reeling into a run or a jump */
+    G.sta = Math.max(0, G.sta - rdt*(G.run?1.5:1)*(B.heavy?.8:1)/fightTireT(f,rk,V)); /* batch 6: tiring time by rarity, faster with Angler strength, never instant */ /* 0.4.9: rarer fish and later voyages tire slower */
     G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); }
   }
   if(rin<1){
@@ -551,7 +555,7 @@ function fight(dt){
     // gear shortens fights without ever making a big fish trivial
     if(G.run){ const r=f.kind==='fish'&&f.sp?Math.min(5,f.sp.r):1, fat=G.fightT>fatAt?Math.min(1,(G.fightT-fatAt)/10):0; G.d += Math.max(1.5 + f.str*.14, reel*(.24+.08*r)) * (.35+.65*G.sta) * (1-.65*fat) * odt; } /* 0.3.6: a long fight tires the fish, so it builds to a finish */
     if(B.drag && !G.run) G.d += (.4 + f.str*.04) * (.3+.7*G.sta) * (G.fightT>fatAt?Math.max(.3,1-(G.fightT-fatAt)/10):1) * odt;
-    G.sta = Math.max(0, G.sta - .045*odt*(1-.35*RK)/((1+.25*rk)*(1+.5*(V-1))));
+    G.sta = G.run ? Math.max(0, G.sta - .35*odt/fightTireT(f,rk,V)) : Math.min(1, G.sta + .12*odt/fightTireT(f,rk,V)); /* batch 6: a fish tires running against no reel, and gets its breath back while you wait */
   }
   if(G.run && rin<.5) G.ten = Math.max(G.ten, 6);
   if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }

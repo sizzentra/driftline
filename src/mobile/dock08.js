@@ -123,3 +123,5 @@ function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('h
   /* the canvas follows the view's size (sharp at any size) */
   const _fitRO=window.ResizeObserver?new ResizeObserver(()=>{ try{ if(S.tab==='home'&&MOB()) paintHome(); }catch(e){} }):null;
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const c=$('homecv'); if(_fitRO&&c&&MOB()&&S.tab==='home'&&c.parentElement){ _fitRO.disconnect(); _fitRO.observe(c.parentElement); } }catch(e){} return r; }; }
+/* 0.4.9: the cozy name shortens with "…" so a two-digit cozy never pushes out of its cell (cozy can reach 60 with the Homebody path) */
+document.head.insertAdjacentHTML('beforeend','<style>#panel .dk08-bank > div{min-width:0}#panel .dk08-bank > div > .sub{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style>');
