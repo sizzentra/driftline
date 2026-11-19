@@ -39,7 +39,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
   renderSettings=function(P){ _rs(P); if(!MOB()) return; try{ const ip=IS_IPHONE(), dev=ip?'iPhone':'phone';
     const sub=P.querySelector('h2 + .sub'); if(sub) sub.textContent='These settings belong to this '+dev+'. Moving your progress to another device keeps each device’s own settings.';
     const rowOf=b=>b&&b.closest('.toggle');
-    if(ip){ const v=rowOf(P.querySelector('[data-act="tog"][data-k="vibrate"]')); if(v) v.remove(); const f=rowOf(P.querySelector('[data-act="fullscreen"]')); if(f) f.remove(); }
+    if(ip){ const v=rowOf(P.querySelector('[data-act="tog"][data-k="vibrate"]')); if(v) v.remove(); } { const f=rowOf(P.querySelector('[data-act="fullscreen"]')); if(f) f.remove(); } /* no Full screen option on any phone: it is automatic (director 2026-11-18) */
     for(const m of P.querySelectorAll('.tile .meta')) if(/mouse wheel/i.test(m.textContent)) m.innerHTML='Reel by <b>holding</b> the water, or by <b>drawing circles</b> on it like a crank.';
     const fr=rowOf(P.querySelector('[data-act="tog"][data-k="showFps"]')); if(fr){ const b=fr.querySelector('b'), m=fr.querySelector('.meta'); if(b) b.textContent='Frame rate counter'; if(m) m.textContent='Shows the current frame rate in the corner of the water.'; }
     const disp=[...P.querySelectorAll('.tile')].find(t=>{ const h=t.querySelector('h4'); return h&&h.textContent.trim()==='Display'; });

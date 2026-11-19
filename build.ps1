@@ -72,6 +72,9 @@ foreach ($p in 'pc','android','ios') {
   # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.
   $bot = $bottom; if ($p -ne 'pc') { $bot = $bottom.Replace("fetch('version.txt'", "fetch('version-phone.txt'") }
   $pages[$p] = $top + $body + $badge + $bot
+  # Android opens the installed game full screen at once (director, 2026-11-18: "automatic for all mobile builds, like iPhone"):
+  # the live Android page links its own manifest (display fullscreen); PC and iPhone keep manifest.webmanifest unchanged.
+  if ($p -eq 'android' -and -not $Preview) { $pages[$p] = $pages[$p].Replace('<link rel="manifest" href="manifest.webmanifest">', '<link rel="manifest" href="manifest-android.webmanifest">') }
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
 }
 
@@ -95,6 +98,7 @@ if ($Preview) { $r = $r.Replace('href="icon-192.png"', 'href="../icon-192.png"')
 [IO.File]::WriteAllText((Join-Path $out 'index.html'), $r, $utf8)
 [IO.File]::WriteAllText((Join-Path $out 'version.txt'), $v, $utf8)
 [IO.File]::WriteAllText((Join-Path $out 'version-phone.txt'), $v, $utf8)
+if (-not $Preview) { $ma = [IO.File]::ReadAllText((Join-Path $root 'site\manifest.webmanifest')).Replace('"display": "standalone",', '"display": "fullscreen", "display_override": ["fullscreen", "standalone"],'); [IO.File]::WriteAllText((Join-Path $out 'manifest-android.webmanifest'), $ma, $utf8) }
 if ($Preview) {
   # the preview is its own home-screen app on phones ("Driftline Test", like the PC test app): it opens /next/ (the router
   # picks the iPhone or Android preview build), never the live game, and has its own offline helper so phones install it

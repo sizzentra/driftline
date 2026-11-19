@@ -29,6 +29,6 @@
 // screens that is pointerup / touchend / click, never pointerdown, so every automatic attempt was refused without a sound (the
 // Settings button worked because it reacts to click). Now: on any finished tap, if full screen is your choice and the page is not
 // in full screen, it goes back (taps on the Full screen button itself are left to that button).
-{ const want3=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ return false; } };
+{ const want3=()=>true; /* round 4 (director, 2026-11-18: "automatic for all mobile builds, no menu option, like iPhone"): phones are always full screen; the Settings row is gone (settings08) */
   const back=e=>{ if(!MOB()||document.fullscreenElement||!document.documentElement.requestFullscreen||!want3()) return; if(e&&e.target&&e.target.closest&&e.target.closest('[data-act="fullscreen"]')) return; try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(er){} };
   ['pointerup','touchend','click','keyup'].forEach(ev=>document.addEventListener(ev,back,true)); }
