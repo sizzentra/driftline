@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='android'; window.DL_VERSION='2026.11.18-2145';
+window.DL_BUILD='android'; window.DL_VERSION='2026.11.18-2157';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -18174,7 +18174,7 @@ if(!S.stats.caught && !S.savedAt) setTimeout(()=>toast('Hold on the water to cas
 (function(){
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(function(){});
   function check(){
-    fetch('version.txt', {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; }).then(function(v){
+    fetch('version-phone.txt', {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; }).then(function(v){
       v = (v || '').trim(); if (v && v !== window.DL_VERSION) document.getElementById('updbar').hidden = false;
     }).catch(function(){});
   }
