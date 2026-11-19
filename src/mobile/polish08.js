@@ -133,3 +133,13 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.phone-land #menuov #panel.pg08 .pg08-bank > div{max-width:none!important}
 }
 </style>`);
+/* Tasks page (Bounties; director: "Daily tasks, weekly quests, and bounties ... right now they all have a ton of duplicate
+   information"): an old rule (bm_ui04: .tile.dtasks{display:grid!important}) kept the daily and weekly cards on screen in every tab,
+   so each tab showed everything. Now each tab shows only its own part; the harbourmaster's intro (it is about the bounty board) shows
+   on Bounties only; the cards drop their big "Daily tasks" / "Weekly quests" titles (the tab above names them) and keep their line
+   about streaks, resets and progress */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08 .tile.dtasks[style*="display: none"],html body.phone-app #menuov #panel.pg08 .tile.dtasks[style*="display: none"]{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="bounties"]:not([data-pg-sec="Bounties"]) .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="bounties"]:not([data-pg-sec="Bounties"]) .pg08-body > .pg08-note{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="bounties"] .tile.dtasks > .row h4,html body.phone-app #menuov #panel.pg08[data-pg-tab="bounties"] .tile.dtasks > .row h4{display:none!important}
+</style>`);

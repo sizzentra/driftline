@@ -62,3 +62,6 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="prestige"] .jsec > h2,html
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08[data-pg-tab="prestige"] .pg08-body .grid:not(.sect-one),html body.phone-app #menuov #panel.pg08[data-pg-tab="prestige"] .pg08-body .grid:not(.sect-one){grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important}
 </style>`);
+/* Collection holds the Aquarium and the Trophy Room (director: "fish tab needs to be removed from Collection ... it has its own clear
+   ui on the top header already"): the Fish Log opens from its own chip in the top bar */
+{ const c=MENU_SECS.find(s=>s.id==='coll'); if(c) c.tabs=c.tabs.filter(t=>t!=='journal'); }

@@ -141,5 +141,8 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Skills: only your skill points get a badge, not every category, and an XP bar next to your Level shows how close the next level is.',
   'Side panel: counts never cover a button’s name, and Fishing is now called Catch (your Cooler and the Waters).',
   'New Prestige button on the side panel: Set sail again and Pearl relics have their own page, with your pearls, voyage and pearl bonus at the top.',
-  'Waters is tidier: compact cards with a picture, a species bar and one button, the water you’re at says You are here, and the list opens right at it.']});
+  'Waters is tidier: compact cards with a picture, a species bar and one button, the water you’re at says You are here, and the list opens right at it.',
+  'Top bar: your coins, level and the water you’re at sit together in one quiet box.',
+  'Tasks: Daily tasks, Weekly quests and Bounties each show only their own part, with nothing repeated.',
+  'Collection holds the Aquarium and the Trophy Room; the Fish Log opens from its own button in the top bar.']});
 

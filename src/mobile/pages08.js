@@ -37,7 +37,7 @@
       groups:K=>{ const cal=K.filter(c=>c.classList.contains('ev-cal')||c.classList.contains('wxf')); const hs=K.filter(c=>c.tagName==='H3'); const out=[{name:'Calendar',nodes:cal}];
         hs.forEach((hh,i)=>{ const a=K.indexOf(hh), b=i+1<hs.length?K.indexOf(hs[i+1]):K.length; out.push({name:txt(hh).replace(/^Fishing\s+/,'')||('Part '+(i+1)),nodes:K.slice(a,b)}); });
         const used=new Set(out.flatMap(g=>g.nodes)); const left=K.filter(c=>!used.has(c)); if(left.length) out[0].nodes=out[0].nodes.concat(left); return out; } },
-    journal:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Species found',(num(t,/(\d+) of (\d+) species/)||'0')+' / '+(num(t,/(\d+) of (\d+) species/,2)||'?')],['Mastery stars',num(txt(P.querySelector('.jrank b')),/(\d+)/)||'0']]; } },
+    journal:{ cells:(P,hd,sub)=>{ const t=txt(sub), m=t.match(/([\d,]+) of ([\d,]+) species/); return [['Species found',m?m[1]+' / '+m[2]:'0'],['Mastery stars',num(txt(P.querySelector('.jrank b')),/(\d+)/)||'0']]; } },
     pets:{ cells:(P,hd,sub)=>{ const t=txt(sub); let fav=''; try{ fav=S.pet&&PETI[S.pet]?PETI[S.pet].name:''; }catch(e){} return [['Favourite',fav||'None yet'],['Pets found',(num(t,/(\d+) of (\d+) found/)||'0')+' / '+(num(t,/(\d+) of (\d+) found/,2)||'?')]]; } },
     settings:{ cells:()=>[['Settings for',(typeof IS_IPHONE==='function'&&IS_IPHONE())?'This iPhone':'This device'],['Saved','Automatically']] },
     stats:{ cells:P=>{ const t=P.textContent||'', b=t.match(/Bite speed[^×]{0,80}(×\s?[\d.]+)/), s=t.match(/Sale price[^×]{0,80}(×\s?[\d.]+)/); /* not Time played: the first card already shows it */

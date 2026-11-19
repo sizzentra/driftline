@@ -98,3 +98,24 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app .hud > #mbgoal > .lbl,html body.phone-land .hud > #mbgoal > .lbl,html body.phone-app .hud > #mblive > .lbl,html body.phone-land .hud > #mblive > .lbl,html body.phone-land .hud > .mb-x > .lbl{flex:0 0 auto!important;white-space:nowrap!important;overflow:visible!important}
 </style>`);
+/* round 8 (director, 2026-11-18: "Coins, level, and fishing at should be grouped into one ui box on the top left header ... we don't
+   need it to be a direct link anywhere, just needs to look neat and organized and clearly not a button compared to what else is on
+   the top header"): the three are one quiet status panel (no fill, no button edge, thin dividers between them). Tapping it does
+   nothing: Stats and the Waters have their own buttons on the side panel. The chips to its right stay the tappable shortcuts. */
+{ const group=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; let g=hud.querySelector(':scope > .mb-stat8');
+    const coins=hud.querySelector('.st-coins'), lvl=hud.querySelector('.st-lvl'), loc=hud.querySelector('.stat.loc'); if(!coins||!lvl||!loc) return;
+    if(!g){ g=document.createElement('div'); g.className='mb-stat8'; g.setAttribute('role','group'); g.setAttribute('aria-label','Coins, level and where you are fishing'); coins.before(g);
+      /* not a link: taps on it stop here (the old Level and Fishing at shortcuts) */
+      ['click','pointerdown','pointerup','touchstart'].forEach(ev=>g.addEventListener(ev,e=>{ e.stopPropagation(); if(ev==='click') e.preventDefault(); },true)); }
+    for(const el of [coins,lvl,loc]) if(el.parentElement!==g){ g.appendChild(el); el.classList.remove('hud-link'); el.removeAttribute('role'); el.removeAttribute('tabindex'); el.title=''; }
+    lvl.removeAttribute('data-mbtap'); };
+  setTimeout(group,0); setTimeout(group,1600); addEventListener('resize',()=>setTimeout(group,250)); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land .hud > .mb-stat8,html body.phone-app .hud > .mb-stat8{display:flex;align-items:stretch;flex:0 0 auto;min-width:0;padding:0 4px;border-radius:12px;background:rgba(4,12,18,.42);box-shadow:none;border:0}
+html body.phone-app .hud > .mb-stat8{grid-column:span 2}
+html body.phone-land .hud > .mb-stat8 > .stat,html body.phone-app .hud > .mb-stat8 > .stat{background:transparent!important;border:0!important;box-shadow:none!important;cursor:default!important;min-width:0!important;padding:4px 10px!important;margin:0!important;border-radius:0!important;display:flex!important;flex-direction:column!important;justify-content:center!important;transform:none!important}
+html body.phone-land .hud > .mb-stat8 > .stat + .stat,html body.phone-app .hud > .mb-stat8 > .stat + .stat{border-left:1px solid #ffffff1c!important}
+html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-app .hud > .mb-stat8 > .stat .lbl{color:#8fa6bf!important}
+html body.phone-land .hud > .mb-stat8 > .stat b,html body.phone-app .hud > .mb-stat8 > .stat b{color:#fff!important}
+html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-app .hud > .mb-stat8 > .stat.loc .lbl::after{content:none!important;display:none!important}
+</style>`);
