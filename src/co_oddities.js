@@ -327,7 +327,7 @@ const ODD_ART={
 { const _dj=drawJunkAt; drawJunkAt=function(c,id,x,y,s,sil){ const J=JUNKI[id]; const fn=J&&J.art&&ODD_ART[J.art]; if(!fn) return _dj.apply(this,arguments);
     c.save(); c.translate(x,y); c.scale(s,s); c.lineJoin='round'; c.lineCap='round'; const F=col=>sil||col, a=F(J.cols[0]), b=F(J.cols[1]||J.cols[0]);
     const R=(x,y,w,h,col)=>{ c.fillStyle=F(col); c.fillRect(x,y,w,h); }, Ci=(x,y,r,col)=>{ c.fillStyle=F(col); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,col,rot=0)=>{ c.fillStyle=F(col); c.beginPath(); c.ellipse(x,y,rx,ry,rot,0,7); c.fill(); }, P=(pts,col)=>{ c.fillStyle=F(col); c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=2) c.lineTo(pts[i],pts[i+1]); c.closePath(); c.fill(); };
-    c.fillStyle=a; try{ fn(R,E,P,Ci,c,a,b); }catch(e){} if(!sil){ c.globalAlpha=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-14,-20,16,7,-.5,0,7); c.fill(); } c.restore(); }; }
+    c.fillStyle=a; try{ fn(R,E,P,Ci,c,a,b); if(!sil) oddDecor(c,J,a,b,R,E,Ci); }catch(e){} if(!sil){ c.globalAlpha=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-14,-20,16,7,-.5,0,7); c.fill(); } c.restore(); }; }
 // what the Oddities page shows once you have found one: rarity, odds, where and when, what it gives
 function oddKV(id){ const J=JUNKI[id]; if(!J) return ''; const L=J.loc&&LOCS[locIdx(J.loc)], o=oddOdds(J), jc=junkChance();
   return `<div><span>Rarity</span> ${ODD_TIER_NAMES[J.t]}</div><div><span>Turns up</span> ${L?'only at '+esc(L.name):'at every water'}${J.night?', only at night':''}</div>`+
@@ -336,3 +336,13 @@ document.head.insertAdjacentHTML('beforeend','<style>#panel .jcard[data-odd]{cur
 // compact Oddities cards (phones, narrow PC): tap a found one to see its rarity, odds and where it turns up
 document.addEventListener('click',e=>{ const card=e.target.closest&&e.target.closest('#panel .jcard[data-odd]'); if(!card) return; const P=card.parentElement, id=card.dataset.odd, open=P.querySelector('.odd-kv');
   if(open){ const same=open.dataset.for===id; open.remove(); if(same) return; } card.insertAdjacentHTML('afterend',`<div class="odd-kv" data-for="${id}"><div><b>${esc(JUNKI[id].name)}</b></div>${oddKV(id)}</div>`); });
+// so oddities that share a template never look alike: each also gets its own small detail, chosen from its id
+function oddDecor(c,J,a,b,R,E,Ci){ let h=0; for(let i=0;i<J.id.length;i++) h=(h*31+J.id.charCodeAt(i))>>>0; const v=h%7, dk=mix(a,'#000000',.4), lt=mix(a,'#ffffff',.55);
+  c.save(); c.globalAlpha=.9;
+  if(v===1){ R(-40,-4,80,8,lt); } /* a stripe band */
+  else if(v===2){ for(let i=0;i<6;i++) Ci(-24+(i%3)*24,-14+Math.floor(i/3)*24,4,lt); } /* polka dots */
+  else if(v===3){ c.fillStyle='#ffd36a'; c.beginPath(); for(let i=0;i<10;i++){ const r=i%2?4:10, an=-Math.PI/2+i*Math.PI/5; c.lineTo(24+Math.cos(an)*r,-24+Math.sin(an)*r); } c.closePath(); c.fill(); } /* a gold star badge */
+  else if(v===4){ R(-22,6,44,16,'#f4f0e4'); R(-16,10,32,2.5,dk); R(-16,15,22,2.5,dk); } /* a label */
+  else if(v===5){ for(let i=0;i<4;i++) Ci(-30+i*20,26,3,dk); } /* rivets */
+  else if(v===6){ c.globalAlpha=.8; c.fillStyle='#ffffff'; for(const [x,y,s] of [[26,-30,5],[-30,-22,3.5],[32,10,3]]){ c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.3,y-s*.3); c.lineTo(x+s,y); c.lineTo(x+s*.3,y+s*.3); c.lineTo(x,y+s); c.lineTo(x-s*.3,y+s*.3); c.lineTo(x-s,y); c.lineTo(x-s*.3,y-s*.3); c.closePath(); c.fill(); } } /* glints */
+  c.restore(); }
