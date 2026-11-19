@@ -280,3 +280,8 @@ html body.phone-land.ev-open #stage,html body.phone-app.ev-open #stage{touch-act
 html body.phone-land #evcard #evin,html body.phone-app #evcard #evin{touch-action:pan-y!important;-webkit-overflow-scrolling:touch}
 html body.phone-land #evcard #evin > .row:last-child:has([data-ev="skip"]),html body.phone-app #evcard #evin > .row:last-child:has([data-ev="skip"]){position:sticky;bottom:-10px;z-index:2;background:linear-gradient(rgba(15,24,40,0),rgb(15,24,40) 14px);margin-bottom:-10px!important;padding:16px 0 10px}
 </style>`);
+
+/* Notices on the water (director, 2026-11-18: "Travelled to ... blocks other UI"): #toast sat at the top centre, in the same row as the
+   weather chip and the streak chip (both painted on the water at y 12-36) and the fps counter (44-68). Phones: notices sit below those
+   rows, in the sky, where nothing else lives. Notices over a menu keep their own place (#menuov > #toast). */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage > #toast,html body.phone-app #stage > #toast{top:76px!important;bottom:auto!important;height:auto!important;max-width:calc(100% - 40px)}</style>`);
