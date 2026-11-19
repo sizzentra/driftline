@@ -8,5 +8,6 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'Natural frame r
   'Water pictures for the Map are only made while the Map is open, so other menus stay light.',
   'Much smoother with a decorated home: decorations on the dock are no longer re-lit from scratch every frame (a moved save with many decorations made Android drop to about 25 fps).',
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
+  'Smoother fights and storms on phones: the red danger glow on the fight ring and the rain ripples on the water are much cheaper to draw.',
   'Tester tools (Stats), Graphics test: the angler, pets, home decorations, moving cosmetic effects and oddities now have their own buttons. If a moved save makes the game slow, turn them off one at a time and watch the frame counter.']};
 addTestNotes(TEST_NOTES);

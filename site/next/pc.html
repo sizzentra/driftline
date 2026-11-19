@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-0001';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-0015';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -6683,8 +6683,14 @@ for(const id in V3SCENES) m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); });
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
   if((k==='Rain'||k==='Storm')&&FX){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
+    /* phones (director, 2026-11-18: storms drop Android to 30-40 fps): rings are grouped into 3 brightness bands and drawn as 3 strokes
+       instead of up to 46 separate ones; PC is unchanged */
+    const mobB=(typeof MOB==='function'&&MOB())?[[],[],[]]:null;
     for(let i=0;i<N;i++){ const per=.55+(i%5)*.07, ph=(t/per+i*.618)%1, cyc=Math.floor(t/per+i*.618), r1=((Math.sin((cyc+i)*12.9898)*43758.5)%1+1)%1, r2=((Math.sin((cyc+i)*78.233)*12345.6)%1+1)%1;
-      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2); g.globalAlpha=(1-ph)*.9*clamp(NM*a-i,0,1); /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2), al=(1-ph)*.9*clamp(NM*a-i,0,1);
+      if(mobB){ if(al>.02) mobB[Math.min(2,Math.floor(al/.3))].push(x,y,rr); continue; }
+      g.globalAlpha=al; /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+    if(mobB) for(let b=0;b<3;b++){ const L=mobB[b]; if(!L.length) continue; g.globalAlpha=.15+b*.3; g.beginPath(); for(let j=0;j<L.length;j+=3){ g.moveTo(L[j]+L[j+2],L[j+1]); g.ellipse(L[j],L[j+1],L[j+2],L[j+2]*.3,0,0,7); } g.stroke(); }
     g.globalAlpha=1;
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }

@@ -20,8 +20,10 @@
     /* the tension ring */
     g.lineCap='round'; g.lineWidth=Math.max(5,r*.2);
     g.strokeStyle='rgba(5,14,20,.55)'; g.beginPath(); g.arc(cx,cy,r,0,7); g.stroke();
-    if(danger){ g.shadowColor='#ff5468'; g.shadowBlur=12+Math.sin(t*14)*6; }
-    g.strokeStyle=col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke(); g.shadowBlur=0;
+    /* the danger glow: a soft wider ring underneath instead of shadowBlur (director, 2026-11-18: Android drops during actions; a
+       glow shadow is one of the slowest things a phone graphics chip draws, and it pulsed every frame of a tense fight) */
+    if(danger){ const a0=-Math.PI/2, a1=-Math.PI/2+Math.PI*2*Math.max(.02,ten), lw=g.lineWidth, pulse=.5+.5*Math.sin(t*14); g.strokeStyle='rgba(255,84,104,'+(.18+.12*pulse)+')'; g.lineWidth=lw+8+pulse*5; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.strokeStyle='rgba(255,84,104,'+(.28+.12*pulse)+')'; g.lineWidth=lw+3; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.lineWidth=lw; }
+    g.strokeStyle=col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke();
     g.fillStyle='rgba(255,84,104,.35)'; g.beginPath(); g.arc(cx,cy,r+g.lineWidth*.5+2,-Math.PI/2+Math.PI*2*.8,-Math.PI/2+Math.PI*2,false); g.arc(cx,cy,r+g.lineWidth*.5+5,-Math.PI/2+Math.PI*2,-Math.PI/2+Math.PI*2*.8,true); g.fill(); /* the red zone: snapping risk */
     /* the instruction, right above */
     const msg = G.ev==='jump' ? 'It jumped! Let go!' : G.ev==='shake' ? 'Head shake! Ease off' : G.run ? 'It’s running! Ease off' : G.temper>1.7&&G.hold ? 'It’s angry! Let go a moment' : danger ? 'Line strained! Ease off' : G.hold ? 'Reeling…' : 'Hold to reel';
