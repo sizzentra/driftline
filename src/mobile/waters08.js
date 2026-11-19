@@ -101,7 +101,12 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .lis
   try{ SEARCH_IDX.push(['Oddities','oddities',null,'oddities junk treasure rare finds boot can found things']); }catch(e){}
   try{ PAGE_DESC.oddities='Junk, odd finds and treasure you have pulled from the water'; }catch(e){}
   const _rc=renderCooler; renderCooler=function(P){ if(MOB()&&S.tab==='oddities'&&P){
-      P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Oddities</h2><p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p></div></div><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas><b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; }).join('')+'</div>';
+      /* two tabs (director: "oddities include treasures but they aren't separated"): Oddities (junk, odd junk, rare finds) and Treasures */
+      const card=J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas><b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; };
+      const odd=JUNK.filter(J=>J.t<3).sort((a,b)=>a.t-b.t), tr=JUNK.filter(J=>J.t>=3);
+      P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Oddities</h2><p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p></div></div>`+
+        `<div class="jsec od8" data-od8="Oddities"><h2>Oddities</h2><p class="meta">Junk, odd junk and rare finds: everyday things the water gives back, from rarest last.</p><div class="jgrid">${odd.map(card).join('')}</div></div>`+
+        `<div class="jsec od8" data-od8="Treasures"><h2>Treasures</h2><p class="meta">The rarest things in the water. Special lures in Tackle pull up more of them.</p><div class="jgrid">${tr.map(card).join('')}</div></div>`;
       P.querySelectorAll('canvas[data-junk]').forEach(cv=>{ const cx=cv.getContext('2d'); cx.clearRect(0,0,cv.width,cv.height); if(cv.dataset.known==='1') drawJunk(cx,cv.width,cv.height,cv.dataset.junk,null); else mysteryThumb(cx,cv.width,cv.height,cv.dataset.junk); }); return; }
     return _rc.apply(this,arguments); };
   const _rj=renderJournal; renderJournal=function(P){ if(MOB()&&encLoc==='junk') encLoc=S.loc; const r=_rj.apply(this,arguments); try{ if(MOB()) P.querySelectorAll('[data-act="encloc"][data-k="junk"]').forEach(b=>b.remove()); }catch(e){} return r; }; }
@@ -110,3 +115,4 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips,html body
 html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow{display:none!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb{flex:0 0 auto!important}
 </style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel.pg08[data-pg-tab="oddities"] .od8 > h2,html body.phone-app #menuov #panel.pg08[data-pg-tab="oddities"] .od8 > h2{display:none!important} #menuov #panel .od8 > .meta{margin:0 0 8px!important}</style>`); /* the tab names each part */

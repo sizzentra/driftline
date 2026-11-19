@@ -148,5 +148,8 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'New Quests button at the top of the side panel: your next goal (with a Show me button), what is waiting for you, your journey, over 30 short lessons, a map of where everything is, and answers to common questions.',
   'Top bar: Bait sits up top now (tap to change it); Goal moved into Quests, Tide Pass into Challenges, and Home has its own button next to the Aquarium. Customize holds the Wardrobe and Pets.',
   'Cooler is tidier: the Sell all filter is one slim line, the fishmonger is a one-line banner, and fish sit two a row.',
-  'Oddities has its own page in Collection, and the Fish Log lists its waters in neat rows instead of a sideways strip.']});
+  'Oddities has its own page in Collection, and the Fish Log lists its waters in neat rows instead of a sideways strip.',
+  'Oddities and Treasures are separate tabs, Collection holds the Trophy Room and Oddities (the Aquarium has its own top-bar button), and every menu tab has its icon.',
+  'Quests teaches the Aquarium and your home step by step: where every button is, how earning and cozy bonuses work, and tips.',
+  'The frame-rate counter sits in the top corner of the water, clear of the fishing tips.']});
 

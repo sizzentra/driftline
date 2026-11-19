@@ -158,3 +158,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.phone-land #catdock .cdb{min-height:31px!important;height:31px!important}
 }
 </style>`);
+/* the frame-rate counter (Settings > Display) sits in the top-right corner of the water on phones: at the bottom it covered the
+   fishing hint ("Touch and hold the water…") on narrower screens (director, 2026-11-18) */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbox,html body.phone-app #fpsbox{top:10px!important;bottom:auto!important;right:10px!important}</style>`);
