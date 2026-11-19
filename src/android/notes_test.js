@@ -1,27 +1,13 @@
 // Android test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 2: batch 1 finished', items:[
-  'New: Settings › Display › Weights: kilograms or pounds.',
-  'New: Aquarium › Decorate: “Hide” on a placed decoration takes it out of the tank but keeps its bonus.',
-  'Fish Log: tap a fish far down the list: its details (with Normal / Shiny) come into view; “Back to the list” returns you.',
-  'The top bar has Home and Bait from the first moment (it shifted just after opening).',
-  'Smoother frame pacing on 90 Hz and 144 Hz screens; please check the Aquarium tank.',
-  'Clean-up: unused old parts removed (retired Menu and Overview buttons, an old hairstyle, old dolphins and Boardwalk drawings). Nothing should look different; tell me if anything does.',
-  'Settings: only the Settings tab lights up (the gear no longer lights up next to it).',
-  'Narrow windows (split-screen): the side panel shows icons only, so all sections fit.',
-  'Pets in the shop and previews are awake at night (they showed asleep in Pets › Find more).',
-  'Menus: the side panel always shows every section (on iPhone it could stop after Quests). Please check Trophy Room, Your home and the Aquarium.',
-  'A tab’s name is no longer repeated as the heading under it (Your tank, Your boat).',
-  'An empty Trophy Room fills the page with a wall of empty plaques.',
-  'Aquarium coins use the short form for big amounts, so they always fit.',
-  'While you reel in a fish, the hint and the Rest button step aside so you can see the fight (new players keep the hint for their first catches).',
-  'Search opens with a normal tap, sits at the top and keeps its results above the keyboard.',
-  'Bounties: a ready weekly quest no longer lights up the Daily tasks tab.',
-  'Aquarium: big Earning and Ready numbers no longer run into each other.',
-  'Events, Feats and Pets: each tab shows only its own things. Rods: the presets stay on “Your rods”.',
-  'Settings › Patch notes is a short list; tap an update to read it in the same card as when it first arrived.',
-  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
-  'The top Fish Finder only names fish you have caught before.',
-  'Fish shadows are one even tone; shiny fish lost the sweeping band of light.',
-  'Challenges show either LIVE or a count, not both. Hints off leaves no empty box. In narrow windows the top bar keeps Home.']};
+const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 3: the fight', items:[
+  'Fights reworked (please play a lot of fish and tell me how it feels): rare fish hold you still or take line during runs even while you reel, at any gear level. A top mythic should take 30–60 s with the best gear.',
+  'Holding the reel the whole time now loses legendary and mythic fish: watch for runs, jumps and shakes and let go.',
+  'Each voyage makes fish fight a little harder (up to 5 voyages).',
+  'Perfect hook: the fish starts less tired and rests less.',
+  'Angler strength: in Stats, and on every water card (fish range, your strength, how many you are stronger than). “Heavy fish” = stronger than you.',
+  'Line upgrades were rebalanced to follow the waters (the top line is weaker than before on purpose).',
+  'Swallowed fish: half as often, the big one strips line out, the fight restarts, +50% coins.',
+  'Oddities snag instead of fighting: reel in short pulls; their shadow shows what you hooked.',
+  'Stardust at Starfall: ×2.8.']};
 addTestNotes(TEST_NOTES);

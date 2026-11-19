@@ -10,9 +10,9 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
-- **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7).
-- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). **Batch 1 (bugs) finished 2026-11-19** and on the phone test apps + /next/ (part 2: weights kg/lb, hide decorations, Fish Log details into view, PC badge, Android frame pacing, PC Fish Log at 1440×900; `__qa` 71 checks). Next: batch 2 (the fight). QC order is data-driven (docs/QC_ANALYSIS.md).
-- **Asked, waiting for the director:** whether batch 1 goes live as 0.4.9 part 1 / a small patch, and new bugs the director finds while testing.
+- **Live (all three, 2026-11-19): 0.4.8.8 "Fixes and Small Wishes"** (stamp 2026.11.19-0829, tag v0.4.8.8): batch 1 of the director’s list.
+- **Test builds: 0.4.9 in progress** (the director’s list, docs/PLAN.md: 46 items in 5 batches). Batch 1 is live (0.4.8.8). **Batch 2 (the fight) done 2026-11-19 on the test builds** (part 3; `__qa` 75 checks). Next: batch 3 (progression and economy), then 4 (looks), 5 (new waters, oddities, end-game waters). QC order is data-driven (docs/QC_ANALYSIS.md).
+- **Waiting for the director:** how the new fights feel on a real device (numbers in docs/SYSTEMS_MAP.md), new bugs found while testing.
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
 

@@ -68,6 +68,7 @@ const SEARCH_IDX=[
  ['Settings: patch notes','settings','Patch notes','patch notes updates whats new changes'],
  ['Settings: save & codes','settings','Save & codes','save code backup restore erase'],
  ['Stats','stats',null,'stats numbers odds income'],
+ ['Angler strength (heavy fish)','stats',null,'angler strength heavy fish line strong weak pull'],
  ['Save: move to another device','save','Move to another device','transfer phone pc move progress code'],
 ];
 function searchGo(e){ const [,tab,sect]=e; if(S.tab!==tab){ setTab(tab); save(); } const P=$('panel');

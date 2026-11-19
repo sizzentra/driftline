@@ -210,3 +210,14 @@ PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
   'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
   '## Behind the scenes',
   'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## The fight',
+  'Rarer fish fight like it at every gear level: during their runs they hold you still or take line even while you reel, and a top mythic takes 30 seconds to a minute with the best gear.',
+  'Each new voyage makes fish fight a little harder, up to five voyages.',
+  'A perfect hook gives a smaller head start: the fish starts less tired and rests less.',
+  'Angler strength: your Line plus skills that lower tension, shown in Stats. Every water shows its fish strength range and where you stand, and “Heavy fish” now simply means a fish is stronger than you.',
+  'Line upgrades follow the waters, so each water opens with you stronger than some of its fish and weaker than its rarest.',
+  'A fish swallowed mid-fight happens half as often; the big fish strips line out, the fight starts over, and landing it pays 50% more.',
+  'Oddities no longer fight, they snag: their shadow shows what you hooked, and reeling without a pause can snap the line, so reel in short pulls.',
+  '## Small things',
+  'Stardust works better at Starfall Lake (odds ×2.8).']});

@@ -1,20 +1,13 @@
 // PC test notes (preview builds only; the live game never shows them). One short line per change in the next test build, curly
 // apostrophes only. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9, part 2: batch 1 finished', items:[
-  'New: Settings › Display › Weights: kilograms or pounds.',
-  'New: Aquarium › Decorate: “Hide” on a placed decoration takes it out of the tank but keeps its bonus.',
-  'Full screen: the orange count circles in the header are no longer cut off.',
-  'Fish Log: the three columns fit smaller windows (at 1440 × 900 the bottom was cut off).',
-  'Clean-up: unused old parts removed (retired Menu and Overview buttons, an old hairstyle, old dolphins and Boardwalk drawings). Nothing should look different; tell me if anything does.',
-  'Pets in the shop and previews are awake at night (they showed asleep in Pets › Find more).',
-  'Aquarium coins use the short form for big amounts (hover for the exact number).',
-  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
-  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
-  'Fish shadows under the water are one even tone (no lighter fins or patches).',
-  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
-  'Events: Calendar, Challenges and Derby each show only their own things.',
-  'Challenges show either LIVE or a count, not both.',
-  'Rods: the first tab is called “Your rods”.',
-  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
-  'Skills: the old note about specialisations is gone.']};
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9, part 3: the fight', items:[
+  'Fights reworked (please play a lot of fish and tell me how it feels): rare fish hold you still or take line during runs even while you reel, at any gear level. A top mythic should take 30–60 s with the best gear.',
+  'Holding the reel the whole time now loses legendary and mythic fish: watch for runs, jumps and shakes and let go.',
+  'Each voyage makes fish fight a little harder (up to 5 voyages).',
+  'Perfect hook: the fish starts less tired and rests less.',
+  'Angler strength: in Stats, and on every water card (fish range, your strength, how many you are stronger than). “Heavy fish” = stronger than you.',
+  'Line upgrades were rebalanced to follow the waters (the top line is weaker than before on purpose).',
+  'Swallowed fish: half as often, the big one strips line out, the fight restarts, +50% coins.',
+  'Oddities snag instead of fighting: reel in short pulls; their shadow shows what you hooked.',
+  'Stardust at Starfall: ×2.8.']};
 addTestNotes(TEST_NOTES);

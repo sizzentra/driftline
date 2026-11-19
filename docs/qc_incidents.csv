@@ -88,3 +88,6 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 87,2026-11-19,Decorations heading written by two blocks,code-structure,me_manual,local,1,rule:one-owner
 88,2026-11-19,Line-based sed insert landed inside a function,script-break,me_manual,local,3,read-after-insert+parse-gate
 89,2026-11-19,Deleting a last line removed a closing brace,script-break,me_manual,local,3,read-after-insert+parse-gate
+90,2026-11-19,Wrote a second fight simulator (one existed),code-structure,me_manual,local,1,rule:grep-before-building
+91,2026-11-19,Stardust lost to Live Minnows at Starfall (maxed save),balance,my_check,local,1,qa:water-bait-best
+92,2026-11-19,Stats check read the tab an earlier check left,test-tool,my_check,local,0,state-independent-tests
