@@ -345,3 +345,30 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
    frames over 8 ms during those transitions, every water). Phones now use 5 / 3 / 2 steps and a 5 s cross-fade between them, so the
    light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
 { const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
+
+/* "Fix it, don't leave it" round (director, 2026-11-19). Phones only; PC is untouched.
+   1) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
+      call, over 30 a frame at Starfall. Phones stamp a ready-made soft dot per colour (128 px, same centre colour, same fade to
+      nothing) at the same size and strength. */
+{ const _gl=v3glow, GS=new Map();
+  const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
+    m=/^#([0-9a-f]{6})$/i.exec(col); if(m){ const v=parseInt(m[1],16); return {rgb:((v>>16)&255)+','+((v>>8)&255)+','+(v&255),a:1}; } return null; };
+  v3glow=function(c,x,y,r,col,a){ if(!MOB()||!(r>0)) return _gl.apply(this,arguments); const p=parse(col); if(!p) return _gl.apply(this,arguments);
+    let s=GS.get(p.rgb); if(!s){ s=document.createElement('canvas'); s.width=s.height=128; const sx=s.getContext('2d'), gr=sx.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,128,128); if(GS.size>96) GS.clear(); GS.set(p.rgb,s); }
+    const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
+/* 2) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
+      work the longer you play. Phones resume from where the last call got to (same events, same timing). */
+{ const _sf=sfEvent; let cs=0, cn=0;
+  sfEvent=function(t){ if(!MOB()) return _sf(t); if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
+    const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
+/* 3) Tinted pets: a canvas colour filter makes every brush stroke of the pet go through the filter separately. Phones draw the pet
+      once without the tint into a small picture, then put it on the water through the filter in one step. */
+{ const _dp=drawPetStyled; let PC=null;
+  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(!MOB()||c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
+    if(!f||f==='none') return _dp.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
+    const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);
+    if(!PC) PC=document.createElement('canvas'); if(PC.width<pw||PC.height<ph){ PC.width=Math.max(PC.width,pw); PC.height=Math.max(PC.height,ph); }
+    const px=PC.getContext('2d'); px.setTransform(1,0,0,1,0,0); px.clearRect(0,0,PC.width,PC.height); px.setTransform(k,0,0,k,-(x+bx)*k,-(y+by)*k);
+    const r=_dp(px,id,x,y,s,t,night,Object.assign({},lk,{tint:undefined}));
+    c.save(); c.setTransform(1,0,0,1,0,0); c.filter=f; c.drawImage(PC,0,0,pw,ph,m.a*(x+bx)+m.e,m.d*(y+by)+m.f,pw,ph); c.restore(); return r; }; }

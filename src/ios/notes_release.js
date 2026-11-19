@@ -166,6 +166,7 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'The update message only appears when there really is an update (it kept coming back on phones).',
   'Much smoother with a decorated home: decorations on the dock (and on boats and floating docks) no longer slow the game down.',
   'Smoother fights, storms, dusk, dawn and weather changes on phones.',
+  'Lighter on phones: glowing lights (lanterns, lamps, Starfall’s sky) and coloured pets cost far less to draw, and the game no longer stays at a lower sharpness after switching waters.',
   'Opening and closing a menu no longer shows another water’s scenery for a moment.',
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
   'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
