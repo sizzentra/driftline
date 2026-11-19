@@ -49,7 +49,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 // the counter in bm_ui04 runs its own loop, so it measured the screen's refresh (120 Hz on a Pixel) even while the game drew only
 // 30 frames. On phones it now shows drawn frames per second, the screen's rate and the slowest gap between drawn frames.
 const MOB_DRAWN=[]; { const _dw=draw; draw=function(now){ const r=_dw.apply(this,arguments); try{ MOB_DRAWN.push(performance.now()); if(MOB_DRAWN.length>240) MOB_DRAWN.shift(); }catch(e){} return r; }; }
-function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'; }
+function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); let res=''; try{ res=' · res '+(typeof MOB_DPR_CAP!=='undefined'?MOB_DPR_CAP:'?')+'x'; }catch(e){} return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'+res; }
 
 // ---------- test builds only: Graphics test (director, 2026-11-18: Android holds 30 but drops to 25-38 at 60 = each frame costs
 // the phone ~30 ms). Each button switches one part of the water scene off, so the frame counter shows which part is too heavy on

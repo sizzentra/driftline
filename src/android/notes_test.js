@@ -10,6 +10,8 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'Natural frame r
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
   'Smoother fights and storms on phones: the red danger glow on the fight ring and the rain ripples on the water are much cheaper to draw.',
   'Smoother on boats and floating docks: decorations that bob with the water are no longer re-lit every frame.',
+  'Switching waters no longer leaves the game stuck at a lower sharpness: the automatic resolution comes back up once the phone keeps up again (it could not on a 60 Hz screen).',
+  'The frame counter also shows the current water sharpness (res 2x = full, lower = the game is easing off).',
   'Smoother dusk, dawn and weather changes: the scenery’s light now changes in fewer, softer steps on phones, so the game rebuilds it far less often.',
   'Tester tools (Stats), Graphics test: the angler, pets, home decorations, moving cosmetic effects and oddities now have their own buttons. If a moved save makes the game slow, turn them off one at a time and watch the frame counter.']};
 addTestNotes(TEST_NOTES);

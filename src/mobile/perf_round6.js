@@ -32,12 +32,12 @@ let MOB_DPR_CAP=2;
   const steps=[2,1.75,1.5,1.3,1.15]; let i=0, acc=0, n=0, slow=0, fast=0, last=0, loc='', skipUntil=0; const byLoc={};
   const setStep=k=>{ k=Math.max(0,Math.min(steps.length-1,k)); if(k===i) return; i=k; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} };
   const tick=t=>{ requestAnimationFrame(tick); if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
-    if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+1000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
+    if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+3000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
     if(t<skipUntil){ last=t; return; }
     if(last){ const dt=t-last; if(dt<200){ acc+=dt; n++; } } last=t;
-    if(n>=45){ const avg=acc/n; acc=0; n=0;
-      if(avg>18.5){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
-      else if(avg<14){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
+    if(n>=45){ const avg=acc/n; acc=0; n=0; /* Android draws at most 60 (16.7 ms a frame), and a 60 Hz screen refreshes every 16.7 ms, so "fast" below 14 ms could never happen there and the resolution never came back up after a slow moment (director, 2026-11-19: "gets worse after switching maps and never gets back"); Android uses slow > 24 ms (under ~42 fps), recovered < 20 ms (over ~50 fps), with room for the screen's jitter */ const capd=(typeof IS_IPHONE==="function"&&!IS_IPHONE()), slowT=capd?24:18.5, fastT=capd?20:14;
+      if(avg>slowT){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
+      else if(avg<fastT){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
       else { slow=0; fast=0; } } };
   requestAnimationFrame(tick);
   if(/[?&]test\b/.test(location.search)) window.__mobperf=()=>({cap:MOB_DPR_CAP, step:i, byLoc:Object.assign({},byLoc)}); }
