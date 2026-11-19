@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='ios'; window.DL_VERSION='2026.11.19-0829';
+window.DL_BUILD='ios'; window.DL_VERSION='2026.11.19-0855';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2796,7 +2796,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.8';
+const GAME_VERSION = '0.4.8.8.1';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -17527,6 +17527,17 @@ var PHONE_DEDUPE;
    to its grid row, with buttons sized from 0. Chrome never shows the problem, Safari did. The rail now also asks for the full row
    height itself, and its buttons size from their content (ui_modern06), so it never depends on one mechanism. */
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov #tabs .secbar{height:100%!important}</style>');
+/* Safety net (2026-11-19, the same screenshots again, from 0.4.8.7): the CSS above can't be checked on a real iPhone from here, so
+   after every page render and every turn the rail is also measured: if it stops well short of the bottom of the menu or cuts its
+   buttons off, it gets its height in pixels. Whatever Safari does with percentages, the rail reaches the bottom. */
+{ const fit=()=>{ try{ if(!MOB()||!MENU_OPEN) return; const bar=document.querySelector('#menuov #tabs .secbar'), box=document.querySelector('#menuov .mo-in'); if(!bar||!box||bar.offsetParent===null) return;
+      if(getComputedStyle(bar).position==='fixed') return; /* the narrow layout's bottom bar sizes itself */
+      const r=bar.getBoundingClientRect(), b=box.getBoundingClientRect(), want=Math.floor(b.bottom-r.top-6);
+      if(want>120&&(b.bottom-r.bottom>24||bar.scrollHeight>bar.clientHeight+1)) bar.style.setProperty('height',want+'px','important'); }catch(e){} };
+  const later=()=>{ requestAnimationFrame(fit); setTimeout(fit,120); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); later(); return r; };
+  addEventListener('resize',()=>{ const bar=document.querySelector('#menuov #tabs .secbar'); if(bar) bar.style.removeProperty('height'); later(); });
+  if(/[?&]test\b/.test(location.search)) window.__fitRail=fit; }
 /* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
 function tabShownName(b){ return b?([...b.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||b.textContent.trim()):''; }
 /* Doubled Settings (director, 2026-11-19, iPhone screenshot): inside Settings the gear button lit up gold next to the gold Settings
@@ -17953,6 +17964,8 @@ PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
   'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
   '## Behind the scenes',
   'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});
+PATCHES.unshift({v:'0.4.8.8.1', name:'Hotfix', items:[
+  'The side panel in menus always reaches the bottom of the screen with every section (on some iPhones it could still stop after Quests).']});
 // iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 2: batch 1 finished', items:[
