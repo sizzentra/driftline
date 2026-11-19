@@ -1,7 +1,7 @@
 // iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
 // (spoiler-free); it opens once in the iPhone test app. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy Aquarium', items:[
-  'NEW in this build (0.4.8.6): Stats in Collection and on the Level chip; Settings no longer repeats Save (gift code and backup tools are in Save); summaries no longer repeat numbers.',
+  'NEW in this build (0.4.8.6): mountains drawn without stripes; Stats in Collection and on the Level chip; Settings no longer repeats Save (gift code and backup tools are in Save); summaries no longer repeat numbers.',
   'NEW in this build: fish fight shows a tension ring at the fish with the instruction above it; hints are touch only; homes are never called docks; the layout always switches when you turn the phone; smoother storms at Starfall.',
   'NEW in this build: Compact Goal chip (opens the right page) and a separate Live chip, plus Tasks and Tide Pass in the top bar. Your home shows the real home of every water. Colour choices are round swatches.',
   'NEW in this build: every menu page works like the aquarium (key numbers and main button first, sections as tabs, one scrolling list, badges where rewards wait). The Wardrobe shows your angler big with the categories in Options. Pages keep your place when they refresh.',

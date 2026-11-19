@@ -128,5 +128,6 @@ PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:[
 PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Stats is easy to reach: it sits in Collection now (side menu), and tapping your Level in the top bar opens it.',
   'Every tab lives in one place: Settings no longer repeats Save. The gift code and the backup and erase tools are in Save, Save codes.',
-  'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.']});
+  'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.',
+  'Mountains look clean again: no more thin stripes running down them or their reflections.']});
 
