@@ -158,3 +158,13 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Waters is now called Map on the side panel.',
   'Search works from the top bar only and always opens the right page and tab; Settings has its gear back; Events no longer repeat the same things across Calendar, Challenges and Derby; Feats cards are smaller, so more fit on screen.']});
 
+PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
+  'Patch notes and other long cards scroll with your finger, and their button stays at the bottom so you can always close them.',
+  'The Aquarium and Your home keep their full size again (the page title and a boost tag were squeezing the tank and the list).',
+  'Notices like "Travelled to …" appear below the weather and streak tags instead of covering them.',
+  'Side-panel counts never cover a button’s name, even at 99+.',
+  'Opening a menu while an info card is up closes the card first, so Travel here always works.',
+  'The update message only appears when there really is an update (it kept coming back on phones).',
+  'Smoother on phones with fast screens: the game runs at 60 frames a second unless you pick Max in Settings, Display.',
+  'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
+  'Android: full screen stays on when you close the game, and it is the default (turn it off in Settings).']});

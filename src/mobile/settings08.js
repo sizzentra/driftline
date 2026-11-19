@@ -48,3 +48,9 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
       disp.insertAdjacentHTML('beforeend',`<h5>Frame rate</h5><div class="chips">${opt.map(([k,n])=>`<button class="chipb" type="button" data-fps="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div><div class="meta" style="margin-top:6px">${why[cur]||why['60']}</div>`);
       disp.querySelectorAll('[data-fps]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.fpsCap=b.dataset.fps; save(); renderPanel(); })); }
   }catch(e){} }; }
+
+// ---------- the frame counter counts frames actually DRAWN (director, 2026-11-18: "30 fps saver mode brought his fps to 120"):
+// the counter in bm_ui04 runs its own loop, so it measured the screen's refresh (120 Hz on a Pixel) even while the game drew only
+// 30 frames. On phones it now shows drawn frames per second, the screen's rate and the slowest gap between drawn frames.
+const MOB_DRAWN=[]; { const _dw=draw; draw=function(now){ const r=_dw.apply(this,arguments); try{ MOB_DRAWN.push(performance.now()); if(MOB_DRAWN.length>240) MOB_DRAWN.shift(); }catch(e){} return r; }; }
+function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'; }

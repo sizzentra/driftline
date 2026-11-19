@@ -1324,7 +1324,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
   let on=false, ts=[], lastT=0, shown=0;
   const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
-    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); el.textContent=Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'; }
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=(typeof MOB==='function'&&MOB()&&typeof mobFpsText==='function')?mobFpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
     requestAnimationFrame(loop); };
   const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
   setInterval(sync,700); sync(); }
