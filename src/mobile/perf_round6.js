@@ -6,7 +6,7 @@ const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')|
 
 // 1) a menu covers the whole phone screen, so the fishing scene behind it is not drawn (the aquarium tank, the page and its
 //    scrolling get the whole frame). The line waits while a menu is open, so nothing on the water is missed.
-{ const _dr=draw; draw=function(now){ if(MENU_OPEN&&MOB()&&!(typeof DK_SCENE_OK==='function'&&DK_SCENE_OK(now))) return; return _dr.apply(this,arguments); }; } /* round 8: Your home shows the live scene, so it keeps drawing (30 a second) while that page is open (dock08.js) */
+{ const _dr=draw; draw=function(now){ if(MENU_OPEN&&MOB()){ if(!(typeof DK_SCENE_OK==='function'&&DK_SCENE_OK(now))) return; const f=resize.force; resize.force=true; try{ return _dr.apply(this,arguments); } finally{ resize.force=f; } } return _dr.apply(this,arguments); }; } /* Your home: past the shared "menus draw 4 a second" limit (bm_ui04), which made the live preview choppy */ /* round 8: Your home shows the live scene, so it keeps drawing (30 a second) while that page is open (dock08.js) */
 
 // 2) the aquarium tank: a steady pace on phones (round 7 below), a steady half rate while the page scrolls
 { let lastT=0, scrollUntil=0; const P=$('panel'); if(P) P.addEventListener('scroll',()=>{ scrollUntil=performance.now()+180; },{passive:true});

@@ -132,5 +132,7 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'The top bar never cuts off the settings button: when a live event’s name gets long, Tide Pass and Tasks step aside until there is room again.',
   'Every tab lives in one place: Settings no longer repeats Save. The gift code and the backup and erase tools are in Save, Save codes.',
   'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.',
-  'Mountains look clean again: no more thin stripes running down them or their reflections.']});
+  'Mountains look clean again: no more thin stripes running down them or their reflections.',
+  'Your home’s live view is smooth now: it plays at your screen’s full frame rate instead of a few frames a second.',
+  'Aquarium: the strip under the tank shows how many fish it holds, and the tank upgrade says what you get (room for how many fish) and why it helps.']});
 

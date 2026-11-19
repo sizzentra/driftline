@@ -95,13 +95,20 @@ html body.phone-app #menuov #panel.dk08 .hm-phone > h5:first-child,html body.pho
    open the scene keeps drawing 30 times a second (the rest of the time menus pause it, as before); dragging decorations and pets
    moves them to the exact spots the game uses. Falls back to the drawn view if the scene is not available. ---------- */
 function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('homecv'); if(!c||!c.isConnected||!c.closest('.dk08-view')) return false;
-  if(DK_SCENE_OK.t&&now-DK_SCENE_OK.t<32&&now>=DK_SCENE_OK.t) return false; DK_SCENE_OK.t=now; return true; }
+  /* round 8 (director: "Home preview is very choppy and low fps"): a steady pace like the aquarium tank, every display frame on 60 Hz
+     screens and exactly every other frame on 120 Hz screens (the old "at least 32 ms" rule dropped frames on timing jitter), and the
+     preview is copied in the same frame the scene is drawn (it used to have its own unsynced 30-a-second timer, so many copies showed
+     a frame that had not changed) */
+  const S0=DK_SCENE_OK, d=now-(S0.raw||0); S0.raw=now; if(d>2&&d<60) S0.ema=(S0.ema||16.7)*.92+d*.08;
+  if((S0.ema||16.7)<11||(S0.cost||0)>9){ S0.odd=!S0.odd; /* 120 Hz screen, or a phone that needs more than ~9 ms for the scene: a steady every other frame */ if(S0.odd) return false; } else S0.odd=false; S0.drew=now; S0.drewAt=performance.now(); return true; }
 { const crop=c=>{ const L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; const top=(typeof MB_STATUS_B==='number'?MB_STATUS_B:40)+4; /* below the weather label and boost timers drawn on the water */ let sw=Math.min(W,W*.62), sh=sw*c.height/c.width; if(sh>H-top){ sh=H-top; sw=Math.min(W,sh*c.width/c.height); } return {sx:0, sy:Math.max(top,Math.min(H-sh,H*.6-sh*f)), sw, sh}; };
   const live=()=>typeof cv!=='undefined'&&cv&&cv.width>40&&W>40&&H>40;
   const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!MOB()||!c.closest('.dk08-view')||!live()) return _ph.apply(this,arguments);
+    if(!paintHome.now&&performance.now()-(DK_SCENE_OK.drewAt||0)<150) return; /* the live scene copies itself right after each draw (below) */
     const r=c.getBoundingClientRect(); if(r.width<20||r.height<20) return; const k=Math.min(2,window.devicePixelRatio||1), w=Math.round(r.width*k), hh=Math.round(r.height*k);
     if(c.width!==w||c.height!==hh){ c.width=w; c.height=hh; } const b=crop(c), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low';
     x.drawImage(cv,b.sx*d,b.sy*d,b.sw*d,b.sh*d,0,0,w,hh); };
+  { const _dr=draw; draw=function(now){ const a=performance.now(), r=_dr.apply(this,arguments); if(DK_SCENE_OK.drew===now&&now){ DK_SCENE_OK.cost=(DK_SCENE_OK.cost||6)*.85+(performance.now()-a)*.15; DK_SCENE_OK.drew=-1; paintHome.now=true; try{ paintHome(); }catch(e){} paintHome.now=false; } return r; }; } /* copy the frame just drawn */
   /* drag decorations and pets along the real home (the same fractions the game uses) */
   document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!MOB()||!c.closest('.dk08-view')||!live()) return; e.stopImmediatePropagation(); e.preventDefault();
     const b=crop(c), r=c.getBoundingClientRect(), gx=ev=>b.sx+(ev.clientX-r.left)/r.width*b.sw, X0=W*.008, SPAN=W*.17, frac=v=>clamp((v-X0)/SPAN,0,1);
