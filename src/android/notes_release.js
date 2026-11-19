@@ -165,6 +165,6 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'Side-panel counts never cover a button’s name, even at 99+.',
   'Opening a menu while an info card is up closes the card first, so Travel here always works.',
   'The update message only appears when there really is an update (it kept coming back on phones).',
-  'Smoother on phones with fast screens: the game runs at 60 frames a second unless you pick Max in Settings, Display.',
+  'Smoother on phones: the game always runs at a steady 60 frames a second on every iPhone and Android phone (the frame-rate choice is gone; Max made fast screens stutter).',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
-  'Android: full screen stays on when you close the game, and it is the default (turn it off in Settings).']});
+  'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});

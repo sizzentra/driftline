@@ -31,7 +31,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
 { const _fr=frame; let shown=0;
-  const capMs=()=>{ const c=S.settings.fpsCap||'60'; /* never chosen = 60 on every phone (director 2026-11-18: Android defaulted to Max = every refresh, 120 a second on a Pixel, 26 fps; 30 mode gave 60-100) */ return c==='30'?1000/30:c==='60'?1000/60:0; };
+  const capMs=()=>1000/60; /* phones are locked at 60 frames a second, iPhone and Android alike, no setting (director, 2026-11-18); any old saved fpsCap is ignored */
   frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------
@@ -42,11 +42,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
     if(ip){ const v=rowOf(P.querySelector('[data-act="tog"][data-k="vibrate"]')); if(v) v.remove(); } { const f=rowOf(P.querySelector('[data-act="fullscreen"]')); if(f) f.remove(); } /* no Full screen option on any phone: it is automatic (director 2026-11-18) */
     for(const m of P.querySelectorAll('.tile .meta')) if(/mouse wheel/i.test(m.textContent)) m.innerHTML='Reel by <b>holding</b> the water, or by <b>drawing circles</b> on it like a crank.';
     const fr=rowOf(P.querySelector('[data-act="tog"][data-k="showFps"]')); if(fr){ const b=fr.querySelector('b'), m=fr.querySelector('.meta'); if(b) b.textContent='Frame rate counter'; if(m) m.textContent='Shows the current frame rate in the corner of the water.'; }
-    const disp=[...P.querySelectorAll('.tile')].find(t=>{ const h=t.querySelector('h4'); return h&&h.textContent.trim()==='Display'; });
-    if(disp){ const cur=S.settings.fpsCap||'60', opt=ip?[['30','30 · Saver'],['60','60 · Smooth']]:[['30','30 · Saver'],['60','60 · Standard'],['max','Max']];
-      const why={ '30':'Draws 30 frames a second: cooler phone, longer battery.', '60':ip?'Draws up to 60 frames a second, as smooth as an iPhone browser allows.':'Draws up to 60 frames a second.', 'max':'Draws as fast as your screen allows (90 or 120 on many phones). Uses the most battery.' };
-      disp.insertAdjacentHTML('beforeend',`<h5>Frame rate</h5><div class="chips">${opt.map(([k,n])=>`<button class="chipb" type="button" data-fps="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div><div class="meta" style="margin-top:6px">${why[cur]||why['60']}</div>`);
-      disp.querySelectorAll('[data-fps]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.fpsCap=b.dataset.fps; save(); renderPanel(); })); }
+    /* no frame-rate choice on phones (director, 2026-11-18: "Max completely messes up with phones; iPhone and Android locked, tested and built at 60, no choices, the exact same always"): the old 30 / 60 / Max chips are gone */
   }catch(e){} }; }
 
 // ---------- the frame counter counts frames actually DRAWN (director, 2026-11-18: "30 fps saver mode brought his fps to 120"):
@@ -65,6 +61,6 @@ if(window.DL_PREVIEW){
   for(const [k,,fns] of GT_PARTS) for(const n of fns) wrap(n,k);
   { const _rd=renderDPR; renderDPR=function(w,h){ return GT_OFF.has('lowres')?1:_rd(w,h); }; }
   const _th=testerHTML; testerHTML=function(){ const base=_th(); if(!MOB()) return base;
-    return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), set the frame rate to 60, then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
+    return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
   const _xa=extraAct2; extraAct2=function(b){ if(b.dataset.act==='gtest'){ const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){} try{ resize(); }catch(e){} toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } return _xa(b); };
 }
