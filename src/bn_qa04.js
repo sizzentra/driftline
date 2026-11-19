@@ -254,6 +254,24 @@ ui(){ QA.sys='UI';
       S.tab='games'; S.stats.runEarned=1000; S.stats.runBw=0; Math.random=()=>0; addTickets(10); Math.random=rnd0; if(!(S.stats.runBw<=Math.ceil(1000*BW_PEARL_SHARE/(1-BW_PEARL_SHARE))+1)) e.push('jackpot broke the pearl cap '+S.stats.runBw);
       try{ bwView='games'; }catch(_){} openMenu('games'); const t=$('panel').textContent; if(!/Fishmonger/.test(t)||!/Treasure chests/.test(t)) e.push('new games not on the page'); closeMenu(); }
     finally{ Math.random=rnd0; save=sv; toast=ts; bwJackLock=false; } return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'ok'}; });
+  T('Tide Pass overhaul + [1] pet colours: 100 levels in 5 chapters, Pass-only auras/bobbers/lines/pet colours, pearls and Boon points, wardrobe wears them, saves keep only what you own, players past a new level get it once, new shop and Boardwalk pet colours',()=>{ const e=[];
+    if(PASS_MAX!==100) e.push('PASS_MAX '+PASS_MAX); const ex=Object.keys(PASS_SPECIAL).map(Number); if(ex.length<36) e.push(ex.length+' exclusives');
+    for(const L of ex){ const c=document.createElement('canvas'); try{ passArt(c.getContext('2d'),120,90,L); }catch(er){ e.push('art '+L+': '+er.message); } }
+    S.pass.got={}; S.owned.auras=[]; const p0=S.pearls||0; grantPass(33); if(!S.owned.auras.includes('tideswirl')) e.push('aura not granted'); grantPass(24); if(S.pearls!==p0+1) e.push('pearl not granted');
+    const b=document.createElement('button'); b.dataset.act='passwear'; b.dataset.k='aura:tideswirl'; extraAct7(b); if(S.look.aura!=='tideswirl') e.push('aura not worn'); b.dataset.k='aura:veil'; extraAct7(b); if(S.look.aura!=='tideswirl') e.push('wore an aura not owned');
+    const c=document.createElement('canvas').getContext('2d'); try{ drawAngler(c,60,90,1,S.look,{}); }catch(er){ e.push('angler with aura: '+er.message); } if(!drawBobSkin(c,20,20,6,'duck')||drawBobSkin(c,20,20,6,'nope')) e.push('bobber skins'); S.look.line='starlight'; if(!/hsla/.test(lineStyle(.7))) e.push('starlight line');
+    const o=JSON.parse(JSON.stringify(S)); o.look.aura='veil'; o.owned.auras=['tideswirl','bogus']; const m=migrate(o); if(m.look.aura!=='none'||m.owned.auras.join()!=='tideswirl') e.push('save kept '+m.look.aura+' / '+m.owned.auras);
+    const o2=JSON.parse(JSON.stringify(S)); delete o2.passMig; o2.pass.lvl=69; o2.pass.claimed=69; o2.pass.got={}; o2.owned.auras=[]; o2.owned.bobs=[]; const m2=migrate(o2); if(!m2.owned.auras.includes('embers')||!m2.owned.bobs.includes('duck')||m2.owned.auras.includes('glitter')) e.push('catch-up '+m2.owned.auras+'/'+m2.owned.bobs);
+    const m3=migrate(JSON.parse(JSON.stringify(m2))); if(m3.pearls!==m2.pearls) e.push('catch-up paid twice');
+    S.petTints=['none']; const pb=document.createElement('button'); pb.dataset.act='pettint'; pb.dataset.k='coral'; S.money=1e7; try{ extraAct2(pb); }catch(er){} if(S.petTints.includes('coral')) e.push('Pass pet colour bought in the shop');
+    if(!petColourPrize()||!TINT_BW.some(t=>S.petTints.includes(t[0]))) e.push('Boardwalk colour prize'); if(TINT_SHOP.some(t=>!(t[2]>0))) e.push('shop colours unpriced');
+    S.pass.lvl=40; S.pass.claimed=30; openMenu('pass'); const t=$('panel').textContent; if(!/Chapter 2 of 5/.test(t)||!/Tide Swirl aura/.test(t)) e.push('chapter/showcase missing'); closeMenu();
+    openMenu('style'); if(!/Tide Pass exclusives/.test($('panel').textContent)) e.push('wardrobe section missing'); closeMenu();
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:ex.length+' exclusives'}; });
+  T('start-up pass: an old save loaded at start-up gets the 0.4.9 save rules (old pearls kept, Boon back pay, Pass catch-up) before anything is saved',()=>{ const e=[]; const o=JSON.parse(JSON.stringify(S)); for(const k of ['pearlMig','boonMig','passMig','pathXP','pearlOld']) delete o[k]; o.pearls=9; o.tides=4; o.boonPts=0; o.pass.lvl=40; o.pass.claimed=40; o.owned.auras=[];
+    const a=migrate(JSON.parse(JSON.stringify(o))); if(a.pearlOld!==9) e.push('full chain pearlOld '+a.pearlOld);
+    S.pearlOld=0; S.pearlMig=1; S.boonPts=0; S.owned.auras=[]; if(!bootFixFrom(JSON.stringify(o))) e.push('did not run'); if(S.pearlOld!==9) e.push('pearlOld '+S.pearlOld); if(!(S.boonPts>=12)) e.push('boon back pay '+S.boonPts); if(!S.owned.auras.includes('tideswirl')) e.push('Pass catch-up');
+    if(bootFixFrom(JSON.stringify(S))) e.push('ran again on a converted save'); return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'ok'}; });
   T('[14] [15] new attachments and skills work, every skill has a max-rank effect and a group, skill points come from the Fish Log too',()=>{ const e=[]; const rb=rodBonus;
     for(const id of ['snagguard','scentbead','twinhook','nibpouch','grip']){ const a=ATT_I[id]; if(!a) { e.push('no attachment '+id); continue; } if(!(a.v[0]<a.v[1]&&a.v[1]<a.v[2])) e.push(id+' tiers do not grow'); }
     try{ const sp=SP.find(s=>s.r===2)||SP[0], fav=FISH_FAV[sp.id];

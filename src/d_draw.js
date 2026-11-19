@@ -391,14 +391,14 @@ function draw(now){
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
   if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;
-    g.strokeStyle='rgba(235,240,235,.75)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo((tx+G.bob.x)/2,Math.max(ty,G.bob.y)+sag-20,G.bob.x,G.bob.y); g.stroke(); }
-  else if(lp){ g.strokeStyle='rgba(235,240,235,.75)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(lp.x,lp.y-8); g.stroke(); }
-  else { g.strokeStyle='rgba(235,240,235,.6)'; g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(tx,ty+H*.06); g.stroke(); G.bob.x=tx; G.bob.y=ty+H*.06; }
+    g.strokeStyle=lineStyle(.75); g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.quadraticCurveTo((tx+G.bob.x)/2,Math.max(ty,G.bob.y)+sag-20,G.bob.x,G.bob.y); g.stroke(); }
+  else if(lp){ g.strokeStyle=lineStyle(.75); g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(lp.x,lp.y-8); g.stroke(); }
+  else { g.strokeStyle=lineStyle(.6); g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); g.lineTo(tx,ty+H*.06); g.stroke(); G.bob.x=tx; G.bob.y=ty+H*.06; }
   if(!lp){ let dip=0; if(G.st==='waiting'){ dip = Math.sin(t*2.2)*1.2 + (G.nibOn>0 ? Math.sin(G.nibOn*30)*3 : 0); } if(G.st==='bite') dip = 7; if(G.st==='reeling') dip = 3 + (G.run?3:0); if(G.st==='rest') dip = RST.phase==='bite'?7:RST.phase==='reel'?3:Math.sin(t*1.6)*1.2;
     const onWater = G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest';
     const br = onWater ? clamp(6.5*(1-.4*clamp((G.bob.x-W*.3)/(W*.6),0,1)),3,7) : 5; const bx2=G.bob.x, by2=G.bob.y+dip;
     if(G.st==='waiting'||G.st==='bite'){ g.strokeStyle=G.inHot?'rgba(255,215,110,.6)':'rgba(255,255,255,.25)'; g.beginPath(); g.ellipse(G.bob.x,G.bob.y+2,br*2.2+Math.sin(t*3),br*.7,0,0,7); g.stroke(); }
-    g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); g.strokeStyle='rgba(10,18,28,.45)'; g.lineWidth=1; g.beginPath(); g.arc(bx2,by2+br*.18,br*1.02,0,7); g.stroke(); }
+    if(!drawBobSkin(g,bx2,by2,br)){ g.fillStyle='#f4f1ea'; g.beginPath(); g.arc(bx2,by2+br*.35,br,0,Math.PI); g.fill(); g.fillStyle='#ff6a3d'; g.beginPath(); g.arc(bx2,by2,br,Math.PI,0); g.fill(); g.strokeStyle='rgba(10,18,28,.45)'; g.lineWidth=1; g.beginPath(); g.arc(bx2,by2+br*.18,br*1.02,0,7); g.stroke(); } }
   else { const f=G.fish, k=lp.k, sz=(f&&f.kind==='fish') ? clamp(30+Math.sqrt(f.kg)*7,30,90)*(.7+.5*k) : 46*(.7+.5*k);
     g.save(); g.translate(lp.x,lp.y+sz*.15); g.rotate(Math.sin(t*22)*.35*(1-k*.5)-.4*(1-k));
     if(f && f.kind==='fish') drawCreature(g,f.sp,0,0,sz,{shiny:f.shiny,pv:f.pv,wag:t*26,flip:true});
