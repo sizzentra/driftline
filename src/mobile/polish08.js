@@ -7,8 +7,17 @@
 //    behind the settings gear; the gear keeps Settings and Save. Your Level in the top bar also opens Stats (teal: tap me).
 // Android + iPhone + tablets.
 // =====================================================================
-{ const coll=MENU_SECS.find(s=>s.id==='coll'); if(coll&&!coll.tabs.includes('stats')) coll.tabs.push('stats');
+/* Stats is its own button on the side panel, right under Collection (director, 2026-11-18: "stats deserves its own tab on the
+   side panel for mobile. It makes no sense to be in collection") */
+{ for(const s of MENU_SECS){ const k=s.tabs.indexOf('stats'); if(k>=0) s.tabs.splice(k,1); }
+  if(!MENU_SECS.some(s=>s.id==='stats')){ const at=MENU_SECS.findIndex(s=>s.id==='coll');
+    MENU_SECS.splice(at<0?MENU_SECS.length:at+1,0,{id:'stats', name:'Stats', short:'Stats', tabs:['stats'], icon:'<path d="M4 20h16"/><path d="M7 20v-6"/><path d="M12 20V8"/><path d="M17 20v-9"/><path d="M5.5 9.5 10 6l4 3 4.5-4"/>'}); }
   const i=MENU_MORE.tabs.indexOf('stats'); if(i>=0) MENU_MORE.tabs.splice(i,1);
+  /* the side panel's buttons, rebuilt with the new list (same markup as bm_ui04; the click handler finds buttons by data-sec) */
+  const T=$('tabs'), bar=T&&T.querySelector('.secbar');
+  if(bar){ const svg=p=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+    bar.querySelectorAll(":scope > .secb").forEach(b=>b.remove()); bar.insertAdjacentHTML("afterbegin",MENU_SECS.map(s=>`<button type="button" class="secb" data-sec="${s.id}" aria-pressed="false" title="${esc(s.name)}"><span class="seci">${svg(s.icon)}</span><span class="secl"><span class="secfull">${s.name}</span><span class="secshort">${s.short}</span></span><span class="seclive" hidden>LIVE</span><span class="secdot" hidden></span></button>`).join('')); /* the Collapse panel button at the end stays */
+    try{ menuSubKey=''; }catch(e){} }
   try{ if(typeof SECT==='object'&&SECT.settings==='Save & codes') delete SECT.settings; }catch(e){} }
 
 /* the Level chip opens Stats */

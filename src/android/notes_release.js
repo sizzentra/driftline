@@ -127,7 +127,9 @@ PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:[
   'Section bars inside pages (Gear / Bait, Waters / Set sail again...) no longer slide sideways when they stick to the top.',
   'On smaller phones held sideways, the page tabs show their names only so they always fit, and badges sit on the tab corner.']});
 PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
-  'Stats is easy to reach: it sits in Collection now (side menu), and tapping your Level in the top bar opens it.',
+  'Stats has its own button on the side panel now, and tapping your Level in the top bar opens it too.',
+  'The side panel looks tidy when folded: every icon sits in the middle of its button, with its count in the corner.',
+  'The top bar never cuts off the settings button: when a live event’s name gets long, Tide Pass and Tasks step aside until there is room again.',
   'Every tab lives in one place: Settings no longer repeats Save. The gift code and the backup and erase tools are in Save, Save codes.',
   'Page summaries and intros no longer repeat the same numbers, and the side menu’s badges are never cut off or covering the button above.',
   'Mountains look clean again: no more thin stripes running down them or their reflections.']});

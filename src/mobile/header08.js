@@ -70,11 +70,13 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
   const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
-    T.hidden=!land; Pz.hidden=!land; if(!land) return; if(hud.scrollWidth>hud.clientWidth+1) Pz.hidden=true; if(hud.scrollWidth>hud.clientWidth+1) T.hidden=true; };
+    T.hidden=!land; Pz.hidden=!land; if(!land) return; if(hud.scrollWidth>hud.clientWidth+1) Pz.hidden=true; if(hud.scrollWidth>hud.clientWidth+1) T.hidden=true;
+    if(!ro&&typeof ResizeObserver==='function'){ ro=new ResizeObserver(()=>{ if(!busy) requestAnimationFrame(()=>{ busy=true; try{ fit(); }finally{ busy=false; } }); }); } if(ro){ for(const k of [hud,...hud.children]) if(!seen.has(k)){ seen.add(k); ro.observe(k); } } };
+  let ro=null, busy=false; const seen=new WeakSet(); /* round 8 (director: "settings cut off sometimes on top right"): the bar is re-checked whenever it or any chip changes size (the Live timer text, opening or closing the side panel), not only when Tasks or Tide Pass change */
   const tick=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'), lv=document.getElementById('mblive'); if(!hud||!lv) return;
     if(!T||!T.isConnected){ T=mk('mbtasks','bounties','Tasks'); Pz=mk('mbpass','pass','Tide Pass'); lv.after(T); T.after(Pz); last=''; }
     const a=tasks(), b=pass(), live=!lv.hidden, key=a.txt+'|'+a.ready+'|'+b.txt+'|'+live+'|'+document.body.classList.contains('phone-land');
-    if(key===last) return; last=key; T.querySelector('b').textContent=a.txt; T.classList.toggle('ready',a.ready>0); Pz.querySelector('b').textContent=b.txt; Pz.classList.toggle('ready',b.ready);
+    if(key===last){ fit(); return; } last=key; T.querySelector('b').textContent=a.txt; T.classList.toggle('ready',a.ready>0); Pz.querySelector('b').textContent=b.txt; Pz.classList.toggle('ready',b.ready);
     T.title=a.ready?a.ready+' task reward'+(a.ready===1?'':'s')+' ready. Tap for Bounties.':'Daily tasks and weekly quests. Tap for Bounties.'; Pz.title='Tide Pass. Tap to open it.'; fit(); };
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
