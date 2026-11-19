@@ -285,3 +285,13 @@ html body.phone-land #evcard #evin > .row:last-child:has([data-ev="skip"]),html 
    weather chip and the streak chip (both painted on the water at y 12-36) and the fps counter (44-68). Phones: notices sit below those
    rows, in the sky, where nothing else lives. Notices over a menu keep their own place (#menuov > #toast). */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage > #toast,html body.phone-app #stage > #toast{top:76px!important;bottom:auto!important;height:auto!important;max-width:calc(100% - 40px)}</style>`);
+
+/* Opening a menu over an info card (patch notes, test notes: one closing button only) closes that card first (director, 2026-11-18:
+   "Unlock all doesn't unlock all maps"): while #evcard was open the game counted as busy (G.st 'event'), so every Travel here was
+   greyed out behind the menu with no reason given. Cards with choices (chests, frenzy offers) are left alone. */
+{ const _om=openMenu; openMenu=function(){ try{ if(MOB()){ const ev=$('evcard'); if(ev&&!ev.hidden){ const bs=ev.querySelectorAll('button'), sk=ev.querySelector('[data-ev="skip"]'); if(sk&&bs.length===1) closeEvent(); } } }catch(e){} return _om.apply(this,arguments); }; }
+
+/* Side-panel badges never cover the name (director, 2026-11-18: "Challenges at high values for badge cover its UI"): badges are 16 px
+   now (MB_UI, frame07), so they end above the name; "99+" also gets tight padding and sits 1 px further into the corner, which keeps
+   it clear of "Challenges" (the longest name) on the shortest rail (667x375, 32 px buttons). */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdock .cdb .cddot[class],html body.phone-land #menuov .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class],html body.phone-app #menuov .secb .secdot[class]{padding:0 3px!important;letter-spacing:-.4px}html body.phone-land #catdock .cdb .cddot,html body.phone-app #catdock .cdb .cddot{right:-6px!important}</style>`);

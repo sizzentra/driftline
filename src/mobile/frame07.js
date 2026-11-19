@@ -19,7 +19,7 @@ const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:30, stageTop
 // (per orientation where the space differs); __spec checks them on every page.
 const MB_UI={ up:{btnH:40, btnFs:15, btnSmH:36, btnSmFs:13, tabH:34, tabFs:12, h2Fs:21, h4Fs:14.5, barFs:10.5},
               land:{btnH:38, btnFs:15, btnSmH:32, btnSmFs:13, tabH:32, tabFs:13, h2Fs:18, h4Fs:15, barFs:11.5},
-              all:{tabFw:800, tabRad:10, badge:18, badgeFs:10.5, descFs:12.5, descCol:'#97abc2', chipH:32, chipFw:700, chipRad:10} };
+              all:{tabFw:800, tabRad:10, badge:16, badgeFs:10, descFs:12.5, descCol:'#97abc2', chipH:32, chipFw:700, chipRad:10} };
 { const U=MB_UI.up, L=MB_UI.land, A=MB_UI.all, both=(o,s)=>s.split(',').map(x=>'html body.phone-'+o+' '+x.trim()).join(','), P=(s)=>both('app',s)+','+both('land',s);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* buttons: two kinds. Regular (.btn) and small (.btn.sm, and the aquarium bar's compact pair). One line, never wrapping into a taller button */

@@ -82,7 +82,7 @@ windows use the regular PC layout (`body.pch-on`).
 | Small button (`.btn.sm`, the aquarium bar pair) | 36 tall, 13 px | 32 tall, 13 px |
 | Button labels | one line; a label too wide for its button shrinks (never under 12 px) instead of wrapping | same |
 | Section tab (Gear / Bait, Waters / Set sail again...) | 34 tall, 12 px, bold 800, corners 10 | 32 tall, 13 px, bold 800, corners 10 |
-| Badge (every count: bottom tabs, rail, page tabs, section tabs) | 18 px, 10.5 px bold | same |
+| Badge (every count: bottom tabs, rail, page tabs, section tabs) | 16 px, 10 px bold (was 18: a 2-3 digit count in the rail corner touched the name; 16 ends above the name, the 5 px gap above is the limit) | same |
 | Category labels (bottom tabs / rail), water and menus alike | 10.5 px | 11.5 px |
 | Chip (filters, choices, toggles) | 32 tall, bold 700, corners 10 | same |
 | Description text (`p.sub`) | 12.5 px, #97abc2 | same |
