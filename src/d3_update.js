@@ -557,7 +557,7 @@ function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
-  for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; }
+  for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; PET_NIGHT=0; /* the night (pets fall asleep) belongs to this scene only: every other pet picture (shop cards, previews) is drawn awake (director, 2026-11-19: the Pets shop showed every pet asleep) */ }
 const inPetBox = (m,b) => b && m.x>=b.x0 && m.x<=b.x1 && m.y>=b.y0 && m.y<=b.y1;
 function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); const hit=inPetBox(m,PET_BOX)?S.pet:inPetBox(m,PET_BOX2)?S.pet2:null; if(!hit) return false;
   const now=performance.now(); if(now-lastPetAt<300) return true; lastPetAt=now; const bx=hit===S.pet?PET_BOX:PET_BOX2; if(hit===S.pet) petT=now; else petT2=now;
@@ -592,7 +592,7 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
   x.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); x.translate(200,250); x.scale(1+.08*b,1-.1*b); x.translate(-200,-250-b*28); }
-  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } PET_NIGHT=0; drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
+  if(V3ON){ x.save(); x.setTransform(1,0,0,1,0,0); v3Pedestal(x,200,250,128,now/1000); x.restore(); } drawPetStyled(x,id,200,250,petFitScale(id),now/1000,0,petPreviewLook(id)); x.restore();
   if(k>=0&&k<1.6){ for(let i=0;i<4;i++){ const hk=k-i*.12; if(hk<0) continue; const hx=170+i*22+Math.sin(hk*6+i)*10, hy=150-hk*110, z=12; x.globalAlpha=Math.max(0,1-hk/1.4); x.fillStyle='#ff6a9a'; x.beginPath(); x.moveTo(hx,hy+z*.4); x.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); x.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); x.fill(); } x.globalAlpha=1; requestAnimationFrame(paintPetCustom); }
   c.onclick=()=>{ const pid=editPet(); for(let i=0;i<3;i++) setTimeout(()=>tone(900+i*200,.08,'sine',.04),i*70); if(pid===S.pet) petT=performance.now(); else petT2=performance.now(); petTap(pid); requestAnimationFrame(paintPetCustom); }; }
 // update the bond text without rebuilding the whole tab (so the petting animation keeps playing)
@@ -742,7 +742,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
 // the Customize stage fits each pet: measured once (drawn small offscreen), then scaled to fill the stage
 const PET_FIT={};
 function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;
-  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; const keepN=PET_NIGHT; PET_NIGHT=0; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'})); PET_NIGHT=keepN;
+  try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'}));
     const d=x.getImageData(0,0,o.width,o.height).data; let x0=1e9,y0=1e9,x1=-1,y1=-1; for(let yy=0;yy<o.height;yy++) for(let xx=0;xx<o.width;xx++){ if(d[(yy*o.width+xx)*4+3]>30){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; } }
     if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){}
   return PET_FIT[id]=s; }

@@ -23,8 +23,8 @@ function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
 function paintPrizes(P){ P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const x=c.getContext('2d'), id=c.dataset.prize; x.clearRect(0,0,c.width,c.height); const t=0;
   // pet prizes: drawn awake (the scene's night used to put them to sleep), sized to fit, a balloon smaller so it shows;
   // a colour is shown on a pet whose coat it changes (Dax is black, so a hue shift barely shows on him)
-  const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon', n0=PET_NIGHT; PET_NIGHT=0;
-    try{ drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); } finally{ PET_NIGHT=n0; } };
+  const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon';
+    drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); };
   if(id==='teddy') drawPet(x,'teddy',48,72,3,t); else if(id==='carousel') drawDecor(x,'carousel',48,74,.55,t); else if(id==='golden'||id==='rainbow') pet({tint:id}); else if(id==='balloon'||id==='partyhat') pet({acc:id});
   else if(id==='sixsevencap'||id==='carnival'||id==='fishbowl') hatPreview(x,96,80,id,S.look.hatCol); else if(id==='spacesuit') drawAngler(x,48,78,1.05,Object.assign({},S.look,{outfit:'spacesuit',hat:'none'}),{});
   else if(id==='crate') drawJunk(x,96,80,'chest'); else if(id==='myth') drawJunk(x,96,80,'goldlure'); else { x.fillStyle='#7fc8a9'; x.beginPath(); for(let i=0;i<6;i++){ const a=i/6*Math.PI*2; x.lineTo(48+Math.cos(a)*22,40+Math.sin(a)*22); } x.fill(); x.fillStyle='#0a161d'; x.font='800 14px system-ui'; x.textAlign='center'; x.fillText('10',48,45); } }); }

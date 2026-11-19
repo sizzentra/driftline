@@ -69,6 +69,7 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fixes',
+  'Pets in the shop, Wardrobe and previews are awake again at night (only pets on your dock fall asleep).',
   'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
   'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
   'Fish shadows under the water are one even tone (no lighter fins or patches).',

@@ -1,6 +1,7 @@
 // iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 1: fixes (2)', items:[
+const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 1: fixes (3)', items:[
+  'Pets in the shop and previews are awake at night (they showed asleep in Pets › Find more).',
   'Menus: the side panel always shows every section (on iPhone it could stop after Quests). Please check Trophy Room, Your home and the Aquarium.',
   'A tab’s name is no longer repeated as the heading under it (Your tank, Your boat).',
   'An empty Trophy Room fills the page with a wall of empty plaques.',

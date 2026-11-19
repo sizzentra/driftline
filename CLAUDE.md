@@ -48,6 +48,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
    - **A new check is proven before it is trusted:** put the old bug back once (an injected style or state) and watch the check fail; a check that never failed proves nothing (two of four new checks on 2026-11-19 passed with the bug present until fixed).
    - **Chrome is not the iPhone:** this test browser never shows Safari-only layout differences or touch-only styles. Layouts must not hang on one sizing mechanism (a rail sized only by being stretched collapsed on iPhone); when a phone screenshot shows something Chrome can’t reproduce, fix it robustly, add a check that forces the failing condition, and say plainly that it is not verified on Safari.
    - Compare what the player sees: names from the shown text (`tabShownName`), never from data attributes (`data-sect="Dock"` shows as "Your boat").
+   - Scene state (night, weather, the angler’s pose) is put back by the code that set it; a save-and-restore copied into several callers means the source is wrong: fix the source and delete the copies.
    - Balance changed: the `__bal` simulator. Taps: no heavy one-time work inside a tap (`__fnTime(names, fn)`).
    - Read every new text as that platform's player ("click" and "Space" are wrong on phones). Then a harsh per-platform critique: hard to find for new players? what is missing? how good does it look here?
 5. **Notes:** `notes_release.js` (players) and `notes_test.js` (testers) for every platform whose build changed; rules under "Patch notes and versions".

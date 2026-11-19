@@ -94,8 +94,8 @@ function bwDrawWear(x,w,h,it){ if(!it) return; const lk=Object.assign({},S.look,
   if(it.kind==='petacc'||it.kind==='pettint'){
     // shown on your favourite pet, awake; a new colour on a pet whose coat it barely changes (Dax is black) is shown on another of your pets
     let id=S.pet; if(it.kind==='pettint'&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id;
-    const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id}), n0=PET_NIGHT; PET_NIGHT=0;
-    try{ drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); } finally{ PET_NIGHT=n0; } return; }
+    const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id});
+    drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); return; }
   if(it.kind==='pat'){ lk.pat=it.id; lk.outfit='none'; const s=h/34; return drawAngler(x,w*.46,h*.5+50*s,s,lk,{}); }
   if(it.kind==='out') lk.outfit=it.id;
   drawAngler(x,w/2,h*.95,h/90,lk,{}); }
