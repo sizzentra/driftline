@@ -210,6 +210,8 @@ PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
   'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
   '## Behind the scenes',
   'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});
+PATCHES.unshift({v:'0.4.8.8.1', name:'Hotfix', items:[
+  'The side panel in menus always reaches the bottom of the screen with every section (on some iPhones it could still stop after Quests).']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## The fight',
   'Rarer fish fight like it at every gear level: during their runs they hold you still or take line even while you reel, and a top mythic takes 30 seconds to a minute with the best gear.',

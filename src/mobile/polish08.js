@@ -361,6 +361,17 @@ var PHONE_DEDUPE;
    to its grid row, with buttons sized from 0. Chrome never shows the problem, Safari did. The rail now also asks for the full row
    height itself, and its buttons size from their content (ui_modern06), so it never depends on one mechanism. */
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov #tabs .secbar{height:100%!important}</style>');
+/* Safety net (2026-11-19, the same screenshots again, from 0.4.8.7): the CSS above can't be checked on a real iPhone from here, so
+   after every page render and every turn the rail is also measured: if it stops well short of the bottom of the menu or cuts its
+   buttons off, it gets its height in pixels. Whatever Safari does with percentages, the rail reaches the bottom. */
+{ const fit=()=>{ try{ if(!MOB()||!MENU_OPEN) return; const bar=document.querySelector('#menuov #tabs .secbar'), box=document.querySelector('#menuov .mo-in'); if(!bar||!box||bar.offsetParent===null) return;
+      if(getComputedStyle(bar).position==='fixed') return; /* the narrow layout's bottom bar sizes itself */
+      const r=bar.getBoundingClientRect(), b=box.getBoundingClientRect(), want=Math.floor(b.bottom-r.top-6);
+      if(want>120&&(b.bottom-r.bottom>24||bar.scrollHeight>bar.clientHeight+1)) bar.style.setProperty('height',want+'px','important'); }catch(e){} };
+  const later=()=>{ requestAnimationFrame(fit); setTimeout(fit,120); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); later(); return r; };
+  addEventListener('resize',()=>{ const bar=document.querySelector('#menuov #tabs .secbar'); if(bar) bar.style.removeProperty('height'); later(); });
+  if(/[?&]test\b/.test(location.search)) window.__fitRail=fit; }
 /* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
 function tabShownName(b){ return b?([...b.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||b.textContent.trim()):''; }
 /* Doubled Settings (director, 2026-11-19, iPhone screenshot): inside Settings the gear button lit up gold next to the gold Settings
