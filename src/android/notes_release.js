@@ -196,4 +196,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Bounties: a ready weekly quest no longer lights up the Daily tasks tab.',
   'Feats and Pets: each tab shows only its own cards.',
   'Aquarium: big Earning and Ready numbers no longer run into each other.',
-  'In narrow windows the top bar keeps Home and shows your coins, level and water in full.']});
+  'In narrow windows the top bar keeps Home and shows your coins, level and water in full.',
+  'The side panel in menus always shows every section (on some iPhones it stopped after Quests).',
+  'A tab’s name is no longer repeated as the heading right under it (Your tank, Your boat).',
+  'An empty Trophy Room fills the page with a wall of empty plaques instead of a small strip.',
+  'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.']});

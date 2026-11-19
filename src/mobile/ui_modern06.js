@@ -97,7 +97,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   /* the menu's side panel: the same card as on the water, buttons spread evenly, hide/show at the bottom */
   body.phone-land #menuov .secbar{background:linear-gradient(180deg,#14243a,#0c1626)!important;border:1px solid #ffffff16!important;border-radius:18px!important;padding:7px!important;gap:6px!important;justify-content:flex-start!important;align-items:stretch!important;box-sizing:border-box;max-height:calc(100% - 6px)}
-  body.phone-land #menuov .secbar .secb{flex:1 1 0!important;max-height:46px!important;min-height:32px!important;height:auto!important;box-sizing:border-box}
+  body.phone-land #menuov .secbar .secb{flex:1 1 auto!important; /* content-based (was 1 1 0: when the rail was not stretched, as on the director’s iPhone, its natural height was just its padding and it cut off after Quests, 2026-11-19) */ max-height:46px!important;min-height:32px!important;height:auto!important;box-sizing:border-box}
   body.phone-land #menuov .secbar .cdmini{order:99!important;flex:0 0 28px!important;height:28px!important;min-height:0!important;margin-top:2px!important;border-radius:10px!important;background:#0a1424!important;border:1px solid #ffffff1c!important;color:#9fb2c8!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:6px!important;font-size:11px!important;line-height:1!important;padding:0 8px!important}
   body.phone-land #menuov .secbar .cdmini svg{width:14px!important;height:14px!important;flex:0 0 auto}
   body.phone-land #catdock .cdb.live::before,body.phone-land #menuov .secbar .secb.live::before{top:5px!important;left:5px!important}

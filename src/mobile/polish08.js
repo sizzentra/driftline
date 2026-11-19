@@ -195,7 +195,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
 /* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
    tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='trophy') return r; const P=$('panel'), room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return r;
-      room.classList.add('tp8'); const grid=room.querySelector('.tp-grid'); if(!grid) return r;
+      room.classList.add('tp8'); const emp=room.querySelector('.tp-empty'); if(emp&&!emp.querySelector('.tp8-wall')){ const g=emp.querySelector('.tp-ghost'); if(g) g.remove(); emp.insertAdjacentHTML('afterbegin','<div class="tp8-wall" aria-hidden="true"><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div></div>'); } /* empty room (director, 2026-11-19: "super small ui when empty"): a wall of three empty plaques fills the page */ const grid=room.querySelector('.tp-grid'); if(!grid) return r;
       let bar=room.querySelector('.tp8-bar'); if(!bar){ bar=document.createElement('div'); bar.className='tp8-bar'; bar.innerHTML='<span class="meta">Tap a trophy to see it up close.</span>'; grid.after(bar); }
       grid.querySelectorAll('.tp-item').forEach((it,i)=>{ it.tabIndex=0; it.setAttribute('role','button');
         it.addEventListener('click',e=>{ if(e.target.closest('.tp-out')) return; grid.querySelectorAll('.tp-item.sel').forEach(x=>x.classList.remove('sel')); it.classList.add('sel');
@@ -335,3 +335,30 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuo
 body.phone-app #hint,body.phone-land #hint,body.phone-app #resttog,body.phone-land #resttog{transition:opacity .25s}
 body.dl-reel #hint,body.dl-reel #resttog{opacity:0!important;pointer-events:none!important}
 </style>`); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .pg08-body:has(> .tp-room.tp8 .tp-empty){display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8:has(.tp-empty){flex:1 1 auto;display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8:has(.tp-empty) .tp-in{flex:1 1 auto;display:flex;flex-direction:column}
+#menuov #panel .tp-room.tp8 .tp-empty{flex:1 1 auto;flex-direction:column;justify-content:center;text-align:center;gap:16px!important;padding:12px 0!important}
+#menuov #panel .tp-room.tp8 .tp-empty p{max-width:52ch;margin:0 auto}
+#menuov #panel .tp8-wall{display:flex;justify-content:center;gap:clamp(10px,3vw,28px);width:100%}
+#menuov #panel .tp8-wall .tp-ghost{flex:0 1 150px;height:92px;margin:0!important}
+</style>`);
+/* No name twice (director, 2026-11-19: "Your tank" and "Your boat" stood as the tab AND as the heading right under it; standard:
+   "No name is shown twice on one screen"). After every page draw and tab switch, the first visible heading of the shown part loses
+   a leading repeat of the selected tab's name ("Your tank · holds 24 fish" → "holds 24 fish"), or hides when nothing else is left. */
+{ const dedupe=()=>{ if(!MOB()) return; const P=$('panel'); if(!P) return; const sel=document.querySelector('#menuov .sect-nav [aria-selected="true"]'); if(!sel) return; const N=tabShownName(sel); if(!N) return;
+    const body=P.querySelector('.pg08-body')||P; const h=[...body.querySelectorAll('h2,h3,h4,h5')].find(x=>x.offsetParent!==null); if(!h||h.dataset.dupDone===N) return;
+    const t=h.textContent.trim(); if(t===N){ h.classList.add('dl-dupname'); h.dataset.dupDone=N; return; }
+    if(t.startsWith(N+' ·')||t.startsWith(N+' -')){ const w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT), texts=[]; let n; while(n=w.nextNode()) if(n.textContent.trim()) texts.push(n); const f=texts[0]; if(!f) return; if(f.textContent.trim()===N){ f.textContent=''; if(texts[1]) texts[1].textContent=texts[1].textContent.replace(/^\s*[·-]\s*/,''); } else f.textContent=f.textContent.replace(N,'').replace(/^\s*[·-]\s*/,''); const g=texts.find(x=>x.textContent.trim()); if(g) g.textContent=g.textContent.replace(/^(\s*)(\S)/,(m,s,c)=>s+c.toUpperCase()); h.dataset.dupDone=N; } };
+  /* after every other renderPanel step (later files wrap it again and add their headings after this one runs) */
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); queueMicrotask(()=>{ try{ dedupe(); }catch(e){} }); return r; };
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')) setTimeout(()=>{ try{ dedupe(); }catch(er){} },0); },true);
+  PHONE_DEDUPE=dedupe; document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .dl-dupname{display:none!important}</style>'); }
+var PHONE_DEDUPE;
+/* Menu rail height (director, 2026-11-19, iPhone screenshots: the rail ended after "Quests"): its height came only from being stretched
+   to its grid row, with buttons sized from 0. Chrome never shows the problem, Safari did. The rail now also asks for the full row
+   height itself, and its buttons size from their content (ui_modern06), so it never depends on one mechanism. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov #tabs .secbar{height:100%!important}</style>');
+/* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
+function tabShownName(b){ return b?([...b.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||b.textContent.trim()):''; }

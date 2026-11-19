@@ -17,7 +17,7 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
 - ◐ [42] Android: Aquarium preview choppy (to do); Earning / Ready values overlap when numbers are large (☑ fixed).
 - ☑ [43] Events: Calendar, Challenges and Derby tabs show the same content.
-- ☐ [44] Trophy Room tiny when empty; check with fish in and out.
+- ☑ [44] Trophy Room tiny when empty; check with fish in and out.
 - ☑ [45] Skills: the "Looking for specializations?" line breaks the spacing.
 - ☑ [46] Hints off leaves an empty round box at the bottom.
 - ☑ [48] Rods: "Your rods" (not "Your rod") and only on the first tab.

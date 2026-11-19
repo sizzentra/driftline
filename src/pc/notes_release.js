@@ -77,4 +77,5 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Challenges show either LIVE or a count, not both.',
   'Rods: the first tab is called “Your rods”, and the presets stay on it.',
   'Turning hints off no longer leaves an empty box at the bottom of the screen.',
-  'Skills: the old note about specialisations is gone.']});
+  'Skills: the old note about specialisations is gone.',
+  'Aquarium coins use the short form for big amounts (like the header); hover for the exact number.']});

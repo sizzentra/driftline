@@ -162,7 +162,7 @@ const DW={
   aq(){ const r=tankRate()*60, n=S.tank.length, left=Math.max(0,3600000-(Date.now()-(S.fedT||0)));
     if(!n&&S.tankBank<1) return dwBox('aq',{icon:'🐠', title:'Aquarium', sum:'0 / h', body:`<div class="meta">Put fish on display and they earn coins while you play, even when you are away.</div><div class="dwacts"><button class="btn alt sm" data-tabgo="aquarium">Open</button></div>`});
     return dwBox('aq',{icon:'🐠', title:'Aquarium', state:S.tankBank>=1?'ready':'', sum:`<span class="coin">${fmtShort(r)}</span> / h`, body:
-      `<div class="dwrow"><span class="meta">${n} / ${aqCap()} fish · waiting</span><b class="dwbig coin" id="tankbank" data-live>${fmt(S.tankBank)}</b></div>
+      `<div class="dwrow"><span class="meta">${n} / ${aqCap()} fish · waiting</span><b class="dwbig coin" id="tankbank" data-live>${fmtShort(S.tankBank)}</b></div>
        <div class="dwacts"><button class="btn sm" id="collectbtn" data-act="collect" ${S.tankBank<1?'disabled':''}>Collect</button>${n?`<button class="btn alt sm" data-act="feed" ${left?'disabled':''} title="Feeding gives +25% aquarium income for 30 minutes">${left?'Fed · '+cd(left,Math.ceil(left/60000)+' min'):'Feed fish'}</button>`:''}<button class="btn alt sm" data-tabgo="aquarium">Open</button></div>`}); },
   event(){ const c=S.chal, lives=liveScheds(), ready=menuDot('events'); let body='', sum='', state='';
     if(c){ const C=CHAL[c.id], left=Math.max(0,c.until-Date.now()), here=S.loc===c.loc; state='ready live';

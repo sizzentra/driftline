@@ -3,7 +3,7 @@
 let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); hud(); requestAnimationFrame(frame); }
 let lastBuffN=-1, lastShopSlot=Math.floor(Date.now()/1000/SHOP_LEN);
-setInterval(()=>{ accrue(); const el=$('tankbank'); if(el) el.textContent=fmt(S.tankBank); const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
+setInterval(()=>{ accrue(); const el=$('tankbank'); if(el){ const t=fmtShort(S.tankBank); if(el.textContent!==t){ el.textContent=t; el.title=fmt(S.tankBank)+' coins'; } } /* short form like the top bar, so big numbers never overflow (2026-11-19) */ const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
   const dl=$('dmleft'); if(dl){ dl.textContent=mmss(wxLeft()); if(wxLeft()>=WX_LEN-1 && S.tab==='cooler') renderPanel(); }
   const t=Date.now(); const ended=S.buffs.filter(b=>b.until<=t); if(ended.length){ S.buffs=S.buffs.filter(b=>b.until>t); toast('Boost ended: '+ended.map(b=>b.src).join(', ')); save(); }
   const bn=activeBuffs().length; if(bn!==lastBuffN){ lastBuffN=bn; lastHud=''; }
@@ -128,7 +128,7 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
   P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
-  <div class="bank"><div><div class="sub">Earning</div><b class="coin">${fmt(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank">${fmt(S.tankBank)}</b></div>
+  <div class="bank"><div><div class="sub">Earning</div><b class="coin" title="${fmt(rate*60)} coins an hour">${fmtShort(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank" title="${fmt(S.tankBank)} coins">${fmtShort(S.tankBank)}</b></div>
   <button class="btn" id="collectbtn" data-act="collect" ${S.tankBank>=1?'':'disabled'}>Collect</button></div></div>
   <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Put a fish on display.</span>'}</div>
   <div class="tank"><canvas id="tankcv"></canvas></div>${S.aq.decor.length?`<p class="sub" style="margin-top:6px">Drag a decoration along the sand to move it.</p>`:""}
