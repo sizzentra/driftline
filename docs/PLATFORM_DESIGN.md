@@ -1,7 +1,7 @@
 # Driftline platform design standards
 
 What every screen looks like on each platform. New screens follow these rules; anything they don't cover is added here
-first (asking the director when it is a real design choice). Platform ground rules live in CLAUDE.md.
+first (asking the director when it is a real design choice). Platform rules and all process live in CLAUDE.md.
 
 ## PC (src/pc/)
 The director plays full screen at 1920×1080. The full-HD layout (`body.pc-fhd`) switches on at 1800×950 and up; smaller PC
@@ -164,7 +164,7 @@ Run `__spec` at each, upright and sideways, with its safe areas simulated. Refer
 - **Render scale:** phones draw the canvas at a capped pixel ratio that steps down automatically (2 → 1.15) when frames drop (`perf_round6`), so UI text stays sharp while the scene protects frame rate and heat.
 - **Fairness:** a wider or taller screen must not show more of anything that matters to play (fish, hotspots, bites). Not yet measured across screen shapes.
 
-**Release order (director's QC rule):** fix → `__spec` + `__qa` on both phone builds → phone test apps (`publish_testapps.ps1`) → the director checks them on real phones → only then live, and only when the director says so.
+**Release order:** see "The round checklist" and "Publishing" in CLAUDE.md (the one place for process).
 
 ## Shared across platforms
 - **Shared look:** the same colour language everywhere. Rarity colours come from `RAR`. Gold means rewards, teal means actions, red means warnings.

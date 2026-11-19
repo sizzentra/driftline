@@ -1,0 +1,101 @@
+# Driftline lessons
+
+Error bookmarks (symptom → cause → fix → how to catch it) and what works. Read before phone work; append one line per new lesson every round. Moved here from Claude's memory on 2026-11-19 so it lives with the code.
+
+**Errors bookmarked**
+- Menus under the iPhone camera → flat 8 px edges ignored `env(safe-area-inset-*)`; desktop browsers have zero insets so tests passed → `max(edge, env())` everywhere → always sweep with `__safeSim(l,r,t,b)`.
+- Wrong phone assumed (932×430 vs the director's 956×440) → guessed sizes → modern catalogue in PLATFORM_DESIGN → never guess a device size, look it up.
+- Label cut "Aquari…" → flex chips shrank below their label; `__spec` only checked the button's own scrollWidth → `min-width:max-content` + check inner spans → check children with their own overflow.
+- Split-screen fell to an old layout → phone mode required height > 1.15×width → shape rule (≤700 wide, not short-sideways) → test 440×460.
+- `\b` in perl/sed replacement wrote a backspace char into JS (silent broken regex) → use Edit for regexes → `grep -rlP "\x08" src` after shell edits.
+- `fresh` is a `const` → wrapping it threw "Assignment to constant" and killed the page → check `const`/`function` before wrapping → grep the declaration first.
+- Apostrophe inside a single-quoted notes string broke the file → use ’ (typographic) in notes.
+- Aquarium two-tab CSS (`repeat(2)!important`) beat inline grid → `style.setProperty(...,'important')`.
+- A fixed nav height stretched the second row of tabs (61 px vs 36) → `height:auto; grid-auto-rows:auto`.
+- Setting `scrollTop` during a render forced an extra layout (Fish Log 56 → 90 ms) → restore in `queueMicrotask` after the build.
+- Labels in sections hidden at build time never got fitted → the fit MutationObserver only runs on menu mutations → poke a no-op mutation after section switches.
+- Hidden browser pane: no rAF, frozen fades, IntersectionObserver/ResizeObserver never fire, screenshots blend frames → never rely on them for correctness; take a second screenshot; time with synthetic calls.
+- Test-state pollution (volume 30%, bought items) → restore state at the end of every test.
+- Section identity by text broke when badges added numbers → use `data-sect`.
+- Top bar: ~15 stacked legacy grid rules (fixed columns) gave the goal chip a third of the bar and pushed new chips to a 2nd row (water top 49 → 75) → one flex row on phones (`header08.js`) → when adding a chip, check `.hud` height stays one row and `__spec` water top.
+- A live event REPLACED the goal in one chip (label/text/tap mismatched) → separate Goal and Live chips; goal from `_nextGoal_036()` (the chain below the live wrapper).
+- `liveScheds` is a const too (can't stub) → test live by setting a real `S.chal`.
+- Phone menus pause the scene draw (perf_round6) → the Home view drew a generic dock everywhere → allow the scene at 30 fps while Home is open (`DK_SCENE_OK`) and crop it like PC → test each water by forcing `draw()` and comparing pixels.
+- Scene crop caught the weather label drawn on the water → crop starts below `MB_STATUS_B`.
+- The test pane sends NO resize or media-query events when its size changes → layouts never switched after a turn in tests (and some iPhone Home Screen apps also skip resize) → 500 ms size-compare safety net dispatches resize → after resizing the pane, wait ~1 s before measuring.
+- Hidden swatch names had dark-on-dark colour → `__qa` contrast check failed although invisible → give hidden labels a readable colour.
+- Wardrobe tab labels kept an old max-width + padding from the icon layout → cut at narrow panels → reset width/padding when reusing a widget in a new layout.
+- Fight: fish a 35%-opacity shadow + meter at the far edge + info in a corner → eyes jump → put every fight signal at the fish (ring + words + card).
+- Scene cost: `v3rgba` re-parsed hex every call (0.5 ms/frame) → cache prefix; measure all waters × weathers × day/night with `__findWx` + `__drawCost`, repeat 5× (pane timing is noisy ±2 ms).
+- Menu rail badges poked 12 px above each button inside a SCROLLING box (`.secbar`, overflow auto): first badge clipped, others over the button above (director screenshot, live 0.4.8.5) → badges inside the button (count at the row end; collapsed: corner + icon shifted via `:has(.secdot)`) → `__spec` now fails any count badge cut off by an overflow box or over another button. Rule: never let a badge poke out of a scrolling container; test with a forced "12" on every button, rail open AND collapsed. My earlier sweeps missed it because the test save had no badge on the first button.
+- Regex look-behind `(?<=` crashes the whole page on iPhones older than iOS 16.4 (parse error) → never use it in phone code; grep `(?<=` before shipping.
+- Mountains striped like corrugated metal on iPhone (fine in Chrome) → v3range paints ~1,000 side-by-side 1.5 px strips; WebKit leaves seams between them → phones paint each range as ONE path with a horizontal gradient + one snow path (`mobile/scene08.js`) → catch: never ship scenery built from many thin adjacent rects; Chrome cannot reproduce Safari seams, so pull the director's screenshot out of the transcript jsonl (PowerShell ConvertFrom-Json, base64 → file) and crop it at 4x before guessing.
+- Settings gear cut off at the top right → header08 `fit()` (hides Tide Pass / Tasks) only ran when their own text changed, not when the Live timer text grew or the panel toggled → refit every tick + ResizeObserver on the bar and each chip, observed ONCE (re-observing fires a callback every time = loop) → catch: any "hide when out of room" rule must re-run on every size change of its neighbours.
+- Folded rail icons off-centre → a `:has(.secdot)` rule matched HIDDEN badges too, so every button got `justify-content:flex-start` → `:has()` sees hidden children; centre always and park badges in the corner instead.
+- Home live view choppy (~4 fps) → my phone pacing passed, but an OLDER shared wrapper (bm_ui04: `draw` at most every 250 ms while a menu is open) sat inside it → raise `resize.force` around menu-time draws; plus two unsynced 30/s timers (scene vs copy) → copy in the same frame → catch: when something drawn behind a menu looks slow, list EVERY `draw=function` wrapper (`grep -n "draw=function" src/*.js src/mobile/*.js`) and prove frames change with a pixel hash of consecutive copies, not just call counts.
+- Rods tabs all showed the presets on top → a box inserted AFTER `sectionize` belongs to no section, so it shows on every tab → attach late boxes to a section node (move next to it + mirror its style.display) → catch: after adding anything to a sectioned page, click every section tab and list what is visible.
+- A grid rule for the Aquarium strip broke every page summary ("Bamb…") → pg08/dk08/wd08 reuse `.aq07-bank` → scope shared-class rules with `:has(<marker>)` → catch: after any aq07-class CSS, run the 20-page summary cut-off sweep (leaf scrollWidth > clientWidth), `__spec` does not check summary values.
+- Director: sideways menu pages wasted a left column on 2-3 numbers → standard now: one slim number strip on top + full-width content; badges on section tabs only when they mean "something to do" (Skills categories had count badges = noise). Layout measurements (PG_COLS) must run AFTER the page's final classes are set, or they read the old layout.
+- One missing bracket in a new file killed the WHOLE game script (no side panel, nothing) → catch: parse-check every changed file in the browser before reloading (copy to site/next/_chk, `new Function(await (await fetch(f)).text())`), then delete the copies. No node on this PC.
+- The fishing screen has its OWN side panel (#catdock, built once by bm_ui04 at startup) → MENU_SECS changes showed only in the menu rail → rebuild #catdock with #tabs .secbar (polish08) and check both in every sweep.
+- `git checkout -- site/next` before committing leaves the local server serving an OLD build → rebuild right after committing, or every test that follows is wrong (wasted a round of debugging "nothing is pg08").
+- data attributes holding JSON: strings come back with quotes (JSON.stringify('x') = '"x"') → parse when the value starts with [ or ".
+- New page tabs showed a solid square instead of an icon → the theme masks an icon per data-sub (theme07 IC) and has none for new tabs → add one in quests08 I8 for every new tab; the QC sweep now flags squares (subp .subi with no mask).
+- Rebuilding a page out of another page's pieces (Bait from Tackle): render the source page, then MOVE its nodes (not outerHTML copies) so drawn canvases and shared data-act buttons keep working; filter the source's intro paragraph out (it came along once).
+- Slow menu-tab switching → old shared wrappers forced layout mid-switch (offsetWidth animation restarts, a sticky check, chip-row scroll), each AFTER big DOM changes, so 3 full layouts per switch → phone-guarded skips / rAF deferral → avg 18→12 ms. Catch: instrument getBoundingClientRect/offsetWidth/scrollWidth/getComputedStyle with stack line numbers during one setTab (see the round-8 profiler in this session), find the build line, map to the source file.
+- perl replacement strings eat `$(` and `w` (became a PID and 'w') → use the Edit tool for any replacement containing $ or backslashes; the browser parse-check caught it before shipping.
+
+**What works and why**
+- One engine + the aquarium's own classes (`aq07-*`) for every page → one look, one set of checks; drift impossible.
+- Move existing nodes instead of re-creating them → their listeners keep working (no button breaks).
+- Defer anything off-screen (decor, dock cards, pet preview, music buffers) out of the tap → opens 2–3× faster.
+- Measure with `__fnTime(names, fn)` over every top-level function (`site/next/_fn.txt`); split script vs layout time with `performance.now()` around the call and a forced `offsetHeight`.
+- Long checks: start in `setTimeout`, store on `window`, poll in separate calls (tool timeout 45 s).
+- Sweep = every page × every section tab × scroll 0/½/1 × safe-area sim, plus `__qa`, console-error capture, PC diff.
+- Reuse a working page's CSS classes for a new page (aq07) instead of new styles: the Dock, 17 pages and the Wardrobe matched the aquarium on the first build.
+- Compact chips must look like their neighbours: reuse `.stat hudx` markup (label + value) so theme, height and checks apply automatically.
+- Colour choices: round 32 px swatches + chosen name in the heading = less space, clearer; keep the name as aria-label/title.
+- One place per thing: scan every screen for a tab / section / summary value that appears twice (labels of `.subp`, sheet nav, strip cells vs intro text, menu top row) before shipping.
+- Contact sheets: render every water into thumbnails on one overlay and screenshot once per size (day + night) = fast check that no graphics are missing at any shape.
+- Staged states for visuals: set `G` fields (fight, tension) and call `draw()` directly, then copy the canvas into an overlay image to look at it.
+
+- **Aliases bypass wrappers:** a wrapper on `fnA` doesn't touch an older alias `fnB=fnA` made earlier (bm_ui04 `menuTidy=menuTidy2`); the renderPanel wrapper called the alias, so the "deferred" layout read still ran mid-switch. Catch: profile the slow page (who calls the forced reflow?), grep for `=<fnName>` aliases, re-point them after wrapping.
+- **The game is one IIFE:** in the browser tool, game globals (S, setTab, openMenu) are NOT reachable; use the test hooks: `__ui.open(tab)/close()`, `__tabs()`, `__layoutQC()` (the layout sweep, `clean`), `__qa()`, `__searchQC()`, `__questsQC()`, `__landReview()` (catch card). Long checks: start them in an async IIFE writing to `window.__R`, then poll (one call times out at 45 s).
+- **Catch card buttons use pointerdown**, not click (ai_cooler `#cardq`, e_ui `#card`): dispatch `new PointerEvent('pointerdown',{bubbles:true})`. The HUD chips update on animation frames, which pause in the hidden pane: read counts from the opened page instead.
+- **Card text that fits at 667 can cut at 874** (3 narrower columns): let descriptions/rewards wrap; never put two variable-length texts side by side in a 230 px card.
+- **Search test typing:** type labels as plain words (strip punctuation), and save-state "failures" (Pets: find more when every pet is owned, Boardwalk wear prizes when every wear item is owned) are not bugs.
+- **Hidden pane freezes CSS animations too:** a mid-animation transform (PC `pchIn`, 4 px) can fail a layout check; compare against the live build fresh before calling it a regression.
+
+- **LIVE BUG 0.4.8.6: patch notes couldn't be closed on phones.** #evcard lives inside #stage (`touch-action:none` for casting) → a finger can't scroll a long card; its button was ~6,500 px down. Mouse/JS tests scroll fine, so it passed. Catch: for every popup card, check the close button is on screen WITHOUT scrolling, and check `touch-action` up the ancestor chain of every scroll area (anything inside #stage). Test What's new by setting `seenPatch` to an old version ON A NON-GAME PAGE of the same origin (e.g. /version.txt): the game saves on unload and overwrites a setItem done from inside it.
+- **LIVE BUG 0.4.8.6: deferring a "tidy" function broke a layout.** Moving menuTidy2 to the next frame (speed) removed the `.dl-head` mark that aquarium07/Home use right after renderPanel to hide the old header → intro + boost badges back in the Aquarium grid. Catch: before deferring any shared function, grep what reads the classes/DOM it writes (`dl-head`, `dl-dup` …) and keep cheap DOM marking synchronous; defer only the layout reads. Check Aquarium + Home with a SMALL tank and one fish (my big test save hid it), both Options open and closed.
+- **Back-to-back QC tools can collide:** __questsQC's first Show me can fail right after __searchQC (the search check's last close still pending). Re-run it alone before treating it as a bug.
+
+- **Canvas-painted chips are invisible to DOM overlap checks:** the weather chip and streak chip are drawn on the water canvas, so __layoutQC never saw the notice covering them. Catch: compute their boxes (measureText with the chip font, theme07 / d_draw) and test notices with the LONGEST text ("Too slow: it bit and swam off...") at 667 and 956. Screenshots from the director may come from an old build: check the label (Map vs Waters) and re-verify on the live build before fixing.
+
+- **"Unlock everything doesn't unlock the maps" was a busy state, not an unlock bug:** an info card (test/patch notes) open behind the menu kept G.st 'event', so every Travel here was greyed. Catch: when a tester says something is locked, check the button's disabled reason (G.st, BUSY) before the data. Tester tools live in Stats (z_stats.js, DL_PREVIEW only); keep them complete when new systems arrive (pearls, Fish Log, feats, timers).
+- **Badge sizes are a standard (MB_UI.all in frame07, enforced by __spec): change it there, not per page.** Rail badges sit in a 5 px gap; the label starts 12 px (38 px buttons) or ~9 px (32 px buttons) down; test "99+" on the longest name at 667. frame07's badge rule needs a more specific selector (`[class]`) to override padding.
+- **Android full screen:** a page can't enter full screen without a tap, and closing the app kills timers instantly, so "remember" must be written synchronously in the fullscreenchange handler, and only the game's own button may write "off". Test with a width under 768 (pane emulates an Android phone: plat-android).
+
+- **LIVE BUG 0.4.8.6–0.4.8.6.2: endless "update ready" bar on phones.** Phone pages got new DL_VERSION stamps while site/version.txt was restored to PC's frozen stamp; the bar compares the two. Fix: phones read version-phone.txt (build.ps1). Release check: fetch the live page AND its version file and compare stamps (curl both) before saying a release is done. Also: every test-app publish triggers the bar for the director; batch publishes.
+
+- **Android slow = 120 Hz screen + uncapped frames:** the frame-rate setting defaulted to Max on Android and "never chosen" meant no cap; a Pixel's 120 Hz screen ran the whole scene 120x/s (26 fps). Draw-cost tests and old/new A/B showed no regression, which pointed at frame COUNT, not frame cost. Test 120 Hz: copy the build with requestAnimationFrame shimmed to an 8 ms setTimeout (also makes the frame loop run while the pane is hidden) and count heavy frames per second. Ask the director early which setting changes help (30 mode was the clue).
+
+- **LIVE OUTAGE 2026-11-18 (both phones, live + test apps, ~10 min): a plain apostrophe ("screen's") inside a single-quoted string in notes_test.js broke the whole game script.** I edited the notes with sed after the QC run and pushed with only a stamp check. Notes files are in every build (release too). **Rule: after the LAST edit and the LAST build, parse every page (site/ios, android, pc + next/) with new Function() in the browser AND load the release page once, then push. Never edit text after QC without re-running that check. In single-quoted JS strings write ’ (curly) or avoid apostrophes.**
+
+- **Full screen on touch phones needs a FINISHED tap:** requestFullscreen from pointerdown is refused on touch (activation = pointerup/touchend/click); three code paths failed silently for a whole day. And an installed Android app only opens without bars when its manifest says display fullscreen (iPhone's home-screen mode does it by itself). Cache keys: never put a continuously changing float (night amount) in a cache key; round it.
+
+- **Test notes never re-opened (2026-11-18):** the card's id was build + title + item COUNT; I kept prepending text to item 1, so the director never saw a single note all day. Now the id hashes the whole text (bt_testnotes.js). Rule: each test-build round rewrites notes_test.js as a fresh, titled list, one short line per change, and I check the card actually opens in the test build before publishing.
+
+- **"Slow only with my save" = save-dependent drawing.** Fresh installs fast, moved saves slow: look for what the save adds to EVERY frame (dock decorations via litDraw, cosmetics, pets with tints). Reproduce by putting many decorations into a test save (edit the JSON from a non-game page) and A/B the live vs test build. Expensive per-item effects (offscreen + blend passes) must be cached on phones.
+
+- **App full-screen mode hides from the Fullscreen API:** with manifest display fullscreen, document.fullscreenElement is null; any "re-enter if not full screen" code must also check matchMedia('(display-mode: fullscreen)') and the window vs screen size, and throttle, or it re-requests on every tap (extra resizes and frames).
+
+
+**My own process mistakes (self-review, director 2026-11-19: "find inefficiencies in your own logic")**
+- Edited the notes of a release that was already live (added a Willow line to live 0.4.8.6.2) → released entries are frozen; new changes get the next version's entry (0.4.8.7) and `$platVer` moves with it → before touching notes_release, compare the entry's version with the live page's GAME_VERSION.
+- Fixed things phone-only by habit although they changed nothing visible → PC kept the same waste → step 1 of the round checklist (CLAUDE.md): decide shared vs platform before writing the fix.
+- Chased the most expensive thing one at a time for a whole night before auditing for redundancies (same work twice, every frame, off screen) → audit first, then measure.
+- Awaited `__qa` directly with a hidden pane and hit the 45 s timeout again, although memory already said not to → async IIFE + `window.__R` + poll, always.
+- Explained away the same save-state test failures each round (Boardwalk "no wear prizes", Pets "find more") → make the test state-independent once (Boardwalk fixed 2026-11-19).
+- Ran QC at 375x812 upright as if it were a phone; real phones are landscape-only, upright only happens in split-screen → test the sizes players can actually have; but the run still found a real bug (Home unreachable in narrow windows), so keep one narrow-window pass.
+- Five memory files each held a copy of the QC list and they drifted (57/58 vs 58/58, "PC must be untouched") → one checklist in CLAUDE.md; memory only points to it.
