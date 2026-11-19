@@ -200,4 +200,6 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'The side panel in menus always shows every section (on some iPhones it stopped after Quests).',
   'A tab’s name is no longer repeated as the heading right under it (Your tank, Your boat).',
   'An empty Trophy Room fills the page with a wall of empty plaques instead of a small strip.',
-  'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.']});
+  'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.',
+  'Inside Settings only the Settings tab lights up (the gear next to it no longer lights up too).',
+  'In narrow windows the side panel shows its icons, so every section fits without scrolling.']});

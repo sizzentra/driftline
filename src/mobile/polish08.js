@@ -325,8 +325,9 @@ body.phone-app #searchov .sv-in,body.phone-land #searchov .sv-in{max-height:calc
 body.phone-app #searchres,body.phone-land #searchres{max-height:none!important;flex:1 1 auto;min-height:0}
 </style>`); }
 /* Aquarium bank (director, 2026-11-19, Android: "Earning and Ready Coins value run underneath each other when numbers get too big"): the
-   number columns had a fixed width (62 px), so 12,345,678 spilled into the next cell. They now take their content's width. */
-document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel .aq07-bank:has(#tankbank),html body.phone-app #menuov #panel .aq07-bank:has(#tankbank){grid-template-columns:max-content max-content max-content auto auto!important}</style>`);
+   number columns had a fixed width (62 px), so 12,345,678 spilled into the next cell. Every cell now takes its content's width, and
+   when the row is too narrow for very large amounts the buttons move to a second line instead of spilling out (checked by __qa). */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel .aq07-bank:has(#tankbank),html body.phone-app #menuov #panel .aq07-bank:has(#tankbank){display:flex!important;flex-wrap:wrap!important;align-items:center;column-gap:6px!important;row-gap:4px!important}html body.phone-land #menuov #panel .aq07-bank:has(#tankbank) > *,html body.phone-app #menuov #panel .aq07-bank:has(#tankbank) > *{flex:0 0 auto!important}</style>`);
 /* Reeling on phones (director, 2026-11-19: "when you're reeling in fish, too much ui covers the screen"): during a fight the bottom
    hint repeats what the fight banner already says, and Rest does nothing mid-fight, so both fade away while a fish is on the line and
    come back when it ends. The hint stays for the first 5 catches, while a new player is still learning the controls. */
@@ -362,3 +363,20 @@ var PHONE_DEDUPE;
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov #tabs .secbar{height:100%!important}</style>');
 /* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
 function tabShownName(b){ return b?([...b.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim()||b.textContent.trim()):''; }
+/* Doubled Settings (director, 2026-11-19, iPhone screenshot): inside Settings the gear button lit up gold next to the gold Settings
+   tab, two lit "Settings" in one row. The gear only takes you to this section, so while you are in it the gear steps aside; the
+   tabs (Settings, Save) say where you are. */
+document.head.insertAdjacentHTML('beforeend','<style>body.phone-app #menuov .mo-tools [data-mo="settings"].on,body.phone-land #menuov .mo-tools [data-mo="settings"].on{display:none!important}</style>');
+/* Narrow windows (split-screen; phones themselves are landscape-only), 2026-11-19, the director: "test what is best yourself and execute
+   it": the side panel becomes a bottom bar of 8 buttons about 41 px wide. Measured at 360 px: even 8 px text (too small to read) cut
+   "Challenges" and "Customize", so the bar shows icons only there; every button keeps its name as its label (title / aria-label),
+   and the section you are in stays gold. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-app #catdock .cdb .cdl{display:none!important}html body.phone-app #catdock .cdb{justify-content:center!important;align-items:center!important}html body.phone-app #catdock .cdb svg{width:22px!important;height:22px!important}</style>');
+/* the menu's bar matches the bar on the water in narrow windows: all 8 sections visible without sideways scrolling, icons only, and
+   count badges sit inside the button's top right corner (they poked into the next button and were clipped by the bar) */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app #menuov #tabs .secbar{display:flex!important;flex-wrap:nowrap!important;overflow:visible!important}
+html body.phone-app #menuov .secbar .secb{flex:1 1 0!important;min-width:0!important;width:auto!important;justify-content:center!important;padding:0!important}
+html body.phone-app #menuov .secbar .secb .secl,html body.phone-app #menuov .secbar .secb .seclive{display:none!important}
+html body.phone-app #menuov .secbar .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class]{top:2px!important;right:2px!important;transform:none!important}
+</style>`);

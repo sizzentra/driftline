@@ -12,7 +12,7 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ [31] Shinies: remove the sweeping shine band.
 - ☐ [32] Fish Log shiny toggle on phones (exists on PC).
 - ☑ [36] iPhone: re-reading patch notes is cluttered, hard to open and scroll.
-- ◐ [37] iPhone: Settings from the top bar shows "Settings" twice as headers (not reproducible on the build: screenshot asked from the director).
+- ☑ [37] iPhone: inside Settings the gear and the Settings tab were both lit; the gear steps aside there (+ QA check "menu top row").
 - ☑ [39] Android: search needs press-and-hold to open; the keyboard covers the results and the typed text.
 - ☑ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
 - ◐ [42] Android: Aquarium preview choppy (to do); Earning / Ready values overlap when numbers are large (☑ fixed).
@@ -63,7 +63,7 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☐ [5] Canadian Rockies water (sturgeon, trout, river monsters, clear water, a little syrup).
 - ☐ [6] Florida Keys water (shallow saltwater sport fishing, chaotic Florida fauna).
 - ☐ [7] Each new water at the standard (52 fish with meme/bonus/rarity split), placed where it fits; Hollow Trench stays last; stutter-tested and as lively as the others.
-- ☐ [69] Five end-game waters, one unlocked per voyage after the first, outside normal progression, in this order: Animal Farm, Buffet, Corporate, Egyptian (Nile), Robot, Olympus/Mythos (the director lists six names for five slots: confirm).
+- ☐ [69] Six end-game waters (decided 2026-11-19: the director listed six themes for "5" slots and asked me to decide; all six stay, one more unlocks with each voyage from the 2nd to the 7th), outside normal progression, in this order: Animal Farm (voyage 2), Buffet (3), Corporate (4), Nile / Egyptian (5), Robot / cyberpunk (6), Olympus / Mythos (7). Working names: Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
 
 ## Older roadmap (still open)
 - Lily polish: a soft rim light so her black coat reads at night; hats following her head tilt.

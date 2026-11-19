@@ -11,8 +11,8 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 
 ## ▶ Where we left off (read first; keep it to current facts only)
 - **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7).
-- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). Batch 1 (bugs) mostly done and on the phone test apps + /next/; left in batch 1: [32] [34] [42 choppy] [44] [56] [8], and [37] waits for a screenshot.
-- **Asked, waiting for the director:** a screenshot of iPhone Settings showing "Settings" twice (not reproducible on the build); how the phone side panel should look in narrow split-screen windows (its names are cut off there: icons only or smaller text).
+- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). Batch 1 (bugs) mostly done and on the phone test apps + /next/; left in batch 1: [32] [34] [42 choppy] [56] [8].
+- **Asked, waiting for the director:** whether today’s screenshot fixes go live as a small patch (0.4.8.7.1).
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
 
@@ -49,6 +49,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
    - **Chrome is not the iPhone:** this test browser never shows Safari-only layout differences or touch-only styles. Layouts must not hang on one sizing mechanism (a rail sized only by being stretched collapsed on iPhone); when a phone screenshot shows something Chrome can’t reproduce, fix it robustly, add a check that forces the failing condition, and say plainly that it is not verified on Safari.
    - Compare what the player sees: names from the shown text (`tabShownName`), never from data attributes (`data-sect="Dock"` shows as "Your boat").
    - Scene state (night, weather, the angler’s pose) is put back by the code that set it; a save-and-restore copied into several callers means the source is wrong: fix the source and delete the copies.
+   - A layout change runs `__spec` at every size it touches (narrow windows too); if the new size is right, MB_FRAME and the PLATFORM_DESIGN table change with it in the same commit.
    - Balance changed: the `__bal` simulator. Taps: no heavy one-time work inside a tap (`__fnTime(names, fn)`).
    - Read every new text as that platform's player ("click" and "Space" are wrong on phones). Then a harsh per-platform critique: hard to find for new players? what is missing? how good does it look here?
 5. **Notes:** `notes_release.js` (players) and `notes_test.js` (testers) for every platform whose build changed; rules under "Patch notes and versions".

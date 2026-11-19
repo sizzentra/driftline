@@ -67,7 +67,7 @@ windows use the regular PC layout (`body.pch-on`).
 |---|---|---|
 | Screen edges (left / right) | 8 px | 8 px |
 | Top row (every chip, Back, coins, search, settings) | top 6, height 36 | top 6, height 38 |
-| Second row | top 46 (water: location + goal; menus: page tabs) | none: page tabs sit in the top row, height 38 |
+| Second row | top 46, height 36 (water: Cooler, Aquarium, Home, Fish Log; the first row holds Coins / Level / Fishing at and the gear); water from top 90 (narrow windows only: phones are landscape-only) | none: page tabs sit in the top row, height 38 |
 | Water / page area | full width minus the edges | starts at top 49, ends 6 px above the bottom, right edge 6 px left of the rail |
 | Categories | bottom card: 8 px from the sides, 6 px from the bottom, 58 tall, padding 3; buttons 50 tall | right rail: 124 wide (56 collapsed), 8 px from the right edge, from top 49 to 6 px above the bottom (same on the water and in menus); buttons 40 tall, 5 apart |
 | Notices in menus | centred at the bottom | centred over the page (not the whole screen) |

@@ -11,7 +11,7 @@
 // Also here: tapping right after Back works (the old guard blocked the whole screen for 0.45 s; now only where your finger was).
 // Android + iPhone only.
 // =====================================================================
-const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:30, stageTop:84, barH:58, barPad:3, barBtnH:50, barBottom:6},
+const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:36, stageTop:90, /* row 2 holds the two-line chips (Cooler, Aquarium, Home, Fish Log) since 2026-11-19 */ barH:58, barPad:3, barBtnH:50, barBottom:6},
                  land:{edge:8, row1Top:6, row1H:38, contentTop:49, bottom:6, railW:124, railWMini:56, railGap:6, railBtnH:40, railBtnGap:5} };
 // ONE look per kind of control (director, 2026-11-18: "cross reference everything that's connected, we need this to stop being so
 // inconsistent"). Measured across every page: buttons came in 9 heights, section tabs in 3 styles, badges in 4 sizes, descriptions in
