@@ -144,6 +144,8 @@ Run `__spec` at each, upright and sideways, with its safe areas simulated. Refer
 
 **Fish fight on phones** (`src/mobile/fight08.js`, director: "too hard to watch on top of watching your line breaking"): everything at the fish. A tension ring around it (green / yellow / red, shakes and glows near breaking, red zone marked), the instruction right above it, a small card with distance, Fight, Temper and line out; a soft light under the fish. No meter at the far edge, no corner panel. The card and words stay inside the water, clear of the corner buttons.
 
+**Menu pages sideways (director: "so much empty space wasted"):** pages without a picture never spend a side column on a few numbers: numbers go in one slim strip on top, content gets the full width, and section tabs carry a badge only when it means something to do (Skills: none; skill points are the badge).
+
 **Mountains on phones** (`src/mobile/scene08.js`): never paint scenery as many thin side-by-side strips; Safari on iPhone can leave seams between them. Paint one shape with a gradient instead (also far cheaper).
 
 **Words:** on phones, text about any water says "home", not "dock" (`DEDOCK` in pages08: Home page, feats, Tide Pass rewards, notices, Search). Item and flavour names stay ("Dock Gnome", "a dock regular").

@@ -80,6 +80,7 @@
       if(!nv&&cfg.groups){ try{ const K=[...body.children].filter(c=>!c.classList.contains('pg08-note')); const gs=cfg.groups(K).filter(g=>g.nodes.length); if(gs.length>1){ sectionize(body,tab,gs); nv=body.querySelector(':scope > .bwx-nav'); } }catch(e){ console.error(e); } }
       [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.appendChild(bar); P.appendChild(sheet); if(nv){ sheet.appendChild(nv); const n=nv.querySelectorAll(':scope > button').length; nv.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nv,n)},minmax(0,1fr))`,'important'); } /* up to 4 tabs in one row; 5-6 in balanced rows of 3 */ sheet.appendChild(body);
       P.classList.add('aq07','aq07-open','pg08','pg08-nostage'); P.classList.remove('dk08'); P.dataset.pgTab=tab;
+      if(nv){ const n2=nv.querySelectorAll(':scope > button').length; nv.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nv,n2)},minmax(0,1fr))`,'important'); } /* measured again with the page's final layout */
       // keep the scroll place on a refresh of the same page and section; a new section starts at the top
       const curSec=()=>{ const s=nv&&nv.querySelector('[aria-selected="true"], [aria-pressed="true"], .on'); return s?(s.dataset.sect||s.dataset.k||s.dataset.v||txt(s).replace(/\s*\d+$/,'')):''; };
       P.dataset.pgSec=curSec(); const was=prev; if(was&&was.tab===tab&&was.top>0&&was.sec===P.dataset.pgSec) queueMicrotask(()=>{ if(body.isConnected) body.scrollTop=was.top; }); /* after the page is finished: one layout, not two */
@@ -246,6 +247,37 @@ html body.phone-land.dock-mini #menuov #tabs .secbar .secb .secdot{top:0!importa
 </style>`);
 /* how many section tabs share a row: up to 4 in one row, 5-6 in rows of 3, 7-8 in rows of 4, but never narrower than ~70 px a tab (the fit step shrinks a long label a little, never below 11 px)
    (round 8: the Wardrobe's side sheet is only ~234 px wide on the smallest iPhone, where 4 tabs a row cut "Clothes") */
-function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ w=el&&el.isConnected?el.getBoundingClientRect().width:0; }catch(e){} return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
+function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ w=el&&el.isConnected?el.getBoundingClientRect().width:0; }catch(e){} if(w>0&&n<=6&&(w+6)/n>=118) return n; /* all in one row when each tab still gets ~118 px */ return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl,html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{white-space:nowrap!important}</style>`); /* one line per tab; the fit step shrinks a long one a little */
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav{gap:4px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button{padding-left:2px!important;padding-right:2px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{max-width:100%!important;overflow:hidden!important} }</style>`); /* smallest iPhones: the Wardrobe's 3-a-row tabs get 4 px more room each */
+/* round 8 (director: "A lot of tabs take up way too much space on the left side when it comes to info. So much empty space wasted"):
+   sideways, pages without a picture no longer give a whole left column to two or three numbers and the intro. The summary is one slim
+   strip across the top (numbers side by side, the page's main button at the end), the content gets the full width, and the intro
+   opens the scrolling content instead (it scrolls away). The Boardwalk too: its pier picture only repeated the intro, so sideways it steps aside. */
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #panel.aq07.pg08{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;row-gap:8px!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bar{grid-column:1!important;grid-row:1!important;flex-direction:row!important;align-self:stretch!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-sheet{grid-column:1!important;grid-row:2!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank{display:flex!important;align-items:center!important;gap:18px!important;padding:7px 12px!important;flex:1 1 auto}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > div{flex:0 1 auto;min-width:0;max-width:40%}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > .btn{width:auto!important;margin-left:auto!important;flex:0 0 auto}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > .btn ~ .btn{margin-left:0!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bar > .pg08-side{display:none!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-body > .pg08-note{display:block!important}
+}
+</style>`);
+/* round 8 (director: "most left side things in mobile tabs definitely can be condensed and sized properly"): sideways the summary
+   strip is one slim line (each label next to its number), and cards keep a readable width (at least 200 px: two a row on the smallest
+   iPhones, three on bigger ones) now that the content has the full width */
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #panel.pg08 .pg08-bank{padding:5px 10px!important;min-height:38px;box-sizing:border-box}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > div{display:flex!important;align-items:baseline;gap:6px;white-space:nowrap}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > div > .sub{margin:0!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > div > b{min-width:0}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > .btn{min-height:30px!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-body .grid:not(.sect-one){grid-template-columns:repeat(auto-fill,minmax(200px,1fr))!important}
+}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px){ html body.phone-land #menuov #panel.pg08 .pg08-bar > .pg08-sidev{display:none!important} }</style>`);

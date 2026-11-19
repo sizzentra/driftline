@@ -98,3 +98,6 @@ html body.phone-land .hud > .st-lvl[data-mbtap],html body.phone-app .hud > .st-l
 html body.phone-land .hud > .st-lvl[data-mbtap] .lbl,html body.phone-app .hud > .st-lvl[data-mbtap] .lbl{color:#c8fff0!important}
 html body.phone-land .hud > .st-lvl[data-mbtap]:active,html body.phone-app .hud > .st-lvl[data-mbtap]:active{transform:translateY(1px)}
 </style>`);
+/* Skills (director: "In skill tabs it doesn't make sense for each category to have a badge, just the skill points"): the category tabs
+   carry no counts; your unspent skill points stay the one badge (the Skills tab and the side panel) */
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='skills') document.querySelectorAll('#panel .bwx-nav > button[data-sect] .sdot').forEach(d=>d.remove()); }catch(e){} return r; }; }
