@@ -5,6 +5,14 @@
 // cast distance that matters, and aquarium buffs rolled per fish.
 // =====================================================================
 const PRISM = {rainbow:{n:'Rainbow',c:'#ff7ad8'}, starry:{n:'Starry',c:'#9ab8ff'}, spectral:{n:'Spectral',c:'#8af4ff'}, ancient:{n:'Ancient',c:'#e8b860'}};
+/* [18] (director: "Do not give a fish a special title without modifying its stats to be stronger than the average. Multiple buffs to different
+   catching/fishing/economy stats. More gold generation for subsequent runs. Bringing up all percentage buffs of other fish's stats in the
+   tank"): each title adds three aquarium bonuses of its own, lifts every other fish's bonuses in the tank (all titles together up to
+   +30%), and every different species + title ever caught adds +1% coins on every voyage (up to +20%). */
+const TITLE_BUFFS = {rainbow:{keys:['shiny','sell','xp'], aura:.06, what:'money'}, starry:{keys:['rare','hot','bite'], aura:.06, what:'catching'}, spectral:{keys:['reel','tension','calm'], aura:.06, what:'fighting'}, ancient:{keys:['tank','trophy','treasure'], aura:.10, what:'collecting'}};
+const TITLE_AURA_CAP=.3, TITLE_COIN=.01, TITLE_COIN_CAP=.2;
+const titleAura = () => { let a=0; for(const f of S.tank) if(f.sh===2&&TITLE_BUFFS[f.pv]) a+=TITLE_BUFFS[f.pv].aura; return Math.min(TITLE_AURA_CAP,a); };
+const titleLegacy = () => Math.min(TITLE_COIN_CAP, TITLE_COIN*Object.keys(S.titled||{}).length);
 const PRISM_KEYS = Object.keys(PRISM);
 const PRISM_SHARE = .06;        // share of shiny rolls that come up prismatic instead
 const PRISM_VALUE = 15;         // value multiplier (shiny is ×4)
@@ -23,7 +31,8 @@ function rollAqBuff(sp,kg,favoured){ const pref=AQ_KEYS[hashStr(sp.id)%AQ_KEYS.l
 function aqBuffsOf(f){ const sp=SPI[f.id]; if(!sp) return [];
   const mult=(f.sh===2?3.5:f.sh?(maxed('aquarist')?3:2):1)*(f.tr?1.25:1)*(1+.03*pr('aquarist'))*(f.hy?1.5:1);
   const list=[]; const add=b=>{ if(b) list.push({k:b.k, v:AQ_MAG2[b.t]*(b.w||1)*mult, t:b.t}); };
-  if(f.ab){ add(f.ab); add(f.ab2); } else { const b=aqBase(f.id); if(b) list.push({k:b.k, v:b.v*mult, t:sp.r}); } // fish caught before 0.3 keep their old boost
+  if(f.ab){ add(f.ab); add(f.ab2); } else { const b=aqBase(f.id); if(b) list.push({k:b.k, v:b.v*mult, t:sp.r}); }
+  if(f.sh===2&&f.pv&&TITLE_BUFFS[f.pv]){ const t=Math.max(3,sp.r); for(const k of TITLE_BUFFS[f.pv].keys) list.push({k, v:AQ_MAG2[t]*1.5, t, title:1}); } /* [18] a title brings three bonuses of its own */ // fish caught before 0.3 keep their old boost
   return list; }
 
 // ---------- distance ----------
@@ -58,7 +67,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?1.6:1) * dm.weight;
   let kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb), hy=null;
   // hybrid: the weight of another fish from the same waters
-  if(!ctx.noHybrid && Math.random()<hybridChance()){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
+  if(!ctx.noHybrid && (ctx.forceHybrid||Math.random()<hybridChance())){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
   const avg=(sp.min+sp.max)/2, R=kg/avg, rel=hy?clamp(R>1?1:0,0,1):(kg-sp.min)/(sp.max-sp.min);
   let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),.45,6);
   const shRoll=Math.random() < shinyChance(G.inHot);

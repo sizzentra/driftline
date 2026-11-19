@@ -25,7 +25,7 @@ function vaultDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateStr
 function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).size, total=SP.length, cool=S.cooler.length<gv('cooler'), k=S.settings.vaultSort||'rar';
   const plaques=vaultSorted().map(({f,i})=>{ const sp=SPI[f.id]; if(!sp) return ''; const L=LOCS[locIdx(sp.loc)], gold=sp.r>=4, sh=f.sh===2?'prism':f.sh?'shiny':'';
     return `<div class="tp-item"><div class="tp-plaque ${gold?'gold':''} ${sh}"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas>${sh?`<span class="tp-star" aria-hidden="true">${f.sh===2?'✦✦':'✦'}</span>`:''}</div>
-      <div class="tp-plate"><b style="color:${gold?'#3a2206':'#2a1a08'}">${esc(sp.name)}</b><span>${RAR[sp.r].k} · ${kgStr(f.kg)}</span></div>
+      <div class="tp-plate"><b style="color:${gold?'#3a2206':'#2a1a08'}">${esc(sp.name)}</b><span>${RAR[sp.r].k} · ${kgStr(f.kg)}${nibFedTxt(f)}</span></div>
       <div class="tp-meta">${esc(L?L.name:'')}${f.kept?' · kept '+vaultDate(f.kept):''}</div>
       <button class="btn alt sm tp-out" data-vo="${i}" ${cool?'':'disabled'} title="${cool?'Move it back to your cooler':'Your cooler is full'}">To cooler</button></div>`; }).join('');
   P.innerHTML=`<div class="tp-room"><div class="tp-glow"></div><div class="tp-in">

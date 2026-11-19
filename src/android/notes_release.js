@@ -227,3 +227,13 @@ PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
   'Stardust works better at Starfall Lake (odds ×2.8).']});
 PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
   'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.']});
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## Fish Nibbles',
+  'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
+  'Feed Nibbles to a fish of the same species in your Aquarium: it swims up to eat, earns more, and every 10 Nibbles its bonuses grow (sometimes it gains a new one, up to 5). Half of your Nibbles expire when you set sail again.',
+  'The Fish Log shows your Nibbles for each species, and the Trophy Room how many a fish ate.',
+  '## Progression',
+  'The next water opens after catching 10 fish at the one before during this voyage, 10 more every voyage, up to 50.',
+  'Rods cost Scales as well as coins, more for better rods.',
+  'A hybrid that still lands inside its own size range is worth ×2 (common) up to ×5 (mythic), in coins and aquarium income.',
+  'Titled shinies are special: each title brings three bonuses of its own in your aquarium, lifts every other fish’s bonuses, and every new species and title you catch adds 1% coins on every voyage (up to 20%).']});
