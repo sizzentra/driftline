@@ -3,7 +3,7 @@
 // Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'Natural frame rate, Settings fix', items:[
   'Android draws a steady 60 frames a second again (also on 120 Hz screens), iPhone runs at its natural rate. No frame-rate choice in Settings.',
-  'Android stays automatically full screen, like iPhone.',
+  'Android stays automatically full screen, like iPhone, and no longer re-asks for full screen on every tap (that caused extra frames and jumpy fps during actions).',
   'Opening and closing Settings (or any menu) no longer shows another water’s scenery for a moment.',
   'Water pictures for the Map are only made while the Map is open, so other menus stay light.',
   'Much smoother with a decorated home: decorations on the dock are no longer re-lit from scratch every frame (a moved save with many decorations made Android drop to about 25 fps).',

@@ -30,5 +30,10 @@
 // Settings button worked because it reacts to click). Now: on any finished tap, if full screen is your choice and the page is not
 // in full screen, it goes back (taps on the Full screen button itself are left to that button).
 { const want3=()=>true; /* round 4 (director, 2026-11-18: "automatic for all mobile builds, no menu option, like iPhone"): phones are always full screen; the Settings row is gone (settings08) */
-  const back=e=>{ if(!MOB()||document.fullscreenElement||!document.documentElement.requestFullscreen||!want3()) return; if(e&&e.target&&e.target.closest&&e.target.closest('[data-act="fullscreen"]')) return; try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(er){} };
+  /* round 5 (director, 2026-11-18: Android test build above 60 fps and jumpy on every action, fresh save): the installed Android app
+     now opens in the app's own full-screen mode (manifest), where document.fullscreenElement is empty, so every tap asked for full
+     screen again; each request re-laid the screen out, resized the water and drew extra frames outside the 60 limit. Now it only asks
+     when the screen is really not full screen (not in app full-screen mode, bars visible), at most once every 2 seconds. */
+  let lastAsk=0; const appFull=()=>{ try{ if(matchMedia('(display-mode: fullscreen)').matches) return true; }catch(er){} const sw=Math.max(screen.width,screen.height), sh=Math.min(screen.width,screen.height), iw=Math.max(innerWidth,innerHeight), ih=Math.min(innerWidth,innerHeight); return Math.abs(iw-sw)<2&&Math.abs(ih-sh)<2; };
+  const back=e=>{ if(!MOB()||document.fullscreenElement||!document.documentElement.requestFullscreen||!want3()) return; if(e&&e.target&&e.target.closest&&e.target.closest('[data-act="fullscreen"]')) return; const now=performance.now(); if(now-lastAsk<2000||appFull()) return; lastAsk=now; try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(er){} };
   ['pointerup','touchend','click','keyup'].forEach(ev=>document.addEventListener(ev,back,true)); }
