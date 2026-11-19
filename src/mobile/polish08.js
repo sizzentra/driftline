@@ -322,3 +322,26 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
     const tx=e.c.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(sc,0,0,sc,-bx0*sc,-by0*sc);
     _ld(tx,bx0,by0,bx1,by1,fn,o); e.at=now; e.seen=now;
     c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(e.c,dx,dy); c.restore(); }; }
+
+/* Boats and floating docks (director, 2026-11-19: "anything with open water and a boat or different dock tanked his fps"): there every
+   decoration bobs with the platform, so the position-keyed litDraw cache above never hit and each item was re-lit from scratch every
+   frame. Phones: each dock item is cached by WHAT it is (id, size, night level, front/back), not where it is: its lit picture is
+   refreshed at most every 66 ms (flags, campfires and wind chimes keep moving) and drawn wherever the platform carries it this frame.
+   Same box as litDraw uses, so the picture is identical. PC is untouched. */
+{ const _dd=drawDockItem, DC=new Map();
+  drawDockItem=function(c,id,x,y,s,t,night,back){ if(!(MOB()&&c===g)) return _dd.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
+    const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
+    if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
+    const key=id+'|'+Math.round(s*200)+'|'+Math.round((night||0)*20)+'|'+(back?1:0)+'|'+pw+'x'+ph, now=performance.now();
+    let e=DC.get(key); if(!e){ e={c:document.createElement('canvas'),at:-1e9,seen:now}; DC.set(key,e); if(DC.size>60){ for(const [kk,v] of DC) if(now-v.seen>3000) DC.delete(kk); } }
+    e.seen=now;
+    if(now-e.at>=66){ if(e.c.width!==pw||e.c.height!==ph){ e.c.width=pw; e.c.height=ph; } const tx=e.c.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,t,night,back); e.at=now; }
+    c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
+
+/* Light and weather transitions on phones (director, 2026-11-19: drops to 30-40 fps "and keeps fluctuating back up to 60", worst in
+   weather). Every light step rebuilds the whole scenery picture (v3land: 10-30 ms on a desktop, several times that on a phone); with
+   14 night / 9 dusk / 6 weather steps that was a stall about every 1.5 s through dusk, dawn and every weather fade (measured: 30-40% of
+   frames over 8 ms during those transitions, every water). Phones now use 5 / 3 / 2 steps and a 5 s cross-fade between them, so the
+   light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
+{ const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
