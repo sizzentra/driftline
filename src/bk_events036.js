@@ -86,7 +86,7 @@ function schedCal(){ const items=SCHED.map(e=>({e, live:schedLeft(e), next:sched
   return `<div class="tile ev-cal"><h4>Event calendar</h4><div class="meta" style="margin-bottom:6px">These run on the clock at every water. Nothing to join: just be fishing.</div>
    ${items.map(({e,live,next})=>`<div class="ev-cal-row ${live?'on':''}" style="--c:${e.col}"><span class="ev-cal-ic">${e.icon}</span><div class="ev-cal-txt"><b>${esc(e.name)}</b><span class="meta">${esc(e.what)} · ${e.len} min, every ${e.every} min</span></div>
      <span class="badge ${live?'g':''}">${live?'Live · <span data-evleft="'+e.id+'">'+mmss(Math.ceil(live/1000))+'</span> left':'In <span data-evleft="'+e.id+'">'+mmss(Math.ceil(next/1000))+'</span>'}</span></div>`).join('')}</div>`; }
-renderEvents=function(P){ const o=catchOdds(), c=S.chal;
+function renderEvents(P){ const o=catchOdds(), c=S.chal;
   const active=c?(()=>{ const C=CHAL[c.id], left=Math.max(0,Math.ceil((c.until-Date.now())/1000)), pct=C.ranked?Math.min(1,c.best/Math.max(...c.rivals.map(r=>r[1]))):c.prog/c.need;
     return `<div class="tile ev-active"><div class="row spread"><div><span class="rar" style="color:var(--gold)">Your challenge · ${esc(LOCS[locIdx(c.loc)].name)}</span><h4>${C.icon} ${esc(C.name)}</h4></div><span class="badge g"><span data-evleft="chal">${mmss(left)}</span> left</span></div>
       <div class="meta">${esc(C.rule(c))}${C.ranked?'':': <b>'+c.prog+' / '+c.need+'</b>'}${S.loc!==c.loc?' · <b style="color:#ff9a8a">Only catches at '+esc(LOCS[locIdx(c.loc)].name)+' count</b>':''}</div>

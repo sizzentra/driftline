@@ -6,9 +6,6 @@
 let PREVIEW=null, PET_PV=null, AQ_PV=null; // what's being tried on right now (never saved)
 function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return lk; const {kind,id}=PREVIEW;
   if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; else if(kind==='shoe') lk.shoes=id; else if(kind==='neck') lk.neck=id; else if(kind==='back') lk.back=id; return lk; }
-function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
-  const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="buyoffer" data-k="${p.kind}:${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
-  return `<div class="pvbar"><span>Trying on: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="tryoff">Take off</button></span></div>`; }
 function petPreviewLook(id=editPet()){ const lk=Object.assign({},petLook(id)); if(PET_PV) lk[PET_PV.kind]=PET_PV.id; return lk; }
 function petPvBarHTML(){ if(!PET_PV) return ''; const p=PET_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='tint'?'pettint':'petacc'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;

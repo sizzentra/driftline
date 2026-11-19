@@ -14,7 +14,7 @@
 // Cost: pictures animate only while on screen, 30 times a second; positions come from the fish's own pixels (worked out once
 // per species and size); no per-frame allocations beyond a few gradients.
 // =====================================================================
-shineDecorate=function(){};
+function shineDecorate(){};
 const SFX_PAL={shiny:{a:'#fff3c4',b:'#ffcf5a',dust:'#ffe7a0'}, mythic:{a:'#ffb0e8',b:'#8affea',dust:'#ffd6f4'}, rainbow:{a:'#ffffff',b:'#ffffff',dust:'#ffffff',hue:true},
   starry:{a:'#e4f3ff',b:'#8fc4ff',dust:'#ffffff'}, spectral:{a:'#ecd8ff',b:'#9ef0ff',dust:'#c9a8ff'}, ancient:{a:'#fff0c4',b:'#e8b04a',dust:'#f2c464'}};
 const SFX_STYLES=['glint','glitter','shimmer','flare'];

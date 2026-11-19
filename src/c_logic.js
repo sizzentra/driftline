@@ -115,7 +115,6 @@ const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + 
 const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * (coinMult() + .01*(pshopLv('xp')-pshopLv('gold')));
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => { const n=Math.floor(Math.pow(S.stats.runEarned/PEARL_DIV,1/PEARL_EXP)*voyagePearlMult()*pathMul('pearl')); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
-function demandSp(){ const pool=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3); const slot=Math.floor(Date.now()/1000/WX_LEN); return pool[(Math.imul(slot+17,40503)>>>0)%pool.length]; }
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
@@ -156,13 +155,9 @@ function timeOk(sp,p){ if(sp.time==='any') return true; if(sp.time==='night') re
 function nextFlip(){ const p=phase(); const target = isNight(p) ? .95 : .45; let d = target - p; if(d<0) d+=1; return {label: isNight(p)?'Day in':'Dusk in', s: Math.round(d*CYCLE)}; }
 function weatherAt(slot){ const h = (Math.imul(slot ^ 0x9e3779b9, 2654435761) >>> 0) % 10000 / 100; let x=h; for(const w of WEATHERS){ x-=w.w; if(x<0) return w; } return WEATHERS[0]; }
 const WX_NAME={Fog:'Heavy fog'}; function wxName(k){ return WX_NAME[k]||k; }
-function weather(){ return weatherAt(Math.floor(Date.now()/1000/WX_LEN)); }
 // how strongly the current weather shows (0..1): it builds up over the first half minute and fades out over the
 // last one when the next slot brings different weather (looks only; the gameplay effect is the whole slot)
 const WX_FADE=32;
-function wxAmt(){ const s=Date.now()/1000/WX_LEN, slot=Math.floor(s), into=(s-slot)*WX_LEN, cur=weatherAt(slot).k; let a=1;
-  if(weatherAt(slot-1).k!==cur) a=Math.min(a,into/WX_FADE); if(weatherAt(slot+1).k!==cur) a=Math.min(a,(WX_LEN-into)/WX_FADE); a=clamp(a,0,1); return a*a*(3-2*a); }
-function wxLeft(){ return Math.ceil(WX_LEN - (Date.now()/1000 % WX_LEN)); }
 const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s)%60).padStart(2,'0');
 
 // ---------- audio ----------
@@ -517,7 +512,8 @@ function snagFight(dt){ const reel=reelSpeed(), rin=V3ON?reelInput(dt):(G.hold?1
 const FIGHT_T=[2.6,4.2,7,11,18,30], FIGHT_LANDK=.75, FIGHT_TEN_FLOOR=.62;
 function fightTireT(f,rk,V){ const pr2=clamp(Math.pow(anglerStr()/Math.max(.1,fishPull(f)),.5),.45,1.3); return FIGHT_T[clamp(rk|0,0,5)]*(1+.5*(V-1))/pr2; }
 function fight(dt){
-  if(G.fish && G.fish.kind!=='fish'){ snagFight(dt); return; }
+  if(!G.fish){ G.st='idle'; return; } /* nothing on the line: never crash the frame loop */
+  if(G.fish.kind!=='fish'){ snagFight(dt); return; }
   maybeEatEvent(dt); eatTick(dt);
   if(G.fish.shiny===2){ G.behT=(G.behT||0)-dt; if(G.behT<=0){ G.behT=rnd(2.2,3.6); const ks=Object.keys(BEH); G.fish.beh=ks[Math.floor(Math.random()*ks.length)]; } }
   const f=G.fish, B=BEH[f.beh]||BEH.calm, line=gv('line'), reel=reelSpeed(); const ratio=clamp(f.str/line,.05,4);

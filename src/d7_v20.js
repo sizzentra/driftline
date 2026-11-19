@@ -4,14 +4,6 @@
 // Fishing Derby, richer scenery for every water, two new waters' looks
 // =====================================================================
 
-// ---------- Paths (specialisations get their own tab) ----------
-function renderPaths(P){ const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
-    return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· unlocks at level ${T.lvl}</span></h4>${cur?`<span class="badge g">${T.opts.find(o=>o[0]===cur)[1]}</span>`:locked?`<span class="meta">Level ${S.lvl} / ${T.lvl}</span>`:'<span class="badge">Choose one</span>'}</div>
-     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
-       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span>${o[3]?`<span class="down">▼ ${o[3]}</span>`:''}${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
-  P.innerHTML=`<h2>Paths</h2><p class="sub">Five forks on your angler’s road. Each one is a specialty: pick the one that fits how you like to fish. You can switch later for a fee.</p>
-   <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">${SPEC_TIERS.map(specRow).join('')}</div>`; }
-
 // ---------- Home: dock style, decorations, cozy ----------
 const DOCK_WOODS = [['oak','Oak',0,'#6b4a2e'],['birch','Birch',1500,'#c8a878'],['walnut','Walnut',2500,'#3e2a1c'],['driftwood','Driftwood',2000,'#8a7a6a'],['white','Painted white',3000,'#e4e0d6'],
   ['blue','Harbour blue',3000,'#3a6f9a'],['red','Barn red',3000,'#9a3a2a'],['mint','Seafoam',3500,'#7fc8a9'],['pearl','Pearl',0,'#f0e8f4']];
@@ -101,16 +93,7 @@ const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag 
   25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for any of your docks.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
   35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
   45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
-// regular levels cycle through these, every amount shown before you claim it
-function passPlain(L){ const base=bestLoot(); if(L>PASS_MAX) return {k:'bonus', name:'Coins and 20 Scales', d:fmt(Math.round(base*12*coinMult()))+' coins and 20 Scales.'};
-  return [{k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'},{k:'coins', name:fmt(Math.round(base*10*coinMult()))+' coins', d:'Straight to your purse.'},{k:'scales', name:'15 Scales', d:'Level up rods, buy attachments and special bait.'},{k:'tix', name:'100 tickets', d:'Spend them at the Boardwalk prize counter.'},{k:'small', name:'Small Mystery Crate', d:'Mostly clothes and lures, sometimes decor or a pet.'}][L%5]; }
 function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
-function grantPass(L){ const sp=PASS_SPECIAL[L], base=bestLoot(); if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
-  if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
-    if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='crate2') S.tokens.legend+=2; if(k==='bait') S.bait[id]=(S.bait[id]||0)+6;
-    if(k==='shoe'&&!S.owned.shoes.includes(id)) S.owned.shoes.push(id); if(k==='neck'&&!S.owned.necks.includes(id)) S.owned.necks.push(id); if(k==='back'&&!S.owned.backs.includes(id)) S.owned.backs.push(id); return sp[2]; }
-  if(L>PASS_MAX){ earn(base*12*coinMult()); S.scales+=20; return 'Coins and 20 Scales'; }
-  const p=passPlain(L); switch(p.k){ case 'big': S.tokens.big++; break; case 'coins': earn(base*10*coinMult()); break; case 'scales': S.scales+=15; break; case 'tix': S.tickets+=100; break; case 'small': S.tokens.small++; break; } return p.name; }
 function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))*(relic('tidecaller')?1.3:1)); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
 function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const cx=w/2, s=w/120;
   if(sp){ const [k,id]=sp; if(k==='dock') dockThumb(x,id,w,h); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});

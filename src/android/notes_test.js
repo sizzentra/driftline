@@ -12,5 +12,6 @@ const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9 big patch
   'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
   'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
   'Top bar: with a live event and a long water name, the Bait chip no longer gets squeezed to a sliver; Tasks or the event chip make room instead.',
+  'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

@@ -45,7 +45,6 @@ if(typeof ACT_OK==='object'){ ACT_OK.wqclaim=(k,i)=>Number.isInteger(i)&&i>=0&&i
 
 // ---------- 2. weather forecast ----------
 const WX_SPECIAL=new Set(['Rainbow','Gilded','Aurora','Blood Moon','Spawning Run']);
-function wxForecast(n=6){ const now=Date.now()/1000, cur=Math.floor(now/WX_LEN), out=[]; for(let i=1;out.length<n&&i<60;i++){ const w=weatherAt(cur+i), prev=out[out.length-1]; if(prev&&prev.k===w.k){ prev.len+=WX_LEN; continue; } if(!prev&&w.k===weatherAt(cur).k) continue; out.push({k:w.k, note:w.note, at:(cur+i)*WX_LEN-now, len:WX_LEN}); } return out; }
 function forecastHTML(){ const now=weather(), f=wxForecast(5), tag=k=>(typeof WX_TAG==='object'&&WX_TAG[k])||'';
   return `<div class="tile wxf" style="margin-top:10px"><h4>Weather forecast</h4><div class="meta">The weather turns every few minutes at every water. Plan your fishing around it.</div>
    <div class="wxf-row on"><b>Now: ${esc(wxName(now.k))}</b><span class="meta">${esc(tag(now.k)||now.note)}</span><span class="badge g" data-wxl>${mmss(wxLeft())} left</span></div>
@@ -103,7 +102,7 @@ const bwTix=(n,why)=>({title:'+'+addTickets(n)+' tickets'+(why?' ('+why+')':''),
 
 // the wheel: tickets, lures, a boost, crates, a wear prize, a small coin slice, and a Boardwalk-only jackpot
 WHEEL.length=0; WHEEL.push(['25 tickets',22,'#3a6f9a'],['Lure pack',13,'#4f8a4a'],['60 tickets',14,'#7a4a9a'],['Lucky boost',12,'#2a8aa8'],['Small crate',12,'#c8553a'],['Coins ×3',10,'#6a7680'],['Big crate',6,'#d87aa0'],['Wear prize',8,'#2f9a7a'],['JACKPOT',3,'#d8a020']);
-wheelPrize=function(i){ const lab=(WHEEL[i]||WHEEL[0])[0]; try{ sfx.coin(); }catch(e){}
+function wheelPrize(i){ const lab=(WHEEL[i]||WHEEL[0])[0]; try{ sfx.coin(); }catch(e){}
   if(lab==='25 tickets') return '+'+addTickets(25)+' tickets';
   if(lab==='60 tickets') return '+'+addTickets(60)+' tickets';
   if(lab==='Lure pack'){ const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk); const k=pick(opts); S.bait[k]+=8; renderBait(); return '8 '+BAIT[k].name; }
@@ -115,7 +114,7 @@ wheelPrize=function(i){ const lab=(WHEEL[i]||WHEEL[0])[0]; try{ sfx.coin(); }cat
   try{ sfx.shiny(); }catch(e){} const r=bwWearPrize(true); return 'JACKPOT! '+(r?r.title:'+'+addTickets(400)+' tickets'); };
 
 // crates: mostly things to wear and place; tickets (not coins) when you already own everything a roll could give
-openCrate=function(k){ const r=Math.random(); let res;
+function openCrate(k){ const r=Math.random(); let res;
   const petPool=tier=>PETS.filter(p=>p.src==='crate'&&p.price<=tier&&!S.owned.pets.includes(p.id));
   const decor=rare=>{ const pool=DECOR.filter(d=>!S.aq.owned.includes(d.id)&&(rare?true:d.price>0)); if(!pool.length) return null; const d=rare&&pool.some(x=>!x.price)&&Math.random()<.6?pick(pool.filter(x=>!x.price)):pick(pool); S.aq.owned.push(d.id); return {title:'Aquarium decor: '+d.name+' (+'+Math.round(d.b*100)+'% income)', kind:'decor', id:d.id}; };
   const pet=(tier,legendBias)=>{ let pool=petPool(tier); if(legendBias){ const top=pool.filter(p=>p.price===3); if(top.length&&Math.random()<.35) pool=top; } if(!pool.length) return null; const p=pick(pool); S.owned.pets.push(p.id); return {title:'New pet: '+p.name+'!', kind:'pet', id:p.id}; };
@@ -128,14 +127,14 @@ openCrate=function(k){ const r=Math.random(); let res;
   S.gstats.crates++; try{ sfx.catch(k==='legend'?4:k==='big'?3:2); if(res.kind==='pet'||res.kind==='decor'||res.kind==='wear') sfx.shiny(); }catch(e){} crateRes=Object.assign({crate:k},res); };
 
 // duck pond: every duck wins tickets; a few hide a crate or something to wear
-newDuck=function(){ const prizes=[]; for(let i=0;i<6;i++){ const r=Math.random(); prizes.push(r<.05?{k:'crate'}:r<.08?{k:'wear'}:r<.3?{k:'tix',n:rint(40,70)}:r<.6?{k:'tix',n:rint(20,40)}:{k:'tix',n:rint(8,16)}); } duck={prizes, pick:-1}; };
+function newDuck(){ const prizes=[]; for(let i=0;i<6;i++){ const r=Math.random(); prizes.push(r<.05?{k:'crate'}:r<.08?{k:'wear'}:r<.3?{k:'tix',n:rint(40,70)}:r<.6?{k:'tix',n:rint(20,40)}:{k:'tix',n:rint(8,16)}); } duck={prizes, pick:-1}; };
 // scratch card: tickets, a crate, or a Boardwalk-only piece
 const SCRATCH_PAY=[30,60,120];
-newScratch=function(){ const sym=['🐟','🦀','🐚','💎','👑'], ws=[50,25,15,8,2]; const win=Math.random()<.35; let w=-1; if(win){ let x=Math.random()*100; w=0; for(let i=0;i<5;i++){ x-=ws[i]; if(x<=0){ w=i; break; } } }
+function newScratch(){ const sym=['🐟','🦀','🐚','💎','👑'], ws=[50,25,15,8,2]; const win=Math.random()<.35; let w=-1; if(win){ let x=Math.random()*100; w=0; for(let i=0;i<5;i++){ x-=ws[i]; if(x<=0){ w=i; break; } } }
   const cells=[]; if(win) cells.push(w,w,w); const cnt=[0,0,0,0,0]; if(win) cnt[w]=3; while(cells.length<9){ const s=Math.floor(Math.random()*5); if(s===w||cnt[s]>=2) continue; cnt[s]++; cells.push(s); }
   for(let i=cells.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
   scratch={cells, open:Array(9).fill(false), win:w, prize:0, txt:'', done:false, sym}; };
-settleScratch=function(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++;
+function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++;
   if(scratch.win>=0){ const w=scratch.win; let t; if(w<3) t='+'+addTickets(SCRATCH_PAY[w])+' tickets'; else if(w===3){ S.tokens.small++; t='a small Mystery Crate and +'+addTickets(100)+' tickets'; } else { const r=bwWearPrize(true); t=r?r.title:'+'+addTickets(500)+' tickets'; }
     scratch.txt=t; S.gstats.scratchWins++; try{ sfx.catch(w>=3?4:2); }catch(e){} } else { try{ sfx.lost(); }catch(e){} } };
 // higher or lower: the pot is tickets now; a right guess grows it by half, eight in a row pays it out

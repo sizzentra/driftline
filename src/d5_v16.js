@@ -77,9 +77,6 @@ const RELICS = [
 ].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
 const relic = id => S.relics && S.relics.includes(id);
 const locCost = L => Math.round(L.cost*(relic('charts')?.7:1));
-function relicHTML(){ return `<div class="jsec"><h2>Pearl relics</h2><p class="sub">Spend Wisdom Pearls on permanent relics. Every pearl you spend gives up its +25% coins and XP and its rare-odds boost, so choose what matters to you. You have <b>${S.pearls}</b> pearl${S.pearls===1?'':'s'}.</p>
-  <div class="grid">${RELICS.map(r=>{ const own=relic(r.id); return `<div class="tile ${own?'done':''}"><div class="row spread"><h4>${r.name}</h4><span class="meta">${r.cost} pearl${r.cost>1?'s':''}</span></div><div class="meta">${r.d}</div>
-   ${own?'<span class="badge g">Owned forever</span>':`<button class="btn sm" data-act="relic" data-k="${r.id}" ${S.pearls>=r.cost?'':'disabled'}>Trade ${r.cost} pearl${r.cost>1?'s':''}</button>`}</div>`; }).join('')}</div></div>`; }
 
 // ---------- rare weathers ----------
 let fishRain=null;

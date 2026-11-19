@@ -4,7 +4,7 @@
 // premium piece, then a set mix (hats, shoes, back pieces, neckwear, an outfit, glasses, a pattern,
 // a colour), never something you already own.
 // =====================================================================
-shopOffers = function(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN); let h=hashStr('shop2'+slot); const rnd2=()=>{ h=Math.imul(h^(h>>>13),1597334677)>>>0; return h/4294967296; };
+function shopOffers(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN); let h=hashStr('shop2'+slot); const rnd2=()=>{ h=Math.imul(h^(h>>>13),1597334677)>>>0; return h/4294967296; };
   const all={ col:SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), pat:PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' fabric',price:p[2]})), hat:HATS.filter(x=>x.src==='shop').map(x=>({kind:'hat',id:x.id,name:x.name,price:x.price})),
     out:OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), gls:GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]})),
     shoe:SHOES.filter(x=>x[3]==='shop').map(x=>({kind:'shoe',id:x[0],name:x[1],price:x[2]})), neck:NECKS.filter(x=>x[3]==='shop').map(x=>({kind:'neck',id:x[0],name:x[1],price:x[2]})), back:BACKS.filter(x=>x[3]==='shop').map(x=>({kind:'back',id:x[0],name:x[1],price:x[2]}))};

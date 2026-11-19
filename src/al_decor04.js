@@ -19,7 +19,7 @@ const DECOR_KIND_SHORT={ income:'Income', boost:'Fish buffs', show:'Showpiece' }
 const decorKind = id => DECOR_KIND[id]||'income';
 const decorVal = d => d.b*DECOR_K[decorKind(d.id)];
 function decorSumKind(kind){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]){ const d=DECORI[id]; if(d&&decorKind(id)===kind) s+=decorVal(d); } return s; }
-decorBonus = function(){ return decorSumKind('income'); };
+function decorBonus(){ return decorSumKind('income'); };
 const decorBoost = () => decorSumKind('boost'), decorShow = () => decorSumKind('show');
 // fish buffs: every aquarium buff a little stronger (the caps on each bonus still apply)
 const _aqBuffsOf_04 = aqBuffsOf;

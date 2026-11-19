@@ -113,3 +113,6 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 112,2026-11-19,QA Deep Cooler test read the cooler before refreshing it (failed after manual state changes),test-bug,my_check,local,0,test fixed
 113,2026-11-19,Paths switch fee showed 339,999 (float rounding),wording,my_check,local,1,outsider visual review
 114,2026-11-19,Prestige Boons squeezed into one narrow column (a word per line),layout-cut,my_check,local,1,outsider visual review
+115,2026-11-19,32 functions fully replaced by later files; originals shipped as dead code (~260 lines / ~40 KB per build),code-health,director,local,1,build.ps1 dead-function ground rule
+116,2026-11-19,Test hook __ui.open captured openMenu before it was replaced so tests drove an outdated menu function,test-bug,my_check,local,1,hook calls the live function
+117,2026-11-19,fight() guarded a missing fish on line 1 then read it unguarded (frame-loop crash seen on an A/B page),crash,my_check,local,2,guard at the top of fight()

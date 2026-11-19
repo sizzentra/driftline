@@ -84,7 +84,6 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'
 function renderPanel(){ const P=$('panel'); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, home:renderHome, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const L=aqBuffsOf(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
-function paintFish(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>fishCanvas(c,SPI[c.dataset.fish],c.dataset.known!=='0',+c.dataset.sh||0,c.dataset.pv||null)); }
 
 const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
 function renderCooler(P){
@@ -98,22 +97,6 @@ function renderCooler(P){
    <div class="val coin" ${dm.id===f.id?'style="color:var(--gold)" title="Fishmonger pays double"':''}>${fmt(salePrice(f))}${dm.id===f.id?' ×2':''}</div><div class="acts"><button class="btn alt sm" data-act="totank" data-i="${i}" ${tankFree?'':'disabled'} title="${tankFree?'Earns '+fmt(fishRate(f)*60)+' coins per hour':'Aquarium is full'}">To aquarium</button><button class="btn alt sm" data-act="sell" data-i="${i}">Sell</button>${nibScrapBtn(f,i)}</div></div>`; }).reverse().join('')+'</div>'
    : '<div class="empty">Nothing in the cooler yet. Cast a line and land your first fish.</div>');
   paintFish(P);
-}
-function renderShop(P){
-  const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
-    return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv+1} / ${max+1}</span></div>
-    <div class="pips">${G2.lv.map((_,i)=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</div>
-    <div class="meta">${G2.what}</div>
-    <div class="val">${G2.fmt(G2.lv[lv])}${lv<max?` <span class="meta">→ ${G2.fmt(G2.lv[lv+1])}</span>`:''}</div>
-    ${lv<max?`<button class="btn" data-act="buygear" data-k="${k}" ${S.money>=next?'':'disabled'}>Upgrade · <span class="coin">${fmt(next)}</span></button>`:'<button class="btn alt" disabled>Maxed out</button>'}</div>`; }).join('');
-  const baitTile = ([k,b]) => `<div class="tile"><div class="row spread"><h4>${b.name}</h4><span class="meta">You have ${S.bait[k]}</span></div>
-    <div class="meta">${b.note} Bites ${Math.round((b.speed-1)*100)}% faster.</div>
-    <div class="row">${b.junk?'':b.scales?`<button class="btn" data-act="buybait" data-k="${k}" ${S.scales>=b.scales?'':'disabled'}>Buy ${b.pack} · ${b.scales} Scales</button>`:`<button class="btn" data-act="buybait" data-k="${k}" ${S.money>=b.price?'':'disabled'}>Buy ${b.pack} · <span class="coin">${fmt(b.price)}</span></button><button class="btn alt sm" data-act="buybait" data-k="${k}" data-n="5" ${S.money>=b.price*4.5?'':'disabled'} title="10% off">×${b.pack*5} · <span class="coin">${fmt(b.price*4.5)}</span></button>`}
-    <button class="btn alt" data-act="usebait" data-k="${k}" ${S.bait[k]>0&&S.baitSel!==k?'':'disabled'}>${S.baitSel===k?'In use':'Use'}</button></div></div>`;
-  const shopBait = Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk);
-  P.innerHTML=`<h2>Tackle shop</h2><p class="sub">Heavier fish need stronger line and a faster reel. Better bait brings rarer fish; one bait is used each time you set the hook.</p>
-  <div class="grid">${gearTiles}</div><h2 style="margin-top:18px">Bait</h2><div class="grid">${shopBait.map(baitTile).join('')}</div>
-  <h2 style="margin-top:18px">Special lures</h2><p class="sub">Can’t be bought. They come out of junk you fish up: cheese, disco balls, magnets, gold.</p><div class="grid">${junkBait.map(baitTile).join('')}</div>`;
 }
 function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
@@ -197,64 +180,9 @@ function renderMap(P){
     ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${unlockLine(i)}</div>`:''}${btn}</div>`; }).join('')+'</div>'+renderVoyage()+relicHTML();
 }
 const canRetire = () => S.unlocked.includes('trench') && pearlsFor() > 0 && G.st==='idle';
-function renderVoyage(){ const n=pearlsFor(), ok=canRetire();
-  const box = confirmBox==='retire' ? `<div class="tile" style="border-color:var(--danger)"><h4>Set sail again?</h4>
-    <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond. You keep your level, skills, encyclopedia, feats, aquarium, pets, hats, clothes and Wisdom Pearls.</div>
-    <div class="row"><button class="btn" data-act="retireok">Set sail with +${n} pearl${n===1?'':'s'}</button><button class="btn alt" data-act="cancel">Keep fishing</button></div></div>` : '';
-  return `<div class="jsec"><h2>Set sail again</h2><p class="sub">Once you reach Hollow Trench you can start over from Willow Pond with Wisdom Pearls. Each pearl adds +25% to all coins and XP and a little to your rare odds, forever. Pearls are hard to earn: the more coins you earn in a voyage, the more you get. More coins earned this voyage means more pearls.</p>
-  <div class="grid"><div class="tile"><div class="row spread"><h4>Voyage ${S.tides+1}</h4><span class="meta">${S.pearls} pearl${S.pearls===1?'':'s'} · +${Math.round((coinMult()-1)*100)}% now</span></div>
-  <div class="meta">Coins earned this voyage: <span class="coin">${fmt(S.stats.runEarned)}</span>. Next pearl at <span class="coin">${fmt(Math.pow(n+1,2)*PEARL_DIV)}</span>. Boardwalk winnings count for at most a quarter of it.</div>
-  <div class="val">Setting sail now gives +${n} pearl${n===1?'':'s'}</div>
-  <button class="btn" data-act="retire" ${ok&&!confirmBox?'':'disabled'}>${S.unlocked.includes('trench')?(n?'Set sail again':'Earn more coins first'):'Reach Hollow Trench first'}</button></div>${box}</div></div>`; }
 
 // ---------- wardrobe ----------
-function shopOffers(){ const slot=Math.floor(Date.now()/1000/SHOP_LEN);
-  const pool=[...SHOP_COLS.map(c=>({kind:'col',id:c[0],name:c[1],price:c[2]})), ...PATTERNS.filter(p=>p[2]).map(p=>({kind:'pat',id:p[0],name:p[1]+' fabric',price:p[2]})), ...HATS.filter(h=>h.src==='shop').map(h=>({kind:'hat',id:h.id,name:h.name,price:h.price})),
-    ...OUTFITS.filter(o=>o[3]==='shop').map(o=>({kind:'out',id:o[0],name:o[1],price:o[2]})), ...GLASSES.filter(g2=>g2[2]).map(g2=>({kind:'gls',id:g2[0],name:g2[1],price:g2[2]})),
-    ...SHOES.filter(x=>x[3]==='shop').map(x=>({kind:'shoe',id:x[0],name:x[1],price:x[2]})), ...NECKS.filter(x=>x[3]==='shop').map(x=>({kind:'neck',id:x[0],name:x[1],price:x[2]})), ...BACKS.filter(x=>x[3]==='shop').map(x=>({kind:'back',id:x[0],name:x[1],price:x[2]}))];
-  const out=[], idx=[...pool.keys()]; let h=hashStr('shop'+slot); while(out.length<8&&idx.length){ h=Math.imul(h^(h>>>13),1597334677)>>>0; out.push(pool[idx.splice(h%idx.length,1)[0]]); } return out.sort((a,b)=>a.price-b.price); }
 const ownedOffer = o => o.kind==='shoe'?S.owned.shoes.includes(o.id):o.kind==='neck'?S.owned.necks.includes(o.id):o.kind==='back'?S.owned.backs.includes(o.id):o.kind==='col'?S.owned.cols.includes(o.id):o.kind==='pat'?S.owned.pats.includes(o.id):o.kind==='out'?S.owned.outfits.includes(o.id):o.kind==='gls'?S.owned.glasses.includes(o.id):S.owned.hats.includes(o.id);
-function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols];
-  const sw=(k,list)=>`<div class="chips">${list.map(cl=>`<button class="sw" data-act="look" data-k="${k}" data-v="${cl}" aria-pressed="${lk[k]===cl}" style="background:${cl}" title="${cl}"></button>`).join('')}</div>`;
-  const pats=PATTERNS.filter(p=>S.owned.pats.includes(p[0])).map(p=>`<button class="chipb" data-act="look" data-k="pat" data-v="${p[0]}" aria-pressed="${lk.pat===p[0]}">${p[1]}</button>`).join('');
-  const hats=HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('');
-  const offers=shopOffers().map(o=>{ const own=ownedOffer(o); return `<div class="tile offer" style="flex-direction:row;align-items:center;gap:10px"><canvas width="128" height="128" data-offer="${o.kind}:${o.id}"></canvas>
-    <div style="min-width:0;flex:1"><h4>${esc(o.name)}</h4><div class="meta">${o.kind==='col'?'Colour for shirts, trousers and hats':o.kind==='pat'?'Fabric for shirts and some outfits':o.kind==='shoe'?'Shoes':o.kind==='neck'?'Neckwear':o.kind==='back'?'Worn on your back':o.kind==='out'?'Outfit':o.kind==='gls'?'Glasses':'Hat'}</div>
-    ${own?'<button class="btn alt sm" disabled>Owned</button>':`<div class="row" style="gap:4px"><button class="btn alt sm" data-act="tryon" data-k="${o.kind}:${o.id}">${PREVIEW&&PREVIEW.kind===o.kind&&PREVIEW.id===o.id?'Wearing it':'Try on'}</button><button class="btn sm" data-act="buyoffer" data-k="${o.kind}:${o.id}" ${S.money>=o.price?'':'disabled'}>Buy · <span class="coin">${fmt(o.price)}</span></button></div>`}</div></div>`; }).join('');
-  const fishHats=HATS.filter(h=>h.src==='fish'), gotFish=fishHats.filter(h=>S.owned.hats.includes(h.id)).length;
-  P.innerHTML=`<h2>Wardrobe</h2><p class="sub">Dress your angler. New colours, fabrics and hats rotate through the clothing shop, and rare hats can be fished out of the water (${gotFish} of ${fishHats.length} found).</p>
-  <div class="stylewrap"><div class="preview">${previewBarHTML()}<canvas id="lookcv" width="520" height="560"></canvas></div><div>
-    <h5>Body</h5><div class="chips"><button class="chipb" data-act="look" data-k="g" data-v="m" aria-pressed="${lk.g==='m'}">Man</button><button class="chipb" data-act="look" data-k="g" data-v="f" aria-pressed="${lk.g==='f'}">Woman</button></div>
-    <h5>Build</h5><div class="chips">${BUILDS.map(([k,n])=>`<button class="chipb" data-act="look" data-k="build" data-v="${k}" aria-pressed="${(lk.build||'average')===k}">${n}</button>`).join('')}</div>
-    <h5>Skin</h5>${sw('skin',SKINS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${SKINS[i]}"`).replace(/aria-pressed="(true|false)"/g,(m)=>m)}
-    <h5>Hair</h5>${sw('hair',HAIRS.map((_,i)=>i)).replace(/data-v="(\d)"([^>]*)style="background:\d"/g,(m,i,mid)=>`data-v="${i}"${mid}style="background:${HAIRS[i]}"`)}
-    <h5>Eyes</h5><div class="chips">${EYES.map(([cl,n],i)=>`<button class="sw" data-act="look" data-k="eye" data-v="${i}" aria-pressed="${(lk.eye|0)===i}" style="background:${cl}" title="${n}"></button>`).join('')}</div>
-    <h5>Hairstyle</h5><div class="chips">${HAIRSTYLES.map(([k,n])=>`<button class="chipb" data-act="look" data-k="hairStyle" data-v="${k}" aria-pressed="${(lk.hairStyle||'auto')===k}">${n}</button>`).join('')}</div>
-    <h5>Facial hair</h5><div class="chips">${BEARDS.map(([k,n])=>`<button class="chipb" data-act="look" data-k="beard" data-v="${k}" aria-pressed="${(lk.beard||'none')===k}">${n}</button>`).join('')}</div>
-    <h5>Glasses</h5><div class="chips">${GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="glasses" data-v="${k}" aria-pressed="${(lk.glasses||'none')===k}">${n}</button>`).join('')}</div>
-    <h5>Shirt colour</h5>${sw('shirt',cols)}<h5>Shirt fabric</h5><div class="chips">${pats}</div>
-    <h5>Outfit</h5><div class="chips">${OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="outfit" data-v="${k}" aria-pressed="${(lk.outfit||'none')===k}">${n}</button>`).join('')}</div>
-    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+sw('outCol',cols):''}
-    <h5>Trousers</h5>${sw('pants',cols)}
-    <h5>Shoes</h5><div class="chips">${SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="shoes" data-v="${k}" aria-pressed="${(lk.shoes||'boots')===k}">${n}</button>`).join('')}</div>
-    <h5>Neckwear</h5><div class="chips">${NECKS.filter(x=>S.owned.necks.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="neck" data-v="${k}" aria-pressed="${(lk.neck||'none')===k}">${n}</button>`).join('')}</div>
-    <h5>On your back</h5><div class="chips">${BACKS.filter(x=>S.owned.backs.includes(x[0])).map(([k,n])=>`<button class="chipb" data-act="look" data-k="back" data-v="${k}" aria-pressed="${(lk.back||'none')===k}">${n}</button>`).join('')}</div>
-    ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory colour</h5>'+sw('accCol',cols):''}
-    <h5>Hat</h5><div class="hatgrid">${hats}</div>
-    <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${sw('hatCol',cols)}
-  </div></div>
-  <div class="jsec"><div class="row spread"><h2>Clothing shop</h2><span class="sub">New stock in <b id="shopleft">${mmss(Math.ceil(SHOP_LEN-(Date.now()/1000%SHOP_LEN)))}</b></span></div><div class="grid">${offers}</div></div>`;
-  P.querySelectorAll('.sw[data-k="skin"],.sw[data-k="hair"],.sw[data-k="eye"]').forEach(b=>{ b.setAttribute('aria-pressed', String(String(lk[b.dataset.k])===b.dataset.v)); });
-  drawLookPreview();
-  P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
-  P.querySelectorAll('canvas[data-offer]').forEach(c=>{ const [kind,id]=c.dataset.offer.split(':'); const cx=c.getContext('2d'); cx.clearRect(0,0,128,128);
-    if(kind==='col'){ cx.fillStyle=id; cx.beginPath(); cx.arc(64,64,42,0,7); cx.fill(); cx.strokeStyle='#23434e'; cx.lineWidth=3; cx.stroke(); }
-    else if(kind==='pat'){ cx.save(); cx.translate(64,20); cx.scale(4,4); cx.fillStyle=lk.shirt; cx.beginPath(); cx.moveTo(-9,0); cx.lineTo(9,0); cx.lineTo(8,24); cx.lineTo(-8,24); cx.closePath(); cx.fill(); cx.clip(); drawPattern(cx,id,lk.shirt,-10,-1,20,26); cx.restore(); }
-    else if(kind==='shoe'||kind==='neck'||kind==='back') wearPreview(cx,kind,id,128,128);
-    else if(kind==='out') drawAngler(cx,64,124,1.75,Object.assign({},lk,{outfit:id,hat:'none'}),{});
-    else if(kind==='gls'){ cx.save(); cx.translate(64,150); cx.scale(2.4,2.4); drawAngler(cx,0,0,1,Object.assign({},lk,{glasses:id,hat:'none'}),{}); cx.restore(); }
-    else hatPreview(cx,128,128,id,lk.hatCol); });
-}
 function drawLookPreview(){ const c=$('lookcv'); if(!c) return; const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height);
   if(V3ON) v3Pedestal(cx,250,470,215,performance.now()/1000); else { cx.fillStyle='#6b4a2e'; cx.fillRect(0,470,520,22); cx.fillStyle='#4a3220'; cx.fillRect(60,492,20,70); cx.fillRect(420,492,20,70); cx.fillStyle='#7c5838'; for(let x=0;x<520;x+=40) cx.fillRect(x,470,3,22); }
   { const big=S.pet==='horse'||S.pet==='cow', s=6.4; drawPetStyled(cx,S.pet,Math.max(big?120:70,300-(big?44:31)*s),470,s*(big?.85:1),performance.now()/1000); } drawAngler(cx,300,470,6.4,previewLook(),{t:performance.now()/1000}); }

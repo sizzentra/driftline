@@ -13,7 +13,7 @@ function baitRow([k,b]){ const using=S.baitSel===k;
   return `<div class="tk-row ${using?'on':''}"><div class="tk-main"><div class="row" style="gap:8px;align-items:baseline"><b>${b.name}</b><span class="meta">You have ${S.bait[k]||0}</span>${using?'<span class="badge g">In use</span>':''}</div>
     <div class="meta">${esc(b.note)}</div><div class="badges" style="justify-content:flex-start;margin-top:4px">${baitChips(b)}</div></div>
     <div class="tk-acts">${buy}<button class="btn alt sm" data-act="usebait" data-k="${k}" ${S.bait[k]>0&&!using?'':'disabled'}>${using?'In use':'Use'}</button></div></div>`; }
-renderShop = function(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
+function renderShop(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
   const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
     return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv+1} / ${max+1}</span></div><div class="pips">${G2.lv.map((_,i)=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</div>
     <div class="meta">${G2.what}</div><div class="val">${G2.fmt(G2.lv[lv])}${lv<max?` <span class="meta">→ ${G2.fmt(G2.lv[lv+1])}</span>`:''}</div>

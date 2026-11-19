@@ -100,7 +100,6 @@ function menuUnmount(){ const {T,P,toast,stage}=menuEls(); const [a,b]=holdTab; 
 let MENU_WANT=false;
 function menuMode(){ const open=MENU_WANT; if(open===MENU_OPEN) return; MENU_OPEN=open; if(open) menuMount(); else { menuUnmount(); if(menuHist){ menuHist=false; try{ history.back(); }catch(e){} } } }
 addEventListener('popstate',()=>{ if(menuHist){ menuHist=false; if(MENU_OPEN) closeMenu(); } });
-function openMenu(t){ MENU_WANT=true; setTab(t||DASH); save(); }
 function closeMenu(){ if(!MENU_OPEN&&!MENU_WANT) return; MENU_WANT=false; setTab(DASH); save(); }
 function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
 { const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) MENU_WANT=true; menuMode(); _st(t); menuHead(); }; }
@@ -210,7 +209,7 @@ setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
 
-if(/[?&]test\b/.test(location.search)) window.__ui={open:openMenu, close:closeMenu, isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
+if(/[?&]test\b/.test(location.search)) window.__ui={open:(...a)=>openMenu(...a), close:(...a)=>closeMenu(...a), isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
@@ -345,7 +344,7 @@ addEventListener('orientationchange',()=>setTimeout(()=>{ try{ resize(); }catch(
 if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ clearTimeout(window.__dlvv); window.__dlvv=setTimeout(()=>{ try{ resize(); }catch(e){} },120); });
 // the water's chip says where you are too (the top bar on phones has no room for the name of the water)
 // phones held upright: two lines (the water, then time · weather · effect · time left) so it never runs into the streak chip
-drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const big=W>=700; const bc=document.body.classList, phone=bc.contains('phone-app')||bc.contains('phone-land');
+function drawSceneChip(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const big=W>=700; const bc=document.body.classList, phone=bc.contains('phone-app')||bc.contains('phone-land');
   const rest=tod(p)+' · '+wxName(wx.k)+(tag?' ('+tag+')':'')+' · '+mmss(wxLeft()); const col=wx.k==='Gilded'?'#ffc94d':tag?'#bfe8ff':'#e6efe8'; g.textAlign='left';
   if(bc.contains('phone-app')){ g.font='800 11.5px system-ui'; const t1=g.measureText(nm).width; g.font='700 11px system-ui'; const t2=g.measureText(rest).width; g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,Math.max(t1,t2)+18,36,11); g.fill();
     g.fillStyle='#ffffff'; g.font='800 11.5px system-ui'; g.fillText(nm,19,24); g.fillStyle=col; g.font='700 11px system-ui'; g.fillText(rest,19,39); return; }
@@ -893,7 +892,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // =====================================================================
 function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
 { const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
-openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
+function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
 
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
@@ -1130,6 +1129,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     if(e.clientY>=pr.top&&e.clientY<=r.bottom+10){ e.preventDefault(); e.stopPropagation(); return; } } },true);
 // Menu pictures that never change (fish in the Fish Log and aquarium lists, dock decorations) are drawn once and reused.
 // Redrawing dozens of them on every page switch made tapping between pages slow on phones.
+let paintFish, paintDecor; // set just below (pictures drawn once and reused)
 { const KEEP=new Map(), keep=(k,w,h,paint)=>{ let o=KEEP.get(k); if(!o){ o=document.createElement('canvas'); o.width=w; o.height=h; paint(o); if(KEEP.size>800) KEEP.clear(); KEEP.set(k,o); } return o; };
   paintFish=function(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>{ const sp=SPI[c.dataset.fish]; if(!sp) return; const known=c.dataset.known!=='0', sh=+c.dataset.sh||0, pv=c.dataset.pv||null;
     const o=keep(['f',sp.id,known?1:0,sh,pv,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>fishCanvas(o,sp,known,sh,pv)); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
@@ -1402,6 +1402,7 @@ body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
 // see, its bonus, its countdown, its fade in and out and the forecast always agree. These spells now only run for part of their
 // slot, so they are drawn twice as often, which keeps their share of the day about the same.
 // =====================================================================
+let weather, wxLeft, wxAmt, wxForecast; // set just below (weather that fits the time of day)
 { const RULE={'Rainbow':'day','Gilded':'day','Aurora':'night','Blood Moon':'night'};
   const W=k=>WEATHERS.find(w=>w.k===k), CLEAR=W('Clear');
   // twice the draws for the time-bound spells, taken from Clear (the weights still add up to 100)

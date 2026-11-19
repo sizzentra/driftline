@@ -48,7 +48,7 @@ function drawFabric(c,id,base,x,y,w,h){ const D=a=>'rgba(0,0,0,'+a+')', L=a=>'rg
     case 'sequin': for(let yy=y+.5,r=0;yy<y+h;yy+=1.1,r++) for(let xx=x+(r%2)*.55;xx<x+w;xx+=1.1){ const v=R(); c.fillStyle=v>.85?L(.9):v>.5?L(.3):D(.12); c.beginPath(); c.arc(xx,yy,.42,0,7); c.fill(); } break;
   } }
 // every place that drew a pattern now draws a fabric
-drawPattern = function(c,pat,base,x,y,w,h){ drawFabric(c,pat,base,x,y,w,h); };
+function drawPattern(c,pat,base,x,y,w,h){ drawFabric(c,pat,base,x,y,w,h); };
 if(typeof drawPatternX==='function') drawPatternX = function(c,pat,base,x,y,w,h){ drawFabric(c,pat,base,x,y,w,h); };
 // two-tone: the second colour on part of the shirt (drawn before the fabric, inside the torso clip)
 function drawTwoTone(c,lk,D,x,y,w,h){ const t=lk.tone; if(!t||t==='none'||t==='sleeves'||!lk.shirt2) return; c.fillStyle=D(lk.shirt2);

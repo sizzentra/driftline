@@ -332,7 +332,7 @@ var SHOE_TOPY={boots:5.2,sneakers:4.3,glowkicks:4.3,loafers:3.4,brogues:3.4,clog
 
 // ---------- hat previews (shop, Wardrobe, Boardwalk, Tide Pass): the real angler's head wearing the hat ----------
 const HATPV=new Map();
-hatPreview = function(c,w,h,id,col,big){ const fixed=HATI[id]&&HATI[id].fixed, hc=fixed?'#888888':col, L=S.look;
+function hatPreview(c,w,h,id,col,big){ const fixed=HATI[id]&&HATI[id].fixed, hc=fixed?'#888888':col, L=S.look;
   const key=[id,hc,w,h,L.skin,L.hair,L.hairStyle,L.g,L.eye|0,L.nose,L.brows,L.mouth,L.blush,L.beard,big?1:0].join('|');
   let cv=HATPV.get(key);
   if(!cv){ cv=document.createElement('canvas'); cv.width=w*2; cv.height=h*2; const x=cv.getContext('2d'); x.scale(2,2);

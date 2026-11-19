@@ -5,7 +5,7 @@
 // =====================================================================
 const MG_NEW = ['knot','memory','skip'];
 let MG=null;
-afterCard = function(){ catchesSinceEvent++; if(pendingEvent){ const ev=pendingEvent; pendingEvent=null; openEvent(ev); return; }
+function afterCard(){ catchesSinceEvent++; if(pendingEvent){ const ev=pendingEvent; pendingEvent=null; openEvent(ev); return; }
   if(S.settings.minigames===false) return;
   if(S.stats.caught>=5 && catchesSinceEvent>=6 && Math.random()<.12){ catchesSinceEvent=0; openEvent(pick(['frenzy','chests','frenzy','chests',...MG_NEW])); } };
 const _openEvent0 = openEvent;

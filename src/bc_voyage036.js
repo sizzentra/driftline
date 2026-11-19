@@ -50,21 +50,6 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     setTimeout(()=>toast((moved?moved+' aquarium fish '+(moved===1?'was':'were')+' mounted in your Trophy Room. ':'')+(ms?'New voyage milestone: '+ms.name+'!':'Legacy is now +'+Math.round(voyageLegacy()*100)+'%.')),900);
   },0); },true);
 
-// the voyage panel, rebuilt around the new rewards
-renderVoyage=function(){ const n=pearlsFor(), ok=canRetire(), v=S.tides||0, leg=Math.round(voyageLegacy()*100), legNext=Math.round((voyageLegacy()+(v>=10?.05:.10))*100), pm=voyagePearlMult(), full=vaultList().length+S.tank.length>VAULT_MAX;
-  const box = confirmBox==='retire' ? `<div class="tile voy-confirm"><h4>Set sail again?</h4>
-    <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond${voyMs(2)?' (and the waters your milestones keep)':''}. Your aquarium fish are mounted in your Trophy Room${full?' (as many as fit; the rest stay on display)':''}, kept forever. You keep your level, skills, Fish Log, feats, Trophy Room, pets, hats, clothes, relics and Wisdom Pearls.</div>
-    <div class="meta" style="margin-top:6px;color:var(--kelp)">After this voyage: Legacy +${legNext}%${VOYAGE_MS.find(m=>m.n===v+1)?' and a new milestone: '+VOYAGE_MS.find(m=>m.n===v+1).name:''}.</div>
-    <div class="row" style="margin-top:8px"><button class="btn" data-act="retireok">Set sail with +${n} pearl${n===1?'':'s'}</button><button class="btn alt" data-act="cancel">Keep fishing</button></div></div>` : '';
-  const msRows=VOYAGE_MS.map(m=>{ const got=v>=m.n; return `<div class="voy-ms ${got?'got':''}"><span class="voy-n">${got?'✓':m.n}</span><div><b>${m.name}</b><div class="meta">${m.d}</div></div><span class="meta">${got?'Unlocked':'after '+m.n+' voyage'+(m.n>1?'s':'')}</span></div>`; }).join('');
-  return `<div class="jsec"><h2>Set sail again</h2><p class="sub">Once you reach Hollow Trench you can start over from Willow Pond. You earn Wisdom Pearls (each one +25% coins and XP, and better rare odds, forever), your Legacy grows with every voyage, and milestones unlock permanent perks.</p>
-  <div class="grid"><div class="tile"><div class="row spread"><h4>Voyage ${v+1}</h4><span class="meta">${S.pearls} pearl${S.pearls===1?'':'s'} · +${Math.round((coinMult()-1)*100)}% coins and XP</span></div>
-  <div class="voy-stats"><div><span class="meta">Legacy</span><b>+${leg}%</b><span class="meta">from ${v} voyage${v===1?'':'s'}</span></div><div><span class="meta">Pearl finder</span><b>×${pm.toFixed(2)}</b><span class="meta">more pearls each voyage</span></div><div><span class="meta">This voyage</span><b class="coin">${fmtShort(S.stats.runEarned)}</b><span class="meta">coins earned</span></div></div>
-  <div class="meta">Next pearl at <span class="coin">${fmt(Math.ceil(Math.pow((Math.floor(Math.sqrt(S.stats.runEarned/PEARL_DIV)*pm)+1)/pm,2)*PEARL_DIV))}</span> coins earned. Boardwalk winnings count for at most a quarter of it.</div>
-  <div class="val">Setting sail now gives +${n} pearl${n===1?'':'s'}</div>
-  <button class="btn" data-act="retire" ${ok&&!confirmBox?'':'disabled'}>${S.unlocked.includes('trench')?(n?'Set sail again':'Earn more coins first'):'Reach Hollow Trench first'}</button></div>${box}
-  <div class="tile"><h4>Voyage milestones</h4><div class="voy-list">${msRows}</div></div></div></div>`; };
-
 document.head.insertAdjacentHTML('beforeend',`<style>
 .voy-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0}
 .voy-stats>div{display:flex;flex-direction:column;align-items:flex-start;padding:8px 10px;border-radius:12px;border:1px solid var(--line,#26385180);background:#0e1828}

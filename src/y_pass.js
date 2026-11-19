@@ -21,7 +21,7 @@ function passPickItem(L,pool){ if(!pool.length) return null; const decor=pool[0]
     let i=hashStr('tide'+l)%pool.length, n=0; while(used.has(pool[i].kind+pool[i].id)&&n<pool.length){ i=(i+1)%pool.length; n++; } pick=pool[i]; used.add(pick.kind+pick.id); }
   return pick; }
 function passPlainIndex(L){ let n=0; for(let i=1;i<=L;i++) if(!PASS_SPECIAL[i]) n++; return n; }
-passPlain = function(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Already claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
+function passPlain(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {k:'got', name:S.pass.got[L], d:'Claimed.'}; if(L<=S.pass.claimed) return {k:'got', name:'Claimed', d:'Already claimed.'}; const slot=[0,1,2,3,4][(passPlainIndex(L)-1)%5];
   if(slot===0||slot===2){ const it=passPickItem(L,passWearPool()); if(it) return {k:'wear', it, name:it.name, d:it.cat+': yours to wear, only a claim away.'};  return slot===0?PASS_FB_SCALES:PASS_FB_TIX; }
   if(slot===3){ const it=passPickItem(L,passDecorPool()); if(it) return {k:'decor', it, name:it.name, d:it.cat+' for your '+(it.kind==='dock'?'dock':'tank')+'.'};  return PASS_FB_SCALES; }
   if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'};
@@ -36,7 +36,7 @@ const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('
   if(p.k==='big'){ S.tokens.big++; return p.name; }
   if(p.k==='scales'){ S.scales+=50; return p.name; } if(p.k==='tickets'){ S.tickets+=300; return p.name; }
   S.scales+=25; S.tickets+=150; return p.name; };
-grantPass = function(L){ const r=grantPass_(L); S.pass.got=S.pass.got||{}; S.pass.got[L]=r; return r; };
+function grantPass(L){ const r=grantPass_(L); S.pass.got=S.pass.got||{}; S.pass.got[L]=r; return r; };
 const _passArt_0 = passArt;
 passArt = function(x,w,h,L){ if(PASS_SPECIAL[L]) return _passArt_0(x,w,h,L); const p=passPlain(L); x.clearRect(0,0,w,h); if(p.k==='got'){ x.fillStyle='#7fe3c4'; x.font='700 '+Math.round(h*.4)+'px system-ui'; x.textAlign='center'; x.fillText('✓',w/2,h*.64); return; }
   if(p.k==='wear'){ const it=p.it; if(it.kind==='hat') hatPreview(x,w,h,it.id,S.look.hatCol); else if(it.kind==='out') drawAngler(x,w/2,h*.96,h/80,Object.assign({},S.look,{outfit:it.id,hat:'none'}),{}); else if(it.kind==='gls'){ const s=h/24; drawAngler(x,w*.42,h*.5+56*s,s,Object.assign({},S.look,{glasses:it.id,hat:'none'}),{}); }

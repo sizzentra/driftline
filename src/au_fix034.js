@@ -46,7 +46,7 @@ renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow'
 
 // ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
 const DEMAND={slot:-1,id:null};
-demandSp = function(){ const slot=Math.floor(Date.now()/1000/WX_LEN); if(DEMAND.slot!==slot||!SPI[DEMAND.id]){ const h=hashStr('dm'+slot), local=SP.filter(s=>s.loc===S.loc&&s.r<=3), any=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3), pool=(h%10<8&&local.length)?local:any; DEMAND.slot=slot; DEMAND.id=pool[(h>>>4)%pool.length].id; } return SPI[DEMAND.id]; };
+function demandSp(){ const slot=Math.floor(Date.now()/1000/WX_LEN); if(DEMAND.slot!==slot||!SPI[DEMAND.id]){ const h=hashStr('dm'+slot), local=SP.filter(s=>s.loc===S.loc&&s.r<=3), any=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3), pool=(h%10<8&&local.length)?local:any; DEMAND.slot=slot; DEMAND.id=pool[(h>>>4)%pool.length].id; } return SPI[DEMAND.id]; };
 
 // ---------- Bounties opens on the board of the water you are fishing ----------
 let lastTab034=null; const _renderPanel_034=renderPanel;
@@ -57,9 +57,6 @@ const _fight_034 = fight;
 fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.run&&!was){ try{ tone(520,.14,'triangle',.035,-160); tone(380,.18,'sine',.025,-90,.06); }catch(e){} if(typeof vib==='function') vib(12); } };
 
 // ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
-function shineDecorate(root){ (root||document).querySelectorAll('canvas[data-sh="1"],canvas[data-sh="2"],#cardfish.shiny').forEach(cv=>{ const p=cv.parentElement; if(!p||p.querySelector(':scope > .shine')) return; if(getComputedStyle(p).position==='static') p.style.position='relative';
-  const r=cv.getBoundingClientRect(), pr=p.getBoundingClientRect(), s=document.createElement('span'); s.className='shine'+(cv.dataset.sh==='2'?' prism':''); s.style.cssText=`left:${r.left-pr.left}px;top:${r.top-pr.top}px;width:${r.width}px;height:${r.height}px`;
-  for(let i=0;i<5;i++){ const d=document.createElement('i'); d.style.left=(12+((i*37)%76))+'%'; d.style.top=(15+((i*53)%60))+'%'; d.style.animationDelay=(i*.37)+'s'; s.appendChild(d); } p.appendChild(s); }); }
 const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPanel_034b.apply(this,arguments); try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){} return r; };
 const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){} };
 

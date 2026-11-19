@@ -677,46 +677,10 @@ const PRIZES = [
 ];
 function addTickets(n){ n=Math.max(0,Math.round(n)); S.tickets+=n; return n; }
 let duck=null, hilo=null;
-function newDuck(){ const prizes=[]; for(let i=0;i<6;i++){ const r=Math.random(); prizes.push(r<.04?{k:'crate',t:'a small crate!'}:r<.2?{k:'coins',m:rnd(2,4)}:r<.5?{k:'tix',n:rint(20,45)}:{k:'tix',n:rint(5,15)}); } duck={prizes, pick:-1}; }
 function newHilo(){ hilo={card:rint(1,13), streak:0, pot:Math.round(bestLoot()*2), done:false, msg:'Higher or lower than '+0+'?'}; }
 const CARD_FISH = ['','Minnow','Perch','Trout','Bass','Carp','Pike','Salmon','Tuna','Shark','Marlin','Kraken','Leviathan','Legend'];
 function boardwalkBanner(){ return `<div class="bw-banner"><div class="bw-lights">${Array.from({length:18},(_,i)=>`<i style="animation-delay:${(i%6)*.25}s"></i>`).join('')}</div><h2>The Boardwalk</h2><p class="sub">Games of chance on the pier. Coins only, no real money, and the gulls are watching.</p>
   <div class="row" style="justify-content:center;gap:18px;margin-top:6px"><span><b class="coin">${fmtShort(S.money)}</b></span><span><b>🎟 ${fmt(S.tickets)}</b> <span class="meta">tickets</span></span><span><b style="color:var(--kelp)">${fmt(S.scales)}</b> <span class="meta">Scales</span></span></div></div>`; }
-function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); const nextIn=Math.max(0,Math.ceil((spinEvery()-(Date.now()-S.wheelT))/60000));
-  const crateRow=(k,name,desc)=>`<div class="row spread" style="padding:6px 0;border-bottom:1px solid var(--line)"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>
-    ${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmt(crateCost(k))}</span></button>`}</div>`;
-  const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>Bet ${Math.round(f*100)}% · <span class="coin">${fmt(Math.max(0,amt))}</span></button>`; };
-  const ducks = duck ? duck.prizes.map((p,i)=>{ const open=duck.pick>=0; const lab=p.k==='crate'?'📦':p.k==='coins'?'🪙':'🎟'+p.n; return `<button class="duckb ${open?(i===duck.pick?'picked':'open'):''}" data-act="duckpick" data-i="${i}" ${open?'disabled':''} aria-label="Duck ${i+1}" style="animation-delay:${i*.3}s">${open?`<span>${lab}</span>`:'🦆'}</button>`; }).join('') : '';
-  P.innerHTML=boardwalkBanner()+`<div class="grid bw">
-   <div class="tile bwt" style="--c:#c8553a"><h4>Lucky wheel</h4><div class="wheelwrap"><div class="wheelring"><canvas id="wheelcv" width="520" height="520"></canvas></div>
-     ${S.freeSpins>0?`<button class="btn" data-act="spin" data-k="free" ${WH.spinning?'disabled':''}>Free spin! (${S.freeSpins} left)</button>`:`<button class="btn" data-act="spin" ${WH.spinning||S.money<wheelCost()?'disabled':''}>Spin · <span class="coin">${fmt(wheelCost())}</span></button>`}
-     <span class="meta">A free spin every hour, up to ${SPIN_BANK} saved.${S.freeSpins<SPIN_BANK?' Next in '+nextIn+' min.':''}</span>
-     ${WH.result?`<div class="val" style="text-align:center">${esc(WH.result)}</div>`:''}</div></div>
-   <div class="tile bwt" style="--c:#7a4a9a"><h4>Mystery crates</h4><div class="meta">Coins, lures, clothes, decor, rods, and pets you can’t get anywhere else.</div>
-     ${crateRow('small','Small crate','Mostly coins and lures. Sometimes a pet.')}${crateRow('big','Big crate','Clothes, decor, and the rarer pets.')}${crateRow('legend','Legendary crate','The really good stuff.')}
-     ${crateRes?`<div class="reveal" style="text-align:center;margin-top:8px"><canvas width="240" height="180" id="crateprev"></canvas><div class="val">${esc(crateRes.title)}</div></div>`:''}</div>
-   <div class="tile bwt" style="--c:#2a8aa8"><h4>Duck pond</h4><div class="meta">Pick a rubber duck. Every duck wins something. Mostly tickets. Sometimes…</div>
-     ${duck?`<div class="ducks">${ducks}</div>${duck.pick>=0?`<div class="val" style="text-align:center">${esc(duck.msg||'')}</div><button class="btn alt sm" data-act="duckagain" ${S.money>=base?'':'disabled'}>Play again · <span class="coin">${fmt(base)}</span></button>`:''}`:`<button class="btn" data-act="duckagain" ${S.money>=base?'':'disabled'}>Play · <span class="coin">${fmt(base)}</span></button>`}</div>
-   <div class="tile bwt" style="--c:#4f8a4a"><h4>Higher or lower</h4><div class="meta">Guess if the next fish card is higher or lower. Every right guess grows the pot by half. Cash out any time.</div>
-     ${hilo&&!hilo.done?`<div class="hilocard"><b>${hilo.card}</b><span>${CARD_FISH[hilo.card]}</span></div><div class="val" style="text-align:center">Pot: <span class="coin">${fmt(hilo.pot)}</span> · streak ${hilo.streak}</div>
-       <div class="row" style="justify-content:center"><button class="btn sm" data-act="hilo" data-k="hi">Higher ▲</button><button class="btn sm" data-act="hilo" data-k="lo">Lower ▼</button><button class="btn alt sm" data-act="hilocash" ${hilo.streak?'':'disabled'}>Cash out</button></div>`
-      :`${hilo&&hilo.done?`<div class="val" style="text-align:center">${esc(hilo.msg)}</div>`:''}<button class="btn" data-act="hilostart" ${S.money>=base*2?'':'disabled'}>Deal · <span class="coin">${fmt(base*2)}</span></button>`}</div>
-   <div class="tile bwt" style="--c:#d8a020"><h4>Coin flip with the Fishmonger</h4><div class="meta">Heads you double it, tails he keeps it. A fair coin, he swears on his best haddock.</div>
-     <div class="row">${betBtn(.1)}${betBtn(.25)}${betBtn(.5)}</div>${flipRes?`<div class="val" style="font-size:18px;color:${flipRes.win?'var(--gold)':'var(--muted)'}">${esc(flipRes.txt)}</div>`:''}<div class="meta">${S.gstats.flips} flips · ${S.gstats.flipWins} won</div></div>
-   <div class="tile bwt" style="--c:#d87aa0"><h4>Scratch card</h4><div class="meta">Find three of the same: 🐟 ×2 · 🦀 ×4 · 🐚 ×8 · 💎 ×20 · 👑 ×60 (times ${fmt(base)} coins).</div>
-     ${scratch&&!scratch.done?`<div class="scratch">${scratch.cells.map((s,i)=>`<button data-act="scratch" data-i="${i}" class="${scratch.open[i]?'open':''}" aria-label="Scratch box ${i+1}">${scratch.open[i]?scratch.sym[s]:''}</button>`).join('')}</div><div class="row" style="justify-content:center"><button class="btn alt sm" data-act="scratchall">Reveal all</button></div>`
-      :`${scratch&&scratch.done?`<div class="scratch">${scratch.cells.map(s=>`<button class="open" disabled>${scratch.sym[s]}</button>`).join('')}</div><div class="val" style="text-align:center;color:${scratch.win>=0?'var(--gold)':'var(--muted)'}">${scratch.win>=0?'Winner! +'+fmt(scratch.prize)+' coins':'No match this time.'}</div>`:''}
-      <button class="btn" data-act="buyscratch" ${S.money>=base*2?'':'disabled'}>Buy a card · <span class="coin">${fmt(base*2)}</span></button>`}</div>
-   ${clawHTML()}
-  </div>
-  <div class="tile bwt" style="--c:#ffc94d;margin-top:12px"><div class="row spread"><div><h4>Prize counter</h4><div class="meta">Every Boardwalk game hands out tickets. Trade them here for things you can’t get anywhere else.</div></div><b>🎟 ${fmt(S.tickets)}</b></div>
-   <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">${PRIZES.map(p=>{ const owned=p[4]&&p[4](); return `<div class="row spread prize"><span class="row" style="gap:8px;flex-wrap:nowrap"><canvas width="96" height="80" data-prize="${p[0]}" style="width:48px;height:40px;cursor:default;flex:0 0 auto"></canvas><span>${esc(p[1])}</span></span>
-     <span class="row" style="gap:4px">${!owned&&PRIZE_PV[p[0]]?`<button class="btn alt sm" data-act="prizepv" data-k="${p[0]}">Preview</button>`:''}${owned?'<span class="badge g">Owned</span>':`<button class="btn sm" data-act="prize" data-k="${p[0]}" ${S.tickets>=p[2]?'':'disabled'}>🎟 ${p[2]}</button>`}</span></div>`; }).join('')}</div></div>`;
-  paintPrizes(P); paintClaw();
-  drawWheel(); const cp=$('crateprev'); if(cp&&crateRes){ const x=cp.getContext('2d'); const k=crateRes.kind;
-    if(k==='pet') drawPetStyled(x,crateRes.id,120,160,crateRes.id==='unicorn'?3.4:5,0); else if(k==='decor') drawDecor(x,crateRes.id,120,170,1.6,0); else if(k==='hat') hatPreview(x,240,180,crateRes.id,S.look.hatCol,true);
-    else if(k==='rod'){ x.strokeStyle=ROD_I[crateRes.id].col; x.lineWidth=8; x.lineCap='round'; x.beginPath(); x.moveTo(30,160); x.quadraticCurveTo(120,150,215,30); x.stroke(); }
-    else if(k==='col'){ x.fillStyle=crateRes.id; x.beginPath(); x.arc(120,90,50,0,7); x.fill(); } else drawJunk(x,240,180,k==='lure'?'goldlure':'chest'); } }
 
 // ---------- actions for this update ----------
 function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;

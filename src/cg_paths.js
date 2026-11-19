@@ -107,7 +107,7 @@ function pathCard(ti){ const T=SPEC_TIERS[ti], cur=S.specs[ti], locked=S.lvl<T.l
    <div class="grid pathgrid" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0], rk=pathRank(o[0]), n=(S.pathXP&&S.pathXP[o[0]])||0;
      return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&poor)?'disabled':''}><b>${esc(o[1])}</b><span class="up">▲ ${esc(o[2])}</span>${rk||on?`<span class="meta">Rank ${rk?PATH_RN[rk]:'0'}${rk<5?' · '+fmt(n)+' / '+fmt(PATH_RANKS[rk])+' fish':' · max'}</span>`:''}${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(fee)} coins</span>`:''}</button>`; }).join('')}</div>
    ${cur?`<div class="row spread" style="margin-top:6px"><span class="meta">Switch or remove: <b>${fmt(fee)}</b> coins</span><button class="btn alt sm" data-act="specrm" data-i="${ti}" ${poor?'disabled':''}>Remove</button></div>`:locked?'':`<div class="meta" style="margin-top:6px">Free to choose. Switching or removing later costs ${fmt(fee)} coins.</div>`}</div>`; }
-renderPaths=function(P){ const open=SPEC_TIERS.filter(T=>S.lvl>=T.lvl).length, chosen=pathChosen().length;
+function renderPaths(P){ const open=SPEC_TIERS.filter(T=>S.lvl>=T.lvl).length, chosen=pathChosen().length;
   P.innerHTML=`<h2>Paths</h2><p class="sub path-intro">${SPEC_TIERS.length} forks open from level 5 to 75. Pick one specialty per fork: it ranks up from I to V as you fish with it.<br>Switching or removing a path costs the fee shown on its fork.</p>
    <div class="meta" style="margin-top:4px">${chosen} chosen · ${open} of ${SPEC_TIERS.length} open at level ${S.lvl}</div>
    <div class="path-list">${PATH_ORDER.map(pathCard).join('')}</div>`; };

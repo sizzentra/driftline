@@ -37,6 +37,26 @@ foreach ($f in $coreFiles) {
 }
 if ($broken.Count) { throw ("GROUND RULE BROKEN: platform-specific code was added to a shared file. Move it into src/pc, src/mobile or src/ios.`n  " + ($broken -join "`n  ")) }
 
+# ---------- GROUND RULE CHECK: no dead functions (2026-11-19) ----------
+# A later file that replaces a whole function ("name = function(...)") without keeping the old one ("const _x = name") leaves the
+# original as dead code that ships but can never run (30 of them were found and removed on 2026-11-19). Edit the original instead,
+# or move it: the replacement becomes "function name(...)" and the old one is deleted. Wrappers that keep the old one are fine.
+$allSrc = Get-ChildItem (Join-Path $root 'src') -Recurse -Filter *.js | Where-Object { $_.Name -ne 'bn_qa04.js' }
+$texts = @{}; foreach ($f in $allSrc) { $texts[$f.FullName] = [IO.File]::ReadAllText($f.FullName) }
+$declared = @{}; foreach ($k in $texts.Keys) { foreach ($m in [regex]::Matches($texts[$k], '(?m)^function ([A-Za-z0-9_$]+)\(')) { $declared[$m.Groups[1].Value] = $k } }
+$dead = @()
+$platDir = [regex]'\\src\\(pc|mobile|android|ios)\\'  # a platform file replacing a shared default is an override, not dead code
+foreach ($k in $texts.Keys) {
+  if ($platDir.IsMatch($k)) { continue }
+  foreach ($m in [regex]::Matches($texts[$k], '(?m)^\s*([A-Za-z0-9_$]+)\s*=\s*function\b')) {
+    $n = $m.Groups[1].Value
+    if ($declared.ContainsKey($n) -and -not [regex]::IsMatch($texts[$k], '=\s*' + [regex]::Escape($n) + '\s*[;,]')) {
+      $dead += "$n (replaced in $(Split-Path $k -Leaf), original in $(Split-Path $declared[$n] -Leaf))"
+    }
+  }
+}
+if ($dead.Count) { throw ("GROUND RULE BROKEN: a function is fully replaced and its original is dead code.`n  " + (($dead | Sort-Object -Unique) -join "`n  ")) }
+
 New-Item -ItemType Directory -Force $out | Out-Null
 $built = @{}; $pages = @{}
 foreach ($p in 'pc','android','ios') {

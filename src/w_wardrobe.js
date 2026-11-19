@@ -64,7 +64,7 @@ function wItemCard(it,feat){ const own=wOwned(it.kind,it.id), trying=PREVIEW&&PR
 function wChips(k,list,cur,label){ return `<div class="chips">${list.map(([v,n])=>`<button class="chipb" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${esc(n)}</button>`).join('')}</div>`; }
 function wSw(k,list,cur){ return `<div class="chips">${list.map(([v,cl,n])=>`<button class="sw" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${String(cur)===String(v)}" style="background:${cl}" title="${esc(n||cl)}"></button>`).join('')}</div>`; }
 function wThumbGrid(k,kind,items,cur){ return `<div class="wd-thumbs">${items.map(([id,n])=>`<button class="wd-th" data-act="look" data-k="${k}" data-v="${id}" aria-pressed="${cur===id}"><canvas width="96" height="96" data-wthumb="${kind}:${id}"></canvas><span>${esc(n)}</span></button>`).join('')}</div>`; }
-renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
+function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].map(c=>[c,c]);
   const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['tidepass','Tide Pass','🌊'],['shop','Shop','🛍️']];
   let body='';
   if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
@@ -92,7 +92,7 @@ renderStyle = function(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].
   drawLookPreview();
   P.querySelectorAll('canvas[data-hat]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); hatPreview(cx,c.width,c.height,c.dataset.hat,lk.hatCol); });
   P.querySelectorAll('canvas[data-wthumb]').forEach(c=>{ const [kind,id]=c.dataset.wthumb.split(':'); if(id==='none'){ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); cx.fillStyle='rgba(200,220,240,.4)'; cx.font='700 '+Math.round(c.height*.3)+'px system-ui'; cx.textAlign='center'; cx.fillText('—',c.width/2,c.height*.6); return; } wThumb(c.getContext('2d'),kind,id,c.width,c.height); }); };
-previewBarHTML = function(){ if(!PREVIEW) return ''; const p=PREVIEW;
+function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="wbuy" data-k="${p.kind}:${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Trying on: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="tryoff">Take off</button></span></div>`; };
 const _extraAct2_3 = extraAct2;

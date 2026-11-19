@@ -1042,16 +1042,4 @@ function v3TankGlass(c,w,h,t){ c.fillStyle='rgba(220,250,255,.18)'; c.fillRect(0
 
 // ---------- Waters tab: a painted thumbnail of every area (rendered once, from the real scene code) ----------
 const V3THUMB={};
-function v3Thumb(id){ if(V3THUMB[id]) return V3THUMB[id]; const SC=V3SCENES[id]; if(!SC) return null;
-  const tw=420, th=140, TS=2, oW=W, oH=H, oD=DPR, c=document.createElement('canvas'); c.width=tw*TS; c.height=th*TS; const x=c.getContext('2d'); x.setTransform(TS,0,0,TS,0,0);  try{ W=tw; H=th; DPR=TS; const P=v3palette(id,0,0,0), hz=th*.7; const sg=x.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); x.fillStyle=sg; x.fillRect(0,0,tw,hz+1);
-    v3glow(x,tw*.62,hz*.45,th*.5,v3rgba(P.glow,.9),.5);
-    if(id==='starfall'){ const r=v3rng(4); x.fillStyle='#ffffff'; for(let i=0;i<60;i++){ x.globalAlpha=.4+r()*.5; x.fillRect(r()*tw,r()*hz*.8,1,1); } x.globalAlpha=1; const px=tw*.2, py=hz*.38, R=th*.13; x.save(); x.translate(px,py); x.rotate(-.3); x.strokeStyle=v3rgba(P.ring,.7); x.lineWidth=R*.2; x.beginPath(); x.ellipse(0,0,R*2,R*.45,0,Math.PI,0); x.stroke(); x.fillStyle=P.planet; x.beginPath(); x.arc(0,0,R,0,7); x.fill(); x.beginPath(); x.ellipse(0,0,R*2,R*.45,0,0,Math.PI); x.stroke(); x.restore(); }
-    if(id==='deep'){ for(let b=0;b<3;b++){ const y0=hz*(.06+b*.24), bh=hz*.18, bg=x.createLinearGradient(0,y0,0,y0+bh); bg.addColorStop(0,v3rgba(b%2?P.cl1:P.cl2,0)); bg.addColorStop(.5,v3rgba(b%2?P.cl1:P.cl2,.85)); bg.addColorStop(1,v3rgba(b%2?P.cl1:P.cl2,0)); x.fillStyle=bg; x.beginPath(); x.moveTo(0,y0+bh); for(let i=0;i<=12;i++){ const X=tw*i/12; x.lineTo(X,y0+bh*.2+Math.sin(i*1.7+b)*bh*.15); } x.lineTo(tw,y0+bh); x.closePath(); x.fill(); } x.strokeStyle='rgba(240,245,255,.9)'; x.lineWidth=1.6; x.beginPath(); x.moveTo(tw*.66,hz*.1); x.lineTo(tw*.63,hz*.4); x.lineTo(tw*.67,hz*.45); x.lineTo(tw*.62,hz*.85); x.stroke(); v3glow(x,tw*.64,hz*.4,th*.4,'rgba(220,230,255,.8)',.4); }
-    SC.land(x,P,hz,c);
-    if(id==='shelf'){ const sx=tw*.7, sy=hz, s=th*.012; x.fillStyle=P.ship; x.fillRect(sx-s*12,sy-s*3,s*24,s*3); x.fillStyle=P.sail; for(const mx of [-7,0,7]) for(let k=0;k<3;k++) x.fillRect(sx+mx*s-s*(4-k),sy-s*(8+k*5),s*(8-k*2),s*4); x.fillStyle=P.buoy; x.beginPath(); x.moveTo(tw*.45-4,hz+th*.12); x.lineTo(tw*.45+4,hz+th*.12); x.lineTo(tw*.45,hz+th*.12-10); x.fill(); }
-    V3THUMB[id]=c.toDataURL('image/jpeg',.86); }
-  catch(e){ V3THUMB[id]=null; console.warn('thumb '+id,e); }
-  finally{ W=oW; H=oH; DPR=oD; v3palette.k=null; }
-  return V3THUMB[id]; }
-function v3WaterThumbs(P){ P.querySelectorAll('.loc .sw2').forEach((el,i)=>{ const L=LOCS[i]; if(!L) return; const u=v3Thumb(L.id); if(u){ el.style.background='url('+u+') center/cover'; el.classList.add('v3th'); } }); }
 { const _rm=renderMap; renderMap=function(P){ _rm(P); if(V3ON) v3WaterThumbs(P); }; }

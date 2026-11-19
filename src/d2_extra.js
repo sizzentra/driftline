@@ -32,7 +32,6 @@ const DECOR = [['kelp','Kelp Patch',800,.01],['duck','Floating Duck',1000,.02],[
   ['jellylamp','Jellyfish Lamp',14000,.05],['wreckcar','Sunken Car',18000,.06],['treasurepile','Gold Coin Pile',30000,.07],['carousel','Carousel',0,.08]].map(a=>({id:a[0],name:a[1],price:a[2],b:a[3]}));
 const DECORI = Object.fromEntries(DECOR.map(d=>[d.id,d]));
 const aqSlots = () => 6 + Math.floor(S.tankSlots/2) + (spec('curator')?2:0);
-function decorBonus(){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]) if(DECORI[id]) s+=DECORI[id].b; return s; }
 let feedAnim=0;
 function drawTankBack(c,w,h,t){ if(V3ON && v3TankBack(c,w,h,t)) return; const V=aqView(); const th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0];
   const bg=c.createLinearGradient(0,0,0,h); bg.addColorStop(0,th[3]); bg.addColorStop(1,th[4]); c.fillStyle=bg; c.fillRect(0,0,w,h);
@@ -103,13 +102,8 @@ function drawPetX(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;
   }
 }
 
-// ---------- scene chip (time & weather, shown on narrow screens) ----------
-function drawSceneChip(p,wx){ if(W>=700) return; const nf=nextFlip(); const txt=tod(p)+' · '+wxName(wx.k)+' · '+mmss(wxLeft()); g.font='700 11px system-ui'; const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.6)'; rr(10,10,tw+16,20,10); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,18,24); }
-
 // ---------- random events & mini-games ----------
 let pendingEvent=null, catchesSinceEvent=0;
-function afterCard(){ catchesSinceEvent++; if(pendingEvent){ const ev=pendingEvent; pendingEvent=null; openEvent(ev); return; }
-  if(S.stats.caught>=5 && catchesSinceEvent>=6 && Math.random()<.12){ catchesSinceEvent=0; openEvent(Math.random()<.55?'frenzy':'chests'); } }
 function openEvent(kind){ const box=$('evin'); G.st='event';
   if(kind==='frenzy'){ box.innerHTML=`<div class="rar" style="color:var(--gold)">Mini-game</div><h3>Fish frenzy!</h3><p class="sub">A shoal is leaping out of the water. Tap as many fish as you can in 10 seconds. Every fish is worth coins.</p><div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="frenzy">Let’s go!</button><button class="btn alt" data-ev="skip">Not now</button></div>`; }
   else { box.innerHTML=`<div class="rar" style="color:var(--gold)">Mini-game</div><h3>Three chests washed up</h3><p class="sub">Only one holds the big prize. Pick one.</p><div class="chests">${[0,1,2].map(i=>`<button data-ev="chest" data-i="${i}" aria-label="Chest ${i+1}"><canvas width="192" height="144" data-chest></canvas></button>`).join('')}</div><div class="row" style="justify-content:center"><button class="btn alt" data-ev="skip">Leave them</button></div>`;
@@ -170,34 +164,6 @@ function spinWheel(paid){ if(WH.spinning) return; const tot=WHEEL.reduce((a,s)=>
   const step=()=>{ const k=Math.min(1,(performance.now()-t0)/dur), e=1-Math.pow(1-k,3.4); WH.angle=from+(to-from)*e; drawWheel(); const seg=Math.floor(WH.angle/(Math.PI/6)); if(seg!==lastTick){ lastTick=seg; tone(1500,.02,'square',.02); }
     if(k<1) (window.requestAnimationFrame||setTimeout)(step,16); else { WH.spinning=false; WH.angle%=Math.PI*2; WH.result=wheelPrize(idx); S.gstats.spins++; checkFeats(); save(); lastHud=''; if(S.tab==='games') renderPanel(); } };
   step(); }
-function wheelPrize(i){ const base=bestLoot(); sfx.coin();
-  switch(i){
-    case 0: return '+'+fmt(bwEarn(base*2*coinMult()))+' coins';
-    case 1: addTickets(10); return quip('seashell')+' (+10 tickets)';
-    case 2: { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk); const k=pick(opts); S.bait[k]+=8; renderBait(); return '8 '+BAIT[k].name; }
-    case 3: return '+'+fmt(bwEarn(base*6*coinMult()))+' coins';
-    case 4: { const fo=pick(FORTUNES); addBuff(fo[1],fo[2],15,'Lucky wheel'); return 'Boost: '+fmtB(fo[1],fo[2])+' for 15 min'; }
-    case 5: S.tokens.small++; return 'A small Mystery Crate (open it below)';
-    case 6: S.tokens.big++; return 'A BIG Mystery Crate (open it below)';
-    default: sfx.shiny(); return 'JACKPOT! +'+fmt(bwEarn(base*40*coinMult()))+' coins';
-  } }
-function openCrate(k){ const base=bestLoot(); const r=Math.random(); let res={title:'',draw:null};
-  const petPool=tier=>PETS.filter(p=>p.src==='crate' && p.price<=tier && !S.owned.pets.includes(p.id));
-  const cosmetic=()=>{ const pool=[...SHOP_COLS.filter(c=>!S.owned.cols.includes(c[0])).map(c=>['col',c[0],c[1]]), ...PATTERNS.filter(p=>p[2]&&!S.owned.pats.includes(p[0])).map(p=>['pat',p[0],p[1]+' fabric']), ...HATS.filter(h=>h.src==='shop'&&!S.owned.hats.includes(h.id)).map(h=>['hat',h.id,h.name])]; if(!pool.length) return null;
-    const it=pick(pool); if(it[0]==='col') S.owned.cols.push(it[1]); else if(it[0]==='pat') S.owned.pats.push(it[1]); else S.owned.hats.push(it[1]); return {title:'New '+(it[0]==='hat'?'hat':'clothing')+': '+it[2], kind:it[0], id:it[1]}; };
-  const decor=(rare)=>{ const pool=DECOR.filter(d=>!S.aq.owned.includes(d.id) && (rare ? true : d.price>0)); if(!pool.length) return null; const d=rare && pool.some(x=>!x.price) && Math.random()<.6 ? pick(pool.filter(x=>!x.price)) : pick(pool); S.aq.owned.push(d.id); return {title:'Aquarium decor: '+d.name+' (+'+Math.round(d.b*100)+'% income)', kind:'decor', id:d.id}; };
-  const pet=(tier,legendBias)=>{ let pool=petPool(tier); if(legendBias){ const top=pool.filter(p=>p.price===3); if(top.length && Math.random()<.35) pool=top; } if(!pool.length) return null; const p=pick(pool); S.owned.pets.push(p.id); return {title:'New pet: '+p.name+'!', kind:'pet', id:p.id}; };
-  const coins=(a,b)=>({title:'+'+fmt(earn(base*rnd(a,b)*coinMult()))+' coins', kind:'coins'});
-  const lure=()=>{ const opts=Object.keys(BAIT).filter(x=>x!=='worm'); const kk=pick(opts); const n=BAIT[kk].junk?4:10; S.bait[kk]+=n; renderBait(); return {title:n+' '+BAIT[kk].name, kind:'lure'}; };
-  if(k==='small') res = r<.4?coins(2,9) : r<.62?lure() : r<.8?(cosmetic()||coins(3,8)) : r<.92?(decor(false)||coins(3,8)) : (pet(1)||coins(6,12));
-  else if(k==='big') res = r<.25?coins(15,45) : r<.45?(cosmetic()||coins(15,40)) : r<.65?(decor(false)||coins(15,40)) : r<.92?(pet(2)||coins(25,50)) : (decor(true)||coins(25,50));
-  else res = (r<.1 && grantRod('golden')) || (r<.45?(pet(3,true)||coins(150,300)) : r<.75?(decor(true)||coins(150,300)) : coins(100,300));
-  S.gstats.crates++; sfx.catch(k==='legend'?4:k==='big'?3:2); if(res.kind==='pet'||res.kind==='decor') sfx.shiny(); crateRes=Object.assign({crate:k},res); }
-function newScratch(){ const sym=['🐟','🦀','🐚','💎','👑'], prize=[2,4,8,20,60], ws=[50,25,15,8,2]; const win=Math.random()<.35; let w=-1; if(win){ let x=Math.random()*100; w=0; for(let i=0;i<5;i++){ x-=ws[i]; if(x<=0){ w=i; break; } } }
-  const cells=[]; if(win) cells.push(w,w,w); const cnt=[0,0,0,0,0]; if(win) cnt[w]=3; while(cells.length<9){ const s=Math.floor(Math.random()*5); if(s===w || cnt[s]>=2) continue; cnt[s]++; cells.push(s); }
-  for(let i=cells.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cells[i],cells[j]]=[cells[j],cells[i]]; }
-  scratch={cells, open:Array(9).fill(false), win:w, prize:w>=0?Math.round(bestLoot()*prize[w]*coinMult()):0, done:false, sym}; }
-function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; S.gstats.scratch++; if(scratch.win>=0){ bwEarn(scratch.prize); S.gstats.scratchWins++; sfx.catch(scratch.win>=3?4:2); } else sfx.lost(); }
 
 // ---------- settings ----------
 function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class="setrow"><label for="set_${k}">${label}</label><input id="set_${k}" type="range" min="0" max="100" value="${Math.round(s[k]*100)}" data-set="${k}"><span class="meta" id="setv_${k}">${Math.round(s[k]*100)}%</span></div>`;
@@ -259,7 +225,6 @@ function aqCustomHTML(){ const fedLeft=Math.max(0,3600000-(Date.now()-S.fedT));
    <h5>Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used${(S.aq.hid||[]).length?' · '+S.aq.hid.length+' hidden':''}${[['income',decorBonus()],['boost',decorBoost()],['show',decorShow()]].filter(p=>p[1]>0).map(p=>' · +'+Math.round(p[1]*100)+'% '+DECOR_KIND_NAME[p[0]]).join('')}</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DECOR.map(d=>{ const own=S.aq.owned.includes(d.id), placed=S.aq.decor.includes(d.id), hidden=placed&&(S.aq.hid||[]).includes(d.id);
      return `<div class="tile ${placed?'done':''}${hidden?' dhid':''}" style="position:relative;align-items:center;text-align:center;gap:4px">${placed?`<button type="button" class="dhide" data-act="decorhide" data-k="${d.id}" aria-pressed="${hidden}" title="${hidden?'Hidden from your tank, its bonus still counts. Show it again':'Hide it from your tank and keep its bonus'}">${hidden?'Hidden':'Hide'}</button>`:''}<canvas width="160" height="120" data-decor="${d.id}" data-own="${own?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${own||d.price?d.name:'???'}</b><span class="meta">+${Math.round(d.b*100)}% income</span>
      ${own?`<button class="btn ${placed?'alt':''} sm" data-act="decor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:d.price?`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="aqpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="decor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`:'<span class="meta">Mystery crates or prizes only</span>'}</div>`; }).join('')}</div></div>`; }
-function paintDecor(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(c.dataset.own!=='1'&&!DECORI[c.dataset.decor].price) mysteryThumb(x,c.width,c.height,c.dataset.decor); else drawDecor(x,c.dataset.decor,80,c.dataset.decor==='duck'?70:112,1,0); }); }
 /* hide a placed decoration from view, keep its bonus (director, 2026-11-19): a small switch in the card's corner */
 document.head.insertAdjacentHTML('beforeend','<style>#panel .dhide{position:absolute;top:34px;right:6px;z-index:2;min-height:32px;padding:0 11px;border-radius:999px;border:1px solid #ffffff2a;background:#0c1626e6;color:#cfe0f0;font:800 11.5px var(--display,system-ui);cursor:pointer}#panel .dhide[aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}#panel .tile.dhid canvas[data-decor]{opacity:.45}</style>');
 

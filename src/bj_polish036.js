@@ -113,8 +113,6 @@ function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:
 // the water as one chip with what the weather actually does, on every screen (it was cut off on mid-size PCs).
 // ---------------------------------------------------------------------
 const WX_TAG={Rain:'bites +35%', Storm:'rarer fish', Fog:'night fish', Gilded:'shiny ×3', Rainbow:'shiny ×2, XP +30%', Aurora:'XP ×2', 'Spawning Run':'bites ×2.5'};
-drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k]; const txt=tod(p)+' · '+wxName(wx.k)+(tag?' ('+tag+')':'')+' · '+mmss(wxLeft()); const big=W>=700; g.font='700 '+(big?12:11)+'px system-ui'; const tw=g.measureText(txt).width, h=big?22:20;
-  g.fillStyle='rgba(5,14,20,.62)'; rr(10,10,tw+(big?20:16),h,h/2); g.fill(); g.fillStyle=wx.k==='Gilded'?'#ffc94d':tag?'#bfe8ff':'#e6efe8'; g.textAlign='left'; g.fillText(txt,big?20:18,big?25:24); };
 document.head.insertAdjacentHTML('beforeend',`<style>
 .hud .stat.opt,.hud #wxchip{display:none!important}
 #goalchip{position:absolute;left:10px;top:38px;z-index:4;display:grid;grid-template-columns:auto;gap:1px;max-width:min(340px,calc(100% - 20px));padding:6px 11px 7px;border-radius:12px;border:1px solid #ffffff1c;background:#08121ed0;color:#e6efe8;text-align:left;font:inherit;cursor:pointer;box-shadow:0 4px 14px #0006;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}

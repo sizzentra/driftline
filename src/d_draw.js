@@ -182,19 +182,6 @@ function drawHat(c,id,col,t=0){
     default: drawHatX(c,id,col,t,{dk,lt,el,ci,poly,dome});
   }
 }
-function drawPattern(c,pat,base,x,y,w,h){
-  switch(pat){
-    case 'stripes': c.fillStyle='rgba(255,255,255,.75)'; for(let yy=y+2;yy<y+h;yy+=4.5) c.fillRect(x,yy,w,1.6); break;
-    case 'flannel': c.fillStyle='rgba(0,0,0,.28)'; for(let xx=x;xx<x+w;xx+=5) c.fillRect(xx,y,2,h); for(let yy=y;yy<y+h;yy+=5) c.fillRect(x,yy,w,2); c.fillStyle='rgba(255,255,255,.18)'; for(let xx=x+3;xx<x+w;xx+=10) c.fillRect(xx,y,1,h); break;
-    case 'polka': c.fillStyle='rgba(255,255,255,.85)'; for(let yy=y+2;yy<y+h;yy+=5) for(let xx=x+((yy/5|0)%2?2:4.5);xx<x+w;xx+=5){ c.beginPath(); c.arc(xx,yy,1.1,0,7); c.fill(); } break;
-    case 'camo': [['#4a5a2a',3,4],['#7a6a3a',12,10],['#2a3a1a',6,18],['#5a6a3a',14,22],['#3a2a1a',2,12]].forEach(([cl,dx,dy])=>{ c.fillStyle=cl; c.beginPath(); c.ellipse(x+dx,y+dy,4,2.6,dx,0,7); c.fill(); }); break;
-    case 'hawaii': for(let i=0;i<7;i++){ const xx=x+((i*37)%100)/100*w, yy=y+((i*53)%100)/100*h; c.fillStyle='#3a8a4a'; c.beginPath(); c.ellipse(xx+2,yy+1,2.4,1,.6,0,7); c.fill(); c.fillStyle=['#ff6a8a','#ffd84a','#ffffff'][i%3]; c.beginPath(); c.arc(xx,yy,1.6,0,7); c.fill(); } break;
-    case 'fishprint': for(let i=0;i<6;i++){ const xx=x+2+((i*41)%90)/100*w, yy=y+3+((i*57)%85)/100*h; drawFish(c,xx,yy,6,'rgba(255,255,255,.8)','rgba(255,255,255,.8)',.4,0,i%2===1,{}); } break;
-    case 'flames': c.fillStyle='#ff7a1a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx-1.5,y+h-9-((i*5)%5)); c.lineTo(xx+1.5,y+h-3); } c.lineTo(x+w,y+h); c.fill(); c.fillStyle='#ffd84a'; c.beginPath(); c.moveTo(x,y+h); for(let i=0;i<=6;i++){ const xx=x+i*w/6; c.lineTo(xx,y+h-5-((i*3)%3)); c.lineTo(xx+1.5,y+h-1); } c.lineTo(x+w,y+h); c.fill(); break;
-    default: drawPatternX(c,pat,base,x,y,w,h); break;
-    case 'tux': c.fillStyle='#f4f4f2'; c.beginPath(); c.moveTo(x+w/2-3.5,y); c.lineTo(x+w/2+3.5,y); c.lineTo(x+w/2+1.5,y+h); c.lineTo(x+w/2-1.5,y+h); c.fill(); c.fillStyle='#c8303a'; c.beginPath(); c.moveTo(x+w/2-3,y+1); c.lineTo(x+w/2+3,y+3.5); c.lineTo(x+w/2+3,y+1); c.lineTo(x+w/2-3,y+3.5); c.fill(); break;
-  }
-}
 function drawAngler(c,x,y,s,lk,o={}){ if(V3ON) return drawAngler3(c,x,y,s,lk,o);
   const night=o.night||0, D=cl=>night?mix(cl,'#0a1018',night*.45):cl; const sk=D(SKINS[lk.skin]||SKINS[1]), hair=D(HAIRS[lk.hair]||HAIRS[1]), shirt=D(lk.shirt);
   c.save(); c.translate(x,y); c.scale(s,s); c.lineCap='round';
@@ -245,10 +232,6 @@ function drawPet(c,id,x,y,s,t,night=0,lk=null){ if(V3ON && id!=='lily' && id!=='
   if(lk) drawPetGear(c,id,lk,t);
   c.restore();
 }
-function hatPreview(c,w,h,id,col,big){ const s=h/(big?44:40); c.save(); c.translate(w/2,h*.64); c.scale(s,s); const lk=S.look;
-  c.fillStyle=SKINS[lk.skin]||SKINS[1]; c.beginPath(); c.arc(0,0,7.5,0,7); c.fill(); c.fillStyle=HAIRS[lk.hair]||HAIRS[1]; c.beginPath(); c.arc(0,-1,7.9,Math.PI,Math.PI*2); c.fill();
-  c.fillStyle='#1a1410'; c.beginPath(); c.arc(4.2,-1,1.1,0,7); c.fill(); c.fillStyle=lk.shirt; c.fillRect(-8,8,16,6);
-  drawHat(c,id,HATI[id]&&HATI[id].fixed?'#888888':col,performance.now()/1000); c.restore(); if(big) sparkles(c,w,h,5); }
 
 // ---------- drawing: the scene ----------
 let stars=null, drops=null, flakes=null, WXA=1;
@@ -457,13 +440,4 @@ function drawFightHUD(t){
   const bw=pw*.5-50; g.fillText('Fight', px+pw*.5, py+38); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+30,bw,7,3); g.fill(); g.fillStyle='#ff6a3d'; rr(px+pw*.5+44,py+30,bw*G.sta,7,3); g.fill();
   g.fillStyle='#8aa5a2'; g.fillText(BEH[G.fish.beh]?BEH[G.fish.beh].n:'', px+10, py+56); g.fillText('Temper', px+pw*.5, py+56); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+48,bw,7,3); g.fill(); g.fillStyle=G.temper>1.7?'#ff5468':'#c38bff'; rr(px+pw*.5+44,py+48,bw*clamp(G.temper/3,0,1),7,3); g.fill();
   const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
-}
-function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
-  if(cnv.width!==Math.round(w*DPR)||cnv.height!==Math.round(h*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); } /* 0.3.5.1: also when only the height changes (turning the phone) */
-  const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
-  drawTankBack(c,w,h,t);
-  S.tank.forEach((f,i)=>{ const sp=SPI[f.id]; const rel=clamp((f.kg-sp.min)/(sp.max-sp.min),0,1); const L=.82*Math.max(14,Math.min(h*.3,w*.22,(22+11*Math.log10(1+(+f.kg||.1)*4))*(.9+.25*rel)*clamp(h/240,.8,1.9))); /* 0.3.2: real weight sets the size (a heavier fish is a bigger fish), a log scale so whales still fit */ const M=tankMove(f,sp,i,t,w,h,L); nibMove(f,M,t,w,h);
-    drawCreature(c,sp,M.x,M.y,L,{shiny:f.sh||0,pv:f.pv,seedAdd:i,wag:t*M.wag+i,flip:!M.dir}); });
-  c.fillStyle='rgba(220,245,255,.35)'; for(let i=0;i<12;i++){ const x=(i*73)%w+Math.sin(t+i)*4, y=h-((t*30+i*40)%h); c.beginPath(); c.arc(x,y,1.5+(i%3),0,7); c.fill(); }
-  nibDraw(c,t,w,h); drawTankFront(c,w,h,t);
 }

@@ -66,7 +66,7 @@ m33wrap('ember','land',function(x,P,hz){ const x0=W*.79, rock=mix(P.rock,'#2a242
 // =====================================================================
 var THUMB_CLEAR=false;
 const _wx3k_th = wx3k; wx3k = function(){ return THUMB_CLEAR?'Clear':_wx3k_th(); };
-v3Thumb = function(id){ if(V3THUMB[id]) return V3THUMB[id]; const L=LOCS.find(l=>l.id===id); if(!L||!V3SCENES[id]||!(W>40&&H>40)) return null;
+function v3Thumb(id){ if(V3THUMB[id]) return V3THUMB[id]; const L=LOCS.find(l=>l.id===id); if(!L||!V3SCENES[id]||!(W>40&&H>40)) return null;
   const oWXA=WXA; try{ THUMB_CLEAR=true; WXA=0; v3palette.k=null; const hz=HZ(), t=(function(){ let tt=42; if(typeof sfEvent==="function") while(sfEvent(tt).into<=SF_DUR+1) tt+=1.7; return tt; })(), p=.3, /* a calm moment between events */ gloom=id==='deep'?.1:0;
     g.save(); g.setTransform(DPR,0,0,DPR,0,0); g.clearRect(0,0,W,H);
     v3Scene(L,t,p,0,0,gloom,hz,{k:'Clear'}); v3Platform(L,t,0,H*.6,0); v3Fore(L,t,0); g.restore();
@@ -83,4 +83,4 @@ const THUMB_FAIL={};
 function thumbNext(){ const id=LOCS.map(l=>l.id).find(id=>V3SCENES[id]&&!V3THUMB[id]&&(THUMB_FAIL[id]||0)<2); if(!id){ THUMB_Q.busy=false; return; } THUMB_Q.busy=true;
   thumbIdle(()=>{ if((G.st!=='idle'&&G.st!=='waiting')||!MENU_OPEN){ setTimeout(thumbNext,1500); return; } /* only while a menu is open (thumbnails are only seen there): never a hitch while fishing */ v3Thumb(id); if(!V3THUMB[id]) THUMB_FAIL[id]=(THUMB_FAIL[id]||0)+1; const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
 setTimeout(thumbNext,3000);
-v3WaterThumbs = function(P){ P.querySelectorAll('.loc .sw2').forEach((el,i)=>{ const L=LOCS[i]; if(!L) return; const u=V3THUMB[L.id]; if(u){ el.style.background='url('+u+') center/cover'; el.classList.add('v3th'); } }); if(!THUMB_Q.busy) thumbNext(); };
+function v3WaterThumbs(P){ P.querySelectorAll('.loc .sw2').forEach((el,i)=>{ const L=LOCS[i]; if(!L) return; const u=V3THUMB[L.id]; if(u){ el.style.background='url('+u+') center/cover'; el.classList.add('v3th'); } }); if(!THUMB_Q.busy) thumbNext(); };

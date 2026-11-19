@@ -10,12 +10,16 @@
 function tankLen(f,h,w){ const kg=Math.max(.005,+f.kg||.1), cap=Math.min(h*.46,w*.34), raw=h*.115*Math.cbrt(kg); return Math.max(9,cap*Math.tanh(raw/cap)); }
 function tankDepth(f,i){ const s=hashStr((f.id||'')+'|'+(f.kg||0)+'|'+i); return (s%1000)/1000; }
 const tankPace = f => clamp(1.3-.22*Math.log10(1+Math.max(0,+f.kg||0)*4),.5,1.3);
-drawTank=function(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
+// the draw order (far fish first), depth and pace only change when the tank's fish change, so they are worked out once, not every frame
+let tankOrd=null, tankOrdOf=[];
+function tankOrder(){ const T=S.tank; let ok=tankOrd&&tankOrdOf.length===T.length; for(let i=0;ok&&i<T.length;i++) ok=tankOrdOf[i]===T[i];
+  if(!ok){ tankOrdOf=T.slice(); tankOrd=T.map((f,i)=>({f,i,sp:SPI[f.id],z:tankDepth(f,i),pace:tankPace(f)})).filter(o=>o.sp).sort((a,b)=>b.z-a.z); }
+  return tankOrd; }
+function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getBoundingClientRect(); const w=r.width, h=r.height; if(!w||h<20) return;
   if(cnv.width!==Math.round(w*DPR)||cnv.height!==Math.round(h*DPR)){ cnv.width=Math.round(w*DPR); cnv.height=Math.round(h*DPR); }
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
-  const list=S.tank.map((f,i)=>({f,i,sp:SPI[f.id],z:tankDepth(f,i)})).filter(o=>o.sp).sort((a,b)=>b.z-a.z); /* far first */
-  for(const o of list){ const {f,i,sp,z}=o, k=1-.3*z, L=tankLen(f,h,w)*k, pace=tankPace(f), tk=t*pace;
+  for(const o of tankOrder()){ const {f,i,sp,z,pace}=o, k=1-.3*z, L=tankLen(f,h,w)*k, tk=t*pace;
     const M=tankMove(f,sp,i,tk,w,h,L); nibMove(f,M,t,w,h); const y=M.y+(z-.5)*h*.06; /* farther fish sit a touch higher, like looking into the tank */
     c.save(); if(z>.35) c.globalAlpha=1-(z-.35)*.45;
     drawCreature(c,sp,M.x,y,L,{shiny:f.sh||0,pv:f.pv,seedAdd:i,wag:tk*M.wag+i,flip:!M.dir}); c.restore(); }

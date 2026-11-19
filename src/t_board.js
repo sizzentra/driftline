@@ -74,7 +74,7 @@ function bwHero(cv){ if(!cv) return; const r=cv.getBoundingClientRect(), DP=Math
   for(const [sx,c1,c2] of [[w*.45,'#ff8a5c','#ffe6d0'],[w*.66,'#7fe3c4','#e8fff6']]){ x.fillStyle='#24142a'; x.fillRect(sx,wy-h*.2,w*.12,h*.15); for(let k=0;k<6;k++){ x.fillStyle=k%2?c1:c2; x.beginPath(); x.moveTo(sx+k*w*.02,wy-h*.2); x.lineTo(sx+(k+1)*w*.02,wy-h*.2); x.lineTo(sx+(k+.5)*w*.02,wy-h*.15); x.closePath(); x.fill(); } v3glow(x,sx+w*.06,wy-h*.11,h*.12,'rgba(255,210,140,.7)',.5); }
   // reflections
   x.save(); x.globalAlpha=.25; for(let i=0;i<24;i++){ const a=i/24*Math.PI*2, px=fx+Math.cos(a)*fr; x.fillStyle=cols[i%6]; x.fillRect(px-2,wy+h*.04+Math.abs(Math.sin(a))*h*.08,4,1.5); } for(const X of posts){ x.fillStyle='#ffd08a'; x.fillRect(X-6,wy+h*.06,12,1.5); x.fillRect(X-4,wy+h*.1,8,1.5); } x.restore(); }
-renderBoardwalk = function(P){ accrueSpins();
+function renderBoardwalk(P){ accrueSpins();
   P.innerHTML=`<div class="bwx"><div class="bwx-hero"><canvas id="bwhero"></canvas><div class="bwx-ht"><h2>The Boardwalk</h2><p>Games, prizes and treasures on the old pier. Coins and tickets only.</p></div></div>
    <div class="bwx-wallet"><span><b class="coin">${fmtShort(S.money)}</b></span><span><b>🎟 ${fmt(S.tickets)}</b> tickets</span><span><b style="color:var(--kelp)">${fmt(S.scales)}</b> Scales</span>${S.freeSpins>0?`<span class="badge g">${S.freeSpins} free spin${S.freeSpins>1?'s':''}</span>`:''}</div>
    <div class="bwx-nav" role="tablist">${[['games','Games'],['prizes','Prize counter'],['specials','Counter specials']].map(([k,n])=>`<button role="tab" data-act="bwview" data-k="${k}" aria-selected="${bwView===k}">${n}</button>`).join('')}</div>
