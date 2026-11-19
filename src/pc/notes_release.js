@@ -68,6 +68,9 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Water pictures for the Map are only made while the Map is open.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## New',
+  'Settings › Display: choose kilograms or pounds for every fish weight in the game.',
+  'Aquarium › Decorate: hide a placed decoration from your tank and keep its bonus, handy for sticking to a theme.',
   '## Fixes',
   'Pets in the shop, Wardrobe and previews are awake again at night (only pets on your dock fall asleep).',
   'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
@@ -80,5 +83,7 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Turning hints off no longer leaves an empty box at the bottom of the screen.',
   'Skills: the old note about specialisations is gone.',
   'Aquarium coins use the short form for big amounts (like the header); hover for the exact number.',
+  'Full screen: the orange count circles in the header are no longer cut off at the top.',
+  'Fish Log: the three columns fit smaller windows and scroll on their own (at 1440 × 900 the bottom was cut off).',
   '## Behind the scenes',
   'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});

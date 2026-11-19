@@ -135,7 +135,7 @@ html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-ap
       h.addEventListener('pointerdown',e=>e.stopPropagation()); h.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('home'); }); }
     if(h.previousElementSibling!==aq) aq.after(h);
     let v='—'; try{ v=cozy()+' ♥'; }catch(e){} const b=h.querySelector('b'); if(b.textContent!==v) b.textContent=v; };
-  setTimeout(ensure,60); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); }
+  ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); } /* built as the page loads (a 60 ms delay let the top bar open without Home and then shift; the QA top-bar check caught it right after a reload) */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}</style>`); /* the info box never squeezes its words; the chips to its right make room (Tasks steps aside first) */
 /* round 8 (director, 2026-11-18: "goal shouldn't be on the top header. Bait should move up there instead"): the goal lives in Quests
    (side panel); Bait sits in the top bar after Tasks: the bait you use (and how many are left), tap to open Tackle, Bait. The Bait
@@ -147,7 +147,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud >
     const after=document.getElementById('mbtasks')||document.getElementById('mblive'), cool=hud.querySelector('.st-cool');
     if(cool&&c.nextElementSibling!==cool) cool.before(c); else if(!cool&&after&&c.previousElementSibling!==after) after.after(c);
     const t=lbl(), b=c.querySelector('b'); if(b.textContent!==t) b.textContent=t; };
-  setTimeout(ensure,80); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
+  ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body.phone-land #goalchip,html body.phone-app #goalchip{display:none!important}
 

@@ -16,7 +16,6 @@ function shopToolsFor(grid,which){ if(!grid) return; const st=SHOPT[which], tile
   const items=tiles.map(t=>({t,it:shopItem(t,which)})).filter(x=>x.it);
   // aquarium tiles say what kind of bonus they give
   if(which==='aq') for(const {t,it} of items){ const m=t.querySelector('.meta'); if(m&&/income$/.test(m.textContent.trim())) m.innerHTML=`+${Math.round(it.bonus*100)}% ${DECOR_KIND_NAME[it.kind]}`; if(!t.querySelector('.dkind')){ const b=document.createElement('span'); b.className='dkind k-'+it.kind; b.textContent=DECOR_KIND_SHORT[it.kind]; t.insertBefore(b,t.firstChild); } }
-  if(which==='aq'){ const h=[...grid.parentNode.querySelectorAll('h5')].find(x=>/^Decorations/.test(x.textContent)); if(h){ const parts=[['income',decorBonus()],['boost',decorBoost()],['show',decorShow()]].filter(p=>p[1]>0).map(p=>`+${Math.round(p[1]*100)}% ${DECOR_KIND_NAME[p[0]]}`); h.textContent=`Decorations · ${S.aq.decor.length} of ${aqSlots()} spots used`+(parts.length?' · '+parts.join(' · '):''); } }
   let bar=grid.previousElementSibling; if(!bar||!bar.classList||!bar.classList.contains('shoptools')){ bar=document.createElement('div'); bar.className='shoptools'; grid.parentNode.insertBefore(bar,grid); }
   const chip=(grp,v,label,cur)=>`<button type="button" class="chipb" data-st="${grp}" data-v="${v}" aria-pressed="${cur===v}">${label}</button>`;
   const sorts=[['price','Price: low to high'],['pricehi','Price: high to low'],['name','Name A to Z'],['bonus',which==='aq'?'Bonus: biggest first':'Cozy: most first']];

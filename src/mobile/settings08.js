@@ -11,7 +11,7 @@
 //    two are hidden there. The help text speaks about touch only (no mouse wheel, no keyboard).
 // Android + iPhone only.
 // =====================================================================
-const DEV_KEYS=['master','music','sfx','amb','musicOn','ambient','style','castMode','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
+const DEV_KEYS=['master','music','sfx','amb','musicOn','ambient','style','castMode','units','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
 const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));
@@ -30,9 +30,15 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
   if(/[?&]test\b/.test(location.search)) window.__devSettings=()=>({store:read(), keys:DEV_KEYS.slice()}); }
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
-{ const _fr=frame; let shown=0;
+{ const _fr=frame; let ema=0, lastRaw=0, k=0;
   const capMs=()=>IS_IPHONE()?0:1000/60; /* Android draws 60 frames a second (on a 120 Hz screen too: director 2026-11-18, "his default was always working perfectly fine"), iPhone runs at its natural rate; no frame-rate setting on either phone, any old saved fpsCap is ignored */
-  frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
+  /* 2026-11-19 (director: "Android: Aquarium preview choppy"): the old limiter skipped by time, so on a 90 Hz screen it drew after
+     11 ms, then 22 ms, then 11... (simulated: half the gaps short, half long) and on 144 Hz 14/21 ms: an uneven rhythm reads as
+     stutter. Now it draws every n-th screen refresh, n = the smallest that stays at or under 60 a second: steady 60 on 60/120 Hz,
+     steady 45 on 90 Hz, steady 48 on 144 Hz. The screen's rate is measured (adaptive screens change it), never assumed. */
+  frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0;
+    if(cap){ const d=now-lastRaw; lastRaw=now; if(d>3&&d<50) ema=ema?ema*.9+d*.1:d; const n=ema?Math.max(1,Math.ceil(cap/ema-.15)):1; if(++k<n){ requestAnimationFrame(frame); return; } k=0; }
+    return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------
 { const _rs=renderSettings;

@@ -13,7 +13,7 @@ function petPreviewLook(id=editPet()){ const lk=Object.assign({},petLook(id)); i
 function petPvBarHTML(){ if(!PET_PV) return ''; const p=PET_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='tint'?'pettint':'petacc'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Previewing: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="petpvoff">Stop</button></span></div>`; }
-function aqView(){ const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.slice()}; if(!AQ_PV) return v;
+function aqView(){ const hid=S.aq.hid||[]; const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.filter(id=>!hid.includes(id))}; /* hidden decorations keep their bonus but are not drawn (director, 2026-11-19) */ if(!AQ_PV) return v;
   if(AQ_PV.kind==='theme') v.theme=AQ_PV.id; else if(AQ_PV.kind==='sand') v.sand=AQ_PV.id; else if(!v.decor.includes(AQ_PV.id)) v.decor.push(AQ_PV.id); return v; }
 function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='theme'?'aqtheme':p.kind==='sand'?'aqsand':'decor'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;

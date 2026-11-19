@@ -1,6 +1,11 @@
 // Android test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 1: fixes (5)', items:[
+const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 2: batch 1 finished', items:[
+  'New: Settings › Display › Weights: kilograms or pounds.',
+  'New: Aquarium › Decorate: “Hide” on a placed decoration takes it out of the tank but keeps its bonus.',
+  'Fish Log: tap a fish far down the list: its details (with Normal / Shiny) come into view; “Back to the list” returns you.',
+  'The top bar has Home and Bait from the first moment (it shifted just after opening).',
+  'Smoother frame pacing on 90 Hz and 144 Hz screens; please check the Aquarium tank.',
   'Clean-up: unused old parts removed (retired Menu and Overview buttons, an old hairstyle, old dolphins and Boardwalk drawings). Nothing should look different; tell me if anything does.',
   'Settings: only the Settings tab lights up (the gear no longer lights up next to it).',
   'Narrow windows (split-screen): the side panel shows icons only, so all sections fit.',

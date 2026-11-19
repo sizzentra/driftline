@@ -10,20 +10,20 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ [27] Shadows of hooked fish: one even tone, no lighter fins or patches.
 - ☑ [30] Challenges: no "1" badge next to the "Live" tag.
 - ☑ [31] Shinies: remove the sweeping shine band.
-- ☐ [32] Fish Log shiny toggle on phones (exists on PC).
+- ☑ [32] Fish Log shiny toggle on phones: it existed but the details opened out of sight; a tap now brings them into view (+ “Back to the list”).
 - ☑ [36] iPhone: re-reading patch notes is cluttered, hard to open and scroll.
 - ☑ [37] iPhone: inside Settings the gear and the Settings tab were both lit; the gear steps aside there (+ QA check "menu top row").
 - ☑ [39] Android: search needs press-and-hold to open; the keyboard covers the results and the typed text.
 - ☑ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
-- ◐ [42] Android: Aquarium preview choppy (to do); Earning / Ready values overlap when numbers are large (☑ fixed).
+- ☑ [42] Android: Aquarium preview choppy (the frame limiter alternated short/long frames on 90 and 144 Hz screens; now an even pace); Earning / Ready values overlap when numbers are large (fixed).
 - ☑ [43] Events: Calendar, Challenges and Derby tabs show the same content.
 - ☑ [44] Trophy Room tiny when empty; check with fish in and out.
 - ☑ [45] Skills: the "Looking for specializations?" line breaks the spacing.
 - ☑ [46] Hints off leaves an empty round box at the bottom.
 - ☑ [48] Rods: "Your rods" (not "Your rod") and only on the first tab.
-- ☐ [56] PC full screen: the orange upgrade-count circle is clipped.
-- ☐ [34] Setting: metric / imperial weights.
-- ☐ [8] Aquarium: hide a decoration from view while keeping its bonus.
+- ☑ [56] PC full screen: the orange upgrade-count circle is clipped (+ QA check “badges not cut”).
+- ☑ [34] Setting: metric / imperial weights (Settings › Display; every weight in the game).
+- ☑ [8] Aquarium: hide a decoration from view while keeping its bonus (a “Hide” switch on placed cards).
 
 - ☑ [new, 2026-11-19] Phones: while reeling, the hint and Rest step aside (director: "too much ui covers the screen"; hint kept for the first 5 catches).
 

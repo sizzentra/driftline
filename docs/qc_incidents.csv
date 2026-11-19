@@ -79,3 +79,12 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 78,2026-11-19,Hint box empty with hints off,layout-cut,director,live,1,manual
 79,2026-11-19,Search needed press-and-hold (Android),touch-app,tester,live,2,touch-checklist
 80,2026-11-19,Weekly quest badged the Daily tab,ui-logic,tester,live,1,manual-tab-content
+81,2026-11-19,Fish Log details opened out of sight (shiny switch looked missing),ui-logic,director,live,2,manual-tap-path
+82,2026-11-19,PC full-screen badge cut by the frame,layout-cut,director,live,1,qa:badges-not-cut
+83,2026-11-19,Android limiter uneven on 90/144 Hz (choppy aquarium),performance,director,live,2,qa:frame-pacing
+84,2026-11-19,Top bar Home/Bait added 60 ms after load (shift),layout-cut,my_check,local,1,qa:top-bar-first-frame
+85,2026-11-19,PC Fish Log cut at 1440x900 (specificity beat flex),css-override,my_check,local,2,qa:no-unreachable-content
+86,2026-11-19,Decoration Hide switch covered the card tag,layout-cut,me_manual,local,1,qa:decorations
+87,2026-11-19,Decorations heading written by two blocks,code-structure,me_manual,local,1,rule:one-owner
+88,2026-11-19,Line-based sed insert landed inside a function,script-break,me_manual,local,3,read-after-insert+parse-gate
+89,2026-11-19,Deleting a last line removed a closing brace,script-break,me_manual,local,3,read-after-insert+parse-gate

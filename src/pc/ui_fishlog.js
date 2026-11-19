@@ -5,7 +5,6 @@
 // Built from the page the other platforms use (same buttons, same actions), so phones and tablets are unchanged.
 // =====================================================================
 { const _rj=renderJournal;
-  const fitH=()=>{}; // the columns take the page's height through CSS (flex), so nothing is measured
   renderJournal=function(P){ _rj(P); if(!document.body.classList.contains('pch-on')||innerWidth<1100) return; /* the three columns need room */ try{
     P.style.zoom=''; const kids=[...P.children]; const pick=f=>kids.find(f);
     const crumb=pick(c=>c.classList.contains('crumb')), head=pick(c=>c.classList.contains('dl-head')),
@@ -54,13 +53,11 @@
     kids.forEach(c=>{ if(c!==crumb&&c.parentNode===P) c.remove(); });
     const ttl=document.createElement('h2'); ttl.className='dl-dup'; ttl.hidden=true; ttl.textContent='Fish Log'; // the page title the tidy pass looks for (else it would rename the fish card's heading)
     P.append(ttl,top,wrap); P.classList.add('fl-on');
-    fitH(P); requestAnimationFrame(()=>fitH(P));
     const selCard=grid&&grid.querySelector('.jcard.sel'); if(selCard){ const r=selCard.getBoundingClientRect(), m=main.getBoundingClientRect(); if(r.bottom>m.bottom||r.top<m.top) selCard.scrollIntoView({block:'nearest'}); }
   }catch(e){ console.error(e); } };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('fl-on'); return _rp.apply(this,arguments); };
-  addEventListener('resize',()=>setTimeout(()=>{ const P=$('panel'); if(P&&P.classList.contains('fl-on')) fitH(P); },80)); }
+  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('fl-on'); return _rp.apply(this,arguments); };}
 document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel.fl-on{overflow:hidden!important;display:flex!important;flex-direction:column!important}
+body.pch-on #menuov #panel.fl-on{overflow:hidden!important;display:flex!important;flex-direction:column!important} /* #menuov added 2026-11-19: "body #menuov #panel{display:block!important}" outranked this, so the columns were never fitted (1440x900 cut 133 px off with no scroll) */
 body.pch-on #panel.fl-on > *{flex:0 0 auto}
 body.pch-on #panel.fl-on > .fl-pc{flex:1 1 0;min-height:0}
 body.pch-on #panel .fl-top{display:flex;align-items:center;gap:18px;margin:2px 0 10px;flex-wrap:wrap}

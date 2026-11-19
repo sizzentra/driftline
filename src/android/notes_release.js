@@ -179,6 +179,9 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## New',
+  'Settings › Display: choose kilograms or pounds for every fish weight in the game.',
+  'Aquarium › Decorate: hide a placed decoration from your tank and keep its bonus, handy for sticking to a theme.',
   '## Fixes',
   'Pets in the shop, Wardrobe and previews are awake again at night (only pets on your dock fall asleep).',
   'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
@@ -204,5 +207,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.',
   'Inside Settings only the Settings tab lights up (the gear next to it no longer lights up too).',
   'In narrow windows the side panel shows its icons, so every section fits without scrolling.',
+  'Fish Log: tapping a fish brings its details into view (they appeared out of sight at the top), with the Normal / Shiny switch and a “Back to the list” button.',
+  'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
+  'Smoother on 90 Hz and 144 Hz screens: frames arrive at an even pace (the Aquarium tank looked choppy).',
   '## Behind the scenes',
   'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});

@@ -494,7 +494,7 @@ html body.pc-fhd #pchead #catdock .cdb svg{color:#e6fff6!important}
 html body.pc-fhd #pchead #catdock .cdb:hover{background:linear-gradient(180deg,#26a39e,#187a7e)!important;box-shadow:inset 0 1px 0 #ffffff40,0 3px 0 #0b3a3a,0 0 0 3px #7fe3c433,0 4px 12px #000a!important}
 html body.pc-fhd #pchead #catdock .cdb.on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12,0 0 0 3px #ffd36a44!important}
 html body.pc-fhd #pchead #catdock .cdb.on .cdl,html body.pc-fhd #pchead #catdock .cdb.on svg{color:#2a1c05!important}
-html body.pc-fhd #pchead #catdock .cdb .cddot{top:-6px!important;right:-6px!important}
+html body.pc-fhd #pchead #catdock .cdb .cddot{top:-2px!important;right:-6px!important} /* the frame (.wrap, overflow hidden) starts 2 px above the header: -6 cut the circle (director, 2026-11-19) */
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #pchead{grid-template-columns:auto minmax(0,1fr) auto!important;column-gap:16px!important}
