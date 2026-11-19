@@ -28,7 +28,7 @@ body.pch-on #menuov .mo-back{width:190px;justify-content:flex-start;box-sizing:b
 #pchead .pch-brand svg{color:#7fe3c4;flex:0 0 auto}
 #pchead .pch-cats{margin-left:14px;min-width:0}
 html body.pch-on #pchead #catdock{position:static!important;inset:auto!important;transform:none!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;height:46px;width:100%;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;z-index:auto}
-html body.pch-on #pchead #catdock > #menubtn,html body.pch-on #pchead #catdock > .cdmini{display:none!important}
+html body.pch-on #pchead #catdock > .cdmini{display:none!important}
 html body.pch-on #pchead #catdock .cdb{position:relative!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:46px!important;min-width:0!important;padding:4px 10px!important;border-radius:16px!important;border:1px solid #26385180!important;background:linear-gradient(180deg,#16243a,#111c2e)!important;box-shadow:inset 0 1px 0 #ffffff12,inset 0 0 0 1px #ffffff06,0 4px 14px #02060f55!important;color:#a9bdd4!important;font:800 14px var(--display,system-ui)!important;transform:none!important;transition:border-color .15s,color .15s,background .15s!important}
 html body.pch-on #pchead #catdock .cdb svg{width:22px;height:22px;color:#7f97b2;flex:0 0 auto}
 html body.pch-on #pchead #catdock .cdb .cdl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}

@@ -6,7 +6,6 @@
 // Everything is multiplied by WXA (the weather's fade in/out, 0..1), so it builds up and dies away
 // smoothly; nothing switches on or off in one frame.
 // =====================================================================
-const WX3={};
 function wx3sun(hz){ const p=phase(), sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45; return {x:W*(.1+.8*k), y:hz-Math.sin(k*Math.PI)*hz*.8+10, up}; }
 // where the rainbow stands, shared by the sky arc and its reflection: like a real one it is on the side away from the
 // sun and sinks lower as the sun climbs, so it never rings the sun (it used to sit right around it; 2026-11-17)

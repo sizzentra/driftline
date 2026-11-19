@@ -20,7 +20,6 @@ const SFX_PAL={shiny:{a:'#fff3c4',b:'#ffcf5a',dust:'#ffe7a0'}, mythic:{a:'#ffb0e
 const SFX_STYLES=['glint','glitter','shimmer','flare'];
 function sfxHash(a,b){ let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263); h=Math.imul(h^(h>>>13),1274126177); return ((h^(h>>>16))>>>0)/4294967296; }
 function sfxRgba(hex,a){ const n=parseInt(hex.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+Math.max(0,Math.min(1,a)).toFixed(3)+')'; }
-function sfxCol(P,i,t,which){ return P.hue?'hsl('+Math.round((t*90+i*61)%360)+',100%,'+(which?72:82)+'%)':(which?P.b:P.a); }
 function sfxColA(P,i,t,which,a){ if(!P.hue) return sfxRgba(which?P.b:P.a,a); return 'hsla('+Math.round((t*90+i*61)%360)+',100%,'+(which?72:82)+'%,'+a.toFixed(3)+')'; }
 // one flare: a hot white core, a coloured halo, 2 long rays and 2 short ones, all tapering to nothing
 function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;

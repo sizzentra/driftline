@@ -27,7 +27,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   body #menuov #tabs.secmode .subp{min-height:32px!important;padding:0 11px!important;font-size:12.5px!important}
   #menuov .mo-tb{width:34px!important;height:34px!important}
   #menuov .mo-coin{min-height:32px!important;padding:0 9px!important}
-  #menuov .mo-back,#menuov .mo-home,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
+  #menuov .mo-back,body #menuov #tabs.secmode .secb{min-height:34px!important;height:34px}
   #menuov .mo-in{row-gap:4px!important;padding-top:max(5px,env(safe-area-inset-top))!important}
 }
 </style>`);

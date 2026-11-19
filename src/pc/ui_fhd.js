@@ -256,7 +256,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pch-on #menuov{top:var(--pcTop,66px)!important;height:calc(100vh - var(--pcTop,66px))!important;height:calc(100dvh - var(--pcTop,66px))!important;background:#0a1220!important}
 html body.pch-on.menu-open #pchead{visibility:visible!important}
 html body.pch-on #menuov .mo-in{grid-template-columns:auto minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"back sub" "body body"!important;padding-top:0!important;row-gap:8px!important}
-html body.pch-on #menuov #tabs .secbar,html body.pch-on #menuov .mo-tools,html body.pch-on #menuov .mo-home{display:none!important}
+html body.pch-on #menuov #tabs .secbar,html body.pch-on #menuov .mo-tools{display:none!important}
 html body.pch-on #menuov .mo-back{grid-area:back;width:auto!important;max-width:none!important;height:40px;align-self:center}
 html body.pch-on #menuov #tabs{grid-area:sub;min-width:0}
 html body.pch-on #menuov #tabs .subbar{min-height:40px}

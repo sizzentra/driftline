@@ -115,15 +115,6 @@ function renderShop(P){
   <div class="grid">${gearTiles}</div><h2 style="margin-top:18px">Bait</h2><div class="grid">${shopBait.map(baitTile).join('')}</div>
   <h2 style="margin-top:18px">Special lures</h2><p class="sub">Can’t be bought. They come out of junk you fish up: cheese, disco balls, magnets, gold.</p><div class="grid">${junkBait.map(baitTile).join('')}</div>`;
 }
-function renderSkills(P){ const free=ptsFree(), cost=50*S.lvl;
-  P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">You get 1 skill point per angler level, plus bonus points from feats. ${ptsSpent()} of ${Object.values(PERKS).reduce((a,p)=>a+p.max,0)} ranks learned.</p></div>
-  <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">points to spend</div></div>
-  <button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-  <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k); return `<div class="tile ${r>=p.max?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
-    <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div>
-    <div class="meta">${p.d}</div><div class="val" style="font-size:14px">Each rank: ${p.per}</div>
-    <button class="btn" data-act="perk" data-k="${k}" ${free>0&&r<p.max?'':'disabled'}>${r>=p.max?'Maxed':'Learn rank '+(r+1)}</button></div>`; }).join('')+'</div>';
-}
 function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');

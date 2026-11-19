@@ -1,6 +1,7 @@
 // iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 1: fixes (4)', items:[
+const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9, part 1: fixes (5)', items:[
+  'Clean-up: unused old parts removed (retired Menu and Overview buttons, an old hairstyle, old dolphins and Boardwalk drawings). Nothing should look different; tell me if anything does.',
   'Settings: only the Settings tab lights up (the gear no longer lights up next to it).',
   'Narrow windows (split-screen): the side panel shows icons only, so all sections fit.',
   'Pets in the shop and previews are awake at night (they showed asleep in Pets › Find more).',

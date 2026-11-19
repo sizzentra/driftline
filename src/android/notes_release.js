@@ -203,4 +203,6 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'An empty Trophy Room fills the page with a wall of empty plaques instead of a small strip.',
   'Aquarium coins use the short form for big amounts (like the top bar), so they always fit.',
   'Inside Settings only the Settings tab lights up (the gear next to it no longer lights up too).',
-  'In narrow windows the side panel shows its icons, so every section fits without scrolling.']});
+  'In narrow windows the side panel shows its icons, so every section fits without scrolling.',
+  '## Behind the scenes',
+  'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});

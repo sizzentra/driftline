@@ -114,7 +114,6 @@ m33wrap('starfall','live',function(P,t,hz){ if(!S.settings.effects) return; for(
 // glowing seams, lava pulses running down its veins, and the hills get scrub, dead trees and rock outcrops.
 // =====================================================================
 V3SCENES.ember.noClouds=true;
-const EMB={ vx:()=>W*.62, vw:()=>W*.26, vh:()=>H*.22 };
 function embCone(x,hz){ const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh; x.beginPath(); x.moveTo(vx-vw,vb); x.quadraticCurveTo(vx-vw*.4,vb-vh*.35,vx-cw,ty); x.lineTo(vx-cw*.4,ty+vh*.03); x.lineTo(vx+cw*.3,ty+vh*.015); x.lineTo(vx+cw,ty); x.quadraticCurveTo(vx+vw*.45,vb-vh*.4,vx+vw,vb); x.closePath(); }
 m33wrap('ember','sky',function(P,t,hz){ const vx=W*.62, ty=hz+1-H*.22, night=P.night;
   // ash plumes: long soft streams leaving the crater and drifting downwind, built from overlapping feathered puffs

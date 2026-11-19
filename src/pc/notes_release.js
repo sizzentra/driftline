@@ -79,4 +79,6 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Rods: the first tab is called “Your rods”, and the presets stay on it.',
   'Turning hints off no longer leaves an empty box at the bottom of the screen.',
   'Skills: the old note about specialisations is gone.',
-  'Aquarium coins use the short form for big amounts (like the header); hover for the exact number.']});
+  'Aquarium coins use the short form for big amounts (like the header); hover for the exact number.',
+  '## Behind the scenes',
+  'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});

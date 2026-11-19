@@ -185,7 +185,7 @@ SEARCH_IDX.push(
   res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){} },true);
   q.placeholder='Search, or pick a page below'; })();
 // badges say what is waiting
-setInterval(()=>{ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
+setInterval(()=>{ if(!MENU_OPEN) return; /* tooltips only matter while the menu is open */ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
     const tip=parts.length?sec.name+': '+parts.join(', '):sec.name; if(b.title!==tip) b.title=tip; });
   T.querySelectorAll('.subp').forEach(p=>{ const t=p.dataset.sub, n=menuDot(t), tip=(menuTabLabel(t)[1]||'')+(PAGE_DESC[t]?': '+PAGE_DESC[t]:'')+(n?' ('+n+' waiting)':''); if(p.title!==tip) p.title=tip; }); },1500);
 document.head.insertAdjacentHTML('beforeend',`<style>

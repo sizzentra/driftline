@@ -6,7 +6,6 @@
 
 // ---------- Sell all filters: by rarity, by price, or both ----------
 const SELL_RAR=[['all','Any rarity'],['0','Common only'],['1','Up to Uncommon'],['2','Up to Rare'],['3','Up to Epic'],['4','Up to Legendary']];
-const SELL_PRICE=[[0,'Any price'],[50,'Under 50'],[200,'Under 200'],[1000,'Under 1k'],[5000,'Under 5k'],[20000,'Under 20k'],[100000,'Under 100k']];
 function sellFilterOn(){ const s=S.settings; return (s.sellR&&s.sellR!=='all')||(+s.sellP>0); }
 // a fish stays in the cooler when it is protected (Protect rare fish setting) or does not match the filter
 // shinies: the "Sell shinies too" box decides on its own (it starts as before: off while Protect rare fish is on)

@@ -2,10 +2,8 @@
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:auto minmax(0,1fr) 136px!important}
-  #menuov .mo-back,#menuov .mo-home{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
+  #menuov .mo-back{justify-content:flex-start!important;gap:7px!important;padding:0 9px!important;font-size:12px!important}
   #menuov .mo-back::after{content:"Back"!important;font-size:12px!important}
-  #menuov .mo-home .mo-hl{display:inline!important;font-size:12px!important}
-  #menuov .mo-hdot{top:50%!important;right:6px!important;transform:translateY(-50%)}
   body #menuov #tabs.secmode .secb{justify-content:flex-start!important;gap:7px!important;padding:0 28px 0 9px!important;font-size:12px!important}
   body #menuov #tabs.secmode .secb .secl{display:inline!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}

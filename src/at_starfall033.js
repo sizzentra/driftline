@@ -3,7 +3,6 @@
 // swimming slowly across the sky, a comet that crosses now and then, lanterns drifting up off the lake, and
 // star-blossoms that open on the water. Everything eases in and out; nothing pops.
 // =====================================================================
-const SF3={};
 m33wrap('starfall','sky',function(P,t,hz){ const night=P.night, vis=.35+night*.65;
   // nebula clouds: soft colour pools that breathe slowly
   g.save(); g.globalCompositeOperation='lighter';

@@ -11,7 +11,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 
 ## ▶ Where we left off (read first; keep it to current facts only)
 - **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7).
-- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). Batch 1 (bugs) mostly done and on the phone test apps + /next/; left in batch 1: [32] [34] [42 choppy] [56] [8].
+- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). Batch 1 (bugs) mostly done and on the phone test apps + /next/; left in batch 1: [32] [34] [42 choppy] [56] [8]. Clean-up pass done 2026-11-19 (dead code removed, scans clean); QC order now data-driven (docs/QC_ANALYSIS.md).
 - **Asked, waiting for the director:** whether today’s screenshot fixes go live as a small patch (0.4.8.7.1).
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
@@ -33,29 +33,27 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 9. **Smooth over frugal where it is cheap:** animations and effects run at full frame rate when the measured cost is small; phones throttle only what measurements show is costly.
 
 ## The round checklist (every round, in this order)
-1. Edit `src/`. Pick shared vs platform (rule 3 above). New page / chip / section / water / currency: run "Adding new things" below.
-2. `build.ps1 -Preview`.
-3. **Gate, after the LAST edit:** parse every built page with `new Function` (site/next/*.html and the release pages), boot each changed build once, and check that each page's stamp matches the version file it fetches.
-4. **QC** (test hooks and the async pattern under "Testing"):
-   - `__qa()` all passing on Android, iPhone and PC (59 checks since 0.4.9; it includes "page tabs": nothing hidden by a page tab may stay on screen). A failure caused by the save's state is a test bug: make the test state-independent.
-   - Phones: `__layoutQC`, `__searchQC`, `__questsQC` (one at a time; back-to-back runs collide), `__spec` at the phone sizes below with `__safeSim` safe areas, plus one split-screen pass (440×460, 375×812).
-   - PC: `__qa`, every page opens, full screen simulated, and the PC diff: a phone-only change must leave `site/next/pc.html` identical to HEAD (stamps normalized).
-   - Per-frame code changed: every water × dawn/day/dusk/night (× weather when it matters) with `__drawCost`, on a heavy save (decorations at every water, effect cosmetics, tinted pet, Lily) and a fresh one; scenery-rebuild counts through light and weather transitions.
-   - Art changed: `__fishParts()` and `__fishSheet({loc})` for every water, big renders of anything suspicious, every pet × pose × accessory, every area × time × weather.
-   - Touch / installed-app paths touched: finger scrolling inside `#stage` (`touch-action`), activation on pointerup not pointerdown, `display-mode: fullscreen` vs `document.fullscreenElement`, taps (normal, slid, redrawn under the finger, right after Back).
+The order comes from the incident data (`docs/QC_ANALYSIS.md`, `docs/qc_incidents.csv`): cheapest and most severe first, slow and device-specific last, nothing edited after the final gate.
+1. Edit `src/`. Pick shared vs platform (rule 3 above). New page / chip / section / water / currency: run "Adding new things" below. A new check is **proven when it is written**: put the old bug back once and watch it fail (3 of 6 new checks on 2026-11-19 passed with their bug present until proven).
+2. `build.ps1 -Preview`, then **gate 1: parse every built page** (`new Function`) and boot each changed build once. Script breaks were all severity 3 and this catches them in seconds; if it fails, nothing after it means anything.
+3. **`__qa()` on Android, iPhone and PC** (test hooks and the async pattern under "Testing"; one build at a time). It covers logic plus page tabs, no-name-twice, menu top row, page bars, empty pages, the rail and sleeping pets on **every page** (`qaAllPages()`). A failure caused by the save's state is a test bug: make the test state-independent.
+4. **Layout sweep, one tool at a time** (back-to-back runs collide): `__spec` at every phone size with `__safeSim` safe areas **and** split-screen (440×460, 375×812, 360×780), `__layoutQC`, `__searchQC`, `__questsQC`; PC: every page opens, full screen simulated, and a phone-only change leaves `site/next/pc.html` identical to HEAD (stamps normalized). Layout cuts are the largest category (14, 8 reached players).
+5. **Only when it applies:**
+   - Per-frame code or saves changed: every water × dawn/day/dusk/night (× weather) with `__drawCost` on a heavy save and a fresh one; the 120 Hz frame-loop copy; scenery rebuild counts through transitions.
+   - Art changed: `__fishParts()`, `__fishSheet({loc})` for every water, every pet × pose × accessory, every area × time × weather.
+   - Balance changed: `__bal`. Taps: `__fnTime(names, fn)` (no heavy work inside a tap).
    - Systems touched: walk `docs/SYSTEMS_MAP.md` and test every listed place on every platform.
-   - **Every page means every page:** side-panel sections, More, AND the pages opened from the top bar (Cooler, Aquarium, Home, Fish Log, Trophy Room). Checks get their list from `qaAllPages()` in bn_qa04, never from MENU_SECS alone (the director’s 2026-11-19 screenshots were all top-bar pages no check visited).
-   - **A new check is proven before it is trusted:** put the old bug back once (an injected style or state) and watch the check fail; a check that never failed proves nothing (two of four new checks on 2026-11-19 passed with the bug present until fixed).
-   - **Chrome is not the iPhone:** this test browser never shows Safari-only layout differences or touch-only styles. Layouts must not hang on one sizing mechanism (a rail sized only by being stretched collapsed on iPhone); when a phone screenshot shows something Chrome can’t reproduce, fix it robustly, add a check that forces the failing condition, and say plainly that it is not verified on Safari.
-   - Compare what the player sees: names from the shown text (`tabShownName`), never from data attributes (`data-sect="Dock"` shows as "Your boat").
-   - Scene state (night, weather, the angler’s pose) is put back by the code that set it; a save-and-restore copied into several callers means the source is wrong: fix the source and delete the copies.
-   - A layout change runs `__spec` at every size it touches (narrow windows too); if the new size is right, MB_FRAME and the PLATFORM_DESIGN table change with it in the same commit.
-   - Balance changed: the `__bal` simulator. Taps: no heavy one-time work inside a tap (`__fnTime(names, fn)`).
-   - Read every new text as that platform's player ("click" and "Space" are wrong on phones). Then a harsh per-platform critique: hard to find for new players? what is missing? how good does it look here?
-5. **Notes:** `notes_release.js` (players) and `notes_test.js` (testers) for every platform whose build changed; rules under "Patch notes and versions".
-6. **Docs:** SYSTEMS_MAP entry, PLATFORM_DESIGN when a standard changed, `docs/LESSONS.md` for every new error or proven approach, "Where we left off" above.
-7. **Commit**, then `publish_testapps.ps1` (phones). Live only per "Publishing".
-8. **Closing message:** where it is + stamp, what changed, what was found and fixed, what could not be verified (real devices).
+6. **Device risks (escaped 100% so far):** touch / installed-app paths (finger scroll inside `#stage`, activation on pointerup, `display-mode: fullscreen`, taps normal / slid / redrawn / after Back) and anything Safari could size differently (see "Code rules"). These go in the closing message as "needs a real-phone check".
+7. Read every new text as that platform's player ("click" and "Space" are wrong on phones), then a harsh per-platform critique: hard to find for new players? what is missing? how good does it look here?
+8. **Notes** (`notes_release.js`, `notes_test.js` for every changed build), **docs** (SYSTEMS_MAP, PLATFORM_DESIGN when a standard changed, LESSONS, "Where we left off", PLAN marks), and **one row per new bug in `docs/qc_incidents.csv`** (who found it, where, severity, what catches it now).
+9. **Gate 2, after the LAST edit:** parse every page again and check each page's stamp against the version file it fetches (the one live outage came from an edit after QC). Then commit, `publish_preview.ps1` / `publish_testapps.ps1`; live only per "Publishing"; check the published stamps.
+10. **Closing message:** where it is + stamp, what changed, what was found and fixed, what could not be verified (real devices, Safari).
+
+## End of every project (automatic, never asked for)
+When a project or a batch of the plan is finished, before reporting it done:
+1. **Clean-up pass on the code:** dead code (builders whose output is hidden or never shown, unused functions, styles that never match), the same work done twice (two blocks owning one element, save/restore workarounds copied into callers, duplicated helpers), per-frame or per-second work that could be event-driven or cached, and leftovers from moved features. Fix them, then the full checklist above.
+2. **Clean-up pass on the rules:** remove rules that no longer apply, merge duplicates, correct anything the code contradicts (this file, PLATFORM_DESIGN, LESSONS; memory only points here).
+3. **Re-run the QC numbers** in `docs/QC_ANALYSIS.md` from the incident log; if a category keeps escaping, change the checklist order or add a check, and say what changed.
 
 ## Platform rules (director, 2026-11-18: "create ground rules going forward so we'll never have the problem")
 `build.ps1` enforces 1–3 and refuses to build when one is broken.
@@ -117,7 +115,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **Hosting:** GitHub Pages (`sizzentra/driftline`, `gh-pages` = `site/`); the service worker fetches network-first; the update banner compares the page stamp with `version.txt` (PC) / `version-phone.txt` (phones).
 - **Windows app:** `desktop/Driftline.cs` (WebView2 wrapper of the live site); `desktop/build_desktop.ps1` builds `site/download/Driftline-Setup.zip` (rebuild only when Driftline.cs changes).
 
-## Code gotchas (details and more in docs/LESSONS.md)
+## Code rules (details and history in docs/LESSONS.md)
 - One-line style files: a `//` comment mid-line eats the rest of the line; use `/* */`.
 - `e_ui.js` comes after the platform layers: never read its `let/const` at load from a platform file; wrap functions only.
 - Check whether a name is `const` or `function` before wrapping it (wrapping a const kills the page).
@@ -125,6 +123,13 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - No regex look-behind `(?<=` in phone code (older iPhones fail to parse the whole page).
 - Shell edits: `sed`/`perl` mangle `$`, backslashes and `\b`, and multi-line patterns fail on CRLF; use the Edit tool for those, and `grep -rlP "\x08" src` after shell edits.
 - `git checkout -- site/next` serves an old build locally until you rebuild.
+- **Safari sizes things differently from Chrome:** never let a layout hang on one mechanism (a rail sized only by being stretched collapsed on iPhone); when a phone screenshot shows something Chrome can't reproduce, fix it robustly, add a check that forces the failing condition, and say it is not verified on Safari.
+- **No `!important` on `display`** for anything that can sit in a tabbed page (page tabs hide with an inline `display:none`); if unavoidable, add `:not([style*="display: none"])`.
+- **One owner per element:** one block creates, places and hides it; find page parts by their title or a data attribute, never by a styling class or an old class a page engine may drop.
+- **Compare what the player sees:** tab names from the shown text (`tabShownName`), never from `data-sect` ("Dock" shows as "Your boat").
+- **Scene state (night, weather, the angler's pose) is put back by the code that set it;** a save-and-restore copied into several callers means the source is wrong: fix the source, delete the copies.
+- **A layout change runs `__spec` at every size it touches;** when the new size is right, MB_FRAME and the PLATFORM_DESIGN table change in the same commit.
+- **When a feature moves, its old builder and hiding rules are deleted in the same change** (an old on-water Bait button was still built every second and hidden by CSS).
 
 ## Exclusive gifts
 - **Lily** (`d10_lily.js`): Cam's exclusive pet (a tricolour mini Aussie drawn from his real dog). Unlocks only with a gift code redeemed in Settings (stored base64 in `redeemGift`; the director has it). `src:'gift'` hides her from other players and from the "own all pets" feat. Redeeming shows Cam's own notes card (`LILY_PATCH`).

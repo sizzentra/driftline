@@ -1,0 +1,81 @@
+id,date,incident,category,found_by,found_at,severity,caught_now_by
+1,2026-11-18,Menus under the iPhone camera (safe areas ignored),device-shape,director,test_app,2,spec+safeSim
+2,2026-11-18,Wrong phone size assumed (932x430),process,director,test_app,1,rule:look-up-sizes
+3,2026-11-18,Label cut Aquari... (flex chip shrank),layout-cut,director,test_app,1,spec
+4,2026-11-18,Split-screen fell to old layout,device-shape,me_manual,local,1,spec-narrow
+5,2026-11-18,\b in sed wrote a backspace into JS,script-break,my_check,local,3,parse-gate
+6,2026-11-18,Wrapping a const killed the page,script-break,my_check,local,3,parse-gate+boot
+7,2026-11-18,Apostrophe in notes broke file,script-break,my_check,local,3,parse-gate
+8,2026-11-18,Aquarium two-tab CSS beat inline grid,css-override,me_manual,local,1,spec
+9,2026-11-18,Fixed nav height stretched tab row,layout-cut,me_manual,local,1,spec
+10,2026-11-18,scrollTop during render (56->90 ms),performance,my_check,local,1,fnTime
+11,2026-11-18,Hidden section labels never fitted,layout-cut,my_check,local,1,layoutQC
+12,2026-11-18,Test-state pollution (volume 30%),test-tool,me_manual,local,1,rule:restore-state
+13,2026-11-18,Section identity by text broke with badges,test-tool,my_check,local,1,data-sect
+14,2026-11-18,Top bar legacy grid pushed chips to row 2,layout-cut,director,test_app,2,spec
+15,2026-11-18,Live event replaced the goal chip,ui-logic,director,test_app,1,qa
+16,2026-11-18,Home view drew a generic dock,ui-logic,director,test_app,1,draw-compare
+17,2026-11-18,Scene crop caught the weather label,layout-cut,me_manual,local,1,visual
+18,2026-11-18,No resize events after a turn,device-shape,director,test_app,2,resize-safety-net
+19,2026-11-18,Wardrobe tab labels cut,layout-cut,director,test_app,1,spec
+20,2026-11-18,Fight info scattered (eyes jump),design,director,test_app,1,design-review
+21,2026-11-18,v3rgba parsed hex every call,performance,my_check,local,1,drawCost-matrix
+22,2026-11-18,Rail badges clipped in scrolling box,layout-cut,director,live,2,spec-badges
+23,2026-11-18,Regex look-behind crashes old iPhones,script-break,me_manual,local,3,grep-lookbehind
+24,2026-11-18,Mountains striped on iPhone (WebKit seams),safari-only,director,test_app,2,none-in-chrome
+25,2026-11-18,Settings gear cut off at top right,layout-cut,director,test_app,2,spec
+26,2026-11-18,Folded rail icons off-centre (:has hidden),css-override,director,test_app,1,spec
+27,2026-11-18,Home live view 4 fps (old wrapper inside),performance,director,test_app,2,frame-loop-test
+28,2026-11-18,Rod presets on every tab,tabs-state,director,test_app,1,qa:page-tabs
+29,2026-11-18,Aquarium strip rule broke page summaries,css-override,my_check,local,1,layoutQC
+30,2026-11-18,Missing bracket killed the whole game,script-break,my_check,local,3,parse-gate
+31,2026-11-18,Catdock not rebuilt with MENU_SECS,ui-logic,me_manual,local,1,sweep-both-rails
+32,2026-11-18,checkout site/next served old build,test-tool,me_manual,local,1,rule:rebuild-after-checkout
+33,2026-11-18,New page tabs showed solid squares,layout-cut,my_check,local,1,layoutQC
+34,2026-11-18,Slow tab switching (3 layouts per switch),performance,director,test_app,2,fnTime
+35,2026-11-18,perl ate $( in replacement,script-break,my_check,local,3,parse-gate
+36,2026-11-18,Patch notes could not be closed (touch scroll),touch-app,director,live,3,touch-checklist
+37,2026-11-18,Deferred tidy broke the Aquarium layout,ui-logic,director,live,2,layoutQC-after-last-edit
+38,2026-11-18,Back-to-back QC tools collided,test-tool,me_manual,local,0,rule:one-at-a-time
+39,2026-11-18,Canvas chips invisible to DOM checks,test-tool,director,test_app,1,canvas-box-check
+40,2026-11-18,Unlock-all was a busy state,save-state,director,test_app,1,check-disabled-reason
+41,2026-11-18,Badge sizes drifted per page,layout-cut,director,test_app,1,spec-MB_UI
+42,2026-11-18,Android full screen did not remember,touch-app,tester,test_app,2,touch-checklist
+43,2026-11-18,Endless update bar on phones,release,director,live,3,gate:stamp-vs-version-file
+44,2026-11-18,Android 26 fps (120 Hz uncapped),performance,tester,live,3,frame-loop-120hz
+45,2026-11-18,Live outage: apostrophe edited after QC,script-break,director,live,3,parse-gate-after-last-edit
+46,2026-11-18,Full screen needs a finished tap,touch-app,tester,test_app,2,touch-checklist
+47,2026-11-18,Test notes never re-opened,release,director,test_app,1,hash-id
+48,2026-11-18,Slow only with a moved save (decorations),save-state,tester,live,3,heavy-save-fixture
+49,2026-11-18,App full-screen mode hidden from API,touch-app,tester,test_app,2,touch-checklist
+50,2026-11-19,Live notes edited after release,release,me_manual,local,1,rule:frozen-entries
+51,2026-11-19,Phone-only fixes by habit (PC kept waste),process,director,local,1,rule:shared-vs-platform
+52,2026-11-19,Chased costs before auditing redundancy,process,director,local,1,rule:audit-first
+53,2026-11-19,__qa awaited directly (timeout),test-tool,me_manual,local,0,rule:async-poll
+54,2026-11-19,Save-state test failures explained away,test-tool,director,local,1,state-independent-tests
+55,2026-11-19,QC at impossible upright size,test-tool,me_manual,local,0,rule:real-sizes
+56,2026-11-19,Five copies of the QC list drifted,process,director,local,1,one-rulebook
+57,2026-11-19,Phone branches in shared files,code-structure,me_manual,local,1,build-guard-MOB
+58,2026-11-19,1 px labels flagged as cut,test-tool,my_check,local,0,trunc-skip-hidden
+59,2026-11-19,A rule I wrote was false,process,me_manual,local,1,rule:check-rules-against-code
+60,2026-11-19,Version tags collided across platforms,release,me_manual,local,1,one-version
+61,2026-11-19,!important display beat page tabs (Events),tabs-state,director,live,2,qa:page-tabs
+62,2026-11-19,Feats cards on every tab,tabs-state,my_check,local,1,qa:page-tabs
+63,2026-11-19,Pets filter chips on every tab,tabs-state,my_check,local,1,qa:page-tabs
+64,2026-11-19,Two phone blocks managed one box (presets),code-structure,me_manual,local,1,rule:one-owner
+65,2026-11-19,Styling class broke grouping (weekly badge),ui-logic,tester,live,1,manual-tab-content
+66,2026-11-19,Dead code (old Bait button every second),code-structure,me_manual,local,1,cleanup-pass
+67,2026-11-19,Menu rail cut after Quests (iPhone),safari-only,director,live,2,qa:rail-not-stretched(partial)
+68,2026-11-19,Tab name shown twice (Your tank),duplicate-name,director,live,2,qa:no-name-twice
+69,2026-11-19,Ready coins cut (fixed columns),layout-cut,director,live,2,qa:page-bars
+70,2026-11-19,Empty Trophy Room tiny,design,director,live,2,qa:empty-pages
+71,2026-11-19,New checks walked only MENU_SECS,test-tool,me_manual,local,1,qaAllPages
+72,2026-11-19,Two new checks passed with bug present,test-tool,me_manual,local,1,rule:prove-checks
+73,2026-11-19,Shell ate regex backslashes,script-break,my_check,local,3,edit-tool+parse-gate
+74,2026-11-19,Shop pets asleep at night (shared state),shared-state,director,live,2,qa:pets-awake
+75,2026-11-19,Doubled Settings header,duplicate-name,director,live,1,qa:menu-top-row
+76,2026-11-19,Narrow top bar broke the frame standard,layout-cut,my_check,local,1,spec-narrow
+77,2026-11-19,Aquarium bank overflow with huge amounts,layout-cut,my_check,local,1,qa:page-bars
+78,2026-11-19,Hint box empty with hints off,layout-cut,director,live,1,manual
+79,2026-11-19,Search needed press-and-hold (Android),touch-app,tester,live,2,touch-checklist
+80,2026-11-19,Weekly quest badged the Daily tab,ui-logic,tester,live,1,manual-tab-content

@@ -80,7 +80,6 @@ function menuEls(){ return {T:$('tabs'), P:$('panel'), toast:$('toast'), stage:$
 const MO=document.createElement('div'); MO.id='menuov'; MO.hidden=true; MO.setAttribute('role','dialog'); MO.setAttribute('aria-modal','true'); MO.setAttribute('aria-label','Menu');
 MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   <button type="button" class="mo-back" data-mo="close" aria-label="Back to fishing (Esc)" title="Back to fishing (Esc)"><svg class="mo-bi" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SEC_ICONS.fish}</svg><span class="mo-bl">Back to fishing</span></button>
-  <button type="button" class="mo-home" data-mo="home" aria-label="Overview" title="Overview: your cooler, bounties, aquarium, events and more"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mo-hl">Overview</span><span class="mo-hdot" hidden></span></button>
   <div class="mo-title" aria-live="polite"></div>
   <div class="mo-tools"><span class="mo-pause" hidden title="Your line waits while a menu is open">⏸ <span>Line waiting</span></span><span class="mo-coin" title="Your coins"><span class="coin" id="mocoin">0</span></span><button type="button" class="mo-tb" data-mo="search" aria-label="Search the menus" title="Search (/)">🔍</button><button type="button" class="mo-tb" data-mo="settings" aria-label="Settings, stats and save" title="Settings, stats and save">⚙</button></div>
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
@@ -107,19 +106,9 @@ function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
 { const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) MENU_WANT=true; menuMode(); _st(t); menuHead(); }; }
 function menuHead(){ if(!MENU_OPEN) return; const sec=menuSecOf(S.tab), t=MO.querySelector('.mo-title'), nm=S.tab===DASH?'Overview':sec?(sec.id==='more'?'Settings':(sec.short||sec.name)):'';
   if(t.textContent!==nm) t.textContent=nm; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy;
-  const h=MO.querySelector('.mo-home'); if(h){ const on=S.tab===DASH; h.classList.toggle('on',on); h.setAttribute('aria-pressed',on?'true':'false'); } }
+  }
 MO.addEventListener('click',e=>{ const b=e.target.closest('[data-mo]'); if(!b) return; e.stopPropagation(); const m=b.dataset.mo;
   if(m==='close') closeMenu(); else if(m==='home'){ if(S.tab!==DASH){ setTab(DASH); save(); } } else if(m==='search'){ const s=$('searchbtn'); if(s) s.click(); } else if(m==='settings'){ const mt=MENU_MORE.tabs, last=menuLast().more; setTab(S.tab!=='settings'&&mt.includes(last)&&menuSecOf(S.tab)!==MENU_MORE?last:'settings'); save(); } });
-// ---------- the Menu button on the water (fishing mode) ----------
-const MB=document.createElement('button'); MB.id='menubtn'; MB.type='button'; MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M)';
-MB.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg><span class="mbl">Menu</span><span class="mbdot" hidden></span>';
-$('stage').appendChild(MB); ['pointerdown','touchstart','mousedown'].forEach(ev=>MB.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-MB.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(DASH); });
-// what is waiting: the menu badges plus the Overview's ready cards (a full cooler, a finished bounty, coins in the aquarium)
-// how many things are waiting (a page with something new counts once, however big its own number is)
-function waitingCount(){ let n=0; try{ for(const s of MENU_SECS) for(const t of s.tabs) if(menuDot(t)) n++; if(S.cooler.length>=gv('cooler')) n++; if(S.tankBank>=1&&S.tank.length) n++; }catch(e){} return n; }
-setInterval(()=>{ const n=waitingCount(), d=MB.querySelector('.mbdot'), t=n>99?'99+':String(n); const al='Open the menu (M)'+(n?', '+n+' thing'+(n===1?'':'s')+' waiting':''); if(MB.getAttribute('aria-label')!==al){ MB.setAttribute('aria-label',al); MB.title=al; } if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
-  const hd=MO.querySelector('.mo-hdot'); if(hd){ const r=(S.cooler.length>=gv('cooler')?1:0)+(S.tankBank>=1&&S.tank.length?1:0)+S.bounties.filter(bDone).length; if(r){ hd.textContent=r; hd.hidden=false; } else hd.hidden=true; } },1000);
 // M opens and closes the menu (it used to fold the side menus away)
 addEventListener('keydown',e=>{ if((e.key!=='m'&&e.key!=='M')||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; const sov=$('searchov'); if(sov&&!sov.hidden) return; e.preventDefault(); e.stopImmediatePropagation(); toggleMenu(); },true);
 // Esc closes the menu (the search box, a confirmation or a card handle Esc themselves first)
@@ -386,29 +375,13 @@ body.phone-app.dl-fish .hud > .stat.loc,body.phone-app.dl-fish .hud > #buffchip,
   body.dl-fish .hud > #buffchip,body.dl-fish .hud > .hudbtns{display:none!important}
 }
 /* ---------- the Menu button ---------- */
-#menubtn{position:absolute;right:12px;bottom:12px;z-index:6;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 18px 0 14px;border-radius:15px;border:1px solid #ffd36a99;background:linear-gradient(180deg,#24395cee,#15233ef2);color:#fff3cf;font:800 15px var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:0 8px 22px #02060fcc,0 0 18px #ffd36a2a;transition:transform .12s,box-shadow .18s,border-color .18s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#menubtn:hover{border-color:var(--gold,#ffd36a);box-shadow:0 8px 22px #02060fcc,0 0 26px #ffd36a55;transform:translateY(-1px)}
-#menubtn:active{transform:scale(.97)}
-#menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:3px}
-#menubtn .mbdot{position:absolute;top:-8px;right:-7px;min-width:21px;height:21px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 12px/21px var(--display,system-ui);text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008}
-#menubtn .mbdot[hidden]{display:none}
-body.card-open #menubtn{opacity:0;pointer-events:none}
-@media (max-height:560px){#menubtn{min-height:42px;right:10px;bottom:10px;font-size:14px;padding:0 15px 0 12px}}
-@media (max-width:420px){#menubtn{right:10px;bottom:10px}}
 .dlprev{right:auto!important;left:50%!important;bottom:4px!important;transform:translateX(-50%);opacity:.8}
 /* ---------- the full-screen menu: no pinned bars, every part is a row of one screen-tall grid (works under Safari's toolbars) ---------- */
 #menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:100vh;height:100dvh}
 #menuov .mo-in{grid-template-columns:auto auto minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}
 #menuov .mo-title{display:none!important}
-#menuov .mo-home{grid-area:home;align-self:center;position:relative;display:inline-flex;align-items:center;gap:7px;min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line,#26385180);background:var(--glass,#111c2e);color:#bcd0e4;font:800 14px var(--display,system-ui);cursor:pointer;transition:background .15s,border-color .15s,color .15s}
-#menuov .mo-home:hover{border-color:#5a7ea8aa;color:#eef3f8}
-#menuov .mo-home.on{background:linear-gradient(180deg,#ffe08a,#f2b84e);border-color:#ffe7a6;color:#2a1806}
-#menuov .mo-home:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}
-#menuov .mo-hdot{position:absolute;top:-7px;right:-6px;min-width:19px;height:19px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 11px/19px var(--display,system-ui);text-align:center}
-#menuov .mo-hdot[hidden]{display:none}
 @media (max-width:1100px){#menuov .mo-in{grid-template-rows:auto auto auto minmax(0,1fr)!important;grid-template-areas:"back home . tools" "secs secs secs secs" "sub sub sub sub" "body body body body"!important}}
-@media (max-width:640px){#menuov .mo-home{min-height:42px;padding:0 11px}#menuov .mo-home .mo-hl{font-size:13px}}
-@media (max-width:460px){#menuov .mo-home .mo-hl{display:none}#menuov .mo-home{padding:0 11px}#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
+@media (max-width:460px){#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
 #menuov .mo-in{overflow:hidden}
 /* phones held upright: the categories are the bottom row of the same grid (thumb reach), never a pinned bar */
 @media (max-width:700px) and (orientation:portrait){
@@ -416,7 +389,7 @@ body.card-open #menubtn{opacity:0;pointer-events:none}
   body #menuov #tabs.secmode .secbar{position:static!important;top:auto!important;bottom:auto!important;left:auto!important;right:auto!important;transform:none!important;margin:0 calc(-1 * max(10px,env(safe-area-inset-right))) 0 calc(-1 * max(10px,env(safe-area-inset-left)));padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}
   body #menuov #panel{padding-bottom:16px!important}
 }
-@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}#menuov .mo-home{min-height:38px;padding:0 10px}#menuov .mo-home .mo-hl{display:none}}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}}
 /* the Overview inside the menu: cards across the full width */
 #menuov #panel .dash{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
 @container (min-width:640px){#menuov #panel .dash .dw.wide{grid-column:span 2}}
@@ -574,7 +547,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px) and (max-width:820px){
   body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
   body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
-  #menuov .mo-back,#menuov .mo-home{padding:0 8px!important}
+  #menuov .mo-back{padding:0 8px!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -665,16 +638,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* the smallest sideways phones: an icon rail (names on long-press / hover), so pages get the width */
 @media (orientation:landscape) and (max-height:560px){
   #menuov .mo-in{grid-template-columns:52px minmax(0,1fr) auto!important;column-gap:10px!important}
-  #menuov .mo-back,#menuov .mo-home{justify-content:center;padding:0!important;font-size:0!important}
+  #menuov .mo-back{justify-content:center;padding:0!important;font-size:0!important}
   #menuov .mo-back::after{content:none!important}
   #menuov .mo-back svg:not(.mo-bi){display:none!important}
-  #menuov .mo-home .mo-hl{display:none!important}
   body #menuov #tabs.secmode .secb{justify-content:center;padding:0!important;position:relative}
   body #menuov #tabs.secmode .secb .secl{display:none!important}
   body #menuov #tabs.secmode .secb .seci svg{width:20px;height:20px}
   body #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;left:auto!important;transform:none!important;min-width:17px;height:17px;font-size:10px;line-height:17px;margin:0!important}
   body #menuov #tabs.secmode .secb .seclive{position:absolute!important;top:3px!important;left:4px!important;right:auto!important;margin:0!important}
-  #menuov .mo-hdot{top:-5px!important;right:-5px!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -700,37 +671,35 @@ document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:520px
 // =====================================================================
 const CD=document.createElement('nav'); CD.id='catdock'; CD.setAttribute('aria-label','Menu categories');
 CD.innerHTML=MENU_SECS.map(s=>`<button type="button" class="cdb" data-cd="${s.id}" title="${esc(s.name)}" aria-label="${esc(s.name)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.icon}</svg><span class="cdl">${s.short}</span><span class="cddot" hidden></span></button>`).join('');
-$('stage').appendChild(CD); CD.prepend(MB); MB.querySelector('svg').setAttribute('width','20');
+$('stage').appendChild(CD);
 ['pointerdown','touchstart','mousedown'].forEach(ev=>CD.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
 CD.addEventListener('click',e=>{ const b=e.target.closest('[data-cd]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const sec=MENU_SECS.find(s=>s.id===b.dataset.cd); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; openMenu(list.includes(last)?last:list[0]); });
 setInterval(()=>{ if(MENU_OPEN) return; for(const b of CD.querySelectorAll('.cdb')){ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.cddot'), t=n>99?'99+':String(n); if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
   if(sec.id==='chal'){ const live=!!(S.chal||liveScheds().length); b.classList.toggle('live',live); } } },1000);
 document.head.insertAdjacentHTML('beforeend',`<style>
 #catdock{position:absolute;z-index:6;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:3px;padding:4px;border-radius:17px;background:linear-gradient(180deg,#152540e0,#0c1628ec);border:1px solid #ffffff1c;box-shadow:0 10px 26px #02060fb3;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
-#catdock .cdb,#catdock #menubtn{position:relative!important;inset:auto!important;transform:none;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:64px;height:48px!important;min-height:0!important;padding:0 6px!important;margin:0;border-radius:13px;border:1px solid transparent;background:transparent;color:#c9d7e8;font:800 11px/1.1 var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:none!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s,border-color .15s}
+#catdock .cdb{position:relative!important;inset:auto!important;transform:none;display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:64px;height:48px!important;min-height:0!important;padding:0 6px!important;margin:0;border-radius:13px;border:1px solid transparent;background:transparent;color:#c9d7e8;font:800 11px/1.1 var(--display,system-ui);letter-spacing:.01em;cursor:pointer;box-shadow:none!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s,color .15s,border-color .15s}
 #catdock .cdb:hover{background:#ffffff10;color:#fff}
-#catdock .cdb:active,#catdock #menubtn:active{transform:scale(.95)}
-#catdock #menubtn{border-color:#ffd36a77;background:linear-gradient(180deg,#2a3f63,#1a2a48);color:#fff1c8}
-#catdock #menubtn:hover{border-color:var(--gold,#ffd36a)}
-#catdock .cdb:focus-visible,#catdock #menubtn:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:1px}
+#catdock .cdb:active{transform:scale(.95)}
+#catdock .cdb:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:1px}
 #catdock .cdl,#catdock .mbl{white-space:nowrap}
-#catdock .cddot,#catdock .mbdot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
-#catdock .cddot[hidden],#catdock .mbdot[hidden]{display:none!important}
+#catdock .cddot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
+#catdock .cddot[hidden]{display:none!important}
 #catdock .cdb.live::before{content:"";position:absolute;top:5px;left:calc(50% - 21px);width:8px;height:8px;border-radius:50%;background:#ff5a6a;box-shadow:0 0 8px #ff5a6a;animation:livepulse 1.6s ease-in-out infinite}
 body.card-open #catdock{opacity:0;pointer-events:none}
 /* the tip line and the Rest button sit clear of the bar */
 body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
 /* PC and tablets: icon and name side by side */
 @media (min-width:701px) and (min-height:561px){
-  #catdock .cdb,#catdock #menubtn{flex-direction:row;gap:7px;height:42px!important;padding:0 12px!important;font-size:13px;min-width:0}
-  #catdock .cddot,#catdock .mbdot{top:-7px!important;right:-6px!important}
+  #catdock .cdb{flex-direction:row;gap:7px;height:42px!important;padding:0 12px!important;font-size:13px;min-width:0}
+  #catdock .cddot{top:-7px!important;right:-6px!important}
   #catdock .cdb.live::before{top:4px;left:4px}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:66px!important}
 }
 /* phones held upright: the bar spans the bottom of the water, Rest sits just above it */
 @media (max-width:700px) and (orientation:portrait){
   #catdock{left:6px;right:6px;bottom:6px;transform:none;justify-content:space-between;gap:2px;padding:3px;border-radius:15px}
-  #catdock .cdb,#catdock #menubtn{flex:1 1 0;min-width:0;padding:0 1px!important;height:50px!important;font-size:10.5px}
+  #catdock .cdb{flex:1 1 0;min-width:0;padding:0 1px!important;height:50px!important;font-size:10.5px}
   #catdock .cdl,#catdock .mbl{overflow:hidden;text-overflow:ellipsis;max-width:100%}
   body.dl-fish .resttog{bottom:66px!important;left:8px!important}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:104px!important}
@@ -738,15 +707,15 @@ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
 /* phones held sideways: a compact bar in the bottom middle, Rest on the left of the same row */
 @media (orientation:landscape) and (max-height:560px){
   #catdock{bottom:6px;padding:3px;gap:2px;border-radius:14px}
-  #catdock .cdb,#catdock #menubtn{min-width:58px;height:42px!important;font-size:10px;padding:0 4px!important}
+  #catdock .cdb{min-width:58px;height:42px!important;font-size:10px;padding:0 4px!important}
   #catdock svg{width:18px;height:18px}
   body.dl-fish .resttog{bottom:12px!important}
   body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:56px!important}
 }
-@media (max-width:360px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px} }
+@media (max-width:360px) and (orientation:portrait){ #catdock .cdb{font-size:9.5px} }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:700px) and (orientation:portrait){ #catdock .cdb,#catdock #menubtn{font-size:9.5px;letter-spacing:0} #catdock svg{width:21px;height:21px} }
+@media (max-width:700px) and (orientation:portrait){ #catdock .cdb{font-size:9.5px;letter-spacing:0} #catdock svg{width:21px;height:21px} }
 /* the preview badge (preview builds only) sits at the top middle of the water, clear of the bar */
 .dlprev{top:calc(env(safe-area-inset-top) + 4px)!important;bottom:auto!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;opacity:.7}
 </style>`);
@@ -777,12 +746,12 @@ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:72px!important}
 @media (min-width:701px) and (min-height:561px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important} }
 @media (max-width:700px) and (orientation:portrait){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:114px!important} }
 @media (orientation:landscape) and (max-height:560px){ body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:64px!important} }
-@media (max-width:379px) and (orientation:portrait){ #catdock{left:4px;right:4px;gap:1px;padding:3px 2px} #catdock .cdb,#catdock #menubtn{font-size:9px!important;letter-spacing:-.15px!important} }
+@media (max-width:379px) and (orientation:portrait){ #catdock{left:4px;right:4px;gap:1px;padding:3px 2px} #catdock .cdb{font-size:9px!important;letter-spacing:-.15px!important} }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (min-width:701px) and (max-width:1099px) and (min-height:561px){
-  #catdock .cdb,#catdock #menubtn{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
-  #catdock .cddot,#catdock .mbdot{top:-6px!important;right:calc(50% - 25px)!important}
+  #catdock .cdb{flex-direction:column;gap:2px;height:48px!important;padding:0 6px!important;font-size:11px;min-width:64px}
+  #catdock .cddot{top:-6px!important;right:calc(50% - 25px)!important}
   #catdock .cdb.live::before{top:5px;left:calc(50% - 21px)}
 }
 </style>`);
@@ -925,9 +894,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
 { const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
 openMenu=function(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
-{ const h=MO.querySelector('.mo-home'); if(h) h.remove(); }
-MB.setAttribute('aria-label','Open the menu (M)'); MB.title='Menu (M): opens the page you used last';
-document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:none!important}</style>');
 
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
@@ -1049,7 +1015,6 @@ body.dl-fish #stage > #hint,body.dl-fish .wrap > #hint{bottom:56px!important;lef
 // The landscape side panels fold to icons and back (one setting for the water's panel and the menu's rail).
 // Page tabs (Wardrobe tabs, section tabs) stay pinned while a page scrolls.
 // =====================================================================
-MB.remove();
 { const mini=()=>!!(S.settings&&S.settings.dockMini); const apply=()=>{ document.body.classList.toggle('dock-mini',mini()); document.querySelectorAll('.cdmini').forEach(b=>{ b.setAttribute('aria-pressed',String(mini())); const t=mini()?'Expand panel':'Collapse panel'; b.title=t; b.setAttribute('aria-label',t); const l=b.querySelector('.cdml'); if(l&&l.textContent!==t) l.textContent=t; }); };
   const mk=()=>{ const b=document.createElement('button'); b.type='button'; b.className='cdmini'; b.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span class="cdml">Collapse panel</span>';
     ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.dockMini=!mini(); apply(); save(); dispatchEvent(new Event('resize')); }); return b; };
@@ -1205,7 +1170,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
 // Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
 // the touch was a click; that decision sometimes failed on iPhone and needed a second tap. The phone's own click that follows is ignored.
-{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,#menuov .mo-home,.hud > .hud-link,.hud > .hudx,.hud #goalchip,.hud .hudbtns > button'; // top-bar chips too (director 2026-11-18: tapping Fishing at sometimes did nothing on iPhone)
+{ const NAV='#menuov [data-sec],#menuov [data-sub],#menuov .sect-nav button,#menuov .mo-back,.hud > .hud-link,.hud > .hudx,.hud #goalchip,.hud .hudbtns > button'; // top-bar chips too (director 2026-11-18: tapping Fishing at sometimes did nothing on iPhone)
   // Every finger is tracked on its own (fast taps with two thumbs overlap). While touch is in use, menu buttons are driven only by
   // finger lifts: the phone's own clicks on them are ignored, so a late click can never undo a newer tap. The one exception is a
   // touch that didn't act (the phone cancelled it, or the finger slid): its click is honoured, since nothing else acted for it.
@@ -1217,7 +1182,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
     // the button was redrawn while the finger was down (live countdowns, a page refresh): tap the button that is under the finger now
     if(!d.el.isConnected){ const n=document.elementFromPoint(e.clientX,e.clientY), el2=n&&n.closest&&n.closest(NAV); if(!el2||el2.disabled){ unacted(d.el); return; } d.el=el2; }
     // Back / Overview close the menu: what lay under the finger (a bait picker, a button on the water) must not get the phone's follow-up tap
-    if(d.el.matches('.mo-back,.mo-home')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
+    if(d.el.matches('.mo-back')){ const sh=document.createElement('div'); sh.style.cssText='position:fixed;inset:0;z-index:2147483647;background:transparent;touch-action:none'; const eat=ev=>{ ev.preventDefault(); ev.stopPropagation(); };
       ['pointerdown','pointerup','mousedown','mouseup','click','touchstart','touchend','contextmenu'].forEach(k=>sh.addEventListener(k,eat,{passive:false})); document.body.appendChild(sh); setTimeout(()=>sh.remove(),450); }
     synth=true; try{ d.el.click(); }finally{ synth=false; } },true);
   document.addEventListener('click',e=>{ if(synth) return; const now=performance.now(); if(now-lastTouch>1000) return; // mouse and keyboard keep normal clicks
@@ -1227,7 +1192,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
   document.head.insertAdjacentHTML('beforeend',`<style>
 /* bigger side buttons on short landscape screens, and no dead gap between them: each button's tap area reaches halfway into the gap */
 @media (orientation:landscape) and (max-height:560px){
-  body #menuov #tabs.secmode .secb,#menuov .mo-back,#menuov .mo-home{min-height:40px!important}
+  body #menuov #tabs.secmode .secb,#menuov .mo-back{min-height:40px!important}
   body #menuov #tabs.secmode .secb::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
 }
 </style>`); }
