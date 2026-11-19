@@ -35,7 +35,7 @@ renderPanel = function(){ _renderPanel_0(); try{ applySections(); }catch(e){} };
 document.head.insertAdjacentHTML('beforeend',`<style>.sect-nav{margin:10px 0 12px;flex-wrap:wrap} .sect-nav button{min-width:90px} #panel .grid.sect-one{grid-template-columns:minmax(0,1fr)!important}</style>`);
 // denser layouts for the longest lists (0.3 QC): patch notes scroll inside their box, pets/feats/decor/bait use tighter grids
 document.head.insertAdjacentHTML('beforeend',`<style>
-#panel .grid.sect-one details[open] > ul{max-height:52vh;overflow:auto;padding-right:6px}
+#panel .grid.sect-one details[open] > ul{max-height:calc(52*var(--uvh,1vh));overflow:auto;padding-right:6px}
 body.v3 #panel .grid:has(> .tile canvas[data-pet]){grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
 body.v3 #panel .grid:has(> .tile canvas[data-pet]) > .tile{padding:10px;gap:4px}
 body.v3 #panel .grid:has(> .tile .prog) > .tile{padding:10px 12px;gap:4px}

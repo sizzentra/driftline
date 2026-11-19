@@ -340,7 +340,7 @@ if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be rea
 // =====================================================================
 document.body.classList.add('dl-fish'); document.documentElement.classList.add('dl-fish');
 try{ document.body.classList.remove('side-off'); localStorage.setItem('driftline-side-off','0'); }catch(e){} // the old "hide menus" switch has nothing left to hide
-{ const _sho04=stageHOverride; stageHOverride=function(W,H){ try{ const w=document.querySelector('.wrap'), st=$('stage'); if(w&&st&&document.body.classList.contains('dl-fish')){ const h=Math.round(w.getBoundingClientRect().bottom-st.getBoundingClientRect().top); if(h>140) return h; } }catch(e){} return _sho04(W,H); }; }
+{ const _sho04=stageHOverride; stageHOverride=function(W,H){ try{ const w=document.querySelector('.wrap'), st=$('stage'); if(w&&st&&document.body.classList.contains('dl-fish')){ const h=Math.round((w.getBoundingClientRect().bottom-st.getBoundingClientRect().top)/UIZ); if(h>140) return h; } }catch(e){} return _sho04(W,H); }; }
 addEventListener('orientationchange',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },300));
 if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ clearTimeout(window.__dlvv); window.__dlvv=setTimeout(()=>{ try{ resize(); }catch(e){} },120); });
 // the water's chip says where you are too (the top bar on phones has no room for the name of the water)
@@ -354,7 +354,7 @@ drawSceneChip=function(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const bi
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* ---------- fishing mode: one column, the water to the bottom edge ---------- */
 html.dl-fish{height:100%;overflow:hidden}
-html body.dl-fish{height:100vh;height:100dvh;box-sizing:border-box;overflow:hidden;overscroll-behavior:none;margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important}
+html body.dl-fish{height:calc(100*var(--uvh,1vh));height:calc(100*var(--uvh,1dvh));box-sizing:border-box;overflow:hidden;overscroll-behavior:none;margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))!important}
 @media (max-width:700px),(max-height:560px){html body.dl-fish{padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))!important}}
 body.dl-fish .wrap{display:flex!important;flex-direction:column!important;gap:8px!important;height:100%!important;max-width:none!important;width:100%!important;grid-template-columns:none!important;grid-template-rows:none!important;overflow:hidden;position:relative;column-gap:0!important}
 @media (max-height:560px){body.dl-fish .wrap{gap:5px!important}}
@@ -377,7 +377,7 @@ body.phone-app.dl-fish .hud > .stat.loc,body.phone-app.dl-fish .hud > #buffchip,
 /* ---------- the Menu button ---------- */
 .dlprev{right:auto!important;left:50%!important;bottom:4px!important;transform:translateX(-50%);opacity:.8}
 /* ---------- the full-screen menu: no pinned bars, every part is a row of one screen-tall grid (works under Safari's toolbars) ---------- */
-#menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:100vh;height:100dvh}
+#menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:calc(100*var(--uvh,1vh));height:calc(100*var(--uvh,1dvh))}
 #menuov .mo-in{grid-template-columns:auto auto minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}
 #menuov .mo-title{display:none!important}
 @media (max-width:1100px){#menuov .mo-in{grid-template-rows:auto auto auto minmax(0,1fr)!important;grid-template-areas:"back home . tools" "secs secs secs secs" "sub sub sub sub" "body body body body"!important}}
@@ -500,7 +500,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel > .wd-nav.wd-top{margin-bottom:8px}
   #menuov #panel > .wd-nav.wd-top button{min-height:32px!important;height:32px;padding:0 10px!important}
   #menuov #panel .stylewrap.wd{grid-template-columns:auto minmax(0,1fr)!important;gap:14px;align-items:start}
-  #menuov #panel .wd-prev{position:sticky!important;top:0;height:calc(100dvh - 104px - env(safe-area-inset-top));max-height:420px;min-height:170px;margin:0!important;max-width:none!important;aspect-ratio:298/321;width:auto!important}
+  #menuov #panel .wd-prev{position:sticky!important;top:0;height:calc(calc(100*var(--uvh,1dvh)) - 104px - env(safe-area-inset-top));max-height:420px;min-height:170px;margin:0!important;max-width:none!important;aspect-ratio:298/321;width:auto!important}
   #menuov #panel .wd-prev canvas{width:100%!important;height:100%!important;display:block}
 }
 </style>`);
@@ -532,7 +532,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
-  #menuov .mo-in{grid-template-columns:clamp(140px,20vw,196px) minmax(0,1fr) auto!important}
+  #menuov .mo-in{grid-template-columns:clamp(140px,calc(20*var(--uvw,1vw)),196px) minmax(0,1fr) auto!important}
   body #menuov #tabs.secmode .secb .seclive{height:15px;line-height:15px;padding:0 4px;font-size:8px}
   #menuov #panel .bwx-hero{height:92px!important;min-height:0!important;overflow:hidden}
   #menuov #panel .bwx-hero canvas{width:100%!important;height:100%!important;object-fit:cover;object-position:50% 30%}
@@ -543,7 +543,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-@media (orientation:landscape) and (max-height:560px){ #menuov .mo-in{grid-template-columns:clamp(160px,20vw,196px) minmax(0,1fr) auto!important} }
+@media (orientation:landscape) and (max-height:560px){ #menuov .mo-in{grid-template-columns:clamp(160px,calc(20*var(--uvw,1vw)),196px) minmax(0,1fr) auto!important} }
 @media (orientation:landscape) and (max-height:560px) and (max-width:820px){
   body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
   body #menuov #tabs.secmode .secb .secfull{display:none!important}body #menuov #tabs.secmode .secb .secshort{display:inline!important}
@@ -561,13 +561,13 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
-  #menuov .mo-in{grid-template-columns:clamp(170px,20vw,196px) minmax(0,1fr) auto!important}
+  #menuov .mo-in{grid-template-columns:clamp(170px,calc(20*var(--uvw,1vw)),196px) minmax(0,1fr) auto!important}
   body #menuov #tabs.secmode .secb .seclive{width:9px!important;height:9px!important;padding:0!important;border-radius:50%;font-size:0!important;line-height:0!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (orientation:landscape) and (max-height:560px){
-  #menuov .mo-in{grid-template-columns:clamp(176px,20vw,196px) minmax(0,1fr) auto!important}
+  #menuov .mo-in{grid-template-columns:clamp(176px,calc(20*var(--uvw,1vw)),196px) minmax(0,1fr) auto!important}
   body #menuov #tabs.secmode .secb{gap:7px!important;padding:0 8px!important;font-size:12.5px!important}
   /* section tabs and wardrobe tabs wrap onto a second slim row instead of hiding options off the edge */
   #menuov #panel .bwx-nav.sect-nav,#menuov #panel > .wd-nav.wd-top{flex-wrap:wrap!important;overflow:visible!important}
@@ -1049,7 +1049,7 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
 /* once the tabs are pinned (the page has scrolled under them), a solid band fills the gap above and beside them so nothing shows around them */
 #menuov #panel .bwx-nav.stuck{box-shadow:0 0 0 10px #0d1830,0 -24px 0 10px #0d1830,0 18px 14px -6px #02060fcc!important}
 #menuov #panel .bwx-nav.stuck:not(.wd-top)::before{content:"";position:absolute;left:-10px;right:-10px;top:-24px;bottom:-10px;background:#0d1830;z-index:-1;pointer-events:auto} /* same band as a real layer, so a tap on it never reaches a hidden card underneath */
-@media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(100dvh - 150px - env(safe-area-inset-top))!important} }
+@media (orientation:landscape) and (max-height:560px){ #menuov #panel .wd-prev{top:46px!important;height:calc(calc(100*var(--uvh,1dvh)) - 150px - env(safe-area-inset-top))!important} }
 @media (min-width:600px){ #menuov #panel .stylewrap.wd .wd-prev{top:52px!important} }
 </style>`);
 //@layer mobile mobile/ui_wardrobe_land.js

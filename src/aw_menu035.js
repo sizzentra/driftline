@@ -182,8 +182,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // (decorations used to scale with the tank's height only, so a tall, narrow phone tank crammed them together)
 function tankK(w,h){ return .82*Math.min(h/230, w/520); } // round 6: fish and decorations a little smaller so every piece can be seen (director)
 document.head.insertAdjacentHTML('beforeend',`<style>
-@media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:46vh} }
-@media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:62vh} }
+@media (max-width:560px){ .tank canvas{height:auto!important;aspect-ratio:16/10;max-height:calc(46*var(--uvh,1vh))} }
+@media (orientation:landscape) and (max-height:560px){ .tank canvas{height:auto!important;aspect-ratio:16/9;max-height:calc(62*var(--uvh,1vh))} }
 </style>`);
 // fish rows (cooler, aquarium) in a narrow menu column (phones, the sideways menu): the buttons go on their own
 // line under the fish, so the name and details never get squeezed into one word per line

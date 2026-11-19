@@ -23,9 +23,9 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
 (function(){ if(!window.ResizeObserver) return; const ro=new ResizeObserver(es=>{ for(const e of es) e.target.dispatchEvent(new Event('scroll')); });
   const hook=()=>document.querySelectorAll('.subbar').forEach(s=>{ if(!s.__ro){ s.__ro=1; ro.observe(s); } }); hook(); setInterval(hook,2000); })();
 // iPhone, held upright: Safari's floating toolbar sits over the bottom of the page, so a bar pinned to the page bottom
-// hides under it. The layout already stops at the visible height (100dvh), so the menu bar is placed by that measured
+// hides under it. The layout already stops at the visible height (calc(100*var(--uvh,1vh))), so the menu bar is placed by that measured
 // height instead, landing exactly in the strip reserved for it.
-(function(){ if(!DL_PLAT.ios) return; const probe=document.createElement('div'); probe.style.cssText='position:fixed;left:0;top:0;width:0;height:100dvh;visibility:hidden;pointer-events:none'; document.body.appendChild(probe);
+(function(){ if(!DL_PLAT.ios) return; const probe=document.createElement('div'); probe.style.cssText='position:fixed;left:0;top:0;width:0;height:calc(100*var(--uvh,1dvh));visibility:hidden;pointer-events:none'; document.body.appendChild(probe);
   let last=''; const place=()=>{ const b=document.querySelector('#tabs.secmode .secbar'); if(!b) return; const on=document.body.classList.contains('phone-app')&&getComputedStyle(b).position==='fixed';
     const v=on?Math.round(probe.offsetHeight-b.offsetHeight)+'px':''; if(v===last) return; last=v; b.style.top=v; b.style.bottom=on?'auto':''; };
   place(); addEventListener('resize',place); addEventListener('orientationchange',()=>setTimeout(place,250)); if(window.visualViewport) visualViewport.addEventListener('resize',place); setInterval(place,800); })();

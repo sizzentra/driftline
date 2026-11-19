@@ -13,7 +13,7 @@
     const gs=organized(p); return `<div class="pn-head"><div class="rar" style="color:var(--gold)">${p.label?esc(p.label):'Update '+esc(p.v)}</div><h3>${esc(p.name)}</h3></div><div class="pn-grid">${gs.map(g=>`<section class="pn-sec"><h4>${esc(g.t)}</h4><ul>${g.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></section>`).join('')}</div>`; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #evcard{background:rgba(4,9,18,.66)!important}
-body.pch-on #evin:has(.pn-grid){width:min(1080px,92vw)!important;max-width:none!important;max-height:86vh!important;padding:22px 26px!important;text-align:left}
+body.pch-on #evin:has(.pn-grid){width:min(1080px,calc(92*var(--uvw,1vw)))!important;max-width:none!important;max-height:calc(86*var(--uvh,1vh))!important;padding:22px 26px!important;text-align:left}
 body.pch-on #evin:has(.pn-grid) > .rar,body.pch-on #evin:has(.pn-grid) > h3,body.pch-on #evin:has(.pn-grid) > p.sub{text-align:center}
 body.pch-on #evin .pn-head{text-align:center;margin:6px 0 10px}
 body.pch-on #evin .pn-head h3{font-size:24px;margin:2px 0 0}

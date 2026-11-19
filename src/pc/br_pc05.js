@@ -17,7 +17,7 @@ const FHD=()=>document.body.classList.contains('pc-fhd');
   document.addEventListener('mouseover',e=>{ if(!FHD()) return; const el=e.target.closest&&e.target.closest('#menuov [title], #pchead [title], #menuov [data-tip2], #pchead [data-tip2]'); if(!el){ hide(); return; }
     if(el.title){ el.dataset.tip2=el.title; el.removeAttribute('title'); } const t=el.dataset.tip2; if(!t){ hide(); return; } if(cur===el) return; cur=el;
     tip.textContent=t; tip.hidden=false; const r=el.getBoundingClientRect(), tw=tip.offsetWidth, th=tip.offsetHeight;
-    let x=Math.min(innerWidth-tw-10,Math.max(10,r.left+r.width/2-tw/2)), y=r.bottom+8; if(y+th>innerHeight-8) y=r.top-th-8; tip.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px)`; },{passive:true});
+    let x=Math.min(innerWidth-tw-10,Math.max(10,r.left+r.width/2-tw/2)), y=r.bottom+8; if(y+th>innerHeight-8) y=r.top-th-8; tip.style.transform=`translate(${Math.round(x/UIZ)}px,${Math.round(y/UIZ)}px)`; },{passive:true});
   document.addEventListener('mousedown',hide,true); addEventListener('scroll',hide,true); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #dltip{position:fixed;left:0;top:0;z-index:9999;max-width:300px;padding:9px 12px;border-radius:12px;background:#0b1626;border:1px solid #7fe3c4aa;color:#e6f2ff;font:700 12.5px/1.45 var(--display,system-ui);box-shadow:0 10px 28px #000b;pointer-events:none;white-space:normal}
@@ -175,7 +175,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:14px}
 html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
 html body.pc-fhd #menuov #panel.dk-on > .dk-split{flex:1 1 0;min-height:0}
-body.pc-fhd #panel .dk-top{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;height:40vh;min-height:300px}
+body.pc-fhd #panel .dk-top{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;height:calc(40*var(--uvh,1vh));min-height:300px}
 body.pc-fhd #panel .dk-view{position:relative;border-radius:16px;overflow:hidden;border:1px solid #ffffff18;background:#08111e}
 html body.pc-fhd #menuov #panel .dk-view #homecv{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;aspect-ratio:auto!important;cursor:grab;touch-action:none;display:block}
 body.pc-fhd #panel .dk-where{position:absolute;left:12px;top:10px;padding:5px 12px;border-radius:999px;background:#0009;color:#fff;font:800 12.5px var(--display,system-ui);pointer-events:none}

@@ -36,7 +36,7 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init(); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the tabs' width, shared by the header and the menus: as wide as fits between the left block and the right block, at most 700 */
-html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 500px - 56px))}
+html body.pch-on{--pcTabs:min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 500px - 56px))}
 html body.pch-on.dl-fish .hud{display:none!important}
 html body.pch-on.dl-fish #pchead{grid-template-columns:190px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important;column-gap:14px!important;grid-template-rows:46px!important;height:46px!important}
 html body.pch-on #pchead .pch-brand{grid-column:1!important;grid-row:1!important}
@@ -81,7 +81,7 @@ html body.pch-on #pcscene .pcs-boosts:empty,html body.pch-on #pcscene .pcs-strea
 html body.pch-on #pcscene > #resttog{position:static!important;inset:auto!important;transform:none!important;margin:0 0 0 6px!important;flex:0 0 auto}
 /* narrower PC windows: icon-only section tabs (names on hover) in both rows, and a tighter right block */
 @media (max-width:1320px){
-  html body.pch-on{--pcTabs:max(240px,min(700px,calc(100vw - 32px - 190px - 480px - 56px)))}
+  html body.pch-on{--pcTabs:max(240px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 480px - 56px)))}
   html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
   html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs .secb{padding:4px 6px!important}
   html body.pch-on #pchead .pch-stats > .stat{padding:4px 9px!important}

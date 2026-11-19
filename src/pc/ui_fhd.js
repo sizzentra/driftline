@@ -3,7 +3,7 @@
 // resolution"). body.pc-fhd = the PC layout on a screen of at least 1800 x 950 (a 1080p monitor in full screen). Everything
 // written for it below is scoped to that class, so laptops, smaller windows and phones keep their own layouts.
 // =====================================================================
-{ const apply=()=>{ const b=document.body.classList, v=b.contains('pch-on')&&innerWidth>=1800&&innerHeight>=950; if(v!==b.contains('pc-fhd')) b.toggle('pc-fhd',v); };
+{ const apply=()=>{ const b=document.body.classList, v=b.contains('pch-on')&&innerWidth/UIZ>=1800&&innerHeight/UIZ>=950; if(v!==b.contains('pc-fhd')) b.toggle('pc-fhd',v); };
   addEventListener('resize',()=>setTimeout(apply,40)); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); apply(); }
 // PC full HD: pages whose sections are small show them all side by side, each under its own heading, instead of one section
 // at a time behind tabs (director, 2026-11-17: Skills showed five little cards in a corner of an empty screen).
@@ -167,9 +167,9 @@ html body.pch-on #menuov .mo-tools > .pch-stats{display:flex;gap:6px;height:46px
 /* hide the game header behind an open menu (it was covered anyway, and drawing it cost time) */
 html body.pch-on.menu-open #pchead{visibility:hidden}
 /* tabs' width now leaves room for four header buttons */
-html body.pch-on{--pcTabs:min(700px,calc(100vw - 32px - 190px - 720px - 56px))}
+html body.pch-on{--pcTabs:min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 720px - 56px))}
 @media (max-width:1580px){
-  html body.pch-on{--pcTabs:max(200px,min(700px,calc(100vw - 32px - 190px - 600px - 56px)))}
+  html body.pch-on{--pcTabs:max(200px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 600px - 56px)))}
   html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
   html body.pch-on .pch-stats > .stat .lbl{display:none!important}
   html body.pch-on .pch-stats > .stat{padding:4px 9px!important}
@@ -199,7 +199,7 @@ body.pc-fhd #panel .fr-main h3 .fr-n{display:none}
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* narrower PC windows: the right side (four header buttons + tools) must always fit */
 @media (max-width:1580px){
-  html body.pch-on{--pcTabs:max(180px,min(700px,calc(100vw - 32px - 190px - 690px - 70px)))}
+  html body.pch-on{--pcTabs:max(180px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 690px - 70px)))}
   html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
   html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
   html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{padding:4px 9px!important;column-gap:7px}
@@ -212,7 +212,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:1100px){
-  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 690px - 70px)))}
+  html body.pch-on{--pcTabs:max(170px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 150px - 690px - 70px)))}
   html body.pch-on.dl-fish #pchead{grid-template-columns:150px calc(var(--pcTabs) + 14px) minmax(0,1fr) auto!important}
   html body.pch-on #menuov .mo-in{grid-template-columns:150px 0 var(--pcTabs) minmax(0,1fr) auto!important}
   html body.pch-on #menuov .mo-back{font-size:12.5px!important;padding-left:10px!important;padding-right:10px!important;gap:6px!important}
@@ -227,7 +227,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.pch-on .pch-stats > .stat .lbl,html body.pch-on .pch-stats > .stat b{display:none!important}
   html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{width:42px;padding:0!important;display:grid!important;place-items:center;grid-template-columns:1fr!important}
   html body.pch-on .pch-stats .pcs-ic{grid-row:auto!important}
-  html body.pch-on{--pcTabs:max(170px,min(700px,calc(100vw - 32px - 150px - 420px - 56px)))}
+  html body.pch-on{--pcTabs:max(170px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 150px - 420px - 56px)))}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:980px){ html body.pch-on #menuov .mo-tools .pc-fsb{display:none!important} }</style>`);
@@ -253,7 +253,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   // a lit button closes the menu (captured first, so the button's own "open" does not run)
   document.addEventListener('click',e=>{ if(!pc()||!MENU_OPEN) return; const b=e.target.closest&&e.target.closest('#pchead .pch-stats > .stat.on, #pchead #catdock .cdb.on, #pchead [data-pch="settings"].on'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); try{ closeMenu(); }catch(er){} },true); }
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #menuov{top:var(--pcTop,66px)!important;height:calc(100vh - var(--pcTop,66px))!important;height:calc(100dvh - var(--pcTop,66px))!important;background:#0a1220!important}
+html body.pch-on #menuov{top:var(--pcTop,66px)!important;height:calc(calc(100*var(--uvh,1vh)) - var(--pcTop,66px))!important;height:calc(calc(100*var(--uvh,1vh)) - var(--pcTop,66px))!important;background:#0a1220!important}
 html body.pch-on.menu-open #pchead{visibility:visible!important}
 html body.pch-on #menuov .mo-in{grid-template-columns:auto minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"back sub" "body body"!important;padding-top:0!important;row-gap:8px!important}
 html body.pch-on #menuov #tabs .secbar,html body.pch-on #menuov .mo-tools{display:none!important}
@@ -342,7 +342,7 @@ body.pc-fhd #panel.aq-on > .dl-head{display:grid!important;grid-template-columns
 body.pc-fhd #panel .aq-sub{margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;cursor:help}
 body.pc-fhd #panel.aq-on .bank{display:flex!important;align-items:center;gap:14px;padding:10px 14px!important;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff1c;box-sizing:border-box;max-width:100%;flex-wrap:nowrap}
 body.pc-fhd #panel.aq-on .bank > *{min-width:0;flex:0 0 auto}
-body.pc-fhd #menuov #panel.aq-on #tankcv{height:36vh!important}
+body.pc-fhd #menuov #panel.aq-on #tankcv{height:calc(36*var(--uvh,1vh))!important}
 body.pc-fhd #panel.aq-on > p.sub{font-size:12px}
 body.pc-fhd #panel .aq-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 body.pc-fhd #panel .aq-col{display:flex;flex-direction:column;min-height:0;border-radius:16px;background:#0c1626;border:1px solid #ffffff14;padding:12px 14px}

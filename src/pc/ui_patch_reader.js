@@ -18,7 +18,7 @@
     const list=all.slice(0,20); open(list,`${all.length} updates since you last played`,'What’s new',after); };
   showPatchNotes=function(p=PATCHES[0],after){ if(!pc()) return _sp.apply(this,arguments); open([p],p.label?esc(p.label):'Update '+esc(p.v),esc(p.name),after); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #evin:has(.pnr){width:min(1180px,94vw)!important;max-width:none!important;height:min(760px,88vh)!important;max-height:none!important;padding:0!important;overflow:hidden!important;text-align:left;display:flex;flex-direction:column}
+body.pch-on #evin:has(.pnr){width:min(1180px,calc(94*var(--uvw,1vw)))!important;max-width:none!important;height:min(760px,calc(88*var(--uvh,1vh)))!important;max-height:none!important;padding:0!important;overflow:hidden!important;text-align:left;display:flex;flex-direction:column}
 body.pch-on #evin .pnr{display:flex;flex-direction:column;height:100%;min-height:0}
 body.pch-on #evin .pnr-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 22px 14px;border-bottom:1px solid #ffffff14;flex:0 0 auto}
 body.pch-on #evin .pnr-top h3{margin:2px 0 0;font-size:24px}

@@ -157,8 +157,8 @@ h5{font-family:var(--display);font-weight:700;font-size:14px;margin:12px 0 6px;c
 .loc.here{border-color:var(--kelp)}
 .loc .sw2{height:46px;border-radius:8px}
 .tank{border-radius:12px;border:1px solid var(--line);margin-top:12px;overflow:hidden;background:#082233}
-.tank canvas{height:clamp(300px,52vh,560px);cursor:default}
-@media (max-width:560px){ .tank canvas{height:clamp(260px,42vh,380px)} }
+.tank canvas{height:clamp(300px,calc(52*var(--uvh,1vh)),560px);cursor:default}
+@media (max-width:560px){ .tank canvas{height:clamp(260px,calc(42*var(--uvh,1vh)),380px)} }
 .bank{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .bank b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
 .pts{font-family:var(--display);font-weight:800;font-size:28px;color:var(--gold);font-variant-numeric:tabular-nums}
@@ -220,7 +220,7 @@ textarea:focus-visible{outline:2px solid var(--kelp);outline-offset:1px}
 /* phones held sideways: water on the left, menus scroll on the right (kept last so it wins) */
 @media (orientation:landscape) and (max-height:560px){
   body{padding-top:6px;padding-bottom:6px}
-  .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:10px;row-gap:6px;height:calc(100vh - 12px);height:calc(100dvh - 12px)}
+  .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-rows:auto auto 1fr;column-gap:10px;row-gap:6px;height:calc(calc(100*var(--uvh,1vh)) - 12px);height:calc(calc(100*var(--uvh,1dvh)) - 12px)}
   .hud{display:grid;grid-column:1 / -1;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
   .hud>*{height:38px}
   .hud .brand,.hud .opt{display:none}

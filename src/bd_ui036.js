@@ -108,12 +108,12 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:1199px){#searchbtn .sbl{display:none}}
 body.phone-app .hudbtns #settingsbtn{font-size:0;padding:0;display:flex;align-items:center;justify-content:center}
 body.phone-app .hudbtns #settingsbtn::before{content:"⚙";font-size:19px;line-height:1}
-#searchov{position:fixed;inset:0;z-index:60;background:#02060fcc;display:flex;align-items:flex-start;justify-content:center;padding:max(12vh,24px) 14px 14px}
+#searchov{position:fixed;inset:0;z-index:60;background:#02060fcc;display:flex;align-items:flex-start;justify-content:center;padding:max(calc(12*var(--uvh,1vh)),24px) 14px 14px}
 #searchov[hidden]{display:none}
 #searchov .sv-in{width:min(520px,100%);background:linear-gradient(180deg,#1a2a44,#111c2e);border:1px solid #4a6a9466;border-radius:20px;padding:14px;box-shadow:0 24px 70px #02060fdd;display:flex;flex-direction:column;gap:8px}
 #searchov input{font:inherit;font-size:16px;padding:12px 14px;border-radius:12px;border:1px solid #ffd36a88;background:#0a1220;color:#eef3f8;outline:none}
 #searchov input:focus{box-shadow:0 0 0 3px #ffd36a33}
-#searchres{display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow-y:auto}
+#searchres{display:flex;flex-direction:column;gap:4px;max-height:calc(52*var(--uvh,1vh));overflow-y:auto}
 .sv-r{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:46px;padding:8px 12px;border-radius:12px;border:1px solid transparent;background:#0e1828;color:#eef3f8;font:inherit;text-align:left;cursor:pointer}
 .sv-r:hover,.sv-r.on{border-color:#ffd36a88;background:#16243a}
 #searchclose{align-self:flex-end}

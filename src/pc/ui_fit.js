@@ -29,7 +29,7 @@
   if(/[?&]test\b/.test(location.search)) window.__pcfit=fit; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: the big Dock and aquarium previews no longer take the whole width and most of the screen height, so their pages fit at once */
-body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(46vh,600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
+body.pch-on #menuov #panel #homecv{width:min(100%,calc(min(calc(46*var(--uvh,1vh)),600px)*2.5))!important;height:auto!important;aspect-ratio:900/360;display:block;margin:0 auto}
 body.pch-on #menuov #panel .tile:has(> #homecv){background:linear-gradient(180deg,#0f2034,#0a1626)}
-body.pch-on #menuov #panel #tankcv{height:min(34vh,420px)!important}
+body.pch-on #menuov #panel #tankcv{height:min(calc(34*var(--uvh,1vh)),420px)!important}
 </style>`);

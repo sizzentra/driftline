@@ -5,7 +5,7 @@
 try{ [800,1000,1320].forEach(w=>matchMedia('(min-width:'+w+'px)').addEventListener('change',()=>dispatchEvent(new Event('resize')))); }catch(e){}
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:1000px){
-  html body.pch-on{--pcTabs:max(200px,min(700px,calc(100vw - 32px - 190px - 330px - 56px)))}
+  html body.pch-on{--pcTabs:max(200px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 330px - 56px)))}
   html body.pch-on #pchead .pch-stats{gap:4px}
   html body.pch-on #pchead .pch-stats > .stat{padding:4px 8px!important;flex-direction:row!important;align-items:center;gap:5px}
   html body.pch-on #pchead .pch-stats > .stat .lbl{display:none!important}
@@ -21,7 +21,7 @@ body.pch-on #evin .pnr-grid .pn-sec:only-child ul{columns:2 300px;column-gap:28p
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:1000px){
-  html body.pch-on{--pcTabs:max(176px,min(700px,calc(100vw - 32px - 190px - 400px - 56px)))}
+  html body.pch-on{--pcTabs:max(176px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 400px - 56px)))}
   html body.pch-on #pchead .pch-tools{gap:4px!important}
   html body.pch-on #pchead .pch-stats > .stat{padding:4px 6px!important;gap:3px}
   html body.pch-on #pchead .pch-stats > .stat b{font-size:12.5px!important}
@@ -33,6 +33,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* a single update: the card is as tall as its notes (up to the same limit), not a fixed size */
-body.pch-on #evin:has(.pnr.one){height:auto!important;max-height:min(760px,88vh)!important}
+body.pch-on #evin:has(.pnr.one){height:auto!important;max-height:min(760px,calc(88*var(--uvh,1vh)))!important}
 body.pch-on #evin .pnr.one .pnr-main{flex:0 1 auto}
 </style>`);
