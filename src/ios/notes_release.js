@@ -137,5 +137,6 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Rods: each tab shows only its own things. Your rod has the rod in your hands and your presets, now tidy rows: Use, Replace or Clear, and a gold In use tag on the one you’re holding.',
   'Small iPhones: nothing in the page summaries or tabs is cut off any more (Home, Skills, Wardrobe).',
   'Menus give you the room: the numbers sit in one slim line at the top and the page uses the full width, so you see more upgrades, skills and games at once.',
-  'Skills: only your skill points get a badge, not every category.']});
+  'Skills: only your skill points get a badge, not every category, and an XP bar next to your Level shows how close the next level is.',
+  'Side panel: counts never cover a button’s name.']});
 

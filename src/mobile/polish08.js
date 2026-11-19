@@ -101,3 +101,25 @@ html body.phone-land .hud > .st-lvl[data-mbtap]:active,html body.phone-app .hud 
 /* Skills (director: "In skill tabs it doesn't make sense for each category to have a badge, just the skill points"): the category tabs
    carry no counts; your unspent skill points stay the one badge (the Skills tab and the side panel) */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='skills') document.querySelectorAll('#panel .bwx-nav > button[data-sect] .sdot').forEach(d=>d.remove()); }catch(e){} return r; }; }
+/* Skills: an XP bar next to your Level (director, 2026-11-18: "We could use a xp bar next to the Level that functions and looks neat
+   in this tab"). Fills with your XP toward the next level and says how much ("120 / 400 XP"); it follows every catch live while the
+   page is open (a light check twice a second, only on this page) and fills up in a short glide. */
+{ const xpHTML=()=>{ const need=xpNeed(S.lvl), k=Math.max(0,Math.min(1,S.xp/need)); return `<span class="mb-xpbar" role="progressbar" aria-label="XP to level ${S.lvl+1}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${Math.floor(S.xp)}"><i style="width:${(k*100).toFixed(1)}%"></i></span><span class="mb-xpt">${fmt(Math.floor(S.xp))} / ${fmt(need)} XP</span>`; };
+  let last='', tm=0;
+  const paint=()=>{ const P=$('panel'); if(!MOB()||S.tab!=='skills'||!P){ clearInterval(tm); tm=0; return; } const cell=P.querySelector('.mb-lvcell'); if(!cell){ clearInterval(tm); tm=0; return; }
+    const key=S.lvl+'|'+Math.floor(S.xp); if(key===last) return; last=key; const b=cell.querySelector('b'); if(b) b.textContent=S.lvl; const w=cell.querySelector('.mb-xp'); if(!w) return;
+    const need=xpNeed(S.lvl), k=Math.max(0,Math.min(1,S.xp/need)), bar=w.querySelector('.mb-xpbar'); w.querySelector('i').style.width=(k*100).toFixed(1)+'%'; w.querySelector('.mb-xpt').textContent=fmt(Math.floor(S.xp))+' / '+fmt(need)+' XP'; bar.setAttribute('aria-valuenow',Math.floor(S.xp)); bar.setAttribute('aria-valuemax',need); bar.setAttribute('aria-label','XP to level '+(S.lvl+1)); };
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='skills') return r; const P=$('panel'); const bank=P&&P.querySelector('.pg08-bank'); if(!bank) return r;
+      const cell=[...bank.children].find(c=>c.tagName==='DIV'&&/^Level\b/.test((c.querySelector('.sub')||{}).textContent||'')); if(!cell||cell.querySelector('.mb-xp')) return r;
+      cell.classList.add('mb-lvcell'); cell.title='Your XP toward the next level. Catches give XP; every level gives a skill point.'; cell.insertAdjacentHTML('beforeend',`<span class="mb-xp">${xpHTML()}</span>`); last=S.lvl+'|'+Math.floor(S.xp);
+      if(!tm) tm=setInterval(paint,500); }catch(e){ console.error(e); } return r; }; }
+
+/* side panel (director's screenshot: the Challenges count covered its label): counts sit on the corner of the icon, never over the name */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land:not(.dock-mini) #menuov #tabs .secbar .secb .secdot{top:50%!important;right:2px!important;left:auto!important;transform:translateY(-50%)!important} html body.phone-land:not(.dock-mini) #menuov #tabs .secbar .secb:has(.secdot:not([hidden])){padding-right:22px!important;gap:4px!important} html body.phone-land:not(.dock-mini) #menuov #tabs .secbar .secb:has(.secdot:not([hidden])) .secl{min-width:0!important;overflow:hidden!important;font-size:11px!important}
+html body.phone-land #menuov #panel.pg08 .pg08-bank > .mb-lvcell{max-width:none!important;flex:1 1 auto!important;align-items:center!important}
+html body.phone-land #menuov #panel.pg08 .mb-xp,html body.phone-app #menuov #panel.pg08 .mb-xp{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto;margin-left:6px}
+html body.phone-land #menuov #panel.pg08 .mb-xpbar,html body.phone-app #menuov #panel.pg08 .mb-xpbar{position:relative;flex:1 1 90px;max-width:200px;min-width:60px;height:8px;border-radius:999px;background:#0a161d;box-shadow:inset 0 0 0 1px #ffffff1a;overflow:hidden}
+html body.phone-land #menuov #panel.pg08 .mb-xpbar > i,html body.phone-app #menuov #panel.pg08 .mb-xpbar > i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#7fe3c4,#5fb4ff);box-shadow:0 0 8px #7fe3c466;transition:width .45s ease-out}
+html body.phone-land #menuov #panel.pg08 .mb-xpt,html body.phone-app #menuov #panel.pg08 .mb-xpt{font:700 11px var(--display,system-ui);color:#9fb3c8;white-space:nowrap}
+</style>`);
