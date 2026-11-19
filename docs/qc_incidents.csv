@@ -94,3 +94,5 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 93,2026-11-19,Menu rail cut after Quests still seen (screenshot was 0.4.8.7; fix live only in 0.4.8.8) - safety net added,safari-only,director,live,3,qa:rail-squashed+fitRail
 94,2026-11-19,Angler/dock/fight panel vanished in oddity and hat fights (new oddSil hid an older oddSil),script-break,director,live,3,build-guard:duplicate-function+qa:every-catch-kind
 95,2026-11-19,Aquarium rows could sum 1 coin off the total (float rounding across a whole number),ui-logic,my_check,local,1,qa:aquarium-rates-add-up
+96,2026-11-19,A long bait name pushed Search and Settings off the phone top bar at 667 wide,layout-cut,my_check,local,2,qa:top-bar-longest-bait
+97,2026-11-19,Stardust still lost to Live Minnows at Starfall by day on a maxed save (x2.8 not enough),balance,my_check,local,1,qa:water-bait-best

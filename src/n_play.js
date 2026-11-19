@@ -11,14 +11,14 @@ const PRISM = {rainbow:{n:'Rainbow',c:'#ff7ad8'}, starry:{n:'Starry',c:'#9ab8ff'
    +30%), and every different species + title ever caught adds +1% coins on every voyage (up to +20%). */
 const TITLE_BUFFS = {rainbow:{keys:['shiny','sell','xp'], aura:.06, what:'money'}, starry:{keys:['rare','hot','bite'], aura:.06, what:'catching'}, spectral:{keys:['reel','tension','calm'], aura:.06, what:'fighting'}, ancient:{keys:['tank','trophy','treasure'], aura:.10, what:'collecting'}};
 const TITLE_AURA_CAP=.3, TITLE_COIN=.01, TITLE_COIN_CAP=.2;
-const titleAura = () => { let a=0; for(const f of S.tank) if(f.sh===2&&TITLE_BUFFS[f.pv]) a+=TITLE_BUFFS[f.pv].aura; return Math.min(TITLE_AURA_CAP,a); };
+const titleAura = () => { let a=0; for(const f of S.tank) if(f.sh===2&&TITLE_BUFFS[f.pv]) a+=TITLE_BUFFS[f.pv].aura+.02*pr('prismkeeper'); return Math.min(TITLE_AURA_CAP+(maxed('prismkeeper')?.1:0),a); };
 const titleLegacy = () => Math.min(TITLE_COIN_CAP, TITLE_COIN*Object.keys(S.titled||{}).length);
 const PRISM_KEYS = Object.keys(PRISM);
 const PRISM_SHARE = .06;        // share of shiny rolls that come up prismatic instead
 const PRISM_VALUE = 15;         // value multiplier (shiny is ×4)
 const HYBRID_IN_RANGE = [2,2.5,3,3.5,4,5]; // [23] a hybrid inside its own normal weight range: value and aquarium income ×, by rarity
 const HYBRID_BASE = .001;       // 0.1%, up to 1% with the Odd Genes skill
-const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1);
+const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1)*(1+rodBonus('hybrid')); /* [14] Twin Hook */
 const PRED_RX = /pike|musky|muskie|bass|gar|barracuda|shark|tuna|grouper|cod|walleye|zander|trout|salmon|snakehead|catfish|wolf|viper|angler|marlin|swordfish|wahoo|kingfish|mackerel|eel|moray|piranha|perch|char|taimen|arapaima|dragon|fang|leviathan|maw/;
 function isPredator(sp){ return sp.r>=1 && (sp.aggr>=.55 || sp.shape==='s' || PRED_RX.test(sp.id)); }
 function preyPool(pred,pool){ return pool.filter(s=>s.id!==pred.id && s.max<=Math.max(pred.min*.7,pred.max*.2) && s.r<=Math.max(1,pred.r)); }

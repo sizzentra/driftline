@@ -225,6 +225,10 @@ PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
   'Stardust works better at Starfall Lake (odds ×2.8).']});
 PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
   'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.']});
+PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
+  'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
+  'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.',
+  'Small phones: a long bait name no longer pushes Search and Settings off the top bar (the bait name shortens instead).']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
@@ -234,4 +238,9 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'The next water opens after catching 10 fish at the one before during this voyage, 10 more every voyage, up to 50.',
   'Rods cost Scales as well as coins, more for better rods.',
   'A hybrid that still lands inside its own size range is worth ×2 (common) up to ×5 (mythic), in coins and aquarium income.',
-  'Titled shinies are special: each title brings three bonuses of its own in your aquarium, lifts every other fish’s bonuses, and every new species and title you catch adds 1% coins on every voyage (up to 20%).']});
+  'Titled shinies are special: each title brings three bonuses of its own in your aquarium, lifts every other fish’s bonuses, and every new species and title you catch adds 1% coins on every voyage (up to 20%).',
+  '## Bait, rods and skills',
+  'Favourite foods: a new group of eight baits. Every fish loves one food and dislikes another (the Fish Log shows which; epic and rarer fish keep their favourite secret until you catch one on it). Foods loved by rarer fish cost more.',
+  'Five new rod attachments for the newer systems: Snag Guard, Scent Bead, Twin Hook, Nibble Pouch and Fighter’s Grip.',
+  'Five new skills: Grappler, Snag Sense, Gourmet, Candy Maker and Prism Keeper, each with its own max-rank effect.',
+  'More skill points: 1 for every 25 species in your Fish Log and 2 for every water you complete.']});

@@ -124,7 +124,11 @@ const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('cal
 const farAt = () => .8 - .02*pr('caster');
 const hotRate = () => (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1);
 const streakCap = () => .5 + .1*pr('streaker');
-const ptsTotal = () => (S.lvl-1) + S.bonusPts;
+/* [15] more ways to earn skill points: +1 for every 25 species in your Fish Log, +2 for every water whose Fish Log is complete (worked out
+   from the Fish Log, so nothing extra is saved and nothing can be lost; cached until the Fish Log changes) */
+let LOGPTS_K=-1, LOGPTS_V=0, LOGPTS_S=null;
+function logPts(){ const n=Object.keys(S.journal||{}).length; if(n!==LOGPTS_K||LOGPTS_S!==S){ LOGPTS_K=n; LOGPTS_S=S; const found=SP.filter(s=>S.journal[s.id]).length, done=LOCS.filter(L=>{ const a=SP.filter(s=>s.loc===L.id); return a.length&&a.every(s=>S.journal[s.id]); }).length; LOGPTS_V=Math.floor(found/25)+2*done; } return LOGPTS_V; }
+const ptsTotal = () => (S.lvl-1) + S.bonusPts + logPts();
 const ptsSpent = () => Object.values(S.perks).reduce((a,b)=>a+b,0);
 const ptsFree = () => ptsTotal() - ptsSpent();
 const activeBuffs = () => { const t=Date.now(); return S.buffs.filter(b=>b.until>t); };
@@ -497,13 +501,13 @@ function surgeTick(dt,f){ if(G.surge){ G.surge.t+=dt; const s=G.surge;
     else if(s.phase==='calm'){ G.run=false; G.runT=Math.max(G.runT,.3); if(s.t>=.95){ s.phase='done'; G.ev='jump'; G.evDur=1; G.evT=2.5; splash(G.bob.x,G.bob.y,22); sfx.jump(); if(V3ON) vib([40,30,80]); G.surge=null; } }
     return; }
   const frac=G.d/G.d0, n=G.surgeN||0, at=n===0?.62:.28, max=f.sp.r>=5||f.shiny===2?2:1;
-  if(n<max && frac<at && G.fightT>1.2){ G.surgeN=n+1; G.surge={phase:'run',t:0,dur:rnd(1.8,2.4)}; G.run=true; G.ev=null; splash(G.bob.x,G.bob.y,26); sfx.warn(); setTimeout(()=>sfx.warn(),140); if(V3ON) vib([70,40,70]); } }
+  if(n<max && frac<at && G.fightT>1.2){ G.surgeN=n+1; G.surge={phase:'run',t:0,dur:rnd(1.8,2.4)*(maxed('grappler')?.7:1)}; G.run=true; G.ev=null; splash(G.bob.x,G.bob.y,26); sfx.warn(); setTimeout(()=>sfx.warn(),140); if(V3ON) vib([70,40,70]); } }
 // 0.4.9 (director, 2026-11-19: "Oddities don't fight, they get snagged and by continuing to reel you risk breaking the line"):
 // an oddity or hat comes in as dead weight. Now and then it catches on the bottom ("snag") and gains nothing; reeling without
 // a pause builds tension until the line snaps, so short pulls bring it home.
 function snagFight(dt){ const reel=reelSpeed(), rin=V3ON?reelInput(dt):(G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin); if(!G.fightT) G.evT=rnd(2.2,3.6); G.fightT=(G.fightT||0)+dt; G.run=false;
-  if(G.ev==='snag'){ G.evDur-=dt; if(G.evDur<=0){ G.ev=null; G.evT=rnd(1.6,3.4); } } else { G.ev=null; G.evT-=dt; if(G.evT<=0){ G.ev='snag'; G.evDur=rnd(.6,1.2); sfx.warn(); } }
-  if(rin>0){ if(G.ev!=='snag') G.d -= reel*.6*rdt; G.strain=(G.strain||0)+rdt; G.ten += (G.ev==='snag'?70:12+4*G.strain)*tensionMult()*rdt; G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); } }
+  if(G.ev==='snag'){ G.evDur-=dt; if(G.evDur<=0){ G.ev=null; G.evT=rnd(1.6,3.4); } } else { G.ev=null; G.evT-=dt; if(G.evT<=0){ G.ev='snag'; G.evDur=rnd(.6,1.2)*(maxed('snagwise')?.5:1); sfx.warn(); } }
+  if(rin>0){ if(G.ev!=='snag') G.d -= reel*.6*rdt; G.strain=(G.strain||0)+rdt; G.ten += (G.ev==='snag'?70:12+4*G.strain)*tensionMult()*(1-rodBonus('snag'))*(1-.08*pr('snagwise'))*rdt; /* [14] Snag Guard, [15] Snag Sense */ G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); } }
   if(rin<1){ G.ten=Math.max(0,G.ten-60*odt); G.strain=Math.max(0,(G.strain||0)-2*odt); }
   if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }
   const frac=clamp(G.d/G.d0,0,1.6), x0=W*.24, x1=castX(G.lastCast); G.bob.x = x0+(x1-x0)*Math.min(frac,1.25)+(G.ev==='snag'?Math.sin(performance.now()/40)*1.5:0); G.bob.y=waterY(G.bob.x);
@@ -528,7 +532,7 @@ function fight(dt){
     // 0.3.2: while the fish runs, reeling only holds the line (none is gained) and strains it much harder
     /* 0.4.9: a fish holds against your reel by rank and voyage, relative to your reel speed: a fresh rare fish keeps you still
        during a run and a fresh legendary or mythic takes line even while you reel; between runs a fresh rare fish slows you */
-    const hold = G.run ? .35-(.1+.09*rk)*Math.sqrt(V)*(.4+.6*G.sta) : 1-.06*rk*Math.sqrt(V)*G.sta;
+    const grip=(1-rodBonus('grip'))*(1-.04*pr('grappler')); /* [14] Fighter's Grip, [15] Grappler */ const hold = G.run ? .35-(.1+.09*rk)*Math.sqrt(V)*(.4+.6*G.sta)*grip : 1-.06*rk*Math.sqrt(V)*G.sta*grip;
     G.d -= reel*reelK*rdt*(B.drag?.75:1)*hold;
     const rr = G.run ? Math.max(ratio, (.2+.12*rk)*V) : ratio; /* reeling into a rare fish's run strains any line, however strong */
     let add = (G.run?95*rr:22*ratio)*tired*(B.heavy?1.35:1);

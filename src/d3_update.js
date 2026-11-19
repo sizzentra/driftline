@@ -477,6 +477,12 @@ const ATTS = [
  ['magnet','Magnet Tip','treasure',[.2,.4,.7],'Junk and treasure stick to it.'],
  ['feather','Feather Fly','trophy',[.1,.2,.35],'Big fish can’t resist a fancy feather.'],
  ['whistle','Calm Whistle','calm',[.08,.15,.25],'A soothing little tune. Tempers cool.'],
+ /* 0.4.9 [14] (director: "a few more rod attachments that represent some of the newer fishing systems") */
+ ['snagguard','Snag Guard','snag',[.15,.3,.5],'Oddities snag and strain the line less.'],
+ ['scentbead','Scent Bead','fav',[.1,.2,.35],'A fish’s favourite food pulls even harder.'],
+ ['twinhook','Twin Hook','hybrid',[.15,.3,.5],'More hybrids bite.'],
+ ['nibpouch','Nibble Pouch','nib',[.05,.1,.15],'Scrapping a fish gives Nibbles more often.'],
+ ['grip','Fighter’s Grip','grip',[.08,.15,.25],'Rare fish hold back less while you reel.'],
 ].map(a=>({id:a[0],name:a[1],k:a[2],v:a[3],d:a[4]}));
 const ATT_I = Object.fromEntries(ATTS.map(a=>[a.id,a]));
 const ATT_COST = [[1500,0],[12000,10],[60000,60]];

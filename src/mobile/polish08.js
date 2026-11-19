@@ -391,3 +391,7 @@ html body.phone-app #menuov .secbar .secb{flex:1 1 0!important;min-width:0!impor
 html body.phone-app #menuov .secbar .secb .secl,html body.phone-app #menuov .secbar .secb .seclive{display:none!important}
 html body.phone-app #menuov .secbar .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class]{top:2px!important;right:2px!important;transform:none!important}
 </style>`);
+/* Top bar with a long bait (2026-11-19, QA at 667 wide with "Glitter Jigs · 238"): every chip keeps its full width (frame07), so a
+   long bait name pushed Search and Settings off the screen once Tasks and Live had already stepped aside. The Bait chip is the one
+   that gives way: it shortens its name with "…" only when the bar runs out of room. */
+document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land .hud > #mbbait.stat,html body.phone-app .hud > #mbbait.stat{min-width:0!important;flex:0 1 auto!important}html body.phone-land .hud > #mbbait.stat > b,html body.phone-app .hud > #mbbait.stat > b{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}</style>');

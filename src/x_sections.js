@@ -63,7 +63,7 @@ applySections = function(){ _applySections_0(); const P=$('panel'); if(!P) retur
     more.addEventListener('click',e=>{ e.stopPropagation(); featsAll=true; apply(); }); grid.after(more); P.querySelector('.sect-nav')&&P.querySelector('.sect-nav').addEventListener('click',()=>setTimeout(apply,0)); apply(); } };
 document.head.insertAdjacentHTML('beforeend',`<style>.tint-dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px;box-shadow:inset 0 0 0 1px #0004}</style>`);
 // ---------- Skills in sections, Save tidied into sections, one Settings entry (the button at the top) ----------
-const PERK_GROUPS=[['Catching',['patience','caster','reader','nightowl','weatherwise']],['Rare finds',['lucky','trophy','hybrid','scavenger']],['Fighting',['steady','strong','softtouch','reflex']],['Coins & XP',['haggler','streaker','naturalist','tidewalker','derbypro']],['Aquarium & pets',['keeper','aquarist','petpal','dozer']]];
+const PERK_GROUPS=[['Catching',['patience','caster','reader','nightowl','weatherwise']],['Rare finds',['lucky','trophy','hybrid','scavenger','gourmet']],['Fighting',['steady','strong','softtouch','reflex','grappler','snagwise']],['Coins & XP',['haggler','streaker','naturalist','tidewalker','derbypro']],['Aquarium & pets',['keeper','aquarist','petpal','dozer','nibbler','prismkeeper']]];
 const _applySections_1 = applySections;
 applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) return;
   if(S.tab==='skills'){ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return; const T=[...grid.children]; const idOf=t=>{ const b=t.querySelector('[data-act="perk"]'); return b?b.dataset.k:''; };

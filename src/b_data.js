@@ -413,7 +413,7 @@ const BAIT = {
   berries:{name:'Wild Berries',  speed:1.45,rare:.5,  pack:10, price:600,  loc:'river', locMul:5, note:'Sweet and sticky: odds ×5 at Stonebrook River.'},
   goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:9000, note:'The good stuff. Fast bites and great odds anywhere.'},
   lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:20000, loc:'ember', note:'Heat-proof worms: odds ×2 at Ember Springs.'},
-  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', locMul:2.8, note:'A pinch of the sky: odds ×2.8 at Starfall Lake.'} /* 0.4.9: 2.5 lost to Live Minnows at Starfall by day on a maxed save (QA) */,
+  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', locMul:3, note:'A pinch of the sky: odds ×3 at Starfall Lake.'} /* 0.4.9: 2.5 lost to Live Minnows at Starfall by day on a maxed save (QA) */,
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
@@ -424,6 +424,15 @@ const BAIT = {
   stinky: {name:'Stinky Cheese', speed:2.6, rare:.1,  junk:true, note:'Found as junk. Bites come very fast.'},
   disco:  {name:'Disco Lures',   speed:1.4, rare:.5,  junk:true, shiny:3, note:'Found as junk. Shiny fish ×3.'},
   magnet: {name:'Magnet Lures',  speed:1.2, rare:0,   junk:true, treasure:4, note:'Found as junk. Junk and treasure ×4.'},
+  /* 0.4.9 [12] favourite foods (prices, fans and favourites are worked out in cf_foods.js) */
+  mayfly:  {name:'Mayflies',       speed:1.25, rare:.1,  pack:10, price:100, food:true, meat:false, note:'Light and lively: bites come a little faster.'},
+  leech:   {name:'Leeches',        speed:1.1,  rare:.15, pack:10, price:100, food:true, meat:true, calm:.15, note:'They hold on: tempers rise 15% slower.'},
+  krill:   {name:'Krill',          speed:1.2,  rare:.1,  pack:10, price:100, food:true, meat:null, note:'Everyone eats krill: liked by fish of every kind.'},
+  sardine: {name:'Sardine Chunks', speed:1.15, rare:.2,  pack:10, price:100, food:true, meat:true, trophy:.15, note:'Oily and strong: +15% trophy-size chance.'},
+  frog:    {name:'Frog Lures',     speed:1.1,  rare:.2,  pack:10, price:100, food:true, meat:true, note:'A splashy lure for hunters.'},
+  glowworm:{name:'Glow Worms',     speed:1.15, rare:.15, pack:10, price:100, food:true, meat:false, shiny:1.2, note:'A soft glow: shiny fish ×1.2.'},
+  seaweed: {name:'Seaweed',        speed:1.3,  rare:0,   pack:10, price:100, food:true, meat:false, note:'Cheap greens: bites come faster.'},
+  crab:    {name:'Crab Bits',      speed:1.1,  rare:.25, pack:10, price:100, food:true, meat:true, note:'A rich treat for bottom feeders and hunters.'},
   golden: {name:'Golden Lures',  speed:1.6, rare:2.5, junk:true, note:'Found as junk. Enormous rare odds.'},
 };
 const PERKS = {
@@ -449,6 +458,12 @@ const PERKS = {
   tidewalker:{name:'Tidewalker',    max:10, per:'+6% Tide Pass XP', d:'The tide carries you further.'},
   hybrid:   {name:'Odd Genes',      max:9,  per:'+0.1% hybrid chance', d:'Now and then a fish has the weight of another fish from the same waters. Up to 1%.'},
   dozer:    {name:'Lazy Days',      max:5,  per:'Rest mode bites come sooner', d:'While resting, fish bite in 30 s to 3 min at full rank (3 to 10 min to start).'},
+  /* 0.4.9 [15] (director: "More skills. More ways to get skill points") */
+  grappler: {name:'Grappler',       max:5,  per:'Rare fish hold back 4% less while you reel', d:'Strong hands for the big ones.'},
+  snagwise: {name:'Snag Sense',     max:5,  per:'Oddities strain the line 8% less', d:'You feel a snag before it bites.'},
+  gourmet:  {name:'Gourmet',        max:5,  per:'Favourite foods pull 6% harder', d:'You know exactly what every fish likes.'},
+  nibbler:  {name:'Candy Maker',    max:5,  per:'+4% chance that scrapping gives Nibbles', d:'Nothing goes to waste.'},
+  prismkeeper:{name:'Prism Keeper', max:5,  per:'Titled shinies lift your other fish 2% more', d:'Your titled shinies shine for everyone.'},
 };
 const WEATHERS = [
   {k:'Clear',  w:31, note:'Calm skies. Nothing special.'},

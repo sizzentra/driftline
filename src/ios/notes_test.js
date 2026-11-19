@@ -1,6 +1,9 @@
 // iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9 big patch, part 1: progression', items:[
+const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9 big patch, part 2: progression', items:[
+  'Favourite foods (Tackle › Bait, new group): every fish loves one and dislikes one; see the Fish Log details. Epic+ favourites stay ??? until caught on it.',
+  'Rods › Attachments: 5 new (Snag Guard, Scent Bead, Twin Hook, Nibble Pouch, Fighter’s Grip).',
+  'Skills: 5 new (Grappler, Snag Sense, Gourmet, Candy Maker, Prism Keeper). More skill points from the Fish Log (1 per 25 species, 2 per complete water).',
   'Fish Nibbles: Scrap in the Cooler, Feed in the Aquarium (watch the fish swim up to eat), Nibbles in the Fish Log details. Half expire on a new voyage.',
   'Next water: 10 catches at the previous water this voyage (+10 per voyage, max 50). Old saves count the fish already caught.',
   'Rods cost Scales too (5 to 800).',
