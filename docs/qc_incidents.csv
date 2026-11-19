@@ -91,3 +91,4 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 90,2026-11-19,Wrote a second fight simulator (one existed),code-structure,me_manual,local,1,rule:grep-before-building
 91,2026-11-19,Stardust lost to Live Minnows at Starfall (maxed save),balance,my_check,local,1,qa:water-bait-best
 92,2026-11-19,Stats check read the tab an earlier check left,test-tool,my_check,local,0,state-independent-tests
+93,2026-11-19,Menu rail cut after Quests still seen (screenshot was 0.4.8.7; fix live only in 0.4.8.8) - safety net added,safari-only,director,live,3,qa:rail-squashed+fitRail
