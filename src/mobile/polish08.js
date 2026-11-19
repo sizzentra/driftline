@@ -18,6 +18,11 @@
   if(bar){ const svg=p=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
     bar.querySelectorAll(":scope > .secb").forEach(b=>b.remove()); bar.insertAdjacentHTML("afterbegin",MENU_SECS.map(s=>`<button type="button" class="secb" data-sec="${s.id}" aria-pressed="false" title="${esc(s.name)}"><span class="seci">${svg(s.icon)}</span><span class="secl"><span class="secfull">${s.name}</span><span class="secshort">${s.short}</span></span><span class="seclive" hidden>LIVE</span><span class="secdot" hidden></span></button>`).join('')); /* the Collapse panel button at the end stays */
     try{ menuSubKey=''; }catch(e){} }
+  /* the side panel on the fishing screen (#catdock, built once by bm_ui04 when the game starts) gets the same sections as the menu's:
+     Waters, Upgrades, Collection, Stats, Challenges, Customize, Prestige (it still showed the old list) */
+  { const CDn=document.getElementById('catdock'); if(CDn){ const olds=[...CDn.querySelectorAll(':scope > .cdb')], ref=olds.length?olds[olds.length-1].nextSibling:null;
+      const tpl=document.createElement('template'); tpl.innerHTML=MENU_SECS.map(s=>`<button type="button" class="cdb" data-cd="${s.id}" title="${esc(s.name)}" aria-label="${esc(s.name)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.icon}</svg><span class="cdl">${s.short}</span><span class="cddot" hidden></span></button>`).join('');
+      CDn.insertBefore(tpl.content,ref); olds.forEach(b=>b.remove()); } }
   try{ if(typeof SECT==='object'&&SECT.settings==='Save & codes') delete SECT.settings; }catch(e){} }
 
 /* the Level chip opens Stats */
@@ -142,4 +147,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08 .tile.dtasks[style*="display: none"],html body.phone-app #menuov #panel.pg08 .tile.dtasks[style*="display: none"]{display:none!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="bounties"]:not([data-pg-sec="Bounties"]) .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="bounties"]:not([data-pg-sec="Bounties"]) .pg08-body > .pg08-note{display:none!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="bounties"] .tile.dtasks > .row h4,html body.phone-app #menuov #panel.pg08[data-pg-tab="bounties"] .tile.dtasks > .row h4{display:none!important}
+</style>`);
+/* eight side-panel sections now (Quests first): on short phones each button is a little shorter again so all of them and Collapse
+   panel still fit without scrolling (measured at 667x375) */
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:420px){
+  html body.phone-land #menuov #tabs .secbar{gap:3px!important}
+  html body.phone-land #menuov #tabs .secbar > .secb{min-height:31px!important;height:31px!important}
+  html body.phone-land #catdock{gap:3px!important}
+  html body.phone-land #catdock .cdb{min-height:31px!important;height:31px!important}
+}
 </style>`);

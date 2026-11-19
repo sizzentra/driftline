@@ -19,10 +19,12 @@
   const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ return ''; } };
   // per page: summary cells [label, value], the main actions (moved into the strip), and sections for long pages without any
   const CFG={
-    cooler:{ cells:(P,hd)=>{ const t=txt(hd); const a=num(t,/(\d+) of (\d+) slots/), b=num(t,/(\d+) of (\d+) slots/,2), bo=num(t,/\+(\d+)% to every sale/); return [['In your cooler',a!=null?a+' / '+b:String(S.cooler.length)],bo!=null?['Sale bonus','+'+bo+'%']:null]; },
+    cooler:{ cells:(P,hd)=>{ const t=txt(hd); const m=t.match(/([\d,]+) of ([\d,]+) slots/), bo=t.match(/\+([\d,]+)% to every sale/); return [['In your cooler',m?m[1]+' / '+m[2]:S.cooler.length+' / '+gv('cooler')],bo?['Sale bonus','+'+bo[1]+'%']:null]; },
       acts:P=>[P.querySelector('[data-act="sellall"]')] },
     map:{ cells:()=>[['Fishing at',locName()],['Waters open',S.unlocked.length+' / '+LOCS.length]] },
     prestige:{ note:()=>'', cells:()=>[['Wisdom Pearls',String(S.pearls||0)],['Voyage',String((S.tides||0)+1)],['Pearl bonus','+'+Math.round((coinMult()-1)*100)+'% coins & XP']], groups:K=>{ const j=K.filter(c=>c.classList.contains('jsec')); const nm=c=>{ const h=c.querySelector('h2'); return h?h.textContent.trim():''; }; return j.map(c=>({name:nm(c),nodes:[c]})); } }, /* round 8: waters08.js */
+    quests:{ note:()=>'', cells:()=>{ let g=null; try{ g=_nextGoal_036(); }catch(e){ try{ g=nextGoal(); }catch(e2){} } const pc=g&&g.p!=null?Math.round(Math.max(0,Math.min(1,g.p))*100)+'%':(g&&g.ready?'Ready':'—'); const r=Array.isArray(S.settings.q8read)?S.settings.q8read.filter(id=>Q8_LESSONS.some(l=>l[0]===id)).length:0; return [g&&(g.ready||g.p!=null)?['Next goal',g.ready?'Ready':pc]:null,['Lessons read',r+' / '+Q8_LESSONS.length],['Level',String(S.lvl)]]; }, groups:K=>K.filter(c=>c.dataset&&c.dataset.q8sec).map(c=>({name:c.dataset.q8sec,nodes:[c]})) }, /* round 8: quests08.js */
+    oddities:{ note:()=>'', cells:()=>{ const found=JUNK.filter(J=>S.junk[J.id]).length, tr=JUNK.filter(J=>J.t>=3), trF=tr.filter(J=>S.junk[J.id]).length; return [['Found',found+' / '+JUNK.length],['Treasures',trF+' / '+tr.length]]; } }, /* round 8: waters08.js */
     shop:{ cells:()=>{ let a=0,b=0; try{ for(const k in GEAR){ a+=(S.gear[k]|0); b+=GEAR[k].lv.length-1; } }catch(e){} return [['Gear upgrades',a+' / '+b],['Fishing at',locName()]]; } },
     rods:{ cells:(P,hd)=>[['Rod in use',txt(P.querySelector('.rp-card.on b'))||'—'],['Scales',txt(hd&&hd.querySelector('.pts'))||'0']] },
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
@@ -55,7 +57,9 @@
     try{ const P=$('panel'), tab=S.tab, cfg=CFG[tab]; if(!P) return r;
       if(!MOB()||!cfg){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); return r; }
       const kids=[...P.children].filter(c=>!c.classList.contains('crumb'));
-      const hd=kids.find(c=>c.classList.contains('row')&&!!c.querySelector('h2.dl-dup')), loneH=kids.find(c=>c.tagName==='H2'&&c.classList.contains('dl-dup')), sub=(hd&&hd.querySelector('.sub'))||kids.find(c=>c.tagName==='P'&&c.classList.contains('sub'));
+      /* the page's own header: marked dl-dup when a side-panel tab names the page; pages opened only from the top bar (Cooler, Fish Log)
+         have no such tab, so their first header row / title counts too */
+      const hd=kids.find(c=>c.classList.contains('row')&&!!c.querySelector('h2.dl-dup'))||kids.slice(0,3).find(c=>c.classList.contains('row')&&!!c.querySelector(':scope > div > h2'))||null, loneH=kids.find(c=>c.tagName==='H2'&&c.classList.contains('dl-dup'))||(!hd&&kids[0]&&kids[0].tagName==='H2'?kids[0]:null), sub=(hd&&hd.querySelector('.sub'))||kids.find(c=>c.tagName==='P'&&c.classList.contains('sub'));
       // pages built inside one wrapper (Boardwalk): its parts become the page's parts; its class goes on the body so its styles still apply
       let bodyCls=''; if(cfg.unwrap){ const wr=P.querySelector(':scope > '+cfg.unwrap); if(wr){ bodyCls=wr.className; [...wr.children].forEach(c=>P.insertBefore(c,wr)); wr.remove(); kids.splice(0,kids.length,...[...P.children].filter(c=>!c.classList.contains('crumb'))); } }
       const nav=kids.find(c=>c.classList.contains('bwx-nav')&&!c.closest('.grid'));

@@ -1,0 +1,150 @@
+// =====================================================================
+// Phones and tablets, round 8: QUESTS (director, 2026-11-18: "goal shouldn't be on the top header ... rework goal into its own side
+// panel tab called Quests which should feature objectives, tutorials, and help to the fisher. Organize that part flawlessly, make sure
+// there's a lot to learn there, and also direction to find!").
+// A side-panel section (first in the list) with one page in four parts:
+//  - GOALS: your next goal (what to do, how close you are, a Show me button that takes you there), anything waiting to be claimed,
+//    a live event if one is on, and your journey through the waters to Set sail again.
+//  - LEARN: short lessons in seven groups, from casting to prestige. Each opens in place, says what it is and how to use it, and has
+//    a Take me there button. Lessons you have read get a tick; the strip counts them.
+//  - FIND: where everything lives ("Side panel > Upgrades > Rods"), with a filter box and a Go button on every line.
+//  - HELP: the questions players ask most, answered plainly, each with the button that fixes it.
+// Every number in the lessons comes from the game's own rules (the same text the game uses elsewhere). Android + iPhone + tablets.
+// =====================================================================
+{ /* the tab and its place on the side panel (first) */
+  const T=$('tabs'); if(T&&!T.querySelector(':scope > [data-tab="quests"]')){ const b=document.createElement('button'); b.setAttribute('role','tab'); b.type='button'; b.dataset.tab='quests'; b.dataset.label='🧭 Quests'; b.setAttribute('aria-selected','false'); b.hidden=true; b.innerHTML='🧭 Quests<span class="dot" hidden></span>'; const sb=T.querySelector('.secbar'); if(sb) T.insertBefore(b,sb); else T.appendChild(b); }
+  if(!MENU_SECS.some(s=>s.id==='quests')) MENU_SECS.unshift({id:'quests', name:'Quests', short:'Quests', tabs:['quests'], icon:'<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/>'});
+  try{ PAGE_DESC.quests='Your goals, short lessons, where to find everything, and help'; }catch(e){}
+  try{ SEARCH_IDX.unshift(['Quests: goals','quests','Goals','goal next objective quest what to do journey'],['Quests: learn','quests','Learn','tutorial lesson how to learn guide help basics'],['Quests: find anything','quests','Find','where find directions map menu'],['Quests: help','quests','Help','help faq question problem stuck']); }catch(e){}
+}
+const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
+  read:()=>{ const s=S.settings; if(!Array.isArray(s.q8read)) s.q8read=[]; return s.q8read; } };
+/* the lessons: [id, group, title, one line, body, go] (go = [tab, section] for Take me there) */
+const Q8_LESSONS=[
+ ['cast','Fishing basics','Casting','Where your line lands matters','Tap the water where you want your line to land. A <b>far cast</b> reaches better fish, and the cast line says so while you aim. If you prefer a power meter, switch the cast style in Settings, Controls.',['settings','Controls']],
+ ['bite','Fishing basics','Bites and the hook','Wait for the splash, then tap','Watch the bobber. Small twitches are only nibbles: <b>wait for the big splash</b>, then tap to set the hook. Miss the moment and the fish swims off. The <b>Hook</b> upgrade in Tackle gives you a longer window.',['shop',['tackleview','gear']]],
+ ['reel','Fishing basics','Reeling and the line','Hold to reel, let go when it fights','<b>Hold</b> to reel, or draw circles to crank. <b>Let go</b> when the fish runs, jumps, shakes its head or gets angry. The ring around the fish is your line: green is safe, yellow means careful, red means it is about to snap. <b>Line</b> upgrades take more strain, <b>Reel</b> upgrades wind faster.',['shop',['tackleview','gear']]],
+ ['rest','Fishing basics','Rest mode','Fish slowly while you do other things','<b>Rest</b> (bottom left of the water) sits your angler down to fish by themselves while the game is open, even while you browse the menus. A bite comes every few minutes and the fish goes straight into your cooler. You cannot fish yourself while resting, and the cooler needs room.',null],
+ ['bait','Better catches','Bait','Better bait, rarer fish','Better bait brings rarer fish. One bait is used each time you set the hook; <b>Worms never run out</b>. Change bait with <b>Bait</b> in the top bar, and buy more in Tackle, Bait.',['shop',['tackleview','bait']]],
+ ['weather','Better catches','Weather and time of day','Every weather changes the odds','The chip on the water shows the time, the weather and how long it lasts. <b>Rain</b>: bites +35%. <b>Storm</b>: rarer fish. <b>Fog</b>: night fish by day. <b>Gilded</b>: shiny ×3. <b>Rainbow</b>: shiny ×2 and XP +30%. <b>Aurora</b>: XP ×2. <b>Spawning Run</b>: bites ×2.5. Some fish only bite by day, others only at night. The forecast is in Events.',['events',null]],
+ ['hot','Better catches','Hotspots','Ripples mean rarer fish','A <b>hotspot</b> ripples on the water now and then: cast right into it for rarer fish. The <b>Fish Finder</b> upgrade finds more hotspots and tells you more about a bite before you strike.',['shop',['tackleview','gear']]],
+ ['shiny','Better catches','Shiny and prismatic fish','Rare colours worth far more','A <b>shiny</b> fish (✦) is a rare colour of a species and worth much more; <b>prismatic</b> (✦✦) is rarer still. Gilded and Rainbow weather raise the chance. Sell all leaves shinies alone unless you switch on Shinies in the Cooler.',['cooler',null]],
+ ['lures','Better catches','Special lures','Lures for junk and treasure','Special lures change what bites: some pull up junk and treasure instead of fish. They live in Tackle, Special lures.',['shop',['tackleview','lures']]],
+ ['cooler','Your fish','The Cooler','Where every catch goes','Every fish you land goes into the <b>Cooler</b> (top bar). Sell one, <b>Sell all</b> with a filter (rarity, a max price, shinies), put one on display in the Aquarium, or Keep it in the Trophy Room. When the cooler is full you cannot fish until you make room. The <b>Cooler</b> upgrade in Tackle adds space.',['cooler',null]],
+ ['monger','Your fish','The fishmonger','Double pay for one species','The fishmonger wants one species at a time and <b>pays double</b> for it until the weather changes. Their wish is at the top of the Cooler.',['cooler',null]],
+ ['aquarium','Your fish','The Aquarium','Fish that earn while you are away','Fish on display earn coins from visitors, even while you are away (up to 8 hours), and every fish adds its own boost; boosts stack. Collect the coins from the strip under the tank. A bigger tank holds more fish; decorations make it yours.',['aquarium',null]],
+ ['trophy','Your fish','The Trophy Room','Keep a fish forever','<b>Keep</b> mounts a fish in the Trophy Room for good: it earns nothing and gives no boost, but it is never lost, not even when you set sail again.',['trophy',null]],
+ ['log','Your fish','The Fish Log and mastery','Every species, and stars for each','The <b>Fish Log</b> (top bar) lists every species at every water. Catch a species 3, 10, 30 and 100 times for its <b>mastery stars</b>: each star adds +10% to that fish\'s value, and every 8 stars is a new Angler Rank with coins and a free Mystery Crate.',['journal',null]],
+ ['odd','Your fish','Oddities','Junk, odd finds and treasure','Not everything that bites is a fish. Junk, odd finds, rare finds and treasure all go in <b>Oddities</b> (Collection): some pay, some boost your fishing, some come with a pet or a hat. Special lures in Tackle pull up more of them.',['oddities',null]],
+ ['waters','Getting stronger','New waters','How to open the next water','Each water has 52 fish of its own and is tougher than the last. Find <b>8 species</b> at a water and you can open the next one with coins in Waters. Your goal (Quests) always says how close you are.',['map',null]],
+ ['tackle','Getting stronger','Tackle upgrades','Rod length, reel, line, hook, cooler, finder','In Tackle, Gear: <b>Rod length</b> casts farther with better far-cast odds, <b>Reel</b> winds faster, <b>Line</b> takes more tension, <b>Hook</b> gives a longer window, <b>Cooler</b> holds more fish and the <b>Fish Finder</b> reads bites and finds hotspots.',['shop',['tackleview','gear']]],
+ ['rods','Getting stronger','Rods, Scales and attachments','Collect rods, upgrade them, fit parts','Your rod shapes every cast. Collect rods in the Rod rack, upgrade them with coins and <b>Scales</b> (Scales come from Rare and better fish) and fit <b>attachments</b>: each has three tiers and fits any rod once you own it. Save a rod and its parts as a <b>preset</b> to switch in one tap.',['rods','Your rod']],
+ ['skills','Getting stronger','Skills','Small steady gains with a big finish','Levels give <b>skill points</b>. Skills are small steady gains in five groups, and every skill unlocks a <b>special effect</b> when fully learned. The XP bar next to your level shows how close the next point is. Skills can be reset for coins.',['skills',null]],
+ ['paths','Getting stronger','Paths','One big specialty per tier','Paths are big specialties: you pick one per tier, and each changes how you fish in its own way.',['paths',null]],
+ ['tasks','Things to do','Daily tasks and weekly quests','Fresh goals every day and week','<b>Tasks</b> (top bar) has three daily tasks (finish all three for a bonus crate; your login streak counts too) and four weekly quests (finish all four for a big Mystery Crate). A number on Tasks means a reward is ready.',['bounties','Daily tasks']],
+ ['bounties','Things to do','Bounties','The harbourmaster pays extra','The harbourmaster pays extra for specific catches. Every water has its own board, and its bounties wait there until you finish them. Fish still go in your cooler. Swap a bounty you do not want for a few coins.',['bounties','Bounties']],
+ ['events','Things to do','Events','Derbies, frenzies and the forecast','Events bring derbies, frenzies and special weather. When one is on, <b>Live</b> shows in the top bar. In a frenzy, tap the leaping fish.',['events',null]],
+ ['feats','Things to do','Feats','Achievements that pay','Feats are achievements for things you do as you play, each with a reward.',['feats',null]],
+ ['pass','Things to do','Tide Pass','Levels with rewards','The Tide Pass levels up as you play and each level has a reward to claim. It lives under Challenges.',['pass',null]],
+ ['boardwalk','Things to do','The Boardwalk','Games, tickets and prizes','On the old pier: a free <b>Lucky wheel</b> spin every hour (up to 3 saved), plus scratch cards, the duck pond and higher-or-lower. Games pay tickets and prizes, and the Prize counter trades tickets for things you cannot get anywhere else.',['games',['bwview','games']]],
+ ['home','Home and style','Your home','A home at every water','<b>Home</b> (top bar) is your spot at the water you are at: choose its style and place decorations. A cozier home gives more XP (up to +40%).',['home',null]],
+ ['pets','Home and style','Pets','Company on the water','Pets keep you company on the water. Find more in Pets, then name and dress them up.',['pets','Your pets']],
+ ['style','Home and style','Wardrobe','Dress your angler','Change your angler\'s body, clothes, hats, glasses, shoes and more in the Wardrobe. Tap anything to try it on first.',['style',null]],
+ ['sail','Prestige','Set sail again','Start over, stronger every time','Once you reach <b>Hollow Trench</b> you can start over from Willow Pond for <b>Wisdom Pearls</b>: each pearl gives +25% coins and XP and better rare odds, forever. Your Legacy grows with every voyage and milestones unlock perks. You keep your level, skills, Fish Log, feats, Trophy Room, pets and clothes.',['prestige','Set sail again']],
+ ['relics','Prestige','Pearl relics','Trade pearls for lasting bonuses','Spend Wisdom Pearls on permanent relics. A spent pearl gives up its own +25% bonus, so choose relics that are worth it.',['prestige','Pearl relics']],
+ ['save','Settings and saves','Your save on another device','Move your progress','Save, Save codes gives you a code that carries your progress to another phone or a computer. Settings belong to each device.',['save',null]],
+];
+/* where everything lives on a phone: [place, label, tab, section] */
+const Q8_FIND=()=>{ const out=[], lbl=t=>{ try{ return menuTabLabel(t)[1]; }catch(e){ return t; } };
+  out.push(['Top bar','Cooler','cooler',null],['Top bar','Aquarium','aquarium',null],['Top bar','Home','home',null],['Top bar','Fish Log','journal',null],['Top bar','Bait (in Tackle)','shop',['tackleview','bait']],['Top bar','Tasks (daily, weekly, bounties)','bounties',null],['Top bar · settings button','Settings','settings',null],['Top bar · settings button','Save and save codes','save',null]);
+  for(const s of MENU_SECS){ if(s.id==='quests') continue; for(const t of s.tabs) out.push(['Side panel · '+s.short,lbl(t),t,null]); }
+  out.push(['Side panel · Prestige','Set sail again','prestige','Set sail again'],['Side panel · Prestige','Pearl relics','prestige','Pearl relics']);
+  return out; };
+const Q8_HELP=[
+ ['My line keeps snapping','Let go of the screen when the fish runs, jumps or shakes its head, and watch the ring around it: red means let go now. A stronger <b>Line</b> in Tackle takes more strain.',['shop',['tackleview','gear']],'Tackle'],
+ ['How do I catch rarer fish?','Better bait, far casts, hotspots, Storm weather and the rare-odds skills all help. Your Wisdom Pearls raise rare odds too.',['shop',['tackleview','bait']],'Bait'],
+ ['My cooler is full','Open the Cooler and Sell all (with a filter if you want to keep some), put fish in the Aquarium, or Keep the best ones in the Trophy Room. A bigger Cooler is in Tackle.',['cooler',null],'Cooler'],
+ ['How do I earn more coins?','Sell bigger and rarer fish, fill the fishmonger\'s wish (double pay), keep the Aquarium full, finish bounties and tasks, and raise your sale bonus with skills and mastery stars.',['bounties','Bounties'],'Bounties'],
+ ['Where do Scales come from?','Rare and better fish. You spend them on rod upgrades.',['rods','Your rod'],'Rods'],
+ ['How do I open the next water?','Find 8 species at the water before it, then pay its price in Waters. Your goal shows both.',['map',null],'Waters'],
+ ['What do I keep when I set sail again?','Your level, skills, Fish Log, feats, Trophy Room, pets, clothes, relics and Wisdom Pearls. Coins, tackle, bait, cooler fish, bounties and waters reset; aquarium fish are mounted in the Trophy Room.',['prestige','Set sail again'],'Prestige'],
+ ['How do I see all my bonuses?','Stats shows your level, bite speed, sale price and every bonus, worked out the way the game does.',['stats',null],'Stats'],
+ ['How do I move my game to another device?','Save, Save codes: copy the code there and enter it on the other device.',['save',null],'Save'],
+ ['How do I turn hints or sounds off?','Settings has Sound and Gameplay sections; they belong to this device only.',['settings',null],'Settings'],
+];
+function q8go(tab,sect){ try{ startAudio(); }catch(e){} try{ if(typeof sect==='string'&&typeof SECT==='object') SECT[tab]=sect; }catch(e){} /* the page opens on that section */ try{ if(tab==='journal'){ encLoc=S.loc; encSel=null; } if(Array.isArray(sect)&&sect[0]==='tackleview'){ tackleView=sect[1]; sect=null; } }catch(e){}
+  try{ if(!MENU_OPEN) openMenu(tab); else if(S.tab!==tab){ setTab(tab); save(); } }catch(e){ try{ openMenu(tab); }catch(e2){} }
+  if(sect) setTimeout(()=>{ try{ const P=$('panel'); if(Array.isArray(sect)){ const b=P.querySelector(`[data-act="${sect[0]}"][data-k="${sect[1]}"]`); if(b) b.click(); } else { const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===sect||x.dataset.sect.startsWith(sect)); if(b) b.click(); } }catch(e){} },40); }
+function q8goal(){ const gl=Q8.goal(); try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(e){} if(gl.tab) q8go(gl.tab,null); else { try{ closeMenu(); }catch(e){} } }
+function q8ready(){ const r=[]; try{ const d=ensureDaily(); const n=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); if(n) r.push([n+' task reward'+(n>1?'s':'')+' ready','bounties','Daily tasks']); }catch(e){}
+  try{ const un=(S.pass.lvl|0)-(S.pass.claimed|0); if(un>0) r.push([un+' Tide Pass reward'+(un>1?'s':'')+' ready','pass',null]); }catch(e){}
+  try{ if(S.tankBank>=1) r.push([fmt(Math.floor(S.tankBank))+' coins waiting in the Aquarium','aquarium',null]); }catch(e){}
+  try{ if(typeof ptsFree==='function'&&ptsFree()>0) r.push([ptsFree()+' skill point'+(ptsFree()>1?'s':'')+' to spend','skills',null]); }catch(e){}
+  return r; }
+function q8html(){ const gl=Q8.goal(), read=Q8.read(), p=gl.p!=null?Math.max(0,Math.min(1,gl.p)):null;
+  const goal=`<div class="tile q8-goal${gl.ready?' ready':''}"><span class="q8-k">${gl.ready?'Ready':'Your next goal'}</span><b class="q8-gt">${esc(gl.t)}</b>${gl.sub?`<span class="meta">${esc(gl.sub)}</span>`:''}${p!=null?`<span class="q8-bar"><i style="width:${(p*100).toFixed(1)}%"></i></span>`:''}<button class="btn" data-q8goal>${gl.tab?'Show me':'Back to the water'}</button></div>`;
+  let live=''; try{ const L=liveNow&&liveNow(); if(L) live=`<div class="tile q8-row"><div><b>${esc(L.t)}</b>${L.sub?`<div class="meta">${esc(L.sub)}</div>`:''}</div><button class="btn alt sm" data-q8go="events">Events</button></div>`; }catch(e){}
+  const rd=q8ready(); const ready=rd.length?`<h5>Waiting for you</h5><div class="q8-list">${rd.map(([t,tab,sect])=>`<div class="tile q8-row"><b>${esc(t)}</b><button class="btn alt sm" data-q8go="${tab}"${sect?` data-q8s="${esc(sect)}"`:''}>Open</button></div>`).join('')}</div>`:'';
+  /* the journey: every water, then Hollow Trench and the voyages */
+  const jr=LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), prev=i?LOCS[i-1]:null, need=prev?Math.min(caughtAt(prev.id),L.need)+' / '+L.need+' species at '+prev.name:''; return `<div class="q8-step${open?' done':''}"><span class="q8-dot">${open?'✓':i+1}</span><div><b>${open?'Opened ':'Open '}${esc(L.name)}</b>${!open&&prev?`<div class="meta">${need} · ${fmtShort(locCost(L))} coins</div>`:''}</div></div>`; }).join('')+
+    `<div class="q8-step${(S.tides||0)>0?' done':''}"><span class="q8-dot">${(S.tides||0)>0?'✓':'⚓'}</span><div><b>Set sail again</b><div class="meta">${(S.tides||0)>0?(S.tides+' voyage'+(S.tides>1?'s':'')+' so far, '+(S.pearls||0)+' Wisdom Pearls'):'Reach Hollow Trench to start over for Wisdom Pearls'}</div></div></div>`;
+  const goals=`<div class="jsec q8-sec" data-q8sec="Goals"><h2>Goals</h2>${goal}${live}${ready}<h5>Your journey</h5><div class="q8-journey">${jr}</div></div>`;
+  /* lessons, grouped */
+  const groups=[...new Set(Q8_LESSONS.map(l=>l[1]))];
+  const learn=`<div class="jsec q8-sec" data-q8sec="Learn"><h2>Learn</h2><p class="meta q8-intro">Short lessons, one tap each. Tap a lesson to open it; read ones get a tick.</p>${groups.map(g=>`<h5>${esc(g)}</h5><div class="q8-lessons">${Q8_LESSONS.filter(l=>l[1]===g).map(([id,,t,one,body,go])=>`<details class="tile q8-lesson${read.includes(id)?' read':''}" data-q8id="${id}"><summary><span class="q8-tick" aria-hidden="true">${read.includes(id)?'✓':''}</span><span class="q8-st"><b>${esc(t)}</b><span class="meta">${esc(one)}</span></span></summary><div class="q8-body">${body}</div>${go?`<button class="btn alt sm" data-q8go="${go[0]}"${go[1]?` data-q8s='${esc(JSON.stringify(go[1]))}'`:''}>Take me there</button>`:''}</details>`).join('')}</div>`).join('')}</div>`;
+  /* find anything */
+  const F=Q8_FIND(); const places=[...new Set(F.map(f=>f[0]))];
+  const find=`<div class="jsec q8-sec" data-q8sec="Find"><h2>Find</h2><input class="q8-filter" type="search" placeholder="Find anything: bait, pets, relics…" aria-label="Find a page" autocomplete="off"><div class="q8-find">${places.map(pl=>`<div class="q8-place" data-q8place><h5>${esc(pl)}</h5>${F.filter(f=>f[0]===pl).map(([,l,tab,sect])=>`<div class="tile q8-row q8-fi" data-q8k="${esc((l+' '+pl).toLowerCase())}"><b>${esc(l)}</b><button class="btn alt sm" data-q8go="${tab}"${sect?` data-q8s='${esc(JSON.stringify(sect))}'`:''}>Go</button></div>`).join('')}</div>`).join('')}<p class="meta q8-none" hidden>Nothing by that name. Try the search button in the top bar for more.</p></div></div>`;
+  const help=`<div class="jsec q8-sec" data-q8sec="Help"><h2>Help</h2><div class="q8-lessons">${Q8_HELP.map(([q,a,go,gl])=>`<details class="tile q8-lesson q8-faq"><summary><span class="q8-tick" aria-hidden="true">?</span><span class="q8-st"><b>${esc(q)}</b></span></summary><div class="q8-body">${a}</div><button class="btn alt sm" data-q8go="${go[0]}"${go[1]?` data-q8s='${esc(JSON.stringify(go[1]))}'`:''}>${esc(gl)}</button></details>`).join('')}</div></div>`;
+  return `<div class="row spread"><div><h2 class="dl-dup">Quests</h2></div></div>${goals}${learn}${find}${help}`; }
+{ /* drawn through the game's normal page drawing (unknown pages fall back to renderCooler) */
+  const _rc=renderCooler; renderCooler=function(P){ if(MOB()&&S.tab==='quests'&&P){ P.innerHTML=q8html(); return; } return _rc.apply(this,arguments); };
+  /* taps inside the page */
+  document.addEventListener('click',e=>{ const P=$('panel'); if(!P||S.tab!=='quests'||!P.contains(e.target)) return;
+    if(e.target.closest('[data-q8goal]')){ e.stopPropagation(); q8goal(); return; }
+    const g=e.target.closest('[data-q8go]'); if(g){ e.stopPropagation(); let s=g.dataset.q8s||null; if(s&&(s[0]==='['||s[0]==='"')) try{ s=JSON.parse(s); }catch(er){} q8go(g.dataset.q8go,s); } },true);
+  document.addEventListener('toggle',e=>{ const d=e.target; if(!(d instanceof HTMLDetailsElement)||!d.open||!d.dataset.q8id) return; const r=Q8.read(); if(!r.includes(d.dataset.q8id)){ r.push(d.dataset.q8id); save(); d.classList.add('read'); const t=d.querySelector('.q8-tick'); if(t) t.textContent='✓'; const c=$('panel').querySelector('.pg08-bank'); if(c){ const cell=[...c.children].find(x=>/^Lessons read/.test((x.querySelector('.sub')||{}).textContent||'')); if(cell){ const b=cell.querySelector('b'); if(b) b.textContent=r.filter(id=>Q8_LESSONS.some(l=>l[0]===id)).length+' / '+Q8_LESSONS.length; } } } },true);
+  document.addEventListener('input',e=>{ const f=e.target; if(!f.classList||!f.classList.contains('q8-filter')) return; const q=f.value.trim().toLowerCase(), box=f.closest('.q8-sec'); let any=0;
+    box.querySelectorAll('.q8-fi').forEach(r=>{ const on=!q||q.split(/\s+/).every(w=>r.dataset.q8k.includes(w)); r.hidden=!on; if(on) any++; }); box.querySelectorAll('[data-q8place]').forEach(p=>{ p.hidden=![...p.querySelectorAll('.q8-fi')].some(r=>!r.hidden); }); const n=box.querySelector('.q8-none'); if(n) n.hidden=!!any; });
+  /* the side-panel badge: 1 when your goal is ready */
+  setInterval(()=>{ try{ const b=$('tabs').querySelector(':scope > [data-tab="quests"] .dot'); if(!b) return; const on=!!Q8.goal().ready; if(b.hidden===on){ b.hidden=!on; b.textContent=on?'1':''; } }catch(e){} },1500);
+}
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="quests"] .q8-sec > h2,html body.phone-app #menuov #panel.pg08[data-pg-tab="quests"] .q8-sec > h2{display:none!important}
+#menuov #panel .q8-goal{display:flex;flex-direction:column;gap:4px;padding:12px 14px!important;border-color:#7fe3c455!important}
+#menuov #panel .q8-goal.ready{border-color:#ffd36aaa!important;box-shadow:0 0 0 1px #ffd36a55,0 0 18px #ffd36a22}
+#menuov #panel .q8-k{font:800 10px var(--display,system-ui);letter-spacing:.09em;text-transform:uppercase;color:#9fb2c8}
+#menuov #panel .q8-goal.ready .q8-k{color:#ffd36a}
+#menuov #panel .q8-gt{font:800 16px var(--display,system-ui);color:#fff}
+#menuov #panel .q8-bar{display:block;height:7px;border-radius:999px;background:#0a161d;box-shadow:inset 0 0 0 1px #ffffff14;overflow:hidden;margin:4px 0}
+#menuov #panel .q8-bar > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
+#menuov #panel .q8-goal > .btn{align-self:flex-start;margin-top:4px}
+#menuov #panel .q8-list,#menuov #panel .q8-lessons{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px}
+#menuov #panel .q8-row{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px;padding:8px 12px!important;min-height:0!important}
+#menuov #panel .q8-row > b,#menuov #panel .q8-row > div{min-width:0}
+#menuov #panel .q8-row .btn{flex:0 0 auto}
+#menuov #panel .q8-journey{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 12px}
+#menuov #panel .q8-step{display:flex;align-items:flex-start;gap:8px;padding:5px 0}
+#menuov #panel .q8-step b{font-size:13px}
+#menuov #panel .q8-step .meta{font-size:11.5px}
+#menuov #panel .q8-dot{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 11px var(--display,system-ui);background:#0a161d;color:#9fb2c8;box-shadow:inset 0 0 0 1px #ffffff22}
+#menuov #panel .q8-step.done .q8-dot{background:#7fe3c4;color:#05261f;box-shadow:none}
+#menuov #panel .q8-step.done b{color:#bff5e3}
+#menuov #panel .q8-lesson{padding:0!important;display:block!important;min-height:0!important}
+#menuov #panel .q8-lesson > summary{list-style:none;display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer}
+#menuov #panel .q8-lesson > summary::-webkit-details-marker{display:none}
+#menuov #panel .q8-lesson > summary::after{content:'›';margin-left:auto;color:#7f93a8;font:800 16px var(--display,system-ui);transition:transform .15s}
+#menuov #panel .q8-lesson[open] > summary::after{transform:rotate(90deg)}
+#menuov #panel .q8-st{display:flex;flex-direction:column;min-width:0}
+#menuov #panel .q8-st b{font-size:13.5px}
+#menuov #panel .q8-st .meta{font-size:11.5px}
+#menuov #panel .q8-tick{flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 11px var(--display,system-ui);background:#0a161d;color:#7fe3c4;box-shadow:inset 0 0 0 1px #ffffff22}
+#menuov #panel .q8-lesson.read .q8-tick{background:#7fe3c4;color:#05261f;box-shadow:none}
+#menuov #panel .q8-faq .q8-tick{color:#ffd36a}
+#menuov #panel .q8-body{padding:0 12px 8px 44px;font-size:13px;line-height:1.5;color:#cfdbe6}
+#menuov #panel .q8-lesson > .btn{margin:0 12px 10px 44px}
+#menuov #panel .q8-filter{width:100%;box-sizing:border-box;height:36px;border-radius:10px;border:1px solid var(--line,#26385180);background:#0a161d;color:var(--ink,#e6efe8);padding:0 12px;font-size:14px;margin:0 0 6px}
+#menuov #panel .q8-place[hidden],#menuov #panel .q8-fi[hidden]{display:none!important}
+#menuov #panel .q8-place{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:6px}
+#menuov #panel .q8-place > h5{grid-column:1/-1}
+</style>`);

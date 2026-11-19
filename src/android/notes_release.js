@@ -144,5 +144,9 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Waters is tidier: compact cards with a picture, a species bar and one button, the water you’re at says You are here, and the list opens right at it.',
   'Top bar: your coins, level and the water you’re at sit together in one quiet box.',
   'Tasks: Daily tasks, Weekly quests and Bounties each show only their own part, with nothing repeated.',
-  'Collection holds the Aquarium and the Trophy Room; the Fish Log opens from its own button in the top bar.']});
+  'Collection holds the Aquarium and the Trophy Room; the Fish Log opens from its own button in the top bar.',
+  'New Quests button at the top of the side panel: your next goal (with a Show me button), what is waiting for you, your journey, over 30 short lessons, a map of where everything is, and answers to common questions.',
+  'Top bar: Bait sits up top now (tap to change it); Goal moved into Quests, Tide Pass into Challenges, and Home has its own button next to the Aquarium. Customize holds the Wardrobe and Pets.',
+  'Cooler is tidier: the Sell all filter is one slim line, the fishmonger is a one-line banner, and fish sit two a row.',
+  'Oddities has its own page in Collection, and the Fish Log lists its waters in neat rows instead of a sideways strip.']});
 

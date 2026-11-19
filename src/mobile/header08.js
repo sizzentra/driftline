@@ -70,7 +70,14 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
   const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
-    T.hidden=!land; Pz.hidden=!land; if(!land) return; if(hud.scrollWidth>hud.clientWidth+1) Pz.hidden=true; if(hud.scrollWidth>hud.clientWidth+1) T.hidden=true;
+    T.hidden=!land; Pz.hidden=true; if(!land) return;
+    /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,
+       Aquarium, Home and Fish Log always stay */
+    const over=()=>hud.scrollWidth>hud.clientWidth+1, L=document.getElementById('mblive'), has=hud.classList.contains('mb-has-live');
+    if(L&&has){ L.hidden=false; const b=L.querySelector(':scope > b'); if(b&&b.dataset.full){ if(b.textContent===b.dataset.tight) b.textContent=b.dataset.full; delete b.dataset.full; delete b.dataset.tight; } /* (a newer event text written meanwhile wins) */ L.classList.remove('mb-tight'); }
+    if(over()) T.hidden=true;
+    if(over()&&L&&has){ const b=L.querySelector(':scope > b'); if(b){ const p=b.textContent.trim().split(' '); if(p.length>2){ b.dataset.full=b.textContent; b.textContent=p[0]+' '+p[p.length-1]; b.dataset.tight=b.textContent; } } L.classList.add('mb-tight'); }
+    if(over()&&L&&has) L.hidden=true;
     if(!ro&&typeof ResizeObserver==='function'){ ro=new ResizeObserver(()=>{ if(!busy) requestAnimationFrame(()=>{ busy=true; try{ fit(); }finally{ busy=false; } }); }); } if(ro){ for(const k of [hud,...hud.children]) if(!seen.has(k)){ seen.add(k); ro.observe(k); } } };
   let ro=null, busy=false; const seen=new WeakSet(); /* round 8 (director: "settings cut off sometimes on top right"): the bar is re-checked whenever it or any chip changes size (the Live timer text, opening or closing the side panel), not only when Tasks or Tide Pass change */
   const tick=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'), lv=document.getElementById('mblive'); if(!hud||!lv) return;
@@ -118,4 +125,31 @@ html body.phone-land .hud > .mb-stat8 > .stat + .stat,html body.phone-app .hud >
 html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-app .hud > .mb-stat8 > .stat .lbl{color:#8fa6bf!important}
 html body.phone-land .hud > .mb-stat8 > .stat b,html body.phone-app .hud > .mb-stat8 > .stat b{color:#fff!important}
 html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-app .hud > .mb-stat8 > .stat.loc .lbl::after{content:none!important;display:none!important}
+</style>`);
+/* round 8 (director, 2026-11-18: "Tide pass doesn't need to be on the top header" / "Move home to the top panel next to aquarium.
+   Customize should just consist of wardrobe and pets"): no Tide Pass chip (it lives in Challenges); a Home chip right after the
+   Aquarium shows how cozy your home here is and opens it. Home is reached from this chip only, so it never steps aside for room. */
+{ const ensure=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; const pz=document.getElementById('mbpass'); if(pz&&!pz.hidden) pz.hidden=true;
+    const aq=hud.querySelector('.st-aq'); if(!aq) return; let h=document.getElementById('mbhome');
+    if(!h){ h=document.createElement('button'); h.type='button'; h.id='mbhome'; h.className='stat hudx mb-x mb-home'; h.innerHTML='<span class="lbl">Home</span><b></b>'; h.title='Your home at this water. Tap to open it.';
+      h.addEventListener('pointerdown',e=>e.stopPropagation()); h.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('home'); }); }
+    if(h.previousElementSibling!==aq) aq.after(h);
+    let v='—'; try{ v=cozy()+' ♥'; }catch(e){} const b=h.querySelector('b'); if(b.textContent!==v) b.textContent=v; };
+  setTimeout(ensure,60); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); }
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}</style>`); /* the info box never squeezes its words; the chips to its right make room (Tasks steps aside first) */
+/* round 8 (director, 2026-11-18: "goal shouldn't be on the top header. Bait should move up there instead"): the goal lives in Quests
+   (side panel); Bait sits in the top bar after Tasks: the bait you use (and how many are left), tap to open Tackle, Bait. The Bait
+   button on the water (next to Rest) is gone. */
+{ const lbl=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
+  const ensure=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; let c=document.getElementById('mbbait');
+    if(!c){ c=document.createElement('button'); c.type='button'; c.id='mbbait'; c.className='stat hudx mb-x mb-bait'; c.innerHTML='<span class="lbl">Bait</span><b></b>'; c.title='The bait you fish with. Tap to change it or buy more.';
+      c.addEventListener('pointerdown',e=>e.stopPropagation()); c.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} try{ tackleView='bait'; }catch(er){} openMenu('shop'); }); }
+    const after=document.getElementById('mbtasks')||document.getElementById('mblive'), cool=hud.querySelector('.st-cool');
+    if(cool&&c.nextElementSibling!==cool) cool.before(c); else if(!cool&&after&&c.previousElementSibling!==after) after.after(c);
+    const t=lbl(), b=c.querySelector('b'); if(b.textContent!==t) b.textContent=t; };
+  setTimeout(ensure,80); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body.phone-land #goalchip,html body.phone-app #goalchip{display:none!important}
+html body.phone-land #baitqk,html body.phone-app #baitqk{display:none!important}
+html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>`);

@@ -65,3 +65,48 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="prestige"] .pg08-body .gri
 /* Collection holds the Aquarium and the Trophy Room (director: "fish tab needs to be removed from Collection ... it has its own clear
    ui on the top header already"): the Fish Log opens from its own chip in the top bar */
 { const c=MENU_SECS.find(s=>s.id==='coll'); if(c) c.tabs=c.tabs.filter(t=>t!=='journal'); }
+/* the Cooler opens from its chip in the top bar only (director: "it should also only appear from clicking the top panel"); the side
+   panel's first section then holds just the Waters, so it is called Waters, with a map icon */
+{ const f=MENU_SECS.find(s=>s.id==='fish'); if(f){ f.tabs=f.tabs.filter(t=>t!=='cooler'); f.name='Waters'; f.short='Waters'; f.icon='<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>'; } }
+/* Cooler (director: "very large, the filter takes up way too much space, consider a rework"):
+   - the Sell all filter is one slim line: "Sell all:" then rarity, max price and a Shinies switch
+   - the fishmonger's wish is a one-line banner
+   - no intro line or help box (every row already shows what a fish earns in the tank; the buttons explain themselves on long-press)
+   - fish sit two a row on wider phones */
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='cooler') return r; const P=$('panel'); if(!P) return r;
+      const t=P.querySelector('.sellf .fld-title'); if(t) t.textContent='Sell all:';
+      const inp=P.querySelector('.sellf [data-sp]'); if(inp) inp.placeholder='Max price';
+      const sh=P.querySelector('.sellf [data-ssh]'); if(sh&&!sh.dataset.mb8){ sh.dataset.mb8='1'; sh.innerHTML='<span class="ssh-star" aria-hidden="true">✦</span> Shinies'; }
+      const dm=[...P.querySelectorAll('.tile')].find(x=>/fishmonger wants/i.test(x.textContent)); if(dm) dm.classList.add('cl8-dm');
+    }catch(e){ console.error(e); } return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .pg08-note,html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .mb-help,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .mb-help{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:wrap!important;gap:6px 8px!important;padding:6px 10px!important;margin:0 0 8px!important;min-height:0!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld-title,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld-title{font:800 12px var(--display,system-ui)!important;margin:0!important;white-space:nowrap;color:#cfe0ee;flex:0 0 auto!important;width:auto!important;display:block!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld{display:flex!important;flex-direction:row!important;align-items:center!important;margin:0!important;padding:0!important;gap:0!important;min-width:0}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld-l,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .fld-l{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf select,html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input,html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .chipb,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf select,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf .chipb{height:32px!important;min-height:32px!important;margin:0!important;font-size:12.5px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input{width:96px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm{padding:6px 10px!important;margin:0 0 8px!important;gap:10px!important;min-height:0!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm .meta,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm .meta{font-size:11.5px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))!important;gap:6px!important}
+</style>`);
+/* Customize holds the Wardrobe and Pets; Home opens from its chip in the top bar (next to the Aquarium) */
+{ const c=MENU_SECS.find(s=>s.id==='cust'); if(c) c.tabs=c.tabs.filter(t=>t!=='home'); }
+/* ODDITIES: its own page in Collection (director, 2026-11-18: "oddities belong in collection, as its own location inside"), and the
+   Fish Log is fish only. FISH LOG: the waters (and the Show choices) wrap into neat rows instead of one long sideways-scrolling strip
+   with arrows ("mobile fish log has side scrolling and it doesn't look good at all"). */
+{ const T=$('tabs'); if(T&&!T.querySelector(':scope > [data-tab="oddities"]')){ const b=document.createElement('button'); b.setAttribute('role','tab'); b.type='button'; b.dataset.tab='oddities'; b.dataset.label='👢 Oddities'; b.setAttribute('aria-selected','false'); b.hidden=true; b.textContent='👢 Oddities'; const sb=T.querySelector('.secbar'); if(sb) T.insertBefore(b,sb); else T.appendChild(b); }
+  const c=MENU_SECS.find(s=>s.id==='coll'); if(c&&!c.tabs.includes('oddities')) c.tabs.push('oddities');
+  try{ SEARCH_IDX.push(['Oddities','oddities',null,'oddities junk treasure rare finds boot can found things']); }catch(e){}
+  try{ PAGE_DESC.oddities='Junk, odd finds and treasure you have pulled from the water'; }catch(e){}
+  const _rc=renderCooler; renderCooler=function(P){ if(MOB()&&S.tab==='oddities'&&P){
+      P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Oddities</h2><p class="sub">Things humanity dropped in the water. Some pay, some boost your fishing, some come with a pet or a hat.</p></div></div><div class="jgrid">`+JUNK.map(J=>{ const n=S.junk[J.id]||0; return `<div class="jcard" style="cursor:default"><canvas width="200" height="100" data-junk="${J.id}" data-known="${n?1:0}"></canvas><b style="color:${n?(J.t>=2?'var(--gold)':'var(--ink)'):'var(--muted)'}">${n?esc(J.name):'???'}</b><small>${['Junk','Odd junk','Rare find','Treasure'][J.t]}${n?' · ×'+n:''}</small></div>`; }).join('')+'</div>';
+      P.querySelectorAll('canvas[data-junk]').forEach(cv=>{ const cx=cv.getContext('2d'); cx.clearRect(0,0,cv.width,cv.height); if(cv.dataset.known==='1') drawJunk(cx,cv.width,cv.height,cv.dataset.junk,null); else mysteryThumb(cx,cv.width,cv.height,cv.dataset.junk); }); return; }
+    return _rc.apply(this,arguments); };
+  const _rj=renderJournal; renderJournal=function(P){ if(MOB()&&encLoc==='junk') encLoc=S.loc; const r=_rj.apply(this,arguments); try{ if(MOB()) P.querySelectorAll('[data-act="encloc"][data-k="junk"]').forEach(b=>b.remove()); }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .chips{flex-wrap:wrap!important;overflow:visible!important;-webkit-mask:none!important;mask:none!important;padding:0!important;gap:6px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .chips > .chipb{flex:0 0 auto!important}
+</style>`);
