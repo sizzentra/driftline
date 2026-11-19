@@ -1195,7 +1195,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); sync(); return r; }; }
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(typeof MOB==='function'&&MOB()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];

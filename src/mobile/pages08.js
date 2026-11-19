@@ -49,7 +49,7 @@
       cells:P=>{ const wl=P.querySelector('.bwx-wallet'); if(!wl) return []; const sp=[...wl.children].map(txt); const f=re=>sp.find(s=>re.test(s));
         return [/* coins: already in the menu's top row */ ['Tickets',(num(f(/tickets/)||'',/([\d,]+)/)||'0')],['Scales',(num(f(/Scales/)||'',/([\d,]+)/)||'0')],f(/free spin/)?['Free spins',num(f(/free spin/),/(\d+)/)||'0']:null]; } },
     trophy:{ note:P=>txt(P.querySelector('.tp-sub')), drop:'.tp-head',
-      cells:P=>{ const c=P.querySelector('.tp-count'); return [['Mounted',txt(c&&c.querySelector('b'))||'0'],['Species',(txt(c&&c.querySelector('span'))||'').replace(/\s*species$/,'').replace(' of ',' / ')||'—']]; } },
+      cells:P=>{ const c=P.querySelector('.tp-count'), f=P.querySelector('.tp-foot'), room=f&&(txt(f).match(/Room for ([\d,]+)/)||[])[1]; return [['Mounted',txt(c&&c.querySelector('b'))||'0'],['Species',(txt(c&&c.querySelector('span'))||'').replace(/\s*species$/,'').replace(' of ',' / ')||'—'],room?['Room for',room+' more']:null]; } }, /* round 8: "Room for N more" moves from under the wall into the strip */
     save:{ cells:(P,hd,sub)=>{ const v=[...P.querySelectorAll(':scope > p.sub')].map(txt).find(t=>/^Version/.test(t)); let ago='just now'; try{ const s=Math.round((Date.now()-(S.savedAt||Date.now()))/1000); ago=s<60?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago'; }catch(e){} return [['Last saved',ago],['Version',v?v.replace(/^Version\s*/,''):'—']]; } }
   };
   let prev=null; /* only a refresh of the page you are on keeps its place; opening a page starts at the top */
@@ -84,7 +84,7 @@
       rest.forEach(c=>body.appendChild(c));
       let nv=nav;
       if(!nv&&cfg.groups){ try{ const K=[...body.children].filter(c=>!c.classList.contains('pg08-note')); const gs=cfg.groups(K).filter(g=>g.nodes.length); if(gs.length>1){ sectionize(body,tab,gs); nv=body.querySelector(':scope > .bwx-nav'); } }catch(e){ console.error(e); } }
-      [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.appendChild(bar); P.appendChild(sheet); if(nv){ sheet.appendChild(nv); const n=nv.querySelectorAll(':scope > button').length; nv.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nv,n)},minmax(0,1fr))`,'important'); } /* up to 4 tabs in one row; 5-6 in balanced rows of 3 */ sheet.appendChild(body);
+      [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.appendChild(bar); P.appendChild(sheet); if(nv){ sheet.appendChild(nv); } /* tab columns are set once below, after the page's final layout classes */ /* up to 4 tabs in one row; 5-6 in balanced rows of 3 */ sheet.appendChild(body);
       P.classList.add('aq07','aq07-open','pg08','pg08-nostage'); P.classList.remove('dk08'); P.dataset.pgTab=tab;
       if(nv){ const n2=nv.querySelectorAll(':scope > button').length; nv.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nv,n2)},minmax(0,1fr))`,'important'); } /* measured again with the page's final layout */
       // keep the scroll place on a refresh of the same page and section; a new section starts at the top
@@ -253,7 +253,8 @@ html body.phone-land.dock-mini #menuov #tabs .secbar .secb .secdot{top:0!importa
 </style>`);
 /* how many section tabs share a row: up to 4 in one row, 5-6 in rows of 3, 7-8 in rows of 4, but never narrower than ~70 px a tab (the fit step shrinks a long label a little, never below 11 px)
    (round 8: the Wardrobe's side sheet is only ~234 px wide on the smallest iPhone, where 4 tabs a row cut "Clothes") */
-function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ w=el&&el.isConnected?el.getBoundingClientRect().width:0; }catch(e){} if(w>0&&n<=6&&(w+6)/n>=118) return n; /* all in one row when each tab still gets ~118 px */ return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
+const PG_W=new Map(); /* the tab row's width per screen size and page type: measured once, not on every switch (a forced layout pass) */
+function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ const P=$('panel'), k=innerWidth+'x'+innerHeight+'|'+(P&&P.classList.contains('wd08')?'wd':'pg')+'|'+document.body.classList.contains('dock-mini')+'|'+(document.body.classList.contains('phone-app')?'app':'land'); if(PG_W.has(k)) w=PG_W.get(k); else if(el&&el.isConnected){ w=el.getBoundingClientRect().width; if(w>0) PG_W.set(k,w); } }catch(e){} if(w>0&&n<=6&&(w+6)/n>=118) return n; /* all in one row when each tab still gets ~118 px */ return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl,html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{white-space:nowrap!important}</style>`); /* one line per tab; the fit step shrinks a long one a little */
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav{gap:4px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button{padding-left:2px!important;padding-right:2px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{max-width:100%!important;overflow:hidden!important} }</style>`); /* smallest iPhones: the Wardrobe's 3-a-row tabs get 4 px more room each */
 /* round 8 (director: "A lot of tabs take up way too much space on the left side when it comes to info. So much empty space wasted"):

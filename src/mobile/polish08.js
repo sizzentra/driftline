@@ -161,3 +161,86 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* the frame-rate counter (Settings > Display) sits in the top-right corner of the water on phones: at the bottom it covered the
    fishing hint ("Touch and hold the water…") on narrower screens (director, 2026-11-18) */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbox,html body.phone-app #fpsbox{top:10px!important;bottom:auto!important;right:10px!important}</style>`);
+/* PERFORMANCE: switching menu tabs (director, 2026-11-18: "seems to be a performance problem from switching upper tabs in ui menus").
+   Measured (desktop CPU, a phone is several times slower): a switch averaged 18 ms, the Fish Log 45 ms, Oddities 39 ms, Pets 31 ms.
+   - pictures: only the first 12 fish pictures are drawn at once; the rest are drawn as they come into view (they were all drawn on every
+     switch, about 10 ms on the Fish Log). Same for the Oddities pictures (waters08).
+   - the page-tab row is measured on the next frame instead of in the middle of the switch (it forced an extra layout pass). */
+{ const _pf=paintFish, N=12; let io=null;
+  const show=c=>{ if(!c.isConnected||!c.dataset.fishlazy) return; c.setAttribute('data-fish',c.dataset.fishlazy); c.removeAttribute('data-fishlazy'); try{ _pf(c.parentElement); }catch(e){} };
+  paintFish=function(P){ if(!MOB()||!P||!P.querySelectorAll||typeof IntersectionObserver!=='function') return _pf.apply(this,arguments);
+    const all=[...P.querySelectorAll('canvas[data-fish]')]; if(all.length<=N) return _pf.apply(this,arguments);
+    if(!io) io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ io.unobserve(e.target); show(e.target); } }),{rootMargin:'240px'});
+    const later=all.slice(N); later.forEach(c=>{ c.dataset.fishlazy=c.getAttribute('data-fish'); c.removeAttribute('data-fish'); });
+    const r=_pf.apply(this,arguments); later.forEach(c=>io.observe(c)); return r; };
+  if(/[?&]test\b/.test(location.search)) window.__lazyFish=()=>{ document.querySelectorAll('canvas[data-fishlazy]').forEach(show); }; /* tests: draw them all */ }
+{ const _mp=menuPillView; menuPillView=function(sb,p){ if(MOB()){ requestAnimationFrame(()=>{ try{ _mp(sb,p); }catch(e){} }); return; } return _mp.apply(this,arguments); }; }
+/* speed: the chip / tab rows are scrolled to the chosen one on the next frame instead of in the middle of the switch (menuTidy2 measured
+   every row right after the page was built: a forced layout pass of 3-7 ms per switch) */
+{ const _mt=menuTidy2; let q=0; menuTidy2=function(){ if(MOB()){ if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){} }); return; } return _mt.apply(this,arguments); }; }
+/* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
+   tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='trophy') return r; const P=$('panel'), room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return r;
+      room.classList.add('tp8'); const grid=room.querySelector('.tp-grid'); if(!grid) return r;
+      let bar=room.querySelector('.tp8-bar'); if(!bar){ bar=document.createElement('div'); bar.className='tp8-bar'; bar.innerHTML='<span class="meta">Tap a trophy to see it up close.</span>'; grid.after(bar); }
+      grid.querySelectorAll('.tp-item').forEach((it,i)=>{ it.tabIndex=0; it.setAttribute('role','button');
+        it.addEventListener('click',e=>{ if(e.target.closest('.tp-out')) return; grid.querySelectorAll('.tp-item.sel').forEach(x=>x.classList.remove('sel')); it.classList.add('sel');
+          const nm=it.querySelector('.tp-plate b'), sub=it.querySelector('.tp-plate span'), meta=it.querySelector('.tp-meta'), out=it.querySelector('.tp-out');
+          bar.innerHTML=`<div class="tp8-info"><b>${nm?nm.innerHTML:''}</b><span class="meta">${sub?sub.textContent:''}${meta?' · '+meta.textContent:''}</span></div>`; if(out){ const c=out.cloneNode(true); c.classList.add('tp8-out'); bar.appendChild(c); } }); });
+    }catch(e){ console.error(e); } return r; }; }
+/* TIDE PASS: the "next Tide reward" is one slim row (small picture, name, what it is, levels to go) instead of a big card */
+/* BOARDWALK: two wider game cards a row on phones (three narrow ones stretched each game to 360-560 px), game pictures capped */
+/* "Waters" is called "Map" (director, 2026-11-18) */
+{ const f=MENU_SECS.find(s=>s.id==='fish'); if(f){ f.name='Map'; f.short='Map'; }
+  const b=$('tabs')&&$('tabs').querySelector(':scope > [data-tab="map"]'); if(b&&MOB()){ b.dataset.label='🗺️ Map'; for(const n of b.childNodes) if(n.nodeType===3&&/Waters/.test(n.textContent)) n.textContent=n.textContent.replace('Waters','Map'); }
+  try{ SEARCH_IDX.forEach((e,i)=>{ if(e[1]==='map'&&e[0]==='Waters') SEARCH_IDX[i]=['Map (waters)',e[1],e[2],e[3]]; }); }catch(e){} }
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="trophy"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="trophy"] .pg08-body > .pg08-note{display:none!important}
+#menuov #panel .tp-room.tp8 .tp-in{padding:8px!important}
+#menuov #panel .tp-room.tp8 .tp-sort{margin:0 0 6px!important;gap:5px!important}
+#menuov #panel .tp-room.tp8 .tp-sort .chipb{min-height:28px!important;height:28px!important;padding:0 10px!important;font-size:12px!important}
+#menuov #panel .tp-room.tp8 .tp-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(84px,1fr))!important;gap:6px!important}
+#menuov #panel .tp-room.tp8 .tp-item{padding:3px!important;gap:2px!important;min-height:0!important;cursor:pointer;border-radius:10px;outline:none}
+#menuov #panel .tp-room.tp8 .tp-item.sel{box-shadow:0 0 0 2px #ffd36a}
+#menuov #panel .tp-room.tp8 .tp-plaque{height:46px!important;min-height:0!important;padding:4px!important;margin:0!important;border-width:2px!important}
+#menuov #panel .tp-room.tp8 .tp-plaque canvas{width:100%!important;height:100%!important;object-fit:contain}
+#menuov #panel .tp-room.tp8 .tp-plate{padding:2px 4px!important;margin:0!important;min-height:0!important}
+#menuov #panel .tp-room.tp8 .tp-plate b{font-size:10.5px!important;line-height:1.15!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#menuov #panel .tp-room.tp8 .tp-plate span,#menuov #panel .tp-room.tp8 .tp-item > .tp-meta,#menuov #panel .tp-room.tp8 .tp-item > .tp-out{display:none!important}
+#menuov #panel .tp8-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 10px;border-radius:10px;background:#0a161dcc;min-height:40px}
+#menuov #panel .tp8-info{display:flex;flex-direction:column;min-width:0}
+#menuov #panel .tp8-info b{font-size:13.5px;color:#fff}
+#menuov #panel .tp8-info b *{color:inherit!important}
+#menuov #panel .tp8-bar .tp8-out{flex:0 0 auto;display:inline-flex!important}
+#menuov #panel .tile.pass-next{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;padding:8px 12px!important;min-height:0!important}
+#menuov #panel .tile.pass-next canvas{width:72px!important;height:54px!important;flex:0 0 72px}
+#menuov #panel .tile.pass-next h3{font-size:15px!important;margin:0!important}
+#menuov #panel .tile.pass-next .meta{margin:0!important;font-size:12px!important}
+#menuov #panel .tile.pass-next .meta + .meta{display:inline!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="games"] .bwx-grid,html body.phone-app #menuov #panel.pg08[data-pg-tab="games"] .bwx-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))!important;gap:8px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="games"] .bwx-cb canvas,html body.phone-app #menuov #panel.pg08[data-pg-tab="games"] .bwx-cb canvas{max-height:190px!important;width:auto!important;max-width:100%!important;margin:0 auto!important;display:block}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .tp-room.tp8 .tp-grid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr))!important;gap:4px!important}
+#menuov #panel .tp-room.tp8 .tp-plaque{height:36px!important}
+#menuov #panel .tp-room.tp8 .tp-plate b{font-size:10px!important}
+#menuov #panel .tp8-bar{margin-top:6px!important;padding:6px 10px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="games"] .bwx-cb canvas,html body.phone-app #menuov #panel.pg08[data-pg-tab="games"] .bwx-cb canvas{max-height:150px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="games"] .bwx-card,html body.phone-app #menuov #panel.pg08[data-pg-tab="games"] .bwx-card{min-height:0!important}
+#menuov #panel .tile.pass-next canvas{width:60px!important;height:45px!important;flex:0 0 60px}
+</style>`); /* round 8: tighter Trophy wall (about ten across), Boardwalk game pictures capped lower, smaller Tide Pass picture */
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .tp-room.tp8 .tp-plaque{height:30px!important;padding:2px!important}
+#menuov #panel .tp-room.tp8 .tp-plate{padding:1px 3px!important}
+#menuov #panel .tp-room.tp8 .tp-in{padding:6px!important}
+#menuov #panel .tp-room.tp8{margin:0!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="games"] .bwx-grid,html body.phone-app #menuov #panel.pg08[data-pg-tab="games"] .bwx-grid{align-items:start!important}
+</style>`); /* Trophy plaques 30 px (24 trophies on one screen sideways); Boardwalk cards keep their own height instead of matching the taller one */
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .tp-room.tp8 .tp-item{overflow:hidden!important;min-width:0!important}
+#menuov #panel .tp-room.tp8 .tp-plate{width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:2px 0 0!important;transform:none!important;position:static!important;overflow:hidden!important;border-radius:4px!important}
+#menuov #panel .tp-room.tp8 .tp-plate b{max-width:100%!important;text-align:center}
+#menuov #panel .tp-room.tp8 .tp-sort{margin:0 0 4px!important}
+#menuov #panel .tp8-bar{min-height:34px!important;padding:4px 10px!important;margin-top:4px!important}
+</style>`); /* Trophy nameplates stay inside their plaque (a long name ends in …; the full name is in the bar when you tap it) */
+document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8 .tp-foot{display:none!important}</style>`); /* its "Room for N more" is in the strip */

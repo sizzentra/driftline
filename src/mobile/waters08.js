@@ -67,7 +67,7 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="prestige"] .pg08-body .gri
 { const c=MENU_SECS.find(s=>s.id==='coll'); if(c) c.tabs=c.tabs.filter(t=>t!=='journal'); }
 /* the Cooler opens from its chip in the top bar only (director: "it should also only appear from clicking the top panel"); the side
    panel's first section then holds just the Waters, so it is called Waters, with a map icon */
-{ const f=MENU_SECS.find(s=>s.id==='fish'); if(f){ f.tabs=f.tabs.filter(t=>t!=='cooler'); f.name='Waters'; f.short='Waters'; f.icon='<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>'; } }
+{ const f=MENU_SECS.find(s=>s.id==='fish'); if(f){ f.tabs=f.tabs.filter(t=>t!=='cooler'); f.name='Map'; f.short='Map'; /* director: rename Waters to Map */ f.icon='<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>'; } }
 /* Cooler (director: "very large, the filter takes up way too much space, consider a rework"):
    - the Sell all filter is one slim line: "Sell all:" then rarity, max price and a Shinies switch
    - the fishmonger's wish is a one-line banner
@@ -131,7 +131,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuo
   const _rc=renderCooler; renderCooler=function(P){ if(!(MOB()&&S.tab==='bait'&&P)) return _rc.apply(this,arguments);
     const buy=take(P,'bait',c=>c.classList.contains('tk-list')), cur=take(P,'bait',c=>c.classList.contains('tk-cur')), lures=take(P,'lures',c=>c.classList.contains('tk-list')||(c.tagName==='P'&&c.classList.contains('sub')&&/bought|junk/i.test(c.textContent)));
     const own=Object.keys(BAIT).filter(k=>k==='worm'||(S.bait[k]||0)>0);
-    const btn=k=>{ const B=BAIT[k], n=S.bait[k]||0, on=S.baitSel===k; return `<button type="button" class="bt8-b${on?' on':''}${isLure(k)?' lure':''}" data-act="usebait" data-k="${k}" aria-pressed="${on}"><b>${esc(B.name)}</b><span>${k==='worm'?'Endless':'× '+n}${isLure(k)?' · lure':''}</span></button>`; };
+    /* each button: the name and how many are left on one line, then the bait's own short description (director: "show a brief
+       description of the bait choices, simple and neat"); "Found as junk." is left off lures (they sit under their own heading) */
+    const btn=k=>{ const B=BAIT[k], n=S.bait[k]||0, on=S.baitSel===k, d=String(B.note||'').replace(/^Found as junk\.\s*/,''); return `<button type="button" class="bt8-b${on?' on':''}${isLure(k)?' lure':''}" data-act="usebait" data-k="${k}" aria-pressed="${on}" title="${esc(B.name)}: ${esc(d)}"><span class="bt8-top"><b>${esc(B.name)}</b><span class="bt8-n">${k==='worm'?'Endless':'× '+n}</span></span><span class="bt8-d">${esc(d)}</span></button>`; };
     P.innerHTML=`<div class="row spread"><div><h2 class="dl-dup">Bait</h2><p class="sub">Better bait brings rarer fish; one bait is used each time you set the hook. Worms never run out.</p></div></div>`+
       `<div class="jsec bt8" data-bt8="Switch"><h2>Switch</h2><div class="bt8-cur"></div><h5>Your bait</h5><div class="bt8-grid">${own.filter(k=>!isLure(k)).map(btn).join('')}</div>${own.some(isLure)?`<h5>Your special lures</h5><div class="bt8-grid">${own.filter(isLure).map(btn).join('')}</div>`:''}</div>`+
       `<div class="jsec bt8" data-bt8="Buy bait"><h2>Buy bait</h2></div><div class="jsec bt8" data-bt8="Special lures"><h2>Special lures</h2></div>`;
@@ -150,3 +152,22 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="bait"] .bt8 > h2,html body
 #menuov #panel .bt8-b:active{transform:translateY(1px)}
 #menuov #panel .bt8-cur > .tile{margin:0 0 8px!important}
 </style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+#menuov #panel .bt8-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important}
+#menuov #panel .bt8-b{gap:3px!important;min-height:58px!important;justify-content:flex-start}
+#menuov #panel .bt8-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;width:100%;min-width:0}
+#menuov #panel .bt8-top b{min-width:0}
+#menuov #panel .bt8-b .bt8-n{flex:0 0 auto;font:700 11px var(--display,system-ui);color:#9fb3c8}
+#menuov #panel .bt8-b .bt8-d{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:11.5px;line-height:1.3;color:#b8c8d6;text-align:left}
+#menuov #panel .bt8-b.lure .bt8-d{color:#d3bdf5}
+#menuov #panel .bt8-b.on .bt8-n,#menuov #panel .bt8-b.on .bt8-d{color:#4a3006}
+</style>`); /* the Switch buttons: name + count, then a two-line description */
+/* Oddities pictures: the first 12 are drawn at once, the rest as they come into view (100 pictures took about 10 ms per switch) */
+{ const _rc=renderCooler; renderCooler=function(P){ if(!(MOB()&&S.tab==='oddities'&&P&&typeof IntersectionObserver==='function')) return _rc.apply(this,arguments);
+    const _dj=drawJunk, _mt=mysteryThumb; let k=0; const later=[];
+    drawJunk=function(cx){ if(k++<12) return _dj.apply(this,arguments); later.push([_dj,this,[...arguments]]); };
+    mysteryThumb=function(cx){ if(k++<12) return _mt.apply(this,arguments); later.push([_mt,this,[...arguments]]); };
+    try{ _rc.apply(this,arguments); }finally{ drawJunk=_dj; mysteryThumb=_mt; }
+    const io=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; io.unobserve(e.target); const j=later.find(x=>x[2][0]&&x[2][0].canvas===e.target); if(j) try{ j[0].apply(j[1],j[2]); }catch(er){} }),{rootMargin:'240px'});
+    later.forEach(x=>{ const c=x[2][0]&&x[2][0].canvas; if(c) io.observe(c); }); }; }
+{ const b=$('tabs')&&$('tabs').querySelector(':scope > [data-tab="map"]'); if(b&&MOB()){ b.dataset.label='🗺️ Map'; for(const n of b.childNodes) if(n.nodeType===3&&/Waters/.test(n.textContent)) n.textContent=n.textContent.replace('Waters','Map'); } } /* the page tab says Map too */

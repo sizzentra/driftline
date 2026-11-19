@@ -152,5 +152,8 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Oddities and Treasures are separate tabs, Collection holds the Trophy Room and Oddities (the Aquarium has its own top-bar button), and every menu tab has its icon.',
   'Quests teaches the Aquarium and your home step by step: where every button is, how earning and cozy bonuses work, and tips.',
   'The frame-rate counter sits in the top corner of the water, clear of the fishing tips.',
-  'Bait has its own page, opened from Bait in the top bar: Switch shows every bait and lure you own as big buttons (one tap to use), plus Buy bait and Special lures. Tackle keeps your gear upgrades.']});
+  'Bait has its own page, opened from Bait in the top bar: Switch shows every bait and lure you own as big buttons (one tap to use), plus Buy bait and Special lures. Tackle keeps your gear upgrades. Every bait on Switch has a short line saying what it does.',
+  'Menus switch faster: pictures are drawn as they come into view, and pages no longer measure themselves several times when they open.',
+  'Trophy Room fits on one screen: a neat wall of plaques, tap one to see it up close. Tide Pass and the Boardwalk take up far less space.',
+  'Waters is now called Map on the side panel.']});
 
