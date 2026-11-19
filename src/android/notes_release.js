@@ -155,5 +155,6 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Bait has its own page, opened from Bait in the top bar: Switch shows every bait and lure you own as big buttons (one tap to use), plus Buy bait and Special lures. Tackle keeps your gear upgrades. Every bait on Switch has a short line saying what it does.',
   'Menus switch faster: pictures are drawn as they come into view, and pages no longer measure themselves several times when they open.',
   'Trophy Room fits on one screen: a neat wall of plaques, tap one to see it up close. Tide Pass and the Boardwalk take up far less space.',
-  'Waters is now called Map on the side panel.']});
+  'Waters is now called Map on the side panel.',
+  'Search works from the top bar only and always opens the right page and tab; Settings has its gear back; Events no longer repeat the same things across Calendar, Challenges and Derby; Feats cards are smaller, so more fit on screen.']});
 

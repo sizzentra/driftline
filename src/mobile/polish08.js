@@ -177,7 +177,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
 { const _mp=menuPillView; menuPillView=function(sb,p){ if(MOB()){ requestAnimationFrame(()=>{ try{ _mp(sb,p); }catch(e){} }); return; } return _mp.apply(this,arguments); }; }
 /* speed: the chip / tab rows are scrolled to the chosen one on the next frame instead of in the middle of the switch (menuTidy2 measured
    every row right after the page was built: a forced layout pass of 3-7 ms per switch) */
-{ const _mt=menuTidy2; let q=0; menuTidy2=function(){ if(MOB()){ if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){} }); return; } return _mt.apply(this,arguments); }; }
+{ const _mt=menuTidy2; let q=0; menuTidy2=function(){ if(MOB()){ if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){} }); return; } return _mt.apply(this,arguments); }; try{ menuTidy=menuTidy2; }catch(e){} } /* the page switch calls the older alias menuTidy */
 /* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
    tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='trophy') return r; const P=$('panel'), room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return r;
@@ -244,3 +244,22 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .tp8-bar{min-height:34px!important;padding:4px 10px!important;margin-top:4px!important}
 </style>`); /* Trophy nameplates stay inside their plaque (a long name ends in …; the full name is in the bar when you tap it) */
 document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8 .tp-foot{display:none!important}</style>`); /* its "Room for N more" is in the strip */
+/* EVENTS (director, 2026-11-18: "Events tab shows duplicates across the calendar, challenges and derby menus"): the intro line no longer
+   tops every tab, the big "Challenges" / "Fishing Derby" headings (the tab names them) are gone, and Derby rewards no longer repeats
+   "four minutes, one water, heaviest catch wins" (the derby card above says it). */
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='events') return r; const P=$('panel');
+      P.querySelectorAll('.tile').forEach(t=>{ const h=t.querySelector('h4,b'); if(h&&/^Derby rewards/.test(h.textContent.trim())){ const m=t.querySelector(':scope > .meta, :scope > div > .meta'); if(m&&/heaviest/i.test(m.textContent)) m.style.display='none'; } }); }catch(e){} return r; }; }
+/* FEATS (director: "Feats can definitely shrink in size overall when it comes to each card"): each card is two short lines and a thin
+   bar (title + progress, then what to do + the reward), about half the height */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .ev-h,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .ev-h{display:none!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat),html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat){display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "m" "v";position:relative;align-items:center;gap:2px 8px!important;padding:6px 10px 9px!important;min-height:0!important}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread{grid-area:t;margin:0!important;gap:8px;flex-wrap:nowrap!important;min-width:0}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4{font-size:13.5px!important;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .meta{grid-area:m;margin:0!important;font-size:11.5px!important;white-space:normal;overflow:visible;line-height:1.25;min-width:0}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .val{grid-area:v;margin:0!important;font-size:12px!important;white-space:normal;text-align:left;line-height:1.25;min-width:0}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .prog{position:absolute!important;left:10px;right:10px;bottom:4px;height:3px!important;margin:0!important}
+#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .btn{grid-column:1 / -1}
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread{min-height:0!important;height:auto!important;padding:0!important;align-items:center!important}#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4{line-height:1.2!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;min-width:0!important}#menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread .meta{font-size:11.5px!important;white-space:nowrap}</style>`); /* Feats title row: one line */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread,html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread{display:flex!important;flex-direction:row!important;justify-content:space-between!important;text-align:left!important}html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4,html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4{text-align:left!important}</style>`); /* Feats: title left, progress count right, on one line */
