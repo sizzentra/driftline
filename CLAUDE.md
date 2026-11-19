@@ -9,9 +9,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
-- **Live:** PC **0.4.8.2** (stamp 2026.11.18-0315). Android + iPhone **0.4.8.6.2** (stamp 2026.11.18-2223).
-- **Phone test apps:** 2026.11.19-0210, version **0.4.8.7**, waiting for Cam's / the director's check on real phones. It contains the shared efficiency file `src/cd_efficiency.js` (every platform), the narrow-window Home fix, and the 0.4.8.7 notes (see the last SYSTEMS_MAP entry).
-- **PC:** the code has the shared fixes. The PC test app (Driftline Test) and live PC are not updated; PC publishes only when the director says so. The PC preview still shows GAME_VERSION 0.4.8.1; pick PC's number when PC is published.
+- **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7). Test apps and /next/ carry the same code.
 - **Asked, waiting for the director:** how the phone side panel should look in narrow split-screen windows (its names are cut off there: icons only or smaller text).
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
@@ -72,7 +70,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **Local server:** `tools/serve_local.ps1` serves `site/` at `http://localhost:8766/` (already running in long sessions; don't start it twice). Builds: `/next/pc.html`, `/next/android.html?test`, `/next/ios.html?test&iphone`.
 - **Sizes:** phones sideways 956×440 (the director's iPhone 17 Pro Max), 874×402, 667×375, 915×412 / 780×360 (Android); split-screen 440×460 and 375×812; PC full screen 1920×1080, plus 1440×900 and 800 wide.
 - **Hooks (`?test` only):** `__qa`, `__layoutQC`, `__searchQC`, `__questsQC`, `__spec`, `__safeSim`, `__ui.open/close`, `__setPhase`, `__setWeather`, `__findWx`, `__drawCost`, `__prof`, `__mobperf`, `__fishParts`, `__fishSheet`, `__crop`. Game globals are not reachable from the console (one closure); drive the game through `data-act` / `data-tab` buttons or hooks.
-- **The browser pane is usually hidden:** no animation frames, frozen CSS transitions, no Resize/Intersection observers, stale screenshots, and calls time out after 45 s. Start long checks in an async block that writes to `window.__R`, return at once, poll in later calls. For a running frame loop, test a copy of the build with requestAnimationFrame shimmed to setTimeout (8 ms = 120 Hz, 16 ms = 60 Hz) in `site/next/_ab/` (delete afterwards).
+- **The browser pane is usually hidden:** no animation frames, frozen CSS transitions, no Resize/Intersection observers, stale screenshots, and calls time out after 45 s. Start long checks in an async block that writes to `window.__R`, return at once, poll in later calls that wait at most ~30 s each (the tool gives up at 45 s). For a running frame loop, test a copy of the build with requestAnimationFrame shimmed to setTimeout (8 ms = 120 Hz, 16 ms = 60 Hz) in `site/next/_ab/` (delete afterwards).
 - **Measuring:** `setTimeout(0)` adds ~4 ms per step; never run two timing loops at once; freeze `Date.now` when comparing scenery; force a real scenery rebuild with the Graphics test 1x toggle twice; the desktop GPU hides raster cost, so count work, not just milliseconds.
 - **Saves for testing:** edit saves from `/version.txt` (a non-game page), because the game saves on unload. Preview builds use `driftline-save-next`.
 - **Test apps:** phones: "DL Test Android" / "DL Test iPhone" from https://sizzentra.github.io/driftline-test/ (`publish_testapps.ps1`). PC: "Driftline Test" desktop app (`desktop/DriftlineTest.cs`, loads `/driftline/next/` full screen; F5 reload). Tester tools in Stats (preview only, `DL_PREVIEW`) unlock everything and include the Graphics test; never in a release build.
@@ -93,7 +91,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - **Spoiler-free but complete:** mention every change, including small fixes, renames and shortcuts; "21 new fish", never their names; no secret fish, crate-only pets, hidden rods or exact odds. Exclusive gifts get only a vague mention (their own notes card on redeem).
 - **A published entry is frozen.** Before editing `notes_release.js`, compare the entry's version with the live page's `GAME_VERSION`; new work gets the next version's entry.
 - **Numbers climb slowly** ("we're nowhere near 1.0"): 3rd number = new content (0.4.8 → 0.4.9), 4th = fix/polish rounds (0.4.8.6 → 0.4.8.7), 5th = ghost patch / hotfix (0.4.8.5 → 0.4.8.5.1); 0.5+ only for very large updates. If a round mixes content and fixes and it's unclear, ask. State the number when publishing.
-- **Where numbers live:** phones get `GAME_VERSION` from `$platVer` in build.ps1 (move it with every phone release: "what's new" triggers on it); PC keeps its own in the core.
+- **Where numbers live:** `$platVer` in build.ps1 sets `GAME_VERSION` for each build ("what’s new" triggers on it). Since 0.4.8.7 all three share one number; a release for only some platforms moves only theirs.
 - **Curly apostrophes (’) only** in notes and other single-quoted strings: a straight one ended a string and took both phones down once.
 
 ## Publishing

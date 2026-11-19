@@ -99,3 +99,7 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - Explained away the same save-state test failures each round (Boardwalk "no wear prizes", Pets "find more") → make the test state-independent once (Boardwalk fixed 2026-11-19).
 - Ran QC at 375x812 upright as if it were a phone; real phones are landscape-only, upright only happens in split-screen → test the sizes players can actually have; but the run still found a real bug (Home unreachable in narrow windows), so keep one narrow-window pass.
 - Five memory files each held a copy of the QC list and they drifted (57/58 vs 58/58, "PC must be untouched") → one checklist in CLAUDE.md; memory only points to it.
+- **Phone branches crept into shared files** (`typeof MOB==='function'&&MOB()` in 6 core files) because the build check only counted class names → shared code now reads named settings in `PLAT` (`a3_plat.js`, neutral defaults), phones set them in perf_round6, and `build.ps1` counts `MOB(` as a platform word → any phone check in a shared file stops the build.
+- **The layout check flagged 1 px screen-reader labels as cut text** (pet swatch names) → `__trunc` and `__layoutQC` skip elements ≤2 px wide.
+- **A rule I wrote was false** ("release builds never contain test hooks": ~300 `?test`-gated hooks ship in shared files) → state rules as they really are, and check a new rule against the code before writing it down.
+- **Version tags collided across platforms** (phones used 0.4.8.3–0.4.8.6 while PC sat at 0.4.8.2) → all three share one number since 0.4.8.7.
