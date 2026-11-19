@@ -29,7 +29,7 @@
     shop:{ cells:()=>{ let a=0,b=0; try{ for(const k in GEAR){ a+=(S.gear[k]|0); b+=GEAR[k].lv.length-1; } }catch(e){} return [['Gear upgrades',a+' / '+b],['Fishing at',locName()]]; } },
     rods:{ cells:(P,hd)=>[['Rod in use',txt(P.querySelector('.rp-card.on b'))||'—'],['Scales',txt(hd&&hd.querySelector('.pts'))||'0']] },
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
-    paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / 5']] },
+    paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / '+SPEC_TIERS.length]] },
     bounties:{ cells:P=>[['Ready to claim',String(enabled(P)('[data-act="taskclaim"],[data-act="wqclaim"],[data-act="bclaim"],[data-act="bounty"]'))],['Board',locName()]],
       groups:K=>{ const w=K.find(c=>c.classList.contains('wq')), d=K.find(c=>c!==w&&c.classList.contains('tile')&&/Daily tasks/i.test((c.querySelector('h4')||{}).textContent||'')); /* the weekly card also wears .dtasks (its grid style), so the daily card is found by its title (director, 2026-11-19: a weekly reward badged the Daily tab) */ const rest=K.filter(c=>c!==d&&c!==w);
         const ready=ns=>ns.reduce((n,e)=>n+[...e.querySelectorAll('button[data-act$="claim"]')].filter(b=>!b.disabled).length,0)||0; /* a badge shows where a reward is waiting */

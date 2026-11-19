@@ -18,7 +18,7 @@ const PRISM_SHARE = .06;        // share of shiny rolls that come up prismatic i
 const PRISM_VALUE = 15;         // value multiplier (shiny is ×4)
 const HYBRID_IN_RANGE = [2,2.5,3,3.5,4,5]; // [23] a hybrid inside its own normal weight range: value and aquarium income ×, by rarity
 const HYBRID_BASE = .001;       // 0.1%, up to 1% with the Odd Genes skill
-const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1)*(1+rodBonus('hybrid')); /* [14] Twin Hook */
+const hybridChance = () => HYBRID_BASE*(1+pr('hybrid'))*(pr('hybrid')>=9?2:1)*(1+rodBonus('hybrid'))*pathMul('hybrid'); /* [14] Twin Hook */
 const PRED_RX = /pike|musky|muskie|bass|gar|barracuda|shark|tuna|grouper|cod|walleye|zander|trout|salmon|snakehead|catfish|wolf|viper|angler|marlin|swordfish|wahoo|kingfish|mackerel|eel|moray|piranha|perch|char|taimen|arapaima|dragon|fang|leviathan|maw/;
 function isPredator(sp){ return sp.r>=1 && (sp.aggr>=.55 || sp.shape==='s' || PRED_RX.test(sp.id)); }
 function preyPool(pred,pool){ return pool.filter(s=>s.id!==pred.id && s.max<=Math.max(pred.min*.7,pred.max*.2) && s.r<=Math.max(1,pred.r)); }
@@ -55,7 +55,7 @@ function maybeEatEvent(dt){ const f=G.fish; if(!f||f.kind!=='fish'||G.eat||G.eat
   G.eatDone=true; const pool=SP.filter(s=>s.loc===S.loc && timeOk(s,phase()) && isPredator(s) && s.min>=f.kg*2.2 && s.r<=f.sp.r+2); if(!pool.length) return;
   const pred=pick(pool); G.eat={t:0,dur:1.4,sp:pred,swapped:false}; sfx.warn(); }
 function eatTick(dt){ const E=G.eat; if(!E) return; E.t+=dt;
-  if(!E.swapped && E.t>=E.dur*.62){ E.swapped=true; const prey=G.fish, nf=rollFish(E.sp,{}); nf.prey=[prey].concat(prey.prey||[]); nf.value=Math.round(nf.value*1.5); nf.ate=true; G.fish=nf; G.maxOut+=12; G.d=Math.min(G.maxOut-3, G.d+rnd(.2,1)*Math.max(0,G.maxOut-3-G.d)); G.sta=1; G.ten=Math.max(G.ten,28); G.temper=0; G.run=true; G.runT=rnd(.8,1.4); G.fightT=0; G.surge=null; G.surgeN=0; /* 0.4.9 (director): the big fish strips line out (a little, up to all of it) and the fight starts over at full strength; landing it pays +50% */
+  if(!E.swapped && E.t>=E.dur*.62){ E.swapped=true; const prey=G.fish, nf=rollFish(E.sp,{}); nf.prey=[prey].concat(prey.prey||[]); nf.value=Math.round(nf.value*1.5*pathMul('eatval')); nf.ate=true; G.fish=nf; G.maxOut+=12; G.d=Math.min(G.maxOut-3, G.d+rnd(.2,1)*Math.max(0,G.maxOut-3-G.d)); G.sta=1; G.ten=Math.max(G.ten,28); G.temper=0; G.run=true; G.runT=rnd(.8,1.4); G.fightT=0; G.surge=null; G.surgeN=0; /* 0.4.9 (director): the big fish strips line out (a little, up to all of it) and the fight starts over at full strength; landing it pays +50% */
     splash(G.bob.x,G.bob.y,28); sfx.gulp(); if(V3ON) vib([60,40,90]); toast(S.gear.finder>=5?'Something bigger just swallowed your '+(S.journal[prey.sp.id]?prey.sp.name.toLowerCase():'catch')+'! Land it to keep both, for 50% more coins.':'Something bigger just swallowed your catch! Land it to keep both, for 50% more coins.'); /* the first fish stays a surprise; the top Fish Finder names it if you have caught that species (director, 2026-11-19) */ }
   if(E.t>=E.dur) G.eat=null; }
 function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=null; return; } /* a fight that ends mid-grab takes the shadow with it */ const k=clamp(E.t/(E.dur*.62),0,1), e=1-Math.pow(1-k,2.4), len=60+Math.min(90,Math.sqrt(E.sp.max)*10);
@@ -71,12 +71,12 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   const avg=(sp.min+sp.max)/2, R=kg/avg, rel=hy?clamp(R>1?1:0,0,1):(kg-sp.min)/(sp.max-sp.min);
   let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),.45,6);
   const shRoll=Math.random() < shinyChance(G.inHot);
-  const shiny = shRoll ? (Math.random()<PRISM_SHARE?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
+  const shiny = shRoll ? (Math.random()<PRISM_SHARE*pathMul('prism')?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
   const trophy = !hy && rel > .9;
   // hybrids: the further from normal size, the bigger the multiplier, capped at ×25 so a lucky hybrid is a jackpot, not a broken economy
   /* [23] (director): a hybrid that still lands inside its own normal weight range is worth ×2 (common) to ×5 (mythic) of a normal
      fish its size, in coins and in aquarium income */
-  const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r] : 0;
+  const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r]*pathMul('hx') : 0;
   let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))));
   value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;

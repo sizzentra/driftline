@@ -659,7 +659,7 @@ document.addEventListener('change',e=>{ if(e.target.id==='petname'){ petLook().n
 
 // ---------- Boardwalk 2.0 ----------
 const SPIN_EVERY = 3600*1000, SPIN_BANK = 3;
-function accrueSpins(){ const now=Date.now(); if(!S.wheelT){ S.wheelT=now; return; } const h=Math.floor((now-S.wheelT)/SPIN_EVERY); if(h>0){ S.freeSpins=Math.min(SPIN_BANK,S.freeSpins+h); S.wheelT = S.freeSpins>=SPIN_BANK ? now : S.wheelT+h*SPIN_EVERY; } }
+function accrueSpins(){ const now=Date.now(); if(!S.wheelT){ S.wheelT=now; return; } const h=Math.floor((now-S.wheelT)/spinEvery()); if(h>0){ S.freeSpins=Math.min(SPIN_BANK,S.freeSpins+h); S.wheelT = S.freeSpins>=SPIN_BANK ? now : S.wheelT+h*spinEvery(); } }
 const PRIZES = [
  ['scales10','10 Scales',100,()=>{ S.scales+=10; return '10 Scales'; }],
  ['crate','Small Mystery Crate',120,()=>{ S.tokens.small++; return 'a small Mystery Crate'; }],
@@ -682,7 +682,7 @@ function newHilo(){ hilo={card:rint(1,13), streak:0, pot:Math.round(bestLoot()*2
 const CARD_FISH = ['','Minnow','Perch','Trout','Bass','Carp','Pike','Salmon','Tuna','Shark','Marlin','Kraken','Leviathan','Legend'];
 function boardwalkBanner(){ return `<div class="bw-banner"><div class="bw-lights">${Array.from({length:18},(_,i)=>`<i style="animation-delay:${(i%6)*.25}s"></i>`).join('')}</div><h2>The Boardwalk</h2><p class="sub">Games of chance on the pier. Coins only, no real money, and the gulls are watching.</p>
   <div class="row" style="justify-content:center;gap:18px;margin-top:6px"><span><b class="coin">${fmtShort(S.money)}</b></span><span><b>🎟 ${fmt(S.tickets)}</b> <span class="meta">tickets</span></span><span><b style="color:var(--kelp)">${fmt(S.scales)}</b> <span class="meta">Scales</span></span></div></div>`; }
-function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); const nextIn=Math.max(0,Math.ceil((SPIN_EVERY-(Date.now()-S.wheelT))/60000));
+function renderBoardwalk(P){ accrueSpins(); const tk=S.tokens, base=bestLoot(); const nextIn=Math.max(0,Math.ceil((spinEvery()-(Date.now()-S.wheelT))/60000));
   const crateRow=(k,name,desc)=>`<div class="row spread" style="padding:6px 0;border-bottom:1px solid var(--line)"><div style="min-width:0"><b>${name}</b>${tk[k]?` <span class="badge g">${tk[k]} free</span>`:''}<div class="meta">${desc}</div></div>
     ${tk[k]?`<button class="btn sm" data-act="crate" data-k="${k}" data-free="1">Open free</button>`:`<button class="btn sm" data-act="crate" data-k="${k}" ${S.money>=crateCost(k)?'':'disabled'}>Open · <span class="coin">${fmt(crateCost(k))}</span></button>`}</div>`;
   const betBtn=f=>{ const amt=Math.min(Math.floor(S.money*f), base*60); return `<button class="btn alt sm" data-act="flip" data-k="${f}" ${amt>=10?'':'disabled'}>Bet ${Math.round(f*100)}% · <span class="coin">${fmt(Math.max(0,amt))}</span></button>`; };

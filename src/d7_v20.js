@@ -26,7 +26,7 @@ let DOCK_PV=null;
 const dockWood = () => { const w=DOCK_WOODS.find(x=>x[0]===((DOCK_PV&&DOCK_PV.kind==='wood')?DOCK_PV.id:S.dock.wood))||DOCK_WOODS[0]; return w[3]; };
 function dockView(){ const d=S.dock.decor.slice(); if(DOCK_PV&&DOCK_PV.kind==='decor'&&!d.includes(DOCK_PV.id)) d.push(DOCK_PV.id); return d; }
 function cozy(){ let c=S.dock.wood!=='oak'?1:0; for(const id of S.dock.decor) if(DOCKI[id]) c+=DOCKI[id].cozy; return c; }
-const cozyBonus = () => Math.min(40,cozy()); // 0.3: cap 40 (was 25)
+const cozyBonus = () => Math.min(40*pathMul('cozycap'),cozy()*pathMul('cozy')); // 0.3: cap 40 (was 25)
 const COZY_NAMES = [[0,'Bare boards'],[4,'Snug'],[9,'Homey'],[15,'Cozy'],[22,'Hygge']];
 const cozyName = () => COZY_NAMES.filter(x=>cozy()>=x[0]).pop()[1];
 function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();

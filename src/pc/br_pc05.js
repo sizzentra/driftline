@@ -633,3 +633,10 @@ html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;borde
 html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
 html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
+// PC in a narrow window uses the compact bait list (.tk-row): give it the same three headings the phones and the wide PC page have
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='shop') return r; const P=$('panel'); const cards=[...P.querySelectorAll('.tk-row')]; if(!cards.length||P.querySelector('.pc-bsec')) return r;
+    const nm=c=>{ const b=c.querySelector('.tk-main b'); return b?b.textContent.trim():''; }, water=new Set(Object.values(BAIT).filter(b=>b.loc&&!b.junk).map(b=>b.name)), food=new Set(FOOD_KEYS.map(k=>BAIT[k].name));
+    const fw=cards.find(c=>water.has(nm(c))), ff=cards.find(c=>food.has(nm(c))), fe=cards.find(c=>nm(c)&&!water.has(nm(c))&&!food.has(nm(c))&&nm(c)!=='Worms'); const h=(t,s)=>`<h3 class="pc-bsec">${t}<span>${s}</span></h3>`;
+    if(ff) ff.insertAdjacentHTML('beforebegin',h('Favourite foods','Every fish loves one food and dislikes one: the Fish Log shows which'));
+    if(fw) fw.insertAdjacentHTML('beforebegin',h('Water baits','Each one is best at its own water')); if(fe) fe.insertAdjacentHTML('beforebegin',h('Everyday bait','Works at every water')); }catch(e){} return r; }; }
+document.head.insertAdjacentHTML('beforeend','<style>#panel .pc-bsec{margin:14px 0 4px;font-size:15px;color:var(--ink,#e8f1f6)}#panel .pc-bsec span{display:block;font-size:12px;font-weight:400;opacity:.7}</style>');

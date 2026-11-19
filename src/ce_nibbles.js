@@ -10,11 +10,11 @@
 // =====================================================================
 const NIB_ODDS=[1,1,.5,1/3,.25,.25], NIB_KEEP=.5, NIB_MAX_BUFFS=5, NIB_STEP=10, NIB_BIG=30, NIB_ADD=.1, NIB_ADD_BIG=.5, NIB_BOOST=.15;
 const nibOf = id => (S.nib&&S.nib[id])||0;
-const nibOdds = f => { const sp=SPI[f.id]; return sp?Math.min(1,NIB_ODDS[Math.min(5,sp.r)]+rodBonus('nib')+.04*pr('nibbler')):0; }; /* [14] Nibble Pouch adds to the chance */
+const nibOdds = f => { const sp=SPI[f.id]; return sp?Math.min(1,NIB_ODDS[Math.min(5,sp.r)]+rodBonus('nib')+.04*pr('nibbler')+pathAdd('nibodds')):0; }; /* [14] Nibble Pouch adds to the chance */
 const nibAmount = f => 1+(f.sh?2:0)+(f.hy?2:0)+(f.sh===2?2:0);
 const nibIncome = fed => 1+.08*Math.pow(fed||0,.8);
 const nibBuffCount = f => (f.ab?1:0)+(f.ab2?1:0)+((f.abx&&f.abx.length)||0);
-function nibHalve(){ const o={}; for(const k in (S.nib||{})){ const n=Math.floor(S.nib[k]*NIB_KEEP); if(n>0) o[k]=n; } return o; }
+function nibHalve(){ const o={}; for(const k in (S.nib||{})){ const n=Math.floor(S.nib[k]*Math.min(.95,NIB_KEEP+voyAdd('nibkeep'))); if(n>0) o[k]=n; } return o; }
 const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 
 // income and bonuses of a fed fish
@@ -27,7 +27,7 @@ const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 let NIB_ANIM=null;
 function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.cooler.splice(i,1);
   S.stats.scrapped=(S.stats.scrapped||0)+1;
-  if(ok){ const n=nibAmount(f)+(maxed('nibbler')?1:0); S.nib=S.nib||{}; S.nib[sp.id]=nibOf(sp.id)+n; sfx.coin(); toast('Scrapped: +'+NIB_WORD(n)+' for '+sp.name+'. Feed them to a '+sp.name+' in your Aquarium.'); }
+  if(ok){ const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); S.nib=S.nib||{}; S.nib[sp.id]=nibOf(sp.id)+n; sfx.coin(); toast('Scrapped: +'+NIB_WORD(n)+' for '+sp.name+'. Feed them to a '+sp.name+' in your Aquarium.'); }
   else toast('Scrapped the '+sp.name+', but no Nibbles this time.');
   return 'render'; }
 function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]||nibOf(f.id)<1) return 'skip'; const sp=SPI[f.id]; accrue();

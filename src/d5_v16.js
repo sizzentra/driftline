@@ -23,7 +23,7 @@ const SPEC_TIERS = [
    ['trophyking','Trophy King','Trophy-size fish ×1.6, and worth ×2 (not ×1.5).','']]},
 ];
 const spec = id => !!(S.specs && Object.values(S.specs).includes(id));
-const specFee = tier => 2000*(tier+1)*(tier+1);
+const specFee = tier => { const T=SPEC_TIERS[tier]; const L=T?T.lvl:5*(tier+1); return niceNum(Math.max(2000*Math.pow(L/5,2), bestLoot()*L*2)); };
 const maxed = k => pr(k) >= PERKS[k].max;
 // what each skill does once it is fully learned
 const MASTERY_FX = {
@@ -48,7 +48,7 @@ const MASTERY_FX = {
   nibbler:'+1 Nibble from every successful scrap.',
   prismkeeper:'The titled lift can reach +40% instead of +30%.',
 };
-const offlineCap = () => maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN;
+const offlineCap = () => (maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN)*pathMul('offline');
 function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
   const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
     return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· level ${T.lvl}</span></h4>${cur?`<span class="badge g">${SPEC_TIERS[ti].opts.find(o=>o[0]===cur)[1]}</span>`:locked?'<span class="meta">Locked</span>':'<span class="badge">Choose one</span>'}</div>
