@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='android'; window.DL_VERSION='2026.11.19-1022';
+window.DL_BUILD='android'; window.DL_VERSION='2026.11.19-1402';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1836,7 +1836,7 @@ const anglerStr = () => gv('line')/tensionMult();
 const strTxt = v => Math.round(wNum(v))+' '+wUnit();
 function strStand(sps){ const ps=sps.map(fishPull), lo=Math.min(...ps), hi=Math.max(...ps), a=anglerStr(); return {lo, hi, a, beat:ps.filter(p=>p<=a).length, n:ps.length, pos:clamp((a-lo)/Math.max(1,hi-lo),0,1)}; }
 function strStandHTML(sps){ const s=strStand(sps); return `<div class="meta strst" title="Angler strength comes from your Line (Tackle) and skills that lower tension. Fish stronger than you are heavy: let them run, reel when they rest.">Fish ${strTxt(s.lo)}–${strTxt(s.hi)} <span class="strbar" aria-hidden="true"><i style="left:${(s.pos*100).toFixed(0)}%"></i></span> you ${strTxt(s.a)} · stronger than ${s.beat} of ${s.n}</div>`; }
-document.head.insertAdjacentHTML('beforeend','<style>.strst{white-space:nowrap}.strbar{display:inline-block;position:relative;width:56px;height:6px;border-radius:3px;margin:0 4px;vertical-align:middle;background:linear-gradient(90deg,#5ad8b0,#ffd36a,#ff7a5a)}.strbar i{position:absolute;top:-3px;width:4px;height:12px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 3px #000c}</style>');
+document.head.insertAdjacentHTML('beforeend','<style>.strst{white-space:normal;overflow-wrap:anywhere}.strst .strbar{white-space:nowrap}.strbar{display:inline-block;position:relative;width:56px;height:6px;border-radius:3px;margin:0 4px;vertical-align:middle;background:linear-gradient(90deg,#5ad8b0,#ffd36a,#ff7a5a)}.strbar i{position:absolute;top:-3px;width:4px;height:12px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 3px #000c}</style>');
 // Legendary and mythic fish have a signature surge: halfway in (and again near the end for mythics) they make one long,
 // heavy run with a burst of spray, then go still for a moment, then leap. Watching the fish beats it; holding loses it.
 function surgeTick(dt,f){ if(G.surge){ G.surge.t+=dt; const s=G.surge;
@@ -2846,7 +2846,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.9.2';
+const GAME_VERSION = '0.4.8.9.3';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -18018,6 +18018,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.',
   'Small phones: a long bait name no longer pushes Search and Settings off the top bar (the bait name shortens instead).']});
+PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
 // Android test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
 // curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'0.4.9, part 3: the fight', items:[

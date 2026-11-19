@@ -103,6 +103,7 @@ PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
 PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.']});
+PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
@@ -137,6 +138,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Looks',
   'Your second hand now turns the reel, the rod sways gently while you wait, and you can fish left-handed (Settings › Display).',
   'A new Natural face style (the old one stays as Classic), five eye shapes and many more noses, mouths, brows and hairstyles.',
+  'Aquarium fish show their real size: a heavier fish is a bigger fish, some swim nearer the glass and some farther back, and big ones move more slowly.',
+  'Hairstyles have real volume and shape, every body build has its own silhouette, and the Natural face has smaller noses.',
   'Fish have eyes of their own: colours and shapes that fit each species. The wizard hat’s magic is new. More pet colours in the shop and at the Boardwalk.',
   '## Display',
   'Big screens: the interface now grows to fit 1440p and 4K windows, and Settings › Display has Interface size and Picture quality.',

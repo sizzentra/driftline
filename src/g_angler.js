@@ -125,7 +125,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   if(live){ const dt=A3.lt<0?1:clamp(t-A3.lt,0,.1); A3.lt=t; const e=1-Math.exp(-dt*9), eh=1-Math.exp(-dt*24);
     A3.lean+=(lean-A3.lean)*e; A3.crouch+=(crouch-A3.crouch)*e; A3.stance+=(stance-A3.stance)*e; A3.tilt+=(tilt-A3.tilt)*e; A3.hx+=(hx-A3.hx)*eh; A3.hy+=(hy-A3.hy)*eh;
     lean=A3.lean; crouch=A3.crouch; stance=A3.stance; tilt=A3.tilt; hx=A3.hx; hy=A3.hy; }
-  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; A3LW=B.lw; A3SHOE=lk.shoes||"boots"; A3SHOECOL=lk.shoeCol||null; const lift=o.sit?24-o.sit.seat:crouch-24*(B.l-1);
+  const B=BUILDI[lk.build]||BUILDI.average; A3BELLY=B.belly; A3LW=B.lw; A3SHAPE=typeof a3Shape==='function'?a3Shape(B,f):A3SHAPE0; A3SHOE=lk.shoes||"boots"; A3SHOECOL=lk.shoeCol||null; const lift=o.sit?24-o.sit.seat:crouch-24*(B.l-1);
   const ra=o.rodA!=null?o.rodA:-.72; // the rod's angle at the hand (screen space)
   // upper body space: crouch down, lean around the hips. Hands are given in final space so they meet the rod exactly.
   const lc=Math.cos(lean), ls=Math.sin(lean), hipY=-24+lift;
@@ -173,12 +173,13 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
   c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
-  if(hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
+  const HB=typeof hairBack3==='function'&&hairBack3(c,hs,hairF,hairC,D,t,lean,live); /* 0.4.9: the parametric hair system draws the back layer (ct_hair.js) */
+  if(!HB&&hs==='long'){ /* falls from the crown, hugs the back of the head and neck, and settles over the shoulder blades in soft, uneven tips */
     const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0); c.fillStyle=hairF; c.beginPath(); c.moveTo(-6.4,-62.4); c.bezierCurveTo(-9.6,-60.6,-10.2,-55.6,-9.4,-51); c.bezierCurveTo(-8.8,-47.4,-9.4+sw,-44.4,-8.8+sw,-40.4); c.quadraticCurveTo(-8+sw,-41.4,-7.4+sw,-40.6); c.quadraticCurveTo(-6.8+sw,-41.6,-6.1+sw,-41.2); c.bezierCurveTo(-5.4,-43.6,-4,-45.4,-2.6,-46.4); c.lineTo(-2.4,-58); c.closePath(); c.fill();
     c.strokeStyle=D(mix(hairC,'#000000',.32)); c.lineWidth=.42; c.beginPath(); c.moveTo(-8,-58); c.bezierCurveTo(-9.2,-53,-8.2,-47,-8+sw,-41.6); c.moveTo(-5.6,-56.6); c.bezierCurveTo(-6.6,-52,-6,-47,-6.6+sw,-42); c.stroke();
     c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.moveTo(-7.2,-59.4); c.bezierCurveTo(-9,-55,-8.8,-50.4,-8.4,-47); c.stroke(); }
-  if(hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
-  if(hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
+  if(!HB&&hs==='ponytail'){ const sw=Math.sin(t*1.6)*.12+(live?-lean*.8:0); c.save(); c.translate(-7.4,-58.5); c.rotate(.55+sw); c.fillStyle=hairF; c.beginPath(); c.moveTo(0,-.4); c.quadraticCurveTo(3.2,4,1.2,11.4); c.quadraticCurveTo(-3,6,0,-.4); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.moveTo(-.2,1.6); c.quadraticCurveTo(.4,6,.9,10.4); c.stroke(); c.fillStyle=D('#c8553a'); c.beginPath(); c.ellipse(0,.4,1.7,.9,.2,0,7); c.fill(); c.restore(); }
+  if(!HB&&hs==='bun'){ c.fillStyle=hairF; c.beginPath(); c.arc(-3.2,-65.2,3.6,0,7); c.fill(); c.strokeStyle=D(mix(hairC,'#000000',.3)); c.lineWidth=.4; c.beginPath(); c.arc(-3.2,-65.2,2,.4,3.4); c.stroke(); c.strokeStyle=D(mix(hairC,'#ffffff',.3)); c.lineWidth=.5; c.beginPath(); c.arc(-3.2,-65.2,2.6,3.6,4.6); c.stroke(); }
   c.restore();
   // back arm: shoulder -> elbow -> hand on the grip behind the front hand
   const shB={x:-1.2*B.w,y:-45.4}, elB=a3IK(shB.x,shB.y,BH.x,BH.y,7.8,7.6,1), slD=D(mix(sleeve,'#000000',.2));
@@ -205,7 +206,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   c.save(); c.scale(SIDE_K,1); A3FXP.neck=c.getTransform(); A3FXP.nw=B.w; a3Neck(c,lk.neck,D,lk.accCol,t,B.w,lean); c.restore();
   const hatId=lk.hat||'none', hatFull=A3_HAT_FULL.has(hatId), hatCover=!hatFull&&!A3_HAT_OPEN.has(hatId);
   c.save(); c.translate(0,br*.2); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50);
-  const NAT=lk.face==='natural', JW=NAT?[1.3,-52.3,4.7,3.25,.16]:[1.9,-51.9,5.4,3.5,.1]; /* [59] Natural face: a rounder head with a softer jaw */
+  const NAT=lk.face==='natural'; A3NAT=NAT; const JW=NAT?[1.3,-52.3,4.7,3.25,.16]:[1.9,-51.9,5.4,3.5,.1]; /* [59] Natural face: a rounder head with a softer jaw */
   c.fillStyle=sk; c.beginPath(); c.arc(0,-56,7.5,0,7); c.fill(); c.beginPath(); c.ellipse(JW[0],JW[1],JW[2],JW[3],JW[4],0,7); c.fill();
   // head volume: lit from the upper front, shade wrapping the back and under the jaw
   c.save(); c.beginPath(); c.arc(0,-56,7.5,0,7); c.ellipse(JW[0],JW[1],JW[2],JW[3],JW[4],0,7); c.clip();

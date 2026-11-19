@@ -101,3 +101,7 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 100,2026-11-19,PC narrow window: the compact bait list had no Favourite foods heading,ui-logic,my_check,local,1,qa:favourite-foods-group
 101,2026-11-19,Holding reel through runs landed common to epic fish 100% in about 1.5 s with skills maxed (director report),balance,director,live,3,qa:batch6-fight
 102,2026-11-19,Phone Home bar: the cozy name overflowed its cell with a two-digit cozy,layout-cut,my_check,local,1,qa:page-bars
+103,2026-11-19,Phone Waters cards: the fish strength line never wrapped and ran past its card (live since 0.4.8.9),layout-cut,my_check,live,2,layoutQC (phones) - the sweep I had skipped
+104,2026-11-19,Aquarium fish barely changed size with weight (log scale; own weight changed length by at most 25%),art,director,live,2,qa:aquarium-real-sizes
+105,2026-11-19,Hair read as painted-on caps and builds looked alike (no volume above the skull; builds only stretched sideways),art,director,live,2,qa:hair-volume + build silhouettes
+106,2026-11-19,Process: PC __qa ran at one window size only and the phone sweeps (__spec/__layoutQC/__searchQC/__questsQC) were skipped for part 3,process,director,local,2,checklist step 3-4 run every round

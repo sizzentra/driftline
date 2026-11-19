@@ -317,6 +317,13 @@ ui(){ QA.sys='UI';
       for(const r of [0,2,3]) if(out[r].s.p<.99) e.push('skilled loses rarity '+r); if(!(out[5].s.t>=30&&out[5].s.t<=60)) e.push('maxed mythic '+out[5].s.t.toFixed(1)+' s'); if(!(out[0].s.t>=1.5&&out[0].s.t<=5)) e.push('maxed common '+out[0].s.t.toFixed(1)+' s'); }
     finally{ save=sv; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); G.st='idle'; G.fish=null; }
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:Object.keys(out).map(r=>'r'+r+' '+out[r].s.t.toFixed(1)+'s').join(', ')}; });
+  T('aquarium sizes are real (cube root of weight: 8× the weight = 2× the length, capped to fit), deeper fish smaller, big fish slower; hair system: every style has volume above the skull and draws without errors; builds change the silhouette',()=>{ const e=[];
+    const L=kg=>tankLen({kg},300,800); if(Math.abs(L(.8)/L(.1)-2)>.05) e.push('0.1→0.8 kg ×'+(L(.8)/L(.1)).toFixed(2)); if(!(L(10000)<=Math.min(300*.46,800*.34)+.01)) e.push('giant not capped'); if(!(L(1000)>L(10)*1.8)) e.push('big range too small'); if(!(tankPace({kg:500})<tankPace({kg:.2}))) e.push('big fish not slower');
+    for(const hs of Object.keys(HAIR_P)){ const P=HAIR_P[hs]; if(P&&P.cap!=='thin'&&P.cap!=='shave'&&!(P.vol>=.5)) e.push(hs+' has no volume'); }
+    const c=document.createElement('canvas'); c.width=200; c.height=200; const x=c.getContext('2d'); for(const hs of HAIRSTYLES.map(h=>h[0])) for(const hat of ['none','cap']) for(const g2 of ['m','f']) try{ drawAngler(x,100,190,2.5,Object.assign({},S.look,{hairStyle:hs,hat,g:g2}),{t:1}); }catch(er){ e.push(hs+'/'+hat+': '+er.message); }
+    const sil=b=>{ const cv=document.createElement('canvas'); cv.width=60; cv.height=120; const q=cv.getContext('2d'); drawAngler(q,30,115,1.4,Object.assign({},S.look,{build:b,hat:'none',outfit:'none',hairStyle:'buzz'}),{t:1,noShadow:true}); const d=q.getImageData(0,0,60,120).data; let n=0; for(let i=3;i<d.length;i+=4) if(d[i]>128) n++; return n; };
+    const a=sil('slim'), b=sil('broad'), s=sil('sturdy'); if(!(b>a*1.15)) e.push('broad vs slim silhouette '+(b/a).toFixed(2)); if(!(s>a*1.12)) e.push('sturdy vs slim '+(s/a).toFixed(2));
+    return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'0.1→0.8 kg ×2, broad/slim '+(b/a).toFixed(2)}; });
   T('[14] [15] new attachments and skills work, every skill has a max-rank effect and a group, skill points come from the Fish Log too',()=>{ const e=[]; const rb=rodBonus;
     for(const id of ['snagguard','scentbead','twinhook','nibpouch','grip']){ const a=ATT_I[id]; if(!a) { e.push('no attachment '+id); continue; } if(!(a.v[0]<a.v[1]&&a.v[1]<a.v[2])) e.push(id+' tiers do not grow'); }
     try{ const sp=SP.find(s=>s.r===2)||SP[0], fav=FISH_FAV[sp.id];

@@ -10,24 +10,24 @@
 // front edge of the torso at height y (used to place buttons, zips and ties on the chest)
 function sideFront(y,f){ const bb=A3BELLY*2.0;
   if(f){ if(y<-42.4) return 3.4+(y+46.9)/4.5*3.0; if(y<-33.2) return 6.4+Math.sin((y+42.4)/9.2*Math.PI)*1.5-(y+42.4)/9.2*.8; return 5.6+bb*.6+(y+33.2)/9.6*(.6+bb*.4); }
-  if(y<-43) return 3.4+(y+46.9)/3.9*2.9; if(y<-35) return 6.3+(y+43)/8*.1+bb*.4*(y+43)/8; return 6.4+bb*.8+Math.sin((y+35)/11.4*Math.PI)*(.4+bb*1.2)-(y+35)/11.4*(.2+bb*.3); }
+  if(y<-43) return 3.4+(y+46.9)/3.9*2.9; if(y<-35) return 6.3+A3SHAPE.ch*.85+(y+43)/8*.1+bb*.4*(y+43)/8; return 6.4+bb*.8+Math.sin((y+35)/11.4*Math.PI)*(.4+bb*1.2)-(y+35)/11.4*(.2+bb*.3); }
 function sideTorsoPath(c,f){ const bb=A3BELLY*2.0; c.beginPath();
   c.moveTo(-4.6,-46.9);
-  c.bezierCurveTo(-6.6,-46.5,-7.3,-43.6,-7.1,-40.6);   // over the shoulder blade
-  c.bezierCurveTo(-6.9,-36.6,-5.9,-33.6,-6,-30.2);     // in at the small of the back
-  c.bezierCurveTo(-6.1,-27.4,-7,-25.4,-6.9,-23.6);     // out over the seat
+  c.bezierCurveTo(-6.6-A3SHAPE.bk*.5,-46.5,-7.3-A3SHAPE.bk,-43.6,-7.1-A3SHAPE.bk,-40.6);   // over the shoulder blade
+  c.bezierCurveTo(-6.9-A3SHAPE.bk*.6,-36.6,-5.9+A3SHAPE.wa,-33.6,-6+A3SHAPE.wa,-30.2);     // in at the small of the back
+  c.bezierCurveTo(-6.1-A3SHAPE.se*.5,-27.4,-7-A3SHAPE.se,-25.4,-6.9-A3SHAPE.se*.6,-23.6);     // out over the seat
   c.lineTo(6.2+bb*.5,-23.6);
-  if(f){ c.bezierCurveTo(6.6+bb*1.2,-26.5,6.3+bb*1.6,-30.5,5.6+bb*.6,-33.2); c.bezierCurveTo(7.9,-34.4,8.3,-39.6,6.4,-42.4); c.bezierCurveTo(5.4,-44.2,4.4,-46.2,3.4,-46.9); }
-  else { c.bezierCurveTo(6.8+bb*1.5,-26.8,7+bb*2.1,-31.6,6.4+bb*.8,-35); c.bezierCurveTo(6.9,-38.8,6.6,-43.2,3.4,-46.9); }
+  if(f){ c.bezierCurveTo(6.6+bb*1.2,-26.5,6.3+bb*1.6,-30.5,5.6+bb*.6-A3SHAPE.wa*.4,-33.2); c.bezierCurveTo(7.9+A3SHAPE.ch*.7,-34.4,8.3+A3SHAPE.ch*.7,-39.6,6.4,-42.4); c.bezierCurveTo(5.4,-44.2,4.4,-46.2,3.4,-46.9); }
+  else { c.bezierCurveTo(6.8+bb*1.5,-26.8,7+bb*2.1-A3SHAPE.wa*.4,-31.6,6.4+bb*.8-A3SHAPE.wa*.5,-35); c.bezierCurveTo(6.9+A3SHAPE.ch,-38.8,6.6+A3SHAPE.ch*.8,-43.2,3.4,-46.9); }
   c.quadraticCurveTo(-.6,-48.3,-4.6,-46.9); c.closePath(); }
 function sideCoatPath(c,f,hemY){ const bb=A3BELLY*2.0; c.beginPath();
   c.moveTo(-4.8,-47.1);
-  c.bezierCurveTo(-6.9,-46.6,-7.6,-43.6,-7.4,-40.6);
-  c.bezierCurveTo(-7.2,-36.6,-6.4,-33.6,-6.6,-30.2);
-  c.bezierCurveTo(-6.8,-27,-7.6,-24,-8.3,hemY);
+  c.bezierCurveTo(-6.9-A3SHAPE.bk*.5,-46.6,-7.6-A3SHAPE.bk,-43.6,-7.4-A3SHAPE.bk,-40.6);
+  c.bezierCurveTo(-7.2-A3SHAPE.bk*.6,-36.6,-6.4+A3SHAPE.wa*.5,-33.6,-6.6+A3SHAPE.wa*.5,-30.2);
+  c.bezierCurveTo(-6.8-A3SHAPE.se*.5,-27,-7.6-A3SHAPE.se,-24,-8.3-A3SHAPE.se*.6,hemY);
   c.quadraticCurveTo(0,hemY+1.4,7.7+bb*.8,hemY);
-  if(f){ c.bezierCurveTo(7.1+bb*1.2,-24,6.7+bb*1.6,-30.5,6+bb*.6,-33.2); c.bezierCurveTo(8.2,-34.4,8.6,-39.6,6.7,-42.4); c.bezierCurveTo(5.6,-44.3,4.6,-46.3,3.6,-47.1); }
-  else { c.bezierCurveTo(7.3+bb*1.5,-25,7.4+bb*2.1,-31.6,6.8+bb*.8,-35); c.bezierCurveTo(7.3,-38.8,6.9,-43.4,3.6,-47.1); }
+  if(f){ c.bezierCurveTo(7.1+bb*1.2,-24,6.7+bb*1.6,-30.5,6+bb*.6,-33.2); c.bezierCurveTo(8.2+A3SHAPE.ch*.7,-34.4,8.6+A3SHAPE.ch*.7,-39.6,6.7,-42.4); c.bezierCurveTo(5.6,-44.3,4.6,-46.3,3.6,-47.1); }
+  else { c.bezierCurveTo(7.3+bb*1.5,-25,7.4+bb*2.1,-31.6,6.8+bb*.8,-35); c.bezierCurveTo(7.3+A3SHAPE.ch,-38.8,6.9+A3SHAPE.ch*.8,-43.4,3.6,-47.1); }
   c.quadraticCurveTo(-.6,-48.6,-4.8,-47.1); c.closePath(); }
 a3TorsoPath=sideTorsoPath; a3CoatPath=sideCoatPath;
 
