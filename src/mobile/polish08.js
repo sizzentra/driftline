@@ -123,3 +123,13 @@ html body.phone-land #menuov #panel.pg08 .mb-xpbar,html body.phone-app #menuov #
 html body.phone-land #menuov #panel.pg08 .mb-xpbar > i,html body.phone-app #menuov #panel.pg08 .mb-xpbar > i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#7fe3c4,#5fb4ff);box-shadow:0 0 8px #7fe3c466;transition:width .45s ease-out}
 html body.phone-land #menuov #panel.pg08 .mb-xpt,html body.phone-app #menuov #panel.pg08 .mb-xpt{font:700 11px var(--display,system-ui);color:#9fb3c8;white-space:nowrap}
 </style>`);
+/* the side panel holds seven sections now (Prestige added): sideways each button is a little shorter so all of them and Collapse
+   panel fit without scrolling, down to the smallest iPhones; the summary strip may take a second line when a value is long */
+document.head.insertAdjacentHTML('beforeend',`<style>
+@media (orientation:landscape) and (max-height:560px){
+  html body.phone-land #menuov #tabs .secbar{gap:4px!important}
+  html body.phone-land #menuov #tabs .secbar > .secb{min-height:34px!important;height:34px!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank{flex-wrap:wrap!important;row-gap:2px!important}
+  html body.phone-land #menuov #panel.pg08 .pg08-bank > div{max-width:none!important}
+}
+</style>`);

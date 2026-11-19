@@ -22,6 +22,7 @@
     cooler:{ cells:(P,hd)=>{ const t=txt(hd); const a=num(t,/(\d+) of (\d+) slots/), b=num(t,/(\d+) of (\d+) slots/,2), bo=num(t,/\+(\d+)% to every sale/); return [['In your cooler',a!=null?a+' / '+b:String(S.cooler.length)],bo!=null?['Sale bonus','+'+bo+'%']:null]; },
       acts:P=>[P.querySelector('[data-act="sellall"]')] },
     map:{ cells:()=>[['Fishing at',locName()],['Waters open',S.unlocked.length+' / '+LOCS.length]] },
+    prestige:{ note:()=>'', cells:()=>[['Wisdom Pearls',String(S.pearls||0)],['Voyage',String((S.tides||0)+1)],['Pearl bonus','+'+Math.round((coinMult()-1)*100)+'% coins & XP']], groups:K=>{ const j=K.filter(c=>c.classList.contains('jsec')); const nm=c=>{ const h=c.querySelector('h2'); return h?h.textContent.trim():''; }; return j.map(c=>({name:nm(c),nodes:[c]})); } }, /* round 8: waters08.js */
     shop:{ cells:()=>{ let a=0,b=0; try{ for(const k in GEAR){ a+=(S.gear[k]|0); b+=GEAR[k].lv.length-1; } }catch(e){} return [['Gear upgrades',a+' / '+b],['Fishing at',locName()]]; } },
     rods:{ cells:(P,hd)=>[['Rod in use',txt(P.querySelector('.rp-card.on b'))||'—'],['Scales',txt(hd&&hd.querySelector('.pts'))||'0']] },
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },

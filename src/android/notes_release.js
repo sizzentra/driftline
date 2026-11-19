@@ -139,5 +139,7 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Small iPhones: nothing in the page summaries or tabs is cut off any more (Home, Skills, Wardrobe).',
   'Menus give you the room: the numbers sit in one slim line at the top and the page uses the full width, so you see more upgrades, skills and games at once.',
   'Skills: only your skill points get a badge, not every category, and an XP bar next to your Level shows how close the next level is.',
-  'Side panel: counts never cover a button’s name.']});
+  'Side panel: counts never cover a button’s name, and Fishing is now called Catch (your Cooler and the Waters).',
+  'New Prestige button on the side panel: Set sail again and Pearl relics have their own page, with your pearls, voyage and pearl bonus at the top.',
+  'Waters is tidier: compact cards with a picture, a species bar and one button, the water you’re at says You are here, and the list opens right at it.']});
 
