@@ -9,6 +9,7 @@
 # $layers, or placed inside a shared file with a line "//@layer <platform> <file>". The core is for things every platform
 # shares: the game itself, its rules and the save.
 param([switch]$Preview)
+$TempAndroidUsesIos = $true   # TEMPORARY: Android test app runs the iPhone build (see the testapps loop); set to $false to undo
 $root = $PSScriptRoot
 $v = (Get-Date).ToString('yyyy.MM.dd-HHmm')
 $utf8 = New-Object System.Text.UTF8Encoding $false
@@ -111,7 +112,8 @@ if ($Preview) {
   foreach ($pair in @(@('android','android','Android'), @('iphone','ios','iPhone'))) {
     $dir = Join-Path $ta $pair[0]; New-Item -ItemType Directory -Force $dir | Out-Null
     $label = 'DL Test ' + $pair[2]
-    $page = $pages[$pair[1]].Replace('content="DL Test">', 'content="' + $label + '">')
+    # TEMPORARY (director, 2026-11-18: "temporarily send Android users the iPhone version"): the Android test app gets the iPhone build to compare; set $TempAndroidUsesIos = $false to undo
+    $src = $pair[1]; if ($pair[0] -eq 'android' -and $TempAndroidUsesIos) { $src = 'ios' }; $page = $pages[$src].Replace('content="DL Test">', 'content="' + $label + '">')
     [IO.File]::WriteAllText((Join-Path $dir 'index.html'), $page, $utf8)
     [IO.File]::WriteAllText((Join-Path $dir 'version.txt'), $v, $utf8)
     [IO.File]::WriteAllText((Join-Path $dir 'version-phone.txt'), $v, $utf8)
