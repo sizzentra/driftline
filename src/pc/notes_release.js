@@ -67,3 +67,14 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'Water pictures for the Map are only made while the Map is open.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## Fixes',
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”, and the presets stay on it.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.']});

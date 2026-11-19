@@ -74,9 +74,16 @@
       const meta=`Level ${lv} / 10 · ${R.slots} slot${R.slots>1?'s':''} · ${atts.length?esc(atts.join(', ')):'no attachments'}`;
       return `<div class="rp-card rp8-row${on?' on':''}"><div class="rp8-info"><span class="rp-n">Preset ${i+1}${on?' <span class="rp8-tag">In use</span>':''}</span><b>${esc(R.name)}</b><span class="rp-lv">${meta}</span></div><div class="rp8-acts">${on?'':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button><button type="button" class="btn alt sm" data-rp="save:${i}" title="Save the rod in your hands (with its attachments) over this preset">Replace</button>`}<button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('');
     return `<div class="rp-box rp8"><h5>Presets</h5><p class="meta rp8-why">Save a rod with its attachments, then switch to it in one tap. The preset in use follows every change you make.</p><div class="rp-list">${rows}</div></div>`; };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='rods') return r; const P=$('panel'); const box=P&&P.querySelector('.rp-box'), now=P&&P.querySelector('.tile.rodnow'); if(!box||!now) return r;
+  /* 2026-11-19 (director: "Your rods ... should not carry over to the other 2 tabs"): the box was inserted by a second phone block
+     after the page's tabs were built, and this block looked for a '.tile.rodnow' that the page no longer has, so the presets showed
+     on all three tabs. One block now: the box goes right after the first node of the "Your rods" tab and is shown and hidden with it. */
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='rods') return r; const P=$('panel'); if(!P) return r;
+      /* the page engine moves the tab bar above the page body, so the "Your rods" group is found from its content: the body's first item, before the Rod rack heading */
+      const body=P.querySelector('.pg08-body')||P, head=c=>{ const h=c.matches('h2,h4,h5')?c:c.querySelector('h2,h4,h5'); return h?h.textContent.trim():''; };
+      const ks=[...body.children].filter(c=>!c.classList.contains('pg08-note')&&!c.classList.contains('rp-box')&&!c.classList.contains('sect-nav')), rack=ks.findIndex(c=>head(c)==='Rod rack'); const first=rack>0?ks[0]:null; if(!first) return r;
+      let box=P.querySelector('.rp-box'); if(!box){ first.insertAdjacentHTML('afterend',rodPresetsHTML()); box=first.nextElementSibling; } else first.after(box);
       P.querySelectorAll('h2').forEach(h=>{ if(/^(Rod rack|Attachments)$/.test(h.textContent.trim())) h.classList.add('rp8-dup'); }); /* the tab above already names it */
-      now.after(box); const sync=()=>{ box.style.display=now.style.display; }; sync(); new MutationObserver(sync).observe(now,{attributes:true,attributeFilter:['style']}); /* shown and hidden with Your rod */
+      const sync=()=>{ box.style.display=first.style.display; }; sync(); new MutationObserver(sync).observe(first,{attributes:true,attributeFilter:['style']}); /* shown and hidden with Your rods */
     }catch(e){ console.error(e); } return r; }; }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -260,7 +267,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8
    bar (title + progress, then what to do + the reward), about half the height */
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .pg08-body > .pg08-note,html body.phone-land #menuov #panel.pg08[data-pg-tab="events"] .ev-h,html body.phone-app #menuov #panel.pg08[data-pg-tab="events"] .ev-h{display:none!important}
-html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat),html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat){display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "m" "v";position:relative;align-items:center;gap:2px 8px!important;padding:6px 10px 9px!important;min-height:0!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat):not([style*="display: none"]),html body.phone-app #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile:not(.feat-cat):not([style*="display: none"]){display:grid!important;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "m" "v";position:relative;align-items:center;gap:2px 8px!important;padding:6px 10px 9px!important;min-height:0!important}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread{grid-area:t;margin:0!important;gap:8px;flex-wrap:nowrap!important;min-width:0}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .row.spread h4{font-size:13.5px!important;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #menuov #panel.pg08[data-pg-tab="feats"] .grid > .tile > .meta{grid-area:m;margin:0!important;font-size:11.5px!important;white-space:normal;overflow:visible;line-height:1.25;min-width:0}
@@ -306,3 +313,25 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdo
    light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
 { const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
 
+document.head.insertAdjacentHTML("beforeend",`<style>body.chal-live #catdock .cdb[data-cd="chal"] .cddot{display:none!important}</style>`); /* the side panel follows the same rule: LIVE or a count, not both (2026-11-19) */
+/* Search on phones (director, 2026-11-19, Pixel 10 / Android 17: "pop ups for keyboard are very weird... can't see search results or what
+   you're typing ever"): the box sat 12% down the screen with results up to 52% of the screen tall, so the keyboard covered both. On
+   phones the box now sits at the top and its results only use the space the keyboard leaves (visualViewport). */
+{ const ov=()=>document.getElementById('searchov'); const fit=()=>{ const o=ov(); if(!o||o.hidden||!MOB()) return; const vv=window.visualViewport; const h=vv?vv.height:innerHeight; o.style.setProperty('--sv-h',Math.max(160,Math.round(h))+'px'); };
+  if(window.visualViewport){ visualViewport.addEventListener('resize',fit); visualViewport.addEventListener('scroll',fit); } document.addEventListener('focusin',e=>{ if(e.target&&e.target.id==='searchq') setTimeout(fit,50); });
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #searchov,body.phone-land #searchov{padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))!important;align-items:flex-start}
+body.phone-app #searchov .sv-in,body.phone-land #searchov .sv-in{max-height:calc(var(--sv-h,100vh) - 16px);padding:10px;gap:6px}
+body.phone-app #searchres,body.phone-land #searchres{max-height:none!important;flex:1 1 auto;min-height:0}
+</style>`); }
+/* Aquarium bank (director, 2026-11-19, Android: "Earning and Ready Coins value run underneath each other when numbers get too big"): the
+   number columns had a fixed width (62 px), so 12,345,678 spilled into the next cell. They now take their content's width. */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #menuov #panel .aq07-bank:has(#tankbank),html body.phone-app #menuov #panel .aq07-bank:has(#tankbank){grid-template-columns:max-content max-content max-content auto auto!important}</style>`);
+/* Reeling on phones (director, 2026-11-19: "when you're reeling in fish, too much ui covers the screen"): during a fight the bottom
+   hint repeats what the fight banner already says, and Rest does nothing mid-fight, so both fade away while a fish is on the line and
+   come back when it ends. The hint stays for the first 5 catches, while a new player is still learning the controls. */
+{ let on=false; const _fr=frame; frame=function(now){ const want=MOB()&&G.st==='reeling'&&(S.stats.caught||0)>=5; if(want!==on){ on=want; document.body.classList.toggle('dl-reel',on); } return _fr.apply(this,arguments); };
+  document.head.insertAdjacentHTML('beforeend',`<style>
+body.phone-app #hint,body.phone-land #hint,body.phone-app #resttog,body.phone-land #resttog{transition:opacity .25s}
+body.dl-reel #hint,body.dl-reel #resttog{opacity:0!important;pointer-events:none!important}
+</style>`); }

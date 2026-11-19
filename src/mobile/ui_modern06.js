@@ -19,7 +19,7 @@ body.phone-app .hud button.st-aq.ready .lbl,body.phone-land .hud button.st-aq.re
 /* settings and search */
 body.phone-app .hudbtns > button,body.phone-land .hudbtns > button{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c!important}
 /* Rest and Bait on the fishing screen */
-body.phone-app #resttog,body.phone-app #baitqk,body.phone-land #resttog,body.phone-land #baitqk{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c,0 4px 10px #0007!important}
+body.phone-app #resttog,body.phone-land #resttog{background:var(--mt-teal)!important;border:1px solid var(--mt-teal-b)!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c,0 4px 10px #0007!important}
 /* page tabs inside a menu: teal outline, the open one gold */
 body.phone-app #menuov .subbar .subp,body.phone-land #menuov .subbar .subp{background:var(--mt-navy)!important;border-color:#7fe3c466!important;color:#dff7ef!important}
 body.phone-app #menuov .subbar .subp.on,body.phone-land #menuov .subbar .subp.on{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12!important}

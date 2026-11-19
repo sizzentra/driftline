@@ -135,7 +135,7 @@ addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePro
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
 { const _ms=menuSync; menuSync=function(){ _ms(); try{ const T=$('tabs'), live=!!(S.chal||liveScheds().length);
-    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } });
+    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } }); if(document.body.classList.contains('chal-live')!==live) document.body.classList.toggle('chal-live',live); /* while LIVE shows, the Challenges count hides (director, 2026-11-19: not both) */
     const sbtn=$('settingsbtn'); if(sbtn&&!MENU_OPEN) sbtn.classList.remove('menu-on'); const mset=MO.querySelector('[data-mo="settings"]'); if(mset) mset.classList.toggle('on',menuSecOf(S.tab)===MENU_MORE); }catch(e){} }; }
 
 // ---------- the dashboard ----------
@@ -224,6 +224,7 @@ setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&
 if(/[?&]test\b/.test(location.search)) window.__ui={open:openMenu, close:closeMenu, isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
+body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
 /* ---------- category labels ---------- */
 #tabs.secmode .secb .secshort{display:none}
 @media (max-width:520px){#tabs.secmode .secb .secfull{display:none}#tabs.secmode .secb .secshort{display:inline}}
@@ -932,8 +933,6 @@ document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:no
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
 { const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
-    // Skills: the "Looking for specialisations? Open Paths" pointer is redundant (Paths is the tab right beside it)
-    if(S.tab==='skills'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>/Looking for specialisations/i.test(x.textContent)); if(t) t.remove(); }
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
   }catch(e){} }; menuTidy=menuTidy2; }
@@ -943,7 +942,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel > .row.dl-head > :not(:first-child){margin-left:0!important}
 /* Events calendar and daily tasks: side by side on wide enough pages */
 @container (min-width:560px){
-  #menuov #panel .ev-cal{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
+  #menuov #panel .tile.ev-cal{display:grid; /* no !important: it overrode the page tabs hiding the calendar (director, 2026-11-19: Events tabs showed the same things) */ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
   #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
   #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
   #menuov #panel .tile.dtasks{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
@@ -997,7 +996,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   /* a wrapped header block (Tide Pass level, cozy level) uses the full width */
   #menuov #panel > .row.dl-head > :not(:first-child){flex:1 1 auto}
   /* Docks and pet filters: one row that scrolls sideways */
-  #menuov #panel .dock-h:has(> .dock-c),#menuov #panel .chips.pet-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .dock-h:has(> .dock-c):not([style*="display: none"]),#menuov #panel .chips.pet-filter:not([style*="display: none"]){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
   #menuov #panel .dock-h:has(> .dock-c)::-webkit-scrollbar,#menuov #panel .chips.pet-filter::-webkit-scrollbar{display:none}
   #menuov #panel .dock-h > *,#menuov #panel .chips.pet-filter > *{flex:0 0 auto}
 }

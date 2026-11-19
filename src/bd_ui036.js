@@ -34,7 +34,7 @@ const SEARCH_IDX=[
  ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
  ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],
  ['Tackle: special lures','shop',['tackleview','lures'],'special lures junk lures magnet golden disco'],
- ['Rods: your rod','rods','Your rod','rod equip upgrade'],
+ ['Rods: your rods','rods','Your rods','rod equip upgrade presets'],
  ['Rods: rod rack','rods','Rod rack','rods collection buy rod'],
  ['Rods: attachments','rods','Attachments','attachments slots rod parts'],
  ['Skills','skills',null,'skill points perks talents level'],
@@ -81,7 +81,7 @@ function searchFind(q){ q=q.toLowerCase().trim(); if(!q) return SEARCH_IDX.slice
   const q=ov.querySelector('#searchq'), res=ov.querySelector('#searchres'); let list=[], sel=0;
   const draw=()=>{ list=searchFind(q.value); sel=Math.min(sel,Math.max(0,list.length-1)); res.innerHTML=list.length?list.map((e,i)=>{ const sec=menuSecOf(e[1]); return `<button type="button" class="sv-r${i===sel?' on':''}" data-i="${i}" role="option" aria-selected="${i===sel}"><b>${e[0]}</b><span class="meta">${sec?sec.name:'Menu'}</span></button>`; }).join(''):'<div class="meta" style="padding:10px 4px">Nothing found. Try another word.</div>'; };
   const open=()=>{ ov.hidden=false; q.value=''; sel=0; draw(); setTimeout(()=>q.focus(),20); }, close=()=>{ ov.hidden=true; };
-  $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>box.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); /* the stage under the top bar turns touches into casts, which ate the tap on Android (director, 2026-11-19: search needed press-and-hold); the other top-bar buttons already shield themselves this way */ $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
   ov.addEventListener('click',e=>{ if(e.target===ov||e.target.id==='searchclose'){ close(); return; } const b=e.target.closest('.sv-r'); if(b){ const it=list[+b.dataset.i]; close(); if(it) searchGo(it); } });
   q.addEventListener('input',()=>{ sel=0; draw(); });
   q.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ sel=Math.min(list.length-1,sel+1); draw(); e.preventDefault(); } else if(e.key==='ArrowUp'){ sel=Math.max(0,sel-1); draw(); e.preventDefault(); } else if(e.key==='Enter'){ const it=list[sel]; if(it){ close(); searchGo(it); } e.preventDefault(); } else if(e.key==='Escape'){ close(); } e.stopPropagation(); });

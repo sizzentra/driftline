@@ -56,24 +56,9 @@ body.phone-app.dl-fish .hud > #goalchip .gl-s{white-space:nowrap!important;overf
 body.phone-app.dl-fish .hud > #goalchip{overflow:hidden}
 </style>`);
 
-// 5) Bait on the fishing screen (phones): a Bait button beside Rest shows the bait you use and opens the bait list
-{ let btn=null; const label=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return '🪱 '+b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
-  const place=()=>{ if(!MOB()) { if(btn) btn.hidden=true; return; } const st=$('stage'), rest=$('resttog'); if(!st) return;
-    if(!btn){ btn=document.createElement('button'); btn.type='button'; btn.id='baitqk'; btn.className='resttog baitqk'; btn.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} try{ tackleView='bait'; }catch(er){} openMenu('shop'); }); st.appendChild(btn); }
-    btn.hidden=false; const t=label(); if(btn.textContent!==t) btn.textContent=t;
-    if(rest&&rest.offsetWidth){ const l=(rest.offsetLeft+rest.offsetWidth+8)+'px', tp=rest.offsetTop+'px', hh=rest.offsetHeight+'px'; // the Rest style pins left with !important, so ours must too
-      if(btn.style.left!==l) btn.style.setProperty('left',l,'important'); if(btn.style.top!==tp) btn.style.setProperty('top',tp,'important'); if(btn.style.height!==hh) btn.style.setProperty('height',hh,'important'); btn.style.setProperty('bottom','auto','important'); } };
-  setInterval(()=>{ try{ place(); }catch(e){} },1000); setTimeout(place,900); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #baitqk,body.phone-land #baitqk{max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-color:#7fe3c466!important}
-body.card-open #baitqk{opacity:0;pointer-events:none}
-body:not(.phone-app):not(.phone-land) #baitqk{display:none!important}
-</style>`);
 
-// 6) Rods (phones): the "Your rods" presets at the top of the Rods page
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.rp-box')) return r; const anchor=P.querySelector(':scope > .tile')||P.querySelector(':scope > .grid'); if(anchor) anchor.insertAdjacentHTML('beforebegin',rodPresetsHTML()); else P.insertAdjacentHTML('afterbegin',rodPresetsHTML()); }catch(e){} return r; }; }
 
-// 7) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
+// 5) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
 PLAT.willowRepaintS=()=>MOB()?.25:.03;      /* Willow curtain repaints 4x a second (its sway is slow) */
 PLAT.rippleBands=MOB;                       /* storms: rain rings in 3 brightness bands, 3 strokes instead of ~46 */
 PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn ~30x a second, at once on any state change */

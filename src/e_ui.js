@@ -45,7 +45,7 @@ function setHint(){ let h='';
     case 'result': h='Nice catch.'; break;
     case 'frenzy': h='<b>Tap the leaping fish!</b>'; break;
     case 'event': h='&nbsp;'; break;
-  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ $('hint').innerHTML=h; lastHint=h; } }
+  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ const el=$('hint'); el.innerHTML=h; el.style.visibility=h==='&nbsp;'?'hidden':''; lastHint=h; } } /* an empty hint keeps its space but draws no empty box (director, 2026-11-19: hints off left a blank circle) */
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------

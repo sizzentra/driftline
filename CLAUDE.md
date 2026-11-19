@@ -10,8 +10,9 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
-- **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7). Test apps and /next/ carry the same code.
-- **Asked, waiting for the director:** how the phone side panel should look in narrow split-screen windows (its names are cut off there: icons only or smaller text).
+- **Live (all three, 2026-11-19): 0.4.8.7 "Lighter and Smoother"** (stamp 2026.11.19-0237, tag v0.4.8.7).
+- **Test builds: 0.4.9 in progress** (the director’s 60-point list, docs/PLAN.md). Batch 1 (bugs) mostly done and on the phone test apps + /next/; left in batch 1: [32] [34] [42 choppy] [44] [56] [8], and [37] waits for a screenshot.
+- **Asked, waiting for the director:** a screenshot of iPhone Settings showing "Settings" twice (not reproducible on the build); how the phone side panel should look in narrow split-screen windows (its names are cut off there: icons only or smaller text).
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
 
@@ -36,8 +37,8 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 2. `build.ps1 -Preview`.
 3. **Gate, after the LAST edit:** parse every built page with `new Function` (site/next/*.html and the release pages), boot each changed build once, and check that each page's stamp matches the version file it fetches.
 4. **QC** (test hooks and the async pattern under "Testing"):
-   - `__qa()` 58/58 on Android, iPhone and PC. A failure caused by the save's state is a test bug: make the test state-independent.
-   - Phones: `__layoutQC`, `__searchQC`, `__questsQC` (one at a time; back-to-back runs collide), `__spec` at the phone sizes below with `__safeSim` safe areas, plus one split-screen pass (440×460, 375×812). Known save-state result: search "Pets: find more" when every pet is owned.
+   - `__qa()` all passing on Android, iPhone and PC (59 checks since 0.4.9; it includes "page tabs": nothing hidden by a page tab may stay on screen). A failure caused by the save's state is a test bug: make the test state-independent.
+   - Phones: `__layoutQC`, `__searchQC`, `__questsQC` (one at a time; back-to-back runs collide), `__spec` at the phone sizes below with `__safeSim` safe areas, plus one split-screen pass (440×460, 375×812).
    - PC: `__qa`, every page opens, full screen simulated, and the PC diff: a phone-only change must leave `site/next/pc.html` identical to HEAD (stamps normalized).
    - Per-frame code changed: every water × dawn/day/dusk/night (× weather when it matters) with `__drawCost`, on a heavy save (decorations at every water, effect cosmetics, tinted pet, Lily) and a fresh one; scenery-rebuild counts through light and weather transitions.
    - Art changed: `__fishParts()` and `__fishSheet({loc})` for every water, big renders of anything suspicious, every pet × pose × accessory, every area × time × weather.

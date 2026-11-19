@@ -5,25 +5,27 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 (test builds), ✔ live. The release is **0.4.9** (new content). Numbers in brackets = the director's line numbers.
 
 ## Batch 1: bugs and small fixes (all platforms where they apply)
-- ☐ [17] A fish eaten by a bigger fish stays anonymous ("something bigger ate your catch"); a high Fish Finder level may name it.
-- ☐ [26] The fully upgraded radar never names species you haven't caught.
-- ☐ [27] Shadows of hooked fish: one even tone, no lighter fins or patches.
-- ☐ [30] Challenges: no "1" badge next to the "Live" tag.
-- ☐ [31] Shinies: remove the sweeping shine band.
+- ☑ [17] A fish eaten by a bigger fish stays anonymous ("something bigger ate your catch"); a high Fish Finder level may name it.
+- ☑ [26] The fully upgraded radar never names species you haven't caught.
+- ☑ [27] Shadows of hooked fish: one even tone, no lighter fins or patches.
+- ☑ [30] Challenges: no "1" badge next to the "Live" tag.
+- ☑ [31] Shinies: remove the sweeping shine band.
 - ☐ [32] Fish Log shiny toggle on phones (exists on PC).
-- ☐ [36] iPhone: re-reading patch notes is cluttered, hard to open and scroll.
-- ☐ [37] iPhone: Settings from the top bar shows "Settings" twice as headers.
-- ☐ [39] Android: search needs press-and-hold to open; the keyboard covers the results and the typed text.
-- ☐ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
-- ☐ [42] Android: Aquarium preview choppy; Earning / Ready values overlap when numbers are large.
-- ☐ [43] Events: Calendar, Challenges and Derby tabs show the same content.
+- ☑ [36] iPhone: re-reading patch notes is cluttered, hard to open and scroll.
+- ◐ [37] iPhone: Settings from the top bar shows "Settings" twice as headers (not reproducible on the build: screenshot asked from the director).
+- ☑ [39] Android: search needs press-and-hold to open; the keyboard covers the results and the typed text.
+- ☑ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
+- ◐ [42] Android: Aquarium preview choppy (to do); Earning / Ready values overlap when numbers are large (☑ fixed).
+- ☑ [43] Events: Calendar, Challenges and Derby tabs show the same content.
 - ☐ [44] Trophy Room tiny when empty; check with fish in and out.
-- ☐ [45] Skills: the "Looking for specializations?" line breaks the spacing.
-- ☐ [46] Hints off leaves an empty round box at the bottom.
-- ☐ [48] Rods: "Your rods" (not "Your rod") and only on the first tab.
+- ☑ [45] Skills: the "Looking for specializations?" line breaks the spacing.
+- ☑ [46] Hints off leaves an empty round box at the bottom.
+- ☑ [48] Rods: "Your rods" (not "Your rod") and only on the first tab.
 - ☐ [56] PC full screen: the orange upgrade-count circle is clipped.
 - ☐ [34] Setting: metric / imperial weights.
 - ☐ [8] Aquarium: hide a decoration from view while keeping its bonus.
+
+- ☑ [new, 2026-11-19] Phones: while reeling, the hint and Rest step aside (director: "too much ui covers the screen"; hint kept for the first 5 catches).
 
 ## Batch 2: the fight (one design pass, measured with a fight simulator)
 - ☐ [9] "Heavy fish" message explained; an Angler strength stat; each water shows its fish strength range and where you stand.

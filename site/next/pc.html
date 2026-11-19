@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-0235';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-0303';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1906,7 +1906,7 @@ function maybeEatEvent(dt){ const f=G.fish; if(!f||f.kind!=='fish'||G.eat||G.eat
   const pred=pick(pool); G.eat={t:0,dur:1.4,sp:pred,swapped:false}; sfx.warn(); }
 function eatTick(dt){ const E=G.eat; if(!E) return; E.t+=dt;
   if(!E.swapped && E.t>=E.dur*.62){ E.swapped=true; const prey=G.fish, nf=rollFish(E.sp,{}); nf.prey=[prey].concat(prey.prey||[]); G.fish=nf; G.sta=1; G.ten=Math.max(G.ten,28); G.temper=0; G.run=true; G.runT=rnd(.8,1.4); G.maxOut+=12;
-    splash(G.bob.x,G.bob.y,28); sfx.gulp(); if(V3ON) vib([60,40,90]); toast('Something bigger just swallowed your '+prey.sp.name.toLowerCase()+'! Land it to keep both.'); }
+    splash(G.bob.x,G.bob.y,28); sfx.gulp(); if(V3ON) vib([60,40,90]); toast(S.gear.finder>=5?'Something bigger just swallowed your '+(S.journal[prey.sp.id]?prey.sp.name.toLowerCase():'catch')+'! Land it to keep both.':'Something bigger just swallowed your catch! Land it to keep both.'); /* the first fish stays a surprise; the top Fish Finder names it if you have caught that species (director, 2026-11-19) */ }
   if(E.t>=E.dur) G.eat=null; }
 function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=null; return; } /* a fight that ends mid-grab takes the shadow with it */ const k=clamp(E.t/(E.dur*.62),0,1), e=1-Math.pow(1-k,2.4), len=60+Math.min(90,Math.sqrt(E.sp.max)*10);
   const x=G.bob.x+(W*.5)*(1-e)+len*.3, y=G.bob.y+16+Math.sin(t*6)*2; g.save(); g.globalAlpha=.45*(E.swapped?Math.max(0,1-(E.t-E.dur*.62)/(E.dur*.38)):1);
@@ -2041,6 +2041,14 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
     c.beginPath(); c.moveTo(-r*.25,-r*.5); c.lineTo(-r*.3,-r*.9); c.moveTo(r*.25,-r*.5); c.lineTo(r*.3,-r*.9); c.stroke(); eye(-r*.3,-r*.95,Math.max(1.2,r*.13)); eye(r*.3,-r*.95,Math.max(1.2,r*.13)); }
   c.restore();
 }
+/* Shadows (o.sil) are one even tone (director, 2026-11-19: "shadows are multitone"): drawn see-through, every overlapping part (fins, tail,
+   body) added up darker. A see-through silhouette is now drawn solid into a small picture, then put down once at the wanted strength. */
+{ const _dc=drawCreature; let SC=null; drawCreature=function(c,sp,x,y,L,o){ const a=c.globalAlpha; if(!o||!o.sil||!(a<.999)||!(L>0)) return _dc.apply(this,arguments);
+    const m=c.getTransform(); if(m.b||m.c||!(m.a>0)||!(m.d>0)) return _dc.apply(this,arguments);
+    const bw=L*2.4, bh=L*1.8, pw=Math.ceil(bw*m.a), ph=Math.ceil(bh*m.d); if(pw<2||ph<2||pw*ph>4e6) return _dc.apply(this,arguments);
+    if(!SC) SC=document.createElement("canvas"); if(SC.width<pw||SC.height<ph){ SC.width=Math.max(SC.width,pw); SC.height=Math.max(SC.height,ph); }
+    const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,(bw/2-x)*m.a,(bh/2-y)*m.d); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
+    c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*(x-bw/2)+m.e,m.d*(y-bh/2)+m.f,pw,ph); c.restore(); }; }
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
@@ -2412,7 +2420,7 @@ function draw(now){
     g.lineWidth=2; g.strokeStyle=inHot?'rgba(255,214,90,1)':'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;
     g.fillStyle='rgba(6,14,22,.55)'; g.beginPath(); g.arc(x,wy,3.4,0,7); g.fill(); g.fillStyle=inHot?'#ffe08a':'#ffffff'; g.beginPath(); g.arc(x,wy,2,0,7); g.fill(); g.lineWidth=1; }
   if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=S.gear.finder; let col='#ffc94d', lab='';
-    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5?pf.sp.name:RAR[pf.sp.r].k) : pf.kind==='hat'?'Something wearable':'Junk'; }
+    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5&&S.journal[pf.sp.id]?pf.sp.name:(fl>=5?'New '+RAR[pf.sp.r].k:RAR[pf.sp.r].k)) /* the top Fish Finder names only species you have caught (director, 2026-11-19) */ : pf.kind==='hat'?'Something wearable':'Junk'; }
     g.save(); g.translate(G.bob.x,G.bob.y-34); g.scale(s,s); g.fillStyle=col; g.font='800 34px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.fillText('!',0,0); g.restore();
     const left=clamp((G.biteEnd-G.waitT)/hookWin(),0,1); g.fillStyle='rgba(255,201,77,.9)'; rr(G.bob.x-20,G.bob.y-26,40*left,4,2); g.fill();
     if(lab){ g.font='700 12px system-ui'; g.textAlign='center'; const tw=g.measureText(lab).width; g.fillStyle='rgba(5,14,20,.75)'; rr(G.bob.x-tw/2-7,G.bob.y-72,tw+14,18,9); g.fill(); g.fillStyle=col; g.fillText(lab,G.bob.x,G.bob.y-59); } }
@@ -2801,7 +2809,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.7';
+const GAME_VERSION = '0.4.9';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -3744,7 +3752,6 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
        return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
   P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Paths</b> are big specialties, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned.</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
-   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;justify-content:space-between"><span class="meta">Looking for specialisations? They have their own <b>Paths</b> tab now.</span><button class="btn alt sm" data-tabgo="paths">Open Paths</button></div>
    <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;
     return `<div class="tile ${mx?'done':''}"><div class="row spread"><h4>${p.name}</h4><span class="meta">Rank ${r} / ${p.max}</span></div>
      <div class="pips">${Array.from({length:p.max},(_,i)=>`<i class="${i<r?'on':''}"></i>`).join('')}</div><div class="meta">${p.d} Each rank: ${p.per}.</div>
@@ -10479,7 +10486,7 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
   else if(tab==='aquarium'){ const dec=K.find(c=>c.classList.contains('jsec')), view=K.filter(c=>c.classList.contains('tank')||(c.tagName==='P'&&/Drag a decoration/.test(c.textContent))), head=K.slice(0,2).concat(view), tank=K.filter(c=>!head.includes(c)&&c!==dec); sectionize(P,tab,[{name:'Your tank',nodes:tank},{name:'Decorate',nodes:dec?[dec]:[]}]); }
   else if(tab==='home'){ const i=K.findIndex(c=>c.tagName==='H5'&&/Decorations/.test(c.textContent)); if(i<0) return; const head=K.findIndex(c=>c.classList.contains('row')); const dock=K.slice(head+1,i).filter(c=>!c.classList.contains('pvbar')); sectionize(P,tab,[{name:'Dock',nodes:dock},{name:'Decorations',nodes:K.slice(i)}]); }
   else if(tab==='rods'){ const i1=K.findIndex(c=>c.tagName==='H2'&&/Rod rack/.test(c.textContent)), i2=K.findIndex(c=>c.tagName==='H2'&&/Attachments/.test(c.textContent)); if(i1<0||i2<0) return;
-    sectionize(P,tab,[{name:'Your rod',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
+    sectionize(P,tab,[{name:'Your rods',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
   else if(tab==='locs'||tab==='waters'||tab==='map'){ const grid=K.find(c=>c.classList.contains('grid')), js=K.filter(c=>c.classList.contains('jsec')); if(!grid||!js.length) return;
     sectionize(P,tab,[{name:'Waters',nodes:[grid]},...js.map(j=>({name:(j.querySelector('h2')||{}).textContent||'More',nodes:[j]}))]); } }
 const _renderPanel_0 = renderPanel;
@@ -10529,7 +10536,7 @@ applySections = function(){ _applySections_1(); const P=$('panel'); if(!P) retur
 document.head.insertAdjacentHTML('beforeend',`<style>body.v3 #panel .grid.skill-grid{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px} body.v3 #panel .grid.skill-grid > .tile{padding:10px 12px;gap:5px}</style>`);
 // Pets > Customize: preview beside the options when there is room, stacked when the menu column is narrow (phones, landscape).
 document.head.insertAdjacentHTML('beforeend',`<style>#panel{container-type:inline-size}.stylewrap.petwrap{grid-template-columns:200px minmax(0,1fr)}.stylewrap.petwrap>*{min-width:0}@container (max-width:520px){.stylewrap.petwrap{grid-template-columns:minmax(0,1fr)}.stylewrap.petwrap>.preview{max-width:240px;width:100%;margin:0 auto}}</style>`);
-// Your rod: one compact row per attachment slot (the chips already name each attachment and its effect)
+// Your rods: one compact row per attachment slot (the chips already name each attachment and its effect)
 document.head.insertAdjacentHTML('beforeend',`<style>.slotrow{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}.slotrow:first-of-type{border-top:0}.slotrow>b{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.slotrow .chips{margin:0}@media (max-width:480px){.slotrow{grid-template-columns:1fr;gap:4px}}</style>`);
 // Wardrobe: stack the preview above the options whenever the menu column is narrow (phones sideways, small windows)
 document.head.insertAdjacentHTML('beforeend',`<style>@container (max-width:560px){.stylewrap.wd{grid-template-columns:minmax(0,1fr)!important}.stylewrap.wd>*{min-width:0}.wd-prev{position:relative!important;top:auto!important;max-width:260px;width:100%;margin:0 auto}}</style>`);
@@ -10901,8 +10908,8 @@ Object.assign(DOCK_ART,{
 });
 
 // =====================================================================
-// 0.3.1 shiny fish: a soft glow behind, a glint of light sweeping across the scales, and twinkling sparkles
-// (drawn through one shared layer, so the glint only ever lands on the fish itself)
+// 0.3.1 shiny fish: a soft glow behind, a warm golden tint and twinkling sparkles
+// (drawn through one shared layer, so the tint only lands on the fish itself)
 // =====================================================================
 const SHINY3={c:null};
 const _drawCreature3_sh = drawCreature3;
@@ -10914,10 +10921,7 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   let C=SHINY3.c; if(!C) C=SHINY3.c=document.createElement('canvas'); if(C.width<px||C.height<px){ C.width=Math.max(C.width,px); C.height=Math.max(C.height,px); }
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));
-  // the glint: a soft diagonal band of light crossing the fish every couple of seconds
-  const k=SHINY3.still?-1:((t*.42+ph)%1.5)/1.5, bx=-R*1.3+k*R*2.6; // still pictures (fish cards, lists) get no frozen glint or stars: they twinkle on their own (ca_shiny06.js)
-  ox.save(); ox.globalCompositeOperation='source-atop'; const gr=ox.createLinearGradient(bx-R*.28,-R*.2,bx+R*.28,R*.2); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(.5,'rgba(255,250,225,.72)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ox.fillStyle=gr; ox.fillRect(-R,-R,R*2,R*2);
-  ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore();
+  ox.save(); ox.globalCompositeOperation='source-atop'; ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore(); /* a warm golden tint (the sweeping glint band was removed: director, 2026-11-19, "distracting and clunky") */
   c.drawImage(C,0,0,px,px,x-R,y-R,R*2,R*2);
   // shiny FX (round 6 overhaul, ca_shiny06.js): flares, glitter and per-kind signatures that pop on new spots of the body
   if(!SHINY3.still&&typeof shinyFxWater==='function') shinyFxWater(c,x,y,L,t,sp,o);
@@ -12177,7 +12181,7 @@ const SEARCH_IDX=[
  ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
  ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],
  ['Tackle: special lures','shop',['tackleview','lures'],'special lures junk lures magnet golden disco'],
- ['Rods: your rod','rods','Your rod','rod equip upgrade'],
+ ['Rods: your rods','rods','Your rods','rod equip upgrade presets'],
  ['Rods: rod rack','rods','Rod rack','rods collection buy rod'],
  ['Rods: attachments','rods','Attachments','attachments slots rod parts'],
  ['Skills','skills',null,'skill points perks talents level'],
@@ -12224,7 +12228,7 @@ function searchFind(q){ q=q.toLowerCase().trim(); if(!q) return SEARCH_IDX.slice
   const q=ov.querySelector('#searchq'), res=ov.querySelector('#searchres'); let list=[], sel=0;
   const draw=()=>{ list=searchFind(q.value); sel=Math.min(sel,Math.max(0,list.length-1)); res.innerHTML=list.length?list.map((e,i)=>{ const sec=menuSecOf(e[1]); return `<button type="button" class="sv-r${i===sel?' on':''}" data-i="${i}" role="option" aria-selected="${i===sel}"><b>${e[0]}</b><span class="meta">${sec?sec.name:'Menu'}</span></button>`; }).join(''):'<div class="meta" style="padding:10px 4px">Nothing found. Try another word.</div>'; };
   const open=()=>{ ov.hidden=false; q.value=''; sel=0; draw(); setTimeout(()=>q.focus(),20); }, close=()=>{ ov.hidden=true; };
-  $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
+  ['pointerdown','touchstart','mousedown'].forEach(ev=>box.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); /* the stage under the top bar turns touches into casts, which ate the tap on Android (director, 2026-11-19: search needed press-and-hold); the other top-bar buttons already shield themselves this way */ $('searchbtn').addEventListener('click',e=>{ e.stopPropagation(); open(); });
   ov.addEventListener('click',e=>{ if(e.target===ov||e.target.id==='searchclose'){ close(); return; } const b=e.target.closest('.sv-r'); if(b){ const it=list[+b.dataset.i]; close(); if(it) searchGo(it); } });
   q.addEventListener('input',()=>{ sel=0; draw(); });
   q.addEventListener('keydown',e=>{ if(e.key==='ArrowDown'){ sel=Math.min(list.length-1,sel+1); draw(); e.preventDefault(); } else if(e.key==='ArrowUp'){ sel=Math.max(0,sel-1); draw(); e.preventDefault(); } else if(e.key==='Enter'){ const it=list[sel]; if(it){ close(); searchGo(it); } e.preventDefault(); } else if(e.key==='Escape'){ close(); } e.stopPropagation(); });
@@ -12950,7 +12954,7 @@ addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePro
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
 { const _ms=menuSync; menuSync=function(){ _ms(); try{ const T=$('tabs'), live=!!(S.chal||liveScheds().length);
-    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } });
+    T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } }); if(document.body.classList.contains('chal-live')!==live) document.body.classList.toggle('chal-live',live); /* while LIVE shows, the Challenges count hides (director, 2026-11-19: not both) */
     const sbtn=$('settingsbtn'); if(sbtn&&!MENU_OPEN) sbtn.classList.remove('menu-on'); const mset=MO.querySelector('[data-mo="settings"]'); if(mset) mset.classList.toggle('on',menuSecOf(S.tab)===MENU_MORE); }catch(e){} }; }
 
 // ---------- the dashboard ----------
@@ -13039,6 +13043,7 @@ setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&
 if(/[?&]test\b/.test(location.search)) window.__ui={open:openMenu, close:closeMenu, isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
+body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
 /* ---------- category labels ---------- */
 #tabs.secmode .secb .secshort{display:none}
 @media (max-width:520px){#tabs.secmode .secb .secfull{display:none}#tabs.secmode .secb .secshort{display:inline}}
@@ -13747,8 +13752,6 @@ document.head.insertAdjacentHTML('beforeend','<style>#menuov .mo-home{display:no
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
 { const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
-    // Skills: the "Looking for specialisations? Open Paths" pointer is redundant (Paths is the tab right beside it)
-    if(S.tab==='skills'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>/Looking for specialisations/i.test(x.textContent)); if(t) t.remove(); }
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
   }catch(e){} }; menuTidy=menuTidy2; }
@@ -13758,7 +13761,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel > .row.dl-head > :not(:first-child){margin-left:0!important}
 /* Events calendar and daily tasks: side by side on wide enough pages */
 @container (min-width:560px){
-  #menuov #panel .ev-cal{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
+  #menuov #panel .tile.ev-cal{display:grid; /* no !important: it overrode the page tabs hiding the calendar (director, 2026-11-19: Events tabs showed the same things) */ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
   #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
   #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
   #menuov #panel .tile.dtasks{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
@@ -13812,7 +13815,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   /* a wrapped header block (Tide Pass level, cozy level) uses the full width */
   #menuov #panel > .row.dl-head > :not(:first-child){flex:1 1 auto}
   /* Docks and pet filters: one row that scrolls sideways */
-  #menuov #panel .dock-h:has(> .dock-c),#menuov #panel .chips.pet-filter{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  #menuov #panel .dock-h:has(> .dock-c):not([style*="display: none"]),#menuov #panel .chips.pet-filter:not([style*="display: none"]){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:5px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
   #menuov #panel .dock-h:has(> .dock-c)::-webkit-scrollbar,#menuov #panel .chips.pet-filter::-webkit-scrollbar{display:none}
   #menuov #panel .dock-h > *,#menuov #panel .chips.pet-filter > *{flex:0 0 auto}
 }
@@ -15789,7 +15792,7 @@ function rpSave(i){ if(!S.rods.owned.includes(S.rods.eq)) return false; S.rodPre
 function rpClear(i){ S.rodPresets[i]=null; if(S.rodPreset===i) S.rodPreset=-1; save(); }
 { const _sv=save; save=function(){ rpSync(); return _sv.apply(this,arguments); }; }
 { const _rp=renderPanel; renderPanel=function(){ if(S.tab==='rods') rpSync(); return _rp.apply(this,arguments); }; }
-function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Your rods</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
+function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Presets</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
     if(!R) return `<div class="rp-card empty"><span class="rp-n">Preset ${i+1}</span><em>Empty</em><button type="button" class="btn alt sm" data-rp="save:${i}">Save the rod in your hands here</button></div>`;
     const atts=p.att.filter(a=>a&&ATT_I[a]).map(a=>`<span class="rp-att">${esc(ATT_I[a].name)}</span>`).join('')||'<span class="rp-att none">No attachments</span>';
     return `<div class="rp-card${on?' on':''}"><span class="rp-n">Preset ${i+1}${on?' · in use':''}</span><b>${esc(R.name)}</b><span class="rp-lv">Level ${(S.rods.lvl&&S.rods.lvl[p.rod])||0} / 10 · ${R.slots} slot${R.slots>1?'s':''}</span><div class="rp-atts">${atts}</div><div class="rp-acts">${on?'<span class="badge g">In use</span>':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button>`}<button type="button" class="btn alt sm" data-rp="save:${i}">${on?'Saved':'Replace with current'}</button><button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('')}</div></div>`; }
@@ -15815,11 +15818,11 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 //  - still fish pictures (catch card, Cooler, Aquarium, Fish Log, Trophy Room): a live layer over the picture
 //  - fish in the water and in the aquarium tank (al_decor04.js calls shinyFxWater)
 // What a sparkle is here: a light flash that pops on a new spot of the fish's body, flares (bright core + long rays that
-// stretch and turn), and fades; plus glitter (tiny fast twinkles), sheens sweeping across the body (masked to the fish),
+// stretch and turn), and fades; plus glitter (tiny fast twinkles),
 // and per-kind signatures. Everything is drawn additively ("lighter"), so it reads as light, not as stickers.
 // Variety: every shiny fish rolls one of 4 styles from its species (glint / glitter / shimmer / flare), and each prismatic
-// kind has its own signature: Rainbow = colour-shifting flares + a rainbow sheen, Starry = a twinkling starfield with
-// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up + a warm sheen,
+// kind has its own signature: Rainbow = colour-shifting flares, Starry = a twinkling starfield with
+// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up,
 // Mythic = pink and teal motes circling the fish.
 // Cost: pictures animate only while on screen, 30 times a second; positions come from the fish's own pixels (worked out once
 // per species and size); no per-frame allocations beyond a few gradients.
@@ -15843,7 +15846,7 @@ function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;
   const L=s*(long?4.2:3); ray(L,s*.16,a); c.rotate(Math.PI/2); ray(L*.82,s*.14,a*.9); c.rotate(Math.PI/4); ray(L*.38,s*.1,a*.55); c.rotate(Math.PI/2); ray(L*.38,s*.1,a*.55); c.restore(); }
 // the life of one sparkle: pops in fast, flares, fades slower; a new spot every cycle
 function sfxLife(u){ return u<.1?u/.1:Math.max(0,1-(u-.1)/.6)**1.6; }
-// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, sheen(fn)|null, motes:boolean}
+// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, motes:boolean}
 function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style, sd=o.seed|0, s=o.size;
   c.save(); c.globalCompositeOperation='lighter';
   const nFlare=o.kind==='shiny'?(st==='glint'?3:st==='glitter'?1:st==='shimmer'?2:3):(o.kind==='mythic'?3:4), nGlit=st==='glitter'?22:o.kind==='starry'?26:o.kind==='shiny'?8:12;
@@ -15856,8 +15859,6 @@ function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style,
   // glitter: tiny fast twinkles, each hops to a new spot every couple of seconds
   for(let i=0;i<nGlit;i++){ const per=1.6+sfxHash(sd,i*5+40)*1.4, k=(t+sfxHash(sd,i*5+41)*per)/per, n=Math.floor(k), u=k-n; const tw=Math.sin(u*Math.PI)**3*(o.kind==='starry'?(.55+.45*Math.sin(t*3+i)):(.6+.4*Math.sin(t*11+i*2.3))); if(tw<.05) continue;
     const p=o.pick(sfxHash(sd+n,i*9+42),sfxHash(sd+n,i*9+43)), r=Math.max(.6,s*(o.kind==='starry'?.16:.12)*(.6+tw*.6)); c.fillStyle=sfxColA(P,i,t,i%2,tw); c.fillRect(p[0]-r,p[1]-r*.25,r*2,r*.5); c.fillRect(p[0]-r*.25,p[1]-r,r*.5,r*2); c.fillStyle='rgba(255,255,255,'+(tw*.9).toFixed(3)+')'; c.fillRect(p[0]-r*.3,p[1]-r*.3,r*.6,r*.6); }
-  // sheen sweeping across the body (masked to the fish by the caller)
-  if(o.sheen&&(st==='shimmer'||o.kind==='rainbow'||o.kind==='ancient'||o.kind==='mythic'||st==='glint')){ const per=st==='shimmer'?2.6:3.8, k=((t+sfxHash(sd,77)*per)%per)/per*1.6-.3; if(k>-.3&&k<1.3) o.sheen(k,P); }
   // per-kind signatures
   if(o.kind==='starry'&&o.w){ const per=5.2, k=(t+sfxHash(sd,88)*per)/per, n=Math.floor(k), u=(k-n)*per; if(u<.6){ const e=u/.6, x0=o.w*(.05+sfxHash(sd+n,1)*.4), y0=o.h*(.08+sfxHash(sd+n,2)*.25), x=x0+e*o.w*.5, y=y0+e*o.h*.35, ln=o.w*.18;
       const lg=c.createLinearGradient(x,y,x-ln,y-ln*.7); lg.addColorStop(0,'rgba(255,255,255,'+(.95*(1-e*.6)).toFixed(3)+')'); lg.addColorStop(1,'rgba(160,200,255,0)'); c.strokeStyle=lg; c.lineWidth=Math.max(1,s*.18); c.beginPath(); c.moveTo(x,y); c.lineTo(x-ln,y-ln*.7); c.stroke(); } }
@@ -15874,20 +15875,20 @@ function shinyStyle(sp,shiny,pv){ const kind=shiny===2?(pv&&SFX_PAL[pv]?pv:'rain
 // ---------- fish in the water and in the tank (called from al_decor04.js with the fish's body drawn on its own layer) ----------
 function shinyFxWater(c,x,y,L,t,sp,o,layer,px,R){ try{ const S0=shinyStyle(sp,o.shiny,o.pv);
     shinyFxDraw(c,t,{kind:S0.kind, style:S0.style, seed:S0.seed+(o.seedAdd||0), size:Math.max(1.1,L*.085), w:L*1.4, h:L*.6, cx:x, cy:y, motes:true,
-      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }, sheen:null}); }catch(e){} }
+      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }}); }catch(e){} }
 
 // ---------- still pictures ----------
-const SPK=new Map(), SPK_SPOTS=new Map(); let SPK_TMP=null;
+const SPK=new Map(), SPK_SPOTS=new Map();
 const spkVis=window.IntersectionObserver?new IntersectionObserver(es=>{ for(const e of es){ const o=SPK.get(e.target); if(o) o.vis=e.isIntersecting; } }):null;
 function spkWants(sp,known,shiny){ return !!(known&&sp&&(shiny||sp.r===5)); }
 function spkDrop(cnv){ if(SPK.has(cnv)){ SPK.delete(cnv); if(spkVis) spkVis.unobserve(cnv); } }
 function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<8||h<8) return; const base=document.createElement('canvas'); base.width=w; base.height=h; base.getContext('2d').drawImage(cnv,0,0);
     const S0=shinyStyle(sp,shiny,pv), key=[sp.id,w,h,S0.kind,typeof V3ON!=='undefined'&&V3ON?1:0].join('|');
     let sp0=SPK_SPOTS.get(key);
-    if(!sp0){ // spots on the fish: solid pixels only, plus a mask of the body for the sheen
+    if(!sp0){ // spots on the fish: solid pixels only
       const d=cnv.getContext('2d').getImageData(0,0,w,h).data, pts=[], st=Math.max(2,Math.round(Math.min(w,h)/40)); for(let yy=0;yy<h;yy+=st) for(let xx=0;xx<w;xx+=st){ if(d[(yy*w+xx)*4+3]>215) pts.push([xx,yy]); }
-      if(!pts.length) return; const m=document.createElement('canvas'); m.width=w; m.height=h; const mx=m.getContext('2d'), id=mx.createImageData(w,h); for(let i=0;i<w*h;i++){ if(d[i*4+3]>200){ id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=255; id.data[i*4+3]=255; } } mx.putImageData(id,0,0);
-      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,mask:m,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
+      if(!pts.length) return;
+      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
     const was=SPK.get(cnv); SPK.set(cnv,Object.assign({base,w,h,vis:was?was.vis:true},S0,sp0)); if(spkVis&&!was) spkVis.observe(cnv); spkDraw(cnv,SPK.get(cnv),performance.now()/1000); }catch(e){} }
 { const _fc=fishCanvas; fishCanvas=function(cnv,sp,known=true,shiny=false,pv=null){ spkDrop(cnv);
     const keep=sparkles; sparkles=function(){}; SHINY3.still=true; try{ _fc.apply(this,arguments); } finally{ sparkles=keep; SHINY3.still=false; }
@@ -15900,12 +15901,7 @@ function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<
 function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.globalCompositeOperation='source-over'; c.clearRect(0,0,w,h); c.drawImage(o.base,0,0);
   const sz=Math.max(1.6,Math.min(w,h)*.06), pts=o.pts;
   shinyFxDraw(c,t,{kind:o.kind, style:o.style, seed:o.seed, size:sz, w, h, cx:o.cx, cy:o.cy, motes:true,
-    pick:(r1)=>pts[Math.floor(r1*pts.length)],
-    sheen:(k,P)=>{ if(!SPK_TMP) SPK_TMP=document.createElement('canvas'); const T=SPK_TMP; if(T.width<w||T.height<h){ T.width=Math.max(T.width,w); T.height=Math.max(T.height,h); } const x=T.getContext('2d');
-      x.globalCompositeOperation='source-over'; x.clearRect(0,0,w,h); const bx=k*w*1.3-w*.15, g=x.createLinearGradient(bx-w*.12,0,bx+w*.12,h*.4);
-      if(P.hue){ ['#ff6a8a','#ffd36a','#7affb0','#6ad8ff','#b08aff'].forEach((cl,i)=>g.addColorStop(i/4,cl)); x.globalAlpha=.55; } else { g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.5,sfxRgba(P.a,.75)); g.addColorStop(1,'rgba(255,255,255,0)'); x.globalAlpha=1; }
-      x.fillStyle=g; x.fillRect(bx-w*.14,0,w*.28,h); x.globalAlpha=1; x.globalCompositeOperation='destination-in'; x.drawImage(o.mask,0,0); x.globalCompositeOperation='source-over';
-      c.globalAlpha=.7; c.drawImage(T,0,0,w,h,0,0,w,h); c.globalAlpha=1; }});
+    pick:(r1)=>pts[Math.floor(r1*pts.length)]});
   c.restore(); }
 // every display frame (director: "use more frames, push the limits without breaking"); runs only while a shiny picture exists
 { let raf=0; const tick=()=>{ raf=0; if(!SPK.size) return; if(!document.hidden){ const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } } if(SPK.size) raf=requestAnimationFrame(tick); };
@@ -17029,13 +17025,29 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'Water pictures for the Map are only made while the Map is open.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
-// PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
-// (spoiler-free, one short line per change, curly apostrophes only). Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · PC', name:'Lighter and Smoother', items:[
-  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
-  'Lighter on your computer, everything looks the same: lanterns, lamps, the sun, the moon and Starfall’s sky glows, still home decorations, coloured pets and the top bar all cost less to draw.',
-  'Water pictures for the Map are only made while the Map is open.',
-  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']};
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## Fixes',
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”, and the presets stay on it.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.']});
+// PC test notes (preview builds only; the live game never shows them). One short line per change in the next test build, curly
+// apostrophes only. Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9, part 1: fixes', items:[
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.']};
 addTestNotes(TEST_NOTES);
 // =====================================================================
 // 0.4 release QA suite (test builds only: ?test, and build.ps1 leaves this file out of the release build).
@@ -17151,6 +17163,7 @@ ui(){ QA.sys='UI';
       setTab(DASH); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:n+' real buttons checked'}; });
   T('menu: no Overview; opening the menu shows the last page used and closing returns to fishing',()=>{ const errs=[]; openMenu('rods'); closeMenu(); openMenu(); if(S.tab!=='rods') errs.push('opened '+S.tab); if($('panel').querySelector('.dash')) errs.push('overview rendered'); if(document.querySelector('#menuov .mo-home')) errs.push('overview button'); closeMenu(); if(MENU_OPEN||S.tab!==DASH) errs.push('did not close'); return errs.length?{ok:false,detail:errs.join('; ')}:{ok:true,detail:'Menu opens the last page; no Overview'}; });
   T('contrast: every button and label on every menu page is readable (ratio 3+)',()=>{ const bad=[]; const pages=[...MENU_SECS.flatMap(s=>s.tabs),...MENU_MORE.tabs]; for(const t of pages){ openMenu(t); for(const c of __contrast()) bad.push(t+': '+c); } closeMenu(); return bad.length?{ok:false,detail:bad.slice(0,8).join(' | ')}:{ok:true,detail:pages.length+' pages readable'}; });
+T('page tabs: a part hidden by a page tab never stays on screen (a forced style once kept the Events calendar on every tab)',()=>{ const bad=[]; const pages=[...MENU_SECS.flatMap(s=>s.tabs),...MENU_MORE.tabs]; let n=0; for(const t of pages){ openMenu(t); const P=$('panel'); for(const b of [...document.querySelectorAll('#menuov .sect-nav [data-sect], #panel .sect-nav [data-sect]')]){ b.click(); n++; for(const e of P.querySelectorAll('*')){ if(e.style.display==='none'&&getComputedStyle(e).display!=='none') bad.push(t+' / '+b.dataset.sect+': '+((e.className||e.tagName)+'').slice(0,30)); } } } closeMenu(); return bad.length?{ok:false,detail:[...new Set(bad)].slice(0,8).join(' | ')}:{ok:true,detail:n+' page tabs checked'}; });
   T('weekly quests: progress from counters, each pays once, crate once, week rollover and damaged saves rebuild',()=>{ const e=[]; S.weekly=null; const w=ensureWeekly(); if(w.quests.length!==4) e.push('quests '+w.quests.length); for(const q of w.quests){ const m={caught:()=>S.stats.caught+=q.n,shiny:()=>S.stats.shiny+=q.n,earned:()=>S.stats.earned+=q.n,tasks:()=>S.gstats.tasks+=q.n,hot:()=>S.stats.hot+=q.n,chal:()=>S.stats.chalWins=(S.stats.chalWins||0)+q.n,species:()=>{}}; m[q.t](); } const sc0=S.scales; w.quests.forEach((q,i)=>{ if(q.t==='species') q.base-=q.n; act('wqclaim',{i}); act('wqclaim',{i}); }); const want=w.quests.reduce((a,q)=>a+q.scales,0); if(S.scales-sc0!==want) e.push('scales '+(S.scales-sc0)+' want '+want); const big=S.tokens.big; act('wqbonus',{}); act('wqbonus',{}); if(S.tokens.big-big!==1) e.push('crate '+(S.tokens.big-big)); S.weekly.wk='2000-01-03'; if(ensureWeekly().wk!==weekKey()) e.push('rollover'); S.weekly={wk:1,quests:[null]}; if(!Array.isArray(ensureWeekly().quests)||ensureWeekly().quests.length!==4) e.push('rebuild'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:'claims, crate, rollover and rebuild ok'}; });
   T('weather forecast matches the real weather schedule, in order and in the future',()=>{ const e=[]; const f=wxForecast(6), now=Date.now()/1000; let last=0; for(const x of f){ const t=x.at+now+1, real=(window.__wxTime?__wxTime.kindAt(t):weatherAt(Math.floor(t/WX_LEN))).k; if(real!==x.k) e.push(x.k+' forecast, '+real+' real at +'+Math.round(x.at)+' s'); if(window.__wxTime){ const R=__wxTime.RULE[x.k]; if(R&&(R==='night')!==__wxTime.night(t)) e.push(x.k+' at the wrong time of day'); } if(x.at<=0||x.at<last) e.push('order '+x.at); last=x.at; } if(!f.length) e.push('empty'); return e.length?{ok:false,detail:e.join('; ')}:{ok:true,detail:f.map(x=>x.k).join(', ')}; });
   T('no Menu button: the category bar opens the pages; "Collapse panel" shrinks both side panels and is remembered',()=>{ const e=[]; if($('menubtn')&&$('menubtn').isConnected) e.push('Menu button still on screen'); if(!$('catdock')||!$('catdock').querySelector('.cdb[data-cd]')) e.push('no category bar');
@@ -17404,7 +17417,7 @@ function setHint(){ let h='';
     case 'result': h='Nice catch.'; break;
     case 'frenzy': h='<b>Tap the leaping fish!</b>'; break;
     case 'event': h='&nbsp;'; break;
-  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ $('hint').innerHTML=h; lastHint=h; } }
+  } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ const el=$('hint'); el.innerHTML=h; el.style.visibility=h==='&nbsp;'?'hidden':''; lastHint=h; } } /* an empty hint keeps its space but draws no empty box (director, 2026-11-19: hints off left a blank circle) */
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------

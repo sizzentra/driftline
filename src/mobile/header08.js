@@ -150,7 +150,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud >
   setTimeout(ensure,80); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,230)); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body.phone-land #goalchip,html body.phone-app #goalchip{display:none!important}
-html body.phone-land #baitqk,html body.phone-app #baitqk{display:none!important}
+
 html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>`);
 /* Narrow layout (split-screen windows; phones themselves are landscape-only), 2026-11-19: the bar was already two rows, but Home was

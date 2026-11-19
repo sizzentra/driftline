@@ -81,8 +81,8 @@ Object.assign(DOCK_ART,{
 });
 
 // =====================================================================
-// 0.3.1 shiny fish: a soft glow behind, a glint of light sweeping across the scales, and twinkling sparkles
-// (drawn through one shared layer, so the glint only ever lands on the fish itself)
+// 0.3.1 shiny fish: a soft glow behind, a warm golden tint and twinkling sparkles
+// (drawn through one shared layer, so the tint only lands on the fish itself)
 // =====================================================================
 const SHINY3={c:null};
 const _drawCreature3_sh = drawCreature3;
@@ -94,10 +94,7 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   let C=SHINY3.c; if(!C) C=SHINY3.c=document.createElement('canvas'); if(C.width<px||C.height<px){ C.width=Math.max(C.width,px); C.height=Math.max(C.height,px); }
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));
-  // the glint: a soft diagonal band of light crossing the fish every couple of seconds
-  const k=SHINY3.still?-1:((t*.42+ph)%1.5)/1.5, bx=-R*1.3+k*R*2.6; // still pictures (fish cards, lists) get no frozen glint or stars: they twinkle on their own (ca_shiny06.js)
-  ox.save(); ox.globalCompositeOperation='source-atop'; const gr=ox.createLinearGradient(bx-R*.28,-R*.2,bx+R*.28,R*.2); gr.addColorStop(0,'rgba(255,255,255,0)'); gr.addColorStop(.5,'rgba(255,250,225,.72)'); gr.addColorStop(1,'rgba(255,255,255,0)'); ox.fillStyle=gr; ox.fillRect(-R,-R,R*2,R*2);
-  ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore();
+  ox.save(); ox.globalCompositeOperation='source-atop'; ox.fillStyle='rgba(255,226,140,.12)'; ox.fillRect(-R,-R,R*2,R*2); ox.restore(); /* a warm golden tint (the sweeping glint band was removed: director, 2026-11-19, "distracting and clunky") */
   c.drawImage(C,0,0,px,px,x-R,y-R,R*2,R*2);
   // shiny FX (round 6 overhaul, ca_shiny06.js): flares, glitter and per-kind signatures that pop on new spots of the body
   if(!SHINY3.still&&typeof shinyFxWater==='function') shinyFxWater(c,x,y,L,t,sp,o);

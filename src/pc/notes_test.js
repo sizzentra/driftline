@@ -1,8 +1,13 @@
-// PC test notes (preview builds only; the live game never shows them). Write what the next test build changes here
-// (spoiler-free, one short line per change, curly apostrophes only). Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · PC', name:'Lighter and Smoother', items:[
-  'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
-  'Lighter on your computer, everything looks the same: lanterns, lamps, the sun, the moon and Starfall’s sky glows, still home decorations, coloured pets and the top bar all cost less to draw.',
-  'Water pictures for the Map are only made while the Map is open.',
-  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']};
+// PC test notes (preview builds only; the live game never shows them). One short line per change in the next test build, curly
+// apostrophes only. Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9, part 1: fixes', items:[
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.']};
 addTestNotes(TEST_NOTES);

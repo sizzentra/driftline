@@ -43,6 +43,14 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
     c.beginPath(); c.moveTo(-r*.25,-r*.5); c.lineTo(-r*.3,-r*.9); c.moveTo(r*.25,-r*.5); c.lineTo(r*.3,-r*.9); c.stroke(); eye(-r*.3,-r*.95,Math.max(1.2,r*.13)); eye(r*.3,-r*.95,Math.max(1.2,r*.13)); }
   c.restore();
 }
+/* Shadows (o.sil) are one even tone (director, 2026-11-19: "shadows are multitone"): drawn see-through, every overlapping part (fins, tail,
+   body) added up darker. A see-through silhouette is now drawn solid into a small picture, then put down once at the wanted strength. */
+{ const _dc=drawCreature; let SC=null; drawCreature=function(c,sp,x,y,L,o){ const a=c.globalAlpha; if(!o||!o.sil||!(a<.999)||!(L>0)) return _dc.apply(this,arguments);
+    const m=c.getTransform(); if(m.b||m.c||!(m.a>0)||!(m.d>0)) return _dc.apply(this,arguments);
+    const bw=L*2.4, bh=L*1.8, pw=Math.ceil(bw*m.a), ph=Math.ceil(bh*m.d); if(pw<2||ph<2||pw*ph>4e6) return _dc.apply(this,arguments);
+    if(!SC) SC=document.createElement("canvas"); if(SC.width<pw||SC.height<ph){ SC.width=Math.max(SC.width,pw); SC.height=Math.max(SC.height,ph); }
+    const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,(bw/2-x)*m.a,(bh/2-y)*m.d); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
+    c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*(x-bw/2)+m.e,m.d*(y-bh/2)+m.f,pw,ph); c.restore(); }; }
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const L=w*.66;
@@ -414,7 +422,7 @@ function draw(now){
     g.lineWidth=2; g.strokeStyle=inHot?'rgba(255,214,90,1)':'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;
     g.fillStyle='rgba(6,14,22,.55)'; g.beginPath(); g.arc(x,wy,3.4,0,7); g.fill(); g.fillStyle=inHot?'#ffe08a':'#ffffff'; g.beginPath(); g.arc(x,wy,2,0,7); g.fill(); g.lineWidth=1; }
   if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=S.gear.finder; let col='#ffc94d', lab='';
-    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5?pf.sp.name:RAR[pf.sp.r].k) : pf.kind==='hat'?'Something wearable':'Junk'; }
+    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5&&S.journal[pf.sp.id]?pf.sp.name:(fl>=5?'New '+RAR[pf.sp.r].k:RAR[pf.sp.r].k)) /* the top Fish Finder names only species you have caught (director, 2026-11-19) */ : pf.kind==='hat'?'Something wearable':'Junk'; }
     g.save(); g.translate(G.bob.x,G.bob.y-34); g.scale(s,s); g.fillStyle=col; g.font='800 34px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.fillText('!',0,0); g.restore();
     const left=clamp((G.biteEnd-G.waitT)/hookWin(),0,1); g.fillStyle='rgba(255,201,77,.9)'; rr(G.bob.x-20,G.bob.y-26,40*left,4,2); g.fill();
     if(lab){ g.font='700 12px system-ui'; g.textAlign='center'; const tw=g.measureText(lab).width; g.fillStyle='rgba(5,14,20,.75)'; rr(G.bob.x-tw/2-7,G.bob.y-72,tw+14,18,9); g.fill(); g.fillStyle=col; g.fillText(lab,G.bob.x,G.bob.y-59); } }

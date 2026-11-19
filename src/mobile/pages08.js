@@ -31,7 +31,7 @@
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
     paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / 5']] },
     bounties:{ cells:P=>[['Ready to claim',String(enabled(P)('[data-act="taskclaim"],[data-act="wqclaim"],[data-act="bclaim"],[data-act="bounty"]'))],['Board',locName()]],
-      groups:K=>{ const d=K.find(c=>c.classList.contains('dtasks')), w=K.find(c=>c.classList.contains('wq')); const rest=K.filter(c=>c!==d&&c!==w);
+      groups:K=>{ const w=K.find(c=>c.classList.contains('wq')), d=K.find(c=>c!==w&&c.classList.contains('tile')&&/Daily tasks/i.test((c.querySelector('h4')||{}).textContent||'')); /* the weekly card also wears .dtasks (its grid style), so the daily card is found by its title (director, 2026-11-19: a weekly reward badged the Daily tab) */ const rest=K.filter(c=>c!==d&&c!==w);
         const ready=ns=>ns.reduce((n,e)=>n+[...e.querySelectorAll('button[data-act$="claim"]')].filter(b=>!b.disabled).length,0)||0; /* a badge shows where a reward is waiting */
         return [{name:'Daily tasks',nodes:d?[d]:[],badge:d?ready([d]):0},{name:'Weekly quests',nodes:w?[w]:[],badge:w?ready([w]):0},{name:'Bounties',nodes:rest,badge:ready(rest)}]; } },
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; } },

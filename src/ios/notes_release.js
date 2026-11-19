@@ -177,3 +177,22 @@ PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Willow Pond runs much smoother on phones.',
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
   'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## Fixes',
+  'When a bigger fish swallows your catch, the first fish stays a surprise until you land it.',
+  'The top Fish Finder only names fish you have caught before; new ones show as “New” plus their rarity.',
+  'Fish shadows under the water are one even tone (no lighter fins or patches).',
+  'Shiny fish no longer have the sweeping band of light; their sparkles and glow stay.',
+  'Events: Calendar, Challenges and Derby each show only their own things.',
+  'Challenges show either LIVE or a count, not both.',
+  'Rods: the first tab is called “Your rods”, and the presets stay on it.',
+  'Turning hints off no longer leaves an empty box at the bottom of the screen.',
+  'Skills: the old note about specialisations is gone.',
+  '## Phones',
+  'While you reel in a fish, the hint and the Rest button step aside so you can see the fight (new players keep the hint for their first catches).',
+  'Search opens with a normal tap, sits at the top and keeps its results above the keyboard.',
+  'Settings › Patch notes is a short list; tap an update to read it in the same card as when it first arrived.',
+  'Bounties: a ready weekly quest no longer lights up the Daily tasks tab.',
+  'Feats and Pets: each tab shows only its own cards.',
+  'Aquarium: big Earning and Ready numbers no longer run into each other.',
+  'In narrow windows the top bar keeps Home and shows your coins, level and water in full.']});

@@ -66,7 +66,7 @@ ${B('.hud > .hudbtns > #settingsbtn.menu-on')}{background:var(--th-gold)!importa
 ${LAND('.hud > .hudbtns > #searchbtn,.hud > .hudbtns > #settingsbtn')}{width:40px!important;min-width:40px!important;flex:0 0 40px!important}
 
 /* ---------- on the water: actions are filled teal, notes are navy cards ---------- */
-${B('#resttog,#baitqk')}{border-radius:var(--th-r)!important;font-family:var(--display)!important;font-weight:800!important;background:var(--th-teal)!important;border:1px solid var(--th-teal-b)!important;box-shadow:0 3px 10px #0007!important}
+${B('#resttog')}{border-radius:var(--th-r)!important;font-family:var(--display)!important;font-weight:800!important;background:var(--th-teal)!important;border:1px solid var(--th-teal-b)!important;box-shadow:0 3px 10px #0007!important}
 ${B('#resttog[aria-pressed="true"]')}{background:var(--th-gold)!important;border-color:var(--th-gold-b)!important;color:var(--th-gold-ink)!important}
 
 /* ---------- side panel, sideways: compact, same navy buttons, teal icons, the open one gold ---------- */

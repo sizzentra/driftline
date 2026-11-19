@@ -5,11 +5,11 @@
 //  - still fish pictures (catch card, Cooler, Aquarium, Fish Log, Trophy Room): a live layer over the picture
 //  - fish in the water and in the aquarium tank (al_decor04.js calls shinyFxWater)
 // What a sparkle is here: a light flash that pops on a new spot of the fish's body, flares (bright core + long rays that
-// stretch and turn), and fades; plus glitter (tiny fast twinkles), sheens sweeping across the body (masked to the fish),
+// stretch and turn), and fades; plus glitter (tiny fast twinkles),
 // and per-kind signatures. Everything is drawn additively ("lighter"), so it reads as light, not as stickers.
 // Variety: every shiny fish rolls one of 4 styles from its species (glint / glitter / shimmer / flare), and each prismatic
-// kind has its own signature: Rainbow = colour-shifting flares + a rainbow sheen, Starry = a twinkling starfield with
-// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up + a warm sheen,
+// kind has its own signature: Rainbow = colour-shifting flares, Starry = a twinkling starfield with
+// shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up,
 // Mythic = pink and teal motes circling the fish.
 // Cost: pictures animate only while on screen, 30 times a second; positions come from the fish's own pixels (worked out once
 // per species and size); no per-frame allocations beyond a few gradients.
@@ -33,7 +33,7 @@ function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;
   const L=s*(long?4.2:3); ray(L,s*.16,a); c.rotate(Math.PI/2); ray(L*.82,s*.14,a*.9); c.rotate(Math.PI/4); ray(L*.38,s*.1,a*.55); c.rotate(Math.PI/2); ray(L*.38,s*.1,a*.55); c.restore(); }
 // the life of one sparkle: pops in fast, flares, fades slower; a new spot every cycle
 function sfxLife(u){ return u<.1?u/.1:Math.max(0,1-(u-.1)/.6)**1.6; }
-// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, sheen(fn)|null, motes:boolean}
+// draw every effect for one fish. o = {kind, style, seed, pick(r1,r2)->[x,y], size, w, h, motes:boolean}
 function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style, sd=o.seed|0, s=o.size;
   c.save(); c.globalCompositeOperation='lighter';
   const nFlare=o.kind==='shiny'?(st==='glint'?3:st==='glitter'?1:st==='shimmer'?2:3):(o.kind==='mythic'?3:4), nGlit=st==='glitter'?22:o.kind==='starry'?26:o.kind==='shiny'?8:12;
@@ -46,8 +46,6 @@ function shinyFxDraw(c,t,o){ const P=SFX_PAL[o.kind]||SFX_PAL.shiny, st=o.style,
   // glitter: tiny fast twinkles, each hops to a new spot every couple of seconds
   for(let i=0;i<nGlit;i++){ const per=1.6+sfxHash(sd,i*5+40)*1.4, k=(t+sfxHash(sd,i*5+41)*per)/per, n=Math.floor(k), u=k-n; const tw=Math.sin(u*Math.PI)**3*(o.kind==='starry'?(.55+.45*Math.sin(t*3+i)):(.6+.4*Math.sin(t*11+i*2.3))); if(tw<.05) continue;
     const p=o.pick(sfxHash(sd+n,i*9+42),sfxHash(sd+n,i*9+43)), r=Math.max(.6,s*(o.kind==='starry'?.16:.12)*(.6+tw*.6)); c.fillStyle=sfxColA(P,i,t,i%2,tw); c.fillRect(p[0]-r,p[1]-r*.25,r*2,r*.5); c.fillRect(p[0]-r*.25,p[1]-r,r*.5,r*2); c.fillStyle='rgba(255,255,255,'+(tw*.9).toFixed(3)+')'; c.fillRect(p[0]-r*.3,p[1]-r*.3,r*.6,r*.6); }
-  // sheen sweeping across the body (masked to the fish by the caller)
-  if(o.sheen&&(st==='shimmer'||o.kind==='rainbow'||o.kind==='ancient'||o.kind==='mythic'||st==='glint')){ const per=st==='shimmer'?2.6:3.8, k=((t+sfxHash(sd,77)*per)%per)/per*1.6-.3; if(k>-.3&&k<1.3) o.sheen(k,P); }
   // per-kind signatures
   if(o.kind==='starry'&&o.w){ const per=5.2, k=(t+sfxHash(sd,88)*per)/per, n=Math.floor(k), u=(k-n)*per; if(u<.6){ const e=u/.6, x0=o.w*(.05+sfxHash(sd+n,1)*.4), y0=o.h*(.08+sfxHash(sd+n,2)*.25), x=x0+e*o.w*.5, y=y0+e*o.h*.35, ln=o.w*.18;
       const lg=c.createLinearGradient(x,y,x-ln,y-ln*.7); lg.addColorStop(0,'rgba(255,255,255,'+(.95*(1-e*.6)).toFixed(3)+')'); lg.addColorStop(1,'rgba(160,200,255,0)'); c.strokeStyle=lg; c.lineWidth=Math.max(1,s*.18); c.beginPath(); c.moveTo(x,y); c.lineTo(x-ln,y-ln*.7); c.stroke(); } }
@@ -64,20 +62,20 @@ function shinyStyle(sp,shiny,pv){ const kind=shiny===2?(pv&&SFX_PAL[pv]?pv:'rain
 // ---------- fish in the water and in the tank (called from al_decor04.js with the fish's body drawn on its own layer) ----------
 function shinyFxWater(c,x,y,L,t,sp,o,layer,px,R){ try{ const S0=shinyStyle(sp,o.shiny,o.pv);
     shinyFxDraw(c,t,{kind:S0.kind, style:S0.style, seed:S0.seed+(o.seedAdd||0), size:Math.max(1.1,L*.085), w:L*1.4, h:L*.6, cx:x, cy:y, motes:true,
-      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }, sheen:null}); }catch(e){} }
+      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }}); }catch(e){} }
 
 // ---------- still pictures ----------
-const SPK=new Map(), SPK_SPOTS=new Map(); let SPK_TMP=null;
+const SPK=new Map(), SPK_SPOTS=new Map();
 const spkVis=window.IntersectionObserver?new IntersectionObserver(es=>{ for(const e of es){ const o=SPK.get(e.target); if(o) o.vis=e.isIntersecting; } }):null;
 function spkWants(sp,known,shiny){ return !!(known&&sp&&(shiny||sp.r===5)); }
 function spkDrop(cnv){ if(SPK.has(cnv)){ SPK.delete(cnv); if(spkVis) spkVis.unobserve(cnv); } }
 function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<8||h<8) return; const base=document.createElement('canvas'); base.width=w; base.height=h; base.getContext('2d').drawImage(cnv,0,0);
     const S0=shinyStyle(sp,shiny,pv), key=[sp.id,w,h,S0.kind,typeof V3ON!=='undefined'&&V3ON?1:0].join('|');
     let sp0=SPK_SPOTS.get(key);
-    if(!sp0){ // spots on the fish: solid pixels only, plus a mask of the body for the sheen
+    if(!sp0){ // spots on the fish: solid pixels only
       const d=cnv.getContext('2d').getImageData(0,0,w,h).data, pts=[], st=Math.max(2,Math.round(Math.min(w,h)/40)); for(let yy=0;yy<h;yy+=st) for(let xx=0;xx<w;xx+=st){ if(d[(yy*w+xx)*4+3]>215) pts.push([xx,yy]); }
-      if(!pts.length) return; const m=document.createElement('canvas'); m.width=w; m.height=h; const mx=m.getContext('2d'), id=mx.createImageData(w,h); for(let i=0;i<w*h;i++){ if(d[i*4+3]>200){ id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=255; id.data[i*4+3]=255; } } mx.putImageData(id,0,0);
-      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,mask:m,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
+      if(!pts.length) return;
+      let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
     const was=SPK.get(cnv); SPK.set(cnv,Object.assign({base,w,h,vis:was?was.vis:true},S0,sp0)); if(spkVis&&!was) spkVis.observe(cnv); spkDraw(cnv,SPK.get(cnv),performance.now()/1000); }catch(e){} }
 { const _fc=fishCanvas; fishCanvas=function(cnv,sp,known=true,shiny=false,pv=null){ spkDrop(cnv);
     const keep=sparkles; sparkles=function(){}; SHINY3.still=true; try{ _fc.apply(this,arguments); } finally{ sparkles=keep; SHINY3.still=false; }
@@ -90,12 +88,7 @@ function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<
 function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.globalCompositeOperation='source-over'; c.clearRect(0,0,w,h); c.drawImage(o.base,0,0);
   const sz=Math.max(1.6,Math.min(w,h)*.06), pts=o.pts;
   shinyFxDraw(c,t,{kind:o.kind, style:o.style, seed:o.seed, size:sz, w, h, cx:o.cx, cy:o.cy, motes:true,
-    pick:(r1)=>pts[Math.floor(r1*pts.length)],
-    sheen:(k,P)=>{ if(!SPK_TMP) SPK_TMP=document.createElement('canvas'); const T=SPK_TMP; if(T.width<w||T.height<h){ T.width=Math.max(T.width,w); T.height=Math.max(T.height,h); } const x=T.getContext('2d');
-      x.globalCompositeOperation='source-over'; x.clearRect(0,0,w,h); const bx=k*w*1.3-w*.15, g=x.createLinearGradient(bx-w*.12,0,bx+w*.12,h*.4);
-      if(P.hue){ ['#ff6a8a','#ffd36a','#7affb0','#6ad8ff','#b08aff'].forEach((cl,i)=>g.addColorStop(i/4,cl)); x.globalAlpha=.55; } else { g.addColorStop(0,'rgba(255,255,255,0)'); g.addColorStop(.5,sfxRgba(P.a,.75)); g.addColorStop(1,'rgba(255,255,255,0)'); x.globalAlpha=1; }
-      x.fillStyle=g; x.fillRect(bx-w*.14,0,w*.28,h); x.globalAlpha=1; x.globalCompositeOperation='destination-in'; x.drawImage(o.mask,0,0); x.globalCompositeOperation='source-over';
-      c.globalAlpha=.7; c.drawImage(T,0,0,w,h,0,0,w,h); c.globalAlpha=1; }});
+    pick:(r1)=>pts[Math.floor(r1*pts.length)]});
   c.restore(); }
 // every display frame (director: "use more frames, push the limits without breaking"); runs only while a shiny picture exists
 { let raf=0; const tick=()=>{ raf=0; if(!SPK.size) return; if(!document.hidden){ const t=performance.now()/1000; for(const [cnv,o] of SPK){ if(!cnv.isConnected){ spkDrop(cnv); continue; } if(o.vis) spkDraw(cnv,o,t); } } if(SPK.size) raf=requestAnimationFrame(tick); };
