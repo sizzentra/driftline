@@ -64,7 +64,7 @@ foreach ($p in 'pc','android','ios') {
   }
   # each phone build carries its own version number (shown in Settings and used for "what's new"); they had been stuck on the
   # shared 0.4.8.1. A ghost patch adds a sub-number without a new patch note. PC keeps its own (set by its release).
-  $platVer = @{ pc = '0.4.9'; android = '0.4.9'; ios = '0.4.9' }   # one number for all three since 0.4.8.7 (they release together)
+  $platVer = @{ pc = '0.4.8.9'; android = '0.4.8.9'; ios = '0.4.8.9' }   # one number for all three since 0.4.8.7 (they release together)
   if ($platVer.ContainsKey($p)) { $body = [regex]::Replace($body, "const GAME_VERSION = '[^']*';", "const GAME_VERSION = '" + $platVer[$p] + "';") }
   $built[$p] = $body
   # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the

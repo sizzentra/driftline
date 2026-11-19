@@ -28,13 +28,13 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ✔ [new, 2026-11-19] Phones: while reeling, the hint and Rest step aside (director: "too much ui covers the screen"; hint kept for the first 5 catches).
 
 ## Batch 2: the fight (one design pass, measured with a fight simulator)
-- ☑ [9] "Heavy fish" message explained; an Angler strength stat; each water shows its fish strength range and where you stand.
-- ☑ [22] New voyages raise how hard fish fight, up to a cap.
-- ☑ [25] Perfect hook: less idle time for the fish.
-- ☑ [33] Heavy and rare fish keep you still or take line even while you reel, at any gear level.
-- ☑ [54] Target: a maxed mythic takes 30–60 s with the best gear; behaviours and rarities matter at every stage.
-- ☑ [29] Rarer "eaten" events: the big fish pulls line out to its max, the fight restarts at full, a coin bonus on landing.
-- ☑ [13] Oddities: shadows under water; they snag (no fight) and reeling too hard can snap the line.
+- ✔ [9] "Heavy fish" message explained; an Angler strength stat; each water shows its fish strength range and where you stand.
+- ✔ [22] New voyages raise how hard fish fight, up to a cap.
+- ✔ [25] Perfect hook: less idle time for the fish.
+- ✔ [33] Heavy and rare fish keep you still or take line even while you reel, at any gear level.
+- ✔ [54] Target: a maxed mythic takes 30–60 s with the best gear; behaviours and rarities matter at every stage.
+- ✔ [29] Rarer "eaten" events: the big fish pulls line out to its max, the fight restarts at full, a coin bonus on landing.
+- ✔ [13] Oddities: shadows under water; they snag (no fight) and reeling too hard can snap the line.
 
 ## Batch 3: progression and economy
 - ☐ [16] Next water needs 10 catches, +10 per voyage, capped at 50.

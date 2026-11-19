@@ -10,7 +10,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
-- **Live (2026-11-19): 0.4.8.8 "Fixes and Small Wishes"** on PC (stamp 0829), **0.4.8.8.1 hotfix** on Android + iPhone (stamp 0855, tag v0.4.8.8.1: menu rail safety net). Bug fixes for live players ship as hotfixes from the live tag as soon as they pass QC (director, 2026-11-19).
+- **Live (all three, 2026-11-19): 0.4.8.9 "The Fight"** (stamp 2026.11.19-0900, tag v0.4.8.9): batches 1 + 2 of the director’s list and the menu rail safety net; the director approved after testing the iPhone test build. Bug fixes for live players ship as hotfixes from the live tag as soon as they pass QC (director, 2026-11-19).
 - **Test builds: 0.4.9 in progress** (the director’s list, docs/PLAN.md: 46 items in 5 batches). Batch 1 is live (0.4.8.8). **Batch 2 (the fight) done 2026-11-19 on the test builds** (part 3; `__qa` 75 checks). Next: batch 3 (progression and economy), then 4 (looks), 5 (new waters, oddities, end-game waters). QC order is data-driven (docs/QC_ANALYSIS.md).
 - **Waiting for the director:** how the new fights feel on a real device (numbers in docs/SYSTEMS_MAP.md), new bugs found while testing.
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
