@@ -31,7 +31,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
 { const _fr=frame; let shown=0;
-  const capMs=()=>0; /* phones run naturally at the screen's own rate, iPhone and Android alike, no setting (director, 2026-11-18: "don't do the 60 fps rule, let them run naturally"; it ran fine before); any old saved fpsCap is ignored */
+  const capMs=()=>IS_IPHONE()?0:1000/60; /* Android draws 60 frames a second (on a 120 Hz screen too: director 2026-11-18, "his default was always working perfectly fine"), iPhone runs at its natural rate; no frame-rate setting on either phone, any old saved fpsCap is ignored */
   frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------

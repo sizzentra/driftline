@@ -2,7 +2,7 @@
 // (spoiler-free, one short line per change, curly apostrophes only). The card opens once per device whenever the text changes.
 // Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · Android', name:'Natural frame rate, Settings fix', items:[
-  'Phones run at their screen’s natural rate again, iPhone and Android alike, with no frame-rate choice in Settings.',
+  'Android draws a steady 60 frames a second again (also on 120 Hz screens), iPhone runs at its natural rate. No frame-rate choice in Settings.',
   'Android stays automatically full screen, like iPhone.',
   'Opening and closing Settings (or any menu) no longer shows another water’s scenery for a moment.',
   'Water pictures for the Map are only made while the Map is open, so other menus stay light.',

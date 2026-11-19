@@ -168,6 +168,6 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'Much smoother with a decorated home: decorations on the dock no longer slow the game down (a well-decorated home could halve the frame rate on Android).',
   'Opening and closing a menu no longer shows another water’s scenery for a moment.',
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
-  'Phones run at their screen’s own rate; the frame-rate choice is gone from Settings.',
+  'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
   'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});
