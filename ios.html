@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='ios'; window.DL_VERSION='2026.11.18-2223';
+window.DL_BUILD='ios'; window.DL_VERSION='2026.11.19-0237';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -444,6 +444,20 @@ body.v3 #panel.pin > *{ animation:v3in .22s ease-out both }
 @media (prefers-reduced-motion:reduce){ body.v3 #panel > *{ animation:none } body.v3 .tile:hover, body.v3 .jcard:hover{ transform:none } }
 </style>
 `); }
+// =====================================================================
+// PLAT: platform settings with neutral defaults (2026-11-19). Shared code never asks "is this a phone?"; it reads a named
+// setting here, and a platform layer replaces the setting (phones: src/mobile/perf_round6.js). build.ps1 refuses phone checks
+// (the phone-layout test) in shared files, so platform behaviour always lives in its platform folder.
+// =====================================================================
+const PLAT={
+  willowRepaintS:()=>.03,      // seconds between Willow Pond curtain repaints (f3_foliage)
+  rippleBands:()=>false,       // rain rings drawn as 3 brightness bands instead of one stroke each (ap_weather033)
+  anglerReuseMs:()=>0,         // reuse the lit angler picture for this long (g_angler)
+  glowPx:()=>256,              // size of the ready-made soft glow dot (cd_efficiency)
+  movingDecorMs:()=>0,         // moving dock decorations: 0 = drawn fresh every frame, else cached for this long (cd_efficiency)
+  quietTabSwitch:()=>false,    // tab switches skip the per-card entry animation and its forced layout (af_smooth, aw_menu035, bm_ui04)
+  fpsText:null                 // (fps)=>text for the frame counter, null = default text (bm_ui04)
+};
 // ---------- data ----------
 const RAR = [
   {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1,   val:1,    aq:1,   sc:0},
@@ -859,7 +873,7 @@ const BAIT = {
   berries:{name:'Wild Berries',  speed:1.45,rare:.5,  pack:10, price:600,  loc:'river', locMul:5, note:'Sweet and sticky: odds ×5 at Stonebrook River.'},
   goldchum:{name:'Golden Chum',  speed:2,   rare:1.6, pack:10, price:9000, note:'The good stuff. Fast bites and great odds anywhere.'},
   lavaworm:{name:'Lava Worms',   speed:1.6, rare:1.2, pack:10, price:20000, loc:'ember', note:'Heat-proof worms: odds ×2 at Ember Springs.'},
-  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', note:'A pinch of the sky: odds ×2 at Starfall Lake.'},
+  stardust:{name:'Stardust',     speed:1.7, rare:1.4, pack:10, price:40000, loc:'starfall', locMul:2.5, note:'A pinch of the sky: odds ×2.5 at Starfall Lake.'},
   mythbait:{name:'Myth Bait',    speed:1.6, rare:1.5, pack:3,  price:0, scales:25, legend:3, note:'Bought with Scales. Legendary and rarer fish ×3.'},
   spinner:{name:'Spinners',      speed:1.2, rare:.3,  pack:10, price:300,  trophy:.5, note:'A flashy blade: +50% trophy-size chance.'},
   glow:   {name:'Glow Lures',    speed:1.5, rare:.6,  pack:10, price:400,  note:'Much better odds. Even better at night.'},
@@ -2791,7 +2805,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.6.2';
+const GAME_VERSION = '0.4.8.7';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -6269,7 +6283,7 @@ function v3willow(P,t,hz){ const DP=Math.min(DPR||1,2), bxw=W*.905, x0=bxw-H*.17
   for(let i=0;i<V3WIL_N;i++){ if(!V3WIL.c[i]) V3WIL.c[i]=document.createElement('canvas'); const C=V3WIL.c[i]; if(C.width!==w||C.height!==h){ C.width=w; C.height=h; V3WIL.k=''; } }
   const paint=i=>{ const c=V3WIL.c[i].getContext('2d'); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,w,h); c.setTransform(DP,0,0,DP,-x0*DP,-y0*DP); v3willowDraw(c,P,t,hz,i); V3WIL.t[i]=t; };
   if(V3WIL.k!==key){ const fresh=V3WIL.k===""; V3WIL.k=key; if(fresh){ for(let i=0;i<V3WIL_N;i++) paint(i); } else V3WIL.t=V3WIL.t.map(()=>-9); } /* first time or a new size: all at once; a new light level: each slice catches up on its turn (3 frames) */
-  else { const i=V3WIL.turn; V3WIL.turn=(i+1)%V3WIL_N; if(Math.abs(t-V3WIL.t[i])>.03) paint(i); }
+  else { const i=V3WIL.turn; V3WIL.turn=(i+1)%V3WIL_N; if(Math.abs(t-V3WIL.t[i])>PLAT.willowRepaintS()) paint(i); } /* phones (director, 2026-11-19: Willow Pond was the one water that dragged Android down): each slice repaints at most every 0.25 s; the strands sway about 1 px a second, so they move under 0.3 px between repaints (invisible), and the tree costs about an eighth of the work per frame. (A bend of a finished picture instead was tried and rejected: it also slides the trunk.) */
   for(let i=0;i<V3WIL_N;i++) g.drawImage(V3WIL.c[i],x0,y0,w/DP,h/DP); }
 function v3willowDraw(c,P,t,hz,part){ /* part: undefined = the whole tree; 0, 1, 2 = a third of it in drawing order (0 includes the trunk, limbs and crown) */
   const ALL=part===undefined, BASE=ALL||part===0;
@@ -6687,8 +6701,14 @@ for(const id in V3SCENES) m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); });
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
   if((k==='Rain'||k==='Storm')&&FX){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
+    /* phones (director, 2026-11-18: storms drop Android to 30-40 fps): rings are grouped into 3 brightness bands and drawn as 3 strokes
+       instead of up to 46 separate ones; PC is unchanged */
+    const mobB=PLAT.rippleBands()?[[],[],[]]:null;
     for(let i=0;i<N;i++){ const per=.55+(i%5)*.07, ph=(t/per+i*.618)%1, cyc=Math.floor(t/per+i*.618), r1=((Math.sin((cyc+i)*12.9898)*43758.5)%1+1)%1, r2=((Math.sin((cyc+i)*78.233)*12345.6)%1+1)%1;
-      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2); g.globalAlpha=(1-ph)*.9*clamp(NM*a-i,0,1); /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+      const y=hz+H*.02+Math.pow(r2,1.3)*(H-hz)*.95, u=(y-hz)/(H-hz), x=r1*W, rr=(1.5+ph*7)*(.4+u*1.2), al=(1-ph)*.9*clamp(NM*a-i,0,1);
+      if(mobB){ if(al>.02) mobB[Math.min(2,Math.floor(al/.3))].push(x,y,rr); continue; }
+      g.globalAlpha=al; /* each new ring fades in as the rain builds */ g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); }
+    if(mobB) for(let b=0;b<3;b++){ const L=mobB[b]; if(!L.length) continue; g.globalAlpha=.15+b*.3; g.beginPath(); for(let j=0;j<L.length;j+=3){ g.moveTo(L[j]+L[j+2],L[j+1]); g.ellipse(L[j],L[j+1],L[j+2],L[j+2]*.3,0,0,7); } g.stroke(); }
     g.globalAlpha=1;
     const dg=g.createLinearGradient(0,hz,0,H); dg.addColorStop(0,'rgba(20,28,40,'+(a*(k==='Storm'?.22:.1))+')'); dg.addColorStop(1,'rgba(10,14,22,'+(a*(k==='Storm'?.3:.14))+')'); g.fillStyle=dg; g.fillRect(0,hz,W,H-hz);
     const mg=g.createLinearGradient(0,hz-H*.03,0,hz+H*.05); mg.addColorStop(0,'rgba(190,200,210,0)'); mg.addColorStop(.5,'rgba(190,200,210,'+(a*.22)+')'); mg.addColorStop(1,'rgba(190,200,210,0)'); g.fillStyle=mg; g.fillRect(0,hz-H*.03,W,H*.08); }
@@ -7371,8 +7391,14 @@ function drawAngler3(c,x,y,s,lk,o={}){
   if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); return {x:r.hand.x,y:r.hand.y,back:r.back,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
   let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
+  /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
+     passes, which Android graphics chips pay for with a flush each. On phones it is redrawn at most every 33 ms and reused in between
+     (with its hand positions, so the rod and line still attach), and at once when the fishing state, look, night or size changes. */
+  const reuseMs=live?PLAT.anglerReuseMs():0, mobKey=reuseMs?[w,h,Math.round((o.night||0)*40),o.rim||'',o.glow||'',o.sit?1:0,(typeof G==='object'&&G)?G.st:''].join('|'):null, nowMs=performance.now();
+  const reuse=!!(mobKey&&O.res&&O.key===mobKey&&nowMs-O.at<reuseMs);
+  let res; if(reuse) res=O.res; else {
   const ax=O.a.getContext('2d'); ax.setTransform(1,0,0,1,0,0); ax.clearRect(0,0,w,h);
-  const res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
+  res=a3Body(ax,BX*ps,BT*ps,ps,lk,o,live);
   // rim light: the silhouette minus itself shifted toward the front leaves a thin edge on the back and top
   const night=o.night||0, rim=o.rim||(night>.3?'#a9bcff':'#ffe9c8'), d=clamp(1.15*ps,1,2.4), bx=O.b.getContext('2d');
   bx.setTransform(1,0,0,1,0,0); bx.globalCompositeOperation='copy'; bx.drawImage(O.a,0,0); bx.globalCompositeOperation='source-in'; bx.fillStyle=rim; bx.fillRect(0,0,w,h);
@@ -7386,6 +7412,7 @@ function drawAngler3(c,x,y,s,lk,o={}){
   { const vg=ax.createLinearGradient(0,(BT-62)*ps,0,(BT+6)*ps); vg.addColorStop(0,'rgba(255,248,232,'+(.1*(1-night*.7))+')'); vg.addColorStop(.42,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(4,8,20,'+(.2+night*.12)+')'); ax.fillStyle=vg; ax.fillRect(0,0,w,h);
     const hg=ax.createLinearGradient((BX-16)*ps,0,(BX+14)*ps,0); hg.addColorStop(0,'rgba(4,8,20,'+(.14+night*.08)+')'); hg.addColorStop(.6,'rgba(0,0,0,0)'); ax.fillStyle=hg; ax.fillRect(0,0,w,h); }
   ax.globalCompositeOperation='source-over';
+  if(mobKey){ O.res=res; O.key=mobKey; O.at=nowMs; } else O.res=null; }
   if(!o.sit&&!o.noShadow){ c.save(); const sg=c.createRadialGradient(x,y+s,0,x,y+s,15*s); sg.addColorStop(0,'rgba(0,6,16,.3)'); sg.addColorStop(1,'rgba(0,6,16,0)'); c.fillStyle=sg; c.beginPath(); c.ellipse(x,y+s,15*s,3.2*s,0,0,7); c.fill(); c.restore(); }
   c.drawImage(O.a,0,0,w,h,x-BX*s,y-BT*s,w/ps*s,h/ps*s);
   // map the hand positions back into the caller's space
@@ -11068,7 +11095,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
   _renderPanel_2();
-  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(typeof MOB==='function'&&MOB()) return; /* phones (round 8 speed): no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
+  if(newTab){ if(document.body.classList.contains('pch-on')) return; if(PLAT.quietTabSwitch()) return; /* phones: no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
   if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
 
@@ -11367,7 +11394,7 @@ function menuSync(){ const T=$('tabs'); if(!T) return; const sec=menuSecOf(S.tab
   // the pills of the open section (rebuilt only when the section changes)
   const list=sec?menuTabsIn(sec):[], key=(sec?sec.id:'')+'|'+list.join(',');
   if(key!==menuSubKey){ menuSubKey=key; sb.innerHTML=list.map(t=>{ const [ic,nm]=menuTabLabel(t); return `<button type="button" class="subp" data-sub="${t}" aria-pressed="false"><span class="subi" aria-hidden="true">${ic}</span><span>${nm}</span><span class="subdot" hidden></span></button>`; }).join('');
-    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else if(typeof MOB==='function'&&MOB()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){} } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
+    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else if(PLAT.quietTabSwitch()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){} } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
   sb.hidden=!list.length; let onP=null; sb.querySelectorAll('.subp').forEach(p=>{ const on=p.dataset.sub===S.tab; p.setAttribute('aria-pressed',on?'true':'false'); p.classList.toggle('on',on); if(on) onP=p; });
   // keep the open page's pill in view when the row scrolls sideways (small phones), without moving the page
   menuPillView(sb,onP); requestAnimationFrame(()=>menuPillView(sb,onP));
@@ -11891,7 +11918,7 @@ if(/[?&]test\b/.test(location.search)) window.__audit=async(label)=>{ const out=
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,220)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); check(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return {label:label||vw+'x'+vh, n:out.length, out:[...new Set(out)].slice(0,40)}; };
 // QC (test mode only): every page, every visible label that is cut off with "…" (text-overflow) or clipped
-if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2) return; const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
+if(/[?&]test\b/.test(location.search)) window.__trunc=async()=>{ const out=new Set(); const look=where=>{ document.querySelectorAll('#panel *, .hud *, #tabs *').forEach(e=>{ if(!e.offsetParent||e.children.length>2||e.clientWidth<=2) return; /* 1 px labels are hidden on purpose (screen-reader names on swatches) */ const cs=getComputedStyle(e); const t=(e.textContent||'').trim(); if(!t) return;
     if(e.scrollWidth>e.clientWidth+1&&(cs.textOverflow==='ellipsis'||cs.overflow==='hidden'||cs.overflowX==='hidden')) out.add(where+': "'+t.slice(0,28)+'"'); }); };
   for(const s of [...document.querySelectorAll('#tabs .secb')]){ s.click(); await new Promise(r=>setTimeout(r,200)); for(const b of [...document.querySelectorAll('#tabs .subbar .subp')]){ b.click(); await new Promise(r=>setTimeout(r,260)); look(s.textContent.trim().replace(/\d+/g,'')+'>'+b.textContent.trim().replace(/\d+/g,'')); } }
   return [...out].slice(0,60); };
@@ -14219,7 +14246,7 @@ document.addEventListener('click',e=>{ const P=document.querySelector('#menuov #
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(typeof MOB==='function'&&MOB()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
+  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(PLAT.quietTabSwitch()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
@@ -14353,7 +14380,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
   let on=false, ts=[], lastT=0, shown=0;
   const loop=t=>{ if(!on) return; if(lastT) ts.push(t-lastT); lastT=t; if(ts.length>240) ts.shift();
-    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=(typeof MOB==='function'&&MOB()&&typeof mobFpsText==='function')?mobFpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
+    if(t-shown>500&&ts.length>10){ shown=t; const win=ts.slice(-120), avg=win.reduce((a,b)=>a+b,0)/win.length, worst=Math.max(...win); { const mt=PLAT.fpsText?PLAT.fpsText(Math.round(1000/avg)):null; el.textContent=mt||(Math.round(1000/avg)+' fps · slowest '+worst.toFixed(1)+' ms'); } } /* phones: frames actually drawn (settings08) */
     requestAnimationFrame(loop); };
   const sync=()=>{ const v=!!(S.settings&&S.settings.showFps); if(v===on) return; on=v; el.hidden=!v; ts=[]; lastT=0; if(v) requestAnimationFrame(loop); };
   setInterval(sync,700); sync(); }
@@ -15117,12 +15144,80 @@ function riverWheel(P,t,hz,mx,mb,mw,mh,FX){ const R=mh*.62, xL=mx-mw/2, cx=xL-R*
     for(let i=0;i<9;i++){ const u=i/8, al=.3+.3*Math.sin(t*4.5+i*2.1); g.fillStyle=v3rgba(wc,al); g.beginPath(); g.ellipse(cx-R*.95+u*R*1.9,hz+1.5+Math.sin(u*Math.PI)*R*.07,R*.14,R*.05,0,0,7); g.fill(); }
     for(let i=0;i<4;i++){ const k=((t*.9+i/4)%1); g.strokeStyle=v3rgba(wc,.35*(1-k)); g.lineWidth=1; g.beginPath(); g.ellipse(cx-R*.2-k*R*1.4,hz+3+k*R*.12,R*(.25+k*.4),R*(.05+k*.06),0,0,7); g.stroke(); } } }
 // =====================================================================
+// Shared efficiency fixes, every platform (director, 2026-11-19: "Why would we want to just fix this for phones, if it doesn't
+// effect quality negatively?"). Each fix here draws the same picture with less work, so PC, Android and iPhone all get it.
+// They started in src/mobile/polish08.js (phones only) and moved here. Phone-only trade-offs (things that do change the picture a
+// little, like fewer light steps) stay in the phone files.
+// =====================================================================
+/* Platform values (glow dot size, how often moving decorations refresh) come from PLAT (a3_plat.js); phones set their own. */
+
+/* 1) Wrong scenery after opening a menu (director, 2026-11-18: "clicking settings and exiting brought up the wrong map for a bit"):
+   a Map thumbnail for another water reused the live scenery canvases (and the Willow Pond slices), so the real water could show the
+   other water's scenery until the light changed. A thumbnail now always gets fresh canvases; the live ones are never painted over.
+   Thumbnails are only made while the Map page is open (the only place they show): Settings and other menus no longer pay for them. */
+{ const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return _vt(id); const c=V3CACHE, p=V3PREV; V3CACHE=null; V3PREV=null; const wl={c:V3WIL.c,t:V3WIL.t,k:V3WIL.k,turn:V3WIL.turn}; V3WIL.c=[]; V3WIL.t=[-9,-9,-9]; V3WIL.k="";
+    try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; V3WIL.c=wl.c; V3WIL.t=wl.t; V3WIL.k=wl.k; V3WIL.turn=wl.turn; try{ v3palette.k=null; }catch(e){} } }; }
+{ const _tn=thumbNext; thumbNext=function(){ if(S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
+
+/* 2) Dock decorations: every decoration went through litDraw (its own offscreen canvas plus several light passes) every frame, even a
+   chair that never changes. Each item is now kept as a finished picture, by WHAT it is (id, size, light level, front/back), drawn
+   wherever the dock or boat carries it. Still items are lit once and reused until the light level changes; moving ones (flags,
+   campfire, wind chime...) are drawn fresh every frame on PC and refreshed 10 times a second on phones. Same box as litDraw uses. */
+{ const _dd=drawDockItem, DC=new Map(), DA={}; /* DA[id]: true = this decoration moves, false = still */ for(const k of ['birdhouse','bunting','campfire','cottage','minilight','mug','plants','radio','shipwheel','tideflag','windchime']) DA[k]=true; /* from the drawing code (cases that use the clock); other items are tested once */
+  drawDockItem=function(c,id,x,y,s,t,night,back){ if(c!==g) return _dd.apply(this,arguments); const mvMs=PLAT.movingDecorMs(); if(DA[id]&&!mvMs) return _dd.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
+    const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
+    if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
+    const key=id+'|'+Math.round(s*200)+'|'+Math.round((night||0)*20)+'|'+(back?1:0)+'|'+pw+'x'+ph, now=performance.now();
+    let e=DC.get(key); if(!e){ e={c:document.createElement('canvas'),at:-1e9,seen:now}; DC.set(key,e); if(DC.size>60){ for(const [kk,v] of DC) if(now-v.seen>3000) DC.delete(kk); } }
+    e.seen=now;
+    const paint=(cv2,tt)=>{ if(cv2.width!==pw||cv2.height!==ph){ cv2.width=pw; cv2.height=ph; } const tx=cv2.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,tt,night,back); };
+    if(DA[id]===undefined){ try{ const t2=document.createElement('canvas'); paint(e.c,t||0); paint(t2,(t||0)+.37); const a=e.c.getContext('2d').getImageData(0,0,pw,ph).data, b=t2.getContext('2d').getImageData(0,0,pw,ph).data; let same=true; for(let i=0;i<a.length;i+=16){ if(a[i]!==b[i]||a[i+3]!==b[i+3]){ same=false; break; } } DA[id]=!same; e.at=now; }catch(er){ DA[id]=true; }
+      if(DA[id]&&!mvMs){ DC.delete(key); return _dd.apply(this,arguments); } }
+    else if(e.at<0||(DA[id]&&now-e.at>=mvMs)){ paint(e.c,t); e.at=now; }
+    c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
+
+/* 3) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
+   call, over 30 a frame at Starfall. Now a ready-made soft dot per colour (same centre colour, same fade to nothing) is stamped at the
+   same size and strength (256 px on PC for big screens, 128 px on phones). */
+{ const _gl=v3glow, GS=new Map();
+  const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
+    m=/^#([0-9a-f]{6})$/i.exec(col); if(m){ const v=parseInt(m[1],16); return {rgb:((v>>16)&255)+','+((v>>8)&255)+','+(v&255),a:1}; } return null; };
+  v3glow=function(c,x,y,r,col,a){ if(!(r>0)) return _gl.apply(this,arguments); const p=parse(col); if(!p) return _gl.apply(this,arguments);
+    const S2=PLAT.glowPx(), H=S2/2, key=p.rgb+'|'+S2;
+    let s=GS.get(key); if(!s){ s=document.createElement('canvas'); s.width=s.height=S2; const sx=s.getContext('2d'), gr=sx.createRadialGradient(H,H,0,H,H,H); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,S2,S2); if(GS.size>96) GS.clear(); GS.set(key,s); }
+    const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
+
+/* 4) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
+   work the longer you play. It now resumes from where the last call got to (same events, same timing). */
+{ const _sf=sfEvent; let cs=0, cn=0;
+  sfEvent=function(t){ if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
+    const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
+
+/* 5) Tinted pets: a canvas colour filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
+   once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
+{ const _dp=drawPetStyled; let PC=null;
+  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
+    if(!f||f==='none') return _dp.apply(this,arguments);
+    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
+    const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);
+    if(!PC) PC=document.createElement('canvas'); if(PC.width<pw||PC.height<ph){ PC.width=Math.max(PC.width,pw); PC.height=Math.max(PC.height,ph); }
+    const px=PC.getContext('2d'); px.setTransform(1,0,0,1,0,0); px.clearRect(0,0,PC.width,PC.height); px.setTransform(k,0,0,k,-(x+bx)*k,-(y+by)*k);
+    const r=_dp(px,id,x,y,s,t,night,Object.assign({},lk,{tint:undefined}));
+    c.save(); c.setTransform(1,0,0,1,0,0); c.filter=f; c.drawImage(PC,0,0,pw,ph,m.a*(x+bx)+m.e,m.d*(y+by)+m.f,pw,ph); c.restore(); return r; }; }
+
+/* 6) The top bar (hud): it ran every frame (up to 120 times a second), reading the clock, weather, coins and badges and building a
+   comparison key each time, though what it shows changes at most once a second. It now runs at most 10 times a second, and at
+   once whenever something asks for a refresh (lastHud cleared) or the fishing state changes (hints follow the line right away). */
+{ const _hd=hud; let at=0, st=''; hud=function(){ const now=performance.now(); if(lastHud!==''&&G.st===st&&now-at<100) return; at=now; st=G.st; return _hd.apply(this,arguments); }; }
+// =====================================================================
 // Test notes (shared helper). Each platform's own notes file (src/pc, src/android, src/ios) calls addTestNotes(...) with
 // its text. In a preview build the notes go on top of the patch notes list and open once per device and notes text; the
 // live game ignores them. They carry no version number (the director picks it at release).
 // =====================================================================
 function addTestNotes(n){ try{ if(!window.DL_PREVIEW||!n||!Array.isArray(n.items)||!n.items.length) return; PATCHES.unshift(n);
-    const id='dl-test-notes:'+(window.DL_BUILD||'')+':'+n.name+':'+n.items.length; let seen=''; try{ seen=localStorage.getItem('dl-test-notes')||''; }catch(e){}
+    const txt=n.name+'|'+n.items.join('|'); let hsh=0; for(let i=0;i<txt.length;i++) hsh=(hsh*31+txt.charCodeAt(i))|0; /* any change to the text opens the card again (2026-11-18: lines added to an existing item never re-opened it) */
+    const id='dl-test-notes:'+(window.DL_BUILD||'')+':'+hsh; let seen=''; try{ seen=localStorage.getItem('dl-test-notes')||''; }catch(e){}
     if(seen===id) return; let tries=0;
     const go=()=>{ if(G.st!=='idle'||(typeof MENU_OPEN!=='undefined'&&MENU_OPEN)){ if(++tries<20) setTimeout(go,1500); return; }
       try{ localStorage.setItem('dl-test-notes',id); }catch(e){} try{ showPatchNotes(n); }catch(e){} };
@@ -15131,7 +15226,11 @@ function addTestNotes(n){ try{ if(!window.DL_PREVIEW||!n||!Array.isArray(n.items
 // Phones (Android + iPhone), round 6 performance (director, 2026-11-18: "Aquarium tab on Android the only screen that
 // experiences lag while scrolling", "reeling in storms on Android has a severely impacted frame rate").
 // =====================================================================
-const MOB=()=>{ const b=document.body.classList; return b.contains('phone-app')||b.contains('phone-land'); };
+/* MOB(): "is the phone layout on?" was re-read from the page's classes on every call, hundreds of times a frame from the per-frame
+   phone paths (2026-11-19, redundancies list C11). It is now a stored answer, refreshed only when the body's classes change. */
+const MOB=(()=>{ let v=null; const upd=()=>{ const b=document.body&&document.body.classList; v=!!b&&(b.contains('phone-app')||b.contains('phone-land')); };
+  try{ if(document.body&&window.MutationObserver) new MutationObserver(upd).observe(document.body,{attributes:true,attributeFilter:['class']}); }catch(e){}
+  return ()=>{ if(v===null) upd(); return v; }; })();
 
 // 1) a menu covers the whole phone screen, so the fishing scene behind it is not drawn (the aquarium tank, the page and its
 //    scrolling get the whole frame). The line waits while a menu is open, so nothing on the water is missed.
@@ -15160,15 +15259,15 @@ let MOB_DPR_CAP=2;
   // there instead of slow again), and the first second after a water change is not counted (one-off loading work).
   const steps=[2,1.75,1.5,1.3,1.15]; let i=0, acc=0, n=0, slow=0, fast=0, last=0, loc='', skipUntil=0; const byLoc={};
   const setStep=k=>{ k=Math.max(0,Math.min(steps.length-1,k)); if(k===i) return; i=k; MOB_DPR_CAP=steps[i]; try{ resize(); }catch(e){} };
-  const tick=t=>{ requestAnimationFrame(tick); if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
-    if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+1000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
+  const tick=t=>{ if(!MOB()||document.hidden||MENU_OPEN){ last=0; return; }
+    if(S.loc!==loc){ if(loc) byLoc[loc]=i; loc=S.loc; acc=0; n=0; slow=0; fast=0; skipUntil=t+3000; if(byLoc[loc]!=null) setStep(byLoc[loc]); }
     if(t<skipUntil){ last=t; return; }
     if(last){ const dt=t-last; if(dt<200){ acc+=dt; n++; } } last=t;
-    if(n>=45){ const avg=acc/n; acc=0; n=0;
-      if(avg>18.5){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
-      else if(avg<14){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
+    if(n>=45){ const avg=acc/n; acc=0; n=0; /* Android draws at most 60 (16.7 ms a frame), and a 60 Hz screen refreshes every 16.7 ms, so "fast" below 14 ms could never happen there and the resolution never came back up after a slow moment (director, 2026-11-19: "gets worse after switching maps and never gets back"); Android uses slow > 24 ms (under ~42 fps), recovered < 20 ms (over ~50 fps), with room for the screen's jitter */ const capd=(typeof IS_IPHONE==="function"&&!IS_IPHONE()), slowT=capd?24:18.5, fastT=capd?20:14;
+      if(avg>slowT){ slow++; fast=0; if(slow>=2){ slow=0; setStep(i+(avg>30?2:1)); byLoc[loc]=i; } }
+      else if(avg<fastT){ fast++; slow=0; if(fast>=6){ fast=0; setStep(i-1); byLoc[loc]=i; } }
       else { slow=0; fast=0; } } };
-  requestAnimationFrame(tick);
+  { const _fr=frame; frame=function(now){ try{ tick(now); }catch(e){} return _fr.apply(this,arguments); }; } /* runs inside the game loop (redundancies list B7): it used to keep its own animation-frame loop just to time frames */
   if(/[?&]test\b/.test(location.search)) window.__mobperf=()=>({cap:MOB_DPR_CAP, step:i, byLoc:Object.assign({},byLoc)}); }
 
 // 4) live events never move the game frame (director: "some live events on Android move the game frame as the counter moves
@@ -15197,6 +15296,15 @@ body:not(.phone-app):not(.phone-land) #baitqk{display:none!important}
 
 // 6) Rods (phones): the "Your rods" presets at the top of the Rods page
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.rp-box')) return r; const anchor=P.querySelector(':scope > .tile')||P.querySelector(':scope > .grid'); if(anchor) anchor.insertAdjacentHTML('beforebegin',rodPresetsHTML()); else P.insertAdjacentHTML('afterbegin',rodPresetsHTML()); }catch(e){} return r; }; }
+
+// 7) Phone values for the shared platform settings (PLAT in a3_plat.js). Each one only applies while the phone layout is on.
+PLAT.willowRepaintS=()=>MOB()?.25:.03;      /* Willow curtain repaints 4x a second (its sway is slow) */
+PLAT.rippleBands=MOB;                       /* storms: rain rings in 3 brightness bands, 3 strokes instead of ~46 */
+PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn ~30x a second, at once on any state change */
+PLAT.glowPx=()=>MOB()?128:256;              /* smaller glow dots */
+PLAT.movingDecorMs=()=>MOB()?100:0;         /* moving decorations refresh 10x a second */
+PLAT.quietTabSwitch=MOB;                    /* tab switches without the per-card animation or a forced layout */
+PLAT.fpsText=fps=>(MOB()&&typeof mobFpsText==='function')?mobFpsText(fps):null;
 // =====================================================================
 // Phones, round 6 (director: "both phones get the modern PC look: teal = click me, gold = open now, the same navy panels and
 // card style"). Same colour decisions as PC, laid out for phones (Android + iPhone):
@@ -15873,6 +15981,19 @@ html body.phone-app #panel .mb-shnote,html body.phone-land #panel .mb-shnote{fon
   try{ if(isAndroid&&localStorage.getItem('dl-fs')===null){ localStorage.setItem('dl-fs','1');
       const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen&&localStorage.getItem('dl-fs-auto')!=='0'){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } };
       ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); } }catch(e){} }
+// Round 3 (director, 2026-11-18: "the full screen fix still doesn't work"): the three places that put full screen back (an_small04
+// and rounds 1-2 above) all tried on pointerdown/keydown. A browser only allows full screen as the result of a finished tap: on touch
+// screens that is pointerup / touchend / click, never pointerdown, so every automatic attempt was refused without a sound (the
+// Settings button worked because it reacts to click). Now: on any finished tap, if full screen is your choice and the page is not
+// in full screen, it goes back (taps on the Full screen button itself are left to that button).
+{ const want3=()=>true; /* round 4 (director, 2026-11-18: "automatic for all mobile builds, no menu option, like iPhone"): phones are always full screen; the Settings row is gone (settings08) */
+  /* round 5 (director, 2026-11-18: Android test build above 60 fps and jumpy on every action, fresh save): the installed Android app
+     now opens in the app's own full-screen mode (manifest), where document.fullscreenElement is empty, so every tap asked for full
+     screen again; each request re-laid the screen out, resized the water and drew extra frames outside the 60 limit. Now it only asks
+     when the screen is really not full screen (not in app full-screen mode, bars visible), at most once every 2 seconds. */
+  let lastAsk=0; const appFull=()=>{ try{ if(matchMedia('(display-mode: fullscreen)').matches) return true; }catch(er){} const sw=Math.max(screen.width,screen.height), sh=Math.min(screen.width,screen.height), iw=Math.max(innerWidth,innerHeight), ih=Math.min(innerWidth,innerHeight); return Math.abs(iw-sw)<2&&Math.abs(ih-sh)<2; };
+  const back=e=>{ if(!MOB()||document.fullscreenElement||!document.documentElement.requestFullscreen||!want3()) return; if(e&&e.target&&e.target.closest&&e.target.closest('[data-act="fullscreen"]')) return; const now=performance.now(); if(now-lastAsk<2000||appFull()) return; lastAsk=now; try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(er){} };
+  ['pointerup','touchend','click','keyup'].forEach(ev=>document.addEventListener(ev,back,true)); }
 // =====================================================================
 // Phones, round 7: your active boosts are never hidden behind the buttons (director, 2026-11-18, screenshots: "the bottom left
 // headers cover the background UI behind it"). The boost timers ("+25% Bite speed  0:26", Settings > Boosts on screen) were drawn
@@ -15984,7 +16105,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 { let dev=null, cur=null; const done=new WeakSet(), _mig=migrate, DEF=fresh().settings||{};
   const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ return null; } };
   const pick=st=>{ const o={}; if(st) for(const k of DEV_KEYS) if(st[k]!==undefined) o[k]=st[k]; return o; };
-  const write=()=>{ try{ localStorage.setItem(DEV_STORE,JSON.stringify(dev)); }catch(e){} };
+  let lastJ=null; const write=()=>{ try{ const j=JSON.stringify(dev); if(j===lastJ) return; localStorage.setItem(DEV_STORE,j); lastJ=j; }catch(e){} }; /* only when the settings changed (redundancies list B10: every save rewrote them) */
   const apply=s=>{ if(s&&s.settings&&dev){ for(const k of DEV_KEYS){ if(dev[k]!==undefined) s.settings[k]=dev[k]; else if(DEF[k]!==undefined) s.settings[k]=DEF[k]; else delete s.settings[k]; } } return s; };
   /* first run after this update: this device keeps the settings it has now */
   dev=read(); if(!dev||typeof dev!=="object"){ dev=pick(S.settings); write(); } apply(S); cur=S;
@@ -15997,7 +16118,7 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
 { const _fr=frame; let shown=0;
-  const capMs=()=>{ const c=S.settings.fpsCap||'60'; /* never chosen = 60 on every phone (director 2026-11-18: Android defaulted to Max = every refresh, 120 a second on a Pixel, 26 fps; 30 mode gave 60-100) */ return c==='30'?1000/30:c==='60'?1000/60:0; };
+  const capMs=()=>IS_IPHONE()?0:1000/60; /* Android draws 60 frames a second (on a 120 Hz screen too: director 2026-11-18, "his default was always working perfectly fine"), iPhone runs at its natural rate; no frame-rate setting on either phone, any old saved fpsCap is ignored */
   frame=function(now){ if(DEV_GUARD) DEV_GUARD(); const cap=MOB()?capMs():0; if(cap&&shown&&now>=shown&&now-shown<cap-2){ requestAnimationFrame(frame); return; } shown=(cap&&shown&&now>=shown&&now-shown<cap*2)?shown+cap:now; return _fr.apply(this,arguments); }; }
 
 // ---------- the Settings page on phones ----------
@@ -16005,21 +16126,40 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
   renderSettings=function(P){ _rs(P); if(!MOB()) return; try{ const ip=IS_IPHONE(), dev=ip?'iPhone':'phone';
     const sub=P.querySelector('h2 + .sub'); if(sub) sub.textContent='These settings belong to this '+dev+'. Moving your progress to another device keeps each device’s own settings.';
     const rowOf=b=>b&&b.closest('.toggle');
-    if(ip){ const v=rowOf(P.querySelector('[data-act="tog"][data-k="vibrate"]')); if(v) v.remove(); const f=rowOf(P.querySelector('[data-act="fullscreen"]')); if(f) f.remove(); }
+    if(ip){ const v=rowOf(P.querySelector('[data-act="tog"][data-k="vibrate"]')); if(v) v.remove(); } { const f=rowOf(P.querySelector('[data-act="fullscreen"]')); if(f) f.remove(); } /* no Full screen option on any phone: it is automatic (director 2026-11-18) */
     for(const m of P.querySelectorAll('.tile .meta')) if(/mouse wheel/i.test(m.textContent)) m.innerHTML='Reel by <b>holding</b> the water, or by <b>drawing circles</b> on it like a crank.';
     const fr=rowOf(P.querySelector('[data-act="tog"][data-k="showFps"]')); if(fr){ const b=fr.querySelector('b'), m=fr.querySelector('.meta'); if(b) b.textContent='Frame rate counter'; if(m) m.textContent='Shows the current frame rate in the corner of the water.'; }
-    const disp=[...P.querySelectorAll('.tile')].find(t=>{ const h=t.querySelector('h4'); return h&&h.textContent.trim()==='Display'; });
-    if(disp){ const cur=S.settings.fpsCap||'60', opt=ip?[['30','30 · Saver'],['60','60 · Smooth']]:[['30','30 · Saver'],['60','60 · Standard'],['max','Max']];
-      const why={ '30':'Draws 30 frames a second: cooler phone, longer battery.', '60':ip?'Draws up to 60 frames a second, as smooth as an iPhone browser allows.':'Draws up to 60 frames a second.', 'max':'Draws as fast as your screen allows (90 or 120 on many phones). Uses the most battery.' };
-      disp.insertAdjacentHTML('beforeend',`<h5>Frame rate</h5><div class="chips">${opt.map(([k,n])=>`<button class="chipb" type="button" data-fps="${k}" aria-pressed="${cur===k}">${n}</button>`).join('')}</div><div class="meta" style="margin-top:6px">${why[cur]||why['60']}</div>`);
-      disp.querySelectorAll('[data-fps]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.fpsCap=b.dataset.fps; save(); renderPanel(); })); }
+    /* no frame-rate choice on phones (director, 2026-11-18: "Max completely messes up with phones; iPhone and Android locked, tested and built at 60, no choices, the exact same always"): the old 30 / 60 / Max chips are gone */
   }catch(e){} }; }
 
 // ---------- the frame counter counts frames actually DRAWN (director, 2026-11-18: "30 fps saver mode brought his fps to 120"):
 // the counter in bm_ui04 runs its own loop, so it measured the screen's refresh (120 Hz on a Pixel) even while the game drew only
 // 30 frames. On phones it now shows drawn frames per second, the screen's rate and the slowest gap between drawn frames.
 const MOB_DRAWN=[]; { const _dw=draw; draw=function(now){ const r=_dw.apply(this,arguments); try{ MOB_DRAWN.push(performance.now()); if(MOB_DRAWN.length>240) MOB_DRAWN.shift(); }catch(e){} return r; }; }
-function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'; }
+function mobFpsText(screenFps){ const now=performance.now(), d=MOB_DRAWN.filter(t=>now-t<2000); if(d.length<3) return null; let worst=0; for(let i=1;i<d.length;i++) worst=Math.max(worst,d[i]-d[i-1]); const fps=Math.round((d.length-1)*1000/(d[d.length-1]-d[0])); let res=''; try{ res=' · res '+(typeof MOB_DPR_CAP!=='undefined'?MOB_DPR_CAP:'?')+'x'; }catch(e){} return fps+' fps · screen '+screenFps+' Hz · slowest '+worst.toFixed(1)+' ms'+res; }
+
+// ---------- test builds only: Graphics test (director, 2026-11-18: Android holds 30 but drops to 25-38 at 60 = each frame costs
+// the phone ~30 ms). Each button switches one part of the water scene off, so the frame counter shows which part is too heavy on
+// that phone. Nothing here exists in the release build (DL_PREVIEW), and every part comes back with one more tap or a restart.
+const GT_PARTS=[['wx','Weather (rain, snow, fog)',['drawWeatherX']],['water','Water shimmer + reflections',['v3water','v3glitter','drawReflect','v3fishRing']],['glow','Lights and glows',['v3glow']],['mist','Mist',['v3mist']],['you','You (the angler)',['drawAngler3']],['pets','Pets',['drawPetStyled']],['dock','Home decorations on the dock',['drawDockItem']],['wear','Moving cosmetic effects',['wearFxDraw']],['odd','Oddities and junk',['drawJunkAt']],['plants','Trees and plants',['v3tree','v3willow','v3reeds','v3bushes','v3flowers','v3leafTree','v3pine','v3snowPine','v3palm']],['lowres','Low resolution (1x)',[]]];
+const GT_OFF=new Set();
+if(window.DL_PREVIEW){
+  const wrap=(name,key)=>{ try{ const f=eval(name); if(typeof f!=='function') return; eval(name+'=function(){ if(GT_OFF.has("'+key+'")) return; return f.apply(this,arguments); }'); }catch(e){} };
+  for(const [k,,fns] of GT_PARTS) for(const n of fns) wrap(n,k);
+  { const _rd=renderDPR; renderDPR=function(w,h){ return GT_OFF.has('lowres')?1:_rd(w,h); }; }
+  const _th=testerHTML; testerHTML=function(){ const base=_th(); if(!MOB()) return base;
+    return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
+  const _xa=extraAct2; extraAct2=function(b){ if(b.dataset.act==='gtest'){ const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){} try{ resize(); }catch(e){} toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } return _xa(b); };
+}
+
+// ---------- patch notes a phone has already shown stay shown (director, 2026-11-18: after moving progress from PC "my first relaunch
+// brought up the patch notes for the patch previous"): the save carries the last notes seen on the device it came from (PC 0.4.8.2),
+// so the phone showed its own older updates again. Phones remember the newest notes they showed; an arriving save never lowers it.
+{ const K='dl-seen-patch'; const get=()=>{ try{ return localStorage.getItem(K)||''; }catch(e){ return ''; } }, put=v=>{ try{ localStorage.setItem(K,v); }catch(e){} };
+  const fix=s=>{ try{ if(!MOB()||!s||typeof s!=='object') return; const d=get(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){} };
+  const _mg=migrate; migrate=function(){ const s=_mg.apply(this,arguments); fix(s); return s; };
+  const _sv=save; save=function(){ try{ if(MOB()&&S&&S.seenPatch){ const d=get(); if(!d||verNewer(S.seenPatch,d)) put(S.seenPatch); } }catch(e){} return _sv.apply(this,arguments); };
+  try{ fix(S); }catch(e){} }
 // =====================================================================
 // Phones, round 8: landscape only, on iPhone AND Android phones (director, 2026-11-18: "iPhone versions should just have landscape
 // available... full forced landscape across the board", then "Also push landscape only on android too").
@@ -17005,7 +17145,7 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-land .hud > #mblive,html body.phone-land .hud > .mb-x{flex:0 1 auto!important}
-html body.phone-app .hud > .mb-x{display:none!important}
+html body.phone-app .hud > .mb-x:not(#mbhome){display:none!important} /* the narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
 html body.phone-land .hud > .mb-x[hidden]{display:none!important}
 html body.phone-land .hud > .mb-x.ready{border-color:#ffd36a!important;box-shadow:0 0 0 1px #ffd36a66!important}
 html body.phone-land .hud > .mb-x.ready .lbl{color:#ffd36a!important}
@@ -17070,6 +17210,21 @@ html body.phone-land .hud > #mbgoal,html body.phone-app .hud > #mbgoal,html body
 html body.phone-land #baitqk,html body.phone-app #baitqk{display:none!important}
 html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>`);
+/* Narrow layout (split-screen windows; phones themselves are landscape-only), 2026-11-19: the bar was already two rows, but Home was
+   hidden (the only way into your home on phones) and the Coins / Level / Fishing at box was squeezed into two columns, cutting all
+   of its text. Now: the info box takes the whole first row (gear on the right), Cooler, Aquarium, Home and Fish Log share the second
+   row (search on the right), every label readable. */
+document.head.insertAdjacentHTML('beforeend',`<style>
+html body.phone-app.dl-fish .hud{grid-template-columns:repeat(4,minmax(0,1fr)) 32px!important}
+html body.phone-app.dl-fish .hud > .mb-stat8{grid-column:1 / 5!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud > .mb-stat8 > .stat{flex:1 1 0!important}
+html body.phone-app.dl-fish .hud > .st-cool{grid-column:1!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > .st-aq{grid-column:2!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > #mbhome{grid-column:3!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > .st-log{grid-column:4!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud #settingsbtn{grid-column:5!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!important}
+</style>`);
 // =====================================================================
 // Phones and tablets, round 8: the fish fight is easy to watch (director, 2026-11-18: "right now the fish fight is too hard to watch on
 // top of watching your line breaking on mobile. Fix that too").
@@ -17092,8 +17247,10 @@ html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overf
     /* the tension ring */
     g.lineCap='round'; g.lineWidth=Math.max(5,r*.2);
     g.strokeStyle='rgba(5,14,20,.55)'; g.beginPath(); g.arc(cx,cy,r,0,7); g.stroke();
-    if(danger){ g.shadowColor='#ff5468'; g.shadowBlur=12+Math.sin(t*14)*6; }
-    g.strokeStyle=col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke(); g.shadowBlur=0;
+    /* the danger glow: a soft wider ring underneath instead of shadowBlur (director, 2026-11-18: Android drops during actions; a
+       glow shadow is one of the slowest things a phone graphics chip draws, and it pulsed every frame of a tense fight) */
+    if(danger){ const a0=-Math.PI/2, a1=-Math.PI/2+Math.PI*2*Math.max(.02,ten), lw=g.lineWidth, pulse=.5+.5*Math.sin(t*14); g.strokeStyle='rgba(255,84,104,'+(.18+.12*pulse)+')'; g.lineWidth=lw+8+pulse*5; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.strokeStyle='rgba(255,84,104,'+(.28+.12*pulse)+')'; g.lineWidth=lw+3; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.lineWidth=lw; }
+    g.strokeStyle=col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke();
     g.fillStyle='rgba(255,84,104,.35)'; g.beginPath(); g.arc(cx,cy,r+g.lineWidth*.5+2,-Math.PI/2+Math.PI*2*.8,-Math.PI/2+Math.PI*2,false); g.arc(cx,cy,r+g.lineWidth*.5+5,-Math.PI/2+Math.PI*2,-Math.PI/2+Math.PI*2*.8,true); g.fill(); /* the red zone: snapping risk */
     /* the instruction, right above */
     const msg = G.ev==='jump' ? 'It jumped! Let go!' : G.ev==='shake' ? 'Head shake! Ease off' : G.run ? 'It’s running! Ease off' : G.temper>1.7&&G.hold ? 'It’s angry! Let go a moment' : danger ? 'Line strained! Ease off' : G.hold ? 'Reeling…' : 'Hold to reel';
@@ -17411,6 +17568,17 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage
    now (MB_UI, frame07), so they end above the name; "99+" also gets tight padding and sits 1 px further into the corner, which keeps
    it clear of "Challenges" (the longest name) on the shortest rail (667x375, 32 px buttons). */
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #catdock .cdb .cddot[class],html body.phone-land #menuov .secb .secdot[class],html body.phone-app #catdock .cdb .cddot[class],html body.phone-app #menuov .secb .secdot[class]{padding:0 3px!important;letter-spacing:-.4px}html body.phone-land #catdock .cdb .cddot,html body.phone-app #catdock .cdb .cddot{right:-6px!important}</style>`);
+
+/* The scenery-thumbnail fix, the dock decoration cache, glow dots, Starfall sky events and tinted pets moved to src/cd_efficiency.js (2026-11-19): they draw the same picture with less work, so every platform gets them. */
+
+
+/* Light and weather transitions on phones (director, 2026-11-19: drops to 30-40 fps "and keeps fluctuating back up to 60", worst in
+   weather). Every light step rebuilds the whole scenery picture (v3land: 10-30 ms on a desktop, several times that on a phone); with
+   14 night / 9 dusk / 6 weather steps that was a stall about every 1.5 s through dusk, dawn and every weather fade (measured: 30-40% of
+   frames over 8 ms during those transitions, every water). Phones now use 5 / 3 / 2 steps and a 5 s cross-fade between them, so the
+   light still flows smoothly but the scenery is rebuilt about a fifth as often. PC keeps its own steps. */
+{ const _st=v3steps, _fd=v3fade; v3steps=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?[5,3,2]:_st(); }; v3fade=function(){ return (MOB()&&!document.body.classList.contains('pch-on'))?5:_fd(); }; }
+
 // =====================================================================
 // Phones: the SET MEASUREMENTS (director, 2026-11-18: "I want standards and set measurements for each platform going forward,
 // I'm tired of the same mistakes"). The numbers are written down in docs/PLATFORM_DESIGN.md ("Phone frame: set measurements")
@@ -17772,74 +17940,40 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'Side-panel counts never cover a button’s name, even at 99+.',
   'Opening a menu while an info card is up closes the card first, so Travel here always works.',
   'The update message only appears when there really is an update (it kept coming back on phones).',
-  'Smoother on phones with fast screens: the game runs at 60 frames a second unless you pick Max in Settings, Display.',
+  'Much smoother with a decorated home: decorations on the dock (and on boats and floating docks) no longer slow the game down.',
+  'Smoother fights, storms, dusk, dawn and weather changes on phones.',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).',
+  'Lighter on phones: glowing lights (lanterns, lamps, Starfall’s sky) and coloured pets cost far less to draw, and the game no longer stays at a lower sharpness after switching waters.',
+  'Opening and closing a menu no longer shows another water’s scenery for a moment.',
+  'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
+  'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
-  'Android: full screen stays on when you close the game, and it is the default (turn it off in Settings).']});
+  'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});
+PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
+  'Willow Pond runs much smoother on phones.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});
 // iPhone test notes (preview builds only; the live game never shows them). Write what the next test build changes here
-// (spoiler-free); it opens once in the iPhone test app. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'One Look, Easy Aquarium', items:[
-  'NEW in this build (0.4.8.6.1+): the frame counter shows frames drawn + the screen rate; 0.4.8.6.2 Fixes patch notes; frame rate defaults to 60 on every phone (Android ran at its screen’s 120 and slowed down); side-panel badges never cover names (even 99+); Tester tools in Stats: pearls, levels, fill Fish Log, finish feats, fill cooler, skip 8 hours; Travel no longer greyed out behind an open card; Android remembers full screen when you close the app and starts in full screen; notices on the water sit below the weather and streak chips; patch notes close (pinned button); Aquarium layout restored; fps counter below the streak chip; search fixed (top bar only, opens the right tab); gear Settings icon; Events without repeats; smaller Feats cards; faster menu switching; Trophy wall on one screen; slimmer Tide Pass and Boardwalk; Waters renamed Map; bait descriptions; Bait page (Switch, Buy bait, Special lures) from the top bar; Tackle = Gear; Oddities/Treasures tabs; Aquarium + Home lessons in Quests; fps counter top corner; Quests (goals, lessons, find, help); Bait in the top bar; Home chip; Cooler rework; Oddities in Collection; coins/level/water in one box; Tasks tabs without repeats; Fish Log only from the top bar; Prestige page (Set sail again + Pearl relics); tidy Waters that opens at your water; Fishing renamed Catch; XP bar on Skills; side-panel counts never cover names; menus use the full width with a slim number strip; Skills categories without badges; Rods tabs fixed + tidy presets; small-iPhone cut-offs fixed; smooth Home live view; tank size + clear tank upgrade in the Aquarium; mountains drawn without stripes; Stats has its own side-panel button (and the Level chip); folded side panel centred; top bar never cuts off settings; Settings no longer repeats Save (gift code and backup tools are in Save); summaries no longer repeat numbers.',
-  'NEW in this build: fish fight shows a tension ring at the fish with the instruction above it; hints are touch only; homes are never called docks; the layout always switches when you turn the phone; smoother storms at Starfall.',
-  'NEW in this build: Compact Goal chip (opens the right page) and a separate Live chip, plus Tasks and Tide Pass in the top bar. Your home shows the real home of every water. Colour choices are round swatches.',
-  'NEW in this build: every menu page works like the aquarium (key numbers and main button first, sections as tabs, one scrolling list, badges where rewards wait). The Wardrobe shows your angler big with the categories in Options. Pages keep your place when they refresh.',
-  'NEW in this build: Your home works like the aquarium (your home on top, Options with Your home and Decorations, tap a card to try it). iPads now use the phone layout scaled up to fill the screen.',
-  'NEW in this build: iPhone plays in landscape only (hold it upright and the game pauses with a "turn your iPhone" screen). Settings now belong to this iPhone and are no longer changed by moving your progress. New Frame rate choice in Settings, Display (30 saves battery). Vibration and Full screen are hidden on iPhone because iPhone browsers cannot do them.',
-  'NEW in this build: menus fit every iPhone (Pro Max, Pro, Air, Plus and the base models from the 15 on): they stay clear of the Dynamic Island, corners and home bar, the same as the fishing screen. The Aquarium opens faster and the first tap no longer pauses while the music loads. Split screen and small windows now use the normal phone layout.',
-  'One look everywhere: every button, tab, badge and label of the same kind has the same size and style on every page; long button labels stay on one line; upright, a long goal no longer pushes the water down; sideways, page-tab badges sit on the corner.',
-  'Menu page tabs (Events, Bounties, Feats...) take every tap and no longer jiggle; section bars no longer slide sideways when stuck to the top; on small phones held sideways the tabs show names only, badges on the corner.',
-  '## Aquarium and Fish Log',
-  'The aquarium tank animates smoothly: it no longer skips frames now and then, and it keeps moving (at a steady pace) while you scroll the list.',
-  'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
-  'Your tank and Add fish are one section now, laid out like Decorate: Boosts, On display, and Add from your Cooler, each with its own heading.',
-  'Fish Log: a Normal / Shiny switch under the fish picture shows what a fish you have caught looks like when it is shiny.',
-  'Menus line up with the water screen: one even top row at the same height as on the water, matching edges, and the same bottom tabs, so nothing jumps when you open or close a menu.',
-  'Taps right after Back always work (a quick tap used to be ignored for a split second).',
-  'Taps on menu buttons always register, even when the button refreshes under your finger; a swipe that starts on a tab no longer opens it.',
-  'A bite says "Tap the water to set the hook" and the catch card says "Tap to keep fishing".',
-  'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
-  'Weather news also waits while the catch card is open.',
-  'Your boost timers sit in the top-left corner under the time and weather, so the Rest and Bait buttons no longer cover them.',
-  'Weather news no longer covers the screen: it shows as a small line under the time and weather on the water, and waits while a menu, a card or a catch is open, so it never sits on top of what you are doing.',
-  '## Smoother frames',
-  'Willow Pond no longer stutters: the willow used to redraw its whole curtain every third frame; its work is now spread evenly over every frame.',
-  'Storms are lighter: the darkening and the soft frame around the picture are drawn in one layer instead of up to four, and storm waves on the open sea draw in a handful of shapes instead of hundreds.',
-  'Held sideways, the side panel stays exactly in place when you open a menu (it used to shift a little); Back sits right above it.',
-  'Dawn and dusk are smoother: the light changes in fewer, softer steps, and never while you are casting or have a fish on the line.',
-  'The picture of the water is drawn as one solid layer, so your phone has a little less to blend on every frame.',
-  'If a water or a storm is too heavy for your phone, the picture gets a touch softer sooner and in smaller steps, and each water remembers what suits your phone, so coming back is smooth straight away.',
-  '## Fairer streaks',
-  'Reeling in early, casting by accident or missing a strike never costs you anything: your streak stays. A streak only ends when a fish you have hooked gets away (a snapped line, a fish that slips off or runs out your line).',
-  'On a Roll, fully learned: a lost fish now only halves your streak instead of ending it.',
-  'Steady Hands challenge: a late hook just does not count; only a hooked fish that gets away resets the count.',
-  '## One look everywhere',
-  'Every button, chip, tab and card now shares one style: the same navy, the same corners, the same lettering, and line icons instead of emoji pictures.',
-  'Everything you can tap in the top bar now looks exactly like the Bait and Rest buttons (filled teal). Coins and level are plain text, so you can tell at a glance. A full Cooler shows its count in gold.',
-  'Upright, the water no longer shows its name twice: the top bar has it, the chip on the water shows the time and weather.',
-  'Held sideways, the side panel is slimmer, so the water and the menus get more room.',
-  'Upright, page tabs (Tackle, Rods, Skills, Paths...) always fit on screen with an icon each: no more sideways scrolling to find a page.',
-  'Upright, the Fishing tab lights up gold while you fish, like the side panel does sideways.',
-  '## A new aquarium',
-  'The tank stays on screen while you scroll: upright it sits at the top, sideways it is on the left. Every new fish, water colour and decoration shows the moment you pick it.',
-  'The tank is bigger and always fully drawn (it used to stop short of the bottom). Earnings, Collect and Feed sit right under it.',
-  'Switching between Your tank, Decorate and Add fish is instant, and the tank keeps swimming while you try, place or buy things (it used to blink and restart).',
-  'New Add fish tab: put fish from your Cooler on display without leaving the aquarium.',
-  'Decorating is simpler: tap any card to try it in your tank, and the Buy / Stop bar stays right under the tank. A decoration you try lands in an open spot instead of on top of another one, and keeps that spot if you buy it.',
-  '## Also fixed',
-  'Tapping a top-bar chip (Fishing at, Cooler, Aquarium, Fish Log) works on the first tap every time.',
-  'The live event line in the top bar fits on small phones.',
-  'The collapsed side panel shows neat icon buttons in menus too (they were cut off at the screen edge).',
-  'Messages like Claimed, Bought or Hunting no longer stretch into a big box over the screen: they show as a small note at the bottom.',
-  '## Your angler',
-  'Shoes look like real shoes from the side: a rounded heel, a sole with a heel block, and a toe that slopes down. One foot stands a little ahead of the other.',
-  'Bodies have their real depth: the hips and seat fill out under the jacket, so legs no longer look pinned under a wide body.',
-  'Buttons, zips and seams sit on the front of the clothes (life jacket and spacesuit fixed).',
-  '## Everything comes alive',
-  'The wizard hat glows with a spiral of climbing sparkles, orbiting runes and a pulsing star at its tip.',
-  'Many more items have their own effect: music notes from headphones, petals from the flower crown and kimono, mushroom spores, party confetti, top-hat magic, witch wisps, diving and fishbowl bubbles, lantern moths, angel feathers, butterfly dust, dragon embers, jetpack smoke, guitar notes, glinting medals and lenses, little hearts from heart shades, glowing glow kicks and more.',
-  'The Wardrobe preview is animated now, so you see every effect live while you dress up.',
-  'Smoother: shiny sparkles run at your screen’s full frame rate, and the aquarium tank too.',
-  '## Fixes',
-  'Long water names (Stonebrook River) fit in the header instead of being cut off.']};
+// (spoiler-free, one short line per change, curly apostrophes only). The card opens once per device whenever the text changes.
+// Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'Natural frame rate, Settings fix', items:[
+  'Android draws a steady 60 frames a second again (also on 120 Hz screens), iPhone runs at its natural rate. No frame-rate choice in Settings.',
+  'Android stays automatically full screen, like iPhone, and no longer re-asks for full screen on every tap (that caused extra frames and jumpy fps during actions).',
+  'Opening and closing Settings (or any menu) no longer shows another water’s scenery for a moment.',
+  'Water pictures for the Map are only made while the Map is open, so other menus stay light.',
+  'Much smoother with a decorated home: decorations on the dock are no longer re-lit from scratch every frame (a moved save with many decorations made Android drop to about 25 fps).',
+  'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
+  'Smoother fights and storms on phones: the red danger glow on the fight ring and the rain ripples on the water are much cheaper to draw.',
+  'Smoother on boats and floating docks: decorations that bob with the water are no longer re-lit every frame.',
+  'Switching waters no longer leaves the game stuck at a lower sharpness: the automatic resolution comes back up once the phone keeps up again (it could not on a 60 Hz screen).',
+  'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there, was ×2): cheap minnows could beat it by day.',
+  'Willow Pond is much lighter on phones: the big willow repaints far less often (its sway is unchanged), and still home decorations are drawn once instead of 15 times a second.',
+  'Lighter on phones everywhere: lanterns, lamps, glows and Starfall’s star whale are drawn with ready-made soft lights (they look the same), and coloured pets no longer slow the game down.',
+  'The frame counter also shows the current water sharpness (res 2x = full, lower = the game is easing off).',
+  'Smoother dusk, dawn and weather changes: the scenery’s light now changes in fewer, softer steps on phones, so the game rebuilds it far less often.',
+  'The top bar updates 10 times a second instead of every frame (the numbers you see are the same), a little less work every frame.',
+  'In narrow windows (split-screen), the top bar shows Home again (it was hidden there) and your coins, level and water are readable instead of cut off.',
+  'Tester tools (Stats), Graphics test: the angler, pets, home decorations, moving cosmetic effects and oddities now have their own buttons. If a moved save makes the game slow, turn them off one at a time and watch the frame counter.']};
 addTestNotes(TEST_NOTES);
 
 // ---------- loop ----------
