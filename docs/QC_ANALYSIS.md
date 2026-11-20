@@ -46,3 +46,14 @@ every new bug, every round, and re-run the numbers below at the end of each proj
 4. **Performance** (draw-cost matrix, heavy save, 120 Hz loop) only when per-frame code or saves changed.
 5. **Touch / installed-app / Safari risks** (checklist; robust design; flag for the real phone).
 6. Notes, docs, incident rows → **parse gate again (after the last edit)** → publish → check the published stamps.
+
+## New checks vs old (running log from 2026-11-20, for the director's final report)
+The old suite passed 97/97 while every problem below existed.
+| # | Found by | Problem | Where | Status |
+|---|---|---|---|---|
+| 1 | `__contentQC` (spill) | Rods "In your hands" hid the Upgrade button and attachment slot | PC full HD, live and test | fixed, live hotfix 0.4.8.9.5 |
+| 2 | `__contentQC` (spill, overlap, after-play states) | Boardwalk cards: chests Open button under Counter specials, buttons over card edges, results over buttons | PC full HD, test | fixed (0330) |
+| 3 | `__contentQC` (overlap) | Voyage milestones a word per line, labels over text | PC all sizes, test | fixed (0330) |
+| 4 | `__contentQC` (pictures in a group) | Mystery crates, Higher or lower (after a game, PC), Gamble (empty, phones) without a picture | all | held for the director |
+| 5 | Cam, then `__contentQC` (mini-game pop-ups) | Three chests overflowed their pop-up | phones, test | fixed (0330), check proven |
+| 6 | start-up check (boot every build before publishing) | Own change crashed the game at start-up (`typeof` on a later `const`) | all builds, local | fixed before publishing |
