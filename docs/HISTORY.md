@@ -396,3 +396,36 @@ Platform notes: fix each item in the platform it belongs to (Platform ground rul
 - 2026-11-19: Driftline split from OutPace (own folder, memory, sessions: kept). "Phase 1" shrank CLAUDE.md to a one-page rulebook (details in docs/REFERENCE.md, status in docs/HANDOFF.md, commit a2128e5); "phase 2" added an automatic check (check.ps1), a device report and a publish gate (commits d6bc2b0, 2e978d8; test build 2305).
 - Cam's Pixel froze after updating to 2305. Real cause, found later: a 0.4.9 bug for saves with a Path chosen (#130), fixed in test build 2358 (`src/bj_polish036.js`) and confirmed on his Pixel 2026-11-20.
 - 2026-11-20, the director: work had become slower and buggier, so phase 2 was reverted (commit 8f07e7d: `src/`, build and publish scripts back to the pre-proposal code) and the full CLAUDE.md restored (one session kept going while the work is connected). Kept: the folder split, hotfix 0.4.8.9.4, the Path start-up fix, lessons #118–#130.
+
+## Work list batches 1–2 (live since 0.4.8.9, moved from docs/PLAN.md on 2026-11-20)
+### Batch 1: bugs and small fixes (all platforms where they apply)
+- ✔ [17] A fish eaten by a bigger fish stays anonymous ("something bigger ate your catch"); a high Fish Finder level may name it.
+- ✔ [26] The fully upgraded radar never names species you haven't caught.
+- ✔ [27] Shadows of hooked fish: one even tone, no lighter fins or patches.
+- ✔ [30] Challenges: no "1" badge next to the "Live" tag.
+- ✔ [31] Shinies: remove the sweeping shine band.
+- ✔ [32] Fish Log shiny toggle on phones: it existed but the details opened out of sight; a tap now brings them into view (+ “Back to the list”).
+- ✔ [36] iPhone: re-reading patch notes is cluttered, hard to open and scroll.
+- ✔ [37] iPhone: inside Settings the gear and the Settings tab were both lit; the gear steps aside there (+ QA check "menu top row").
+- ✔ [39] Android: search needs press-and-hold to open; the keyboard covers the results and the typed text.
+- ✔ [41] Android: a ready Weekly Quest also badges the Daily Tasks tab.
+- ✔ [42] Android: Aquarium preview choppy (the frame limiter alternated short/long frames on 90 and 144 Hz screens; now an even pace); Earning / Ready values overlap when numbers are large (fixed).
+- ✔ [43] Events: Calendar, Challenges and Derby tabs show the same content.
+- ✔ [44] Trophy Room tiny when empty; check with fish in and out.
+- ✔ [45] Skills: the "Looking for specializations?" line breaks the spacing.
+- ✔ [46] Hints off leaves an empty round box at the bottom.
+- ✔ [48] Rods: "Your rods" (not "Your rod") and only on the first tab.
+- ✔ [56] PC full screen: the orange upgrade-count circle is clipped (+ QA check “badges not cut”).
+- ✔ [34] Setting: metric / imperial weights (Settings › Display; every weight in the game).
+- ✔ [8] Aquarium: hide a decoration from view while keeping its bonus (a “Hide” switch on placed cards).
+
+- ✔ [new, 2026-11-19] Phones: while reeling, the hint and Rest step aside (director: "too much ui covers the screen"; hint kept for the first 5 catches).
+
+### Batch 2: the fight (one design pass, measured with a fight simulator)
+- ✔ [9] "Heavy fish" message explained; an Angler strength stat; each water shows its fish strength range and where you stand.
+- ✔ [22] New voyages raise how hard fish fight, up to a cap.
+- ✔ [25] Perfect hook: less idle time for the fish.
+- ✔ [33] Heavy and rare fish keep you still or take line even while you reel, at any gear level.
+- ✔ [54] Target: a maxed mythic takes 30–60 s with the best gear; behaviours and rarities matter at every stage.
+- ✔ [29] Rarer "eaten" events: the big fish pulls line out to its max, the fight restarts at full, a coin bonus on landing.
+- ✔ [13] Oddities: shadows under water; they snag (no fight) and reeling too hard can snap the line.
