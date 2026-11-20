@@ -95,7 +95,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     setTimeout(()=>toast('+'+pts+' Boon points to spend in Prestige, Boons.'+(nest?' Nest Egg: +'+fmt(nest)+' coins.':'')),2400); },0); },true);
 // ---------- saves ----------
 { const _m=migrate; migrate=function(o){ const raw=isObj(o)?o:null; const m=_m(o);
-    try{ if(raw&&raw.pearlMig!==1){ m.pearlOld=Math.max(0,Math.floor(+m.pearls||0)); m.pearlMig=1; /* the pearls after the older 0.3 rule (pearlV) cut them, not the raw number */ }
+    try{ if(raw&&raw.pearlMig!==1){ m.pearlOld=Math.max(0,Math.floor(+raw.pearls||0)); m.pearlMig=1; }
       if(!isFinite(+m.pearlOld)||m.pearlOld<0) m.pearlOld=0; m.pearlOld=Math.floor(m.pearlOld);
       const ps={}; if(isObj(m.pshop)) for(const k of ['gold','xp']){ const n=Math.floor(+m.pshop[k]); if(isFinite(n)&&n>0) ps[k]=Math.min(PSHOP_MAX,n); } m.pshop=ps;
       const bo={}; if(isObj(m.boons)) for(const k in m.boons){ const n=Math.floor(+m.boons[k]); if(BOONI[k]&&isFinite(n)&&n>0) bo[k]=Math.min(5,n); } m.boons=bo;

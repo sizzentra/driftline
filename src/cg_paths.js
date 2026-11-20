@@ -67,6 +67,7 @@ const PATH_FX = {
 const PATH_RANKS=[50,150,400,1000,2500], PATH_RN=['','I','II','III','IV','V'];
 const pathRank = id => { const n=(S.pathXP&&S.pathXP[id])||0; let r=0; while(r<5&&n>=PATH_RANKS[r]) r++; return r; };
 const pathPow = id => 1+.1*pathRank(id);
+function pathOn(id){ return spec(id); }
 function pathChosen(){ return S.specs ? Object.values(S.specs).filter(Boolean) : []; }
 function pathMul(k){ let m=1; if(!S||!S.specs) return 1; for(const id of pathChosen()){ const fx=PATH_FX[id]; if(!fx||!fx.mul||fx.mul[k]==null||(fx.when&&!fx.when())) continue; m*=1+(fx.mul[k]-1)*pathPow(id); } return Math.max(.05,m); }
 function pathAdd(k){ let v=0; if(!S||!S.specs) return 0; for(const id of pathChosen()){ const fx=PATH_FX[id]; if(fx&&fx.addv&&fx.addv[k]!=null) v+=fx.addv[k]*(k==='nibplus'?1:pathPow(id)); } return v; }

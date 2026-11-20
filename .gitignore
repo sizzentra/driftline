@@ -2,5 +2,3 @@ Driftline.html
 *.tmp
 desktop/dist/
 tools/shots/
-checks/parts/
-checks/last_run.txt

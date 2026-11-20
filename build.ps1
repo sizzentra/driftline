@@ -22,16 +22,46 @@ $bottom = [IO.File]::ReadAllText((Join-Path $root 'src\shell_bottom.html'))
 $router = [IO.File]::ReadAllText((Join-Path $root 'src\router.html')).Replace('__VERSION__', $v)
 $out = if ($Preview) { Join-Path $root 'site\next' } else { Join-Path $root 'site' }
 
-# ---------- GROUND RULE CHECKS (CLAUDE.md rules 6 and 7): every rule lives in tools/code_rules.ps1, shared with tools/check.ps1 ----------
-. (Join-Path $root 'tools\code_rules.ps1')
+# ---------- GROUND RULE CHECK 1: platform code never grows inside a shared file ----------
+# Each shared file may mention platform layouts at most as often as it did when the split was made (2026-11-17). The numbers
+# may only go DOWN (when old code moves into src/pc, src/mobile or src/ios). New platform UI belongs in a platform file; the
+# build refuses to finish otherwise. If a number goes down, lower it here too.
+$platWords = [regex]'MOB\(|pch-on|pc-fhd|pc-app|pc-wide|PC_APP|pchead|phone-app|phone-land|plat-ios|plat-android|plat-pc'
+$platBaseline = @{ 'af_smooth.js'=1; 'aw_menu035.js'=2; 'bd_ui036.js'=3; 'bh_platform036.js'=15; 'bj_polish036.js'=56; 'bm_ui04.js'=63; 'd_draw.js'=2; 'f_v3scene.js'=3; 'x_sections.js'=1 }
 $coreFiles = ($core + 'e_ui.js') | Where-Object { $_ -notmatch '^(pc|mobile|android|ios):' }
-$broken = Test-SourceRules $root $coreFiles
-if ($broken.Count) { throw ("GROUND RULE BROKEN:`n  " + ($broken -join "`n  ")) }
+$broken = @()
+foreach ($f in $coreFiles) {
+  $n = $platWords.Matches([IO.File]::ReadAllText((Join-Path $root "src\$f"))).Count
+  $allowed = if ($platBaseline.ContainsKey($f)) { $platBaseline[$f] } else { 0 }
+  if ($n -gt $allowed) { $broken += "$f has $n platform-specific mentions (allowed: $allowed)" }
+}
+if ($broken.Count) { throw ("GROUND RULE BROKEN: platform-specific code was added to a shared file. Move it into src/pc, src/mobile or src/ios.`n  " + ($broken -join "`n  ")) }
+
+# ---------- GROUND RULE CHECK: no dead functions (2026-11-19) ----------
+# A later file that replaces a whole function ("name = function(...)") without keeping the old one ("const _x = name") leaves the
+# original as dead code that ships but can never run (30 of them were found and removed on 2026-11-19). Edit the original instead,
+# or move it: the replacement becomes "function name(...)" and the old one is deleted. Wrappers that keep the old one are fine.
+$allSrc = Get-ChildItem (Join-Path $root 'src') -Recurse -Filter *.js | Where-Object { $_.Name -ne 'bn_qa04.js' }
+$texts = @{}; foreach ($f in $allSrc) { $texts[$f.FullName] = [IO.File]::ReadAllText($f.FullName) }
+$declared = @{}; foreach ($k in $texts.Keys) { foreach ($m in [regex]::Matches($texts[$k], '(?m)^function ([A-Za-z0-9_$]+)\(')) { $declared[$m.Groups[1].Value] = $k } }
+$dead = @()
+$platDir = [regex]'\\src\\(pc|mobile|android|ios)\\'  # a platform file replacing a shared default is an override, not dead code
+foreach ($k in $texts.Keys) {
+  if ($platDir.IsMatch($k)) { continue }
+  foreach ($m in [regex]::Matches($texts[$k], '(?m)^\s*([A-Za-z0-9_$]+)\s*=\s*function\b')) {
+    $n = $m.Groups[1].Value
+    if ($declared.ContainsKey($n) -and -not [regex]::IsMatch($texts[$k], '=\s*' + [regex]::Escape($n) + '\s*[;,]')) {
+      $dead += "$n (replaced in $(Split-Path $k -Leaf), original in $(Split-Path $declared[$n] -Leaf))"
+    }
+  }
+}
+if ($dead.Count) { throw ("GROUND RULE BROKEN: a function is fully replaced and its original is dead code.`n  " + (($dead | Sort-Object -Unique) -join "`n  ")) }
+
 New-Item -ItemType Directory -Force $out | Out-Null
 $built = @{}; $pages = @{}
 foreach ($p in 'pc','android','ios') {
   $parts = $core + $layers[$p]
-  if ($Preview) { $parts = $parts + 'bn_qa04.js' + 'testonly/device_report.js' + 'testonly/check_runner.js' }  # the QA suite, the device report and the automatic check's runner only exist in previews, never in the live game
+  if ($Preview) { $parts = $parts + 'bn_qa04.js' }  # the QA suite only exists in previews, never in the live game
   $parts = $parts + 'e_ui.js'
   # a part named "pc:...", "mobile:..." (Android + iPhone), "android:..." or "ios:..." belongs to those builds only
   $want = @($p); if ($p -ne 'pc') { $want += 'mobile' }
@@ -48,7 +78,7 @@ foreach ($p in 'pc','android','ios') {
     $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
     # the test label: a fixed small pill (it stretched into a tall shape on iPhone held sideways), plain ASCII text (a "·" was
     # read as "Â·" by Windows PowerShell)
-    $badge = '<span class="dlprev" style="position:fixed!important;' + $(if($p -eq 'pc'){'right:10px!important;bottom:10px!important;top:auto!important;left:auto!important;'}else{''}) + 'z-index:30;display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:22px!important;white-space:nowrap!important;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:3px 10px!important;margin:0!important;font:700 11px/14px system-ui,sans-serif!important;pointer-events:auto;cursor:pointer;box-sizing:border-box">test build - ' + $names[$p] + '</span>'
+    $badge = '<span class="dlprev" style="position:fixed!important;' + $(if($p -eq 'pc'){'right:10px!important;bottom:10px!important;top:auto!important;left:auto!important;'}else{''}) + 'z-index:30;display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:22px!important;white-space:nowrap!important;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:3px 10px!important;margin:0!important;font:700 11px/14px system-ui,sans-serif!important;pointer-events:none;box-sizing:border-box">test build - ' + $names[$p] + '</span>'
     # phones: above the bottom tabs when upright, top left of the water when held sideways (the side menu is on the right)
     if($p -ne 'pc'){ $badge = '<style>html body span.dlprev.dlprev{transform:none!important;right:10px!important;left:auto!important;top:auto!important;bottom:calc(env(safe-area-inset-bottom) + 84px)!important}@media (orientation:landscape){html body span.dlprev.dlprev{right:auto!important;left:calc(env(safe-area-inset-left) + 22px)!important;bottom:auto!important;top:calc(env(safe-area-inset-top) + 92px)!important}}</style>' + $badge }
   }
@@ -57,6 +87,11 @@ foreach ($p in 'pc','android','ios') {
   $platVer = @{ pc = '0.4.9'; android = '0.4.9'; ios = '0.4.9' }   # one number for all three since 0.4.8.7 (they release together)
   if ($platVer.ContainsKey($p)) { $body = [regex]::Replace($body, "const GAME_VERSION = '[^']*';", "const GAME_VERSION = '" + $platVer[$p] + "';") }
   $built[$p] = $body
+  # ---------- GROUND RULE CHECK 3: no top-level function declared twice ----------
+  # All files share one scope, so a second "function name(" silently replaces the first (0.4.8.9: a new oddSil hid the old one and
+  # every oddity fight crashed the scene). Replace on purpose with "name = function(...)"; never declare a name twice.
+  $dups = [regex]::Matches($body, '(?m)^function ([A-Za-z_$][A-Za-z0-9_$]*)\(') | ForEach-Object { $_.Groups[1].Value } | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name }
+  if ($dups) { throw ("GROUND RULE BROKEN: function declared twice in the $p build (the first is silently lost): " + ($dups -join ', ')) }
   # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the
   # shared version.txt keeps PC's stamp, and a phone page with a newer stamp saw "update ready" every 5 minutes forever (tapping it
   # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.
@@ -65,15 +100,24 @@ foreach ($p in 'pc','android','ios') {
   # Android opens the installed game full screen at once (director, 2026-11-18: "automatic for all mobile builds, like iPhone"):
   # the live Android page links its own manifest (display fullscreen); PC and iPhone keep manifest.webmanifest unchanged.
   if ($p -eq 'android' -and -not $Preview) { $pages[$p] = $pages[$p].Replace('<link rel="manifest" href="manifest.webmanifest">', '<link rel="manifest" href="manifest-android.webmanifest">') }
+  [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
 }
 
-# ---------- GROUND RULE CHECKS on the finished pages: no function declared twice, no dead function (previews hold every caller,
-# test hooks included), each build holds exactly its own platform files, no look-behind on phones, no test code in a release ----------
-$broken = Test-BuiltRules $root $pages -Preview:$Preview
-if (-not $Preview) { $broken = @($broken | Where-Object { $_ -notlike 'dead function*' }) }
-if ($broken.Count) { throw ("GROUND RULE BROKEN:`n  " + ($broken -join "`n  ")) }
-# pages are written only after every rule passed, so a refused build leaves the last good one in place
-foreach ($p in 'pc','android','ios') { [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8) }
+# ---------- GROUND RULE CHECK 2: every build holds exactly its own platform's files ----------
+# Each platform file is looked for in all three builds: it must be in the builds it belongs to and in no other.
+$owners = @{ pc = @('pc'); mobile = @('android','ios'); android = @('android'); ios = @('ios') }
+foreach ($dir in 'pc','mobile','android','ios') {
+  $d = Join-Path $root "src\$dir"; if (-not (Test-Path $d)) { continue }
+  foreach ($file in Get-ChildItem $d -Filter *.js) {
+    $txt = [IO.File]::ReadAllText($file.FullName); $sig = $txt  # the file's whole text: it is copied into its builds unchanged, so it must appear there exactly, and nowhere else
+    if (-not $sig) { continue }
+    foreach ($p in 'pc','android','ios') {
+      $has = $built[$p].Contains($sig); $should = $owners[$dir] -contains $p
+      if ($has -and -not $should) { throw "GROUND RULE BROKEN: src\$dir\$($file.Name) ended up in the $p build." }
+      if ($should -and -not $has) { throw "GROUND RULE BROKEN: src\$dir\$($file.Name) is missing from the $p build (add it to `$layers or place a //@layer line)." }
+    }
+  }
+}
 $r = $router
 if ($Preview) { $r = $r.Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">') }
 [IO.File]::WriteAllText((Join-Path $out 'index.html'), $r, $utf8)

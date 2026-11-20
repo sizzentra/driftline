@@ -2,32 +2,27 @@
 
 Updated at the end of every session (CLAUDE.md). Current facts only; older notes go to `docs/HISTORY.md`. Shown to the director only on request.
 
-**Last updated:** 2026-11-19, 23:10 (phase 2 built and proven; test builds published at 2305; waiting for the director's count decision and the first phone script runs)
+**Last updated:** 2026-11-19, 23:50 (phase 2 reverted on the director's word; test builds back to 0.4.9 at stamp 2100)
 
 ## Where things are
 | Where | Version | Stamp | What |
 |---|---|---|---|
-| Live (PC, Android, iPhone) | 0.4.8.9.4 | 2026.11.19-2100 | unchanged this session |
-| Test builds (phone test apps, /driftline/next/) | 0.4.9 | 2026.11.19-2305 | 0.4.9 + phase 2: device report (tap the "test build" pill), a pearl save fix, 3 dead functions removed, test card + 0.4.9 notes lines. Check: PASS (`checks/report-2026.11.19-2305.txt`) |
+| Live (PC, Android, iPhone) | 0.4.8.9.4 | 2026.11.19-2100 | unchanged |
+| Test builds (phone test apps, /driftline/next/) | 0.4.9 | 2026.11.19-2100 | the same files as before the proposal work (commit 8033ae5) |
 
-## Phase 2 (the baseline test): built
-- **Count:** `docs/TEST_COUNT.md`. 97 logic tests: 13 caught a real bug, 15 guard a player-found bug, 69 never linked to one. Nothing cut; the director decides.
-- **The automatic check:** `check.ps1` (one command, headless Chrome already on the PC, about 7 minutes; details in REFERENCE "The automatic check"). Code rules live in `tools/code_rules.ps1` (build.ps1 uses the same file). Publish scripts refuse without a PASS for the same stamp and page contents (`tools/check_gate.ps1`); `publish_preview.ps1` no longer rebuilds.
-- **Device report:** `src/testonly/device_report.js`, test builds only (`src/testonly/` is added by build.ps1 -Preview; a release page holding it is refused). Proof page: `tools/check/devreport_proof.ps1`.
-- **Phone script:** `docs/PHONE_SCRIPT.md` (10 steps + how to use the device report). Not tried by the director or Cam yet.
-- **For the director and Cam:** doc "Driftline Phase 2: try it with Cam" (https://claude.ai/artifact/Q7UDgTw65rkrwXS435S3d6): count, phone script, device report, proof; a comment there asks whether to cut the Search and Quests checks.
-- **Proof:** `docs/PROOF_PHASE2.md` (coin rule → logic tests; cut label → layout checks; dead function → build/code rules; slow screen → device report; publish gate refusals).
+## What happened (2026-11-19, late)
+- Phase 2 was built and published as test build 2305 (automatic check `check.ps1`, device report, publish gate). Right after updating to it, **Cam's Pixel froze** at start-up (black water, top bar at its starting values, no taps). The cause was never found: it did not happen in Chrome in any setup tried (fresh save, played save, old build then new, Android identity, clock shifted).
+- **The director's decision:** "Revert to the test builds that were active before any of the proposals and use the same checks that one had at the time." Done: `src/`, `build.ps1`, the publish scripts, `tools/serve_local.ps1`, `site/next/` and `testapps/` are identical to commit 12e08d6 (pre-proposal code); the phase 2 tools and their docs were removed. The rulebook (CLAUDE.md) was not touched. Phase 2 work stays in git history (commits d6bc2b0, 2e978d8) if it is ever wanted again.
+- Checks are the old ones again: the round checklist in docs/REFERENCE.md (parse gate, `__qa` on every build, the layout sweeps). `docs/TEST_COUNT.md` (which tests ever caught a bug) is kept as information.
 
 ## What is open
-- **Director:** read the count table and say which tests (if any) to cut; run the phone script once with Cam and flag unclear steps; send both device reports.
-- **Pixel 10 size** in check.ps1 is assumed 915×412 until Cam's report shows his window size.
-- Follow-ups are listed in `docs/PLAN.md` under "Workflow phase 2 follow-ups" (live publish guard for rule 10, random-roll tests, page pictures, split-screen sizes, heavy save).
+- **Cam:** reopen DL Test Android; it should offer the update and land back on the 2100 build. Not confirmed yet.
+- Reverted along with phase 2 (each was a real fix, parked until the director wants them back): a brand-new save could lose some Wisdom Pearls on its first reload (`fresh()` has no `pearlV`); three functions nothing calls (`boardwalkBanner`, `clawHTML`, `pathOn`); a flaky QA test (a random shiny breaks the batch 5 waters price limit).
+- A PS5 controller on this PC reaches `__qa` fight tests when it is in use (a held trigger reels): run `__qa` with the controller idle.
 - **0.4.9** stays on the test builds until the director has tested it on every platform. Next live hotfix: copy `tools/hotfix_0.4.8.9.4.ps1`.
 - Open director decisions (unchanged): tap target size, text size, left-handed menu side, colour-blind help, a tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage, the aquarium tail-wag speed-up. Unanswered questionnaire rows in the workflow doc (5, 6, 7, 10, 12, 14, 15).
-- A PS5 controller is connected to this PC and was in use during the session: it reached the tests until the check switched controllers off (incident #126). Any test run outside check.ps1 can still pick it up.
+- The doc "Driftline Phase 2: try it with Cam" (claude.ai) describes the reverted work; delete it only if the director asks.
 
 ## Not verified
-- Everything on real phones: the device report panel, Copy report (the built-in browser blocked the clipboard and the fallback selected the text), the badge tap with a finger, the phone script itself.
-- Safari's engine: the check runs Chrome's only.
-- The pearl fix on a real old save (tested with constructed saves only).
-- Feel: nothing gameplay-related changed.
+- That Cam's Pixel works again on 2100 after the revert.
+- Why 2305 froze on his Pixel.

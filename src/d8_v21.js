@@ -76,6 +76,10 @@ function playClaw(){ const tot=CLAW_PRIZES.reduce((a,p)=>a+p[2],0); let x=Math.r
   if(p[0]==='tickets') txt+=': +'+addTickets(rint(15,40))+' tickets'; if(p[0]==='tickets2') txt+=': +'+addTickets(rint(60,120))+' tickets'; if(p[0]==='scales'){ const n=rint(6,15); S.scales+=n; txt+=': +'+n+' Scales'; }
   if(p[0]==='crate') S.tokens.small++; if(p[0]==='plush'){ if(!S.owned.hats.includes('clawplush')){ S.owned.hats.push('clawplush'); } else { txt='Another plush crab! Swapped for 150 tickets'; addTickets(150); } }
   if(p[0]!=='nothing'){ S.gstats.claw=(S.gstats.claw||0)+1; sfx.coin(); } else sfx.lost(); claw={txt, t:performance.now(), win:p[0]!=='nothing'}; taskProgress('game',1); }
+function clawHTML(){ return `<div class="tile bwt" style="--c:#ff7ab0"><h4>Claw machine</h4><div class="meta">A glass box full of plushies, tickets and secrets. The claw is… mostly honest.</div>
+  <canvas id="clawcv" width="420" height="260" style="width:100%;height:auto;cursor:default;border-radius:10px;background:#1a2a3a"></canvas>
+  ${claw?`<div class="val" style="text-align:center;color:${claw.win?'var(--gold)':'var(--muted)'}">${esc(claw.txt)}</div>`:''}
+  <button class="btn" data-act="claw" ${S.money>=clawCost()?'':'disabled'}>Drop the claw · <span class="coin">${fmt(clawCost())}</span></button></div>`; }
 function paintClaw(){ const c=$('clawcv'); if(!c) return; const x=c.getContext('2d'), w=c.width, h=c.height; x.clearRect(0,0,w,h);
   x.fillStyle='#24384a'; x.fillRect(0,0,w,h); x.fillStyle='rgba(255,255,255,.06)'; x.fillRect(16,10,8,h-20);
   const cols=['#ff9ad0','#7fc8a9','#ffd84a','#5aa9ff','#c38bff','#ff7a5a']; for(let i=0;i<16;i++){ const px=30+((i*53)%(w-60)), py=h-24-((i*29)%60); x.fillStyle=cols[i%6]; x.beginPath(); x.arc(px,py,14,0,7); x.fill(); x.fillStyle='#1a1a1a'; x.beginPath(); x.arc(px-4,py-3,1.6,0,7); x.arc(px+4,py-3,1.6,0,7); x.fill(); }

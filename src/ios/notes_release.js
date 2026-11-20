@@ -252,7 +252,6 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Voyages',
   'Wisdom Pearls are now spent: the new Pearl shop sells +1% coins or +1% XP for 2 pearls a level, up to 100 levels each. Each pearl on a voyage needs more coins than the last. Pearls you already had keep their old bonus for good.',
   'Boons: every voyage gives Boon points to raise 16 lasting Boons, such as heavier fish, Derby boosts, Catch Surges on long streaks, more cooler space and more pearls.',
-  'Fixed: a brand-new game could lose some Wisdom Pearls the first time it was reloaded.',
   '32 voyage milestones now, all the way to voyage 100, and 21 new Pearl relics.',
   '## Boardwalk',
   'Fishmonger’s Gamble: stake a fish from your cooler for a chance at 1.8×, 3× or 8× its price. Treasure chests: pick one of three for tickets, Scales, Nibbles, foods, coins or a rare pet colour. Ticket games sometimes pay a coin jackpot.',
