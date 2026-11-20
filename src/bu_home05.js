@@ -11,6 +11,10 @@ const HOME_LIGHTS=[['','Natural',null],['gold','Golden','255,196,90'],['rose','R
 const HOME_HULLS=[['','Original',null],['navy','Navy','#26456e'],['forest','Forest','#2f5e46'],['sun','Sunshine','#e8c04a'],['coral','Coral','#e07a62'],['plum','Plum','#6a3f74'],['night','Night','#24272e'],['snow','Snow','#f2f0ea']];
 // what each kind of home can change (the page only offers what works where you are)
 const HOME_FEATURES={dock:['wood','style','light'], pier:['wood','light'], boat:['wood','hull','light'], trawler:['hull','light'], raft:['light'], ice:['light'], sand:['light'], stone:['light'], crystal:['light']};
+const HOME_PAINT_NAMES={}; /* C35: what the paint choice is called on each home (Lacquer, Sail colour…); 'Hull paint' when not named */
+function homePaintName(plat){ return HOME_PAINT_NAMES[plat]||'Hull paint'; }
+const HOME_PAINT_PARTS={}; /* what that paint colours (the railings, the sail…) */
+function homePaintLine(plat,hname){ const p=HOME_PAINT_PARTS[plat]; return p?homePaintName(plat)+' colours '+p+' of your '+hname+'. ':'The hull paint colours your '+hname+'. '; }
 const HOME_NAMES={dock:'dock', pier:'pier', boat:'boat', trawler:'trawler', raft:'raft', ice:'ice camp', sand:'beach', stone:'stone ledge', crystal:'crystal shelf'};
 function homeLightOk(id){ return typeof id==='string'&&HOME_LIGHTS.some(x=>x[0]===id); }
 function homeHullOk(id){ return typeof id==='string'&&HOME_HULLS.some(x=>x[0]===id); }

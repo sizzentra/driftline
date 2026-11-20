@@ -36,14 +36,17 @@ const HAIR_P={
   mullet:{vol:1,front:'quiff',back:-46,bw:2}, undercut:{vol:2,front:'quiff',back:-55,cap:'shave'}, mohawk:{vol:0,front:'none',back:-55,cap:'shave',x:'mohawk'},
   afro:{vol:4.4,front:'fringe',back:-50.5,curl:1.6,ear:1}
 };
-const HC={x:0,y:-56,r:7.5};
+const HC={x:0,y:-56,r:7.5}, HAIR_HAT_VOL=1.1; /* C32: the most volume hair keeps under a hat */
 // volume around the skull by angle (0 = front, -π/2 = top, ±π = back): most at the crown, less at the hairline and nape
 function hairVolAt(a){ const d=Math.abs(a-(-1.85)); return Math.max(.2,1-Math.pow(d/2.2,2)); }
 function hairOutline(P){ const pts=[], a0=-.62, a1=-Math.PI-.95; /* from the hairline over the top to the nape */
   for(let i=0;i<=26;i++){ const a=a0+(a1-a0)*i/26; let r=HC.r+P.vol*hairVolAt(a); if(P.curl) r+=P.curl*.55*Math.max(0,Math.sin(i*1.6))*hairVolAt(a); pts.push([HC.x+Math.cos(a)*r,HC.y+Math.sin(a)*r]); }
   return pts; }
 function hairShade(c,hairC,D,top,bot){ const g2=c.createLinearGradient(-3,top,3,bot); g2.addColorStop(0,D(mix(hairC,'#ffffff',.3))); g2.addColorStop(.4,D(hairC)); g2.addColorStop(1,D(mix(hairC,'#000000',.38))); return g2; }
-drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[hs]===undefined?HAIR_P.short:HAIR_P[hs]; /* an unknown style draws as short hair */ if(P===null){ c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); return; }
+drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ if(hs==='curly'||hs==='coils'){ drawCurly3(c,hair,hairC,D,t); return; } /* C32: curly is the hand-drawn clusters again */
+  const P0=HAIR_P[hs]===undefined?HAIR_P.short:HAIR_P[hs]; /* an unknown style draws as short hair */
+  /* C32 no hair through hats: under a hat big hair is pressed flat to the head, so nothing bulges out around the brim or gets cut flat */
+  const P=A3HATON&&P0&&P0.vol>HAIR_HAT_VOL?Object.assign({},P0,{vol:HAIR_HAT_VOL,curl:P0.curl?P0.curl*.6:0}):P0; if(P===null){ c.fillStyle='rgba(255,255,255,.22)'; c.beginPath(); c.ellipse(2,-61.4,2.6,1.1,-.3,0,7); c.fill(); return; }
   const dk=D(mix(hairC,'#000000',.32)), lt=D(mix(hairC,'#ffffff',.32)), fill=hairShade(c,hairC,D,-66,-48);
   // shaved sides: a soft short layer over the whole cap
   if(P.cap==='shave'||P.cap==='thin'){ c.save(); c.globalAlpha*=P.cap==='thin'?.85:.45; c.fillStyle=D(hairC); c.beginPath(); c.arc(HC.x,HC.y,HC.r+.25,-.62,-Math.PI-.95,true); c.lineTo(-3.4,-53.6); c.lineTo(-1.2,-58.4); c.lineTo(3.2,-60.2); c.closePath(); c.fill(); c.restore(); if(P.cap==='thin') return; }
@@ -53,6 +56,7 @@ drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[
   if(P.cap==='shave'){ c.lineTo(-5,-60.8); c.quadraticCurveTo(0,-62.6,4.2,-61.2); }
   else { const by=Math.max(P.back,last[1]); c.lineTo(Math.min(last[0],-6.8),by); if(P.ear){ c.quadraticCurveTo(-4,by+.6,.4,Math.max(by,-51)); c.quadraticCurveTo(1.2,-55,2.6,-58.8); } else { c.quadraticCurveTo(-4.6,by,-3.6,-53.4); c.quadraticCurveTo(-3.2,-57.4,-1.2,-58.6); c.lineTo(2.6,-59.6); } }
   c.lineTo(4.6,-60.6); c.closePath(); c.fill();
+  hairTexture(c,P,hairC,D); /* C32: fine strands inside the main mass, so it reads as hair, not paint */
   // the front: a quiff lifts at the hairline, a fringe falls to the brows, a side part sweeps across, spikes break the outline
   c.fillStyle=fill;
   if(P.front==='quiff'){ c.beginPath(); c.moveTo(1.4,-63.4-P.vol*.3); c.quadraticCurveTo(5.4,-64.2-P.vol*.25,6.7,-61.4); c.quadraticCurveTo(5.6,-60.7,4.2,-60.8); c.lineTo(1.8,-61.4); c.closePath(); c.fill(); }
@@ -62,7 +66,6 @@ drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[
   else if(P.front==='spikes'&&!A3HATON){ for(let i=0;i<6;i++){ const a=-.75-i*.42, r0=HC.r+P.vol*hairVolAt(a)*.8, r1=r0+2.6+(i%2)*1.2; c.beginPath(); c.moveTo(Math.cos(a-.2)*r0,HC.y+Math.sin(a-.2)*r0); c.lineTo(Math.cos(a+.08)*r1,HC.y+Math.sin(a+.08)*r1); c.lineTo(Math.cos(a+.28)*r0,HC.y+Math.sin(a+.28)*r0); c.closePath(); c.fill(); } }
   // shared finish: a sheen band across the crown and strand lines that follow the flow back and down
   c.save(); c.globalAlpha*=.4; c.strokeStyle=lt; c.lineWidth=.7; c.beginPath(); c.arc(HC.x,HC.y,HC.r+P.vol*.55,-2.35,-1.15); c.stroke(); c.restore();
-  c.strokeStyle=v3rgba(dk,.55); c.lineWidth=.28; for(let i=0;i<3;i++){ const a=-1.1-i*.42, r=HC.r+P.vol*.5; c.beginPath(); c.moveTo(Math.cos(a)*r*.92,HC.y+Math.sin(a)*r*.92); c.quadraticCurveTo(Math.cos(a-.5)*(r+.4),HC.y+Math.sin(a-.5)*(r+.4),Math.cos(a-1)*r*.95,HC.y+Math.sin(a-1)*r*.95); c.stroke(); }
   if(P.curl){ c.fillStyle=fill; for(let i=0;i<O.length;i+=2){ const p=O[i], a=Math.atan2(p[1]-HC.y,p[0]-HC.x); if(p[1]>-50.5) continue; c.beginPath(); c.arc(p[0]-Math.cos(a)*.4,p[1]-Math.sin(a)*.4,.9+P.curl*.9*hairVolAt(a),0,7); c.fill(); } /* a cloud of curls along the edge */
     c.strokeStyle=v3rgba(dk,.5); c.lineWidth=.3; for(let i=0;i<9;i++){ const a=-.8-i*.32, r=HC.r+P.vol*hairVolAt(a)*.6; c.beginPath(); c.arc(Math.cos(a)*r,HC.y+Math.sin(a)*r,.9,0,5); c.stroke(); } }
   // extras on top of the head (hidden under a hat)
@@ -71,6 +74,43 @@ drawHair3=(function(_old){ return function(c,hs,hair,hairC,D,t){ const P=HAIR_P[
     if(P.x==='knot'){ c.fillStyle=fill; c.beginPath(); c.arc(-1.2,-64.9,2.4,0,7); c.fill(); c.fillStyle=dk; c.fillRect(-2.6,-63,2.8,.6); }
     if(P.x==='mohawk'){ c.fillStyle=fill; c.beginPath(); const a0=-2.4, a1=-1.05; c.moveTo(Math.cos(a0)*7.6,HC.y+Math.sin(a0)*7.6); for(let i=0;i<=8;i++){ const a=a0+(a1-a0)*i/8, R=7.6+(i%2?1.4:3.6); c.lineTo(Math.cos(a)*R,HC.y+Math.sin(a)*R); } c.lineTo(Math.cos(a1)*7.6,HC.y+Math.sin(a1)*7.6); c.closePath(); c.fill(); } }
 }; })(drawHair3);
+// C32 light texturing (Cam, 2026-11-20: "light texturing instead of a painted-on look"): clipped to the main mass just drawn, a dozen
+// thin strands follow the flow from the crown back and down, alternating a lighter and a darker tone at low strength. Fixed positions,
+// so nothing flickers and the cost is a few strokes.
+
+function hairTexture(c,P,hairC,D){ if(!P||P.cap==='thin') return; const lt=D(mix(hairC,'#ffffff',.4)), dk=D(mix(hairC,'#000000',.45));
+  c.save(); c.clip(); c.lineCap='round';
+  for(let i=0;i<13;i++){ const a=-.75-i*.24, r=HC.r+P.vol*hairVolAt(a)*.85, a2=a-.55-(i%3)*.12, r2=HC.r-.6+P.vol*.3, mid=a-.28;
+    c.strokeStyle=v3rgba(i%2?dk:lt,i%2?.36:.3); c.lineWidth=i%2?.28:.22; c.beginPath(); c.moveTo(Math.cos(a)*r,HC.y+Math.sin(a)*r);
+    c.quadraticCurveTo(Math.cos(mid)*(r+.5),HC.y+Math.sin(mid)*(r+.5),Math.cos(a2)*r2,HC.y+Math.sin(a2)*r2); c.stroke(); }
+  c.restore(); }
+// C32 curly "back to how it was" (Cam): the hand-drawn curl clusters from 0.3.3.1 (restored from git, ak_side.js before ecf6d41).
+// A top-heavy cap of curls, a couple falling toward the forehead, tight curls at the temple, a compact back to the nape; three tones and
+// only a soft outline. Under a hat only the curls below the brim show, pulled in so nothing pokes out. Head centre (0,-56), radius 7.5.
+const CURLY_LOBES=[ // x, y, rx, ry, rotation, curl type
+  [-6.3,-52.6,1.6,1.7,-1.4,'S'],[-7.3,-55.8,1.9,2.0,-1.2,'C'],[-7.2,-59.4,2.0,2.1,-1.0,'P'],[-5.9,-62.6,2.4,2.2,-.6,'C'],
+  [-3.2,-64.6,2.9,2.2,-.25,'S'],[.1,-65,3.0,2.2,-.05,'C'],[3.2,-64,2.8,2.1,.15,'S'],[-3.4,-60.8,2.4,2.1,.45,'P'],
+  [1.2,-61.8,2.3,1.8,.2,'S'],[5.4,-61.5,2.4,1.8,.35,'C'],[.4,-58.6,1.4,1.3,.8,'C'],[6.8,-59.8,1.35,1.25,.7,'C'],
+  [-1.9,-57,1.9,2.1,-1,'C'],[-2.4,-54.2,1.6,1.8,-1.2,'S'],[-4.4,-52.2,1.5,1.5,-1.3,'C']]; /* curls fall over the ear */
+function curlyCap(c){ c.beginPath(); c.moveTo(6.6,-60.2); c.bezierCurveTo(7.4,-63.6,4.6,-66.4,0,-66.4); c.bezierCurveTo(-4.8,-66.4,-8.2,-63.4,-8.4,-58.6); c.bezierCurveTo(-8.5,-55,-7.8,-52.2,-6.2,-50.8); c.bezierCurveTo(-4.8,-51.2,-3.6,-52,-3.2,-53.2); c.bezierCurveTo(-2.4,-55.8,-1.4,-57.6,.6,-58.6); c.bezierCurveTo(2.6,-59.6,4.6,-59.6,6.6,-60.2); c.closePath(); }
+function curlyLobes(){ if(!A3HATON) return CURLY_LOBES; return CURLY_LOBES.filter(L=>L[1]>-61.5).map(([x,y,rx,ry,r,ty])=>[x*.86,y+(y<-58?1:0),rx*.8,ry*.8,r,ty]); }
+function curlyBase(c){ if(!A3HATON){ curlyCap(c); c.fill(); return; } c.save(); c.translate(0,-56); c.scale(.9,.92); c.translate(0,56); curlyCap(c); c.restore(); c.fill(); }
+function drawCurly3(c,hair,hairC,D,t){ const LOBES=curlyLobes(), base=D(hairC), shade=D(mix(hairC,'#000000',.3)), light=D(mix(hairC,'#ffffff',.3)), line=D(mix(hairC,'#000000',.45));
+  const lobe=(L,grow)=>{ const [x,y,rx,ry,r]=L; c.beginPath(); c.ellipse(x,y,rx+grow,ry+grow,r,0,7); };
+  c.fillStyle=shade; curlyBase(c); for(const L of LOBES){ lobe(L,.32); c.fill(); }
+  c.fillStyle=base; curlyBase(c); for(const L of LOBES){ lobe(L,0); c.fill(); }
+  c.lineCap='round'; c.lineJoin='round';
+  for(const [x,y,rx,ry,r,ty] of LOBES){ const s=Math.min(rx,ry), cs=Math.cos(r), sn=Math.sin(r), P=(u,v)=>[x+u*cs-v*sn,y+u*sn+v*cs];
+    c.save(); c.beginPath(); c.ellipse(x,y,rx,ry,r,0,7); c.clip();
+    c.fillStyle=v3rgba(shade,.7); c.beginPath(); c.ellipse(x+sn*s*.35,y+cs*s*.45,rx*.95,ry*.55,r,0,7); c.fill();
+    c.fillStyle=base; c.beginPath(); c.ellipse(x-sn*s*.15,y-cs*s*.2,rx*.86,ry*.72,r,0,7); c.fill();
+    c.strokeStyle=v3rgba(line,.75); c.lineWidth=.42; c.beginPath();
+    if(ty==='C'){ c.ellipse(x,y,rx*.6,ry*.58,r,Math.PI*.15,Math.PI*1.35); }
+    else if(ty==='S'){ const [a1,b1]=P(-rx*.55,ry*.2), [a2,b2]=P(0,-ry*.25), [a3,b3]=P(rx*.55,ry*.15), [m1,n1]=P(-rx*.3,-ry*.55), [m2,n2]=P(rx*.3,ry*.6); c.moveTo(a1,b1); c.quadraticCurveTo(m1,n1,a2,b2); c.quadraticCurveTo(m2,n2,a3,b3); }
+    else { c.ellipse(x,y,rx*.62,ry*.6,r,Math.PI*1.0,Math.PI*2.2); c.moveTo(...P(rx*.62*Math.cos(Math.PI*2.2),ry*.6*Math.sin(Math.PI*2.2))); c.ellipse(x+cs*s*.12,y+sn*s*.12,rx*.32,ry*.3,r,Math.PI*.2,Math.PI*1.4); }
+    c.stroke();
+    c.strokeStyle=v3rgba(light,.85); c.lineWidth=.5; c.beginPath(); c.ellipse(x-sn*s*.08,y-cs*s*.12,rx*.68,ry*.58,r,Math.PI*1.2,Math.PI*1.72); c.stroke();
+    c.restore(); } }
 // the back layer (behind the body): long and wavy hair, the bob's back, a mullet, ponytail, braid
 function hairBack3(c,hs,hairF,hairC,D,t,lean,live){ const P=HAIR_P[hs]; if(!P) return false; const sw=Math.sin(t*1.3)*.25+(live?-lean*2:0), fill=hairShade(c,hairC,D,-62,P.back), dk=D(mix(hairC,'#000000',.34));
   if(P.bw&&P.back>-55){ const bw=P.bw; c.fillStyle=fill; c.beginPath(); c.moveTo(-5.4,-62.6); c.bezierCurveTo(-8.6-bw*.3,-61,-9.2-bw*.35,-56,-8.6-bw*.3,-51);

@@ -72,3 +72,17 @@ The old suite passed 97/97 while every problem below existed.
 - Start-up check: every build starts with no errors. The test save had changed by the end (the game's own autosave runs while a test page is open; the checks themselves block saving) and was put back from the backup.
 - Process finding: one sweep took about 20 manual steps (resize, load, run, read, per size). Next tool: one sweep page that runs every size and build in frames and gives a single report.
 - Done (2026-11-20): `tools/sweep.html` runs the whole sweep with one click. Proven by planting three bugs (an iPhone script break, a wrong phone version file, a #130-style crash that only happens with Paths chosen): all three caught, each in its own row; the normal PC start-up stayed green while the with-Paths one went red, which is exactly how #130 escaped before. First full run: 43 checks in 7.7 minutes, all passing apart from the three held picture decisions (shown yellow).
+| 15 | `__qa` C32 (new, proven) while building hair | Under cone hats (party) curls and long back hair poked up beside the band; the old fixed cut line also flattened big hair into a shelf | all, test | fixed (each hat's own edge) |
+| 16 | the proving step itself | The first version of that hair check passed with its bug planted (it measured from the line under test) | local | check rewritten to read the picture (#149) |
+
+## Three days of data (2026-11-18 → 11-20, 149 incidents), re-run after Batch 6
+| Day | Bugs | Found by players | of them game-breaking | Found by checks | Game-breaking found by checks | Found by me by hand |
+|---|---|---|---|---|---|---|
+| 11-18 (before the gates) | 49 | 29 (59%) | 5 | 11 | 5 | 9 |
+| 11-19 (parse gate, page checks, proving) | 80 | 27 (34%) | 4 | 37 | 2 | 16 |
+| 11-20 (content standard, sweep, rules → tools) | 20 | 11 (55%) | 2 | 9 | 0 | 3 |
+- **Fewer bugs a day:** 49 → 80 (the big patch week, most caught before release) → 20. Script breaks found by players: 2 in total, none since the gate.
+- **The share found by players went back up on 11-20 (55%), but what they found changed:** 6 of the 11 were looks (art) or design feedback with no check behind them at all (art: 6 of 6 ever found by players), 3 were phone layout details, and 2 were game-breaking (#130 start-up with a Path chosen, #140 Tide Pass Claim). Both game-breaking ones now have checks that run every round (Paths start-up in the sweep, every page's main button in `__qa`).
+- **The new checks find old bugs the old suite passed:** 16 problems on the "new vs old" list, 4 of them already live (Rods card, split-screen Live chip, seahorse pictures, the menu jumps). The old suite stayed at 97/97 through all of them.
+- **Proving works:** on 11-19, 3 of 6 new checks passed with their bug present; on 11-20, 1 of 6 (the hair check), caught by the proving step before it was trusted.
+- **Where the data is weak:** three days is a small sample, and the log's labels drifted (cam/tester, claude/me_manual, sweep/qa used for the same thing), so per-person numbers above merge them by hand. There is no field for which round introduced a bug, so a true escape rate (bugs made by a round that reached players) cannot be computed yet.

@@ -172,7 +172,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   const HD=(hairC2)=>{ const gr=c.createLinearGradient(-3,-66,4,-48); gr.addColorStop(0,D(mix(hairC2,'#ffffff',.28))); gr.addColorStop(.42,D(hairC2)); gr.addColorStop(1,D(mix(hairC2,'#000000',.34))); return gr; };
   const hairF=HD(hairC);
   // back hair (behind the upper body), follows the head tilt
-  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } }
+  c.save(); c.translate(0,-50); c.rotate(tilt); c.scale(A3HEAD,A3HEAD); c.translate(0,50); { const hId=lk.hat||'none'; if(A3_HAT_FULL.has(hId)){ c.beginPath(); c.rect(0,0,0,0); c.clip(); } else if(!A3_HAT_OPEN.has(hId)){ const cy=hatClipY(hId); c.beginPath(); c.rect(-30,cy,60,-19.9-cy); c.clip(); /* C32: the same line as the hair on the head */ } }
   if(typeof hairBack3==='function') hairBack3(c,hs,hairF,hairC,D,t,lean,live); /* long, wavy, bob, mullet, ponytail and braid hair behind the body (ct_hair.js) */
   c.restore();
   // back arm: shoulder -> elbow -> hand on the grip behind the front hand
@@ -237,7 +237,7 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   else if(mood==='focus'){ c.beginPath(); c.moveTo(4.4,-52.7); c.lineTo(6.4,-52.9); c.stroke(); }
   else a3Mouth(c,lk.mouth,D);
   const beardOn=lk.beard&&lk.beard!=='none'&&!A3_HAT_FULL.has(lk.hat||'none'); drawFace(c,beardOn?Object.assign({},lk,{beard:'none'}):lk,D,hair); const headM=c.getTransform(); /* the beard is drawn after the front arm: the face juts out in front of the shoulder */
-  if(!hatFull){ c.save(); if(hatCover){ c.beginPath(); c.rect(-30,-63.9,60,44); c.clip(); } A3HATON=hatCover; drawHair3(c,hs,hairF,hairC,D,t); A3HATON=false; c.restore(); }
+  if(!hatFull){ c.save(); if(hatCover){ const cy=hatClipY(hatId); c.beginPath(); c.rect(-30,cy,60,-19.9-cy); c.clip(); } A3HATON=hatCover; drawHair3(c,hs,hairF,hairC,D,t); A3HATON=false; c.restore(); }
   a3Brow(c,lk.brows,D(mix(hairC,'#000000',.15)),ex,browY+.4,mood); /* brows sit over the fringe so they always show */
   // hats sit above the eye line, so the face always reads (no hole is ever cut into a hat)
   // the hat goes on its own layer so it can be lit like the angler (light from the upper front, shade underneath), then laid on top
@@ -385,6 +385,16 @@ if(/[?&]test\b/.test(location.search)) window.__hatSheet=(opts={})=>{ const ids=
 // hats that leave the top of the head free (hair shows fully) and helmets that hide all hair
 const A3_HAT_OPEN=new Set(['none','headphones','headband','halo','flower','catears','bunnyears','antlers','tiara','crown']);
 const A3_HAT_FULL=new Set(['diver','astro','fishbowl','knight','pumpkin']);
+// C32 no hair through hats: under a hat the hair is cut at that hat's own lower edge where it meets the sides of the head (back x -7.8,
+// front x +6.5; the nearest column inward when the hat is narrower there), never higher than the old fixed line (-63.9). A cone such as
+// the party hat ends lower than a cap, so curls no longer poke up beside its band. Measured once per hat from its drawing, then cached.
+const A3_HAT_CLIP=new Map();
+function hatClipY(id){ let y=A3_HAT_CLIP.get(id); if(y!=null) return y; y=-63.9;
+  try{ const k=6, o=document.createElement('canvas'); o.width=40*k; o.height=40*k; const x=o.getContext('2d'); x.translate(20*k,30*k); x.scale(k,k); drawHat(x,id,'#c8553a',1.3); const d=x.getImageData(0,0,o.width,o.height).data;
+    const bottom=hx=>{ const px=Math.round((20+hx)*k); for(let py=o.height-1;py>=0;py--) if(d[(py*o.width+px)*4+3]>60) return py/k-30-57.4; return null; };
+    const edge=(from,to)=>{ const st=from<to?.25:-.25; for(let hx=from;(st>0?hx<=to:hx>=to);hx+=st){ const b=bottom(hx); if(b!=null) return b; } return null; };
+    const b1=edge(-7.8,0), b2=edge(6.5,0); if(b1!=null&&b2!=null) y=Math.max(-63.9,Math.min(b1,b2)); }catch(e){}
+  A3_HAT_CLIP.set(id,y); return y; }
 const A3HAT=new WeakMap();
 function a3HatLayer(c){ let H=A3HAT.get(c.canvas); if(!H){ H=document.createElement('canvas'); A3HAT.set(c.canvas,H); } if(H.width!==c.canvas.width||H.height!==c.canvas.height){ H.width=c.canvas.width; H.height=c.canvas.height; } return H; }
 // test: lowest point a hat reaches over the eye (hat units, eye centre at y=+0.4, eye top at -0.95)

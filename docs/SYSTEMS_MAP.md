@@ -298,3 +298,15 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Fish pictures fit by real height (`creatureBox`, `fishFit`) | `d_draw.js` | every fish thumbnail (only tall creatures change) |
 | Lily belly-rub paws | `d10_lily.js` | Lily only |
 | QA: `__snapQC`, `__strTable`, `__creatureBox`, tests C21–C31 | `bn_qa04.js`, `tools/sweep.html` (Options stay put) | test builds only |
+
+## Batch 6, part 4 (2026-11-20, test builds): C32–C35 hair and maps
+| Change | Where | Affects |
+|---|---|---|
+| C32 curly = the hand-drawn 0.3.3.1 clusters (`drawCurly3`, `CURLY_LOBES`), coils draw the same | `ct_hair.js` (drawHair3 routes curly/coils) | every angler drawing: game, Wardrobe previews, thumbnails, pets' riders |
+| C32 hair cut at each hat's own lower edge (`hatClipY`, cached per hat, never above -63.9) for the head hair and the back hair; big hair pressed to `HAIR_HAT_VOL` 1.1 under a hat | `g_angler.js` (both hair clips), `ct_hair.js` | every covering hat × every style; open and full hats unchanged |
+| C32 strand texture (`hairTexture`, 13 strokes clipped to the main mass) | `ct_hair.js` | every parametric style; the cost is a few strokes per angler draw |
+| C33 Cherry Blossom scene rebuilt: `waFuji`, `waCherry`, `waPagoda`, `waToro`, `waLily`, `waDuck`; ducks replace the koi; petals on the water; gust every 47 s | `cn_waterart.js` | the blossom land cache (redrawn per phase), live layer, reflections |
+| C34 Rockies scene rebuilt: Shield rocks, birches, cliff + waterfall (`WA_FALL`), beaver dam and lodge, beavers (26 s cycle), moose (drinks every 23 s), geese (V every 37 s), canoe angler, `waCabin` + `waFlag`, fireweed, clear-water rocks and weeds, `sky()` stars and Milky Way | `cn_waterart.js` | rockies land cache, live layer, sky hook (night only, skipped in gloom) |
+| C35 every new map: `WA_MORE[id]` shore/water/live parts called from each scene (`waMore`); moments: Keys dolphins 29 s, Amazon boto 23 s, Farm tractor 61 s, Buffet meatball 33 s, Corporate plane 25 s / helicopter 53 s, Nile crocodile 21 s / caravan 110 s, Circuit glitch 31 s, Olympus Pegasus 41 s; Olympus clouds redone | `cn_waterart.js` | the eight scenes' land caches and live layers |
+| C35 homes: wood on bridge/ledge/stilts/haydock/felucca (`waWood`: the starter oak keeps each home's natural wood), a named paint on all ten (`WA_PAINT` → `HOME_PAINT_NAMES`/`HOME_PAINT_PARTS`, drawn with `waPaint` = `homeHull`); the ledge got a canoe | `cp_plats.js`, `bu_home05.js` (`homePaintName`, `homePaintLine`), phone `home06.js`, PC `br_pc05.js` (heading and note) | Your home page on both platforms (Hull paint heading now named per home), try-before-you-buy wood preview (`DOCK_PV`), saves unchanged (`S.dock.wood/hull`) |
+| Checks: `__qa` C32 (hair above each hat's edge read from the picture) and C33–C35 (every scene × day/night × t 0–130 s, every home × 72 looks); both proven with planted bugs | `bn_qa04.js` | `__qa` takes ~3 s longer |
