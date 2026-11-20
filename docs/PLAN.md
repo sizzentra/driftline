@@ -100,3 +100,15 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - Code tidy-up: fold the per-update files and the `extraActN` chain into feature files with one action registry, without changing saves.
 - Accessibility: rarity shown by more than colour, reduced motion, bigger touch targets (decision: see "Open now").
 - Save size: keep codes compact.
+
+## Ideas (nothing decided; moved from CLAUDE.md 2026-11-20)
+- **Cam's concepts:** per-water events with a gameplay hook on one shared event system; a backyard pond (breeding, after the trophy room).
+- **Friends without accounts:** visit a dock from a code, send gifts/fish by code, a weekly friends' derby leaderboard.
+- **Seasonal and live content:** holiday decorations, limited-time fish, weekend derbies, seasonal waters.
+- **More personal gifts** using the Lily pattern.
+- **New places:** a deep-sea boat trip, a night market, a secret pond behind a feat chain.
+- **Cozy activities:** cooking your catch for short buffs, a grumpy lighthouse keeper story, boat upgrades.
+- **Aquarium:** fish that interact, themed tanks with bonuses, visitors who comment.
+- **More Boardwalk games,** kept light and fair.
+- **Optional cloud backup** via a code.
+- *(Removed: "controller support on PC, haptics on phones": already in the game since 0.3, `src/k_controls.js` (gamepad: A/Cross casts, right trigger reels; phone vibration on bite, near-snap and catch, Android only because iPhone browsers can't vibrate).)*

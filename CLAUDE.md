@@ -161,16 +161,4 @@ When a project or a batch of the plan is finished, before reporting it done:
 - **Art direction "Glow Diorama":** rich glow lighting, crisp layered depth, rim light, bloom on lights, everything gently alive. Nothing floats or looks pasted on: attachments are placed from the real outline (`f3TopY`, `f3TopAt`, `horseCX`), never guessed offsets.
 
 ## Plan
-The one active work list is `docs/PLAN.md` (the director's list in batches, plus older open items). Update its status marks every round.
-
-## Future plans (ideas, nothing decided)
-- **Cam's concepts:** per-water events with a gameplay hook on one shared event system; a backyard pond (breeding, after the trophy room). (The new maps are in docs/PLAN.md.)
-- **Friends without accounts:** visit a dock from a code, send gifts/fish by code, a weekly friends' derby leaderboard.
-- **Seasonal and live content:** holiday decorations, limited-time fish, weekend derbies, seasonal waters.
-- **More personal gifts** using the Lily pattern.
-- **New places:** a deep-sea boat trip, a night market, a secret pond behind a feat chain.
-- **Cozy activities:** cooking your catch for short buffs, a grumpy lighthouse keeper story, boat upgrades.
-- **Aquarium:** fish that interact, themed tanks with bonuses, visitors who comment.
-- **More Boardwalk games,** kept light and fair.
-- **Controller support** on PC, haptics on phones.
-- **Optional cloud backup** via a code.
+The one active work list is `docs/PLAN.md` (the director's list in batches, plus older open items). Update its status marks every round. Game ideas (nothing decided) are at its bottom, under "Ideas".
