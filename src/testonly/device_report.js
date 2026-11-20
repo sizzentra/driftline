@@ -16,7 +16,7 @@ if(window.DL_PREVIEW) (function(){
   // which screen the player is on, in the words the player sees
   function where(){ try{
     const sov=document.getElementById('searchov'); if(sov&&!sov.hidden&&sov.getClientRects().length) return 'Search';
-    if(MENU_OPEN){ const b=document.querySelector('#tabs > [data-tab="'+S.tab+'"]'); return 'Page: '+((b&&(b.dataset.label||b.textContent.trim()))||S.tab); }
+    if(MENU_OPEN){ const b=document.querySelector('#tabs > [data-tab="'+S.tab+'"]'); return 'Page: '+(((b&&(b.dataset.label||b.textContent.trim()))||S.tab).replace(/^[^A-Za-z0-9]+/,'')); }
     const card=document.getElementById('card'); if(card&&!card.hidden&&card.getClientRects().length) return 'Catch card';
     if(G.st==='bite'||G.st==='reeling') return 'Fishing: reeling';
     return 'Fishing';

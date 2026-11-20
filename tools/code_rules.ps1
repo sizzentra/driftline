@@ -34,7 +34,7 @@ function Test-SourceRules([string]$root, [string[]]$coreFiles) {
     }
   }
   $out += $dead | Sort-Object -Unique
-  return ,$out
+  return ,@($out | Select-Object -Unique)
 }
 
 # ---------- rules on the built pages ----------
@@ -76,5 +76,5 @@ function Test-BuiltRules([string]$root, [hashtable]$pages, [switch]$Preview) {
       }
     }
   }
-  return ,$out
+  return ,@($out | Select-Object -Unique)
 }

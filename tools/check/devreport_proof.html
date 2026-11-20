@@ -11,7 +11,7 @@
   await new Promise(r=>f.onload=r); await wait(4000);
   const w=f.contentWindow;
   await wait(8000);                        /* fishing screen */
-  w.__ui.open('aquarium'); await wait(10000); /* Aquarium */
+  w.__ui.open('aquarium'); await wait(5000); w.eval("setTimeout(function(){ throw new Error('planted error for the proof'); },0)"); await wait(5000); /* Aquarium, with one planted error: it must be listed with this screen */
   w.__ui.close(); await wait(1500);
   const text=w.__devReport.text();
   await fetch('/report/devreport',{method:'POST',body:JSON.stringify({ok:true,text})});

@@ -1,0 +1,111 @@
+Driftline automatic check, test build 2026.11.19-2216 (2026-11-19 22:20)
+
+Code rules and build files
+  PASS  source rules (platform code stays in its own files; no function replaced and left behind)
+  PASS  test build pages (no function twice, no dead function, own platform files only, no look-behind on phones)
+  PASS  live pages (no test code, no look-behind on phones)
+  PASS  stamps match their version files; the phone test apps are exactly this build: test build 2026.11.19-2216, live 2026.11.19-2100
+
+parse gate
+  PASS  every script on every page compiles (parse gate): 26 scripts on 10 pages
+
+iPhone 16 Pro Max (956x440, camera and corners simulated)
+  PASS  screen size: window 956x440 (wanted 956x440)
+  PASS  iPhone camera and corners: safe areas 59/59/0/21 px simulated in 48 rules
+  FAIL  logic tests (__qa): 96/97 pass (27 s)
+          - UI: [20] voyages: pearls get harder within a voyage, Pearl shop (+1% coins/XP, 2 pearls a level, 100 levels), 16 Boons ranked 1-5, 32 milestones to voyage 100, 20 more relics, old pearls keep their bonus :: old pearls 7/3
+  PASS  layout on every page (__layoutQC): clean (16 s)
+  PASS  phone frame and controls on every page (__spec): clean on 25 screens (8 s)
+  FAIL  search (__searchQC): 76 checked (42 s)
+          - no location: Cooler
+          - no location: Bait
+          - no location: Bait: special lures
+          - no location: Aquarium: your tank
+          - no location: Aquarium: decorate
+          - no location: Fish Log
+          - no location: Home: wood and style
+          - no location: Home: decorations
+          - no location: Fish Nibbles (scrap and feed)
+          - no location: Bait
+          - no location: Switch bait
+  FAIL  quests (__questsQC): 0 checked
+          - no Show me
+  PASS  page open time: slowest: style 85 ms, pass 75 ms, games 60 ms (3 s)
+  PASS  no errors during the whole run: none
+
+Pixel 10 (915x412)
+  PASS  screen size: window 915x412 (wanted 915x412)
+  FAIL  logic tests (__qa): 96/97 pass (29 s)
+          - UI: [20] voyages: pearls get harder within a voyage, Pearl shop (+1% coins/XP, 2 pearls a level, 100 levels), 16 Boons ranked 1-5, 32 milestones to voyage 100, 20 more relics, old pearls keep their bonus :: old pearls 7/3
+  PASS  layout on every page (__layoutQC): clean (16 s)
+  FAIL  phone frame and controls on every page (__spec): 856 problems (8 s)
+          - fishing: top row mb-stat8: 10/44 (should be 6/36)
+          - fishing: top row mbgoal: 10/44 (should be 6/36)
+          - fishing: second row goalchip: top 60 (should be top 46)
+          - fishing: second row mbbait: top 60 (should be top 46)
+          - fishing: top row hud-link: 10/44 (should be 6/36)
+          - fishing: top row st-aq: 10/44 (should be 6/36)
+          - fishing: second row mbhome: top 60 (should be top 46)
+          - fishing: top row st-log: 10/44 (should be 6/36)
+          - fishing: top row hudbtns: 10/44 (should be 6/36)
+          - fishing: water left edge: 12 (should be 8)
+          - fishing: water right edge: 788 (should be 792)
+          - fishing: bottom tabs: 114,590 58h (should be 8,594 58h)
+          - fishing: category button text "Quests": 11px (should be 10.5px)
+          - fishing: category button text "Map": 11px (should be 10.5px)
+          - fishing: category button text "Upgrades": 11px (should be 10.5px)
+          - fishing: category button text "Collection": 11px (should be 10.5px)
+          - fishing: category button text "Stats": 11px (should be 10.5px)
+          - fishing: category button text "Challenges": 11px (should be 10.5px)
+          - fishing: category button text "Customize": 11px (should be 10.5px)
+          - fishing: category button text "Prestige": 11px (should be 10.5px)
+          - fishing: goal chip height: 44 (should be 36)
+          - fishing: water top (upright): 112 (should be 90)
+          - quests: menu top row mo-back: 12/46 (should be 6/36)
+          - quests: menu top row mo-coin: 15/40 (should be 6/36)
+          - quests: menu top row mo-tb: 14/42 (should be 6/36)
+  FAIL  search (__searchQC): 76 checked (43 s)
+          - no location: Cooler
+          - no location: Bait
+          - no location: Bait: special lures
+          - no location: Aquarium: your tank
+          - no location: Aquarium: decorate
+          - no location: Fish Log
+          - no location: Home: wood and style
+          - no location: Home: decorations
+          - no location: Fish Nibbles (scrap and feed)
+          - no location: Bait
+          - no location: Switch bait
+  FAIL  quests (__questsQC): 0 checked
+          - no Show me
+  PASS  page open time: slowest: style 73 ms, pass 67 ms, journal 59 ms (3 s)
+  PASS  no errors during the whole run: none
+
+PC 1920x1080
+  PASS  screen size: window 1920x1080 (wanted 1920x1080)
+  FAIL  logic tests (__qa): 93/97 pass (22 s)
+          - Odds: fights: geared anglers land legendary/mythic fish; no runaway lengths :: reef R watcher: 0% in -s peak 101 | reef L watcher: 0% in -s peak 101
+          - UI: fight pass: with the best gear a top mythic takes 30–60 s, never letting go loses legendary and mythic fish, voyages make fish harder up to a cap :: mythic landed only 0% | mythic took null s
+          - UI: [20] voyages: pearls get harder within a voyage, Pearl shop (+1% coins/XP, 2 pearls a level, 100 levels), 16 Boons ranked 1-5, 32 milestones to voyage 100, 20 more relics, old pearls keep their bonus :: old pearls 7/3
+          - UI: batch 6 fight: holding reel through runs loses rare and rarer fish even with every skill maxed, letting go in runs lands them, maxed times by rarity (C~2.5 s ... M 30-60 s), commons stay forgiving :: skilled loses rarity 2 | skilled loses rarity 3 | maxed mythic 0.0 s
+  PASS  layout on every page (__layoutQC): clean (14 s)
+  PASS  page open time: slowest: oddities 72 ms, journal 56 ms, style 55 ms (3 s)
+  PASS  no errors during the whole run: none
+
+PC 1440x900
+  PASS  screen size: window 1440x900 (wanted 1440x900)
+  FAIL  logic tests (__qa): 96/97 pass (27 s)
+          - UI: [20] voyages: pearls get harder within a voyage, Pearl shop (+1% coins/XP, 2 pearls a level, 100 levels), 16 Boons ranked 1-5, 32 milestones to voyage 100, 20 more relics, old pearls keep their bonus :: old pearls 7/3
+  PASS  layout on every page (__layoutQC): clean (13 s)
+  PASS  page open time: slowest: events 94 ms, oddities 93 ms, pass 82 ms (3 s)
+  PASS  no errors during the whole run: none
+
+Not verified
+  - Real phones: the director's iPhone (Safari's engine; this check runs Chrome's only) and Cam's Pixel. The 5-minute phone script and the device reports cover them.
+  - Touch and the installed app: real fingers, scrolling inside the water, taps after Back, opening from the home screen, full screen. Chrome here uses a mouse and a plain window.
+  - Speed on the phones: this PC is far faster than a phone; real frame rates only come from the device reports.
+  - Feel: whether fishing, menus and animations feel right. Only the director and Cam can judge that.
+  - Pixel 10 screen size is assumed to be 915x412 until Cam's device report gives the real one; split-screen sizes are not checked.
+  - Looks: nothing here compares pictures of the pages; a page can pass every check and still look wrong.
+
+RESULT: FAIL for test build 2026.11.19-2216 (9 failed, 5.5 min)

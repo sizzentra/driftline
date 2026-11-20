@@ -1,0 +1,78 @@
+Driftline automatic check, test build 2026.11.19-2251 (2026-11-19 22:51)
+
+Code rules and build files
+  PASS  source rules (platform code stays in its own files; no function replaced and left behind)
+  PASS  test build pages (no function twice, no dead function, own platform files only, no look-behind on phones)
+  PASS  live pages (no test code, no look-behind on phones)
+  PASS  stamps match their version files; the phone test apps are exactly this build: test build 2026.11.19-2251, live 2026.11.19-2100
+
+parse gate
+  PASS  every script on every page compiles (parse gate): 26 scripts on 10 pages
+
+iPhone 16 Pro Max (956x440, camera and corners simulated)
+  PASS  screen size: window 956x440 (wanted 956x440)
+  PASS  iPhone camera and corners: safe areas 59/59/0/21 px simulated in 48 rules
+  FAIL  logic tests (__qa): 96/97 pass (28 s)
+          - UI: top bar: no bait chip; Fishing at, Cooler, Aquarium, Fish Log and Settings are on screen, fit, and each opens its page; bait is picked in Tackle :: .hud > .st-aq text cut
+  FAIL  layout on every page (__layoutQC): 20 problems (17 s)
+          - dash: cut "Aquarium"
+          - trunc: QuestsQuestsLIVE>🧭Quests: "Aquarium"
+          - trunc: MapMapLIVE>🗺️Map: "Aquarium"
+          - trunc: UpgradesUpgradesLIVE>🛒Tackle: "Aquarium"
+          - trunc: UpgradesUpgradesLIVE>🎣Rods: "Aquarium"
+          - trunc: UpgradesUpgradesLIVE>✨Skills: "Aquarium"
+          - trunc: UpgradesUpgradesLIVE>🧭Paths: "Aquarium"
+          - trunc: CollectionsCollectionLIVE>🏛️Trophy Room: "Aquarium"
+          - trunc: CollectionsCollectionLIVE>👢Oddities: "Aquarium"
+          - trunc: StatsStatsLIVE>📊Stats: "Aquarium"
+          - trunc: ChallengesChallengesLIVE>🎏Events: "Aquarium"
+          - trunc: ChallengesChallengesLIVE>📜Bounties: "Aquarium"
+          - trunc: ChallengesChallengesLIVE>🏆Feats: "Aquarium"
+          - trunc: ChallengesChallengesLIVE>🌊Tide Pass: "Aquarium"
+          - trunc: ChallengesChallengesLIVE>🎡Boardwalk: "Aquarium"
+          - trunc: CustomizationCustomizeLIVE>👕Wardrobe: "Aquarium"
+          - trunc: CustomizationCustomizeLIVE>🐾Pets: "Aquarium"
+          - trunc: PrestigePrestigeLIVE>🌟Prestige: "Aquarium"
+          - head: cut "Aquarium"
+          - top bar cut: cut "Aquarium"
+  FAIL  phone frame and controls on every page (__spec): 25 problems (8 s)
+          - fishing: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - quests: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - map: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - shop: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - rods: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - skills: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - paths: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - trophy: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - oddities: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - stats: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - events: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - bounties: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - feats: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - pass: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - games: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - style: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - pets: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - prestige: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - settings: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - save: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - cooler: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - aquarium: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - home: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - journal: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+          - bait: label cut "AQUARIUM 0/h": 55 px of text in 38 (should be fits)
+  PASS  search (__searchQC): 82 checked (42 s)
+  PASS  quests (__questsQC): 79 checked (50 s)
+  PASS  page open time: slowest: style 65 ms, pass 57 ms, games 48 ms
+  PASS  the window kept its size the whole run: 956x440 throughout
+  PASS  no errors during the whole run: none
+
+Not verified
+  - Real phones: the director's iPhone (Safari's engine; this check runs Chrome's only) and Cam's Pixel. The 5-minute phone script and the device reports cover them.
+  - Touch and the installed app: real fingers, scrolling inside the water, taps after Back, opening from the home screen, full screen. Chrome here uses a mouse and a plain window.
+  - Speed on the phones: this PC is far faster than a phone; real frame rates only come from the device reports.
+  - Feel: whether fishing, menus and animations feel right. Only the director and Cam can judge that.
+  - Pixel 10 screen size is assumed to be 915x412 until Cam's device report gives the real one; split-screen sizes are not checked.
+  - Looks: nothing here compares pictures of the pages; a page can pass every check and still look wrong.
+
+RESULT: FAIL for test build 2026.11.19-2251 (3 failed, 2.8 min)

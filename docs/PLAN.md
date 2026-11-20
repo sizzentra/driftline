@@ -78,3 +78,11 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - Code tidy-up: fold the per-update files and the `extraActN` chain into feature files with one action registry, without changing saves.
 - Accessibility: rarity shown by more than colour, reduced motion, bigger touch targets (director decision pending).
 - Save size: keep codes compact.
+
+## Workflow phase 2 follow-ups (2026-11-19; nothing here is game content)
+- ☐ Cut tests only after the director has read `docs/TEST_COUNT.md` (candidates: `__searchQC`, `__questsQC`).
+- ☐ Pixel 10 size in `check.ps1`: replace the assumed 915×412 with the window size from Cam's first device report.
+- ☐ Live publish guard (rule 10, "guard: phase 2" in CLAUDE.md): `publish.ps1` and the hotfix scripts don't check for "Push it live" or a passing check yet.
+- ☐ Tests that use random rolls can fail now and then (one fixed: #127); make the rest deterministic when one shows up.
+- ☐ Before/after pictures of every page in the check (the proposal's layer 1 lists them; not built).
+- ☐ Split-screen sizes (440×460, 375×812, 360×780) and a heavy-save run in the check.
