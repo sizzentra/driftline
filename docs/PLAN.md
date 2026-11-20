@@ -50,7 +50,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ☐ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
 - ☐ C13 Customization (face styles first, then every customization menu): the menu never snaps or moves when an option is picked.
 - ☑ C14 Cooler: sort by sell value, aquarium bonus, species, most/least recent; most recent after every restart, otherwise remembers the last choice.
-- ☐ C15 Phones: a tab on the top bar (next to Settings) to switch between Aquarium and Cooler while in either.
+- ☑ C15 Phones: a tab on the top bar (next to Settings) to switch between Aquarium and Cooler while in either.
 - ☑ C16 Bait: every section and sub-section sorted by purchase price; "Everyday Bait", "Water Baits" and "Favourite Foods" can be folded, and the page opens folded.
 - ☑ C17 Phones, Aquarium: no "bigger tank" benefit text; "How the aquarium works" adds "Increase your tank size for more fish, more buffs, and more income!"; the button reads "Expand Tank · price" with small "Next expansion: X fish" under it.
 - ☑ C18 Treasure chests pop-up: the three chests centred (the outer two sit at the frame edge).

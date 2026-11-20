@@ -16,5 +16,9 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to clicks).',
   'Rods (full screen): the rod in your hands shows its attachment slots again (also going to the live game as a hotfix).',
   'Boardwalk (full screen): every game card shows all of its content (the chests button was hidden under Counter specials); the games area scrolls if needed. Voyage milestones: one per row, readable again.',
+  'NEW (your list, part 1): fight messages are short now: It’s running!, Careful!, Snagged!, Dead Weight; strong fish say Prepare for a fight, this fish is strong! (or Good luck, this fish is out of your league! when it is 10+ stronger than you).',
+  'A missed bite keeps your line out; the 5th miss in a row reels in. Reeled in early and Missed a bite say just that. Cast power keeps its words over a hotspot, only its colour changes.',
+  'Bait: three groups (Everyday bait, Water baits, Favourite foods), each sorted by price; they open folded, click a group to open it. Cooler: Sort (Newest, Oldest, Sell value, Aquarium bonus, Species) and Scrap all (same filters as Sell all).',
+  'Also: shorter Heavy fog text and a Weather pop-ups switch in Settings, Stickleback has a new line, only cats purr, oddities and other non-fish say dismiss instead of the cooler line, the three treasure chests sit inside their pop-up.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);
