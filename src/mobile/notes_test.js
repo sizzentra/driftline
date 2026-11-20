@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'New-water fish: every decoration follows the fish’s real shape: circuit traces differ per fish (no more four dots in a column), ties start at the throat, beaks sit on the nose, horns and ears sit on the head, and nothing covers an eye.',
+  'The Cooler / Aquarium button no longer stays on the Fish Log.',
+  '## Test build 0403',
   'Nile fish: the striped headdress sits on each fish’s head (no loose piece) and the eye markings never cover the eye.',
   'Tide Pass: the Claim button is back on phones (it was missing, so rewards could not be collected; also going to the live game as a hotfix).',
   'The Cooler / Aquarium button no longer shows as an empty shape on other pages.',
