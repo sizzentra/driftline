@@ -279,3 +279,22 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Sweep page copied to `site/next/sweep.html`; preview pages opened with `?sweep` record start-up errors and use a 16 ms frame timer (preview only) | `build.ps1` | preview builds |
 | Tester tools › Run every check (link to the sweep; on phones it opens the published page, so the checks run in the real phone browser) | `src/z_stats.js` (inside `testerHTML`, preview only) | Stats on test builds |
 | `__pathsAll()` (a Path in every tier, saved for real; for the #130 start-up check) | `src/bn_qa04.js` (preview builds only) | none in release builds |
+
+## Batch 6, part 3 (2026-11-20, test builds): C10, C13, C20–C31, C36
+| Change | Owner | Affects |
+|---|---|---|
+| An option you pick stays put: the tapped option's screen spot is held through the redraw (and ~0.35 s after) by moving its scroll box; empty room at the end when the page got shorter; lets go on wheel/touch/keys or a preview reveal | `bo_guard04.js` (shared) | every page with option buttons (aria-pressed), all platforms |
+| PC preview slot: `pvHintHTML()` "Try before you buy" with invisible copies of the bar's buttons; shown only on PC (`pc/ui_fhd.js`), phone pages skip `.pvhint` | `d6_preview.js`, `d7_v20.js`, `a_head.html`, `pc/ui_fhd.js`, `mobile/aquarium07.js`, `mobile/dock08.js` | pets, Your home, aquarium |
+| `pvReveal(id)`: try-on scrolls to the preview only when it is mostly out of sight | `d6_preview.js`, `d7_v20.js` | Wardrobe shop, aquarium, Your home |
+| PC pets right column `scrollbar-gutter:stable` | `pc/ui_fhd.js` | PC pets |
+| Phone no-name-twice runs again behind the page engine's tab switch | `mobile/polish08.js` | every phone page tab |
+| Fights: fish faces its swim direction (G.face), jump wind-up (G.ev 'windup', JUMP_WINDUP), predator line pull (G.strip, EAT_STRIP*), letting go/reeling into runs (RUN_REEL_TEN, RUN_LINE_KG), second wind (SW_*, G.swN/hotT/swT) | `c_logic.js`, `n_play.js`, `d_draw.js`, `mobile/fight08.js` | every fight, both fight messages |
+| Boardwalk coins count in full toward pearls (`bwEarn`) | `au_fix034.js`, `ch_voyage.js`, `ci_boardwalk.js` | Prestige pearls |
+| Deep Cooler +rank for every cooler level; Strong Arms boon (+2% Angler strength a rank) | `ch_voyage.js`, `c_logic.js` (anglerStr) | cooler size, strength, fight tiring |
+| Nibbles per rarity (`nibKey`, `nibFold`, `nibAdd`, `nibRarName`; saves fold species keys in `migrate`) | `ce_nibbles.js`, `c_logic.js`, `ci_boardwalk.js`, `co_oddities.js`, `e_ui.js`, `mobile/quests08.js` | Cooler scrap, Aquarium feed, Fish Log, Boardwalk and oddity prizes |
+| Aquarium feeding: fish swim up (`feedMove`), `feedRoll` (fdb/fdi per fish, saved and validated) | `ce_nibbles.js`, `cs_tank.js`, `d2_extra.js`, `c_logic.js` | aquarium income and bonuses |
+| Hotspot tiers (`HOT_TIERS`, `hotTier`, G.hotMin/G.hotShiny), colours in drawing and the aim marker | `c_logic.js`, `n_play.js`, `d_draw.js` | catches in hotspots |
+| Line levels/prices (C30), water prices by voyage (`LOC_BASE`, `LOC_VOY`) | `b_data.js`, `d5_v16.js` | Tackle, Waters, Quests journey |
+| Fish pictures fit by real height (`creatureBox`, `fishFit`) | `d_draw.js` | every fish thumbnail (only tall creatures change) |
+| Lily belly-rub paws | `d10_lily.js` | Lily only |
+| QA: `__snapQC`, `__strTable`, `__creatureBox`, tests C21–C31 | `bn_qa04.js`, `tools/sweep.html` (Options stay put) | test builds only |

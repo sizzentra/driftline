@@ -34,6 +34,8 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 
 ## Checks overhaul (director, 2026-11-20: make every check as efficient as the content check)
 - ☑ One-click sweep (`tools/sweep.html`): every automatic check, every build and size, one report, test save put back; covers the start-up check (also with every Path) and the test-tool problems (no collisions, no menu-open hang).
+- ☑ Options stay put (`__snapQC`, in the sweep): picking any option on any page never moves it (C13).
+- ☑ Strength table (`__strTable`) and creature outlines (`__creatureBox`): measuring tools for balance and fish pictures.
 - ☐ Content recipes for fish, oddities, items and waters (every new thing has all its parts: name, art, lessons, search, notes).
 - ☐ Saves check (old saves load, migrate keeps everything, save codes round-trip at extreme sizes).
 - ☐ Speed budgets per page and per frame, checked by the sweep.
@@ -51,11 +53,11 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ☑ C7 Running fish: "It's running!".
 - ☑ C8 Strong fish: never "heavier"; "Prepare for a fight, this fish is strong!"; only at 10+ above your strength: "Good luck, this fish is out of your league!" (no number otherwise).
 - ☑ C9 Heavy fog: "Heavy fog obscures fish, even the fish don't know if it's day or night." Weather pop-ups can be switched off in Settings.
-- ◐ C10 Lily is a dog: no purring (done); on her back for belly rubs her paws keep the right orientation.
+- ☑ C10 Lily is a dog: no purring (done); on her back for belly rubs her paws keep the right orientation (paws flop over at the wrist, white tops with toe lines; first version, Cam to judge).
 **UI**
 - ☑ C11 "Scrap all" for Nibbles, like Sell all, with the same filters.
 - ☑ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
-- ☐ C13 Customization (face styles first, then every customization menu): the menu never snaps or moves when an option is picked.
+- ☑ C13 Customization (face styles first, then every customization menu): the menu never snaps or moves when an option is picked. One shared rule holds the tapped option in place (bo_guard04); PC preview bars keep a fixed slot; previews scroll only when hidden; `__snapQC` checks every page (0 of 175 taps move).
 - ☑ C14 Cooler: sort by sell value, aquarium bonus, species, most/least recent; most recent after every restart, otherwise remembers the last choice.
 - ☑ C15 Phones: a tab on the top bar (next to Settings) to switch between Aquarium and Cooler while in either.
 - ☑ C16 Bait: every section and sub-section sorted by purchase price; "Everyday Bait", "Water Baits" and "Favourite Foods" can be folded, and the page opens folded.
@@ -63,25 +65,25 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ☑ C18 Treasure chests pop-up: the three chests centred (the outer two sit at the frame edge).
 - ☑ C19 A big fish that has eaten smaller fish may take the cooler past its limit (the extras still go to the cooler).
 **Fishing and fights**
-- ☐ C20 A running fish turns to face the other way (fish only; never oddities or objects).
-- ☐ C21 Jumps: one fluid motion out of the water, tilting down back in with a splash; a wind-up first (the shadow sinks, then comes up) as a warning. ⚑ timing
-- ☐ C22 A predator eating a smaller fish takes line out gradually for a few seconds, unstoppable (can break the line), distance by rarity (maximum only for mythics), never snapping to the end. ⚑ distances
-- ☐ C23 Letting go of a running fish: fish over 5 lb take line out but tension drops at once; reeling on, tension builds slightly faster and the fish takes no line. ⚑ rates
-- ☐ C24 Second wind: a tiring fish's fight drops more slowly while its temper is high, and if temper stays too high its fight can rise again, a limited number of times by rarity (common 1, uncommon 2, …); 15% chance for common/uncommon, 30% for the rest; "Second wind!" shows briefly. ⚑ thresholds
+- ☑ C20 A running fish turns to face the other way (fish only; never oddities or objects).
+- ☑ C21 Jumps: one fluid motion out of the water, tilting down back in with a splash; a wind-up first (the shadow sinks, then comes up) as a warning. ⚑ timing (first version; ⚑ Feel call: numbers at the top of the fight constants in c_logic.js)
+- ☑ C22 A predator eating a smaller fish takes line out gradually for a few seconds, unstoppable (can break the line), distance by rarity (maximum only for mythics), never snapping to the end. ⚑ distances (first version; ⚑ Feel call: numbers at the top of the fight constants in c_logic.js)
+- ☑ C23 Letting go of a running fish: fish over 5 lb take line out but tension drops at once; reeling on, tension builds slightly faster and the fish takes no line. ⚑ rates (first version; ⚑ Feel call: numbers at the top of the fight constants in c_logic.js)
+- ☑ C24 Second wind: a tiring fish's fight drops more slowly while its temper is high, and if temper stays too high its fight can rise again, a limited number of times by rarity (common 1, uncommon 2, …); 15% chance for common/uncommon, 30% for the rest; "Second wind!" shows briefly. ⚑ thresholds (first version; ⚑ Feel call: numbers at the top of the fight constants in c_logic.js)
 **Economy and progression** (numbers are suggestions for the director and Cam)
-- ☐ C25 Prestige: remove the "Boardwalk counts for at most a quarter" limit.
-- ☐ C26 Deep Cooler boon: +1 cooler space every time you gain cooler space (instead of a flat +1).
-- ☐ C27 Nibbles work for all fish of the same rarity.
-- ☐ C28 Aquarium feeding: fish swim up to eat; each feed 20% chance a fish's buffs improve slightly (not its income), 5% chance of more income plus another stat. ⚑ sizes
-- ☐ C29 Hotspots revamp: colour by minimum rarity (uncommon most common … legendary rarest), better hybrid/shiny/titled odds, rising sparkles for a guaranteed shiny, every colour clearly readable. ⚑ odds and colours
-- ☐ C30 Angler strength: a little harder to reach, a few more strong fish when first entering a water, max strength lines up with the hardest waters, some strength held in a boon, strength purchases cost a bit more. ⚑ numbers
-- ☐ C31 Water unlock coins scale up with voyages, and a slightly higher barrier from the start. ⚑ numbers
+- ☑ C25 Prestige: remove the "Boardwalk counts for at most a quarter" limit.
+- ☑ C26 Deep Cooler boon: +1 cooler space every time you gain cooler space (instead of a flat +1).
+- ☑ C27 Nibbles work for all fish of the same rarity.
+- ☑ C28 Aquarium feeding: fish swim up to eat; each feed 20% chance a fish's buffs improve slightly (not its income), 5% chance of more income plus another stat. ⚑ sizes (first version; ⚑ Feel call: numbers in ce_nibbles.js FEED_* / c_logic.js HOT_*)
+- ☑ C29 Hotspots revamp: colour by minimum rarity (uncommon most common … legendary rarest), better hybrid/shiny/titled odds, rising sparkles for a guaranteed shiny, every colour clearly readable. ⚑ odds and colours (first version; ⚑ Feel call: numbers in ce_nibbles.js FEED_* / c_logic.js HOT_*)
+- ☑ C30 Angler strength: a little harder to reach, a few more strong fish when first entering a water, max strength lines up with the hardest waters, some strength held in a boon, strength purchases cost a bit more. ⚑ numbers (first version; ⚑ suggested numbers: Line levels and prices in b_data.js, Strong Arms 2% a rank, LOC_BASE 1.2, LOC_VOY .15 a voyage up to 10)
+- ☑ C31 Water unlock coins scale up with voyages, and a slightly higher barrier from the start. ⚑ numbers (first version; ⚑ suggested numbers: Line levels and prices in b_data.js, Strong Arms 2% a rank, LOC_BASE 1.2, LOC_VOY .15 a voyage up to 10)
 **Art and maps** (no cop-outs: every new map at the standard of the old ones)
 - ☐ C32 Hair: curly back to how it was; no hair through hats; light texturing instead of a painted-on look.
 - ☐ C33 Cherry Blossom Lake: wood and metal colour/material editable like every other dock; trees with more distinguishing features, petals resting and drifting on the lake, a nicer temple on shore, fake koi replaced by ducks and water lilies, Mount Fuji further away and larger with other mountains around; full quality pass.
 - ☐ C34 Canadian Rockies (Cam): beavers (like Stonebrook's otters) and a beaver dam with a flowing river/waterfall; crystal-clear water showing rocks and weeds on the bottom; a moose; a Canadian flag by a reworked log cabin; Canadian Shield and Rockies close together; more flora and fauna (Canada geese); a fishing canoe with a nondescript angler; clear starry nights; a customizable home.
 - ☐ C35 Every new map (the 4 new + 6 end-game waters): more populated, functional customizable homes, better effects, occasional map-specific animations, full polish.
-- ☐ C36 Fix the seahorse sprites (added by the director, 2026-11-20). Need data if the problem is not obvious on sight: which seahorse, which water, what looks wrong.
+- ☑ C36 Fix the seahorse sprites (added by the director, 2026-11-20). Need data if the problem is not obvious on sight: which seahorse, which water, what looks wrong. Done: it had its seahorse drawing, but fish pictures were sized by width, so tall creatures (seahorse, leafy sea dragon, manta) were cut to a strip; they now fit by their real height.
 
 ## Batch 3: progression and economy
 - ☑ [16] Next water needs 10 catches, +10 per voyage, capped at 50.

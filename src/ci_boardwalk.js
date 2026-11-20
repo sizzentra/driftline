@@ -5,7 +5,7 @@
 //  - Coin jackpots: any Boardwalk game that pays tickets has a 4% chance of a coin jackpot on top (15–40× your best water's catch).
 //  - Fishmonger's Gamble: stake a fish from your cooler: lose it (and get tickets), or win 1.8×, 3× or 8× its sale price in coins.
 //  - Treasure chests: 120 tickets, pick 1 of 3: tickets, Scales, Nibbles, favourite foods, coins, or a pet colour (rarer).
-//  Every coin win goes through bwEarn, so Boardwalk coins count for at most a quarter of a voyage's pearl progress.
+//  Every coin win goes through bwEarn (all of it counts toward a voyage's pearls since C25).
 // =====================================================================
 const BW_JACK=.04, CHEST_COST=120;
 let gamble=null, chest=null, bwJackLock=false;
@@ -26,7 +26,7 @@ function chestPrize(){ const r=Math.random(), base=bestLoot(); const caught=Obje
   if(r<.84) return {k:'food', id:pick(FOOD_KEYS), n:10}; if(r<.97) return {k:'coins', n:rnd(8,30)}; return {k:'petcol'}; }
 function chestLabel(p){ return p.k==='tix'?'🎟 '+p.n+' tickets':p.k==='scales'?'◆ '+p.n+' Scales':p.k==='nib'?'🍬 '+p.n+' '+SPI[p.id].name+' Nibbles':p.k==='food'?'🪱 10 '+BAIT[p.id].name:p.k==='coins'?'🪙 Coins':'🎨 Pet colour'; }
 function chestGive(p){ if(p.k==='tix') return '+'+addTickets(p.n)+' tickets'; if(p.k==='scales'){ S.scales+=p.n; return '+'+p.n+' Scales'; }
-  if(p.k==='nib'){ S.nib=S.nib||{}; S.nib[p.id]=(S.nib[p.id]||0)+p.n; return '+'+p.n+' Nibbles for '+SPI[p.id].name; }
+  if(p.k==='nib'){ nibAdd(p.id,p.n); return '+'+p.n+' '+nibRarName(p.id)+' Nibbles'; }
   if(p.k==='food'){ S.bait[p.id]=(S.bait[p.id]||0)+10; return '+10 '+BAIT[p.id].name; }
   if(p.k==='coins') return '+'+fmt(bwCoinWin(p.n))+' coins';
   if(typeof petColourPrize==='function'){ const t=petColourPrize(); if(t) return t; } return '+'+addTickets(400)+' tickets'; }

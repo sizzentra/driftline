@@ -20,7 +20,7 @@ function drawTank(now){ const cnv=$('tankcv'); if(!cnv) return; const r=cnv.getB
   const c=cnv.getContext('2d'); c.setTransform(DPR,0,0,DPR,0,0); const t=now/1000;
   drawTankBack(c,w,h,t);
   for(const o of tankOrder()){ const {f,i,sp,z,pace}=o, k=1-.3*z, L=tankLen(f,h,w)*k, tk=t*pace;
-    const M=tankMove(f,sp,i,tk,w,h,L); nibMove(f,M,t,w,h); const y=M.y+(z-.5)*h*.06; /* farther fish sit a touch higher, like looking into the tank */
+    const M=tankMove(f,sp,i,tk,w,h,L); feedMove(f,M,i,w,h); nibMove(f,M,t,w,h); const y=M.y+(z-.5)*h*.06; /* farther fish sit a touch higher, like looking into the tank */
     c.save(); if(z>.35) c.globalAlpha=1-(z-.35)*.45;
     drawCreature(c,sp,M.x,y,L,{shiny:f.sh||0,pv:f.pv,seedAdd:i,wag:tk*M.wag+i,flip:!M.dir}); c.restore(); }
   c.fillStyle='rgba(220,245,255,.35)'; for(let i=0;i<12;i++){ const x=(i*73)%w+Math.sin(t+i)*4, y=h-((t*30+i*40)%h); c.beginPath(); c.arc(x,y,1.5+(i%3),0,7); c.fill(); }

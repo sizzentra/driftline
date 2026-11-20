@@ -21,10 +21,11 @@ const BOONS=[
  ['shine','Glimmer','+{v}% shiny chance.',6],
  ['trophy','Wall Mount','+{v}% trophy chance.',8],
  ['calm','Soft Hands','−{v}% fish temper.',5],
+ ['strength','Strong Arms','+{v}% Angler strength.',2], /* C30 (director + Cam, 2026-11-20): some strength is held in a boon (Feel call: 2% a rank) */
  ['tank','Old Friends','+{v}% aquarium income.',8],
  ['tickets','Season Pass','+{v}% tickets.',10],
  ['nibkeep','Candy Jar','Keep {v}% more of your Nibbles when you set sail.',8],
- ['cooler','Deep Cooler','+{v} cooler space.',1],
+ ['cooler','Deep Cooler','+{v} cooler space every time your cooler grows.',1],
  ['nest','Nest Egg','Start each voyage with {v}% of the coins you earned on the last one (at most 100 million).',2],
  ['wisdom','Wisdom','+{v}% XP.',6],
  ['weather','Weather Eye','Weather effects {v}% stronger.',10],
@@ -77,7 +78,7 @@ const BOON_BONUS={treasure:['treasure',.08], hotspot:['hot',.08], shine:['shiny'
     return Object.assign({},w,{bite:w.bite?amp(w.bite):w.bite, shiny:w.shiny?amp(w.shiny):w.shiny, xp:w.xp?amp(w.xp):w.xp, rare:w.rare!=null?w.rare*m:w.rare}); }; }
 { const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1.1,r)).toFixed(2); }catch(e){} }; }
 { const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*.03*r; f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
-{ const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=boonR('cooler')+msSum('cooler'); if(add) GEAR.cooler.lv=GEAR.cooler.lv.map(v=>v+add); }; voyApplyCooler(); }
+{ const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map((v,i)=>v+add+per*i); }; voyApplyCooler(); } /* C26 (director + Cam, 2026-11-20): Deep Cooler adds its space again every time the cooler grows (each upgrade), not once */
 // Catch Surge and the Second Hook ride on every landed fish
 { const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
     try{ if(was){ const rk=boonR('surge'); if(rk&&S.streak>0&&S.streak%SURGE_N[rk]===0){ const t=Date.now(), mins=relic('surgehorn')?25:SURGE_MIN; let slot=1;
@@ -127,7 +128,7 @@ function renderVoyage(){ const n=pearlsFor(), ok=canRetire(), v=S.tides||0, leg=
   <div class="grid"><div class="tile"><div class="row spread"><h4>Voyage ${v+1}</h4><span class="meta">${S.pearls} pearl${S.pearls===1?'':'s'} to spend · ${S.boonPts||0} Boon point${S.boonPts===1?'':'s'}</span></div>
   <div class="voy-stats"><div><span class="meta">Legacy</span><b>+${leg}%</b><span class="meta">coins and XP from ${v} voyage${v===1?'':'s'}</span></div><div><span class="meta">Pearl finder</span><b>×${(voyagePearlMult()*pathMul('pearl')).toFixed(2)}</b><span class="meta">more pearls each voyage</span></div><div><span class="meta">This voyage</span><b class="coin">${fmtShort(S.stats.runEarned)}</b><span class="meta">coins earned</span></div></div>
   ${S.pearlOld?`<div class="meta">Old pearls (from before 0.4.9): ${S.pearlOld}, still giving +${Math.round(PEARL_COIN*S.pearlOld*100)}% coins and XP for good.</div>`:''}
-  <div class="meta">Next pearl at <span class="coin">${fmt(nextPearlAt())}</span> coins earned this voyage. Boardwalk winnings count for at most a quarter of it.</div>
+  <div class="meta">Next pearl at <span class="coin">${fmt(nextPearlAt())}</span> coins earned this voyage.</div>
   <div class="val">Setting sail now gives +${n} pearl${n===1?'':'s'} and +${np} Boon points</div>
   <button class="btn" data-act="retire" ${ok&&!confirmBox?'':'disabled'}>${S.unlocked.includes('trench')?(n?'Set sail again':'Earn more coins first'):'Reach Hollow Trench first'}</button></div>${box}
   <div class="tile"><h4>Pearl shop</h4><div class="meta">Spend pearls on bonuses that never reset.</div>${pRow('gold','Coins from everything')}${pRow('xp','XP from everything')}</div>

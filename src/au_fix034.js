@@ -83,10 +83,6 @@ rareScore=function(dm,far,hot,p){ const r=_rareScore_034(dm,far,hot,p); return r
 if(/[?&]test\b/.test(location.search)) window.__land=(id,o={})=>{ __forceCatch(id,o); G.fish=G.forced; G.forced=null; G.st='reeling'; landFish(); return !$('card').hidden; };
 if(/[?&]test\b/.test(location.search)) window.__demand=()=>demandSp();
 
-// ---------- Boardwalk winnings count toward Voyage pearls only up to a quarter of your voyage earnings ----------
-// (games and gambling can't be farmed for pearls; the coins themselves are still yours in full)
-const BW_PEARL_SHARE=.25;
-function bwEarn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; const st=S.stats; st.runBw=st.runBw||0;
-  const other=Math.max(0,st.runEarned-st.runBw), cap=other*BW_PEARL_SHARE/(1-BW_PEARL_SHARE), credit=Math.floor(Math.max(0,Math.min(n,cap-st.runBw)));
-  st.runBw+=credit; st.runEarned+=credit; return n; }
+// ---------- Boardwalk winnings: every coin counts toward Voyage pearls (C25, director + Cam, 2026-11-20: the "at most a quarter" limit is gone) ----------
+function bwEarn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; const st=S.stats; st.runEarned+=n; st.runBw=(st.runBw||0)+n; return n; }
 if(/[?&]test\b/.test(location.search)) window.__bwEarn=n=>bwEarn(n);

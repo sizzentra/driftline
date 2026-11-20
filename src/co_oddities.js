@@ -255,7 +255,7 @@ function oddBase(L,J){ const bl=bestLoot(), f=Math.max(.6,Math.pow(Math.max(1,L.
 // new effects (pet colours, Nibbles, the singing bass) on top of landJunk
 { const _lj=landJunk; landJunk=function(){ const J=G.fish&&G.fish.item; const r=_lj.apply(this,arguments); try{ if(J&&J.e){
     if(J.e.petcol&&typeof petColourPrize==='function'){ const t=petColourPrize(); if(t) setTimeout(()=>toast(t),500); }
-    if(J.e.nib){ const ids=Object.keys(S.journal||{}).filter(id=>SPI[id]); if(ids.length){ const id=pick(ids); S.nib=S.nib||{}; S.nib[id]=(S.nib[id]||0)+3; setTimeout(()=>toast('+3 Nibbles for '+SPI[id].name+'!'),500); } }
+    if(J.e.nib){ const ids=Object.keys(S.journal||{}).filter(id=>SPI[id]); if(ids.length){ const id=pick(ids); nibAdd(id,3); setTimeout(()=>toast('+3 '+nibRarName(id)+' Nibbles'+'!'),500); } }
     if(J.e.song){ const songs=['🎵 Take me to the river… 🎵','🎵 Don’t worry, be happy… 🎵','🎵 Under the sea, under the sea… 🎵','🎵 Row, row, row your boat… 🎵']; setTimeout(()=>toast('The Singing Bass Mount turns its head: '+pick(songs)),400); try{ for(let i=0;i<4;i++) setTimeout(()=>tone(520+i*90,.12,'triangle',.05),i*180); }catch(e){} }
   } }catch(e){} return r; }; }
 // the pictures: 26 templates, each in the oddity's own colours (and as one flat colour for its shadow on the hook)

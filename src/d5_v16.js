@@ -76,7 +76,10 @@ const RELICS = [
  ['seasoned','Seasoned Angler',3,'Start every voyage with every piece of tackle at level 3.'],
 ].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
 const relic = id => S.relics && S.relics.includes(id);
-const locCost = L => Math.round(L.cost*(relic('charts')?.7:1));
+/* C31 (director + Cam, 2026-11-20; Feel calls): water prices start a little higher (LOC_BASE) and grow with each voyage (LOC_VOY a voyage,
+   at most LOC_VOY_CAP voyages); Old Charts still takes 30% off */
+const LOC_BASE=1.2, LOC_VOY=.15, LOC_VOY_CAP=10;
+const locCost = L => Math.round(L.cost*LOC_BASE*(1+LOC_VOY*Math.min(LOC_VOY_CAP,S.tides||0))*(relic('charts')?.7:1));
 
 // ---------- rare weathers ----------
 let fishRain=null;

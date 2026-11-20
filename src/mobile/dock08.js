@@ -23,7 +23,7 @@
       const land=document.body.classList.contains('phone-land'); P.dataset.dkLand=land?'1':'0';
       P.classList.add('aq07','dk08'); P.classList.toggle('aq07-open',DK_OPEN);
       const kids=[...P.children].filter(c=>!c.classList.contains('crumb')&&c!==nav&&c!==tile);
-      const head=kids.find(c=>c.classList.contains('dl-head')), pv=kids.find(c=>c.classList.contains('pvbar')), hint=kids.find(c=>c.tagName==='P'&&/Drag/.test(c.textContent));
+      const head=kids.find(c=>c.classList.contains('dl-head')), pv=kids.find(c=>c.classList.contains('pvbar')&&!c.classList.contains('pvhint')), hint=kids.find(c=>c.tagName==='P'&&/Drag/.test(c.textContent));
       const dockbar=kids.find(c=>c.classList.contains('dockbar')), hm=kids.find(c=>c.classList.contains('hm-phone'));
       const h5s=kids.filter(c=>c.tagName==='H5'), wood=h5s.find(x=>/^Wood/i.test(x.textContent)), style=h5s.find(x=>/style/i.test(x.textContent)), decoH=h5s.find(x=>/^Decorations/i.test(x.textContent));
       const tools=kids.find(c=>c.classList.contains('shoptools')), grid=kids.find(c=>c.classList.contains('grid')&&c.querySelector('canvas[data-dock]'));

@@ -20,6 +20,9 @@
     // a grid left empty by the move goes away
     P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); }); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
+/* C13: the empty preview slot shows on PC (pets, Your home, aquarium), so starting a preview never pushes the options down; phones hold the option in place by scrolling instead */
+body #panel .pvbar.pvhint{display:flex}
+body #panel .pt-right{scrollbar-gutter:stable} /* C13: a scrollbar appearing (a hat colour row made the column scroll) rewrapped the text above and moved the options 7 px */
 body.pc-fhd #panel .fhd-board{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px;align-items:start;margin-top:8px}
 body.pc-fhd #panel .fhd-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 body.pc-fhd #panel .fhd-h{display:flex;align-items:center;gap:8px;padding:0 4px 6px;border-bottom:1px solid #ffffff1c;font:800 13px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#cfe0f2}

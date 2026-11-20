@@ -7,12 +7,19 @@ let PREVIEW=null, PET_PV=null, AQ_PV=null; // what's being tried on right now (n
 function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return lk; const {kind,id}=PREVIEW;
   if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; else if(kind==='shoe') lk.shoes=id; else if(kind==='neck') lk.neck=id; else if(kind==='back') lk.back=id; return lk; }
 function petPreviewLook(id=editPet()){ const lk=Object.assign({},petLook(id)); if(PET_PV) lk[PET_PV.kind]=PET_PV.id; return lk; }
-function petPvBarHTML(){ if(!PET_PV) return ''; const p=PET_PV;
+/* C13: the bar keeps its slot when nothing is previewed (a hint with an invisible button of the same height), so starting a preview
+   never pushes the colours and accessories down (PC pets moved 59 px; pages without a scroll box cannot be held in place otherwise) */
+/* C13: trying something on scrolls to its preview picture only when most of that picture is out of sight (it always scrolled, so the
+   options moved even with the preview in plain view); when it does scroll, the "option stays put" hold lets go (bo_guard04.js) */
+function pvReveal(id){ const c=$(id); if(!c) return; const r=c.getBoundingClientRect(); const seen=Math.min(r.bottom,innerHeight)-Math.max(r.top,0); if(seen>=r.height*.5) return; dispatchEvent(new Event('dl-reveal')); c.scrollIntoView({behavior:'smooth',block:'center'}); }
+/* shown on PC only (pc/ui_fhd.js); phones scroll the option back into place instead */
+function pvHintHTML(){ return `<div class="pvbar pvhint"><span class="meta">Try before you buy</span><span class="row" aria-hidden="true" style="visibility:hidden"><button class="btn sm" tabindex="-1" disabled>Buy · <span class="coin">0</span></button><button class="btn alt sm" tabindex="-1" disabled>Stop</button></span></div>`; } /* an invisible copy of the real buttons: exactly the same height */
+function petPvBarHTML(){ if(!PET_PV) return pvHintHTML(); const p=PET_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='tint'?'pettint':'petacc'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Previewing: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="petpvoff">Stop</button></span></div>`; }
 function aqView(){ const hid=S.aq.hid||[]; const v={theme:S.aq.theme, sand:S.aq.sand, decor:S.aq.decor.filter(id=>!hid.includes(id))}; /* hidden decorations keep their bonus but are not drawn (director, 2026-11-19) */ if(!AQ_PV) return v;
   if(AQ_PV.kind==='theme') v.theme=AQ_PV.id; else if(AQ_PV.kind==='sand') v.sand=AQ_PV.id; else if(!v.decor.includes(AQ_PV.id)) v.decor.push(AQ_PV.id); return v; }
-function aqPvBarHTML(){ if(!AQ_PV) return ''; const p=AQ_PV;
+function aqPvBarHTML(){ if(!AQ_PV) return pvHintHTML(); const p=AQ_PV;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="${p.kind==='theme'?'aqtheme':p.kind==='sand'?'aqsand':'decor'}" data-k="${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Previewing in your tank: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="aqpvoff">Stop</button></span></div>`; }
 // prize counter thumbnails
@@ -48,12 +55,12 @@ function drawPatternX(c,pat,base,x,y,w,h){ const dk='rgba(0,0,0,.3)', lt='rgba(2
 // ---------- actions ----------
 function extraAct4(b){ const k=b.dataset.k;
   switch(b.dataset.act){
-    case 'tryon': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o) return 'skip'; PREVIEW={kind,id,name:o.name,price:o.price}; setTimeout(()=>{ const c=$('lookcv'); c&&c.scrollIntoView({behavior:'smooth',block:'center'}); },30); return 'render'; }
+    case 'tryon': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o) return 'skip'; PREVIEW={kind,id,name:o.name,price:o.price}; setTimeout(()=>pvReveal('lookcv'),30); return 'render'; }
     case 'tryoff': PREVIEW=null; return 'render';
     case 'petpv': { const [kind,id]=k.split(':'); const list=kind==='tint'?PET_TINTS:PET_ACCS; const it=list.find(x=>x[0]===id); if(!it) return 'skip'; PET_PV={kind,id,name:it[1],price:it[2]}; return 'render'; }
     case 'petpvoff': PET_PV=null; return 'render';
     case 'aqpv': { const [kind,id]=k.split(':'); let name, price; if(kind==='theme'){ const th=THEMES.find(x=>x[0]===id); name=th[1]+' water'; price=th[2]; } else if(kind==='sand'){ const sd=SANDS.find(x=>x[0]===id); name=sd[1]; price=sd[2]; } else { const d=DECORI[id]; name=d.name; price=d.price; }
-      AQ_PV={kind,id,name,price}; setTimeout(()=>{ const c=$('tankcv'); c&&c.scrollIntoView({behavior:'smooth',block:'center'}); },30); return 'render'; }
+      AQ_PV={kind,id,name,price}; setTimeout(()=>pvReveal('tankcv'),30); return 'render'; }
     case 'aqpvoff': AQ_PV=null; return 'render';
     case 'prizepv': { const p=PRIZES.find(x=>x[0]===k); const how=PRIZE_PV[k]; if(!p||!how) return 'skip'; const nm=p[1].replace(/ \(.*\)$/,'');
       if(how[0]==='hat'||how[0]==='out'){ PREVIEW={kind:how[0],id:how[1],name:nm,price:p[2],prize:k}; S.tab='style'; }

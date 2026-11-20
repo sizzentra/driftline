@@ -63,6 +63,8 @@ The old suite passed 97/97 while every problem below existed.
 | 10 | `__traitQC` (new decoration check) | 98 decoration problems across 329 new-water fish: floating horns and ties, beaks off the nose, circuit dots off the body, spots and headdress over the eye | all, test | fixed (0 left); check in the round checklist |
 | 11 | the director, then a new QA test | The phone Cooler switch stayed on the Fish Log when opened from a fish | phones, test | fixed |
 | 12 | the one-click sweep, first run on the test build | Split screen with a live event: the Live chip sat exactly under the search button (live since 0.4.8.9; old checks only saw it if an event happened to be on) | phones, live and test | fixed on test; added to live hotfix 0.4.8.9.6; the sweep now forces a live event |
+| 13 | `__snapQC` (new "options stay put" check) | Picking an option moved the menu: phones 23–66 px on 15 of 46 taps, PC back to the top on Wardrobe and Your home; also a "Decorate" heading shown under the Decorate tab until the next redraw (no-name-twice ran too early) | all, test and live | fixed (shared hold rule, PC preview slot, preview scroll only when hidden) |
+| 14 | `__creatureBox` (new outline tool) while fixing C36 | Fish pictures sized by width: the seahorse, leafy sea dragon and manta were cut down in every short picture box | all, test and live | fixed (fit by real height) |
 
 ## Full sweep of the new systems (2026-11-20, test build 0403 source)
 - Content check, normal + extreme save, every page and tab (~240–310 cards a run) plus every mini-game pop-up: phones 956×440, 915×412 (Android build), 667×375, 440×460; PC 1920×1080, 1440×900, 1024×640. Only findings: the held picture decisions (Mystery crates everywhere, Gamble on phones). Nothing new.

@@ -8,7 +8,7 @@
      at every size, with one report. Copied by build.ps1 -Preview to site/next/sweep.html: http://localhost:8766/next/sweep.html locally, https://sizzentra.github.io/driftline/next/sweep.html on any device (Stats › Tester tools › Run every check). Never in a release build.
      Each check runs in a fresh copy of the game in the frame below; the test save is backed up first, put back before every
      check and at the end. Locally the report is also written to tools/shots/sweep.json (and window.__R) for Claude to read; on a phone, Copy report puts a text summary on the clipboard.
-     ?go starts at once; ?only=gate,boot,paths,qa,content,extreme,traits,phone picks sections; ?android adds __qa on Android. -->
+     ?go starts at once; ?only=gate,boot,paths,qa,content,extreme,traits,snap,phone picks sections; ?android adds __qa on Android. -->
 <style>
 :root{--bg:#0d1824;--card:#15263a;--ink:#e8f0f7;--dim:#93a8bd;--ok:#3fbf7f;--bad:#ff6b6b;--held:#e8b84a;--line:#25405c}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,sans-serif;padding:16px}
@@ -33,6 +33,7 @@ details{margin-top:2px} summary{cursor:pointer;color:var(--dim)} pre{white-space
   <label><input type="checkbox" data-s="content" checked> Content</label>
   <label><input type="checkbox" data-s="extreme" checked> Content (extreme save)</label>
   <label><input type="checkbox" data-s="traits" checked> Fish decorations</label>
+  <label><input type="checkbox" data-s="snap" checked> Options stay put</label>
   <label><input type="checkbox" data-s="phone" checked> Phone layout</label>
   <label><input type="checkbox" data-s="android"> Test suite on Android too</label>
   <button id="go">Run the sweep</button> <button id="copy" disabled>Copy report</button>
@@ -107,6 +108,8 @@ async function content(extreme){ for(const [b,w,h] of CONTENT_SIZES) await step(
     const W=await open(b,w,h); const r=await timed(400000,W.__contentQC(extreme?{extreme:true}:{}));
     return {detail:r.pages+' pages, '+r.tabs+' tabs, '+r.cards+' cards', list:r.list}; }); }
 
+/* C13: picking an option never moves it (__snapQC): every page and tab, phones and PC */
+async function snapAll(){ for(const [b,w,h] of [['ios',956,440],['ios',667,375],['pc',1920,1080],['pc',1440,900],['pc',1024,640]]) await step('Options stay put (__snapQC)',(b==='ios'?'phone ':'PC ')+w+'×'+h,async()=>{ const W=await open(b,w,h); const r=await timed(300000,W.__snapQC()); return {detail:r.pages+' pages, '+r.tabs+' tabs, '+r.taps+' options tapped', list:r.list}; }); }
 async function traits(){ await step('Fish decorations (__traitQC)','every decoration on every fish',async()=>{ const W=await open('pc',1440,900); const r=await timed(300000,W.__traitQC());
     return {detail:r.fish+' fish, '+r.checked+' decorations', list:r.list}; }); }
 
@@ -137,6 +140,7 @@ async function run(){
     if(on('content')) await content(false);
     if(on('extreme')) await content(true);
     if(on('traits')) await traits();
+    if(on('snap')) await snapAll();
     if(on('phone')) await phone();
   } finally{ await blank(); putSaveBack(); $('go').disabled=false; $('f').style.transform=''; }
   const bad=R.filter(r=>r.ok===false), held=R.filter(r=>r.ok==='held'), mins=((performance.now()-t0)/60000).toFixed(1);

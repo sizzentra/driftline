@@ -59,7 +59,7 @@
     try{ if(MOB()&&S.tab==='aquarium'&&AQ_PV&&AQ_PV.kind==='decor'&&!S.aq.owned.includes(AQ_PV.id)){ S.aq.pos=S.aq.pos||{}; if(S.aq.pos[AQ_PV.id]==null){ const now=aqPositions(S.aq.decor); S.aq.decor.forEach(id=>{ if(S.aq.pos[id]==null) S.aq.pos[id]=now[id]; }); S.aq.pos[AQ_PV.id]=bestGap(); } /* placed decorations keep their spots while one is tried */ } }catch(e){}
     const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return r;
       const cv=$('tankcv'); if(cv) cv.scrollIntoView=function(){}; /* the tank is always on screen here: no jump */
-      const bar=P.querySelector('.aq07-bar'), pv=P.querySelector('.pvbar');
+      const bar=P.querySelector('.aq07-bar'), pv=P.querySelector('.pvbar:not(.pvhint)');
       if(bar&&pv){ pv.classList.add('aq07-try'); const nm=pv.querySelector('b'), lbl=pv.querySelector('span'); if(lbl&&nm) lbl.innerHTML='Trying: <b>'+nm.innerHTML+'</b>'; bar.prepend(pv); bar.classList.add('aq07-trying-on'); }
       const grid=[...P.querySelectorAll('.jsec .grid')].find(g=>g.querySelector('canvas[data-decor]')); if(grid){ grid.classList.add('aq07-dgrid');
         grid.querySelectorAll(':scope > .tile').forEach(t=>{ const c=t.querySelector('canvas[data-decor]'); if(!c) return; const id=c.dataset.decor, own=S.aq.owned.includes(id), placed=S.aq.decor.includes(id), d=DECORI[id];

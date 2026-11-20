@@ -210,7 +210,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'scratch': { if(!scratch||scratch.done) return; scratch.open[i]=true; tone(2000+Math.random()*500,.03,'square',.02); const opened=scratch.cells.filter((s,j)=>scratch.open[j]);
       const cnt={}; opened.forEach(s=>cnt[s]=(cnt[s]||0)+1); if(Object.values(cnt).some(n=>n>=3) || scratch.open.every(x=>x)) settleScratch(); return; }
     case 'scratchall': if(scratch){ scratch.open.fill(true); settleScratch(); } return;
-    case 'feed': { if(Date.now()-S.fedT<3600000) return; S.fedT=Date.now(); addBuff('tank',.25,30,'Fed fish'); feedAnim=performance.now(); sfx.coin(); toast('Your fish are happy: +25% aquarium income for 30 min'); return; }
+    case 'feed': { if(Date.now()-S.fedT<3600000) return; S.fedT=Date.now(); addBuff('tank',.25,30,'Fed fish'); feedAnim=performance.now(); sfx.coin(); toast('Your fish are happy: +25% aquarium income for 30 min'); feedRoll(); return; }
     case 'aqtheme': { const th=THEMES.find(x=>x[0]===k); if(!th) return; if(!S.aq.owned.includes(k)){ if(S.money<th[2]) return; S.money-=th[2]; S.aq.owned.push(k); sfx.coin(); } S.aq.theme=k; return; }
     case 'aqsand': { const sd=SANDS.find(x=>x[0]===k); if(!sd) return; if(!S.aq.owned.includes(k)){ if(S.money<sd[2]) return; S.money-=sd[2]; S.aq.owned.push(k); sfx.coin(); } S.aq.sand=k; return; }
     case 'decorhide': { if(!S.aq.decor.includes(k)) return 'skip'; const h=S.aq.hid||(S.aq.hid=[]); S.aq.hid=h.includes(k)?h.filter(x=>x!==k):[...h,k]; return; } /* hide from view, keep the bonus */

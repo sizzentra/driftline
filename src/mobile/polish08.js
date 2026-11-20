@@ -354,7 +354,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
     if(t.startsWith(N+' ·')||t.startsWith(N+' -')){ const w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT), texts=[]; let n; while(n=w.nextNode()) if(n.textContent.trim()) texts.push(n); const f=texts[0]; if(!f) return; if(f.textContent.trim()===N){ f.textContent=''; if(texts[1]) texts[1].textContent=texts[1].textContent.replace(/^\s*[·-]\s*/,''); } else f.textContent=f.textContent.replace(N,'').replace(/^\s*[·-]\s*/,''); const g=texts.find(x=>x.textContent.trim()); if(g) g.textContent=g.textContent.replace(/^(\s*)(\S)/,(m,s,c)=>s+c.toUpperCase()); h.dataset.dupDone=N; } };
   /* after every other renderPanel step (later files wrap it again and add their headings after this one runs) */
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); queueMicrotask(()=>{ try{ dedupe(); }catch(e){} }); return r; };
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')) setTimeout(()=>{ try{ dedupe(); }catch(er){} },0); },true);
+  /* twice after a tab switch: the page engine can show the new tab after the first run, which left "Decorate" under the Decorate tab until the next redraw (and then the list jumped up 35 px, found by __snapQC) */
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')){ const run=()=>{ try{ dedupe(); }catch(er){} }; setTimeout(run,0); setTimeout(()=>setTimeout(run,0),0); } },true); /* the second pass queues behind the page engine's own zero-delay switch */
   PHONE_DEDUPE=dedupe; document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .dl-dupname{display:none!important}</style>'); }
 var PHONE_DEDUPE;
 /* Menu rail height (director, 2026-11-19, iPhone screenshots: the rail ended after "Quests"): its height came only from being stretched
