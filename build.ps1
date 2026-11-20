@@ -75,7 +75,10 @@ foreach ($p in 'pc','android','ios') {
   if ($Preview) {
     # own save key; copies the real save once on first open and never writes to it
     $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){}")
-    $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
+    # opened by the one-click sweep (?sweep, tools/sweep.html): record every error from the first line on, and keep the frame loop
+    # running in a hidden browser pane (a timer instead of animation frames)
+    $sweepRec = 'if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } '
+    $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; " + $sweepRec + "window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
     # the test label: a fixed small pill (it stretched into a tall shape on iPhone held sideways), plain ASCII text (a "·" was
     # read as "Â·" by Windows PowerShell)
     $badge = '<span class="dlprev" style="position:fixed!important;' + $(if($p -eq 'pc'){'right:10px!important;bottom:10px!important;top:auto!important;left:auto!important;'}else{''}) + 'z-index:30;display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:22px!important;white-space:nowrap!important;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:3px 10px!important;margin:0!important;font:700 11px/14px system-ui,sans-serif!important;pointer-events:none;box-sizing:border-box">test build - ' + $names[$p] + '</span>'
@@ -129,7 +132,9 @@ if ($Preview) {
   # picks the iPhone or Android preview build), never the live game, and has its own offline helper so phones install it
   $man = '{"name":"Driftline Test","short_name":"DL Test","description":"Driftline preview build for testing","start_url":"./","scope":"./","id":"./","display":"standalone","orientation":"any","background_color":"#0a161d","theme_color":"#2a2048","icons":[{"src":"../icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},{"src":"../icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},{"src":"../icon-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]}'
   [IO.File]::WriteAllText((Join-Path $out 'manifest.webmanifest'), $man, $utf8)
-  $sw = [IO.File]::ReadAllText((Join-Path $root 'site\sw.js')).Replace("const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];", "const CORE = ['./', 'index.html', 'manifest.webmanifest'];")
+  # the one-click sweep page sits beside the preview builds (localhost:8766/next/sweep.html, and /driftline/next/sweep.html on any device)
+  Copy-Item (Join-Path $root 'tools\sweep.html') (Join-Path $out 'sweep.html') -Force
+  $sw =[IO.File]::ReadAllText((Join-Path $root 'site\sw.js')).Replace("const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];", "const CORE = ['./', 'index.html', 'manifest.webmanifest'];")
   [IO.File]::WriteAllText((Join-Path $out 'sw.js'), $sw, $utf8)
 
   # ---------- phone test apps (director, 2026-11-18: Android recognised /next/ as the live app, because the live app's scope

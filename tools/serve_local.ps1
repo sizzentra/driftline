@@ -26,11 +26,8 @@ while ($l.IsListening) {
   }
   $p = $ctx.Request.Url.AbsolutePath.TrimStart('/'); if ($p -eq '' -or $p.EndsWith('/')) { $p = $p + 'index.html' }
   $f = Join-Path $root $p
-  if ($p -eq 'sweep.html') { $f = Join-Path $PSScriptRoot 'sweep.html' }  # the one-click sweep page lives in tools/, never in a build
   if (Test-Path $f -PathType Leaf) {
     $b = [IO.File]::ReadAllBytes($f)
-    # pages opened by the sweep (?sweep): record every error from the very first line, and keep the frame loop running in a hidden pane
-    if ($p.EndsWith('.html') -and $p -ne 'sweep.html' -and $ctx.Request.Url.Query -match 'sweep') { $h=[Text.Encoding]::UTF8.GetString($b); $i=$h.IndexOf('<head>'); if ($i -ge 0) { $h=$h.Insert($i+6,'<script>window.__bootErr=[];addEventListener("error",function(e){__bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":""))});addEventListener("unhandledrejection",function(e){__bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason))});window.requestAnimationFrame=function(f){return setTimeout(function(){f(performance.now())},16)};window.cancelAnimationFrame=function(i){clearTimeout(i)};</script>'); $b=[Text.Encoding]::UTF8.GetBytes($h) } }
     if ($p.EndsWith('index.html') -and $ctx.Request.Url.Query -match 'test') { $h=[Text.Encoding]::UTF8.GetString($b).Replace('<body>','<body><script>window.requestAnimationFrame=function(f){return setTimeout(function(){f(performance.now())},33)};</script>'); $b=[Text.Encoding]::UTF8.GetBytes($h) }
     $ext = [IO.Path]::GetExtension($f); $ctx.Response.ContentType = $types[$ext]
     $ctx.Response.ContentLength64 = $b.Length; $ctx.Response.OutputStream.Write($b,0,$b.Length)

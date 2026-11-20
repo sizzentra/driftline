@@ -275,5 +275,7 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Change | Owner | Affects |
 |---|---|---|
 | Sweep page: every automatic check of round-checklist step 2 in fresh game copies, one report, test save put back, new-since-last-run list | `tools/sweep.html` | the round checklist (CLAUDE.md steps 2 and 8) |
-| `/sweep.html` route, `POST /report/<name>` (writes `tools/shots/<name>.json`), `?sweep` pages get an early error recorder + 16 ms frame timer | `tools/serve_local.ps1` | local testing only |
+| `POST /report/<name>` (writes `tools/shots/<name>.json`) | `tools/serve_local.ps1` | local testing only |
+| Sweep page copied to `site/next/sweep.html`; preview pages opened with `?sweep` record start-up errors and use a 16 ms frame timer (preview only) | `build.ps1` | preview builds |
+| Tester tools › Run every check (link to the sweep; on phones it opens the published page, so the checks run in the real phone browser) | `src/z_stats.js` (inside `testerHTML`, preview only) | Stats on test builds |
 | `__pathsAll()` (a Path in every tier, saved for real; for the #130 start-up check) | `src/bn_qa04.js` (preview builds only) | none in release builds |

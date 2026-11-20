@@ -54,11 +54,6 @@ html body.phone-app .hud > #mbgoal .mbg-bar > b,html body.phone-land .hud > #mbg
 html body.phone-app .hud > #mbgoal.ready,html body.phone-land .hud > #mbgoal.ready{border-color:#ffd36a!important;box-shadow:0 0 0 1px #ffd36a66,0 0 14px #ffd36a44!important}
 html body.phone-app .hud > #mbgoal.ready .lbl,html body.phone-land .hud > #mbgoal.ready .lbl{color:#ffd36a!important}
 html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl{color:#ffd36a!important}
-/* upright (tablets, split screen): the goal takes the goal's old place on the second row; with a live event they share it */
-html body.phone-app.dl-fish .hud > #mbgoal{grid-column:3 / 6!important;grid-row:2!important;height:30px!important;min-height:0!important;flex-direction:row!important;align-items:center!important;gap:8px!important;justify-content:flex-start!important}
-html body.phone-app.dl-fish .hud.mb-has-live > #mbgoal{grid-column:3 / 5!important}
-html body.phone-app.dl-fish .hud > #mblive{grid-column:5 / 6!important;grid-row:2!important;height:30px!important;min-height:0!important;flex-direction:row!important;align-items:center!important;gap:6px!important}
-html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
 </style>`);
 /* the room the goal gave back: two shortcuts players check all the time, sideways only (upright the bar has no room):
    Tasks (daily tasks + weekly quests: how many rewards are ready) and Tide Pass (level; gold when a reward waits).
@@ -91,7 +86,7 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-land .hud > #mblive,html body.phone-land .hud > .mb-x{flex:0 1 auto!important}
-html body.phone-app .hud > .mb-x:not(#mbhome){display:none!important} /* the narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
+html body.phone-app .hud > .mb-x:not(#mbhome),html body.phone-app .hud > #mblive{display:none!important} /* Live too (2026-11-20, the sweep: it sat exactly under the search button; it steps aside like it does when a sideways bar runs out of room, Events stays in the menu). The narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
 html body.phone-land .hud > .mb-x[hidden]{display:none!important}
 html body.phone-land .hud > .mb-x.ready{border-color:#ffd36a!important;box-shadow:0 0 0 1px #ffd36a66!important}
 html body.phone-land .hud > .mb-x.ready .lbl{color:#ffd36a!important}

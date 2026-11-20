@@ -62,6 +62,7 @@ The old suite passed 97/97 while every problem below existed.
 | 9 | the director, then a new QA test | My own Cooler/Aquarium switch left a blank button on other pages | phones, test | fixed; QA checks every page for blank top-row buttons |
 | 10 | `__traitQC` (new decoration check) | 98 decoration problems across 329 new-water fish: floating horns and ties, beaks off the nose, circuit dots off the body, spots and headdress over the eye | all, test | fixed (0 left); check in the round checklist |
 | 11 | the director, then a new QA test | The phone Cooler switch stayed on the Fish Log when opened from a fish | phones, test | fixed |
+| 12 | the one-click sweep, first run on the test build | Split screen with a live event: the Live chip sat exactly under the search button (live since 0.4.8.9; old checks only saw it if an event happened to be on) | phones, live and test | fixed on test; added to live hotfix 0.4.8.9.6; the sweep now forces a live event |
 
 ## Full sweep of the new systems (2026-11-20, test build 0403 source)
 - Content check, normal + extreme save, every page and tab (~240–310 cards a run) plus every mini-game pop-up: phones 956×440, 915×412 (Android build), 667×375, 440×460; PC 1920×1080, 1440×900, 1024×640. Only findings: the held picture decisions (Mystery crates everywhere, Gamble on phones). Nothing new.

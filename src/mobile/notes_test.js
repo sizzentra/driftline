@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Stats › Tester tools › Run every check: opens a page that runs every automatic check on this device (about 8 minutes) and puts your test save back. When it finishes, tap Copy report and send it to me.',
+  'Split-screen windows: during a live event, the Live button no longer sits under the search button (it steps aside, Events stays in the menu). Also going to the live game with the Tide Pass hotfix.',
+  '## Test build 0424',
   'New-water fish: every decoration follows the fish’s real shape: circuit traces differ per fish (no more four dots in a column), ties start at the throat, beaks sit on the nose, horns and ears sit on the head, and nothing covers an eye.',
   'The Cooler / Aquarium button no longer stays on the Fish Log.',
   '## Test build 0403',

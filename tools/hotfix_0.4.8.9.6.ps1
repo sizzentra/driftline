@@ -22,8 +22,12 @@ function Once([string]$text, [string]$find, [string]$repl, [string]$what) {
 $dash = [char]0x2014
 $passOld = "pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'$dash'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*`$/,'')||'$dash']]; } },"
 $passNew = "pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'$dash'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*`$/,'')||'$dash']]; }, acts:P=>[P.querySelector('[data-act=`"passclaim`"]')] }, /* 0.4.8.9.6 hotfix: the Claim button sits in the strip (it went with the header box) */"
-$notesAnchor = "PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.']});"
-$phoneNote = "PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Tide Pass: the Claim button is back, so you can collect your rewards.']});"
+#   Also: in split-screen windows a live event's Live chip sat exactly under the search button (found by the one-click sweep,
+#   2026-11-20, incident #143); it now steps aside there, like it does when a sideways top bar runs out of room.
+$liveOld = "html body.phone-app .hud > .mb-x:not(#mbhome){display:none!important}"
+$liveNew = "html body.phone-app .hud > .mb-x:not(#mbhome),html body.phone-app .hud > #mblive{display:none!important}"
+$notesAnchor ="PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.']});"
+$phoneNote = "PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Tide Pass: the Claim button is back, so you can collect your rewards.','Split-screen windows: during a live event, the Live button no longer sits under the search button.']});"
 
 foreach ($p in 'android','ios') {
   $t = [IO.File]::ReadAllText("$From\$p.html", $enc)
@@ -31,6 +35,7 @@ foreach ($p in 'android','ios') {
   $t = Once $t "const GAME_VERSION = '0.4.8.9.4';" "const GAME_VERSION = '0.4.8.9.6';" "$p version"
   $t = Once $t $notesAnchor ($notesAnchor + "`n" + $phoneNote) "$p notes"
   $t = Once $t $passOld $passNew "$p tide pass claim"
+  $t = Once $t $liveOld $liveNew "$p split-screen live chip"
   [IO.File]::WriteAllText("$To\$p.html", $t, $enc)
 }
 if ((Resolve-Path $From).Path -ne (Resolve-Path $To).Path) { foreach ($f in 'pc.html','index.html','version.txt') { Copy-Item "$From\$f" "$To\$f" -Force } }
