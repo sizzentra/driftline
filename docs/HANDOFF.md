@@ -16,7 +16,7 @@ Updated at the end of every session (CLAUDE.md). Current facts only; older notes
 - Checks are the old ones again: the round checklist in docs/REFERENCE.md (parse gate, `__qa` on every build, the layout sweeps). `docs/TEST_COUNT.md` (which tests ever caught a bug) is kept as information.
 
 ## What is open
-- **Cam:** reopen DL Test Android and take the update to 2358; not confirmed on his Pixel yet. His save (level 10) is untouched.
+- **Cam:** confirmed 2026-11-20: 2358 starts and plays on his Pixel (his save kept).
 - Reverted along with phase 2 (each was a real fix, parked until the director wants them back): a brand-new save could lose some Wisdom Pearls on its first reload (`fresh()` has no `pearlV`); three functions nothing calls (`boardwalkBanner`, `clawHTML`, `pathOn`); a flaky QA test (a random shiny breaks the batch 5 waters price limit).
 - A PS5 controller on this PC reaches `__qa` fight tests when it is in use (a held trigger reels): run `__qa` with the controller idle.
 - **0.4.9** stays on the test builds until the director has tested it on every platform. Next live hotfix: copy `tools/hotfix_0.4.8.9.4.ps1`.
@@ -24,5 +24,5 @@ Updated at the end of every session (CLAUDE.md). Current facts only; older notes
 - The doc "Driftline Phase 2: try it with Cam" (claude.ai) describes the reverted work; delete it only if the director asks.
 
 ## Not verified
-- That Cam's Pixel works again on 2100 after the revert.
+- The Path fix on the iPhone (Safari); confirmed on Cam's Pixel only.
 - Why 2305 froze on his Pixel.
