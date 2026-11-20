@@ -15,5 +15,6 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'Pets: the pets still to find no longer show on Your pets and Customize (also going to the live game as a hotfix).',
   'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to clicks).',
   'Rods (full screen): the rod in your hands shows its attachment slots again (also going to the live game as a hotfix).',
+  'Boardwalk (full screen): every game card shows all of its content (the chests button was hidden under Counter specials); the games area scrolls if needed. Voyage milestones: one per row, readable again.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

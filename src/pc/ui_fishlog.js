@@ -132,6 +132,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: Set sail again: the voyage card on the left, the milestones beside it in two columns (it was squeezed into two narrow
    grid cells, one word per line) */
 body.pch-on #panel .grid:has(> .tile .voy-list){grid-template-columns:minmax(300px,380px) minmax(0,1fr)!important;align-items:start}
-body.pch-on #panel .tile .voy-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body.pch-on #panel .tile.voy-boons .voy-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} /* Boons only: the milestones tile sits in the narrow column, and two columns there squeezed each milestone to a word per line (2026-11-20) */
 body.pch-on #panel .voy-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
 </style>`);

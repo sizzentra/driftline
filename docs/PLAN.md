@@ -9,12 +9,12 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 **Shelved for the next build** (director, 2026-11-20: "we want them in the build, but shelf them for now")
 - ☐ Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
 - ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
-- ☐ PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
+- ☑ (fixed with the Boardwalk cards, 2026-11-20) PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
 
 **Found by the content check, first run (2026-11-20; all confirmed by measuring and pictures)**
 - ✔ **Live and test, PC full HD:** Rods › "In your hands" was squeezed to the screen and hid its Upgrade button and attachment slot. Fixed in the test builds and live as hotfix 0.4.8.9.5 (PC only, 2026-11-20, director: "Push it live. It looks great"). Pictures: `tools/shots/rodslot/`.
-- ☐ **Test, PC 1920×1080, Boardwalk › Games:** the cards have one fixed height, so content spills: Treasure chests' "Open" button sits under the Counter specials section (can't be clicked); Coin flip's 50% button and the Gamble fish buttons hang over the card edge; after a game is played, results overlap buttons on most cards (Duck pond, Scratch card, Claw machine, Gamble, Treasure chests). One cause, one fix (cards grow with their content). 1440×900 and 1024×640 are fine.
-- ☐ **Test, PC all sizes:** Map › Set sail again › Voyage milestones are squeezed into a narrow column (one word per line) and "after N voyages" is printed over the descriptions (like the old Boons bug, #114).
+- ☑ (fixed 2026-11-20: cards grow with their content, the games area scrolls) **Test, PC 1920×1080, Boardwalk › Games:** the cards have one fixed height, so content spills: Treasure chests' "Open" button sits under the Counter specials section (can't be clicked); Coin flip's 50% button and the Gamble fish buttons hang over the card edge; after a game is played, results overlap buttons on most cards (Duck pond, Scratch card, Claw machine, Gamble, Treasure chests). One cause, one fix (cards grow with their content). 1440×900 and 1024×640 are fine.
+- ☑ (fixed 2026-11-20: milestones one per row) **Test, PC all sizes:** Map › Set sail again › Voyage milestones are squeezed into a narrow column (one word per line) and "after N voyages" is printed over the descriptions (like the old Boons bug, #114).
 - ☐ **Decision (rule 4, pictures in a group):** Boardwalk › Mystery crates has no picture on every platform (7 of 9 game cards have one); Higher or lower loses its picture after a game on PC. Picture or listed exception.
 
 **Look items noted, not fixed** (2026-11-19 outsider review)
@@ -74,6 +74,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ☐ C33 Cherry Blossom Lake: wood and metal colour/material editable like every other dock; trees with more distinguishing features, petals resting and drifting on the lake, a nicer temple on shore, fake koi replaced by ducks and water lilies, Mount Fuji further away and larger with other mountains around; full quality pass.
 - ☐ C34 Canadian Rockies (Cam): beavers (like Stonebrook's otters) and a beaver dam with a flowing river/waterfall; crystal-clear water showing rocks and weeds on the bottom; a moose; a Canadian flag by a reworked log cabin; Canadian Shield and Rockies close together; more flora and fauna (Canada geese); a fishing canoe with a nondescript angler; clear starry nights; a customizable home.
 - ☐ C35 Every new map (the 4 new + 6 end-game waters): more populated, functional customizable homes, better effects, occasional map-specific animations, full polish.
+- ☐ C36 Fix the seahorse sprites (added by the director, 2026-11-20). Need data if the problem is not obvious on sight: which seahorse, which water, what looks wrong.
 
 ## Batch 3: progression and economy
 - ☑ [16] Next water needs 10 catches, +10 per voyage, capped at 50.

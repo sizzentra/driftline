@@ -561,8 +561,8 @@ html body.pc-fhd #menuov #panel.bw-on .bwx-hero .bwx-nav{position:absolute!impor
 html body.pc-fhd #menuov #panel.bw-on .bwx-hero .bwx-nav button{height:36px;padding:0 18px!important;border-radius:999px!important;background:#0b1626d9!important;border:1px solid #ffffff2a!important;color:#fff!important;font:800 13.5px var(--display,system-ui)!important;flex:0 0 auto!important}
 html body.pc-fhd #menuov #panel.bw-on .bwx-hero .bwx-nav button[aria-selected="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important;color:#2a1c05!important}
 html body.pc-fhd #menuov #panel.bw-on .bwx-view{flex:1 1 0;min-height:0;overflow:auto;scrollbar-width:thin}
-html body.pc-fhd #menuov #panel.bw-on .bwx-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:12px!important;height:100%;align-items:stretch!important}
-html body.pc-fhd #menuov #panel.bw-on .bwx-card{display:flex!important;flex-direction:column!important;min-height:0!important;margin:0!important;padding:14px!important}
+html body.pc-fhd #menuov #panel.bw-on .bwx-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:12px!important;min-height:100%;align-items:stretch!important} /* min-height, not height: a row grows with its cards and the view scrolls (2026-11-20: a fixed height squeezed the cards and hid the chests button under Counter specials) */
+html body.pc-fhd #menuov #panel.bw-on .bwx-card{display:flex!important;flex-direction:column!important;margin:0!important;padding:14px!important}
 html body.pc-fhd #menuov #panel.bw-on .bwx-cb{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
 html body.pc-fhd #menuov #panel.bw-on .bwx-cf{margin-top:auto}
 </style>`);
