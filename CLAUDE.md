@@ -1,4 +1,4 @@
-# Driftline: the rules (one page; approved by the director and Cam, 2026-11-19)
+# Driftline: the rules (one page)
 
 A cozy browser fishing game for the director and friends: PC, Android and iPhone builds, one save. Separate from OutPace: sessions start in `C:\Users\sizze\Driftline`, one round per session.
 **Start of a session:** read this page and `docs/HANDOFF.md`. **Before each step of a round** (build, test, publish, add a page or water): read its section in `docs/REFERENCE.md`. Errors and fixes: `docs/LESSONS.md`. Work list: `docs/PLAN.md`.
