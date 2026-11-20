@@ -1,3 +1,5 @@
+> **History only (2026-11-20): `CLAUDE.md` is the rulebook again.** This file was the detail half of the retired one-page rulebook (2026-11-19); everything still in use is back in CLAUDE.md. Do not follow this file as rules.
+
 # Driftline reference (details and how-tos)
 
 Moved here from CLAUDE.md on 2026-11-19 when CLAUDE.md became the one-page rulebook (director + Cam, "Driftline Workflow Proposal"). **The rules are in CLAUDE.md; this file holds the details behind them** (how to build, test, publish, platform rules, code rules, adding new things). Where the two disagree, CLAUDE.md wins. Read the section you need before that step of a round.

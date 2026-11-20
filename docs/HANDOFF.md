@@ -1,3 +1,5 @@
+> **History only (2026-11-20): `CLAUDE.md` is the rulebook again**, and its "Where we left off" section holds the current status. This note is no longer updated.
+
 # Handoff note
 
 Updated at the end of every session (CLAUDE.md). Current facts only; older notes go to `docs/HISTORY.md`. Shown to the director only on request.
