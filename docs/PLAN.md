@@ -24,7 +24,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 **Parked fixes** (undone with phase 2 on 2026-11-20; redo when the director wants)
 - ☐ A brand-new save can lose some Wisdom Pearls on its first reload (`fresh()` has no `pearlV`, #121).
 - ☐ Three functions nothing calls: `boardwalkBanner`, `clawHTML`, `pathOn` (#124).
-- ☐ Flaky QA test: a random shiny breaks the batch 5 waters price limit (#127).
+- ☑ Flaky QA test: a random shiny broke the batch 5 waters price limit (#127): fixed 2026-11-20 (the test compares a plain fish).
 
 **Needs the director's eye**
 - ☐ Aquarium speed-up: drawing the fish costs ≈0.5 ms each (24 fish ≈ 10 ms, forced-sync test; phones not measured). The fix (cached tail-wag frames per fish) changes the animation slightly.

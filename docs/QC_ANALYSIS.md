@@ -60,3 +60,9 @@ The old suite passed 97/97 while every problem below existed.
 | 7 | Cam, then the new QA test | Tide Pass Claim button missing on phones (rewards could not be claimed) | phones, live and test | fixed on test, live hotfix 0.4.8.9.6 ready |
 | 8 | the director, fish sheet by eye | Nile fish headdress floating like a hockey stick, eye line across the eye (attachment at guessed spots, breaking the outline rule) | all, test | fixed; an automatic attachment check comes with the content recipes |
 | 9 | the director, then a new QA test | My own Cooler/Aquarium switch left a blank button on other pages | phones, test | fixed; QA checks every page for blank top-row buttons |
+
+## Full sweep of the new systems (2026-11-20, test build 0403 source)
+- Content check, normal + extreme save, every page and tab (~240–310 cards a run) plus every mini-game pop-up: phones 956×440, 915×412 (Android build), 667×375, 440×460; PC 1920×1080, 1440×900, 1024×640. Only findings: the held picture decisions (Mystery crates everywhere, Gamble on phones). Nothing new.
+- Test suite: 102/102 on iPhone, Android, PC 1920×1080 and PC 1440×900 after fixing the flaky #127 (it failed once in this sweep, then passed).
+- Start-up check: every build starts with no errors. The test save was unchanged by all of it.
+- Process finding: one sweep took about 20 manual steps (resize, load, run, read, per size). Next tool: one sweep page that runs every size and build in frames and gives a single report.
