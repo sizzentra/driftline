@@ -259,3 +259,9 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 |---|---|---|
 | Android + iPhone release and test notes in one file each | `mobile/notes_release.js` (`phoneNotes()` picks per-phone lines by `DL_BUILD`), `mobile/notes_test.js` (label by `DL_BUILD`); `src/android/` emptied, `src/ios/notes_*` removed; build.ps1 `$layers` | What's new card and test card on both phones: output identical to before (checked entry by entry), plus two new test card lines |
 | QA: Nibbles and Boardwalk prize tests clear Paths first | `bn_qa04.js` | `__qa` on saves with Paths chosen |
+
+## Content standard and its check (2026-11-20, test builds only)
+| Change | Owner | Affects |
+|---|---|---|
+| Content standard (8 rules) | docs/PLATFORM_DESIGN.md "Content standard" | every new or changed card and page, all platforms |
+| `__contentQC(o)` (`{extreme}`, `{only:[pages]}`, `{keepOpen}`), `contentQCExtreme()`, `CONTENT_QC_EXCEPT`; `qaAllPages` moved to the top of the QA file (shared by `__qa` and the content check) | `bn_qa04.js` (test builds only, never in a release) | round checklist step 4 |

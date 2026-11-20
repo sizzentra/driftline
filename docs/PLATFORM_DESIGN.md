@@ -172,3 +172,22 @@ Run `__spec` at each, upright and sideways, with its safe areas simulated. Refer
 - **Rewards and data:** worked out once in the shared core, so every platform shows the same numbers.
 
 **One place for each thing (director, 2026-11-18: "things that appear in multiple locations... tabs, headers").** A tab, section or summary value appears once per screen. Settings and Save are separate tabs (no Save section inside Settings); a page's summary strip and intro never repeat each other; the menu top row's coins are not repeated in a page summary. Shortcuts in the fishing top bar (Cooler, Aquarium, Fish Log, Tasks, Tide Pass, Level → Stats) are status + quick opens by design. Stats has its own side-panel button (director: "makes no sense to be in collection"); the settings gear holds Settings and Save.
+
+## Content standard (all platforms; director approved 2026-11-20)
+What goes *inside* cards and pages. The frame rules above say how big the boxes are; these say what the boxes must hold. Checked by `window.__contentQC()` in test builds (see "The check" below). A new page or card gets its empty, full and extreme look written here (or in its feature's notes) **before** it is built.
+
+1. **Nothing is ever cut by a box edge.** Every text has one declared behaviour:
+   - **Names** (fish, oddities, baits, pets, waters, items) on cards wrap to at most 2 lines.
+   - **Names in buttons and chips:** one line; shrink to 12 px at least, then end in "…".
+   - **Sentences and descriptions** wrap freely; text never sits in a fixed-height box.
+   - Anything shortened with "…" shows in full where you tap into it.
+2. **Numbers fit at their biggest.** Up to 99,999 in full (`fmt`); above that the short form (5.38M, `fmtShort`) on cards and chips, the full number in details. Prices and fees are round (`niceNum`). Every number box fits the biggest value the game can reach.
+3. **Every list, page and card has a designed empty look:** one line saying what goes here and how to get it, plus the card's picture if it has one. Never a blank box and never a shrunken page.
+4. **Cards in a group match:** if one card in a group has a picture, every card in the group has one, in every state (idle, empty, playing, result). A PC card with no room for its picture is listed here with the reason.
+   - *Exception (approved 2026-11-20):* PC Boardwalk › Fishmonger's Gamble has no idle picture (the card is full; a picture pushed the message out).
+5. **Content stays inside its card:** nothing overlaps another part or spills past the card's edge. On phones, after you act on a card its result and its main buttons are visible together without scrolling.
+6. **Alignment:** results and messages line up with the controls under them; centred text only for pictures and single big numbers.
+7. **Sizes it must hold at:** PC 1920×1080 (the director's), 1440×900, 1024×640; phones 956×440 (the director's iPhone), 915×412 (Cam's Pixel), 667×375, split-screen 440×460.
+8. **New things follow it from day one** (rule above the list).
+
+**The check:** `window.__contentQC()` (test builds) opens every page and tab and looks for: text cut by its box (no "…"), parts spilling out of their card, parts overlapping each other, cards with nothing in their body, and card groups where some cards have a picture and others don't. Run it at each size in rule 7 with three saves: **empty** (a brand-new game), **normal**, and **extreme** (`__contentQC({extreme:true})`: the longest name in every list, the biggest numbers, a full cooler, everything owned; the save is put back afterwards). It was proven on known bugs before use (see docs/LESSONS.md).
