@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Driftline">
 <script>
-window.DL_BUILD='pc'; window.DL_VERSION='2026.11.19-1402';
+window.DL_BUILD='pc'; window.DL_VERSION='2026.11.19-2100';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2842,7 +2842,7 @@ document.addEventListener('keydown',()=>startAudio(),{once:true});
 // Update 1.5: rods & attachments, pet dress-up / petting / bond,
 // daily tasks & gift, patch notes, safe reset, Boardwalk 2.0, quips
 // =====================================================================
-const GAME_VERSION = '0.4.8.9.3';
+const GAME_VERSION = '0.4.8.9.4';
 const PATCHES = [
 {v:'0.4.7', name:'Full Screen Fix', items:['## PC','The PC layout now shows in full screen too: the one-row header, the clear water with its strip above, the new Fish Log, Feats, Settings and every other PC page. Full screen used to bring back the old layout with the bar at the bottom.']},
 {v:'0.4.6', name:'Hotfix', items:['## PC','Patch notes are a proper reader: the updates you missed are listed on the left, the one you pick on the right with its sections side by side, and Let’s fish! always at the top.','The header stays at the top in narrower windows and with browser zoom (it went back to the bottom under 900 pixels wide). In small windows it turns compact: icon tabs, short counters.','## Everywhere','The tip line no longer shows as an empty bubble, and it hides while a card is open over the water.']},
@@ -14513,7 +14513,8 @@ body.pch-on #panel .tile.pet-sale canvas{width:96px!important;height:56px!import
 body.pch-on #panel .tile.pet-sale h4{font-size:13.5px!important;margin:0!important}
 body.pch-on #panel .tile.pet-sale .meta{font-size:11px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 body.pch-on #panel .tile.pet-sale .btn{padding:5px 8px!important;font-size:12px!important;min-height:0!important}
-body.pch-on #panel .tile.pet-hid{grid-column:span 2;display:grid!important;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
+body.pch-on #panel .tile.pet-hid:not([style*="display: none"]):not([style*="display:none"]){display:grid!important} /* 0.4.8.9.4 hotfix: a forced display kept "Still to find" on every Pets tab */
+body.pch-on #panel .tile.pet-hid{grid-column:span 2;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
 body.pch-on #panel .tile.pet-hid canvas{grid-row:1 / 3;width:52px!important;height:30px!important}
 body.pch-on #panel .tile.pet-hid h4{display:none}
 body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
@@ -15373,7 +15374,7 @@ body.pch-on #panel .od-card{position:relative;display:flex;flex-direction:column
 body.pch-on #panel .od-card:hover{border-color:#7fb8ff88}
 body.pch-on #panel .od-card.sel{outline:2px solid #ffd36a;outline-offset:-1px}
 body.pch-on #panel .od-card canvas{width:100%;height:auto;max-height:54px;object-fit:contain}
-body.pch-on #panel .od-card b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+body.pch-on #panel .od-card b{font-size:12.5px;line-height:1.2;white-space:normal;overflow-wrap:anywhere;max-width:100%;text-align:center} /* 0.4.8.9.4 hotfix: names wrap to a second line instead of being cut at small windows */
 body.pch-on #panel .od-card small{font-size:11px;color:#9fb2c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 body.pch-on #panel .od-card.unk b{color:#7f93a8}
 body.pch-on #panel .od-card.t1{box-shadow:inset 0 3px 0 #8fd0ff99}
@@ -16994,6 +16995,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.']});
 PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
+PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap onto a second line instead of being cut off in smaller windows.','Pets: the pets still to find show only under Find more, not on Your pets and Customize.']});
 // PC test notes (preview builds only; the live game never shows them). One short line per change in the next test build, curly
 // apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9, part 3: the fight', items:[
