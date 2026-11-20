@@ -14,5 +14,6 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
   'Pets: the pets still to find no longer show on Your pets and Customize (also going to the live game as a hotfix).',
   'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to clicks).',
+  'Rods (full screen): the rod in your hands shows its attachment slots again (also going to the live game as a hotfix).',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

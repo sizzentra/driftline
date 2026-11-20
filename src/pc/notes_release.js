@@ -105,6 +105,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.']});
 PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
 PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap onto a second line instead of being cut off in smaller windows.','Pets: the pets still to find show only under Find more, not on Your pets and Customize.']});
+PATCHES.unshift({v:'0.4.8.9.5', name:'Hotfix', items:['Rods (full screen): the rod in your hands shows its attachment slots again, so you can fit attachments.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',

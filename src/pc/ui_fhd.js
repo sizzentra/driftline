@@ -70,6 +70,7 @@ body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2{display:block!important}
 body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
 body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h2,body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h3{display:none}
 body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2{display:flex!important;flex-direction:column;gap:10px}
+body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2 > *{flex-shrink:0} /* 0.4.8.9.5 hotfix: the column squeezed the In your hands card to the screen and its hidden overflow cut off the attachment slot; the column scrolls instead */
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* full HD Wardrobe: a bigger character on the left, the options flowing in three columns instead of short rows down one side */

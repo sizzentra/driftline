@@ -265,3 +265,8 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 |---|---|---|
 | Content standard (8 rules) | docs/PLATFORM_DESIGN.md "Content standard" | every new or changed card and page, all platforms |
 | `__contentQC(o)` (`{extreme}`, `{only:[pages]}`, `{keepOpen}`), `contentQCExtreme()`, `CONTENT_QC_EXCEPT`; `qaAllPages` moved to the top of the QA file (shared by `__qa` and the content check) | `bn_qa04.js` (test builds only, never in a release) | round checklist step 4 |
+
+## Hotfix 0.4.8.9.5 (PC only) + test builds (2026-11-20)
+| Change | Owner | Affects |
+|---|---|---|
+| Rods "In your hands" column scrolls instead of squeezing its cards (the card hid its Upgrade button and attachment slot at full HD) | `pc/ui_fhd.js` (`.fhd-you .fhd-body2 > *{flex-shrink:0}`); live: `tools/hotfix_0.4.8.9.5.ps1` (PC page only; phones copied unchanged) | PC full HD (1800×950 and up) Rods page; PC "what's new" 0.4.8.9.5 |
