@@ -47,10 +47,10 @@ if(/[?&]test\b/.test(location.search)) window.__fightSim=(opts)=>{ const B=__bal
  try{ window.save=()=>{};
   for(const [loc,lvl,g,rod] of opts.places) for(const r of opts.rars) for(const [name,lag,thr] of opts.players){ S.loc=loc; S.lvl=lvl; ['rod','reel','line','hook','cooler','finder'].forEach((k,i)=>S.gear[k]=g[i]); S.rod=rod; S.baitSel='worm'; S.perks={}; S.tides=opts.tides||0;
    const pool=SP.filter(s=>s.loc===loc&&s.r===r); if(!pool.length) continue; let caught=0,ts=0,N=opts.N||100,peak=0;
-   for(let i=0;i<N;i++){ const sp=pool[i%pool.length]; G.fish=rollFish(sp,{}); G.fish.kind='fish'; G.fish.shiny=0; G.st='reeling'; G.lastCast=.8; G.d0=G.d=6+.8*gv('rod')*.6; G.maxOut=gv('rod')+28; G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=.8; G.ev=null; G.evT=1.6; G.hold=false; G.fightT=0; G.eatAt=null; G.eat=null; G.behT=0; G.tickT=1; G.surge=null; G.surgeN=0;
+   for(let i=0;i<N;i++){ const sp=pool[i%pool.length]; G.fish=rollFish(sp,{}); G.fish.kind='fish'; G.fish.shiny=0; G.st='reeling'; G.lastCast=.8; G.d0=G.d=6+.8*gv('rod')*.6; G.maxOut=gv('rod')+28; G.ten=10; G.sta=1; G.temper=0; G.run=false; G.runT=.8; G.ev=null; G.evT=1.6; G.hold=false; G.padReel=0; G.crank=0; G.fightT=0; G.eatAt=null; G.eat=null; G.behT=0; G.tickT=1; G.surge=null; G.surgeN=0;
     let t=0; const dt=1/60, hist=[]; let pk=0;
-    while(t<90){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-1-Math.round(lag/dt))]; G.hold = name==='holder'?true:!(o.ten>thr || o.run || o.ev || o.tmp>1.2); fight(dt); pk=Math.max(pk,G.ten); t+=dt; if(G.st!=='reeling') break; }
+    while(t<90){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-1-Math.round(lag/dt))]; G.hold = name==='holder'?true:!(o.ten>thr || o.run || o.ev || o.tmp>1.2); const t0n=G.ten; fight(dt); if(opts.trace&&out.length<1&&G.ten>t0n+.5&&!G.hold&&(opts.tr=opts.tr||[]).length<12) opts.tr.push({t:+t.toFixed(2),ten:+G.ten.toFixed(1),run:G.run,ev:G.ev,crank:G.crank,pad:G.padReel,surge:G.surge&&G.surge.phase,d:+G.d.toFixed(2)}); pk=Math.max(pk,G.ten); t+=dt; if(G.st!=='reeling') break; }
     if(G.st==='landing'){ caught++; ts+=t; } peak+=pk; }
    out.push(loc+' '+['C','U','R','E','L','M'][r]+' '+name+': '+Math.round(caught/N*100)+'% in '+(caught?(ts/caught).toFixed(1):'-')+'s peak '+Math.round(peak/N)); }
  }catch(e){ out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
- return out; };
+ return opts.trace?{out,trace:opts.tr||[]}:out; };

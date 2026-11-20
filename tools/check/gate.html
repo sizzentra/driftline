@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Driftline check: parse gate</title></head>
+<body style="font:14px system-ui;background:#0a161d;color:#e6efe8">
+<p id="s">Parse gate running...</p>
+<script>
+// The parse gate (the best check there is: every script break was "game dead", docs/QC_ANALYSIS.md). Reads every page the
+// check covers and compiles each of its scripts without running it. Started by check.ps1; results go to /report/gate.
+(async function(){
+  const pages=['next/pc.html','next/android.html','next/ios.html','next/index.html','_testapps/android/index.html','_testapps/iphone/index.html','pc.html','android.html','ios.html','index.html'];
+  const R={target:'gate', steps:[], win:{w:innerWidth, h:innerHeight}}, bad=[]; let n=0; /* win: check.ps1 learns how much of the window the headless browser keeps for itself */
+  for(const p of pages){
+    let html; try{ const r=await fetch('/'+p,{cache:'no-store'}); if(!r.ok){ bad.push(p+': not found ('+r.status+')'); continue; } html=await r.text(); }catch(e){ bad.push(p+': could not be read'); continue; }
+    const doc=new DOMParser().parseFromString(html,'text/html'); let i=0;
+    for(const s of doc.querySelectorAll('script:not([src])')){ i++; if(s.type&&!/javascript/.test(s.type)) continue; n++;
+      try{ new Function(s.textContent); }catch(e){ bad.push(p+' script '+i+': '+e.name+': '+e.message); } }
+  }
+  R.steps.push({name:'every script on every page compiles (parse gate)', ok:!bad.length, detail:n+' scripts on '+pages.length+' pages', problems:bad});
+  R.ok=!bad.length;
+  await fetch('/report/gate',{method:'POST',body:JSON.stringify(R)});
+  document.getElementById('s').textContent='Parse gate '+(R.ok?'PASS':'FAIL'); document.title='CHECK DONE';
+})();
+</script>
+</body></html>
