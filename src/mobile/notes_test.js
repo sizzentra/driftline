@@ -1,6 +1,7 @@
-// iPhone test notes (preview builds only; the live game never shows them). One short line per change in the next test build,
-// curly apostrophes only. The card opens once per device whenever the text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9 big patch, part 3: everything in', items:[
+// Phone test notes, Android and iPhone in one file (since 2026-11-20). Preview builds only; the live game never shows them.
+// One short line per change in the next test build, curly apostrophes only. The card opens once per device whenever the
+// text changes. Released notes live in notes_release.js.
+const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 big patch, part 3: everything in', items:[
   'Paths (15, ranks I–V, Remove + fee on each fork), Prestige: Pearl shop, Boons, 32 milestones, 21 relics.',
   'Boardwalk: Fishmonger’s Gamble and Treasure chests. Tide Pass: 100 levels, chapters, exclusives (Wardrobe › Tide Pass exclusives).',
   'New waters: Cherry Blossom (after Stonebrook), Rockies (after Frostbite), Keys (after Coral), Amazon (after Brine Shelf). End-game waters open by voyage (Stats › tester tools can add voyages).',
@@ -13,5 +14,7 @@ const TEST_NOTES={v:'test', label:'Test build · iPhone', name:'0.4.9 big patch,
   'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
   'Top bar Bait chip, fixed properly this time (the first fix did not work): with a live event on, Tasks and then the event chip make room before Bait ever shortens.',
   'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
+  'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to taps).',
+  'Behind the scenes: Android and iPhone now share one set of patch notes. Nothing should look or play differently.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

@@ -1,5 +1,8 @@
-// iPhone release notes (shown once to returning iPhone players). Kept exactly as shipped once published.
-PATCHES.unshift({v:'0.4.8', name:'Rewards Worth Chasing', items:[
+// Phone release notes, Android and iPhone in one file (since 2026-11-20; before that src/android/ and src/ios/ each had a copy).
+// Shown once to returning players. Kept exactly as shipped once published. A plain line shows on both phones; a line that
+// differs is {android:'...', ios:'...'}, and a line for one phone only names just that phone. DL_BUILD (set by build.ps1) picks.
+const phoneNotes = L => L.map(x => typeof x === 'string' ? x : x[window.DL_BUILD]).filter(x => x != null);
+PATCHES.unshift({v:'0.4.8', name:'Rewards Worth Chasing', items:phoneNotes([
   '## Rewards and balance',
   'Paths are rethought: no more downsides, and they open much earlier.',
   'Bounties pay a bonus on top of their coins: bait for that water, a special lure, Scales or Tide Pass progress. You can see it on each bounty.',
@@ -10,9 +13,8 @@ PATCHES.unshift({v:'0.4.8', name:'Rewards Worth Chasing', items:[
   '## Small things',
   'Wardrobe and Pets stand on their own display stand instead of copying your dock.',
   '## Behind the scenes',
-  'PC, Android and iPhone each have their own version of the game now, so a fix for one never disturbs another. Your progress is shared as before.']});
-PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
-
+  'PC, Android and iPhone each have their own version of the game now, so a fix for one never disturbs another. Your progress is shared as before.'])});
+PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:phoneNotes([
   '## Shiny fish come alive',
   'Shiny fish sparkle for real: flashes of light that pop on new spots of the fish, flare and fade, with glitter and sweeping shine. It shows everywhere: in the water, the aquarium tank, the catch card and every list.',
   'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts colour, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
@@ -42,9 +44,9 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
   'Stonebrook River has been reworked: a village on the hill, the river running on through the bridge arches, a rowboat tied at the mill jetty and a new waterwheel.',
   'The Saltmarsh seal is a real seal now. Aquarium fish and decorations are a little smaller, so every piece can be seen.',
   'Prismatic fish keep their colours in the Aquarium list; Market Rush shows a clear money bag.',
-  'Your angler’s nearer shoe is drawn in front, the Ocean Sunfish’s fins sit on its body, and the otters swim clear of the rocks.'
-]});
-PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:[
+  'Your angler’s nearer shoe is drawn in front, the Ocean Sunfish’s fins sit on its body, and the otters swim clear of the rocks.'])});
+PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:phoneNotes([
+  {android:'Full screen stays on: if you left the game in full screen, closing or switching away from the app no longer forgets it; your first tap when you come back puts it back.'},
   '## Aquarium and Fish Log',
   'The aquarium tank animates smoothly: it no longer skips frames now and then, and it keeps moving (at a steady pace) while you scroll the list.',
   'The aquarium tank fills the screen. The Options button under it opens a panel with Your tank and Decorate (under the tank when upright, on the right when sideways); Hide closes it and gives the whole space back to the tank. Your phone remembers which you like.',
@@ -79,7 +81,7 @@ PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:[
   'Tapping a top-bar chip (Fishing at, Cooler, Aquarium, Fish Log) works on the first tap every time.',
   'The live event line in the top bar fits on small phones.',
   'The collapsed side panel shows neat icon buttons in menus too (they were cut off at the screen edge).',
-  'Messages like Claimed, Bought or Hunting no longer stretch into a big box over the screen: they show as a small note at the bottom.',
+  {ios:'Messages like Claimed, Bought or Hunting no longer stretch into a big box over the screen: they show as a small note at the bottom.'},
   '## Your angler',
   'Shoes look like real shoes from the side: a rounded heel, a sole with a heel block, and a toe that slopes down. One foot stands a little ahead of the other.',
   'Bodies have their real depth: the hips and seat fill out under the jacket, so legs no longer look pinned under a wide body.',
@@ -90,8 +92,8 @@ PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:[
   'The Wardrobe preview is animated now, so you see every effect live while you dress up.',
   'Smoother: shiny sparkles run at your screen’s full frame rate, and the aquarium tank too.',
   '## Fixes',
-  'Long water names (Stonebrook River) fit in the header instead of being cut off.']});
-PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
+  'Long water names (Stonebrook River) fit in the header instead of being cut off.'])});
+PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:phoneNotes([
   '## Fixes',
   'Menus line up with the water screen: the top row (Back, coins, search, settings and the page tabs) is one even row at the same height as on the water, page edges match, and upright the bottom tabs are the same card in menus as on the water, so nothing jumps when you open or close a menu.',
   'Taps right after Back always work (a quick tap used to be ignored for a split second).',
@@ -99,33 +101,40 @@ PATCHES.unshift({v:'0.4.8.4', name:'Lined Up', items:[
   'Phone wording: a bite now says "Tap the water to set the hook" and the catch card says "Tap to keep fishing" (they spoke about clicking and the Space key).',
   'Held sideways, the side panel in menus is the same height as on the water, and notices are centred over the page.',
   'Weather news also waits while the catch card is open.',
-  'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.']});
-PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:[
+  'Your boost timers now sit in the top-left corner, under the time and weather, so the Rest and Bait buttons no longer cover them. A weather note shows just below them.'])});
+PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:phoneNotes([
   '## New',
   'The fish fight is easy to follow: a ring around the fish shows how tight your line is (green, yellow, red), with what to do right above it.',
-  'Hints speak touch only (no keyboard keys), and homes are called homes everywhere, not docks. Save, App shows how to put Driftline on your Home Screen.',
+  {android:'Hints speak touch only (no keyboard keys), and homes are called homes everywhere, not docks. Save, App shows how to put Driftline on your home screen.'},
+  {android:'Driftline now plays in landscape on Android phones: hold your phone sideways (if you hold it upright, the game pauses and shows you how). Tablets keep both ways.'},
+  {ios:'Hints speak touch only (no keyboard keys), and homes are called homes everywhere, not docks. Save, App shows how to put Driftline on your Home Screen.'},
   'The top bar is tidier: a small Goal chip shows your next goal in a few words and opens exactly the right page; live events get their own Live chip; Tasks and Tide Pass sit up there too when there is room.',
   'Your home shows the real home of every water (boat, pier, ice camp, beach, raft, ledge...), live, with only the options that fit it.',
   'Colour choices are small round swatches, with the chosen colour named next to the heading.',
   'Every menu page is now organised like the aquarium: the important numbers and the main button first (Sell all, Reset skills...), the sections as tabs at the top, one list that scrolls. Badges show where a reward is waiting.',
   'The Wardrobe shows your angler big, with the categories in Options. Pages keep your place when something changes, and open faster.',
   'Your home is laid out like the aquarium: your home fills the screen, with Options to open Your home and Decorations. Tap a decoration to try it, tap again to buy or place.',
-  'Tablets and iPads now get the full phone layout, scaled up to fill the screen, with bigger buttons.',
-  'Driftline now plays in landscape on iPhone: hold your iPhone sideways (if you hold it upright, the game pauses and shows you how).',
-  'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this iPhone’s sound, controls or display settings.',
-  'Frame rate setting (Settings, Display): 30 to save battery, or 60 for the smoothest picture.',
+  {android:'Tablets now get the full phone layout, scaled up to fill the screen, with bigger buttons.'},
+  {android:'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this phone’s sound, controls or display settings.'},
+  {android:'Frame rate setting (Settings, Display): 30 to save battery, 60, or Max for the smoothest picture your screen can show.'},
+  {ios:'Tablets and iPads now get the full phone layout, scaled up to fill the screen, with bigger buttons.'},
+  {ios:'Driftline now plays in landscape on iPhone: hold your iPhone sideways (if you hold it upright, the game pauses and shows you how).'},
+  {ios:'Your settings now belong to each device: moving your progress to another phone or computer no longer changes this iPhone’s sound, controls or display settings.'},
+  {ios:'Frame rate setting (Settings, Display): 30 to save battery, or 60 for the smoothest picture.'},
   '## Fixes',
-  'Menus now fit every iPhone: they stay clear of the Dynamic Island, the rounded corners and the home bar, and match the fishing screen on every model (the bigger Pro Max screens were cut off under the camera).',
+  {android:'Menus now fit every phone: they stay clear of the camera cutout and rounded corners and match the fishing screen on every model.', ios:'Menus now fit every iPhone: they stay clear of the Dynamic Island, the rounded corners and the home bar, and match the fishing screen on every model (the bigger Pro Max screens were cut off under the camera).'},
   'Menus open faster: the Aquarium no longer stalls when you open it, and the very first tap of a session no longer pauses while the music loads.',
-  'Split View and Slide Over windows now use the normal phone layout instead of an older cramped one.',
+  {android:'On smaller phones held sideways, the top bar no longer cuts off "Aquarium".'},
+  {android:'Split screen and pop-up windows now use the normal phone layout instead of an older cramped one.'},
+  {ios:'Split View and Slide Over windows now use the normal phone layout instead of an older cramped one.'},
   'One look everywhere: every button, tab, badge and label of the same kind now has the same size and style on every page (buttons came in nine different heights, badges in four sizes); the bottom tabs keep their size when a menu opens.',
   'Long button labels ("Unlock · 1,200,000") stay on one line instead of making a taller button.',
   'Upright, a long "Next goal" stays one row tall and no longer pushes the water down.',
   'Held sideways, badges on the page tabs sit on the tab corner and never cover the name.',
   'Page tabs at the top of a menu (Events, Bounties, Feats, Tide Pass, Boardwalk and the others) take every tap: the row could shift a few pixels under your finger, which made taps feel unresponsive and the tabs jiggle.',
   'Section bars inside pages (Gear / Bait, Waters / Set sail again...) no longer slide sideways when they stick to the top.',
-  'On smaller phones held sideways, the page tabs show their names only so they always fit, and badges sit on the tab corner.']});
-PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
+  'On smaller phones held sideways, the page tabs show their names only so they always fit, and badges sit on the tab corner.'])});
+PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:phoneNotes([
   'Stats has its own button on the side panel now, and tapping your Level in the top bar opens it too.',
   'The side panel looks tidy when folded: every icon sits in the middle of its button, with its count in the corner.',
   'The top bar never cuts off the settings button: when a live event’s name gets long, Tide Pass and Tasks step aside until there is room again.',
@@ -155,9 +164,8 @@ PATCHES.unshift({v:'0.4.8.6', name:'Tidy Up', items:[
   'Menus switch faster: pictures are drawn as they come into view, and pages no longer measure themselves several times when they open.',
   'Trophy Room fits on one screen: a neat wall of plaques, tap one to see it up close. Tide Pass and the Boardwalk take up far less space.',
   'Waters is now called Map on the side panel.',
-  'Search works from the top bar only and always opens the right page and tab; Settings has its gear back; Events no longer repeat the same things across Calendar, Challenges and Derby; Feats cards are smaller, so more fit on screen.']});
-
-PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
+  'Search works from the top bar only and always opens the right page and tab; Settings has its gear back; Events no longer repeat the same things across Calendar, Challenges and Derby; Feats cards are smaller, so more fit on screen.'])});
+PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:phoneNotes([
   'Patch notes and other long cards scroll with your finger, and their button stays at the bottom so you can always close them.',
   'The Aquarium and Your home keep their full size again (the page title and a boost tag were squeezing the tank and the list).',
   'Notices like "Travelled to …" appear below the weather and streak tags instead of covering them.',
@@ -172,12 +180,12 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:[
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
   'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
   'The frame counter (Settings, Display) shows the frames the game draws, plus your screen’s own rate.',
-  'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.']});
-PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
+  'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.'])});
+PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:phoneNotes([
   'Willow Pond runs much smoother on phones.',
   'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
-  'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.']});
-PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
+  'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.'])});
+PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:phoneNotes([
   '## New',
   'Settings › Display: choose kilograms or pounds for every fish weight in the game.',
   'Aquarium › Decorate: hide a placed decoration from your tank and keep its bonus, handy for sticking to a theme.',
@@ -208,11 +216,12 @@ PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
   'In narrow windows the side panel shows its icons, so every section fits without scrolling.',
   'Fish Log: tapping a fish brings its details into view (they appeared out of sight at the top), with the Normal / Shiny switch and a “Back to the list” button.',
   'Home and Bait are in the top bar from the first moment, so it no longer shifts just after the game opens.',
+  {android:'Smoother on 90 Hz and 144 Hz screens: frames arrive at an even pace (the Aquarium tank looked choppy).'},
   '## Behind the scenes',
-  'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.']});
-PATCHES.unshift({v:'0.4.8.8.1', name:'Hotfix', items:[
-  'The side panel in menus always reaches the bottom of the screen with every section (on some iPhones it could still stop after Quests).']});
-PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
+  'Old unused parts of the game were cleared out (a retired menu button, an old hairstyle, old dolphin and Boardwalk drawings), so it starts with a little less work and has less to keep running every second.'])});
+PATCHES.unshift({v:'0.4.8.8.1', name:'Hotfix', items:phoneNotes([
+  'The side panel in menus always reaches the bottom of the screen with every section (on some iPhones it could still stop after Quests).'])});
+PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:phoneNotes([
   '## The fight',
   'Rarer fish fight like it at every gear level: during their runs they hold you still or take line even while you reel, and a top mythic takes 30 seconds to a minute with the best gear.',
   'Each new voyage makes fish fight a little harder, up to five voyages.',
@@ -222,16 +231,18 @@ PATCHES.unshift({v:'0.4.8.9', name:'The Fight', items:[
   'A fish swallowed mid-fight happens half as often; the big fish strips line out, the fight starts over, and landing it pays 50% more.',
   'Oddities no longer fight, they snag: their shadow shows what you hooked, and reeling without a pause can snap the line, so reel in short pulls.',
   '## Small things',
-  'Stardust works better at Starfall Lake (odds ×2.8).']});
-PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:[
-  'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.']});
-PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
+  'Stardust works better at Starfall Lake (odds ×2.8).'])});
+PATCHES.unshift({v:'0.4.8.9.1', name:'Hotfix', items:phoneNotes([
+  'Hooking an oddity or a hat no longer makes your angler, the dock and the fight panel disappear.'])});
+PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:phoneNotes([
   'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.',
-  'Small phones: a long bait name no longer pushes Search and Settings off the top bar (the bait name shortens instead).']});
-PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
-PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.']});
-PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  'Small phones: a long bait name no longer pushes Search and Settings off the top bar (the bait name shortens instead).'])});
+PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:phoneNotes([
+  'Waters: each water’s fish strength line now wraps instead of running past its card on small screens.'])});
+PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:phoneNotes([
+  'Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.'])});
+PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
   'Feed Nibbles to a fish of the same species in your Aquarium: it swims up to eat, earns more, and every 10 Nibbles its bonuses grow (sometimes it gains a new one, up to 5). Half of your Nibbles expire when you set sail again.',
@@ -272,5 +283,4 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Fights are about timing now: a fresh fish has to be tired out before it comes in, and reeling straight through a rare fish’s runs snaps the line, whatever your gear. Let go when it runs, reel when it rests.',
   'Strong gear and skills still make fights faster, down to a floor: a few seconds for common fish, half a minute or more for mythics.',
   'Oddities, hotspots and shinies have sensible limits however much you stack them.',
-  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch).']});
-
+  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch).'])});

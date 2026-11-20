@@ -11,7 +11,6 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
 - ☐ PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
 
-- ☐ Test card (all three test builds): test build 2358 has no line for the Path start-up fix (#130); round checklist step 8 was missed. Add it with the next test build.
 
 **Look items noted, not fixed** (2026-11-19 outsider review)
 - ☐ The empty Cooler page is mostly blank space.

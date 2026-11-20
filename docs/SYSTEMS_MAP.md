@@ -253,3 +253,9 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Phone top bar "out of room" also counts a cut Bait name | `mobile/header08.js` fit() `over()`; QA hook `window.__hudFit` (`?test`) | Tasks / Live step-aside order, Bait chip ellipsis (polish08 `#mbbait.stat` may shrink); QA "Bait name is never cut" |
 | PC Pets tile styles moved out of the shared file | `pc/ui_pets_find.js` (was `bm_ui04.js`, baseline 75 → 63) | Pets › Find more rows; page tabs hide `.pet-hid` tiles again |
 | Live hotfix patch script | `tools/hotfix_0.4.8.9.4.ps1` (site → testapps/hotfix for the phone check, site → site to ship) | live pages only; test copy at /driftline-test/hotfix/ uses the live save |
+
+## Phone notes merged (2026-11-20, test builds)
+| Change | Owner | Affects |
+|---|---|---|
+| Android + iPhone release and test notes in one file each | `mobile/notes_release.js` (`phoneNotes()` picks per-phone lines by `DL_BUILD`), `mobile/notes_test.js` (label by `DL_BUILD`); `src/android/` emptied, `src/ios/notes_*` removed; build.ps1 `$layers` | What's new card and test card on both phones: output identical to before (checked entry by entry), plus two new test card lines |
+| QA: Nibbles and Boardwalk prize tests clear Paths first | `bn_qa04.js` | `__qa` on saves with Paths chosen |

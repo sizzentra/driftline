@@ -195,7 +195,7 @@ ui(){ QA.sys='UI';
     const c0=coinMult(); S.titled={}; const c1=coinMult(); S.titled={a:1,b:1,c:1}; if(Math.abs(coinMult()-c1-.03)>1e-9) e.push('3 titles add '+(coinMult()-c1).toFixed(3)); S.titled=Object.fromEntries(Array(40).fill(0).map((_,i)=>['k'+i,1])); if(Math.abs(coinMult()-c1-TITLE_COIN_CAP)>1e-9) e.push('title coins not capped');
     const o=JSON.parse(JSON.stringify(S)); delete o.titled; o.journal={[sp.id]:{n:1,best:1,pr:true}}; const m=migrate(o); if(Object.keys(m.titled).length!==1) e.push('old save titles '+JSON.stringify(m.titled));
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'4 titles, aura cap '+TITLE_AURA_CAP+', coins cap '+TITLE_COIN_CAP}; });
-  T('[19] Fish Nibbles: scrap odds and amounts, feeding raises income, every 10 a bonus grows or a new one (max 5), half expire on a new voyage, buttons, tank drawing',()=>{ const e=[]; const R=Math.random; const spOf=r=>SP.find(s=>s.r===r);
+  T('[19] Fish Nibbles: scrap odds and amounts, feeding raises income, every 10 a bonus grows or a new one (max 5), half expire on a new voyage, buttons, tank drawing',()=>{ const e=[]; S.specs={}; S.pathXP={}; /* the numbers below are without Paths (Candy Maker raises them); T() puts the save back */ const R=Math.random; const spOf=r=>SP.find(s=>s.r===r);
     const exp=[1,1,.5,1/3,.25,.25]; for(let r=0;r<6;r++){ const s=spOf(r); if(s&&Math.abs(nibOdds({id:s.id})-exp[r])>1e-9) e.push('odds r'+r+' '+nibOdds({id:s.id})); }
     const am=[nibAmount({}),nibAmount({sh:1}),nibAmount({hy:'x'}),nibAmount({sh:2}),nibAmount({sh:2,hy:'x'})].join(','); if(am!=='1,3,3,5,7') e.push('amounts '+am);
     try{ const sp=spOf(0); S.nib={}; S.cooler=[{id:sp.id,kg:sp.min,value:10,sh:1}]; Math.random=()=>0; act('scrap',{i:'0'}); if(nibOf(sp.id)!==3) e.push('shiny scrap gave '+nibOf(sp.id)); if(S.cooler.length) e.push('fish not removed');
@@ -376,7 +376,7 @@ T('page tabs: a part hidden by a page tab never stays on screen (a forced style 
       const cr=coins(L); if(cr[0]!==bk) e.push(bk+' coins #'+(cr.indexOf(bk)+1)+' at '+L+(ph>.5?' (night)':' (day)')); } }
     clearAt(.3); for(const L of LOCS){ const cr=coins(L.id); cr.slice(0,2).forEach(bk=>{ if(BAIT[bk].loc&&BAIT[bk].loc!==L.id) e.push(bk+' is a top-2 pick at '+L.id); }); }
     window.__off=off0; return e.length?{ok:false,detail:e.slice(0,6).join(' | ')}:{ok:true}; });
-  T('Boardwalk pays prizes: duck, scratch and higher-or-lower never pay coins; wear prizes are never duplicates or prize-counter items; owning everything pays tickets',()=>{ const e=[]; S.money=1e12; const m0=S.money, B=bestLoot(); let cost=0;
+  T('Boardwalk pays prizes: duck, scratch and higher-or-lower never pay coins; wear prizes are never duplicates or prize-counter items; owning everything pays tickets',()=>{ const e=[]; S.specs={}; S.pathXP={}; /* ticket amounts are without Paths (Ticket Master raises them); T() puts the save back */ S.money=1e12; const m0=S.money, B=bestLoot(); let cost=0;
     // feats are paused while the games run: a hat won at the duck pond can finish "Hat trick" (2,000 coins), which is the feat paying, not the game
     const cf=checkFeats; checkFeats=function(){}; try{ for(let i=0;i<300;i++){ act('duckagain'); act('duckpick',{i:i%6}); duck=null; act('buyscratch'); act('scratchall'); scratch=null; act('hilostart'); act('hilo',{k:hilo&&hilo.card<=7?'hi':'lo'}); if(hilo&&!hilo.done&&hilo.streak) act('hilocash'); hilo=null; cost+=B*5; } } finally{ checkFeats=cf; }
     if(S.money!==m0-cost) e.push('games paid '+fmt(S.money-(m0-cost))+' coins');
