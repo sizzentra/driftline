@@ -32,6 +32,49 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 **Decisions waiting on the director**
 - Bigger tap targets (ours 32–40 pt vs 44 pt guidance) · text size · left-handed / menu side · colour-blind help · a real tablet layout · the Trophy Room name · whether the aquarium empties on a new voyage.
 
+## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)
+Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude builds it as asked and flags it (Feel call / suggested numbers) for the director and Cam to tune. Order of work: text and small fixes → UI → fishing and fights → economy → art and maps.
+**Text and small fixes**
+- ☐ C1 Non-fish catches: "Tap to dismiss" (phones) / "Click to dismiss" (PC), not "tap anywhere else to store in cooler".
+- ☐ C2 Cast power text stays "cast power" over a hotspot; only its colour changes to the hotspot's colour.
+- ☐ C3 Bites: "Reeled in early" and "Missed a bite" only. A missed bite keeps the line out; after 5 missed bites, reel in.
+- ☐ C4 Stickleback flavour text: "This is how you remind me..."
+- ☐ C5 Oddity on the line: just "Dead Weight" or "Snagged!".
+- ☐ C6 Rising temper: "Careful!".
+- ☐ C7 Running fish: "It's running!".
+- ☐ C8 Strong fish: never "heavier"; "Prepare for a fight, this fish is strong!"; only at 10+ above your strength: "Good luck, this fish is out of your league!" (no number otherwise).
+- ☐ C9 Heavy fog: "Heavy fog obscures fish, even the fish don't know if it's day or night." Weather pop-ups can be switched off in Settings.
+- ☐ C10 Lily is a dog: no purring; on her back for belly rubs her paws keep the right orientation.
+**UI**
+- ☐ C11 "Scrap all" for Nibbles, like Sell all, with the same filters.
+- ☐ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
+- ☐ C13 Customization (face styles first, then every customization menu): the menu never snaps or moves when an option is picked.
+- ☐ C14 Cooler: sort by sell value, aquarium bonus, species, most/least recent; most recent after every restart, otherwise remembers the last choice.
+- ☐ C15 Phones: a tab on the top bar (next to Settings) to switch between Aquarium and Cooler while in either.
+- ☐ C16 Bait: every section and sub-section sorted by purchase price; "Everyday Bait", "Water Baits" and "Favourite Foods" can be folded, and the page opens folded.
+- ☐ C17 Phones, Aquarium: no "bigger tank" benefit text; "How the aquarium works" adds "Increase your tank size for more fish, more buffs, and more income!"; the button reads "Expand Tank · price" with small "Next expansion: X fish" under it.
+- ☐ C18 Treasure chests pop-up: the three chests centred (the outer two sit at the frame edge).
+- ☐ C19 A big fish that has eaten smaller fish may take the cooler past its limit (the extras still go to the cooler).
+**Fishing and fights**
+- ☐ C20 A running fish turns to face the other way (fish only; never oddities or objects).
+- ☐ C21 Jumps: one fluid motion out of the water, tilting down back in with a splash; a wind-up first (the shadow sinks, then comes up) as a warning. ⚑ timing
+- ☐ C22 A predator eating a smaller fish takes line out gradually for a few seconds, unstoppable (can break the line), distance by rarity (maximum only for mythics), never snapping to the end. ⚑ distances
+- ☐ C23 Letting go of a running fish: fish over 5 lb take line out but tension drops at once; reeling on, tension builds slightly faster and the fish takes no line. ⚑ rates
+- ☐ C24 Second wind: a tiring fish's fight drops more slowly while its temper is high, and if temper stays too high its fight can rise again, a limited number of times by rarity (common 1, uncommon 2, …); 15% chance for common/uncommon, 30% for the rest; "Second wind!" shows briefly. ⚑ thresholds
+**Economy and progression** (numbers are suggestions for the director and Cam)
+- ☐ C25 Prestige: remove the "Boardwalk counts for at most a quarter" limit.
+- ☐ C26 Deep Cooler boon: +1 cooler space every time you gain cooler space (instead of a flat +1).
+- ☐ C27 Nibbles work for all fish of the same rarity.
+- ☐ C28 Aquarium feeding: fish swim up to eat; each feed 20% chance a fish's buffs improve slightly (not its income), 5% chance of more income plus another stat. ⚑ sizes
+- ☐ C29 Hotspots revamp: colour by minimum rarity (uncommon most common … legendary rarest), better hybrid/shiny/titled odds, rising sparkles for a guaranteed shiny, every colour clearly readable. ⚑ odds and colours
+- ☐ C30 Angler strength: a little harder to reach, a few more strong fish when first entering a water, max strength lines up with the hardest waters, some strength held in a boon, strength purchases cost a bit more. ⚑ numbers
+- ☐ C31 Water unlock coins scale up with voyages, and a slightly higher barrier from the start. ⚑ numbers
+**Art and maps** (no cop-outs: every new map at the standard of the old ones)
+- ☐ C32 Hair: curly back to how it was; no hair through hats; light texturing instead of a painted-on look.
+- ☐ C33 Cherry Blossom Lake: wood and metal colour/material editable like every other dock; trees with more distinguishing features, petals resting and drifting on the lake, a nicer temple on shore, fake koi replaced by ducks and water lilies, Mount Fuji further away and larger with other mountains around; full quality pass.
+- ☐ C34 Canadian Rockies (Cam): beavers (like Stonebrook's otters) and a beaver dam with a flowing river/waterfall; crystal-clear water showing rocks and weeds on the bottom; a moose; a Canadian flag by a reworked log cabin; Canadian Shield and Rockies close together; more flora and fauna (Canada geese); a fishing canoe with a nondescript angler; clear starry nights; a customizable home.
+- ☐ C35 Every new map (the 4 new + 6 end-game waters): more populated, functional customizable homes, better effects, occasional map-specific animations, full polish.
+
 ## Batch 3: progression and economy
 - ☑ [16] Next water needs 10 catches, +10 per voyage, capped at 50.
 - ☑ [24] Rods cost Scales too, scaling with the rod.
