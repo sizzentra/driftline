@@ -35,16 +35,16 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 ## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)
 Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude builds it as asked and flags it (Feel call / suggested numbers) for the director and Cam to tune. Order of work: text and small fixes → UI → fishing and fights → economy → art and maps.
 **Text and small fixes**
-- ☐ C1 Non-fish catches: "Tap to dismiss" (phones) / "Click to dismiss" (PC), not "tap anywhere else to store in cooler".
-- ☐ C2 Cast power text stays "cast power" over a hotspot; only its colour changes to the hotspot's colour.
-- ☐ C3 Bites: "Reeled in early" and "Missed a bite" only. A missed bite keeps the line out; after 5 missed bites, reel in.
-- ☐ C4 Stickleback flavour text: "This is how you remind me..."
-- ☐ C5 Oddity on the line: just "Dead Weight" or "Snagged!".
-- ☐ C6 Rising temper: "Careful!".
-- ☐ C7 Running fish: "It's running!".
-- ☐ C8 Strong fish: never "heavier"; "Prepare for a fight, this fish is strong!"; only at 10+ above your strength: "Good luck, this fish is out of your league!" (no number otherwise).
-- ☐ C9 Heavy fog: "Heavy fog obscures fish, even the fish don't know if it's day or night." Weather pop-ups can be switched off in Settings.
-- ☐ C10 Lily is a dog: no purring; on her back for belly rubs her paws keep the right orientation.
+- ☑ C1 Non-fish catches: "Tap to dismiss" (phones) / "Click to dismiss" (PC), not "tap anywhere else to store in cooler".
+- ☑ C2 Cast power text stays "cast power" over a hotspot; only its colour changes to the hotspot's colour.
+- ☑ C3 Bites: "Reeled in early" and "Missed a bite" only. A missed bite keeps the line out; after 5 missed bites, reel in.
+- ☑ C4 Stickleback flavour text: "This is how you remind me..."
+- ☑ C5 Oddity on the line: just "Dead Weight" or "Snagged!".
+- ☑ C6 Rising temper: "Careful!".
+- ☑ C7 Running fish: "It's running!".
+- ☑ C8 Strong fish: never "heavier"; "Prepare for a fight, this fish is strong!"; only at 10+ above your strength: "Good luck, this fish is out of your league!" (no number otherwise).
+- ☑ C9 Heavy fog: "Heavy fog obscures fish, even the fish don't know if it's day or night." Weather pop-ups can be switched off in Settings.
+- ◐ C10 Lily is a dog: no purring (done); on her back for belly rubs her paws keep the right orientation.
 **UI**
 - ☐ C11 "Scrap all" for Nibbles, like Sell all, with the same filters.
 - ☐ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
