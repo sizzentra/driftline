@@ -15,9 +15,9 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 
 ## ▶ Where we left off (read first; keep it to current facts only)
 - **Live (PC, Android, iPhone): 0.4.8.9.4**, stamp 2026.11.19-2100 (hotfix). **Bugs first, always** (director): live fixes ship as hotfixes once QC passes and both phones confirm (how: "Publishing").
-- **Test builds: 0.4.9**, stamp 2026.11.19-2358 (phone test apps + /driftline/next/): the big patch (docs/PLAN.md batches 3–5 + the director's additions) plus the Path start-up fix (#130). `__qa` 97/97 on Android, iPhone, PC 1920×1080 and 1440×900. Cam confirmed it on his Pixel (2026-11-20); not yet on the director's iPhone. **Nothing from 0.4.9 goes live until the director has tested it on every platform.**
+- **Test builds: 0.4.9**, stamp 2026.11.20-0147 (phone test apps + /driftline/next/): the big patch (docs/PLAN.md batches 3–5 + the director's additions), the Path start-up fix (#130), and since 0147 one patch-notes file for both phones (output identical) plus the Path-fix line on the test card. `__qa` 97/97 on Android, iPhone, PC 1920×1080 and 1440×900, each started with all 15 Paths chosen. The Path fix was confirmed on Cam's Pixel on 2358 (2026-11-20); 0147 not yet confirmed on either phone. **Nothing from 0.4.9 goes live until the director has tested it on every platform.**
 - **Next:** the director's testing and bug reports, then the end-of-project clean-up passes.
-- **Waiting for the director:** test build 2358 on the iPhone; bug reports from players and testing; how the fights feel.
+- **Waiting for the director:** test build 0147 on the iPhone (and Cam on his Pixel); bug reports from players and testing; how the fights feel.
 - **Open work and decisions** (shelved items, look items, parked fixes, things that need the director's eye, decisions waiting on the director): **docs/PLAN.md › "Open now"**, the only place they are written. Add new ones there, not here.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
 
