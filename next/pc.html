@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-1710';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; window.DL_VERSION='2026.11.19-2100';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -14580,25 +14580,28 @@ body.pch-on #panel .voy-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
-body.pch-on #menuov #panel > .grid:has(> .pet-hid),body.pch-on #menuov #panel > .grid:has(> .pet-sale){grid-template-columns:repeat(auto-fill,minmax(124px,1fr))!important;gap:8px!important}
-body.pch-on #panel .tile.pet-sale{padding:8px 9px!important;gap:3px!important}
-body.pch-on #panel .tile.pet-sale canvas{width:96px!important;height:56px!important}
-body.pch-on #panel .tile.pet-sale h4{font-size:13.5px!important;margin:0!important}
-body.pch-on #panel .tile.pet-sale .meta{font-size:11px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-body.pch-on #panel .tile.pet-sale .btn{padding:5px 8px!important;font-size:12px!important;min-height:0!important}
-body.pch-on #panel .tile.pet-hid{grid-column:span 2;display:grid!important;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
-body.pch-on #panel .tile.pet-hid canvas{grid-row:1 / 3;width:52px!important;height:30px!important}
-body.pch-on #panel .tile.pet-hid h4{display:none}
-body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
-body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
-</style>`);
+</style>`); /* the PC look of these tiles lives in src/pc/ui_pets_find.js (moved 2026-11-19) */
 // PC, Pets > Find more: headings over the pets you can adopt and the ones still to find; they follow the section tabs
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return r;
       const add=(sel,txt)=>{ const list=[...g.querySelectorAll(':scope > '+sel)]; if(!list.length) return; const h=document.createElement('div'); h.className='pet-h'; h.dataset.for=sel; h.innerHTML=`<span>${txt}</span><span class="meta">${list.length}</span>`; g.insertBefore(h,list[0]); };
       add('.pet-sale','Adopt'); add('.pet-hid','Still to find');
       const sync=()=>g.querySelectorAll('.pet-h').forEach(h=>{ const n=[...g.querySelectorAll(':scope > '+h.dataset.for)].filter(t=>t.style.display!=='none').length; h.style.display=n?'':'none'; h.querySelector('.meta').textContent=n; });
       sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} return r; }; }
+/* PC: the shop cards are compact and the pets still to find are short wide rows (moved here from bm_ui04.js on 2026-11-19).
+   The rows' display:grid skips tiles a page tab hid: a forced display kept "Still to find" on Your pets and Customize at 1440×900 (0.4.8.9.4 hotfix). */
 document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #menuov #panel > .grid:has(> .pet-hid),body.pch-on #menuov #panel > .grid:has(> .pet-sale){grid-template-columns:repeat(auto-fill,minmax(124px,1fr))!important;gap:8px!important}
+body.pch-on #panel .tile.pet-sale{padding:8px 9px!important;gap:3px!important}
+body.pch-on #panel .tile.pet-sale canvas{width:96px!important;height:56px!important}
+body.pch-on #panel .tile.pet-sale h4{font-size:13.5px!important;margin:0!important}
+body.pch-on #panel .tile.pet-sale .meta{font-size:11px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+body.pch-on #panel .tile.pet-sale .btn{padding:5px 8px!important;font-size:12px!important;min-height:0!important}
+body.pch-on #panel .tile.pet-hid{grid-column:span 2;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
+body.pch-on #panel .tile.pet-hid:not([style*="display: none"]):not([style*="display:none"]){display:grid!important}
+body.pch-on #panel .tile.pet-hid canvas{grid-row:1 / 3;width:52px!important;height:30px!important}
+body.pch-on #panel .tile.pet-hid h4{display:none}
+body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
+body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
 body.pch-on #panel .grid > .pet-h{grid-column:1 / -1;display:flex;align-items:baseline;gap:8px;margin:6px 2px -2px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#cfe0f2}
 body.pch-on #panel .grid > .pet-h:first-child{margin-top:0}
 body.pch-on #panel .grid > .pet-h .meta{letter-spacing:0}
@@ -18521,6 +18524,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Stardust works better at Starfall Lake (odds ×3), so it is always the best bait there.',
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.']});
 PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
+PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap onto a second line instead of being cut off in smaller windows.','Pets: the pets still to find show only under Find more, not on Your pets and Customize.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
@@ -18580,6 +18584,7 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 big patch, par
   'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
   'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
   'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
+  'Pets: the pets still to find no longer show on Your pets and Customize (also going to the live game as a hotfix).',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);
 // =====================================================================
@@ -18702,7 +18707,7 @@ economy(){ QA.sys='Economy';
   T('sell with a bad index and moves with a full tank/cooler are refused',()=>{ const m0=S.money, n0=S.cooler.length; act('sell',{i:9999}); act('sell',{i:-1}); if(S.money!==m0||S.cooler.length!==n0) return {ok:false,detail:'bad index sold'}; const sp=SP[0]; while(S.tank.length<aqCap()) S.tank.push(coolerEntry(rollFish(sp,{}))); S.cooler=[coolerEntry(rollFish(sp,{}))]; act('totank',{i:0}); if(S.tank.length>aqCap()) return {ok:false,detail:'tank overfilled'};
       S.cooler=[]; while(S.cooler.length<gv('cooler')) S.cooler.push(coolerEntry(rollFish(sp,{}))); act('untank',{i:0}); return S.cooler.length<=gv('cooler')?okInv():{ok:false,detail:'cooler overfilled'}; });
   T('skills: no points means no rank; reset needs its price',()=>{ S.perks={}; const free=ptsFree(); const k=Object.keys(PERKS)[0]; for(let i=0;i<free+5;i++) act('perk',{k}); if(ptsFree()<0) return {ok:false,detail:'points '+ptsFree()}; S.money=50*S.lvl-1; const pk=JSON.stringify(S.perks); act('respec'); return JSON.stringify(S.perks)===pk?okInv():{ok:false,detail:'reset while short'}; });
-  T('unlocking a water costs exactly its price and needs the coins',()=>{ const L=LOCS.find(x=>x.id!=='pond'); S.unlocked=['pond']; S.loc='pond'; G.st='idle'; const c=locCost(L); S.money=c-1; act('unlock',{k:L.id}); if(S.unlocked.includes(L.id)) return {ok:false,detail:'unlocked while short'}; S.money=c; act('unlock',{k:L.id}); return (S.unlocked.includes(L.id)&&S.money===0&&S.loc===L.id)?okInv():{ok:false,detail:'money '+S.money+' loc '+S.loc}; });
+  T('unlocking a water costs exactly its price and needs the coins',()=>{ const L=LOCS.find(x=>x.id!=='pond'); S.unlocked=['pond']; S.loc='pond'; G.st='idle'; S.voyCatch=Object.assign({},S.voyCatch,{pond:999}); /* the catch requirement is met on any save */ const c=locCost(L); S.money=c-1; act('unlock',{k:L.id}); if(S.unlocked.includes(L.id)) return {ok:false,detail:'unlocked while short'}; S.money=c; act('unlock',{k:L.id}); return (S.unlocked.includes(L.id)&&S.money===0&&S.loc===L.id)?okInv():{ok:false,detail:'money '+S.money+' loc '+S.loc}; });
   T('travel is refused while a line is out',()=>{ S.unlocked=uniq(['pond','reef',...S.unlocked]); S.loc='pond'; G.st='waiting'; act('goto',{k:'reef'}); const ok=S.loc==='pond'; G.st='idle'; act('goto',{k:'reef'}); return ok&&S.loc==='reef'?true:{ok:false,detail:'loc '+S.loc}; });
   T('XP: a huge gain levels up correctly and leaves XP below the next level',()=>{ S.lvl=1; S.xp=0; const ups=addXP(1e9); return (S.xp<xpNeed(S.lvl)&&S.xp>=0&&ups===S.lvl-1)?{ok:true,detail:'1e9 XP -> level '+S.lvl}:{ok:false,detail:'lvl '+S.lvl+' xp '+S.xp}; });
   T('feats pay once',()=>{ S.feats={}; checkFeats(); const m1=S.money, f1=Object.keys(S.feats).length; checkFeats(); checkFeats(); return (S.money===m1&&Object.keys(S.feats).length===f1)?true:{ok:false,detail:'paid again'}; });
@@ -18929,7 +18934,7 @@ ui(){ QA.sys='UI';
       S.settings.renderQ='fast'; if(renderDPR(800,400)!==1) e.push('Fast quality'); openMenu('settings'); if(!$('panel').querySelector('[data-act="uiscale"]')||!$('panel').querySelector('[data-act="renderq"]')) e.push('Display rows missing'); closeMenu(); }
     finally{ S.settings.uiScale=keep; S.settings.renderQ=kq; uiApplyZoom(true); } return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'auto '+UIZ}; });
   T('batch 6 fight: holding reel through runs loses rare and rarer fish even with every skill maxed, letting go in runs lands them, maxed times by rarity (C~2.5 s ... M 30-60 s), commons stay forgiving',()=>{ const e=[], snap=JSON.stringify(S), sv=save; save=()=>{}; const out={};
-    try{ const p={}; for(const k in PERKS) p[k]=PERKS[k].max; S.perks=p; S.loc='starfall'; S.tides=0;
+    try{ const p={}; for(const k in PERKS) p[k]=PERKS[k].max; S.perks=p; for(const k in GEAR) S.gear[k]=GEAR[k].lv.length-1; /* maxed gear on any save */ S.loc='starfall'; S.tides=0;
       const run=(r,name)=>{ const pool=SP.filter(s=>s.loc==='starfall'&&s.r===r&&!s.meme); let ok=0,ts=0; const N=6; for(let i=0;i<N;i++){ G.lastCast=.8; G.waitT=0; G.biteEnd=0; G.pend=rollFish(pool[i%pool.length],{noHybrid:true,noPrey:true}); G.pend.shiny=0; hookIt(); G.eatAt=null; let t=0; const hist=[];
         while(t<120){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-16)]; G.hold=name==='holder'?true:!(o.ten>82||o.run||o.ev||o.tmp>1.2); fight(1/60); t+=1/60; if(G.st!=='reeling') break; } if(G.st==='landing'||G.st==='result'||G.st==='card'){ ok++; ts+=t; } G.st='idle'; G.fish=null; } return {p:ok/N, t:ok?ts/ok:0}; };
       for(const r of [0,2,3,5]){ out[r]={h:run(r,'holder'), s:run(r,'skilled')}; }
@@ -18962,6 +18967,14 @@ ui(){ QA.sys='UI';
   T('top bar fits with the longest bait name and a big count (a long bait pushed Search and Settings off the screen)',()=>{ const mob=typeof MOB==='function'&&MOB(); if(!mob) return {ok:true,detail:'phones only'}; const e=[]; const ks=Object.keys(BAIT).filter(k=>k!=='worm'), long=ks.reduce((a,b)=>BAIT[b].name.length>BAIT[a].name.length?b:a), k0=S.baitSel, n0=S.bait[long];
     S.baitSel=long; S.bait[long]=999; closeMenu(); try{ const bb=document.querySelector('#mbbait > b'); if(bb) bb.textContent=BAIT[long].name+' · 999'; for(const q of ['#settingsbtn','.hud > .st-log','#mbbait']){ const el=document.querySelector(q); if(!el||!el.offsetParent) continue; const r=el.getBoundingClientRect(); if(r.right>innerWidth+.5) e.push(q+' off screen ('+Math.round(r.right)+' > '+innerWidth+')'); } }
     finally{ S.baitSel=k0; S.bait[long]=n0; } return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:BAIT[long].name+' · 999 fits at '+innerWidth}; });
+  T('top bar: the Bait name is never cut while Tasks or Live still show (a live event + long water name squeezed Bait to a 16 px sliver)',()=>{ const mob=typeof MOB==='function'&&MOB(); if(!mob||!document.body.classList.contains('phone-land')||typeof window.__hudFit!=='function') return {ok:true,detail:'phones sideways only'}; const e=[];
+    const hud=document.querySelector('.hud'), L=document.getElementById('mblive'), Tk=document.getElementById('mbtasks'), bb=document.querySelector('#mbbait > b'); if(!hud||!L||!Tk||!bb) return {ok:false,detail:'top bar parts missing'};
+    const had=hud.classList.contains('mb-has-live'), lh=L.hidden, lhtml=L.innerHTML, w0=hud.style.width, mw0=hud.style.maxWidth, b0=bb.textContent;
+    try{ hud.classList.add('mb-has-live'); L.hidden=false; L.innerHTML='<span class="lbl">Live</span><b>Golden Hour 4:12</b>'; bb.textContent='Worms';
+      for(let w=Math.min(innerWidth,960); w>=600; w-=30){ hud.style.width=w+'px'; hud.style.maxWidth=w+'px'; window.__hudFit(); const cut=bb.scrollWidth>bb.clientWidth+1;
+        if(cut&&!Tk.hidden) e.push(w+' px: Bait cut while Tasks shows'); if(cut&&!L.hidden) e.push(w+' px: Bait cut while Live shows'); } }
+    finally{ hud.style.width=w0; hud.style.maxWidth=mw0; if(!had) hud.classList.remove('mb-has-live'); L.innerHTML=lhtml; L.hidden=lh; bb.textContent=b0; window.__hudFit(); }
+    return e.length?{ok:false,detail:e.slice(0,4).join(' | ')}:{ok:true,detail:'600–'+Math.min(innerWidth,960)+' px: Tasks, then Live step aside before Bait shortens'}; });
   T('badges: no count circle is cut by the box around it, on the fishing screen and every page, also with "99+" (PC full screen cut the top of the orange circle)',()=>{ const bad=[]; const SEL='.cddot,.secdot,.subdot,.sdot,.q8-dot,.od-dot,.dot'; const forced=[];
     const check=tag=>{ for(const d of document.querySelectorAll(SEL)){ if(d.hidden&&d.matches('.cddot,.secdot,.subdot')&&d.closest('button')&&d.closest('button').offsetParent!==null){ forced.push([d,d.textContent]); d.hidden=false; d.textContent='99+'; } if(d.offsetParent===null) continue; const r=d.getBoundingClientRect(); if(r.width<4) continue; const own=d.closest('button,[role="tab"],a')||d.parentElement, o=own.getBoundingClientRect();
         for(let p=own.parentElement;p&&p!==document.documentElement;p=p.parentElement){ const cs=getComputedStyle(p); if(cs.overflowX==='visible'&&cs.overflowY==='visible') continue; const q=p.getBoundingClientRect(); const ownIn=o.top>=q.top-.5&&o.bottom<=q.bottom+.5&&o.left>=q.left-.5&&o.right<=q.right+.5; if(!ownIn) break; const cut=Math.max(q.top-r.top,r.bottom-q.bottom,q.left-r.left,r.right-q.right); if(cut>.5) bad.push(tag+': '+d.className+' cut '+cut.toFixed(1)+' px by '+((p.id&&'#'+p.id)||String(p.className).split(' ')[0])); } }
