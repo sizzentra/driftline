@@ -1,7 +1,24 @@
 // Phone test notes, Android and iPhone in one file (since 2026-11-20). Preview builds only; the live game never shows them.
-// One short line per change in the next test build, curly apostrophes only. The card opens once per device whenever the
+// Grouped by test build, newest first (director, 2026-11-20): new lines go under '## New in this build'; when that build is published the heading becomes '## Test build <stamp>' at the next round. Curly apostrophes only. The card opens once per device whenever the
 // text changes. Released notes live in notes_release.js.
-const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 big patch, part 3: everything in', items:[
+const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
+  '## New in this build',
+  'Cooler: fish a predator swallowed always go into your cooler, even past its limit (they used to be sold).',
+  'Wardrobe and pet colours: the colour you chose keeps its colour and gets a gold box around it (it used to turn solid gold).',
+  '## Test build 0330 (your list, part 1)',
+  'Fight messages are short now: It’s running!, Careful!, Snagged!, Dead Weight; strong fish say Prepare for a fight, this fish is strong! (or Good luck, this fish is out of your league! when it is 10+ stronger than you).',
+  'A missed bite keeps your line out; the 5th miss in a row reels in. Reeled in early and Missed a bite say just that. Cast power keeps its words over a hotspot, only its colour changes.',
+  'Bait: three groups (Everyday bait, Water baits, Favourite foods), each sorted by price; they open folded, tap a group to open it. Cooler: Sort (Newest, Oldest, Sell value, Aquarium bonus, Species) and Scrap all (same filters as Sell all).',
+  'Also: shorter Heavy fog text and a Weather pop-ups switch in Settings, Stickleback has a new line, only cats purr, oddities and other non-fish say dismiss instead of the cooler line, the three treasure chests sit inside their pop-up.',
+  'Phones: a Cooler / Aquarium button beside Settings switches between the two; the aquarium button now reads Expand Tank with the next size under it.',
+  '## Fixes earlier in 0.4.9',
+  'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
+  'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
+  'Top bar Bait chip, fixed properly this time (the first fix did not work): with a live event on, Tasks and then the event chip make room before Bait ever shortens.',
+  'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
+  'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to taps).',
+  'Behind the scenes: Android and iPhone now share one set of patch notes. Nothing should look or play differently.',
+  '## What the 0.4.9 big patch adds',
   'Paths (15, ranks I–V, Remove + fee on each fork), Prestige: Pearl shop, Boons, 32 milestones, 21 relics.',
   'Boardwalk: Fishmonger’s Gamble and Treasure chests. Tide Pass: 100 levels, chapters, exclusives (Wardrobe › Tide Pass exclusives).',
   'New waters: Cherry Blossom (after Stonebrook), Rockies (after Frostbite), Keys (after Coral), Amazon (after Brine Shelf). End-game waters open by voyage (Stats › tester tools can add voyages).',
@@ -9,17 +26,6 @@ const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPh
   'Looks: reel hand + left-handed (Settings › Display), Natural face + new hair/noses/mouths/eye shapes (Wardrobe), new fish eyes, wizard hat, pet colours.',
   'Fight rework: fish must be tired out; holding through rare runs snaps the line. Times with maxed gear: ~2.5 s common to ~36 s mythic.',
   'Fishing: try holding reel through a rare fish’s runs (it should snap), then let go when it runs (it should land).',
-  'NEW in this build: aquarium fish show real sizes and depth; hair rebuilt with volume (all 20 styles); body builds have distinct silhouettes; smaller noses on the Natural face.',
-  'Deep QC round: 30 fish renamed so no two share a name; attachment stats no longer read “undefined”; oddity names wrap on small PC windows.',
-  'Second QC round (looks): the Tide Pass page shows this chapter’s exclusives as pictures plus progress for every chapter; a new Wardrobe tab to wear auras, bobbers and lines; Paths is shorter and uses two columns on wide screens; path fees are round numbers; Boons fill the whole width; end-game waters get their own heading.',
-  'Top bar Bait chip, fixed properly this time (the first fix did not work): with a live event on, Tasks and then the event chip make room before Bait ever shortens.',
-  'Code cleanup: about 260 lines of old code that could never run are gone (each build is about 40 KB smaller), the aquarium no longer re-sorts its fish every frame, and a reeling safety check was added. Nothing should look or play differently.',
-  'Fixed: a game with a Path chosen could freeze while starting (black water, nothing reacts to taps).',
-  'Behind the scenes: Android and iPhone now share one set of patch notes. Nothing should look or play differently.',
-  'NEW (your list, part 1): fight messages are short now: It’s running!, Careful!, Snagged!, Dead Weight; strong fish say Prepare for a fight, this fish is strong! (or Good luck, this fish is out of your league! when it is 10+ stronger than you).',
-  'A missed bite keeps your line out; the 5th miss in a row reels in. Reeled in early and Missed a bite say just that. Cast power keeps its words over a hotspot, only its colour changes.',
-  'Bait: three groups (Everyday bait, Water baits, Favourite foods), each sorted by price; they open folded, tap a group to open it. Cooler: Sort (Newest, Oldest, Sell value, Aquarium bonus, Species) and Scrap all (same filters as Sell all).',
-  'Also: shorter Heavy fog text and a Weather pop-ups switch in Settings, Stickleback has a new line, only cats purr, oddities and other non-fish say dismiss instead of the cooler line, the three treasure chests sit inside their pop-up.',
-  'Phones: a Cooler / Aquarium button beside Settings switches between the two; the aquarium button now reads Expand Tank with the next size under it.',
+  'Aquarium fish show real sizes and depth; hair rebuilt with volume (all 20 styles); body builds have distinct silhouettes; smaller noses on the Natural face.',
   'Please test on every platform and send me anything that feels off.']};
 addTestNotes(TEST_NOTES);

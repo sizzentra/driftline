@@ -47,7 +47,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ◐ C10 Lily is a dog: no purring (done); on her back for belly rubs her paws keep the right orientation.
 **UI**
 - ☑ C11 "Scrap all" for Nibbles, like Sell all, with the same filters.
-- ☐ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
+- ☑ C12 Colour choices: a highlighted box around the chosen colour, not the whole preview lit.
 - ☐ C13 Customization (face styles first, then every customization menu): the menu never snaps or moves when an option is picked.
 - ☑ C14 Cooler: sort by sell value, aquarium bonus, species, most/least recent; most recent after every restart, otherwise remembers the last choice.
 - ☑ C15 Phones: a tab on the top bar (next to Settings) to switch between Aquarium and Cooler while in either.
