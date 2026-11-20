@@ -54,7 +54,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - ☑ C16 Bait: every section and sub-section sorted by purchase price; "Everyday Bait", "Water Baits" and "Favourite Foods" can be folded, and the page opens folded.
 - ☑ C17 Phones, Aquarium: no "bigger tank" benefit text; "How the aquarium works" adds "Increase your tank size for more fish, more buffs, and more income!"; the button reads "Expand Tank · price" with small "Next expansion: X fish" under it.
 - ☑ C18 Treasure chests pop-up: the three chests centred (the outer two sit at the frame edge).
-- ☐ C19 A big fish that has eaten smaller fish may take the cooler past its limit (the extras still go to the cooler).
+- ☑ C19 A big fish that has eaten smaller fish may take the cooler past its limit (the extras still go to the cooler).
 **Fishing and fights**
 - ☐ C20 A running fish turns to face the other way (fish only; never oddities or objects).
 - ☐ C21 Jumps: one fluid motion out of the water, tilting down back in with a splash; a wind-up first (the shadow sinks, then comes up) as a warning. ⚑ timing

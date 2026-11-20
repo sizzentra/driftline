@@ -286,7 +286,7 @@ function landFish(){
   if(isNew && maxed('naturalist')) S.scales+=5;
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   { const ce=coolerEntry(f); S.cooler.push(ce); G.lastEntry=ce; } S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
-  const preyB=[]; for(const p of (f.prey||[])){ journalAdd(p); S.stats.caught++; if(S.cooler.length<gv('cooler')){ S.cooler.push(coolerEntry(p)); preyB.push(['k','Swallowed '+p.sp.name+' ('+kgStr(p.kg)+'): in your cooler']); } else { const c2=earn(salePrice(coolerEntry(p))); preyB.push(['k','Swallowed '+p.sp.name+': sold for '+fmt(c2)]); } }
+  const preyB=[]; for(const p of (f.prey||[])){ journalAdd(p); S.stats.caught++; S.cooler.push(coolerEntry(p)); preyB.push(['k','Swallowed '+p.sp.name+' ('+kgStr(p.kg)+'): in your cooler'+(S.cooler.length>gv('cooler')?' (over its limit)':'')]); } /* C19 (director + Cam, 2026-11-20): fish a predator swallowed always go to the cooler, even past its limit */
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)*(relic('luckyscale')?1.2:1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
