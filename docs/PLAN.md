@@ -11,6 +11,8 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
 - ☐ PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
 
+- ☐ Test card (all three test builds): test build 2358 has no line for the Path start-up fix (#130); round checklist step 8 was missed. Add it with the next test build.
+
 **Look items noted, not fixed** (2026-11-19 outsider review)
 - ☐ The empty Cooler page is mostly blank space.
 - ☐ The aura previews in the Wardrobe › Tide Pass tab are small.
@@ -80,4 +82,5 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Aquarium:** fish that interact, themed tanks with bonuses, visitors who comment.
 - **More Boardwalk games,** kept light and fair.
 - **Optional cloud backup** via a code.
+- **Patch test checklist** (archived by the director 2026-11-20): a per-patch list of what to try for each change, with iPhone / Pixel / PC ticks, so it's clear when a test build is ready to go live. Overlaps with the test card the testers already get (one short line per change); revisit only if the director asks.
 - *(Removed: "controller support on PC, haptics on phones": already in the game since 0.3, `src/k_controls.js` (gamepad: A/Cross casts, right trigger reels; phone vibration on bite, near-snap and catch, Android only because iPhone browsers can't vibrate).)*
