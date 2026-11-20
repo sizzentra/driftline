@@ -27,7 +27,7 @@ $out = if ($Preview) { Join-Path $root 'site\next' } else { Join-Path $root 'sit
 # may only go DOWN (when old code moves into src/pc, src/mobile or src/ios). New platform UI belongs in a platform file; the
 # build refuses to finish otherwise. If a number goes down, lower it here too.
 $platWords = [regex]'MOB\(|pch-on|pc-fhd|pc-app|pc-wide|PC_APP|pchead|phone-app|phone-land|plat-ios|plat-android|plat-pc'
-$platBaseline = @{ 'af_smooth.js'=1; 'aw_menu035.js'=2; 'bd_ui036.js'=3; 'bh_platform036.js'=15; 'bj_polish036.js'=56; 'bm_ui04.js'=75; 'd_draw.js'=2; 'f_v3scene.js'=3; 'x_sections.js'=1 }
+$platBaseline = @{ 'af_smooth.js'=1; 'aw_menu035.js'=2; 'bd_ui036.js'=3; 'bh_platform036.js'=15; 'bj_polish036.js'=56; 'bm_ui04.js'=63; 'd_draw.js'=2; 'f_v3scene.js'=3; 'x_sections.js'=1 }
 $coreFiles = ($core + 'e_ui.js') | Where-Object { $_ -notmatch '^(pc|mobile|android|ios):' }
 $broken = @()
 foreach ($f in $coreFiles) {

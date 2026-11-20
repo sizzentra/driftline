@@ -230,6 +230,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
   'Aquarium: each fish’s coins per hour now always add up exactly to the total shown.',
   'Small phones: a long bait name no longer pushes Search and Settings off the top bar (the bait name shortens instead).']});
 PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
+PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',

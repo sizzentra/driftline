@@ -1372,18 +1372,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
-body.pch-on #menuov #panel > .grid:has(> .pet-hid),body.pch-on #menuov #panel > .grid:has(> .pet-sale){grid-template-columns:repeat(auto-fill,minmax(124px,1fr))!important;gap:8px!important}
-body.pch-on #panel .tile.pet-sale{padding:8px 9px!important;gap:3px!important}
-body.pch-on #panel .tile.pet-sale canvas{width:96px!important;height:56px!important}
-body.pch-on #panel .tile.pet-sale h4{font-size:13.5px!important;margin:0!important}
-body.pch-on #panel .tile.pet-sale .meta{font-size:11px!important;line-height:1.35;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-body.pch-on #panel .tile.pet-sale .btn{padding:5px 8px!important;font-size:12px!important;min-height:0!important}
-body.pch-on #panel .tile.pet-hid{grid-column:span 2;display:grid!important;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;column-gap:10px;row-gap:1px;align-items:center;padding:7px 10px!important;opacity:.85}
-body.pch-on #panel .tile.pet-hid canvas{grid-row:1 / 3;width:52px!important;height:30px!important}
-body.pch-on #panel .tile.pet-hid h4{display:none}
-body.pch-on #panel .tile.pet-hid > .meta{font-size:11.5px!important;line-height:1.3;margin:0!important}
-body.pch-on #panel .tile.pet-hid > span.meta{color:#9fb2c8}
-</style>`);
+</style>`); /* the PC look of these tiles lives in src/pc/ui_pets_find.js (moved 2026-11-19) */
 //@layer pc pc/ui_pets_find.js
 //@layer pc pc/ui_settings.js
 //@layer pc pc/ui_header.js

@@ -73,12 +73,15 @@ html body.phone-app.dl-fish .hud > #mbgoal .mbg-bar{bottom:2px}
     T.hidden=!land; Pz.hidden=true; if(!land) return;
     /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,
        Aquarium, Home and Fish Log always stay */
-    const over=()=>hud.scrollWidth>hud.clientWidth+1, L=document.getElementById('mblive'), has=hud.classList.contains('mb-has-live');
+    /* "out of room" also means the Bait name is being cut: the Bait chip is allowed to shrink (polish08), so without this it soaked up all
+       the shortage, the bar never overflowed and Tasks and Live never stepped aside (0.4.8.9.4 hotfix: Bait squeezed to a 19 px sliver) */
+    const over=()=>{ if(hud.scrollWidth>hud.clientWidth+1) return true; const bb=document.querySelector('#mbbait > b'); return !!(bb&&bb.offsetParent&&bb.scrollWidth>bb.clientWidth+1); }, L=document.getElementById('mblive'), has=hud.classList.contains('mb-has-live');
     if(L&&has){ L.hidden=false; const b=L.querySelector(':scope > b'); if(b&&b.dataset.full){ if(b.textContent===b.dataset.tight) b.textContent=b.dataset.full; delete b.dataset.full; delete b.dataset.tight; } /* (a newer event text written meanwhile wins) */ L.classList.remove('mb-tight'); }
     if(over()) T.hidden=true;
     if(over()&&L&&has){ const b=L.querySelector(':scope > b'); if(b){ const p=b.textContent.trim().split(' '); if(p.length>2){ b.dataset.full=b.textContent; b.textContent=p[0]+' '+p[p.length-1]; b.dataset.tight=b.textContent; } } L.classList.add('mb-tight'); }
     if(over()&&L&&has) L.hidden=true;
     if(!ro&&typeof ResizeObserver==='function'){ ro=new ResizeObserver(()=>{ if(!busy) requestAnimationFrame(()=>{ busy=true; try{ fit(); }finally{ busy=false; } }); }); } if(ro){ for(const k of [hud,...hud.children]) if(!seen.has(k)){ seen.add(k); ro.observe(k); } } };
+  if(/[?&]test\b/.test(location.search)) window.__hudFit=()=>fit(); /* QA: run the step-aside check now (the 500 ms tick is too slow for a test) */
   let ro=null, busy=false; const seen=new WeakSet(); /* round 8 (director: "settings cut off sometimes on top right"): the bar is re-checked whenever it or any chip changes size (the Live timer text, opening or closing the side panel), not only when Tasks or Tide Pass change */
   const tick=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'), lv=document.getElementById('mblive'); if(!hud||!lv) return;
     if(!T||!T.isConnected){ T=mk('mbtasks','bounties','Tasks'); Pz=mk('mbpass','pass','Tide Pass'); lv.after(T); T.after(Pz); last=''; }
@@ -169,5 +172,6 @@ html body.phone-app.dl-fish .hud #settingsbtn{grid-column:5!important;grid-row:1
 html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!important}
 </style>`);
 /* 0.4.9 QC (outsider pass): with a live event and a long water name the Bait chip was squeezed to 15 px ("BA|"): the small chips could shrink, so the bar
-   never overflowed and the "step aside" rule above never ran. Small chips now keep their full width; Tasks, then Live make room as designed. */
+   never overflowed and the "step aside" rule above never ran. Small chips now keep their full width; Tasks, then Live make room as designed.
+   This rule alone did not fix it (the Bait chip's own id rule in polish08 still lets it shrink); the real fix is in fit()'s over() above. */
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land .hud > .mb-x{flex-shrink:0!important;min-width:max-content!important}</style>');
