@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Driftline sweep</title>
+<!-- The one-click sweep (2026-11-20): every automatic check of the round checklist (steps 2–4), in order, on the preview builds,
+     at every size, with one report. Served only by tools/serve_local.ps1 at http://localhost:8766/sweep.html (never in a build).
+     Each check runs in a fresh copy of the game in the frame below; the test save is backed up first, put back before every
+     check and at the end. The report is written to tools/shots/sweep.json (and window.__R) for Claude to read.
+     ?go starts at once; ?only=gate,boot,paths,qa,content,extreme,traits,phone picks sections; ?android adds __qa on Android. -->
+<style>
+:root{--bg:#0d1824;--card:#15263a;--ink:#e8f0f7;--dim:#93a8bd;--ok:#3fbf7f;--bad:#ff6b6b;--held:#e8b84a;--line:#25405c}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,Segoe UI,sans-serif;padding:16px}
+h1{font-size:20px;margin:0 0 4px} .dim{color:var(--dim)} label{margin-right:12px;white-space:nowrap}
+button{background:#2e7dd1;color:#fff;border:0;border-radius:8px;padding:8px 18px;font:inherit;font-weight:600;cursor:pointer} button:disabled{opacity:.5}
+#sum{font-size:16px;font-weight:700;margin:10px 0} table{border-collapse:collapse;width:100%;margin-top:8px}
+td{border-top:1px solid var(--line);padding:5px 8px;vertical-align:top} td.r{width:60px;font-weight:700} td.t{width:70px;color:var(--dim);text-align:right}
+.ok{color:var(--ok)} .bad{color:var(--bad)} .held{color:var(--held)} .sec td{background:var(--card);font-weight:700;padding-top:9px}
+details{margin-top:2px} summary{cursor:pointer;color:var(--dim)} pre{white-space:pre-wrap;margin:4px 0;font-size:12px;color:#c9d6e2}
+#fbox{position:fixed;right:12px;bottom:12px;width:384px;height:216px;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:#000}
+#f{border:0;transform-origin:0 0;position:absolute;left:0;top:0}
+</style>
+</head>
+<body>
+<h1>Driftline one-click sweep</h1>
+<div class="dim">Runs every automatic check on the preview builds (<code>/next/</code>) and writes one report. Your test save is put back afterwards.</div>
+<p id="ctl">
+  <label><input type="checkbox" data-s="gate" checked> Parse + stamps</label>
+  <label><input type="checkbox" data-s="boot" checked> Start-up</label>
+  <label><input type="checkbox" data-s="paths" checked> Start-up with every Path</label>
+  <label><input type="checkbox" data-s="qa" checked> Test suite</label>
+  <label><input type="checkbox" data-s="content" checked> Content</label>
+  <label><input type="checkbox" data-s="extreme" checked> Content (extreme save)</label>
+  <label><input type="checkbox" data-s="traits" checked> Fish decorations</label>
+  <label><input type="checkbox" data-s="phone" checked> Phone layout</label>
+  <label><input type="checkbox" data-s="android"> Test suite on Android too</label>
+  <button id="go">Run the sweep</button>
+</p>
+<div id="sum" class="dim">Not started.</div>
+<table id="out"></table>
+<div id="fbox"><iframe id="f" title="game under test"></iframe></div>
+<script>
+'use strict';
+const KEY='driftline-save-next', BAK='sweep-backup-save', LAST='sweep-last-report';
+const URL_={pc:'/next/pc.html?test&sweep', android:'/next/android.html?test&sweep', ios:'/next/ios.html?test&iphone&sweep'};
+/* phone sizes sideways with that phone's own safe areas (left, right, top, bottom); the iPhone SE (667×375) has none */
+const PHONE=[[956,440,'iPhone 16 Pro Max',[59,59,0,21]],[874,402,'iPhone 16 Pro',[62,62,0,21]],[812,375,'iPhone mini',[50,50,0,21]],[915,412,'Pixel 10',[48,0,0,0]],[780,360,'Android',[48,0,0,0]],[667,375,'iPhone SE',null]];
+const SPLIT=[[440,460],[375,812],[360,780]];
+const CONTENT_SIZES=[['ios',956,440],['ios',915,412],['ios',667,375],['ios',440,460],['pc',1920,1080],['pc',1440,900],['pc',1024,640]];
+/* findings that are known and held for the director (docs/PLAN.md › Open now): shown yellow, not counted as failures */
+const HELD=[[/Mystery crates.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Higher or lower.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Fishmonger’s Gamble.*rule 4/,'shelved: Gamble empty-cooler picture (PLAN › Open now)']];
+const $=id=>document.getElementById(id), wait=ms=>new Promise(r=>setTimeout(r,ms));
+const Q=new URLSearchParams(location.search);
+if(Q.get('only')){ const on=Q.get('only').split(','); document.querySelectorAll('[data-s]').forEach(c=>c.checked=on.includes(c.dataset.s)); }
+if(Q.has('android')) document.querySelector('[data-s="android"]').checked=true;
+let R=[], t0=0, saved=null;
+window.__R={state:'idle'};
+
+function heldOf(s){ for(const [re,why] of HELD) if(re.test(s)) return why; return null; }
+function add(sec,name,ok,detail,ms,list){ const row={sec,name,ok,detail:detail||'',ms:ms||0,list:list||[]}; R.push(row); draw(); return row; }
+function draw(){ const T=$('out'); let h='', sec=''; for(const r of R){ if(r.sec!==sec){ sec=r.sec; h+=`<tr class="sec"><td colspan="3">${sec}</td></tr>`; }
+    const cls=r.ok===true?'ok':r.ok==='held'?'held':'bad', word=r.ok===true?'PASS':r.ok==='held'?'HELD':'FAIL';
+    const more=r.list.length?`<details><summary>${r.list.length} finding${r.list.length>1?'s':''}</summary><pre>${r.list.map(x=>x.replace(/</g,'&lt;')).join('\n')}</pre></details>`:'';
+    h+=`<tr><td class="r ${cls}">${word}</td><td>${r.name}<div class="dim">${(r.detail||'').replace(/</g,'&lt;')}</div>${more}</td><td class="t">${(r.ms/1000).toFixed(1)} s</td></tr>`; }
+  T.innerHTML=h; }
+function status(s){ $('sum').textContent=s; document.title='Sweep: '+s; window.__R.current=s; }
+
+/* the test save: backed up once, put back before every check and at the end */
+function putSaveBack(){ if(saved==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,saved); }
+function onload(f){ return new Promise(r=>{ const h=()=>{ f.removeEventListener('load',h); r(); }; f.addEventListener('load',h); }); }
+async function blank(){ const f=$('f'); if(f.src&&f.src!=='about:blank'){ const p=onload(f); f.src='about:blank'; await p; } } /* unloading lets the game save; the save is put back after this */
+async function open(b,w,h,o={}){ const f=$('f'); await blank(); if(!o.keepSave) putSaveBack();
+  f.style.width=w+'px'; f.style.height=h+'px'; const sc=Math.min(384/w,216/h); f.style.transform=`scale(${sc})`;
+  const p=onload(f); f.src=URL_[b]; await p; const W=f.contentWindow, s=Date.now();
+  while(Date.now()-s<25000){ try{ if(W.__ui&&W.__qa&&W.document.getElementById('panel')) break; }catch(e){} await wait(200); }
+  await wait(1500); /* let the first ticks and timers run (a timer's first run goes after loading, #130) */
+  return W; }
+async function timed(ms,p){ let to; const t=new Promise((_,rej)=>{ to=setTimeout(()=>rej(new Error('timed out after '+ms/1000+' s')),ms); }); try{ return await Promise.race([p,t]); } finally{ clearTimeout(to); } }
+async function step(sec,name,fn){ const s=performance.now(); status(name+'…'); try{ const r=await fn(); const ms=performance.now()-s;
+    let list=r.list||[], heldN=0; const real=list.filter(x=>{ const hw=heldOf(x); if(hw){ heldN++; return false; } return true; });
+    const shown=list.map(x=>{ const hw=heldOf(x); return hw?x+'  ['+hw+']':x; });
+    const ok=r.ok===false||real.length?false:heldN?'held':true; return add(sec,name,ok,r.detail,ms,shown); }
+  catch(e){ return add(sec,name,false,'threw: '+(e&&e.message||e),performance.now()-s); } }
+
+/* gate 1/2: every built page parses, and each page's stamp matches the version file it fetches */
+async function gate(){
+  const pages=[['/next/pc.html','/next/version.txt'],['/next/android.html','/next/version-phone.txt'],['/next/ios.html','/next/version-phone.txt'],['/next/index.html',null],
+               ['/pc.html','/version.txt'],['/android.html','/version-phone.txt'],['/ios.html','/version-phone.txt'],['/index.html',null]];
+  for(const [pg,vf] of pages) await step('Parse + stamps',pg,async()=>{ const t=await (await fetch(pg,{cache:'no-store'})).text(); const L=[]; let n=0;
+    for(const m of t.matchAll(/<script>([\s\S]*?)<\/script>/g)){ n++; try{ new Function(m[1]); }catch(e){ L.push('script '+n+': '+e.message); } }
+    let d=(n-L.length)+' of '+n+' scripts parse'; if(vf){ const st=(t.match(/DL_VERSION='([^']+)'/)||[])[1], v=(await (await fetch(vf,{cache:'no-store'})).text()).trim();
+      if(st!==v) L.push('stamp '+st+' but '+vf+' says '+v); else d+=', stamp '+st; }
+    return {detail:d, list:L}; }); }
+
+/* start-up: each build loads with no error and the game is reachable */
+async function boot(label,keep){ for(const [b,w,h] of [['pc',1920,1080],['android',915,412],['ios',956,440]]) await step(label,b+' '+w+'×'+h,async()=>{
+    const W=await open(b,w,h,{keepSave:keep}); const L=(W.__bootErr||[]).slice(0,10); if(W.DL_BUILD!==b) L.push('DL_BUILD is '+W.DL_BUILD); if(!W.__ui) L.push('the game never finished starting (no test hooks after 25 s)');
+    return {detail:L.length?'':'started clean'+(keep?' with a Path in every tier':''), list:L}; }); }
+async function paths(){ await step('Start-up with every Path','choose a Path in every tier',async()=>{ const W=await open('pc',1920,1080); const n=W.__pathsAll(); return {detail:n+' tiers chosen and saved'}; });
+  await boot('Start-up with every Path',true); }
+
+async function qa(b,w,h){ await step('Test suite (__qa)',b+' '+w+'×'+h,async()=>{ const W=await open(b,w,h); const r=await timed(300000,W.__qa());
+    return {detail:r.pass+' of '+(r.pass+r.fail)+' pass', list:r.fails.map(f=>'['+f.sys+'] '+f.name+': '+f.detail)}; }); }
+
+async function content(extreme){ for(const [b,w,h] of CONTENT_SIZES) await step(extreme?'Content (extreme save)':'Content (__contentQC)',(b==='ios'?'phone ':'PC ')+w+'×'+h,async()=>{
+    const W=await open(b,w,h); const r=await timed(400000,W.__contentQC(extreme?{extreme:true}:{}));
+    return {detail:r.pages+' pages, '+r.tabs+' tabs, '+r.cards+' cards', list:r.list}; }); }
+
+async function traits(){ await step('Fish decorations (__traitQC)','every decoration on every fish',async()=>{ const W=await open('pc',1440,900); const r=await timed(300000,W.__traitQC());
+    return {detail:r.fish+' fish, '+r.checked+' decorations', list:r.list}; }); }
+
+async function phone(){
+  for(const [w,h,who,sa] of PHONE) await step('Phone layout (__spec)',w+'×'+h+' '+who,async()=>{ const W=await open('ios',w,h); const a=W.__spec()||[]; if(!sa) return {detail:'no safe areas on this phone', list:a.map(x=>'plain: '+x)};
+      const n=W.__safeSim(...sa); await wait(400); const b=W.__spec()||[];
+      return {detail:'plain and with safe areas ('+sa.join('/')+', '+n+' styles)', list:[...a.map(x=>'plain: '+x),...b.map(x=>'safe areas: '+x)]}; });
+  for(const [w,h] of SPLIT) await step('Phone layout (__spec)',w+'×'+h+' split screen',async()=>{ const W=await open('ios',w,h); const t=W.document.getElementById('dl-turn'); if(t) t.style.display='none'; /* test mode follows the window's shape; real phones follow how they are held */ await wait(300);
+      return {detail:'narrow layout', list:W.__spec()||[]}; });
+  await step('Phone checks','__layoutQC, __searchQC, __questsQC at 956×440',async()=>{ const W=await open('ios',956,440); const L=[];
+    const a=await timed(90000,W.__layoutQC()); if(!a.clean){ for(const k of ['dash','audit','trunc','head']) (a[k]||[]).forEach(x=>L.push('layout '+k+': '+(typeof x==='string'?x:JSON.stringify(x)))); const f=a.fishing||{}; for(const k of ['stageFillsToBottom','waterUncovered','canvasFillsStage','menuButton']) if(!f[k]) L.push('layout fishing: '+k+' is false'); if(f.pageScrolls) L.push('layout fishing: the page scrolls'); (f.hudCut||[]).forEach(x=>L.push('layout fishing: '+x)); if(!L.length) L.push('layout: not clean '+JSON.stringify(a).slice(0,300)); } const s=await timed(120000,W.__searchQC()); (s.bad||[]).forEach(x=>L.push('search: '+x)); const q=await timed(120000,W.__questsQC()); (q.bad||[]).forEach(x=>L.push('quests: '+x));
+    return {detail:'search '+s.checked+' entries, quests '+q.checked+' checks', list:L}; }); }
+
+async function run(){
+  const on=s=>document.querySelector('[data-s="'+s+'"]').checked; $('go').disabled=true; R=[]; draw(); t0=performance.now(); window.__R={state:'running'};
+  saved=localStorage.getItem(KEY); localStorage.setItem(BAK,saved==null?'':saved);
+  try{
+    if(on('gate')) await gate();
+    if(on('boot')) await boot('Start-up',false);
+    if(on('paths')) await paths();
+    if(on('qa')){ await qa('ios',956,440); await qa('pc',1920,1080); await qa('pc',1440,900); if(on('android')) await qa('android',915,412); }
+    if(on('content')) await content(false);
+    if(on('extreme')) await content(true);
+    if(on('traits')) await traits();
+    if(on('phone')) await phone();
+  } finally{ await blank(); putSaveBack(); $('go').disabled=false; }
+  const bad=R.filter(r=>r.ok===false), held=R.filter(r=>r.ok==='held'), mins=((performance.now()-t0)/60000).toFixed(1);
+  let stamp=''; try{ stamp=(await (await fetch('/next/version.txt',{cache:'no-store'})).text()).trim(); }catch(e){}
+  /* what changed since the last run: findings that are new, and ones that went away */
+  let prev=null; try{ prev=JSON.parse(localStorage.getItem(LAST)||'null'); }catch(e){}
+  const keyset=rs=>new Set(rs.flatMap(r=>(r.list.length?r.list:(r.ok===false?[r.detail]:[])).map(x=>r.sec+' | '+r.name+' | '+x)));
+  const now=keyset(R), was=prev?keyset(prev.results):null;
+  const diff=was?{newFindings:[...now].filter(x=>!was.has(x)), gone:[...was].filter(x=>!now.has(x)), prevStamp:prev.stamp}:null;
+  const rep={stamp, finished:new Date().toISOString(), minutes:+mins, checks:R.length, failed:bad.length, held:held.length, saveRestored:localStorage.getItem(KEY)===saved, diff, results:R};
+  try{ localStorage.setItem(LAST,JSON.stringify({stamp,results:R})); }catch(e){}
+  window.__R=Object.assign({state:'done'},rep);
+  status((bad.length?bad.length+' of '+R.length+' checks FAILED':'All '+R.length+' checks passed')+(held.length?' ('+held.length+' with held findings)':'')+' · build '+stamp+' · '+mins+' min'+(rep.saveRestored?' · test save put back':' · TEST SAVE NOT RESTORED'));
+  $('sum').className=bad.length?'bad':'ok';
+  try{ await fetch('/report/sweep',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rep,null,1)}); }catch(e){}
+}
+$('go').onclick=()=>run();
+if(Q.has('go')) setTimeout(run,300);
+</script>
+</body>
+</html>

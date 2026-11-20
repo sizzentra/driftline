@@ -32,6 +32,13 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 **Decisions waiting on the director**
 - Bigger tap targets (ours 32–40 pt vs 44 pt guidance) · text size · left-handed / menu side · colour-blind help · a real tablet layout · the Trophy Room name · whether the aquarium empties on a new voyage.
 
+## Checks overhaul (director, 2026-11-20: make every check as efficient as the content check)
+- ☑ One-click sweep (`tools/sweep.html`): every automatic check, every build and size, one report, test save put back; covers the start-up check (also with every Path) and the test-tool problems (no collisions, no menu-open hang).
+- ☐ Content recipes for fish, oddities, items and waters (every new thing has all its parts: name, art, lessons, search, notes).
+- ☐ Saves check (old saves load, migrate keeps everything, save codes round-trip at extreme sizes).
+- ☐ Speed budgets per page and per frame, checked by the sweep.
+- ☐ Balance targets checked automatically (`__bal` against written targets).
+
 ## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)
 Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude builds it as asked and flags it (Feel call / suggested numbers) for the director and Cam to tune. Order of work: text and small fixes → UI → fishing and fights → economy → art and maps.
 **Text and small fixes**

@@ -450,6 +450,8 @@ window.__qa=async(groups)=>{ QA.R=[]; const keep=snap(), tab=S.tab, off=window._
     const shut=()=>{ const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; if(G.st==='event') G.st='idle'; } }; shut(); setTimeout(shut,1600); }
   const fails=QA.R.filter(r=>!r.ok); return {pass:QA.R.length-fails.length, fail:fails.length, fails, all:QA.R}; };
 window.__inv=inv;
+// sweep: choose a Path in every tier and save for real, so the next start-up loads a save like #130's (code that runs while loading broke only for such saves)
+window.__pathsAll=()=>{ clearTimeout(QA.settleT); S.specs={}; SPEC_TIERS.forEach((T,i)=>{ S.specs[i]=T.opts[0][0]; }); (QA.realSave||save)(); return Object.keys(S.specs).length; };
 // __sweep(acts, ks, is): every action with every bad id and index, saving switched off and the save restored afterwards;
 // returns the errors with where they came from (the random fuzz only shows the message)
 window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99',undefined])=>{ const keep=snap(), errs=[]; QA.realSave=QA.realSave||save; QA.realToast=QA.realToast||toast; clearTimeout(QA.settleT); const os=QA.realSave, ot=QA.realToast; save=function(){}; toast=function(){};

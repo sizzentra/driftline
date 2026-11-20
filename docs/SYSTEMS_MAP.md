@@ -270,3 +270,10 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Change | Owner | Affects |
 |---|---|---|
 | Rods "In your hands" column scrolls instead of squeezing its cards (the card hid its Upgrade button and attachment slot at full HD) | `pc/ui_fhd.js` (`.fhd-you .fhd-body2 > *{flex-shrink:0}`); live: `tools/hotfix_0.4.8.9.5.ps1` (PC page only; phones copied unchanged) | PC full HD (1800×950 and up) Rods page; PC "what's new" 0.4.8.9.5 |
+
+## One-click sweep (2026-11-20, tools only; no game change)
+| Change | Owner | Affects |
+|---|---|---|
+| Sweep page: every automatic check of round-checklist step 2 in fresh game copies, one report, test save put back, new-since-last-run list | `tools/sweep.html` | the round checklist (CLAUDE.md steps 2 and 8) |
+| `/sweep.html` route, `POST /report/<name>` (writes `tools/shots/<name>.json`), `?sweep` pages get an early error recorder + 16 ms frame timer | `tools/serve_local.ps1` | local testing only |
+| `__pathsAll()` (a Path in every tier, saved for real; for the #130 start-up check) | `src/bn_qa04.js` (preview builds only) | none in release builds |
