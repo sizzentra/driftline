@@ -69,6 +69,7 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ Tide Pass overhaul: 100 levels in 5 chapters, Pass-only auras / bobbers / lines / pet colours, pearls and Boon points, showcase.
 - ☑ PC display: interface size by window (Auto, 85–200%), picture quality, viewport units undo the zoom (pc/ui_display.js).
 - ☑ Visual originality pass: own platform per new water, water-specific fish features, varied body plans, per-oddity details.
+- ☑ Real aquarium sizes and depth; hair rebuilt (`ct_hair.js`); build silhouettes.
 - ☑ Batch 6, the fight meta: fish must be tired out (FIGHT_T by rarity), tension floor in runs, rare/epic surges; holding through runs loses rare+ even maxed. Caps: oddities 20%/cast, hotspots ×4, shiny 15%.
 
 ## Shelved for the next build (director, 2026-11-20: "we want them in the build, but shelf them for now")

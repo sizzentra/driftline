@@ -391,3 +391,8 @@ Platform notes: fix each item in the platform it belongs to (Platform ground rul
 - **Open director decisions:** bigger tap targets (ours 32–40 pt vs 44 pt guidance), text size, left-handed / menu side, colour-blind help, a real tablet layout, the Trophy Room name, whether the aquarium empties on a new voyage.
 - Update this section whenever work pauses. History goes to `docs/HISTORY.md`, not here.
 
+
+## 2026-11-19/20: the process overhaul, tried and undone
+- 2026-11-19: Driftline split from OutPace (own folder, memory, sessions: kept). "Phase 1" shrank CLAUDE.md to a one-page rulebook (details in docs/REFERENCE.md, status in docs/HANDOFF.md, commit a2128e5); "phase 2" added an automatic check (check.ps1), a device report and a publish gate (commits d6bc2b0, 2e978d8; test build 2305).
+- Cam's Pixel froze after updating to 2305. Real cause, found later: a 0.4.9 bug for saves with a Path chosen (#130), fixed in test build 2358 (`src/bj_polish036.js`) and confirmed on his Pixel 2026-11-20.
+- 2026-11-20, the director: work had become slower and buggier, so phase 2 was reverted (commit 8f07e7d: `src/`, build and publish scripts back to the pre-proposal code) and the full CLAUDE.md restored (one session kept going while the work is connected). Kept: the folder split, hotfix 0.4.8.9.4, the Path start-up fix, lessons #118–#130.
