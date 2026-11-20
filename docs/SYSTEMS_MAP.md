@@ -246,3 +246,10 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Oddities to 300 | `co_oddities.js` (dedupe, ODD_NEW + ODD_SPARE, ODD_ART templates, oddDecor, oddBase, oddKV) | pickJunk, landJunk base, Oddities pages (PC br_pc05 + ui_fhd tier 4 = not found, phones/e_ui data-odd cards) |
 | PC display | `pc/ui_display.js`; UIZ in `c_logic.js` resize; viewport units read `--uvh/--uvw` (41 rules) | every PC page; any new CSS on PC must use `calc(N*var(--uvh,1vh))`, never raw vh/dvh |
 | Fight meta | `c_logic.js` FIGHT_T / FIGHT_LANDK / FIGHT_TEN_FLOOR / fightTireT; surges from RK≥.15 | every fight; QA "batch 6 fight" |
+
+## Hotfix 0.4.8.9.4 + test builds stamp 2100 (2026-11-19)
+| Change | Owner | Affects |
+|---|---|---|
+| Phone top bar "out of room" also counts a cut Bait name | `mobile/header08.js` fit() `over()`; QA hook `window.__hudFit` (`?test`) | Tasks / Live step-aside order, Bait chip ellipsis (polish08 `#mbbait.stat` may shrink); QA "Bait name is never cut" |
+| PC Pets tile styles moved out of the shared file | `pc/ui_pets_find.js` (was `bm_ui04.js`, baseline 75 → 63) | Pets › Find more rows; page tabs hide `.pet-hid` tiles again |
+| Live hotfix patch script | `tools/hotfix_0.4.8.9.4.ps1` (site → testapps/hotfix for the phone check, site → site to ship) | live pages only; test copy at /driftline-test/hotfix/ uses the live save |
