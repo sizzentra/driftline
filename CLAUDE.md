@@ -2,6 +2,8 @@
 
 A cozy fishing game in the browser, made for the director and their friends. It installs as an app on phones and PCs, plays offline, and updates itself. It's a side project, separate from OutPace.
 
+**Sessions start in this folder (`C:\Users\sizze\Driftline`), never in OutPace's** (director, 2026-11-19): a mixed session loads OutPace's long rulebook and Driftline's rules slip. Driftline has its own memory; one round per session.
+
 **This file is the single source of rules for working on Driftline.** Claude's memory only points here. Other docs, each with one job:
 - `docs/PLATFORM_DESIGN.md`: what every screen looks like per platform (numbers, layouts).
 - `docs/SYSTEMS_MAP.md`: what affects what, plus a log of every round's changes.
