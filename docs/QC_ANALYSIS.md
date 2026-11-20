@@ -64,5 +64,5 @@ The old suite passed 97/97 while every problem below existed.
 ## Full sweep of the new systems (2026-11-20, test build 0403 source)
 - Content check, normal + extreme save, every page and tab (~240–310 cards a run) plus every mini-game pop-up: phones 956×440, 915×412 (Android build), 667×375, 440×460; PC 1920×1080, 1440×900, 1024×640. Only findings: the held picture decisions (Mystery crates everywhere, Gamble on phones). Nothing new.
 - Test suite: 102/102 on iPhone, Android, PC 1920×1080 and PC 1440×900 after fixing the flaky #127 (it failed once in this sweep, then passed).
-- Start-up check: every build starts with no errors. The test save was unchanged by all of it.
+- Start-up check: every build starts with no errors. The test save had changed by the end (the game's own autosave runs while a test page is open; the checks themselves block saving) and was put back from the backup.
 - Process finding: one sweep took about 20 manual steps (resize, load, run, read, per size). Next tool: one sweep page that runs every size and build in frames and gives a single report.
