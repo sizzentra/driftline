@@ -35,17 +35,8 @@ body.phone-app #menuov .chips [aria-pressed="true"],body.phone-app #menuov .chip
 body.phone-app #menuov .tile,body.phone-land #menuov .tile{background:linear-gradient(180deg,#132238,#0e1a2c)!important;border-radius:14px}
 </style>`);
 
-// ---------- Bait list on phones: everyday bait and water baits each get a heading (the order itself is shared data), and the
-// "Bait in use" row wraps instead of cutting its words ----------
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()) return r; const P=$('panel'); const cards=[...P.querySelectorAll('.tk-row')]; if(!cards.length||P.querySelector('.mb-sec')) return r;
-    const water=new Set(Object.values(BAIT).filter(b=>b.loc&&!b.junk).map(b=>b.name)), isW=c=>{ const b=c.querySelector('.tk-main b'); return !!b&&water.has(b.textContent.trim()); };
-    const food=new Set(Object.values(BAIT).filter(b=>b.food).map(b=>b.name)), isF=c=>{ const b=c.querySelector('.tk-main b'); return !!b&&food.has(b.textContent.trim()); };
-    const fw=cards.find(isW), ff=cards.find(isF), fe=cards.find(c=>!isW(c)&&!isF(c)&&!!c.querySelector('.tk-main b')); if(!fw||!fe) return r;
-    if(ff) ff.insertAdjacentHTML('beforebegin','<h3 class="mb-sec">Favourite foods<span>Every fish loves one and dislikes one: see the Fish Log</span></h3>');
-    fe.insertAdjacentHTML('beforebegin','<h3 class="mb-sec">Everyday bait<span>Works at every water</span></h3>'); fw.insertAdjacentHTML('beforebegin','<h3 class="mb-sec">Water baits<span>Each one is best at its own water</span></h3>'); }catch(e){ console.error(e); } return r; }; }
+// ---------- Bait list on phones: the "Bait in use" row wraps instead of cutting its words (the groups, headings and folding are shared: u_tackle.js) ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
-body.phone-app #panel .mb-sec,body.phone-land #panel .mb-sec{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:14px 2px 6px;font:800 15px var(--display,system-ui);color:#fff}
-body.phone-app #panel .mb-sec span,body.phone-land #panel .mb-sec span{font:600 12px system-ui;color:#9fb2c8}
 body.phone-app #panel .tk-cur.tk-slim,body.phone-land #panel .tk-cur.tk-slim{flex-wrap:wrap!important;row-gap:6px}
 body.phone-app #panel .tk-cur.tk-slim > *,body.phone-land #panel .tk-cur.tk-slim > *{white-space:nowrap;overflow:visible!important;text-overflow:clip!important;max-width:none!important}
 body.phone-app #panel .tk-cur.tk-slim > .btn,body.phone-land #panel .tk-cur.tk-slim > .btn{margin-left:0!important;flex:1 0 100%}

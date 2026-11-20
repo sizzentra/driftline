@@ -53,9 +53,9 @@
       cell.innerHTML=`<div class="sub">Tank</div><b>${n} / ${cap}</b>`; if(last) last.after(cell); else bank.prepend(cell); }
     const hr=P.querySelector('.aq07-sec-tank > .aq07-h'); if(hr&&!hr.querySelector('.mb-tankcap')){ const h2=hr.querySelector('h2'); if(h2) h2.insertAdjacentHTML('beforeend',` <span class="mb-tankcap">· holds ${cap} fish</span>`);
       const buy=hr.querySelector('[data-act="buytank"]'); const cost=TANK_COST[S.tankSlots];
-      if(buy&&cost!=null){ S.tankSlots++; const nx=aqCap(); S.tankSlots--; const more=nx-cap;
-        buy.innerHTML=`Room for ${nx} fish · <span class="coin">${fmt(cost)}</span>`; buy.title='A bigger tank: '+cap+' → '+nx+' fish';
-        hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">A bigger tank holds <b>${more} more fish</b> (${cap} → ${nx}). Every fish on display earns coins from visitors and adds its boost, so more room means more coins and stronger boosts.${S.money<cost?` You need <span class="coin">${fmt(cost-S.money)}</span> more.`:''}</p>`); }
+      if(buy&&cost!=null){ S.tankSlots++; const nx=aqCap(); S.tankSlots--;
+        buy.innerHTML=`Expand Tank · <span class="coin">${fmt(cost)}</span>`; /* C17 (director + Cam, 2026-11-20) */ buy.title='A bigger tank: '+cap+' → '+nx+' fish';
+        hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Next expansion: ${nx} fish${S.money<cost?` · you need <span class="coin">${fmt(cost-S.money)}</span> more`:''}</p>`); }
       else if(cost==null) hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Your tank is as big as it gets: ${cap} fish.</p>`); }
   }catch(e){ console.error(e); } return r; }; }
 

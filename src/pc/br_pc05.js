@@ -383,8 +383,8 @@ let baitFilt='all';
       <div class="bt-why"><b>How bait works</b><span>One bait is used each time you set the hook; worms are free and never run out. Better bait brings faster bites and rarer fish, and some bait is best at one water. Special lures can’t be bought: they come from oddities you fish up and from bounty rewards.</span></div></div>
       <div class="bt-filt">${[['all','For sale',all.filter(e=>!e[1].junk).length],['here','Best here',nHere],['mine','Yours',nMine],['special','Special lures',nSp]].map(([k,n,c])=>`<button type="button" data-btf="${k}" aria-pressed="${baitFilt===k}">${n} <b>${c}</b></button>`).join('')}</div>
       ${!shown.length?'<div class="bt-grid"><div class="fc-empty">Nothing here yet.</div></div>':(()=>{ /* round 6: water baits as their own group, in the order the waters unlock */ const wat=shown.filter(e=>e[1].loc&&!e[1].junk), food=shown.filter(e=>e[1].food), rest=shown.filter(e=>!(e[1].loc&&!e[1].junk)&&!e[1].food); /* 0.4.9: favourite foods are a group of their own */
-        const groups=[['Everyday bait','Works at every water',rest],['Water baits','Each one is best at its own water; priced to match that water',wat],['Favourite foods','Every fish loves one food and dislikes one: the Fish Log shows which',food]].filter(g=>g[2].length);
-        if(groups.length<2) return '<div class="bt-grid">'+shown.map(card).join('')+'</div>'; return '<div class="bt-groups">'+groups.map(([h,s,l])=>'<h3 class="bt-sec">'+h+'<span>'+s+'</span></h3><div class="bt-grid">'+l.map(card).join('')+'</div>').join('')+'</div>'; })()}`;
+        const groups=[[0,rest],[1,wat],[2,food]].filter(g=>g[1].length); /* C16: shared groups, price order and folding (u_tackle.js) */
+        if(groups.length<2) return '<div class="bt-grid">'+baitSorted(shown).map(card).join('')+'</div>'; return '<div class="bt-groups">'+groups.map(([g,l])=>{ const open=baitFilt!=='all'||!baitFold[g]; return baitFoldHead(g,l.length,open)+(open?'<div class="bt-grid">'+baitSorted(l).map(card).join('')+'</div>':''); }).join('')+'</div>'; })()}`;
     P.querySelectorAll('[data-btf]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); baitFilt=b.dataset.btf; render(P); }));
     P.classList.add('bt-on'); };
   const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('bt-on'); if(S.tab==='bait'){ if(!FHD()){ S.tab='shop'; tackleView='bait'; return _rp.apply(this,arguments); } render(P); try{ menuSync(); if(P.dataset.tab035!=='bait'){ P.dataset.tab035='bait'; pageIn(P); } P.dataset.pg='bait'; }catch(e){} return; } return _rp.apply(this,arguments); }; }
@@ -633,10 +633,3 @@ html body.pc-fhd #menuov #panel .fr-goal{margin:0 0 12px;padding:10px 14px;borde
 html body.pc-fhd #menuov #panel .fr-goal b{color:#ffd36a}
 html body.pc-fhd #menuov #panel .fr-goal.got{background:#7fe3c414;border-color:#7fe3c455;color:#bff3e2} html body.pc-fhd #menuov #panel .fr-goal.got b{color:#7fe3c4}
 </style>`);
-// PC in a narrow window uses the compact bait list (.tk-row): give it the same three headings the phones and the wide PC page have
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='shop') return r; const P=$('panel'); const cards=[...P.querySelectorAll('.tk-row')]; if(!cards.length||P.querySelector('.pc-bsec')) return r;
-    const nm=c=>{ const b=c.querySelector('.tk-main b'); return b?b.textContent.trim():''; }, water=new Set(Object.values(BAIT).filter(b=>b.loc&&!b.junk).map(b=>b.name)), food=new Set(FOOD_KEYS.map(k=>BAIT[k].name));
-    const fw=cards.find(c=>water.has(nm(c))), ff=cards.find(c=>food.has(nm(c))), fe=cards.find(c=>nm(c)&&!water.has(nm(c))&&!food.has(nm(c))&&nm(c)!=='Worms'); const h=(t,s)=>`<h3 class="pc-bsec">${t}<span>${s}</span></h3>`;
-    if(ff) ff.insertAdjacentHTML('beforebegin',h('Favourite foods','Every fish loves one food and dislikes one: the Fish Log shows which'));
-    if(fw) fw.insertAdjacentHTML('beforebegin',h('Water baits','Each one is best at its own water')); if(fe) fe.insertAdjacentHTML('beforebegin',h('Everyday bait','Works at every water')); }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend','<style>#panel .pc-bsec{margin:14px 0 4px;font-size:15px;color:var(--ink,#e8f1f6)}#panel .pc-bsec span{display:block;font-size:12px;font-weight:400;opacity:.7}</style>');

@@ -47,9 +47,6 @@ html body.pc-fhd #menuov #panel.rd-on .fhd-you .rp-list{grid-template-columns:1f
 
 // ---------- Bait page: everyday bait and water baits as two groups with a heading each ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #panel .bt-sec{display:flex;align-items:baseline;gap:10px;margin:14px 0 8px;font:800 15px var(--display,system-ui);color:#fff}
-html body.pc-fhd #panel .bt-sec:first-of-type{margin-top:4px}
-html body.pc-fhd #panel .bt-sec span{font:600 12px system-ui;color:#9fb2c8}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #panel .bt-groups{flex:1 1 0!important;min-height:0!important;overflow:auto!important;scrollbar-width:thin}
