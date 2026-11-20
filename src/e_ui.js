@@ -86,15 +86,22 @@ const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainb
 const aqTxt = f => { const L=aqBuffsOf(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
 
 const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
-function renderCooler(P){
+/* C14 (director + Cam, 2026-11-20): sort the cooler by most/least recent, sell value, aquarium bonus or species. Most recent after
+   every restart (kept in memory only), otherwise it remembers the last choice. Rows keep their real cooler index for the buttons. */
+let coolSort='recent'; const COOL_SORTS=[['recent','Newest'],['old','Oldest'],['value','Sell value'],['aq','Aquarium bonus'],['species','Species']];
+function coolOrder(){ const L=S.cooler.map((f,i)=>({f,i})); const nm=x=>(SPI[x.f.id]||{}).name||'';
+  if(coolSort==='old') return L; if(coolSort==='value') return L.sort((a,b)=>salePrice(b.f)-salePrice(a.f)); if(coolSort==='aq') return L.sort((a,b)=>fishRate(b.f)-fishRate(a.f)); if(coolSort==='species') return L.sort((a,b)=>nm(a).localeCompare(nm(b))||b.i-a.i); return L.reverse(); }
+const coolSortBar=()=>S.cooler.length<2?'':`<div class="cool-sort" role="group" aria-label="Sort the cooler"><span class="meta">Sort</span>${COOL_SORTS.map(([k,n])=>`<button type="button" class="chip${coolSort===k?' on':''}" data-act="coolsort" data-k="${k}" aria-pressed="${coolSort===k}">${n}</button>`).join('')}</div>`;
+{ const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='coolsort'){ if(COOL_SORTS.some(s=>s[0]===b.dataset.k)) coolSort=b.dataset.k; return 'render'; } return _ea(b); }; }
+document.head.insertAdjacentHTML('beforeend','<style>.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');function renderCooler(P){
   const total=S.cooler.filter(f=>!sellKeep(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < aqCap(); const dm=demandSp();
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
   <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell ${sellFilterOn()?"matching":"all"}${S.cooler.some(sellKeep)?" (keeping "+S.cooler.filter(sellKeep).length+")":""} for <span class="coin">${fmt(total)}</span></button></div>
   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;gap:12px"><canvas width="128" height="64" data-fish="${dm.id}" style="width:64px;height:32px"></canvas>
   <div style="min-width:0"><b>The fishmonger wants ${dm.name}</b> <span class="meta">(${LOCS[locIdx(dm.loc)].name})</span><div class="meta">Pays double for it until the weather changes (<span id="dmleft">${mmss(wxLeft())}</span>).</div></div></div>`+
-  (S.cooler.length ? '<div class="list">'+S.cooler.map((f,i)=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas>
+  (S.cooler.length ? coolSortBar()+'<div class="list">'+coolOrder().map(({f,i})=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">Aquarium: ${aqTxt(f)}</span></small></div>
-   <div class="val coin" ${dm.id===f.id?'style="color:var(--gold)" title="Fishmonger pays double"':''}>${fmt(salePrice(f))}${dm.id===f.id?' ×2':''}</div><div class="acts"><button class="btn alt sm" data-act="totank" data-i="${i}" ${tankFree?'':'disabled'} title="${tankFree?'Earns '+fmt(fishRate(f)*60)+' coins per hour':'Aquarium is full'}">To aquarium</button><button class="btn alt sm" data-act="sell" data-i="${i}">Sell</button>${nibScrapBtn(f,i)}</div></div>`; }).reverse().join('')+'</div>'
+   <div class="val coin" ${dm.id===f.id?'style="color:var(--gold)" title="Fishmonger pays double"':''}>${fmt(salePrice(f))}${dm.id===f.id?' ×2':''}</div><div class="acts"><button class="btn alt sm" data-act="totank" data-i="${i}" ${tankFree?'':'disabled'} title="${tankFree?'Earns '+fmt(fishRate(f)*60)+' coins per hour':'Aquarium is full'}">To aquarium</button><button class="btn alt sm" data-act="sell" data-i="${i}">Sell</button>${nibScrapBtn(f,i)}</div></div>`; }).join('')+'</div>'
    : '<div class="empty">Nothing in the cooler yet. Cast a line and land your first fish.</div>');
   paintFish(P);
 }

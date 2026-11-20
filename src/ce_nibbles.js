@@ -25,18 +25,22 @@ const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 
 // scrap and feed
 let NIB_ANIM=null;
-function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.cooler.splice(i,1);
-  S.stats.scrapped=(S.stats.scrapped||0)+1;
-  if(ok){ const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); S.nib=S.nib||{}; S.nib[sp.id]=nibOf(sp.id)+n; sfx.coin(); toast('Scrapped: +'+NIB_WORD(n)+' for '+sp.name+'. Feed them to a '+sp.name+' in your Aquarium.'); }
-  else toast('Scrapped the '+sp.name+', but no Nibbles this time.');
+/* one fish: removes it and returns the Nibbles it gave (0 on a miss); shared by Scrap and Scrap all */
+function nibScrapOne(f){ const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.stats.scrapped=(S.stats.scrapped||0)+1;
+  if(!ok) return 0; const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); S.nib=S.nib||{}; S.nib[sp.id]=nibOf(sp.id)+n; return n; }
+function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id]; S.cooler.splice(i,1); const n=nibScrapOne(f);
+  if(n){ sfx.coin(); toast('Scrapped: +'+NIB_WORD(n)+' for '+sp.name+'. Feed them to a '+sp.name+' in your Aquarium.'); } else toast('Scrapped the '+sp.name+', but no Nibbles this time.');
   return 'render'; }
+/* C11 (director + Cam, 2026-11-20): Scrap all, like Sell all and with the same filters (what Sell all would sell gets scrapped) */
+function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if(!go.length) return 'skip'; S.cooler=S.cooler.filter(f=>!go.includes(f)); let got=0, hit=0; for(const f of go){ const n=nibScrapOne(f); if(n){ got+=n; hit++; } }
+  if(got) sfx.coin(); toast('Scrapped '+go.length+' fish: '+(got?NIB_WORD(got)+' from '+hit+' of them.':'no Nibbles this time.')); return 'render'; }
 function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]||nibOf(f.id)<1) return 'skip'; const sp=SPI[f.id]; accrue();
   S.nib[sp.id]--; if(!S.nib[sp.id]) delete S.nib[sp.id]; f.fed=(f.fed||0)+1; let msg=sp.name+' ate a Nibble: '+fmt(Math.round(fishRate(f)*60))+' coins per hour now.';
   if(f.fed%NIB_STEP===0){ const ch=f.fed%NIB_BIG===0?NIB_ADD_BIG:NIB_ADD;
     if(nibBuffCount(f)<NIB_MAX_BUFFS&&Math.random()<ch){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); msg=sp.name+' grew a new bonus: +'+BK[b.k]+'!'; }
     else { f.nbst=(f.nbst||0)+1; msg=sp.name+'’s bonuses grew stronger (+'+Math.round(NIB_BOOST*100*f.nbst)+'%).'; } }
   NIB_ANIM={f, t0:performance.now(), col:sp.col||'#ffd36a', col2:sp.belly||'#fff3c8', beh:sp.beh}; sfx.coin(); toast(msg); return 'render'; }
-{ const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='nibfeed') return nibFeed(i); return _ea7(b); }; }
+{ const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); return _ea7(b); }; }
 
 // the tank: the Nibble drops, the fish swims up and eats it (how depends on how it swims), then goes back to its own path
 function nibMove(f,M,t,w,h){ const A=NIB_ANIM; if(!A||A.f!==f) return; const k=(performance.now()-A.t0)/1000;

@@ -286,7 +286,7 @@ html body.pch-on #pchead .pch-stats > .stat.on::after{content:"✕";font-size:12
       const n=S.cooler.length, cap=gv('cooler');
       const wrap=document.createElement('div'); wrap.className='fhd-cool';
       const main=document.createElement('section'); main.className='fc-main'; main.innerHTML=`<h3>Your fish <span class="fc-n">${n} of ${cap}</span></h3>`;
-      if(list) main.appendChild(list); if(!n) main.insertAdjacentHTML('beforeend','<div class="fc-empty">Your cooler is empty. Catch something!</div>');
+      { const sb=P.querySelector(':scope > .cool-sort'); if(sb) main.appendChild(sb); } /* C14: the sort bar sits under the heading */ if(list) main.appendChild(list); if(!n) main.insertAdjacentHTML('beforeend','<div class="fc-empty">Your cooler is empty. Catch something!</div>');
       const side=document.createElement('aside'); side.className='fc-side';
       side.innerHTML=`<div class="fc-cap"><div class="fc-capt"><b>Cooler</b><span>${n} / ${cap}</span></div><i class="fc-bar${n>=cap?' full':''}"><b style="width:${Math.min(100,n/cap*100)}%"></b></i></div>`;
       if(sub){ sub.classList.add('fc-sub'); side.appendChild(sub); }
