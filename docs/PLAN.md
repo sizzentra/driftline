@@ -4,6 +4,27 @@ The director's list of 2026-11-19 (60 points), sorted into batches by dependency
 builds, through the round checklist in CLAUDE.md, before the next one starts. Status per line: ☐ to do, ◐ in progress, ☑ done
 (test builds), ✔ live. The release is **0.4.9** (new content). Numbers in brackets = the director's line numbers.
 
+## Open now (the one place for open work and decisions; CLAUDE.md only points here)
+**Shelved for the next build** (director, 2026-11-20: "we want them in the build, but shelf them for now")
+- ☐ Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
+- ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
+- ☐ PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
+
+**Look items noted, not fixed** (2026-11-19 outsider review)
+- ☐ The empty Cooler page is mostly blank space.
+- ☐ The aura previews in the Wardrobe › Tide Pass tab are small.
+
+**Parked fixes** (undone with phase 2 on 2026-11-20; redo when the director wants)
+- ☐ A brand-new save can lose some Wisdom Pearls on its first reload (`fresh()` has no `pearlV`, #121).
+- ☐ Three functions nothing calls: `boardwalkBanner`, `clawHTML`, `pathOn` (#124).
+- ☐ Flaky QA test: a random shiny breaks the batch 5 waters price limit (#127).
+
+**Needs the director's eye**
+- ☐ Aquarium speed-up: drawing the fish costs ≈0.5 ms each (24 fish ≈ 10 ms, forced-sync test; phones not measured). The fix (cached tail-wag frames per fish) changes the animation slightly.
+
+**Decisions waiting on the director**
+- Bigger tap targets (ours 32–40 pt vs 44 pt guidance) · text size · left-handed / menu side · colour-blind help · a real tablet layout · the Trophy Room name · whether the aquarium empties on a new voyage.
+
 ## Batch 1: bugs and small fixes (all platforms where they apply)
 - ✔ [17] A fish eaten by a bigger fish stays anonymous ("something bigger ate your catch"); a high Fish Finder level may name it.
 - ✔ [26] The fully upgraded radar never names species you haven't caught.
@@ -72,15 +93,10 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 - ☑ Real aquarium sizes and depth; hair rebuilt (`ct_hair.js`); build silhouettes.
 - ☑ Batch 6, the fight meta: fish must be tired out (FIGHT_T by rarity), tension floor in runs, rare/epic surges; holding through runs loses rare+ even maxed. Caps: oddities 20%/cast, hotspots ×4, shiny 15%.
 
-## Shelved for the next build (director, 2026-11-20: "we want them in the build, but shelf them for now")
-- ☐ Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
-- ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
-- ☐ PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
-
 ## Older roadmap (still open)
 - Android native app (shelved by the director 2026-11-19, "later in the roadmap for sure"): a thin WebView wrapper like the PC desktop app, loading the Android build from the site (patches stay instant, the app shell rarely changes); true full screen, landscape lock, 60 Hz request, Back button, keep-awake, vibration; save moved once with the transfer code. Not a TWA (needs the domain root for Digital Asset Links). Needs the Android build tools (~1 GB, director's OK) and later optionally a Play Console account. Goal: Android as reliable as iPhone.
 - Lily polish: a soft rim light so her black coat reads at night; hats following her head tilt.
 - Transfer safety net: ntfy.sh is a free relay (~250 messages/day/IP, files expire after ~3 h); move to a tiny own relay if it gets unreliable.
 - Code tidy-up: fold the per-update files and the `extraActN` chain into feature files with one action registry, without changing saves.
-- Accessibility: rarity shown by more than colour, reduced motion, bigger touch targets (director decision pending).
+- Accessibility: rarity shown by more than colour, reduced motion, bigger touch targets (decision: see "Open now").
 - Save size: keep codes compact.
