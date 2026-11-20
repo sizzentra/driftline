@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Nile fish: the striped headdress sits on each fish’s head (no loose piece) and the eye markings never cover the eye.',
+  '## Test build 0342',
   'Cooler: fish a predator swallowed always go into your cooler, even past its limit (they used to be sold).',
   '## Test build 0330 (your list, part 1)',
   'Boardwalk (full screen): every game card shows all of its content (the chests button was hidden under Counter specials); the games area scrolls if needed. Voyage milestones: one per row, readable again.',

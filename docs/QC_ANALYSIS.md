@@ -57,3 +57,6 @@ The old suite passed 97/97 while every problem below existed.
 | 4 | `__contentQC` (pictures in a group) | Mystery crates, Higher or lower (after a game, PC), Gamble (empty, phones) without a picture | all | held for the director |
 | 5 | Cam, then `__contentQC` (mini-game pop-ups) | Three chests overflowed their pop-up | phones, test | fixed (0330), check proven |
 | 6 | start-up check (boot every build before publishing) | Own change crashed the game at start-up (`typeof` on a later `const`) | all builds, local | fixed before publishing |
+| 7 | Cam, then the new QA test | Tide Pass Claim button missing on phones (rewards could not be claimed) | phones, live and test | fixed on test, live hotfix 0.4.8.9.6 ready |
+| 8 | the director, fish sheet by eye | Nile fish headdress floating like a hockey stick, eye line across the eye (attachment at guessed spots, breaking the outline rule) | all, test | fixed; an automatic attachment check comes with the content recipes |
+| 9 | the director, then a new QA test | My own Cooler/Aquarium switch left a blank button on other pages | phones, test | fixed; QA checks every page for blank top-row buttons |

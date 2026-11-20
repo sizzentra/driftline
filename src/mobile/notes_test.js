@@ -3,6 +3,10 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Nile fish: the striped headdress sits on each fish’s head (no loose piece) and the eye markings never cover the eye.',
+  'Tide Pass: the Claim button is back on phones (it was missing, so rewards could not be collected; also going to the live game as a hotfix).',
+  'The Cooler / Aquarium button no longer shows as an empty shape on other pages.',
+  '## Test build 0342',
   'Cooler: fish a predator swallowed always go into your cooler, even past its limit (they used to be sold).',
   'Wardrobe and pet colours: the colour you chose keeps its colour and gets a gold box around it (it used to turn solid gold).',
   '## Test build 0330 (your list, part 1)',

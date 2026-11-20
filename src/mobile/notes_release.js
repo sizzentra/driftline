@@ -242,6 +242,7 @@ PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:phoneNotes([
   'Waters: each water’s fish strength line now wraps instead of running past its card on small screens.'])});
 PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:phoneNotes([
   'Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.'])});
+PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:phoneNotes(['Tide Pass: the Claim button is back, so you can collect your rewards.'])});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its species: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
