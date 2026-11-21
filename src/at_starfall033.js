@@ -86,7 +86,13 @@ function starSignature(P,t,hz,sa){ const per=26, k=(t%per)/per, cx=W*.74, cy=hz*
   g.save(); g.lineCap='round'; g.lineJoin='round';
   // glow under the stroke, then the stroke itself with width following the pen's pace
   g.globalCompositeOperation='lighter'; g.strokeStyle=v3rgba(P.cry2,.12*a); g.lineWidth=7; g.beginPath(); for(let i=0;i<=n;i++){ const [x,y]=pts[i]; i?g.lineTo(x,y):g.moveTo(x,y); } g.stroke(); g.globalCompositeOperation='source-over';
-  for(let i=1;i<=n;i++){ const [x0,y0,q0]=pts[i-1], [x1,y1,q1]=pts[i], d=Math.hypot(x1-x0,y1-y0)||1, pace=(q1-q0)/d*W*.07, w=Math.min(2.2,.7+pace*.9)*(i>n-6?1:1); g.strokeStyle=v3rgba(mix(P.cry2,'#ffffff',.35),.55*a); g.lineWidth=w; g.beginPath(); g.moveTo(x0,y0); g.lineTo(x1,y1); g.stroke(); }
+  /* the stroke never changes shape, so its ~160 pieces are drawn once into a stored picture (per size and color) and laid on with
+     the breathing alpha; map standard rule 13, 2026-11-21: Starfall was the heaviest water, this was its biggest single cost */
+  { const col=mix(P.cry2,'#ffffff',.35), sk=key+'|'+col+'|'+n, DP=Math.min(DPR||1,2); if(SIG.ck!==sk){ const pad=8, xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]), x0=Math.min(...xs)-pad, y0=Math.min(...ys)-pad, cw=Math.max(...xs)+pad-x0, chh=Math.max(...ys)+pad-y0;
+      const c=SIG.cv||document.createElement('canvas'); c.width=Math.ceil(cw*DP); c.height=Math.ceil(chh*DP); const m=c.getContext('2d'); m.setTransform(DP,0,0,DP,-x0*DP,-y0*DP); m.lineCap='round'; m.lineJoin='round'; m.strokeStyle=v3rgba(col,.55);
+      for(let i=1;i<=n;i++){ const [xa,ya,qa]=pts[i-1], [xb,yb,qb]=pts[i], d=Math.hypot(xb-xa,yb-ya)||1, pace=(qb-qa)/d*W*.07; m.lineWidth=Math.min(2.2,.7+pace*.9); m.beginPath(); m.moveTo(xa,ya); m.lineTo(xb,yb); m.stroke(); }
+      SIG.cv=c; SIG.ck=sk; SIG.box=[x0,y0,cw,chh]; }
+    g.globalAlpha=a; g.drawImage(SIG.cv,SIG.box[0],SIG.box[1],SIG.box[2],SIG.box[3]); g.globalAlpha=1; }
   // stars light as the pen passes them
   SIG.C.forEach((p,i)=>{ const reached=pts.findIndex(q=>Math.round(q[0])===Math.round(p[0])&&Math.round(q[1])===Math.round(p[1])), at=reached>=0?pts[reached][2]:i/(SIG.C.length-1), fi=Math.min(1,Math.max(0,(draw-at)/.05)); if(fi<=0) return; const ai=a*v3s(fi)*(.65+.35*Math.sin(t*1.6+i*1.9)); v3glow(g,p[0],p[1],H*.026,'rgba(200,240,255,.9)',.7*ai); g.fillStyle=v3rgba('#ffffff',ai); g.beginPath(); g.arc(p[0],p[1],1.3*fi,0,7); g.fill(); });
   // the pen tip while signing

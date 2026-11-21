@@ -1,176 +1,176 @@
-id,date,incident,category,found_by,found_at,severity,caught_now_by
-1,2026-11-18,Menus under the iPhone camera (safe areas ignored),device-shape,director,test_app,2,spec+safeSim
-2,2026-11-18,Wrong phone size assumed (932x430),process,director,test_app,1,rule:look-up-sizes
-3,2026-11-18,Label cut Aquari... (flex chip shrank),layout-cut,director,test_app,1,spec
-4,2026-11-18,Split-screen fell to old layout,device-shape,me_manual,local,1,spec-narrow
-5,2026-11-18,\b in sed wrote a backspace into JS,script-break,my_check,local,3,parse-gate
-6,2026-11-18,Wrapping a const killed the page,script-break,my_check,local,3,parse-gate+boot
-7,2026-11-18,Apostrophe in notes broke file,script-break,my_check,local,3,parse-gate
-8,2026-11-18,Aquarium two-tab CSS beat inline grid,css-override,me_manual,local,1,spec
-9,2026-11-18,Fixed nav height stretched tab row,layout-cut,me_manual,local,1,spec
-10,2026-11-18,scrollTop during render (56->90 ms),performance,my_check,local,1,fnTime
-11,2026-11-18,Hidden section labels never fitted,layout-cut,my_check,local,1,layoutQC
-12,2026-11-18,Test-state pollution (volume 30%),test-tool,me_manual,local,1,rule:restore-state
-13,2026-11-18,Section identity by text broke with badges,test-tool,my_check,local,1,data-sect
-14,2026-11-18,Top bar legacy grid pushed chips to row 2,layout-cut,director,test_app,2,spec
-15,2026-11-18,Live event replaced the goal chip,ui-logic,director,test_app,1,qa
-16,2026-11-18,Home view drew a generic dock,ui-logic,director,test_app,1,draw-compare
-17,2026-11-18,Scene crop caught the weather label,layout-cut,me_manual,local,1,visual
-18,2026-11-18,No resize events after a turn,device-shape,director,test_app,2,resize-safety-net
-19,2026-11-18,Wardrobe tab labels cut,layout-cut,director,test_app,1,spec
-20,2026-11-18,Fight info scattered (eyes jump),design,director,test_app,1,design-review
-21,2026-11-18,v3rgba parsed hex every call,performance,my_check,local,1,drawCost-matrix
-22,2026-11-18,Rail badges clipped in scrolling box,layout-cut,director,live,2,spec-badges
-23,2026-11-18,Regex look-behind crashes old iPhones,script-break,me_manual,local,3,grep-lookbehind
-24,2026-11-18,Mountains striped on iPhone (WebKit seams),safari-only,director,test_app,2,none-in-chrome
-25,2026-11-18,Settings gear cut off at top right,layout-cut,director,test_app,2,spec
-26,2026-11-18,Folded rail icons off-centre (:has hidden),css-override,director,test_app,1,spec
-27,2026-11-18,Home live view 4 fps (old wrapper inside),performance,director,test_app,2,frame-loop-test
-28,2026-11-18,Rod presets on every tab,tabs-state,director,test_app,1,qa:page-tabs
-29,2026-11-18,Aquarium strip rule broke page summaries,css-override,my_check,local,1,layoutQC
-30,2026-11-18,Missing bracket killed the whole game,script-break,my_check,local,3,parse-gate
-31,2026-11-18,Catdock not rebuilt with MENU_SECS,ui-logic,me_manual,local,1,sweep-both-rails
-32,2026-11-18,checkout site/next served old build,test-tool,me_manual,local,1,rule:rebuild-after-checkout
-33,2026-11-18,New page tabs showed solid squares,layout-cut,my_check,local,1,layoutQC
-34,2026-11-18,Slow tab switching (3 layouts per switch),performance,director,test_app,2,fnTime
-35,2026-11-18,perl ate $( in replacement,script-break,my_check,local,3,parse-gate
-36,2026-11-18,Patch notes could not be closed (touch scroll),touch-app,director,live,3,touch-checklist
-37,2026-11-18,Deferred tidy broke the Aquarium layout,ui-logic,director,live,2,layoutQC-after-last-edit
-38,2026-11-18,Back-to-back QC tools collided,test-tool,me_manual,local,0,rule:one-at-a-time
-39,2026-11-18,Canvas chips invisible to DOM checks,test-tool,director,test_app,1,canvas-box-check
-40,2026-11-18,Unlock-all was a busy state,save-state,director,test_app,1,check-disabled-reason
-41,2026-11-18,Badge sizes drifted per page,layout-cut,director,test_app,1,spec-MB_UI
-42,2026-11-18,Android full screen did not remember,touch-app,tester,test_app,2,touch-checklist
-43,2026-11-18,Endless update bar on phones,release,director,live,3,gate:stamp-vs-version-file
-44,2026-11-18,Android 26 fps (120 Hz uncapped),performance,tester,live,3,frame-loop-120hz
-45,2026-11-18,Live outage: apostrophe edited after QC,script-break,director,live,3,parse-gate-after-last-edit
-46,2026-11-18,Full screen needs a finished tap,touch-app,tester,test_app,2,touch-checklist
-47,2026-11-18,Test notes never re-opened,release,director,test_app,1,hash-id
-48,2026-11-18,Slow only with a moved save (decorations),save-state,tester,live,3,heavy-save-fixture
-49,2026-11-18,App full-screen mode hidden from API,touch-app,tester,test_app,2,touch-checklist
-50,2026-11-19,Live notes edited after release,release,me_manual,local,1,rule:frozen-entries
-51,2026-11-19,Phone-only fixes by habit (PC kept waste),process,director,local,1,rule:shared-vs-platform
-52,2026-11-19,Chased costs before auditing redundancy,process,director,local,1,rule:audit-first
-53,2026-11-19,__qa awaited directly (timeout),test-tool,me_manual,local,0,rule:async-poll
-54,2026-11-19,Save-state test failures explained away,test-tool,director,local,1,state-independent-tests
-55,2026-11-19,QC at impossible upright size,test-tool,me_manual,local,0,rule:real-sizes
-56,2026-11-19,Five copies of the QC list drifted,process,director,local,1,one-rulebook
-57,2026-11-19,Phone branches in shared files,code-structure,me_manual,local,1,build-guard-MOB
-58,2026-11-19,1 px labels flagged as cut,test-tool,my_check,local,0,trunc-skip-hidden
-59,2026-11-19,A rule I wrote was false,process,me_manual,local,1,rule:check-rules-against-code
-60,2026-11-19,Version tags collided across platforms,release,me_manual,local,1,one-version
-61,2026-11-19,!important display beat page tabs (Events),tabs-state,director,live,2,qa:page-tabs
-62,2026-11-19,Feats cards on every tab,tabs-state,my_check,local,1,qa:page-tabs
-63,2026-11-19,Pets filter chips on every tab,tabs-state,my_check,local,1,qa:page-tabs
-64,2026-11-19,Two phone blocks managed one box (presets),code-structure,me_manual,local,1,rule:one-owner
-65,2026-11-19,Styling class broke grouping (weekly badge),ui-logic,tester,live,1,manual-tab-content
-66,2026-11-19,Dead code (old Bait button every second),code-structure,me_manual,local,1,cleanup-pass
-67,2026-11-19,Menu rail cut after Quests (iPhone),safari-only,director,live,2,qa:rail-not-stretched(partial)
-68,2026-11-19,Tab name shown twice (Your tank),duplicate-name,director,live,2,qa:no-name-twice
-69,2026-11-19,Ready coins cut (fixed columns),layout-cut,director,live,2,qa:page-bars
-70,2026-11-19,Empty Trophy Room tiny,design,director,live,2,qa:empty-pages
-71,2026-11-19,New checks walked only MENU_SECS,test-tool,me_manual,local,1,qaAllPages
-72,2026-11-19,Two new checks passed with bug present,test-tool,me_manual,local,1,rule:prove-checks
-73,2026-11-19,Shell ate regex backslashes,script-break,my_check,local,3,edit-tool+parse-gate
-74,2026-11-19,Shop pets asleep at night (shared state),shared-state,director,live,2,qa:pets-awake
-75,2026-11-19,Doubled Settings header,duplicate-name,director,live,1,qa:menu-top-row
-76,2026-11-19,Narrow top bar broke the frame standard,layout-cut,my_check,local,1,spec-narrow
-77,2026-11-19,Aquarium bank overflow with huge amounts,layout-cut,my_check,local,1,qa:page-bars
-78,2026-11-19,Hint box empty with hints off,layout-cut,director,live,1,manual
-79,2026-11-19,Search needed press-and-hold (Android),touch-app,tester,live,2,touch-checklist
-80,2026-11-19,Weekly quest badged the Daily tab,ui-logic,tester,live,1,manual-tab-content
-81,2026-11-19,Fish Log details opened out of sight (shiny switch looked missing),ui-logic,director,live,2,manual-tap-path
-82,2026-11-19,PC full-screen badge cut by the frame,layout-cut,director,live,1,qa:badges-not-cut
-83,2026-11-19,Android limiter uneven on 90/144 Hz (choppy aquarium),performance,director,live,2,qa:frame-pacing
-84,2026-11-19,Top bar Home/Bait added 60 ms after load (shift),layout-cut,my_check,local,1,qa:top-bar-first-frame
-85,2026-11-19,PC Fish Log cut at 1440x900 (specificity beat flex),css-override,my_check,local,2,qa:no-unreachable-content
-86,2026-11-19,Decoration Hide switch covered the card tag,layout-cut,me_manual,local,1,qa:decorations
-87,2026-11-19,Decorations heading written by two blocks,code-structure,me_manual,local,1,rule:one-owner
-88,2026-11-19,Line-based sed insert landed inside a function,script-break,me_manual,local,3,read-after-insert+parse-gate
-89,2026-11-19,Deleting a last line removed a closing brace,script-break,me_manual,local,3,read-after-insert+parse-gate
-90,2026-11-19,Wrote a second fight simulator (one existed),code-structure,me_manual,local,1,rule:grep-before-building
-91,2026-11-19,Stardust lost to Live Minnows at Starfall (maxed save),balance,my_check,local,1,qa:water-bait-best
-92,2026-11-19,Stats check read the tab an earlier check left,test-tool,my_check,local,0,state-independent-tests
-93,2026-11-19,Menu rail cut after Quests still seen (screenshot was 0.4.8.7; fix live only in 0.4.8.8) - safety net added,safari-only,director,live,3,qa:rail-squashed+fitRail
-94,2026-11-19,Angler/dock/fight panel vanished in oddity and hat fights (new oddSil hid an older oddSil),script-break,director,live,3,build-guard:duplicate-function+qa:every-catch-kind
-95,2026-11-19,Aquarium rows could sum 1 coin off the total (float rounding across a whole number),ui-logic,my_check,local,1,qa:aquarium-rates-add-up
-96,2026-11-19,A long bait name pushed Search and Settings off the phone top bar at 667 wide,layout-cut,my_check,local,2,qa:top-bar-longest-bait
-97,2026-11-19,Stardust still lost to Live Minnows at Starfall by day on a maxed save (x2.8 not enough),balance,my_check,local,1,qa:water-bait-best
-98,2026-11-19,Later save rules (wrappers around migrate) never ran on the save loaded at start-up; defaults hid it (old pearls would have lost their bonus),save,my_check,local,3,qa:start-up-pass + ck_bootfix
-99,2026-11-19,The original oddity list held duplicate entries (Lava Lamp and Snow Globe twice) and two shared names,data,my_check,local,1,qa:oddities-unique
-100,2026-11-19,PC narrow window: the compact bait list had no Favourite foods heading,ui-logic,my_check,local,1,qa:favourite-foods-group
-101,2026-11-19,Holding reel through runs landed common to epic fish 100% in about 1.5 s with skills maxed (director report),balance,director,live,3,qa:batch6-fight
-102,2026-11-19,Phone Home bar: the cozy name overflowed its cell with a two-digit cozy,layout-cut,my_check,local,1,qa:page-bars
-103,2026-11-19,Phone Waters cards: the fish strength line never wrapped and ran past its card (live since 0.4.8.9),layout-cut,my_check,live,2,layoutQC (phones) - the sweep I had skipped
-104,2026-11-19,Aquarium fish barely changed size with weight (log scale; own weight changed length by at most 25%),art,director,live,2,qa:aquarium-real-sizes
-105,2026-11-19,Hair read as painted-on caps and builds looked alike (no volume above the skull; builds only stretched sideways),art,director,live,2,qa:hair-volume + build silhouettes
-106,2026-11-19,Process: PC __qa ran at one window size only and the phone sweeps (__spec/__layoutQC/__searchQC/__questsQC) were skipped for part 3,process,director,local,2,checklist step 3-4 run every round
-107,2026-11-19,30 fish shared a name with another (some within one water since earlier versions; most new-water fish reused older names),data,my_check,local,1,qa:unique-fish-names
-108,2026-11-19,Rods: the five new attachments read "+50% undefined" (labels missing for their stats),ui-logic,my_check,local,2,qa:attachment-labels
-109,2026-11-19,Home shop filter chips threw when clicked after a redraw (stale grid),script-break,my_check,local,1,button fuzz
-110,2026-11-19,PC 1024x640: oddity names cut in the Oddities grid,layout-cut,my_check,live,1,layoutQC at 1024x640
-111,2026-11-19,Phones: live event + long water name squeezed the Bait chip to 15 px (chips shrank so the step-aside rule never ran),layout-cut,my_check,live,2,layoutQC + spec on iPhone with a live event
-112,2026-11-19,QA Deep Cooler test read the cooler before refreshing it (failed after manual state changes),test-bug,my_check,local,0,test fixed
-113,2026-11-19,"Paths switch fee showed 339,999 (float rounding)",wording,my_check,local,1,outsider visual review
-114,2026-11-19,Prestige Boons squeezed into one narrow column (a word per line),layout-cut,my_check,local,1,outsider visual review
-115,2026-11-19,32 functions fully replaced by later files; originals shipped as dead code (~260 lines / ~40 KB per build),code-health,director,local,1,build.ps1 dead-function ground rule
-116,2026-11-19,Test hook __ui.open captured openMenu before it was replaced so tests drove an outdated menu function,test-bug,my_check,local,1,hook calls the live function
-117,2026-11-19,fight() guarded a missing fish on line 1 then read it unguarded (frame-loop crash seen on an A/B page),crash,my_check,local,2,guard at the top of fight()
-118,2026-11-19,The 0.4.9 Bait chip fix was reported working but changed nothing: the Bait chip's own id rule still let it shrink (16 px with a live event at 780 wide on live; same on test builds),false-verified,my_check,live,2,qa:top-bar Bait never cut while Tasks or Live show (proven by putting the old code back)
-119,2026-11-19,PC Pets: the 35 pets still to find showed on Your pets and Customize too (display:grid!important beat the page tab's inline hide),layout,my_check,live,2,qa:page tabs hidden part never stays (it caught it at 1440x900; earlier runs did not use 1440)
-120,2026-11-19,Two QA tests passed only on a fully upgraded save (water unlock needs catches; fight times need maxed gear) and failed on a fresh save,test-bug,my_check,local,1,tests set their own state
-121,2026-11-19,"A brand-new save had no pearl version mark (fresh() lacked pearlV), so its first reload after earning pearls would have cut them to 40%",save,my_check,local,2,qa:[20] voyages (a new save keeps its pearls through its first reload) - found by the automatic check on a fresh save
-122,2026-11-19,"A 0.3-era save's old pearls bonus used the raw pearl count, not the count after the 0.3 cut (too generous)",save,my_check,local,1,qa:[20] voyages (0.3-era save)
-123,2026-11-19,"Automatic check: the random-action test pressed the game's full-screen button and headless Chrome obeyed, shrinking the window mid-run (phone layout lost, Search/Quests/fight tests failed for the wrong reason)",test-tool,my_check,local,0,check: full screen off during the check + the window kept its size
-124,2026-11-19,"Three functions never called by anything (old Boardwalk banner, old claw card, pathOn) still shipped",code-health,my_check,local,1,code rules: dead function (build.ps1 + check.ps1)
-125,2026-11-19,"This log had a row whose text held a comma (339,999) and shifted its columns, so the found-by counts were off",process,me_manual,local,0,count script reads it with Import-Csv
-126,2026-11-19,"A game controller plugged into the PC (someone playing) reached the tests: a held trigger reeled in every simulated fight, so fight tests failed at random on one screen size",test-tool,my_check,local,0,check: controllers off during the check + the fight simulator resets controller and wheel input
-127,2026-11-19,"QA batch 5 waters test failed now and then: a random shiny roll (x4 value) broke its price limit",test-bug,my_check,local,0,test compares a non-shiny fish
-128,2026-11-19,"Cam's Pixel froze right after pressing the update button on test build 2305 (black water, top bar at its start-up values, no taps); not reproduced in Chrome (fresh, played save, update path, Android identity); cause unknown",start-up,tester,test_app,3,"start-up error box in test builds (shows the error on screen); check: update path + phone identity + no errors while starting"
-129,2026-11-19,"The automatic check ran the Android and iPhone builds as a Windows PC and only ever opened a build fresh, so phone-only start-up code and updating from the last build were never checked; -Only with two names silently ran nothing",test-tool,director,test_app,2,"check: phone user agents + touch, update path from the published build, -Only fails when it matches nothing"
-130,2026-11-20,"0.4.9 test builds froze at start-up for any save with a Path chosen (level 5+): the goal chip's first tick ran during loading, nextGoal -> unlockNeed -> pathMul read PATH_FX before cg_paths.js defined it (Cam's Pixel; the earlier freeze, #128)",start-up,tester,test_app,3,"boot each build with a save that has a Path in every tier (round checklist step 2); found with a check-up page on Cam's phone"
-131,2026-11-20,"Test build 2358 (Path start-up fix) shipped with no test card line for the fix (round checklist step 8 missed)",process,my_check,test_app,1,"line added; phone notes now one file so a line is written once (still a manual step)"
-132,2026-11-20,"Two QA tests (Nibbles odds, Boardwalk owning-everything tickets) failed on a save with Paths chosen: Candy Maker and Ticket Master change exactly those numbers",test-bug,my_check,local,0,"tests clear Paths first (T() puts the save back); proven: failed with a 15-Path save before, pass after"
-133,2026-11-20,"PC 1920x1080 Rods: the In your hands card has a fixed height (overflow hidden) that hides its attachment slot; on live 0.4.8.9.4 too",layout-cut,my_check,live,2,"contentQC rule 5 (spills out of the card): flagged before the fix, clean after; hotfix 0.4.8.9.5 (PC) also restores the hidden Upgrade button"
-134,2026-11-20,"PC 1920x1080 Boardwalk: fixed-height game cards; Treasure chests Open button under Counter specials (not clickable), Coin flip and Gamble buttons over the card edge, results overlapping buttons after a play",layout-cut,my_check,local,2,"contentQC rules 5 (spill, overlap); extreme save and after-play states; fixed: grid min-height instead of height, flagged before, clean after"
-135,2026-11-20,"PC Voyage milestones squeezed into a narrow column (a word per line), 'after N voyages' printed over the descriptions",layout-cut,my_check,local,1,"contentQC rule 5 (overlap); all PC sizes; fixed: milestones one column, flagged before, clean after"
-136,2026-11-20,"Boardwalk Mystery crates (all platforms) and Fishmonger's Gamble (phones) have no picture while the other game cards do (no standard existed)",design,my_check,local,1,"contentQC rule 4 (pictures in a group)"
-137,2026-11-20,"Phones: the three chests in the mini-game pop-up overflowed it (the catch card's 160 px canvas size beat the chests' own size); outer chests cut at the edges",layout-cut,tester,test_app,1,"__contentQC now opens every mini-game pop-up (flagged with the old sizes planted, clean after)"
-138,2026-11-20,"Nile fish: the striped headdress was drawn at fixed spots (floated above some body shapes with a loose side piece like a hockey stick) and the eye line ran across the eye",art,director,test_app,1,"headdress follows the real outline (f3TopAt), eye marks only on body types whose eye position is known; fish sheet checked by eye (an automatic attachment check is planned in the content recipes)"
-139,2026-11-20,"Phones: the new Cooler/Aquarium switch showed as a blank button on every other page (an older rule beat its hidden state)",layout,director,test_app,1,"qa: menu top row has no blank buttons on any page"
-140,2026-11-20,"Phones (live and test): the Tide Pass Claim button was dropped with the header box when the phone page engine built its number strip, so rewards could not be claimed (a badge showed rewards waiting)",ui-logic,tester,live,3,"qa: Tide Pass with rewards waiting shows a Claim button (proven by hiding it); hotfix 0.4.8.9.6 for live phones"
-141,2026-11-20,"New-water fish decorations at fixed spots: circuit dots in the same column on every Circuit Lake fish (off the body on some), ties hanging loose, beaks off the nose, horns floating on short bodies, spots or headdress over the eye (98 cases on 329 fish)",art,director,test_app,1,"__traitQC (every decoration on every fish; 98 found on the old code, 0 after)"
-142,2026-11-20,"Phones: the Cooler/Aquarium switch stayed on when the Fish Log was opened from a fish (only menu changes updated it)",layout,director,test_app,1,"qa: the switch shows only on the Cooler and the Aquarium, also when a page is drawn without a menu change"
-143,2026-11-20,"Phones, split-screen windows: during a live event the Live chip sat exactly under the search button (both in row 2, column 5) with its text cut; live since 0.4.8.9 (the narrow layout rework gave the search button that cell)",layout,claude,sweep,1,"one-click sweep: phone __spec at every size now runs with a live event forced (proven on the unfixed build: 3 split-screen sizes failed)"
-144,2026-11-20,"Picking an option moved the menu: phones 23-66 px (Wardrobe, Settings, Your dock, pets), PC scrolled back to the top (Wardrobe, Your home) or pushed down by the preview bar (pets 59 px, aquarium)",layout,cam,test_app,2,"__snapQC (in the sweep): every option on every page and tab, phones and PC; 22 found, 0 after"
-145,2026-11-20,"Phones: the Decorate heading showed under the Decorate tab until the next redraw (no-name-twice ran before the page engine showed the tab), so the list jumped 35 px on the first pick",layout,claude,sweep,1,"__snapQC; the dedupe now also runs behind the tab switch"
-146,2026-11-20,"Fish pictures sized by width only: the Golden Seahorse, Leafy Sea Dragon and Giant Manta were cut to a strip in every short picture box (Cooler and others)",art,cam,test_app,2,"__creatureBox measures each creature's real outline; fishCanvas fits by height when needed"
-147,2026-11-20,"Hair through hats: big hair (afro, curly volume) bulged out around the brim and was cut flat by the fixed clip line; under cone hats (party) curls and long back hair poked up beside the band, because hair was cut at one fixed height for every hat",art,cam,test_app,2,"qa C32 hair: no hair above each hat's own lower edge, read from the picture (proven by putting the fixed line back: 12-43 px on the cap)"
-148,2026-11-20,"The new waters' homes offered only the light: wood and the home's signature colour (bridge lacquer and others) could not be changed like the old dock",content,cam,test_app,2,"qa C33-C35: every new home offers wood/paint as listed, draws with all 72 wood x paint looks, chosen wood and paint reach the drawing"
-149,2026-11-20,"A new check passed with its bug planted: the hair check read the game's own cut line to decide where to look, so moving the line moved the check with it",process,claude,qa,1,"rule: a check measures from what the player sees, never from the value under test (LESSONS)"
-150,2026-11-20,"Run every check on the iPhone never finished: the phone reloaded the sweep page partway (out of memory, about 30 game loads in one tab) and the run quietly started over at Not started, so Copy report never unlocked; it also ran PC and other-phone checks on the phone",tooling,director,real_iphone,2,"sweep: progress saved after every check and resumed after a reload (proven by reloading mid-check: it carried on, marked that check, finished, save put back); fresh frame per check; ?dev picks that phone's checks"
-151,2026-11-20,"Run every check on the iPhone: the page reloaded during the test suite (out of memory). The suite made about 3 GB of drawing surfaces in one uninterrupted run: every angler preview created its own three scratch canvases (about 3 MB) and kept them, and page redraws left dropped pictures waiting for clean-up (Oddities: 300 thumbnails, 24 MB per redraw); real players paid the same on a smaller scale",performance,director,real_iphone,2,"qa memory (#151): dropped page pictures are released and 12 angler previews make at most 3 scratch canvases (proven by putting each bug back: 53 of 53 kept; 36 made); __qa reports drawing memory per test (cvMB)"
-152,2026-11-20,"Market Rush paid 27.5% instead of 30% with the Merchant Path: the Rush formula was a hand copy of the sale price formula that missed the Merchant Path's +12%",balance,cam,real_android,2,"qa Market Rush now runs with and without the Merchant Path; one shared formula (sellBase) for both"
-153,2026-11-20,"Bait page (phones): with Worms on, the Bait in use card has no Switch to worms button, so picking another bait made it 36 px taller and every bait button jumped (seen with exactly two baits owned)",ui,cam,real_android,1,"snapQC on a save with Worms + one bait (only found on Cam's save; the local sweep's save had many baits)"
-154,2026-11-20,"Bounties (every build): in the sideways-scrolling row of waters the redraw put the row back at its start, so the tapped water jumped up to 1,049 px away (needs many waters unlocked and a narrow screen)",ui,director,real_iphone,1,"snapQC at 667x375 with every water unlocked; the C13 hold now covers sideways rows"
-155,2026-11-20,"Top bar at 667x375 (iPhone): with nothing left to step aside the Bait chip was squeezed and Worms cut (44 px of text in 39); reproduced in Chrome at 600 px",ui,director,real_iphone,1,"__spec; fit() now trims chip padding (mb-compact) as the last step before any word is cut"
-156,2026-11-20,"Two tests depended on the save: Twin Hook compared against a rod that already had one (1.25x read as a failure) and Market Rush against a save with the Merchant Path",process,cam,real_android,1,"tests measure from a clean start (rule: a failure caused by the save's state is a test bug)"
-157,2026-11-20,"Catch card kept saying dismiss on every fish after an oddity (its bottom line was only ever set for non-fish catches)",ui,claude,me_manual,1,"showCard sets the line every time"
-158,2026-11-20,"Scrap message and tooltip still said Nibbles for one species and feed them to that species (outdated since C27: Nibbles belong to a rarity)",content,claude,me_manual,1,"__textInv review; text standard"
-159,2026-11-20,"PC said Tap in 5 places (frenzy hint, Fast fingers feat, pet hint, moving progress, Tap to aim setting); 5 straight apostrophes in phone lessons and Help",content,claude,qa,1,"__qa text standard and __contentQC rule 6 (proven by planting)"
-160,2026-11-20,"PC test build: Settings > Save & codes > Download for Windows linked to /driftline/next/download/ (relative link), where the installer is not published; File wasn't available on site. Live unaffected",tooling,director,test_app,1,"link goes one folder up on test builds (DL_PREVIEW)"
-161,2026-11-21,"Phone pages with tabs: colour swatch rows stayed visible under every tab (a display:flex!important rule in pages08 overrode the tab engine's inline display:none; seen on the new Home page)",ui,claude,me_manual,1,"rule kept: :not([style*=\"display: none\"]) on the swatch rows; visible-rows check in the pilot test run"
-162,2026-11-21,"Bounties badge showed 1 with nothing to claim: it counted yesterday's finished daily task (S.daily read without ensureDaily) and bounties at waters closed by a voyage; two code blocks wrote the same badge",ui,cam,real_device,2,"one count (bountyReady) in e_ui's hud; QA 'Cam's fix list' (proven by planting the old count)"
-163,2026-11-21,"Map water pictures took about 10 s to appear after a restart (drawn one per idle moment, only while a menu was open)",performance,cam,real_device,1,"pictures kept on the device (IndexedDB, per build and home); drawn back to back while the Map is open"
-164,2026-11-21,"Phones: feeding a Nibble rebuilt the whole Aquarium page, so the screen jumped",ui,cam,real_device,1,"plain feeds patch the page in place (nibPatch); a feed that grows a bonus still redraws"
-165,2026-11-21,"Scrap messages named the fish instead of the Nibble tier (Scrap all named no tier at all)",text,cam,real_device,1,"QA 'Cam's fix list' checks the tier words"
-166,2026-11-21,"PC: the Full screen button did nothing in the Driftline Test app (the app starts full screen, so the game only said Press F11)",device,director,test_app,2,"the game asks the test app to switch by message; awaiting the director's check"
-167,2026-11-21,"PC 1024x640 Pets > Customize: picking a hat with its own colors removed the Hat color row, the page got shorter than the window and jumped to its top",ui,claude,me_auto,1,"__snapQC pets; the color rows stay in place (greyed out)"
-168,2026-11-21,"Test bug: 'fights: geared anglers' used a tension threshold of 0.82 on a 0-100 scale, so its angler let go almost every frame",tooling,claude,me_auto,1,"threshold 82 like the other fight tests"
-169,2026-11-21,"Quests > Goals never showed the live event: it called liveNow, a helper that only existed inside a phone file",ui,claude,me_auto,1,"liveNow shared (cw_pages08); parity check opens Quests on both"
-170,2026-11-21,"Bounties: the daily tasks card stayed visible under every page tab on wide pages (display:grid!important beat the tabs' inline display:none)",ui,claude,me_auto,1,"QA page-tab test on PC; no !important on display"
-171,2026-11-21,"Goal chip (Live: ... left) switched the page behind a closed menu, so clicking it seemed to do nothing",ui,director,test_app,2,"opens the menu on its page"
-172,2026-11-21,"PC fell behind the phones: no Quests, no Prestige section, old names (Equipment, Waters), pages without the phone tabs, no Home or Tasks chip",ui,director,test_app,2,"sweep: PC has what phones have (__menuMap on both builds, proven by a planted rename)"
-173,2026-11-21,"PC menus had no size standard: mixed text sizes, squeezed buttons (Boardwalk 'Open free' wrapped to two lines)",ui,director,test_app,2,"__pcSpec at 1920/2560/1440 (proven by a planted 17 px heading)"
-174,2026-11-21,"Amazon: the stilt deck's stilts ran to the bottom of the screen (looked like a high bridge), its roof posts were 2 px, and the waterfall rectangle ran past the water line",art,cam,real_device,1,"pictures in tools/shots; map standard rules 15-18"
-175,2026-11-21,"Build finished with a listed source file missing (mobile/fight08.js after it was deleted)",tooling,claude,me_manual,2,"build refuses missing files (proven)"
+﻿"id","date","incident","category","found_by","found_at","severity","caught_now_by","status","introduced_in","fixed_in"
+"1","2026-11-18","Menus under the iPhone camera (safe areas ignored)","device-shape","director","test_app","2","spec+safeSim","fixed","unknown","2026-11-18"
+"2","2026-11-18","Wrong phone size assumed (932x430)","process","director","test_app","1","rule:look-up-sizes","fixed","unknown","2026-11-18"
+"3","2026-11-18","Label cut Aquari... (flex chip shrank)","layout-cut","director","test_app","1","spec","fixed","unknown","2026-11-18"
+"4","2026-11-18","Split-screen fell to old layout","device-shape","claude","local","1","spec-narrow","fixed","unknown","2026-11-18"
+"5","2026-11-18","\b in sed wrote a backspace into JS","script-break","claude","local","3","parse-gate","fixed","unknown","2026-11-18"
+"6","2026-11-18","Wrapping a const killed the page","script-break","claude","local","3","parse-gate+boot","fixed","unknown","2026-11-18"
+"7","2026-11-18","Apostrophe in notes broke file","script-break","claude","local","3","parse-gate","fixed","unknown","2026-11-18"
+"8","2026-11-18","Aquarium two-tab CSS beat inline grid","css-override","claude","local","1","spec","fixed","unknown","2026-11-18"
+"9","2026-11-18","Fixed nav height stretched tab row","layout-cut","claude","local","1","spec","fixed","unknown","2026-11-18"
+"10","2026-11-18","scrollTop during render (56->90 ms)","performance","claude","local","1","fnTime","fixed","unknown","2026-11-18"
+"11","2026-11-18","Hidden section labels never fitted","layout-cut","claude","local","1","layoutQC","fixed","unknown","2026-11-18"
+"12","2026-11-18","Test-state pollution (volume 30%)","test-tool","claude","local","1","rule:restore-state","fixed","unknown","2026-11-18"
+"13","2026-11-18","Section identity by text broke with badges","test-tool","claude","local","1","data-sect","fixed","unknown","2026-11-18"
+"14","2026-11-18","Top bar legacy grid pushed chips to row 2","layout-cut","director","test_app","2","spec","fixed","unknown","2026-11-18"
+"15","2026-11-18","Live event replaced the goal chip","ui-logic","director","test_app","1","qa","fixed","unknown","2026-11-18"
+"16","2026-11-18","Home view drew a generic dock","ui-logic","director","test_app","1","draw-compare","fixed","unknown","2026-11-18"
+"17","2026-11-18","Scene crop caught the weather label","layout-cut","claude","local","1","visual","fixed","unknown","2026-11-18"
+"18","2026-11-18","No resize events after a turn","device-shape","director","test_app","2","resize-safety-net","fixed","unknown","2026-11-18"
+"19","2026-11-18","Wardrobe tab labels cut","layout-cut","director","test_app","1","spec","fixed","unknown","2026-11-18"
+"20","2026-11-18","Fight info scattered (eyes jump)","design","director","test_app","1","design-review","fixed","unknown","2026-11-18"
+"21","2026-11-18","v3rgba parsed hex every call","performance","claude","local","1","drawCost-matrix","fixed","unknown","2026-11-18"
+"22","2026-11-18","Rail badges clipped in scrolling box","layout-cut","director","live","2","spec-badges","fixed","unknown","2026-11-18"
+"23","2026-11-18","Regex look-behind crashes old iPhones","script-break","claude","local","3","grep-lookbehind","fixed","unknown","2026-11-18"
+"24","2026-11-18","Mountains striped on iPhone (WebKit seams)","safari-only","director","test_app","2","none-in-chrome","fixed","unknown","2026-11-18"
+"25","2026-11-18","Settings gear cut off at top right","layout-cut","director","test_app","2","spec","fixed","unknown","2026-11-18"
+"26","2026-11-18","Folded rail icons off-centre (:has hidden)","css-override","director","test_app","1","spec","fixed","unknown","2026-11-18"
+"27","2026-11-18","Home live view 4 fps (old wrapper inside)","performance","director","test_app","2","frame-loop-test","fixed","unknown","2026-11-18"
+"28","2026-11-18","Rod presets on every tab","tabs-state","director","test_app","1","qa:page-tabs","fixed","unknown","2026-11-18"
+"29","2026-11-18","Aquarium strip rule broke page summaries","css-override","claude","local","1","layoutQC","fixed","unknown","2026-11-18"
+"30","2026-11-18","Missing bracket killed the whole game","script-break","claude","local","3","parse-gate","fixed","unknown","2026-11-18"
+"31","2026-11-18","Catdock not rebuilt with MENU_SECS","ui-logic","claude","local","1","sweep-both-rails","fixed","unknown","2026-11-18"
+"32","2026-11-18","checkout site/next served old build","test-tool","claude","local","1","rule:rebuild-after-checkout","fixed","unknown","2026-11-18"
+"33","2026-11-18","New page tabs showed solid squares","layout-cut","claude","local","1","layoutQC","fixed","unknown","2026-11-18"
+"34","2026-11-18","Slow tab switching (3 layouts per switch)","performance","director","test_app","2","fnTime","fixed","unknown","2026-11-18"
+"35","2026-11-18","perl ate $( in replacement","script-break","claude","local","3","parse-gate","fixed","unknown","2026-11-18"
+"36","2026-11-18","Patch notes could not be closed (touch scroll)","touch-app","director","live","3","touch-checklist","fixed","unknown","2026-11-18"
+"37","2026-11-18","Deferred tidy broke the Aquarium layout","ui-logic","director","live","2","layoutQC-after-last-edit","fixed","unknown","2026-11-18"
+"38","2026-11-18","Back-to-back QC tools collided","test-tool","claude","local","0","rule:one-at-a-time","fixed","unknown","2026-11-18"
+"39","2026-11-18","Canvas chips invisible to DOM checks","test-tool","director","test_app","1","canvas-box-check","fixed","unknown","2026-11-18"
+"40","2026-11-18","Unlock-all was a busy state","save-state","director","test_app","1","check-disabled-reason","fixed","unknown","2026-11-18"
+"41","2026-11-18","Badge sizes drifted per page","layout-cut","director","test_app","1","spec-MB_UI","fixed","unknown","2026-11-18"
+"42","2026-11-18","Android full screen did not remember","touch-app","tester","test_app","2","touch-checklist","fixed","unknown","2026-11-18"
+"43","2026-11-18","Endless update bar on phones","release","director","live","3","gate:stamp-vs-version-file","fixed","unknown","2026-11-18"
+"44","2026-11-18","Android 26 fps (120 Hz uncapped)","performance","tester","live","3","frame-loop-120hz","fixed","unknown","2026-11-18"
+"45","2026-11-18","Live outage: apostrophe edited after QC","script-break","director","live","3","parse-gate-after-last-edit","fixed","unknown","2026-11-18"
+"46","2026-11-18","Full screen needs a finished tap","touch-app","tester","test_app","2","touch-checklist","fixed","unknown","2026-11-18"
+"47","2026-11-18","Test notes never re-opened","release","director","test_app","1","hash-id","fixed","unknown","2026-11-18"
+"48","2026-11-18","Slow only with a moved save (decorations)","save-state","tester","live","3","heavy-save-fixture","fixed","unknown","2026-11-18"
+"49","2026-11-18","App full-screen mode hidden from API","touch-app","tester","test_app","2","touch-checklist","fixed","unknown","2026-11-18"
+"50","2026-11-19","Live notes edited after release","release","claude","local","1","rule:frozen-entries","fixed","unknown","2026-11-19"
+"51","2026-11-19","Phone-only fixes by habit (PC kept waste)","process","director","local","1","rule:shared-vs-platform","fixed","unknown","2026-11-19"
+"52","2026-11-19","Chased costs before auditing redundancy","process","director","local","1","rule:audit-first","fixed","unknown","2026-11-19"
+"53","2026-11-19","__qa awaited directly (timeout)","test-tool","claude","local","0","rule:async-poll","fixed","unknown","2026-11-19"
+"54","2026-11-19","Save-state test failures explained away","test-tool","director","local","1","state-independent-tests","fixed","unknown","2026-11-19"
+"55","2026-11-19","QC at impossible upright size","test-tool","claude","local","0","rule:real-sizes","fixed","unknown","2026-11-19"
+"56","2026-11-19","Five copies of the QC list drifted","process","director","local","1","one-rulebook","fixed","unknown","2026-11-19"
+"57","2026-11-19","Phone branches in shared files","code-structure","claude","local","1","build-guard-MOB","fixed","unknown","2026-11-19"
+"58","2026-11-19","1 px labels flagged as cut","test-tool","claude","local","0","trunc-skip-hidden","fixed","unknown","2026-11-19"
+"59","2026-11-19","A rule I wrote was false","process","claude","local","1","rule:check-rules-against-code","fixed","unknown","2026-11-19"
+"60","2026-11-19","Version tags collided across platforms","release","claude","local","1","one-version","fixed","unknown","2026-11-19"
+"61","2026-11-19","!important display beat page tabs (Events)","tabs-state","director","live","2","qa:page-tabs","fixed","unknown","2026-11-19"
+"62","2026-11-19","Feats cards on every tab","tabs-state","claude","local","1","qa:page-tabs","fixed","unknown","2026-11-19"
+"63","2026-11-19","Pets filter chips on every tab","tabs-state","claude","local","1","qa:page-tabs","fixed","unknown","2026-11-19"
+"64","2026-11-19","Two phone blocks managed one box (presets)","code-structure","claude","local","1","rule:one-owner","fixed","unknown","2026-11-19"
+"65","2026-11-19","Styling class broke grouping (weekly badge)","ui-logic","tester","live","1","manual-tab-content","fixed","unknown","2026-11-19"
+"66","2026-11-19","Dead code (old Bait button every second)","code-structure","claude","local","1","cleanup-pass","fixed","unknown","2026-11-19"
+"67","2026-11-19","Menu rail cut after Quests (iPhone)","safari-only","director","live","2","qa:rail-not-stretched(partial)","fixed","unknown","2026-11-19"
+"68","2026-11-19","Tab name shown twice (Your tank)","duplicate-name","director","live","2","qa:no-name-twice","fixed","unknown","2026-11-19"
+"69","2026-11-19","Ready coins cut (fixed columns)","layout-cut","director","live","2","qa:page-bars","fixed","unknown","2026-11-19"
+"70","2026-11-19","Empty Trophy Room tiny","design","director","live","2","qa:empty-pages","fixed","unknown","2026-11-19"
+"71","2026-11-19","New checks walked only MENU_SECS","test-tool","claude","local","1","qaAllPages","fixed","unknown","2026-11-19"
+"72","2026-11-19","Two new checks passed with bug present","test-tool","claude","local","1","rule:prove-checks","fixed","unknown","2026-11-19"
+"73","2026-11-19","Shell ate regex backslashes","script-break","claude","local","3","edit-tool+parse-gate","fixed","unknown","2026-11-19"
+"74","2026-11-19","Shop pets asleep at night (shared state)","shared-state","director","live","2","qa:pets-awake","fixed","unknown","2026-11-19"
+"75","2026-11-19","Doubled Settings header","duplicate-name","director","live","1","qa:menu-top-row","fixed","unknown","2026-11-19"
+"76","2026-11-19","Narrow top bar broke the frame standard","layout-cut","claude","local","1","spec-narrow","fixed","unknown","2026-11-19"
+"77","2026-11-19","Aquarium bank overflow with huge amounts","layout-cut","claude","local","1","qa:page-bars","fixed","unknown","2026-11-19"
+"78","2026-11-19","Hint box empty with hints off","layout-cut","director","live","1","manual","fixed","unknown","2026-11-19"
+"79","2026-11-19","Search needed press-and-hold (Android)","touch-app","tester","live","2","touch-checklist","fixed","unknown","2026-11-19"
+"80","2026-11-19","Weekly quest badged the Daily tab","ui-logic","tester","live","1","manual-tab-content","fixed","unknown","2026-11-19"
+"81","2026-11-19","Fish Log details opened out of sight (shiny switch looked missing)","ui-logic","director","live","2","manual-tap-path","fixed","unknown","2026-11-19"
+"82","2026-11-19","PC full-screen badge cut by the frame","layout-cut","director","live","1","qa:badges-not-cut","fixed","unknown","2026-11-19"
+"83","2026-11-19","Android limiter uneven on 90/144 Hz (choppy aquarium)","performance","director","live","2","qa:frame-pacing","fixed","unknown","2026-11-19"
+"84","2026-11-19","Top bar Home/Bait added 60 ms after load (shift)","layout-cut","claude","local","1","qa:top-bar-first-frame","fixed","unknown","2026-11-19"
+"85","2026-11-19","PC Fish Log cut at 1440x900 (specificity beat flex)","css-override","claude","local","2","qa:no-unreachable-content","fixed","unknown","2026-11-19"
+"86","2026-11-19","Decoration Hide switch covered the card tag","layout-cut","claude","local","1","qa:decorations","fixed","unknown","2026-11-19"
+"87","2026-11-19","Decorations heading written by two blocks","code-structure","claude","local","1","rule:one-owner","fixed","unknown","2026-11-19"
+"88","2026-11-19","Line-based sed insert landed inside a function","script-break","claude","local","3","read-after-insert+parse-gate","fixed","unknown","2026-11-19"
+"89","2026-11-19","Deleting a last line removed a closing brace","script-break","claude","local","3","read-after-insert+parse-gate","fixed","unknown","2026-11-19"
+"90","2026-11-19","Wrote a second fight simulator (one existed)","code-structure","claude","local","1","rule:grep-before-building","fixed","unknown","2026-11-19"
+"91","2026-11-19","Stardust lost to Live Minnows at Starfall (maxed save)","balance","claude","local","1","qa:water-bait-best","fixed","unknown","2026-11-19"
+"92","2026-11-19","Stats check read the tab an earlier check left","test-tool","claude","local","0","state-independent-tests","fixed","unknown","2026-11-19"
+"93","2026-11-19","Menu rail cut after Quests still seen (screenshot was 0.4.8.7; fix live only in 0.4.8.8) - safety net added","safari-only","director","live","3","qa:rail-squashed+fitRail","fixed","unknown","2026-11-19"
+"94","2026-11-19","Angler/dock/fight panel vanished in oddity and hat fights (new oddSil hid an older oddSil)","script-break","director","live","3","build-guard:duplicate-function+qa:every-catch-kind","fixed","unknown","2026-11-19"
+"95","2026-11-19","Aquarium rows could sum 1 coin off the total (float rounding across a whole number)","ui-logic","claude","local","1","qa:aquarium-rates-add-up","fixed","unknown","2026-11-19"
+"96","2026-11-19","A long bait name pushed Search and Settings off the phone top bar at 667 wide","layout-cut","claude","local","2","qa:top-bar-longest-bait","fixed","unknown","2026-11-19"
+"97","2026-11-19","Stardust still lost to Live Minnows at Starfall by day on a maxed save (x2.8 not enough)","balance","claude","local","1","qa:water-bait-best","fixed","unknown","2026-11-19"
+"98","2026-11-19","Later save rules (wrappers around migrate) never ran on the save loaded at start-up; defaults hid it (old pearls would have lost their bonus)","save","claude","local","3","qa:start-up-pass + ck_bootfix","fixed","unknown","2026-11-19"
+"99","2026-11-19","The original oddity list held duplicate entries (Lava Lamp and Snow Globe twice) and two shared names","data","claude","local","1","qa:oddities-unique","fixed","unknown","2026-11-19"
+"100","2026-11-19","PC narrow window: the compact bait list had no Favourite foods heading","ui-logic","claude","local","1","qa:favourite-foods-group","fixed","unknown","2026-11-19"
+"101","2026-11-19","Holding reel through runs landed common to epic fish 100% in about 1.5 s with skills maxed (director report)","balance","director","live","3","qa:batch6-fight","fixed","unknown","2026-11-19"
+"102","2026-11-19","Phone Home bar: the cozy name overflowed its cell with a two-digit cozy","layout-cut","claude","local","1","qa:page-bars","fixed","unknown","2026-11-19"
+"103","2026-11-19","Phone Waters cards: the fish strength line never wrapped and ran past its card (live since 0.4.8.9)","layout-cut","claude","live","2","layoutQC (phones) - the sweep I had skipped","fixed","unknown","2026-11-19"
+"104","2026-11-19","Aquarium fish barely changed size with weight (log scale; own weight changed length by at most 25%)","art","director","live","2","qa:aquarium-real-sizes","fixed","unknown","2026-11-19"
+"105","2026-11-19","Hair read as painted-on caps and builds looked alike (no volume above the skull; builds only stretched sideways)","art","director","live","2","qa:hair-volume + build silhouettes","fixed","unknown","2026-11-19"
+"106","2026-11-19","Process: PC __qa ran at one window size only and the phone sweeps (__spec/__layoutQC/__searchQC/__questsQC) were skipped for part 3","process","director","local","2","checklist step 3-4 run every round","fixed","unknown","2026-11-19"
+"107","2026-11-19","30 fish shared a name with another (some within one water since earlier versions; most new-water fish reused older names)","data","claude","local","1","qa:unique-fish-names","fixed","unknown","2026-11-19"
+"108","2026-11-19","Rods: the five new attachments read ""+50% undefined"" (labels missing for their stats)","ui-logic","claude","local","2","qa:attachment-labels","fixed","unknown","2026-11-19"
+"109","2026-11-19","Home shop filter chips threw when clicked after a redraw (stale grid)","script-break","claude","local","1","button fuzz","fixed","unknown","2026-11-19"
+"110","2026-11-19","PC 1024x640: oddity names cut in the Oddities grid","layout-cut","claude","live","1","layoutQC at 1024x640","fixed","unknown","2026-11-19"
+"111","2026-11-19","Phones: live event + long water name squeezed the Bait chip to 15 px (chips shrank so the step-aside rule never ran)","layout-cut","claude","live","2","layoutQC + spec on iPhone with a live event","fixed","unknown","2026-11-19"
+"112","2026-11-19","QA Deep Cooler test read the cooler before refreshing it (failed after manual state changes)","test-bug","claude","local","0","test fixed","fixed","unknown","2026-11-19"
+"113","2026-11-19","Paths switch fee showed 339,999 (float rounding)","wording","claude","local","1","outsider visual review","fixed","unknown","2026-11-19"
+"114","2026-11-19","Prestige Boons squeezed into one narrow column (a word per line)","layout-cut","claude","local","1","outsider visual review","fixed","unknown","2026-11-19"
+"115","2026-11-19","32 functions fully replaced by later files; originals shipped as dead code (~260 lines / ~40 KB per build)","code-health","director","local","1","build.ps1 dead-function ground rule","fixed","unknown","2026-11-19"
+"116","2026-11-19","Test hook __ui.open captured openMenu before it was replaced so tests drove an outdated menu function","test-bug","claude","local","1","hook calls the live function","fixed","unknown","2026-11-19"
+"117","2026-11-19","fight() guarded a missing fish on line 1 then read it unguarded (frame-loop crash seen on an A/B page)","crash","claude","local","2","guard at the top of fight()","fixed","unknown","2026-11-19"
+"118","2026-11-19","The 0.4.9 Bait chip fix was reported working but changed nothing: the Bait chip's own id rule still let it shrink (16 px with a live event at 780 wide on live; same on test builds)","false-verified","claude","live","2","qa:top-bar Bait never cut while Tasks or Live show (proven by putting the old code back)","fixed","unknown","2026-11-19"
+"119","2026-11-19","PC Pets: the 35 pets still to find showed on Your pets and Customize too (display:grid!important beat the page tab's inline hide)","layout","claude","live","2","qa:page tabs hidden part never stays (it caught it at 1440x900; earlier runs did not use 1440)","fixed","unknown","2026-11-19"
+"120","2026-11-19","Two QA tests passed only on a fully upgraded save (water unlock needs catches; fight times need maxed gear) and failed on a fresh save","test-bug","claude","local","1","tests set their own state","fixed","unknown","2026-11-19"
+"121","2026-11-19","A brand-new save had no pearl version mark (fresh() lacked pearlV), so its first reload after earning pearls would have cut them to 40%","save","claude","local","2","qa:[20] voyages (a new save keeps its pearls through its first reload) - found by the automatic check on a fresh save","fixed","unknown","2026-11-19"
+"122","2026-11-19","A 0.3-era save's old pearls bonus used the raw pearl count, not the count after the 0.3 cut (too generous)","save","claude","local","1","qa:[20] voyages (0.3-era save)","fixed","unknown","2026-11-19"
+"123","2026-11-19","Automatic check: the random-action test pressed the game's full-screen button and headless Chrome obeyed, shrinking the window mid-run (phone layout lost, Search/Quests/fight tests failed for the wrong reason)","test-tool","claude","local","0","check: full screen off during the check + the window kept its size","fixed","unknown","2026-11-19"
+"124","2026-11-19","Three functions never called by anything (old Boardwalk banner, old claw card, pathOn) still shipped","code-health","claude","local","1","code rules: dead function (build.ps1 + check.ps1)","fixed","unknown","2026-11-19"
+"125","2026-11-19","This log had a row whose text held a comma (339,999) and shifted its columns, so the found-by counts were off","process","claude","local","0","count script reads it with Import-Csv","fixed","unknown","2026-11-19"
+"126","2026-11-19","A game controller plugged into the PC (someone playing) reached the tests: a held trigger reeled in every simulated fight, so fight tests failed at random on one screen size","test-tool","claude","local","0","check: controllers off during the check + the fight simulator resets controller and wheel input","fixed","unknown","2026-11-19"
+"127","2026-11-19","QA batch 5 waters test failed now and then: a random shiny roll (x4 value) broke its price limit","test-bug","claude","local","0","test compares a non-shiny fish","fixed","unknown","2026-11-19"
+"128","2026-11-19","Cam's Pixel froze right after pressing the update button on test build 2305 (black water, top bar at its start-up values, no taps); not reproduced in Chrome (fresh, played save, update path, Android identity); cause unknown","start-up","tester","test_app","3","start-up error box in test builds (shows the error on screen); check: update path + phone identity + no errors while starting","fixed","unknown","2026-11-19"
+"129","2026-11-19","The automatic check ran the Android and iPhone builds as a Windows PC and only ever opened a build fresh, so phone-only start-up code and updating from the last build were never checked; -Only with two names silently ran nothing","test-tool","director","test_app","2","check: phone user agents + touch, update path from the published build, -Only fails when it matches nothing","fixed","unknown","2026-11-19"
+"130","2026-11-20","0.4.9 test builds froze at start-up for any save with a Path chosen (level 5+): the goal chip's first tick ran during loading, nextGoal -> unlockNeed -> pathMul read PATH_FX before cg_paths.js defined it (Cam's Pixel; the earlier freeze, #128)","start-up","tester","test_app","3","boot each build with a save that has a Path in every tier (round checklist step 2); found with a check-up page on Cam's phone","fixed","unknown","2026-11-20"
+"131","2026-11-20","Test build 2358 (Path start-up fix) shipped with no test card line for the fix (round checklist step 8 missed)","process","claude","test_app","1","line added; phone notes now one file so a line is written once (still a manual step)","fixed","unknown","2026-11-20"
+"132","2026-11-20","Two QA tests (Nibbles odds, Boardwalk owning-everything tickets) failed on a save with Paths chosen: Candy Maker and Ticket Master change exactly those numbers","test-bug","claude","local","0","tests clear Paths first (T() puts the save back); proven: failed with a 15-Path save before, pass after","fixed","unknown","2026-11-20"
+"133","2026-11-20","PC 1920x1080 Rods: the In your hands card has a fixed height (overflow hidden) that hides its attachment slot; on live 0.4.8.9.4 too","layout-cut","claude","live","2","contentQC rule 5 (spills out of the card): flagged before the fix, clean after; hotfix 0.4.8.9.5 (PC) also restores the hidden Upgrade button","fixed","unknown","2026-11-20"
+"134","2026-11-20","PC 1920x1080 Boardwalk: fixed-height game cards; Treasure chests Open button under Counter specials (not clickable), Coin flip and Gamble buttons over the card edge, results overlapping buttons after a play","layout-cut","claude","local","2","contentQC rules 5 (spill, overlap); extreme save and after-play states; fixed: grid min-height instead of height, flagged before, clean after","fixed","unknown","2026-11-20"
+"135","2026-11-20","PC Voyage milestones squeezed into a narrow column (a word per line), 'after N voyages' printed over the descriptions","layout-cut","claude","local","1","contentQC rule 5 (overlap); all PC sizes; fixed: milestones one column, flagged before, clean after","fixed","unknown","2026-11-20"
+"136","2026-11-20","Boardwalk Mystery crates (all platforms) and Fishmonger's Gamble (phones) have no picture while the other game cards do (no standard existed)","design","claude","local","1","contentQC rule 4 (pictures in a group)","fixed","unknown","2026-11-20"
+"137","2026-11-20","Phones: the three chests in the mini-game pop-up overflowed it (the catch card's 160 px canvas size beat the chests' own size); outer chests cut at the edges","layout-cut","tester","test_app","1","__contentQC now opens every mini-game pop-up (flagged with the old sizes planted, clean after)","fixed","unknown","2026-11-20"
+"138","2026-11-20","Nile fish: the striped headdress was drawn at fixed spots (floated above some body shapes with a loose side piece like a hockey stick) and the eye line ran across the eye","art","director","test_app","1","headdress follows the real outline (f3TopAt), eye marks only on body types whose eye position is known; fish sheet checked by eye (an automatic attachment check is planned in the content recipes)","fixed","unknown","2026-11-20"
+"139","2026-11-20","Phones: the new Cooler/Aquarium switch showed as a blank button on every other page (an older rule beat its hidden state)","layout","director","test_app","1","qa: menu top row has no blank buttons on any page","fixed","unknown","2026-11-20"
+"140","2026-11-20","Phones (live and test): the Tide Pass Claim button was dropped with the header box when the phone page engine built its number strip, so rewards could not be claimed (a badge showed rewards waiting)","ui-logic","tester","live","3","qa: Tide Pass with rewards waiting shows a Claim button (proven by hiding it); hotfix 0.4.8.9.6 for live phones","fixed","unknown","2026-11-20"
+"141","2026-11-20","New-water fish decorations at fixed spots: circuit dots in the same column on every Circuit Lake fish (off the body on some), ties hanging loose, beaks off the nose, horns floating on short bodies, spots or headdress over the eye (98 cases on 329 fish)","art","director","test_app","1","__traitQC (every decoration on every fish; 98 found on the old code, 0 after)","fixed","unknown","2026-11-20"
+"142","2026-11-20","Phones: the Cooler/Aquarium switch stayed on when the Fish Log was opened from a fish (only menu changes updated it)","layout","director","test_app","1","qa: the switch shows only on the Cooler and the Aquarium, also when a page is drawn without a menu change","fixed","unknown","2026-11-20"
+"143","2026-11-20","Phones, split-screen windows: during a live event the Live chip sat exactly under the search button (both in row 2, column 5) with its text cut; live since 0.4.8.9 (the narrow layout rework gave the search button that cell)","layout","claude","sweep","1","one-click sweep: phone __spec at every size now runs with a live event forced (proven on the unfixed build: 3 split-screen sizes failed)","fixed","unknown","2026-11-20"
+"144","2026-11-20","Picking an option moved the menu: phones 23-66 px (Wardrobe, Settings, Your dock, pets), PC scrolled back to the top (Wardrobe, Your home) or pushed down by the preview bar (pets 59 px, aquarium)","layout","cam","test_app","2","__snapQC (in the sweep): every option on every page and tab, phones and PC; 22 found, 0 after","fixed","unknown","2026-11-20"
+"145","2026-11-20","Phones: the Decorate heading showed under the Decorate tab until the next redraw (no-name-twice ran before the page engine showed the tab), so the list jumped 35 px on the first pick","layout","claude","sweep","1","__snapQC; the dedupe now also runs behind the tab switch","fixed","unknown","2026-11-20"
+"146","2026-11-20","Fish pictures sized by width only: the Golden Seahorse, Leafy Sea Dragon and Giant Manta were cut to a strip in every short picture box (Cooler and others)","art","cam","test_app","2","__creatureBox measures each creature's real outline; fishCanvas fits by height when needed","fixed","unknown","2026-11-20"
+"147","2026-11-20","Hair through hats: big hair (afro, curly volume) bulged out around the brim and was cut flat by the fixed clip line; under cone hats (party) curls and long back hair poked up beside the band, because hair was cut at one fixed height for every hat","art","cam","test_app","2","qa C32 hair: no hair above each hat's own lower edge, read from the picture (proven by putting the fixed line back: 12-43 px on the cap)","fixed","unknown","2026-11-20"
+"148","2026-11-20","The new waters' homes offered only the light: wood and the home's signature colour (bridge lacquer and others) could not be changed like the old dock","content","cam","test_app","2","qa C33-C35: every new home offers wood/paint as listed, draws with all 72 wood x paint looks, chosen wood and paint reach the drawing","fixed","unknown","2026-11-20"
+"149","2026-11-20","A new check passed with its bug planted: the hair check read the game's own cut line to decide where to look, so moving the line moved the check with it","process","claude","qa","1","rule: a check measures from what the player sees, never from the value under test (LESSONS)","fixed","unknown","2026-11-20"
+"150","2026-11-20","Run every check on the iPhone never finished: the phone reloaded the sweep page partway (out of memory, about 30 game loads in one tab) and the run quietly started over at Not started, so Copy report never unlocked; it also ran PC and other-phone checks on the phone","tooling","director","real_iphone","2","sweep: progress saved after every check and resumed after a reload (proven by reloading mid-check: it carried on, marked that check, finished, save put back); fresh frame per check; ?dev picks that phone's checks","fixed","unknown","2026-11-20"
+"151","2026-11-20","Run every check on the iPhone: the page reloaded during the test suite (out of memory). The suite made about 3 GB of drawing surfaces in one uninterrupted run: every angler preview created its own three scratch canvases (about 3 MB) and kept them, and page redraws left dropped pictures waiting for clean-up (Oddities: 300 thumbnails, 24 MB per redraw); real players paid the same on a smaller scale","performance","director","real_iphone","2","qa memory (#151): dropped page pictures are released and 12 angler previews make at most 3 scratch canvases (proven by putting each bug back: 53 of 53 kept; 36 made); __qa reports drawing memory per test (cvMB)","fixed","unknown","2026-11-20"
+"152","2026-11-20","Market Rush paid 27.5% instead of 30% with the Merchant Path: the Rush formula was a hand copy of the sale price formula that missed the Merchant Path's +12%","balance","cam","real_android","2","qa Market Rush now runs with and without the Merchant Path; one shared formula (sellBase) for both","fixed","unknown","2026-11-20"
+"153","2026-11-20","Bait page (phones): with Worms on, the Bait in use card has no Switch to worms button, so picking another bait made it 36 px taller and every bait button jumped (seen with exactly two baits owned)","ui","cam","real_android","1","snapQC on a save with Worms + one bait (only found on Cam's save; the local sweep's save had many baits)","fixed","unknown","2026-11-20"
+"154","2026-11-20","Bounties (every build): in the sideways-scrolling row of waters the redraw put the row back at its start, so the tapped water jumped up to 1,049 px away (needs many waters unlocked and a narrow screen)","ui","director","real_iphone","1","snapQC at 667x375 with every water unlocked; the C13 hold now covers sideways rows","fixed","unknown","2026-11-20"
+"155","2026-11-20","Top bar at 667x375 (iPhone): with nothing left to step aside the Bait chip was squeezed and Worms cut (44 px of text in 39); reproduced in Chrome at 600 px","ui","director","real_iphone","1","__spec; fit() now trims chip padding (mb-compact) as the last step before any word is cut","fixed","unknown","2026-11-20"
+"156","2026-11-20","Two tests depended on the save: Twin Hook compared against a rod that already had one (1.25x read as a failure) and Market Rush against a save with the Merchant Path","process","cam","real_android","1","tests measure from a clean start (rule: a failure caused by the save's state is a test bug)","fixed","unknown","2026-11-20"
+"157","2026-11-20","Catch card kept saying dismiss on every fish after an oddity (its bottom line was only ever set for non-fish catches)","ui","claude","me_manual","1","showCard sets the line every time","fixed","unknown","2026-11-20"
+"158","2026-11-20","Scrap message and tooltip still said Nibbles for one species and feed them to that species (outdated since C27: Nibbles belong to a rarity)","content","claude","me_manual","1","__textInv review; text standard","fixed","unknown","2026-11-20"
+"159","2026-11-20","PC said Tap in 5 places (frenzy hint, Fast fingers feat, pet hint, moving progress, Tap to aim setting); 5 straight apostrophes in phone lessons and Help","content","claude","qa","1","__qa text standard and __contentQC rule 6 (proven by planting)","fixed","unknown","2026-11-20"
+"160","2026-11-20","PC test build: Settings > Save & codes > Download for Windows linked to /driftline/next/download/ (relative link), where the installer is not published; File wasn't available on site. Live unaffected","tooling","director","test_app","1","link goes one folder up on test builds (DL_PREVIEW)","fixed","unknown","2026-11-20"
+"161","2026-11-21","Phone pages with tabs: colour swatch rows stayed visible under every tab (a display:flex!important rule in pages08 overrode the tab engine's inline display:none; seen on the new Home page)","ui","claude","me_manual","1","rule kept: :not([style*=\display: none\""]) on the swatch rows; visible-rows check in the pilot test run""","fixed","unknown","2026-11-21"
+"162","2026-11-21","Bounties badge showed 1 with nothing to claim: it counted yesterday's finished daily task (S.daily read without ensureDaily) and bounties at waters closed by a voyage; two code blocks wrote the same badge","ui","cam","real_device","2","one count (bountyReady) in e_ui's hud; QA 'Cam's fix list' (proven by planting the old count)","fixed","unknown","2026-11-21"
+"163","2026-11-21","Map water pictures took about 10 s to appear after a restart (drawn one per idle moment, only while a menu was open)","performance","cam","real_device","1","pictures kept on the device (IndexedDB, per build and home); drawn back to back while the Map is open","fixed","unknown","2026-11-21"
+"164","2026-11-21","Phones: feeding a Nibble rebuilt the whole Aquarium page, so the screen jumped","ui","cam","real_device","1","plain feeds patch the page in place (nibPatch); a feed that grows a bonus still redraws","fixed","unknown","2026-11-21"
+"165","2026-11-21","Scrap messages named the fish instead of the Nibble tier (Scrap all named no tier at all)","text","cam","real_device","1","QA 'Cam's fix list' checks the tier words","fixed","unknown","2026-11-21"
+"166","2026-11-21","PC: the Full screen button did nothing in the Driftline Test app (the app starts full screen, so the game only said Press F11)","device","director","test_app","2","the game asks the test app to switch by message; awaiting the director's check","fixed","unknown","2026-11-21"
+"167","2026-11-21","PC 1024x640 Pets > Customize: picking a hat with its own colors removed the Hat color row, the page got shorter than the window and jumped to its top","ui","claude","me_auto","1","__snapQC pets; the color rows stay in place (greyed out)","fixed","unknown","2026-11-21"
+"168","2026-11-21","Test bug: 'fights: geared anglers' used a tension threshold of 0.82 on a 0-100 scale, so its angler let go almost every frame","tooling","claude","me_auto","1","threshold 82 like the other fight tests","fixed","unknown","2026-11-21"
+"169","2026-11-21","Quests > Goals never showed the live event: it called liveNow, a helper that only existed inside a phone file","ui","claude","me_auto","1","liveNow shared (cw_pages08); parity check opens Quests on both","fixed","unknown","2026-11-21"
+"170","2026-11-21","Bounties: the daily tasks card stayed visible under every page tab on wide pages (display:grid!important beat the tabs' inline display:none)","ui","claude","me_auto","1","QA page-tab test on PC; no !important on display","fixed","unknown","2026-11-21"
+"171","2026-11-21","Goal chip (Live: ... left) switched the page behind a closed menu, so clicking it seemed to do nothing","ui","director","test_app","2","opens the menu on its page","fixed","unknown","2026-11-21"
+"172","2026-11-21","PC fell behind the phones: no Quests, no Prestige section, old names (Equipment, Waters), pages without the phone tabs, no Home or Tasks chip","ui","director","test_app","2","sweep: PC has what phones have (__menuMap on both builds, proven by a planted rename)","fixed","unknown","2026-11-21"
+"173","2026-11-21","PC menus had no size standard: mixed text sizes, squeezed buttons (Boardwalk 'Open free' wrapped to two lines)","ui","director","test_app","2","__pcSpec at 1920/2560/1440 (proven by a planted 17 px heading)","fixed","unknown","2026-11-21"
+"174","2026-11-21","Amazon: the stilt deck's stilts ran to the bottom of the screen (looked like a high bridge), its roof posts were 2 px, and the waterfall rectangle ran past the water line","art","cam","real_device","1","pictures in tools/shots; map standard rules 15-18","fixed","unknown","2026-11-21"
+"175","2026-11-21","Build finished with a listed source file missing (mobile/fight08.js after it was deleted)","tooling","claude","me_manual","2","build refuses missing files (proven)","fixed","unknown","2026-11-21"

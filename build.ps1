@@ -77,6 +77,31 @@ foreach ($t in $texts.Values) {
 }
 $unused = @($declN.Keys | Where-Object { $tokCount[$_] -le $declN[$_] } | Sort-Object)
 if ($unused.Count) { throw ("REDUNDANCY: functions that nothing uses (delete them, or use them): " + ($unused -join ', ')) }
+
+# The bug log (docs/qc_incidents.csv, Sharper Tools 2026-11-21): fixed labels only, and every row says whether it is fixed and when.
+# A new label goes into the lists below on purpose (one place), never by typing a new spelling into the log.
+$bugLog = Join-Path $root 'docs\qc_incidents.csv'
+if (Test-Path $bugLog) {
+  $okBy = 'director','cam','claude','tester'
+  $okAt = 'live','local','me_auto','me_manual','qa','real_android','real_device','real_iphone','sweep','test_app'
+  $okSt = 'fixed','open','held'
+  $okCat = 'art','balance','code-health','code-structure','content','crash','css-override','data','design','device','device-shape','duplicate-name','false-verified','layout','layout-cut','performance','process','release','safari-only','save','save-state','script-break','shared-state','start-up','tabs-state','test-bug','test-tool','text','tooling','touch-app','ui','ui-logic','wording'
+  $logBad = @(); $ids = @{}
+  foreach ($row in (Import-Csv $bugLog)) {
+    $w = "row $($row.id)"
+    if ($ids.ContainsKey($row.id)) { $logBad += "$w is listed twice" }; $ids[$row.id] = 1
+    if ($okBy -cnotcontains $row.found_by) { $logBad += "$w found_by '$($row.found_by)' (use: $($okBy -join ', '))" }
+    if ($okAt -cnotcontains $row.found_at) { $logBad += "$w found_at '$($row.found_at)' (use: $($okAt -join ', '))" }
+    if ($okCat -cnotcontains $row.category) { $logBad += "$w category '$($row.category)' (use one of the listed categories in build.ps1)" }
+    if ($okSt -cnotcontains $row.status) { $logBad += "$w status '$($row.status)' (use: $($okSt -join ', '))" }
+    if ('0','1','2','3' -notcontains $row.severity) { $logBad += "$w severity '$($row.severity)' (0-3)" }
+    if (-not $row.introduced_in) { $logBad += "$w has no introduced_in (a stamp, a version, or unknown)" }
+    if ($row.status -ceq "fixed" -and -not $row.fixed_in) { $logBad += "$w is fixed but has no fixed_in" }
+    if ($row.status -ne 'fixed' -and $row.fixed_in) { $logBad += "$w is $($row.status) but has a fixed_in" }
+    if ($row.status -eq 'fixed' -and -not $row.caught_now_by) { $logBad += "$w is fixed but says nothing about what catches it now" }
+  }
+  if ($logBad.Count) { throw ("BUG LOG REFUSED (docs/qc_incidents.csv):`n  " + ($logBad -join "`n  ")) }
+}
 $redNow = @{}
 
 New-Item -ItemType Directory -Force $out | Out-Null

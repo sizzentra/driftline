@@ -36,3 +36,5 @@ if(typeof ACT_OK==='object'){ ACT_OK.uiscale=k=>UI_SCALES.some(([v])=>String(v)=
 try{ SEARCH_IDX.push(['Settings: interface size and picture quality','settings','Display','zoom scale size big monitor 1440p 4k resolution sharp quality ui text bigger smaller']); }catch(e){}
 document.head.insertAdjacentHTML('beforeend','<style>#panel .pcdisp{margin:6px 0 10px}#panel .pcdisp .meta{margin-top:3px}</style>');
 setTimeout(()=>uiApplyZoom(true),0);
+/* PC Reborn (G #6, "PC feels like PC"): full screen PCs have power to spare, so rain rings and other moving detail are drawn 1.5x finer than on phones */
+PLAT.detail=()=>1.5;

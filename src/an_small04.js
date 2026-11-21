@@ -50,7 +50,7 @@ if(/[?&]test\b/.test(location.search)) window.__findWx=(k,ph0=0,ph1=1)=>{ for(le
 // leaves, plankton and glints. Auto picks for you; the choice is saved on this device.
 var GFX_TOUCH = !!(window.matchMedia&&matchMedia('(pointer:coarse)').matches);
 function gfxHigh(){ return true; } /* 0.3.5 (director): High runs better on phones too, so it is the only mode; Balanced is gone */
-function gfxK(){ return gfxHigh()?1.6:1; }
+function gfxK(){ return (gfxHigh()?1.6:1)*PLAT.detail(); }
 const _renderSettings_gfx = renderSettings;
 renderSettings = function(P){ _renderSettings_gfx(P); return; /* 0.3.5: no Graphics choice any more */ const cur=S.settings.gfx||'auto', grid=P.querySelector('.grid'); if(!grid) return;
   const opt=[['auto','Auto ('+(GFX_TOUCH?'Balanced':'High')+' here)'],['high','High'],['balanced','Balanced']];

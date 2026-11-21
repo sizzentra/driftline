@@ -11,5 +11,6 @@ const PLAT={
   movingDecorMs:()=>0,         // moving dock decorations: 0 = drawn fresh every frame, else cached for this long (cd_efficiency)
   quietTabSwitch:()=>false,    // tab switches skip the per-card entry animation and its forced layout (af_smooth, aw_menu035, bm_ui04)
   fpsText:null,                // (fps)=>text for the frame counter, null = default text (bm_ui04)
+  detail:()=>1,                // how much finer moving detail is drawn (particles, ripples, stars): PC full screen draws more (src/pc/ui_display.js)
   touch:()=>!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches) // touch wording: Tap / Let go and no keys, written beside the mouse wording at the source (e_ui, ai_cooler); phones: always
 };

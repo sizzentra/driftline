@@ -193,7 +193,7 @@ m33wrap('ember','fore',function(P,t){ const b=H, c=mix(P.rock,P.wBot,.2);
 // STONEBROOK RIVER: a pair of otters that pop up and play (the moored rowboat now sits at the mill jetty, cc_river06.js)
 // ---------------------------------------------------------------------
 m33wrap('river','live',function(P,t,hz){ const night=P.night, FX=S.settings.effects;
-  for(let i=0;i<2;i++){ const per=19, k=((t+i*2.5)%per)/per; if(k>.32) continue; const e=k/.32, up=Math.sin(e*Math.PI), x=W*(.25+i*.035)+e*W*.035, y=hz+H*(.17+i*.012) /* clear water between the dock and the first rock (they swam through it at .36-.44) */, s=H*.005, oc=mix('#5a3a24',P.wMid,.2+night*.5);
+  for(let i=0;i<2;i++){ const per=24, k=((t+i*2.5)%per)/per; if(k>.32) continue; const e=k/.32, up=Math.sin(e*Math.PI), x=W*(.25+i*.035)+e*W*.035, y=hz+H*(.17+i*.012) /* clear water between the dock and the first rock (they swam through it at .36-.44) */, s=H*.005, oc=mix('#5a3a24',P.wMid,.2+night*.5);
     g.save(); g.beginPath(); g.rect(0,0,W,y); g.clip(); g.fillStyle=oc; g.beginPath(); g.ellipse(x,y+s*2*(1-up),s*1.6,s*2.6*up+.1,.2,0,7); g.fill(); g.beginPath(); g.ellipse(x+s*.6,y-s*2.4*up+s*2*(1-up),s*1.5,s*1.2*up+.1,0,0,7); g.fill(); g.fillStyle=mix('#c8a880',P.wMid,.2+night*.5); g.beginPath(); g.ellipse(x+s*1.2,y-s*2*up+s*2*(1-up),s*.8,s*.6*up+.05,0,0,7); g.fill(); m33dot(g,x+s*1.1,y-s*2.9*up+s*2*(1-up),s*.28*up,'#14100c'); g.restore();
     if(FX){ g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.5*up); g.lineWidth=1; g.beginPath(); g.ellipse(x,y+1,s*(2.6+e*4),s*(.6+e*.8),0,0,7); g.stroke(); } }
 });

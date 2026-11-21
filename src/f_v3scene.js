@@ -184,6 +184,17 @@ const V3POND = {
     // fireflies (dusk, night) or dragonflies (day)
     if(FX){ if(lit>.15){ for(let i=0;i<12;i++){ const rr=v3rng(i*31+3); const bx=W*(.08+rr()*.6), by=hz-H*.02+rr()*H*.3; const fx=bx+Math.sin(t*.4+i*1.3)*W*.03, fy=by+Math.sin(t*.55+i*2.1)*H*.025; const a=lit*(.5+.5*Math.sin(t*2.2+i*1.9)); if(a<.05) continue; v3glow(g,fx,fy,H*.022,'rgba(255,240,150,.9)',a*.8); g.fillStyle=v3rgba('#fff6b8',a); g.fillRect(fx-1,fy-1,2,2); } }
       else if(night<.2){ for(let i=0;i<2;i++){ const k=t*.35+i*3.1, fx=W*(.42+.25*Math.sin(k)+i*.12), fy=hz+H*(.12+.06*Math.sin(k*1.7+i)), s=H*.012; g.strokeStyle='#2a8a8a'; g.lineWidth=1.6; g.beginPath(); g.moveTo(fx-s,fy); g.lineTo(fx+s,fy); g.stroke(); g.fillStyle='rgba(220,250,255,.5)'; const fl=Math.sin(t*40+i)*.4; g.beginPath(); g.ellipse(fx,fy-s*.4,s*.7,s*.22*(1+fl),-.3,0,7); g.ellipse(fx,fy+s*.4,s*.7,s*.22*(1-fl),.3,0,7); g.fill(); } } }
+    // the moment, every 50 s (map standard, 2026-11-21): by day a mother duck leads her ducklings across the far water, in from behind
+    // the willow and out past the cabin (three to five of them, a little different each time); at night a tawny owl glides low over the pond
+    { const per=50, q=t%per, n=Math.floor(t/per), r=v3rng(n*41+3);
+      if(night<.55){ if(q<26){ const e=q/26, nd=3+Math.floor(r()*3), yy=hz+H*(.05+r()*.02), s0=H*.011, N=c0=>mix(c0,P.front,night*.6);
+        for(let i=0;i<=nd;i++){ const big=i===0, s=big?s0:s0*.55, px=W*(1.04-e*1.12)+i*s0*2.3+(big?0:s0*.8), py=yy+(big?0:s0*.15), bob=Math.sin(t*2.4+i*1.3)*s*.12; if(px<-s*4||px>W+s*4) continue;
+          g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.3); g.lineWidth=1; g.beginPath(); g.moveTo(px+s*1.1,py+s*.35); g.lineTo(px+s*2.6,py+s*.15); g.moveTo(px+s*1.1,py+s*.45); g.lineTo(px+s*2.6,py+s*.75); g.stroke();
+          g.fillStyle=N(big?'#8a6a48':'#c8a850'); g.beginPath(); g.ellipse(px+s*.3,py+bob,s*1.05,s*.48,0,Math.PI,0); g.quadraticCurveTo(px+s*.3,py+bob+s*.35,px-s*.75,py+bob); g.fill(); g.beginPath(); g.moveTo(px+s*1.2,py+bob); g.lineTo(px+s*1.65,py+bob-s*.35); g.lineTo(px+s*1.2,py+bob-s*.2); g.fill();
+          g.fillStyle=N(big?'#6a5038':'#d8b858'); g.beginPath(); g.arc(px-s*.55,py+bob-s*.62,s*.36,0,7); g.fill(); g.fillStyle=N('#e8a030'); g.beginPath(); g.moveTo(px-s*.85,py+bob-s*.66); g.lineTo(px-s*1.2,py+bob-s*.56); g.lineTo(px-s*.85,py+bob-s*.5); g.fill();
+          g.fillStyle='#1a1410'; g.fillRect(px-s*.65,py+bob-s*.72,1.2,1.2); } } }
+      else if(q<7){ const e=q/7, ox=W*(1.06-e*1.14), oy=hz-H*(.03+.05*Math.sin(e*Math.PI)), s=H*.007, N=c0=>mix(c0,P.front,.35); v3owlFly(ox,oy,s,t,N('#6a5440'),N('#8a7058'),N('#6a5440'),'#f0c040');
+        if(oy>hz-H*.045){ g.fillStyle=v3rgba('#000000',.12); g.beginPath(); g.ellipse(ox,hz+H*.01,s*1.6,s*.25,0,0,7); g.fill(); } } }
   },
 
   willow(P,t,hz){ v3willow(P,t,hz); },
@@ -212,6 +223,10 @@ const V3POND = {
 
 // the lantern's reflection: short soft streaks that wobble and thin out with depth, never a solid block
 // a soft oval pool of lantern light on a deck (rgb as 'r,g,b')
+/* an owl flying left, side on (map standard: drawn from the side): body, short tail, round head in front, the near wing rising and falling */
+function v3owlFly(ox,oy,s,t,body,wing,head,eye){ const f=Math.sin(t*4.2)*.35; g.save(); g.translate(ox,oy); g.fillStyle=body; g.beginPath(); g.ellipse(0,0,s*1.5,s*.6,0,0,7); g.fill(); g.beginPath(); g.moveTo(s*1.3,-s*.1); g.lineTo(s*2.1,-s*.25); g.lineTo(s*2.1,s*.2); g.lineTo(s*1.3,s*.25); g.fill();
+  g.fillStyle=head; g.beginPath(); g.arc(-s*1.45,-s*.25,s*.6,0,7); g.fill(); g.fillStyle=eye; g.fillRect(-s*1.85,-s*.38,1.6,1.6);
+  g.fillStyle=wing; g.beginPath(); g.moveTo(-s*.7,-s*.35); g.quadraticCurveTo(-s*.2,-s*(1.2+2.2*f),s*1.4,-s*(.6+2.6*f)); g.quadraticCurveTo(s*.6,-s*.3,s*.8,-s*.2); g.closePath(); g.fill(); g.restore(); }
 function v3lightPool(x,y,R,rgb,a){ if(a<.01) return; g.save(); g.translate(x,y); g.scale(1,.3); const pg=g.createRadialGradient(0,0,0,0,0,R); pg.addColorStop(0,'rgba('+rgb+','+a+')'); pg.addColorStop(.6,'rgba('+rgb+','+(a*.33)+')'); pg.addColorStop(1,'rgba('+rgb+',0)'); g.fillStyle=pg; g.beginPath(); g.arc(0,0,R,0,7); g.fill(); g.restore(); }
 function v3lanternReflect(x,y0,lit,t,rgb){ if(lit<.05) return; const L=H*.13, sc=clamp(H/420,.7,1.25); rgb=rgb||'255,210,130';
   for(let i=0;i<9;i++){ const k=i/8, y=y0+k*L, w=(7-k*4.5)*sc*(1+.25*Math.sin(t*2.1+i*1.7)), dx=Math.sin(t*1.3+i*2.3)*2*sc*k, a=lit*.28*(1-k)*(.65+.35*Math.sin(t*3+i));
