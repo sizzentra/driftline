@@ -40,6 +40,18 @@ Every object on a map has exactly one placement type, and its type decides its r
 20. **No gaps between layers:** the shore meets the water, the hills meet the shore, the sky meets the horizon; no seams or empty strips at any screen size.
 21. **Shadows and light agree:** everything is lit from the same direction as the scene's sun or moon.
 
+## Life on the map (director, 2026-11-21)
+22. **Every creature fits its water's theme** (a moose at the Rockies, a capybara in the Amazon), never a generic animal dropped anywhere.
+23. **Each creature has a placement type** (ground, in water, under water, flying) and moves only along it.
+24. **True to size:** sized against the angler and each other, smaller the farther back.
+25. **Natural behaviour:** believable speeds, turns and pauses; no obvious identical loops.
+26. **Enters and leaves off-screen** or from behind something; never pops in or out in the open.
+27. **Time and weather matter:** owls and fireflies at night, birds by day; animals shelter or thin out in storms.
+28. **Moments are special:** each water's moment comes every 20–60 seconds, varies a little each time, and is the only big thing happening while it runs.
+29. **Never in the way:** out of the fishing area and off the home; never over the bobber or fish shadows.
+30. **Grounded and connected** (rules 15–21): feet touch the ground, swimmers make ripples, low fliers get a soft reflection.
+31. **Cheap to draw:** every creature stays within the speed limit, so a busy map still runs smoothly on phones.
+
 ## Still to decide
 - How the older 10 waters are brought to this standard.
 - The speed limit (measured first).

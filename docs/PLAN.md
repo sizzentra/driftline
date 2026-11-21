@@ -51,7 +51,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Speed budgets per page and per frame, checked by the sweep.
 - ☐ Balance targets checked automatically (`__bal` against written targets).
 
-## Production queue (director, 2026-11-21): DO NOT START until the director says go
+## Production queue (director, 2026-11-21): DO NOT START until the idea queue (System clean-up below) is finished AND the director says go
 One large overnight run, so testing happens once over many changes. Each item is built only when its concept is decided (status per item); open questions are settled in conversation first.
 | # | Item | Concept status | Notes |
 |---|---|---|---|
