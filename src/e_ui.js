@@ -27,7 +27,7 @@ function hud(){
   setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
   setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
-let lastHint=''; const TOUCH=window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+let lastHint='';
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n);
   // short forms round down like every other coin number (rounding to nearest showed 999,999 as "1000K")
   const tr=(v,d)=>{ const p=Math.pow(10,d); return (Math.floor(v*p+1e-6)/p).toFixed(d); };
@@ -35,15 +35,15 @@ function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n);
   /* 0.3.6: trillions and beyond keep a short form (7.7 trillion used to read "7700.00B") */ const U=['B','T','Qa','Qi','Sx','Sp','Oc','No','Dc']; let i=0, v=n/1e9; while(v>=1000&&i<U.length-1){ v/=1000; i++; } return tr(v,v<10?2:v<100?1:0)+U[i]; }
 function setHint(){ let h='';
   switch(G.st){
-    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Open the <b>Cooler</b> tab to sell, or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b> is rippling! Cast right into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (TOUCH ? '<b>Tap the water</b> where you want to cast.' : '<b>Click the water</b> where you want to cast (or hold Space for the power meter).') : TOUCH ? '<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.' : '<b>Hold</b> on the water (or Space) to charge a cast, <b>release</b> to throw.'; break;
-    case 'charging': h='Release to cast. A <b>far cast</b> or a <b>hotspot</b> improves your odds.'; break;
+    case 'idle': h = S.cooler.length>=gv('cooler') ? 'Cooler full. Sell in the <b>Cooler</b> or move fish to the <b>Aquarium</b>.' : G.hot ? 'A <b>hotspot</b>! Cast into it for rarer fish.' : (V3ON && S.settings.castMode==='aim') ? (PLAT.touch() ? '<b>Tap the water</b> to cast there.' : '<b>Click the water</b> to cast there (hold Space for power).') : PLAT.touch() ? '<b>Touch and hold</b> to charge, <b>let go</b> to cast.' : '<b>Hold</b> on the water (or Space) to charge, <b>release</b> to cast.'; break;
+    case 'charging': h=(PLAT.touch()?'Let go':'Release')+' to cast. <b>Far casts</b> and <b>hotspots</b> bring better fish.'; break;
     case 'flying': h='&nbsp;'; break;
-    case 'waiting': h='Watch the bobber. Small twitches are nibbles: <b>wait for the big splash</b>.'; break;
-    case 'bite': h='<b>Now!</b> Click or press Space to set the hook.'; break;
-    case 'reeling': h=V3ON?'<b>Hold</b> to reel, or <b>draw circles</b> to crank. <b>Let go</b> when it runs, jumps, shakes or gets angry.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
+    case 'waiting': h='Twitches are nibbles. <b>Wait for the big splash.</b>'; break;
+    case 'bite': h=PLAT.touch()?'<b>Now!</b> Tap to hook it.':'<b>Now!</b> Click or Space to hook it.'; break;
+    case 'reeling': h=V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Let go</b> on runs, jumps, shakes and anger.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
     case 'landing': h='Pulling it out…'; break;
     case 'result': h='Nice catch.'; break;
-    case 'frenzy': h='<b>Tap the leaping fish!</b>'; break;
+    case 'frenzy': h=PLAT.touch()?'<b>Tap the leaping fish!</b>':'<b>Click the leaping fish!</b>'; break;
     case 'event': h='&nbsp;'; break;
   } if(!S.settings.hints) h='&nbsp;'; if(h!==lastHint){ const el=$('hint'); el.innerHTML=h; el.style.visibility=h==='&nbsp;'?'hidden':''; lastHint=h; } } /* an empty hint keeps its space but draws no empty box (director, 2026-11-19: hints off left a blank circle) */
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
@@ -54,7 +54,8 @@ function showCard(o){
   $('cardrar').textContent=o.rar; $('cardrar').style.color=o.rarCol; $('cardname').textContent=o.name;
   $('cardnums').innerHTML=o.nums.map(n=>`<div><span>${esc(n[0])}</span><b${n[2]?' class="coin"':''}>${esc(n[1])}</b></div>`).join('');
   if(o.html) $('carddesc').innerHTML=o.desc; else $('carddesc').textContent=o.desc;
-  $('cardbadges').innerHTML=o.badges.map(b=>`<span class="badge ${b[0]}">${esc(b[1])}</span>`).join(''); $('card').hidden=false; }
+  $('cardbadges').innerHTML=o.badges.map(b=>`<span class="badge ${b[0]}">${esc(b[1])}</span>`).join('');
+  /* the line at the bottom, every time (it stayed on an oddity's "dismiss" for every later fish) */ const tp=$('cardin').querySelector('.tap'); if(tp) tp.textContent=PLAT.touch()?'Tap to keep fishing':'Click or press Space to keep fishing'; $('card').hidden=false; }
 function hideCard(){ $('card').hidden=true; G.st='idle'; afterCard(); }
 $('card').addEventListener('pointerdown',e=>{ e.stopPropagation(); hideCard(); });
 
@@ -112,7 +113,7 @@ document.head.insertAdjacentHTML('beforeend','<style>.cool-sort{display:flex;fle
 function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
   const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
-  P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you're away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
+  P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you’re away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
   <div class="bank"><div><div class="sub">Earning</div><b class="coin" title="${fmt(rate*60)} coins an hour">${fmtShort(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank" title="${fmt(S.tankBank)} coins">${fmtShort(S.tankBank)}</b></div>
   <button class="btn" id="collectbtn" data-act="collect" ${S.tankBank>=1?'':'disabled'}>Collect</button></div></div>
   <div class="badges" style="justify-content:flex-start;margin-top:8px">${chips||'<span class="sub">No boosts yet. Put a fish on display.</span>'}</div>
@@ -165,7 +166,7 @@ function renderJournal(P){
       <div><span>Mastery</span> <span class="sh">${starStr(mastery(sel.id))}</span> +${mastery(sel.id)*10}%${mastery(sel.id)<4?` · next at ${MASTERY[mastery(sel.id)]}`:''}</div>
       <div><span>Fights like a</span> ${B.n.toLowerCase()}</div><div><span>Temper</span> ${'●'.repeat(Math.round(sel.aggr*5))+'○'.repeat(5-Math.round(sel.aggr*5))}</div><div><span>In the aquarium</span> ${ae?fmtB(ae.k,ae.v):'—'}</div>
       ${j&&j.first?`<div><span>First caught</span> ${new Date(j.first).toLocaleDateString()}</div>`:''}</div><p class="sub" style="margin-top:6px">${B.d}</p></div></div>`; }
-    body=`<div class="row spread" style="margin-top:6px"><span class="sub">${got} / ${list.length} found${S.setDone[L.id]?' · complete':` · find them all for <span class="coin">${fmt(L.bonus)}</span>`}${open?'':' · water locked'}</span><span class="sub">Click a fish for its records</span></div>
+    body=`<div class="row spread" style="margin-top:6px"><span class="sub">${got} / ${list.length} found${S.setDone[L.id]?' · complete':` · find them all for <span class="coin">${fmt(L.bonus)}</span>`}${open?'':' · water locked'}</span><span class="sub">${PLAT.touch()?'Tap':'Click'} a fish for its records</span></div>
       <div class="prog"><i style="width:${got/list.length*100}%"></i></div>${det}
       <div class="jgrid">${list.map(s=>{ const j=S.journal[s.id]; return `<button class="jcard ${encSel===s.id?'sel':''}" data-act="enc" data-k="${s.id}"><canvas width="200" height="100" data-fish="${s.id}" data-known="${j?1:0}" data-sh="${j&&j.sh?1:0}"></canvas>
         <b style="color:${j?RAR[s.r].c:'var(--muted)'}">${j?s.name:'???'}${j&&j.sh?' <span class="sh">✦</span>':''}</b><small>${RAR[s.r].k}${s.time!=='any'?' · '+(s.time==='night'?'night':'day'):''}</small>
@@ -235,7 +236,7 @@ function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mo
     ${pendingLoad?`<div class="meta" style="color:var(--danger)">Replace this device’s progress with level ${pendingLoad.lvl}, ${fmt(pendingLoad.money||0)} coins, ${Object.keys(pendingLoad.journal||{}).length} species?</div><div class="row"><button class="btn" data-act="loadok" style="background:var(--danger)">Replace progress</button><button class="btn alt" data-act="cancel">Cancel</button></div>`
     :`<div class="row"><button class="btn alt" data-act="loadsave">Load code</button></div>`}</div>
   ${window.DL_DESKTOP?'<div class="tile"><h4>Desktop app</h4><div class="meta">You’re playing the Driftline desktop app. It updates itself and keeps your progress on this PC.</div></div>':''}
-  ${window.DL_VERSION&&!window.DL_DESKTOP?'<div class="tile"><h4>Windows desktop app</h4><div class="meta">A real program with its own window and Start-menu icon. Updates itself.</div><a class="btn" href="download/Driftline-Setup.zip" download style="text-decoration:none;text-align:center">Download for Windows</a><div class="meta">Unzip it and run <b>Driftline.exe</b>. If Windows shows “protected your PC”, click <b>More info</b>, then <b>Run anyway</b>. Your browser progress doesn’t carry over automatically: copy a save code here and load it in the app.</div></div>':''}
+  ${window.DL_VERSION&&!window.DL_DESKTOP?'<div class="tile"><h4>Windows desktop app</h4><div class="meta">A real program with its own window and Start-menu icon. Updates itself.</div><a class="btn" href="'+(window.DL_PREVIEW?'../':'')+'download/Driftline-Setup.zip" download style="text-decoration:none;text-align:center">Download for Windows</a><div class="meta">Unzip it and run <b>Driftline.exe</b>. If Windows shows “protected your PC”, click <b>More info</b>, then <b>Run anyway</b>. Your browser progress doesn’t carry over automatically: copy a save code here and load it in the app.</div></div>':''}
   ${window.DL_VERSION&&!window.DL_DESKTOP?'':'<!--'}<div class="tile"><h4>Install as an app</h4><div class="meta">${isApp?'You are playing the installed app. It updates itself when a new version is out.':'Get a home-screen icon, full-screen play and offline fishing. It updates itself.'}</div>
     ${isApp?'':window.__dlInstallPrompt?'<button class="btn" data-act="install">Install Driftline</button>':'<div class="meta">iPhone: Share, then <b>Add to Home Screen</b>. Android, Windows or Mac in Chrome or Edge: the install icon in the address bar, or the menu, then <b>Install</b>.</div>'}</div>${window.DL_VERSION&&!window.DL_DESKTOP?'':'-->'}</div>
   ${window.DL_VERSION?`<p class="sub" style="margin-top:10px">Version ${esc(window.DL_VERSION)}</p>`:''}`;

@@ -188,8 +188,3 @@ if(/[?&]test\b/.test(location.search)) window.__spec=()=>{ for(const a of docume
     /* the whole rule text, so shorthands (padding: max(...) max(...)...) and !important are kept */
     const walk=rs=>{ for(const rule of rs){ if(rule.cssRules&&!rule.selectorText) walk(rule.cssRules); else if(rule.style&&rule.style.cssText.includes('safe-area-inset')){ rule.style.cssText=fix(rule.style.cssText); n++; } } };
     for(const ss of document.styleSheets){ try{ walk(ss.cssRules); }catch(e){} } for(const el of document.querySelectorAll('[style*="safe-area-inset"]')){ el.setAttribute('style',fix(el.getAttribute('style'))); n++; } dispatchEvent(new Event('resize')); /* positions the game works out on a resize */ return n; }; }
-// ---- phone wording (found in the full QC pass, 2026-11-18): the bite hint and the catch card spoke about clicks and the Space key,
-// which a phone has neither of ----
-{ const MB_TOUCH=!!(window.matchMedia&&matchMedia('(pointer:coarse)').matches); /* our own check: the core's TOUCH is declared later in the build */
-  const _sh=setHint; setHint=function(){ _sh.apply(this,arguments); if(!MB_TOUCH) return; try{ if(G.st==='bite'&&S.settings.hints){ const h=document.getElementById('hint'), t='<b>Now!</b> Tap the water to set the hook.'; if(h&&h.innerHTML!==t) h.innerHTML=t; } }catch(e){} };
-  const tap=document.querySelector('#card .tap'); if(tap&&MB_TOUCH) tap.textContent='Tap to keep fishing'; }

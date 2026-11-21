@@ -331,3 +331,12 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | C13 hold (bo_guard04.js): also puts a sideways-scrolling row back so the tapped option stays put; keys match option buttons only | every page with a sideways chip row, every build | snapQC at 667×375 with every water unlocked (proven) |
 | Phone top bar fit() (header08.js): last step `.mb-compact` trims chip padding | phones sideways, narrow | __spec at 600 / 580 (proven), 667 / 956 unchanged |
 | Tests: Twin Hook measured from a clean start; snapQC keys match option buttons only | tests only | |
+
+## Text standard (C, 2026-11-20, test builds)
+| Change | Affects | Check |
+|---|---|---|
+| `PLAT.touch()` (a3_plat.js; phones: always) and both wordings written at the source; the phone swap list (TOUCH_TXT, its 2 watchers and a renderPanel layer in pages08) and the frame07 bite/card patch deleted | hints, catch card, Fish Log hint, pet hint, transfer text, casting setting, frenzy feat | `__qa` text standard; `__contentQC` rule 6 (every visible line) |
+| Catch card sets its bottom line every time (stayed on “dismiss” after an oddity) | every build | |
+| Shorter hints, fight cues (d_draw + phone fight08, same lines) and pop-ups; jokes untouched | every build | `__qa` text standard (lengths) |
+| Scrap and its tooltip name the Nibbles’ rarity (outdated since C27); weather warning “X in 1 min: …” (phone weather07 parses it) | every build | |
+| `__textInv()` (test builds): every kind of player text with lengths; `__qa` keeps every pop-up it causes | tests | |

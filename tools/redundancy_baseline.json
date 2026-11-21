@@ -6,15 +6,15 @@
                "watchers":  16
            },
     "android":  {
-                    "wraps":  322,
+                    "wraps":  320,
                     "hides":  82,
                     "timers":  33,
-                    "watchers":  18
+                    "watchers":  17
                 },
     "ios":  {
-                "wraps":  322,
+                "wraps":  320,
                 "hides":  82,
                 "timers":  33,
-                "watchers":  18
+                "watchers":  17
             }
 }

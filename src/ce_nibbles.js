@@ -37,7 +37,7 @@ let NIB_ANIM=null;
 function nibScrapOne(f){ const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.stats.scrapped=(S.stats.scrapped||0)+1;
   if(!ok) return 0; const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); nibAdd(sp.id,n); return n; }
 function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id]; S.cooler.splice(i,1); const n=nibScrapOne(f);
-  if(n){ sfx.coin(); toast('Scrapped: +'+NIB_WORD(n)+' for '+sp.name+'. Feed them to a '+sp.name+' in your Aquarium.'); } else toast('Scrapped the '+sp.name+', but no Nibbles this time.');
+  if(n){ sfx.coin(); toast('+'+n+' '+nibRarName(sp.id)+' Nibble'+(n===1?'':'s')+'. Feed any '+nibRarName(sp.id)+' fish in the Aquarium.'); } else toast('Scrapped. No Nibbles this time.');
   return 'render'; }
 /* C11 (director + Cam, 2026-11-20): Scrap all, like Sell all and with the same filters (what Sell all would sell gets scrapped) */
 function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if(!go.length) return 'skip'; S.cooler=S.cooler.filter(f=>!go.includes(f)); let got=0, hit=0; for(const f of go){ const n=nibScrapOne(f); if(n){ got+=n; hit++; } }
@@ -54,9 +54,9 @@ function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]||nibOf(f.id)<1) return
 // eats, and goes back. Each feed: FEED_SMALL chance one fish's bonuses grow a little (not its income); FEED_BIG chance one fish earns
 // more and gains another bonus. Feel calls: the chances and sizes below.
 function feedRoll(){ const T=S.tank.filter(f=>f&&SPI[f.id]); if(!T.length) return; const msgs=[];
-  if(Math.random()<FEED_SMALL){ const f=pick(T); f.fdb=(f.fdb||0)+1; msgs.push(SPI[f.id].name+'’s bonuses grew a little (+'+Math.round(FEED_BOOST*100*f.fdb)+'%)'); }
-  if(Math.random()<FEED_BIG){ const f=pick(T), sp=SPI[f.id]; f.fdi=(f.fdi||0)+1; let m=sp.name+' earns '+Math.round(FEED_INC*100*f.fdi)+'% more'; if(nibBuffCount(f)<NIB_MAX_BUFFS){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); m+=' and grew a new bonus: +'+BK[b.k]; } msgs.push(m); }
-  if(msgs.length){ save(); setTimeout(()=>toast(msgs.join('. ')+'!'),1600); } }
+  if(Math.random()<FEED_SMALL){ const f=pick(T); f.fdb=(f.fdb||0)+1; msgs.push(SPI[f.id].name+': bonuses +'+Math.round(FEED_BOOST*100*f.fdb)+'%'); }
+  if(Math.random()<FEED_BIG){ const f=pick(T), sp=SPI[f.id]; f.fdi=(f.fdi||0)+1; let m=sp.name+' earns '+Math.round(FEED_INC*100*f.fdi)+'% more'; if(nibBuffCount(f)<NIB_MAX_BUFFS){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); m+=', new bonus +'+BK[b.k]; } msgs.push(m); }
+  if(msgs.length){ save(); setTimeout(()=>toast('Fed! '+msgs.join(' · ')),1600); } }
 function feedMove(f,M,i,w,h){ if(!feedAnim) return; const k=(performance.now()-feedAnim)/1000; if(k>7){ return; }
   const st=.4+(i%7)*.32, go=clamp((k-st)/1.1,0,1), back=clamp((k-st-2.3)/1.2,0,1), e=go*(1-back), s=e*e*(3-2*e); if(s<=0) return;
   const tx=w*(.3+((i*37)%40)/100), ty=Math.max(h*.12,Math.min(h*.5,k*30*(.6+((i*13)%10)/20)+((i*7)%20)))+6; /* a flake's spot, just under it */
@@ -72,7 +72,7 @@ function nibDraw(c,t,w,h){ const A=NIB_ANIM; if(!A) return; const k=(performance
   else { const q=clamp((performance.now()-A.t0)/1000-1.6,0,.6)/.6; if(q<1){ c.save(); c.globalAlpha=1-q; c.fillStyle=A.col2; for(let i=0;i<6;i++){ const a=i*1.05; c.beginPath(); c.arc(A.ex+Math.cos(a)*q*14,A.ey+Math.sin(a)*q*14,1.6,0,7); c.fill(); } c.restore(); } } }
 
 // page parts: Scrap in the Cooler, Feed in the Aquarium, Nibbles in the Fish Log details, what a trophy ate
-function nibScrapBtn(f,i){ const p=Math.round(nibOdds(f)*100), n=nibAmount(f), sp=SPI[f.id]; return `<button class="btn alt sm" data-act="scrap" data-i="${i}" title="Scrap for Fish Nibbles: ${p}% chance of ${NIB_WORD(n)} for ${esc(sp.name)}. Feed them to a ${esc(sp.name)} in your Aquarium to make it earn more.">Scrap</button>`; }
+function nibScrapBtn(f,i){ const p=Math.round(nibOdds(f)*100), n=nibAmount(f), sp=SPI[f.id]; return `<button class="btn alt sm" data-act="scrap" data-i="${i}" title="Scrap: ${p}% chance of ${n} ${nibRarName(sp.id)} Nibble${n===1?'':'s'}. Feed them to any ${nibRarName(sp.id)} fish in the Aquarium to make it earn more.">Scrap</button>`; }
 function nibFeedBtn(f,i){ const n=nibOf(f.id); if(!n&&!f.fed) return ''; return `<button class="btn ${n?'':'alt '}sm nibbtn" data-act="nibfeed" data-i="${i}" ${n?'':'disabled'} title="${n?'Feed it a Nibble: more coins per hour. Every '+NIB_STEP+' Nibbles its bonuses grow.':'Scrap '+nibRarName(f.id)+' fish in the Cooler to get Nibbles'}">Feed · ${n}</button>`; }
 const nibFedTxt = f => f&&f.fed ? ' · ate '+NIB_WORD(f.fed) : '';
 document.head.insertAdjacentHTML('beforeend','<style>#panel .nibbtn{white-space:nowrap}</style>');

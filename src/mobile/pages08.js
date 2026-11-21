@@ -221,17 +221,6 @@ const deDockText=s=>{ if(!s||s.indexOf('ock')<0) return s; let t=s; for(const [r
   /* Search results are built from the index when you type: their text is fixed as it appears */
   new MutationObserver(ms=>{ if(!MOB()) return; for(const m of ms) for(const a of m.addedNodes) if(a.nodeType===1) walk(a); }).observe(document.body,{childList:true,subtree:false});
   document.addEventListener('input',()=>{ if(MOB()) setTimeout(()=>{ const sv=document.getElementById('searchov'); if(sv) walk(sv); },0); },true); }
-/* touch words only (director: "Mobile users don't need to know about 'space' in the how to fish tooltip"). The phone builds run on touch
-   screens, so the hint, the catch card and the pages never mention Space, clicking or a mouse, even if a browser reports a mouse. */
-const TOUCH_TXT=[[/<b>Click the water<\/b> where you want to cast \(or hold Space for the power meter\)\./g,'<b>Tap the water</b> where you want to cast.'],
-  [/<b>Hold<\/b> on the water \(or Space\) to charge a cast, <b>release<\/b> to throw\./g,'<b>Touch and hold</b> the water to charge a cast, <b>let go</b> to throw.'],
-  [/Click or press Space to set the hook\./g,'Tap to set the hook.'],[/^Release to cast\./,'Let go to cast.'],
-  [/Click or press Space to keep fishing/g,'Tap to keep fishing'],[/Click a fish for its records/g,'Tap a fish for its records'],[/\s*\(or (hold )?Space[^)]*\)/g,'']];
-const touchText=s=>{ if(!s||!/Space|Click|Release/.test(s)) return s; let t=s; for(const [re,to] of TOUCH_TXT) t=t.replace(re,to); return t; };
-{ const fix=el=>{ if(!el) return; const h=el.innerHTML, t=touchText(h); if(t!==h) el.innerHTML=t; };
-  const watch=id=>{ const el=document.getElementById(id); if(!el) return; fix(el); new MutationObserver(()=>fix(el)).observe(el,{childList:true,characterData:true,subtree:true}); };
-  const start=()=>{ watch('hint'); watch('card'); }; if(document.readyState==='loading') addEventListener('DOMContentLoaded',start); else setTimeout(start,0);
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(P){ const it=document.createTreeWalker(P,NodeFilter.SHOW_TEXT); let n; while((n=it.nextNode())){ const v=n.nodeValue; if(!/Space|Click/.test(v)) continue; const t=touchText(v); if(t!==v) n.nodeValue=t; } } }catch(e){} return r; }; }
 /* Save > App on phones: how to install Driftline on THIS phone (the Windows program was the only thing offered) */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='save') return r; const P=$('panel');
       const tile=[...P.querySelectorAll('.tile')].find(t=>/Windows desktop app/.test(t.textContent)); if(!tile||tile.dataset.mb) return r; tile.dataset.mb='1';

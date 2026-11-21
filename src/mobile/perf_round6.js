@@ -65,4 +65,5 @@ PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn
 PLAT.glowPx=()=>MOB()?128:256;              /* smaller glow dots */
 PLAT.movingDecorMs=()=>MOB()?100:0;         /* moving decorations refresh 10x a second */
 PLAT.quietTabSwitch=MOB;                    /* tab switches without the per-card animation or a forced layout */
+PLAT.touch=()=>true;                        /* phones are touch screens: hints and cards say Tap / Let go and never Space or click, even if a browser reports a mouse */
 PLAT.fpsText=fps=>(MOB()&&typeof mobFpsText==='function')?mobFpsText(fps):null;

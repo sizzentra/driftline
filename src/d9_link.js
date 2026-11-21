@@ -51,7 +51,7 @@ function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
   const get = m==='get' ? `<div class="row" style="gap:8px;flex-wrap:nowrap"><input id="xfin" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123 456" value="${XF.code?xfCodeFmt(XF.code):''}" class="xfin"><button class="btn" data-act="xfgo">Connect</button></div>
       <div class="meta">Type the code shown on your other device.</div>` : '';
   return `<div class="tile" style="margin-top:12px;border-color:#7fc8a988"><h4>📲 Move progress between phone and PC</h4>
-   <div class="meta">Works both ways. Tap <b>Send</b> on the device that has your progress and <b>Get progress</b> on the other one.</div>
+   <div class="meta">Works both ways. ${PLAT.touch()?"Tap":"Click"} <b>Send</b> on the device that has your progress and <b>Get progress</b> on the other one.</div>
    <div class="row" style="gap:8px;margin:10px 0;flex-wrap:wrap"><button class="btn ${m==='send'?'':'alt'}" data-act="xfsend" aria-pressed="${m==='send'}">📤 Send from this device</button><button class="btn ${m==='get'?'':'alt'}" data-act="xfget" aria-pressed="${m==='get'}">📥 Get progress on this device</button></div>
    ${send}${get}<div class="meta" id="xfstat" style="min-height:1.2em;font-weight:700${XF.ok?';color:var(--kelp)':''}">${esc(XF.stat)}</div>
    <details class="xfmore"><summary>Other ways (if the code won’t connect)</summary>

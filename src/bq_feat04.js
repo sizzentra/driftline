@@ -36,7 +36,7 @@ function weeklyHTML(){ const w=ensureWeekly(), done=w.quests.filter(q=>q.claimed
 { const _rb=renderBounties; renderBounties=function(P){ _rb(P); try{ const d=[...P.children].find(c=>c.classList&&c.classList.contains('tile')&&/Daily tasks/.test(c.textContent)); const html=weeklyHTML(); if(d) d.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){} }; }
 { const _xw=extraAct2; extraAct2=function(b){ const a=b.dataset.act;
   if(a==='wqclaim'){ const w=ensureWeekly(), q=w.quests[+b.dataset.i]; if(!q||q.claimed||wqHave(q)<q.n) return 'skip'; q.claimed=true; const c=earn(q.coins*coinMult()); S.scales+=q.scales; try{ addPassXP(60); }catch(e){} try{ sfx.coin(); }catch(e){} toast('Weekly quest done: +'+fmt(c)+' coins, +'+q.scales+' Scales'); save(); return 'render'; }
-  if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){} toast('All weekly quests done! +25 Scales and a big Mystery Crate at the Boardwalk.'); save(); return 'render'; }
+  if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){} toast('Weekly quests done! +25 Scales and a big Mystery Crate (Boardwalk).'); save(); return 'render'; }
   return _xw(b); }; }
 if(typeof ACT_OK==='object'){ ACT_OK.wqclaim=(k,i)=>Number.isInteger(i)&&i>=0&&i<ensureWeekly().quests.length; ACT_OK.wqbonus=()=>true; }
 // the Bounties tab counts claimable weekly quests too
@@ -54,7 +54,7 @@ function forecastHTML(){ const now=weather(), f=wxForecast(5), tag=k=>(typeof WX
 setInterval(()=>{ if(S.tab!=='events') return; const box=document.querySelector('#panel .wxf'); if(!box) return; const now=Date.now()/1000, cur=Math.floor(now/WX_LEN); if(box.dataset.slot&&+box.dataset.slot!==cur){ box.outerHTML=forecastHTML(); return; } box.dataset.slot=cur;
   const l=box.querySelector('[data-wxl]'); if(l) l.textContent=mmss(wxLeft())+' left'; const f=wxForecast(5); box.querySelectorAll('.wxf-row:not(.on) .badge').forEach((b,i)=>{ if(f[i]) b.textContent='in '+mmss(Math.max(0,Math.round(f[i].at))); }); },1000);
 // a heads-up a minute before rare weather starts (once per weather change)
-let wxWarned=-1; setInterval(()=>{ try{ const cur=Math.floor(Date.now()/1000/WX_LEN), next=weatherAt(cur+1); if(!WX_SPECIAL.has(next.k)||next.k===weatherAt(cur).k||wxWarned===cur||wxLeft()>60) return; wxWarned=cur; toast(wxName(next.k)+' weather starts in under a minute: '+((typeof WX_TAG==='object'&&WX_TAG[next.k])||next.note)); }catch(e){} },5000);
+let wxWarned=-1; setInterval(()=>{ try{ const cur=Math.floor(Date.now()/1000/WX_LEN), next=weatherAt(cur+1); if(!WX_SPECIAL.has(next.k)||next.k===weatherAt(cur).k||wxWarned===cur||wxLeft()>60) return; wxWarned=cur; toast(wxName(next.k)+' in 1 min: '+((typeof WX_TAG==='object'&&WX_TAG[next.k])||next.note)); }catch(e){} },5000);
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .wxf-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
 #panel .wxf-row > b{flex:0 0 auto;min-width:96px}

@@ -19,7 +19,7 @@
   const _t=toast; toast=function(m){ try{ if(MOB()&&typeof m==='string'){
       let p=null;
       if(m.startsWith('Weather: ')){ const k=weather().k, n=wxName(k); p={kind:'chg',k,head:n+' now',rest:m.slice(9+n.length).replace(/^\.\s*/,' · ')}; }
-      else { const W1=' weather starts in under a minute: ', i=m.indexOf(W1); if(i>0){ const cur=Math.floor(Date.now()/1000/WX_LEN); p={kind:'warn',cur,k:weatherAt(cur+1).k,head:m.slice(0,i)+' in under a minute',rest:' · '+m.slice(i+W1.length)}; } }
+      else { const W1=' in 1 min: ', i=m.indexOf(W1); if(i>0){ const cur=Math.floor(Date.now()/1000/WX_LEN); p={kind:'warn',cur,k:weatherAt(cur+1).k,head:m.slice(0,i)+' in under a minute',rest:' · '+m.slice(i+W1.length)}; } }
       if(p){ if(!blocked()) show(p); else { pend=p; if(!poll) poll=setInterval(tick,1000); } return; } } }catch(e){ console.error(e); }
     return _t.apply(this,arguments); };
   if(/[?&]test\b/.test(location.search)) window.__wxNote=()=>({pending:pend&&pend.head, shown:!!(el&&el.classList.contains('on')), text:el&&el.textContent}); }

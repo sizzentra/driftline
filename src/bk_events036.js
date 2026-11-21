@@ -45,7 +45,7 @@ function chalPlace(c){ return 1+c.rivals.filter(r=>r[1]>c.best).length; }
 function chalReward(m){ const base=bestLoot(); return {coins:Math.round(base*25*m*coinMult()), scales:Math.max(1,Math.round(30*m)), tickets:Math.round(150*m), xp:Math.round(300*m)}; }
 function chalStart(id){ const C=CHAL[id]; if(!C||S.chal||(S.chalCd&&S.chalCd[id]>Date.now())) return false;
   const o=catchOdds(), extra=C.setup(o); S.chal=Object.assign({id, until:Date.now()+C.mins*MIN, loc:S.loc, prog:0}, extra);
-  toast(C.icon+' '+C.name+' started at '+curLoc().name+': '+C.rule(S.chal)+' in '+C.mins+' minutes.'); try{ sfx.catch(2); }catch(e){} save(); return true; }
+  toast(C.icon+' '+C.name+': '+C.rule(S.chal)+' in '+C.mins+' min.'); try{ sfx.catch(2); }catch(e){} save(); return true; }
 function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal=null; S.chalCd=S.chalCd||{}; S.chalCd[c.id]=Date.now()+CHAL_CD;
   let title, m=0; if(C.ranked){ const place=c.best>0?chalPlace(c):4; m=place<=3?[1,.55,.3][place-1]*C.m:0; title=c.best>0?(['🥇 First place!','🥈 Second place','🥉 Third place','Fourth place'][place-1]):'No fish weighed in'; }
   else { m=won?C.m:0; title=won?C.name+' complete!':C.name+': out of time'; }

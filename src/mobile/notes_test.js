@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Shorter hints, fight cues (“It’s jumping!”, “Let go!”, “Ease off!”, “Head shake!”) and messages, same meaning, jokes untouched. Scrap now names the rarity of the Nibbles. The catch card no longer says “dismiss” after an oddity.',
+  'Phones: the words that used to be swapped in afterwards (tap, let go) are now written in the game itself; please tell me if any “click” or “Space” shows up anywhere.',
+  '## Test build 2035',
   'From your two sweep reports: Market Rush gives its full 30% with the Merchant Path; picking a bait no longer makes the bait buttons jump; tapping a water in Bounties’ sideways row keeps the row where it was (this one is on every build).',
   'iPhone SE size: the top bar no longer cuts “Worms”; when room runs out the chips sit closer together.',
   '## Test build 1943',

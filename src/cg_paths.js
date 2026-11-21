@@ -111,7 +111,7 @@ function renderPaths(P){ const open=SPEC_TIERS.filter(T=>S.lvl>=T.lvl).length, c
    <div class="meta" style="margin-top:4px">${chosen} chosen · ${open} of ${SPEC_TIERS.length} open at level ${S.lvl}</div>
    <div class="path-list">${PATH_ORDER.map(pathCard).join('')}</div>`; };
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='specrm'){ const ti=+b.dataset.i, T=SPEC_TIERS[ti]; if(!T||!S.specs[ti]) return 'skip'; const fee=specFee(ti); if(S.money<fee){ toast('Removing this path costs '+fmt(fee)+' coins.'); return 'skip'; }
-    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Its rank is kept if you pick it again.'); save(); return 'render'; } return _ea(b); }; }
+    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Pick it again to keep its rank.'); save(); return 'render'; } return _ea(b); }; }
 if(typeof ACT_OK==='object') ACT_OK.specrm=(k,i)=>Number.isInteger(i)&&i>=0&&i<SPEC_TIERS.length;
 // feats for the longer road
 try{ const f5=FEATS.find(f=>f.id==='paths5'); if(f5){ f5.name='Five roads'; f5.d='Choose five Paths'; }

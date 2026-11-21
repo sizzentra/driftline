@@ -220,7 +220,7 @@ const G = {st:'idle', power:0, pdir:1, t:0, bob:{x:0,y:0}, from:null, to:null, w
   fish:null, pend:null, d:0, d0:0, maxOut:0, ten:0, sta:1, temper:0, run:false, runT:0, ev:null, evT:2, evDur:0, hold:false, tickT:0, warnT:0,
   parts:[], lastCast:.5, flash:0, nextBolt:5, hot:null, hotNext:8, inHot:false, land:null, perfect:false};
 
-function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+' Sell your catch or move fish to the aquarium.'); setTab('cooler'); return; }
+function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+' Sell or move fish to the Aquarium.'); setTab('cooler'); return; }
   if(S.baitSel!=='worm' && S.bait[S.baitSel]<=0){ S.baitSel='worm'; renderBait(); }
   G.st='charging'; G.power=0; G.pdir=1; ac(); }
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
@@ -275,9 +275,9 @@ function breakStreak(){ const n=S.streak; if(!n) return; const keep=maxed("strea
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
   G.st='idle'; G.fish=null; G.inHot=false; if(kind!=='nohook') breakStreak(); /* director 2026-11-18: a missed strike keeps the streak; only a hooked fish that gets away ends it */
-  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! It lost its temper. Let go now and then. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
+  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! Let go when it gets angry. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
   else if(kind==='nohook'){ sfx.lost(); toast('Missed a bite'); } /* a missed strike said "slipped off the hook" before */
-  else { sfx.lost(); toast((kind==='spool' ? 'It ran out all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
+  else { sfx.lost(); toast((kind==='spool' ? 'It took all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
   if(f.hot) S.stats.hot++; G.inHot=false;
@@ -407,7 +407,7 @@ const FEATS = [
   {id:'rank20',name:'Master angler',          d:'Reach angler rank 20',      p:()=>[anglerRank(),20],     coins:150000, pt:2},
   {id:'rank50',name:'Grand master',           d:'Reach angler rank 50',      p:()=>[anglerRank(),50],     coins:2000000, pt:4},
   {id:'frenzy5',name:'Frenzy fan',            d:'Play 5 fish frenzies',      p:()=>[S.gstats.frenzy,5],   coins:3000},
-  {id:'frenzy100',name:'Fast fingers',        d:'Tap 100 frenzy fish',       p:()=>[S.gstats.frenzyFish,100], coins:20000, pt:1},
+  {id:'frenzy100',name:'Fast fingers',        d:'Grab 100 frenzy fish',       p:()=>[S.gstats.frenzyFish,100], coins:20000, pt:1},
   {id:'star1', name:'Make a wish',            d:'Catch a falling star',      p:()=>[S.gstats.stars,1],    coins:2000, pt:1},
   {id:'crates10',name:'Crate expectations',   d:'Open 10 Mystery Crates',    p:()=>[S.gstats.crates,10],  coins:10000, pt:1},
   {id:'decor5',name:'Interior designer',      d:'Place 5 decorations in your aquarium', p:()=>[S.aq.decor.length,5], coins:8000, pt:1},

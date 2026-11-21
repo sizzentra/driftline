@@ -2,6 +2,10 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Settings › Save & codes: Download for Windows works on the test build again (it pointed to a folder the installer isn’t in).',
+  'Shorter hints, fight cues (“It’s jumping!”, “Let go!”, “Ease off!”, “Head shake!”) and messages, same meaning, jokes untouched. Scrap now names the rarity of the Nibbles. The catch card no longer says “dismiss” after an oddity.',
+  'PC: tap became click on the frenzy hint, the Fast fingers feat, the pet hint, moving progress and the casting setting.',
+  '## Test build 2035',
   'From your two sweep reports: Market Rush gives its full 30% with the Merchant Path; tapping a water in Bounties’ sideways row keeps the row where it was (this one is on every build).',
   '## Test build 1943',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space. On the iPhone, Run every check ran out of memory during the test suite; it should now finish (the suite itself uses about a quarter of the memory it did, and lets go of each test’s pictures).',
