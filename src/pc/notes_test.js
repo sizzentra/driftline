@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space. On the iPhone, Run every check ran out of memory during the test suite; it should now finish (the suite itself uses about a quarter of the memory it did, and lets go of each test’s pictures).',
+  '## Test build 1832',
   'Tester tools › Run every check: it now runs only this device’s checks (pick iPhone, Android or PC at the top; the game picks for you), carries on if the phone reloads the page partway (before, the run quietly started over and never finished), keeps the screen awake, and Copy report works at any time (it copies what is done so far).',
   '## Test build 1402',
   'Hair: Curly is back to its hand-drawn curls. Under every hat hair now tucks in: nothing bulges out around the brim or pokes up beside the party hat, and big hair sits flat under it. Every style has a light strand texture instead of a flat painted look.',

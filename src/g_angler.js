@@ -24,7 +24,7 @@ function a3Legs(lk,D){ const o=lk.outfit; if(o==='wetsuit') return D('#1c1c26');
 // ---------- 0.3 angler body: rounded, lit limbs that bend, eased poses, a rim light from the sky ----------
 // eased pose state for the angler on the water (other previews draw a still pose)
 const A3={lean:0,crouch:0,stance:0,tilt:0,hx:9,hy:-35,lt:-1};
-const A3OFF=new WeakMap();
+const A3OFF=new WeakMap(), A3SCR=new Map();
 // two-bone reach: joint between a and b with segment lengths l1, l2; pick the bend whose joint lies on the 'side' (+1 = larger y / lower, -1 = larger x / forward)
 function a3IK(ax,ay,bx,by,l1,l2,side){ const dx=bx-ax, dy=by-ay, d=Math.max(.01,Math.min(Math.hypot(dx,dy),l1+l2-.02)), a=Math.atan2(dy,dx), k=Math.acos(clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1));
   const j1={x:ax+Math.cos(a+k)*l1,y:ay+Math.sin(a+k)*l1}, j2={x:ax+Math.cos(a-k)*l1,y:ay+Math.sin(a-k)*l1};
@@ -63,7 +63,9 @@ function drawAngler3(c,x,y,s,lk,o={}){
   const live=o.t!=null && c===g && !o.forceSt;
   const m=c.getTransform(), ps=Math.max(.4,Math.hypot(m.a,m.b)*s), BX=40, BT=108, BB=18, w=Math.ceil(BX*2*ps), h=Math.ceil((BT+BB)*ps);
   if(w*h>5e6){ const r=a3Body(c,x,y,s,lk,o,live); if(o.t!=null&&typeof wearFxDraw==='function') wearFxDraw(c,lk,o.t,p=>p,1); A3REEL=live&&r.reel?r.reel:null; return {x:r.hand.x,y:r.hand.y,back:r.back,reel:r.reel,fingers:()=>a3Fingers(c,r.hand,r.back,r.ra,s,r.sk,r.skD)}; }
-  let O=A3OFF.get(c); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; A3OFF.set(c,O); }
+  /* scratch canvases: the angler on the water keeps its own (its picture is reused between frames); every other picture (wardrobe,
+     previews, thumbnails) shares one set per size (2026-11-20, #151: one new set of about 3 MB for every preview ran the iPhone out of memory) */
+  let O=live?A3OFF.get(c):A3SCR.get(w+'x'+h); if(!O){ O={a:document.createElement('canvas'),b:document.createElement('canvas')}; if(live) A3OFF.set(c,O); else { if(A3SCR.size>=6) A3SCR.delete(A3SCR.keys().next().value); A3SCR.set(w+'x'+h,O); } }
   if(O.a.width!==w||O.a.height!==h){ O.a.width=O.b.width=w; O.a.height=O.b.height=h; }
   /* phones only (director, 2026-11-18: Android 25-38 fps at 60): the lit picture below costs two offscreen canvases and ~8 blend
      passes, which Android graphics chips pay for with a flush each. On phones it is redrawn at most every 33 ms and reused in between

@@ -316,3 +316,9 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 |---|---|---|
 | build.ps1 counts per build: unused functions (refused), wrap layers, force-hide rules, setInterval, MutationObserver (may only go down; `tools/redundancy_baseline.json`, lowered by the build) | every src file; a new timer, watcher, wrapper or hide rule anywhere refuses the build | planted each of the six once: refused; auto-lower tested |
 | Deleted unused: boardwalkBanner (d3_update), clawHTML (d8_v21; the claw machine draws from t_board), pathOn (cg_paths), bountySlots (e_ui), specRow (d5_v16) | nothing: no callers | full sweep |
+
+## Memory fix (#151, 2026-11-20, test builds)
+| Change | Affects | Check |
+|---|---|---|
+| `renderPanel` (e_ui.js) releases the pictures the previous redraw dropped (only those no longer on the page), at the next redraw and once idle | every page on every build; anything that keeps a canvas element off the page and puts it back later would come back blank (none found) | qa memory test; full sweep |
+| `drawAngler3` (g_angler.js): only the angler on the water keeps its own scratch canvases; every other picture shares one set per size (`A3SCR`, last 6 sizes) | wardrobe, previews, look sheets, hair check; same pixels (cleared each time, exact size) | qa memory test, C32 hair (pixel check), content checks |
