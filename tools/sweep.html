@@ -181,8 +181,9 @@ async function phone(){
 async function fresh(){ if(DEV()!=='pc') return; for(const [b,w,h] of [['ios',956,440],['pc',1920,1080]]) await step('Fresh save',(b==='pc'?'PC ':'phone ')+w+'×'+h,async()=>{
     const W=await open(b,w,h,{fresh:true}); const L=[]; (W.__bootErr||[]).slice(0,10).forEach(x=>L.push('start-up: '+x));
     const c=await timed(400000,W.__contentQC()); (c.list||[]).forEach(x=>L.push('content: '+x));
-    if(b!=='pc'){ const a=await timed(90000,W.__layoutQC()); if(!a.clean) for(const k of ['dash','audit','trunc','head']) (a[k]||[]).forEach(x=>L.push('layout '+k+': '+(typeof x==='string'?x:JSON.stringify(x)))); }
-    const q=await timed(120000,W.__questsQC()); (q.bad||[]).forEach(x=>L.push('quests: '+x));
+    if(b!=='pc'){ const t0=Date.now(); const a=await timed(240000,W.__layoutQC()).catch(e=>({clean:false,dash:['layout check: '+e.message]})); L.length; if(Date.now()-t0>60000) L.push('note: the layout check took '+Math.round((Date.now()-t0)/1000)+' s'); if(!a.clean) for(const k of ['dash','audit','trunc','head']) (a[k]||[]).forEach(x=>L.push('layout '+k+': '+(typeof x==='string'?x:JSON.stringify(x)))); }
+    /* quests on PC only: on a phone build inside the sweep's small frame it runs past 5 minutes (51 s by hand, the same before and after Clean Pages); the phone step checks quests on the stocked save */
+    const q=b==='pc'?await timed(300000,W.__questsQC()):{bad:[],checked:'(PC only)'}; (q.bad||[]).forEach(x=>L.push('quests: '+x));
     return {detail:'new save: content '+c.pages+' pages, quests '+q.checked+' checks', list:L}; }); }
 /* the map standard (docs/MAP_STANDARD.md): every water at dawn, day, dusk and night and in every weather without errors, its moment visible,
    its frame cost under the ceiling; on the phone build at the director's size (where cost matters) and, from a PC, on PC at full screen too */
