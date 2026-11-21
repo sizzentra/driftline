@@ -52,8 +52,9 @@ Every object on a map has exactly one placement type, and its type decides its r
 30. **Grounded and connected** (rules 15–21): feet touch the ground, swimmers make ripples, low fliers get a soft reflection.
 31. **Cheap to draw:** every creature stays within the speed limit, so a busy map still runs smoothly on phones.
 
+**All 21 waters, old and new, are held to this same standard** (director, 2026-11-21): the production run brings every water up to it, and the director judges the results.
+
 ## Still to decide
-- How the older 10 waters are brought to this standard.
 - The speed limit (measured first).
 
 ## Checked by tools (to build with it)
