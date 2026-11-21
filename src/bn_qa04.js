@@ -690,7 +690,7 @@ if(/[?&]test\b/.test(location.search)) window.__snapQC=async(o={})=>{ const wait
     const pick=[...new Set([B[0],B[B.length>>1],B[B.length-1]])];
     for(const b0 of pick){ const k=keyOf(b0); let b=P.querySelector(k)||b0; const sc=scroller(b); if(sc){ const r=b.getBoundingClientRect(), q=sc.getBoundingClientRect(); sc.scrollTop+=(r.top+r.height/2)-(q.top+q.height/2); await wait(80); }
       b=$('panel').querySelector(k); if(!b||!vis(b)) continue; const r0=b.getBoundingClientRect(), s0=sc?sc.scrollTop:0, cy0=r0.top+r0.height/2, cx0=r0.left+r0.width/2; taps++; /* centres: a thicker border on the chosen option is not movement */
-      let rev=false; const onRev=()=>{ rev=true; }; addEventListener('dl-reveal',onRev,true); /* trying something on may scroll to its preview on purpose (C13, pvReveal): not a jump */
+      if(/pv$/.test(b.dataset.act||'')) continue; /* a try-on (petpv, dockpv...) opens its preview on purpose: not a pick */ let rev=false; const onRev=()=>{ rev=true; }; addEventListener('dl-reveal',onRev,true); /* trying something on may scroll to its preview on purpose (C13, pvReveal): not a jump */
       b.click(); await wait(420); removeEventListener('dl-reveal',onRev,true); if(rev) continue; const b2=$('panel')&&$('panel').querySelector(k); if(!b2||!vis(b2)) continue; const r1=b2.getBoundingClientRect(), sc2=scroller(b2);
       const dy=Math.round(r1.top+r1.height/2-cy0), dx=Math.round(r1.left+r1.width/2-cx0);
       /* up to 4 px allowed: on small PC windows the sticky tab bar restyles as the page scrolls (a nudge at the very end of short pages) */
