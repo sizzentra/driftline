@@ -53,6 +53,26 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Speed budgets per page and per frame, checked by the sweep.
 - ☐ Balance targets checked automatically (`__bal` against written targets).
 
+## Director's bug list (2026-11-21, being collected in spurts; STORED ONLY, not fixed until the director says the list is finished)
+- PC: some maps run badly; Willow Pond's frame rate is very unstable. Fix it, and make sure no map has the problem.
+- **Ongoing fish graphics revamp** (part bug, part new art): a pass so fish based on real fish look like them. Named: arowana; most catfish and catfish-like fish (the tiger shovelnose looks nothing like its description). Fish should become more recognisable; the fish models haven't had love in a while. The director sees it as a good test of a picture comparison tool (note: automatic picture comparisons were dropped 2026-11-20; what exists is the fish sheet `__fishSheet` for side-by-side pictures, to talk over).
+- Phones: when the catch card pops up after a catch, the right side panel disappears (director's screenshot: a Bullhead card at Willow Pond; the pencil in the corner is the director's screenshot tool, not the game).
+- Phones (PC not checked yet): fish pictures in a scrolling list flash and reload as the scroll bar fades out; once it has faded, the picture reloads and the scroll bar shows again (director's video: C:UserssizzeDownloadsscreen-20261121-123130-1795282278162.mp4).
+- **URGENT: Fish feel update** (pasted 2026-11-21, likely from Cam; stored word for word in meaning, not built yet):
+  - Tension doesn't reset the moment a fish eases up: reeling constantly should still build the tension and temper bars.
+  - Temper can drop quite fast while not reeling. A full temper bar makes the fish choose fight actions rapidly, each using much less of its fight.
+  - When you ease up, tension falls at a steady rate (much more slowly while the fish is doing a fight action).
+  - Reeling during any fight action (except a jump toward you) drains its fight bar faster.
+  - Between fight actions the fish is in one of two unannounced states: staying still (today's reel-in feel) or swimming toward you (reel-in speed fluctuating 25-50% faster). Swimming toward you lasts at most 3 s and at least 0.25 s at a time; the higher the rarity, the less likely it stays in that state long (but it still can).
+  - A tired fish reels in 10-60% faster by rarity (mythic 10%, legendary 20%, rare 30%, and so on).
+  - Second wind: every fish gets 1; rares and epics can get 1 more; legendaries and mythics 2 more. Attempts past the first are less likely to succeed: a 50/50 coin flip after 5 s of tiring again, then again after 3 s, then after 1 s, until one succeeds. A legendary or mythic's 3rd attempt doubles those waits and gives only 25% fight.
+  - Final pass: every modifier to fight dynamics, from any source, must make a real mathematical difference (tension, reel speed, temper-rate reduction).
+  - In waters with dives, 2/3 of runs are normal runs and 1/3 are dives.
+  - Perfect hooks can return to their former glory.
+- Aquarium boosts show their net value when hybrids or other sources change them.
+- Oddities still reel in slightly fast; this should ease off with rarer oddities.
+- Cooler: add a "Hybrid" toggle to the Scrap / Sell filter, next to the Shinies toggle.
+
 ## Willow Pond home pilot: the director's notes (2026-11-21, being discussed slowly; NOTHING DECIDED, nothing built from these yet)
 Taken from the director's phone screenshots (iPhone, Your home page, Lantern tab and the closed view). Feeds Homes for Every Water (batch 5) once talked through.
 - **Good:** the scene inside the home page runs smoothly with no stutters; the page is laid out well and easy to follow.
