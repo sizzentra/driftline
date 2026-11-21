@@ -15,8 +15,14 @@ One job: what every water must have. Homes have their own standard (docs/HOME_ST
 10. **Its own art:** no pieces copied from other waters.
 11. **Its own sound:** music and ambience that suit it.
 12. **Events and special weather work there** (Blood Moon, storms, starfall and the rest look right).
-13. **A speed limit,** so it runs smoothly on phones (the number is set by measuring every water).
+13. **A speed limit (a ceiling),** so it runs smoothly on phones: at the start of the production run every water is timed on the phone build (day, night, storm, with an event); the limit is set just above today's smooth ones, and any heavier water is lightened without changing its look. The minimums in this list (life, a moment, a landmark, nothing empty on big phones) are the floor.
 14. **Its fish, Fish Log, lessons and Waters card.**
+
+## Side-view design step (director, 2026-11-21: art kept being drawn from the front)
+Before any piece of art is drawn:
+1. **Describe its side silhouette in one line** (for example: a pergola from the side is two posts, a beam, and the cloth as a thin sagging line on top with short ends hanging straight down).
+2. **The director approves that description** (or a rough sketch) during the idea queue.
+3. **Only then is it drawn,** and the drawing is judged against that description. Anything that shows a front or top view (scallops facing you, curtains hanging toward you, a roof seen from below) is redone, not patched.
 
 ## Placement types (director, 2026-11-21)
 Every object on a map has exactly one placement type, and its type decides its rules (rules 15–21 below apply by type). Anything that hovers must be Floating / flying.
@@ -55,7 +61,7 @@ Every object on a map has exactly one placement type, and its type decides its r
 **All 21 waters, old and new, are held to this same standard** (director, 2026-11-21): the production run brings every water up to it, and the director judges the results.
 
 ## Still to decide
-- The speed limit (measured first).
+- Nothing: the map standard is decided (2026-11-21). The speed limit's number comes from the measurement at the start of the production run.
 
 ## Checked by tools (to build with it)
 - Draws by day, dusk, dawn and night without errors; at least 3 moving things; a moment within 60 seconds; nothing drawn over the fishing area; frame cost under the limit; every event and special weather draws.

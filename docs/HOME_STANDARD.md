@@ -23,6 +23,12 @@ One job: what every home is, how it is built, what the player can change. Part o
 - **No unlocking:** as soon as a water is reached, its home and every style and colour are free to use.
 - Each water keeps its own choices.
 
+## Side-view design step (director, 2026-11-21: art kept being drawn from the front)
+Before any piece of art is drawn:
+1. **Describe its side silhouette in one line** (for example: a pergola from the side is two posts, a beam, and the cloth as a thin sagging line on top with short ends hanging straight down).
+2. **The director approves that description** (or a rough sketch) during the idea queue.
+3. **Only then is it drawn,** and the drawing is judged against that description. Anything that shows a front or top view (scallops facing you, curtains hanging toward you, a roof seen from below) is redone, not patched.
+
 ## Drawing
 - **Glow Diorama at medium detail:** the maps' lighting language (rim light, soft shading, a glowing light fixture, water contact), fine textures hinted rather than drawn piece by piece.
 - **A clear silhouette and contrast against its map** (never grey on grey or white on white).

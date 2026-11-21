@@ -8,6 +8,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 ## Open now (the one place for open work and decisions; CLAUDE.md only points here)
 **Found, not fixed yet** (2026-11-21)
 - ☐ PC at 1024×640, Pets › Customize: picking the Plush Crab Hat (owned, the last hat in the list) puts the page back at its top and the hat moves 69 px (`__snapQC({only:['pets']})` reproduces it every time on the test save). Not a try-on (no reveal). Not caused by the home pilot (that page is untouched); first seen on 2026-11-21 because this browser's save owns that hat.
+- ☐ PC: the Full screen button does nothing (director, 2026-11-21). Owner: `src/pc/ui_settings.js` toggle (and `d2_extra.js` 'fullscreen'). Where (director, 2026-11-21): fails in the **Driftline Test** desktop app (`desktop/DriftlineTest.cs`, test build); works in the live Windows app. Compare the two wrappers' full-screen handling and the test build's PC code; reproduce before fixing (checklist 1b).
 
 **Sweep tool bookmark** (director, 2026-11-20: tool problems wait here; the game findings from the same runs were fixed first). From the real-phone runs on build 1946:
 - ☐ iPhone 16 Pro Max (Safari view from Tester tools): 56 min for 29 checks (Pixel: 6.7 min for 28). The page reloaded (out of memory) during the test suite at 956×440, Content 440×460, Content (extreme) 667×375 and Fish decorations, even after the #151 memory fix. Likely cause: each check loads a whole 2.8 MB game into a frame inside the page, and Safari does not hand back a closed frame's memory quickly. Ideas: open each check as its own page instead of a frame (a fresh page frees everything), or run fewer, smaller checks on iPhone.
@@ -55,26 +56,67 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 One large overnight run, so testing happens once over many changes. Each item is built only when its concept is decided (status per item); open questions are settled in conversation first.
 | # | Item | Concept status | Notes |
 |---|---|---|---|
+| P0 | **Cam's fishing feel, always first in the run** (director, 2026-11-21), with a rollback option for the fishing changes only. Source: **docs/cam/FIGHT_FEEL.md** (Cam's answered questionnaire, received 2026-11-21; original .docx beside it). It comes before everything else; the earlier doc only where it isn't clear (director, 2026-11-21) | ☑ answered (landing times, action shares 35/45/20, chains, second wind once, dive limits and magenta zone, spool-out at 150 m, snags faster); rollback (director, 2026-11-21): **both** a safety tag `rollback/before-fishing-feel` before any fishing change, and a Tester tools switch **"Fishing: New / Old"** (test builds only; covers Cam's fight rules, fast run turns #5, hotspot hook attempts #10; removed with the old code once the director approves) | Feel call items built as a first version and flagged |
+| P0b | **Cam's fix list** (docs/cam/FIX_LIST.md, 13 items, received 2026-11-21): scrap text, slow water portraits, Florida Keys and Amazon upgrades, fast run turns, wrong badges, Scrap all beside Sell all, rarity sort, Nibble jitter, hotspot hook attempts, imperial/metric, Uncharted Waters, Hollow Trench depth | ☑ written; the hook-attempt numbers are a first version for the director and Cam | maps go with P4, run turns with P0 |
 | P1 | **Homes for every water** to docs/HOME_STANDARD.md, with the Willow Pond lessons: no shore; 3 real styles plus "nothing" as a 4th where offered; side view; fits the deck exactly; lights stay at the light spot; color matters; sharp close-up | ☐ needs each water's home concept: its 4 parts + light, 3 styles each, curated colors (to be proposed and approved) | Stonebrook River gets its mill landing; old homes (dock, pier, ice, beach, boat, trawler, raft, stone, crystal) and the 10 new ones (bridge, ledge, skiff, stilts, hay dock, platter, steel pier, felucca, hover pad, marble) |
 | P2 | **Remove decorations and the cozy bonus** everywhere (saves cleaned on load; Tide Pass, feats, quests, lessons, Help, search reworded) | ☐ needs: what replaces decoration rewards in the Tide Pass, feats and quests | follows P1 |
 | P3 | **Untangle the pages** (item B below): fold the page layers into each page | ☑ concept decided (files by purpose, five most-opened pages first) | overnight-suited |
-| P4 | **Map standard** (docs/MAP_STANDARD.md) | ◐ list decided; open: the older 10 waters, the speed limit | |
-| P5 | Items F (flavour text coverage) and G (PC review) once their concepts are settled | ☐ | |
-Order inside the run: P1 → P2 → P4 → P3 → P5, one build at the end, one notes entry, pictures for every changed home.
+| P4 | **Map standard** (docs/MAP_STANDARD.md) for every water, old and new | ☑ decided (speed limit measured at the start of the run) | |
+| P5 | Items F (notices removed, feedback lines kept) and **G: the PC overhaul** (System clean-up › G: phone systems and names on PC, header-only placement, one size for all menus, everything clickable, sharper and more detailed PC drawings) | ☑ F and G decided (2026-11-21) | PC Fish Log untouched |
+**Overnight roadmap batches (director, 2026-11-21):**
+| Batch | Projects |
+|---|---|
+| 1 | 1 Fight Feel (P0 + Cam's list #5 fast run turns, #10 hotspot hook attempts; New / Old switch + safety tag) · 2 Squash Pass (Cam #1, #2, #6, #9, PC Full screen, PC pet hat jump) · 3 Cam's Small Changes (Cam #7, #8, #11, #12, #13) |
+| 2 | 4 PC Reborn (P5 › G) |
+| 3 | 5 Quiet Waters (P5 › F) · 6 Living Maps (P4; Florida Keys #3 and Amazon #4 first) |
+| 4 | 7 Sharper Tools (sweep fixes, fresh-save pass, bug log, docs tidy) · 8 Clean Pages (P3) |
+| 5 | 9 Homes for Every Water (P1) · 10 Goodbye Decorations (P2) |
+| 6 (final) | 11 Balance Targets · 12 Report Button (director, 2026-11-21) |
+
+**Night rules (director, 2026-11-21):**
+1. Batches 1–4 run in order; Fight Feel always starts first. Batches 5–6 are **not built tonight**: the director and Claude go over them the next day.
+2. A safety tag before each project (`rollback/before-<project>`).
+3. Bugs and anything else found are fixed on the spot and ship with that batch.
+4. **Batches 1–4 are finished in full:** nothing is skipped or left as a held first version; a problem is solved, not set aside. (Director, 2026-11-21: "flag and skip" applies only to batches 5–6.) The map art is still shown as pictures in the morning (see below).
+5. (Batches 5–6 only, when they are built: look and feel calls as a flagged first version; a blocker written here and skipped.)
+6. **Each batch (1–4) is published to the test builds as soon as it is done**, after the full checks; nothing goes live; 0.4.9 still waits for the director's testing on every platform.
+7. After batches 1–4 and all fixes are published: **one final huge QC** over all of it and how it works with the current patch (every platform, the full checklist, the interactions between the batches), fixes published to the test builds.
+8. Morning report: what is done, flagged and skipped, the pictures to judge, and testing directions for the director and Cam.
+
+Map art (director, 2026-11-21): drawn overnight without approving descriptions first (Claude writes each piece's side-view line and draws to it); after all batches are done, the director and Cam look at the pictures in the morning and approve or send back.
+
+Old order note (superseded by the batches): P1 → P2 → P4 → P3 → P5; one build at the end, one notes entry, pictures for every changed home.
 
 ## System clean-up (from the 2026-11-20 audit; going over each with the director)
 - ☑ A. Redundancy counter (above). Starting numbers: PC 293 wrap layers, 67 force-hide rules, 31 timers, 16 watchers; phones 322 / 82 / 33 / 18.
 - ✗ 1. Picture comparisons: dropped (director, 2026-11-20: “We will judge and tell you when necessary”; it adds work to every round and they would rather judge looks themselves). Look changes still go to them with before/after pictures, as before.
 - ☐ B. (overnight project, director 2026-11-20: done while the director and Cam are away; Claude reminds them now and then) Untangle one system at a time, pages first (choices offered: files named by what they do, the five most-opened pages first, one test build per batch of five; estimate 15–25 h of work in about 5 batches plus 3–5 h for shared layers, batch 1 about 4–6 h): fold wrap layers into each page’s own code, files named by what they do; no look change (checked by the existing checks, with before/after pictures of each untangled page for the director). (Ask: OK to move and rename files?) Measured: on phones about 90% of opening Settings is the layers, not the page.
 - ☑ C. (first version on the test builds, 2026-11-20: docs/TEXT_STANDARD.md drafted, length limits approved; phone wording written at the source; text checks proven; tips and pop-ups shortened, list in docs/TEXT_CHANGES_2026-11-20.md) Text standard and check: tone, length per place, phone words (“Click or press Space” still in shared text), apostrophes, spoilers in notes. (Ask: draft the tone from the existing jokes, or the director writes it?)
-- ◐ D. Map standard (home pilot at Willow Pond on the test builds 0114, waiting for the director): what every water needs (from C35), added to the map check. **Homes part decided (director, 2026-11-21): docs/HOME_STANDARD.md**; build plan waiting for approval. Rest of the map list still to go over.
+- ☑ D. Map standard decided (docs/MAP_STANDARD.md and docs/HOME_STANDARD.md); building waits for the production queue. Was: what every water needs (from C35), added to the map check. **Homes part decided (director, 2026-11-21): docs/HOME_STANDARD.md**; build plan waiting for approval. Rest of the map list still to go over.
 - ☐ E. Docs tidy: SYSTEMS_MAP split into map and log; CLAUDE.md trimmed.
 - ☐ 2. Bug log upgrade: fixed labels checked by a tool; “introduced in” and “fixed in”.
 - ☐ 3. “Report a problem” button in the test apps. (Ask: what it includes, where it sits.)
-- ☐ 4. Guided real-phone tap check. (Ask: 2 or 5 minutes; every build or before a release.)
-- ☐ 5. Rest of the checks overhaul (saves, speed budgets, balance targets). (Ask: target numbers.)
+- ✗ 4. Guided real-phone check: dropped (director, 2026-11-21: "we already play on phones"; the director and Cam report what they find).
+- ◐ 5. Rest of the checks overhaul: saves check → production queue (no input needed); speed → map standard; **balance targets wanted** (director, 2026-11-21): numbers for how long things take, checked by a tool, and **after a prestige you must clearly feel more powerful**. Numbers to come from the director and Cam.
 - ☐ F. Flavour text coverage (director, 2026-11-20): every kind of flavour text in the game (fish notes, item and oddity blurbs, quips, toasts, pet lines, loading and empty-page lines, catch cards) listed in one place, each with its rules (tone, length per place, spoilers, phone words) and a check that every item has its text and that the text follows them. Builds on C.
-- ☐ G. PC review (director, 2026-11-20): a big conversation with the director about how dated the PC systems and design are next to the phone versions. Claude prepares a side-by-side (every page and system: what phones have that PC lacks, older PC layouts and code, measured differences), then we decide together what PC gets.
+- ☑ G. PC review (director, 2026-11-20; questionnaire answered and the plan approved 2026-11-21: "the pc plan is right"; director: "pc feels like it's been overlooked for quite some time", so the run also tests every PC button and setting works). Goes into the production run as P5, with extra effort on detail.
+  - **Decisions (director, 2026-11-21):**
+    1. PC gets every system and naming change the phones got; phones are the reference for content, names, colors, icons and labels. Rules already set (notices removed, text standard, map and home standards) apply the same on PC.
+    2. PC keeps its own placement: **everything PC-related lives in the top header** (no side panel). The **Fish Log stays as it is on PC** (the one PC page the director likes). Every other page is redone from its phone version, laid out for the big screen.
+    3. Later, PC gets its own written UI rules (its own panels, expandables, layouts), but every system change still lands on both.
+    4. **One size for all PC menus:** one text and control scale on every page (like the phones' MB_UI), text always fits, no shrink-to-fit; checked by a PC measurement check like the phones' `__spec`.
+    5. **Everything that can be clicked through is clickable:** every chip, badge and count opens its page (the header's "Live: … left" opens Events at that event).
+    6. **PC feels like PC:** the big fishing scene stays the priority; sharper pictures at full screen resolution; more detailed PC-only drawings for maps, homes, aquariums and other systems, within a PC speed budget higher than the phones'.
+    7. Sizes: full screen 1920×1080 and 2560×1440 (both tested). Mouse only; controller later, not a priority.
+    8. Fishing works the same on both (Cam's fishing feel changes come as their own production item once written).
+    9. The header's Stats chip keeps letting the player pick what it shows.
+  - **What PC lacks next to the phones (Claude's check, 2026-11-21, test build 0159):**
+    - Sections: phones have Quests (Goals / Learn / Find / Help), Map, Upgrades, Collection, Stats, Challenges, Customize, Prestige. PC has Fishing, Upgrades, Collection, Challenges, Boardwalk, Customize: **no Quests, no Prestige section** (only tabs inside Waters), **no Stats section**, Boardwalk as its own section.
+    - Names: PC "Equipment" = phones "Tackle"; PC "Waters" / "Fishing" = phones "Map". Bait and Oddities are separate PC pages; phones reach Bait from the top-bar chip and fold Oddities into Collection (Oddities / Treasures).
+    - Header: phones have Tasks, Home and a labelled Search; PC still shows the old "Next goal" chip (phones moved goals into Quests).
+    - Pages without their phone tabs on PC: Bait (Switch / Buy bait / Special lures), Rods (Your rods / Rod rack / Attachments), Bounties (Daily tasks / Weekly quests / Bounties), Aquarium (Your tank / Decorate), Oddities (Oddities / Treasures), Pets (Your pets / Customize), Skills (Catching / Rare finds / Fighting / Coins & XP / Tank & pets), Feats (To do / Done), Events (Calendar / Challenges / Derby), Save (Move progress / Save codes / App), Prestige (Set sail again / Pearl relics). Only Your home already matches.
+    - While fishing: the phones' easier-to-watch fight (`mobile/fight08.js`) and boosts that are never hidden (`mobile/boosts07.js`).
+  - **Proposed tool (rule 5c):** a PC-vs-phone check that compares sections, page names and page tabs and fails on any difference not listed as a PC exception, so PC can't fall behind again.
 - Order (director, 2026-11-20): C, D, E, 4, 5, F, G, then B (overnight), then the report-related items last: 2 (bug log), 3 (Report a problem button) and the Sweep tool bookmark (top of Open now). Nothing jumps ahead of its place.
 
 ## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)

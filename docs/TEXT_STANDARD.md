@@ -12,13 +12,17 @@ Cozy, warm and a little funny, like a friend who fishes. The humour is light and
 
 ## The rules
 1. **Say it short: the moment, not the instructions** (director, 2026-11-20). “It’s jumping!” rather than “Get ready to let go!”. A hint or pop-up keeps everything it teaches, in as few words as it takes.
-2. **Never shorten jokes** (director). Jokes (the fishmonger, lost and snapped fish, the full cooler, seashells, pet reactions) stay as written. In a pop-up that ends with a joke, only the part before the joke is kept short.
+2. **Never shorten jokes** (director). Jokes stay where they are (pop-up feedback, the fishmonger, lost and snapped fish, the cooler, seashells, pet reactions, the Fish Log).
 3. **Fish Log descriptions keep their details** (director). They are knowledge, not tooltips.
 4. **Each device’s own words.** Phones: tap, touch and hold, let go; never click, hover, mouse, keyboard or Space. PC: click; keys only where the key really works. Both wordings are written side by side where the line lives (`PLAT.touch() ? '…' : '…'`), never swapped afterwards.
 5. **Curly apostrophes and quotes only** (’ “ ”). A straight one once ended a string and took both phones down.
 6. **American spelling: color** (director, 2026-11-21), everywhere players see it; checked by the text rules.
 7. **Plain words.** Name things the way the game shows them (Your home, not dock; Fish Log, not journal). Numbers as the player sees them (short numbers, the chosen weight unit).
 8. **Patch notes are spoiler-free but complete.** “21 new fish”, never their names; no crate-only or gift pets, hidden rods or exact odds.
+
+## Notices on the fishing screen (director, 2026-11-21)
+- **Notices come off the fishing screen:** messages about things happening around the player (the weather changed, an event went live, special weather soon, a challenge started) clutter the fishing and add nothing; the orange badges already tell the player. They are removed in the production run.
+- **Feedback stays:** short messages about what the player just did (sold fish, a snapped line, bought bait, cooler full), jokes included.
 
 ## Lengths per place (approved by the director, 2026-11-20)
 Measured on build 2114: the longest lines that read well today, rounded. Letters, not counting the joke at the end of a pop-up.
