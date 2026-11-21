@@ -45,7 +45,10 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 8. **Quality bar:** no errors, no "approximately right". Test every combination that applies; self-critique ("what would the director notice first?") before showing anything.
 9. **Smooth over frugal where it is cheap:** animations and effects run at full frame rate when the measured cost is small; phones throttle only what measurements show is costly.
 
-## The round checklist (every round, in this order)
+## Small changes: the quick path (director, 2026-11-21: "overkilling the tests" cost time and usage)
+A text fix, a number, one page's look or one water's art: edit → build → `next/sweep.html?only=gate&go` → only the check for what changed, **only on the platform it touches** (`?for=pc` for a PC file, `?for=phones` for a phone file, both only for shared code; `?only=phone`, `?only=content`, `?only=maps&water=<id>` …) → one test-notes line → publish to the test builds. Minutes, not the 40-minute sweep. No pictures unless the look changed; no new check tools in the middle of a feature (build one only when the same kind of bug has escaped twice). **The full checklist below runs once per batch before it is published, and always before anything goes live**; live hotfixes stay as strict as before.
+
+## The round checklist (once per batch before publishing, and before anything goes live)
 The order comes from the incident data (`docs/QC_ANALYSIS.md`, `docs/qc_incidents.csv`): cheapest and most severe first, slow and device-specific last, nothing edited after the final gate.
 1. Edit `src/`. Pick shared vs platform (rule 3 above). New page / chip / section / water / currency: run "Adding new things" below. A new check is **proven when it is written**: put the old bug back once and watch it fail (3 of 6 new checks on 2026-11-19 passed with their bug present until proven).
 1b. **A fix is verified only when the bug was reproduced first** on the unfixed page with the exact condition (e.g. a live event forced by shifting `Date.now`), then measured gone on the fixed page (#118: a Bait chip fix was reported working and changed nothing).
