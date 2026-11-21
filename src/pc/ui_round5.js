@@ -12,11 +12,6 @@
         chips.hidden=true; chips.style.display='none'; row.appendChild(sel); });
       const att=P.querySelector('.fhd-you'); if(att) att.classList.add('rd-slots'); }catch(e){ console.error(e); } return r; }; }
 
-// ---------- Skills: cards always line up in rows across the columns (director: "make that a priority even when making
-// changes"). The columns share one grid, so a card's height is set by the tallest card in its row. ----------
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='skills'||!FHD()) return r; const b=$('panel').querySelector('.fhd-skills'); if(!b) return r;
-      const n=Math.max(1,...[...b.querySelectorAll(':scope > .fhd-col')].map(c=>c.querySelectorAll('.fhd-body > .tile').length)); b.style.setProperty('--rows',n); b.classList.add('sk-rows'); }catch(e){ console.error(e); } return r; }; }
-
 // ---------- Your home: the page and its tab are called "Your home" on PC (every water has one, not only a dock) ----------
 { let lbl=null; const sync=()=>{ const b=menuTabBtn('home'); if(!b) return; if(lbl==null) lbl=b.dataset.label; const want=FHD()?'🏠 Your home':lbl; if(b.dataset.label!==want){ b.dataset.label=want; try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} } };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,900);

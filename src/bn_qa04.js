@@ -825,8 +825,8 @@ if(/[?&]test\b/.test(location.search)) window.__textInv=()=>{ const out={}, add=
   fields('bait',Object.entries(BAIT).map(([id,b])=>Object.assign({id},b)),'id'); fields('rod',RODS,'id'); fields('attachment',ATTS,'id'); fields('skill',Object.entries(PERKS).map(([id,p])=>Object.assign({id},p)),'id'); fields('feat',FEATS,'id');
   try{ for(const p of PETS) add('pet',p.desc||p.d||p[6],p.id||p[0]); }catch(e){}
   try{ for(const s of SP) if(s&&s.note) add('fishlog',s.note,s.id); }catch(e){}
-  try{ if(typeof Q8_LESSONS!=='undefined') for(const l of Q8_LESSONS) add('lesson',Array.isArray(l)?l.slice(1).join(' '):(l.d||l.t||JSON.stringify(l)),Array.isArray(l)?l[0]:l.id); }catch(e){}
-  try{ if(typeof Q8_HELP!=='undefined') for(const h of Q8_HELP) add('help',h[1],h[0]); }catch(e){}
+  try{ if(typeof Q8_LESSONS!=='undefined') for(const l of Q8_LESSONS) add('lesson',Array.isArray(l)?l.slice(1).map(x=>typeof q8dev==='function'?q8dev(x):x).join(' '):(l.d||l.t||JSON.stringify(l)),Array.isArray(l)?l[0]:l.id); }catch(e){}
+  try{ if(typeof Q8_HELP!=='undefined') for(const h of Q8_HELP) add('help',typeof q8dev==='function'?q8dev(h[1]):h[1],h[0]); }catch(e){}
   try{ for(const m of (window.__qaToasts||[])) add('popup',m); }catch(e){}
   const sum={}; for(const [k,L] of Object.entries(out)){ const ns=L.map(x=>x.n).sort((a,b)=>a-b); sum[k]={count:L.length, median:ns[ns.length>>1], p90:ns[Math.floor(ns.length*.9)], max:ns[ns.length-1]}; }
   return {sum, out}; };

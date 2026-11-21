@@ -7,26 +7,39 @@ first (asking the director when it is a real design choice). Platform rules and 
 The director plays full screen at 1920×1080. The full-HD layout (`body.pc-fhd`) switches on at 1800×950 and up; smaller PC
 windows use the regular PC layout (`body.pch-on`).
 
+**PC Reborn (director, 2026-11-21):** PC gets every system, page and name the phones have (checked by the sweep's "PC has what phones have", `__menuMap`), laid out for a big screen; everything PC-related lives in the one header row.
+
 **Frame**
 - **Header:** one row, always the same size and always visible, including while a menu is open. Menus open below it and nothing shifts.
+  - Left: brand, Level (opens Skills), Coins (opens Stats).
+  - Middle: the sections, filling the free space, each an icon over its name: **Quests, Map, Upgrades, Collection, Challenges, Customize, Prestige** (the phones' sections; Stats is the header chip on PC).
+  - Right: the page chips **Cooler, Aquarium, Home, Fish Log, Tasks, Stats**, then full screen, search and settings.
+  - Under it, the slim strip: Fishing at (opens Map), Bait (opens Bait), the goal chip (opens its page; shows "Live …" during an event), Rest.
 - **Header buttons:**
-  - Teal (`#1f8a86 → #14666a`, border `#7fe3c4`) means "click me". Gold (`#ffe08a → #f3b94e`, dark text) means "open now".
+  - Teal (`#1f8a86 → #14666a`, border `#7fe3c4`) means "click me". Gold (`#ffe08a → #f3b94e`, dark text) means "open now"; a gold border means a reward waits (Tasks).
   - Clicking a lit button closes its page again.
   - No shape indicators (no chevrons or ✕): colour alone shows state.
-- **Sections:** Fishing, Upgrades, Collection, Challenges, Boardwalk, Customize.
-- **Pages reached from header buttons:** Cooler, Aquarium, Fish Log, Stats.
+  - Everything in the header that can open a page does.
 - **Every page lives in exactly one place.** No name is shown twice on one screen.
 
-**Size**
-- One fixed size on every page: no automatic zoom. Text and headers never change size between tabs.
-- Everything fits one screen. Long lists scroll inside their own box; the page itself doesn't scroll.
+**Pages (the phones' organisation, `src/cx_pages.js`):** a strip with the page's key numbers and main action, the page's sections as ONE row of tabs, and one scrolling body under them. Exceptions with their own PC layout: **Fish Log** (the director: "fish log looks great on pc"), **Aquarium** and **Your home** (preview on top, boxes under it), **Wardrobe** (rail | preview | option cards).
 
-**Layout patterns** (the Fish Log is the reference the director called "almost exactly what we're looking for")
-- **Browse pages:** left rail of filters with progress bars, even cards in the middle, details of the picked item on the right. Used by Fish Log, Pets, Oddities and Feats.
-- **Workspace pages:** a preview on top, then two side-by-side boxes that scroll on their own. Used by Aquarium and Dock. Wardrobe uses rail | preview | option cards.
-- **Data pages:** even columns that end on the same line. Used by Stats and Events.
+**Size: PC_UI (`src/pc/pages_pc.js`, checked by `__pcSpec` at 1920×1080, 2560×1440, 1440×900)**
+| Part | Size |
+|---|---|
+| Body text | 15 px |
+| Small text, notes | 13 px |
+| Card titles | 16 px |
+| Page headings | 22 px |
+| Strip key numbers | 20 px (labels 11 px uppercase) |
+| Tabs | 42 px tall, 15 px |
+| Buttons | 36 px (small 32 px), chips 36 px, strip actions 40 px |
+- Text appears only in the standard sizes (11, 12, 13, 14, 15, 16, 18, 20, 22 px); controls only at 32, 36, 40 or 42 px; no text cut off.
+- Bigger windows (1440p, 4K) zoom the whole interface to the same look (`UIZ`); smaller ones stay at 100%.
+- Everything fits one screen. Long lists scroll inside the page body; the page itself doesn't scroll.
+- **Picture:** Auto quality draws the water at 1.5× (sharper edges and detail); Sharp at 2×; Balanced and Fast for older PCs.
 - Cards in one grid are all the same size. Section titles are small uppercase labels (gold for card titles, grey-blue for rail labels).
-- **Column boards always line up in rows** (director, 2026-11-18: "make that a priority even when making changes"). Skills is the example: the columns share one grid (`subgrid`), so card N of every column starts at the same height. Never let columns stack independently.
+- **Column boards always line up in rows** (director, 2026-11-18: "make that a priority even when making changes"): columns share one grid (`subgrid`), so card N of every column starts at the same height. Never let columns stack independently.
 - A setting with many options in a small space becomes one compact picker per line (Rods' attachment slots), never a tall list that pushes other controls out of sight.
 - Pinned controls stay put while their list scrolls: sort, filter and status bars sit above the scrolling area, never inside it (Your home's cozy level and decoration sorting).
 

@@ -2,6 +2,16 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'PC Reborn: PC now has everything the phones have, in the header. Sections: Quests, Map, Upgrades, Collection, Challenges, Customize, Prestige (Boardwalk is in Challenges, Tackle is called Tackle again). Header chips: Cooler, Aquarium, Home, Fish Log, Tasks, Stats.',
+  'New on PC: Quests (goals, lessons, where to find things, help), Prestige as its own page (Set sail again and Pearl relics left the Map), the Bait page with Switch / Buy bait / Special lures, and Oddities with Oddities / Treasures tabs.',
+  'Every page (except the Fish Log, Aquarium, Your home and Wardrobe) is organised like the phones: key numbers and the main button on top, the page’s tabs in one row, one scrolling list underneath. Settings has the phones’ tabs (Sound, Controls, Display, Gameplay, Patch notes) plus Save & codes.',
+  'One size everywhere: the same text, button and tab sizes on every page, at 1920×1080 and 2560×1440.',
+  'Everything in the header opens its page: Level (Skills), Coins (Stats), the goal chip (also “Live … left” during an event, which opens Events), Fishing at, Bait, Tasks, Home.',
+  'The fish fight looks like the phones: a tension ring around the fish with the instruction right above it.',
+  'Sharper picture: Auto quality now draws the water at 1.5× and scales it down.',
+  'Quiet Waters: no more notices on the fishing screen when the weather changes, an event goes live, special weather is coming or a challenge starts (the badges and LIVE marker show them). Messages about what you just did stay, jokes included. The Weather pop-ups setting is gone with them.',
+  'Florida Keys, first part of Cam’s list: a bigger bridge between the keys with traffic (cars, minivans, box trucks, semis; lights at night), beaches under the keys, speedboats and sport-fishing boats ripping by, and a school of fish under the water. No gulls at night.',
+  '## Test build 0509',
   'Cam’s fight feel (the new fishing): fish rest between moves (head shakes, runs, jumps, and dives in deep water); a fish’s weight decides what its moves can do (small fish can’t take line, big ones can); rare fish chain moves; a tired fish gets one Second wind. Reel in short pulls during a move. A cast to the far edge is 40 m, a fish 150 m out takes all your line, and 10 seconds without reeling lets it swim off.',
   'Dives (waters 100 m deep or more): the line bar shows a pink band; keep the tension inside it to cut the dive short.',
   'Jumps go toward you (reel now) or away from you (let go). A running fish turns at once, no slow flip.',

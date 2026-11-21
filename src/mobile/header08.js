@@ -21,7 +21,6 @@
     if((m=s.match(/^(\d+) \/ (\d+) species found here/))) return m[1]+'/'+m[2]+' here';
     if(/^Every species here/.test(t)) return 'All found here';
     return t; };
-  const liveNow=()=>{ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ return null; } };
   let G0=null, L0=null, lastG='', lastL='';
   const mk=(id,cls)=>{ const b=h('button','stat hudx '+cls); b.type='button'; b.id=id; b.innerHTML='<span class="lbl"></span><b></b>'; return b; };
   const ensure=()=>{ const hud=document.querySelector('.hud'), gc=document.getElementById('goalchip'); if(!hud||!gc) return false; if(G0&&G0.isConnected) return true;

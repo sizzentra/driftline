@@ -107,6 +107,13 @@ PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fi
 PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap onto a second line instead of being cut off in smaller windows.','Pets: the pets still to find show only under Find more, not on Your pets and Customize.']});
 PATCHES.unshift({v:'0.4.8.9.5', name:'Hotfix', items:['Rods (full screen): the rod in your hands shows its attachment slots again, so you can fit attachments.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+  '## PC, rebuilt',
+  'PC now has everything the phone versions have, all in the header: Quests, Map, Upgrades, Collection, Challenges, Customize and Prestige, plus Cooler, Aquarium, Home, Fish Log, Tasks and Stats.',
+  'Quests: your next goal, short lessons, where to find everything, and answers to common questions.',
+  'Prestige has its own page (Set sail again and Pearl relics), the Bait page has Switch, Buy bait and Special lures, and Oddities has Oddities and Treasures.',
+  'Pages are organised the same way everywhere: key numbers and the main button on top, the page’s tabs in one row, one scrolling list underneath, all in one size.',
+  'Everything in the header opens its page, including your level, your coins and the goal (or the live event) under the header.',
+  'The fish fight shows a tension ring around the fish with what to do right above it, and the water is drawn sharper.',
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its rarity: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
   'Feed Nibbles to any fish of the same rarity in your Aquarium: every fish swims up to the food, the one you fed earns more, and every 10 Nibbles its bonuses grow (sometimes it gains a new one, up to 5). Half of your Nibbles expire when you set sail again.',
@@ -159,6 +166,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'A fresh fish holds against your reel by its rarity until it tires, and reeling straight through the moves of a big one snaps the line, whatever your gear.',
   'Strong gear and skills make fights faster, down to a floor: about 3 seconds for common fish, half a minute or more for mythics.',
   'Hollow Trench now lists its true depth, and its fish fight harder than Midnight Deep’s.',
+  'The fishing screen is quieter: no notices about the weather, live events, coming special weather or a challenge you started (the badges show them). Messages about what you just did stay.',
+  'Florida Keys: a bigger bridge with traffic, beaches, speedboats and sport-fishing boats, and a school of fish under the water.',
   'End-game waters stay uncharted until you reach their voyage; then they open for coins and stay open for good. Waters you already have stay open.',
   'Cooler: Scrap all sits under Sell all, and you can sort by rarity. Settings: distances and depths in metres or feet.',
   'The Bounties badge no longer shows a number when there is nothing to claim. Map pictures appear at once after a restart. Feeding a Nibble no longer redraws the whole Aquarium. Pets › Customize no longer jumps to the top when you pick a hat.',

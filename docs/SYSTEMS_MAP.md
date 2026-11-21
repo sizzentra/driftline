@@ -367,3 +367,22 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Distances and depths: `dStr`, `depthStr` (c_logic), setting `dist` (device key) | fight HUDs, Waters cards, Settings | QA "Cam's fix list" |
 | Pets › Customize: color rows always present (greyed when they don't apply) | Pets PC + phones | `__snapQC` pets |
 | Driftline Test app (desktop/DriftlineTest.cs): Full screen by message from the game (pc/ui_settings) | PC test app only | director's check |
+
+## Overnight batch 2 (2026-11-21, test builds): PC Reborn
+| What changed | Affects | Checked by |
+|---|---|---|
+| Sections: one shared list in `bm_ui04.js` (Quests, Map, Upgrades, Collection, Stats, Challenges, Customize, Prestige); new tab buttons in `a_head.html` (quests, bait, oddities, prestige; Waters → Map). The phone files' own section edits were removed | every menu, both rails, the PC header | parity check (`__menuMap`), QA "every page in the menus exists" |
+| `src/cw_pages08.js` (new, shared): Quests (lessons, Find, Help, goals; words per device through `q8dev`), Prestige, Bait (Switch / Buy bait / Special lures; Tackle shows Gear only), Oddities (two tabs, pictures drawn as they come into view), `liveNow`, one `renderCooler` hook (`SHARED_PAGES`) | PC + phones | QA, `__questsQC`, parity |
+| `src/cx_pages.js` (new, shared): the page engine (strip, tabs, one body) and every page's parts (`CFG`), as `PAGES.before/after`; each platform hooks it in (mobile/pages08.js at its old place, pc/pages_pc.js last) and styles `.pg08`; `PAGES_SKIP` (PC: journal, aquarium, home); `PG_COLS` per platform; `__menuMap` | every page | `__pcSpec`, `__spec`, contentQC |
+| `src/pc/pages_pc.js` (new): PC frame CSS, PC_UI sizes, Stats left out of the PC sections, Level/Coins links, `__pcSpec` | PC pages | sweep "PC sizes" at 1920, 2560, 1440 |
+| Removed PC-only layouts: Fishing/Equipment/Boardwalk header restructure and PC Bait page (br_pc05), two PC Oddities pages (br_pc05, ui_fhd), Events / Tide Pass / Boardwalk / Rods / Pets / Cooler / Feats layouts (br_pc05), Skills+Save boards, Rods pair, Cooler side panel, Stats one screen (ui_fhd), Feats board and reader (bm_ui04), Settings "General" merge (ui_settings); dead styles with them | PC | QA, contentQC PC, parity |
+| PC header: sections fill the middle (icon over name, br_pc05 header block); Home and Tasks chips (ui_fhd); goal chip opens its page (bj_polish036); Map label | PC header | header measured at 1920/1440 (no wrap, no cut text) |
+| Fight display: the phones' tension ring is the shared `drawFightHUD` (d_draw); mobile/fight08.js deleted | PC + phones | QA fight tests |
+| PC picture: Auto draws at 1.5× (pc/ui_display renderDPR) | PC water | `__drawCost` (0.92 ms either way) |
+| Shared fixes found on the way: Bounties daily card `display:grid!important` (bm_ui04) beat the page tabs; Quests' live line never showed (liveNow was local to a phone file); Feats headings show the category bonus | PC + phones | QA "page tabs: a part hidden by a page tab never stays on screen" |
+
+## Overnight batch 3, first part (2026-11-21, test builds 0632): Quiet Waters, Florida Keys
+| What changed | Affects | Checked by |
+|---|---|---|
+| Quiet Waters: the weather-changed notice (e_ui hud), the event-live notice and the challenge-started notice (bk_events036), the special-weather-soon notice and its timer (bq_feat04) are gone; mobile/weather07.js (phone notice box) deleted; Settings › Weather pop-ups removed (d2_extra, DEV_KEYS, fresh) | fishing screen, Settings | QA text standard, contentQC |
+| Florida Keys (cn_waterart.js): beaches, a bigger bridge with a hump (`keysDeck`), traffic on it (`keysVehicle`: car, van, box truck, semi; lights at night; fade at the ends), speedboats and sport-fishing boats (`keysFastBoat`), a fish school deep in the foreground right, gulls by day only | Keys scene, its Map picture | pictures (tools/shots/keys_*.png), `__drawCost` |

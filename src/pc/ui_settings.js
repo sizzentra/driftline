@@ -39,14 +39,7 @@ const pcFs={ api:()=>!!document.fullscreenElement,
     grid.appendChild(t);
     const ab=t.querySelector('[data-pcauto]'); ab.addEventListener('click',e=>{ e.stopPropagation(); let v=true; try{ v=localStorage.getItem('dl-fs-auto')==='0'; localStorage.setItem('dl-fs-auto',v?'1':'0'); }catch(er){} ab.textContent=v?'On':'Off'; ab.classList.toggle('alt',!v); ab.setAttribute('aria-pressed',v); });
     if(window.pcFsSync) pcFsSync(); }catch(e){ console.error(e); } };
-  // one "General" page on PC instead of a tab per small group
-  const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const P=$('panel'); const old=P.querySelector(':scope > .sect-nav'); if(old) old.remove();
-      const K=[...P.children], grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const tiles=[...grid.children], h=(t,re)=>re.test((t.querySelector('h4')||{}).textContent||'');
-      const general=tiles.filter(t=>!h(t,/^Patch notes/)), notes=tiles.filter(t=>h(t,/^Patch notes/)), save=K.filter(c=>c!==grid&&(c.classList.contains('tile')||c.tagName==='DETAILS'));
-      if(SECT.settings&&!['General','Patch notes','Save & codes'].includes(SECT.settings)) SECT.settings='General';
-      sectionize(P,'settings',[{name:'General',nodes:general},{name:'Patch notes',nodes:notes},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
-      const sync=()=>{ const on=(P.querySelector('.sect-nav [aria-selected="true"]')||{}).textContent==='General'; grid.classList.toggle('sect-one',!on); grid.classList.toggle('pc-setgrid',on); };
-      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); }catch(e){ console.error(e); } }; }
+}
 document.head.insertAdjacentHTML('beforeend',`<style>
 .pc-fsb{display:none!important}
 html body.pch-on .pc-fsb{display:inline-grid!important;place-items:center}
@@ -54,19 +47,8 @@ html body.pch-on .pc-fsb svg{display:block}
 /* coins next to Level again on PC; the header keeps the menu row's width so the two rows still line up */
 /* (coins sit with Level in the header corner, see below) */
 
-/* Settings, General page */
-body.pch-on #menuov #panel .grid.pc-setgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:start;gap:12px!important}
 body.pch-on #panel .pc-set .pc-keys{display:grid;grid-template-columns:auto minmax(0,1fr);gap:5px 10px;align-items:center;margin-top:4px}
 body.pch-on #panel .pc-set .pc-keys > div{display:contents}
 body.pch-on #panel .pc-set kbd{display:inline-block;min-width:46px;text-align:center;padding:2px 7px;border-radius:7px;background:#ffffff14;border:1px solid #ffffff2a;border-bottom-width:2px;font:800 11.5px ui-monospace,Consolas,monospace;color:#fff}
 body.pch-on #panel .pc-set .pc-keys span{font-size:12.5px;color:#cfdcea}
-</style>`);
-// PC Settings, General: three balanced columns (Sound | Controls + Gameplay | Display + PC) instead of rows with gaps
-{ const _as=applySections; applySections=function(){ _as(); try{ if(S.tab!=='settings'||!document.body.classList.contains('pch-on')) return; const g=$('panel').querySelector(':scope > .grid.pc-setgrid, :scope > .grid'); if(!g||g.querySelector(':scope > .pc-col')) return;
-      const tiles=[...g.children], by=re=>tiles.find(t=>re.test((t.querySelector('h4')||{}).textContent||''));
-      const plan=[[/^Sound/],[/^Controls/,/^Gameplay/],[/^Display/,/^PC$/]]; const cols=plan.map(res=>{ const c=document.createElement('div'); c.className='pc-col'; res.forEach(re=>{ const t=by(re); if(t) c.appendChild(t); }); return c; });
-      if(cols.some(c=>c.children.length)) g.prepend(...cols); }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .grid > .pc-col{display:flex;flex-direction:column;gap:12px;min-width:0}
-body.pch-on #panel .grid.sect-one > .pc-col{display:none}
 </style>`);

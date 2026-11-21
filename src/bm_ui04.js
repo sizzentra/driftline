@@ -19,12 +19,19 @@ const SEC_ICONS={
   coll:'<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7 13c1.8-2.4 4.8-2.9 7-.6l1.8-1.4v4l-1.8-1.4c-2.2 2.3-5.2 1.8-7-.6z"/><path d="M3.5 16.5c3 .8 5 .8 8 0s5-.8 9 0"/>',
   chal:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v3M9 20h6M10 16h4v4h-4z"/>',
   cust:'<path d="M14.5 4.5 19.5 9.5 10 19H5v-5z"/><path d="M12.5 6.5l5 5"/>'};
+/* one set of sections on every platform (PC Reborn, director 2026-11-21: PC gets every system and name the phones got). The Cooler,
+   Aquarium, Home, Fish Log and Bait open from their own top-bar chips, so they are in no section. PC shows Stats as its header chip
+   (pc/pages_pc.js leaves that section out there). */
 MENU_SECS.splice(0,MENU_SECS.length,
-  {id:'fish', name:'Fishing',       short:'Fishing',    tabs:['cooler','map'],                             icon:SEC_ICONS.fish},
-  {id:'up',   name:'Upgrades',      short:'Upgrades',   tabs:['shop','rods','skills','paths'],             icon:SEC_ICONS.up},
-  {id:'coll', name:'Collections',   short:'Collection', tabs:['aquarium','trophy','journal'],              icon:SEC_ICONS.coll},
-  {id:'chal', name:'Challenges',    short:'Challenges', tabs:['events','bounties','feats','pass','games'], icon:SEC_ICONS.chal},
-  {id:'cust', name:'Customization', short:'Customize',  tabs:['home','style','pets'],                      icon:SEC_ICONS.cust});
+  {id:'quests',   name:'Quests',        short:'Quests',     tabs:['quests'],                                   icon:'<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/>'},
+  {id:'fish',     name:'Map',           short:'Map',        tabs:['map'],                                      icon:'<path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2z"/><path d="M9 4.5v13M15 6.5v13"/>'},
+  {id:'up',       name:'Upgrades',      short:'Upgrades',   tabs:['shop','rods','skills','paths'],             icon:SEC_ICONS.up},
+  {id:'coll',     name:'Collections',   short:'Collection', tabs:['trophy','oddities'],                        icon:SEC_ICONS.coll},
+  {id:'stats',    name:'Stats',         short:'Stats',      tabs:['stats'],                                    icon:'<path d="M4 20h16"/><path d="M7 20v-6"/><path d="M12 20V8"/><path d="M17 20v-9"/><path d="M5.5 9.5 10 6l4 3 4.5-4"/>'},
+  {id:'chal',     name:'Challenges',    short:'Challenges', tabs:['events','bounties','feats','pass','games'], icon:SEC_ICONS.chal},
+  {id:'cust',     name:'Customization', short:'Customize',  tabs:['style','pets'],                             icon:SEC_ICONS.cust},
+  {id:'prestige', name:'Prestige',      short:'Prestige',   tabs:['prestige'],                                 icon:'<circle cx="12" cy="13" r="6.5"/><path d="M9.2 10.6a3.4 3.4 0 0 1 3-1.8"/><path d="M12 3.5v2M6.2 5.6l1.3 1.5M17.8 5.6l-1.3 1.5"/>'});
+{ const i=MENU_MORE.tabs.indexOf('stats'); if(i>=0) MENU_MORE.tabs.splice(i,1); } /* Stats is a section now, not behind the settings button */
 // Home is the Dock now
 { const b=menuTabBtn('home'); if(b){ b.dataset.label='⚓ Dock'; for(const n of b.childNodes) if(n.nodeType===3&&n.textContent.includes('Home')) n.textContent=n.textContent.replace(/🏡\s*Home/,'⚓ Dock'); } }
 PAGE_DESC.home='Your dock at each water: wood, style and decorations';
@@ -910,7 +917,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tile.ev-cal{display:grid; /* no !important: it overrode the page tabs hiding the calendar (director, 2026-11-19: Events tabs showed the same things) */ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
   #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
   #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
-  #menuov #panel .tile.dtasks{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
+  #menuov #panel .tile.dtasks{display:grid; /* no !important: page tabs hide it with an inline display:none (PC Reborn) */grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
   #menuov #panel .tile.dtasks > .row{grid-column:1 / -1}
   #menuov #panel .tile.dtasks > .toggle{flex-wrap:wrap;align-content:flex-start;border-top:1px solid var(--line);padding-top:6px}
 }
@@ -1205,8 +1212,8 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
     ['pointerdown','touchstart','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
     const act=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} go(); };
     el.addEventListener('click',act); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') act(e); }); };
-  link(loc,()=>openMenu('map'),'Fishing at: tap to choose a water');
-  link(cc,()=>openMenu('cooler'),'Cooler: fish you are carrying (tap to open)');
+  const tp=PLAT.touch()?'tap':'click'; link(loc,()=>openMenu('map'),'Fishing at: '+tp+' to choose a water');
+  link(cc,()=>openMenu('cooler'),'Cooler: fish you are carrying ('+tp+' to open)');
   const sel=$('bait'); if(sel){ sel.tabIndex=-1; sel.setAttribute('aria-hidden','true'); } }
 document.head.insertAdjacentHTML('beforeend',`<style>
 .hud > .hud-link{cursor:pointer}
@@ -1316,47 +1323,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
   CATS[1][1].push('sp250'); FEAT_CATS_REF=CATS; /* shared with the category completion bonuses (br_pc05.js) */
   const catOf=f=>{ if(/^Master of /.test(f.name)) return 'Waters'; const c=CATS.find(([,ids])=>ids.includes(f.id)); return c?c[0]:'More'; };
   const order=CATS.map(c=>c[0]).concat('More');
-  // PC: every feat on one screen - a card per group laid out in columns, one compact line per feat (name, progress, bar, reward;
-  // the description on hover); finished feats stay in their group with a tick
-  const board=(P,info)=>{ let fb=P.querySelector('.featboard'); if(fb) fb.remove(); fb=document.createElement('div'); fb.className='featboard';
-    for(const cat of order){ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); if(!list.length) continue; const nd=list.filter(x=>x.done).length;
-      fb.insertAdjacentHTML('beforeend',`<section class="fb-cat"><header><span>${esc(cat)}</span><span class="fb-n">${nd} / ${list.length}</span></header><ul>${list.map(x=>{ const t=x.t, metas=[...t.querySelectorAll(':scope > .meta')], desc=metas[0]?metas[0].textContent:'', cnt=(t.querySelector('.row .meta')||{}).textContent||'', val=t.querySelector('.val'), rew=val?val.innerHTML:'';
-        return `<li class="fb-row${x.done?' done':''}" title="${esc(desc)}"><span class="fb-name">${x.done?'✓ ':''}${esc((t.querySelector('h4')||{}).textContent||'')}</span><span class="fb-cnt">${x.done?'Done':esc(cnt)}</span><i class="fb-bar"><b style="width:${Math.min(100,x.p)}%"></b></i><span class="fb-rew">${rew}</span></li>`; }).join('')}</ul></section>`); }
-    const nav=P.querySelector('.sect-nav'), grid=[...P.children].find(c=>c.classList.contains('grid')), more=grid&&grid.nextElementSibling;
-    if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
-    (grid||P.lastChild).after(fb);
-    // columns filled by hand: each group card goes into the shortest column (the browser's own balancing left columns empty)
-    const w=innerWidth-32, n=w>=1300?5:w>=1000?4:3 /* the page is the window minus its margins: no measuring right after building it */, cols=[...Array(n)].map(()=>{ const d=document.createElement('div'); d.className='fb-col'; return d; }), h=new Array(n).fill(0);
-    const secs=[...fb.children], size=s=>s.querySelectorAll('.fb-row').length+2.2, pos=new Map(secs.map((s,i)=>[s,i]));
-    secs.slice().sort((a,b)=>size(b)-size(a)).forEach(sec=>{ const i=h.indexOf(Math.min(...h)); cols[i].appendChild(sec); h[i]+=size(sec); }); /* biggest groups first: even columns */
-    cols.forEach(c=>[...c.children].sort((a,b)=>pos.get(a)-pos.get(b)).forEach(s=>c.appendChild(s))); /* each column keeps the usual group order */
-    cols.forEach(c=>fb.appendChild(c)); fb.style.gridTemplateColumns='repeat('+n+',minmax(0,1fr))'; };
-  // full HD: a reader. Categories on the left (count + progress), the chosen category's feats as readable cards on the right
-  // (director, 2026-11-17: the five-column board was cramped and hard to read on a 1080p screen in full screen)
-  let featCat=null;
-  const reader=(P,info)=>{ P.querySelector('.featboard')?.remove(); P.querySelector('.featrd')?.remove();
-    const cats=order.map(cat=>{ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); return {cat,list,nd:list.filter(x=>x.done).length}; }).filter(c=>c.list.length);
-    if(!featCat||!cats.some(c=>c.cat===featCat)) featCat=(cats.find(c=>c.nd<c.list.length)||cats[0]).cat;
-    const total=info.length, done=info.filter(x=>x.done).length;
-    const card=x=>{ const t=x.t, metas=[...t.querySelectorAll(':scope > .meta')], desc=metas[0]?metas[0].textContent:'', cnt=(t.querySelector('.row .meta')||{}).textContent||'', val=t.querySelector('.val'), rew=val?val.innerHTML:'';
-      return `<article class="fr-card${x.done?' done':''}"><header><b>${x.done?'✓ ':''}${esc((t.querySelector('h4')||{}).textContent||'')}</b><span class="fr-cnt">${x.done?'Done':esc(cnt)}</span></header><p>${esc(desc)}</p><i class="fr-bar"><b style="width:${Math.min(100,x.p)}%"></b></i><div class="fr-rew">${rew}</div></article>`; };
-    const fr=document.createElement('div'); fr.className='featrd';
-    fr.innerHTML=`<nav class="fr-rail"><div class="fr-total"><b>${done}</b> of ${total} done<i class="fr-bar"><b style="width:${done/total*100}%"></b></i></div>${cats.map(c=>`<button type="button" class="fr-cat" data-cat="${esc(c.cat)}" aria-pressed="${c.cat===featCat}"><span>${esc(c.cat)}</span><span class="fr-n">${c.nd} / ${c.list.length}</span><i class="fr-bar"><b style="width:${c.nd/c.list.length*100}%"></b></i></button>`).join('')}</nav><section class="fr-main"></section>`;
-    const main=fr.querySelector('.fr-main'); const show=cat=>{ featCat=cat; const c=cats.find(x=>x.cat===cat); main.innerHTML=`<h3>${esc(cat)} <span class="fr-n">${c.nd} of ${c.list.length} done</span></h3><div class="fr-grid">${c.list.map(card).join('')}</div>`; fr.querySelectorAll('.fr-cat').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cat===cat))); };
-    fr.querySelectorAll('.fr-cat').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); show(b.dataset.cat); try{ window.__pcfitSoon&&__pcfitSoon(); }catch(er){} }));
-    const nav=P.querySelector('.sect-nav'), grid=[...P.children].find(c=>c.classList.contains('grid')), more=grid&&grid.nextElementSibling;
-    if(nav) nav.style.display='none'; if(grid) grid.style.display='none'; if(more&&more.tagName==='BUTTON') more.style.display='none';
-    (grid||P.lastChild).after(fr); show(featCat); };
   const organize=P=>{ const grid=[...P.children].find(c=>c.classList.contains('grid')); if(!grid) return;
     const byName={}; FEATS.forEach(f=>byName[f.name]=f);
     const tiles=[...grid.children].filter(t=>t.classList.contains('tile')); const prog=t=>{ const i=t.querySelector('.prog i'); return i?parseFloat(i.style.width)||0:(t.classList.contains('done')?100:0); };
     const info=tiles.map(t=>{ const nm=(t.querySelector('h4')||{}).textContent||'', f=byName[nm.trim()]; return {t,cat:f?catOf(f):'More',done:t.classList.contains('done'),p:prog(t)}; });
-    if(document.body.classList.contains('pc-fhd')){ reader(P,info); return; }
-    if(document.body.classList.contains('pch-on')){ board(P,info); return; }
     grid.querySelectorAll('.feat-cat').forEach(h=>h.remove());
     for(const cat of order){ const list=info.filter(x=>x.cat===cat).sort((a,b)=>(a.done-b.done)||(b.p-a.p)); if(!list.length) continue;
       const h=document.createElement('div'); h.className='feat-cat'; h.dataset.cat=cat; const nd=list.filter(x=>x.done).length;
-      h.innerHTML=`<span>${esc(cat)}</span><span class="meta">${nd} of ${list.length} done</span>`; grid.appendChild(h); list.forEach(x=>{ x.t.dataset.cat=cat; grid.appendChild(x.t); }); }
+      h.innerHTML=`<span>${esc(cat)}</span><span class="meta">${nd} of ${list.length} done${featBonusText(cat)?` · finish all: ${esc(featBonusText(cat))}`:""}</span>`; /* the category bonus (it showed only in the old PC rail) */ grid.appendChild(h); list.forEach(x=>{ x.t.dataset.cat=cat; grid.appendChild(x.t); }); }
     const sync=()=>grid.querySelectorAll('.feat-cat').forEach(h=>{ const any=[...grid.querySelectorAll('.tile[data-cat="'+CSS.escape(h.dataset.cat)+'"]')].some(t=>t.style.display!=='none'); h.style.display=any?'':'none'; });
     sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); const more=grid.nextElementSibling; if(more&&more.tagName==='BUTTON') more.addEventListener('click',()=>setTimeout(sync,0)); };
   const _rp=renderPanel; renderPanel=function(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; const r=_rp.apply(this,arguments); try{ if(S.tab==='feats') organize($('panel')); }catch(e){} return r; }; }

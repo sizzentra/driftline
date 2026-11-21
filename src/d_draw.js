@@ -450,19 +450,43 @@ function draw(now){
       for(const b of bs){ const txt=fmtB(b.k,b.v)+'  '+mmss(Math.ceil((b.until-now2)/1000)); const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.7)'; rr(10,yy-15,tw+16,20,10); g.fill(); g.fillStyle='#7fc8a9'; g.fillText(txt,18,yy-1); yy-=24; } } }
 }
 function rr(x,y,w,h,r){ g.beginPath(); g.roundRect ? g.roundRect(x,y,Math.max(0,w),h,r) : g.rect(x,y,Math.max(0,w),h); }
-function drawFightHUD(t){
-  const x=W-30, y0=H*.12, y1=H*.84, h=y1-y0, ten=clamp(G.ten/100,0,1);
-  g.fillStyle='rgba(5,14,20,.75)'; rr(x-8,y0-26,26,h+44,9); g.fill();
-  g.fillStyle='rgba(255,84,104,.18)'; g.fillRect(x-2,y0,14,h*.2);
-  const c = ten>.8 ? '#ff5468' : ten>.55 ? '#ffc94d' : '#7fc8a9'; g.fillStyle=c; const shake = ten>.85 ? Math.sin(t*60)*1.5 : 0;
-  const Z=fightZone(); if(Z){ g.fillStyle=Z.inZ?'rgba(255,170,240,.55)':'rgba(255,170,240,.28)'; g.fillRect(x-4,y1-h*Z.hi,18,h*(Z.hi-Z.lo)); } /* Cam: the dive band, light magenta while the line is inside it */
-  g.fillStyle=Z&&Z.inZ?'#ffb0f0':c; g.fillRect(x-2+shake,y1-h*ten,14,h*ten);
-  g.fillStyle='#e6efe8'; g.font='700 10px system-ui'; g.textAlign='center'; g.fillText('LINE',x+5,y0-12);
-  const px=14, py=14, pw=Math.min(260,W*.46); g.fillStyle='rgba(5,14,20,.75)'; rr(px,py,pw,72,10); g.fill();
-  const msg = fightMsg(false, G.ten>60);
-  g.fillStyle = (G.ev||G.run||G.temper>1.7||G.swT>0||(fishNew()&&G.sta<=0&&G.fish&&G.fish.kind==='fish')) ? '#ffc94d' : '#e6efe8'; g.textAlign='left'; g.font='800 15px "Bricolage Grotesque", system-ui'; g.fillText(msg, px+10, py+20);
-  g.font='700 12px system-ui'; g.fillStyle='#8aa5a2'; g.fillText(dStr(Math.max(0,G.d))+' out', px+10, py+38);
-  const bw=pw*.5-50; g.fillText('Fight', px+pw*.5, py+38); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+30,bw,7,3); g.fill(); g.fillStyle='#ff6a3d'; rr(px+pw*.5+44,py+30,bw*G.sta,7,3); g.fill();
-  g.fillStyle='#8aa5a2'; g.fillText(BEH[G.fish.beh]?BEH[G.fish.beh].n:'', px+10, py+56); g.fillText('Temper', px+pw*.5, py+56); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+48,bw,7,3); g.fill(); g.fillStyle=G.temper>1.7?'#ff5468':'#c38bff'; rr(px+pw*.5+44,py+48,bw*clamp(G.temper/3,0,1),7,3); g.fill();
-  const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
-}
+/* the fish fight, drawn where the action is (shared since PC Reborn, director 2026-11-21: "PC and mobile fishing should match"; it was the
+   phones' layout, mobile/fight08.js): a TENSION RING around the fish (green / yellow / red, shakes and glows near breaking; the dive band
+   in light magenta), the instruction right above it, a small card under it (distance, Fight, Temper, line out) and a soft light under the
+   fish so it stands out on any water. The card and words stay inside the water and clear of the corners wherever the fish swims. */
+function drawFightHUD(t){ if(!G.fish||!G.bob) return;
+
+    const ten=clamp(G.ten/100,0,1), danger=ten>.8, warn=ten>.55, col=danger?'#ff5468':warn?'#ffc94d':'#7fe3c4';
+    const r=clamp(H*.085,24,44), shake=ten>.85?Math.sin(t*60)*2:0;
+    const cx=clamp(G.bob.x+14+shake, r+10, W-r-10), cy=clamp(G.bob.y+12, r+56, H-r-70);
+    g.save();
+    /* soft light under the fish */
+    const gl=g.createRadialGradient(cx,cy,2,cx,cy,r*1.25); gl.addColorStop(0,'rgba(200,240,255,.28)'); gl.addColorStop(1,'rgba(200,240,255,0)'); g.fillStyle=gl; g.beginPath(); g.arc(cx,cy,r*1.25,0,7); g.fill();
+    /* the tension ring */
+    g.lineCap='round'; g.lineWidth=Math.max(5,r*.2);
+    g.strokeStyle='rgba(5,14,20,.55)'; g.beginPath(); g.arc(cx,cy,r,0,7); g.stroke();
+    /* the danger glow: a soft wider ring underneath instead of shadowBlur (director, 2026-11-18: Android drops during actions; a
+       glow shadow is one of the slowest things a phone graphics chip draws, and it pulsed every frame of a tense fight) */
+    if(danger){ const a0=-Math.PI/2, a1=-Math.PI/2+Math.PI*2*Math.max(.02,ten), lw=g.lineWidth, pulse=.5+.5*Math.sin(t*14); g.strokeStyle='rgba(255,84,104,'+(.18+.12*pulse)+')'; g.lineWidth=lw+8+pulse*5; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.strokeStyle='rgba(255,84,104,'+(.28+.12*pulse)+')'; g.lineWidth=lw+3; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.lineWidth=lw; }
+    const Z=fightZone(); if(Z){ const lw=g.lineWidth; g.strokeStyle=Z.inZ?'rgba(255,170,240,.6)':'rgba(255,170,240,.32)'; g.lineWidth=lw+6; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2+Math.PI*2*Z.lo,-Math.PI/2+Math.PI*2*Z.hi); g.stroke(); g.lineWidth=lw; } /* Cam: the dive band on the ring */
+    g.strokeStyle=Z&&Z.inZ?'#ffb0f0':col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke();
+    g.fillStyle='rgba(255,84,104,.35)'; g.beginPath(); g.arc(cx,cy,r+g.lineWidth*.5+2,-Math.PI/2+Math.PI*2*.8,-Math.PI/2+Math.PI*2,false); g.arc(cx,cy,r+g.lineWidth*.5+5,-Math.PI/2+Math.PI*2,-Math.PI/2+Math.PI*2*.8,true); g.fill(); /* the red zone: snapping risk */
+    /* the instruction, right above */
+    const msg = fightMsg(danger, danger);
+    const alert = !!(G.ev||G.run||G.temper>1.7||G.swT>0||danger||(fishNew()&&G.sta<=0&&G.fish.kind==='fish'));
+    g.font='800 '+(W<700?15:17)+'px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.textBaseline='alphabetic';
+    const mw=g.measureText(msg).width+22, mx=clamp(cx,mw/2+8,W-mw/2-8), my=Math.max(48,cy-r-16);
+    g.fillStyle=alert?'rgba(40,24,6,.82)':'rgba(5,14,20,.78)'; rr(mx-mw/2,my-19,mw,27,13.5); g.fill();
+    if(alert){ g.strokeStyle='#ffc94d99'; g.lineWidth=1.5; rr(mx-mw/2,my-19,mw,27,13.5); g.stroke(); }
+    g.fillStyle=alert?'#ffd36a':'#ffffff'; g.fillText(msg,mx,my);
+    /* the card: distance, fight, temper, line out */
+    const cw=164, ch=46, below=cy+r+12, kx=clamp(cx-cw/2,8,W-cw-8), ky=below+ch<=H-62?below:Math.max(8,my-19-ch-8);
+    g.fillStyle='rgba(5,14,20,.8)'; rr(kx,ky,cw,ch,10); g.fill();
+    g.textAlign='left'; g.font='800 12px system-ui'; g.fillStyle='#e6efe8'; g.fillText(dStr(Math.max(0,G.d)),kx+9,ky+17);
+    g.font='700 10px system-ui'; g.fillStyle='#8aa5a2'; g.fillText('Fight',kx+62,ky+13); g.fillText('Temper',kx+62,ky+29);
+    const bx=kx+104, bw=cw-114; g.fillStyle='#0a161d'; rr(bx,ky+7,bw,6,3); g.fill(); rr(bx,ky+23,bw,6,3); g.fill();
+    g.fillStyle='#ff6a3d'; rr(bx,ky+7,Math.max(2,bw*clamp(G.sta,0,1)),6,3); g.fill();
+    g.fillStyle=G.temper>1.7?'#ff5468':'#c38bff'; rr(bx,ky+23,Math.max(2,bw*clamp(G.temper/3,0,1)),6,3); g.fill();
+    const lim=clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(kx+9,ky+36,cw-18,4,2); g.fill(); g.fillStyle=lim>.8?'#ff5468':'#5aa9ff'; rr(kx+9,ky+36,Math.max(2,(cw-18)*lim),4,2); g.fill();
+    g.font='700 10px system-ui'; g.fillStyle='#8aa5a2'; g.fillText((BEH[G.fish.beh]?BEH[G.fish.beh].n:'').slice(0,10),kx+9,ky+30);
+    g.restore(); }

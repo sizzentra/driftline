@@ -20,12 +20,14 @@ addEventListener('resize',()=>{ clearTimeout(uiApplyZoom.t); uiApplyZoom.t=setTi
 { const _rd=renderDPR; renderDPR=function(w,h){ const q=(S&&S.settings&&S.settings.renderQ)||'auto'; const dpr=window.devicePixelRatio||1;
     if(q==='fast') return 1; if(q==='sharp'){ let d=Math.min(2,dpr); const cap=8.3e6; if(d>1&&w*h*d*d>cap) d=Math.max(1,Math.sqrt(cap/(w*h))); return Math.round(d*100)/100; }
     if(q==='balanced'){ let d=Math.min(1.5,dpr); const cap=2.1e6; if(d>1&&w*h*d*d>cap) d=Math.max(1,Math.sqrt(cap/(w*h))); return Math.round(d*100)/100; }
-    return _rd(w,h); }; }
+    /* Auto on PC (PC Reborn, director 2026-11-21: "pc doesn't have enough pixels"; PCs have power to spare): the water is drawn at 1.5×
+       its size (at least) and scaled down, so edges and small details come out sharp; capped at about 8 million pixels */
+    { let d=Math.min(2,Math.max(dpr,1.5)); const cap=8.3e6; if(w*h*d*d>cap) d=Math.max(1,Math.sqrt(cap/(w*h))); return Math.round(d*100)/100; } }; }
 // Settings › Display: the two rows, right under the Display heading
 { const _rs=renderSettings; renderSettings=function(P){ const r=_rs.apply(this,arguments); try{ const pn=P||$('panel'), h=[...pn.querySelectorAll('h4')].find(x=>/^Display$/.test(x.textContent.trim())); if(!h||pn.querySelector('[data-act="uiscale"]')) return r;
     const s=S.settings, cur=String(s.uiScale==null?'auto':s.uiScale), q=s.renderQ||'auto', chips=(act,L,c)=>`<div class="chips">${L.map(([v,n])=>`<button class="chipb" data-act="${act}" data-k="${v}" aria-pressed="${String(v)===c}">${n}</button>`).join('')}</div>`;
     h.insertAdjacentHTML('afterend',`<div class="pcdisp"><h5>Interface size</h5>${chips('uiscale',UI_SCALES,cur)}<div class="meta">Auto fits the window: 100% on a 1080p screen, bigger on 1440p and 4K. Now ${Math.round(UIZ*100)}%.</div>
-      <h5>Picture quality</h5>${chips('renderq',RENDER_Q,q)}<div class="meta">Sharp draws the water at full resolution on big screens; Fast helps older PCs keep a smooth frame rate.</div></div>`); }catch(e){} return r; }; }
+      <h5>Picture quality</h5>${chips('renderq',RENDER_Q,q)}<div class="meta">Auto draws the water at 1.5× for sharp edges, Sharp at 2×; Balanced and Fast help older PCs keep a smooth frame rate.</div></div>`); }catch(e){} return r; }; }
 { const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act, k=b.dataset.k;
   if(a==='uiscale'){ const ok=UI_SCALES.some(([v])=>String(v)===k); if(!ok) return 'skip'; S.settings.uiScale=k==='auto'?'auto':+k; save(); uiApplyZoom(true); return 'render'; }
   if(a==='renderq'){ if(!RENDER_Q.some(([v])=>v===k)) return 'skip'; S.settings.renderQ=k; save(); try{ cv.width=0; resize(); }catch(e){} return 'render'; }

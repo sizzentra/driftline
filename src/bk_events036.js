@@ -45,7 +45,7 @@ function chalPlace(c){ return 1+c.rivals.filter(r=>r[1]>c.best).length; }
 function chalReward(m){ const base=bestLoot(); return {coins:Math.round(base*25*m*coinMult()), scales:Math.max(1,Math.round(30*m)), tickets:Math.round(150*m), xp:Math.round(300*m)}; }
 function chalStart(id){ const C=CHAL[id]; if(!C||S.chal||(S.chalCd&&S.chalCd[id]>Date.now())) return false;
   const o=catchOdds(), extra=C.setup(o); S.chal=Object.assign({id, until:Date.now()+C.mins*MIN, loc:S.loc, prog:0}, extra);
-  toast(C.icon+' '+C.name+': '+C.rule(S.chal)+' in '+C.mins+' min.'); try{ sfx.catch(2); }catch(e){} save(); return true; }
+  try{ sfx.catch(2); }catch(e){} save(); return true; } /* no notice: the Events page shows the challenge you started (director, 2026-11-21) */
 function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal=null; S.chalCd=S.chalCd||{}; S.chalCd[c.id]=Date.now()+CHAL_CD;
   let title, m=0; if(C.ranked){ const place=c.best>0?chalPlace(c):4; m=place<=3?[1,.55,.3][place-1]*C.m:0; title=c.best>0?(['🥇 First place!','🥈 Second place','🥉 Third place','Fourth place'][place-1]):'No fish weighed in'; }
   else { m=won?C.m:0; title=won?C.name+' complete!':C.name+': out of time'; }
@@ -67,7 +67,7 @@ const _bonus_036=bonus;
 bonus=function(k){ let v=_bonus_036(k); for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; };
 const schedWas={}; SCHED.forEach(e=>schedWas[e.id]=!!schedLeft(e));
 setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
-  let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ toast(e.icon+' '+e.name+' at every water for '+e.len+' minutes: '+e.what.toLowerCase()+'!'); try{ sfx.hot(); }catch(er){} } } schedWas[e.id]=on; }
+  let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ try{ sfx.hot(); }catch(er){} } /* no notice: the LIVE marker and badges show it (director, 2026-11-21) */ } schedWas[e.id]=on; }
   if(S.tab==='events'){ // a rest that just ended, or a scheduled event starting or ending, redraws the page so its buttons are right
     const stale=changed||[...document.querySelectorAll('[data-evleft]')].some(el=>{ const k=el.dataset.evleft; return CHAL[k]&&!((S.chalCd&&S.chalCd[k]||0)>Date.now()); });
     if(stale){ renderPanel(); return; }
@@ -103,7 +103,7 @@ function renderEvents(P){ const o=catchOdds(), c=S.chal;
    <h3 class="ev-h">Fishing Derby</h3>${derbyHTML()}<div class="tile"><h4>Derby rewards</h4><div class="meta" style="margin-bottom:6px">Four minutes, one water: the heaviest total catch wins.</div>${row('🥇',1,'First place')}${row('🥈',.5,'Second place')}${row('🥉',.25,'Third place')}${row('🎣',0,'Fourth place')}</div>`; };
 const _extraAct2_ev036=extraAct2;
 extraAct2=function(b){ const a=b.dataset.act; if(a==='chalgo'){ if(G.st!=='idle'&&G.st!=='waiting'&&G.st!=='result'){ toast('Finish your catch first.'); return 'skip'; } return chalStart(b.dataset.k)?'render':'skip'; }
-  if(a==='chalquit'){ if(!S.chal) return 'skip'; if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent='Tap again to give up'; return 'skip'; } chalEnd(false); return 'render'; } return _extraAct2_ev036(b); };
+  if(a==='chalquit'){ if(!S.chal) return 'skip'; if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent=(PLAT.touch()?'Tap':'Click')+' again to give up'; return 'skip'; } chalEnd(false); return 'render'; } return _extraAct2_ev036(b); };
 // the Events tab shows how many things are live (scheduled events and your challenge)
 setInterval(()=>{ const b=document.querySelector('#tabs [data-tab="events"]'); if(!b) return; let d=b.querySelector('.dot'); const n=liveScheds().length+(S.chal?1:0);
   if(n){ if(!d){ d=document.createElement('span'); d.className='dot'; b.appendChild(d); } if(d.textContent!==String(n)) d.textContent=n; } else if(d) d.remove(); },1500);

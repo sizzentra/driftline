@@ -25,26 +25,6 @@ body.pch-on #evin .pn-sec li{font-size:14.5px;line-height:1.5;color:#dbe6f2;marg
 body.pch-on #evin .pn-sec li:last-child{margin-bottom:0}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-body.pch-on #panel .featboard{display:grid;gap:10px;align-items:start;margin-top:4px}
-body.pch-on #panel .fb-col{display:flex;flex-direction:column;gap:9px;min-width:0}
-
-
-body.pch-on #panel .fb-cat{margin:0;background:linear-gradient(180deg,#132238,#0f1b2d);border:1px solid #ffffff14;border-radius:14px;padding:8px 10px 4px;box-shadow:inset 0 1px 0 #ffffff0d}
-body.pch-on #panel .fb-cat header{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 6px;font:800 12.5px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--gold,#ffd36a)}
-body.pch-on #panel .fb-cat header .fb-n{letter-spacing:0;color:#8fa6bf;font-weight:700}
-body.pch-on #panel .fb-cat ul{list-style:none;margin:0;padding:0}
-body.pch-on #panel .fb-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;row-gap:2px;padding:3px 4px 4px;border-top:1px solid #ffffff0a}
-body.pch-on #panel .fb-row:first-child{border-top:0}
-body.pch-on #panel .fb-name{font:700 13px var(--display,system-ui);color:#eef3f8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.pch-on #panel .fb-cnt{font:700 12px var(--display,system-ui);color:#9fb2c8;white-space:nowrap}
-body.pch-on #panel .fb-bar{display:block;height:3px;border-radius:4px;background:#ffffff14;overflow:hidden;align-self:center}
-body.pch-on #panel .fb-bar b{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pch-on #panel .fb-rew{font-size:11.5px;color:#c9d7e8;white-space:nowrap;text-align:right}
-body.pch-on #panel .fb-row.done{opacity:.55}
-body.pch-on #panel .fb-row.done .fb-name{color:#7fe3c4}
-body.pch-on #panel .fb-row.done .fb-bar b{background:#7fe3c4}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
 /* PC: Next goal is as wide as its text needs (at most 460 px); cooler, aquarium and Fish Log sit together at the right */
 html body.pch-on.dl-fish .hud > #goalchip{flex:0 1 auto!important;width:auto!important;max-width:460px!important;min-width:200px!important}
 html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}

@@ -36,25 +36,4 @@ html body.pch-on #pcscene > .pcs-bait:hover{border-color:#7fe3c4;background:#123
 html body:not(.pch-on) .pcs-bait{display:none!important}
 </style>`);
 
-// ---------- Rods (items 16-17): "Your rods" presets at the top of the rod column; the attachments sit centred, so a part-filled
-// last row is balanced instead of hanging to the left ----------
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!FHD()) return r; const you=$('panel').querySelector('.fhd-you .fhd-body2'); if(you&&!you.querySelector('.rp-box')) you.insertAdjacentHTML('afterbegin',rodPresetsHTML()); }catch(e){ console.error(e); } return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel.rd-on .fhd-att .fhd-body2 > .grid{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:10px!important}
-html body.pc-fhd #menuov #panel.rd-on .fhd-att .fhd-body2 > .grid > .tile{flex:0 0 calc(33.333% - 7px)!important;max-width:calc(33.333% - 7px)!important;box-sizing:border-box;margin:0!important}
-html body.pc-fhd #menuov #panel.rd-on .fhd-you .rp-list{grid-template-columns:1fr}
-</style>`);
 
-// ---------- Bait page: everyday bait and water baits as two groups with a heading each ----------
-document.head.insertAdjacentHTML('beforeend',`<style>
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #panel .bt-groups{flex:1 1 0!important;min-height:0!important;overflow:auto!important;scrollbar-width:thin}
-html body.pc-fhd #panel .bt-groups > .bt-grid{flex:none!important;overflow:visible!important;min-height:auto!important}
-</style>`);
-
-// ---------- names never get cut with "…" on smaller PC windows: Feats names and the Oddities hint wrap to a second line ----------
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #panel .fb-name{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2;overflow-wrap:anywhere}
-html body.pch-on #panel .od-card small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;line-height:1.2;text-align:center}
-</style>`);

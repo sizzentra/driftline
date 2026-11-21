@@ -18,7 +18,7 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
   if(tab==='settings'){ const grid=K.find(c=>c.classList.contains('grid')); if(!grid) return; const tiles=[...grid.children], pick=re=>tiles.filter(t=>hasH(t,re));
     const save=K.filter(c=>c!==grid&&(c.classList.contains('tile')||c.tagName==='DETAILS'));
     // the chosen tiles sit alone in the grid, so let the grid show one wide column
-    sectionize(P,tab,[{name:'Sound',nodes:pick(/^Sound/)},{name:'Controls',nodes:pick(/^Controls/)},{name:'Display',nodes:pick(/^Display/)},{name:'Gameplay',nodes:pick(/^Gameplay/)},{name:'Patch notes',nodes:pick(/^Patch notes/)},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
+    sectionize(P,tab,[{name:'Sound',nodes:pick(/^Sound/)},{name:'Controls',nodes:pick(/^Controls/)},{name:'Display',nodes:pick(/^(Display|PC)\b/)},{name:'Gameplay',nodes:pick(/^Gameplay/)},{name:'Patch notes',nodes:pick(/^Patch notes/)},{name:'Save & codes',nodes:save}],K.find(c=>c.classList.contains('tile')||c===grid));
     grid.classList.add('sect-one'); }
   else if(tab==='pets'){ const grid=K.find(c=>c.classList.contains('grid')), cust=K.filter(c=>c.classList.contains('tile')&&c!==grid); if(!grid) return; const T=[...grid.children], mine=T.filter(t=>t.querySelector('canvas[data-own="1"]')), more=T.filter(t=>!mine.includes(t));
     sectionize(P,tab,[{name:'Your pets · '+mine.length,nodes:mine},{name:'Find more · '+more.length,nodes:more},{name:'Customize',nodes:cust}],cust[0]||grid); }

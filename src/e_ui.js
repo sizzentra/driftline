@@ -11,7 +11,7 @@ setInterval(()=>{ accrue(); const el=$('tankbank'); if(el){ const t=fmtShort(S.t
 setInterval(()=>{ if(S.tank.length||S.buffs.length) save(); }, 30000);
 
 // ---------- HUD / hint ----------
-let lastHud='', lastWx='';
+let lastHud='';
 function hud(){
   const p=phase(), nf=nextFlip(), wx=weather(), wl=wxLeft(); const key=[S.money,S.lvl,S.xp,S.loc,S.cooler.length,tod(p),nf.s,wx.k,wl,G.st,ptsFree(),lastBuffN].join('|');
   setHint();
@@ -19,13 +19,13 @@ function hud(){
   $('money').textContent=fmtShort(S.money); $('money').title=fmt(S.money)+' coins'; $('lvl').textContent=S.lvl; $('xpfill').style.width=(S.xp/xpNeed(S.lvl)*100)+'%';
   $('locname').textContent=curLoc().name; $('tod').textContent=tod(p); $('todnext').textContent=nf.label+' '+mmss(nf.s);
   $('wx').textContent=wxName(wx.k); $('wxnext').textContent='Changes in '+mmss(wl); $('wxchip').title=wx.note; $('wx').style.color = wx.k==='Gilded'?'var(--gold)':wx.k==='Storm'?'#9fb4ff':'';
-  if(wx.k!==lastWx){ if(lastWx&&S.settings.wxPop!==false) toast('Weather: '+wxName(wx.k)+'. '+wx.note); lastWx=wx.k; }
+  /* no weather notice on the fishing screen (director, 2026-11-21, TEXT_STANDARD: the scene chip and the badges already show it) */
   $('coolerct').textContent=S.cooler.length+' / '+gv('cooler'); $('coolerct').style.color = S.cooler.length>=gv('cooler') ? 'var(--danger)' : '';
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
   const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(!b) return; const h=tabHTML(b.dataset.label)+dot(n); if(b._tabH!==h){ b._tabH=h; b.innerHTML=h; } }; // only touch the button when its badge changed
   setT('cooler',S.cooler.length); setT('bounties',bountyReady()); setT('skills',ptsFree());
-  setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
+  setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('quests',(typeof Q8==='object'&&Q8.goal().ready)?1:0); /* the Quests badge: 1 when your goal is ready (was its own timer) */ setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint='';
 function fmtShort(n){ n=Math.floor(n); if(n<100000) return fmt(n);
@@ -190,7 +190,7 @@ function renderMap(P){
     const egHead=L.eg&&!(prev&&prev.eg)?`<div class="eg-head"><h3>End-game waters</h3><span class="meta">These open after later voyages (see Set sail again). Their fish are much tougher and worth much more.</span></div>`:"";
     return egHead+`<div class="tile loc ${here?"here":""}"><div class="sw2" style="background:linear-gradient(${L.sky[0]},${L.sky[1]} 48%,${L.water[0]} 52%,${L.water[1]})"></div>
     <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${depthStr(L.depth)} · ${caughtAt(L.id)}/${sps.length} species</div>${strStandHTML(sps)}
-    ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${unlockLine(i)}</div>`:''}${btn}</div>`; }).join('')+'</div>'+renderVoyage()+relicHTML();
+    ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${unlockLine(i)}</div>`:''}${btn}</div>`; }).join('')+'</div>'; /* Set sail again and Pearl relics live on the Prestige page (cw_pages08.js) */
 }
 const canRetire = () => S.unlocked.includes('trench') && pearlsFor() > 0 && G.st==='idle';
 

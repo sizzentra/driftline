@@ -294,6 +294,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   'A fresh fish holds against your reel by its rarity until it tires, and reeling straight through the moves of a big one snaps the line, whatever your gear.',
   'Strong gear and skills make fights faster, down to a floor: about 3 seconds for common fish, half a minute or more for mythics.',
   'Hollow Trench now lists its true depth, and its fish fight harder than Midnight Deep’s.',
+  'The fishing screen is quieter: no notices about the weather, live events, coming special weather or a challenge you started (the badges show them). Messages about what you just did stay.',
+  'Florida Keys: a bigger bridge with traffic, beaches, speedboats and sport-fishing boats, and a school of fish under the water.',
   'End-game waters stay uncharted until you reach their voyage; then they open for coins and stay open for good. Waters you already have stay open.',
   'Cooler: Scrap all sits beside Sell all, and you can sort by rarity. Settings: distances and depths in metres or feet.',
   'The Bounties badge no longer shows a number when there is nothing to claim. Map pictures appear at once after a restart. Feeding a Nibble no longer makes the screen jump. Pets › Customize keeps its color rows in place.',
@@ -304,6 +306,7 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   'Spelling: the game now says color everywhere.',
   'Market Rush now adds its full 30% when you follow the Merchant Path (it gave a little less).',
   'Picking a bait, or a water on the Bounties page, no longer makes the buttons jump: the Bait in use card keeps its size, and a row you scrolled sideways stays where it was.',
+  'Quests shows the live event when one is on, and each Feats category says what finishing it gives.',
   'Small iPhones: the top bar keeps every word whole; when room runs out, the chips sit a little closer together instead of cutting the bait name.',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space (iPhones could run short of memory after opening many pages).',
   'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.'])});

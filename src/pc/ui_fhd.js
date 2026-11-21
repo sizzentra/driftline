@@ -5,86 +5,8 @@
 // =====================================================================
 { const apply=()=>{ const b=document.body.classList, v=b.contains('pch-on')&&innerWidth/UIZ>=1800&&innerHeight/UIZ>=950; if(v!==b.contains('pc-fhd')) b.toggle('pc-fhd',v); };
   addEventListener('resize',()=>setTimeout(apply,40)); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); apply(); }
-// PC full HD: pages whose sections are small show them all side by side, each under its own heading, instead of one section
-// at a time behind tabs (director, 2026-11-17: Skills showed five little cards in a corner of an empty screen).
-{ const ALL=new Set(['skills','save']); const _sz=sectionize;
-  sectionize=function(P,tab,groups,before){ const gs=(groups||[]).filter(g=>g.nodes.length);
-    if(!document.body.classList.contains('pc-fhd')||!ALL.has(tab)||gs.length<2) return _sz.apply(this,arguments);
-    const anchor=before||gs[0].nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor); /* mark the spot before anything moves */ const board=document.createElement('div'); board.className='fhd-board fhd-'+tab; board.style.setProperty('--n',gs.length);
-    for(const g of gs){ const col=document.createElement('section'); col.className='fhd-col';
-      const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid');
-      col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span>${g.badge?`<span class="sdot">${g.badge}</span>`:''}</header>`;
-      const body=document.createElement('div'); body.className='fhd-body'+(inGrid?' '+[...par.classList].join(' '):''); col.appendChild(body);
-      for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } board.appendChild(col); }
-    mark.parentNode?mark.parentNode.replaceChild(board,mark):P.appendChild(board);
-    // a grid left empty by the move goes away
-    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); }); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* C13: the empty preview slot shows on PC (pets, Your home, aquarium), so starting a preview never pushes the options down; phones hold the option in place by scrolling instead */
-body #panel .pvbar.pvhint{display:flex}
-body #panel .pt-right{scrollbar-gutter:stable} /* C13: a scrollbar appearing (a hat color row made the column scroll) rewrapped the text above and moved the options 7 px */
-body.pc-fhd #panel .fhd-board{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px;align-items:start;margin-top:8px}
-body.pc-fhd #panel .fhd-col{display:flex;flex-direction:column;gap:10px;min-width:0}
-body.pc-fhd #panel .fhd-h{display:flex;align-items:center;gap:8px;padding:0 4px 6px;border-bottom:1px solid #ffffff1c;font:800 13px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#cfe0f2}
-body.pc-fhd #panel .fhd-body{display:flex!important;flex-direction:column!important;gap:10px!important;margin:0!important;grid-template-columns:none!important}
-body.pc-fhd #panel .fhd-body > *{width:auto!important;margin:0!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD Feats reader */
-body.pc-fhd #panel .featrd{display:grid;grid-template-columns:270px minmax(0,1fr);gap:22px;align-items:start;margin-top:6px}
-body.pc-fhd #panel .fr-rail{display:flex;flex-direction:column;gap:4px;padding:12px;border-radius:16px;background:#0c1626;border:1px solid #ffffff12}
-body.pc-fhd #panel .fr-total{padding:4px 8px 12px;margin-bottom:4px;border-bottom:1px solid #ffffff14;font-size:13px;color:#9fb2c8;display:grid;gap:6px}
-body.pc-fhd #panel .fr-total b{font:800 20px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fr-cat{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:6px;align-items:center;text-align:left;padding:9px 12px 10px;border-radius:11px;border:1px solid transparent;background:none;color:#dbe6f2;cursor:pointer;font:700 14px var(--display,system-ui)}
-body.pc-fhd #panel .fr-cat:hover{background:#ffffff0b}
-body.pc-fhd #panel .fr-cat[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff55;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pc-fhd #panel .fr-cat .fr-bar{grid-column:1 / -1}
-body.pc-fhd #panel .fr-n{font:700 12.5px var(--display,system-ui);color:#9fb2c8;letter-spacing:0;text-transform:none}
-body.pc-fhd #panel .fr-bar{display:block;height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}
-body.pc-fhd #panel .fr-bar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pc-fhd #panel .fr-main h3{margin:2px 2px 14px;font:800 22px var(--display,system-ui);color:#fff;display:flex;align-items:baseline;gap:12px}
-body.pc-fhd #panel .fr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
-body.pc-fhd #panel .fr-card{display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff14}
-body.pc-fhd #panel .fr-card header{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-body.pc-fhd #panel .fr-card header b{font:800 16px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fr-card .fr-cnt{font:800 13px var(--display,system-ui);color:#cfe0f2;white-space:nowrap}
-body.pc-fhd #panel .fr-card p{margin:0;font-size:13.5px;line-height:1.45;color:#a9bccf;flex:1}
-body.pc-fhd #panel .fr-card .fr-bar{height:7px}
-body.pc-fhd #panel .fr-card .fr-rew{font-size:13px;color:#dbe6f2}
-body.pc-fhd #panel .fr-card.done{opacity:.6}
-body.pc-fhd #panel .fr-card.done header b{color:#7fe3c4}
-body.pc-fhd #panel .fr-card.done .fr-bar b{background:#7fe3c4}
-</style>`);
-// full HD Rods: "Your rod" and its attachments side by side on one tab (they belong together), the rod rack on the other
-{ const _sz=sectionize;
-  sectionize=function(P,tab,groups,before){ if(tab!=='rods'||!document.body.classList.contains('pc-fhd')) return _sz.apply(this,arguments);
-    const gs=(groups||[]).filter(g=>g.nodes.length), you=gs.find(g=>/Your rod/i.test(g.name)), att=gs.find(g=>/Attach/i.test(g.name)), rest=gs.filter(g=>g!==you&&g!==att);
-    if(!you||!att) return _sz.apply(this,arguments);
-    const anchor=before||you.nodes[0], mark=document.createComment('fhd'); anchor.parentNode.insertBefore(mark,anchor);
-    const pair=document.createElement('div'); pair.className='fhd-rodpair';
-    const mk=(g,cls)=>{ const col=document.createElement('section'); col.className='fhd-col '+cls; col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span></header>`; const par=g.nodes[0].parentNode, inGrid=par&&par!==P&&par.classList.contains('grid'); const body=document.createElement('div'); body.className='fhd-body2'+(inGrid?' '+[...par.classList].join(' '):''); for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } col.appendChild(body); return col; };
-    pair.append(mk(you,'fhd-you'),mk(att,'fhd-att')); mark.parentNode.replaceChild(pair,mark);
-    P.querySelectorAll(':scope > .grid').forEach(gr=>{ if(!gr.children.length) gr.remove(); });
-    return _sz.call(this,P,tab,[{name:you.name,nodes:[pair]}].concat(rest),pair); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel .fhd-rodpair{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.5fr);gap:18px;align-items:start}
-body.pc-fhd #panel .fhd-rodpair .fhd-body2{margin:0!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2{display:block!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 .grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
-body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h2,body.pc-fhd #panel .fhd-rodpair .fhd-att .fhd-body2 > h3{display:none}
-body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2{display:flex!important;flex-direction:column;gap:10px}
-body.pc-fhd #panel .fhd-rodpair .fhd-you .fhd-body2 > *{flex-shrink:0} /* 0.4.8.9.5 hotfix: the column squeezed the In your hands card to the screen and its hidden overflow cut off the attachment slot; the column scrolls instead */
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD Wardrobe: a bigger character on the left, the options flowing in three columns instead of short rows down one side */
-body.pc-fhd #menuov #panel .stylewrap.wd{grid-template-columns:minmax(420px,32%) minmax(0,1fr)!important;column-gap:28px!important;align-items:start}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev{width:100%!important;max-width:none!important;height:auto!important;max-height:none!important;aspect-ratio:auto}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-prev canvas{width:100%!important;height:auto!important}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main{columns:3 320px;column-gap:30px;display:block!important}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > *{break-inside:avoid}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5{break-after:avoid;margin-top:14px}
-body.pc-fhd #menuov #panel .stylewrap.wd .wd-main > h5:first-child{margin-top:0}
-</style>`);
+// PC Reborn (2026-11-21): Skills, Save, Rods, Feats, Cooler and Stats use the shared page engine (src/cx_pages.js) like the phones;
+// their PC-only full-HD layouts (side-by-side boards, the rod pair, the cooler side panel, Stats on one screen) were removed.
 // full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -127,7 +49,7 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
   const ICON={cooler:'<path d="M4 9h16v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M3 9l1.6-4h14.8L21 9"/><path d="M10 13h4"/>',
     aquarium:'<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M7 12.5c1.6-2 4.2-2.4 6-.5l1.6-1.2v3.4L13 13c-1.8 1.9-4.4 1.5-6-.5z"/><path d="M3 17c3 .7 5 .7 9 0s6-.7 9 0"/>',
     journal:'<path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/>',
-    stats:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'};
+    stats:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', home:'<path d="M3.5 11.5 12 4.5l8.5 7"/><path d="M6 10v9.5h12V10"/><path d="M10 19.5v-5h4v5"/>', bounties:'<rect x="5" y="4" width="14" height="16.5" rx="2"/><path d="M9 9h6M9 13h6M9 17h3"/>'};
   const svg=k=>`<svg class="pcs-ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[k]}</svg>`;
   let statsBtn=null; const decorate=()=>{ const box=document.querySelector('.pch-stats'); if(!box) return false;
     const map=[[$('coolerct')&&$('coolerct').closest('.stat'),'cooler'],[document.querySelector('.stat.st-aq'),'aquarium'],[document.querySelector('.stat.st-log'),'journal']];
@@ -137,8 +59,14 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
       const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu('stats'); };
       ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
       statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
-    if(statsBtn.parentElement!==box) box.appendChild(statsBtn); return true; };
-  const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; } }catch(e){} };
+    if(statsBtn.parentElement!==box) box.appendChild(statsBtn);
+    /* PC Reborn (director, 2026-11-21): Home and Tasks join the header, like the phones' top bar (Home is in no section any more) */
+    for(const [k,lbl,tip,after] of [['home','Home','Your home at this water. Click to open it.','aquarium'],['bounties','Tasks','Daily tasks, weekly quests and bounties. Click to open them.','journal']]){ let b=box.querySelector(':scope > [data-page="'+k+'"]'); if(!b){ b=document.createElement('div'); b.className='stat hudx hud-link st-'+k; b.dataset.page=k; b.setAttribute('role','button'); b.tabIndex=0; b.title=tip; b.innerHTML=svg(k)+'<span class="lbl">'+lbl+'</span><b class="pcs-v"></b>'; const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(k); }; ['pointerdown','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',go); b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); } const ref=box.querySelector(':scope > [data-page="'+after+'"]'); if(ref&&b.previousElementSibling!==ref) ref.after(b); }
+    return true; };
+  const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; }
+    const set=(k,v,ready)=>{ const c=document.querySelector('.pch-stats > [data-page="'+k+'"]'); if(!c) return; const b=c.querySelector('.pcs-v'); if(b&&b.textContent!==v) b.textContent=v; c.classList.toggle('ready',!!ready); };
+    try{ set('home',cozy()+' ♥'); }catch(e){}
+    try{ const d=ensureDaily(), n=bountyReady(); set('bounties',n?n+' ready':d.tasks.filter(t=>t.claimed).length+'/'+d.tasks.length+' done',n>0); }catch(e){} }catch(e){} };
   setInterval(tick,1500);
   // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
   const place=()=>{ const box=document.querySelector('.pch-stats'), tools=document.querySelector('#menuov .mo-tools'), ph=document.querySelector('#pchead .pch-tools'); if(!box||!tools||!ph) return;
@@ -185,19 +113,7 @@ html body.pch-on #pchead .pch-stats > .stat.on,html body.pch-on #menuov .pch-sta
 </style>`);
 // PC: no name shown twice on one screen (director, 2026-11-17: "stuff is in multiple places")
 // - a section tab never repeats its page's name: Waters > "Travel", Dock > "Your dock"
-{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(document.body.classList.contains('pch-on')&&groups){ const ren={map:{Waters:'Travel'},home:{Dock:'Your dock'}}[tab]; if(ren){ groups=groups.map(g=>ren[g.name]?Object.assign({},g,{name:ren[g.name]}):g); if(SECT[tab]&&ren[SECT[tab]]) SECT[tab]=ren[SECT[tab]]; } } return _sz.call(this,P,tab,groups,before); }; }
-// - Feats on full HD: the rail already shows the total and each category's count
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='feats'&&document.body.classList.contains('pc-fhd')){ const P=$('panel'); const sub=P.querySelector(':scope > p.sub, :scope > .row p.sub'); if(sub&&P.querySelector('.featrd')) sub.style.display='none'; } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* - Rods: the "Your rod" tab already names that column */
-body.pc-fhd #panel .fhd-rodpair .fhd-you > .fhd-h{display:none}
-/* - Trophy Room and Boardwalk: their page tab already carries the name; Boardwalk's wallet repeated your coins */
-body.pch-on #panel h2.tp-title{display:none}
-body.pch-on #panel .bwx-ht > h2{display:none}
-body.pch-on #panel .bwx-wallet > span:has(> b.coin){display:none}
-/* - Feats: the category title keeps the name; its count is on the rail */
-body.pc-fhd #panel .fr-main h3 .fr-n{display:none}
-</style>`);
+{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(document.body.classList.contains('pch-on')&&groups){ const ren={home:{Dock:'Your dock'}}[tab]; if(ren){ groups=groups.map(g=>ren[g.name]?Object.assign({},g,{name:ren[g.name]}):g); if(SECT[tab]&&ren[SECT[tab]]) SECT[tab]=ren[SECT[tab]]; } } return _sz.call(this,P,tab,groups,before); }; }
 // PC Settings: the volume sliders and the on/off switches both said "Music" and "Nature sounds"; the switches say what they do
 { const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ P.querySelectorAll('.toggle b').forEach(b=>{ const t=b.textContent.trim(); if(t==='Music') b.textContent='Play music'; else if(t==='Nature sounds') b.textContent='Play nature sounds'; }); }catch(e){} }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -278,105 +194,7 @@ html body.pch-on #pchead .pch-stats > .stat.on .lbl,html body.pch-on #pchead .pc
 html body.pch-on #pchead .pch-stats > .stat.on::after{content:"✕";font-size:12px;color:#2a1c05;opacity:1}
 @media (max-width:980px){ html body.pch-on #pchead .pch-stats > .stat::after{display:none} }
 </style>`);
-// =====================================================================
-// PC full HD Cooler (director, 2026-11-17: "needs better spaced out UI... utilize space properly, so many empty gaps"):
-// your fish fill the main area as cards; one panel on the right holds the cooler's space, what "Sell all" sells, the Sell all
-// button and the Fishmonger's request.
-// =====================================================================
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='cooler'||!document.body.classList.contains('pc-fhd')) return r;
-      const P=$('panel'), hdr=P.querySelector(':scope > .dl-headw'); if(!hdr||P.querySelector('.fhd-cool')) return r;
-      const sub=hdr.querySelector('p.sub'), sellf=hdr.querySelector('.sellf'), btn=hdr.querySelector('[data-act="sellall"]'), demand=P.querySelector(':scope > .tile'), list=P.querySelector(':scope > .list, :scope > .empty');
-      const n=S.cooler.length, cap=gv('cooler');
-      const wrap=document.createElement('div'); wrap.className='fhd-cool';
-      const main=document.createElement('section'); main.className='fc-main'; main.innerHTML=`<h3>Your fish <span class="fc-n">${n} of ${cap}</span></h3>`;
-      { const sb=P.querySelector(':scope > .cool-sort'); if(sb) main.appendChild(sb); } /* C14: the sort bar sits under the heading */ if(list) main.appendChild(list); if(!n) main.insertAdjacentHTML('beforeend','<div class="fc-empty">Your cooler is empty. Catch something!</div>');
-      const side=document.createElement('aside'); side.className='fc-side';
-      side.innerHTML=`<div class="fc-cap"><div class="fc-capt"><b>Cooler</b><span>${n} / ${cap}</span></div><i class="fc-bar${n>=cap?' full':''}"><b style="width:${Math.min(100,n/cap*100)}%"></b></i></div>`;
-      if(sub){ sub.classList.add('fc-sub'); side.appendChild(sub); }
-      if(sellf) side.appendChild(sellf); if(btn){ btn.classList.add('fc-sell'); side.appendChild(btn); } { const sc=hdr.querySelector('[data-act="scrapall"]'); if(sc){ sc.classList.add('fc-sell'); side.appendChild(sc); } } /* Cam's list #7: Scrap all under Sell all, the same size */
-      if(demand){ demand.removeAttribute('style'); demand.classList.add('fc-demand'); side.appendChild(demand); }
-      wrap.append(main,side); hdr.replaceWith(wrap); }catch(e){ console.error(e); } return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel .fhd-cool{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:22px;align-items:start;margin-top:4px}
-body.pc-fhd #panel .fc-main h3{margin:2px 2px 12px;font:800 20px var(--display,system-ui);color:#fff;display:flex;align-items:baseline;gap:12px}
-body.pc-fhd #panel .fc-n{font:700 14px var(--display,system-ui);color:#9fb2c8}
-body.pc-fhd #menuov #panel .fhd-cool .list:has(> .fishrow){grid-template-columns:repeat(auto-fill,minmax(440px,1fr))!important;gap:12px!important}
-body.pc-fhd #panel .fc-empty{padding:40px;text-align:center;color:#9fb2c8;border:1px dashed #ffffff22;border-radius:16px}
-body.pc-fhd #panel .fc-side{position:sticky;top:0;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:18px;background:#0e1a2c;border:1px solid #ffffff14}
-body.pc-fhd #panel .fc-capt{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-body.pc-fhd #panel .fc-capt b{font:800 20px var(--display,system-ui);color:#fff}
-body.pc-fhd #panel .fc-capt span{font:800 16px var(--display,system-ui);color:#cfe0f2}
-body.pc-fhd #panel .fc-bar{display:block;height:8px;border-radius:8px;background:#ffffff14;overflow:hidden}
-body.pc-fhd #panel .fc-bar b{display:block;height:100%;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pc-fhd #panel .fc-bar.full b{background:linear-gradient(90deg,#ff8a6a,#ff5468)}
-body.pc-fhd #panel .fc-sub{margin:0;font-size:13px;line-height:1.5;color:#a9bccf}
-body.pc-fhd #panel .fc-side .sellf{display:flex!important;flex-direction:column!important;gap:10px!important;padding:14px!important;border-radius:14px;background:#0a1424;border:1px solid #ffffff10;margin:0!important;width:auto!important}
-body.pc-fhd #panel .fc-side .sellf .fld{display:grid!important;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:10px;width:auto!important;margin:0!important}
-body.pc-fhd #panel .fc-side .sellf .fld-title{font:800 12px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#cfe0f2}
-body.pc-fhd #panel .fc-side .sellf select,body.pc-fhd #panel .fc-side .sellf input{width:100%!important}
-body.pc-fhd #panel .fc-side .fc-sell{width:100%;padding:14px!important;font-size:16px!important}
-body.pc-fhd #panel .fc-side .fc-demand{margin:0!important;display:grid!important;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:12px!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* full HD fish cards: picture, name and value on top, the buttons on a row of their own (the name was squeezed to one word per line) */
-body.pc-fhd #menuov #panel .list > .fishrow{grid-template-columns:96px minmax(0,1fr) auto!important;grid-template-areas:"pic nm val" "pic acts acts"!important;row-gap:8px!important;align-items:center}
-body.pc-fhd #menuov #panel .list > .fishrow > canvas{grid-area:pic}
-body.pc-fhd #menuov #panel .list > .fishrow > .nm{grid-area:nm;min-width:0}
-body.pc-fhd #menuov #panel .list > .fishrow > .val{grid-area:val;text-align:right}
-body.pc-fhd #menuov #panel .list > .fishrow > .acts{grid-area:acts;display:flex!important;gap:8px;justify-content:flex-start}
-body.pc-fhd #menuov #panel .list > .fishrow > .acts > *{flex:1 1 0}
-</style>`);
-// =====================================================================
-// PC full HD Aquarium (director, 2026-11-17): "Your tank" and "Decorate" combined on one screen, side by side, each in its own
-// box that scrolls by itself (switching tabs changed the page's size, and hid half of what matters); a taller tank; a one-line
-// description; the earnings box contained in the header.
-// =====================================================================
-{ const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(tab!=='aquarium'||!document.body.classList.contains('pc-fhd')) return _sz.apply(this,arguments);
-    const gs=(groups||[]).filter(g=>g.nodes.length); if(gs.length<2) return _sz.apply(this,arguments);
-    const anchor=before||gs[0].nodes[0], mark=document.createComment('aq'); anchor.parentNode.insertBefore(mark,anchor);
-    const split=document.createElement('div'); split.className='aq-split';
-    for(const g of gs){ const col=document.createElement('section'); col.className='aq-col'; col.innerHTML=`<header class="fhd-h"><span>${esc(g.name)}</span></header>`; const body=document.createElement('div'); body.className='aq-body'; for(const n of g.nodes){ n.style.display=''; body.appendChild(n); } col.appendChild(body); split.appendChild(col); }
-    mark.parentNode.replaceChild(split,mark); P.classList.add('aq-on'); }; }
-{ const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('aq-on'); const r=_rp.apply(this,arguments); try{ if(S.tab==='aquarium'&&document.body.classList.contains('pc-fhd')){ const sub=P.querySelector(':scope > .dl-head p.sub'); if(sub){ sub.title=sub.textContent; sub.classList.add('aq-sub'); } } }catch(e){} return r; }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel.aq-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:8px}
-body.pc-fhd #panel.aq-on > *{flex:0 0 auto;margin-top:0!important;margin-bottom:0!important}
-body.pc-fhd #panel.aq-on > .aq-split{flex:1 1 0;min-height:0}
-body.pc-fhd #panel.aq-on > .dl-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px}
-body.pc-fhd #panel .aq-sub{margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;cursor:help}
-body.pc-fhd #panel.aq-on .bank{display:flex!important;align-items:center;gap:14px;padding:10px 14px!important;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff1c;box-sizing:border-box;max-width:100%;flex-wrap:nowrap}
-body.pc-fhd #panel.aq-on .bank > *{min-width:0;flex:0 0 auto}
-body.pc-fhd #menuov #panel.aq-on #tankcv{height:calc(36*var(--uvh,1vh))!important}
-body.pc-fhd #panel.aq-on > p.sub{font-size:12px}
-body.pc-fhd #panel .aq-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
-body.pc-fhd #panel .aq-col{display:flex;flex-direction:column;min-height:0;border-radius:16px;background:#0c1626;border:1px solid #ffffff14;padding:12px 14px}
-body.pc-fhd #panel .aq-col > .fhd-h{flex:0 0 auto;margin-bottom:10px}
-body.pc-fhd #panel .aq-body{flex:1 1 0;min-height:0;overflow:auto;scrollbar-width:thin;padding-right:6px;display:flex;flex-direction:column;gap:10px}
-body.pc-fhd #menuov #panel .aq-body .list:has(> .fishrow){grid-template-columns:1fr!important;gap:8px!important}
-body.pc-fhd #panel .aq-body .jsec{display:block!important;margin:0!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-/* the four header buttons: color says "clickable" (director, 2026-11-17: no shapes, navy on navy blended in): a teal fill with a
-   bright edge, brighter on hover, gold while open */
-html body.pch-on #pchead .pch-stats > .stat::after{content:none!important;display:none!important}
-html body.pch-on #pchead .pch-stats > .stat{grid-template-columns:auto auto!important;background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:inset 0 1px 0 #ffffff40,0 3px 0 #0b3a3c,0 4px 10px #0008!important}
-html body.pch-on #pchead .pch-stats > .stat .lbl{color:#c8fff0!important}
-html body.pch-on #pchead .pch-stats > .stat b{color:#ffffff!important}
-html body.pch-on #pchead .pch-stats > .stat .pcs-ic{color:#e6fff8!important}
-html body.pch-on #pchead .pch-stats > .stat:hover{background:linear-gradient(180deg,#27a39d,#197a7b)!important;border-color:#b8fff0!important;box-shadow:inset 0 1px 0 #ffffff55,0 3px 0 #0b3a3c,0 0 0 3px #7fe3c440,0 4px 12px #000a!important}
-html body.pch-on #pchead .pch-stats > .stat.on{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important;box-shadow:inset 0 1px 0 #fff6,0 2px 0 #8a5b12,0 0 0 3px #ffd36a44!important}
-html body.pch-on #pchead .pch-stats > .stat.on .lbl,html body.pch-on #pchead .pch-stats > .stat.on b,html body.pch-on #pchead .pch-stats > .stat.on .pcs-ic{color:#2a1c05!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel.aq-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:8px}
-html body.pc-fhd #menuov #panel.aq-on > *{flex:0 0 auto}
-html body.pc-fhd #menuov #panel.aq-on > .aq-split{flex:1 1 0;min-height:0}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel .aq-body .list:has(> .fishrow){grid-template-columns:repeat(2,minmax(0,1fr))!important}
-html body.pc-fhd #menuov #panel .aq-body .jsec > h2:first-child,html body.pc-fhd #menuov #panel .aq-body .jsec > h3:first-child,html body.pc-fhd #menuov #panel .aq-body .jsec > .row:first-child h2{display:none!important}
-</style>`);
-document.head.insertAdjacentHTML('beforeend',`<style>html body.pc-fhd #menuov #panel .aq-body .jsec > .row:first-child > :first-child{display:none!important}</style>`);
+// PC Reborn (2026-11-21): the Aquarium uses the phones' tabs (Your tank, Decorate) under the tank; its PC side-by-side layout was removed.
 // =====================================================================
 // PC Fish Log, round 2 (director, 2026-11-17): hunting clearer (three slots, a strong glow on hunted fish), a Normal / Shiny
 // switch in the details, the Show filter in the fish column's header styled like the rarity row, and the hunt target's
@@ -430,118 +248,6 @@ body.pch-on #panel .fl-shsw button{padding:6px 16px;background:#0a1424;color:#cf
 body.pch-on #panel .fl-shsw button[aria-pressed="true"]{background:#1d3150;color:#fff}
 body.pch-on #panel .fl-shsw button[data-v="1"][aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05}
 body.pch-on #panel .fl-shsw button:disabled{opacity:.45;cursor:not-allowed}
-</style>`);
-// =====================================================================
-// PC: Oddities as their own page in Collection (director, 2026-11-17: "needs its own location in the collection category, and
-// needs to take parts of the successful parts of the fish log for motivation"). Fish Log style: the four tiers on the left
-// with their progress, every oddity in the middle, the picked one's story and reward on the right; the top shows how many pets
-// and hats still hide in oddities. An unfound oddity shows what kind of reward it hides, never what it is.
-// On phones Oddities stay inside the Fish Log, as before.
-// =====================================================================
-{ const T=$('tabs'), after=T&&T.querySelector(':scope > [data-tab="trophy"]'); if(after&&!T.querySelector(':scope > [data-tab="oddities"]')) after.insertAdjacentHTML('afterend','<button role="tab" data-tab="oddities" aria-selected="false" data-label="🧸 Oddities">🧸 Oddities</button>');
-  const pc=()=>document.body.classList.contains('pch-on');
-  const sync=()=>{ const c=MENU_SECS.find(s=>s.id==='coll'); if(!c) return; const has=c.tabs.includes('oddities'); if(pc()&&!has) c.tabs.push('oddities'); else if(!pc()&&has) c.tabs.splice(c.tabs.indexOf('oddities'),1); try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
-  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,800);
-  try{ PAGE_DESC.oddities='Everything you fished up that isn’t a fish'; }catch(e){}
-  const TIERS=['Junk','Odd junk','Rare find','Treasure','Not found yet']; /* [2] rarity stays hidden until found */
-  const REWARD=e=>e.pet?['A new pet','pet']:e.hat?['A hat','hat']:e.rod?['A rod','rod']:e.lure?['Special lures','lure']:e.scales?['Scales','scales']:e.special?['Something special','special']:e.buff?['A boost','buff']:['Coins','coins'];
-  let tier='all', sel=null;
-  const render=P=>{ P.style.zoom=''; const items=JUNK.map(J=>({id:J.id,name:J.name,t:S.junk[J.id]?J.t:4,e:J.e||{},q:J.q||'',n:S.junk[J.id]||0}));
-    const found=items.filter(x=>x.n).length, pets=items.filter(x=>x.e.pet), hats=items.filter(x=>x.e.hat);
-    const tiers=TIERS.map((nm,i)=>{ const l=items.filter(x=>x.t===i); return {i,nm,l,f:l.filter(x=>x.n).length}; });
-    const shown=tier==='all'?items:items.filter(x=>x.t===+tier);
-    if(!sel||!items.some(x=>x.id===sel)) sel=null;
-    const it=sel&&items.find(x=>x.id===sel);
-    P.innerHTML=`<h2 class="dl-dup" hidden>Oddities</h2>
-    <div class="od-top"><div class="od-count"><b>${found}</b> of ${items.length} oddities found<i class="od-bar"><b style="width:${found/items.length*100}%"></b></i></div>
-      <div class="od-hint"><span>🐾 Pets hiding in oddities: <b>${pets.filter(x=>x.n).length} / ${pets.length}</b> found</span><span>🎩 Hats: <b>${hats.filter(x=>x.n).length} / ${hats.length}</b></span></div></div>
-    <div class="od-pc"><aside class="od-side"><h5>Tiers</h5>
-      <button type="button" class="fl-w" data-odt="all" aria-pressed="${tier==='all'}"><span class="fl-wn">All oddities</span><span class="fl-wc">${found} / ${items.length}</span><span class="fl-wb"><i style="width:${found/items.length*100}%"></i></span></button>
-      ${tiers.map(t=>`<button type="button" class="fl-w${t.f===t.l.length?' done':''}" data-odt="${t.i}" aria-pressed="${String(tier)===String(t.i)}"><span class="fl-wn">${t.nm}</span><span class="fl-wc">${t.f} / ${t.l.length}</span><span class="fl-wb"><i style="width:${t.f/t.l.length*100}%"></i></span></button>`).join('')}
-      <p class="od-note">Oddities come up now and then while you fish, at every water. The rarer the tier, the rarer the find.</p></aside>
-    <section class="od-main"><div class="od-grid">${shown.map(x=>`<button type="button" class="od-card t${x.t}${x.n?'':' unk'}${x.id===sel?' sel':''}" data-odk="${x.id}" title="${x.n?esc(x.name):'Not found yet'} · ${TIERS[x.t]}"><canvas width="160" height="90" data-junk="${x.id}" data-known="${x.n?1:0}"></canvas><b>${x.n?esc(x.name):'???'}</b><small>${x.n?'×'+x.n:'Hides: '+REWARD(x.e)[0].toLowerCase()}</small></button>`).join('')}</div></section>
-    <aside class="od-right">${it?`<div class="tile od-det"><canvas width="360" height="200" data-junk="${it.id}" data-known="${it.n?1:0}"></canvas><div class="rar">${TIERS[it.t]}</div><h3>${it.n?esc(it.name):'Not found yet'}</h3>${it.n?`<p class="od-q">${esc(it.q)}</p>`:'<p class="od-q">Keep fishing: it can turn up at any water.</p>'}<div class="kv">${it.n?oddKV(it.id):""}<div><span>Reward</span> ${REWARD(it.e)[0]}</div><div><span>Times found</span> ${it.n}</div></div></div>`
-      :`<div class="tile fl-pickhint"><b>Click an oddity</b><span class="meta">See what it is, what it gave you and how often you found it. Unfound ones show what kind of reward they hide.</span></div>`}</aside></div>`;
-    P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
-    P.querySelectorAll('[data-odt]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); tier=b.dataset.odt; render(P); }));
-    P.querySelectorAll('[data-odk]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); sel=b.dataset.odk===sel?null:b.dataset.odk; render(P); }));
-    P.classList.add('od-on'); };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('od-on'); if(S.tab==='oddities'){ render(P); try{ menuSync(); if(P.dataset.tab035!=='oddities'){ P.dataset.tab035='oddities'; pageIn(P); } }catch(e){} return; } return _rp.apply(this,arguments); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on #menuov #panel.od-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:10px}
-html body.pch-on #menuov #panel.od-on > *{flex:0 0 auto}
-html body.pch-on #menuov #panel.od-on > .od-pc{flex:1 1 0;min-height:0}
-body.pch-on #panel .od-top{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-body.pch-on #panel .od-count{display:flex;align-items:center;gap:12px;font-size:14px;color:#9fb2c8}
-body.pch-on #panel .od-count > b{font:800 22px var(--display,system-ui);color:#fff}
-body.pch-on #panel .od-bar,body.pch-on #panel .od-pc .fl-wb{display:block;height:5px;border-radius:5px;background:#ffffff14;overflow:hidden}
-body.pch-on #panel .od-bar{width:180px}
-body.pch-on #panel .od-bar b,body.pch-on #panel .od-pc .fl-wb i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#7fe3c4,#ffd36a)}
-body.pch-on #panel .od-hint{display:flex;gap:18px;font-size:13.5px;color:#cfdcea}
-body.pch-on #panel .od-hint b{color:#ffd36a}
-body.pch-on #panel .od-pc{display:grid;grid-template-columns:230px minmax(0,1fr) 340px;gap:14px;min-height:0}
-body.pch-on #panel .od-pc > *{min-height:0;overflow:auto;scrollbar-width:thin}
-body.pch-on #panel .od-side{display:flex;flex-direction:column;gap:4px}
-body.pch-on #panel .od-side h5{margin:2px 2px 6px;font:800 11.5px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#8fa6bf}
-body.pch-on #panel .od-pc .fl-w{display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:4px;column-gap:8px;align-items:center;text-align:left;padding:8px 10px 9px;border-radius:10px;border:1px solid transparent;background:#ffffff06;color:#dbe6f2;cursor:pointer;font:700 13.5px var(--display,system-ui)}
-body.pch-on #panel .od-pc .fl-w:hover{background:#ffffff10}
-body.pch-on #panel .od-pc .fl-w[aria-pressed="true"]{background:#1d3150;border-color:#7fb8ff66;color:#fff;box-shadow:inset 3px 0 0 #7fb8ff}
-body.pch-on #panel .od-pc .fl-wc{font-size:12px;color:#9fb2c8}
-body.pch-on #panel .od-pc .fl-w.done .fl-wc{color:#7fe3c4}
-body.pch-on #panel .od-pc .fl-wb{grid-column:1 / -1}
-body.pch-on #panel .od-note{margin:12px 4px 0;font-size:12px;line-height:1.5;color:#8ea4b9}
-body.pch-on #panel .od-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
-body.pch-on #panel .od-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border-radius:12px;border:1px solid #ffffff14;background:#0e1a2c;color:#dbe6f2;cursor:pointer;min-width:0}
-body.pch-on #panel .od-card:hover{border-color:#7fb8ff88}
-body.pch-on #panel .od-card.sel{outline:2px solid #ffd36a;outline-offset:-1px}
-body.pch-on #panel .od-card canvas{width:100%;height:auto;max-height:54px;object-fit:contain}
-body.pch-on #panel .od-card b{font-size:12.5px;line-height:1.2;white-space:normal;overflow-wrap:anywhere;max-width:100%;text-align:center} /* 0.4.9 QC: names wrap to a second line instead of being cut at small windows */
-body.pch-on #panel .od-card small{font-size:11px;color:#9fb2c8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-body.pch-on #panel .od-card.unk b{color:#7f93a8}
-body.pch-on #panel .od-card.t1{box-shadow:inset 0 3px 0 #8fd0ff99}
-body.pch-on #panel .od-card.t2{box-shadow:inset 0 3px 0 #c79bffaa}
-body.pch-on #panel .od-card.t3{box-shadow:inset 0 3px 0 #ffd36acc}
-body.pch-on #panel .od-det{display:flex;flex-direction:column;gap:8px;padding:14px!important}
-body.pch-on #panel .od-det canvas{width:100%;height:auto}
-body.pch-on #panel .od-det h3{margin:0;font:800 20px var(--display,system-ui);color:#fff}
-body.pch-on #panel .od-det .rar{color:var(--gold,#ffd36a)}
-body.pch-on #panel .od-q{margin:0;font-size:13.5px;line-height:1.5;color:#cfdcea;font-style:italic}
-body.pch-on #panel .od-det .kv{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:13px}
-/* the Fish Log's water list no longer carries Oddities on PC: they have their own page */
-body.pch-on #panel .fl-w[data-k="junk"]{display:none!important}
-body.pch-on #panel .fl-mh .ctl-l{display:none!important}
-</style>`);
-// =====================================================================
-// Full-HD PC: Stats on one screen (director, 2026-11-17: "Stats takes up so much space and looks un even. Shoot for a combined
-// full screen containing all current 3 tabs"). Four even columns: Catching + Fighting | Coins & XP + Right now + Time played |
-// where every bonus comes from | your gear. Every column ends at the same line. Other sizes keep the three tabs.
-// =====================================================================
-{ const _rs=renderStats;
-  renderStats=function(P){ if(!document.body.classList.contains('pc-fhd')){ P.classList.remove('st-on'); return _rs(P); }
-    const keep=statSec, H={}; for(const k of ['overview','bonuses','gear']){ statSec=k; H[k]=statsHTML(); } statSec=keep;
-    const tmp=document.createElement('div'), tiles=k=>{ tmp.innerHTML=H[k]; return [...tmp.querySelectorAll('.tile')].map(t=>t.outerHTML); };
-    const ov=tiles('overview'); // [Time played, Catching, Fighting, Coins & XP, Right now]
-    const gear=tiles('gear');
-    tmp.innerHTML=H.bonuses; const tbl=tmp.querySelector('.st-table-wrap');
-    P.innerHTML=`<h2 class="dl-dup" hidden>Stats</h2><div class="st-all">
-      <div class="st-col">${ov[1]||''}${ov[2]||''}</div>
-      <div class="st-col">${ov[3]||''}${ov[4]||''}${ov[0]||''}</div>
-      <div class="st-col"><div class="tile st-bon"><h4>Where your bonuses come from</h4><p class="meta">Boosts: timed buffs from oddities and tasks. Aquarium: the fish on display. Pets: favourite and companion. Rod: its level and attachments.</p>${tbl?tbl.outerHTML:''}</div></div>
-      <div class="st-col">${gear.join('')}${window.DL_PREVIEW?testerHTML():''}</div></div>`;
-    P.classList.add('st-on'); };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P&&S.tab!=='stats') P.classList.remove('st-on'); return _rp.apply(this,arguments); }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-body.pc-fhd #panel.st-on .st-all{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:14px;align-items:stretch}
-body.pc-fhd #panel.st-on .st-col{display:flex;flex-direction:column;gap:14px;min-width:0}
-body.pc-fhd #panel.st-on .st-col > .tile{margin:0!important;padding:14px 16px!important}
-body.pc-fhd #panel.st-on .st-col > .tile:last-child{flex:1 1 auto}
-body.pc-fhd #panel.st-on .tile h4{margin:0 0 6px;font:800 13px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#ffd36a}
-body.pc-fhd #panel.st-on .st-row{padding:5px 0;font-size:13.5px}
-body.pc-fhd #panel.st-on .st-bon .meta{margin:0 0 8px;font-size:12px;line-height:1.45}
-body.pc-fhd #panel.st-on .st-table-wrap{border:0;border-radius:10px}
-body.pc-fhd #panel.st-on .st-table{background:transparent;font-size:13px}
-body.pc-fhd #panel.st-on .st-table th,body.pc-fhd #panel.st-on .st-table td{padding:7px 5px} body.pc-fhd #panel.st-on .st-table thead th{font-size:10.5px;letter-spacing:.02em} body.pc-fhd #panel.st-on .st-table-wrap{overflow:visible}
-body.pc-fhd #panel.st-on .st-test{margin-top:0!important;flex:0 0 auto!important}
 </style>`);
 // URGENT FIX (director, 2026-11-18: "QR and code saves no longer generate on PC: Send and Get progress show no 6-digit code, no QR
 // and no box to type a code"). On PC the Send / Get progress section lives in Settings > Save & codes, but it was only redrawn on

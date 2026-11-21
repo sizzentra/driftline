@@ -52,8 +52,6 @@ function forecastHTML(){ const now=weather(), f=wxForecast(5), tag=k=>(typeof WX
 // keep the forecast's countdowns live while the Events page is open (one cheap text update a second)
 setInterval(()=>{ if(S.tab!=='events') return; const box=document.querySelector('#panel .wxf'); if(!box) return; const now=Date.now()/1000, cur=Math.floor(now/WX_LEN); if(box.dataset.slot&&+box.dataset.slot!==cur){ box.outerHTML=forecastHTML(); return; } box.dataset.slot=cur;
   const l=box.querySelector('[data-wxl]'); if(l) l.textContent=mmss(wxLeft())+' left'; const f=wxForecast(5); box.querySelectorAll('.wxf-row:not(.on) .badge').forEach((b,i)=>{ if(f[i]) b.textContent='in '+mmss(Math.max(0,Math.round(f[i].at))); }); },1000);
-// a heads-up a minute before rare weather starts (once per weather change)
-let wxWarned=-1; setInterval(()=>{ try{ const cur=Math.floor(Date.now()/1000/WX_LEN), next=weatherAt(cur+1); if(!WX_SPECIAL.has(next.k)||next.k===weatherAt(cur).k||wxWarned===cur||wxLeft()>60) return; wxWarned=cur; toast(wxName(next.k)+' in 1 min: '+((typeof WX_TAG==='object'&&WX_TAG[next.k])||next.note)); }catch(e){} },5000);
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .wxf-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid var(--line)}
 #panel .wxf-row > b{flex:0 0 auto;min-width:96px}
