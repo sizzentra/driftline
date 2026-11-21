@@ -68,8 +68,8 @@ One large overnight run, so testing happens once over many changes. Each item is
 |---|---|
 | 1 ☑ built 2026-11-21 (test build 0509) | 1 Fight Feel (P0 + Cam's list #5 fast run turns, #10 hotspot hook attempts; New / Old switch + safety tag) · 2 Squash Pass (Cam #1, #2, #6, #9, PC Full screen, PC pet hat jump) · 3 Cam's Small Changes (Cam #7, #8, #11, #12, #13) |
 | 2 ☑ built 2026-11-21 (test build 0632) | 4 PC Reborn (P5 › G): shared sections and pages, header, one size (`__pcSpec`), parity (`__menuMap`), sharper picture. PC-only detail drawings go with Living Maps |
-| 3 ◐ (Quiet Waters ☑ and Florida Keys part 1 ☑ in 0632) | 5 Quiet Waters (P5 › F) · 6 Living Maps (P4; Florida Keys #3 and Amazon #4 first) |
-| 4 | 7 Sharper Tools (sweep fixes, fresh-save pass, bug log, docs tidy) · 8 Clean Pages (P3) |
+| 3 ◐ (Quiet Waters ☑, Florida Keys ☑, Amazon ☑ in 0654; the map standard for the other 19 waters carries over to the next night) | 5 Quiet Waters (P5 › F) · 6 Living Maps (P4; Florida Keys #3 and Amazon #4 first) |
+| 4 ◐ (build refuses missing files ☑; the rest carries over) | 7 Sharper Tools (sweep fixes, fresh-save pass, bug log, docs tidy) · 8 Clean Pages (P3) |
 | 5 | 9 Homes for Every Water (P1) · 10 Goodbye Decorations (P2) |
 | 6 (final) | 11 Balance Targets · 12 Report Button (director, 2026-11-21) |
 

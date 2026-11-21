@@ -88,6 +88,8 @@ foreach ($p in 'pc','android','ios') {
   # a part named "pc:...", "mobile:..." (Android + iPhone), "android:..." or "ios:..." belongs to those builds only
   $want = @($p); if ($p -ne 'pc') { $want += 'mobile' }
   $parts = $parts | Where-Object { $_ -notmatch '^(pc|mobile|android|ios):' -or $want -contains ($_ -split ':')[0] } | ForEach-Object { ($_ -split ':')[-1] }
+  # a listed file that does not exist stops the build (2026-11-21: a deleted phone file was skipped silently and the build still finished)
+  $miss = @($parts | Where-Object { -not (Test-Path (Join-Path $root "src\$_")) }); if ($miss.Count) { throw ("BUILD REFUSED: these listed files do not exist: " + ($miss -join ", ")) }
   # inside a shared file, a line "//@layer <platform> <file>" is replaced by that platform file's code (same spot, same order)
   # in that platform's build, and by nothing in the others
   $layerLine = [regex]'(?m)^//@layer (pc|mobile|android|ios) (\S+)\s*$'

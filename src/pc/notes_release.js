@@ -168,6 +168,7 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Hollow Trench now lists its true depth, and its fish fight harder than Midnight Deep’s.',
   'The fishing screen is quieter: no notices about the weather, live events, coming special weather or a challenge you started (the badges show them). Messages about what you just did stay.',
   'Florida Keys: a bigger bridge with traffic, beaches, speedboats and sport-fishing boats, and a school of fish under the water.',
+  'Amazon Rainforest: a deeper jungle, a better waterfall, roots and lily pads, and much more wildlife, from dragonflies and macaws to a caiman, frogs and a few surprises. The stilt deck stands in the water now.',
   'End-game waters stay uncharted until you reach their voyage; then they open for coins and stay open for good. Waters you already have stay open.',
   'Cooler: Scrap all sits under Sell all, and you can sort by rarity. Settings: distances and depths in metres or feet.',
   'The Bounties badge no longer shows a number when there is nothing to claim. Map pictures appear at once after a restart. Feeding a Nibble no longer redraws the whole Aquarium. Pets › Customize no longer jumps to the top when you pick a hat.',

@@ -44,10 +44,14 @@ Object.assign(V3PLAT,{
     g.strokeStyle=N('#c8b890'); g.lineWidth=2; g.beginPath(); g.moveTo(PW*.95,dockY+b); g.lineTo(PW*1.02,dockY-H*.2+b); g.stroke(); /* the push pole */
     const lit=waLit(P,night); waLamp(t,PW*.98,dockY-H*.02+b,lit); },
   stilts(P,t,night,dockY){ const PW=W*.2, N=c=>mix(c,'#0a1020',night*.55);
-    const sw=waWood('#b8a060'), sp=waWood('#5a3a20')==='#5a3a20'?'#5a3a20':mix(sw,'#000000',.45); g.strokeStyle=N(sp); g.lineWidth=Math.max(3,W*.006); for(const px of [.06,.4,.75,.97]){ g.beginPath(); g.moveTo(PW*px,dockY); g.lineTo(PW*px+(px-.5)*6,H); g.stroke(); }
+    const sw=waWood('#b8a060'), sp=waWood('#5a3a20')==='#5a3a20'?'#5a3a20':mix(sw,'#000000',.45); /* Cam's list #4: the stilts stand in the water instead of running to the bottom of the screen like a high bridge: solid down to the
+       water line, then fading under the surface, with a ripple where each one meets the water */
+    const wl=dockY+H*.035, lw=Math.max(3,W*.006); for(const px of [.06,.4,.75,.97]){ const x0=PW*px; g.strokeStyle=N(sp); g.lineWidth=lw; g.beginPath(); g.moveTo(x0,dockY); g.lineTo(x0,wl); g.stroke();
+      const gr=g.createLinearGradient(0,wl,0,wl+H*.16); gr.addColorStop(0,v3rgba(mix(N(sp),P.wMid||'#205060',.45),.75)); gr.addColorStop(1,v3rgba(P.wMid||'#205060',0)); g.strokeStyle=gr; g.beginPath(); g.moveTo(x0,wl); g.lineTo(x0+(px-.5)*4,wl+H*.16); g.stroke();
+      g.strokeStyle='rgba(255,255,255,'+(.35-night*.2)+')'; g.lineWidth=1; g.beginPath(); g.ellipse(x0,wl,lw*2.2+Math.sin(t*2+px*9)*1.5,lw*.5,0,0,7); g.stroke(); }
     g.fillStyle=N(sw); g.fillRect(-2,dockY-3,PW,6); g.strokeStyle=N(mix(sw,'#000000',.25)); g.lineWidth=1; for(let x=0;x<PW;x+=6){ g.beginPath(); g.moveTo(x,dockY-3); g.lineTo(x,dockY+3); g.stroke(); }
     g.fillStyle=N('#7a8a3a'); g.beginPath(); g.moveTo(-2,dockY-H*.13); g.lineTo(PW*.3,dockY-H*.17); g.lineTo(PW*.62,dockY-H*.13); g.closePath(); g.fill(); g.strokeStyle=N('#5a6a2a'); for(let i=0;i<8;i++){ g.beginPath(); g.moveTo(PW*.3,dockY-H*.17); g.lineTo(-2+i*PW*.09,dockY-H*.13); g.stroke(); }
-    g.fillStyle=N(sp); g.fillRect(PW*.02,dockY-H*.13,2,H*.13); g.fillRect(PW*.58,dockY-H*.13,2,H*.13);
+    { const pw=Math.max(3,W*.004); g.fillStyle=N(sp); g.fillRect(PW*.02,dockY-H*.132,pw,H*.132); g.fillRect(PW*.58-pw,dockY-H*.132,pw,H*.132); } /* the roof stands on two real posts */
     const lit=waLit(P,night); waLamp(t,PW*.58,dockY-H*.1,lit); },
   haydock(P,t,night,dockY){ const PW=W*.2, N=c=>mix(c,'#0a1020',night*.55);
     { const hw=waWood('#8a6a42'); g.fillStyle=N(hw); g.fillRect(-2,dockY,PW,H*.014); g.fillStyle=N(mix(hw,'#000000',.25)); } for(const px of [.05,.5,.92]) g.fillRect(PW*px,dockY,W*.008,H-dockY);

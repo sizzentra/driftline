@@ -172,3 +172,5 @@ id,date,incident,category,found_by,found_at,severity,caught_now_by
 171,2026-11-21,"Goal chip (Live: ... left) switched the page behind a closed menu, so clicking it seemed to do nothing",ui,director,test_app,2,"opens the menu on its page"
 172,2026-11-21,"PC fell behind the phones: no Quests, no Prestige section, old names (Equipment, Waters), pages without the phone tabs, no Home or Tasks chip",ui,director,test_app,2,"sweep: PC has what phones have (__menuMap on both builds, proven by a planted rename)"
 173,2026-11-21,"PC menus had no size standard: mixed text sizes, squeezed buttons (Boardwalk 'Open free' wrapped to two lines)",ui,director,test_app,2,"__pcSpec at 1920/2560/1440 (proven by a planted 17 px heading)"
+174,2026-11-21,"Amazon: the stilt deck's stilts ran to the bottom of the screen (looked like a high bridge), its roof posts were 2 px, and the waterfall rectangle ran past the water line",art,cam,real_device,1,"pictures in tools/shots; map standard rules 15-18"
+175,2026-11-21,"Build finished with a listed source file missing (mobile/fight08.js after it was deleted)",tooling,claude,me_manual,2,"build refuses missing files (proven)"
