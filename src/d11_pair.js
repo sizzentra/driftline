@@ -90,7 +90,7 @@ function drawPair(c,t,h){ const {el,ln}=h;
   let boop=!sleep&&!busy()&&(t%23)>15&&(t%23)<17.2, paw=!sleep&&!busy()&&!boop&&(t%19)>8&&(t%19)<9.6, tilt=!boop&&!paw&&(t%7)>5.2&&(t%7)<6.6, twitch=(t%9)>7.6&&(t%9)<8.1;
   let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){} let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
   if(PAIR.force){ const f=PAIR.force; petted=f==='petted'; play=f==='play'; yip=f==='yip'; watching=f==='watch'; sleep=f==='sleep'; boop=f==='boop'; paw=f==='paw'; tilt=f==='tilt'; twitch=f==='twitch'; shiver=f==='shiver'; if(play) PAIR.playT=now-700; if(yip) PAIR.yipT=now-300; }
-  // each dog has its own look (colour, hat, accessory); the colour is applied per dog, never to hearts, bubbles or z's
+  // each dog has its own look (color, hat, accessory); the color is applied per dog, never to hearts, bubbles or z's
   const dLk=(PAIR.lk&&PAIR.lk!==S.petLook.daxniko_niko)?PAIR.lk:_petLook_pair('daxniko'), nLk=Object.assign({},pairNikoLook(),(dLk.__pv&&PAIR.nikoPv)||{}), blink=h.blink; PAIR.nLk=nLk;
   const capeOf=l=>l.acc==='cape'?(l.accCol||'#d8303a'):null, dCape=capeOf(dLk), nCape=capeOf(nLk);
   const tint=(l,fn)=>{ c.save(); c.filter=tintFilter(l,t); fn(); c.restore(); }; c.filter='none';
@@ -154,7 +154,7 @@ const PAIR_PATCH = {v:'DaxNiko', label:'A gift for Zac 🐾', name:'Dax & Niko h
   'Dax gives you his paw now and then. When you land a fish, Niko yips and Dax hops.',
   'They perk up and watch the water while you fish. On cold water they shiver a little (they are Chihuahuas, after all).',
   'At night they curl up and nap together.',
-  'Dress them up in the Pets tab: pick Dax or Niko and give each their own colour, accessory and hat (or match them).' ]};
+  'Dress them up in the Pets tab: pick Dax or Niko and give each their own color, accessory and hat (or match them).' ]};
 const _redeemGift_pair = redeemGift;
 redeemGift = function(code){ const k=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(k && btoa(k)==='WkFDU1BVUFM='){
@@ -188,6 +188,6 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-pairdog
 document.addEventListener('click',()=>{ PAIR_UI=false; });
 const _renderPanel_pair = renderPanel;
 renderPanel = function(){ const on=pairUIOn(), was=PAIR_UI; if(on) PAIR_UI=true; try{ _renderPanel_pair(); if(on) pairSwitchInject(); } finally { PAIR_UI=was; } };
-function pairSwitchInject(){ const wrap=document.querySelector('#panel .petwrap'); if(!wrap||wrap.querySelector('.pairdog')) return; const first=[...wrap.querySelectorAll('h5')].find(h=>/Colour|Color/.test(h.textContent)); if(!first) return;
+function pairSwitchInject(){ const wrap=document.querySelector('#panel .petwrap'); if(!wrap||wrap.querySelector('.pairdog')) return; const first=[...wrap.querySelectorAll('h5')].find(h=>/Color|Color/.test(h.textContent)); if(!first) return;
   first.insertAdjacentHTML('beforebegin',`<div class="pairdog"><h5>Dressing</h5><div class="chips"><button class="chipb" data-pairdog="dax" aria-pressed="${PAIR_EDIT==='dax'}">Dax</button><button class="chipb" data-pairdog="niko" aria-pressed="${PAIR_EDIT==='niko'}">Niko</button></div></div>`); }
 // a fresh exclusive starts both dogs plain

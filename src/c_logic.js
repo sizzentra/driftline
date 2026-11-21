@@ -124,7 +124,7 @@ const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
 const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.65:1));
 const farAt = () => .8 - .02*pr('caster');
 const hotRate = () => Math.min(4, (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1) * pathMul('hotrate')); /* batch 6: hotspots at most 4× as often */
-/* C29 (director + Cam, 2026-11-20): a hotspot's colour tells its lowest rarity: green uncommon (most often) .. gold legendary (rarest);
+/* C29 (director + Cam, 2026-11-20): a hotspot's color tells its lowest rarity: green uncommon (most often) .. gold legendary (rarest);
    about 1 in 20 also promises a shiny (rising sparkles). In a hotspot hybrids, shinies and titles come more often. Feel calls: all numbers here. */
 const HOT_TIERS=[[1,'#5ee08a',.55],[2,'#5aa8ff',.28],[3,'#c27bff',.13],[4,'#ffc94d',.04]], HOT_SHINY=.05, HOT_SHINY_K=2.5, HOT_HYBRID_K=1.5, HOT_PRISM_K=1.5;
 function hotTier(){ let x=Math.random()*HOT_TIERS.reduce((a,t)=>a+t[2],0), T=HOT_TIERS[0]; for(const t of HOT_TIERS){ x-=t[2]; if(x<=0){ T=t; break; } } return {min:T[0], col:T[1], shiny:Math.random()<HOT_SHINY}; }
@@ -244,7 +244,7 @@ function chooseCatch(){
   if(Math.random() < junkChance()) return Object.assign({kind:'junk', item:pickJunk()}, weak);
   const dm=distanceMods();
   const rare = rareScore(dm, G.lastCast>farAt(), G.inHot, p);
-  let pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); if(G.inHot&&G.hotMin){ const mx=Math.max(...pool.map(s=>s.r)), up=pool.filter(s=>s.r>=Math.min(G.hotMin,mx)); if(up.length) pool=up; } /* C29: a hotspot's colour is its lowest rarity (or the best this water has at this hour) */ if(maxed('lucky') && (S.stats.caught+1)%25===0 && pool.some(s=>s.r>=2)) pool=pool.filter(s=>s.r>=2);
+  let pool=SP.filter(s=>s.loc===S.loc && timeOk(s,p)); if(G.inHot&&G.hotMin){ const mx=Math.max(...pool.map(s=>s.r)), up=pool.filter(s=>s.r>=Math.min(G.hotMin,mx)); if(up.length) pool=up; } /* C29: a hotspot's color is its lowest rarity (or the best this water has at this hour) */ if(maxed('lucky') && (S.stats.caught+1)%25===0 && pool.some(s=>s.r>=2)) pool=pool.filter(s=>s.r>=2);
   const ws=pool.map(s=>catchW(s,pool,rare,b));
   let x=Math.random()*ws.reduce((a,c)=>a+c,0), sp=pool[0]; for(let i=0;i<pool.length;i++){ x-=ws[i]; if(x<=0){ sp=pool[i]; break; } }
   return rollFish(sp,{dist:{rare:dm.rare,weight:dm.weight}});

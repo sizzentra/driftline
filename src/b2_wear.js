@@ -1,6 +1,6 @@
 
 // =====================================================================
-// 0.3 wardrobe data: body types, eye colours, shoes, neckwear and back pieces.
+// 0.3 wardrobe data: body types, eye colors, shoes, neckwear and back pieces.
 // Lives before c_logic so a save can be checked against it on load.
 // [id, name, price, source] source: 'start' (owned from the beginning), 'shop' (clothing shop), 'bw' (boardwalk only)
 // =====================================================================

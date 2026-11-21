@@ -8,7 +8,7 @@ function previewLook(){ const lk=Object.assign({},S.look); if(!PREVIEW) return l
   if(kind==='col') lk.shirt=id; else if(kind==='pat') lk.pat=id; else if(kind==='hat') lk.hat=id; else if(kind==='out') lk.outfit=id; else if(kind==='gls') lk.glasses=id; else if(kind==='shoe') lk.shoes=id; else if(kind==='neck') lk.neck=id; else if(kind==='back') lk.back=id; return lk; }
 function petPreviewLook(id=editPet()){ const lk=Object.assign({},petLook(id)); if(PET_PV) lk[PET_PV.kind]=PET_PV.id; return lk; }
 /* C13: the bar keeps its slot when nothing is previewed (a hint with an invisible button of the same height), so starting a preview
-   never pushes the colours and accessories down (PC pets moved 59 px; pages without a scroll box cannot be held in place otherwise) */
+   never pushes the colors and accessories down (PC pets moved 59 px; pages without a scroll box cannot be held in place otherwise) */
 /* C13: trying something on scrolls to its preview picture only when most of that picture is out of sight (it always scrolled, so the
    options moved even with the preview in plain view); when it does scroll, the "option stays put" hold lets go (bo_guard04.js) */
 function pvReveal(id){ const c=$(id); if(!c) return; const r=c.getBoundingClientRect(); const seen=Math.min(r.bottom,innerHeight)-Math.max(r.top,0); if(seen>=r.height*.5) return; dispatchEvent(new Event('dl-reveal')); c.scrollIntoView({behavior:'smooth',block:'center'}); }
@@ -25,7 +25,7 @@ function aqPvBarHTML(){ if(!AQ_PV) return pvHintHTML(); const p=AQ_PV;
 // prize counter thumbnails
 function paintPrizes(P){ P.querySelectorAll('canvas[data-prize]').forEach(c=>{ const x=c.getContext('2d'), id=c.dataset.prize; x.clearRect(0,0,c.width,c.height); const t=0;
   // pet prizes: drawn awake (the scene's night used to put them to sleep), sized to fit, a balloon smaller so it shows;
-  // a colour is shown on a pet whose coat it changes (Dax is black, so a hue shift barely shows on him)
+  // a color is shown on a pet whose coat it changes (Dax is black, so a hue shift barely shows on him)
   const pet=(lk)=>{ let id=S.pet; if(lk.tint&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id; const bal=lk.acc==='balloon';
     drawPetStyled(x,id,bal?42:48,bal?77:67,petFitScale(id)*80/300*(bal?.62:.95),t,0,Object.assign({},typeof _petLook_pair==='function'?_petLook_pair(id):petLook(id),lk)); };
   if(id==='teddy') drawPet(x,'teddy',48,72,3,t); else if(id==='carousel') drawDecor(x,'carousel',48,74,.55,t); else if(id==='golden'||id==='rainbow') pet({tint:id}); else if(id==='balloon'||id==='partyhat') pet({acc:id});

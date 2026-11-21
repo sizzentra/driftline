@@ -1,0 +1,49 @@
+# Driftline map standard (decided with the director, 2026-11-21)
+
+One job: what every water must have. Homes have their own standard (docs/HOME_STANDARD.md). Nothing here is built yet; it feeds the production queue (PLAN › Production queue, P4).
+
+## Every water has
+1. **A unique theme of its own,** clearly different from every other water.
+2. **Its own land and sky:** a 2D side view, layered back to front, with "Glow Diorama" depth and lighting.
+3. **A landmark you recognise at a glance** (the pagoda, the lighthouse, the volcano), even as a thumbnail.
+4. **All four times of day:** dawn, day, dusk and night (stars where the sky is open).
+5. **Life all the time:** at least 3 moving things (birds, fish, animals, boats).
+6. **A moment of its own** every 20–60 seconds (leaping dolphins, Pegasus, a moose drinking).
+7. **A clear fishing area:** nothing covers the water where the bobber, fish shadows and hotspots appear, and they stand out against it.
+8. **Reads well at every phone size,** from 667×375 to large phones and tablets: no detail that turns to noise when small, nothing empty or stretched when big.
+9. **Weather that fits the water** (no rain inside the Buffet).
+10. **Its own art:** no pieces copied from other waters.
+11. **Its own sound:** music and ambience that suit it.
+12. **Events and special weather work there** (Blood Moon, storms, starfall and the rest look right).
+13. **A speed limit,** so it runs smoothly on phones (the number is set by measuring every water).
+14. **Its fish, Fish Log, lessons and Waters card.**
+
+## Placement types (director, 2026-11-21)
+Every object on a map has exactly one placement type, and its type decides its rules (rules 15–21 below apply by type). Anything that hovers must be Floating / flying.
+
+| Placement | Examples | Rules |
+|---|---|---|
+| Sky | sun, moon, clouds, stars, aurora | behind everything; follows the time of day; reflects only on calm water |
+| Background | far mountains, skylines, far trees | hazier, softer and darker with distance; part of the land picture; reflects faintly |
+| Ground | trees, houses, rocks, animals on land | stands on the ground line; casts a shadow; never hovers |
+| In water | boats, posts, lily pads, swimming animals, rocks | sits at the waterline with a ripple or contact line; reflects; bobs if it floats |
+| Under water | fish shadows, weeds, sunken things | below the surface, tinted by the water; never covers the bobber and fish in the fishing area |
+| Floating / flying | birds, insects, floating islands, Pegasus | may hover; moves through the air; a soft shadow or reflection when low |
+| Foreground | reeds and branches at the screen edges | in front of everything, only at the edges; never over the fishing area or the home |
+
+## Everything is grounded and connected (director, 2026-11-21: "we've had issues with things not being connected")
+15. **Everything rests on something:** trees, rocks, houses and animals stand on their ground line; nothing hovers unless it flies.
+16. **Things in water touch the water:** boats, posts, rocks and swimming animals sit at the waterline, with a ripple or contact line where they meet it.
+17. **Reflections line up:** each object's reflection sits directly under it, at the water's edge, never shifted or missing.
+18. **Flowing things finish:** waterfalls and streams reach the water below and splash where they land.
+19. **Moving things follow the surface:** walking animals stay on the ground, swimming ones in the water, boats ride the waves.
+20. **No gaps between layers:** the shore meets the water, the hills meet the shore, the sky meets the horizon; no seams or empty strips at any screen size.
+21. **Shadows and light agree:** everything is lit from the same direction as the scene's sun or moon.
+
+## Still to decide
+- How the older 10 waters are brought to this standard.
+- The speed limit (measured first).
+
+## Checked by tools (to build with it)
+- Draws by day, dusk, dawn and night without errors; at least 3 moving things; a moment within 60 seconds; nothing drawn over the fishing area; frame cost under the limit; every event and special weather draws.
+- Connection checks where a tool can see it: reflections present under objects on the water, no empty strips between layers at every screen size. The rest of rules 15–21 are judged by the director and Cam.

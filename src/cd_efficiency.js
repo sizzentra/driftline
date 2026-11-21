@@ -33,7 +33,7 @@
     c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
 
 /* 3) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
-   call, over 30 a frame at Starfall. Now a ready-made soft dot per colour (same centre colour, same fade to nothing) is stamped at the
+   call, over 30 a frame at Starfall. Now a ready-made soft dot per color (same centre color, same fade to nothing) is stamped at the
    same size and strength (256 px on PC for big screens, 128 px on phones). */
 { const _gl=v3glow, GS=new Map();
   const parse=col=>{ col=String(col).trim(); let m=/^rgba?\(([^)]+)\)$/i.exec(col); if(m){ const p=m[1].split(',').map(s=>s.trim()); if(p.length<3) return null; const a=p[3]!==undefined?parseFloat(p[3]):1; return isFinite(a)?{rgb:p[0]+','+p[1]+','+p[2],a}:null; }
@@ -49,7 +49,7 @@
   sfEvent=function(t){ if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
     const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
 
-/* 5) Tinted pets: a canvas colour filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
+/* 5) Tinted pets: a canvas color filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
    once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
 { const _dp=drawPetStyled; let PC=null;
   drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }

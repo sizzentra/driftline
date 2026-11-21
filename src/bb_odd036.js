@@ -75,8 +75,8 @@ drawJunkAt = function(c,id,x,y,s,sil){ if(!s) return _drawJunkAt_036(c,id,x,y,s,
     spr=ODD_SPR[key]={cv,S}; if(++ODD_SPR_N>240){ for(const k in ODD_SPR){ delete ODD_SPR[k]; } ODD_SPR_N=0; ODD_SPR[key]=spr; } }
   const d=spr.S/q*s; c.save(); c.shadowColor='rgba(0,0,0,.38)'; c.shadowBlur=Math.max(2,10*s*(m.a||1)); c.shadowOffsetY=Math.max(1,6*s*(m.a||1));
   c.drawImage(spr.cv,x-d/2,y-d/2,d,d); c.restore(); };
-// silhouettes (unfound oddities) are one solid shape: drawn, then filled with the silhouette colour, so text or
-// hard-coded colours inside a drawing can never give the item away
+// silhouettes (unfound oddities) are one solid shape: drawn, then filled with the silhouette color, so text or
+// hard-coded colors inside a drawing can never give the item away
 function oddSil(c,id,x,y,s,col){ const m=c.getTransform?c.getTransform():{a:1}, eff=Math.max(.05,Math.abs(m.a||1)*s), q=Math.max(.1,Math.round(eff*20)/20), key='sil|'+id+'|'+q+'|'+col;
   let spr=ODD_SPR[key]; if(!spr){ const S=Math.ceil(300*q), cv=document.createElement('canvas'); cv.width=S; cv.height=S; const x2=cv.getContext('2d'); _drawJunkAt_036(x2,id,S/2,S/2,q,col); x2.globalCompositeOperation='source-in'; x2.fillStyle=col; x2.fillRect(0,0,S,S); spr=ODD_SPR[key]={cv,S}; ODD_SPR_N++; }
   const d=spr.S/q*s; c.drawImage(spr.cv,x-d/2,y-d/2,d,d); }

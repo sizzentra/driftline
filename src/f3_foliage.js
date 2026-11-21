@@ -30,7 +30,7 @@ const V3WIL={c:[],t:[-9,-9,-9],k:'',turn:0}; const V3WIL_N=3; /* three equal sli
 // 2026-11-18 (director: "Willow Pond still stuttering"): the willow used to be redrawn whole (about 2,500 leaf strokes) every 0.05 s,
 // so every third frame was a heavy one: an uneven rhythm phones show as a regular stutter. It is now three cached layers, three equal slices
 // of the drawing in its own order, and exactly one is refreshed per frame (each every third frame, the old rhythm), so every frame
-// carries the same third of the work. The leaf colours are solid, so slicing changes nothing in the picture.
+// carries the same third of the work. The leaf colors are solid, so slicing changes nothing in the picture.
 function v3willow(P,t,hz){ const DP=Math.min(DPR||1,2), bxw=W*.905, x0=bxw-H*.17, y0=hz-H*.25, w=Math.ceil((Math.min(W,bxw+H*.15)-x0)*DP), h=Math.ceil(H*.35*DP), key=W+'|'+H+'|'+P.key; /* the layers cover only where the tree is (measured: .157H left, .135H right, .236H up, .089H down) */
   for(let i=0;i<V3WIL_N;i++){ if(!V3WIL.c[i]) V3WIL.c[i]=document.createElement('canvas'); const C=V3WIL.c[i]; if(C.width!==w||C.height!==h){ C.width=w; C.height=h; V3WIL.k=''; } }
   const paint=i=>{ const c=V3WIL.c[i].getContext('2d'); c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,w,h); c.setTransform(DP,0,0,DP,-x0*DP,-y0*DP); v3willowDraw(c,P,t,hz,i); V3WIL.t[i]=t; };

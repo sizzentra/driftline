@@ -3,7 +3,7 @@
 // Fish Nibbles - a type of candy that can be used to level up your favourite fish"). Shared by every platform.
 //  - Scrap a fish in the Cooler: Nibbles of its RARITY (since C27; they were per species). Common/uncommon always, rare 50%, epic 1 in 3, legendary/mythic 25%.
 //    1 Nibble, +2 shiny, +2 hybrid, +2 titled (prismatic): at most 7.
-//  - Feed them in the Aquarium only, to any fish of that rarity: a Nibble in the fish's colours drops into the tank and the fish
+//  - Feed them in the Aquarium only, to any fish of that rarity: a Nibble in the fish's colors drops into the tank and the fish
 //    swims up to eat it, in its own way. Each Nibble raises that fish's income (diminishing returns that still scale).
 //  - Every 10 Nibbles: the fish's bonuses get stronger, or (10% chance, 50% every 30th) it gains another bonus, up to 5.
 //  - Half of every species' Nibbles expire when you set sail again. The Fish Log shows your Nibbles, the Trophy Room what a fish ate.

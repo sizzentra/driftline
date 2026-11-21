@@ -45,7 +45,7 @@ const WA_PAL={
    dusk:{top:'#3a2a6a',mid:'#e07a9a',bot:'#ffd090',hill:'#e8c8d0',wTop:'#f0a8b0',wMid:'#8a6aa8'},
    night:{top:'#060a22',mid:'#141e4a',bot:'#2c3a7a',hill:'#4a4a6a',far:'#3a3a5a',farHaze:'#4a4a70',wTop:'#2a3a7a',wMid:'#141e4a'}},
 };
-// palettes: every field any water uses (so platforms and helpers always find a colour), then the base water's look, then this water's
+// palettes: every field any water uses (so platforms and helpers always find a color), then the base water's look, then this water's
 { const ph=['day','dusk','night'], union={}; for(const p of ph){ union[p]={}; for(const id in V3PAL) Object.assign(union[p],V3PAL[id][p]||{}); }
   for(const id in WA_PAL){ const b=V3PAL[WA_BASE[id]]||V3PAL.pond, o={}; for(const p of ph) o[p]=Object.assign({},union[p],b[p]||{},WA_PAL[id].day,p==='day'?{}:WA_PAL[id][p]||{}); V3PAL[id]=o; } }
 // ---------- small drawing kit ----------

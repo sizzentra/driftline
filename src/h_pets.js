@@ -11,7 +11,7 @@ function petMood3(id){ const now=performance.now();
   if(PET3_FORCE) return {petted:PET3_FORCE==='petted',watch:PET3_FORCE==='watch'||PET3_FORCE==='bite',bite:PET3_FORCE==='bite',happy:PET3_FORCE==='happy',sleep:PET3_FORCE==='sleep',now};
   const pt=id===S.pet?petT:(id===S.pet2?petT2:-9999), petted=now-pt<2200, watch=G.st==='waiting'||G.st==='bite'||G.st==='reeling', happy=G.st==='landing';
   return {petted,watch,bite:G.st==='bite',happy,sleep:PET_NIGHT>.55&&!petted&&!watch&&!happy,now}; }
-// colour helper with night dimming; e/ci/ln/pth draw in the pet's local units
+// color helper with night dimming; e/ci/ln/pth draw in the pet's local units
 function pet3Kit(c,night){ const D=cl=>night?mix(cl,'#0a1018',night*.4):cl;
   return { D, el:(x,y,rx,ry,cl,r=0)=>{ c.fillStyle=D(cl); c.beginPath(); c.ellipse(x,y,Math.max(.01,rx),Math.max(.01,ry),r,0,7); c.fill(); },
     ci:(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,Math.max(.01,r),0,7); c.fill(); },

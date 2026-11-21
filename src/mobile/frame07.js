@@ -15,7 +15,7 @@ const MB_FRAME={ up:{edge:8, row1Top:6, row1H:36, row2Top:46, row2H:36, stageTop
                  land:{edge:8, row1Top:6, row1H:38, contentTop:49, bottom:6, railW:124, railWMini:56, railGap:6, railBtnH:40, railBtnGap:5} };
 // ONE look per kind of control (director, 2026-11-18: "cross reference everything that's connected, we need this to stop being so
 // inconsistent"). Measured across every page: buttons came in 9 heights, section tabs in 3 styles, badges in 4 sizes, descriptions in
-// 2 sizes and 2 colours, and the bottom tabs changed text size between the water and the menus. Each kind now has one set of numbers
+// 2 sizes and 2 colors, and the bottom tabs changed text size between the water and the menus. Each kind now has one set of numbers
 // (per orientation where the space differs); __spec checks them on every page.
 const MB_UI={ up:{btnH:40, btnFs:15, btnSmH:36, btnSmFs:13, tabH:34, tabFs:12, h2Fs:21, h4Fs:14.5, barFs:10.5},
               land:{btnH:38, btnFs:15, btnSmH:32, btnSmFs:13, tabH:32, tabFs:13, h2Fs:18, h4Fs:15, barFs:11.5},

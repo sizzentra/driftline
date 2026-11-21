@@ -1,6 +1,6 @@
 // =====================================================================
 // Phones, round 6 (director: "both phones get the modern PC look: teal = click me, gold = open now, the same navy panels and
-// card style"). Same colour decisions as PC, laid out for phones (Android + iPhone):
+// card style"). Same color decisions as PC, laid out for phones (Android + iPhone):
 //  - anything you can tap that opens something is teal (header chips with a page behind them, Rest, Bait, buttons)
 //  - what is open or chosen right now is gold (the page tab you are on, the chosen filter, the bottom tab already did this)
 //  - plain information stays on navy (coins, level, the goal, cards)

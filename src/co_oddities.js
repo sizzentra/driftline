@@ -7,9 +7,9 @@
 //  - 200 new oddities (300 in all). Some only turn up at one water (new waters included) or only at night.
 //  - Gold: based on your best water, a bit less in earlier ones (never below 60%); each repeat find pays 10% more, up to ×3.
 //  - Rarity, odds and where it turns up stay hidden until you have found one.
-//  - Art: each new oddity is drawn from one of 26 picture templates in its own colours (also its shadow on the hook).
-// Format: 'id|Name|tier 0-3|template|colour,colour|effect|quote|condition'. Effects: c<n> coins × base, b<key>:<v>:<min> boost,
-// s<n> Scales, l<bait>:<n> lures, h hat, pc pet colour, nb Nibbles, song the singing bass. Conditions: a water id or 'night'.
+//  - Art: each new oddity is drawn from one of 26 picture templates in its own colors (also its shadow on the hook).
+// Format: 'id|Name|tier 0-3|template|color,color|effect|quote|condition'. Effects: c<n> coins × base, b<key>:<v>:<min> boost,
+// s<n> Scales, l<bait>:<n> lures, h hat, pc pet color, nb Nibbles, song the singing bass. Conditions: a water id or 'night'.
 // =====================================================================
 const ODD_NEW=`
 rubberduck|Rubber Duck|0|duck|#ffd23a,#ff8a2a|c0.4|Squeaks once. Then never again.|
@@ -142,7 +142,7 @@ phoenix|Phoenix Feather|3|feather|#ff6a2a,#ffd03a|bshiny:.6:10|Burns without bur
 holygrail|Ancient Golden Cup|3|cup|#e8b830,#fff0b0|c20|Choose wisely. You chose it.|
 atlantis|Atlantis Tile|3|bar|#3ab0e8,#e8c050|c15|A floor tile from a city that sank.|
 kraken|Kraken Tooth|2|tooth|#f0e8d8,#c8b898|c6|Bigger than your forearm.|
-mermaidtail|Mermaid Scale|2|gem|#3ae8c8,#b8a0ff|bshiny:.35:8|Shimmers in every colour.|
+mermaidtail|Mermaid Scale|2|gem|#3ae8c8,#b8a0ff|bshiny:.35:8|Shimmers in every color.|
 unicornhorn|Unicorn Horn|3|horn|#ffffff,#f08ab8|c16|Spiral, pearly and probably not plastic.|
 crown2|Lost Crown of the Lake King|3|crown|#e8b830,#d8302a|c18|The lake had a king. You have his crown.|
 shipwheel2|Ghost Ship’s Wheel|2|wheel|#8a8aa8,#c8c8e0|c6|Turns by itself at midnight.|night
@@ -236,7 +236,7 @@ glassslipper|Glass Slipper|2|shoe|#d8f0ff,#ffffff|c7|Fits nobody. Midnight passe
 goldenrecord|Golden Record|3|disc|#e8b830,#8a6a2a|c15|Sounds of Earth, sent to the stars. Came back.|
 `.trim().split("\n").filter(Boolean); /* spares fill the list to 300 when a new idea repeats an older oddity */
 const ODD_TIER_NAMES=['Junk','Odd junk','Rare find','Treasure'];
-// add them to the list (each one knows its template, colours, water and night rule)
+// add them to the list (each one knows its template, colors, water and night rule)
 { const seen=new Set(), keep=JUNK.filter(j=>!seen.has(j.id)&&seen.add(j.id)); JUNK.length=0; JUNK.push(...keep); for(const j of JUNK) JUNKI[j.id]=j; } /* the old list held a few entries twice (Lava Lamp, Snow Globe): keep the first */
 try{ if(JUNKI.ancientcoin) JUNKI.ancientcoin.name='Old Gold Coin'; if(JUNKI.traffic) JUNKI.traffic.name='Road Works Cone'; }catch(e){} /* two old pairs shared a name */
 const ODD_OLD_N=JUNK.length, ODD_NAMES=new Set(JUNK.map(j=>j.name.toLowerCase()));
@@ -252,13 +252,13 @@ function oddW(j,n){ return (j.loc&&j.loc!==S.loc)||(j.night&&!n)?0:JUNK_W[j.t]*(
 function oddOdds(J){ const n=isNight(), tot=JUNK.reduce((a,j)=>a+oddW(j,n),0)||1; return oddW(J,n)/tot; }
 // gold: your best water's catch value, a little less in earlier waters, and more for every repeat find
 function oddBase(L,J){ const bl=bestLoot(), f=Math.max(.6,Math.pow(Math.max(1,L.loot)/Math.max(1,bl),.1)), n=(S.junk&&S.junk[J.id])||0; return bl*f*(1+.1*Math.min(20,n))*pathMul('oddgold'); }
-// new effects (pet colours, Nibbles, the singing bass) on top of landJunk
+// new effects (pet colors, Nibbles, the singing bass) on top of landJunk
 { const _lj=landJunk; landJunk=function(){ const J=G.fish&&G.fish.item; const r=_lj.apply(this,arguments); try{ if(J&&J.e){
-    if(J.e.petcol&&typeof petColourPrize==='function'){ const t=petColourPrize(); if(t) setTimeout(()=>toast(t),500); }
+    if(J.e.petcol&&typeof petColorPrize==='function'){ const t=petColorPrize(); if(t) setTimeout(()=>toast(t),500); }
     if(J.e.nib){ const ids=Object.keys(S.journal||{}).filter(id=>SPI[id]); if(ids.length){ const id=pick(ids); nibAdd(id,3); setTimeout(()=>toast('+3 '+nibRarName(id)+' Nibbles'+'!'),500); } }
     if(J.e.song){ const songs=['🎵 Take me to the river… 🎵','🎵 Don’t worry, be happy… 🎵','🎵 Under the sea, under the sea… 🎵','🎵 Row, row, row your boat… 🎵']; setTimeout(()=>toast('The Singing Bass Mount turns its head: '+pick(songs)),400); try{ for(let i=0;i<4;i++) setTimeout(()=>tone(520+i*90,.12,'triangle',.05),i*180); }catch(e){} }
   } }catch(e){} return r; }; }
-// the pictures: 26 templates, each in the oddity's own colours (and as one flat colour for its shadow on the hook)
+// the pictures: 26 templates, each in the oddity's own colors (and as one flat color for its shadow on the hook)
 const ODD_ART={
   duck(R,E,P,Ci,c,a,b){ E(0,8,40,24,a); Ci(26,-18,18,a); P([40,-20,62,-14,40,-10],b); Ci(30,-22,3,'#1a1a1a'); },
   spinner(R,E,P,Ci,c,a,b){ for(let i=0;i<3;i++){ const an=i*Math.PI*2/3; Ci(Math.cos(an)*30,Math.sin(an)*30,18,a); } Ci(0,0,14,b); },

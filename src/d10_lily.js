@@ -1,7 +1,7 @@
 
 // =====================================================================
 // Lily: an exclusive pet for Cam (gift code only), drawn from a photo of the
-// real Lily: a fluffy tricolour mini Aussie. Warm brown-black coat with
+// real Lily: a fluffy tricolor mini Aussie. Warm brown-black coat with
 // reddish sun-lit strands, rusty chestnut tan, creamy white. Asymmetric face:
 // a white blaze from the crown, narrow between the eyes, into a white muzzle;
 // a big tan cheek on her right, a stronger tan eyebrow on her left; big dark
@@ -151,7 +151,7 @@ const LILY_PATCH = {v:'Lily', label:'A gift for Cam 🐾', name:'Lily has joined
   'She gives you her paw, and every now and then she gets the zoomies (watch for the little paw prints).',
   'She perks up and watches the water while you fish, and boofs when you land one.',
   'At night she curls up and naps beside you. She’s wide awake again the moment you pet her.',
-  'Dress her up like any pet in the Pets tab: colours, accessories and hats.' ]};
+  'Dress her up like any pet in the Pets tab: colors, accessories and hats.' ]};
 function redeemGift(code){ code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
   if(!code){ toast('Type a gift code first.'); return 'skip'; }
   if(btoa(code)==='TElMWVBBV1M='){

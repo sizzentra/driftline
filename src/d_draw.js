@@ -326,7 +326,7 @@ function drawFore(L,t,night){
   else if(L.id==='frost'){ g.fillStyle=N('#eef4f8'); g.beginPath(); g.ellipse(W*.95,H+8,W*.1,H*.06,0,Math.PI,0); g.fill(); }
 }
 function drawHotspot(t){ const hs=G.hot; if(!hs) return; const fade=Math.min(1,hs.t/1.2, (hs.life-hs.t)/2); const x=castX(hs.p), y=waterY(x), R=W*.045*(1-.3*(x-W*.3)/(W*.6));
-  /* C29: the ripples take the hotspot's colour (its lowest rarity), drawn twice (a dark edge under a bright ring) so every colour reads on
+  /* C29: the ripples take the hotspot's color (its lowest rarity), drawn twice (a dark edge under a bright ring) so every color reads on
      any water; a shiny hotspot sends sparkles rising */
   const col=hs.col||'#ffc94d', rgb=[1,3,5].map(i=>parseInt(col.slice(i,i+2),16)).join(',');
   for(let i=0;i<3;i++){ const k=((t*.7+i/3)%1), a=fade*(1-k); g.strokeStyle='rgba(6,14,22,'+(a*.35)+')'; g.lineWidth=3.2; g.beginPath(); g.ellipse(x,y,R*(.25+k),R*(.25+k)*.3,0,0,7); g.stroke(); g.strokeStyle='rgba('+rgb+','+(a*.9)+')'; g.lineWidth=1.7; g.stroke(); }
@@ -393,6 +393,7 @@ function draw(now){
   if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   drawPetScene(pax,pay,sc,t,night);
+  if(HOMEF[L.id]) HF_LAST={ax,ay,sc,hx,hy,t,rodA,night,sit:RP?RP.sit:null,rim:PV?PV.rim:null,glow:PV?PV.glow:null,tx,ty,pax,pay,ten:G.st==='reeling'?G.ten:0}; /* where the angler, rod and pets were drawn: the Home close-up redraws them sharp */
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
   if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;
@@ -429,7 +430,7 @@ function draw(now){
     const grd=g.createLinearGradient(bxx,0,bxx+bw,0); grd.addColorStop(0,'#7fc8a9'); grd.addColorStop(.8,'#ffc94d'); grd.addColorStop(1,'#ff6a3d'); g.fillStyle=grd; rr(bxx,byy,bw*G.power,14,5); g.fill();
     g.strokeStyle='rgba(255,255,255,.5)'; g.beginPath(); g.moveTo(bxx+bw*farAt(),byy-2); g.lineTo(bxx+bw*farAt(),byy+16); g.stroke();
     const inHot = G.hot && Math.abs(G.power-G.hot.p)<=G.hot.r;
-    g.fillStyle=inHot?(G.hot.col||'#ffc94d'):'#e6efe8'; g.font='700 12px system-ui'; g.textAlign='center'; g.fillText(G.power>farAt()?'Far cast: better fish':'Cast power', W/2, byy-9); /* C2: over a hotspot only the colour changes (the hotspot's colour) */
+    g.fillStyle=inHot?(G.hot.col||'#ffc94d'):'#e6efe8'; g.font='700 12px system-ui'; g.textAlign='center'; g.fillText(G.power>farAt()?'Far cast: better fish':'Cast power', W/2, byy-9); /* C2: over a hotspot only the color changes (the hotspot's color) */
     const x=castX(G.power), wy=waterY(x); /* the aim marker: a dark halo under a bright ring and a centre pin, so it reads on bright water and in strong light */
     g.lineWidth=4.5; g.strokeStyle='rgba(6,14,22,.55)'; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke();
     g.lineWidth=2; g.strokeStyle=inHot?(G.hot.col||'#ffd65a'):'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;

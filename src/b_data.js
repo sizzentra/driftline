@@ -16,7 +16,7 @@ const LOCS = [
    sky:['#9ec9df','#f4e2c0'], water:['#2f6f93','#0f2e48'], hill:'#8a8263', amp:.035, freq:5.5, depth:'4–20 m', loot:400},
   {id:'frost', name:'Frostbite Lake',   cost:6000,   bonus:35000,  plat:'ice',   blurb:'A frozen lake far north. Open leads in the ice, snow on the pines, and fish that like the cold.',
    sky:['#a9c6dc','#eef2f5'], water:['#2a6a86','#07202e'], hill:'#e3ebf0', amp:.09, freq:2.8, depth:'5–40 m', loot:800},
-  {id:'reef',  name:'Coral Shallows',   cost:15000,  bonus:80000,  plat:'sand',  blurb:'Warm turquoise water over a living reef. The colours are unreal and so are the fish.',
+  {id:'reef',  name:'Coral Shallows',   cost:15000,  bonus:80000,  plat:'sand',  blurb:'Warm turquoise water over a living reef. The colors are unreal and so are the fish.',
    sky:['#6fc3ec','#fbe7c3'], water:['#2bb3b8','#0b4f6e'], hill:'#3e8f4e', amp:.035, freq:1.6, depth:'1–30 m', loot:1600},
   {id:'shelf', name:'Brine Shelf',      cost:35000,  bonus:180000, plat:'boat',  blurb:'Open sea at the edge of the shelf. Marlin country. Bring heavy line.',
    sky:['#7fb4d8','#e6d9c9'], water:['#1f5a8a','#081f3a'], hill:'#3f5468', amp:0, freq:1, depth:'30–200 m', loot:2200},
@@ -66,7 +66,7 @@ const SP = [
  ['axolotl','pond','Wild Axolotl',2,.1,.5,130,2.5,'night',.4,'#ff9ac0','#ffd8e8',.3,'calm',.3,'e',0,'It smiles at you the entire time.'],
  ['koi','pond','Willow Koi',3,1,5,240,4,'any',.5,'#f2f0ea','#ff7a3d',.38,'calm',.3,'f',2,'Someone released it years ago. It never left.'],
  ['ghostkoi','pond','Ghost Koi',3,2,6,320,4.5,'night',.5,'#e8f0ff','#9fd3ff',.38,'calm',.4,'f',0,'Translucent. You can see the moon through it.'],
- ['rainbowkoi','pond','Rainbow Koi',3,2,7,380,5,'day',.5,'#ff6a6a','#6ac8ff',.38,'jump',.5,'f',2,'Every scale is a different colour.'],
+ ['rainbowkoi','pond','Rainbow Koi',3,2,7,380,5,'day',.5,'#ff6a6a','#6ac8ff',.38,'jump',.5,'f',2,'Every scale is a different color.'],
  ['snakehead','pond','Snakehead',3,3,9,350,5.5,'any',.5,'#4a3a2a','#a89070',.24,'thrash',.9,'e',2,'Walks across land to find new ponds. Rude.'],
  ['whiskers','pond','Old Whiskers',4,12,26,1100,6.5,'night',.55,'#3e4a3b','#a7b48e',.32,'sulk',.7,'f',0,'The pond legend. Older than the boathouse.'],
  ['duchess','pond','The Lily Duchess',4,8,18,1400,6,'day',.5,'#e86fa8','#ffe1ef',.4,'jump',.6,'f',2,'A pink carp that wears a lily pad like a hat.'],
@@ -181,7 +181,7 @@ const SP = [
  ['reefshark','reef','Blacktip Reef Shark',2,10,40,900,15,'any',.6,'#8a9aa8','#f0f4f8',.28,'run',.7,'s',0,'Fin tips dipped in ink.'],
  ['seahorse','reef','Golden Seahorse',2,.02,.1,1000,9,'day',.3,'#ffc040','#fff0c0',.5,'calm',.2,'e',0,'Wrapped its tail around your line. Gently.'],
  ['napoleon','reef','Napoleon Wrasse',3,30,120,3200,18,'day',.4,'#2a8aa8','#a0e8d0',.45,'sulk',.5,'f',1,'Huge, bumpy-headed and strangely friendly.'],
- ['mantis','reef','Mantis Shrimp',3,.2,1,3000,16,'any',.7,'#ff4a8a','#40e0ff',.3,'thrash',1,'c',1,'Punches like a bullet. Sees colours you cannot.'],
+ ['mantis','reef','Mantis Shrimp',3,.2,1,3000,16,'any',.7,'#ff4a8a','#40e0ff',.3,'thrash',1,'c',1,'Punches like a bullet. Sees colors you cannot.'],
  ['manta','reef','Giant Manta',3,300,1200,3400,19,'day',.4,'#1a2a3a','#ffffff',.6,'run',.6,'r',0,'Wingspan of a small plane. Utterly serene.'],
  ['leafydragon','reef','Leafy Sea Dragon',3,.1,.4,3100,14,'any',.4,'#c8a040','#f0e080',.3,'calm',.5,'e',1,'Disguised as seaweed. Badly, but with confidence.'],
  ['reefdragon','reef','Reef Dragon',4,20,60,12000,20,'night',.6,'#ff6a2a','#ffe060',.3,'jump',.8,'s',2,'Coral frills and bubble breath.'],
@@ -294,7 +294,7 @@ const SP = [
  ['mandarin','reef','Mandarin Dragonet',0,.02,.1,105,10,'night',.5,'#ff7a2a','#3ac0ff',.4,'dart',.4,'f',1,'Painted by a toddler with every crayon at once.'],
  ['batfish','reef','Pinnate Batfish',1,.5,2,300,11.5,'any',.4,'#2a2a2a','#ff8a2a',.7,'calm',.3,'f',1,'Tall, black, with an orange outline. Very goth.'],
  ['mimic','reef','Mimic Octopus',2,1,4,1000,14,'any',.5,'#c8a080','#fff0d8',.4,'dive',.7,'q',1,'It is pretending to be a fish. Badly.'],
- ['rainbowsoul','reef','The Rainbow Soul',5,5,15,60000,23,'day',.6,'#ff6ad5','#6affea',.5,'dart',1,'f',1,'Every colour of the reef in one fish. It hums.'],
+ ['rainbowsoul','reef','The Rainbow Soul',5,5,15,60000,23,'day',.6,'#ff6ad5','#6affea',.5,'dart',1,'f',1,'Every color of the reef in one fish. It hums.'],
  ['needlefish','shelf','Needlefish',0,.5,2,115,9.5,'day',.7,'#4a8ab8','#e8f4ff',.1,'jump',.5,'e',0,'Skips across the waves like a thrown stone.'],
  ['trevally','shelf','Golden Trevally',1,5,25,350,13,'any',.6,'#e0c040','#fff4c0',.38,'run',.6,'f',2,'Flashes gold as it turns.'],
  ['spearfish','shelf','Shortbill Spearfish',2,15,50,1450,17,'day',.7,'#2a4a8a','#d0e0f0',.28,'jump',.8,'f',0,'The rarest billfish. Small, fast, flashy.'],
@@ -377,7 +377,7 @@ const SP = [
  ['mittenfish','frost','Mitten Fish',0,.2,1,68,8,'any',.4,'#d8504a','#ffffff',.45,'calm',.3,'f',1,'Grew a little knitted pattern to stay warm.'],
  ['icicleeel','frost','Icicle Eel',1,1,5,205,10.5,'night',.5,'#c8f0ff','#ffffff',.1,'dive',.6,'e',0,'Thin, sharp and cold enough to sting.'],
  ['bubbleblenny','reef','Bubble Blenny',0,.05,.2,100,10,'any',.6,'#ffb04a','#fff4c0',.42,'dart',.5,'f',2,'Blows bubbles at you. It thinks it’s scary.'],
- ['sunsetwrasse','reef','Sunset Wrasse',2,1,4,920,14,'day',.6,'#ff7a5a','#ffd06a',.4,'run',.6,'f',1,'Every evening it changes colour with the sky.'],
+ ['sunsetwrasse','reef','Sunset Wrasse',2,1,4,920,14,'day',.6,'#ff7a5a','#ffd06a',.4,'run',.6,'f',1,'Every evening it changes color with the sky.'],
  ['searobin','shelf','Sea Robin',1,1,3,330,12,'any',.5,'#c86a4a','#ffe0c0',.4,'calm',.3,'f',2,'Walks on the seabed with little leg fins and chirps.'],
  ['captaincod','shelf','Captain Cod',2,10,40,1450,17,'day',.5,'#5a6a5a','#e8e8d0',.38,'sulk',.6,'f',2,'Wears a tiny captain’s hat. Has seen things.'],
  ['gloweyegrouper','deep','Glow-eye Grouper',1,20,80,700,18,'night',.4,'#3a3a4a','#7affd0',.42,'sulk',.5,'f',0,'Eyes like two little headlights.'],
@@ -398,7 +398,7 @@ const GEAR = {
   hook:  {name:'Hook',   what:'Longer window to set the hook', lv:[.6,.7,.8,.9,1.0,1.1,1.2], cost:[0,150,900,4000,14000,45000,120000], fmt:v=>v.toFixed(1)+' s window'},
   cooler:{name:'Cooler', what:'Fish you can carry before selling', lv:[8,12,18,26,36,50,66,85,110,140], cost:[0,120,700,3000,10000,30000,80000,200000,600000,1500000], fmt:v=>v+' fish'},
   finder:{name:'Fish Finder', what:'Reads the bite before you strike, and finds more hotspots', lv:[0,1,2,3,4,5], cost:[0,900,5000,20000,70000,200000],
-          fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity colour')+', +'+v*20+'% hotspots'},
+          fmt:v=>v===0?'Not installed':(v>=5?'Species name':v>=3?'Rarity name':'Rarity color')+', +'+v*20+'% hotspots'},
 };
 const ROD_RARE = [0,.05,.1,.16,.23,.3,.38,.46,.55,.65]; // one entry per Rod length level (0.3: the last two were missing and broke catches at max rod)
 const BAIT = {
@@ -550,7 +550,7 @@ const JUNK_W = [10,5,2,.6];
 const FORTUNES = [['You will soon meet something shiny.','shiny',1],['Patience is a fish that bites quickly.','bite',.6],['Great weight lies in your future.','trophy',.6],
   ['Luck swims beside you today.','rare',.5],['Your arms are stronger than you think.','reel',.4],['Calm waters favour the bold.','calm',.4],['Money comes to those who sell.','sell',.4],['You will learn from the water.','xp',.5]];
 
-// hats: id, name, source (start | shop | fish | junk), price, fixed colour
+// hats: id, name, source (start | shop | fish | junk), price, fixed color
 const HATS = [
  ['none','No hat','start',0],['cap','Trucker Cap','start',0],['bucket','Bucket Hat','start',0],
  ['beanie','Beanie','shop',400],['party','Party Hat','shop',600],['straw','Straw Hat','shop',800],['sailor','Sailor Cap','shop',1200],['beret','Beret','shop',1500],

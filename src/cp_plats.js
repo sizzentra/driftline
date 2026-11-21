@@ -3,16 +3,16 @@
 // Cherry Blossom: a red lacquered bridge. Rockies: a granite ledge with cut logs. Florida Keys: a flats skiff. Amazon: a stilt deck under
 // a palm-leaf roof. Animal Farm: a dock with hay bales and a white fence. The Buffet: a giant china platter. Corporate Pond: a steel and
 // glass pier. The Nile: a felucca deck with its sail. Circuit Lake: a neon hover pad. Mount Olympus: marble temple steps.
-// Each has its own light (which follows the Home light colour).
+// Each has its own light (which follows the Home light color).
 // =====================================================================
 const WA_PLAT={blossom:'bridge', rockies:'ledge', keys:'skiff', amazon:'stilts', farm:'haydock', buffet:'platter', corporate:'steelpier', nile:'felucca', circuit:'hover', olympus:'marble'};
 for(const id in WA_PLAT){ const L=LOCS[locIdx(id)]; if(L) L.plat=WA_PLAT[id]; }
-/* C33/C35 functional homes (Cam, 2026-11-20: "wood and metal colour/material editable like every other dock"; "functional customizable
+/* C33/C35 functional homes (Cam, 2026-11-20: "wood and metal color/material editable like every other dock"; "functional customizable
    homes" on every new map): each new home now offers the wood choices for its wooden parts and one paint for its signature part
    (lacquer, fence, hull, rim, steel, sail, neon, trim), named for what it paints. Until a wood other than the starter oak is picked the
    home keeps its own natural wood, so nothing changes for players who never open the page. */
 const WA_WOOD=new Set(['bridge','ledge','stilts','haydock','felucca']);
-const WA_PAINT={bridge:['Lacquer','#c8382a','the railings and posts'], ledge:['Canoe paint','#c8402a','the canoe'], haydock:['Fence paint','#ffffff','the fence'], skiff:['Hull paint','#f4f0e8','the hull'], platter:['Rim colour','#3a6ab8','the rim'], steelpier:['Steel finish','#8a96a4','the deck and legs'], felucca:['Sail colour','#f8f0e0','the sail'], hover:['Neon colour','#3af0ff','the glow'], marble:['Trim','#e8b830','the gold trim']};
+const WA_PAINT={bridge:['Lacquer','#c8382a','the railings and posts'], ledge:['Canoe paint','#c8402a','the canoe'], haydock:['Fence paint','#ffffff','the fence'], skiff:['Hull paint','#f4f0e8','the hull'], platter:['Rim color','#3a6ab8','the rim'], steelpier:['Steel finish','#8a96a4','the deck and legs'], felucca:['Sail color','#f8f0e0','the sail'], hover:['Neon color','#3af0ff','the glow'], marble:['Trim','#e8b830','the gold trim']};
 const waWood = def => { const id=(DOCK_PV&&DOCK_PV.kind==='wood')?DOCK_PV.id:S.dock.wood; return !id||id==='oak'?def:dockWood(); };
 const waPaint = plat => homeHull(WA_PAINT[plat][1]);
 try{ for(const p of Object.values(WA_PLAT)) HOME_FEATURES[p]=[WA_WOOD.has(p)?'wood':'', WA_PAINT[p]?'hull':'', 'light'].filter(Boolean);

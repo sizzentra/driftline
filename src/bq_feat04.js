@@ -67,8 +67,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 
 // ---------- 3. the Boardwalk pays out in prizes, not coins (director, 2026-11-17) ----------
 // Every game except the coin flip now pays tickets, crates and cosmetics. "Wear" prizes are things you don't own yet:
-// shop clothes, glasses, hats, fabrics, colours and pet extras, and now and then a Boardwalk-only piece from the counter.
-const BW_KIND={shoe:'shoes',neck:'neckwear',back:'back piece',out:'outfit',glasses:'glasses',hat:'hat',pat:'fabric',col:'colour',petacc:'pet accessory',pettint:'pet colour'};
+// shop clothes, glasses, hats, fabrics, colors and pet extras, and now and then a Boardwalk-only piece from the counter.
+const BW_KIND={shoe:'shoes',neck:'neckwear',back:'back piece',out:'outfit',glasses:'glasses',hat:'hat',pat:'fabric',col:'color',petacc:'pet accessory',pettint:'pet color'};
 function bwWearPool(){ const o=S.owned, out=[]; const add=(arr,kind,list)=>arr.forEach(x=>{ if(x[0]!=='none'&&x[3]==='shop'&&x[2]>0&&!list.includes(x[0])) out.push({kind,id:x[0],name:x[1]}); });
   add(SHOES,'shoe',o.shoes); add(NECKS,'neck',o.necks); add(BACKS,'back',o.backs); add(OUTFITS,'out',o.outfits);
   GLASSES.forEach(g=>{ if(g[2]>0&&!o.glasses.includes(g[0])) out.push({kind:'glasses',id:g[0],name:g[1]}); });
@@ -91,7 +91,7 @@ function bwDrawWear(x,w,h,it){ if(!it) return; const lk=Object.assign({},S.look,
   if(it.kind==='col'){ x.fillStyle=it.id; x.beginPath(); x.arc(w/2,h/2,Math.min(w,h)*.28,0,7); x.fill(); return; }
   if(it.kind==='glasses'){ lk.glasses=it.id; const s=h/32; return drawAngler(x,w*.46,h*.52+50*s,s,lk,{}); }
   if(it.kind==='petacc'||it.kind==='pettint'){
-    // shown on your favourite pet, awake; a new colour on a pet whose coat it barely changes (Dax is black) is shown on another of your pets
+    // shown on your favourite pet, awake; a new color on a pet whose coat it barely changes (Dax is black) is shown on another of your pets
     let id=S.pet; if(it.kind==='pettint'&&id==='daxniko') id=['lily','dog','cat','puppy','kitten'].find(p=>S.owned.pets.includes(p))||id;
     const L=Object.assign({},_petLook_pair?_petLook_pair(id):petLook(id),it.kind==='petacc'?{acc:it.id}:{tint:it.id});
     drawPetStyled(x,id,w/2,h*.83,petFitScale(id)*h/300,0,0,L); return; }

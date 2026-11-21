@@ -4,7 +4,7 @@
 // star-blossoms that open on the water. Everything eases in and out; nothing pops.
 // =====================================================================
 m33wrap('starfall','sky',function(P,t,hz){ const night=P.night, vis=.35+night*.65;
-  // nebula clouds: soft colour pools that breathe slowly
+  // nebula clouds: soft color pools that breathe slowly
   g.save(); g.globalCompositeOperation='lighter';
   for(const [x,y,r,col,ph] of [[.2,.32,.3,'255,120,200',0],[.55,.18,.36,'120,140,255',1.7],[.82,.36,.26,'120,230,255',3.1],[.4,.5,.22,'200,120,255',4.4]]){ const a=(.05+.025*Math.sin(t*.12+ph))*vis, X=W*x+Math.sin(t*.02+ph)*W*.01, Y=hz*y, R=H*r;
     const gr=g.createRadialGradient(X,Y,0,X,Y,R); gr.addColorStop(0,'rgba('+col+','+a+')'); gr.addColorStop(.6,'rgba('+col+','+(a*.4)+')'); gr.addColorStop(1,'rgba('+col+',0)'); g.fillStyle=gr; g.fillRect(X-R,Y-R,R*2,R*2); }

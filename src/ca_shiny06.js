@@ -8,7 +8,7 @@
 // stretch and turn), and fades; plus glitter (tiny fast twinkles),
 // and per-kind signatures. Everything is drawn additively ("lighter"), so it reads as light, not as stickers.
 // Variety: every shiny fish rolls one of 4 styles from its species (glint / glitter / shimmer / flare), and each prismatic
-// kind has its own signature: Rainbow = colour-shifting flares, Starry = a twinkling starfield with
+// kind has its own signature: Rainbow = color-shifting flares, Starry = a twinkling starfield with
 // shooting stars, Spectral = ghostly wisps rising off the fish, Ancient = gold dust drifting up,
 // Mythic = pink and teal motes circling the fish.
 // Cost: pictures animate only while on screen, 30 times a second; positions come from the fish's own pixels (worked out once
@@ -21,7 +21,7 @@ const SFX_STYLES=['glint','glitter','shimmer','flare'];
 function sfxHash(a,b){ let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263); h=Math.imul(h^(h>>>13),1274126177); return ((h^(h>>>16))>>>0)/4294967296; }
 function sfxRgba(hex,a){ const n=parseInt(hex.slice(1),16); return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+Math.max(0,Math.min(1,a)).toFixed(3)+')'; }
 function sfxColA(P,i,t,which,a){ if(!P.hue) return sfxRgba(which?P.b:P.a,a); return 'hsla('+Math.round((t*90+i*61)%360)+',100%,'+(which?72:82)+'%,'+a.toFixed(3)+')'; }
-// one flare: a hot white core, a coloured halo, 2 long rays and 2 short ones, all tapering to nothing
+// one flare: a hot white core, a colored halo, 2 long rays and 2 short ones, all tapering to nothing
 function sfxFlare(c,x,y,s,P,i,t,a,rot,long){ if(a<=.01||s<.4) return;
   if(s<2.6){ // small sparkles (fish in the tank, far fish): the same look from plain shapes, no gradients (cheap)
     const L=s*(long?4:3); c.fillStyle=sfxColA(P,i,t,1,a*.35); c.beginPath(); c.arc(x,y,s*1.1,0,7); c.fill(); c.fillStyle='rgba(255,255,255,'+(a*.9).toFixed(3)+')'; c.fillRect(x-L,y-.35,L*2,.7); c.fillRect(x-.35,y-L*.8,.7,L*1.6); c.fillRect(x-s*.4,y-s*.4,s*.8,s*.8); return; }

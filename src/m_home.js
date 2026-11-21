@@ -37,10 +37,10 @@ function tankDragSetup(){ const c=$('tankcv'); if(!c||c.dataset.drag) return; c.
   const end=()=>{ if(drag){ drag=null; c.style.cursor='grab'; save(); } }; c.addEventListener('pointerup',end); c.addEventListener('pointercancel',end); }
 if(/[?&]test\b/.test(location.search)) window.__dockSizes=()=>Object.keys(DOCK_H).map(id=>[id,dockNative(id).h,+dockItemScale(id).toFixed(2)]);
 
-// ---------- dock styles (0.3): the shape of your dock, not just its colour. Used on the water and in Home. ----------
+// ---------- dock styles (0.3): the shape of your dock, not just its color. Used on the water and in Home. ----------
 const DOCK_STYLES=[['plank','Classic planks',0],['boardwalk','Boardwalk with rail',4000],['bamboo','Bamboo',6000],['driftwood','Driftwood logs',7500],['stone','Stone jetty',9000],['pontoon','Floating pontoon',12000]];
 const dockStyleCur=()=> (DOCK_PV&&DOCK_PV.kind==='style')?DOCK_PV.id:((S.dock&&S.dock.style)||'plank');
-// c: context, o: {x0,x1,y (deck top line), th (deck thickness), fh (front beam), bottom, wd (wood colour), N (night tint), rim, t, posts:[x], pw (post width)}
+// c: context, o: {x0,x1,y (deck top line), th (deck thickness), fh (front beam), bottom, wd (wood color), N (night tint), rim, t, posts:[x], pw (post width)}
 function drawDockStyle0(c,o){ const st=dockStyleCur(), {x0,x1,y,th,fh,bottom,N,t}=o; let wd=o.wd; const W2=x1-x0;
   const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
   const plankDeck=()=>{ c.fillStyle=top; c.fillRect(x0,y-th,W2,th); c.fillStyle=N(mix(wd,'#000000',.12)); for(let X=x0+W2*.06;X<x1;X+=W2*.12) c.fillRect(X,y-th,1,th); c.fillStyle=face; c.fillRect(x0,y,W2,fh);

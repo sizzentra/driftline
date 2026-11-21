@@ -2,7 +2,7 @@
 // =====================================================================
 // 0.3 Wardrobe, reorganised: your angler stays in view on the left, and everything else lives in
 // sections (Body, Clothes, Hats, Glasses, Shoes, Neck & back, Shop). The Shop has a tab per category
-// with the whole catalogue, plus a Featured shelf that rotates. More glasses, outfits and colours too.
+// with the whole catalogue, plus a Featured shelf that rotates. More glasses, outfits and colors too.
 // =====================================================================
 GLASSES.push(['aviator','Aviators',1800],['cateye','Cat-eye frames',2200],['starshades','Star shades',2600],['visor','Sport visor',1400],['reading','Half-moon readers',900],['wrap','Wraparound shades',2000],['tinted','Rose-tinted rounds',1600],['shutter','Shutter shades',3100]);
 OUTFITS.push(['tracksuit','Tracksuit',2600,'shop'],['kimono','Kimono',5200,'shop'],['denim','Denim jacket',3400,'shop'],['sailor','Sailor suit',3800,'shop'],['aloha','Open aloha shirt',2200,'shop'],['suit','Sharp suit',8500,'shop']);
@@ -38,7 +38,7 @@ a3Sleeve = function(lk,D,shirt){ const oc=lk.outCol&&lk.outCol!=='#d8a020'?lk.ou
 
 // ---------- the Wardrobe screen ----------
 let wSec='body', wShop='featured';
-const W_CATS=[['featured','Featured'],['hat','Hats'],['gls','Glasses'],['out','Outfits'],['pat','Fabrics'],['col','Colours'],['shoe','Shoes'],['neck','Neckwear'],['back','Back']];
+const W_CATS=[['featured','Featured'],['hat','Hats'],['gls','Glasses'],['out','Outfits'],['pat','Fabrics'],['col','Colors'],['shoe','Shoes'],['neck','Neckwear'],['back','Back']];
 function wCatalog(kind){ switch(kind){
   case 'hat': return HATS.filter(x=>x.src==='shop').map(x=>({kind,id:x.id,name:x.name,price:x.price}));
   case 'gls': return GLASSES.filter(x=>x[2]).map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
@@ -49,7 +49,7 @@ function wCatalog(kind){ switch(kind){
   case 'neck': return NECKS.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]}));
   case 'back': return BACKS.filter(x=>x[3]==='shop').map(x=>({kind,id:x[0],name:x[1],price:x[2]})); }
   return []; }
-const W_KIND_NAME={hat:'Hat',gls:'Glasses',out:'Outfit',pat:'Fabric for shirts and some outfits',col:'Colour for shirts, trousers and hats',shoe:'Shoes',neck:'Neckwear',back:'Worn on your back'};
+const W_KIND_NAME={hat:'Hat',gls:'Glasses',out:'Outfit',pat:'Fabric for shirts and some outfits',col:'Color for shirts, trousers and hats',shoe:'Shoes',neck:'Neckwear',back:'Worn on your back'};
 function wThumb(cx,kind,id,w,h){ cx.clearRect(0,0,w,h); const lk=S.look;
   if(kind==='col'){ const s=h/64; cx.save(); cx.translate(w/2,h*.2); cx.scale(s*1.6,s*1.6); cx.fillStyle=id; cx.beginPath(); cx.moveTo(-11,0); cx.lineTo(-5,-3); cx.lineTo(5,-3); cx.lineTo(11,0); cx.lineTo(14,8); cx.lineTo(9,10); cx.lineTo(8,26); cx.lineTo(-8,26); cx.lineTo(-9,10); cx.lineTo(-14,8); cx.closePath(); cx.fill(); cx.fillStyle='rgba(255,255,255,.18)'; cx.fillRect(-8,0,4,26); cx.restore(); }
   else if(kind==='pat'){ cx.save(); cx.translate(w/2,h*.16); cx.scale(h/32,h/32); cx.fillStyle=lk.shirt; cx.beginPath(); cx.moveTo(-9,0); cx.lineTo(9,0); cx.lineTo(8,24); cx.lineTo(-8,24); cx.closePath(); cx.fill(); cx.clip(); drawPattern(cx,id,lk.shirt,-10,-1,20,26); cx.restore(); }
@@ -68,20 +68,20 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].ma
   const secs=[['body','Body','👤'],['clothes','Clothes','👕'],['hats','Hats','🎩'],['glasses','Glasses','👓'],['shoes','Shoes','👟'],['neckback','Neck & back','🧣'],['tidepass','Tide Pass','🌊'],['shop','Shop','🛍️']];
   let body='';
   if(wSec==='body') body=`<h5>Body</h5>${wChips('g',[['m','Man'],['f','Woman']],lk.g)}<h5>Build</h5>${wChips('build',BUILDS.map(b=>[b[0],b[1]]),lk.build||'average')}
-    <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair colour</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
+    <h5>Skin</h5>${wSw('skin',SKINS.map((c,i)=>[i,c]),lk.skin)}<h5>Eyes</h5>${wSw('eye',EYES.map((e,i)=>[i,e[0],e[1]]),lk.eye|0)}<h5>Hair color</h5>${wSw('hair',HAIRS.map((c,i)=>[i,c]),lk.hair)}
     <h5>Hairstyle</h5>${wChips('hairStyle',HAIRSTYLES,lk.hairStyle||'auto')}<h5>Facial hair</h5>${wChips('beard',BEARDS,lk.beard||'none')}
     <h5>Nose</h5>${wChips('nose',NOSES,lk.nose||'button')}<h5>Eyebrows</h5>${wChips('brows',BROWS,lk.brows||'soft')}<h5>Mouth</h5>${wChips('mouth',MOUTHS,lk.mouth||'smile')}<h5>Rosy cheeks</h5>${wChips('blush',BLUSHES,lk.blush||'on')}`;
-  if(wSec==='clothes') body=`<h5>Shirt colour</h5>${wSw('shirt',cols,lk.shirt)}<h5>Two-tone</h5>${wChips('tone',TONES,lk.tone||'none')}${lk.tone&&lk.tone!=='none'?'<h5>Second colour</h5>'+wSw('shirt2',cols,lk.shirt2||''):''}<h5>Shirt fabric</h5>${wChips('pat',FABRICS.filter(p=>S.owned.pats.includes(p[0])||p[0]==='none').map(p=>[p[0],p[1]]),lk.pat||'none')}
+  if(wSec==='clothes') body=`<h5>Shirt color</h5>${wSw('shirt',cols,lk.shirt)}<h5>Two-tone</h5>${wChips('tone',TONES,lk.tone||'none')}${lk.tone&&lk.tone!=='none'?'<h5>Second color</h5>'+wSw('shirt2',cols,lk.shirt2||''):''}<h5>Shirt fabric</h5>${wChips('pat',FABRICS.filter(p=>S.owned.pats.includes(p[0])||p[0]==='none').map(p=>[p[0],p[1]]),lk.pat||'none')}
     <h5>Outfit</h5>${wThumbGrid('outfit','out',OUTFITS.filter(x=>S.owned.outfits.includes(x[0])).map(x=>[x[0],x[1]]),lk.outfit||'none')}
-    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit colour</h5>'+wSw('outCol',cols,lk.outCol):''}${wOutfitFabricHTML(lk)}<h5>Trousers</h5>${wSw('pants',cols,lk.pants)}`;
+    ${lk.outfit&&lk.outfit!=='none'&&lk.outfit!=='spacesuit'?'<h5>Outfit color</h5>'+wSw('outCol',cols,lk.outCol):''}${wOutfitFabricHTML(lk)}<h5>Trousers</h5>${wSw('pants',cols,lk.pants)}`;
   if(wSec==='hats') body=`<h5>Hat</h5><div class="hatgrid">${HATS.filter(h=>S.owned.hats.includes(h.id)).map(h=>`<button class="hatb" data-act="look" data-k="hat" data-v="${h.id}" aria-pressed="${lk.hat===h.id}"><canvas width="112" height="112" data-hat="${h.id}"></canvas>${esc(h.name)}</button>`).join('')}</div>
-    <h5>Hat colour ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colours)</span>':''}</h5>${wSw('hatCol',cols,lk.hatCol)}`;
+    <h5>Hat color ${HATI[lk.hat]&&HATI[lk.hat].fixed?'<span style="text-transform:none;letter-spacing:0">(this hat keeps its own colors)</span>':''}</h5>${wSw('hatCol',cols,lk.hatCol)}`;
   if(wSec==='glasses') body=`<h5>Glasses</h5>${wThumbGrid('glasses','gls',GLASSES.filter(x=>S.owned.glasses.includes(x[0])).map(x=>[x[0],x[1]]),lk.glasses||'none')}`;
-  if(wSec==='shoes') body=`<h5>Shoes</h5>${wThumbGrid('shoes','shoe',SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(x=>[x[0],x[1]]),lk.shoes||'boots')}${SHOE_NOCOL.has(lk.shoes)?'':`<h5>Shoe colour</h5><div class="chips"><button class="chipb" data-act="look" data-k="shoeCol" data-v="" aria-pressed="${!lk.shoeCol}">Original</button></div>${wSw('shoeCol',cols,lk.shoeCol||'')}`}`;
+  if(wSec==='shoes') body=`<h5>Shoes</h5>${wThumbGrid('shoes','shoe',SHOES.filter(x=>S.owned.shoes.includes(x[0])).map(x=>[x[0],x[1]]),lk.shoes||'boots')}${SHOE_NOCOL.has(lk.shoes)?'':`<h5>Shoe color</h5><div class="chips"><button class="chipb" data-act="look" data-k="shoeCol" data-v="" aria-pressed="${!lk.shoeCol}">Original</button></div>${wSw('shoeCol',cols,lk.shoeCol||'')}`}`;
   if(wSec==='tidepass'&&typeof passWearHTML==='function') body=passWearHTML();
   if(wSec==='neckback') body=`<h5>Neckwear</h5>${wThumbGrid('neck','neck',NECKS.filter(x=>S.owned.necks.includes(x[0])).map(x=>[x[0],x[1]]),lk.neck||'none')}
     <h5>On your back</h5>${wThumbGrid('back','back',BACKS.filter(x=>S.owned.backs.includes(x[0])).map(x=>[x[0],x[1]]),lk.back||'none')}
-    ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory colour</h5>'+wSw('accCol',cols,lk.accCol):''}`;
+    ${(lk.neck&&lk.neck!=='none')||(lk.back&&lk.back!=='none')?'<h5>Accessory color</h5>'+wSw('accCol',cols,lk.accCol):''}`;
   if(wSec==='shop'){ const list=wShop==='featured'?shopOffers():wCatalog(wShop).sort((a,b)=>wOwned(a.kind,a.id)-wOwned(b.kind,b.id)||a.price-b.price);
     const counts=Object.fromEntries(W_CATS.filter(c=>c[0]!=='featured').map(([k])=>{ const a=wCatalog(k); return [k,a.filter(i=>!wOwned(i.kind,i.id)).length]; }));
     body=`<div class="chips wd-cats">${W_CATS.map(([k,n])=>`<button class="chipb" data-act="wshop" data-k="${k}" aria-pressed="${wShop===k}">${n}${k!=='featured'?` <span class="meta">${counts[k]}</span>`:''}</button>`).join('')}</div>

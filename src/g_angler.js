@@ -13,7 +13,7 @@ function a3TorsoPath(c,f){ c.beginPath(); const bb=A3BELLY*2.6;
   c.closePath(); }
 // a longer coat silhouette reaching hemY, flaring slightly
 function a3CoatPath(c,f,hemY){ c.beginPath(); c.moveTo(f?-7.4:-7.9,-45.8); c.quadraticCurveTo(f?-8.2:-9.1,-36,-8.8,-26); c.lineTo(-9.8,hemY); c.quadraticCurveTo(0,hemY+1.6,9.8,hemY); c.lineTo(9+A3BELLY*1.6,-26); c.quadraticCurveTo((f?9:9.5)+A3BELLY*2.4,-34,f?7.7:8.1,-45.8); c.quadraticCurveTo(0,-48.6,f?-7.4:-7.9,-45.8); c.closePath(); }
-// an outfit's own colour: the player's pick, or the outfit's default when the save still holds the shared default gold
+// an outfit's own color: the player's pick, or the outfit's default when the save still holds the shared default gold
 // (0.3.6: sleeves and trousers used the gold literally, so a navy captain's coat had gold sleeves)
 function a3OC(lk,def){ return lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:def; }
 function a3Sleeve(lk,D,shirt){ const o=lk.outfit, oc=D(lk.outCol||'#d8a020');
@@ -219,9 +219,9 @@ function a3Body(c,x,y,s,lk,o,live){ A3FXP={};
   if(blink && mood!=='surprised'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.6; c.beginPath(); c.moveTo(ex-1.1,ey+.2); c.quadraticCurveTo(ex,ey+.7,ex+1.1,ey+.2); c.stroke(); }
   else if(mood==='happy'){ c.strokeStyle=D('#1a1410'); c.lineWidth=.65; c.beginPath(); c.arc(ex,ey+.5,1.1,Math.PI*1.1,Math.PI*1.9); c.stroke(); }
   else { const big=mood==='surprised', ec=(EYES[lk.eye]||EYES[0])[0];
-    if(s<3.2){ // small (on the water): a soft dark eye tinted by the eye colour, with a catchlight
+    if(s<3.2){ // small (on the water): a soft dark eye tinted by the eye color, with a catchlight
       const ES=A3_EYESH[lk.eyeShape]||A3_EYESH.round, er=(big?1.15:1)*ES[0], eh=(big?1.45:1.3)*ES[1]; c.fillStyle=D(mix('#1a1410',ec,.3)); c.beginPath(); c.ellipse(ex,ey,er,eh,0,0,7); c.fill(); c.fillStyle='rgba(255,255,255,.92)'; c.beginPath(); c.arc(ex+.36,ey-.46,.38,0,7); c.fill(); }
-    else { // close up (Wardrobe, Home): white of the eye, a coloured iris looking forward, pupil, catchlights and an upper lid
+    else { // close up (Wardrobe, Home): white of the eye, a colored iris looking forward, pupil, catchlights and an upper lid
       const ES=A3_EYESH[lk.eyeShape]||A3_EYESH.round, rx=(big?1.35:1.22)*ES[0], ry=(big?1.25:1.02)*ES[1];
       c.save(); c.beginPath(); c.ellipse(ex,ey,rx,ry,0,0,7); c.clip();
       c.fillStyle=D('#fbf7f2'); c.fillRect(ex-2,ey-2,4,4);

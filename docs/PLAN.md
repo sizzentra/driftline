@@ -51,6 +51,17 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Speed budgets per page and per frame, checked by the sweep.
 - ☐ Balance targets checked automatically (`__bal` against written targets).
 
+## Production queue (director, 2026-11-21): DO NOT START until the director says go
+One large overnight run, so testing happens once over many changes. Each item is built only when its concept is decided (status per item); open questions are settled in conversation first.
+| # | Item | Concept status | Notes |
+|---|---|---|---|
+| P1 | **Homes for every water** to docs/HOME_STANDARD.md, with the Willow Pond lessons: no shore; 3 real styles plus "nothing" as a 4th where offered; side view; fits the deck exactly; lights stay at the light spot; color matters; sharp close-up | ☐ needs each water's home concept: its 4 parts + light, 3 styles each, curated colors (to be proposed and approved) | Stonebrook River gets its mill landing; old homes (dock, pier, ice, beach, boat, trawler, raft, stone, crystal) and the 10 new ones (bridge, ledge, skiff, stilts, hay dock, platter, steel pier, felucca, hover pad, marble) |
+| P2 | **Remove decorations and the cozy bonus** everywhere (saves cleaned on load; Tide Pass, feats, quests, lessons, Help, search reworded) | ☐ needs: what replaces decoration rewards in the Tide Pass, feats and quests | follows P1 |
+| P3 | **Untangle the pages** (item B below): fold the page layers into each page | ☑ concept decided (files by purpose, five most-opened pages first) | overnight-suited |
+| P4 | **Map standard** (docs/MAP_STANDARD.md) | ◐ list decided; open: the older 10 waters, the speed limit | |
+| P5 | Items F (flavour text coverage) and G (PC review) once their concepts are settled | ☐ | |
+Order inside the run: P1 → P2 → P4 → P3 → P5, one build at the end, one notes entry, pictures for every changed home.
+
 ## System clean-up (from the 2026-11-20 audit; going over each with the director)
 - ☑ A. Redundancy counter (above). Starting numbers: PC 293 wrap layers, 67 force-hide rules, 31 timers, 16 watchers; phones 322 / 82 / 33 / 18.
 - ✗ 1. Picture comparisons: dropped (director, 2026-11-20: “We will judge and tell you when necessary”; it adds work to every round and they would rather judge looks themselves). Look changes still go to them with before/after pictures, as before.

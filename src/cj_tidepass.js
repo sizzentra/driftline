@@ -1,13 +1,13 @@
 // =====================================================================
 // 0.4.9 Tide Pass overhaul (director, 2026-11-19: "tide pass needs a proper overhaul. Right now it doesn't feel special at all and rewards
 // don't feel very exclusive ... more direction and way better rewards ... custom new rewards better than others in other places! Maybe
-// cosmetics?") and [1] pet colours ("More base colour schemes for pets, unlockable through rewards in boardwalk - but a few more base
-// colours purchasable by default"). Shared by every platform.
+// cosmetics?") and [1] pet colors ("More base color schemes for pets, unlockable through rewards in boardwalk - but a few more base
+// colors purchasable by default"). Shared by every platform.
 //  - 100 levels in five chapters (Shallows, The Reef, Open Sea, The Deep, Tidecaller), each with its own exclusive rewards.
 //  - New cosmetic kinds that only the Pass gives: angler auras (animated, drawn around your angler everywhere), bobber skins and
-//    line colours, plus Pass-only pet colours. Wisdom Pearls and Boon points at chapter milestones.
+//    line colors, plus Pass-only pet colors. Wisdom Pearls and Boon points at chapter milestones.
 //  - The page shows the chapter, how far the next exclusive is, and a showcase of every exclusive (owned ones ticked).
-//  - Pet colours: 5 new in the pet shop, 5 more only from Boardwalk treasure chests, 3 only from the Pass.
+//  - Pet colors: 5 new in the pet shop, 5 more only from Boardwalk treasure chests, 3 only from the Pass.
 // =====================================================================
 // ---------- new cosmetics ----------
 const AURAS=[['tideswirl','Tide Swirl','#7fe3ff','#2a8ad8','swirl'],['bubbles','Bubble Ring','#bfefff','#5ac8f0','bubbles'],['embers','Ember Motes','#ffb35a','#ff5a2a','motes'],
@@ -16,7 +16,7 @@ const BOBS=[['gold','Gilded Bobber','#ffd36a','#fff6dc','ring'],['puffer','Puffe
   ['lantern','Lantern Bobber','#ff9a3a','#2a1a10','glow'],['star','Star Bobber','#b9a2ff','#f4f1ff','star']];
 const LINES=[['seaglass','Sea-glass Line','rgba(127,227,196,A)'],['goldthread','Gold Thread Line','rgba(255,211,106,A)'],['starlight','Starlight Line','star'],['ember','Ember Line','rgba(255,120,70,A)']];
 const AURAI=Object.fromEntries(AURAS.map(a=>[a[0],a])), BOBI=Object.fromEntries(BOBS.map(a=>[a[0],a])), LINEI=Object.fromEntries(LINES.map(a=>[a[0],a]));
-// pet colours: shop, Boardwalk chests, Tide Pass
+// pet colors: shop, Boardwalk chests, Tide Pass
 const TINT_SHOP=[['ocean','Ocean',2000,'hue-rotate(195deg) saturate(1.4) brightness(.95)'],['moss','Moss',1800,'hue-rotate(60deg) saturate(.8) brightness(.9)'],['sunset','Sunset',2500,'sepia(.5) hue-rotate(-35deg) saturate(2)'],
   ['ash','Ash',2200,'grayscale(.8) brightness(.85) contrast(1.1)'],['cherry','Cherry',2600,'hue-rotate(-70deg) saturate(1.6) brightness(1.05)']];
 const TINT_BW=[['neon','Neon',0,'saturate(3) brightness(1.2) hue-rotate(100deg)'],['opal','Opal',0,'grayscale(.4) brightness(1.35) hue-rotate(200deg) saturate(1.4)'],['bronze','Bronze',0,'sepia(1) saturate(1.8) brightness(.8)'],
@@ -25,31 +25,31 @@ const TINT_PASS=[['coral','Coral',0,'sepia(.4) hue-rotate(-30deg) saturate(2.4) 
 for(const t of [...TINT_SHOP,...TINT_BW,...TINT_PASS]) if(!PET_TINTS.some(x=>x[0]===t[0])) PET_TINTS.push(t);
 for(const t of [...TINT_BW,...TINT_PASS]) PRIZE_TINT[t[0]]=0; /* hidden in the pet shop until owned, never sold */
 { const _tf=tintFilter; tintFilter=function(lk,t){ const tt=PET_TINTS.find(x=>x[0]===lk.tint); if(tt&&tt[3]==='aurora') return 'hue-rotate('+(100+Math.sin(t*.8)*60|0)+'deg) saturate(1.8) brightness(1.1)'; return _tf(lk,t); }; }
-function petColourPrize(){ const left=TINT_BW.filter(t=>!S.petTints.includes(t[0])); if(!left.length) return null; const t=pick(left); S.petTints.push(t[0]); return 'A new pet colour: '+t[1]+'! (Pets, Colour)'; }
+function petColorPrize(){ const left=TINT_BW.filter(t=>!S.petTints.includes(t[0])); if(!left.length) return null; const t=pick(left); S.petTints.push(t[0]); return 'A new pet color: '+t[1]+'! (Pets, Color)'; }
 // ---------- the track: 100 levels in 5 chapters ----------
 const PASS_CHAPTERS=[[1,'Shallows'],[21,'The Reef'],[41,'Open Sea'],[61,'The Deep'],[81,'Tidecaller']];
 const passChapter = L => { let c=0; for(let i=0;i<PASS_CHAPTERS.length;i++) if(L>=PASS_CHAPTERS[i][0]) c=i; return c; };
 Object.assign(PASS_SPECIAL,{
   22:['bob','gold','Gilded Bobber','Bobber skin: polished gold that catches the sun. Only in the Tide Pass.'],
   24:['pearl',1,'1 Wisdom Pearl','A Wisdom Pearl to spend in the Pearl shop or on relics.'],
-  28:['line','seaglass','Sea-glass Line','Line colour: soft sea-glass green. Only in the Tide Pass.'],
+  28:['line','seaglass','Sea-glass Line','Line color: soft sea-glass green. Only in the Tide Pass.'],
   33:['aura','tideswirl','Tide Swirl aura','Aura: a ring of water circles your angler. Only in the Tide Pass.'],
-  38:['tint','coral','Coral pet colour','Pet colour: warm coral pink. Only in the Tide Pass.'],
+  38:['tint','coral','Coral pet color','Pet color: warm coral pink. Only in the Tide Pass.'],
   42:['bob','puffer','Pufferfish Bobber','Bobber skin: a spiky little puffer. Only in the Tide Pass.'],
   48:['aura','bubbles','Bubble Ring aura','Aura: bubbles drift up around you. Only in the Tide Pass.'],
   52:['boon',2,'2 Boon points','Boon points to raise your voyage Boons (Prestige, Boons).'],
-  55:['line','goldthread','Gold Thread Line','Line colour: spun gold. Only in the Tide Pass.'],
-  58:['tint','abyssal','Abyssal pet colour','Pet colour: the deep blue-black of the trench. Only in the Tide Pass.'],
+  55:['line','goldthread','Gold Thread Line','Line color: spun gold. Only in the Tide Pass.'],
+  58:['tint','abyssal','Abyssal pet color','Pet color: the deep blue-black of the trench. Only in the Tide Pass.'],
   60:['aura','embers','Ember Motes aura','Aura: glowing embers rise around you. Only in the Tide Pass.'],
   63:['bob','duck','Rubber Duck Bobber','Bobber skin: a rubber duck rides your line. Only in the Tide Pass.'],
   66:['pearl',2,'2 Wisdom Pearls','Two Wisdom Pearls to spend in the Pearl shop or on relics.'],
   70:['aura','glitter','Starfall Glitter aura','Aura: stars twinkle all around you. Only in the Tide Pass.'],
-  73:['line','starlight','Starlight Line','Line colour: shifts through every colour of a starry night. Only in the Tide Pass.'],
-  76:['tint','aurora','Aurora pet colour','Pet colour: slowly shifts like the northern lights. Only in the Tide Pass.'],
+  73:['line','starlight','Starlight Line','Line color: shifts through every color of a starry night. Only in the Tide Pass.'],
+  76:['tint','aurora','Aurora pet color','Pet color: slowly shifts like the northern lights. Only in the Tide Pass.'],
   80:['bob','lantern','Lantern Bobber','Bobber skin: a tiny lantern that glows on the water. Only in the Tide Pass.'],
   84:['aura','koi','Koi Orbit aura','Aura: two little koi swim circles around you. Only in the Tide Pass.'],
   88:['boon',3,'3 Boon points','Boon points to raise your voyage Boons (Prestige, Boons).'],
-  90:['line','ember','Ember Line','Line colour: glowing ember orange. Only in the Tide Pass.'],
+  90:['line','ember','Ember Line','Line color: glowing ember orange. Only in the Tide Pass.'],
   93:['bob','star','Star Bobber','Bobber skin: a glowing star. Only in the Tide Pass.'],
   96:['pearl',3,'3 Wisdom Pearls','Three Wisdom Pearls to spend in the Pearl shop or on relics.'],
   100:['aura','veil','Tidecaller Veil','Aura: ribbons of light and a crown of water. The rarest thing in the Pass.']});
@@ -93,7 +93,7 @@ function drawBobSkin(g,x,y,br,id){ const B=BOBI[id||(S.look&&S.look.bob)]; if(!B
     else { x.fillStyle='#ffd36a'; x.beginPath(); for(let i=0;i<10;i++){ const r=i%2?h*.12:h*.3, an=-Math.PI/2+i*Math.PI/5; x.lineTo(w/2+Math.cos(an)*r,h/2+Math.sin(an)*r); } x.closePath(); x.fill(); } }; }
 // ---------- the Pass page: chapter, next exclusive, showcase ----------
 { const _rp=renderPass; renderPass=function(P){ _rp(P); try{ const pl=S.pass.lvl, ch=passChapter(Math.max(1,pl)), C=PASS_CHAPTERS[ch], next=PASS_CHAPTERS[ch+1], end=next?next[0]-1:PASS_MAX;
-    const sub=P.querySelector('.sub'); if(sub) sub.innerHTML=`Every fish you land fills the Tide Pass; rarer fish fill it faster. ${PASS_MAX} levels in five chapters, with things you can only get here: auras, bobber skins, line colours, pet colours, Wisdom Pearls and Boon points. After level ${PASS_MAX}, bonus rewards keep coming.`;
+    const sub=P.querySelector('.sub'); if(sub) sub.innerHTML=`Every fish you land fills the Tide Pass; rarer fish fill it faster. ${PASS_MAX} levels in five chapters, with things you can only get here: auras, bobber skins, line colors, pet colors, Wisdom Pearls and Boon points. After level ${PASS_MAX}, bonus rewards keep coming.`;
     const ex=Object.keys(PASS_SPECIAL).map(Number).sort((a,b)=>a-b), got=ex.filter(L=>L<=S.pass.claimed).length;
     const html=`<div class="tile pass-ch"><div class="row spread"><h4>Chapter ${ch+1} of ${PASS_CHAPTERS.length}: ${esc(C[1])}</h4><span class="meta">Levels ${C[0]}–${end} · ${got} / ${ex.length} exclusives</span></div>
       <div class="prog" style="margin-top:4px"><i style="width:${clamp((pl-C[0]+1)/(end-C[0]+1),0,1)*100}%;background:var(--kelp)"></i></div>
@@ -105,7 +105,7 @@ function drawBobSkin(g,x,y,br,id){ const B=BOBI[id||(S.look&&S.look.bob)]; if(!B
 // Wardrobe › Tide Pass tab: picture tiles (the same tiles as the rest of the Wardrobe), locked ones show the level that brings them
 function passWearHTML(){ const grid=(k,list,cur,label)=>{ const own=passOwnList(k); const tile=(id,name,ok,L)=>`<button class="wd-th${ok?'':' pw-lock'}" data-act="passwear" data-k="${k}:${id}" aria-pressed="${(cur||'none')===id}" ${ok?'':'disabled'} title="${ok?'Wear it':'Tide Pass level '+L}"><canvas width="96" height="96" data-pw="${k}:${id}"></canvas><span>${esc(name)}${ok?'':' · Lv '+L}</span></button>`;
     return `<h5>${label}</h5><div class="wd-thumbs">${tile('none','None',true,0)}${list.map(a=>{ const L=Object.keys(PASS_SPECIAL).find(l=>PASS_SPECIAL[l][0]===k&&PASS_SPECIAL[l][1]===a[0]); return tile(a[0],a[1].replace(/ (aura|Bobber|Line)$/,''),own.includes(a[0]),L); }).join('')}</div>`; };
-  return `<p class="sub">Only from the Tide Pass. Auras move around your angler, bobber skins and line colours show on the water.</p>${grid('aura',AURAS,S.look.aura,'Aura')}${grid('bob',BOBS,S.look.bob,'Bobber')}${grid('line',LINES,S.look.line,'Line')}`; }
+  return `<p class="sub">Only from the Tide Pass. Auras move around your angler, bobber skins and line colors show on the water.</p>${grid('aura',AURAS,S.look.aura,'Aura')}${grid('bob',BOBS,S.look.bob,'Bobber')}${grid('line',LINES,S.look.line,'Line')}`; }
 function passWearPaint(root){ (root||document).querySelectorAll('canvas[data-pw]').forEach(cv=>{ const [k,id]=cv.dataset.pw.split(':'), x=cv.getContext('2d'), w=cv.width, h=cv.height; x.clearRect(0,0,w,h);
   if(id==='none'){ x.strokeStyle='rgba(200,215,230,.35)'; x.lineWidth=3; x.beginPath(); x.arc(w/2,h/2,h*.22,0,7); x.moveTo(w*.35,h*.65); x.lineTo(w*.65,h*.35); x.stroke(); return; }
   if(k==='aura') drawAngler(x,w/2,h*.97,h/94,Object.assign({},S.look,{aura:id}),{t:performance.now()/1000});

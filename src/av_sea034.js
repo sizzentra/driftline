@@ -33,7 +33,7 @@ function m34cargo(P,t,hz){ const per=150, k=(t%per)/per; if(k>.62) return; const
   // hull: long and low, a raked bow on the right, a red band at the waterline
   g.fillStyle=N('#2c3442'); g.beginPath(); g.moveTo(-s*30,-s*2.6); g.lineTo(s*31,-s*2.6); g.lineTo(s*34,-s*3.4); g.lineTo(s*30,0); g.lineTo(-s*29,0); g.closePath(); g.fill();
   g.fillStyle=N('#7a3030'); g.fillRect(-s*29,-s*.7,s*59,s*.7);
-  // containers in stacks of muted colours
+  // containers in stacks of muted colors
   const cc=['#a0523a','#3a6a8a','#c8a040','#5a7a5a','#8a4a6a','#4a5a7a'];
   for(let i=0;i<9;i++){ const h=2+((i*7)%3); for(let j=0;j<h;j++){ g.fillStyle=N(cc[(i*3+j*5)%cc.length]); g.fillRect(-s*20+i*s*5.2,-s*2.6-(j+1)*s*1.3,s*4.8,s*1.2); } }
   // the bridge and funnel at the stern (left, it heads right)
@@ -81,7 +81,7 @@ function m34ghost(P,t,hz){ const per=105, k=(t%per)/per, cyc=Math.floor(t/per), 
 // ---------- storms at sea: steep short chop, foam streaks, and squalls that smear the view ----------
 function m34chop(P,t,hz,mult){ const st=seaStormK()*mult; if(st<.02) return; const FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7), N=Math.round((FX?70:30)*Math.min(1.6,st)*gfxK());
   // 2026-11-18 (director: storms drop frames, most on the open sea): every wave used to be two separate fills and a stroke, each
-  // with its own colour string (about 360 fills a frame). The waves now go into a few shared shapes: one fill for all the shadow
+  // with its own color string (about 360 fills a frame). The waves now go into a few shared shapes: one fill for all the shadow
   // sides, one for all the lit faces, and the foam crests in three strengths and three widths. Same picture, a handful of draws.
   const st1=Math.min(1,st), cShade=v3rgba(P.wBot,.3*st1), cLit=v3rgba(mix(P.wTop,P.wMid,.3),.5*st1);
   const shade=new Path2D(), lit=new Path2D(), foamP=[0,1,2].map(()=>[0,1,2].map(()=>new Path2D())), foamN=[[0,0,0],[0,0,0],[0,0,0]];

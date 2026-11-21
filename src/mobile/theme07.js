@@ -7,7 +7,7 @@
 //  - one type pair: the display face (Bricolage) for everything you tap or scan (labels, values, tabs, buttons);
 //    the reading face (Atkinson) only for sentences
 //  - one icon style: thin line icons (the side panel's), never emoji, on the top bar, menu tools and page tabs
-//  - colour says what a thing does: teal label/icon = opens something; filled teal = an action (Rest, bait, Upgrade, Travel);
+//  - color says what a thing does: teal label/icon = opens something; filled teal = an action (Rest, bait, Upgrade, Travel);
 //    gold = where you are / what is chosen / coins ready
 //  - side panel (sideways): compact (about 100 px instead of 150), still easy to hit
 // Later files may not undo this: anything phone-look goes here or after it.
@@ -214,7 +214,7 @@ html body.phone-land .hud > .hud-link:active,html body.phone-land .hud > button.
 html body.phone-app .hud > .st-aq.ready,html body.phone-land .hud > .st-aq.ready{background:linear-gradient(180deg,#ffe08a,#f3b94e)!important;border-color:#ffe6a3!important}
 html body.phone-app .hud > .st-aq.ready *,html body.phone-land .hud > .st-aq.ready *{color:#2a1c05!important}
 </style>`);
-// a full cooler still warns: its count (set to the danger colour inline by e_ui.js) shows in warm gold, readable on the teal button
+// a full cooler still warns: its count (set to the danger color inline by e_ui.js) shows in warm gold, readable on the teal button
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app .hud #coolerct[style*="danger"],html body.phone-land .hud #coolerct[style*="danger"]{color:#ffd36a!important;text-shadow:0 0 6px #ffb34766}
 </style>`);

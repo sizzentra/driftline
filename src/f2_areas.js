@@ -759,7 +759,7 @@ V3SCENES.trench = {
       g.strokeStyle=v3rgba(col,a*.5); g.lineWidth=1; g.beginPath(); for(let tn=0;tn<4;tn++){ const tx=jx-s*.6+tn*s*.4; g.moveTo(tx,jy); g.quadraticCurveTo(tx+Math.sin(t*1.8+tn+j)*s*.4,jy+s*1.2,tx+Math.sin(t*1.3+tn)*s*.3,jy+s*2.4); } g.stroke(); }
     g.restore();
     // eyes in the deep: now and then, something down there opens its eyes, looks, and closes them
-    { const per=29, k=(t%per)/per; if(k<.3){ const n=Math.floor(t/per), r=m34rng(n*17+3), NP=1+Math.floor(r()*3.2); /* 0.3.4: one to four pairs, each its own size, place, colour and timing */
+    { const per=29, k=(t%per)/per; if(k<.3){ const n=Math.floor(t/per), r=m34rng(n*17+3), NP=1+Math.floor(r()*3.2); /* 0.3.4: one to four pairs, each its own size, place, color and timing */
       for(let pi=0;pi<Math.min(4,NP);pi++){ const st=r()*.1, e=(k-st)/(.13+r()*.07); const ex=W*(.3+r()*.62), ey=hz+H*(.2+r()*.22), s=H*(.0035+r()*.0085)*(.7+(ey-hz)/H*1.4), cols=[['#e8ff9a','220,255,140'],['#b8fff4','150,255,240'],['#ffd27a','255,200,110'],['#ff9a8a','255,130,110']], cl=cols[Math.floor(r()*4)], gap=2.4+r()*1.6, blink=r()<.5?.55:-1; if(e<0||e>1) continue;
         let open=Math.min(1,Math.sin(e*Math.PI)*1.8); if(blink>0&&Math.abs(e-blink)<.04) open*=.1; const look=Math.sin(e*6+pi)*s*.3;
         for(const sd of [-1,1]){ v3glow(g,ex+sd*s*gap,ey,s*4,'rgba('+cl[1]+',.9)',.3*open); g.fillStyle=v3rgba(cl[0],.85*open); g.beginPath(); g.ellipse(ex+sd*s*gap,ey,s*1.4,s*.9*open,0,0,7); g.fill(); g.fillStyle='rgba(0,0,0,.9)'; g.beginPath(); g.ellipse(ex+sd*s*gap+look,ey,s*.25,s*.7*open,0,0,7); g.fill(); } } } }
@@ -972,7 +972,7 @@ function v3crystalPlat(P,t,night,dockY){
 V3PLAT.crystal=(P,t,night,dockY)=>v3crystalPlat(P,t,night,dockY);
 
 // ---------- the Home tab's dock diorama, in the 0.3 look ----------
-// Uses the current area's sky colours and its cached landscape, so the preview always matches where you fish.
+// Uses the current area's sky colors and its cached landscape, so the preview always matches where you fish.
 function paintHome3(c){ const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000, P=v3palette.v; if(!P) return false;
   const hz=h*.5, dy=h*.66;
   const sg=x.createLinearGradient(0,0,0,hz); sg.addColorStop(0,P.top); sg.addColorStop(.55,P.mid); sg.addColorStop(1,P.bot); x.fillStyle=sg; x.fillRect(0,0,w,hz+1);
@@ -1004,7 +1004,7 @@ function v3Pedestal(x,cx,cy,rw,t){ const rh=rw*.22;
 
 // ---------- the aquarium tank in the 0.3 look ----------
 // Static layers (depth, far rock silhouettes, sand with ripples) are cached per size, theme and sand;
-// light rays, caustics, kelp and bubbles move every frame. Theme and sand colours come from the player's choices.
+// light rays, caustics, kelp and bubbles move every frame. Theme and sand colors come from the player's choices.
 let V3TANK=null;
 function v3TankBack(c,w,h,t){ const V=aqView(), th=THEMES.find(x=>x[0]===V.theme)||THEMES[0], sd=SANDS.find(x=>x[0]===V.sand)||SANDS[0], DP=Math.min(DPR||1,2);
   const key=w+'|'+h+'|'+V.theme+'|'+V.sand;

@@ -10,7 +10,7 @@ One job: what every home is, how it is built, what the player can change. Part o
 ## The format (the same on every home)
 - **Same placement and footprint** on every water; the map changes around the home, never the home's place.
 - **Same standing surface** (height and width), so the angler and pets always stand right.
-- **A shore at the left edge,** tying the home to land, in the map's own ground (moss, sand, snow, marble, tiles).
+- **No shore:** the home stands on its own (director, 2026-11-21, after the pilot: the bank at Willow Pond didn't work; the home is all that needs to be there).
 - **Pet spot 1** (favourite pet, beside the angler) and **pet spot 2** (companion), the same on every home.
 - **A light spot** in the same place on every home.
 - **Water rules:** supports fade into the water with ripples; floating homes (boats, platter, hover pad) **bob gently** with the waves.
@@ -18,7 +18,7 @@ One job: what every home is, how it is built, what the player can change. Part o
 
 ## What the player customises
 - **5 elements per home:** the **light fixture** (its source and its colour) on every home, plus **4 elements that fit that home** (for example the felucca: hull, sail, rigging; the hover pad: plate, thrusters, neon trim, hologram).
-- **3 styles per element**, each fitting the map (no neon at Willow Pond, no rustic lantern at Circuit Lake).
+- **3 real styles per element**, each fitting the map (no neon at Willow Pond, no rustic lantern at Circuit Lake). **Nothing is no choice:** an element that offers \
 - **Curated colours per element** (6–9, chosen to suit the map).
 - **No unlocking:** as soon as a water is reached, its home and every style and colour are free to use.
 - Each water keeps its own choices.
@@ -31,10 +31,10 @@ One job: what every home is, how it is built, what the player can change. Part o
 
 ## Performance
 - **The home is a stored picture,** built from its parts, repainted only when the player changes an element (and in small steps while the light changes at dawn and dusk).
-- **Drawn live each frame:** only the light fixture's effects (glow, flicker, light pool, reflection), the water ripples, the bob (the stored picture pasted a little higher or lower) and the pets.
+- **Drawn live each frame:** only the light fixture's effects (glow, flicker, light pool, reflection), the water ripples (drawn behind the supports, sized to each), the bob (the stored picture pasted a little higher or lower) and the pets.
 
 ## The Home page
-- **A close-up framed on the home** (the same box on every home), with a soft strip of the map's background behind it.
+- **A close-up framed on the home** (the same box on every home), drawn at its own size: the home from a stored picture at close-up resolution, the angler, rod and pets drawn sharp, over a soft copy of the water behind (director, 2026-11-21: the stretched scene was blurry).
 - **5 tabs named for that home's elements;** every tab laid out the same way: styles, then colours.
 
 ## Removed

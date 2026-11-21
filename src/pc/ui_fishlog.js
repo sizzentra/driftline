@@ -37,7 +37,7 @@
         let last=-1; [...grid.children].forEach(cell=>{ const c=cell.matches('.jcard')?cell:cell.querySelector('.jcard'); const s=c&&SPI[c.dataset.k]; if(!s) return;
           if(s.r!==last){ last=s.r; cell.classList.add('fl-first'); cell.dataset.rk=RAR[s.r].k; }
           cell.style.setProperty('--rc',RAR[s.r].c);
-          // the rarity shows as the colour stripe and the legend: the card keeps day/night and the bait hint on one short line
+          // the rarity shows as the color stripe and the legend: the card keeps day/night and the bait hint on one short line
           const sm=[...c.querySelectorAll('small')], first=sm.find(x=>!x.classList.contains('loghint')&&!x.classList.contains('sh')&&x.textContent.indexOf(RAR[s.r].k)===0);
           if(first){ const rest=first.textContent.slice(RAR[s.r].k.length).replace(/^\s*·\s*/,''); const hint=c.querySelector('small.loghint');
             if(hint){ if(rest) hint.insertAdjacentText('afterbegin',(rest==='day'?'☀':rest==='night'?'☾':rest)+' '); first.remove(); } else if(rest) first.textContent=rest; else first.remove(); }

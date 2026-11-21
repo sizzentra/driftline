@@ -121,7 +121,7 @@ function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('h
   const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!MOB()||!c.closest('.dk08-view')||!live()) return _ph.apply(this,arguments);
     if(!paintHome.now&&performance.now()-(DK_SCENE_OK.drewAt||0)<150) return; /* the live scene copies itself right after each draw (below) */
     const r=c.getBoundingClientRect(); if(r.width<20||r.height<20) return; const k=Math.min(2,window.devicePixelRatio||1), w=Math.round(r.width*k), hh=Math.round(r.height*k);
-    if(c.width!==w||c.height!==hh){ c.width=w; c.height=hh; } const b=crop(c), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low';
+    if(c.width!==w||c.height!==hh){ c.width=w; c.height=hh; } const b=crop(c); if(HOMEF[S.loc]&&hfCloseup(c,b)) return; /* format homes: drawn sharp at the close-up's own size */ const d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low';
     x.drawImage(cv,b.sx*d,b.sy*d,b.sw*d,b.sh*d,0,0,w,hh); };
   { const _dr=draw; draw=function(now){ const a=performance.now(), r=_dr.apply(this,arguments); if(DK_SCENE_OK.drew===now&&now){ DK_SCENE_OK.cost=(DK_SCENE_OK.cost||6)*.85+(performance.now()-a)*.15; DK_SCENE_OK.drew=-1; paintHome.now=true; try{ paintHome(); }catch(e){} paintHome.now=false; } return r; }; } /* copy the frame just drawn */
   /* drag decorations and pets along the real home (the same fractions the game uses) */

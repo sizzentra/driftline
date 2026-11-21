@@ -57,8 +57,8 @@
       const step=()=>{ const part=later.splice(0,8).filter(c=>c.isConnected); paint(part); if(later.length) setTimeout(step,0); };
       if(later.length) setTimeout(step,0); }); }; }
 
-// ---------- round 8: the scene's colour helper remembers each colour (director, 2026-11-18: "make sure weather and day cycles have good
-// fps on both versions for all maps"). Measured per frame: v3rgba re-read the same colour from text up to a thousand times (0.5 ms of a
-// 2.5-5 ms frame). It now keeps each colour's numbers; the result is exactly the same text. Android + iPhone only. ----------
+// ---------- round 8: the scene's color helper remembers each color (director, 2026-11-18: "make sure weather and day cycles have good
+// fps on both versions for all maps"). Measured per frame: v3rgba re-read the same color from text up to a thousand times (0.5 ms of a
+// 2.5-5 ms frame). It now keeps each color's numbers; the result is exactly the same text. Android + iPhone only. ----------
 { const _r=v3rgba, C=new Map();
   v3rgba=function(hex,a){ if(!MOB()) return _r(hex,a); let p=C.get(hex); if(p===undefined){ const v=hex2rgb(rgb2hex(hex)); p='rgba('+v[0]+','+v[1]+','+v[2]+','; if(C.size>3000) C.clear(); C.set(hex,p); } return p+a+')'; }; }

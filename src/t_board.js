@@ -7,14 +7,14 @@
 let bwView='games';
 function prizeInfo(p){ const id=p[0], nm=p[1].replace(/\s*\(.*\)\s*$/,''), tag=((p[1].match(/\(([^)]*)\)/)||[])[1]||'').toLowerCase();
   const pet=tag==='pet'?PETI[id]:null, rod=tag==='rod'?ROD_I[id]:null, hat=tag==='hat'?HATI[id]:null, dec=tag.includes('decor')&&DECORI?DECORI[id]:null;
-  if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase().replace(' pet colour','')+'.'};
+  if(id==='golden'||id==='rainbow') return {cat:'Pet color', d:'Recolors any of your pets in '+nm.toLowerCase().replace(' pet color','')+'.'};
   if(pet) return {cat:'Pet', d:'A new pet to take fishing: '+fmtB(pet.k,pet.v)+' while it is your favourite.'};
   if(rod) return {cat:'Rod', d:(Object.keys(rod.st||{}).map(k=>statTxt(k,rod.st[k])).join(' · ')||'A new rod')+' · '+rod.slots+' attachment slot'+(rod.slots>1?'s':'')+'.'};
   if(hat) return {cat:'Hat', d:'A hat for your angler, only from the Boardwalk.'};
   if(id==='spacesuit') return {cat:'Outfit', d:'A full space suit for your angler.'};
   if(dec||id==='carousel') return {cat:'Aquarium decor', d:'A spinning carousel for your tank: +'+Math.round(((dec&&dec.b)||.04)*100)+'% aquarium income.'};
   if(id==='balloon'||id==='partyhat') return {cat:'Pet accessory', d:'Your pet wears it on the water and on your dock.'};
-  if(id==='golden'||id==='rainbow') return {cat:'Pet colour', d:'Recolours any of your pets in '+nm.toLowerCase()+'.'};
+  if(id==='golden'||id==='rainbow') return {cat:'Pet color', d:'Recolors any of your pets in '+nm.toLowerCase()+'.'};
   if(id==='scales10') return {cat:'Scales', d:'Scales level up your rods and buy rod attachments and special bait.'};
   if(id==='crate') return {cat:'Mystery crate', d:'Opens into clothes, lures, decor and now and then a pet.'};
   if(id==='myth') return {cat:'Bait', d:'Three Myth Bait: legendary fish are far more likely to bite.'};

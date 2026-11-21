@@ -90,7 +90,7 @@ drawCreature3 = function(c,sp,x,y,L,o={}){ if(!o.shiny||o.sil||o._sh) return _dr
   const t=performance.now()/1000, m=c.getTransform(), sc=Math.max(.5,Math.hypot(m.a,m.b)), R=L*1.2, px=Math.ceil(R*2*sc), ph=((hashStr(sp.id)%100)/100);
   if(px<6||px>1600) return _drawCreature3_sh(c,sp,x,y,L,o);
   const pulse=.5+.5*Math.sin(t*2.2+ph*6);
-  if(typeof v3glow==='function') v3glow(c,x,y,L*.72,o.shiny===2&&typeof PRISM!=='undefined'&&PRISM[o.pv]?v3rgba(PRISM[o.pv].c,.9):'rgba(255,222,130,.9)',.16+.12*pulse); // prismatic fish glow in their own colour
+  if(typeof v3glow==='function') v3glow(c,x,y,L*.72,o.shiny===2&&typeof PRISM!=='undefined'&&PRISM[o.pv]?v3rgba(PRISM[o.pv].c,.9):'rgba(255,222,130,.9)',.16+.12*pulse); // prismatic fish glow in their own color
   let C=SHINY3.c; if(!C) C=SHINY3.c=document.createElement('canvas'); if(C.width<px||C.height<px){ C.width=Math.max(C.width,px); C.height=Math.max(C.height,px); }
   const ox=C.getContext('2d'); ox.setTransform(1,0,0,1,0,0); ox.clearRect(0,0,px,px); ox.setTransform(sc,0,0,sc,px/2,px/2);
   const r=_drawCreature3_sh(ox,sp,0,0,L,Object.assign({},o,{_sh:1}));

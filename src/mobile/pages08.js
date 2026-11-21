@@ -174,8 +174,8 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()) document.querySelectorAll('#panel .aq07-sheet > .bwx-nav > button[data-sect]').forEach(b=>{ const s=SHORT[b.dataset.sect]; if(s&&b.firstChild&&b.firstChild.nodeType===3) b.firstChild.nodeValue=s+(b.firstChild.nodeValue.endsWith(' ')?' ':''); }); }catch(e){} return r; }; }
 /* Waters, Set sail again: the locked button's label is shortened on phones so it fits its card ("Reach Hollow Trench first" -> "Reach Hollow Trench") */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='map') document.querySelectorAll('#panel button[data-act="retire"][disabled]').forEach(b=>{ const m=b.textContent.trim().match(/^Reach (.+) first$/); if(m) b.textContent='Reach '+m[1]; }); }catch(e){} return r; }; }
-/* colour choices (director: "color choices in customization don't look good and take up too much space, descriptions can be condensed
-   with proper coloring"): every colour chip (home light, hull paint, pet colour) becomes a compact round swatch; the chosen colour's
+/* color choices (director: "color choices in customization don't look good and take up too much space, descriptions can be condensed
+   with proper coloring"): every color chip (home light, hull paint, pet color) becomes a compact round swatch; the chosen color's
    name sits next to its heading ("Light · Golden"); the name stays as the button's label for screen readers and long-press */
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()) return r; const P=$('panel'); if(!P) return r;
     P.querySelectorAll('button.chipb').forEach(b=>{ if(b.classList.contains('mb-swatch')) return; const sw=b.querySelector('.hm-sw, .tint-dot'); if(!sw) return;
@@ -195,7 +195,7 @@ html body.phone-app #menuov #panel h5 .mb-swsel,html body.phone-land #menuov #pa
 html body.phone-app #menuov #panel .hm-note,html body.phone-land #menuov #panel .hm-note{font-size:12.5px!important;color:#97abc2!important;margin:10px 2px 2px!important}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-app #menuov #panel button.chipb.mb-swatch,html body.phone-land #menuov #panel button.chipb.mb-swatch{color:#eaf3fb!important} /* the hidden name keeps a readable colour (contrast check) */
+html body.phone-app #menuov #panel button.chipb.mb-swatch,html body.phone-land #menuov #panel button.chipb.mb-swatch{color:#eaf3fb!important} /* the hidden name keeps a readable color (contrast check) */
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wi,html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wi{display:none!important} /* text tabs like every other page (8 tabs fit any width) */

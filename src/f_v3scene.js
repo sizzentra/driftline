@@ -19,9 +19,9 @@ const V3PAL = { pond: {
   night:{top:'#05091a', mid:'#111a3c', bot:'#27306a', glow:'#c8d4ff', far:'#283058', farHaze:'#3a4478', snow:'#8e98c6', hill:'#1a2042', back:'#141a36', front:'#0c1126', bank:'#121a34', wTop:'#2a346c', wMid:'#131b40', wBot:'#04060e', rim:'#9fb4ff', cabin:'#1e1c32', roof:'#100e20', leaf:'#1c2838', leafHi:'#6f80c8', cloud:'#2a3058', cloudLit:'#5a66a0'}
 }};
 function v3palette(id,night,dusk,gloom){
-  // colours follow the clock in fine steps (cheap); o.key is a coarse light level that the cached scenery
+  // colors follow the clock in fine steps (cheap); o.key is a coarse light level that the cached scenery
   // follows, and each new level fades in over the old one (v3land), so light changes are smooth and rare
-  const fq=document.body.classList.contains('pch-on')?[600,400,300]:[60,40,30]; /* PC: colours follow the clock almost continuously */
+  const fq=document.body.classList.contains('pch-on')?[600,400,300]:[60,40,30]; /* PC: colors follow the clock almost continuously */
   const fk=id+'|'+Math.round(night*fq[0])+'|'+Math.round(dusk*fq[1])+'|'+Math.round(gloom*fq[2]);
   if(v3palette.k===fk) return v3palette.v;
   const P=V3PAL[id], d=clamp(dusk,0,1)*(1-night*.45), o={key:(()=>{ const s=v3steps(); return id+'|'+Math.round(night*s[0])+'|'+Math.round(dusk*s[1])+'|'+Math.round(gloom*s[2]); })()} /* 0.3.4: finer light steps, so each fade is smaller */;
@@ -137,7 +137,7 @@ const V3POND = {
     // reflection: the land above, mirrored and squashed, then broken into calm bands
     x.save(); x.globalAlpha=.38; x.beginPath(); x.rect(0,hz,W,H*.3); x.clip(); x.translate(0,hz); x.scale(1,-.72); x.translate(0,-hz);
     x.drawImage(cnv,0,0,cnv.width,Math.round(hz*DPR),0,0,W,hz); x.restore();
-    /* 0.4: the band ends on exactly the water colour beneath it (it ended on a flat colour, leaving a straight seam) */ const rt=Math.min(1,(H*.3)/(H-hz)), rEnd=rt<=.32?mix(P.wTop,P.wMid,rt/.32):mix(P.wMid,P.wBot,(rt-.32)/.68);
+    /* 0.4: the band ends on exactly the water color beneath it (it ended on a flat color, leaving a straight seam) */ const rt=Math.min(1,(H*.3)/(H-hz)), rEnd=rt<=.32?mix(P.wTop,P.wMid,rt/.32):mix(P.wMid,P.wBot,(rt-.32)/.68);
     const rb=x.createLinearGradient(0,hz,0,hz+H*.3); rb.addColorStop(0,v3rgba(P.wTop,0)); rb.addColorStop(1,v3rgba(rEnd,1)); x.fillStyle=rb; x.fillRect(0,hz,W,H*.3);
     x.fillStyle=v3rgba(P.wTop,.35); for(let i=0;i<9;i++){ const y=hz+3+i*i*1.6; x.fillRect(0,y,W,1); }
     // the waterline: a thin bright edge where shore meets water

@@ -1,7 +1,7 @@
 
 // =====================================================================
 // 0.3 fabrics: shirt "patterns" become fabrics, how the material looks (denim, knit, corduroy...),
-// always in your own colours. Shirts take any fabric; an outfit only offers the fabrics that suit it
+// always in your own colors. Shirts take any fabric; an outfit only offers the fabrics that suit it
 // (none at all for costumes, rubber or printed pieces). Shirts can also be two-tone.
 // =====================================================================
 const FABRICS=[['none','Smooth cotton',0],['linen','Linen',600],['pinstripe','Pinstripe',900],['canvas','Canvas',1000],['denim','Denim',1200],['corduroy','Corduroy',1400],
@@ -11,7 +11,7 @@ const OUTFIT_FABRICS={ vest:['linen','canvas','denim','corduroy','tweed','quilte
   puffer:['quilted','silk','canvas'], captain:['tweed','velvet','pinstripe','linen','leather'], cardigan:['knit','tweed','flannel','velvet'], sweater:['knit','tweed','flannel','velvet'],
   apron:['canvas','linen','denim','leather'], bathrobe:['velvet','silk','flannel','knit'], lumberjack:['tweed','corduroy','canvas'], tracksuit:['velvet','silk'],
   kimono:['silk','linen','velvet'], sailor:['linen','canvas'], suit:['pinstripe','tweed','velvet','linen','silk','sequin'] };
-const TONES=[['none','One colour'],['yoke','Shoulders'],['sleeves','Sleeves'],['band','Chest band'],['half','Lower half'],['fade','Fade']];
+const TONES=[['none','One color'],['yoke','Shoulders'],['sleeves','Sleeves'],['band','Chest band'],['half','Lower half'],['fade','Fade']];
 const outfitFabrics = o => OUTFIT_FABRICS[o]||[];
 // old shirt designs: flannel and pinstripe are fabrics now, the rest are refunded once
 const OLD_PAT_PRICE={stripes:1200,polka:1500,camo:2500,hawaii:3500,fishprint:5000,flames:8000,tux:12000,checker:1400,zigzag:1600,hearts:1700,stars:2000,waves:2200,plaid:2400,fishbones:2800,leopard:3200,tiedye:3800,pixel:4400,sunset:5200,galaxy:7500,sixseven:6700};
@@ -25,7 +25,7 @@ const _migrate_fab = migrate;
 migrate = function(o){ const m=_migrate_fab(o); fabricMigrate(m); return m; };
 if(typeof S!=='undefined' && S) fabricMigrate(S);
 
-// ---------- drawing: alpha overlays only, so a fabric works on any colour and on both halves of a two-tone shirt
+// ---------- drawing: alpha overlays only, so a fabric works on any color and on both halves of a two-tone shirt
 function fabricRng(s){ return ()=>{ s=(s*16807)%2147483647; return s/2147483647; }; }
 function drawFabric(c,id,base,x,y,w,h){ const D=a=>'rgba(0,0,0,'+a+')', L=a=>'rgba(255,255,255,'+a+')', R=fabricRng(7+Math.round(x*3+y));
   switch(id){
@@ -50,7 +50,7 @@ function drawFabric(c,id,base,x,y,w,h){ const D=a=>'rgba(0,0,0,'+a+')', L=a=>'rg
 // every place that drew a pattern now draws a fabric
 function drawPattern(c,pat,base,x,y,w,h){ drawFabric(c,pat,base,x,y,w,h); };
 if(typeof drawPatternX==='function') drawPatternX = function(c,pat,base,x,y,w,h){ drawFabric(c,pat,base,x,y,w,h); };
-// two-tone: the second colour on part of the shirt (drawn before the fabric, inside the torso clip)
+// two-tone: the second color on part of the shirt (drawn before the fabric, inside the torso clip)
 function drawTwoTone(c,lk,D,x,y,w,h){ const t=lk.tone; if(!t||t==='none'||t==='sleeves'||!lk.shirt2) return; c.fillStyle=D(lk.shirt2);
   if(t==='yoke'){ c.beginPath(); c.moveTo(x,y); c.lineTo(x+w,y); c.lineTo(x+w,y+h*.3); c.quadraticCurveTo(x+w/2,y+h*.38,x,y+h*.3); c.closePath(); c.fill(); }
   else if(t==='band') c.fillRect(x,y+h*.36,w,h*.16);

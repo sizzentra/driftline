@@ -3,7 +3,7 @@
 // New fish take their numbers from the median of their own water and rarity (value, weight, strength), with a
 // little steady per-fish variety, so the balance curve of each water stays exactly where it was.
 // Rarity odds per water do not change with more species (see rarBase in au_fix034.js): each rarity keeps its share.
-// Format: [id, name, rarity 0-4, size factor, time any/day/night, behaviour, shape, pattern 0-2, colour, belly, body height, note]
+// Format: [id, name, rarity 0-4, size factor, time any/day/night, behaviour, shape, pattern 0-2, color, belly, body height, note]
 // =====================================================================
 (function(){
 const NEW={
@@ -169,7 +169,7 @@ const NEW={
   ['moonminnow','Moon Minnow',0,.8,'night','dart','f',0,'#c8d0e8','#ffffff',.3,'Waxes and wanes with the moon.'],
   ['nebulagoby','Nebula Goby',0,.9,'any','dart','f',2,'#8a4ac8','#f0b8f8',.3,'A little swirl of purple space dust.'],
   ['cloudperch','Cloud Perch',0,1,'day','calm','f',0,'#e8eef8','#ffffff',.42,'Soft as a cloud, floats like one too.'],
-  ['twilightdace','Twilight Dace',0,1,'any','run','f',0,'#6a5ab8','#f8c8a0',.3,'Coloured like the sky after sunset.'],
+  ['twilightdace','Twilight Dace',0,1,'any','run','f',0,'#6a5ab8','#f8c8a0',.3,'Colored like the sky after sunset.'],
   ['starshrimp','Star Shrimp',0,.8,'night','dart','c',0,'#f8d86a','#fff8d0',.3,'Five legs, five points, one star.'],
   ['skyguppy','Sky Guppy',0,.8,'day','jump','f',0,'#7ac8f8','#f0faff',.32,'Leaps so high it touches the clouds.'],
   ['meteorite','Meteorite Minnow',0,.9,'night','run','f',2,'#5a4a4a','#e8a06a',.3,'Hit the lake at the speed of light. Liked it.'],

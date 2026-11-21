@@ -87,7 +87,7 @@ const PASS_MAX = 100; /* 0.4.9: five chapters of 20 (cj_tidepass.js) */
 const passNeed = L => Math.round(180 + L*45 + L*L*.8);
 const PASS_XP = [8,14,30,60,150,400];
 const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag that ripples in the wind.'], 5:['shoe','tidetreads','Tide Treads','Shoes: sea-glass boots with a rolling wave stripe.'],
-  8:['tint','tidal','Tidal pet colour','Pet colour: recolours any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
+  8:['tint','tidal','Tidal pet color','Pet color: recolors any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
   12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
   18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
   25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for any of your docks.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],

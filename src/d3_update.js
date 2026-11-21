@@ -40,7 +40,7 @@ const PATCHES = [
   'New on the wheel: a Wear prize (something you don’t own yet) and a jackpot that gives a Boardwalk-only piece.',
   'Scratch cards pay tickets, a crate or a Boardwalk-only piece, and Higher or lower now grows a ticket pot.',
   'Duck pond ducks all hide tickets, and a few hide a crate or something to wear.',
-  'Mystery crates are mostly clothes, hats, glasses, fabrics, colours, pet extras, decor and pets. When you already own everything a roll could give, you get tickets.',
+  'Mystery crates are mostly clothes, hats, glasses, fabrics, colors, pet extras, decor and pets. When you already own everything a roll could give, you get tickets.',
   'A crate’s reveal shows what you won, on your angler or your pet.',
   '## Fishing feel',
   'Rare fish fight like rare fish. The rarer the fish, the longer it runs and the slower it tires. Legendary and mythic fish make a signature surge: a long, heavy run with a burst of spray, a moment of calm, then a leap. Watch them closely.',
@@ -99,7 +99,7 @@ const PATCHES = [
   'Phones: every button now reacts the moment you tap it, with no short wait before the page switches.',
   'Menus: switching pages is quicker, because pictures of fish and decorations are drawn once and reused instead of redrawn every time, and phones skip the card fade.',
   'Menus: tapping quickly back and forth between sections stays smooth: only the page you land on gets built.',
-  'Phones: buttons no longer light up in a hover colour before acting, and a single tap always works (no second tap needed).',
+  'Phones: buttons no longer light up in a hover color before acting, and a single tap always works (no second tap needed).',
   'Menus on phones held sideways: the side buttons are bigger, the space between them counts as part of a button, and they react as your finger lifts.',
   'Phones: closing the menu with Back no longer taps whatever was underneath (like the bait list), and quick taps on two buttons in a row never bounce you back to the first.',
   'Folding the side panels in and out no longer makes the water flash.',
@@ -240,8 +240,8 @@ const PATCHES = [
   'Neckwear wraps the neck and hangs at the front of the chest, so your arm no longer hides it. Backpack and shoulder straps go over the shoulder.',
   'New face options in the Wardrobe: nose, eyebrows, resting mouth and rosy cheeks, for a look that is a little less goofy (or more, if you like).',
   'Curly hair no longer falls over the face, long hair falls more naturally down the back, and beards hang in front of the arm instead of behind it. Eyebrows now always show under a fringe.',
-  'Shoes sit properly on the feet: boots line up with the leg, trousers tuck into tall boots and rest on low shoes, and the back bunny slipper keeps its colour.',
-  'You can colour your shoes.',
+  'Shoes sit properly on the feet: boots line up with the leg, trousers tuck into tall boots and rest on low shoes, and the back bunny slipper keeps its color.',
+  'You can color your shoes.',
   'The bucket hat looks like a bucket hat, and the sport visor wraps around the face.',
   'Hat pictures in the shops, the Wardrobe and the Boardwalk now show your own angler wearing them.',
   'Capes billow out behind you and move with the wind; storms make them flap harder.',
@@ -266,7 +266,7 @@ const PATCHES = [
   'Every water has been painted again from scratch, each with its own landmark, wildlife and light, from misty mornings through golden evenings to starry nights. Something always moves: birds, ripples, smoke, glimmers on the water.',
   'You now stand somewhere that fits each water, and weather (rain, storms, fog, golden hours) sits properly on top of the new scenery.',
   'Willow Pond and Stonebrook River have fuller, greener shores, and the willow is a real weeping willow.',
-  'Every fish is redrawn with its own body, fins and colours. Catfish have broad heads and long whiskers; gar have diamond scales.',
+  'Every fish is redrawn with its own body, fins and colors. Catfish have broad heads and long whiskers; gar have diamond scales.',
   'Every pet is redrawn with more personality: they watch your line, cheer your catches and nap at night. Pets are now the right size next to you.',
   'Rods are real gear, each with its own look and a reel that spins while you wind.',
   'Splashes, ripples and sparkles when you cast, when a fish bites, while you fight and when it lands.',
@@ -274,7 +274,7 @@ const PATCHES = [
   'Home shows your dock in the water you are fishing. Wardrobe and Pets have a lit stage. The aquarium has light rays, swaying kelp, bubbles and rippled sand. Waters shows a little painting of each water.',
   '## Your angler',
   'Rebuilt from the ground up: rounded, lit shapes, arms and legs that bend, poses that flow into each other, both hands on the rod, and a soft light along your outline that matches the sky.',
-  'Seven body types and nine eye colours. Every outfit fits every build.',
+  'Seven body types and nine eye colors. Every outfit fits every build.',
   'Hats sit properly: hair shows underneath instead of poking through, your eyes are never covered, and helmets show your face through the glass.',
   'Outfit designs (checks, stripes, flowers, scales) carry on down the sleeves, and the belt only shows where your waist does, not over jackets, sweaters or costumes.',
   '## Music and sound',
@@ -297,12 +297,12 @@ const PATCHES = [
   '## Wardrobe and customisation',
   'The Wardrobe is reorganised into sections (Body, Clothes, Hats, Glasses, Shoes, Neck and back, Shop) so there is far less scrolling.',
   'The clothing shop has a tab for every kind of clothing with its whole range, cheapest first, plus a Featured shelf that changes every 20 minutes and never shows anything you already own. Try anything on before you buy.',
-  'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colours.',
+  'New: shoes and boots, scarves and necklaces, capes, wings and backpacks, more glasses, more outfits and more colors.',
   'Hats got a fitting pass: every hat sits on your head and stops just above your eyes. The bucket hat, pirate tricorn, mushroom cap, beret, sombrero and sailor cap are redrawn; the tiara, flower crown, bunny ears, mohawk, fish hat and duck rest on your head instead of floating; headphones and the viking helmet are drawn side-on, the way you would wear them.',
   'Stubble, mustaches and beards are redrawn to follow your jaw.',
-  'Shirt patterns are now fabrics: materials like denim, knit, corduroy, tweed or silk, always in your own colours. Every fabric works on shirts, and outfits offer the fabrics that suit them (sleeves included). Flannel and pinstripe stay as fabrics; any other shirt designs you owned were refunded in coins.',
+  'Shirt patterns are now fabrics: materials like denim, knit, corduroy, tweed or silk, always in your own colors. Every fabric works on shirts, and outfits offer the fabrics that suit them (sleeves included). Flannel and pinstripe stay as fabrics; any other shirt designs you owned were refunded in coins.',
   'Shirts can be two-tone.',
-  'Colour choices show their colour before you pick them, for your angler and your pets.',
+  'Color choices show their color before you pick them, for your angler and your pets.',
   'The Boardwalk has Counter Specials, restocking every 3 hours with things you can only get there.',
   'Things you have not found yet show as ??? with a short hint on how to get them: fish, oddities, pets, rods, clothes and decorations.',
   '## Changes to fishing',
@@ -394,16 +394,16 @@ const PATCHES = [
   'Fishing derbies: four-minute contests against three rival anglers. Medals pay well.',
   'Specialisations moved to their own Paths tab.',
   'Every water got a visual makeover: distant mountains, reflections, fish leaping in the distance, wildlife, sunbeams, and warmer light at night.',
-  'New hats, outfits and pet colours, some of them only from the Tide Pass.',
+  'New hats, outfits and pet colors, some of them only from the Tide Pass.',
   'New gear upgrades for the toughest fish yet.',
   'Phones in landscape now get a side-by-side layout, with the water on the left and menus on the right.',
   'Every tab has an icon now, and buttons, cards and panels got a polish.',
   'New feats for all of the above.' ]},
  {v:'0.1.7', name:'Try Before You Buy', items:[
-  'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colours and accessories on your pet, water, floors and decorations in your tank.',
+  'Try things on before you buy them: clothes, hats, glasses and outfits on your angler, colors and accessories on your pet, water, floors and decorations in your tank.',
   'Prize Counter items now show a picture, and the wearable ones can be previewed.',
   '14 new shirt patterns are rotating into the clothing shop.',
-  'The fishing vest, life jacket and captain’s coat can now be any colour.' ]},
+  'The fishing vest, life jacket and captain’s coat can now be any color.' ]},
  {v:'0.1.6', name:'Choices & Skies', items:[
   'Specialisations: four big choices on your angler’s path, each with a real trade-off. You can switch later, for a fee.',
   'Every skill now unlocks a special effect when fully learned. Some of them change how fishing feels.',
@@ -446,7 +446,7 @@ const QUIPS = {
 const quip = k => QUIPS[k] ? pick(QUIPS[k]) : '';
 
 // ---------- rods ----------
-// id, name, source, price, water needed, attachment slots, colour, stats, description
+// id, name, source, price, water needed, attachment slots, color, stats, description
 const RODS = [
  ['bamboo','Bamboo Rod','start',0,'pond',1,'#d9c7a0',{},'Simple and honest. Everyone starts here.'],
  ['willow','Willow Rod','shop',1500,'pond',1,'#a07a4a',{rare:.05,tension:.05},'Bends like a branch, never breaks.'],
@@ -558,12 +558,12 @@ function drawPetStyled(c,id,x,y,s,t,night=0,lkOver=null){ const lk=lkOver||petLo
   if(V3ON && id!=='lily' && id!=='daxniko' && PET3[id]){ drawGear3(c,id,lk,t); return; }
   const o=petOffset(id,t); c.save(); c.translate(x+o[0]*s,y+o[1]*s); c.scale(s,s); if(id==='slime'){ const sq=1+Math.sin(t*3)*.08; c.scale(1/sq,sq); } drawPetGear(c,id,lk,t); c.restore(); }
 let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999, lastPetAt=0, petNameFor=null;
-function drawOnePet(id,px,ay,sc,t,night,pt){ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
-  const k=(performance.now()-pt)/650; g.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g.translate(px,ay); g.scale(1+.1*b,1-.12*b); g.translate(-px,-ay-b*7*sc); }
-  drawPetStyled(g,id,px,ay,s,t,night*.6); g.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const fix=!!HOMEF[S.loc] /* format homes: the pets' spots are fixed */, px=(!fix&&S.dock&&S.dock.petPos!=null&&G.st!=='rest')?scenePetX(S.dock.petPos):ax-(big?44:31)*sc;
-  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(!fix&&S.dock&&S.dock.pet2Pos!=null&&G.st!=='rest') x2=scenePetX(S.dock.pet2Pos); else if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2); } else PET_BOX2=null;
-  PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT);
+function drawOnePet(id,px,ay,sc,t,night,pt,cx){ const g2=cx||g; /* any canvas: the scene, or the Home close-up */ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
+  const k=(performance.now()-pt)/650; g2.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g2.translate(px,ay); g2.scale(1+.1*b,1-.12*b); g2.translate(-px,-ay-b*7*sc); }
+  drawPetStyled(g2,id,px,ay,s,t,night*.6); g2.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
+function drawPetScene(ax,ay,sc,t,night,cx){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const fix=!!HOMEF[S.loc] /* format homes: the pets' spots are fixed */, px=(!fix&&S.dock&&S.dock.petPos!=null&&G.st!=='rest')?scenePetX(S.dock.petPos):ax-(big?44:31)*sc;
+  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(!fix&&S.dock&&S.dock.pet2Pos!=null&&G.st!=='rest') x2=scenePetX(S.dock.pet2Pos); else if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2,cx); } else PET_BOX2=null;
+  PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT,cx);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }
   for(let i=hearts.length-1;i>=0;i--){ const h=hearts[i]; h.t+=1/60; if(h.t>1.4){ hearts.splice(i,1); continue; } const hy=h.y-h.t*40, hx=h.x+Math.sin(h.t*5+i)*6; g.globalAlpha=Math.max(0,1-h.t/1.4); g.fillStyle='#ff6a9a'; g.beginPath(); const z=h.s; g.moveTo(hx,hy+z*.4); g.bezierCurveTo(hx-z,hy-z*.3,hx-z*.5,hy-z,hx,hy-z*.4); g.bezierCurveTo(hx+z*.5,hy-z,hx+z,hy-z*.3,hx,hy+z*.4); g.fill(); } g.globalAlpha=1; PET_NIGHT=0; /* the night (pets fall asleep) belongs to this scene only: every other pet picture (shop cards, previews) is drawn awake (director, 2026-11-19: the Pets shop showed every pet asleep) */ }
@@ -594,9 +594,9 @@ function petCustomHTML(){ const id=editPet(), lk=petLook(id), p=PETI[id], bl=bon
     <div class="meta" id="petbondinfo">${petBondText(id)}</div>
     <div class="meta" style="color:#ff9ac0">${PLAT.touch()?"Tap":"Click"} ${esc(petName(id))} in the picture to pet them.</div>
     <h5>Name</h5><input id="petname" maxlength="16" value="${esc(lk.name)}" placeholder="${esc(p.name)}" style="width:100%;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px">
-    <h5>Colour</h5><div class="chips">${tints}</div>
-    <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory colour</h5>'+sw('accCol'):''}
-    <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat colour</h5>'+sw('hatCol'):''}
+    <h5>Color</h5><div class="chips">${tints}</div>
+    <h5>Accessory</h5><div class="chips">${accs}</div>${lk.acc!=='none'&&lk.acc!=='balloon'?'<h5>Accessory color</h5>'+sw('accCol'):''}
+    <h5>Hat <span style="text-transform:none;letter-spacing:0">(shares your hat collection)</span></h5><div class="chips">${hats}</div>${lk.hat!=='none'&&!(HATI[lk.hat]&&HATI[lk.hat].fixed)?'<h5>Hat color</h5>'+sw('hatCol'):''}
   </div></div></div>`; }
 function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet();
   if((id==='lily'||id==='daxniko')&&!paintPetCustom.live){ paintPetCustom.live=true; const step=()=>{ if(!$('petcv')||!['lily','daxniko'].includes(editPet())){ paintPetCustom.live=false; return; } paintPetCustom(); requestAnimationFrame(step); }; requestAnimationFrame(step); } const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); const big=id==='horse'||id==='cow'; const now=performance.now(), k=(now-(id===S.pet?petT:petT2))/700;
@@ -666,12 +666,12 @@ const PRIZES = [
  ['myth','3 Myth Bait',220,()=>{ S.bait.mythbait=(S.bait.mythbait||0)+3; renderBait(); return '3 Myth Bait'; }],
  ['balloon','Star balloon (pet accessory)',150,()=>{ S.petAccs.push('balloon'); return 'a star balloon for your pet'; },()=>S.petAccs.includes('balloon')],
  ['partyhat','Party hat (pet accessory)',250,()=>{ S.petAccs.push('partyhat'); return 'a tiny party hat for your pet'; },()=>S.petAccs.includes('partyhat')],
- ['golden','Golden pet colour',600,()=>{ S.petTints.push('golden'); return 'the Golden pet colour'; },()=>S.petTints.includes('golden')],
+ ['golden','Golden pet color',600,()=>{ S.petTints.push('golden'); return 'the Golden pet color'; },()=>S.petTints.includes('golden')],
  ['carousel','Carousel (aquarium decor)',700,()=>{ S.aq.owned.push('carousel'); return 'a Carousel for your aquarium'; },()=>S.aq.owned.includes('carousel')],
  ['sixsevencap','67 Cap (hat)',670,()=>{ S.owned.hats.push('sixsevencap'); return 'the 67 Cap'; },()=>S.owned.hats.includes('sixsevencap')],
  ['carnival','Carnival Top Hat (hat)',900,()=>{ S.owned.hats.push('carnival'); return 'the Carnival Top Hat'; },()=>S.owned.hats.includes('carnival')],
  ['fishbowl','Fishbowl Helmet (hat)',1100,()=>{ S.owned.hats.push('fishbowl'); return 'the Fishbowl Helmet'; },()=>S.owned.hats.includes('fishbowl')],
- ['rainbow','Rainbow pet colour',1200,()=>{ S.petTints.push('rainbow'); return 'the Rainbow pet colour'; },()=>S.petTints.includes('rainbow')],
+ ['rainbow','Rainbow pet color',1200,()=>{ S.petTints.push('rainbow'); return 'the Rainbow pet color'; },()=>S.petTints.includes('rainbow')],
  ['teddy','Teddy Bear (pet)',1500,()=>{ S.owned.pets.push('teddy'); return 'a Teddy Bear pet!'; },()=>S.owned.pets.includes('teddy')],
  ['spacesuit','Space suit (outfit)',1800,()=>{ S.owned.outfits.push('spacesuit'); return 'a Space suit'; },()=>S.owned.outfits.includes('spacesuit')],
 ];

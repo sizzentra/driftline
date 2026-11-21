@@ -46,7 +46,7 @@ function prismOverlay(c,w,h,v,t){ c.save(); c.globalCompositeOperation='source-a
   else if(v==='spectral'){ const gr=c.createLinearGradient(0,0,0,h); gr.addColorStop(0,'rgba(220,255,255,.6)'); gr.addColorStop(1,'rgba(90,200,255,.25)'); c.fillStyle=gr; c.fillRect(0,0,w,h); c.globalCompositeOperation='destination-out'; c.globalAlpha=.3; c.fillRect(0,0,w,h); }
   else { const gr=c.createLinearGradient(0,0,w,h); gr.addColorStop(0,'#f4d27a'); gr.addColorStop(.5,'#b8782a'); gr.addColorStop(1,'#6a4a1a'); c.globalAlpha=.5; c.fillStyle=gr; c.fillRect(0,0,w,h); c.globalAlpha=.55; c.strokeStyle='#fff0b0'; c.lineWidth=Math.max(1,w*.006); const r=v3rng(91); for(let i=0;i<10;i++){ const x=w*.25+r()*w*.5, y=h*.35+r()*h*.3; c.beginPath(); c.moveTo(x,y); c.lineTo(x+w*.02,y-h*.04); c.lineTo(x+w*.04,y); c.stroke(); } }
   c.restore();
-  // outer glow + sparkles in the variant's colour
+  // outer glow + sparkles in the variant's color
   const P=PRISM[v]||PRISM.rainbow; c.save(); c.globalCompositeOperation='destination-over'; const g2=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.55); g2.addColorStop(0,v3rgba(P.c,.45)); g2.addColorStop(1,v3rgba(P.c,0)); c.fillStyle=g2; c.fillRect(0,0,w,h); c.restore();
   sparkles(c,w,h,14); }
 

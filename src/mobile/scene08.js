@@ -17,7 +17,7 @@
       raw.push(o.amp*(.06+env*(.72+.28*r)+.05*r)); }
     const N=raw.length, K=Math.max(3,Math.round(6/step)), cols=raw.map((h,i)=>{ let s=0,wsum=0; for(let j=-K;j<=K;j++){ const v=raw[Math.min(N-1,Math.max(0,i+j))], w=1-Math.abs(j)/(K+1); s+=v*w; wsum+=w; } return o.base-s/wsum; });
     const sk=Math.max(4,Math.round(8/step)), sl=i=>{ const a=cols[Math.max(0,i-sk)], b=cols[Math.min(N-1,i+sk)]; return (b-a)/(2*sk*step); };
-    const lit=i=>clamp(.5+sl(i)*1.9,0,1), st=Math.max(1,Math.round(2/step)); /* a colour stop every ~2 px: the light changes slowly */
+    const lit=i=>clamp(.5+sl(i)*1.9,0,1), st=Math.max(1,Math.round(2/step)); /* a color stop every ~2 px: the light changes slowly */
     const grad=col=>{ const gr=c.createLinearGradient(0,0,W,0); for(let i=0;i<N;i+=st){ const f=i*step/W; if(f>1) break; gr.addColorStop(f,col(lit(i))); } gr.addColorStop(1,col(lit(Math.min(N-1,Math.round(W/step))))); return gr; };
     c.save();
     c.beginPath(); c.moveTo(0,o.base); for(let i=0;i<N;i++) c.lineTo(i*step,cols[i]); c.lineTo(W,o.base); c.closePath();

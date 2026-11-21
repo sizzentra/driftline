@@ -22,7 +22,7 @@
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* C13: the empty preview slot shows on PC (pets, Your home, aquarium), so starting a preview never pushes the options down; phones hold the option in place by scrolling instead */
 body #panel .pvbar.pvhint{display:flex}
-body #panel .pt-right{scrollbar-gutter:stable} /* C13: a scrollbar appearing (a hat colour row made the column scroll) rewrapped the text above and moved the options 7 px */
+body #panel .pt-right{scrollbar-gutter:stable} /* C13: a scrollbar appearing (a hat color row made the column scroll) rewrapped the text above and moved the options 7 px */
 body.pc-fhd #panel .fhd-board{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:16px;align-items:start;margin-top:8px}
 body.pc-fhd #panel .fhd-col{display:flex;flex-direction:column;gap:10px;min-width:0}
 body.pc-fhd #panel .fhd-h{display:flex;align-items:center;gap:8px;padding:0 4px 6px;border-bottom:1px solid #ffffff1c;font:800 13px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#cfe0f2}
@@ -356,7 +356,7 @@ body.pc-fhd #menuov #panel .aq-body .list:has(> .fishrow){grid-template-columns:
 body.pc-fhd #panel .aq-body .jsec{display:block!important;margin:0!important}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-/* the four header buttons: colour says "clickable" (director, 2026-11-17: no shapes, navy on navy blended in): a teal fill with a
+/* the four header buttons: color says "clickable" (director, 2026-11-17: no shapes, navy on navy blended in): a teal fill with a
    bright edge, brighter on hover, gold while open */
 html body.pch-on #pchead .pch-stats > .stat::after{content:none!important;display:none!important}
 html body.pch-on #pchead .pch-stats > .stat{grid-template-columns:auto auto!important;background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:inset 0 1px 0 #ffffff40,0 3px 0 #0b3a3c,0 4px 10px #0008!important}

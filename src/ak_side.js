@@ -33,7 +33,7 @@ a3TorsoPath=sideTorsoPath; a3CoatPath=sideCoatPath;
 
 // ---------- outfits ----------
 const SIDE_OUT=(()=>{
-  const H=(lk,def)=>lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:def;                 // outfit colour, or its own default
+  const H=(lk,def)=>lk.outCol&&lk.outCol!=='#d8a020'?lk.outCol:def;                 // outfit color, or its own default
   const sh=(cl,k)=>mix(cl,'#000000',k), li=(cl,k)=>mix(cl,'#ffffff',k);
   const clipT=(c,f,fn)=>{ c.save(); sideTorsoPath(c,f); c.clip(); fn(); c.restore(); };
   const clipC=(c,f,hem,fn)=>{ c.save(); sideCoatPath(c,f,hem); c.clip(); fn(); c.restore(); };
@@ -311,10 +311,10 @@ function a3Mouth(c,id,D){ c.strokeStyle=D('#7a2e24'); c.fillStyle=D('#7a2e24'); 
     case 'grin': c.beginPath(); c.moveTo(4,-53.1); c.quadraticCurveTo(5.4,-51.4,6.8,-53.2); c.quadraticCurveTo(5.4,-52.5,4,-53.1); c.fill(); c.fillStyle='#ffffff'; c.fillRect(4.6,-53,1.7,.38); break;
     default: c.beginPath(); c.moveTo(4.1,-53); c.quadraticCurveTo(5.4,-52,6.7,-53.1); c.stroke(); } }
 
-// ---------- shoes: centred on the ankle and as wide as the leg, trousers tucked into tall boots, a colour of your own ----------
+// ---------- shoes: centred on the ankle and as wide as the leg, trousers tucked into tall boots, a color of your own ----------
 var A3LW=1, A3SHOE="boots";
 var SHOE_TALL=new Set(['wellies','hightops','hiking','cowboyb','moonboots','astrob','snowboots','combat','pirateb','rollers','heeled','tidetreads']);
-// each shoe's main colour (the part a chosen shoe colour replaces); accents, soles and laces keep their own
+// each shoe's main color (the part a chosen shoe color replaces); accents, soles and laces keep their own
 const SHOE_MAIN={boots:'#33241a',sneakers:'#e8e8ee',glowkicks:'#2a2a3a',hightops:'#2a4a8a',wellies:'#f2c230',hiking:'#6a4a2a',cowboyb:'#8a5a2a',loafers:'#4a2418',brogues:'#8a5428',clogs:'#4ab89a',slippers:'#f4e8f0',moonboots:'#c8443a',astrob:'#e8ecf0',snowboots:'#5a3a24',combat:'#1e1e22',pirateb:'#18121a',rollers:'#f4f0ec',heeled:'#5a1a2a',clownshoes:'#e0302a',fishfeet:'#5ab8d8',ducky:'#ff9a2a',flippers:'#2ad8a8',sandals:'#6a4428',socksand:'#6a4428',flipflops:'#2a8ad8',tidetreads:'#2a8a9a'};
 const SHOE_NOCOL=new Set(['barefoot','geta']);
 const _a3Shoe_side = a3Shoe;

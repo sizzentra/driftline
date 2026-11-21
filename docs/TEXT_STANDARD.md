@@ -16,8 +16,9 @@ Cozy, warm and a little funny, like a friend who fishes. The humour is light and
 3. **Fish Log descriptions keep their details** (director). They are knowledge, not tooltips.
 4. **Each device’s own words.** Phones: tap, touch and hold, let go; never click, hover, mouse, keyboard or Space. PC: click; keys only where the key really works. Both wordings are written side by side where the line lives (`PLAT.touch() ? '…' : '…'`), never swapped afterwards.
 5. **Curly apostrophes and quotes only** (’ “ ”). A straight one once ended a string and took both phones down.
-6. **Plain words.** Name things the way the game shows them (Your home, not dock; Fish Log, not journal). Numbers as the player sees them (short numbers, the chosen weight unit).
-7. **Patch notes are spoiler-free but complete.** “21 new fish”, never their names; no crate-only or gift pets, hidden rods or exact odds.
+6. **American spelling: color** (director, 2026-11-21), everywhere players see it; checked by the text rules.
+7. **Plain words.** Name things the way the game shows them (Your home, not dock; Fish Log, not journal). Numbers as the player sees them (short numbers, the chosen weight unit).
+8. **Patch notes are spoiler-free but complete.** “21 new fish”, never their names; no crate-only or gift pets, hidden rods or exact odds.
 
 ## Lengths per place (approved by the director, 2026-11-20)
 Measured on build 2114: the longest lines that read well today, rounded. Letters, not counting the joke at the end of a pop-up.

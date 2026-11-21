@@ -77,7 +77,7 @@ function fishDesign(sp){
   d.fin=r(); d.dorsalX=(r()-.5)*.08; d.eyeK=.9+r()*.25; d.tailK=.9+r()*.25;
   // [57] (director: "Why do all the fish have the same eye assets? ... blend those in a bit better"): an eye style per species from what
   // it is (predators red, gold or slit-eyed; freshwater gold and amber; saltwater silver and blue; eels, catfish and flatfish small and
-  // beady; the deep big or glowing), with an iris colour and a socket shaded from the fish's own body colour
+  // beady; the deep big or glowing), with an iris color and a socket shaded from the fish's own body color
   { const eh=fish3Hash('eye'+sp.id), pred=typeof isPredator==='function'&&isPredator(sp), salt=/coast|shelf|deep|trench|reef/.test(sp.loc||'');
     d.eyeS = d.eye==='glow'?'glow' : d.eye==='big'||d.deepsea ? 'big' : (d.plan==='eel'||has('cat','loach','flounder','halibut','sole','lamprey','sturgeon','paddle')) ? 'small' : d.plan==='shark' ? 'slit'
       : pred ? ['red','gold','slit','red'][eh%4] : salt ? ['silver','blue','silver','gold'][eh%4] : ['gold','amber','round','silver'][eh%4];
@@ -97,7 +97,7 @@ function f3Eye(c,x,y,r,o,d){ if(o.sil){ return; } const st=d.eyeS||'', glow=st==
     c.fillStyle=d.cosmic?'#2a1050':'#0b1418'; c.beginPath(); c.arc(x+r*.18,y,r*.68,0,7); c.fill();
     c.fillStyle='#ffffff'; c.beginPath(); c.arc(x+r*.38,y-r*.3,Math.max(.6,r*.28),0,7); c.fill(); return; }
   const R=st==='small'?r*.72:st==='big'?r*1.08:r;
-  // socket: a soft darker ring in the body's own colour, so the eye sits in the head instead of on top of it
+  // socket: a soft darker ring in the body's own color, so the eye sits in the head instead of on top of it
   c.fillStyle=v3rgba(d.sock||'#203038',.42); c.beginPath(); c.arc(x,y,R*1.38,0,7); c.fill();
   if(st==='small'){ c.fillStyle='#0b1012'; c.beginPath(); c.arc(x,y,R,0,7); c.fill(); c.strokeStyle=v3rgba(d.iris,.9); c.lineWidth=Math.max(.4,R*.22); c.beginPath(); c.arc(x,y,R*.82,0,7); c.stroke(); }
   else { // iris with a darker rim, then the pupil
@@ -473,7 +473,7 @@ function f3Jelly(c,sp,d,L,col,belly,o,wag,t){ const r=L*.27, p=1+.08*Math.sin(t*
 // squid: a torpedo mantle with fins at the back, big eye, eight arms and two long feeding tentacles trailing behind
 function f3Squid(c,sp,d,L,col,belly,o,wag,t){ const s=L*.5, a0=c.globalAlpha; if(d.clear&&!o.sil) c.globalAlpha=a0*.7;
   c.strokeStyle=o.sil||mix(col,belly,lum(col)<60?.4:.2); c.lineCap="round"; for(let i=0;i<8;i++){ const yy=(i-3.5)*s*.035; c.lineWidth=Math.max(1,s*.04*(1-i%2*.3)); c.beginPath(); c.moveTo(-s*.15,yy); c.quadraticCurveTo(-s*.45,yy*1.6+Math.sin(wag+i)*s*.05,-s*.7,yy*2.4+Math.sin(wag*1.2+i)*s*.08); c.stroke(); }
-  { const tc=o.sil||mix(col,belly,lum(col)<60?.45:.2); c.strokeStyle=tc; c.fillStyle=tc; /* 0.3.6: the two hunting tentacles taper from the head and end in a club of the same colour, so they never read as floating dots */
+  { const tc=o.sil||mix(col,belly,lum(col)<60?.45:.2); c.strokeStyle=tc; c.fillStyle=tc; /* 0.3.6: the two hunting tentacles taper from the head and end in a club of the same color, so they never read as floating dots */
     for(const sd of [-1,1]){ const p0=[-s*.15,sd*s*.03], p1=[-s*.6,sd*s*.1], p2=[-s*.8,sd*s*.02+Math.sin(wag)*s*.06], p3=[-s*.98,sd*s*.12]; let px=p0[0], py=p0[1];
       for(let k=1;k<=10;k++){ const u=k/10, v=1-u, qx=v*v*v*p0[0]+3*v*v*u*p1[0]+3*v*u*u*p2[0]+u*u*u*p3[0], qy=v*v*v*p0[1]+3*v*v*u*p1[1]+3*v*u*u*p2[1]+u*u*u*p3[1]; c.lineWidth=Math.max(.8,s*(.05-.028*u)); c.beginPath(); c.moveTo(px,py); c.lineTo(qx,qy); c.stroke(); px=qx; py=qy; }
       c.beginPath(); c.ellipse(-s*1.0,sd*s*.12,s*.065,s*.032,0,0,7); c.fill(); } } c.lineCap='butt';
