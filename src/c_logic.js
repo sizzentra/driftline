@@ -3,11 +3,11 @@
 const LS_KEY = 'driftline-save-v1';
 const baitZero = () => Object.fromEntries(Object.keys(BAIT).filter(k=>k!=='worm').map(k=>[k,0]));
 const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:0,cooler:0,finder:0}, bait:baitZero(), baitSel:'worm',
-  unlocked:['pond'], loc:'pond', cooler:[], journal:{}, bounties:[], setDone:{},
+  unlocked:['pond'], loc:'pond', cooler:[], journal:{}, bounties:[], egPaid:[], setDone:{},
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a',nose:'button',brows:'soft',mouth:'smile',blush:'on',aura:'none',bob:'none',line:'none',face:'natural',eyeShape:'round'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round'],shoes:['boots','sneakers','barefoot'],necks:['none'],backs:['none'],auras:[],bobs:[],lines:[]}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
-  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', vibrate:true, minigames:true, rest:false, effects:true, wxPop:true, boostsOnScreen:true, hints:true, protectRare:true, units:'kg', hand:'r', uiScale:'auto', renderQ:'auto'},
+  settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', dist:'m', vibrate:true, minigames:true, rest:false, effects:true, wxPop:true, boostsOnScreen:true, hints:true, protectRare:true, units:'kg', hand:'r', uiScale:'auto', renderQ:'auto'},
   aq:{theme:'lagoon', sand:'gold', decor:[], hid:[], owned:['lagoon','gold']}, voyCatch:{}, titled:{}, nib:{}, pathXP:{}, pearlOld:0, pearlMig:1, pshop:{}, boons:{}, boonPts:0, passMig:1, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
@@ -50,7 +50,7 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   m.tickets=+o.tickets||0; if(o.freeSpins==null) m.freeSpins = (Date.now()-(o.wheelT||0)>=3600000) ? 1 : 0;
   if(!m.owned.hats.includes(m.look.hat)) m.look.hat='cap'; if(!PETI[m.pet]||!m.owned.pets.includes(m.pet)) m.pet='dog';
   m.buffs=(o.buffs||[]).filter(b=>b&&BK[b.k]&&b.until>Date.now()); m.junk=Object.assign({},o.junk||{});
-  m.settings=Object.assign(fresh().settings,o.settings||{}); if(m.settings.units!=='lb') m.settings.units='kg'; if(m.settings.hand!=='l') m.settings.hand='r'; if(m.settings.uiScale!=='auto'&&!(+m.settings.uiScale>=.85&&+m.settings.uiScale<=2.5)) m.settings.uiScale='auto'; if(!['auto','sharp','balanced','fast'].includes(m.settings.renderQ)) m.settings.renderQ='auto'; const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); aq.hid=(Array.isArray(aq.hid)?aq.hid:[]).filter(x=>aq.decor.includes(x));
+  m.settings=Object.assign(fresh().settings,o.settings||{}); if(m.settings.units!=='lb') m.settings.units='kg'; if(m.settings.dist!=='ft') m.settings.dist='m'; if(m.settings.hand!=='l') m.settings.hand='r'; if(m.settings.uiScale!=='auto'&&!(+m.settings.uiScale>=.85&&+m.settings.uiScale<=2.5)) m.settings.uiScale='auto'; if(!['auto','sharp','balanced','fast'].includes(m.settings.renderQ)) m.settings.renderQ='auto'; const aq=Object.assign(fresh().aq,o.aq||{}); aq.owned=uniq(['lagoon','gold',...(aq.owned||[])]); aq.decor=(aq.decor||[]).filter(x=>aq.owned.includes(x)); aq.hid=(Array.isArray(aq.hid)?aq.hid:[]).filter(x=>aq.decor.includes(x));
   if(!o.voyCatch||typeof o.voyCatch!=='object'){ m.voyCatch={}; for(const L of LOCS){ let n=0; for(const s of SP) if(s.loc===L.id&&m.journal&&m.journal[s.id]) n+=m.journal[s.id].n||1; if(n) m.voyCatch[L.id]=n; } } else { m.voyCatch={}; for(const k in o.voyCatch) if(LOCS.some(L=>L.id===k)&&o.voyCatch[k]>0) m.voyCatch[k]=Math.floor(o.voyCatch[k]); } /* [16] old saves start with their lifetime catches per water */
   { const t={}; if(o.titled&&typeof o.titled==='object'){ for(const k in o.titled){ const id=k.split(':')[0]; if(SPI[id]) t[k]=1; } } else { for(const id in (m.journal||{})) if(m.journal[id]&&m.journal[id].pr) t[id+':old']=1; } m.titled=t; } /* [18] titled shinies ever caught; old saves count every species with a prismatic catch */
   { const nb={}; if(o.nib&&typeof o.nib==='object') for(const k in o.nib){ const n=Math.floor(+o.nib[k]); if(!(n>0)) continue; const kk=/^r[0-5]$/.test(k)?k:SPI[k]?'r'+Math.min(5,SPI[k].r):null; if(kk) nb[kk]=Math.min((nb[kk]||0)+n,1e6); } /* C27: Nibbles are kept per rarity (r0 common .. r5 mythic); old per-species ones fold into their rarity */ m.nib=nb; for(const f of (m.tank||[])){ if(f.fed!=null) f.fed=Math.max(0,Math.floor(+f.fed)||0); if(f.nbst!=null) f.nbst=Math.max(0,Math.floor(+f.nbst)||0); for(const q of ['fdb','fdi']) if(f[q]!=null) f[q]=Math.min(50,Math.max(0,Math.floor(+f[q])||0)); /* C28 feeding gains */ if(f.abx) f.abx=(Array.isArray(f.abx)?f.abx:[]).filter(b=>b&&BK[b.k]).slice(0,5); } } /* [19] Fish Nibbles */ m.aq=aq;
@@ -95,6 +95,9 @@ const locIdx = id => LOCS.findIndex(l=>l.id===id);
 const curLoc = () => LOCS[locIdx(S.loc)];
 /* weights: one formatter for the whole game, in the unit picked in Settings (director, 2026-11-19: "metric and imperial") */
 const wLb=()=>!!(S&&S.settings&&S.settings.units==='lb'), wNum=kg=>wLb()?kg*2.20462:kg, wUnit=()=>wLb()?'lb':'kg';
+/* distances (Cam's list #11): stored in metres, shown in metres or feet; depths are rounded so they read evenly, with "about" in feet */
+const dFt=()=>!!(S&&S.settings&&S.settings.dist==='ft'), dStr=(m,dp)=>dFt()?(m*3.28084).toFixed(dp==null?0:dp)+' ft':m.toFixed(dp==null?1:dp)+' m';
+function depthStr(s){ s=String(s||''); if(!dFt()) return s; const ft=n=>{ const v=n*3.28084, st=v<20?1:v<200?5:v<2000?50:500; return Math.round(v/st)*st; }; let any=false; const out=s.replace(/(\d[\d,]*(?:\.\d+)?)/g,(x)=>{ any=true; return ft(parseFloat(x.replace(/,/g,''))).toLocaleString('en-US'); }).replace(/ m\b/g,' ft'); return any?'about '+out:s; }
 const wFix=(kg,d)=>wNum(kg).toFixed(d)+' '+wUnit();
 const kgStr = kg => { const v=wNum(kg), u=' '+wUnit(); return v < 10 ? v.toFixed(2)+u : v < 100 ? v.toFixed(1)+u : fmt(v)+u; };
 const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
@@ -149,8 +152,8 @@ function caughtAt(loc){ return SP.filter(s=>s.loc===loc && S.journal[s.id]).leng
 // scaling"): the next water opens after that many fish caught at the one before, during this voyage.
 const unlockNeed = () => Math.max(5,Math.round(Math.min(50, 10*((S.tides||0)+1))*pathMul('unlock')));
 const voyCatchAt = loc => (S.voyCatch&&S.voyCatch[loc])||0;
-const unlockMet = i => i<=0 || S.unlocked.includes(LOCS[i].id) || (!LOCS[i].eg && voyCatchAt(LOCS[i-1].id) >= unlockNeed()); /* [69] end-game waters open by voyages, not catches */
-const unlockLine = i => { if(LOCS[i].eg) return 'An end-game water: opens after your '+(LOCS[i].eg===2?'2nd':LOCS[i].eg===3?'3rd':LOCS[i].eg+'th')+' voyage ('+(S.tides||0)+' so far)'; const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
+const unlockMet = i => i<=0 || S.unlocked.includes(LOCS[i].id) || (LOCS[i].eg ? egCharted(LOCS[i]) : voyCatchAt(LOCS[i-1].id) >= unlockNeed()); /* [69] end-game waters open by voyages, not catches */
+const unlockLine = i => { if(LOCS[i].eg) return egCharted(LOCS[i]) ? 'Voyage '+LOCS[i].eg+' complete: open it for coins' : 'Complete voyage '+LOCS[i].eg+' to unlock ('+(S.tides||0)+' so far)'; const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
 const spAt = loc => SP.filter(s=>s.loc===loc);
 
 const CYCLE = 360;
@@ -265,19 +268,20 @@ const fmtOdds = x => x>=.1 ? (x*100).toFixed(0)+'%' : x>=.01 ? (x*100).toFixed(1
 function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
   if(S.baitSel!=='worm'&&!pathSave()){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
   G.st='reeling'; G.crank=0; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.face=1; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
-  G.fightT=0; G.saved=false; G.eat=null; G.strip=null; G.swN=0; G.hotT=0; G.hotRolled=false; G.swT=0; G.eatDone=false; G.behT=0; G.surge=null; G.surgeN=0;
+  G.fightT=0; G.saved=false; G.eat=null; G.strip=null; G.swN=0; G.hotT=0; G.hotRolled=false; G.swT=0; G.eatDone=false; G.behT=0; G.surge=null; G.surgeN=0; G.dd=0; if(fishNew()) ffInit();
   if(G.fish.kind==='fish'){ const fp=fishPull(G.fish), as=anglerStr(); if(fp>as) setTimeout(()=>toast(Math.round(wNum(fp))-Math.round(wNum(as))>=10?'Good luck, this fish is out of your league!':'Prepare for a fight, this fish is strong!'),300); /* C8 (director + Cam, 2026-11-20): never "heavier", no numbers unless 10+ stronger than you */ else if(fightWill(G.fish)>=.66&&G.fish.shiny!==2) setTimeout(()=>toast('Something big is on the line. Watch it closely.'),300); }
   G.eatAt = G.forceEat ? (G.forceEat=false, .5) : (G.fish.kind==='fish' && !isPredator(G.fish.sp) && G.fish.sp.r<=2 && Math.random()<.05*pathMul('eat')) ? rnd(1.4,3.8) : null; /* 0.4.9: half as often (director: "slightly rarer") */
   if(G.fish.kind==='fish' && G.fish.shiny===2) setTimeout(()=>toast('It shimmers like nothing you have seen. It will fight every way a fish can.'),400);
   if(G.fish.kind==='fish' && G.fish.hy) setTimeout(()=>toast(G.fish.kg>(G.fish.sp.min+G.fish.sp.max)/2?'This feels far too heavy for what it looks like...':'Strangely light on the line...'),600);
   if(perfect){ G.sta=.8; G.ten=0; G.runT=rnd(.5,.9); /* 0.4.9 (director: "perfect hook needs fish inactivity time slightly reduced"): a smaller head start in stamina and a shorter first rest */ S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
-function breakStreak(){ const n=S.streak; if(!n) return; const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; if(n>=3) setTimeout(()=>toast(keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"),1200); save(); } /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
+function breakStreak(why){ const n=S.streak; if(!n){ if(why) toast(why); return; } const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; const msg=keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"; if(why) toast(n>=3?why+' '+msg+'.':why); else if(n>=3) setTimeout(()=>toast(msg),1200); save(); } /* why: Cam's list #10 puts the reason into the streak message */ /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
+  if(kind==='baited'){ G.st='idle'; G.fish=null; G.inHot=false; sfx.lost(); if(S.baitSel!=='worm'&&(S.bait[S.baitSel]||0)>0&&!pathSave()){ S.bait[S.baitSel]--; if(!S.bait[S.baitSel]) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); } breakStreak('You waited too long, the fish got your bait!'); return; } /* Cam's list #10: every try missed at a hotspot */
   G.st='idle'; G.fish=null; G.inHot=false; if(kind!=='nohook') breakStreak(); /* director 2026-11-18: a missed strike keeps the streak; only a hooked fish that gets away ends it */
-  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! Let go when it gets angry. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
+  if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! Let go when it gets angry. ' : fishNew() ? 'Snap! Short pulls when it fights. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
   else if(kind==='nohook'){ sfx.lost(); toast('Missed a bite'); } /* a missed strike said "slipped off the hook" before */
-  else { sfx.lost(); toast((kind==='spool' ? 'It took all your line. ' : 'It slipped off the hook. ')+quip('lost')); }
+  else { sfx.lost(); toast((kind==='spool' ? 'It took all your line. ' : kind==='escape' ? 'It swam off while you waited. ' : 'It slipped off the hook. ')+quip('lost')); }
 }
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
   if(f.hot) S.stats.hot++; G.inHot=false;
@@ -465,7 +469,7 @@ function update(dt){ if(V3ON) padPoll(); if(G.st==='rest') restTick(dt);
   else if(G.st==='waiting'){ G.waitT+=dt; G.nibOn=Math.max(0,G.nibOn-dt);
     for(let i=G.nib.length-1;i>=0;i--) if(G.waitT>=G.nib[i]){ G.nib.splice(i,1); G.nibOn=.3; sfx.nibble(); }
     if(G.waitT>=G.biteAt){ G.pend=G.forced||chooseCatch(); G.forced=null; G.st='bite'; G.biteEnd=G.waitT+hookWin(); sfx.bite(); splash(G.bob.x,G.bob.y,12); if(V3ON) vib(45); } }
-  else if(G.st==='bite'){ G.waitT+=dt; if(G.waitT>G.biteEnd){ G.pend=null; G.missN=(G.missN||0)+1; if(G.missN<5){ sfx.lost(); toast('Missed a bite'); G.st='waiting'; G.waitT=0; G.biteAt=rnd(1.4,4.6)/biteSpeed(G.inHot); G.nib=[]; G.nibOn=0; } else { G.missN=0; endFight('nohook'); } } } /* C3 (director + Cam, 2026-11-20): a missed bite keeps the line out; the 5th in a row reels in */
+  else if(G.st==='bite'){ G.waitT+=dt; if(G.waitT>G.biteEnd){ G.pend=null; G.missN=(G.missN||0)+1; const tries=fishNew()?hookTries():5; /* Cam's list #10: one try per bite to start, more from skills */ if(G.missN>=tries&&fishNew()){ G.missN=0; if(G.inHot) endFight('baited'); else endFight('nohook'); } else if(G.missN<tries){ sfx.lost(); toast('Missed a bite'); G.st='waiting'; G.waitT=0; G.biteAt=rnd(1.4,4.6)/biteSpeed(G.inHot); G.nib=[]; G.nibOn=0; } else { G.missN=0; endFight('nohook'); } } } /* C3 (director + Cam, 2026-11-20): a missed bite keeps the line out; the 5th in a row reels in */
   else if(G.st==='reeling'){ fight(dt); }
   else if(G.st==='landing'){ G.land.t+=dt; if(G.land.t>=G.land.dur) finishCatch(); }
   for(let i=G.parts.length-1;i>=0;i--){ const p=G.parts[i]; p.t+=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=420*dt; if(p.t>p.life) G.parts.splice(i,1); }
@@ -506,9 +510,9 @@ function surgeTick(dt,f){ if(G.surge){ G.surge.t+=dt; const s=G.surge;
 // 0.4.9 (director, 2026-11-19: "Oddities don't fight, they get snagged and by continuing to reel you risk breaking the line"):
 // an oddity or hat comes in as dead weight. Now and then it catches on the bottom ("snag") and gains nothing; reeling without
 // a pause builds tension until the line snaps, so short pulls bring it home.
-function snagFight(dt){ const reel=reelSpeed(), rin=V3ON?reelInput(dt):(G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin); if(!G.fightT) G.evT=rnd(2.2,3.6); G.fightT=(G.fightT||0)+dt; G.run=false;
-  if(G.ev==='snag'){ G.evDur-=dt; if(G.evDur<=0){ G.ev=null; G.evT=rnd(1.6,3.4); } } else { G.ev=null; G.evT-=dt; if(G.evT<=0){ G.ev='snag'; G.evDur=rnd(.6,1.2)*(maxed('snagwise')?.5:1); sfx.warn(); } }
-  if(rin>0){ if(G.ev!=='snag') G.d -= reel*.6*rdt; G.strain=(G.strain||0)+rdt; G.ten += (G.ev==='snag'?70:12+4*G.strain)*tensionMult()*(1-rodBonus('snag'))*(1-.08*pr('snagwise'))*pathMul('snag')*rdt; /* [14] Snag Guard, [15] Snag Sense */ G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); } }
+function snagFight(dt){ const NF=fishNew(), reel=reelSpeed()*(NF?1.6:1) /* Cam: oddities come in faster */, rin=V3ON?reelInput(dt):(G.hold?1:0), rdt=dt*rin, odt=dt*(1-rin); const oddK=NF?1.3-.15*((G.fish&&G.fish.item&&G.fish.item.t)||1):1; /* Cam: rarer, heavier finds snag more often */ if(!G.fightT) G.evT=(NF?rnd(.7,1.4):rnd(2.2,3.6))*oddK; /* new fight: the first snag comes sooner, so holding stays a risk on a shorter reel-in */ G.fightT=(G.fightT||0)+dt; G.run=false;
+  if(G.ev==='snag'){ G.evDur-=dt; if(G.evDur<=0){ G.ev=null; G.evT=rnd(1.6,3.4)*oddK; } } else { G.ev=null; G.evT-=dt; if(G.evT<=0){ G.ev='snag'; G.evDur=rnd(.6,1.2)*(maxed('snagwise')?.5:1); sfx.warn(); } }
+  if(rin>0){ if(G.ev!=='snag') G.d -= reel*.6*rdt; G.strain=(G.strain||0)+rdt; G.ten += (G.ev==='snag'?(NF?110:70):(12+4*G.strain)*(NF?1.6:1))*tensionMult()*(1-rodBonus('snag'))*(1-.08*pr('snagwise'))*pathMul('snag')*rdt; /* [14] Snag Guard, [15] Snag Sense */ G.tickT-=rdt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); } }
   if(rin<1){ G.ten=Math.max(0,G.ten-60*odt); G.strain=Math.max(0,(G.strain||0)-2*odt); }
   if(G.ten>75 && rin>0){ G.warnT-=dt; if(G.warnT<=0){ G.warnT=.25; sfx.warn(); if(V3ON) vib(15); } }
   const frac=clamp(G.d/G.d0,0,1.6), x0=W*.24, x1=castX(G.lastCast); G.bob.x = x0+(x1-x0)*Math.min(frac,1.25)+(G.ev==='snag'?Math.sin(performance.now()/40)*1.5:0); G.bob.y=waterY(G.bob.x);
@@ -517,7 +521,7 @@ function snagFight(dt){ const reel=reelSpeed(), rin=V3ON?reelInput(dt):(G.hold?1
 // angler needs to tire a fish of each rarity (C U R E L M); weaker anglers take longer (Angler strength vs the fish's pull), stronger a bit less.
 const FIGHT_T=[2.6,4.2,7,11,18,30], FIGHT_LANDK=.75, FIGHT_TEN_FLOOR=.62, JUMP_WINDUP=.7, EAT_STRIP=[.12,.2,.32,.45,.65,1], EAT_STRIP_T=3, EAT_STRIP_TEN=30, RUN_REEL_TEN=1.15, RUN_LINE_KG=2.27, SW_SLOW=1.5, SW_SLOWK=.5, SW_HOT=2.2, SW_HOLD=1.2, SW_GAIN=.25; /* Feel calls: C24 above temper SW_SLOW a fish tires at SW_SLOWK speed; temper held above SW_HOT for SW_HOLD s may give a tiring fish (under 70%) a second wind of +SW_GAIN strength (15% common/uncommon, 30% rarer; at most rank+1 times); C23 reeling into a run builds tension this much faster, and only fish over this weight (5 lb) take line when you let go; C21 the wind-up before a jump (s); C22 a swallowing predator takes this share of the line left by rank (common .. mythic; only mythics take it all), over EAT_STRIP_T seconds, and reeling against it adds EAT_STRIP_TEN tension a second */
 function fightTireT(f,rk,V){ const pr2=clamp(Math.pow(anglerStr()/Math.max(.1,fishPull(f)),.5),.45,1.3); return FIGHT_T[clamp(rk|0,0,5)]*(1+.5*(V-1))/pr2; }
-function fight(dt){
+function fight(dt){ if(fishNew()){ fightNew(dt); return; } /* Cam's fight feel (c2_fightfeel.js); below is the old fight, kept for the test builds' New / Old switch */
   if(!G.fish){ G.st='idle'; return; } /* nothing on the line: never crash the frame loop */
   if(G.fish.kind!=='fish'){ snagFight(dt); return; }
   maybeEatEvent(dt); eatTick(dt);

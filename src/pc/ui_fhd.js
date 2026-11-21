@@ -293,7 +293,7 @@ html body.pch-on #pchead .pch-stats > .stat.on::after{content:"✕";font-size:12
       const side=document.createElement('aside'); side.className='fc-side';
       side.innerHTML=`<div class="fc-cap"><div class="fc-capt"><b>Cooler</b><span>${n} / ${cap}</span></div><i class="fc-bar${n>=cap?' full':''}"><b style="width:${Math.min(100,n/cap*100)}%"></b></i></div>`;
       if(sub){ sub.classList.add('fc-sub'); side.appendChild(sub); }
-      if(sellf) side.appendChild(sellf); if(btn){ btn.classList.add('fc-sell'); side.appendChild(btn); }
+      if(sellf) side.appendChild(sellf); if(btn){ btn.classList.add('fc-sell'); side.appendChild(btn); } { const sc=hdr.querySelector('[data-act="scrapall"]'); if(sc){ sc.classList.add('fc-sell'); side.appendChild(sc); } } /* Cam's list #7: Scrap all under Sell all, the same size */
       if(demand){ demand.removeAttribute('style'); demand.classList.add('fc-demand'); side.appendChild(demand); }
       wrap.append(main,side); hdr.replaceWith(wrap); }catch(e){ console.error(e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>

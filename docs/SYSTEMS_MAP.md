@@ -349,3 +349,21 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Phone Home page (dock08): format branch (close-up, strip, 5 tabs), shared `mkTog`; crop → `hfFrame`; no dragging. home06 skips its light/hull block on format homes | phones | `__spec` 956×440 |
 | PC Home page (br_pc05): format branch (close-up on top, parts underneath, taller view `dk-hfp`); `DK_CROP` → `hfFrame`; no dragging | PC | content checks |
 | pages08: `.mb-swrow` display rule no longer overrides the tab engine's hiding (`:not([style*="display: none"])`) | every phone page with colour swatches in tabs | `__spec`; visible-rows check |
+
+## Overnight batch 1 (2026-11-21, test builds): Fight Feel, Squash Pass, Cam's small changes
+| What changed | Affects | Checked by |
+|---|---|---|
+| `src/c2_fightfeel.js` (new, core): Cam's fight (`fightNew`, `ffInit`, `ffStart`/`ffEnd`, `FF` numbers, `hookTries`, `waterDepthM`/`waterDeep`, `fightMsg`, `fightZone`). `fight()` (c_logic) hands over unless the Tester tools switch says Old (`FISH_OLD`, localStorage `dl-fish-old`, test builds only); `hookIt` calls `ffInit` | every fish fight, both HUDs, the fight simulator | QA "Cam's fight feel" (proven: no-reel escape planted), "fight pass", "fights: geared anglers", old-fight tests via `TOLD` |
+| Missed bites (c_logic `update`): tries from `hookTries()`; all missed at a hotspot → `endFight('baited')` (bait and streak); elsewhere → line in, streak kept. `breakStreak(why)` puts the reason into the streak message | bites, streaks, bait | QA "Cam's fight feel" |
+| Drawing: instant turn for a running fish, jumps away mirrored, dive depth on the shadow (d_draw); dive band on the PC line bar and the phone ring; one shared instruction `fightMsg` | PC + phones | QA fight tests (no picture check) |
+| Oddities (`snagFight`): faster reel, sooner and stronger snags in the new fight | oddities, hats | QA "oddities snag" |
+| Rod length (b_data GEAR.rod): described by its rare odds in the new fight (casts reach 40 m at the far edge) | Tackle, Stats | content check |
+| Hollow Trench: 3,000 m +, uncommon +2.5, rare +3, epic +1 strength | trench fights, Waters card | QA "Cam's fight feel" (depth) |
+| Uncharted Waters (cm_waters): end-game names and blurbs hidden until their voyage (getters), then opened for coins (`egCost` via `locCost`), kept in `S.egPaid` (BOOTFIX key); `locPrevOk` | Waters page (PC + phones), unlock action, prestige | QA "batch 5 waters" (rewritten) |
+| Bounties badge: one count `bountyReady()` (bq_feat04) used by e_ui's hud; the second writer was removed | Bounties tab, rails | QA "Cam's fix list" (proven: old count planted) |
+| Map pictures: kept in IndexedDB (`dl-thumbs`, per build and home), drawn back to back while the Map is open | Waters page | by hand after a restart |
+| Nibbles: tier words in scrap messages; plain feeds patch the page (`nibPatch`) | Cooler, Aquarium | QA "Cam's fix list", Nibble test |
+| Cooler: Scrap all beside Sell all (au_fix034; PC side panel ui_fhd; phone strip pages08); Rarity sort | Cooler PC + phones | QA "Cam's fix list" |
+| Distances and depths: `dStr`, `depthStr` (c_logic), setting `dist` (device key) | fight HUDs, Waters cards, Settings | QA "Cam's fix list" |
+| Pets › Customize: color rows always present (greyed when they don't apply) | Pets PC + phones | `__snapQC` pets |
+| Driftline Test app (desktop/DriftlineTest.cs): Full screen by message from the game (pc/ui_settings) | PC test app only | director's check |

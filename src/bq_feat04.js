@@ -39,9 +39,8 @@ function weeklyHTML(){ const w=ensureWeekly(), done=w.quests.filter(q=>q.claimed
   if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){} toast('Weekly quests done! +25 Scales and a big Mystery Crate (Boardwalk).'); save(); return 'render'; }
   return _xw(b); }; }
 if(typeof ACT_OK==='object'){ ACT_OK.wqclaim=(k,i)=>Number.isInteger(i)&&i>=0&&i<ensureWeekly().quests.length; ACT_OK.wqbonus=()=>true; }
-// the Bounties tab counts claimable weekly quests too
-{ const _hudw=hud; hud=function(){ _hudw.apply(this,arguments); try{ const b=document.querySelector('#tabs [data-tab="bounties"]'); if(!b) return; const n=S.bounties.filter(x=>bDone(x)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)+wqReady(); const d=b.querySelector('.dot');
-  if(n){ if(d){ if(d.textContent!==String(n)) d.textContent=n; } else b.insertAdjacentHTML('beforeend','<span class="dot">'+n+'</span>'); } else if(d) d.remove(); }catch(e){} }; }
+/* the Bounties badge: one count, in e_ui's hud (Cam's list #6: it used to add a second writer here and count yesterday's daily tasks) */
+function bountyReady(){ const u=new Set(S.unlocked); const d=ensureDaily(); return S.bounties.filter(b=>bDone(b)&&(!b.loc||u.has(b.loc))).length+d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+wqReady(); }
 
 // ---------- 2. weather forecast ----------
 const WX_SPECIAL=new Set(['Rainbow','Gilded','Aurora','Blood Moon','Spawning Run']);

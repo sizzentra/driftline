@@ -75,7 +75,7 @@ public class TestWindow : Window
 {
     readonly WebView2 view = new WebView2();
     readonly string url;
-    bool full;
+    bool full, pageFull;
 
     public TestWindow(string url)
     {
@@ -117,7 +117,11 @@ public class TestWindow : Window
         core.Settings.IsGeneralAutofillEnabled = false;
         await core.AddScriptToExecuteOnDocumentCreatedAsync("window.DL_DESKTOP = true; window.DL_TESTAPP = true;");
         core.DocumentTitleChanged += (s, a) => { Title = "Driftline Test (preview)"; };
-        core.ContainsFullScreenElementChanged += (s, a) => SetFull(core.ContainsFullScreenElement || full);
+        /* the game's Full screen button (2026-11-21, director: "even clicking full screen on pc doesn't work"): the app already starts full
+           screen, so the game asks the app to switch by message; a page that goes full screen on its own is followed, and leaving it puts the
+           window back the way it was */
+        core.WebMessageReceived += (s, a) => { string m = null; try { m = a.TryGetWebMessageAsString(); } catch { } if (m == "dl-fullscreen") Dispatcher.Invoke(() => SetFull(!full)); };
+        core.ContainsFullScreenElementChanged += (s, a) => { if (core.ContainsFullScreenElement) { pageFull = !full; SetFull(true); } else if (pageFull) { pageFull = false; SetFull(false); } };
         core.NewWindowRequested += (s, a) => { a.Handled = true; OpenExternal(a.Uri); };
         core.NavigationStarting += (s, a) =>
         {

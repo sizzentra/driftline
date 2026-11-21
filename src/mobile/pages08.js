@@ -20,7 +20,7 @@
   // per page: summary cells [label, value], the main actions (moved into the strip), and sections for long pages without any
   const CFG={
     cooler:{ cells:(P,hd)=>{ const t=txt(hd); const m=t.match(/([\d,]+) of ([\d,]+) slots/), bo=t.match(/\+([\d,]+)% to every sale/); return [['In your cooler',m?m[1]+' / '+m[2]:S.cooler.length+' / '+gv('cooler')],bo?['Sale bonus','+'+bo[1]+'%']:null]; },
-      acts:P=>[P.querySelector('[data-act="sellall"]')] },
+      acts:P=>[P.querySelector('[data-act="sellall"]'),P.querySelector('[data-act="scrapall"]')].filter(Boolean) }, /* Cam's list #7: Scrap all beside Sell all */
     map:{ cells:()=>[['Fishing at',locName()],['Waters open',S.unlocked.length+' / '+LOCS.length]] },
     prestige:{ note:()=>'', cells:()=>[['Wisdom Pearls',String(S.pearls||0)],['Voyage',String((S.tides||0)+1)],['Pearl bonus','+'+Math.round((coinMult()-1)*100)+'% coins & XP']], groups:K=>{ const j=K.filter(c=>c.classList.contains('jsec')); const nm=c=>{ const h=c.querySelector('h2'); return h?h.textContent.trim():''; }; return j.map(c=>({name:nm(c),nodes:[c]})); } }, /* round 8: waters08.js */
     quests:{ note:()=>'', cells:()=>{ let g=null; try{ g=_nextGoal_036(); }catch(e){ try{ g=nextGoal(); }catch(e2){} } const pc=g&&g.p!=null?Math.round(Math.max(0,Math.min(1,g.p))*100)+'%':(g&&g.ready?'Ready':'—'); const r=Array.isArray(S.settings.q8read)?S.settings.q8read.filter(id=>Q8_LESSONS.some(l=>l[0]===id)).length:0; return [g&&(g.ready||g.p!=null)?['Next goal',g.ready?'Ready':pc]:null,['Lessons read',r+' / '+Q8_LESSONS.length]]; }, groups:K=>K.filter(c=>c.dataset&&c.dataset.q8sec).map(c=>({name:c.dataset.q8sec,nodes:[c]})) }, /* round 8: quests08.js */

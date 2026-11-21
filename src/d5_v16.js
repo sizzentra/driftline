@@ -75,7 +75,7 @@ const relic = id => S.relics && S.relics.includes(id);
 /* C31 (director + Cam, 2026-11-20; Feel calls): water prices start a little higher (LOC_BASE) and grow with each voyage (LOC_VOY a voyage,
    at most LOC_VOY_CAP voyages); Old Charts still takes 30% off */
 const LOC_BASE=1.2, LOC_VOY=.15, LOC_VOY_CAP=10;
-const locCost = L => Math.round(L.cost*LOC_BASE*(1+LOC_VOY*Math.min(LOC_VOY_CAP,S.tides||0))*(relic('charts')?.7:1));
+const locCost = L => L.eg ? egCost(L) : Math.round(L.cost*LOC_BASE*(1+LOC_VOY*Math.min(LOC_VOY_CAP,S.tides||0))*(relic('charts')?.7:1));
 
 // ---------- rare weathers ----------
 let fishRain=null;

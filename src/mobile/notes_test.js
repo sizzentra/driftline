@@ -3,6 +3,17 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cam’s fight feel (the new fishing): fish rest between moves (head shakes, runs, jumps, and dives in deep water); a fish’s weight decides what its moves can do (small fish can’t take line, big ones can); rare fish chain moves; a tired fish gets one Second wind. Reel in short pulls during a move. A cast to the far edge is 40 m, a fish 150 m out takes all your line, and 10 seconds without reeling lets it swim off.',
+  'Dives (waters 100 m deep or more): the ring around the fish shows a pink band; keep the line inside it to cut the dive short.',
+  'Jumps go toward you (reel now) or away from you (let go). A running fish turns at once, no slow flip.',
+  'Bites: one try per bite to start; Quick Reflexes (ranks 5 and 10) and a full Water Reader each add one. Miss every try at a hotspot and the fish takes your bait and your streak.',
+  'Compare the two: Stats › Tester tools › Fishing: New / Old (test builds only).',
+  'Oddities reel in faster, and their first snag comes sooner. Rod length now shows its rare odds (every cast reaches 40 m at the far edge).',
+  'Hollow Trench is 3,000 m+ deep and its fish are stronger than Midnight Deep’s.',
+  'End-game waters stay Uncharted Waters until you reach their voyage, then open for coins and stay open for good (waters you already have stay open).',
+  'Cooler: Scrap all sits beside Sell all, and a new Rarity sort. Settings: distances and depths in metres or feet.',
+  'Fixes: the Bounties badge no longer shows a number with nothing to claim; scrap messages name the Nibble tier; feeding a Nibble no longer makes the screen jump; Map pictures show at once after a restart; Pets › Customize keeps the Hat color and Accessory color rows in place (greyed out when they don’t apply).',
+  '## Test build 0159',
   'Willow Pond home, changed from your notes: no grassy bank (the home stands on its own); lanterns are now a lamp post, a hurricane lantern on the boards and a firefly jar; canopies are an open sky, a patio umbrella, a cloth pergola or a wooden shelter, all drawn from the side; rails gained an iron rail; stone piers sit exactly under the deck; the water rings no longer cross the posts; the Home close-up is sharp (the angler and pet were blurry).',
   'Color is now spelled color everywhere in the game.',
   '## Test build 0114',

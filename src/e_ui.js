@@ -24,7 +24,7 @@ function hud(){
   const ab=activeBuffs(); $('buffct').textContent=ab.length?ab.length+' active':'None'; $('buffct').style.color=ab.length?'var(--kelp)':'var(--muted)'; $('buffchip').title=ab.length?ab.map(b=>b.src+': '+fmtB(b.k,b.v)).join('\n'):'Fish up junk, spin the wheel or catch a falling star for boosts';
   const T=$('tabs'); const dot=n=>n?'<span class="dot">'+n+'</span>':'';
   const lab=k=>T.querySelector('[data-tab="'+k+'"]'); const setT=(k,n)=>{ const b=lab(k); if(!b) return; const h=tabHTML(b.dataset.label)+dot(n); if(b._tabH!==h){ b._tabH=h; b.innerHTML=h; } }; // only touch the button when its badge changed
-  setT('cooler',S.cooler.length); setT('bounties',S.bounties.filter(b=>bDone(b)).length+(S.daily?S.daily.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length:0)); setT('skills',ptsFree());
+  setT('cooler',S.cooler.length); setT('bounties',bountyReady()); setT('skills',ptsFree());
   setT('pass',S.pass?S.pass.lvl-S.pass.claimed:0); setT('paths',SPEC_TIERS.filter((T2,i)=>S.lvl>=T2.lvl&&!S.specs[i]).length);
 }
 let lastHint='';
@@ -40,7 +40,7 @@ function setHint(){ let h='';
     case 'flying': h='&nbsp;'; break;
     case 'waiting': h='Twitches are nibbles. <b>Wait for the big splash.</b>'; break;
     case 'bite': h=PLAT.touch()?'<b>Now!</b> Tap to hook it.':'<b>Now!</b> Click or Space to hook it.'; break;
-    case 'reeling': h=V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Let go</b> on runs, jumps, shakes and anger.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
+    case 'reeling': h=fishNew()?(V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Short pulls</b> on runs, shakes and jumps away.':'<b>Hold</b> to reel. <b>Short pulls</b> when it runs, shakes or jumps away.'):V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Let go</b> on runs, jumps, shakes and anger.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
     case 'landing': h='Pulling it out…'; break;
     case 'result': h='Nice catch.'; break;
     case 'frenzy': h=PLAT.touch()?'<b>Tap the leaping fish!</b>':'<b>Click the leaping fish!</b>'; break;
@@ -93,9 +93,9 @@ const aqTxt = f => { const L=aqBuffsOf(f), sp=SPI[f.id]; return L.length ? L.map
 const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
 /* C14 (director + Cam, 2026-11-20): sort the cooler by most/least recent, sell value, aquarium bonus or species. Most recent after
    every restart (kept in memory only), otherwise it remembers the last choice. Rows keep their real cooler index for the buttons. */
-let coolSort='recent'; const COOL_SORTS=[['recent','Newest'],['old','Oldest'],['value','Sell value'],['aq','Aquarium bonus'],['species','Species']];
+let coolSort='recent'; const COOL_SORTS=[['recent','Newest'],['old','Oldest'],['rarity','Rarity'],['value','Sell value'],['aq','Aquarium bonus'],['species','Species']]; /* Rarity: Cam's list #8 */
 function coolOrder(){ const L=S.cooler.map((f,i)=>({f,i})); const nm=x=>(SPI[x.f.id]||{}).name||'';
-  if(coolSort==='old') return L; if(coolSort==='value') return L.sort((a,b)=>salePrice(b.f)-salePrice(a.f)); if(coolSort==='aq') return L.sort((a,b)=>fishRate(b.f)-fishRate(a.f)); if(coolSort==='species') return L.sort((a,b)=>nm(a).localeCompare(nm(b))||b.i-a.i); return L.reverse(); }
+  if(coolSort==='old') return L; if(coolSort==='value') return L.sort((a,b)=>salePrice(b.f)-salePrice(a.f)); if(coolSort==='aq') return L.sort((a,b)=>fishRate(b.f)-fishRate(a.f)); if(coolSort==='species') return L.sort((a,b)=>nm(a).localeCompare(nm(b))||b.i-a.i); if(coolSort==='rarity'){ const rk=x=>(SPI[x.f.id]||{r:-1}).r*10+(x.f.sh?(x.f.sh===2?2:1):0); return L.sort((a,b)=>rk(b)-rk(a)||salePrice(b.f)-salePrice(a.f)); } return L.reverse(); }
 const coolSortBar=()=>S.cooler.length<2?'':`<div class="cool-sort" role="group" aria-label="Sort the cooler"><span class="meta">Sort</span>${COOL_SORTS.map(([k,n])=>`<button type="button" class="chip${coolSort===k?' on':''}" data-act="coolsort" data-k="${k}" aria-pressed="${coolSort===k}">${n}</button>`).join('')}</div>`;
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='coolsort'){ if(COOL_SORTS.some(s=>s[0]===b.dataset.k)) coolSort=b.dataset.k; return 'render'; } return _ea(b); }; }
 document.head.insertAdjacentHTML('beforeend','<style>.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');function renderCooler(P){
@@ -185,10 +185,11 @@ function renderMap(P){
   P.innerHTML=`<h2>Waters</h2><p class="sub">Unlock new waters with coins once you have caught ${unlockNeed()} fish in the one before this voyage (10 more every voyage, up to 50). Each has ${spAt('pond').length} fish of its own, its own junk and treasure, and is tougher than the last.</p><div class="grid">`+
   LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), here=S.loc===L.id; const prev=i?LOCS[i-1]:null; const met=unlockMet(i); const sps=spAt(L.id);
     const btn = here ? '<button class="btn alt" disabled>Fishing here</button>' : open ? `<button class="btn" data-act="goto" data-k="${L.id}" ${G.st==='idle'?'':'disabled'}>Travel here</button>`
-      : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=locCost(L)&&(!prev||S.unlocked.includes(prev.id))?'':'disabled'}>Unlock · <span class="coin">${fmt(locCost(L))}</span></button>`;
+      : L.eg&&!egCharted(L) ? `<button class="btn" disabled>Complete voyage ${L.eg} to unlock</button>` /* Cam's list #12 */
+      : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=locCost(L)&&locPrevOk(i)?'':'disabled'}>Unlock · <span class="coin">${fmt(locCost(L))}</span></button>`;
     const egHead=L.eg&&!(prev&&prev.eg)?`<div class="eg-head"><h3>End-game waters</h3><span class="meta">These open after later voyages (see Set sail again). Their fish are much tougher and worth much more.</span></div>`:"";
     return egHead+`<div class="tile loc ${here?"here":""}"><div class="sw2" style="background:linear-gradient(${L.sky[0]},${L.sky[1]} 48%,${L.water[0]} 52%,${L.water[1]})"></div>
-    <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${L.depth} · ${caughtAt(L.id)}/${sps.length} species</div>${strStandHTML(sps)}
+    <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${depthStr(L.depth)} · ${caughtAt(L.id)}/${sps.length} species</div>${strStandHTML(sps)}
     ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${unlockLine(i)}</div>`:''}${btn}</div>`; }).join('')+'</div>'+renderVoyage()+relicHTML();
 }
 const canRetire = () => S.unlocked.includes('trench') && pearlsFor() > 0 && G.st==='idle';
@@ -268,7 +269,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
       S.nib=nibHalve(); /* [19] half of every species' Nibbles expire on a new voyage */ S.stats.runEarned=0; S.stats.runBw=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again: +'+n+' Wisdom Pearl'+(n===1?'':'s')+' to spend ('+S.pearls+' in all) in the Pearl shop or on relics.'); break; }
     case 'resetok': { S=fresh(); S.savedAt=Date.now(); confirmBox=null; G.st='idle'; encLoc=null; encSel=null; fillBounties(); toast('Progress reset. A fresh start at Willow Pond.'); break; }
     case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
-    case 'unlock': { const i=locIdx(k), L=LOCS[i]; if(!L||S.unlocked.includes(k)||S.money<locCost(L)||!unlockMet(i)||(i>0&&!S.unlocked.includes(LOCS[i-1].id))) return; /* the requirement is checked here too, not only on the button */ S.money-=locCost(L); S.unlocked.push(k); S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
+    case 'unlock': { const i=locIdx(k), L=LOCS[i]; if(!L||S.unlocked.includes(k)||S.money<locCost(L)||!unlockMet(i)||!locPrevOk(i)) return; /* the requirement is checked here too, not only on the button */ S.money-=locCost(L); S.unlocked.push(k); if(L.eg){ if(!Array.isArray(S.egPaid)) S.egPaid=[]; if(!S.egPaid.includes(k)) S.egPaid.push(k); } S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st!=='idle') return; S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': if(k==='junk'||LOCS[locIdx(k)]) encLoc=k; encSel=null; break;
     case 'bloc': bLoc=k; break;

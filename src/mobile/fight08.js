@@ -23,11 +23,12 @@
     /* the danger glow: a soft wider ring underneath instead of shadowBlur (director, 2026-11-18: Android drops during actions; a
        glow shadow is one of the slowest things a phone graphics chip draws, and it pulsed every frame of a tense fight) */
     if(danger){ const a0=-Math.PI/2, a1=-Math.PI/2+Math.PI*2*Math.max(.02,ten), lw=g.lineWidth, pulse=.5+.5*Math.sin(t*14); g.strokeStyle='rgba(255,84,104,'+(.18+.12*pulse)+')'; g.lineWidth=lw+8+pulse*5; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.strokeStyle='rgba(255,84,104,'+(.28+.12*pulse)+')'; g.lineWidth=lw+3; g.beginPath(); g.arc(cx,cy,r,a0,a1); g.stroke(); g.lineWidth=lw; }
-    g.strokeStyle=col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke();
+    const Z=fightZone(); if(Z){ const lw=g.lineWidth; g.strokeStyle=Z.inZ?'rgba(255,170,240,.6)':'rgba(255,170,240,.32)'; g.lineWidth=lw+6; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2+Math.PI*2*Z.lo,-Math.PI/2+Math.PI*2*Z.hi); g.stroke(); g.lineWidth=lw; } /* Cam: the dive band on the ring */
+    g.strokeStyle=Z&&Z.inZ?'#ffb0f0':col; g.beginPath(); g.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.max(.02,ten)); g.stroke();
     g.fillStyle='rgba(255,84,104,.35)'; g.beginPath(); g.arc(cx,cy,r+g.lineWidth*.5+2,-Math.PI/2+Math.PI*2*.8,-Math.PI/2+Math.PI*2,false); g.arc(cx,cy,r+g.lineWidth*.5+5,-Math.PI/2+Math.PI*2,-Math.PI/2+Math.PI*2*.8,true); g.fill(); /* the red zone: snapping risk */
     /* the instruction, right above */
-    const odd = G.fish&&G.fish.kind!=='fish', msg = odd ? (G.ev==='snag' ? 'Snagged!' : danger ? 'Ease off!' : 'Dead Weight') : G.swT>0 ? 'Second wind!' : G.ev==='windup' ? 'It’s jumping!' : G.ev==='jump' ? 'Let go!' : G.ev==='shake' ? 'Head shake!' : G.run ? 'It’s running!' : G.temper>1.7&&G.hold ? 'Careful!' : danger ? 'Ease off!' : G.hold ? 'Reeling…' : 'Hold to reel';
-    const alert = !!(G.ev||G.run||G.temper>1.7||G.swT>0||danger);
+    const msg = fightMsg(danger, danger);
+    const alert = !!(G.ev||G.run||G.temper>1.7||G.swT>0||danger||(fishNew()&&G.sta<=0&&G.fish.kind==='fish'));
     g.font='800 '+(W<700?15:17)+'px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.textBaseline='alphabetic';
     const mw=g.measureText(msg).width+22, mx=clamp(cx,mw/2+8,W-mw/2-8), my=Math.max(48,cy-r-16);
     g.fillStyle=alert?'rgba(40,24,6,.82)':'rgba(5,14,20,.78)'; rr(mx-mw/2,my-19,mw,27,13.5); g.fill();
@@ -36,7 +37,7 @@
     /* the card: distance, fight, temper, line out */
     const cw=164, ch=46, below=cy+r+12, kx=clamp(cx-cw/2,8,W-cw-8), ky=below+ch<=H-62?below:Math.max(8,my-19-ch-8);
     g.fillStyle='rgba(5,14,20,.8)'; rr(kx,ky,cw,ch,10); g.fill();
-    g.textAlign='left'; g.font='800 12px system-ui'; g.fillStyle='#e6efe8'; g.fillText(Math.max(0,G.d).toFixed(1)+' m',kx+9,ky+17);
+    g.textAlign='left'; g.font='800 12px system-ui'; g.fillStyle='#e6efe8'; g.fillText(dStr(Math.max(0,G.d)),kx+9,ky+17);
     g.font='700 10px system-ui'; g.fillStyle='#8aa5a2'; g.fillText('Fight',kx+62,ky+13); g.fillText('Temper',kx+62,ky+29);
     const bx=kx+104, bw=cw-114; g.fillStyle='#0a161d'; rr(bx,ky+7,bw,6,3); g.fill(); rr(bx,ky+23,bw,6,3); g.fill();
     g.fillStyle='#ff6a3d'; rr(bx,ky+7,Math.max(2,bw*clamp(G.sta,0,1)),6,3); g.fill();

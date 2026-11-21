@@ -138,7 +138,7 @@ const DW={
     return dwBox('cooler',{icon:'🧊', title:'Cooler', state:full?'warn':'', sum:`${n} / ${cap}`, body:
       `${dwBar(n/cap, full?'linear-gradient(90deg,#ff9a6a,#ff6a4a)':'')}<div class="dwrow"><span class="meta">${n?`Worth <span class="coin">${fmtShort(val)}</span>${kept?' · '+kept+' kept':''}`:'Empty: cast a line'}${full?' · <b class="dwwarn">Full</b>':''}</span></div>
        <div class="dwacts"><button class="btn sm" data-act="sellall" ${sell.length?'':'disabled'}>Sell all${sell.length?' · <span class="coin">'+fmtShort(val)+'</span>':''}</button><button class="btn alt sm" data-tabgo="cooler">Open</button></div>`}); },
-  bounty(){ fillBounties(); const here=S.bounties.map((b,i)=>[b,i]).filter(([b])=>b.loc===S.loc), ready=S.bounties.filter(bDone).length, readyHere=here.filter(([b])=>bDone(b)).length, away=ready-readyHere;
+  bounty(){ fillBounties(); const here=S.bounties.map((b,i)=>[b,i]).filter(([b])=>b.loc===S.loc), ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length, readyHere=here.filter(([b])=>bDone(b)).length, away=ready-readyHere;
     const row=([b,i])=>{ const d=bDone(b), bt=bountyText(b); let what, p=d?1:0, pt;
       if(bt){ what=bt.what; if(b.type==='style'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
       else { const sp=SPI[b.sp]; if(!sp) return ''; what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+LOCS[locIdx(sp.loc)].name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?"an":"a"} ${sp.name} of ${kgStr(b.kg)} or more`; if(b.type==='count'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }

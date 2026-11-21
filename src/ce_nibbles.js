@@ -37,17 +37,26 @@ let NIB_ANIM=null;
 function nibScrapOne(f){ const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.stats.scrapped=(S.stats.scrapped||0)+1;
   if(!ok) return 0; const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); nibAdd(sp.id,n); return n; }
 function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id]; S.cooler.splice(i,1); const n=nibScrapOne(f);
-  if(n){ sfx.coin(); toast('+'+n+' '+nibRarName(sp.id)+' Nibble'+(n===1?'':'s')+'. Feed any '+nibRarName(sp.id)+' fish in the Aquarium.'); } else toast('Scrapped. No Nibbles this time.');
+  if(n){ sfx.coin(); toast('+'+nibTierWord(sp.id,n)+' for your Aquarium.'); } else toast('Scrapped. No Nibbles this time.'); /* Cam's list #1: the message names the Nibble tier, not the fish */
   return 'render'; }
 /* C11 (director + Cam, 2026-11-20): Scrap all, like Sell all and with the same filters (what Sell all would sell gets scrapped) */
-function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if(!go.length) return 'skip'; S.cooler=S.cooler.filter(f=>!go.includes(f)); let got=0, hit=0; for(const f of go){ const n=nibScrapOne(f); if(n){ got+=n; hit++; } }
-  if(got) sfx.coin(); toast('Scrapped '+go.length+' fish: '+(got?NIB_WORD(got)+' from '+hit+' of them.':'no Nibbles this time.')); return 'render'; }
+function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if(!go.length) return 'skip'; S.cooler=S.cooler.filter(f=>!go.includes(f)); let got=0; const by={}; for(const f of go){ const n=nibScrapOne(f); if(n){ got+=n; const r=SPI[f.id].r; by[r]=(by[r]||0)+n; } }
+  if(got) sfx.coin(); toast('Scrapped '+go.length+' fish: '+(got?Object.keys(by).sort((a,b)=>a-b).map(r=>'+'+by[r]+' '+NIB_TIER[Math.min(5,r)]).join(', ')+' Nibbles.':'no Nibbles this time.')); return 'render'; }
+const NIB_TIER=['Common','Uncommon','Rare','Epic','Legendary','Mythic'];
+const nibTierWord = (id,n) => n+' '+NIB_TIER[Math.min(5,(SPI[id]||{r:0}).r)]+' Nibble'+(n===1?'':'s');
 function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]||nibOf(f.id)<1) return 'skip'; const sp=SPI[f.id]; accrue();
   nibAdd(sp.id,-1); f.fed=(f.fed||0)+1; let msg=sp.name+' ate a Nibble: '+fmt(Math.round(fishRate(f)*60))+' coins per hour now.';
   if(f.fed%NIB_STEP===0){ const ch=f.fed%NIB_BIG===0?NIB_ADD_BIG:NIB_ADD;
     if(nibBuffCount(f)<NIB_MAX_BUFFS&&Math.random()<ch){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); msg=sp.name+' grew a new bonus: +'+BK[b.k]+'!'; }
     else { f.nbst=(f.nbst||0)+1; msg=sp.name+'’s bonuses grew stronger (+'+Math.round(NIB_BOOST*100*f.nbst)+'%).'; } }
-  NIB_ANIM={f, t0:performance.now(), col:sp.col||'#ffd36a', col2:sp.belly||'#fff3c8', beh:sp.beh}; sfx.coin(); toast(msg); return 'render'; }
+  NIB_ANIM={f, t0:performance.now(), col:sp.col||'#ffd36a', col2:sp.belly||'#fff3c8', beh:sp.beh}; sfx.coin(); toast(msg); save(); return f.fed%NIB_STEP!==0&&nibPatch()?'skip':'render'; }
+/* Cam's list #9: a plain feed updates the page in place (the feed buttons, each fish's coins an hour, the earnings) instead of rebuilding
+   the whole Aquarium, which made the phone screen jump; a feed that grows a bonus still redraws the page (its boosts change) */
+function nibPatch(){ const P=$('panel'); if(!P||S.tab!=='aquarium') return false; const bs=[...P.querySelectorAll('[data-act="nibfeed"]')]; if(!bs.length) return false; const sh=aqShownRates();
+  for(const b of bs){ const i=+b.dataset.i, f=S.tank[i]; if(!f) return false; const row=b.closest('.fishrow'), html=nibFeedBtn(f,i);
+    if(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); b.replaceWith(t.content.firstElementChild); } else b.remove();
+    const v=row&&row.querySelector('.val .coin'); if(v) v.textContent=fmt(sh[i]); const sm=row&&row.querySelector('.nm small'); if(sm){ const sp=SPI[f.id]; sm.innerHTML=`${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span>${nibFedTxt(f)}`; } }
+  const e=P.querySelector('.bank b.coin'); if(e){ const r=tankRate()*60; e.textContent=fmtShort(r); e.title=fmt(r)+' coins an hour'; } return true; }
 { const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); return _ea7(b); }; }
 
 // ---- C28 (director + Cam, 2026-11-20): feeding the aquarium. Every fish swims up to the falling food (each at its own moment and spot),

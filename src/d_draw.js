@@ -366,14 +366,15 @@ function draw(now){
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     /* C21: one arc out of the water and back: it travels toward its nose (left, toward you), nose up on the way out and nose down on the
        way in (it used to tilt the other way round) */
-    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85; const jx=G.bob.x+len*.2-k*30, jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); g.rotate(Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
+    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85, aw=fishNew()&&G.jumpAway, sd=aw?-1:1; /* Cam: a jump can go away from you too */ const jx=G.bob.x+sd*(len*.2-k*30), jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); if(aw) g.scale(-1,1); g.rotate(Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ drawHookedOdd(f, G.bob.x+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4); } else {
       /* C20 (Cam, 2026-11-20): a running fish turns to swim away, a calm one turns back toward you; the turn is smooth (the body narrows
          through the turn) and the line stays at its mouth. Fish only: oddities and objects never turn. */
-      const dtF=Math.min(.05,Math.max(0,t-(G.faceT||t))); G.faceT=t; G.face=G.face==null?1:G.face+((G.run?-1:1)-G.face)*Math.min(1,dtF*9);
+      const dtF=Math.min(.05,Math.max(0,t-(G.faceT||t))); G.faceT=t; G.face=G.face==null?1:G.face+((G.run?-1:1)-G.face)*Math.min(1,dtF*(fishNew()?45:9)); /* Cam's list #5: a running fish snaps round at once, no visible flip */
       const fv=G.face, sx=Math.abs(fv)<.12?(fv<0?-.12:.12):fv;
       /* C21 wind-up: the shadow sinks and fades, then rushes back up just before the jump (the warning) */
       let wy=0; if(G.ev==='windup'){ const k=1-G.evDur/JUMP_WINDUP; wy=k<.6?Math.sin(k/.6*Math.PI/2)*16:16-(k-.6)/.4*24; g.globalAlpha=.35*(k<.6?1-.55*(k/.6):.45+.55*(k-.6)/.4); }
+      if(G.dd>0){ wy+=Math.min(34,G.dd*2); g.globalAlpha=.35*Math.max(.45,1-G.dd/40); } /* Cam: a dive takes the shadow down, not sideways */
       g.save(); g.translate(G.bob.x + (G.run?Math.sin(t*9)*10:Math.sin(t*2)*6)+len*.4*fv, G.bob.y + 14 + wy); g.scale(sx,1); drawCreature(g,f.sp,0,0,len,{sil:'#06121a', wag:t*12, flip:true}); g.restore(); }
       g.globalAlpha=1; } }
   const dockY=H*.6, pb = (L.plat==='boat'||L.plat==='trawler'||L.plat==='raft') ? Math.sin(t*1.1)*2.5*(L.plat==='trawler'?1.6:1) : 0;
@@ -454,12 +455,13 @@ function drawFightHUD(t){
   g.fillStyle='rgba(5,14,20,.75)'; rr(x-8,y0-26,26,h+44,9); g.fill();
   g.fillStyle='rgba(255,84,104,.18)'; g.fillRect(x-2,y0,14,h*.2);
   const c = ten>.8 ? '#ff5468' : ten>.55 ? '#ffc94d' : '#7fc8a9'; g.fillStyle=c; const shake = ten>.85 ? Math.sin(t*60)*1.5 : 0;
-  g.fillRect(x-2+shake,y1-h*ten,14,h*ten);
+  const Z=fightZone(); if(Z){ g.fillStyle=Z.inZ?'rgba(255,170,240,.55)':'rgba(255,170,240,.28)'; g.fillRect(x-4,y1-h*Z.hi,18,h*(Z.hi-Z.lo)); } /* Cam: the dive band, light magenta while the line is inside it */
+  g.fillStyle=Z&&Z.inZ?'#ffb0f0':c; g.fillRect(x-2+shake,y1-h*ten,14,h*ten);
   g.fillStyle='#e6efe8'; g.font='700 10px system-ui'; g.textAlign='center'; g.fillText('LINE',x+5,y0-12);
   const px=14, py=14, pw=Math.min(260,W*.46); g.fillStyle='rgba(5,14,20,.75)'; rr(px,py,pw,72,10); g.fill();
-  const odd = G.fish&&G.fish.kind!=='fish', msg = odd ? (G.ev==='snag' ? 'Snagged!' : G.ten>60 ? 'Ease off!' : 'Dead Weight') : G.swT>0 ? 'Second wind!' : G.ev==='windup' ? 'It’s jumping!' : G.ev==='jump' ? 'Let go!' : G.ev==='shake' ? 'Head shake!' : G.run ? 'It’s running!' : G.temper>1.7&&G.hold ? 'Careful!' : G.hold ? 'Reeling…' : 'Hold to reel';
-  g.fillStyle = (G.ev||G.run||G.temper>1.7||G.swT>0) ? '#ffc94d' : '#e6efe8'; g.textAlign='left'; g.font='800 15px "Bricolage Grotesque", system-ui'; g.fillText(msg, px+10, py+20);
-  g.font='700 12px system-ui'; g.fillStyle='#8aa5a2'; g.fillText(Math.max(0,G.d).toFixed(1)+' m out', px+10, py+38);
+  const msg = fightMsg(false, G.ten>60);
+  g.fillStyle = (G.ev||G.run||G.temper>1.7||G.swT>0||(fishNew()&&G.sta<=0&&G.fish&&G.fish.kind==='fish')) ? '#ffc94d' : '#e6efe8'; g.textAlign='left'; g.font='800 15px "Bricolage Grotesque", system-ui'; g.fillText(msg, px+10, py+20);
+  g.font='700 12px system-ui'; g.fillStyle='#8aa5a2'; g.fillText(dStr(Math.max(0,G.d))+' out', px+10, py+38);
   const bw=pw*.5-50; g.fillText('Fight', px+pw*.5, py+38); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+30,bw,7,3); g.fill(); g.fillStyle='#ff6a3d'; rr(px+pw*.5+44,py+30,bw*G.sta,7,3); g.fill();
   g.fillStyle='#8aa5a2'; g.fillText(BEH[G.fish.beh]?BEH[G.fish.beh].n:'', px+10, py+56); g.fillText('Temper', px+pw*.5, py+56); g.fillStyle='#0a161d'; rr(px+pw*.5+44,py+48,bw,7,3); g.fill(); g.fillStyle=G.temper>1.7?'#ff5468':'#c38bff'; rr(px+pw*.5+44,py+48,bw*clamp(G.temper/3,0,1),7,3); g.fill();
   const lim = clamp(G.d/G.maxOut,0,1); g.fillStyle='#0a161d'; rr(px+10,py+63,pw-20,4,2); g.fill(); g.fillStyle = lim>.8?'#ff5468':'#5aa9ff'; rr(px+10,py+63,(pw-20)*lim,4,2); g.fill();
