@@ -11,6 +11,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/SYSTEMS_MAP.md`: what affects what, plus a log of every round's changes.
 - `docs/LESSONS.md`: error bookmarks (symptom → cause → fix → catch) and what works.
 - `docs/PLAN.md`: the active work list.
+- `docs/HOME_STANDARD.md`: what every home is, how it is built, what the player customises (decided 2026-11-21; not built yet).
 - `docs/TEXT_STANDARD.md`: how every line of game text is written (voice, device words, lengths); checked by `__contentQC` rule 6 and the `__qa` text tests.
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
