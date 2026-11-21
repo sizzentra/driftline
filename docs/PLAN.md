@@ -88,7 +88,6 @@ One large overnight run, so testing happens once over many changes. Each item is
 | P4 | **Map standard** (docs/MAP_STANDARD.md) for every water, old and new | ☑ decided (speed limit measured at the start of the run) | |
 | P5 | Items F (notices removed, feedback lines kept) and **G: the PC overhaul** (System clean-up › G: phone systems and names on PC, header-only placement, one size for all menus, everything clickable, sharper and more detailed PC drawings) | ☑ F and G decided (2026-11-21) | PC Fish Log untouched |
 | P6 | **Install welcome** (director, 2026-11-21: players can't find how to install; option B of three): when the game is opened in a browser (not installed), a welcome screen offers "Install Driftline on this device" with that device's own steps (iPhone: Share → Add to Home Screen; Android: a real Install button; PC: the Windows app download) and "Play in the browser"; it never shows once the game is installed. Install also gets an easy spot in Settings. The Windows download is live (440 KB, built 2026-11-16); a clean install on a fresh PC is not yet tested | ☑ decided (director, 2026-11-21): shown once per device; Install stays one tap away in Settings. Goal: everyone plays the installed version, not the browser | |
-| P7 | **Report a problem button** (System clean-up › 3): top of Settings, test apps only; opens the Share menu (copy on PC) with stamp, device, screen, page, water, recent errors and a typed line | ☑ decided (director, 2026-11-21) | |
 **Overnight roadmap batches (director, 2026-11-21):**
 | Batch | Projects |
 |---|---|
@@ -121,7 +120,7 @@ Old order note (superseded by the batches): P1 → P2 → P4 → P3 → P5; one 
 - ☑ D. Map standard decided (docs/MAP_STANDARD.md and docs/HOME_STANDARD.md); building waits for the production queue. Was: what every water needs (from C35), added to the map check. **Homes part decided (director, 2026-11-21): docs/HOME_STANDARD.md**; build plan waiting for approval. Rest of the map list still to go over.
 - ☑ E. Docs tidy (2026-11-21): SYSTEMS_MAP keeps the lasting map; the dated round log moved to docs/CHANGE_LOG.md; CLAUDE.md's status trimmed.
 - ☑ 2. Bug log upgrade (2026-11-21): status (fixed / open / held), introduced_in and fixed_in columns in docs/qc_incidents.csv; build.ps1 refuses an unknown label, a fixed row without fixed_in or an open row with one (proven by planting).
-- ◐ 3. “Report a problem” button in the test apps. Decided (director, 2026-11-21): it opens the phone’s Share menu with the report (copy and paste on PC); nothing goes through an outside service. The report: build stamp, device and screen size, page and water, recent errors, a line the tester types. It sits at the top of Settings (director, 2026-11-21), test apps only, never in the live game.
+- ✗ 3. “Report a problem” button: moved to Ideas (director, 2026-11-21: not worth it with two testers who text directly). Was decided: it opens the phone’s Share menu with the report (copy and paste on PC); nothing goes through an outside service. The report: build stamp, device and screen size, page and water, recent errors, a line the tester types. It sits at the top of Settings (director, 2026-11-21), test apps only, never in the live game.
 - ✗ 4. Guided real-phone check: dropped (director, 2026-11-21: "we already play on phones"; the director and Cam report what they find).
 - ◐ 5. Rest of the checks overhaul: saves check → production queue (no input needed); speed → map standard; **balance targets wanted** (director, 2026-11-21): numbers for how long things take, checked by a tool, and **after a prestige you must clearly feel more powerful**. Numbers to come from the director and Cam.
 - ☐ F. Flavour text coverage (director, 2026-11-20): every kind of flavour text in the game (fish notes, item and oddity blurbs, quips, toasts, pet lines, loading and empty-page lines, catch cards) listed in one place, each with its rules (tone, length per place, spoilers, phone words) and a check that every item has its text and that the text follows them. Builds on C.
@@ -234,6 +233,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - Save size: keep codes compact.
 
 ## Ideas (nothing decided; moved from CLAUDE.md 2026-11-20)
+- **Report a problem button** (parked 2026-11-21; revisit when there are more players than the two testers): at the top of Settings in the test apps; opens the Share menu (copy on PC) with the build stamp, device, screen size, page and water, recent errors and a typed line; nothing through an outside service.
 - **Cam's concepts:** per-water events with a gameplay hook on one shared event system; a backyard pond (breeding, after the trophy room).
 - **Friends without accounts:** visit a dock from a code, send gifts/fish by code, a weekly friends' derby leaderboard.
 - **Seasonal and live content:** holiday decorations, limited-time fish, weekend derbies, seasonal waters.
