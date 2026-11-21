@@ -19,7 +19,7 @@ Cozy, warm and a little funny, like a friend who fishes. The humour is light and
 6. **Plain words.** Name things the way the game shows them (Your home, not dock; Fish Log, not journal). Numbers as the player sees them (short numbers, the chosen weight unit).
 7. **Patch notes are spoiler-free but complete.** “21 new fish”, never their names; no crate-only or gift pets, hidden rods or exact odds.
 
-## Lengths per place (⚑ proposed, waiting for the director’s OK)
+## Lengths per place (approved by the director, 2026-11-20)
 Measured on build 2114: the longest lines that read well today, rounded. Letters, not counting the joke at the end of a pop-up.
 
 | Place | Limit | Today (typical / longest) |
