@@ -122,14 +122,14 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
 // side by side, each scrolling on its own; the cozy level sits with the decorations that make it. Your other docks sit
 // beside the preview.
 // =====================================================================
-const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W,W*.62), sh=sw*c.height/c.width, dy=H*.6, L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; /* boats sit lower: their hull shows too */ return {sx:0, sy:Math.max(0,Math.min(H-sh,dy-sh*f)), sw, sh}; };
+const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; if(HOMEF[S.loc]) return hfFrame(c,0); /* format homes: framed on the home */ const sw=Math.min(W,W*.62), sh=sw*c.height/c.width, dy=H*.6, L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; /* boats sit lower: their hull shows too */ return {sx:0, sy:Math.max(0,Math.min(H-sh,dy-sh*f)), sw, sh}; };
 { const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
     const k=DK_CROP(), d=cv.width/W, x=c.getContext('2d'); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low'; /* 'high' cost ~6 ms per refresh (laggy); 'low' ~0.3 ms and looks the same at this scale */
     x.drawImage(cv,k.sx*d,k.sy*d,k.sw*d,k.sh*d,0,0,w,h); };
   // drag decorations and pets along the real dock (positions are the same fractions the game uses)
-  document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!FHD()||!c.closest('.dk-top')) return; e.stopImmediatePropagation(); e.preventDefault();
+  document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!FHD()||!c.closest('.dk-top')||HOMEF[S.loc]) return; /* format homes: nothing to drag */ e.stopImmediatePropagation(); e.preventDefault();
     const k=DK_CROP(), r=c.getBoundingClientRect(), gx=ev=>k.sx+(ev.clientX-r.left)/r.width*k.sw, X0=W*.008, SPAN=W*.17, frac=v=>clamp((v-X0)/SPAN,0,1);
     const sc=clamp(H/420,.7,1.25), ax=W*.12, items=dockView(), P=dockPositions(items,(ax-40*sc-X0)/(W*.178-X0),(ax+12*sc-X0)/(W*.178-X0));
     const x0=gx(e); let best=null, bd=W*.012;
@@ -140,6 +140,17 @@ const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W
     const up=()=>{ c.removeEventListener('pointermove',mv); c.removeEventListener('pointerup',up); c.removeEventListener('pointercancel',up); c.style.cursor='grab'; save(); };
     c.addEventListener('pointermove',mv); c.addEventListener('pointerup',up); c.addEventListener('pointercancel',up); },true);
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='home'||!FHD()) return r; const P=$('panel'); if(P.querySelector('.dk-top')) return r;
+      /* a home in the home format (docs/HOME_STANDARD.md): the close-up of the home on top, its 5 elements as tabs underneath */
+      if(P.querySelector(':scope > .hf-mark')){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)], c=P.querySelector('#homecv'), tile=c&&c.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return r;
+        const top=document.createElement('div'); top.className='dk-top'; const view=document.createElement('div'); view.className='dk-view'; c.style.cssText=''; view.appendChild(c);
+        view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)} · ${esc(sp.name)}</span>`);
+        const side=document.createElement('aside'); side.className='dk-side'; side.innerHTML=`<h3>Your ${esc(sp.hname)}</h3><p class="meta">${sp.els.length} parts to make it yours, a style and a colour each, and all of it free. Every water keeps its own home.</p>`;
+        top.append(view,side);
+        const col=document.createElement('section'); col.className='dk-col'; col.innerHTML=`<header class="fhd-h"><span>Parts of your ${esc(sp.hname)}</span></header><div class="dk-body"></div>`; const body=col.querySelector('.dk-body'); body.appendChild(nav);
+        P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el));
+        const split=document.createElement('div'); split.className='dk-split dk-hf'; split.appendChild(col);
+        [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
+        P.prepend(top); top.after(split); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); return r; }
       const tile=P.querySelector('#homecv')&&P.querySelector('#homecv').closest('.tile'), bar=P.querySelector(':scope > .dockbar'), cozy=P.querySelector('.dl-head .tile'), h5=[...P.querySelectorAll(':scope > h5')];
       if(!tile||h5.length<3) return r;
       const L=LOCS[locIdx(S.loc)], plat={dock:'a dock',pier:'a long pier',ice:'an ice ledge',sand:'a beach',boat:'a boat',trawler:'a trawler',raft:'a raft',stone:'a stone ledge',crystal:'a crystal shelf'}[L.plat]||'a dock';
@@ -170,7 +181,7 @@ const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; const sw=Math.min(W
       [...P.children].forEach(ch=>{ if(ch.classList.contains('crumb')||ch.classList.contains('dl-head')||ch.classList.contains('sect-nav')||(ch.tagName==='P'&&/Drag/.test(ch.textContent))) ch.remove(); });
       tile.remove(); P.prepend(top); top.after(split); P.classList.add('dk-on');
       requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); }catch(e){ console.error(e); } return r; };
-  const _rp2=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('dk-on'); return _rp2.apply(this,arguments); }; }
+  const _rp2=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('dk-on','dk-hfp'); return _rp2.apply(this,arguments); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:14px}
 html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
@@ -191,6 +202,8 @@ body.pc-fhd #panel .dk-list .dock-c.here{background:#1d3150!important;border-col
 body.pc-fhd #panel .dk-list .dock-c.here span{color:#7fe3c4}
 body.pc-fhd #panel .dk-side .dock-pick{display:flex;flex-direction:column;gap:8px;margin:4px 0 0!important;padding:10px;border-radius:12px;background:#0a1424}
 body.pc-fhd #panel .dk-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:14px;min-height:0}
+body.pc-fhd #panel .dk-split.dk-hf{grid-template-columns:minmax(0,1fr)}
+body.pc-fhd #panel.dk-hfp .dk-top{height:calc(56*var(--uvh,1vh))}
 body.pc-fhd #panel .dk-col{display:flex;flex-direction:column;min-height:0;border-radius:16px;background:#0e1a2c;border:1px solid #ffffff14;overflow:hidden}
 body.pc-fhd #panel .dk-col > .fhd-h{display:flex;align-items:center;gap:14px;padding:12px 16px;margin:0!important;border-bottom:1px solid #ffffff10;font:800 15px var(--display,system-ui);color:#fff}
 body.pc-fhd #panel .dk-body{flex:1 1 0;min-height:0;overflow:auto;padding:14px 16px;scrollbar-width:thin;display:flex;flex-direction:column;gap:14px}

@@ -1,6 +1,8 @@
 # Driftline home standard (decided with the director, 2026-11-21)
 
-One job: what every home is, how it is built, what the player can change. Part of the map standard (PLAN item D). Nothing here is built yet; the build plan waits for the director's approval.
+**Pilot built (2026-11-21, test builds): Willow Pond, in `src/cv_homefmt.js`.** The other waters follow once the director approves the pilot.
+
+One job: what every home is, how it is built, what the player can change. Part of the map standard (PLAN item D). The pilot (Willow Pond) is on the test builds for the director's judgement.
 
 ## Purpose
 - **A home is your place** (the player's), **designed with and fitting its map**: its materials, colours and culture. Each water has its own home (the home is that water's signature); homes do not carry over between waters.

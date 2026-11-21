@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Pilot of the new homes, at Willow Pond only: the dock now starts from a grassy bank, and Your home has 5 parts to change (Lantern, Deck, Posts, Rail, Canopy), 3 styles and 6 colours each, all free. The Home view zooms in on your home. Decorations and moving pets don’t apply there (they go when every home is converted). Every other water keeps its old home for now.',
+  '## Test build 2143',
   'Settings › Save & codes: Download for Windows works on the test build again (it pointed to a folder the installer isn’t in).',
   'Shorter hints, fight cues (“It’s jumping!”, “Let go!”, “Ease off!”, “Head shake!”) and messages, same meaning, jokes untouched. Scrap now names the rarity of the Nibbles. The catch card no longer says “dismiss” after an oddity.',
   'PC: tap became click on the frenzy hint, the Fast fingers feat, the pet hint, moving progress and the casting setting.',

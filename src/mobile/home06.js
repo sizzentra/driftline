@@ -7,7 +7,7 @@
 { const L=()=>LOCS.find(x=>x.id===S.loc)||LOCS[0];
   let lbl=null; const sync=()=>{ try{ const b=menuTabBtn('home'); if(!b) return; if(lbl==null) lbl=b.dataset.label; const want=MOB()?'🏠 Your home':lbl; if(b.dataset.label!==want){ b.dataset.label=want; menuSubKey=''; if(MENU_OPEN) menuSync(); } }catch(e){} };
   new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,900);
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='home'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.hm-phone')) return r;
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='home'||!MOB()) return r; const P=$('panel'); if(P.querySelector('.hm-phone')||P.querySelector(':scope > .hf-mark')) return r; /* format homes have their own elements */
       const loc=L(), feats=HOME_FEATURES[loc.plat]||['light'], hname=HOME_NAMES[loc.plat]||'home', h5=[...P.querySelectorAll(':scope > h5')];
       const wood=h5.find(h=>/^Wood/i.test(h.textContent)), style=h5.find(h=>/style/i.test(h.textContent)), deco=h5.find(h=>/^Decorations/i.test(h.textContent));
       const hide=h=>{ if(!h) return; h.style.display='none'; const n=h.nextElementSibling; if(n&&n.classList.contains('chips')) n.style.display='none'; };

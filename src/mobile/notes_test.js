@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Pilot of the new homes, at Willow Pond only: the dock now starts from a grassy bank, and Your home has 5 parts to change (Lantern, Deck, Posts, Rail, Canopy), 3 styles and 6 colours each, all free. The Home view zooms in on your home. Decorations and moving pets don’t apply there (they go when every home is converted). Every other water keeps its old home for now.',
+  'Phones: colour choices on pages with tabs no longer show under the wrong tab.',
+  '## Test build 2143',
   'Shorter hints, fight cues (“It’s jumping!”, “Let go!”, “Ease off!”, “Head shake!”) and messages, same meaning, jokes untouched. Scrap now names the rarity of the Nibbles. The catch card no longer says “dismiss” after an oddity.',
   'Phones: the words that used to be swapped in afterwards (tap, let go) are now written in the game itself; please tell me if any “click” or “Space” shows up anywhere.',
   '## Test build 2035',

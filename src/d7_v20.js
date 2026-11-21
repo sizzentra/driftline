@@ -21,7 +21,7 @@ function cozy(){ let c=S.dock.wood!=='oak'?1:0; for(const id of S.dock.decor) if
 const cozyBonus = () => Math.min(40*pathMul('cozycap'),cozy()*pathMul('cozy')); // 0.3: cap 40 (was 25)
 const COZY_NAMES = [[0,'Bare boards'],[4,'Snug'],[9,'Homey'],[15,'Cozy'],[22,'Hygge']];
 const cozyName = () => COZY_NAMES.filter(x=>cozy()>=x[0]).pop()[1];
-function renderHome(P){ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
+function renderHome(P){ if(HOMEF[S.loc]) return renderHomeF(P); /* a home in the home format: its 5 elements */ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
   const pvBar = DOCK_PV ? `<div class="pvbar"><span>Previewing on your dock: <b>${esc(DOCK_PV.name)}</b></span><span class="row"><button class="btn sm" data-act="${DOCK_PV.kind==='wood'?'dockwood':DOCK_PV.kind==='style'?'dockstyle':'dockdecor'}" data-k="${DOCK_PV.id}" ${S.money>=DOCK_PV.price?'':'disabled'}>Buy · <span class="coin">${fmt(DOCK_PV.price)}</span></button><button class="btn alt sm" data-act="dockpvoff">Stop</button></span></div>` : pvHintHTML();
   P.innerHTML=`<div class="row spread"><div><h2>Home</h2><p class="sub">Your dock goes with you to every water. Make it yours: pick the wood, add decorations, and the cozier it gets, the better you fish.</p></div>
    <div class="tile" style="min-width:200px"><div class="rar" style="color:#ff9ac0">Cozy level: ${cozyName()}</div><b>${c} ♥</b> <span class="meta">· +${cb}% XP, +${(cb*.5).toFixed(1)}% bite speed, +${(cb*.5).toFixed(1)}% sale price</span><div class="prog"><i style="width:${Math.min(1,c/40)*100}%;background:#ff9ac0"></i></div></div></div>
@@ -43,7 +43,7 @@ function paintHome(){ const c=$("homecv"); if(!c) return; if(V3ON && paintHome3(
   drawPetStyled(x,S.pet,w*.5,dy,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy,2.6,S.look,{t}); }
 function homeSlots(n,x0,x1,avoid0,avoid1){ const out=[]; const span=(x1-x0)-(avoid1-avoid0); for(let i=0;i<n;i++){ let x=x0+span*(i+.5)/Math.max(n,1); if(x>avoid0) x+=avoid1-avoid0; out.push(x); } return out; }
 // decorations drawn on the dock in the scene, behind the angler
-function drawHome(L,t,night,dockY,pb,sc){ const items=dockView(); if(!items.length) return; const PW=W*.19, ax=W*.12;
+function drawHome(L,t,night,dockY,pb,sc){ if(HOMEF[L.id]) return; /* format homes have no decorations (docs/HOME_STANDARD.md) */ const items=dockView(); if(!items.length) return; const PW=W*.19, ax=W*.12;
   const surf = dockY+pb, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax-40*sc-X0)/(X1-X0),(ax+12*sc-X0)/(X1-X0));
   const cot=items.indexOf('cottage'); if(cot>=0) drawDockItem(g,'cottage',W*.045,surf,sc*1.5,t,night,true);
   items.forEach(id=>{ if(id==='cottage'||P[id]==null) return; drawDockItem(g,id,X0+P[id]*(X1-X0),surf,sc*dockItemScale(id),t,night); }); }
@@ -167,7 +167,7 @@ function drawAmbient(L,t,night,hz,dt){ if(!S.settings.effects) return;
 function drawVignette(night){ const gr=g.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(4,10,16,'+(.22+night*.2)+')'); g.fillStyle=gr; g.fillRect(0,0,W,H); }
 
 // ---------- actions ----------
-function extraAct5(b){ const k=b.dataset.k;
+function extraAct5(b){ const k=b.dataset.k; { const hr=hfAct(b); if(hr!==undefined) return hr; } /* format home choices */
   switch(b.dataset.act){
     case 'derby': { if(S.derby||G.st!=='idle') return 'skip'; const c=derbyCost(); if(S.money<c) return 'skip'; S.money-=c; startDerby(); return 'render'; }
     case 'passclaim': { const got=[]; while(S.pass.claimed<S.pass.lvl){ S.pass.claimed++; got.push(grantPass(S.pass.claimed)); } if(got.length){ sfx.shiny(); toast('Tide Pass: '+got.slice(0,3).join(', ')+(got.length>3?' and more':'')); renderBait(); } return 'render'; }

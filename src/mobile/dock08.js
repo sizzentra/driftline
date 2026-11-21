@@ -15,10 +15,28 @@
 { let DK_OPEN=true; try{ DK_OPEN=localStorage.getItem('dl-dk-open')!=='0'; }catch(e){}
   const saveOpen=()=>{ try{ localStorage.setItem('dl-dk-open',DK_OPEN?'1':'0'); }catch(e){} };
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
+  /* the strip's Options / Hide button (opens and closes the panel; remembered on this device) */
+  const mkTog=(P,bar,land,showT,hideT)=>{ const tog=h('button','aq07-tog'); tog.type='button'; const paintTog=()=>{ tog.setAttribute('aria-expanded',String(DK_OPEN)); tog.title=DK_OPEN?hideT:showT;
+      tog.innerHTML=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${land?(DK_OPEN?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'):(DK_OPEN?'M6 9l6 6 6-6':'M6 15l6-6 6 6')}"/></svg><span>${DK_OPEN?'Hide':'Options'}</span>`; };
+    paintTog(); bar.appendChild(tog);
+    tog.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); DK_OPEN=!DK_OPEN; saveOpen(); P.classList.toggle("aq07-open",DK_OPEN); paintTog(); fit($("homecv")); }); };
   let RO=null; const fit=c=>{ const v=c&&c.parentElement; if(!v) return; if(typeof cv!=='undefined'&&cv&&cv.width>40&&W>40){ try{ paintHome(); }catch(e){} return; } /* live scene view: paintHome sizes the canvas itself */ const r=v.getBoundingClientRect(); if(r.width<40||r.height<40) return; const H2=Math.max(200,Math.min(1600,Math.round(900*r.height/r.width)));
     if(c.width!==900||c.height!==H2){ c.width=900; c.height=H2; try{ paintHome(); }catch(e){} } };
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); const on=MOB()&&S.tab==='home'; if(!on){ P.classList.remove('dk08'); return r; }
       const cv=P.querySelector('#homecv'), tile=cv&&cv.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return r;
+      /* a home in the home format (docs/HOME_STANDARD.md): the close-up of the home, a strip, and its 5 elements as the tabs */
+      if(P.querySelector(':scope > .hf-mark')){ const sp=hfSpec(S.loc), land=document.body.classList.contains('phone-land'); P.dataset.dkLand=land?'1':'0';
+        P.classList.add('aq07','dk08'); P.classList.toggle('aq07-open',DK_OPEN);
+        const stage=h('div','aq07-stage'); tile.before(stage); tile.classList.add('dk08-view'); tile.removeAttribute('style'); stage.appendChild(tile); cv.removeAttribute('style');
+        const bar=h('div','aq07-bar'); stage.after(bar);
+        bar.appendChild(h('div','aq07-bank dk08-bank',`<div><span class="sub">Your home</span><b>${esc(sp.name)}</b></div><div><span class="sub">Parts</span><b>${sp.els.length} to change</b></div><div><span class="sub">Cost</span><b>All free</b></div>`));
+        mkTog(P,bar,land,'Show the parts of your '+sp.hname,'Hide the parts and see your whole '+sp.hname);
+        const sheet=h('div','aq07-sheet'), body=h('div','aq07-body'), sec=h('div','aq07-sec dk08-sec-home'); bar.after(sheet); sheet.appendChild(nav); sheet.appendChild(body); body.appendChild(sec);
+        P.querySelectorAll(':scope > [data-hel]').forEach(el=>sec.appendChild(el));
+        [...P.children].forEach(ch=>{ if(ch!==stage&&ch!==bar&&ch!==sheet&&!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
+        nav.addEventListener('click',()=>{ body.scrollTop=0; });
+        if(!RO&&window.ResizeObserver) RO=new ResizeObserver(()=>{ const k=$('homecv'); if(k&&MOB()&&S.tab==='home') fit(k); });
+        if(RO){ RO.disconnect(); RO.observe(tile); } fit(cv); return r; }
       const loc=LOCS[locIdx(S.loc)]||LOCS[0], feats=HOME_FEATURES[loc.plat]||['light'], hname=HOME_NAMES[loc.plat]||'home', Hn=hname.charAt(0).toUpperCase()+hname.slice(1);
       const land=document.body.classList.contains('phone-land'); P.dataset.dkLand=land?'1':'0';
       P.classList.add('aq07','dk08'); P.classList.toggle('aq07-open',DK_OPEN);
@@ -34,10 +52,7 @@
       const bar=h('div','aq07-bar'); stage.after(bar);
       const c=cozy(), cb=cozyBonus(), bank=h('div','aq07-bank dk08-bank',`<div><span class="sub">Cozy · ${esc(cozyName())}</span><b>${c} ♥</b></div><div><span class="sub">Bonus</span><b>+${cb}% XP</b></div><div><span class="sub">Placed</span><b>${S.dock.decor.length} / ${DOCK_SLOTS}</b></div>`);
       bar.appendChild(bank);
-      const tog=h('button','aq07-tog'); tog.type='button'; const paintTog=()=>{ tog.setAttribute('aria-expanded',String(DK_OPEN)); tog.title=DK_OPEN?'Hide the options and see the whole '+hname:'Show Your '+hname+' and Decorations';
-        tog.innerHTML=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${land?(DK_OPEN?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'):(DK_OPEN?'M6 9l6 6 6-6':'M6 15l6-6 6 6')}"/></svg><span>${DK_OPEN?'Hide':'Options'}</span>`; };
-      paintTog(); bar.appendChild(tog);
-      tog.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); DK_OPEN=!DK_OPEN; saveOpen(); P.classList.toggle("aq07-open",DK_OPEN); paintTog(); fit($("homecv")); });
+      mkTog(P,bar,land,'Show Your '+hname+' and Decorations','Hide the options and see the whole '+hname);
       if(pv){ pv.classList.add('aq07-try'); const nm=pv.querySelector('b'), lbl=pv.querySelector('span'); if(lbl&&nm) lbl.innerHTML='Trying: <b>'+nm.innerHTML+'</b>'; bar.prepend(pv); bar.classList.add('aq07-trying-on'); }
       // the panel: two tabs over one scrolling body
       const sheet=h('div','aq07-sheet'), body=h('div','aq07-body'); bar.after(sheet); sheet.appendChild(nav); sheet.appendChild(body);
@@ -101,7 +116,7 @@ function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('h
      a frame that had not changed) */
   const S0=DK_SCENE_OK, d=now-(S0.raw||0); S0.raw=now; if(d>2&&d<60) S0.ema=(S0.ema||16.7)*.92+d*.08;
   if((S0.ema||16.7)<11||(S0.cost||0)>9){ S0.odd=!S0.odd; /* 120 Hz screen, or a phone that needs more than ~9 ms for the scene: a steady every other frame */ if(S0.odd) return false; } else S0.odd=false; S0.drew=now; S0.drewAt=performance.now(); return true; }
-{ const crop=c=>{ const L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; const top=(typeof MB_STATUS_B==='number'?MB_STATUS_B:40)+4; /* below the weather label and boost timers drawn on the water */ let sw=Math.min(W,W*.62), sh=sw*c.height/c.width; if(sh>H-top){ sh=H-top; sw=Math.min(W,sh*c.width/c.height); } return {sx:0, sy:Math.max(top,Math.min(H-sh,H*.6-sh*f)), sw, sh}; };
+{ const crop=c=>{ const L=LOCS[locIdx(S.loc)], f=(L&&(L.plat==='boat'||L.plat==='trawler'||L.plat==='raft'))?.55:.64; const top=(typeof MB_STATUS_B==='number'?MB_STATUS_B:40)+4; /* below the weather label and boost timers drawn on the water */ if(HOMEF[S.loc]) return hfFrame(c,top); /* format homes: framed on the home */ let sw=Math.min(W,W*.62), sh=sw*c.height/c.width; if(sh>H-top){ sh=H-top; sw=Math.min(W,sh*c.width/c.height); } return {sx:0, sy:Math.max(top,Math.min(H-sh,H*.6-sh*f)), sw, sh}; };
   const live=()=>typeof cv!=='undefined'&&cv&&cv.width>40&&W>40&&H>40;
   const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!MOB()||!c.closest('.dk08-view')||!live()) return _ph.apply(this,arguments);
     if(!paintHome.now&&performance.now()-(DK_SCENE_OK.drewAt||0)<150) return; /* the live scene copies itself right after each draw (below) */
@@ -110,7 +125,7 @@ function DK_SCENE_OK(now){ if(S.tab!=='home'||!MOB()) return false; const c=$('h
     x.drawImage(cv,b.sx*d,b.sy*d,b.sw*d,b.sh*d,0,0,w,hh); };
   { const _dr=draw; draw=function(now){ const a=performance.now(), r=_dr.apply(this,arguments); if(DK_SCENE_OK.drew===now&&now){ DK_SCENE_OK.cost=(DK_SCENE_OK.cost||6)*.85+(performance.now()-a)*.15; DK_SCENE_OK.drew=-1; paintHome.now=true; try{ paintHome(); }catch(e){} paintHome.now=false; } return r; }; } /* copy the frame just drawn */
   /* drag decorations and pets along the real home (the same fractions the game uses) */
-  document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!MOB()||!c.closest('.dk08-view')||!live()) return; e.stopImmediatePropagation(); e.preventDefault();
+  document.addEventListener('pointerdown',e=>{ const c=e.target; if(!c||c.id!=='homecv'||!MOB()||!c.closest('.dk08-view')||!live()||HOMEF[S.loc]) return; /* format homes: nothing to drag */ e.stopImmediatePropagation(); e.preventDefault();
     const b=crop(c), r=c.getBoundingClientRect(), gx=ev=>b.sx+(ev.clientX-r.left)/r.width*b.sw, X0=W*.008, SPAN=W*.17, frac=v=>clamp((v-X0)/SPAN,0,1);
     const sc=clamp(H/420,.7,1.25), ax=W*.12, items=dockView(), P=dockPositions(items,(ax-40*sc-X0)/(W*.178-X0),(ax+12*sc-X0)/(W*.178-X0));
     const x0=gx(e); let best=null, bd=W*.02;

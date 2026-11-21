@@ -340,3 +340,12 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | Shorter hints, fight cues (d_draw + phone fight08, same lines) and pop-ups; jokes untouched | every build | `__qa` text standard (lengths) |
 | Scrap and its tooltip name the Nibbles’ rarity (outdated since C27); weather warning “X in 1 min: …” (phone weather07 parses it) | every build | |
 | `__textInv()` (test builds): every kind of player text with lengths; `__qa` keeps every pop-up it causes | tests | |
+
+## Home format pilot: Willow Pond (2026-11-21, test builds; docs/HOME_STANDARD.md)
+| Change | Affects | Check |
+|---|---|---|
+| `src/cv_homefmt.js`: HOMEF (format homes; pilot `pond`), HF geometry, stored picture (`hfPaintCache`, repainted on a choice, size or light step), live light/ripples (`hfDraw`), bank (`hfShore`), supports (`hfPost`), Home page (`renderHomeF`, `hfSections`, `hfFrame`), choices (`hfAct`, saved in `S.dock.el`) | Willow Pond only; every other water keeps the old home system | `__qa` home format test |
+| Owner hooks: `v3Platform` (f_v3scene) draws format homes; `drawHome` (d7_v20) skips decorations; `renderHome` and `extraAct5` route to the format; `drawPetScene` (d3_update) ignores dragged pet spots; `dockCopy`/`DOCK_KEYS` (bm_ui04) carry `el`; `applySections` (x_sections) makes the 5 tabs | pond: no decorations, fixed pet spots, 5 tabs | `__qa`, `__spec`, content checks |
+| Phone Home page (dock08): format branch (close-up, strip, 5 tabs), shared `mkTog`; crop → `hfFrame`; no dragging. home06 skips its light/hull block on format homes | phones | `__spec` 956×440 |
+| PC Home page (br_pc05): format branch (close-up on top, parts underneath, taller view `dk-hfp`); `DK_CROP` → `hfFrame`; no dragging | PC | content checks |
+| pages08: `.mb-swrow` display rule no longer overrides the tab engine's hiding (`:not([style*="display: none"])`) | every phone page with colour swatches in tabs | `__spec`; visible-rows check |

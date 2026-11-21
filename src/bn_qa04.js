@@ -499,6 +499,16 @@ T('page tabs: a part hidden by a page tab never stays on screen (a forced style 
     for(const p of PETS) if((p.src==='crate'||p.src==='gift')&&p.name&&word(p.name).test(items)) e.push(p.src+' pet: '+p.name);
     const odds=items.match(/\b\d+(\.\d+)?\s?% (chance|odds)\b/gi); if(odds) e.push('exact odds: '+odds.join(', '));
     return e.length?{ok:false,detail:e.slice(0,10).join(' | ')}:{ok:true,detail:'version '+P0.v+', '+(P0.items||[]).length+' lines'}; });
+  T('home format (docs/HOME_STANDARD.md): every format home has 5 parts (the light first), 3 styles and 6-9 colours each, every style and colour paints by day and night, choices survive a save, the pets keep their fixed spots',()=>{ const e=[]; let n=0; const keepDock=JSON.parse(JSON.stringify(S.dock)), keepLoc=S.loc;
+    try{ for(const id in HOMEF){ const sp=HOMEF[id]; if(!LOCS.some(L=>L.id===id)) e.push(id+': not a water');
+        if(sp.els.length!==5) e.push(id+': '+sp.els.length+' parts (5)'); if(!sp.els[0]||sp.els[0].id!=='light') e.push(id+': the light is not the first part');
+        for(const el of sp.els){ if(el.styles.length!==3) e.push(id+' '+el.id+': '+el.styles.length+' styles (3)'); if(el.colours.length<6||el.colours.length>9) e.push(id+' '+el.id+': '+el.colours.length+' colours (6-9)'); }
+        S.loc=id; const P0=v3palette.v||v3palette(id,0,.1,0);
+        for(const el of sp.els) for(let s=0;s<el.styles.length;s++) for(let c=0;c<el.colours.length;c++){ S.dock.el=Object.assign({},S.dock.el||{},{[el.id]:[s,c]}); for(const nt of [0,.9]){ delete HF_CACHE[id]; try{ const cc=hfPaintCache(LOCS[locIdx(id)],P0,nt,HF.dockY()); n++; if(!cc.cv.width||!cc.cv.height) e.push(id+' '+el.id+' '+s+'/'+c+': empty picture'); if(el.id==='light'&&!cc.lights.length) e.push(id+' light style '+s+': no light spot'); }catch(er){ e.push(id+' '+el.id+' '+s+'/'+c+': '+er.message); } } }
+        S.dock.el={light:[2,3],deck:[1,4]}; const back=dockCopy(JSON.parse(JSON.stringify(S.dock))); if(JSON.stringify(back.el)!==JSON.stringify({light:[2,3],deck:[1,4]})) e.push(id+': choices lost in a save ('+JSON.stringify(back.el)+')');
+        const bad=dockCopy({el:{light:[99,0],deck:'x',posts:[1,2,3]}}); if(Object.keys(bad.el||{}).length) e.push(id+': a broken choice survived ('+JSON.stringify(bad.el)+')'); }
+    } finally{ S.dock=keepDock; S.loc=keepLoc; for(const k in HF_CACHE) delete HF_CACHE[k]; }
+    return {ok:!e.length, detail:e.slice(0,8).join(' | ')||Object.keys(HOMEF).length+' format home(s), '+n+' paintings'}; });
   T('memory (#151, the iPhone ran out of memory): pictures a page redraw drops are released, and angler previews share their scratch canvases',()=>{ const e=[];
     setTab('journal'); const a=[...$('panel').getElementsByTagName('canvas')]; if(!a.length) e.push('the Fish Log drew no pictures to test with');
     setTab('settings'); setTab('journal'); const kept=a.filter(c=>!c.isConnected&&c.width>0).length; if(kept) e.push(kept+' of '+a.length+' dropped Fish Log pictures still hold their memory');
@@ -622,7 +632,8 @@ if(/[?&]test\b/.test(location.search)) window.__snapQC=async(o={})=>{ const wait
     const pick=[...new Set([B[0],B[B.length>>1],B[B.length-1]])];
     for(const b0 of pick){ const k=keyOf(b0); let b=P.querySelector(k)||b0; const sc=scroller(b); if(sc){ const r=b.getBoundingClientRect(), q=sc.getBoundingClientRect(); sc.scrollTop+=(r.top+r.height/2)-(q.top+q.height/2); await wait(80); }
       b=$('panel').querySelector(k); if(!b||!vis(b)) continue; const r0=b.getBoundingClientRect(), s0=sc?sc.scrollTop:0, cy0=r0.top+r0.height/2, cx0=r0.left+r0.width/2; taps++; /* centres: a thicker border on the chosen option is not movement */
-      b.click(); await wait(420); const b2=$('panel')&&$('panel').querySelector(k); if(!b2||!vis(b2)) continue; const r1=b2.getBoundingClientRect(), sc2=scroller(b2);
+      let rev=false; const onRev=()=>{ rev=true; }; addEventListener('dl-reveal',onRev,true); /* trying something on may scroll to its preview on purpose (C13, pvReveal): not a jump */
+      b.click(); await wait(420); removeEventListener('dl-reveal',onRev,true); if(rev) continue; const b2=$('panel')&&$('panel').querySelector(k); if(!b2||!vis(b2)) continue; const r1=b2.getBoundingClientRect(), sc2=scroller(b2);
       const dy=Math.round(r1.top+r1.height/2-cy0), dx=Math.round(r1.left+r1.width/2-cx0);
       /* up to 4 px allowed: on small PC windows the sticky tab bar restyles as the page scrolls (a nudge at the very end of short pages) */
       if(Math.abs(dy)>4||Math.abs(dx)>4) out.push(where+': tapping "'+((b2.textContent||b2.title||b2.getAttribute('aria-label')||k).trim().slice(0,24))+'" moved it '+(dy?dy+' px down':'')+(dy&&dx?', ':'')+(dx?dx+' px right':'')+(sc?' (scroll '+Math.round(s0)+' → '+Math.round(sc2?sc2.scrollTop:0)+')':'')); } };

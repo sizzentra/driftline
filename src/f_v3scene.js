@@ -290,6 +290,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   return true;
 }
 function v3Platform(L,t,night,dockY,pb){
+  if(V3ON&&V3SCENES[L.id]&&HOMEF[L.id]&&v3palette.v){ hfDraw(L,t,night,dockY,pb,v3palette.v); return true; } /* a home in the home format (docs/HOME_STANDARD.md) */
   const fn=V3PLAT[L.plat]; if(!V3ON || !V3SCENES[L.id] || !fn) return false;
   const P=v3palette.v; if(!P) return false; fn(P,t,night,dockY,pb,L); return true;
 }

@@ -186,7 +186,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     const note=P.querySelector('.hm-note'); if(note&&!note.dataset.short){ note.dataset.short='1'; note.textContent='Free to change. Every choice shows on the water at once.'; }
   }catch(e){ console.error(e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-app #menuov #panel .chips.mb-swrow,html body.phone-land #menuov #panel .chips.mb-swrow{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+html body.phone-app #menuov #panel .chips.mb-swrow:not([style*="display: none"]),html body.phone-land #menuov #panel .chips.mb-swrow:not([style*="display: none"]){display:flex!important;flex-wrap:wrap!important;gap:8px!important}
 html body.phone-app #menuov #panel button.chipb.mb-swatch,html body.phone-land #menuov #panel button.chipb.mb-swatch{width:32px!important;min-width:32px!important;height:32px!important;padding:3px!important;border-radius:50%!important;position:relative;display:inline-flex!important;align-items:center;justify-content:center}
 html body.phone-app #menuov #panel button.chipb.mb-swatch > .hm-sw,html body.phone-land #menuov #panel button.chipb.mb-swatch > .hm-sw,html body.phone-app #menuov #panel button.chipb.mb-swatch > .tint-dot,html body.phone-land #menuov #panel button.chipb.mb-swatch > .tint-dot{width:100%!important;height:100%!important;margin:0!important;border-radius:50%!important;display:block!important;vertical-align:0!important}
 html body.phone-app #menuov #panel button.chipb.mb-swatch[aria-pressed="true"],html body.phone-land #menuov #panel button.chipb.mb-swatch[aria-pressed="true"]{box-shadow:0 0 0 2px #ffd36a!important;border-color:#ffd36a!important;background:#13233a!important}
