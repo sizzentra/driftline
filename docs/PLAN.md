@@ -134,7 +134,7 @@ Parked in Ideas: the Report a problem button.
 
 ### Questions for Cam (fish feel update, before batch 1 is built)
 Each has Claude's suggested answer, so Cam can just say yes or give his own.
-1. **Perfect hooks "back to their former glory":** what should a perfect hook give? Suggested: as before the fight-feel change, a perfect hook starts the fish with less fight (about 25% less) and a short calm start.
+1. **Perfect hooks "back to their former glory":** what should a perfect hook give? Facts (checked in the code): before the new fight, a perfect hook started the fish at 80% fight with no tension and a first rest of only 0.5-0.9 s; with Quick Reflexes maxed the fish also started halfway in. In the new fight the 80% fight and the halfway start still apply, but the short first rest is lost (the new fight sets its own first rest of 0.7-1.4 s). Does Cam want exactly the old effect back, or something stronger?
 2. **Temper drop when not reeling:** how fast? Suggested: from full to empty in about 3 s.
 3. **Full temper, "much reduced amount of fight" per action:** how much? Suggested: each action costs the fish half of its normal fight.
 4. **Tension falling when you ease up:** how fast? Suggested: about 35 a second (full to empty in about 3 s), a third of that during a fight action.
