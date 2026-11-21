@@ -6,6 +6,11 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.9) are in `docs/HISTORY.md`.
 
 ## Open now (the one place for open work and decisions; CLAUDE.md only points here)
+**Sweep tool bookmark** (director, 2026-11-20: tool problems wait here; the game findings from the same runs were fixed first). From the real-phone runs on build 1946:
+- ☐ iPhone 16 Pro Max (Safari view from Tester tools): 56 min for 29 checks (Pixel: 6.7 min for 28). The page reloaded (out of memory) during the test suite at 956×440, Content 440×460, Content (extreme) 667×375 and Fish decorations, even after the #151 memory fix. Likely cause: each check loads a whole 2.8 MB game into a frame inside the page, and Safari does not hand back a closed frame's memory quickly. Ideas: open each check as its own page instead of a frame (a fresh page frees everything), or run fewer, smaller checks on iPhone.
+- ☐ iPhone: time-outs (Content 667×375 after 400 s; layout/search/quests after 120 s). The iPhone runs about 8× slower than the Pixel here, so the time limits made for a PC are too short. Ideas: per-device limits, or measure the phone first and scale.
+- ☐ The sweep in the Safari view uses its own storage, so phones always test a fresh save, not the tester’s own (that is useful, but the report should say so). Locally the sweep only tests Claude’s well-stocked save: add a fresh-save pass to the local sweep (the failures below all came from a fresh save and passed on Claude’s save).
+- ☐ The Pixel reports its real screen as 924×412 (the checks used 915×412 for Android before); the sweep now uses the real size on phones. Keep.
 **Shelved for the next build** (director, 2026-11-20: "we want them in the build, but shelf them for now")
 - ☐ Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
 - ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
@@ -53,6 +58,9 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ 3. “Report a problem” button in the test apps. (Ask: what it includes, where it sits.)
 - ☐ 4. Guided real-phone tap check. (Ask: 2 or 5 minutes; every build or before a release.)
 - ☐ 5. Rest of the checks overhaul (saves, speed budgets, balance targets). (Ask: target numbers.)
+- ☐ F. Flavour text coverage (director, 2026-11-20): every kind of flavour text in the game (fish notes, item and oddity blurbs, quips, toasts, pet lines, loading and empty-page lines, catch cards) listed in one place, each with its rules (tone, length per place, spoilers, phone words) and a check that every item has its text and that the text follows them. Builds on C.
+- ☐ G. PC review (director, 2026-11-20): a big conversation with the director about how dated the PC systems and design are next to the phone versions. Claude prepares a side-by-side (every page and system: what phones have that PC lacks, older PC layouts and code, measured differences), then we decide together what PC gets.
+- Order (director): everything above, then F and G, then the Sweep tool bookmark (top of Open now). F and G never jump ahead of the items above.
 
 ## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)
 Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude builds it as asked and flags it (Feel call / suggested numbers) for the director and Cam to tune. Order of work: text and small fixes → UI → fishing and fights → economy → art and maps.

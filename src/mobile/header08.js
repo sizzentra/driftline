@@ -65,7 +65,7 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
-    T.hidden=!land; Pz.hidden=true; if(!land) return;
+    T.hidden=!land; Pz.hidden=true; hud.classList.remove('mb-compact'); if(!land) return;
     /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,
        Aquarium, Home and Fish Log always stay */
     /* "out of room" also means the Bait name is being cut: the Bait chip is allowed to shrink (polish08), so without this it soaked up all
@@ -75,6 +75,9 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
     if(over()) T.hidden=true;
     if(over()&&L&&has){ const b=L.querySelector(':scope > b'); if(b){ const p=b.textContent.trim().split(' '); if(p.length>2){ b.dataset.full=b.textContent; b.textContent=p[0]+' '+p[p.length-1]; b.dataset.tight=b.textContent; } } L.classList.add('mb-tight'); }
     if(over()&&L&&has) L.hidden=true;
+    /* last step (2026-11-20, director's iPhone at 667×375: "BAIT Worms" cut, 44 px of text in 39, with nothing left to step aside): every
+       chip gives up a little of its padding before any word is cut; the info box keeps its words (rule) */
+    if(over()) hud.classList.add('mb-compact');
     if(!ro&&typeof ResizeObserver==='function'){ ro=new ResizeObserver(()=>{ if(!busy) requestAnimationFrame(()=>{ busy=true; try{ fit(); }finally{ busy=false; } }); }); } if(ro){ for(const k of [hud,...hud.children]) if(!seen.has(k)){ seen.add(k); ro.observe(k); } } };
   if(/[?&]test\b/.test(location.search)) window.__hudFit=()=>fit(); /* QA: run the step-aside check now (the 500 ms tick is too slow for a test) */
   let ro=null, busy=false; const seen=new WeakSet(); /* round 8 (director: "settings cut off sometimes on top right"): the bar is re-checked whenever it or any chip changes size (the Live timer text, opening or closing the side panel), not only when Tasks or Tide Pass change */
@@ -134,7 +137,7 @@ html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-ap
     if(h.previousElementSibling!==aq) aq.after(h);
     let v='—'; try{ v=cozy()+' ♥'; }catch(e){} const b=h.querySelector('b'); if(b.textContent!==v) b.textContent=v; };
   ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); } /* built as the page loads (a 60 ms delay let the top bar open without Home and then shift; the QA top-bar check caught it right after a reload) */
-document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}</style>`); /* the info box never squeezes its words; the chips to its right make room (Tasks steps aside first) */
+document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}html body.phone-land .hud.mb-compact{column-gap:3px!important}html body.phone-land .hud.mb-compact > .stat,html body.phone-land .hud.mb-compact > .hud-link,html body.phone-land .hud.mb-compact > .stat.mb-x,html body.phone-land .hud.mb-compact > .mb-stat8 > .stat{padding-left:3px!important;padding-right:3px!important}html body.phone-land .hud.mb-compact > .mb-stat8{padding:0 2px!important}</style>`); /* the info box never squeezes its words (when even that is not enough, .mb-compact trims every chip’s padding, fit() above); the chips to its right make room (Tasks steps aside first) */
 /* round 8 (director, 2026-11-18: "goal shouldn't be on the top header. Bait should move up there instead"): the goal lives in Quests
    (side panel); Bait sits in the top bar after Tasks: the bait you use (and how many are left), tap to open Tackle, Bait. The Bait
    button on the water (next to Rest) is gone. */

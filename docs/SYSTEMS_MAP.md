@@ -322,3 +322,12 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 |---|---|---|
 | `renderPanel` (e_ui.js) releases the pictures the previous redraw dropped (only those no longer on the page), at the next redraw and once idle | every page on every build; anything that keeps a canvas element off the page and puts it back later would come back blank (none found) | qa memory test; full sweep |
 | `drawAngler3` (g_angler.js): only the angler on the water keeps its own scratch canvases; every other picture shares one set per size (`A3SCR`, last 6 sizes) | wardrobe, previews, look sheets, hair check; same pixels (cleared each time, exact size) | qa memory test, C32 hair (pixel check), content checks |
+
+## From the first real-phone sweep reports (#152–#156, 2026-11-20, test builds)
+| Change | Affects | Check |
+|---|---|---|
+| `sellBase()` (c_logic.js): one sale price formula for `sellMult` and Market Rush's fx (bk_events036) | every sale price; Market Rush with the Merchant Path now a true 30% | qa Market Rush (with and without Merchant, ±0.5%; proven) |
+| Phone Bait page (waters08.js): an invisible stand-in for "Switch to worms" keeps the Bait in use card one height | phones only | snapQC on a Worms + one bait save (proven) |
+| C13 hold (bo_guard04.js): also puts a sideways-scrolling row back so the tapped option stays put; keys match option buttons only | every page with a sideways chip row, every build | snapQC at 667×375 with every water unlocked (proven) |
+| Phone top bar fit() (header08.js): last step `.mb-compact` trims chip padding | phones sideways, narrow | __spec at 600 / 580 (proven), 667 / 956 unchanged |
+| Tests: Twin Hook measured from a clean start; snapQC keys match option buttons only | tests only | |

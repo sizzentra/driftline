@@ -20,14 +20,16 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
 // One rule for every page instead of a fix per page: before the page redraws, the tapped option's place on screen is noted; after the
 // redraw (and once more just before the next frame, for pages that finish later) its scroll box is moved so the option is back on
 // that exact spot. Only option buttons (the ones that show a chosen state) are held; buttons that change the page keep their behaviour.
-{ let held=null; const keyOf=b=>['act','k','v','i'].map(a=>b.dataset[a]!=null?'[data-'+a+'="'+CSS.escape(b.dataset[a])+'"]':'').join('');
+{ let held=null; const keyOf=b=>'button[aria-pressed]'+['act','k','v','i'].map(a=>b.dataset[a]!=null?'[data-'+a+'="'+CSS.escape(b.dataset[a])+'"]':'').join('');
   const scroller=e=>{ for(let p=e.parentElement;p&&p!==document.body;p=p.parentElement){ const cs=getComputedStyle(p); if(/(auto|scroll)/.test(cs.overflowY)&&p.scrollHeight>p.clientHeight+1) return p; } return null; };
-  const settle=()=>{ if(!held) return; const P=document.getElementById('panel'), el=P&&P.querySelector(held.k); if(!el||!el.getClientRects().length) return; const dy=el.getBoundingClientRect().top-held.top; if(Math.abs(dy)<1) return; const sc=scroller(el); if(!sc) return;
+  /* sideways too (iPhone, 2026-11-20: in a row of chips that scrolls sideways, Bounties' waters, the redraw put the row back at its start and the tapped water jumped 1,044 px) */
+  const xscroller=e=>{ for(let p=e.parentElement;p&&p!==document.body;p=p.parentElement){ const cs=getComputedStyle(p); if(/(auto|scroll)/.test(cs.overflowX)&&p.scrollWidth>p.clientWidth+1) return p; } return null; };
+  const settle=()=>{ if(!held) return; const P=document.getElementById('panel'), el=P&&P.querySelector(held.k); if(!el||!el.getClientRects().length) return; const dx=el.getBoundingClientRect().left-held.left; if(Math.abs(dx)>=1){ const xs=xscroller(el); if(xs) xs.scrollLeft+=dx; } const dy=el.getBoundingClientRect().top-held.top; if(Math.abs(dy)<1) return; const sc=scroller(el); if(!sc) return;
     /* at the very bottom, a line removed below the option shortens the page and the browser scrolls everything down; a little empty room
        at the end (gone with the next redraw) lets the option stay put */
     const want=sc.scrollTop+dy, max=sc.scrollHeight-sc.clientHeight; if(want>max+.5){ let pad=sc.querySelector(':scope > .snap-pad'); if(!pad){ pad=document.createElement('div'); pad.className='snap-pad'; pad.setAttribute('aria-hidden','true'); sc.appendChild(pad); } pad.style.height=((parseFloat(pad.style.height)||0)+want-max)+'px'; }
     sc.scrollTop=want; };
-  addEventListener('click',e=>{ const b=e.target&&e.target.closest&&e.target.closest('#panel button[aria-pressed][data-act]'); held=b&&!b.disabled?{k:keyOf(b), top:b.getBoundingClientRect().top}:null;
+  addEventListener('click',e=>{ const b=e.target&&e.target.closest&&e.target.closest('#panel button[aria-pressed][data-act]'); held=b&&!b.disabled?{k:keyOf(b), top:b.getBoundingClientRect().top, left:b.getBoundingClientRect().left}:null;
     /* held for a short moment: some pages finish later (the phone home view resizes its picture after the redraw) */
     if(held){ const h=held, again=()=>{ if(held===h) settle(); }; requestAnimationFrame(()=>{ again(); requestAnimationFrame(again); }); setTimeout(again,150); setTimeout(()=>{ again(); if(held===h) held=null; },350); } },true);
   addEventListener('click',()=>settle());

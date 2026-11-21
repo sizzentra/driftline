@@ -15,7 +15,7 @@ const CATCHES_PER_MIN = 3.6; // a steady pace (about one landed fish every 16 se
 const SCHED=[
   {id:'shoal', name:'Shoal Run',   icon:'🐟', every:90,  len:8, off:0,  col:'#7fe3c4', fx:{bite:.6, rare:.15}, what:'Bites +60% and more rare fish', d:'A great shoal passes through every water: bites come 60% faster and rare fish are more common.'},
   {id:'gold',  name:'Golden Hour', icon:'✨', every:120, len:6, off:50, col:'#ffd36a', fx:{shiny:1},          what:'Shiny fish twice as common',  d:'The light turns gold over every water and shiny fish come out twice as often.'},
-  {id:'market',name:'Market Rush', icon:'🪙', every:75,  len:6, off:25, col:'#ffb36a', fx:{sell:()=>.3*(1+.03*(S.lvl-1)+.04*pr('haggler')+_bonus_036('sell')+cozyBonus()*.005+.01*anglerRank())}, /* a true +30% of your sale price, whatever your level */          what:'Fish sell for 30% more',      d:'Buyers crowd the harbour: the fishmonger pays 30% more for everything you sell.'},
+  {id:'market',name:'Market Rush', icon:'🪙', every:75,  len:6, off:25, col:'#ffb36a', fx:{sell:()=>.3*(sellBase()+_bonus_036('sell'))}, /* a true +30% of your sale price, whatever your level */          what:'Fish sell for 30% more',      d:'Buyers crowd the harbour: the fishmonger pays 30% more for everything you sell.'},
 ];
 const schedLeft = e => { const p=e.every*MIN, t=(Date.now()-e.off*MIN)%p, tt=t<0?t+p:t; return tt<e.len*MIN ? e.len*MIN-tt : 0; };
 const schedNext = e => { const p=e.every*MIN, t=(Date.now()-e.off*MIN)%p, tt=t<0?t+p:t; return p-tt; };

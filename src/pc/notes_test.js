@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'From your two sweep reports: Market Rush gives its full 30% with the Merchant Path; tapping a water in Bounties’ sideways row keeps the row where it was (this one is on every build).',
+  '## Test build 1943',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space. On the iPhone, Run every check ran out of memory during the test suite; it should now finish (the suite itself uses about a quarter of the memory it did, and lets go of each test’s pictures).',
   '## Test build 1832',
   'Tester tools › Run every check: it now runs only this device’s checks (pick iPhone, Android or PC at the top; the game picks for you), carries on if the phone reloads the page partway (before, the run quietly started over and never finished), keeps the screen awake, and Copy report works at any time (it copies what is done so far).',

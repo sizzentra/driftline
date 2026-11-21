@@ -111,7 +111,9 @@ const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
-const sellMult = () => (1 + .03*(S.lvl-1) + .04*pr('haggler') + bonus('sell') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.12:0) - 0) * coinMult();
+/* the sale price before bonuses: one formula, also used by Market Rush (a copy of it missed the Merchant Path, so Rush gave 27.5% instead of 30%: Cam's Pixel, 2026-11-20) */
+const sellBase = () => 1 + .03*(S.lvl-1) + .04*pr('haggler') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.12:0);
+const sellMult = () => (sellBase() + bonus('sell')) * coinMult();
 const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * (coinMult() + .01*(pshopLv('xp')-pshopLv('gold')));
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => { const n=Math.floor(Math.pow(S.stats.runEarned/PEARL_DIV,1/PEARL_EXP)*voyagePearlMult()*pathMul('pearl')); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
