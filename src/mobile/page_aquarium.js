@@ -18,8 +18,15 @@
     if(!rows.length) return `<div class="empty">Your Cooler is empty. Fish you catch can go on display from here.</div>`;
     return (full?`<p class="aq07-note">The tank is full (${S.tank.length} of ${aqCap()}). Make room or buy a bigger tank to add more.</p>`:'')+`<div class="list aq07-addlist">`+rows.map(({f,i})=>{ const sp=SPI[f.id];
       return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas><div class="nm"><span style="color:${RAR[sp.r].c}">${esc(sp.name)}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)} · ${fmt(fishRate(f)*60)} / hour · ${esc(aqTxt(f))}</small></div><div class="acts"><button class="btn sm" data-act="totank" data-i="${i}" ${full?'disabled':''}>To aquarium</button></div></div>`; }).join('')+`</div>`; };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); const on=MOB()&&S.tab==='aquarium'; P.classList.toggle('aq07',on); if(!on) return r;
-      const tank=P.querySelector(':scope > .tank'), nav=P.querySelector(':scope > .sect-nav'), bank=P.querySelector('.bank'); if(!tank||!nav) return r;
+  /* Clean Pages (2026-11-21): every phone layer of the Aquarium page lives in this file and runs as one step (the one renderPanel
+     wrapper at the bottom of this block), in the order the old separate layers ran: the header card (was pages06.js), the layout,
+     Decorate, the live tank canvas carried over, then the Tank cell and the tank size line (was polish08.js). */
+  // the header card: a one-line note, the boosts and the earnings together, the long explanation behind "How the aquarium works"
+  const aqHeader=P=>{ if(P.querySelector('.mb-aqh')) return; const hd=P.querySelector(':scope > .dl-head'), badges=P.querySelector(':scope > .badges');
+      if(hd){ hd.classList.add('mb-aqh'); const sub=hd.querySelector('p.sub'); if(sub){ const full=sub.textContent; sub.textContent='Visitors pay to see your fish, even while you are away. Every fish on display adds its boost.'; sub.insertAdjacentHTML('afterend',`<details class="mb-more"><summary>How the aquarium works</summary><p>${esc(full)}</p><p>Increase your tank size for more fish, more buffs, and more income!</p></details>`); }
+        if(badges){ badges.removeAttribute('style'); badges.classList.add('mb-aqb'); hd.appendChild(badges); } } };
+  const aqLayout=P=>{
+      const tank=P.querySelector(':scope > .tank'), nav=P.querySelector(':scope > .sect-nav'), bank=P.querySelector('.bank'); if(!tank||!nav) return;
       const land=document.body.classList.contains('phone-land'); P.dataset.aqLand=land?'1':'0'; P.classList.toggle('aq07-open',AQ_OPEN);
       const kids=[...P.children].filter(c=>!c.classList.contains('crumb')&&c!==tank&&c!==nav);
       const deco=kids.find(c=>c.classList.contains('jsec')), head=kids.find(c=>c.classList.contains('dl-head')||c.classList.contains('mb-aqh'));
@@ -48,16 +55,11 @@
       // the tabs: two now (Add fish lives inside Your tank)
       const showSec=()=>{ const sel=nav.querySelector('[data-sect][aria-selected="true"]'); const isD=!!sel&&sel.dataset.sect==='Decorate'; secT.classList.toggle('aq07-off',isD); secD.classList.toggle('aq07-off',!isD); };
       nav.querySelectorAll('[data-sect]').forEach(b=>b.addEventListener('click',()=>setTimeout(()=>{ showSec(); body.scrollTop=0; },0)));
-      showSec(); paintFish(add);
-    }catch(e){ console.error(e); } return r; };
-  /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles) */
-  let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){} },160); }); }
-
-// ---------- Decorate on phones: tap to try, the try-on bar in the strip, a tried decoration in the most open spot, small cards ----------
-{ const bestGap=()=>{ const placed=S.aq.decor.filter(id=>!(AQ_PV&&AQ_PV.id===id)); const ps=aqPositions(placed); const xs=Object.values(ps).sort((a,b)=>a-b); const pts=[.03,...xs,.97]; let best=.5, gap=-1; for(let i=0;i<pts.length-1;i++){ const g=pts[i+1]-pts[i]; if(g>gap){ gap=g; best=(pts[i]+pts[i+1])/2; } } return Math.min(.95,Math.max(.05,best)); };
-  const _rp=renderPanel; renderPanel=function(){
-    try{ if(MOB()&&S.tab==='aquarium'&&AQ_PV&&AQ_PV.kind==='decor'&&!S.aq.owned.includes(AQ_PV.id)){ S.aq.pos=S.aq.pos||{}; if(S.aq.pos[AQ_PV.id]==null){ const now=aqPositions(S.aq.decor); S.aq.decor.forEach(id=>{ if(S.aq.pos[id]==null) S.aq.pos[id]=now[id]; }); S.aq.pos[AQ_PV.id]=bestGap(); } /* placed decorations keep their spots while one is tried */ } }catch(e){}
-    const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return r;
+      showSec(); paintFish(add); };
+  // ---------- Decorate on phones: tap to try, the try-on bar in the strip, a tried decoration in the most open spot, small cards ----------
+  const bestGap=()=>{ const placed=S.aq.decor.filter(id=>!(AQ_PV&&AQ_PV.id===id)); const ps=aqPositions(placed); const xs=Object.values(ps).sort((a,b)=>a-b); const pts=[.03,...xs,.97]; let best=.5, gap=-1; for(let i=0;i<pts.length-1;i++){ const g=pts[i+1]-pts[i]; if(g>gap){ gap=g; best=(pts[i]+pts[i+1])/2; } } return Math.min(.95,Math.max(.05,best)); };
+  const aqTryPlace=()=>{ if(AQ_PV&&AQ_PV.kind==='decor'&&!S.aq.owned.includes(AQ_PV.id)){ S.aq.pos=S.aq.pos||{}; if(S.aq.pos[AQ_PV.id]==null){ const now=aqPositions(S.aq.decor); S.aq.decor.forEach(id=>{ if(S.aq.pos[id]==null) S.aq.pos[id]=now[id]; }); S.aq.pos[AQ_PV.id]=bestGap(); } /* placed decorations keep their spots while one is tried */ } };
+  const aqDecorate=P=>{ if(!P.classList.contains('aq07')) return;
       const cv=$('tankcv'); if(cv) cv.scrollIntoView=function(){}; /* the tank is always on screen here: no jump */
       const bar=P.querySelector('.aq07-bar'), pv=P.querySelector('.pvbar:not(.pvhint)');
       if(bar&&pv){ pv.classList.add('aq07-try'); const nm=pv.querySelector('b'), lbl=pv.querySelector('span'); if(lbl&&nm) lbl.innerHTML='Trying: <b>'+nm.innerHTML+'</b>'; bar.prepend(pv); bar.classList.add('aq07-trying-on'); }
@@ -67,12 +69,31 @@
           t.classList.toggle('aq07-trying',!!trying); t.classList.toggle('aq07-placed',placed);
           const st=document.createElement('span'); st.className='aq07-st'; st.innerHTML= own?(placed?((S.aq.hid||[]).includes(id)?'Hidden · bonus still counts · tap to remove':'In your tank · tap to remove'):'Owned · tap to place'):(d&&d.price?(trying?'Trying · buy below the tank':'<span class="coin">'+fmt(d.price)+'</span> · tap to try'):'Crates and prizes only'); t.appendChild(st);
           t.querySelectorAll(':scope > .row, :scope > .btn').forEach(x=>x.classList.add('aq07-hide'));
-          if(own&&useB||(!own&&pvB)){ t.setAttribute('role','button'); t.tabIndex=0; t.addEventListener('click',e=>{ if(e.target.closest('button')) return; if(own) useB.click(); else if(!trying) pvB.click(); }); } }); }
-    }catch(e){ console.error(e); } return r; }; }
-
-// ---------- the tank keeps running through every re-render (the live canvas is carried into the new page) ----------
-{ const _rp=renderPanel; renderPanel=function(){ const keep=(MOB()&&S.tab==='aquarium')?$('tankcv'):null; const r=_rp.apply(this,arguments);
-    try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){} return r; }; }
+          if(own&&useB||(!own&&pvB)){ t.setAttribute('role','button'); t.tabIndex=0; t.addEventListener('click',e=>{ if(e.target.closest('button')) return; if(own) useB.click(); else if(!trying) pvB.click(); }); } }); } };
+  // the tank size (director, 2026-11-18: "Tank doesn't show tank size, upgrade lacks proper description"): a Tank cell in the strip,
+  // "holds N fish" on Your tank's heading, and the upgrade says what you get and what it costs
+  const aqTankSize=P=>{ if(!P.classList.contains('aq07')) return;
+    const cap=aqCap(), n=S.tank.length, bank=P.querySelector('.aq07-bank');
+    if(bank&&!bank.querySelector('.mb-tankcell')){ const cells=[...bank.children].filter(c=>c.tagName==='DIV'); const last=cells[cells.length-1];
+      const cell=document.createElement('div'); cell.className='mb-tankcell'; cell.title='Fish on display / how many your tank holds';
+      cell.innerHTML=`<div class="sub">Tank</div><b>${n} / ${cap}</b>`; if(last) last.after(cell); else bank.prepend(cell); }
+    const hr=P.querySelector('.aq07-sec-tank > .aq07-h'); if(hr&&!hr.querySelector('.mb-tankcap')){ const h2=hr.querySelector('h2'); if(h2) h2.insertAdjacentHTML('beforeend',` <span class="mb-tankcap">· holds ${cap} fish</span>`);
+      const buy=hr.querySelector('[data-act="buytank"]'); const cost=TANK_COST[S.tankSlots];
+      if(buy&&cost!=null){ S.tankSlots++; const nx=aqCap(); S.tankSlots--;
+        buy.innerHTML=`Expand Tank · <span class="coin">${fmt(cost)}</span>`; /* C17 (director + Cam, 2026-11-20) */ buy.title='A bigger tank: '+cap+' → '+nx+' fish';
+        hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Next expansion: ${nx} fish${S.money<cost?` · you need <span class="coin">${fmt(cost-S.money)}</span> more`:''}</p>`); }
+      else if(cost==null) hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Your tank is as big as it gets: ${cap} fish.</p>`); } };
+  // the one step: the tank's live canvas is carried through every re-render, so it never blinks or restarts
+  const _rp=renderPanel; renderPanel=function(){ const aq=MOB()&&S.tab==='aquarium', keep=aq?$('tankcv'):null;
+    if(aq) try{ aqTryPlace(); }catch(e){}
+    const r=_rp.apply(this,arguments); const P=$('panel'); if(!P) return r;
+    try{ P.classList.toggle('aq07',aq); }catch(e){}
+    if(aq){ for(const step of [aqHeader,aqLayout,aqDecorate]) try{ step(P); }catch(e){ console.error(e); }
+      try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){}
+      try{ aqTankSize(P); }catch(e){ console.error(e); } }
+    return r; };
+  /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles) */
+  let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){} },160); }); }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* ---- layout: the page itself does not scroll; the tank grows, the panel's body scrolls ---- */
@@ -140,4 +161,23 @@ html body.phone-app #menuov #panel.aq07 .aq07-trying .aq07-st,html body.phone-la
   html body.phone-land #menuov #panel.aq07 .aq07-bank{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;row-gap:4px!important}
   html body.phone-land #menuov #panel.aq07 .aq07-bank .btn{width:100%;min-height:30px!important}
 }
+</style>`);
+document.head.insertAdjacentHTML('beforeend',`<style>
+/* ---- the header card and the tank size (moved here from pages06.js and polish08.js, Clean Pages 2026-11-21) ---- */
+body.phone-app #panel .mb-more,body.phone-land #panel .mb-more{border-radius:12px;background:#0a1424;border:1px solid #ffffff12;padding:0}
+body.phone-app #panel .mb-more > summary,body.phone-land #panel .mb-more > summary{list-style:none;cursor:pointer;padding:9px 12px;font:700 13px var(--display,system-ui);color:#7fe3c4;display:flex;align-items:center;gap:8px}
+body.phone-app #panel .mb-more > summary::-webkit-details-marker,body.phone-land #panel .mb-more > summary::-webkit-details-marker{display:none}
+body.phone-app #panel .mb-more > summary::before,body.phone-land #panel .mb-more > summary::before{content:'›';display:inline-block;transition:transform .15s;font-size:16px;line-height:1}
+body.phone-app #panel .mb-more[open] > summary::before,body.phone-land #panel .mb-more[open] > summary::before{transform:rotate(90deg)}
+body.phone-app #panel .mb-more p,body.phone-land #panel .mb-more p{margin:0 12px 10px;font-size:12.5px;line-height:1.45;color:#a9bccf}
+body.phone-app #panel .mb-aqh,body.phone-land #panel .mb-aqh{display:flex!important;flex-direction:column;align-items:stretch!important;justify-content:flex-start!important;height:auto!important;min-height:0!important;gap:10px;padding:12px 14px;border-radius:16px;background:linear-gradient(180deg,#132238,#0e1a2c);border:1px solid #ffffff14;margin-bottom:10px}
+body.phone-app #panel .mb-aqh p.sub,body.phone-land #panel .mb-aqh p.sub{margin:0;font-size:13px;line-height:1.4;color:#b9cadb}
+body.phone-app #panel .mb-aqh .bank,body.phone-land #panel .mb-aqh .bank{margin:0!important;width:100%;box-sizing:border-box}
+body.phone-app #panel .mb-aqb,body.phone-land #panel .mb-aqb{margin:0!important;display:flex;flex-wrap:wrap;gap:6px}
+body.phone-app #panel .mb-aqh > *,body.phone-land #panel .mb-aqh > *{flex:0 0 auto!important;height:auto!important;min-height:0!important}
+html body.phone-app #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell),html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell){grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr) auto auto!important}
+html body.phone-app #menuov #panel.aq07 .aq07-bank .mb-tankcell b,html body.phone-land #menuov #panel.aq07 .aq07-bank .mb-tankcell b{font:800 14px var(--display)!important;color:var(--ink)}
+@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell){grid-template-columns:repeat(6,minmax(0,1fr))!important} html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell) > div{grid-column:span 2} html body.phone-land #menuov #panel.aq07 .aq07-bank:has(.mb-tankcell) > .btn{grid-column:span 3} }
+html body.phone-app #menuov #panel.aq07 .mb-tankcap,html body.phone-land #menuov #panel.aq07 .mb-tankcap{font:700 13px var(--display);color:#9fb3c8;white-space:nowrap}
+html body.phone-app #menuov #panel.aq07 .mb-tankwhy,html body.phone-land #menuov #panel.aq07 .mb-tankwhy{margin:2px 0 8px!important;font-size:12.5px!important;line-height:1.4;color:#b8c8d6}
 </style>`);

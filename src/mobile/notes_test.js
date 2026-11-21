@@ -3,7 +3,13 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'Quests › Goals now shows the live event when one is on (it never appeared before).',
+  'Living maps, every water held to the map standard: Willow Pond, a mother duck leads 3 to 5 ducklings across the far water by day and a tawny owl glides low over the pond at night (every 50 s). Saltmarsh Coast, a pod of porpoises rolls past (every 42 s). Ember Springs, a geyser at the foot of the hill erupts (every 45 s, a little higher or lower each time) and ravens circle by day. Animal Farm, fireflies by the fence and a barn owl at night, birds only by day, the tractor every 55 s. The Nile, fruit bats at night. Corporate Pond, pigeons strut on the ticker by day. The Buffet, a gummy bear rows a cracker across the lake. Stonebrook otters every 24 s.',
+  'Moments made bigger so they read on a phone: the leaping fish at Florida Keys, the meatball at The Buffet, the paper plane at Corporate Pond, the whale tail at Midnight Deep and the eyes at Hollow Trench.',
+  'Rain that fits the water: sprinkles fall at The Buffet, stardust at Starfall Lake and Mount Olympus (rain and storms elsewhere as before).',
+  'Starfall Lake draws almost twice as fast (its fish constellation is drawn once instead of every frame). Looks the same.',
+  'Behind the scenes, no look change: the Aquarium, Cooler, Settings, Save, Your home and Rods pages are each built in one place now. The Cooler no longer builds a hidden help box, and Rods no longer adds a new watcher on every redraw. Tell us if anything on these pages looks or acts differently.',
+  'Tester tools › Run every check: time limits stretch on slower phones (the report says by how much), and a new Maps check runs every water at dawn, day, dusk and night in every weather.',
+  '## Test build 0720',  'Quests › Goals now shows the live event when one is on (it never appeared before).',
   'Feats: each category heading says what finishing it gives.',
   'Bounties: the daily tasks card no longer shows under the other tabs on wide screens.',
   'Quiet Waters: no more notices on the fishing screen when the weather changes, an event goes live, special weather is coming or a challenge starts (the badges and LIVE marker show them). Messages about what you just did stay, jokes included. The Weather pop-ups setting is gone with them.',

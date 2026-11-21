@@ -3,6 +3,16 @@
 Data: `docs/qc_incidents.csv` (every recorded bug: category, who found it, where, severity 0–3, what catches it now). Add a row for
 every new bug, every round, and re-run the numbers below at the end of each project (PowerShell: `Import-Csv` + `Group-Object`).
 
+## Numbers update (180 incidents, 2026-11-18 → 2026-11-21; re-run at the end of batches 3-4)
+- Found by: Claude 96 (53%), the director 60 (33%), Cam 12, testers on the sweep page 12. Players and testers still find 47%.
+- Reached players (test apps, live, real phones) per day: 11-18 29 of 49 (59%), 11-19 26 of 80 (33%), 11-20 21 of 31 (68%),
+  11-21 9 of 20 (45%). 11-20 is high because the first real-phone sweep runs found old bugs (the tool working, not new escapes).
+- Still escaping most: layout cut (27 bugs, 14 reached players), UI (13 / 8), UI logic (11 / 7), performance (10 / 6).
+- **What changed in the checklist (2026-11-21):** a fresh-save pass (the real-phone failures all came from new saves, which the
+  local sweep never tried), sweep time limits that stretch by device speed (the iPhone timed out, so its checks said nothing),
+  the map check (a lost Ember moment and a too-heavy Starfall were caught by it, not by eye), and the bug log refusing unknown
+  labels. Next if layout cuts keep escaping: run `__spec` and `__layoutQC` on the fresh save too.
+
 ## Numbers (89 incidents, 2026-11-18 → 2026-11-19)
 - Found by: the director 39 (44%), Cam 8 (9%), my checks 19 (21%), me by hand 23 (26%). **More than half were found by players.**
 - Where: before release 46, on the test apps 22, **live 21**.

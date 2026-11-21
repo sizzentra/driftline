@@ -143,13 +143,13 @@ const deDockText=s=>{ if(!s||s.indexOf('ock')<0) return s; let t=s; for(const [r
   new MutationObserver(ms=>{ if(!MOB()) return; for(const m of ms) for(const a of m.addedNodes) if(a.nodeType===1) walk(a); }).observe(document.body,{childList:true,subtree:false});
   document.addEventListener('input',()=>{ if(MOB()) setTimeout(()=>{ const sv=document.getElementById('searchov'); if(sv) walk(sv); },0); },true); }
 /* Save > App on phones: how to install Driftline on THIS phone (the Windows program was the only thing offered) */
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='save') return r; const P=$('panel');
-      const tile=[...P.querySelectorAll('.tile')].find(t=>/Windows desktop app/.test(t.textContent)); if(!tile||tile.dataset.mb) return r; tile.dataset.mb='1';
+pageDone('save',P=>{ /* a finishing touch of the Save page (Clean Pages 2026-11-21: was its own renderPanel wrapper) */
+      const tile=[...P.querySelectorAll('.tile')].find(t=>/Windows desktop app/.test(t.textContent)); if(!tile||tile.dataset.mb) return; tile.dataset.mb='1';
       const ip=typeof IS_IPHONE==='function'&&IS_IPHONE(), app=window.matchMedia&&(matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)||navigator.standalone;
       tile.innerHTML=app?`<h4>Installed</h4><p class="meta">You are playing the Driftline app on this ${ip?'iPhone':'phone'}. It opens full screen and keeps your progress here.</p>`
         :`<h4>Play it like an app</h4><p class="meta">${ip?'In Safari, tap <b>Share</b>, then <b>Add to Home Screen</b>.':'Open the browser menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).'} Driftline then opens full screen from its own icon and keeps your progress.</p>`;
       tile.insertAdjacentHTML('beforeend','<p class="meta" style="margin-top:8px">Playing on a computer too? There is a Windows app; bring your progress with <b>Move progress</b>.</p>');
-    }catch(e){ console.error(e); } return r; }; }
+    });
 /* badges never cut off or covering a neighbour (director, 2026-11-18, screenshot: the side rail's "2" on Fishing was cut off at the
    top, the "1" for Upgrades sat over the button above). In menus the rail is a scrolling box, and its badges poked 12 px above each
    button: the first one was clipped, the others covered the button above. Rail badges now sit inside their button, as a count at

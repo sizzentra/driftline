@@ -6,6 +6,10 @@
 // Fish Log, Aquarium and Home layouts) and decides how many tabs share a row (PG_COLS).
 // =====================================================================
 const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform wraps renderPanel: PAGES.before(); draw; PAGES.after() */
+/* Clean Pages (2026-11-21): a page's own finishing touches, run in order at the very end of PAGES.after (after the page engine has
+   laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of wrapping renderPanel again */
+const PAGE_DONE={}; function pageDone(tab,fn){ (PAGE_DONE[tab]=PAGE_DONE[tab]||[]).push(fn); }
+function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(const f of L) try{ f(P); }catch(e){ console.error(e); } }
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   const num=(t,re,i=1)=>{ const m=String(t||'').match(re); return m?m[i]:null; };
   const txt=e=>e?(e.textContent||'').replace(/\s+/g,' ').trim():'';
@@ -51,7 +55,7 @@ const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform wrap
     };
   PAGES.after=function(){
     try{ const P=$('panel'), tab=S.tab, cfg=CFG[tab]; if(!P) return;
-      if(!cfg||PAGES_SKIP.has(tab)){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); return; }
+      if(!cfg||PAGES_SKIP.has(tab)){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); pageDoneRun(); return; }
       const kids=[...P.children].filter(c=>!c.classList.contains('crumb'));
       /* the page's own header: marked dl-dup when a side-panel tab names the page; pages opened only from the top bar (Cooler, Fish Log)
          have no such tab, so their first header row / title counts too */
@@ -86,6 +90,7 @@ const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform wrap
       const curSec=()=>{ const s=nv&&nv.querySelector('[aria-selected="true"], [aria-pressed="true"], .on'); return s?(s.dataset.sect||s.dataset.k||s.dataset.v||txt(s).replace(/\s*\d+$/,'')):''; };
       P.dataset.pgSec=curSec(); const was=prev; if(was&&was.tab===tab&&was.top>0&&was.sec===P.dataset.pgSec) queueMicrotask(()=>{ if(body.isConnected) body.scrollTop=was.top; }); /* after the page is finished: one layout, not two */
       if(nv) nv.addEventListener('click',()=>setTimeout(()=>{ const s=curSec(); if(s!==P.dataset.pgSec){ P.dataset.pgSec=s; body.scrollTop=0; } },0));
+      pageDoneRun();
     }catch(e){ console.error(e); } }; }
 
 /* test builds: window.__menuMap() lists what a player can reach: the sections and their pages, every page's name, and every page's tabs.

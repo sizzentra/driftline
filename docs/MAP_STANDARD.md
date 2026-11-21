@@ -1,6 +1,6 @@
 # Driftline map standard (decided with the director, 2026-11-21)
 
-One job: what every water must have. Homes have their own standard (docs/HOME_STANDARD.md). Nothing here is built yet; it feeds the production queue (PLAN › Production queue, P4).
+One job: what every water must have. Homes have their own standard (docs/HOME_STANDARD.md). Every water was brought up to it on 2026-11-21 (pictures for the director and Cam to judge); `__mapQC` checks it (sweep part Maps).
 
 ## Every water has
 1. **A unique theme of its own,** clearly different from every other water.
@@ -63,6 +63,6 @@ Every object on a map has exactly one placement type, and its type decides its r
 ## Still to decide
 - Nothing: the map standard is decided (2026-11-21). The speed limit's number comes from the measurement at the start of the production run.
 
-## Checked by tools (to build with it)
-- Draws by day, dusk, dawn and night without errors; at least 3 moving things; a moment within 60 seconds; nothing drawn over the fishing area; frame cost under the limit; every event and special weather draws.
-- Connection checks where a tool can see it: reflections present under objects on the water, no empty strips between layers at every screen size. The rest of rules 15–21 are judged by the director and Cam.
+## Checked by tools
+- **Built (`__mapQC`, bn_qa04.js; sweep part Maps, phone build and PC):** draws at dawn, day, dusk and night and in every weather without errors; at least 3 moving things and life after dark listed per water (`MAP_STD`); the moment every 20–60 s and visibly on screen (frames outside its window make an envelope of normal motion; the frame inside it must clearly break out); frame cost at most 3.2× the median water (rule 13's ceiling, set 2026-11-21 just above today's heaviest smooth water). Midnight Deep's moment is judged by eye (the whole view rocks and its rain never stops).
+- Not a tool yet (judged by the director and Cam from pictures): nothing over the fishing area, reflections under objects on the water, no empty strips between layers, the rest of rules 15–21.

@@ -2,7 +2,11 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'PC Reborn: PC now has everything the phones have, in the header. Sections: Quests, Map, Upgrades, Collection, Challenges, Customize, Prestige (Boardwalk is in Challenges, Tackle is called Tackle again). Header chips: Cooler, Aquarium, Home, Fish Log, Tasks, Stats.',
+  'Living maps, every water held to the map standard: Willow Pond, ducklings by day and an owl at night (every 50 s); Saltmarsh Coast, porpoises (every 42 s); Ember Springs, a geyser (every 45 s) and ravens by day; Animal Farm, fireflies and a barn owl at night; The Nile, bats at night; Corporate Pond, pigeons; The Buffet, a gummy bear rowing a cracker. Bigger moments at Florida Keys, The Buffet, Corporate Pond, Midnight Deep and Hollow Trench.',
+  'Rain that fits the water: sprinkles at The Buffet, stardust at Starfall Lake and Mount Olympus.',
+  'PC draws moving detail finer than phones (rain rings and the like, 1.5 times as many). Starfall Lake draws almost twice as fast.',
+  'Sweep page: new Maps and Fresh save checks.',
+  '## Test build 0720',  'PC Reborn: PC now has everything the phones have, in the header. Sections: Quests, Map, Upgrades, Collection, Challenges, Customize, Prestige (Boardwalk is in Challenges, Tackle is called Tackle again). Header chips: Cooler, Aquarium, Home, Fish Log, Tasks, Stats.',
   'New on PC: Quests (goals, lessons, where to find things, help), Prestige as its own page (Set sail again and Pearl relics left the Map), the Bait page with Switch / Buy bait / Special lures, and Oddities with Oddities / Treasures tabs.',
   'Every page (except the Fish Log, Aquarium, Your home and Wardrobe) is organised like the phones: key numbers and the main button on top, the page’s tabs in one row, one scrolling list underneath. Settings has the phones’ tabs (Sound, Controls, Display, Gameplay, Patch notes) plus Save & codes.',
   'One size everywhere: the same text, button and tab sizes on every page, at 1920×1080 and 2560×1440.',

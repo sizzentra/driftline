@@ -85,10 +85,10 @@ if(window.DL_PREVIEW){
 // the tab used to hold every update's full text in one block (~1,850 px inside the scrolling menu). Now it is a short list, newest
 // first; tapping one opens the same card as the first opening (finger scrolling, button always on screen).
 { const list=()=>(S.owned.pets.includes('lily')?[LILY_PATCH]:[]).concat(S.owned.pets.includes('daxniko')?[PAIR_PATCH]:[]).concat(PATCHES);
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='settings') return r;
-      const t=[...document.querySelectorAll('#panel .tile')].find(x=>{ const h=x.querySelector(':scope > h4'); return h&&h.textContent.trim()==='Patch notes'; }); if(!t||t.classList.contains('pn9')) return r;
+  pageDone('settings',()=>{ /* a finishing touch of the Settings page (Clean Pages 2026-11-21: was its own renderPanel wrapper) */
+      const t=[...document.querySelectorAll('#panel .tile')].find(x=>{ const h=x.querySelector(':scope > h4'); return h&&h.textContent.trim()==='Patch notes'; }); if(!t||t.classList.contains('pn9')) return;
       t.classList.add('pn9'); t.innerHTML=`<h4>Patch notes</h4><div class="meta">You’re on Driftline ${esc(GAME_VERSION)}. Tap an update to read it.</div><div class="pn9-list">${list().map((p,i)=>`<button type="button" class="pn9-row${i>=10?" pn9-old":""}" data-pn9="${i}"><span class="pn9-v">${p.label?esc(p.label):'Update '+esc(p.v)}</span><b>${esc(p.name)}</b></button>`).join('')}</div>${list().length>10?`<button type="button" class="btn alt sm pn9-more">Show ${list().length-10} older updates</button>`:''}`;
-    }catch(e){} return r; };
+    });
   document.addEventListener('click',e=>{ const m=e.target.closest&&e.target.closest('.pn9-more'); if(m&&MOB()){ e.stopPropagation(); const t=m.closest('.pn9'); t.classList.add('pn9-all'); m.remove(); return; } const b=e.target.closest&&e.target.closest('[data-pn9]'); if(!b||!MOB()) return; e.stopPropagation(); const p=list()[+b.dataset.pn9]; if(!p) return; try{ closeMenu(); }catch(er){} showPatchNotes(p); },true);
   document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app #panel .pn9-list,body.phone-land #panel .pn9-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px;margin:8px 0}
