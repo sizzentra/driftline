@@ -51,11 +51,11 @@ The order comes from the incident data (`docs/QC_ANALYSIS.md`, `docs/qc_incident
    - Art changed: `__fishParts()`, `__fishSheet({loc})` for every water, every pet × pose × accessory, every area × time × weather.
    - Balance changed: `__bal`. Taps: `__fnTime(names, fn)` (no heavy work inside a tap).
    - Systems touched: walk `docs/SYSTEMS_MAP.md` and test every listed place on every platform.
-5. **Device risks (escaped 100% so far):** touch / installed-app paths (finger scroll inside `#stage`, activation on pointerup, `display-mode: fullscreen`, taps normal / slid / redrawn / after Back) and anything Safari could size differently (see "Code rules"). These go in the closing message as "needs a real-phone check".
+5. **Device risks (escaped 100% so far):** touch / installed-app paths (finger scroll inside `#stage`, activation on pointerup, `display-mode: fullscreen`, taps normal / slid / redrawn / after Back) and anything Safari could size differently (see "Code rules"). These go in the closing message under "Awaiting your feedback and testing" (step 9).
 6. Read every new text as that platform's player ("click" and "Space" are wrong on phones), then a harsh per-platform critique: hard to find for new players? what is missing? how good does it look here?
 7. **Notes** (`notes_release.js`, `notes_test.js` for every changed build), **docs** (SYSTEMS_MAP, PLATFORM_DESIGN when a standard changed, LESSONS, "Where we left off", PLAN marks), and **one row per new bug in `docs/qc_incidents.csv`** (who found it, where, severity, what catches it now).
 8. **Gate 2, after the LAST edit:** `next/sweep.html?only=gate&go` (parse every page, each stamp against the version file it fetches) (the one live outage came from an edit after QC). Then commit, `publish_preview.ps1` / `publish_testapps.ps1`; live only per "Publishing"; check the published stamps.
-9. **Closing message:** where it is + stamp, what changed, what was found and fixed, what could not be verified (real devices, Safari).
+9. **Closing message:** where it is + stamp, what changed, what was found and fixed, then **"Awaiting your feedback and testing"** (director, 2026-11-20: never "not verified"): numbered directions for the director and Cam, each saying which device, where to tap, what they should see, and what to send back.
 
 ## End of every project (automatic, never asked for)
 When a project or a batch of the plan is finished, before reporting it done:
