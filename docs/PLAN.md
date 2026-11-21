@@ -53,9 +53,18 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Speed budgets per page and per frame, checked by the sweep.
 - ☐ Balance targets checked automatically (`__bal` against written targets).
 
+## Direction (director and Cam, 2026-11-21) — read first
+- **0.5 is the goal** (director, 2026-11-21): one large, polished update. 0.4.9 is the testing ground (the test builds), not a release target. Nothing new content-wise until past 0.5: improve what exists (Cam). The production queue below leads to 0.5; when 0.5 ships is the director's call, not an automatic last step.
+- **Priority order (Cam):** 1. fishing feel (most urgent: "still poor"), 2. gameplay hotfixes, 3. balance (especially endgame), 4. visuals.
+- **Balance comes at the end**, once it's decided what the update consists of. (Claude's "2 billion coins" point was wrong: that is the test save with everything maxed by Tester tools.)
+- **Saving needs a safer option for real players** (an automatic backup or similar); today's setup suits testing, not players.
+- **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
+- **Clean Pages** (untangling the code) is very important and continues.
+
 ## Director's bug list (2026-11-21, being collected in spurts; STORED ONLY, not fixed until the director says the list is finished)
 - PC: some maps run badly; Willow Pond's frame rate is very unstable. Fix it, and make sure no map has the problem.
 - **Ongoing fish graphics revamp** (part bug, part new art): a pass so fish based on real fish look like them. Named: arowana; most catfish and catfish-like fish (the tiger shovelnose looks nothing like its description). Fish should become more recognisable; the fish models haven't had love in a while. The director sees it as a good test of a picture comparison tool (note: automatic picture comparisons were dropped 2026-11-20; what exists is the fish sheet `__fishSheet` for side-by-side pictures, to talk over).
+  - **Decided (director, 2026-11-21):** the general fish recipe of the 10 newer waters learns real fish families (arowana, catfish, sturgeon / shovelnose, knifefish, piranha and every other family that is possible and realistic), each with its own body, head, fins, whiskers and pattern; every real-based fish with that family in its name picks it up; joke fish keep their gag on the proper body. **Scope: every fish where it is possible and realistic, in one go** (no pilot). Pictures before and after for the director to judge (sheets: tools/shots/fish_arowana.png, fish_catfish.png show today's look).
 - Phones: when the catch card pops up after a catch, the right side panel disappears (director's screenshot: a Bullhead card at Willow Pond; the pencil in the corner is the director's screenshot tool, not the game).
 - Phones (PC not checked yet): fish pictures in a scrolling list flash and reload as the scroll bar fades out; once it has faded, the picture reloads and the scroll bar shows again (director's video: C:UserssizzeDownloadsscreen-20261121-123130-1795282278162.mp4).
 - **URGENT: Fish feel update** (pasted 2026-11-21, likely from Cam; stored word for word in meaning, not built yet):
@@ -96,7 +105,24 @@ Taken from the director's phone screenshots (iPhone, Your home page, Lantern tab
   - The umbrella connects to the rail instead of the deck on PC too.
   - **Same layout, look and behaviour on PC and phones**, with only these PC differences: more space, and the PC header stays. The phone changes (6 parts, 15+ colours, and so on) apply to PC too.
 
-## Production queue (director, 2026-11-21): DO NOT START until the idea queue (System clean-up below) is finished AND the director says go
+## Production queue to 0.5 (director, 2026-11-21; the active queue)
+Each batch: a rollback tag first; quick checks per change, the full checks once at the end of the batch; then onto the test builds. Look and feel calls go to the director with pictures. Open questions are settled before a batch is built.
+
+| Batch | Projects | Details | Open before building |
+|---|---|---|---|
+| **1. Fishing feel** (most urgent) | 1 Cam's fish feel update · 2 Oddities reel in more slowly · 3 Fight modifier audit | 1: tension keeps building while reeling, temper drops fast when not; full temper = rapid fight actions using much less fight; easing up drops tension steadily (slower during a fight action); reeling during a fight action drains fight faster (not during a jump toward you); hidden states between actions: still, or swimming toward you (reel 25-50% faster, 0.25-3 s, shorter for rarer fish); tired fish reel 10-60% faster by rarity (mythic 10, legendary 20, rare 30 …); second winds 1 for all, +1 rare/epic, +2 legendary/mythic, later ones on 50/50 flips after 5 / 3 / 1 s, a legendary/mythic's 3rd doubles the waits and gives 25% fight; dives = 1/3 of runs where they exist; perfect hooks back to their former glory. 2: easing for rarer oddities. 3: every source of tension, reel speed and temper changes makes a real difference | what "perfect hooks back to their former glory" means (Cam); exact rates the update leaves open (feel calls) |
+| **2. Gameplay hotfixes** | 4 Aquarium net boosts · 5 Hybrid toggle · 6 Catch card side panel · 7 Fish pictures flashing · 8 PC frame rate | 4: boosts show their real total with hybrids and other sources. 5: Cooler Scrap / Sell filter, next to Shinies. 6: phones, the side panel vanishes when the catch card shows. 7: phones (PC to check), pictures in scrolling lists reload as the scroll bar fades (director's video). 8: Willow Pond unstable on PC; every water measured on PC full screen, heavy ones lightened without a look change | |
+| **3. Safe saves + untangling** | 9 Automatic save backup · 10 Clean Pages 2-3 | 9: progress never lost by accident for real players (a device backup, a reminded backup file, or an optional cloud copy). 10: the next ten most-opened phone pages each built in one place, proven unchanged by the element fingerprint | which backup idea |
+| **4. Fish revamp** | 11 Real fish families · 12 Decoration check | 11: the newer waters' fish recipe learns real families (arowana, catfish, sturgeon / shovelnose, knifefish, piranha, cichlid, tetra, gar, lungfish, pike …) with their own body, head, fins, whiskers and pattern; every fish where possible and realistic; joke fish keep their gag. 12: decorations re-checked on the new shapes. Before / after pictures | |
+| **5. Homes** | 13 Willow Pond pilot reworked · 14 Homes for every water | 13: from the director's notes ("Willow Pond home pilot" above): same on PC and phones, preview shows only the home, 6 parts with a seat, 16+ shared colours, side-view canopies, deck items on the deck, posts into the water, PC lag fixed. 14: each water's home idea approved before drawing | the pilot's open points; every home idea |
+| **6. Goodbye Decorations + install** | 15 Remove decorations and cozy · 16 Install welcome | 15: as decided under P2 (aquarium decorations stay, Tide Pass gives aquarium decorations, feat removed, no refunds, cozy text gone, Pet Nap replaces Homebody). 16: P6 (once per device, Install in Settings) + a clean install of the Windows app on a fresh PC | |
+| **7. Finish** | 17 Clean Pages 4-5 · 18 Device report session | 17: the remaining phone pages, then PC's. 18: Claude says what it needs from the testers' devices; recorded with a tool set up together | the recording tool |
+| **8. Balance** (last of the queue) | 19 Endgame balance targets | decided with the director and Cam once the content is set: how long things take, prestige clearly stronger; a tool checks them | the targets |
+| **9. Before 0.5: placeholder** | (to fill) | any other changes and polish the director and Cam want before 0.5; when 0.5 ships is the director's call | |
+
+Parked in Ideas: the Report a problem button.
+
+## Earlier production queue (2026-11-21 overnight run; history: batches 1-4 done, its open items are carried into the queue to 0.5 above)
 One large overnight run, so testing happens once over many changes. Each item is built only when its concept is decided (status per item); open questions are settled in conversation first.
 | # | Item | Concept status | Notes |
 |---|---|---|---|
