@@ -121,6 +121,14 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 | **9. Before 0.5: placeholder** | (to fill) | any other changes and polish the director and Cam want before 0.5; when 0.5 ships is the director's call | |
 
 Parked in Ideas: the Report a problem button.
+### Decisions for the queue (director, 2026-11-21) so the work never has to stop
+1. **Save backup = a backup copy on the device**, refreshed automatically (not on every save: at most every few minutes and when the app is hidden, so it costs nothing noticeable), restorable from Settings if the main save breaks; works offline.
+2. **Homes: Claude writes every home's idea and side-view descriptions, reworks Willow Pond and draws them all**; the director judges the pictures afterwards. **First, a map theme guide** (docs/MAP_THEMES.md): every water's description, theme, culture, materials, colours, creatures and what does and doesn't belong, so new things (homes, creatures, moments) fit their water.
+3. **Map updates: no extra list**; Claude goes through the map rules water by water, the director judges pictures.
+4. **Fish revamp: built in full**, before / after pictures judged afterwards.
+5. **Each finished batch goes onto the test builds at once** (live stays the director's call).
+6. **Device reports: a Record mode on the Run every check page** (play, then Copy report: device, errors, what happened). **Plus, test builds only: when the game fails to open or something goes wrong, a "Copy error report" option right there**, working even when the game itself can't start.
+7. **Batch 1 waits for Cam's answers**; batches 2 onward go first, batch 1 is built when the answers arrive.
 ### Untangling plan (Clean Pages and beyond; batches 3 and 7)
 **Why:** each round added a layer on top of the last instead of changing the owner, so one page or water is drawn by several files that run in a fixed order. A change in one layer can silently break another (Ember Springs' geyser vanished under a later layer; the Cooler built a help box that another layer hid). Measured 2026-11-21: phones 300 wrap layers (renderPanel alone 43 in shared + phone files), PC 268; the scenes 48 extra layers (`m33wrap`) across 9 files.
 **How (every step):** list the build's real wrapper order first; fold a page's layers into one place (its own file, or `pageDone` for touches after the page engine), keeping the order they ran in; delete dead builders and the rules that hid them; prove nothing visible changed (pages: the element fingerprint, every element's place, size and style before and after; scenes: a frame drawn at a frozen time compared pixel for pixel); the redundancy counter must go down. No look change anywhere; any difference is a bug.
