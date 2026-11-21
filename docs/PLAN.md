@@ -36,10 +36,23 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☑ One-click sweep (`tools/sweep.html`): every automatic check, every build and size, one report, test save put back; covers the start-up check (also with every Path) and the test-tool problems (no collisions, no menu-open hang).
 - ☑ Options stay put (`__snapQC`, in the sweep): picking any option on any page never moves it (C13).
 - ☑ Strength table (`__strTable`) and creature outlines (`__creatureBox`): measuring tools for balance and fish pictures.
+- ☑ Redundancy counter (build.ps1, 2026-11-20): unused functions refused; wrap layers, force-hide rules, polling timers and watchers per build may only go down (`tools/redundancy_baseline.json`, lowered by the build itself); proven by planting each of the six once; 5 unused functions deleted.
 - ☐ Content recipes for fish, oddities, items and waters (every new thing has all its parts: name, art, lessons, search, notes).
 - ☐ Saves check (old saves load, migrate keeps everything, save codes round-trip at extreme sizes).
 - ☐ Speed budgets per page and per frame, checked by the sweep.
 - ☐ Balance targets checked automatically (`__bal` against written targets).
+
+## System clean-up (from the 2026-11-20 audit; going over each with the director)
+- ☑ A. Redundancy counter (above). Starting numbers: PC 293 wrap layers, 67 force-hide rules, 31 timers, 16 watchers; phones 322 / 82 / 33 / 18.
+- ☐ 1. Picture comparisons: approved pictures of every water, page and look; unintended changes flagged. (Ask: who approves a changed picture?)
+- ☐ B. Untangle one system at a time, pages first: fold wrap layers into each page’s own code, files named by what they do; no look change; after 1. (Ask: OK to move and rename files?) Measured: on phones about 90% of opening Settings is the layers, not the page.
+- ☐ C. Text standard and check: tone, length per place, phone words (“Click or press Space” still in shared text), apostrophes, spoilers in notes. (Ask: draft the tone from the existing jokes, or the director writes it?)
+- ☐ D. Map standard: what every water needs (from C35), added to the map check. (Ask: OK on the list once drafted.)
+- ☐ E. Docs tidy: SYSTEMS_MAP split into map and log; CLAUDE.md trimmed.
+- ☐ 2. Bug log upgrade: fixed labels checked by a tool; “introduced in” and “fixed in”.
+- ☐ 3. “Report a problem” button in the test apps. (Ask: what it includes, where it sits.)
+- ☐ 4. Guided real-phone tap check. (Ask: 2 or 5 minutes; every build or before a release.)
+- ☐ 5. Rest of the checks overhaul (saves, speed budgets, balance targets). (Ask: target numbers.)
 
 ## Batch 6: the director and Cam's list (2026-11-20, test builds; 0.4.9)
 Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude builds it as asked and flags it (Feel call / suggested numbers) for the director and Cam to tune. Order of work: text and small fixes → UI → fishing and fights → economy → art and maps.

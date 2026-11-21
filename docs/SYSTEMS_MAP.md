@@ -310,3 +310,9 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 | C35 every new map: `WA_MORE[id]` shore/water/live parts called from each scene (`waMore`); moments: Keys dolphins 29 s, Amazon boto 23 s, Farm tractor 61 s, Buffet meatball 33 s, Corporate plane 25 s / helicopter 53 s, Nile crocodile 21 s / caravan 110 s, Circuit glitch 31 s, Olympus Pegasus 41 s; Olympus clouds redone | `cn_waterart.js` | the eight scenes' land caches and live layers |
 | C35 homes: wood on bridge/ledge/stilts/haydock/felucca (`waWood`: the starter oak keeps each home's natural wood), a named paint on all ten (`WA_PAINT` → `HOME_PAINT_NAMES`/`HOME_PAINT_PARTS`, drawn with `waPaint` = `homeHull`); the ledge got a canoe | `cp_plats.js`, `bu_home05.js` (`homePaintName`, `homePaintLine`), phone `home06.js`, PC `br_pc05.js` (heading and note) | Your home page on both platforms (Hull paint heading now named per home), try-before-you-buy wood preview (`DOCK_PV`), saves unchanged (`S.dock.wood/hull`) |
 | Checks: `__qa` C32 (hair above each hat's edge read from the picture) and C33–C35 (every scene × day/night × t 0–130 s, every home × 72 looks); both proven with planted bugs | `bn_qa04.js` | `__qa` takes ~3 s longer |
+
+## Redundancy counter (2026-11-20, build only; no game change)
+| Change | Affects | Check |
+|---|---|---|
+| build.ps1 counts per build: unused functions (refused), wrap layers, force-hide rules, setInterval, MutationObserver (may only go down; `tools/redundancy_baseline.json`, lowered by the build) | every src file; a new timer, watcher, wrapper or hide rule anywhere refuses the build | planted each of the six once: refused; auto-lower tested |
+| Deleted unused: boardwalkBanner (d3_update), clawHTML (d8_v21; the claw machine draws from t_board), pathOn (cg_paths), bountySlots (e_ui), specRow (d5_v16) | nothing: no callers | full sweep |

@@ -50,10 +50,6 @@ const MASTERY_FX = {
 };
 const offlineCap = () => (maxed('keeper') ? 16*60 : OFFLINE_CAP_MIN)*pathMul('offline');
 function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
-  const specRow=(T,ti)=>{ const cur=S.specs[ti], locked=S.lvl<T.lvl;
-    return `<div class="tile ${cur?'done':''}" style="${locked?'opacity:.55':''}"><div class="row spread"><h4>${T.name} <span class="meta">· level ${T.lvl}</span></h4>${cur?`<span class="badge g">${SPEC_TIERS[ti].opts.find(o=>o[0]===cur)[1]}</span>`:locked?'<span class="meta">Locked</span>':'<span class="badge">Choose one</span>'}</div>
-     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));margin-top:6px">${T.opts.map(o=>{ const on=cur===o[0];
-       return `<button class="spec ${on?'on':''}" data-act="spec" data-k="${ti}:${o[0]}" ${locked||on||(cur&&S.money<specFee(ti))?'disabled':''}><b>${o[1]}</b><span class="up">▲ ${o[2]}</span><span class="down">▼ ${o[3]}</span>${cur&&!on&&!locked?`<span class="meta">Switch · ${fmt(specFee(ti))} coins</span>`:''}</button>`; }).join('')}</div></div>`; };
   P.innerHTML=`<div class="row spread"><div><h2>Skills</h2><p class="sub">Two kinds of growth. <b>Paths</b> are big specialties, one per tier. <b>Skills</b> are small steady gains, and each one unlocks a special effect when fully learned. Skill points come from levels, feats and your Fish Log (1 for every 25 species, 2 for every water you complete).</p></div>
    <div class="row"><div style="text-align:right"><div class="pts">${free}</div><div class="sub">skill points</div></div><button class="btn alt" data-act="respec" ${ptsSpent()&&S.money>=cost?'':'disabled'}>Reset skills · <span class="coin">${fmt(cost)}</span></button></div></div>
    <div class="grid">`+Object.entries(PERKS).map(([k,p])=>{ const r=pr(k), mx=r>=p.max;

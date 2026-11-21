@@ -1,0 +1,20 @@
+{
+    "pc":  {
+               "wraps":  293,
+               "hides":  67,
+               "timers":  31,
+               "watchers":  16
+           },
+    "android":  {
+                    "wraps":  322,
+                    "hides":  82,
+                    "timers":  33,
+                    "watchers":  18
+                },
+    "ios":  {
+                "wraps":  322,
+                "hides":  82,
+                "timers":  33,
+                "watchers":  18
+            }
+}

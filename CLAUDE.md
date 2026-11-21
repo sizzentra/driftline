@@ -59,7 +59,7 @@ The order comes from the incident data (`docs/QC_ANALYSIS.md`, `docs/qc_incident
 
 ## End of every project (automatic, never asked for)
 When a project or a batch of the plan is finished, before reporting it done:
-1. **Clean-up pass on the code:** dead code (builders whose output is hidden or never shown, unused functions, styles that never match), the same work done twice (two blocks owning one element, save/restore workarounds copied into callers, duplicated helpers), per-frame or per-second work that could be event-driven or cached, and leftovers from moved features. Fix them, then the full checklist above.
+1. **Clean-up pass on the code:** dead code (builders whose output is hidden or never shown, unused functions, styles that never match), the same work done twice (two blocks owning one element, save/restore workarounds copied into callers, duplicated helpers), per-frame or per-second work that could be event-driven or cached, and leftovers from moved features. Fix them, then the full checklist above. The build’s redundancy counter (`tools/redundancy_baseline.json`) shows the numbers; every pass should leave them lower.
 2. **Clean-up pass on the rules:** remove rules that no longer apply, merge duplicates, correct anything the code contradicts (this file, PLATFORM_DESIGN, LESSONS; memory only points here).
 3. **Re-run the QC numbers** in `docs/QC_ANALYSIS.md` from the incident log; if a category keeps escaping, change the checklist order or add a check, and say what changed.
 
@@ -131,6 +131,7 @@ When a project or a batch of the plan is finished, before reporting it done:
 - **Windows app:** `desktop/Driftline.cs` (WebView2 wrapper of the live site); `desktop/build_desktop.ps1` builds `site/download/Driftline-Setup.zip` (rebuild only when Driftline.cs changes).
 
 ## Code rules (details and history in docs/LESSONS.md)
+- **Redundancy only goes down (the build refuses, 2026-11-20):** no unused functions, and no new wrap layers (`name = function`), force-hide rules (`display:none!important`), polling timers (`setInterval`) or watchers (`MutationObserver`): edit the owner, build only what is shown, update on change. The build saves lower numbers by itself.
 - One-line style files: a `//` comment mid-line eats the rest of the line; use `/* */`.
 - **PC CSS sizes use `calc(N*var(--uvh,1vh))`, never raw `vh`/`dvh`** (the PC interface zoom multiplies viewport units).
 - **New save fields go in `ck_bootfix.js` keys:** the save is loaded at start-up before later files exist.

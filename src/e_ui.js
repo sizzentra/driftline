@@ -61,7 +61,6 @@ $('card').addEventListener('pointerdown',e=>{ e.stopPropagation(); hideCard(); }
 // ---------- bounties ----------
 // 0.3: every water keeps its own board of bounties, so progress (and rare bounties) stay with that water
 const BOUNTIES_PER_WATER = 3;
-const bountySlots = () => BOUNTIES_PER_WATER*S.unlocked.length;
 let bLoc=null;
 function makeBounty(L){ L=L||S.loc;
   if(Math.random()<.08){ const lp=SP.filter(s=>s.loc===L&&s.r===4); if(lp.length){ const sp=pick(lp); return {sp:sp.id, loc:L, type:'count', n:1, have:0, reward:Math.round(sp.base*3), legend:1}; } }

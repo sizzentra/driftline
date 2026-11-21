@@ -57,6 +57,28 @@ foreach ($k in $texts.Keys) {
 }
 if ($dead.Count) { throw ("GROUND RULE BROKEN: a function is fully replaced and its original is dead code.`n  " + (($dead | Sort-Object -Unique) -join "`n  ")) }
 
+# ---------- REDUNDANCY COUNTER (director, 2026-11-20: "is there a sweep for redundant things?") ----------
+# Five numbers per build that may only go DOWN, so old layering cannot grow back while it is cleaned up:
+#   unused   functions declared and never used anywhere (tests count as use)                     -> refused at once, listed by name
+#   wraps    later files re-wrapping a function ("name = function", e.g. renderPanel 52x on PC)  -> fold the change into the owner instead
+#   hides    "display:none!important" rules (things built and then hidden; one owner shows/hides) -> don't build what is never shown
+#   timers   setInterval loops (polling)                                                         -> update when the thing changes
+#   watchers MutationObservers (reacting to other code's DOM changes)                            -> one owner per element
+# The allowed numbers live in tools/redundancy_baseline.json; when a number goes down the build lowers it there by itself.
+$redFile = Join-Path $root 'tools\redundancy_baseline.json'
+$redBase = if (Test-Path $redFile) { [IO.File]::ReadAllText($redFile) | ConvertFrom-Json } else { $null }
+$qaText = [IO.File]::ReadAllText((Join-Path $root 'src\bn_qa04.js'))
+$tokCount = New-Object 'System.Collections.Generic.Dictionary[string,int]'
+foreach ($t in @($texts.Values) + $qaText) { foreach ($m in [regex]::Matches($t, '[A-Za-z_$][A-Za-z0-9_$]*')) { $k = $m.Value; if ($tokCount.ContainsKey($k)) { $tokCount[$k]++ } else { $tokCount[$k] = 1 } } }
+$declN = @{}
+foreach ($t in $texts.Values) {
+  foreach ($m in [regex]::Matches($t, '(\S?)\s*\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(')) { if ('(=,:?!&|' -notmatch [regex]::Escape($m.Groups[1].Value) -or $m.Groups[1].Value -eq '') { $declN[$m.Groups[2].Value] = 1 + [int]$declN[$m.Groups[2].Value] } }  # declarations only, not named function expressions
+  foreach ($m in [regex]::Matches($t, '\b(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(?:\([^()]*\)|[A-Za-z_$][A-Za-z0-9_$]*)\s*=>')) { $declN[$m.Groups[1].Value] = 1 + [int]$declN[$m.Groups[1].Value] }
+}
+$unused = @($declN.Keys | Where-Object { $tokCount[$_] -le $declN[$_] } | Sort-Object)
+if ($unused.Count) { throw ("REDUNDANCY: functions that nothing uses (delete them, or use them): " + ($unused -join ', ')) }
+$redNow = @{}
+
 New-Item -ItemType Directory -Force $out | Out-Null
 $built = @{}; $pages = @{}
 foreach ($p in 'pc','android','ios') {
@@ -95,6 +117,11 @@ foreach ($p in 'pc','android','ios') {
   # every oddity fight crashed the scene). Replace on purpose with "name = function(...)"; never declare a name twice.
   $dups = [regex]::Matches($body, '(?m)^function ([A-Za-z_$][A-Za-z0-9_$]*)\(') | ForEach-Object { $_.Groups[1].Value } | Group-Object | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Name }
   if ($dups) { throw ("GROUND RULE BROKEN: function declared twice in the $p build (the first is silently lost): " + ($dups -join ', ')) }
+  # redundancy counter: what this build ships (the test suite is left out)
+  $rb = $body.Replace($qaText, '')
+  $fnNames = @{}; foreach ($m in [regex]::Matches($rb, '\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(')) { $fnNames[$m.Groups[1].Value] = 1 }
+  $wr = @([regex]::Matches($rb, '(?<![A-Za-z0-9_$.])([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*function\b') | Where-Object { $fnNames.ContainsKey($_.Groups[1].Value) })
+  $redNow[$p] = [ordered]@{ wraps = $wr.Count; hides = [regex]::Matches($rb, 'display\s*:\s*none\s*!important').Count; timers = [regex]::Matches($rb, '\bsetInterval\s*\(').Count; watchers = [regex]::Matches($rb, '\bnew\s+MutationObserver\b').Count }
   # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the
   # shared version.txt keeps PC's stamp, and a phone page with a newer stamp saw "update ready" every 5 minutes forever (tapping it
   # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.
@@ -105,6 +132,17 @@ foreach ($p in 'pc','android','ios') {
   if ($p -eq 'android' -and -not $Preview) { $pages[$p] = $pages[$p].Replace('<link rel="manifest" href="manifest.webmanifest">', '<link rel="manifest" href="manifest-android.webmanifest">') }
   [IO.File]::WriteAllText((Join-Path $out "$p.html"), $pages[$p], $utf8)
 }
+
+# redundancy counter: compare with the allowed numbers; up = refused, down = the allowed number is lowered for good
+$redUp = @(); $redDown = $false; $newBase = [ordered]@{}
+foreach ($p in 'pc','android','ios') { $nb = [ordered]@{}
+  foreach ($k in $redNow[$p].Keys) { $now = $redNow[$p][$k]; $was = if ($redBase -and $redBase.$p -and $null -ne $redBase.$p.$k) { [int]$redBase.$p.$k } else { $now }
+    if ($now -gt $was) { $redUp += "$($names[$p]) $k went up from $was to $now" }
+    if ($now -lt $was) { $redDown = $true }; $nb[$k] = [Math]::Min($now, $was) }
+  $newBase[$p] = $nb }
+if ($redUp.Count) { throw ("REDUNDANCY WENT UP (these numbers may only go down; see the comment above `$redFile in build.ps1 for what to do instead):`n  " + ($redUp -join "`n  ")) }
+if ($redDown -or -not $redBase) { [IO.File]::WriteAllText($redFile, ($newBase | ConvertTo-Json), $utf8) }
+Write-Host ("Redundancy (may only go down): " + (($newBase.Keys | ForEach-Object { "$($names[$_]) " + (($newBase[$_].GetEnumerator() | ForEach-Object { "$($_.Key) $($_.Value)" }) -join ', ') }) -join ' | ') + "; unused functions 0")
 
 # ---------- GROUND RULE CHECK 2: every build holds exactly its own platform's files ----------
 # Each platform file is looked for in all three builds: it must be in the builds it belongs to and in no other.

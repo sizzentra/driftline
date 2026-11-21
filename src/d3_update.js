@@ -679,8 +679,6 @@ function addTickets(n){ n=Math.max(0,Math.round(n)); S.tickets+=n; return n; }
 let duck=null, hilo=null;
 function newHilo(){ hilo={card:rint(1,13), streak:0, pot:Math.round(bestLoot()*2), done:false, msg:'Higher or lower than '+0+'?'}; }
 const CARD_FISH = ['','Minnow','Perch','Trout','Bass','Carp','Pike','Salmon','Tuna','Shark','Marlin','Kraken','Leviathan','Legend'];
-function boardwalkBanner(){ return `<div class="bw-banner"><div class="bw-lights">${Array.from({length:18},(_,i)=>`<i style="animation-delay:${(i%6)*.25}s"></i>`).join('')}</div><h2>The Boardwalk</h2><p class="sub">Games of chance on the pier. Coins only, no real money, and the gulls are watching.</p>
-  <div class="row" style="justify-content:center;gap:18px;margin-top:6px"><span><b class="coin">${fmtShort(S.money)}</b></span><span><b>🎟 ${fmt(S.tickets)}</b> <span class="meta">tickets</span></span><span><b style="color:var(--kelp)">${fmt(S.scales)}</b> <span class="meta">Scales</span></span></div></div>`; }
 
 // ---------- actions for this update ----------
 function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
