@@ -1,16 +1,16 @@
-# Hotfix 0.4.8.9.6 for the live phone pages (live tags hold 0.4.9 work, so live hotfixes are patched into the built pages; see docs/LESSONS.md).
-#   Android + iPhone: the Tide Pass page lost its Claim button (the phone page engine replaced the header box that held it with its
-#   number strip), so rewards could not be claimed. The button now sits in the strip, like Sell all on the Cooler. Reported by Cam,
-#   confirmed on live 2026-11-20, incident #140.
-# Phones only: pc.html, index.html and version.txt are copied unchanged, so PC sees no update.
-# The same script makes the check copy (testapps/hotfix/) and, once the phones confirm it, the live pages (site/): byte-identical.
-# Usage:  powershell -ExecutionPolicy Bypass -File tools\hotfix_0.4.8.9.6.ps1 -From site -To testapps\hotfix -Stamp 2026.11.20-xxxx
+﻿# Hotfix 0.4.8.9.6 for the live PC page (live tags hold 0.4.9 work, so live hotfixes are patched into the built pages; see docs/LESSONS.md).
+#   Catch cards: after a shiny or mythic fish, the next card (junk, an oddity) kept showing that fish, because the fish's sparkle
+#   animation kept repainting the card picture. The card lets the old animation go before it draws. Reported by the director on
+#   live PC 2026-11-21 (Toaster card showing a fish; Brass Spyglass card showing a crab), incident logged in docs/qc_incidents.csv.
+#   (The phone hotfix once planned under this number was dropped and never shipped: tools/hotfix_0.4.8.9.6_phones_dropped.ps1.)
+# PC only: android.html, ios.html, index.html and version-phone.txt are copied unchanged, so phones see no update.
+# Usage:  powershell -ExecutionPolicy Bypass -File tools\hotfix_0.4.8.9.6.ps1 -From site -To testapps\hotfix -Stamp 2026.11.21-xxxx
 #         powershell -ExecutionPolicy Bypass -File tools\hotfix_0.4.8.9.6.ps1 -From site -To site -Stamp <same stamp>
 param([Parameter(Mandatory)][string]$From, [Parameter(Mandatory)][string]$To, [Parameter(Mandatory)][string]$Stamp)
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot)
 $enc = New-Object System.Text.UTF8Encoding($false)
-$OldStamp = '2026.11.19-2100'
+$OldStamp = '2026.11.20-0238'
 New-Item -ItemType Directory -Force $To | Out-Null
 
 function Once([string]$text, [string]$find, [string]$repl, [string]$what) {
@@ -19,26 +19,19 @@ function Once([string]$text, [string]$find, [string]$repl, [string]$what) {
   return $text.Replace($find, $repl)
 }
 
-$dash = [char]0x2014
-$passOld = "pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'$dash'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*`$/,'')||'$dash']]; } },"
-$passNew = "pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'$dash'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*`$/,'')||'$dash']]; }, acts:P=>[P.querySelector('[data-act=`"passclaim`"]')] }, /* 0.4.8.9.6 hotfix: the Claim button sits in the strip (it went with the header box) */"
-#   Also: in split-screen windows a live event's Live chip sat exactly under the search button (found by the one-click sweep,
-#   2026-11-20, incident #143); it now steps aside there, like it does when a sideways top bar runs out of room.
-$liveOld = "html body.phone-app .hud > .mb-x:not(#mbhome){display:none!important}"
-$liveNew = "html body.phone-app .hud > .mb-x:not(#mbhome),html body.phone-app .hud > #mblive{display:none!important}"
-$notesAnchor ="PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.']});"
-$phoneNote = "PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Tide Pass: the Claim button is back, so you can collect your rewards.','Split-screen windows: during a live event, the Live button no longer sits under the search button.']});"
+$notesAnchor = "PATCHES.unshift({v:'0.4.8.9.5', name:'Hotfix', items:['Rods (full screen): the rod in your hands shows its attachment slots again, so you can fit attachments.']});"
+$pcNote = "PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Catch cards always show what you caught: after a shiny or mythic fish, the next card kept showing that fish.']});"
+$cardOld = "function showCard(o){`n  o.draw(`$('cardfish'));"
+$cardNew = "function showCard(o){`n  spkDrop(`$('cardfish')); /* 0.4.8.9.6 hotfix: the last card's sparkle animation repainted its fish over the next card */ o.draw(`$('cardfish'));"
 
-foreach ($p in 'android','ios') {
-  $t = [IO.File]::ReadAllText("$From\$p.html", $enc)
-  $t = Once $t "window.DL_VERSION='$OldStamp'" "window.DL_VERSION='$Stamp'" "$p stamp"
-  $t = Once $t "const GAME_VERSION = '0.4.8.9.4';" "const GAME_VERSION = '0.4.8.9.6';" "$p version"
-  $t = Once $t $notesAnchor ($notesAnchor + "`n" + $phoneNote) "$p notes"
-  $t = Once $t $passOld $passNew "$p tide pass claim"
-  $t = Once $t $liveOld $liveNew "$p split-screen live chip"
-  [IO.File]::WriteAllText("$To\$p.html", $t, $enc)
-}
-if ((Resolve-Path $From).Path -ne (Resolve-Path $To).Path) { foreach ($f in 'pc.html','index.html','version.txt') { Copy-Item "$From\$f" "$To\$f" -Force } }
-if (([IO.File]::ReadAllText("$From\version-phone.txt", $enc)).Trim() -ne $OldStamp) { throw "version-phone.txt is not $OldStamp" }
-[IO.File]::WriteAllText("$To\version-phone.txt", $Stamp, $enc)
-Write-Output "Hotfix 0.4.8.9.6 (phones only) written to $To with stamp $Stamp"
+$t = [IO.File]::ReadAllText("$From\pc.html", $enc)
+$t = Once $t "window.DL_VERSION='$OldStamp'" "window.DL_VERSION='$Stamp'" 'pc stamp'
+$t = Once $t "const GAME_VERSION = '0.4.8.9.5';" "const GAME_VERSION = '0.4.8.9.6';" 'pc version'
+$t = Once $t $notesAnchor ($notesAnchor + "`n" + $pcNote) 'pc notes'
+$t = Once $t $cardOld $cardNew 'pc catch card'
+[IO.File]::WriteAllText("$To\pc.html", $t, $enc)
+
+if ((Resolve-Path $From).Path -ne (Resolve-Path $To).Path) { foreach ($f in 'android.html','ios.html','index.html','version-phone.txt') { Copy-Item "$From\$f" "$To\$f" -Force } }
+if (([IO.File]::ReadAllText("$From\version.txt", $enc)).Trim() -ne $OldStamp) { throw "version.txt is not $OldStamp" }
+[IO.File]::WriteAllText("$To\version.txt", $Stamp, $enc)
+Write-Output "Hotfix 0.4.8.9.6 (PC only) written to $To with stamp $Stamp"

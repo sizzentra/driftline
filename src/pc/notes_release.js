@@ -106,6 +106,7 @@ PATCHES.unshift({v:'0.4.8.9.2', name:'Hotfix', items:[
 PATCHES.unshift({v:'0.4.8.9.3', name:'Hotfix', items:['Waters: each water’s fish strength line now wraps instead of running past its card on small screens.']});
 PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap onto a second line instead of being cut off in smaller windows.','Pets: the pets still to find show only under Find more, not on Your pets and Customize.']});
 PATCHES.unshift({v:'0.4.8.9.5', name:'Hotfix', items:['Rods (full screen): the rod in your hands shows its attachment slots again, so you can fit attachments.']});
+PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Catch cards always show what you caught: after a shiny or mythic fish, the next card kept showing that fish.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   '## PC, rebuilt',
   'PC now has everything the phone versions have, all in the header: Quests, Map, Upgrades, Collection, Challenges, Customize and Prestige, plus Cooler, Aquarium, Home, Fish Log, Tasks and Stats.',
