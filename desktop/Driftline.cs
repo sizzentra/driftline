@@ -21,8 +21,16 @@ public class DriftlineApp : Application
     [STAThread]
     public static void Main(string[] args)
     {
+        // one window at a time (proposal 4, director 2026-11-22): two windows share one save and could overwrite each other's progress,
+        // so opening the app again brings the open window forward instead
+        bool first; var one = new System.Threading.Mutex(true, @"Local\Driftline.one", out first);
+        var show = new System.Threading.EventWaitHandle(false, System.Threading.EventResetMode.AutoReset, @"Local\Driftline.show");
+        if (!first) { show.Set(); return; }
         var app = new DriftlineApp();
-        app.Run(new GameWindow(GameUrl));
+        var win = new GameWindow(GameUrl);
+        new System.Threading.Thread(() => { while (show.WaitOne()) win.Dispatcher.BeginInvoke(new Action(() => { if (win.WindowState == WindowState.Minimized) win.WindowState = WindowState.Normal; win.Activate(); win.Topmost = true; win.Topmost = false; win.Focus(); })); }) { IsBackground = true }.Start();
+        app.Run(win);
+        GC.KeepAlive(one);
     }
 }
 
@@ -44,7 +52,9 @@ public class GameWindow : Window
         view.DefaultBackgroundColor = System.Drawing.Color.FromArgb(10, 22, 29);
         view.CreationProperties = new CoreWebView2CreationProperties
         {
-            UserDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Driftline", "Data")
+            UserDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Driftline", "Data"),
+            // proposal 3 (director, 2026-11-22): draw on the strong graphics card, and never slow the game down when another window is in front
+            AdditionalBrowserArguments = "--force_high_performance_gpu --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows"
         };
         Content = view;
         Loaded += OnLoaded;
