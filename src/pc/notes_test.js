@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Settings: Download for Windows now gives the Driftline Test program (it gave the live app, and failed for some).',
+  '## Test build 1549',
   'Living maps, every water held to the map standard: Willow Pond, ducklings by day and an owl at night (every 50 s); Saltmarsh Coast, porpoises (every 42 s); Ember Springs, a geyser (every 45 s) and ravens by day; Animal Farm, fireflies and a barn owl at night; The Nile, bats at night; Corporate Pond, pigeons; The Buffet, a gummy bear rowing a cracker. Bigger moments at Florida Keys, The Buffet, Corporate Pond, Midnight Deep and Hollow Trench.',
   'Rain that fits the water: sprinkles at The Buffet, stardust at Starfall Lake and Mount Olympus.',
   'PC draws moving detail finer than phones (rain rings and the like, 1.5 times as many). Starfall Lake draws almost twice as fast.',
