@@ -1314,7 +1314,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
     ['Legends & myths',['leg','leg5','leg12','legall','myth1','myth3','mythall']],
     ['Pets',['pet50','bond10','pets3','petsall']],
     ['Waters',[]],
-    ['Aquarium & home',['tank6','tank12','decor5','decor15','cozy15','dock8']],
+    ['Aquarium & home',['tank6','tank12','decor5','decor15']],
     ['Style',['hats5','hats15','hatsall','style5']],
     ['Gear',['rods4','rods8','rod10','atts10','buff4']],
     ['Boardwalk & events',['derby1','derby10','gold3','claw10','crates10']],

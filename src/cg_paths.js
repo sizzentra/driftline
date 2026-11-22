@@ -13,7 +13,7 @@ SPEC_TIERS.push(
  {lvl:16, name:'Rest', opts:[
    ['snoozer','Snoozer','Bites come 40% faster while you rest.',''],
    ['dreamer','Lucid Dreamer','+30% rare bonus while you rest.',''],
-   ['homebody','Homebody','Cozy counts 50% more, and its cap rises from 40 to 60.','']]},
+   ['petnap','Pet Nap','While you rest, your pets nap beside you and grow closer: their bond rises by itself.','']]},
  {lvl:19, name:'Weather', opts:[
    ['stormchaser','Storm Chaser','In Storms and Blood Moons fish fight no harder than usual, and the rare bonus is 50% stronger.',''],
    ['rainmaker','Rainmaker','Rain and the Spawning Run speed up bites 50% more.',''],
@@ -53,7 +53,7 @@ SPEC_TIERS.push(
 const PATH_ORDER = SPEC_TIERS.map((T,i)=>i).sort((a,b)=>SPEC_TIERS[a].lvl-SPEC_TIERS[b].lvl);
 // what each new path does, as multipliers (mul: 1.5 = +50%) or additions to a bonus key (add); 'when' limits it
 const PATH_FX = {
-  snoozer:{mul:{restbite:.6}}, dreamer:{add:{rare:.3}, when:()=>G.st==='rest'}, homebody:{mul:{cozy:1.5, cozycap:1.5}},
+  snoozer:{mul:{restbite:.6}}, dreamer:{add:{rare:.3}, when:()=>G.st==='rest'}, petnap:{},
   stormchaser:{}, rainmaker:{}, skywatcher:{},
   thrifty:{save:.25}, gourmand:{mul:{fav:1.4}}, chummer:{add:{bite:.15}, when:()=>S.baitSel!=='worm'},
   ticketmaster:{mul:{tix:1.3}}, highroller:{mul:{bwcoin:2}}, regular:{mul:{spin:1.4}},

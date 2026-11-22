@@ -3,6 +3,11 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Your home at Willow Pond, reworked from the director’s notes: 6 parts (Light, Deck, Posts, Rail, Canopy and a new Seat), 3 styles each, and one list of 16 colours shared by every part so pieces can match.',
+  'New styles: a log deck, round piles with rope, a low log rail, a lean-to roof and a sailcloth shade (drawn from the side like the umbrella), and three seats: a camp chair, a log bench and a deck chair. Resting sits you in your seat.',
+  'The posts run all the way down and fade into the water, the water flows past them instead of rings growing and shrinking, and the umbrella stands on the deck instead of the rail.',
+  'The Home preview shows just your home. Where you are is a small label on the view; the strip under it is gone.',
+  '## Test build 2338',
   'Cam’s fish feel update: tension builds a little while you reel and only falls when you stop (steadily, slower during a move). Temper empties in about 3 s once you stop; a fish at full temper moves up to 3 times as often (each move costs it less Fight). Reeling into a move drains its Fight faster.',
   'Between moves a fish sometimes swims toward you for a moment: reel faster then. Tired fish come in faster, most for common fish.',
   'Second winds: rare and epic fish can get one more, legendary and mythic two more, each a coin flip while the fish is tired, so a fish can no longer just be waited out.',

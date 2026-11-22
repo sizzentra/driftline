@@ -58,8 +58,8 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   m.petLook=Object.assign({},o.petLook||{}); m.bond=Object.assign({},o.bond||{}); m.petTints=uniq(['none',...(o.petTints||[])]); m.petAccs=uniq(['none','bandana',...(o.petAccs||[])]);
   const rd=Object.assign(fresh().rods,o.rods||{}); rd.owned=uniq(['bamboo',...(rd.owned||[])]); if(!rd.owned.includes(rd.eq)) rd.eq='bamboo'; rd.lvl=Object.assign({},rd.lvl||{}); rd.att=Object.assign({},rd.att||{}); m.rods=rd;
   m.atts=Object.assign({},o.atts||{}); m.login=Object.assign(fresh().login,o.login||{}); m.scales=+o.scales||0;
-  m.specs=Object.assign({},o.specs||{}); m.relics=uniq(o.relics||[]); if(!m.pet2||!PETI[m.pet2]||!m.owned.pets.includes(m.pet2)||m.pet2===m.pet) m.pet2=null;
-  const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=(dk.decor||[]).filter(x=>dk.owned.includes(x)); if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
+  m.specs=Object.assign({},o.specs||{}); for(const k in m.specs) if(m.specs[k]==='homebody') m.specs[k]='petnap'; /* batch 5: Homebody became Pet Nap with the decorations */ m.relics=uniq(o.relics||[]); if(!m.pet2||!PETI[m.pet2]||!m.owned.pets.includes(m.pet2)||m.pet2===m.pet) m.pet2=null;
+  const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=[]; /* batch 5: home decorations are gone (no refunds: director 2026-11-21) */ if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
   m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   if((o.pearlV||1)<2){ m.pearls=Math.ceil((+o.pearls||0)*.4); m.pearlV=2; }
   m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
@@ -118,9 +118,9 @@ function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.
 const compShare = () => .5+.02*bondLevel(S.pet2);
 function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
 /* the sale price before bonuses: one formula, also used by Market Rush (a copy of it missed the Merchant Path, so Rush gave 27.5% instead of 30%: Cam's Pixel, 2026-11-20) */
-const sellBase = () => 1 + .03*(S.lvl-1) + .04*pr('haggler') + cozyBonus()*.005 + .01*anglerRank() + (spec('merchant')?.12:0);
+const sellBase = () => 1 + .03*(S.lvl-1) + .04*pr('haggler') + .01*anglerRank() + (spec('merchant')?.12:0);
 const sellMult = () => (sellBase() + bonus('sell')) * coinMult();
-const xpMult = () => (1 + bonus('xp') + cozyBonus()*.01) * (coinMult() + .01*(pshopLv('xp')-pshopLv('gold')));
+const xpMult = () => (1 + bonus('xp')) * (coinMult() + .01*(pshopLv('xp')-pshopLv('gold')));
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => { const n=Math.floor(Math.pow(S.stats.runEarned/PEARL_DIV,1/PEARL_EXP)*voyagePearlMult()*pathMul('pearl')); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
@@ -236,7 +236,7 @@ function beginWait(){ G.st='waiting'; G.waitT=0; G.missN=0; const b=BAIT[S.baitS
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
 // shared by fishing and the Stats tab, so the sheet always shows the real numbers
-function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*(1+cozyBonus()*.005)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
+function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearlOld||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
   if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc); return rare; }
@@ -422,7 +422,6 @@ const FEATS = [
   {id:'derby10',name:'Derby champion',        d:'Win 10 gold medals',        p:()=>[S.medals.gold,10], coins:300000, pt:2},
   {id:'pass25',name:'Riding the tide',        d:'Reach Tide Pass level 25',  p:()=>[S.pass.lvl,25], coins:100000, pt:2},
   {id:'pass50',name:'Master of tides',        d:'Reach Tide Pass level 50',  p:()=>[S.pass.lvl,50], coins:1000000, pt:3},
-  {id:'cozy15',name:'Home sweet home',        d:'Reach 15 cozy on your dock', p:()=>[cozy(),15], coins:30000, pt:1},
   {id:'tide1', name:'Second voyage',          d:'Set sail again once',       p:()=>[S.tides,1],           coins:0, pt:2},
   {id:'tide3', name:'Old sea dog',            d:'Set sail again 3 times',    p:()=>[S.tides,3],           coins:0, pt:3},
 ];

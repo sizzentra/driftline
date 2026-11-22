@@ -10,7 +10,7 @@ function passWearPool(){ return [...HATS.filter(x=>x.src==='shop'&&!S.owned.hats
   ...SHOES.filter(x=>x[3]==='shop'&&!S.owned.shoes.includes(x[0])).map(x=>({kind:'shoe',id:x[0],name:x[1],cat:'Shoes'})),
   ...NECKS.filter(x=>x[3]==='shop'&&!S.owned.necks.includes(x[0])).map(x=>({kind:'neck',id:x[0],name:x[1],cat:'Neckwear'})),
   ...BACKS.filter(x=>x[3]==='shop'&&!S.owned.backs.includes(x[0])).map(x=>({kind:'back',id:x[0],name:x[1],cat:'Worn on your back'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
-function passDecorPool(){ return [...DOCK_DECOR.filter(d=>d.src==='shop'&&!S.dock.owned.includes(d.id)).map(d=>({kind:'dock',id:d.id,name:d.name,cat:'Home decoration'})),
+function passDecorPool(){ return [ /* batch 5: aquarium decorations only (home decorations are gone) */
   ...DECOR.filter(d=>d.price&&!(d.src&&d.src!=='shop')&&!S.aq.owned.includes(d.id)).map(d=>({kind:'aq',id:d.id,name:d.name,cat:'Aquarium decoration'}))].sort((a,b)=>(a.kind+a.id).localeCompare(b.kind+b.id)); }
 // upcoming levels pick in order and never promise the same item twice (so no repeats, back to back or otherwise)
 // when you already own everything a clothing or decoration level could give, it falls back to Scales or tickets
@@ -27,7 +27,7 @@ function passPlain(L){ if(S.pass.got&&S.pass.got[L]&&L<=S.pass.claimed) return {
   if(slot===1) return {k:'big', name:'Big Mystery Crate', d:'Clothes, Boardwalk-only wear, decor and the rarer pets.'};
   return {k:'bundle', name:'25 Scales + 150 tickets', d:'Scales level up rods; tickets buy Boardwalk prizes.'}; };
 const grantPass_ = function(L){ const sp=PASS_SPECIAL[L]; if(L%10===0 && maxed('tidewalker')) S.tokens.big++;
-  if(sp){ const [k,id]=sp; if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
+  if(sp){ const [k,id]=sp; if(k==='aq'&&!S.aq.owned.includes(id)) S.aq.owned.push(id); if(k==='dock'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='tint'&&!S.petTints.includes(id)) S.petTints.push(id); if(k==='hat'&&!S.owned.hats.includes(id)) S.owned.hats.push(id);
     if(k==='wood'&&!S.dock.owned.includes(id)) S.dock.owned.push(id); if(k==='out'&&!S.owned.outfits.includes(id)) S.owned.outfits.push(id); if(k==='crate2') S.tokens.legend+=2; if(k==='bait') S.bait[id]=(S.bait[id]||0)+6;
     if(k==='shoe'&&!S.owned.shoes.includes(id)) S.owned.shoes.push(id); if(k==='neck'&&!S.owned.necks.includes(id)) S.owned.necks.push(id); if(k==='back'&&!S.owned.backs.includes(id)) S.owned.backs.push(id); return sp[2]; }
   const p=passPlain(L);

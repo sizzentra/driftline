@@ -65,7 +65,6 @@ FEATS.push(
   {id:'claw10', name:'Claw master', d:'Win 10 claw machine prizes', p:()=>[S.gstats.claw||0,10], coins:20000, pt:1},
   {id:'atts10', name:'Fully kitted', d:'Own 10 different attachments', p:()=>[Object.keys(S.atts).length,10], coins:150000, pt:2},
   {id:'decor15', name:'Aquarium architect', d:'Own 15 aquarium decorations', p:()=>[S.aq.owned.filter(x=>DECORI[x]).length,15], coins:150000, pt:2},
-  {id:'dock8', name:'Full dock', d:'Place 8 decorations on your dock', p:()=>[S.dock.decor.length,8], coins:60000, pt:1},
   {id:'paths5', name:'Every road taken', d:'Choose all five Paths', p:()=>[Object.keys(S.specs).length,5], coins:500000, pt:3});
 
 // ---------- claw machine ----------

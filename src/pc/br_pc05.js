@@ -121,17 +121,17 @@ const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; if(HOMEF[S.loc]) re
     const up=()=>{ c.removeEventListener('pointermove',mv); c.removeEventListener('pointerup',up); c.removeEventListener('pointercancel',up); c.style.cursor='grab'; save(); };
     c.addEventListener('pointermove',mv); c.addEventListener('pointerup',up); c.addEventListener('pointercancel',up); },true);
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='home'||!FHD()) return r; const P=$('panel'); if(P.querySelector('.dk-top')) return r;
-      /* a home in the home format (docs/HOME_STANDARD.md): the close-up of the home on top, its 5 elements as tabs underneath */
+      /* a home in the home format (docs/HOME_STANDARD.md): the close-up of the home on top, its 6 features as tabs underneath */
       if(P.querySelector(':scope > .hf-mark')){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)], c=P.querySelector('#homecv'), tile=c&&c.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return r;
         const top=document.createElement('div'); top.className='dk-top'; const view=document.createElement('div'); view.className='dk-view'; c.style.cssText=''; view.appendChild(c);
         view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)} · ${esc(sp.name)}</span>`);
-        const side=document.createElement('aside'); side.className='dk-side'; side.innerHTML=`<h3>Your ${esc(sp.hname)}</h3><p class="meta">${sp.els.length} parts to make it yours, a style and a color each, and all of it free. Every water keeps its own home.</p>`;
-        top.append(view,side);
-        const col=document.createElement('section'); col.className='dk-col'; col.innerHTML=`<header class="fhd-h"><span>Parts of your ${esc(sp.hname)}</span></header><div class="dk-body"></div>`; const body=col.querySelector('.dk-body'); body.appendChild(nav);
+        /* no side box and no "Parts of your …" heading (director, 2026-11-21): the home view and its features share the page side by side */
+        top.append(view); top.classList.add("dk-top1");
+        const col=document.createElement('section'); col.className='dk-col'; col.innerHTML='<div class="dk-body"></div>'; const body=col.querySelector('.dk-body'); body.appendChild(nav);
         P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el));
-        const split=document.createElement('div'); split.className='dk-split dk-hf'; split.appendChild(col);
+        top.append(col); /* the same layout as phones held sideways (director: same on PC and phones, PC just has more room): the home on the left, its features on the right */
         [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
-        P.prepend(top); top.after(split); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); return r; }
+        P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); return r; }
       const tile=P.querySelector('#homecv')&&P.querySelector('#homecv').closest('.tile'), bar=P.querySelector(':scope > .dockbar'), cozy=P.querySelector('.dl-head .tile'), h5=[...P.querySelectorAll(':scope > h5')];
       if(!tile||h5.length<3) return r;
       const L=LOCS[locIdx(S.loc)], plat={dock:'a dock',pier:'a long pier',ice:'an ice ledge',sand:'a beach',boat:'a boat',trawler:'a trawler',raft:'a raft',stone:'a stone ledge',crystal:'a crystal shelf'}[L.plat]||'a dock';
@@ -168,6 +168,7 @@ html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:colu
 html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
 html body.pc-fhd #menuov #panel.dk-on > .dk-split{flex:1 1 0;min-height:0}
 body.pc-fhd #panel .dk-top{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;height:calc(40*var(--uvh,1vh));min-height:300px}
+html body.pc-fhd #menuov #panel.dk-on > .dk-top.dk-top1{grid-template-columns:minmax(0,1.15fr) minmax(440px,1fr);height:auto;flex:1 1 0;min-height:0} body.pc-fhd #panel .dk-top1 > .dk-col{min-height:0;overflow:auto;scrollbar-width:thin} /* format homes: the home view left, its features right (batch 5) */
 body.pc-fhd #panel .dk-view{position:relative;border-radius:16px;overflow:hidden;border:1px solid #ffffff18;background:#08111e}
 html body.pc-fhd #menuov #panel .dk-view #homecv{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;aspect-ratio:auto!important;cursor:grab;touch-action:none;display:block}
 body.pc-fhd #panel .dk-where{position:absolute;left:12px;top:10px;padding:5px 12px;border-radius:999px;background:#0009;color:#fff;font:800 12.5px var(--display,system-ui);pointer-events:none}

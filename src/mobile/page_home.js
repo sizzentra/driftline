@@ -64,10 +64,12 @@ body.phone-app #panel .hm-note,body.phone-land #panel .hm-note{margin:8px 2px 4p
       if(P.querySelector(':scope > .hf-mark')){ const sp=hfSpec(S.loc), land=document.body.classList.contains('phone-land'); P.dataset.dkLand=land?'1':'0';
         P.classList.add('aq07','dk08'); P.classList.toggle('aq07-open',DK_OPEN);
         const stage=h('div','aq07-stage'); tile.before(stage); tile.classList.add('dk08-view'); tile.removeAttribute('style'); stage.appendChild(tile); cv.removeAttribute('style');
-        const bar=h('div','aq07-bar'); stage.after(bar);
-        bar.appendChild(h('div','aq07-bank dk08-bank',`<div><span class="sub">Your home</span><b>${esc(sp.name)}</b></div><div><span class="sub">Parts</span><b>${sp.els.length} to change</b></div><div><span class="sub">Cost</span><b>All free</b></div>`));
+        /* no strip under the view (director, 2026-11-21: it ate space and said little): where you are is a small label on the view, and
+           Options / Hide sits on the view's corner */
+        stage.appendChild(h('div','dk08-where',`${esc(LOCS[locIdx(S.loc)].name)}<span> · ${esc(sp.hname)}</span>`));
+        const bar=h('div','aq07-bar dk08-ov'); stage.appendChild(bar);
         mkTog(P,bar,land,'Show the parts of your '+sp.hname,'Hide the parts and see your whole '+sp.hname);
-        const sheet=h('div','aq07-sheet'), body=h('div','aq07-body'), sec=h('div','aq07-sec dk08-sec-home'); bar.after(sheet); sheet.appendChild(nav); sheet.appendChild(body); body.appendChild(sec);
+        const sheet=h('div','aq07-sheet'), body=h('div','aq07-body'), sec=h('div','aq07-sec dk08-sec-home'); stage.after(sheet); sheet.appendChild(nav); sheet.appendChild(body); body.appendChild(sec);
         P.querySelectorAll(':scope > [data-hel]').forEach(el=>sec.appendChild(el));
         [...P.children].forEach(ch=>{ if(ch!==stage&&ch!==bar&&ch!==sheet&&!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
         nav.addEventListener('click',()=>{ body.scrollTop=0; });
@@ -138,6 +140,11 @@ body.phone-app #panel .hm-note,body.phone-land #panel .hm-note{margin:8px 2px 4p
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.dk08 .aq07-stage > .dk08-view,html body.phone-land #menuov #panel.dk08 .aq07-stage > .dk08-view{flex:1 1 auto;min-height:0;margin:0!important;padding:0!important;border-radius:16px;overflow:hidden;display:block}
 html body.phone-app #menuov #panel.dk08 .dk08-view > canvas,html body.phone-land #menuov #panel.dk08 .dk08-view > canvas{width:100%!important;height:100%!important;display:block;touch-action:pan-y}
+html body.phone-app #menuov #panel.dk08 .aq07-stage,html body.phone-land #menuov #panel.dk08 .aq07-stage{position:relative}
+html body.phone-app #menuov:has(#panel.dk08) .mo-tools > .mo-coin,html body.phone-land #menuov:has(#panel.dk08) .mo-tools > .mo-coin,html body.phone-app #menuov:has(#panel.dk08) .mo-tools > [data-mo="settings"],html body.phone-land #menuov:has(#panel.dk08) .mo-tools > [data-mo="settings"]{display:none} /* Your home: no coins or settings button up top (director, 2026-11-21: not needed here; the page gets the room) */
+html body.phone-app #menuov #panel.dk08 .dk08-where,html body.phone-land #menuov #panel.dk08 .dk08-where{position:absolute;left:8px;top:8px;z-index:2;max-width:calc(100% - 16px);padding:3px 10px;border-radius:999px;background:#050e14b8;color:#eaf3fa;font:800 11px var(--display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+html body.phone-app #menuov #panel.dk08 .dk08-where span,html body.phone-land #menuov #panel.dk08 .dk08-where span{color:#9fb2c8;font-weight:700}
+html body.phone-app #menuov #panel.dk08 .aq07-bar.dk08-ov,html body.phone-land #menuov #panel.dk08 .aq07-bar.dk08-ov{position:absolute!important;right:8px;bottom:8px;left:auto!important;top:auto!important;z-index:2;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}
 html body.phone-app #menuov #panel.dk08 .dk08-hint,html body.phone-land #menuov #panel.dk08 .dk08-hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);margin:0;padding:3px 10px;border-radius:999px;background:#050e14b0;color:#cfe0ee;font:700 10.5px var(--display);white-space:nowrap;pointer-events:none}
 html body.phone-app #menuov #panel.dk08 .dk08-bank,html body.phone-land #menuov #panel.dk08 .dk08-bank{grid-template-columns:repeat(3,minmax(0,1fr))!important}
 html body.phone-app #menuov #panel.dk08 .dk08-bank b,html body.phone-land #menuov #panel.dk08 .dk08-bank b{display:block;font:800 14px var(--display)!important;color:#fff;overflow:hidden;text-overflow:ellipsis}

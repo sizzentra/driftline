@@ -12,7 +12,7 @@ function setRest(on){ if(on){ if(G.st!=='idle'){ toast('Finish what you are doin
     S.settings.rest=true; G.st='rest'; restCast(); toast('You sit down and let the line drift. Fish bite slowly while you rest.'); }
   else { S.settings.rest=false; if(G.st==='rest'){ G.st='idle'; } toast('Back on your feet.'); }
   restBtn(); save(); }
-function restTick(dt){ if(!S.settings.rest){ G.st='idle'; return; } RST.t+=dt;
+function restTick(dt){ if(!S.settings.rest){ G.st='idle'; return; } RST.t+=dt; petNap(dt);
   if(RST.phase==='wait'){ G.bob.x=castX(.55); G.bob.y=waterY(G.bob.x); if(RST.t>=RST.at){ RST.phase='bite'; RST.k=0; splash(G.bob.x,G.bob.y,10); sfx.bite(); } }
   else if(RST.phase==='bite'){ RST.k+=dt; if(RST.k>1.2){ RST.phase='reel'; RST.k=0; } }
   else if(RST.phase==='reel'){ RST.k+=dt/11; const x0=castX(.55), x1=W*.24; G.bob.x=x0+(x1-x0)*RST.k+Math.sin(RST.t*3)*2; G.bob.y=waterY(G.bob.x); if(Math.random()<dt*1.5) splash(G.bob.x,G.bob.y,5);
@@ -27,7 +27,7 @@ function restLand(){ const f=chooseCatch(); splash(G.bob.x,G.bob.y,18); sfx.pull
   if(S.cooler.length>=gv('cooler')){ toast('Your cooler is full, so you stand up again.'); setRest(false); return; }
   restCast(); }
 // where and how the angler sits: in the chair if it is on the dock, else on the dock edge
-function restPose(dockY,pb,sc){ const items=dockView(); if(items.includes('chair')){ const PW=W*.19, ax0=W*.12, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax0-40*sc-X0)/(X1-X0),(ax0+12*sc-X0)/(X1-X0));
+function restPose(dockY,pb,sc){ if(HOMEF[S.loc]&&HOMEF[S.loc].seatH){ const ss=hfStyle(S.loc,"seat"); return {ax:HF.seatX()+3*sc, ay:dockY+pb, sit:{seat:HOMEF[S.loc].seatH[ss],hang:false}, hx:10, hy:-26}; } /* format homes: resting sits the angler in the home's seat (batch 5) */ const items=dockView(); if(items.includes('chair')){ const PW=W*.19, ax0=W*.12, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax0-40*sc-X0)/(X1-X0),(ax0+12*sc-X0)/(X1-X0));
     return {ax:X0+P.chair*(X1-X0)+3*sc, ay:dockY+pb, sit:{seat:17,hang:false}, hx:10, hy:-26}; }
   return {ax:W*.19-14*sc, ay:dockY+pb, sit:{seat:.5,hang:true}, hx:10, hy:-12}; }
 // the toggle on the water
@@ -54,3 +54,7 @@ if(/[?&]test\b/.test(location.search)) window.__fightSim=(opts)=>{ const B=__bal
    out.push(loc+' '+['C','U','R','E','L','M'][r]+' '+name+': '+Math.round(caught/N*100)+'% in '+(caught?(ts/caught).toFixed(1):'-')+'s peak '+Math.round(peak/N)); }
  }catch(e){ out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
  return out; };
+/* Pet Nap (Rest path, batch 5, replaces Homebody with the decorations): while you rest, each pet with you gains a bond point every
+   minute (the favourite two), up to 20 a day from napping. First version; the amount is tuned in the balance batch. */
+function petNap(dt){ if(!pathChosen().includes('petnap')) return; RST.nap=(RST.nap||0)+dt; if(RST.nap<60) return; RST.nap=0; const today=dayKey();
+  for(const id of [S.pet,S.pet2]){ if(!id||!PETI[id]) continue; const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.napDay!==today){ b.napDay=today; b.nap=0; } if(b.nap>=20) continue; b.nap++; b.xp+=id===S.pet?2:1; } }

@@ -86,17 +86,17 @@ function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.sc
 const PASS_MAX = 100; /* 0.4.9: five chapters of 20 (cj_tidepass.js) */
 const passNeed = L => Math.round(180 + L*45 + L*L*.8);
 const PASS_XP = [8,14,30,60,150,400];
-const PASS_SPECIAL = {3:['dock','tideflag','Tide Flag','Dock decoration: a flag that ripples in the wind.'], 5:['shoe','tidetreads','Tide Treads','Shoes: sea-glass boots with a rolling wave stripe.'],
+const PASS_SPECIAL = {3:['aq','lantern','Sea Lantern','Aquarium decoration: a lantern that glows on the sand.'], 5:['shoe','tidetreads','Tide Treads','Shoes: sea-glass boots with a rolling wave stripe.'],
   8:['tint','tidal','Tidal pet color','Pet color: recolors any pet in deep sea blues.'], 10:['neck','tidescarf','Tide Scarf','Neckwear: a long scarf of sea foam that drifts behind you.'],
   12:['hat','tidecap','Tide Cap','Hat: a captain’s cap with the Tide crest.'], 15:['bait','mythbait','6 Myth Bait','Bait: legendary fish are far more likely to bite.'],
-  18:['dock','shipwheel','Ship’s Wheel','Dock decoration: an old helm that turns in the breeze.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
-  25:['wood','pearl','Pearl dock wood','Dock wood: pale, pearly planks for any of your docks.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
-  35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['dock','minilight','Tiny Lighthouse','Dock decoration: its beam sweeps the water at night.'],
+  18:['aq','anchor','Old Anchor','Aquarium decoration: a rusty anchor half sunk in the sand.'], 20:['back','tidecape','Tide Cape','On your back: a cape of rolling water that shimmers as it moves.'],
+  25:['aq','chest','Treasure Chest','Aquarium decoration: a chest that lets out bubbles.'], 30:['out','tidecoat','Tide Coat','Outfit: a long coat with a glowing wave hem.'],
+  35:['back','shellpack','Seashell Pack','On your back: a backpack made from a giant scallop shell.'], 40:['aq','diver','Little Diver','Aquarium decoration: a tiny diver who waves at your fish.'],
   45:['crate2','legend','2 Legendary Crates','Two Legendary Mystery Crates, the best crates there are.'], 50:['back','tidewings','Tide Wings','On your back: wings of living water. The rarest thing in the Pass.']};
 function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))*(relic('tidecaller')?1.3:1)); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
 function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const cx=w/2, s=w/120;
-  if(sp){ const [k,id]=sp; if(k==='dock') dockThumb(x,id,w,h); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
+  if(sp){ const [k,id]=sp; if(k==='aq') drawDecor(x,id,w/2,h*.92,w/160,0); else if(k==='dock') dockThumb(x,id,w,h); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
     else if(k==='tint') drawPetStyled(x,S.pet,cx,h*.86,2.8*s,0,0,Object.assign({},petLook(),{tint:id})); else if(k==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(w*.08,h*.5,w*.84,h*.13); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(w*(.12+i*.17),h*.5,2*s,h*.13); }
     else if(k==='shoe'||k==='neck'||k==='back') wearPreview(x,k,id,w,h); else if(k==='bait') drawJunk(x,w,h,'goldlure'); else drawJunk(x,w,h,'chest'); return; }
   const p=L>PASS_MAX?{k:'coins'}:passPlain(L); if(p.k==='big'||p.k==='small') drawJunk(x,w,h,'chest'); else if(p.k==='coins'||p.k==='bonus') drawJunk(x,w,h,'coin');

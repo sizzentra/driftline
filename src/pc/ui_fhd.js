@@ -65,7 +65,7 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
     return true; };
   const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; }
     const set=(k,v,ready)=>{ const c=document.querySelector('.pch-stats > [data-page="'+k+'"]'); if(!c) return; const b=c.querySelector('.pcs-v'); if(b&&b.textContent!==v) b.textContent=v; c.classList.toggle('ready',!!ready); };
-    try{ set('home',cozy()+' ♥'); }catch(e){}
+    try{ const hn=(HOMEF[S.loc]&&HOMEF[S.loc].hname)||'home'; set('home',hn.charAt(0).toUpperCase()+hn.slice(1)); }catch(e){} /* the home's name (batch 5: the cozy score is gone) */
     try{ const d=ensureDaily(), n=bountyReady(); set('bounties',n?n+' ready':d.tasks.filter(t=>t.claimed).length+'/'+d.tasks.length+' done',n>0); }catch(e){} }catch(e){} };
   setInterval(tick,1500);
   // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
