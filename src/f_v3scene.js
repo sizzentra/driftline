@@ -113,137 +113,6 @@ function v3landDraw(L,P,hz){ const C=v3land(L,P,hz); g.drawImage(C.c,0,0,W,H);
 // =====================================================================
 // WILLOW POND
 // =====================================================================
-const V3POND = {
-  // still parts: mountains, hills, pine shores, cabin, willow bank, water base, reflections
-  land(x,P,hz,cnv){
-    // two mountain ranges: a tall far one with snow, a lower nearer one for depth
-    v3range(x,{seed:11, base:hz+1, amp:.215*H, massifs:[[.29,1,.12],[.41,.78,.08],[.6,.55,.1],[.71,.92,.1],[.86,.62,.09]], light:mix(P.far,'#ffffff',.18), shadow:mix(P.far,'#1a1030',.32), haze:P.farHaze, snow:P.snow, snowLine:hz-.12*H, hazeA:.6});
-    v3range(x,{seed:37, base:hz+1, amp:.085*H, massifs:[[.12,.8,.14],[.5,.6,.16],[.83,.75,.13]], light:mix(P.far,P.hill,.55), shadow:mix(mix(P.far,P.hill,.55),'#100a24',.3), haze:P.farHaze, snow:null, hazeA:.45});
-    // mid hills: wide smooth curves
-    x.fillStyle=P.hill; x.beginPath(); x.moveTo(0,hz+1); x.lineTo(0,hz-.035*H); x.bezierCurveTo(W*.16,hz-.07*H,W*.3,hz-.05*H,W*.42,hz-.028*H); x.bezierCurveTo(W*.55,hz-.06*H,W*.7,hz-.055*H,W*.84,hz-.03*H); x.bezierCurveTo(W*.92,hz-.045*H,W*.97,hz-.04*H,W,hz-.036*H); x.lineTo(W,hz+1); x.closePath(); x.fill();
-    // back pine rows (hazier), thick on the shores, open in the middle of the lake
-    const r=v3rng(7);
-    const rowB=(x0,x1,h0,h1)=>{ for(let X=x0;X<x1;X+=W*.011){ const h=H*(h0+(h1-h0)*r()); v3pine(x,X+r()*W*.006,hz+1,h,P.back,P.rim,P.d*.25); } };
-    rowB(-W*.01,W*.42,.045,.075); rowB(W*.72,W*1.01,.04,.07);
-    // leafy trees and shrubs on the far hills, so the middle of the lake has a living shore too
-    for(const [fx,fh,sd] of [[.445,.05,3],[.475,.036,5],[.53,.044,8],[.585,.032,9],[.63,.048,12],[.68,.038,14]]) v3leafTree(x,W*fx,hz+1,H*fh,P,sd,{leaf:mix(P.leaf,P.hill,.45)});
-    v3bushes(x,W*.42,W*.74,hz+1.5,H*.016,P,21,{leaf:mix(P.leaf,P.hill,.5)});
-    // log cabin on the left shore: log walls, stone chimney, porch roof, door; the window light is drawn live
-    { const cx=W*.265, cw=H*.075, ch=H*.042, cb=hz+1, logs=mix(P.cabin,'#000000',.28);
-      // stone chimney behind the roof line
-      x.fillStyle=mix(P.far,P.cabin,.5); x.fillRect(cx+cw*.18,cb-ch-ch*.82,cw*.13,ch*.9);
-      x.fillStyle=mix(P.far,'#000000',.25); for(let k=0;k<4;k++) x.fillRect(cx+cw*.18,cb-ch-ch*.82+k*ch*.2,cw*.13,1);
-      x.fillStyle=P.cabin; x.fillRect(cx-cw/2,cb-ch,cw,ch);
-      x.fillStyle=logs; for(let k=1;k<5;k++) x.fillRect(cx-cw/2,cb-ch+k*ch/5,cw,1);
-      x.fillStyle='rgba(0,0,0,.2)'; x.fillRect(cx+cw*.12,cb-ch,cw*.38,ch);
-      x.fillStyle=logs; x.fillRect(cx-cw/2-1.5,cb-ch,2.5,ch); x.fillRect(cx+cw/2-1,cb-ch,2.5,ch);
-      // gable roof with an overhang and a lit ridge
-      x.fillStyle=P.roof; x.beginPath(); x.moveTo(cx-cw*.66,cb-ch+1.5); x.lineTo(cx-cw*.04,cb-ch-ch*.78); x.lineTo(cx+cw*.04,cb-ch-ch*.78); x.lineTo(cx+cw*.66,cb-ch+1.5); x.closePath(); x.fill();
-      x.strokeStyle=v3rgba(P.rim,.35+P.d*.4); x.lineWidth=1; x.beginPath(); x.moveTo(cx+cw*.04,cb-ch-ch*.77); x.lineTo(cx+cw*.64,cb-ch+1); x.stroke();
-      // porch roof on posts and a door
-      x.fillStyle=P.roof; x.fillRect(cx-cw*.62,cb-ch*.52,cw*.42,ch*.08);
-      x.fillStyle=logs; x.fillRect(cx-cw*.6,cb-ch*.45,1.5,ch*.45); x.fillRect(cx-cw*.24,cb-ch*.45,1.5,ch*.45);
-      x.fillStyle=mix(P.cabin,'#000000',.45); x.fillRect(cx+cw*.24,cb-ch*.64,cw*.14,ch*.64);
-      x.fillStyle=mix(P.cabin,'#000000',.6); x.fillRect(cx-cw*.62,cb-1,cw*1.24,2); }
-    // front pines framing the cabin, with rim light at dusk
-    const r2=v3rng(19);
-    for(const [fx,fh] of [[.02,.13],[.055,.105],[.09,.12],[.125,.09],[.16,.11],[.2,.085],[.33,.08],[.36,.1],[.395,.07]]) v3pine(x,W*fx,hz+2,H*fh*(.92+r2()*.16),P.front,P.rim,P.d*.55);
-    for(const [fx,fh] of [[.76,.075],[.8,.095],[.97,.12],[.995,.1]]) v3pine(x,W*fx,hz+2,H*fh,P.front,P.rim,P.d*.55);
-    // a few leafy trees among the front pines, shoreline shrubs and reeds
-    v3leafTree(x,W*.24,hz+2,H*.075,P,31); v3leafTree(x,W*.43,hz+2,H*.06,P,33); v3leafTree(x,W*.72,hz+2,H*.07,P,37);
-    v3bushes(x,-W*.01,W*.24,hz+3,H*.02,P,41); v3bushes(x,W*.3,W*.45,hz+3,H*.018,P,43); v3bushes(x,W*.7,W*.8,hz+3,H*.018,P,47);
-    // grassy bank on the right where the willow stands
-    x.fillStyle=P.bank; x.beginPath(); x.moveTo(W*.8,hz+2); x.quadraticCurveTo(W*.88,hz-.012*H,W*1.01,hz-.004*H); x.lineTo(W*1.01,hz+.03*H); x.quadraticCurveTo(W*.9,hz+.028*H,W*.8,hz+2); x.closePath(); x.fill();
-    v3reeds(x,W*.8,W*1.01,hz+.02*H,H*.035,mix(P.bank,P.leafHi,.25),51); v3flowers(x,W*.82,W*1.0,hz+H*.004,hz+H*.026,['#f4e06a','#f49ac0','#ffffff','#b8a0ff'],53,26);
-    v3reeds(x,-W*.01,W*.2,hz+3,H*.026,mix(P.leaf,P.front,.4),57); v3reeds(x,W*.33,W*.44,hz+3,H*.022,mix(P.leaf,P.front,.4),59);
-    // ---- water ----
-    const wg=x.createLinearGradient(0,hz,0,H); wg.addColorStop(0,P.wTop); wg.addColorStop(.32,P.wMid); wg.addColorStop(1,P.wBot); x.fillStyle=wg; x.fillRect(0,hz,W,H-hz);
-    // reflection: the land above, mirrored and squashed, then broken into calm bands
-    x.save(); x.globalAlpha=.38; x.beginPath(); x.rect(0,hz,W,H*.3); x.clip(); x.translate(0,hz); x.scale(1,-.72); x.translate(0,-hz);
-    x.drawImage(cnv,0,0,cnv.width,Math.round(hz*DPR),0,0,W,hz); x.restore();
-    /* 0.4: the band ends on exactly the water color beneath it (it ended on a flat color, leaving a straight seam) */ const rt=Math.min(1,(H*.3)/(H-hz)), rEnd=rt<=.32?mix(P.wTop,P.wMid,rt/.32):mix(P.wMid,P.wBot,(rt-.32)/.68);
-    const rb=x.createLinearGradient(0,hz,0,hz+H*.3); rb.addColorStop(0,v3rgba(P.wTop,0)); rb.addColorStop(1,v3rgba(rEnd,1)); x.fillStyle=rb; x.fillRect(0,hz,W,H*.3);
-    x.fillStyle=v3rgba(P.wTop,.35); for(let i=0;i<9;i++){ const y=hz+3+i*i*1.6; x.fillRect(0,y,W,1); }
-    // the waterline: a thin bright edge where shore meets water
-    x.fillStyle=v3rgba(P.rim,.28+P.d*.2); x.fillRect(0,hz,W,1.2);
-  },
-
-  // living parts, every frame
-  live(P,t,hz,sun){
-    const d=P.d, night=P.night, FX=S.settings.effects;
-    // cabin window glow + chimney smoke
-    const cx=W*.265, cw=H*.075, ch=H*.042, cb=hz+1, lit=clamp(night*1.2+d*.8,0,1);
-    const wx0=cx-cw*.06, wy0=cb-ch*.74, ww=cw*.2, wh=ch*.36;
-    g.fillStyle=mix(P.cabin,'#000000',.5); g.fillRect(wx0-1,wy0-1,ww+2,wh+2);
-    if(lit>.05){ v3glow(g,wx0+ww/2,wy0+wh/2,ch*1.2,'rgba(255,200,110,.9)',lit*.5*(.92+.08*Math.sin(t*3.1))); g.fillStyle=v3rgba('#ffcf7a',.25+lit*.75); g.fillRect(wx0,wy0,ww,wh);
-      g.fillStyle=v3rgba('#ffcf7a',lit*.3); g.fillRect(wx0+ww*.15,hz+3,ww*.7,ch*.7); }
-    else { g.fillStyle=mix(P.wTop,P.cabin,.4); g.fillRect(wx0,wy0,ww,wh); }
-    g.fillStyle=mix(P.cabin,'#000000',.5); g.fillRect(wx0+ww/2-.5,wy0,1,wh); g.fillRect(wx0,wy0+wh/2-.5,ww,1); g.fillRect(wx0-1.5,wy0+wh,ww+3,1.6);
-    // soft smoke wisps rising and drifting
-    if(FX){ const sx=cx+cw*.245, sy=cb-ch-ch*.82; const sc=mix(P.farHaze,'#ffffff',.45);
-      for(let i=0;i<6;i++){ const k=((t*.12+i/6)%1), r=H*(.008+k*.03); v3glow(g,sx+Math.sin(k*4+i)*H*.006+k*H*.035,sy-k*H*.11,r,v3rgba(sc,.9),.45*(1-k)*(k<.08?k/.08:1)); } }
-    // sun / moon glitter on the water
-    if(sun.vis>.05){ const gx=clamp(sun.x,W*.05,W*.95); g.fillStyle=v3rgba(sun.up?P.glow:'#dfe6ff',.9*sun.vis);
-      for(let i=0;i<10;i++){ const y=hz+3+i*i*2.1; if(y>H*.8) break; const w2=(W*.07-i*W*.005)*(.7+.3*Math.sin(t*2.3+i*1.7)); const off=Math.sin(t*1.3+i*2.1)*W*.006; g.globalAlpha=(.85-i*.07)*sun.vis*(.6+.4*Math.sin(t*3+i)); g.fillRect(gx-w2/2+off,y,w2,1.6+i*.15); }
-      g.globalAlpha=1; }
-    // drifting mist bands at dusk and night
-    if(FX){ const ma=.18*d+.1*night; if(ma>.02){ for(let i=0;i<2;i++){ const mx=((t*(6+i*3)+i*W*.4)%(W*1.6))-W*.3, my=hz+H*(.02+i*.05), mw=W*.7; const mg=g.createLinearGradient(mx,0,mx+mw,0); const mc=mix(P.farHaze,'#ffffff',.4); mg.addColorStop(0,v3rgba(mc,0)); mg.addColorStop(.5,v3rgba(mc,ma)); mg.addColorStop(1,v3rgba(mc,0)); g.fillStyle=mg; g.fillRect(mx,my,mw,H*.025); } } }
-    // gentle wave glints
-    g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.22); g.lineWidth=1;
-    for(let r0=0;r0<9;r0++){ const y=hz+H*.03+Math.pow(r0/9,1.5)*(H-hz)*.95; const sp=W*(.08+r0*.02), len=W*(.012+r0*.004); g.beginPath(); for(let X=((t*(5+r0*2)+r0*53)%sp)-sp;X<W;X+=sp){ const yy=y+Math.sin(X*.02+t+r0)*1; g.moveTo(X,yy); g.quadraticCurveTo(X+len/2,yy-1.2,X+len,yy); } g.stroke(); }
-    // the willow: trunk on the bank, drooping strands swaying in the breeze
-    this.willow(P,t,hz);
-    // ducks gliding across, leaving a wake
-    { const k=((t/70)%1), dx=W*(1.05-k*1.15), dy=hz+H*.045; for(let i=0;i<2;i++){ const px=dx+i*W*.03, py=dy+i*H*.006, s=H*.012;
-        g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.35); g.lineWidth=1; g.beginPath(); g.moveTo(px+s*1.2,py+s*.6); g.lineTo(px+s*4,py+s*.2); g.moveTo(px+s*1.2,py+s*.7); g.lineTo(px+s*4,py+s*1.3); g.stroke();
-        const bob=Math.sin(t*2+i)*.6; g.fillStyle=mix(P.cabin,'#8a6a4a',.5); g.beginPath(); g.ellipse(px+s*.8,py+bob,s*1.1,s*.5,0,0,7); g.fill();
-        g.fillStyle=i?mix('#2f6a4a',P.front,night*.7):mix('#8a6a4a',P.front,night*.6); g.beginPath(); g.arc(px,py-s*.5+bob,s*.38,0,7); g.fill();
-        g.fillStyle=mix('#f0b040',P.front,night*.6); g.beginPath(); g.moveTo(px-s*.35,py-s*.5+bob); g.lineTo(px-s*.75,py-s*.38+bob); g.lineTo(px-s*.33,py-s*.32+bob); g.fill();
-        g.fillStyle=v3rgba(P.rim,.5*d); g.fillRect(px+s*.2,py-s*.45+bob,s*1.4,1); } }
-    // a fish rises now and then: a ring spreading out
-    { const per=7.3, k=(t%per)/per, i=Math.floor(t/per), rr2=v3rng(i*97+5)(), fx=W*(.45+rr2*.4), fy=hz+H*(.08+((i*37)%10)/10*.25);
-      if(k<.55){ const e=k/.55; g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),.6*(1-e)); g.lineWidth=1.2; g.beginPath(); g.ellipse(fx,fy,4+e*W*.03,1.5+e*H*.012,0,0,7); g.stroke(); g.beginPath(); g.ellipse(fx,fy,2+e*W*.018,1+e*H*.007,0,0,7); g.stroke(); } }
-    // lily pads with veins; the bloom glows after sunset
-    this.lilies(P,t,hz,lit);
-    // fireflies (dusk, night) or dragonflies (day)
-    if(FX){ if(lit>.15){ for(let i=0;i<12;i++){ const rr=v3rng(i*31+3); const bx=W*(.08+rr()*.6), by=hz-H*.02+rr()*H*.3; const fx=bx+Math.sin(t*.4+i*1.3)*W*.03, fy=by+Math.sin(t*.55+i*2.1)*H*.025; const a=lit*(.5+.5*Math.sin(t*2.2+i*1.9)); if(a<.05) continue; v3glow(g,fx,fy,H*.022,'rgba(255,240,150,.9)',a*.8); g.fillStyle=v3rgba('#fff6b8',a); g.fillRect(fx-1,fy-1,2,2); } }
-      else if(night<.2){ for(let i=0;i<2;i++){ const k=t*.35+i*3.1, fx=W*(.42+.25*Math.sin(k)+i*.12), fy=hz+H*(.12+.06*Math.sin(k*1.7+i)), s=H*.012; g.strokeStyle='#2a8a8a'; g.lineWidth=1.6; g.beginPath(); g.moveTo(fx-s,fy); g.lineTo(fx+s,fy); g.stroke(); g.fillStyle='rgba(220,250,255,.5)'; const fl=Math.sin(t*40+i)*.4; g.beginPath(); g.ellipse(fx,fy-s*.4,s*.7,s*.22*(1+fl),-.3,0,7); g.ellipse(fx,fy+s*.4,s*.7,s*.22*(1-fl),.3,0,7); g.fill(); } } }
-    // the moment, every 50 s (map standard, 2026-11-21): by day a mother duck leads her ducklings across the far water, in from behind
-    // the willow and out past the cabin (three to five of them, a little different each time); at night a tawny owl glides low over the pond
-    { const per=50, q=t%per, n=Math.floor(t/per), r=v3rng(n*41+3);
-      if(night<.55){ if(q<26){ const e=q/26, nd=3+Math.floor(r()*3), yy=hz+H*(.05+r()*.02), s0=H*.011, N=c0=>mix(c0,P.front,night*.6);
-        for(let i=0;i<=nd;i++){ const big=i===0, s=big?s0:s0*.55, px=W*(1.04-e*1.12)+i*s0*2.3+(big?0:s0*.8), py=yy+(big?0:s0*.15), bob=Math.sin(t*2.4+i*1.3)*s*.12; if(px<-s*4||px>W+s*4) continue;
-          g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.3); g.lineWidth=1; g.beginPath(); g.moveTo(px+s*1.1,py+s*.35); g.lineTo(px+s*2.6,py+s*.15); g.moveTo(px+s*1.1,py+s*.45); g.lineTo(px+s*2.6,py+s*.75); g.stroke();
-          g.fillStyle=N(big?'#8a6a48':'#c8a850'); g.beginPath(); g.ellipse(px+s*.3,py+bob,s*1.05,s*.48,0,Math.PI,0); g.quadraticCurveTo(px+s*.3,py+bob+s*.35,px-s*.75,py+bob); g.fill(); g.beginPath(); g.moveTo(px+s*1.2,py+bob); g.lineTo(px+s*1.65,py+bob-s*.35); g.lineTo(px+s*1.2,py+bob-s*.2); g.fill();
-          g.fillStyle=N(big?'#6a5038':'#d8b858'); g.beginPath(); g.arc(px-s*.55,py+bob-s*.62,s*.36,0,7); g.fill(); g.fillStyle=N('#e8a030'); g.beginPath(); g.moveTo(px-s*.85,py+bob-s*.66); g.lineTo(px-s*1.2,py+bob-s*.56); g.lineTo(px-s*.85,py+bob-s*.5); g.fill();
-          g.fillStyle='#1a1410'; g.fillRect(px-s*.65,py+bob-s*.72,1.2,1.2); } } }
-      else if(q<7){ const e=q/7, ox=W*(1.06-e*1.14), oy=hz-H*(.03+.05*Math.sin(e*Math.PI)), s=H*.007, N=c0=>mix(c0,P.front,.35); v3owlFly(ox,oy,s,t,N('#6a5440'),N('#8a7058'),N('#6a5440'),'#f0c040');
-        if(oy>hz-H*.045){ g.fillStyle=v3rgba('#000000',.12); g.beginPath(); g.ellipse(ox,hz+H*.01,s*1.6,s*.25,0,0,7); g.fill(); } } }
-  },
-
-  willow(P,t,hz){ v3willow(P,t,hz); },
-
-  lilies(P,t,hz,lit){
-    const pads=[[.5,.78,.05],[.57,.84,.035],[.66,.72,.03],[.86,.9,.045]];
-    for(const [px,py,ps] of pads){ const x0=W*px, y0=H*py, rx=W*ps, ry=rx*.32;
-      g.fillStyle=mix('#3f7a5a',P.wBot,P.night*.6); g.beginPath(); g.ellipse(x0,y0,rx,ry,0,.25,Math.PI*2-.05); g.lineTo(x0,y0); g.closePath(); g.fill();
-      g.strokeStyle=mix('#6fa880',P.wBot,P.night*.6); g.lineWidth=.8; g.beginPath(); for(let k=0;k<6;k++){ const a=.5+k*.95; g.moveTo(x0,y0); g.lineTo(x0+Math.cos(a)*rx*.85,y0+Math.sin(a)*ry*.85); } g.stroke();
-      g.fillStyle=v3rgba(P.rim,.25*P.d); g.beginPath(); g.ellipse(x0+rx*.2,y0-ry*.4,rx*.5,ry*.25,0,0,7); g.fill(); }
-    // the bloom on the big pad
-    const bx=W*.5+W*.012, by=H*.78-H*.012, s=H*.016;
-    if(lit>.05) v3glow(g,bx,by,s*4.5,'rgba(255,190,220,.9)',lit*(.55+.15*Math.sin(t*1.6)));
-    g.fillStyle=mix('#ffb8d4',P.wBot,P.night*.25); for(let k=0;k<6;k++){ const a=-Math.PI/2+(k-2.5)*.42; g.beginPath(); g.ellipse(bx+Math.cos(a)*s*.55,by+Math.sin(a)*s*.45,s*.55,s*.24,a,0,7); g.fill(); }
-    g.fillStyle='#ffe58a'; g.beginPath(); g.arc(bx,by,s*.22,0,7); g.fill();
-  },
-
-  fore(P,t){
-    // cattails and reeds in the bottom-right corner, swaying, rim lit at dusk
-    const base=H+2, x0=W*.925;
-    for(let i=0;i<9;i++){ const x=x0+i*W*.0085, h=H*(.1+((i*13)%5)*.022), sw=Math.sin(t*1.1+i*.6)*H*.008;
-      g.strokeStyle=mix('#3d6a3a',P.front,.35+P.night*.4); g.lineWidth=Math.max(1.4,H*.006); g.beginPath(); g.moveTo(x,base); g.quadraticCurveTo(x+sw*.4,base-h*.6,x+sw,base-h); g.stroke();
-      if(i%3===0){ g.fillStyle=mix('#6a4028',P.front,P.night*.5); g.beginPath(); g.ellipse(x+sw,base-h-H*.012,H*.0065,H*.022,sw*.02,0,7); g.fill(); g.fillStyle=v3rgba(P.rim,.4*P.d); g.fillRect(x+sw+H*.002,base-h-H*.028,1,H*.02); } }
-  }
-};
 
 // the lantern's reflection: short soft streaks that wobble and thin out with depth, never a solid block
 // a soft oval pool of lantern light on a deck (rgb as 'r,g,b')
@@ -260,7 +129,7 @@ function v3lanternReflect(x,y0,lit,t,rgb){ if(lit<.05) return; const L=H*.13, sc
 // rope, a bucket, and a lantern whose light sits BEHIND its pole and housing
 // =====================================================================
 
-const V3SCENES = { pond: V3POND };
+const V3SCENES = {}; /* every water's scene and drawing is in its own file: src/w_<id>.js (Clean Scenes 5, 2026-11-22) */
 
 
 // ---------- entry points called from draw() ----------

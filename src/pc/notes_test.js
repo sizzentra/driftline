@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Behind the scenes: every water’s drawing now lives in a file of its own (20 files), checked to draw pixel for pixel the same at day and at night. Nothing should look different; tell us if anything does.',
+  '## Test build 1447',
   'Fish no longer wear their water’s costume: the headdresses, ankhs, laurels, ties, glasses, ears, horns, food toppings and circuit lines are gone. Every fish is drawn as just the fish.',
   'Map: clearer wording. The top line says how to open the next water (or that all are open), each card says how strong your line is and how many of its fish that covers, and the count reads “2 of 52 caught”.',
   'Your home on PC: each style is a picture card that zooms in on that feature, drawn on your own home, so you see it before you pick. The column ends with your whole home at a glance; click a feature there to open it.',

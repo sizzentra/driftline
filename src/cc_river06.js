@@ -29,14 +29,6 @@ function riverVillage(x,P,hz){ // the hill the village climbs: a rise behind the
     x.fillStyle=mix(wallD,'#000000',.4); x.beginPath(); x.arc(cx-nw*.18,by-th*.72,tw*.17,0,7); x.fill(); }
   // a few small trees between the houses so the village sits in the hill
   const r=v3rng(611); for(let i=0;i<7;i++){ const tx=W*(.47+r()*.25), ty=rvBaseY(hz,.004+r()*.02)+rvH()*.004; x.fillStyle=mix(P.back,P.farHaze,.5); x.beginPath(); x.arc(tx,ty-rvH()*.006,rvH()*(.006+r()*.004),0,7); x.fill(); } }
-m33wrap('river','live',function(P,t,hz){ const night=P.night, d=P.d, lit=clamp(night*1.2+d*.7,0,1), hh=rvH()*.017, hw=rvH()*.024;
-  if(lit>.05){ g.fillStyle=v3rgba('#ffcf7a',.25+lit*.7); for(const [fx,dy,big] of RV_HOUSES){ const bx=W*fx, by=rvBaseY(hz,dy), w=hw*(big?1.15:.9), h=hh*(big?1.05:.9), on=(Math.sin(fx*91)+1)/2<.75+lit*.25;
-      if(!on) continue; g.fillRect(bx-w*.3,by-h*.62,w*.14,h*.26); if(big) g.fillRect(bx+w*.05,by-h*.62,w*.14,h*.26); }
-    const cx=W*RV_CHURCH, by=rvBaseY(hz,RV_CHURCH_DY); v3glow(g,cx-hw*1.5*.18,by-hh*2.1*.72,hw*.9,'rgba(255,210,130,.9)',lit*.35); }
-  // chimney smoke drifting downstream (left) by day and dusk
-  if(S.settings.effects&&night<.7){ for(const [fx,dy,big] of RV_HOUSES){ if(!big) continue; const w=hw*1.15, h=hh*1.05, sx=W*fx+w*.31, sy=rvBaseY(hz,dy)-h-h*.95;
-      for(let k=0;k<4;k++){ const q=((t*.12+k/4+fx*7)%1); g.fillStyle=v3rgba(mix('#e8e8ee',P.farHaze,.3),.28*(1-q)*(1-night)); g.beginPath(); g.arc(sx-q*rvH()*.03,sy-q*rvH()*.035,rvH()*(.003+q*.006),0,7); g.fill(); } } }
-});
 // the river itself: a deeper channel in the middle and lighter shallows along the far bank (static, drawn once with the land)
 function riverWater(x,P,hz){ const deep=x.createLinearGradient(0,hz+H*.05,0,hz+H*.42); deep.addColorStop(0,v3rgba(P.wBot,0)); deep.addColorStop(.45,v3rgba(P.wBot,.16)); deep.addColorStop(1,v3rgba(P.wBot,0)); x.fillStyle=deep; x.fillRect(0,hz+H*.05,W,H*.37);
   const sh=x.createLinearGradient(0,hz,0,hz+H*.03); sh.addColorStop(0,v3rgba(mix(P.wTop,'#ffffff',.35),.32)); sh.addColorStop(1,v3rgba(P.wTop,0)); x.fillStyle=sh; x.fillRect(0,hz+1,W,H*.03); }

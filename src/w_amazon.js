@@ -1,0 +1,69 @@
+// =====================================================================
+// Amazon River: its whole scene in one file (Clean Scenes 5, 2026-11-22): the scene, then its extra life and its own moment
+// (WA_MORE). Its colours (WA_PAL) and the newer waters' shared drawing helpers stay in cn_waterart.js.
+// =====================================================================
+V3SCENES.amazon={
+  land(x,P,hz,cnv){ const N=(c0,k)=>mix(c0,P.farHaze,k+P.night*.3);
+    // the deep rainforest: three layers of canopy, hazier with distance, with tall emergent trees standing above it
+    wa.blob(x,hz,N(P.hill,.45),.1,5,34);
+    { const r=v3rng(71); for(let i=0;i<7;i++){ const px=W*(.38+r()*.6), h=H*(.1+r()*.05); amzTree(x,[px,hz-H*.03],h,H*(.05+r()*.03),N('#3f6a3a',.42),N('#3a2e22',.45)); } }
+    wa.blob(x,hz,N(P.hill,.25),.07,7,30); v3bushes(x,W*.3,W,hz-H*.022,H*.06,P,62,{leaf:N(P.hill,.12)});
+    // the jungle cliff on the left: stepped rock ledges, moss, boulders at its foot
+    const cx1=W*.34, top=hz-H*.2; x.fillStyle=mix(P.back,'#000000',.22); x.beginPath(); x.moveTo(0,hz+1); x.lineTo(0,top); x.quadraticCurveTo(W*.18,top-H*.03,cx1,top+H*.02); x.quadraticCurveTo(cx1+W*.025,top+H*.1,cx1+W*.03,hz+1); x.closePath(); x.fill();
+    x.fillStyle=mix(P.back,'#000000',.4); for(const [y0,w0] of [[.05,.3],[.1,.26],[.145,.31]]){ x.fillRect(0,top+H*y0,W*w0,H*.006); } /* the ledges */
+    x.fillStyle=mix(P.back,'#2a6a2a',.5); for(const [y0,w0] of [[.05,.3],[.1,.26],[.145,.31]]){ const r=v3rng(Math.round(y0*1000)); for(let i=0;i<10;i++){ const px=W*r()*w0; x.beginPath(); x.ellipse(px,top+H*y0,W*.01,H*.006,0,Math.PI,0); x.fill(); } } /* moss on the ledges */
+    x.fillStyle=mix(P.back,'#000000',.3); for(const [bx,bs] of [[.2,.022],[.3,.03],[.33,.02],[.04,.025]]){ x.beginPath(); x.ellipse(W*bx,hz,H*bs*1.4,H*bs,0,Math.PI,0); x.fill(); } /* boulders at the water */
+    v3bushes(x,0,cx1+W*.04,top+H*.02,H*.05,P,61,{leaf:P.back});
+    // the waterfall: a curtain that ends at the water line in a foaming pool (it no longer runs past the water)
+    { const fx=W*.24, fw=W*.05; const gr=x.createLinearGradient(0,top,0,hz); gr.addColorStop(0,v3rgba(mix('#ffffff',P.wTop,.25),.9)); gr.addColorStop(1,v3rgba(mix('#ffffff',P.wTop,.4),.7)); x.fillStyle=gr; x.beginPath(); x.moveTo(fx,top+H*.015); x.lineTo(fx+fw,top+H*.015); x.quadraticCurveTo(fx+fw*1.08,(top+hz)/2,fx+fw*1.12,hz); x.lineTo(fx-fw*.12,hz); x.quadraticCurveTo(fx-fw*.08,(top+hz)/2,fx,top+H*.015); x.fill();
+      x.fillStyle=v3rgba('#ffffff',.85); for(let i=0;i<9;i++){ x.beginPath(); x.ellipse(fx-fw*.2+i*fw*.18,hz,fw*.16,H*.008,0,Math.PI,0); x.fill(); } }
+    // the island that keeps the channel narrow (Cam: "keep the channels thinner"): sand, dense brush and two tall trees, its roots in the water
+    { const ix0=W*.56, ix1=W*.98, ib=hz+H*.024; x.fillStyle=N('#8a7a52',.2); x.beginPath(); x.ellipse((ix0+ix1)/2,ib,(ix1-ix0)/2,H*.006,0,Math.PI,0); x.fill();
+      v3bushes(x,ix0+W*.01,ix1-W*.01,ib-H*.004,H*.045,P,64,{leaf:mix(P.front,P.farHaze,.1)});
+      amzTree(x,[W*.66,ib-H*.03],H*.11,H*.05,mix('#2f5a2a',P.farHaze,.12+P.night*.3),mix('#3a2a1c',P.farHaze,.15)); amzTree(x,[W*.88,ib-H*.03],H*.13,H*.06,mix('#2f5a2a',P.farHaze,.12+P.night*.3),mix('#3a2a1c',P.farHaze,.15));
+      x.strokeStyle=mix('#4a3622',P.farHaze,.2+P.night*.3); x.lineWidth=Math.max(1,H*.0025); for(let i=0;i<14;i++){ const rx=ix0+W*.015+i*(ix1-ix0-W*.03)/13; x.beginPath(); x.moveTo(rx,ib-H*.012); x.quadraticCurveTo(rx-W*.008,ib-H*.004,rx-W*.004,ib+H*.003); x.stroke(); } } /* aerial roots into the water */
+    // roots along the far bank
+    { x.strokeStyle=mix('#3a2a1c',P.farHaze,.3+P.night*.3); x.lineWidth=Math.max(1,H*.002); for(let i=0;i<18;i++){ const rx=W*(.36+i*.012); x.beginPath(); x.moveTo(rx,hz-H*.01); x.quadraticCurveTo(rx+W*.006,hz-H*.004,rx+W*.003,hz+1); x.stroke(); } }
+    waMore('amazon','shore',x,P,hz); v3water(x,P,hz,cnv,.32);
+    // water plants: lily pads and water lettuce along the banks, clear of the fishing line
+    { const r=v3rng(29); for(let i=0;i<16;i++){ const left=i<8, px=left?W*(.02+r()*.32):W*(.56+r()*.4), py=left?hz+H*(.006+r()*.02):hz+H*(.026+r()*.012), s=H*(.006+r()*.006);
+        x.fillStyle=mix(i%3?'#3f8a3a':'#5aa040',P.wMid,.25+P.night*.4); x.beginPath(); x.ellipse(px,py,s*2,s*.45,0,.25,Math.PI*2-.25); x.lineTo(px,py); x.fill(); if(i%5===0){ x.fillStyle=mix('#f4a8c8',P.wMid,.2+P.night*.5); x.beginPath(); x.ellipse(px+s*.4,py-s*.4,s*.45,s*.35,0,0,7); x.fill(); } } } },
+  live(P,t,hz,sun){ waMore('amazon','live',null,P,hz,t); const FX=S.settings.effects, top=hz-H*.2+H*.015;
+    // falling water streaks and mist at the foot of the falls
+    if(FX){ g.save(); g.globalAlpha=.6; g.strokeStyle='rgba(255,255,255,.7)'; g.lineWidth=1.2; for(let i=0;i<10;i++){ const x=W*(.243+i*.0045), q=((t*1.2+i*.37)%1), y=top+q*(hz-top-H*.03); g.beginPath(); g.moveTo(x,y); g.lineTo(x,y+H*.03); g.stroke(); } g.restore();
+      for(let i=0;i<7;i++){ const q=((t*.3+i*.14)%1), x=W*.265+(i-3)*W*.012+q*W*.02, y=hz-q*H*.05; g.fillStyle='rgba(240,248,255,'+(.25*(1-q))+')'; g.beginPath(); g.arc(x,y,H*(.012+q*.02),0,7); g.fill(); } }
+    v3glitter(P,t,hz,sun);
+    const day=P.night<.5, s=H;
+    // floating branches drifting slowly down the river (always), with a ripple where they touch the water
+    for(let i=0;i<2;i++){ const q=((t*.008+i*.5)%1), bx=W*(1.05-q*.7), by=hz+H*(.012+i*.006); if(bx<W*.36) continue; g.strokeStyle=mix('#4a3420',P.wMid,.2+P.night*.5); g.lineWidth=Math.max(2,H*.004); g.beginPath(); g.moveTo(bx-H*.03,by); g.lineTo(bx+H*.03,by-H*.002); g.moveTo(bx+H*.01,by-H*.001); g.lineTo(bx+H*.02,by-H*.012); g.stroke(); if(FX) waRing(bx,by+1,H*.006,(t*.5+i)%1,.35); }
+    // a caiman drifting by the far bank: eyes and snout above the water, sinking out of sight now and then
+    { const q=(t%40)/40, up=q<.85?1:Math.max(0,1-(q-.85)/.06), cx=W*(.42+.06*Math.sin(t*.03)), cy=hz+H*.006; if(up>.05){ g.fillStyle=mix('#3a4a2a',P.wMid,.2+P.night*.5); g.globalAlpha=up; g.beginPath(); g.ellipse(cx,cy,H*.016,H*.0028*up,0,Math.PI,0); g.fill(); g.beginPath(); g.ellipse(cx+H*.02,cy,H*.0045,H*.004*up,0,Math.PI,0); g.fill(); g.fillStyle=P.night>.5?'#e8d070':'#2a2010'; g.fillRect(cx+H*.017,cy-H*.004*up,H*.002,H*.002); g.globalAlpha=1; } }
+    // a bullfrog on a lily pad by the cliff, its throat puffing
+    { const fx=W*.12, fy=hz+H*.014, fs=H*.006, puff=Math.max(0,Math.sin(t*1.7))*.5; g.fillStyle=mix('#5a7a2a',P.wMid,.15+P.night*.5); g.beginPath(); g.ellipse(fx,fy-fs*.8,fs*1.5,fs*.9,0,0,7); g.fill(); g.fillStyle=mix('#d8d098',P.wMid,.2+P.night*.5); g.beginPath(); g.ellipse(fx+fs*.9,fy-fs*.5,fs*.5*(1+puff),fs*.45*(1+puff),0,0,7); g.fill(); g.fillStyle='#1a1a10'; g.fillRect(fx+fs*.6,fy-fs*1.5,fs*.3,fs*.3); }
+    if(FX&&day){
+      // dragonflies: dart, hover, dart, low over the water in front of the falls and the island
+      for(let i=0;i<3;i++){ const seg=Math.floor(t*.6+i*3.7), r=v3rng(seg*13+i), k=(t*.6+i*3.7)-seg, e=k<.25?k/.25:1, ax=W*(.3+r()*.5), ay=hz+H*(.01+r()*.05), r2=v3rng((seg-1)*13+i), px=W*(.3+r2()*.5), py=hz+H*(.01+r2()*.05), x=px+(ax-px)*(e*e*(3-2*e)), y=py+(ay-py)*(e*e*(3-2*e))+Math.sin(t*20+i)*1.2, d=ax>=px?1:-1, ds=H*.007;
+        g.save(); g.translate(x,y); g.scale(d,1); g.strokeStyle=i===1?'#2a8ac8':'#c8402a'; g.lineWidth=Math.max(1.4,ds*.25); g.beginPath(); g.moveTo(-ds*1.6,0); g.lineTo(ds*.9,0); g.stroke(); g.fillStyle='rgba(220,240,255,.55)'; const fl=Math.abs(Math.sin(t*40+i)); for(const wx of [-.1,.35]){ g.beginPath(); g.ellipse(ds*wx,-ds*.35*fl,ds*.8,ds*.22,-.2,0,7); g.fill(); g.beginPath(); g.ellipse(ds*wx,ds*.3*fl,ds*.75,ds*.2,.2,0,7); g.fill(); } g.restore(); }
+      // butterflies: blue morphos and an orange one, wings drawn as two pairs that flap
+      for(let i=0;i<3;i++){ const bx=W*(.4+.18*Math.sin(t*.11+i*2.1))+i*W*.08, by=hz-H*(.05+.03*Math.sin(t*.37+i))+H*.015*i, bs=H*.008, f=Math.abs(Math.sin(t*8+i*1.3)), col=i===2?'#f08a20':'#3a8cff';
+        g.save(); g.translate(bx,by); g.fillStyle=col; for(const sd of [-1,1]){ g.beginPath(); g.ellipse(sd*bs*.7*f,-bs*.35,bs*.9*f+.3,bs*.75,sd*.35,0,7); g.fill(); g.beginPath(); g.ellipse(sd*bs*.55*f,bs*.45,bs*.6*f+.2,bs*.5,-sd*.3,0,7); g.fill(); } g.fillStyle='#1a1a1a'; g.fillRect(-.6,-bs*.7,1.2,bs*1.4); g.restore(); }
+      // macaws crossing the sky: red bodies, blue and yellow wings, long tails
+      for(let i=0;i<2;i++){ const q=((t*.045+i*.5)%1), x=W*(1.06-q*1.18), y=hz*(.34+i*.16)+Math.sin(t*2+i)*6, ms=H*.011, f=Math.sin(t*7+i);
+        g.save(); g.translate(x,y); g.fillStyle='#d8302a'; g.beginPath(); g.ellipse(0,0,ms*1.2,ms*.42,0,0,7); g.fill(); g.beginPath(); g.moveTo(ms*1,-ms*.1); g.lineTo(ms*3.2,ms*.15); g.lineTo(ms*1,ms*.25); g.fill(); g.fillStyle='#2a6ad8'; g.beginPath(); g.moveTo(-ms*.3,0); g.quadraticCurveTo(0,-ms*1.8*f,ms*.6,-ms*.1); g.fill(); g.fillStyle='#f0c830'; g.beginPath(); g.ellipse(-ms*.2,-ms*.5*f,ms*.45,ms*.18,0,0,7); g.fill(); g.fillStyle='#f4f0e0'; g.beginPath(); g.ellipse(-ms*1.15,-ms*.05,ms*.3,ms*.22,0,0,7); g.fill(); g.restore(); } }
+    if(FX&&P.night>.3) for(let i=0;i<14;i++){ const x=W*(.36+((i*.173)%.6))+Math.sin(t*.7+i)*10, y=hz-H*.05+Math.sin(t*.9+i*2)*H*.03, a=P.night*(.5+.5*Math.sin(t*3+i*1.7)); v3glow(g,x,y,H*.012,'rgba(200,255,120,.9)',a*.6); }
+    // one moment at a time, once a minute: the dolphin (WA_MORE), then an anaconda swimming, then a basilisk running on the water
+    if(FX){ const m=t%60;
+      if(m>=20&&m<32){ const e=(m-20)/12, sx=W*(.38+e*.42), sy=hz+H*.04; g.strokeStyle=mix('#4a5a28',P.wMid,.25+P.night*.45); g.lineWidth=Math.max(2,H*.006); g.lineCap='round'; g.beginPath(); for(let k=0;k<=24;k++){ const u=k/24, px=sx-u*W*.07, py=sy+Math.sin(u*9-t*4)*H*.004; k?g.lineTo(px,py):g.moveTo(px,py); } g.stroke(); g.fillStyle=g.strokeStyle; g.beginPath(); g.ellipse(sx+H*.004,sy-H*.002,H*.006,H*.0035,0,0,7); g.fill(); waRing(sx,sy+1,H*.006,(t*.8)%1,.4); waRing(sx-W*.04,sy+1,H*.005,(t*.8+.5)%1,.3); }
+      if(m>=40&&m<43.5){ const e=(m-40)/3.5, lx=W*(.36+e*.5), ly=hz+H*.03, ls=H*.007, run=Math.sin(t*30); g.save(); g.translate(lx,ly-ls*.6); g.fillStyle=mix('#5a8a3a',P.wMid,.15+P.night*.5); g.beginPath(); g.ellipse(0,0,ls*1.2,ls*.45,-.35,0,7); g.fill(); g.beginPath(); g.moveTo(-ls,ls*.1); g.lineTo(-ls*3,ls*.4); g.lineTo(-ls,ls*.35); g.fill(); g.beginPath(); g.ellipse(ls*1,-ls*.45,ls*.45,ls*.3,0,0,7); g.fill(); g.strokeStyle=g.fillStyle; g.lineWidth=Math.max(1,ls*.25); g.beginPath(); g.moveTo(ls*.2,ls*.3); g.lineTo(ls*(.2+run*.5),ls*.9); g.moveTo(-ls*.3,ls*.3); g.lineTo(-ls*(.3+run*.5),ls*.9); g.stroke(); g.restore(); for(let k=0;k<4;k++){ const sp=((t*6+k*.25)%1); g.fillStyle='rgba(255,255,255,'+(.6*(1-sp))+')'; g.beginPath(); g.arc(lx-sp*W*.03,ly+1,H*.003*(1-sp)+1,0,7); g.fill(); } } } },
+  fore(P,t){ g.save(); const col=mix('#1e4a1e',P.top,P.night*.5); g.strokeStyle=col; g.lineWidth=H*.005; for(let i=0;i<4;i++){ const x=W*(.82+i*.05), L=H*(.25+((i*7)%3)*.08), sw=Math.sin(t*.8+i)*W*.006; g.beginPath(); g.moveTo(x,0); g.quadraticCurveTo(x+sw,L*.5,x+sw*1.5,L); g.stroke(); g.fillStyle=col; for(let k=1;k<6;k++){ g.beginPath(); g.ellipse(x+sw*k/5,L*k/6,H*.012,H*.005,.5,0,7); g.fill(); } }
+    g.fillStyle=mix('#2a6a2a',P.top,P.night*.5); for(const [x,y,r,a] of [[.98,.82,.09,-.6],[.92,.92,.08,-.2],[1,.66,.07,-1]]){ g.beginPath(); g.ellipse(W*x,H*y,W*r,H*r*.45,a,0,7); g.fill(); }
+    /* poison dart frogs on the front leaves (Cam: "some bright, some stealthy"): a blue one and a red one, now and then a hop */
+    for(const [fx,fy,c1,c2,ph] of [[.915,.885,'#2a7ae8','#101010',0],[.965,.79,'#e83a2a','#1a1a1a',2.4]]){ const hop=Math.max(0,Math.sin(t*.9+ph)-.96)*25, x=W*fx, y=H*fy-hop*H*.01, fs=H*.0075; g.fillStyle=mix(c1,P.top,P.night*.6); g.beginPath(); g.ellipse(x,y-fs*.6,fs*1.3,fs*.75,0,0,7); g.fill(); g.beginPath(); g.ellipse(x+fs*1.1,y-fs*.9,fs*.55,fs*.45,0,0,7); g.fill(); g.fillStyle=c2; for(const [dx,dy] of [[-.4,-.7],[.2,-.4],[-.1,-.9]]){ g.beginPath(); g.arc(x+dx*fs,y+dy*fs,fs*.18,0,7); g.fill(); } g.strokeStyle=g.fillStyle=mix(c1,P.top,P.night*.6); g.lineWidth=Math.max(1,fs*.3); g.beginPath(); g.moveTo(x-fs*.8,y-fs*.3); g.lineTo(x-fs*1.3,y+fs*.1); g.moveTo(x+fs*.6,y-fs*.2); g.lineTo(x+fs*.9,y+fs*.1); g.stroke(); }
+    g.restore(); }
+};
+WA_MORE.amazon={
+    shore(x,P,hz){ const N=c0=>mix(c0,P.front,.15+P.night*.55);
+      for(const [px,s,d] of [[.66,H*.0055,1],[.7,H*.0045,-1],[.73,H*.005,1]]){ const cx=W*px, cy=hz-H*.003; x.fillStyle=N('#8a5a32'); x.beginPath(); x.ellipse(cx,cy-s*1.5,s*2.4,s*1.4,0,0,7); x.fill(); x.beginPath(); x.ellipse(cx+d*s*2.3,cy-s*2,s*1.2,s*1,0,0,7); x.fill(); x.fillStyle=N('#5a3a20'); x.fillRect(cx-s*1.6,cy-s*.4,s*.5,s*.4); x.fillRect(cx+s*1.1,cy-s*.4,s*.5,s*.4); x.fillStyle='#140c08'; x.fillRect(cx+d*s*2.6,cy-s*2.4,s*.3,s*.3); }
+      { const tx=W*.14, ty=hz-H*.2+H*.005, s=H*.006; x.fillStyle=N('#141414'); x.beginPath(); x.ellipse(tx,ty-s*1.6,s*1,s*1.7,.2,0,7); x.fill(); x.fillStyle=N('#f8f0d8'); x.beginPath(); x.ellipse(tx+s*.4,ty-s*2.6,s*.6,s*.5,0,0,7); x.fill(); x.fillStyle=N('#f08a20'); x.beginPath(); x.moveTo(tx+s*.7,ty-s*3); x.quadraticCurveTo(tx+s*3.2,ty-s*3.1,tx+s*3,ty-s*2.2); x.lineTo(tx+s*.8,ty-s*2.4); x.fill(); x.fillStyle=N('#5a3a20'); x.fillRect(tx-s*2,ty,s*5,s*.4); } },
+    live(x,P,hz,t){ const FX=S.settings.effects;
+      { const q=(t%60)/60; if(q<.055){ const e=q/.055, /* the dolphin is the minute's first moment (then the anaconda, then the basilisk) */ y=hz+H*.12, s=H*.006, up=Math.sin(e*Math.PI); g.save(); g.beginPath(); g.rect(0,0,W,y); g.clip(); g.fillStyle=mix('#f0a0b0',P.wMid,.15+P.night*.5); g.beginPath(); g.ellipse(W*.55+e*W*.03,y+s*2*(1-up),s*3,s*1.6*up+.1,0,Math.PI,0); g.fill(); g.beginPath(); g.ellipse(W*.55+e*W*.03+s*3,y-s*.6*up+s*2*(1-up),s*1.4,s*.6*up+.05,.1,0,7); g.fill(); g.restore(); if(FX) waRing(W*.55+e*W*.03,y+1,s,e,.5); } } } };

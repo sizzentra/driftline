@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Behind the scenes: every water’s drawing now lives in a file of its own (20 files), checked to draw pixel for pixel the same at day and at night. Nothing should look different; tell us if anything does.',
+  '## Test build 1447',
   'Fish no longer wear their water’s costume: the headdresses, ankhs, laurels, ties, glasses, ears, horns, food toppings and circuit lines are gone. Every fish is drawn as just the fish.',
   'Map: clearer wording. The top line says how to open the next water (or that all are open), each card says how strong your line is and how many of its fish that covers, and the count reads “2 of 52 caught”.',
   'Your home: the 16 colors are real circles like the old canopy colors, 2 rows of 8, and look the same for every feature (the lantern colors no longer glow).',

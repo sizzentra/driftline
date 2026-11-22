@@ -7,36 +7,9 @@
 // the travertine hillside: a soft hill with creamy terraces stepping down it, turquoise pools on each step, scrub on top
 function embHillY(hz,X){ const segs=[[[-2,hz-H*.135],[W*.06,hz-H*.15],[W*.14,hz-H*.12],[W*.22,hz-H*.06]],[[W*.22,hz-H*.06],[W*.28,hz-H*.03],[W*.33,hz-H*.008],[W*.37,hz+1]]];
   for(const s of segs){ let px=null,py=null; for(let i=0;i<=30;i++){ const u=i/30,v=1-u, xx=v*v*v*s[0][0]+3*v*v*u*s[1][0]+3*v*u*u*s[2][0]+u*u*u*s[3][0], yy=v*v*v*s[0][1]+3*v*v*u*s[1][1]+3*v*u*u*s[2][1]+u*u*u*s[3][1]; if(px!==null&&X>=px&&X<=xx) return py+(yy-py)*(X-px)/(xx-px||1); px=xx; py=yy; } } return hz; }
-m33wrap('ember','land',function(x,P,hz){ const hill=()=>{ x.beginPath(); x.moveTo(-2,hz+1); x.lineTo(-2,hz-H*.135); x.bezierCurveTo(W*.06,hz-H*.15,W*.14,hz-H*.12,W*.22,hz-H*.06); x.bezierCurveTo(W*.28,hz-H*.03,W*.33,hz-H*.008,W*.37,hz+1); x.closePath(); };
-  const ground=mix(mix(P.terr,'#6a5a3a',.4),P.farHaze,.12), cream=mix(mix('#efe4d2',P.terr,.25),P.rockD,P.night*.6), creamD=mix(cream,'#8a7a64',.35), pool=mix(P.pool,P.wMid,.15+P.night*.35);
-  const hg=x.createLinearGradient(0,hz-H*.15,0,hz); hg.addColorStop(0,mix(ground,P.rim,.12)); hg.addColorStop(1,mix(ground,'#000000',.25)); x.fillStyle=hg; hill(); x.fill();
-  x.save(); hill(); x.clip();
-  // modelled ground: the sun side of each fold lit, the far side in shade, so the hill has real shape
-  { const lg=x.createLinearGradient(-2,0,W*.37,0); lg.addColorStop(0,v3rgba(P.rim,.18)); lg.addColorStop(.5,v3rgba(P.rim,0)); lg.addColorStop(1,v3rgba('#000000',.18)); x.fillStyle=lg; x.fillRect(-2,hz-H*.16,W*.4,H*.17);
-    for(let k=0;k<4;k++){ const cx=W*(.04+k*.08), top=embHillY(hz,cx); const fg=x.createLinearGradient(cx-W*.03,0,cx+W*.03,0); fg.addColorStop(0,v3rgba(P.rim,.1)); fg.addColorStop(.5,v3rgba(P.rim,0)); fg.addColorStop(1,v3rgba('#000000',.14)); x.fillStyle=fg; x.beginPath(); x.moveTo(cx-W*.03,top+H*.01); x.quadraticCurveTo(cx,top+H*.002,cx+W*.035,top+H*.012); x.lineTo(cx+W*.02,hz); x.lineTo(cx-W*.04,hz); x.closePath(); x.fill(); }
-    // rock outcrops with a lit top edge and a shadow below
-    const rr=v3rng(53); for(let i=0;i<10;i++){ const X=W*(.02+rr()*.3), y=embHillY(hz,X)+H*(.01+rr()*.05), s=H*(.004+rr()*.005); x.fillStyle=v3rgba('#000000',.22); x.beginPath(); x.ellipse(X+s*.4,y+s*.5,s*1.5,s*.5,0,0,7); x.fill(); x.fillStyle=mix(P.rock,P.terr,.3); x.beginPath(); x.ellipse(X,y,s*1.3,s*.8,0,Math.PI,0); x.fill(); x.fillStyle=v3rgba(P.rim,.3); x.beginPath(); x.ellipse(X-s*.3,y-s*.5,s*.6,s*.2,0,0,7); x.fill(); } }
-  x.restore();
-  // a thin rim of light along the ridge line
-  x.strokeStyle=v3rgba(P.rim,.35); x.lineWidth=Math.max(1,H*.002); x.beginPath(); x.moveTo(-2,hz-H*.135); x.bezierCurveTo(W*.06,hz-H*.15,W*.14,hz-H*.12,W*.22,hz-H*.06); x.stroke();
-  const sc=mix('#5a4636',P.farHaze,.15+P.night*.5); /* 0.3.6: dry, scorched scrub */ x.fillStyle=sc; for(let i=0;i<20;i++){ const X=W*(.005+i*.011), y=embHillY(hz,X); x.beginPath(); x.arc(X,y,H*(.003+((i*7)%3)*.0015),Math.PI,0); x.fill(); }
-  for(const tx of [.05,.13]){ const X=W*tx, y=embHillY(hz,X); x.strokeStyle=mix('#3a2a20',P.farHaze,.2); x.lineWidth=Math.max(1.2,H*.0025); x.beginPath(); x.moveTo(X,y); x.quadraticCurveTo(X+H*.008,y-H*.02,X+H*.004,y-H*.035); x.stroke(); x.beginPath(); x.moveTo(X+H*.006,y-H*.024); x.lineTo(X-H*.008,y-H*.034); x.moveTo(X+H*.005,y-H*.03); x.lineTo(X+H*.016,y-H*.042); x.moveTo(X+H*.004,y-H*.035); x.lineTo(X+H*.002,y-H*.046); x.stroke(); } }); /* 0.3.6: bare, burnt trees: nothing grows green beside a volcano */
 
 // the basalt headland: tall hexagonal columns of varied height, each with a lit facet, a shaded facet and a tilted
 // cap; talus at the foot, green on top
-m33wrap('ember','land',function(x,P,hz){ const x0=W*.79, rock=mix(P.rock,'#2a2422',.2), lit=mix(P.rock,P.rim,.25), dark=mix(P.rockD,'#000000',.25);
-  // a smooth rounded headland: one soft silhouette, columns only as gentle vertical shading on its face
-  const head=()=>{ x.beginPath(); x.moveTo(x0-W*.03,hz+1); x.bezierCurveTo(x0-W*.01,hz-H*.03,x0+W*.02,hz-H*.09,x0+W*.07,hz-H*.11); x.bezierCurveTo(x0+W*.12,hz-H*.125,x0+W*.18,hz-H*.12,W+4,hz-H*.115); x.lineTo(W+4,hz+1); x.closePath(); };
-  const hg=x.createLinearGradient(x0,0,W,0); hg.addColorStop(0,lit); hg.addColorStop(.35,rock); hg.addColorStop(1,dark); x.fillStyle=hg; head(); x.fill();
-  x.save(); head(); x.clip();
-  const vg=x.createLinearGradient(0,hz-H*.13,0,hz); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,v3rgba(dark,.45)); x.fillStyle=vg; x.fillRect(x0-W*.03,hz-H*.13,W*.25,H*.13);
-  x.restore();
-  // a soft cap of grass and scrub over the top, and a skirt of rounded boulders at the foot
-  // grass along the exact top edge of the headland, with tufts poking up and a lit fringe
-  const gc=mix('#3e3430',P.farHaze,.15+P.night*.5); /* 0.3.6: scorched, ashy grass (no green at a volcano) */ x.save(); head(); x.clip(); x.strokeStyle=gc; x.lineWidth=H*.012; x.lineJoin='round'; x.beginPath(); x.moveTo(x0-W*.01,hz-H*.03); x.bezierCurveTo(x0-W*.01+W*.0,hz-H*.03,x0+W*.02,hz-H*.09,x0+W*.07,hz-H*.11); x.bezierCurveTo(x0+W*.12,hz-H*.125,x0+W*.18,hz-H*.12,W+4,hz-H*.115); x.stroke(); x.restore();
-  for(let i=0;i<26;i++){ const X=x0+W*.03+i*W*.0065; const yt=X<x0+W*.07?hz-H*(.03+.08*((X-x0)/(W*.07))):hz-H*(.11+.012*Math.sin(Math.min(1,(X-x0-W*.07)/(W*.14))*Math.PI*.6)); x.strokeStyle=gc; x.lineWidth=1; x.beginPath(); x.moveTo(X,yt+1); x.lineTo(X+(i%3-1)*1.2,yt-H*(.006+(i%4)*.002)); x.stroke(); }
-  const r=v3rng(29); for(let i=0;i<12;i++){ const X=x0-W*.02+r()*W*.2, s=H*(.004+r()*.006); x.fillStyle=r()<.5?rock:mix(rock,dark,.5); x.beginPath(); x.ellipse(X,hz-s*.3,s*1.3,s*.8,0,Math.PI,0); x.fill(); }
-  const hz2=x.createLinearGradient(0,hz-H*.03,0,hz); hz2.addColorStop(0,v3rgba(P.farHaze,0)); hz2.addColorStop(1,v3rgba(P.farHaze,.3)); x.fillStyle=hz2; x.fillRect(x0-W*.03,hz-H*.03,W*.25,H*.03); });
 
 
 // =====================================================================

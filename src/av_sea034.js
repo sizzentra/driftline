@@ -99,28 +99,9 @@ function m34chop(P,t,hz,mult){ const st=seaStormK()*mult; if(st<.02) return; con
   // the horizon itself goes soft
   const hg=g.createLinearGradient(0,hz-H*.06,0,hz+H*.07); hg.addColorStop(0,'rgba(140,150,162,0)'); hg.addColorStop(.5,'rgba(140,150,162,'+(.32*Math.min(1,st))+')'); hg.addColorStop(1,'rgba(140,150,162,0)'); g.fillStyle=hg; g.fillRect(0,hz-H*.06,W,H*.13); }
 
-m33wrap('shelf','live',function(P,t,hz){ m34cargo(P,t,hz); m34chop(P,t,hz,1); });
-m33wrap('deep','live',function(P,t,hz){ m34ghost(P,t,hz); m34chop(P,t,hz,1.5); });
 if(/[?&]test\b/.test(location.search)) window.__m34=(t)=>{ const per=105,cyc=Math.floor(t/per),r=m34rng(cyc*17+3); return {skip:r(),k:(t%per)/per,storm:seaStormK(),wx:wx3k(),A:wx3A()}; };
 
 // ---------- Ember Springs: the lava visibly flows (moving streams down every vein), the crater throws glowing
 // bombs now and then, and where the long vein meets the lake it hisses steam and lights the water ----------
 function m34veins(hz){ const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh, out=[];
   for(const [a,len,sd] of [[-.35,.75,1],[.1,.55,2],[.42,.85,3]]){ const r=v3rng(sd); let X=vx+a*cw, Y=ty+vh*.02; const pts=[[X,Y]]; for(let k=0;k<8;k++){ Y+=vh*len/8; X+=a*vw*.07+(r()-.5)*vw*.04; pts.push([X,Y]); } out.push(pts); } return out; }
-m33wrap('ember','live',function(P,t,hz){ const FX=S.settings.effects, night=P.night||0, lava=P.lava||'#ff7a2a', lava2=P.lava2||'#ffd06a', V=m34veins(hz), vx=W*.62, ty=hz+1-H*.22, hi=gfxHigh&&gfxHigh();
-  g.save(); g.globalCompositeOperation='lighter'; g.lineCap='round'; g.lineJoin='round';
-  V.forEach((pts,vi)=>{ const path=()=>{ g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const p of pts) g.lineTo(p[0],p[1]); };
-    // a soft heat glow along the whole vein that swells and settles
-    g.strokeStyle=v3rgba(lava,.12+.07*Math.sin(t*1.3+vi*2)+night*.08); g.lineWidth=Math.max(5,H*.012); path(); g.stroke();
-    // bright streams sliding downhill
-    const d=Math.max(3,H*.008); g.setLineDash([d*1.2,d*2.4]); g.lineDashOffset=-t*H*.02*(1+vi*.15); g.strokeStyle=v3rgba(lava2,.55+.25*night); g.lineWidth=Math.max(1.2,H*.0026); path(); g.stroke();
-    if(hi){ g.setLineDash([d*.5,d*4.1]); g.lineDashOffset=-t*H*.031-vi*7; g.strokeStyle='rgba(255,250,210,.6)'; g.lineWidth=Math.max(.8,H*.0014); path(); g.stroke(); }
-    g.setLineDash([]); });
-  // the crater simmers, and every few seconds lobs a glowing bomb or two that arcs down the slope
-  v3glow(g,vx,ty+H*.006,W*.05,v3rgba(lava2,.9),.18+.1*Math.sin(t*2.3)+night*.15);
-  if(FX){ const per=6.5, cyc=Math.floor(t/per), k=(t%per)/per, r=m34rng(cyc*11+5), nb=1+Math.floor(r()*2.5); for(let b=0;b<nb;b++){ const st=r()*.15, q=(k-st)/.4; if(q<0||q>1) continue; const dir=r()<.5?-1:1, vxb=W*(.012+r()*.03)*dir, up=H*(.05+r()*.05);
-      const bx=vx+r()*W*.01*dir+vxb*q, by=ty-up*Math.sin(q*Math.PI*.9)+q*q*H*.05; for(let tr=4;tr>=0;tr--){ const qq=Math.max(0,q-tr*.025), tx=vx+vxb*qq, tyy=ty-up*Math.sin(qq*Math.PI*.9)+qq*qq*H*.05; g.fillStyle=v3rgba(tr?lava:lava2,(1-tr/5)*.8*(1-q*.5)); g.beginPath(); g.arc(tx,tyy,Math.max(.8,H*.003*(1-tr*.15)),0,7); g.fill(); }
-      v3glow(g,bx,by,H*.015,v3rgba(lava2,.9),.5*(1-q)); } }
-  g.restore();
-  // each vein ends in a glowing, slowly advancing lava front
-  V.forEach((pts,vi)=>{ const e=pts[8]; v3glow(g,e[0],e[1],H*.02,v3rgba(lava2,.9),.25+.12*Math.sin(t*1.9+vi)+night*.15); }); });

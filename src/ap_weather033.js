@@ -44,7 +44,7 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
   if(k==='Storm'||k==='Rain'){ const A=a*(k==='Storm'?.55:.32); g.fillStyle=k==='Storm'?'rgba(40,46,56,'+A+')':'rgba(70,78,90,'+A+')';
     for(let i=0;i<6;i++){ const sp=k==='Storm'?.025:.012, cw=W*(.22+(i%3)*.08), cx=((i*.31+t*sp*(1+i%2*.4))%1.4)*W-W*.2, cy=hz*(.12+(i%3)*.14); g.beginPath(); g.ellipse(cx,cy,cw*.5,hz*.05,0,0,7); g.ellipse(cx+cw*.25,cy+hz*.02,cw*.35,hz*.045,0,0,7); g.ellipse(cx-cw*.28,cy+hz*.025,cw*.3,hz*.04,0,0,7); g.fill(); } }
 }
-for(const id in V3SCENES) m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); });
+function wx3SkyLayer(id){ m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); }); } /* each older water file adds it at its place (src/w_<id>.js) */
 
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
@@ -79,7 +79,7 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
   if(k==='Fog'){ for(let i=0;i<5;i++){ const y=hz+H*(.01+i*.035), x=((i*.37+t*.006*(1+i*.3))%1.6)*W-W*.3, w=W*(.5+(i%2)*.2); const fg=g.createRadialGradient(x+w/2,y,0,x+w/2,y,w*.5); fg.addColorStop(0,'rgba(215,222,228,'+(a*.28)+')'); fg.addColorStop(1,'rgba(215,222,228,0)'); g.save(); g.translate(0,y); g.scale(1,.12); g.translate(0,-y); g.fillStyle=fg; g.fillRect(x,y-w*.5,w,w); g.restore(); } }
   if(k==='Spawning Run'&&FX){ g.strokeStyle=v3rgba(foam,.5); g.lineWidth=1; for(let i=0;i<12;i++){ const per=1.3+(i%4)*.3, ph=(t/per+i*.37)%1, cyc=Math.floor(t/per+i*.37), r1=((Math.sin((cyc+i*3)*12.9898)*43758.5)%1+1)%1, r2=((Math.sin((cyc+i*3)*78.233)*12345.6)%1+1)%1, y=hz+H*.04+r2*(H-hz)*.6, x=W*(.3+r1*.65), rr=3+ph*14; g.globalAlpha=a*(1-ph); g.beginPath(); g.ellipse(x,y,rr,rr*.3,0,0,7); g.stroke(); } g.globalAlpha=1; }
 }
-for(const id in V3SCENES) m33wrap(id,'live',function(P,t,hz){ wx3Water(P,t,hz); });
+function wx3WaterLayer(id){ m33wrap(id,'live',function(P,t,hz){ wx3Water(P,t,hz); }); }
 
 // ---------- top layer (over everything, under the HUD): replaces the old flat overlays ----------
 const _drawWeatherX0_33 = drawWeatherX0;

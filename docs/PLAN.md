@@ -158,7 +158,7 @@ Parked in Ideas: the Report a problem button.
 - **Clean Pages 2 (batch 3):** phones' Map, Wardrobe, Skills, Pets, Bounties (layers in waters08, pages08, polish08, ui_modern06, au_fix034).
 - **Clean Pages 3 (batch 3):** phones' Trophy Room, Events, Feats, Stats, Shop / Bait, plus the layers that touch every page (text walker, swatches, section names, badges) given one owner each.
 - **Clean Pages 4 (batch 7):** PC's own layers: Your home, Aquarium, Rods, Pets, Shop, Fish Log, and the PC-wide ones (fit, frame, header), in `src/pc/`.
-- **Clean Scenes 5 (batch 7):** every water's drawing in one file per water (today a water such as Saltmarsh Coast is drawn by f2_areas, ao_maps033, aq_life033 and av_sea034); the shared weather and depth layers get one owner.
+- **Clean Scenes 5 (batch 7): done 2026-11-22** (every water's scene and drawing in `src/w_<id>.js`, shared layers as named helpers added in each file at their place; proven with `?frozen`, 20 waters day and night pixel-identical). Was: every water's drawing in one file per water (today a water such as Saltmarsh Coast is drawn by f2_areas, ao_maps033, aq_life033 and av_sea034); the shared weather and depth layers get one owner.
 - **Afterwards (not in a batch yet):** the system wrappers (save 12, migrate 13, extraAct2 11, toast 9, draw 8, showCard 7).
 - **Target:** phones' wrap layers under 200 after batch 3, under 150 after batch 7; scenes' `m33wrap` gone.
 

@@ -223,3 +223,9 @@ Change either weather message's wording: update the two patterns in `weather07.j
 | Piece | Defined in | Shows up in |
 |---|---|---|
 | Water costumes on fish removed (director); `__traitQC` and its sweep step removed | `cq_traits.js` (only the newer waters' body variety is left), `bn_qa04.js`, `tools/sweep.html` | every fish picture |
+
+## Test builds 2026.11.22-1509 (Clean Scenes 5)
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| One file per water (scene + every drawn piece in order; shared layers by name) | `src/w_<id>.js` (20), helpers in `ap_weather033.js`, `aq_life033.js`, `as_depth033.js`; `WA_MORE.<id>` for the newer ten | every water (pixel-identical) |
+| `?frozen` start for comparing two builds | `build.ps1` (preview head) | test pages only |

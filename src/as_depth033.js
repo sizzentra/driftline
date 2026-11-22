@@ -6,11 +6,14 @@
 // All weather parts follow WXA, so they build and fade smoothly.
 // =====================================================================
 const DEPTH_MOTE={ pond:'255,250,230', river:'255,250,230', coast:'255,255,255', frost:'255,255,255', reef:'255,255,240', shelf:'255,255,255', deep:'200,215,230', trench:'120,240,220', ember:'255,170,90', starfall:'210,190,255' };
-for(const id in V3SCENES){
+/* the depth layers every older water gets, added by each water file at its place in the drawing order (src/w_<id>.js) */
+function depthHazeLayer(id){
   // haze over the far land: drawn right after the cached scenery
   m33wrap(id,'live',function(P,t,hz){ const hg=g.createLinearGradient(0,hz-H*.16,0,hz+H*.02); hg.addColorStop(0,v3rgba(P.farHaze,0)); hg.addColorStop(.75,v3rgba(P.farHaze,.16)); hg.addColorStop(1,v3rgba(P.farHaze,.06)); g.fillStyle=hg; g.fillRect(0,hz-H*.16,W,H*.18);
     // the water darkens and gains contrast as it comes toward you
     const wg=g.createLinearGradient(0,hz+H*.15,0,H); wg.addColorStop(0,'rgba(0,0,0,0)'); wg.addColorStop(1,'rgba(4,8,16,.16)'); g.fillStyle=wg; g.fillRect(0,hz+H*.15,W,H-hz-H*.15); });
+}
+function depthMotesLayer(id){
   // near layer: out-of-focus motes drifting slowly across the bottom of the view, and a soft vignette at the edge
   m33wrap(id,'fore',function(P,t){ if(S.settings.effects){ const col=DEPTH_MOTE[id]||'255,255,255', n=gfxHigh()?6:4;
       for(let i=0;i<n;i++){ const sp=.006+(i%3)*.003, x=W*((((i*.27+t*sp)%1.3)+1.3)%1.3-.15), y=H*(.68+((i*37)%25)/100)+Math.sin(t*.4+i)*H*.02, r=H*(.025+(i%3)*.012), a=(.05+.04*Math.sin(t*.5+i*1.3))*(id==='trench'||id==='ember'?1.4:1);

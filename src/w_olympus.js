@@ -1,0 +1,29 @@
+// =====================================================================
+// Mount Olympus: its whole scene in one file (Clean Scenes 5, 2026-11-22): the scene, then its extra life and its own moment
+// (WA_MORE). Its colours (WA_PAL) and the newer waters' shared drawing helpers stay in cn_waterart.js.
+// =====================================================================
+V3SCENES.olympus={
+  land(x,P,hz,cnv){
+    v3range(x,{seed:77, base:hz+1, amp:.24*H, massifs:[[.5,1,.1]], light:mix(P.far,'#ffffff',.4), shadow:mix(P.far,'#3a3a5a',.3), haze:P.farHaze, snow:P.snow, snowLine:hz-.18*H, hazeA:.4});
+    // the temple on the peak
+    { const tx=W*.5, tb=hz-H*.215, tw=H*.09, col=mix('#fbf6ec',P.farHaze,P.night*.5); x.fillStyle=col; x.fillRect(tx-tw/2,tb-H*.006,tw,H*.006); for(let k=0;k<6;k++) x.fillRect(tx-tw/2+tw*(k/5)*.94,tb-H*.04,tw*.06,H*.034); x.fillRect(tx-tw*.55,tb-H*.046,tw*1.1,H*.007); x.beginPath(); x.moveTo(tx-tw*.55,tb-H*.046); x.lineTo(tx,tb-H*.066); x.lineTo(tx+tw*.55,tb-H*.046); x.closePath(); x.fill(); }
+    // a sea of clouds at the foot of the mountain
+    /* C35 polish: two banks of rounded cloud, the back one hazier, each puff lit on top and shaded underneath */
+    { const r=v3rng(23), base=mix('#ffffff',P.farHaze,.2+P.night*.5); for(let row=0;row<2;row++){ const n=row?22:16, col=row?base:mix(base,P.farHaze,.35), shd=mix(col,'#7a7aa8',.28), hi=mix(col,'#ffffff',.6), y0=hz-H*(row?.004:.03);
+      for(let i=0;i<n;i++){ const cx=W*(i/(n-1))+(r()-.5)*W*.03, rr=H*(row?.028:.036)*(.75+r()*.6); x.fillStyle=shd; x.beginPath(); x.ellipse(cx,y0,rr*1.25,rr,0,Math.PI,0); x.fill(); x.fillStyle=col; x.beginPath(); x.ellipse(cx-rr*.12,y0-rr*.1,rr*1.12,rr*.88,0,Math.PI,0); x.fill(); x.fillStyle=v3rgba(hi,.55*(1-P.night*.6)); x.beginPath(); x.ellipse(cx-rr*.35,y0-rr*.55,rr*.45,rr*.22,-.3,0,7); x.fill(); } } }
+    waMore('olympus','shore',x,P,hz); v3water(x,P,hz,cnv,.4); },
+  live(P,t,hz,sun){ waMore('olympus','live',null,P,hz,t); v3glitter(P,t,hz,sun); if(!S.settings.effects) return;
+    for(let i=0;i<10;i++){ const x=W*(.3+((i*.137)%.4)), y=hz-H*(.05+((i*.29)%.2))+Math.sin(t+i)*4, a=.5+.5*Math.sin(t*2+i*1.7); g.fillStyle='rgba(255,220,120,'+(.7*a)+')'; g.fillRect(x,y,1.6,1.6); }
+    { const per=11, q=(t%per)/per; if(q<.05){ const k=q/.05; g.save(); g.strokeStyle='rgba(255,250,210,'+(1-k)+')'; g.lineWidth=2.2; g.beginPath(); let x=W*.68, y=0; g.moveTo(x,y); for(let i=0;i<6;i++){ x+=((i*37)%7-3)*6; y+=hz*.12; g.lineTo(x,y); } g.stroke(); g.fillStyle='rgba(255,255,240,'+(.08*(1-k))+')'; g.fillRect(0,0,W,H); g.restore(); } } },
+  fore(P,t){ g.save(); const x=W*.955, col=mix('#f4efe4',P.top,P.night*.5); g.fillStyle=col; g.fillRect(x-H*.03,H*.3,H*.06,H*.7); g.fillStyle=mix(col,'#000000',.12); for(let k=0;k<3;k++) g.fillRect(x-H*.02+k*H*.016,H*.3,H*.004,H*.7); g.fillStyle=col; g.fillRect(x-H*.042,H*.28,H*.084,H*.025);
+    g.fillStyle=mix('#4a8a3a',P.top,P.night*.5); for(let i=0;i<8;i++){ const a=i*.45+Math.sin(t*.6)*.05; g.beginPath(); g.ellipse(x-H*.04+i*H*.012,H*.27-Math.sin(i*.8)*H*.008,H*.012,H*.005,a,0,7); g.fill(); } g.restore(); }
+};
+WA_MORE.olympus={
+    shore(x,P,hz){ const col=mix('#f4efe4',P.farHaze,.25+P.night*.45), sh=mix(col,'#000000',.12); for(const [px,h,br] of [[.16,.07,1],[.2,.045,0],[.8,.06,0],[.85,.08,1],[.89,.035,0]]){ const cx=W*px, b=hz-H*.008, cw=H*.012; x.fillStyle=col; x.fillRect(cx-cw,b-H*h,cw*2,H*h); x.fillStyle=sh; x.fillRect(cx-cw*.4,b-H*h,cw*.25,H*h); x.fillRect(cx+cw*.3,b-H*h,cw*.25,H*h);
+        x.fillStyle=col; if(br){ x.fillRect(cx-cw*1.4,b-H*h-H*.008,cw*2.8,H*.008); } else { x.beginPath(); x.moveTo(cx-cw,b-H*h); x.lineTo(cx-cw*.2,b-H*h-H*.008); x.lineTo(cx+cw*.4,b-H*h-H*.003); x.lineTo(cx+cw,b-H*h-H*.006); x.lineTo(cx+cw,b-H*h); x.fill(); } } },
+    live(x,P,hz,t){ { const ox=W*.955, oy=H*.28-H*.004, s=H*.008, bl=(t%6)<.15, N=c0=>mix(c0,P.top,P.night*.4); g.fillStyle=N('#8a7a64'); g.beginPath(); g.ellipse(ox,oy-s*1.6,s*1.2,s*1.7,0,0,7); g.fill(); g.beginPath(); g.ellipse(ox,oy-s*3.4,s*1.05,s*.9,0,0,7); g.fill(); g.fillStyle=N('#e8dcc4'); g.beginPath(); g.ellipse(ox,oy-s*1.3,s*.7,s*1.1,0,0,7); g.fill();
+        if(!bl){ g.fillStyle='#ffd040'; g.beginPath(); g.arc(ox-s*.42,oy-s*3.45,s*.3,0,7); g.arc(ox+s*.42,oy-s*3.45,s*.3,0,7); g.fill(); g.fillStyle='#1a1a1a'; g.fillRect(ox-s*.5,oy-s*3.55,s*.18,s*.18); g.fillRect(ox+s*.34,oy-s*3.55,s*.18,s*.18); } else { g.strokeStyle='#3a3020'; g.lineWidth=1; g.beginPath(); g.moveTo(ox-s*.7,oy-s*3.45); g.lineTo(ox-s*.15,oy-s*3.45); g.moveTo(ox+s*.15,oy-s*3.45); g.lineTo(ox+s*.7,oy-s*3.45); g.stroke(); }
+        g.fillStyle=N('#e0a030'); g.beginPath(); g.moveTo(ox-s*.15,oy-s*3.2); g.lineTo(ox+s*.15,oy-s*3.2); g.lineTo(ox,oy-s*2.8); g.fill(); }
+      { const q=(t%41)/41; if(q<.3){ const e=q/.3, px=W*(-.08+e*1.16), py=hz*(.42-.18*Math.sin(e*Math.PI)), s=H*.007, f=Math.sin(t*5); g.save(); g.translate(px,py); g.fillStyle='#fbf8f0'; g.beginPath(); g.ellipse(0,0,s*2.4,s*1,0,0,7); g.fill(); g.beginPath(); g.moveTo(s*1.6,-s*.4); g.lineTo(s*2.6,-s*1.8); g.lineTo(s*3.4,-s*1.6); g.lineTo(s*2.4,-s*.2); g.fill(); g.beginPath(); g.ellipse(s*3.2,-s*1.9,s*.9,s*.45,.3,0,7); g.fill();
+        g.strokeStyle='#fbf8f0'; g.lineWidth=Math.max(1,s*.35); g.beginPath(); g.moveTo(s*1.3,s*.6); g.lineTo(s*2.4,s*1.4); g.moveTo(s*.9,s*.6); g.lineTo(s*1.4,s*1.8); g.moveTo(-s*1.4,s*.6); g.lineTo(-s*2.2,s*1.5); g.moveTo(-s*1.8,s*.5); g.lineTo(-s*2.4,s*1.9); g.stroke();
+        g.fillStyle='rgba(255,255,255,.95)'; g.beginPath(); g.moveTo(-s*.2,-s*.6); g.quadraticCurveTo(-s*1.6,-s*(2.6+f*1.4),-s*3,-s*(2+f*2)); g.quadraticCurveTo(-s*1.4,-s*(1+f*.6),s*.8,-s*.6); g.fill(); g.strokeStyle='#e8d090'; g.lineWidth=1; g.beginPath(); g.moveTo(-s*2.4,0); g.quadraticCurveTo(-s*3.2,s*.2,-s*3.6,s*1); g.stroke(); g.restore(); v3glow(g,px,py,H*.04,'rgba(255,230,160,.9)',.25); } } } };
