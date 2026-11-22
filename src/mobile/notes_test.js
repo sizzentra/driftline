@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Catch cards always show what you caught: after a shiny or mythic fish, the next card (an oddity, say) kept showing that fish.',
   'Fish pictures in lists (Cooler, Aquarium, Fish Log) no longer blank for a moment when the scroll bar fades: phones use their own scroll bar now.',
   'The side panel stays on screen while a catch card is showing (it vanished).',
   'Cooler: a Hybrids switch beside Shinies in the Sell all filter. Off keeps hybrids when you Sell all or Scrap all; it starts like Shinies.',

@@ -50,7 +50,9 @@ let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.class
 
 // ---------- catch card ----------
 function showCard(o){
-  o.draw($('cardfish')); $('cardin').classList.toggle('shiny',!!o.shiny);
+  /* the last card's sparkle animation is let go first: it kept repainting a shiny or mythic fish over the next card's picture
+     (batch 2: a Brass Spyglass card showed the fish caught before it). A fish card attaches its own again. */
+  spkDrop($('cardfish')); o.draw($('cardfish')); $('cardin').classList.toggle('shiny',!!o.shiny);
   $('cardrar').textContent=o.rar; $('cardrar').style.color=o.rarCol; $('cardname').textContent=o.name;
   $('cardnums').innerHTML=o.nums.map(n=>`<div><span>${esc(n[0])}</span><b${n[2]?' class="coin"':''}>${esc(n[1])}</b></div>`).join('');
   if(o.html) $('carddesc').innerHTML=o.desc; else $('carddesc').textContent=o.desc;
