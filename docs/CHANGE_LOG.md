@@ -218,3 +218,8 @@ Change either weather message's wording: update the two patterns in `weather07.j
 | Map wording | `e_ui.js`, `c_logic.js` (`strStandHTML`), `mobile/waters08.js`, `bn_qa04.js` | Map page, phones and PC |
 | Laurel on the measured outline (`traitProbe.prof`, `traitTopAt`) | `cq_traits.js` | Mount Olympus fish |
 | Last four PC page layers as PC_STEPS (wraps 252 → 248) | `pc/ui_fit.js`, `pc/ui_fishlog.js`, `pc/ui_fhd.js`, `pc/ui_pets_find.js` | PC pages (fingerprint-identical) |
+
+## Test builds 2026.11.22-1447
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| Water costumes on fish removed (director); `__traitQC` and its sweep step removed | `cq_traits.js` (only the newer waters' body variety is left), `bn_qa04.js`, `tools/sweep.html` | every fish picture |

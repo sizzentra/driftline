@@ -205,11 +205,5 @@ What goes *inside* cards and pages. The frame rules above say how big the boxes 
 
 **The check:** `window.__contentQC()` (test builds) opens every page and tab and looks for: text cut by its box (no "…"), parts spilling out of their card, parts overlapping each other, cards with nothing in their body, and card groups where some cards have a picture and others don't. Run it at each size in rule 7 with three saves: **empty** (a brand-new game), **normal**, and **extreme** (`__contentQC({extreme:true})`: the longest name in every list, the biggest numbers, a full cooler, everything owned; the save is put back afterwards). It was proven on known bugs before use (see docs/LESSONS.md).
 
-## Fish decoration standard (all platforms; 2026-11-20, after the Nile headdress and the circuit dots)
-Decorations from `cq_traits.js` (ears, ties, circuits, cheese, headdresses…) follow the fish's real shape, never fixed spots that assume one body:
-1. **Body decorations** (spots, stripes, toppings, circuits, coins, charts, lightning, headdress, ankh, maple, gold leaf) are cut to the fish's own silhouette, and cut away around its eye.
-2. **Head decorations** (ears, horns, crowns, antennas, laurels, manes) sit on the measured top of the head, just behind the nose on short bodies; on thin bodies they move behind the eye.
-3. **Nose and throat decorations** (beaks, snouts, trunks, fangs, whiskers, ties) start at the measured nose tip and belly.
-4. **Eye decorations** (eye marks, glowing eyes, glasses) only on body types whose eye position is known; other shapes get none rather than a guess.
-5. **Each water's pattern varies per fish** (from its id), so a whole water never shows the same mark in the same place.
-**The check:** `window.__traitQC()` draws every decoration on every fish one at a time: it must show, touch the body (steam may float) and leave the eye clear. Proven on its first run (98 problems on the old code, 0 after).
+## Fish decorations: none (director, 2026-11-22)
+Fish wear no water costumes (the ears, ties, circuits, toppings, headdresses, ankhs and laurels of `cq_traits.js` were removed: "I don't like the idea of adding the custom map apparel to the fish. This is bad design"). A fish is drawn as just the fish: its family's body, fins, head, pattern and colors (`fishDesign` in `i_fish.js`). Rarity marks (the legendary crown, shiny glow) stay. Proposing any decoration on fish again is a look call for the director.

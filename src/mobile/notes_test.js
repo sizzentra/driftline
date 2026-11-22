@@ -3,7 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'Mount Olympus fish: the laurel sits on top of the head, behind the eye, instead of lying across the eye and back (the yellow dot that looked like a second eye is gone).',
+  'Fish no longer wear their water’s costume: the headdresses, ankhs, laurels, ties, glasses, ears, horns, food toppings and circuit lines are gone. Every fish is drawn as just the fish.',
   'Map: clearer wording. The top line says how to open the next water (or that all are open), each card says how strong your line is and how many of its fish that covers, and the count reads “2 of 52 caught”.',
   'Your home: the 16 colors are real circles like the old canopy colors, 2 rows of 8, and look the same for every feature (the lantern colors no longer glow).',
   '## Test build 0540',

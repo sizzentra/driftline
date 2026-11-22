@@ -643,32 +643,8 @@ window.__sweep=(acts,ks=['__bad','',undefined,'0','none','x:y'],is=['-1','0','99
   try{ S.money=Math.max(S.money,5e6); for(const a of acts) for(const k of ks) for(const i of is){ G.st=n%3?'idle':'waiting'; const b0=errs.length; try{ act(a,{k,i}); }catch(e){ errs.push(a+': '+e.message); } n++; if(errs.length>b0) errs[errs.length-1]=a+' k='+k+' i='+i+' :: '+errs[errs.length-1]; if(S.tab!==DASH) setTab(DASH); } }
   finally{ removeEventListener('error',h); restore(keep); const settle=()=>{ if(WH.spinning){ QA.settleT=setTimeout(settle,400); return; } restore(keep); G.st='idle'; save=os; toast=ot; }; QA.settleT=setTimeout(settle,1800); G.st='idle'; try{ closeMenu(); setTab(DASH); }catch(e){} const ec=$('evcard'); if(ec&&!ec.hidden){ ec.hidden=true; } }
   return {n, errs:[...new Set(errs)].slice(0,10)}; };
-// test builds: __traitQC() checks every fish decoration (cq_traits.js) on every fish that has one, one decoration at a time:
-// it must show, it must touch the body (no loose pieces; steam may float), and it must not cover the eye. Built after the Nile headdress
-// floated like a hockey stick and the circuit dots sat off the body on many fish (2026-11-20). Returns {fish, checked, issues, list}.
 // the drawn outline of a creature at L=100, drawn at (200,200) on a 400×400 canvas: {left,right,top,bottom} relative to the centre (C36)
 window.__creatureBox=id=>{ const sp=SPI[id]; if(!sp) return null; const c=document.createElement('canvas'); c.width=c.height=400; const x=c.getContext('2d',{willReadFrequently:true}); drawCreature3(x,sp,200,200,100,{sil:'#000000',t:0,still:1}); const d=x.getImageData(0,0,400,400).data; let l=400,r=0,t=400,b=0; for(let y=0;y<400;y++) for(let q=0;q<400;q++) if(d[(y*400+q)*4+3]>60){ if(q<l)l=q; if(q>r)r=q; if(y<t)t=y; if(y>b)b=y; } return {left:l-200,right:r-200,top:t-200,bottom:b-200,plan:fishDesign(sp).plan}; };
-window.__traitDbg=id=>{ const sp=SPI[id]; return {probe:traitProbe(sp), top:f3TopAt(sp,120,.3), plan:fishDesign(sp).plan, traits:fishTraits(sp)}; };
-window.__traitQC=async(o={})=>{ const S=260, L=120, cx=S/2, cy=S/2, list=[]; let n=0, fishN=0; const FLOAT_OK=new Set(['steam']);
-  const mk=()=>{ const c=document.createElement('canvas'); c.width=c.height=S; return c.getContext('2d',{willReadFrequently:true}); };
-  const A=mk(), B=mk(), M=mk(); const sps=SP.filter(sp=>fishTraits(sp)&&(!o.loc||sp.loc===o.loc));
-  const eyeW=(d,i)=>Math.abs(d[i]-244)<14&&Math.abs(d[i+1]-240)<14&&Math.abs(d[i+2]-230)<16&&d[i+3]>200;
-  for(const sp of sps){ fishN++; const keep=TRAIT_CACHE[sp.id];
-    A.clearRect(0,0,S,S); drawCreature3(A,sp,cx,cy,L,{t:0,still:1}); const base=A.getImageData(0,0,S,S).data;
-    M.clearRect(0,0,S,S); drawCreature3(M,sp,cx,cy,L,{sil:'#000000',t:0,still:1}); const sil=M.getImageData(0,0,S,S).data;
-    const near=(x,y)=>{ for(let dy=-2;dy<=2;dy++) for(let dx=-2;dx<=2;dx++){ const xx=x+dx, yy=y+dy; if(xx>=0&&yy>=0&&xx<S&&yy<S&&sil[(yy*S+xx)*4+3]>100) return true; } return false; };
-    /* the eye: eye-white pixels next to the dark pupil (a whitish body is not an eye) */ const pup=new Uint8Array(S*S); for(let y=0;y<S;y++) for(let x=cx;x<S;x++){ const i=(y*S+x)*4; if(base[i]<45&&base[i+1]<45&&base[i+2]<50&&base[i+3]>200) pup[y*S+x]=1; } const nearPup=(x,y)=>{ for(let dy=-5;dy<=5;dy++) for(let dx=-5;dx<=5;dx++){ const xx=x+dx, yy=y+dy; if(xx>=0&&yy>=0&&xx<S&&yy<S&&pup[yy*S+xx]) return true; } return false; };
-    const eyeMask=new Uint8Array(S*S); let eyeBase=0; for(let y=0;y<S;y++) for(let x=cx;x<S;x++){ if(eyeW(base,(y*S+x)*4)&&nearPup(x,y)){ eyeMask[y*S+x]=1; eyeBase++; } }
-    for(const tr of (keep||[])){ n++; TRAIT_CACHE[sp.id]=[tr];
-      B.clearRect(0,0,S,S); drawCreature(B,sp,cx,cy,L,{t:0,still:1}); const full=B.getImageData(0,0,S,S).data;
-      let px=0, touch=0, eyeFull=0;
-      for(let y=0;y<S;y++) for(let x=0;x<S;x++){ const i=(y*S+x)*4; const ch=Math.abs(full[i]-base[i])+Math.abs(full[i+1]-base[i+1])+Math.abs(full[i+2]-base[i+2])+Math.abs(full[i+3]-base[i+3])>40;
-        if(ch){ px++; if(near(x,y)) touch++; } if(eyeMask[y*S+x]&&eyeW(full,i)) eyeFull++; }
-      const tag=sp.id+' ('+sp.name+') / '+tr;
-      if(!px) list.push(tag+': does not show'); else if(!FLOAT_OK.has(tr)&&touch<4) list.push(tag+': floats off the body ('+px+' px, '+touch+' touching)');
-      if(eyeBase>=6&&eyeFull<eyeBase*.6) list.push(tag+': covers the eye ('+eyeFull+' of '+eyeBase+' eye pixels left)'); }
-    TRAIT_CACHE[sp.id]=keep; if(fishN%25===0) await new Promise(r=>setTimeout(r,0)); }
-  return {fish:fishN, checked:n, issues:list.length, list:list.slice(0,200)}; };
 // test builds: __contentQC() checks the content standard (docs/PLATFORM_DESIGN.md, "Content standard") on every page and page tab:
 // text cut by its box, "…" on a card name (cards wrap names), parts spilling out of their card, text parts overlapping each other,
 // empty cards, and card groups where some cards have a picture and others don't. __contentQC({extreme:true}) first fills the save
