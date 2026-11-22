@@ -17,9 +17,9 @@ One job: what every home is, how it is built, what the player can change. Part o
 - **A free zone above and behind the deck** for each home's own shape (sail, roof, arch), inside a set box that never blocks the casting water.
 
 ## What the player customises
-- **5 elements per home:** the **light fixture** (its source and its colour) on every home, plus **4 elements that fit that home** (for example the felucca: hull, sail, rigging; the hover pad: plate, thrusters, neon trim, hologram).
+- **6 features per home (director, 2026-11-21):** the **light** and the **seat** on every home (resting sits the angler in it, pets sit with them), plus **4 features that fit that home** (a dock: deck, supports, rail, canopy; the reed boat: hull, sail, cabin, canopy). Every home's features and styles: `docs/HOME_DESIGNS.md`. Decorations no longer exist.
 - **3 real styles per element**, each fitting the map (no neon at Willow Pond, no rustic lantern at Circuit Lake). **Nothing is no choice:** an element that offers \
-- **Curated colours per element** (6–9, chosen to suit the map).
+- **One colour list per home, at least 16 colours, shared by every feature** (director, 2026-11-21: so parts can be set to the same shade), taken from the water's palette in `docs/MAP_THEMES.md`; phones show 8 per row (2 full rows).
 - **No unlocking:** as soon as a water is reached, its home and every style and colour are free to use.
 - Each water keeps its own choices.
 
@@ -41,7 +41,7 @@ Before any piece of art is drawn:
 
 ## The Home page
 - **A close-up framed on the home** (the same box on every home), drawn at its own size: the home from a stored picture at close-up resolution, the angler, rod and pets drawn sharp, over a soft copy of the water behind (director, 2026-11-21: the stretched scene was blurry).
-- **5 tabs named for that home's elements;** every tab laid out the same way: styles, then colours.
+- **6 tabs named for that home's features;** every tab laid out the same way: styles, then colours.
 
 ## Removed
 - **Decorations** and the **cozy bonus**, taken out of saves when they load; dock style prices. Nothing else in a save (coins, levels, fish, rods, pets) is touched. Test notes say so in one line. Tide Pass levels, feats and quests that used decorations get new rewards.
@@ -50,4 +50,4 @@ Before any piece of art is drawn:
 - **Stonebrook River: a mill landing** (stone and timber by the watermill, with a millstone), so it no longer shares Willow Pond's dock.
 
 ## Checked by tools (to build with it)
-- Every home fills every part of the format; exactly 5 elements; every style draws with every colour; pets and the angler stand on the surface; the home picture is repainted only on a change.
+- Every home fills every part of the format; exactly 6 features (light and seat included); every style draws with every colour; pets and the angler stand on the surface; the home picture is repainted only on a change.
