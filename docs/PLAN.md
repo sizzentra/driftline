@@ -118,7 +118,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 - Your home: the home preview stutters badly and looks choppy (Driftline Test on PC).
 - **Fixed in 1718:** after Tester tools › Unlock everything, Travel here sometimes did nothing (the buttons look greyed out in the screenshot). Claude's first guess, to check: travel is blocked while resting or while the line is out, with no message saying so, which would explain "works sometimes".
 - **Fixed in 1718:** the six end-game waters were still named "Uncharted Waters" with "Complete voyage N to chart these waters" after Unlock everything, although their cards offer Travel here.
-- PC header (top bar): the parts are not one consistent size and structure, and the bar has lots of room to give them one. The 7 page buttons on the left are icon-only teal tiles while Cooler, Aquarium, Home, Fish Log, Tasks and Stats are label chips; Settings is wider than it needs to be and could take much less space while still showing its icon and word. (Screenshots 2026-11-22: the Map page and Stonebrook River at 1920x1080; in the first crop the "Map" pill under the header looks cut off at the left edge.) Players cannot tell what the 7 icon-only page buttons are (director: "the players have no idea what some of them are"): they need their names. (PC only: the phones already show names beside their icons.) When the names do show (later screenshots), they look cramped (director, confirmed by Claude): Collection, Challenges and Customize touch the tile edges, icon and name are stacked tightly, the count badges sit on the tile corners, and the left tiles look like a different design from the roomy chips on the right.
+- PC header (top bar): the parts are not one consistent size and structure, and the bar has lots of room to give them one. The 7 page buttons on the left are icon-only teal tiles while Cooler, Aquarium, Home, Fish Log, Tasks and Stats are label chips; Settings is wider than it needs to be and could take much less space while still showing its icon and word. (Screenshots 2026-11-22: the Map page and Stonebrook River at 1920x1080; in the first crop the "Map" pill under the header looks cut off at the left edge.) Players cannot tell what the 7 icon-only page buttons are (director: "the players have no idea what some of them are"): they need their names. (PC only: the phones already show names beside their icons.) The names come and go (director, 2026-11-22: shown in the Willow Pond screenshots, missing again at Stonebrook River in heavy fog at night, resting; cause to find; Claude's first guess: the header drops the names when the chips on the right get wider, since the names show with "Home: Dock" at Willow Pond and vanish with "Home: Mill landing" at Stonebrook):  (director, confirmed by Claude) When they show, they look cramped: Collection, Challenges and Customize touch the tile edges, icon and name are stacked tightly, the count badges sit on the tile corners, and the left tiles look like a different design from the roomy chips on the right.
 **Willow Pond** (director, 2026-11-22, PC screenshots: aurora night, clear night, rainbow day, rain night resting, Your home)
 - Background: no mountains; a forest instead, to keep the background consistent. Also: all our mountains look the same (across waters), which the director doesn't like.
 - Water flow effects don't all point the same way.
@@ -141,6 +141,34 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 **Stonebrook River**
 - Remove the waterwheel home feature from the dock: the scene already has a waterwheel (at the mill), a second one makes no sense, and it does not spin.
 - Replace it with a feature that fits a mill landing (director: "yes replace it"; Claude proposes options with pictures, e.g. a mooring post with rope and fenders, or flour sacks on a cart).
+- Leaves and similar float to the right on the water although the current clearly flows left.
+- The bridge (the director calls it "the aqueduct"): its 3 arches show the wrong background through them, and a strange green covers the arch openings (not the bridge itself; director's correction).
+- The hills behind the trees, the mill hut and the mill's waterwheel don't look right.
+- The background rowboat and jetty have water running through them, which makes no sense.
+- The heron stands in the water: is that right, and is it shallow enough there to make physical sense?
+- Your home preview: very laggy and choppy here too.
+- Landing: its 3 styles (Flagstones, Oak on stone, Millstone) barely look different; Millstone doesn't look good at all.
+- Mill shed: choosing No shed, then any option, changes the zoom of the home preview; the shed styles also barely look different (screenshots: No shed, Slate roof).
+- Fly rack: the fly line has no physics at all, and changing its colour makes no sense.
+- Lantern: changing the colour barely changes anything (maybe on every home). The lantern options lack variety, and the candle makes no physical sense (an open candle out on a river landing).
+- Resting: the rod goes over the mill shed roof, physically impossible (same rule as Willow Pond: a rod never passes through a cover).
+- The rainbow's reflection doesn't line up here either (rainbow day screenshots).
+- Noted by Claude from the screenshots: one frame of 45.8 ms on the counter during the rainbow at Stonebrook (otherwise 221-240 fps); the update banner showed 1718 (the travel fix) arriving.
+**Cherry Blossom Lake** (director, 2026-11-22: day clear, night blood moon, Your home)
+- The map doesn't feel like Japan; cherry blossoms are a huge part of Japanese culture. Its focus should be giant cherry blossom trees (no animation needed) with big, lush masses of blossom, like Japan's cherry blossom forests. Right now the focus is the mountain; the director doesn't like that, and asks whether the mountain even fits the theme.
+- The branch in the top right comes from nowhere and lacks detail: dots on a straight branch.
+- The trees don't look lush at all.
+- The duck seems to come out of nowhere.
+- The floating lanterns appear out of nowhere and disappear abruptly.
+- The pagoda (temple) is great; the director is sad it's the only one.
+- The sign in the water (the torii) doesn't read as anything.
+- The lily pads in the bottom right cover each other.
+- The falling petals are awesome (keep).
+- Your home: laggy here too.
+- Resting: the covers over the player make no physical sense.
+- Veranda styles don't look different from the earlier homes' options.
+- Some options overlap each other when picked and look cluttered instead of neat (screenshot: weeping cherry with the lanterns and wind chime under the roof).
+- Overall the home options don't capture Japan well, or don't look good.
 **Order of the review (director):** the maps in the order they are listed: Willow Pond, Stonebrook River, Cherry Blossom Lake, Saltmarsh Coast, Frostbite Lake, Canadian Rockies, Coral Shallows, Florida Keys, Brine Shelf, Amazon Rainforest, Midnight Deep, Hollow Trench, Ember Springs, Starfall Lake, Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
 
 | Batch | Projects | Details | Open before building |

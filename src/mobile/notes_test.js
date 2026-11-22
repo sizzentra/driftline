@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Tester tools (Stats): new Time and weather buttons. Jump to dawn, day, dusk or night, or to any weather, at once; Real time puts the clock back. The jump is kept when you reload.',
   'Travel works while you rest (you keep resting at the new water); with a line out, Travel says to reel in first instead of doing nothing.',
   'Waters you have opened are never called Uncharted Waters any more.',
   'Fish named after a real fish (tuna, mackerel, marlin, sole, moonfish, puffer and many more) now have that fish’s body in the newer waters, instead of a random shape.',
