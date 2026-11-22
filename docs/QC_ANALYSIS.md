@@ -3,6 +3,11 @@
 Data: `docs/qc_incidents.csv` (every recorded bug: category, who found it, where, severity 0–3, what catches it now). Add a row for
 every new bug, every round, and re-run the numbers below at the end of each project (PowerShell: `Import-Csv` + `Group-Object`).
 
+## Numbers update (185 incidents, after batch 2 of the queue to 0.5, 2026-11-21 evening)
+- Found by: Claude 96 (52%), the director 65 (35%), Cam 12, testers 12. All 5 new bugs were found by the director (2 by video or screenshot from a real phone, 1 live, 2 on the test apps): none by the checks.
+- The new escapes are UI logic (2), UI, performance and release, one each. UI logic now ties UI for second place (9 reached players each), after layout cut (14).
+- **What changed in the checklist:** two of the five were "one number, two formulas" or "one canvas, two owners" (aquarium boosts, card picture): both now have a QA test that reproduces the old case. The download flag gets a Defender scan at build. The scroll-bar repaint can only be seen on a real phone, so it goes into the testers' directions (device risk), not into a check. Next if UI logic keeps escaping: a QA pass that compares every shown bonus with `bonus(k)`.
+
 ## Numbers update (180 incidents, 2026-11-18 → 2026-11-21; re-run at the end of batches 3-4)
 - Found by: Claude 96 (53%), the director 60 (33%), Cam 12, testers on the sweep page 12. Players and testers still find 47%.
 - Reached players (test apps, live, real phones) per day: 11-18 29 of 49 (59%), 11-19 26 of 80 (33%), 11-20 21 of 31 (68%),
