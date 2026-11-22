@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } window.DL_VERSION='2026.11.22-0351';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } window.DL_VERSION='2026.11.22-0407';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -3901,7 +3901,7 @@ function autoBackup(now){ if(window.__dlUnreadable||!S) return; const t=Date.now
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) autoBackup(true); });
 addEventListener('pagehide',()=>autoBackup(true));
 function agoText(t){ const m=Math.max(0,Math.round((Date.now()-t)/60000)); return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'; }
-function autoBackupHTML(){ const a=bkRead(AUTO_BK), k=bkRead(AUTO_BK_KEEP), row=(s,act,label,note)=>s?`<div class="toggle"><div><b>${label}</b><div class="meta">${note} · saved ${agoText(s.bkAt||s.savedAt||Date.now())} · level ${s.lvl||1}, ${Object.keys(s.journal||{}).length} species</div></div><button class="btn alt sm" data-act="${act}">${bkAsk===act?'Tap again to restore':'Restore'}</button></div>`:'';
+function autoBackupHTML(){ const a=bkRead(AUTO_BK), k=bkRead(AUTO_BK_KEEP), row=(s,act,label,note)=>s?`<div class="toggle"><div><b>${label}</b><div class="meta">${note} · saved ${agoText(s.bkAt||s.savedAt||Date.now())} · level ${s.lvl||1}, ${Object.keys(s.journal||{}).length} species</div></div><button class="btn alt sm" data-act="${act}">==act?(PLAT.touch()?'Tap':'Click')+' again to restore':'Restore'</button></div>`:'';
   return `<details class="tile" style="margin-top:12px"><summary style="cursor:pointer"><b>Backup on this device</b> <span class="meta">· made automatically</span></summary>
    <p class="sub">Your progress is copied every few minutes and whenever you leave the game. If your save ever breaks, restore it here. Restoring replaces your current progress.</p>
    ${row(a,'autobk','Latest backup','Made by itself')}${row(k,'autobkkept','Earlier backup','Kept when your progress dropped')}${a||k?'':'<p class="meta">No backup yet: the first one is made a few minutes after you start playing.</p>'}</details>`; }
@@ -3958,7 +3958,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       S=fresh(); S.seenPatch=GAME_VERSION; S.tab='settings'; S.savedAt=Date.now(); G.st='idle'; fillBounties(); toast('Progress erased. A backup was kept. You can restore it in Settings.'); return 'render'; }
     case 'restorebk': { try{ const raw=localStorage.getItem(BACKUP_KEY); if(!raw) return 'skip'; S=migrate(JSON.parse(raw)); S.savedAt=Date.now(); localStorage.removeItem(BACKUP_KEY); G.st='idle'; toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'autobk': case 'autobkkept': { if(bkAsk!==b.dataset.act){ bkAsk=b.dataset.act; return 'render'; } bkAsk=null; const s=bkRead(b.dataset.act==='autobk'?AUTO_BK:AUTO_BK_KEEP); if(!s) return 'skip';
-      try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){} /* the progress being replaced becomes the backup above, so a restore can be undone */
+      try{ if(!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){} /* the progress being replaced becomes the backup above (when that slot is free, so a pre-reset copy is never overwritten), so a restore can be undone */
       try{ S=migrate(s); delete S.bkAt; S.savedAt=Date.now(); G.st='idle'; window.__dlUnreadable=false; save(); toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
     case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(bwEarn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
@@ -18962,6 +18962,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Save › Backup on this device: your progress is copied every few minutes and whenever you leave the game; Restore brings it back (click twice). If your progress suddenly drops, the better copy is kept as an earlier backup.',
+  '## Test build 0351',
   'Your home on PC: the parts are larger and easier to read on a full-HD screen, their column ends where they end, and the home view gets more room.',
   'Selected tabs and styles are gold on every PC page, like on the phones.',
   'The home label reads like on the phones (Willow Pond · dock).',
@@ -20125,6 +20127,10 @@ window.__mapQC=async(o={})=>{ const keep={loc:S.loc,off:window.__off,np:window._
 if(/[?&]test\b/.test(location.search)) window.__shot=async(name,id,rest,full)=>{ __go(id); dockSync(); V3CACHE=null; G.st=rest?'rest':'idle'; if(rest) restCast(); draw(performance.now()); draw(performance.now()+16);
   const d=cv.width/W; let url; if(full) url=cv.toDataURL('image/png'); else { const sx=0, sy=H*.2*d, sw=W*.34*d, sh=H*.72*d, k=Math.max(1,900/sw), o=document.createElement('canvas'); o.width=Math.round(sw*k); o.height=Math.round(sh*k); const x=o.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(cv,sx,sy,sw,sh,0,0,o.width,o.height); url=o.toDataURL('image/png'); }
   const r=await fetch('/shot/'+name,{method:'POST',body:url}); return r.status; };
+// test builds: __fingerprint(root) lists every visible element under the page (its path, text, place, size and key styles), so an
+// untangling step can prove nothing visible changed: take one before, one after, and compare (Clean Pages, docs/PLAN.md › Untangling plan)
+if(/[?&]test\b/.test(location.search)) window.__fingerprint=(root=document.getElementById('panel'))=>{ const out=[]; const walk=(el,path)=>{ for(const c of el.children){ const r=c.getBoundingClientRect(); if(!r.width&&!r.height) continue; const cs=getComputedStyle(c); if(cs.display==='none'||cs.visibility==='hidden') continue; const p=path+'>'+c.tagName.toLowerCase()+(c.className&&typeof c.className==='string'?'.'+c.className.trim().split(/\s+/).sort().join('.'):''); const own=[...c.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).join(' ').slice(0,40);
+  out.push([p,own,Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height),cs.color,cs.backgroundColor,cs.backgroundImage.slice(0,40),cs.fontSize,cs.fontWeight].join('|')); walk(c,p); } }; walk(root,''); return out; };
 
 // ---------- loop ----------
 let last=performance.now();
