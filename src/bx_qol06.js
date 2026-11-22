@@ -21,7 +21,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
   new MutationObserver(soon).observe(document.body,{childList:true,subtree:true}); addEventListener('resize',soon); setTimeout(scan,800); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 .sc-host{position:relative}
-.sc-arrow{position:absolute;z-index:6;width:18px;height:26px;margin-top:-13px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:linear-gradient(180deg,#1f8a86,#14666a);border:1px solid #7fe3c4;color:#fff;font:900 16px/1 system-ui;font-style:normal;pointer-events:none;box-shadow:0 2px 8px #0009;opacity:.92}
+.sc-arrow{position:absolute;z-index:6;width:18px;height:26px;margin-top:-13px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:linear-gradient(180deg,#197a76,#14666a);border:1px solid #7fe3c4;color:#fff;font:900 16px/1 system-ui;font-style:normal;pointer-events:none;box-shadow:0 2px 8px #0009;opacity:.92}
 .sc-arrow[hidden]{display:none}
 </style>`);
 

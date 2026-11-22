@@ -3,6 +3,13 @@
 Data: `docs/qc_incidents.csv` (every recorded bug: category, who found it, where, severity 0–3, what catches it now). Add a row for
 every new bug, every round, and re-run the numbers below at the end of each project (PowerShell: `Import-Csv` + `Group-Object`).
 
+## Numbers update (207 incidents, after the overnight run and the homes batch, 2026-11-22)
+- Found by: Claude 108 (52%), the director 75 (36%), Cam 12, testers 12. Since the last count (22 new): Claude 12, the director 10.
+- **Art is now the category escaping most** among new bugs: 6 of 22, 5 of them seen first by the director (covers that missed the angler, a waterwheel off the landing, posts that did not blend, the Olympus laurel over the eye, home swatches drawn two ways). Of the 10 that reached the director, 5 were art, 2 UI, 1 layout, 1 performance, 1 UI logic.
+- All time, reached players: layout cut 14, art 12, UI 11, UI logic 10, performance 8.
+- **What changed in the checklist:** art now needs Claude's own pictures before the director sees it (rule 8b, since 2026-11-22), and every fish or home change gets a picture sheet of every water it touches, looked at for anything covering the subject (an eye, the angler) or not belonging to it. The costume check (`__traitQC`) was removed with the costumes; the frozen start (`?frozen`) proves code moves change nothing on screen.
+- **Solved (proposal 11):** the fresh-save pass timed out only inside the full sweep (it passed alone and after every other step). With the heavy costume check gone, the full sweep passes 55 of 55 in 14.9 minutes (it took about 29), fresh save included.
+
 ## Numbers update (185 incidents, after batch 2 of the queue to 0.5, 2026-11-21 evening)
 - Found by: Claude 96 (52%), the director 65 (35%), Cam 12, testers 12. All 5 new bugs were found by the director (2 by video or screenshot from a real phone, 1 live, 2 on the test apps): none by the checks.
 - The new escapes are UI logic (2), UI, performance and release, one each. UI logic now ties UI for second place (9 reached players each), after layout cut (14).

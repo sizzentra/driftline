@@ -28,7 +28,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #dl-install p{margin:0 0 10px;color:#9fb2c8;font-size:14px;line-height:1.45}
 #dl-install .dli-steps{color:#e6efe8;background:#0a1424;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px}
 #dl-install .dli-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
-#dl-install .dli-go{font:800 15px var(--display,system-ui);min-height:42px;padding:0 20px;border:0;border-radius:10px;color:#fff;background:linear-gradient(180deg,#1f8a86,#14666a);cursor:pointer}
+#dl-install .dli-go{font:800 15px var(--display,system-ui);min-height:42px;padding:0 20px;border:0;border-radius:10px;color:#fff;background:linear-gradient(180deg,#197a76,#14666a);cursor:pointer}
 #dl-install .dli-alt{font:800 15px var(--display,system-ui);min-height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#e6efe8;background:#0a1424;cursor:pointer}
 #dl-install button:focus-visible{outline:3px solid #7fe3c4;outline-offset:2px}
 #dl-install .dli-note{font-size:12.5px;margin:10px 0 0}

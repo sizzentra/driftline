@@ -6,7 +6,7 @@
 //  - plain information stays on navy (coins, level, the goal, cards)
 // =====================================================================
 document.head.insertAdjacentHTML('beforeend',`<style>
-:root{--mt-teal:linear-gradient(180deg,#1f8a86,#14666a);--mt-teal-b:#7fe3c4;--mt-gold:linear-gradient(180deg,#ffe08a,#f3b94e);--mt-gold-b:#ffe6a3;--mt-navy:#0e1a2c}
+:root{--mt-teal:linear-gradient(180deg,#197a76,#14666a);--mt-teal-b:#7fe3c4;--mt-gold:linear-gradient(180deg,#ffe08a,#f3b94e);--mt-gold-b:#ffe6a3;--mt-navy:#0e1a2c}
 /* header: chips that open a page */
 body.phone-app .hud .hud-link,body.phone-app .hud button.stat,body.phone-app .hud .stat.opt,
 body.phone-land .hud .hud-link,body.phone-land .hud button.stat,body.phone-land .hud .stat.opt{background:var(--mt-teal)!important;border-color:var(--mt-teal-b)!important;box-shadow:inset 0 1px 0 #ffffff40,0 2px 0 #0b3a3c!important;color:#fff!important}

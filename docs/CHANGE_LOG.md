@@ -229,3 +229,11 @@ Change either weather message's wording: update the two patterns in `weather07.j
 |---|---|---|
 | One file per water (scene + every drawn piece in order; shared layers by name) | `src/w_<id>.js` (20), helpers in `ap_weather033.js`, `aq_life033.js`, `as_depth033.js`; `WA_MORE.<id>` for the newer ten | every water (pixel-identical) |
 | `?frozen` start for comparing two builds | `build.ps1` (preview head) | test pages only |
+
+## Test builds 2026.11.22-1605
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| Real fish keep their body (tuna, bill, flat, disc, ball by name; one `d.fam` flag skips the random body) | `i_fish.js`, `cq_traits.js` | newer waters' fish |
+| Deeper teal button top `#197a76` (white text 5.1 : 1) | 7 UI files | main buttons, phones and PC |
+| PC style cards cached (`DK_PV`), one stored picture per style, home-area diff | `pc/br_pc05.js` | PC Your home |
+| Old-fight jump test checks the rule, not the first event | `bn_qa04.js` | test builds |

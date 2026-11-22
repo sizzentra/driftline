@@ -45,7 +45,7 @@ const mask=(k)=>`-webkit-mask:${ICO(IC[k])} center/contain no-repeat;mask:${ICO(
 const subIcons=Object.keys(IC).map(k=>`${B(`#menuov .subbar .subp[data-sub="${k}"] .subi`)}{${mask(k)}}`).join('\n');
 
 document.head.insertAdjacentHTML('beforeend',`<style id="th07">
-:root{--th-surf:linear-gradient(180deg,#16263d,#111e31);--th-surf-flat:#13233a;--th-deep:#0c1626;--th-edge:#ffffff17;--th-edge2:#ffffff24;--th-ink:#7fe3c4;--th-dim:#9fb3c8;--th-gold:linear-gradient(180deg,#ffe08a,#f3b94e);--th-gold-b:#ffe6a3;--th-gold-ink:#2a1c05;--th-teal:linear-gradient(180deg,#1f8a86,#14666a);--th-teal-b:#7fe3c4;--th-r:12px}
+:root{--th-surf:linear-gradient(180deg,#16263d,#111e31);--th-surf-flat:#13233a;--th-deep:#0c1626;--th-edge:#ffffff17;--th-edge2:#ffffff24;--th-ink:#7fe3c4;--th-dim:#9fb3c8;--th-gold:linear-gradient(180deg,#ffe08a,#f3b94e);--th-gold-b:#ffe6a3;--th-gold-ink:#2a1c05;--th-teal:linear-gradient(180deg,#197a76,#14666a);--th-teal-b:#7fe3c4;--th-r:12px}
 
 /* ---------- top bar: every chip on the same navy; a chip you can tap has a teal label (and an arrow when there is room) ---------- */
 ${B('.hud > .stat,.hud > #goalchip,.hud > .hudbtns > button')}{background:var(--th-surf)!important;border:1px solid var(--th-edge)!important;border-radius:var(--th-r)!important;box-shadow:none!important;color:#fff!important}
@@ -203,7 +203,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // Aquarium chip turns gold when coins are ready to collect. ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app .hud > .hud-link,html body.phone-app .hud > button.stat,html body.phone-app .hud > #goalchip,html body.phone-app .hud > .hudbtns > button,
-html body.phone-land .hud > .hud-link,html body.phone-land .hud > button.stat,html body.phone-land .hud > #goalchip,html body.phone-land .hud > .hudbtns > button{background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:0 3px 10px #0007!important;color:#fff!important}
+html body.phone-land .hud > .hud-link,html body.phone-land .hud > button.stat,html body.phone-land .hud > #goalchip,html body.phone-land .hud > .hudbtns > button{background:linear-gradient(180deg,#197a76,#14666a)!important;border:1px solid #7fe3c4!important;box-shadow:0 3px 10px #0007!important;color:#fff!important}
 html body.phone-app .hud > .hud-link .lbl,html body.phone-app .hud > button.stat .lbl,html body.phone-app .hud > #goalchip .gl-k,
 html body.phone-land .hud > .hud-link .lbl,html body.phone-land .hud > button.stat .lbl,html body.phone-land .hud > #goalchip .gl-k{color:#c8fff0!important}
 html body.phone-app .hud > .hud-link b,html body.phone-app .hud > button.stat b,html body.phone-app .hud > #goalchip .gl-t,

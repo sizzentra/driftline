@@ -87,7 +87,14 @@ function fishDesign(sp){
   if(has('loach')){ d.plan='long'; d.h=Math.min(d.h,.22); d.barbel=d.barbel||'short'; d.tail='round'; if(d.pat==='none') d.pat='marble'; }
   if(has('snakehead')){ d.plan='long'; d.h=Math.min(d.h,.24); d.dorsal='long'; d.mouth='big'; d.tail='round'; if(d.pat==='none') d.pat='blotch'; }
   if(has('goby')) d.plan='blenny';
-  if(has('catfish','bullhead','corydoras','namazu','shovelnose','arowana','arapaima','knifefish','electric eel','piranha','pacu','cichlid','oscar','tilapia','discus','peacock bass','tetra','lungfish','bichir','pleco','loach','snakehead','goby')) d.fam=1; /* a real family: the new waters' random body (cq_traits) leaves it alone */
+  if(has('catfish','bullhead','corydoras','namazu','shovelnose','arowana','arapaima','knifefish','electric eel','piranha','pacu','cichlid','oscar','tilapia','discus','peacock bass','tetra','lungfish','bichir','pleco','loach','snakehead','goby')) d.fam=1;
+  // second families pass (proposal 8, director 2026-11-22): a fish named after a real fish gets that fish's body, never a random one
+  if(has('mackerel','tuna','bonito','wahoo')&&d.plan==='fusi'){ d.plan='tuna'; d.tail='lunate'; }
+  if(has('marlin','swordfish','sailfish','spearfish')&&d.plan==='fusi') d.plan='bill';
+  if(has('sole','flounder','halibut','plaice','turbot','fluke')&&!has('console','solemn')) d.plan='flat';
+  if(has('moonfish','opah')) d.plan='disc';
+  if(has('puffer','blowfish','porcupinefish')) d.plan='ball';
+  if(has('perch','bass','crappie','bluegill','bream','snapper','carp','tench','barbel','koi','chub','roach','rudd','dace','shiner','minnow','herring','shad','sardine','smelt','trout','salmon','char','pike','cod','pollock','wrasse','tang','mullet','grouper','mackerel','tuna','marlin','sole','flounder','halibut','barb','gourami','mormyrid','elephantnose','sturgeon','gar','eel','ray','shark','puffer','moonfish','grunt','drum','croaker','whiting','hake','ling','bonefish','tarpon','snook','pompano','wahoo','dorado','mahi','jack','trevally','bonito','sculpin','blenny','bichir','killifish','molly','guppy','swordtail','platy','danio','rasbora','betta','angelfish','butterflyfish','damsel','clownfish','surgeonfish','triggerfish','filefish','boxfish','cowfish','lionfish','scorpionfish','stonefish','hogfish','parrotfish','goatfish','barracuda','needlefish','halfbeak','flyingfish','anchovy','sprat')) d.fam=1; /* the same flag as the families above: a real fish keeps its body */ /* a real family: the new waters' random body (cq_traits) leaves it alone */
   // element touches from the area
   if(sp.loc==='ember'&&!has('jelly')) d.ember=1; if(sp.loc==='starfall') d.cosmic=1; if(sp.loc==='frost') d.frost=1; if(sp.loc==='trench'||sp.loc==='deep') d.deepsea=1;
   if(has('glow','lantern','light','firefly','aurora','neon','twinkle','star','comet','pulsar','galaxy','nebula')) d.glow=1;

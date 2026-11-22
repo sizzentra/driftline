@@ -51,6 +51,7 @@ function v3fishRing(P,t,hz,per,x0,x1){ const k=(t%per)/per, i=Math.floor(t/per),
 // STONEBROOK RIVER: fresh morning, a stone arch bridge, a mossy waterwheel mill,
 // fast current lines, foam around rocks, a kingfisher, a heron, leaping trout
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_river.js
 V3PAL.river = {
   day:  {top:'#6aa6d8', mid:'#a8d0ec', bot:'#eef0e2', glow:'#fff6d8', far:'#9ab8b0', farHaze:'#d0e2dc', hill:'#6a9a5e', back:'#4f8050', front:'#36603c', bank:'#5a8a4e', wTop:'#a8d4d8', wMid:'#5a9aa4', wBot:'#28525e', rim:'#fff4cc', stone:'#bab2a2', stoneD:'#8a8478', roof:'#7a4a3a', wood:'#7a5a3e', leaf:'#6aa65a', leafHi:'#c8e89a', cloud:'#ffffff', cloudLit:'#fff4e0', cabin:'#8a6a4a'},
   dusk: {top:'#2a2a5a', mid:'#c0607a', bot:'#ffc890', glow:'#ffd090', far:'#8a6a8e', farHaze:'#e89a98', hill:'#4a4a6a', back:'#3a3a5e', front:'#2a2a48', bank:'#3a3a5a', wTop:'#f0a088', wMid:'#7a5a86', wBot:'#1e2446', rim:'#ffc890', stone:'#9a8a98', stoneD:'#6a5a70', roof:'#5a3040', wood:'#5a3a3a', leaf:'#4a5a5a', leafHi:'#ffc08a', cloud:'#c87090', cloudLit:'#ffc8a0', cabin:'#5a4050'},
@@ -61,6 +62,7 @@ V3PAL.river = {
 // SALTMARSH COAST: breezy sea air, dunes with marram grass, a striped lighthouse on a rocky
 // headland whose beam sweeps at dusk, rolling waves with foam, gulls, a crab on the pier
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_coast.js
 V3PAL.coast = {
   day:  {top:'#5aa8e0', mid:'#9cd0ee', bot:'#e8f4f0', glow:'#fffbe8', far:'#9ec4c8', farHaze:'#d8ecec', sand:'#e8d6a4', sandD:'#c8b07a', grass:'#8aa85a', wTop:'#9adcd8', wMid:'#3aa0a8', wBot:'#145a6a', rim:'#fffae0', stone:'#9a948a', stoneD:'#6a665e', lh:'#f4f0e6', lhS:'#c8483a', leaf:'#7a9a4a', leafHi:'#c8e08a', cloud:'#ffffff', cloudLit:'#fff8ea', wood:'#8a6a4a'},
   dusk: {top:'#2a2c5e', mid:'#d0687a', bot:'#ffcf8a', glow:'#ffd890', far:'#8a6a8a', farHaze:'#f0a08e', sand:'#c89a8a', sandD:'#8a6a7a', grass:'#6a6a5a', wTop:'#f8b088', wMid:'#8a5a88', wBot:'#1c2448', rim:'#ffcf90', stone:'#7a6a7a', stoneD:'#4a3a54', lh:'#f0d0c0', lhS:'#a8384a', leaf:'#5a5a50', leafHi:'#ffc890', cloud:'#d07890', cloudLit:'#ffd0a0', wood:'#5a3a3a'},
@@ -72,6 +74,7 @@ const V3CN=v3noise(17);
 // FROSTBITE LAKE: blue hour over a frozen lake, snowy pines, an ice-fishing hut with a smoking
 // stovepipe, an aurora rippling overhead, falling snow, glinting cracks, an owl and an arctic fox
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_frost.js
 V3PAL.frost = {
   day:  {top:'#6a8ad0', mid:'#a8bce8', bot:'#e8e4f4', glow:'#fff4f0', far:'#a0aad8', farHaze:'#dcdcf0', hill:'#c8d0ec', back:'#3e5a78', front:'#2a4058', snow:'#f6f8ff', snowD:'#b8c4e4', ice:'#d8e8f6', iceD:'#8aaad0', wTop:'#a8c0e0', wMid:'#4a6a9a', wBot:'#1a2a4a', rim:'#fff4ea', wood:'#7a5440', roof:'#5a3a30', leaf:'#3e5a78', cloud:'#f4f4ff', cloudLit:'#ffffff', aur:'#7af0b0'},
   dusk: {top:'#1e1e50', mid:'#8a5a9e', bot:'#f0a0b0', glow:'#ffc8b8', far:'#6a5a96', farHaze:'#c890b0', hill:'#9a88b8', back:'#2a2a4e', front:'#1e1e3a', snow:'#f0d8e8', snowD:'#9a88b8', ice:'#d8c0dc', iceD:'#7a6aa0', wTop:'#d8a0c0', wMid:'#5a4a86', wBot:'#141a3a', rim:'#ffd0c0', wood:'#5a3a3a', roof:'#40263a', leaf:'#2a2a4e', cloud:'#b07aa0', cloudLit:'#ffc8c0', aur:'#8af0c0'},
@@ -84,6 +87,7 @@ function v3snowPine(c,x,base,h,P,rimA){ v3pine(c,x,base,h,P.back,P.rim,rimA); co
 // CORAL SHALLOWS: tropical noon, turquoise water so clear the reef shows through, caustic light
 // dancing on the sand, palms with a hammock, a beach hut on stilts, a turtle and parrots
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_reef.js
 V3PAL.reef = {
   day:  {top:'#2a9ae8', mid:'#6ccaf4', bot:'#d8f6f8', glow:'#fffcea', far:'#5aa88a', farHaze:'#b8e8e0', isl:'#3a8a5a', sand:'#f4e2b0', sandD:'#d8bc80', wTop:'#7ae8e0', wMid:'#18b0c0', wBot:'#0a6a8a', rim:'#fffbe0', trunk:'#9a7a52', frond:'#3a9a4a', frondD:'#22703a', hut:'#c89a5a', thatch:'#d8b46a', coral:'#ff7a6a', coral2:'#ffb84a', coral3:'#c86ad8', cloud:'#ffffff', cloudLit:'#fffaf0', leaf:'#3a9a4a'},
   dusk: {top:'#2a2a6a', mid:'#e0607a', bot:'#ffc070', glow:'#ffd080', far:'#6a4a6a', farHaze:'#f09a8a', isl:'#4a3a5a', sand:'#e8b090', sandD:'#a87a7a', wTop:'#ffa888', wMid:'#a05a8a', wBot:'#2a2058', rim:'#ffd090', trunk:'#6a4a40', frond:'#3a4a4a', frondD:'#2a3040', hut:'#8a5a50', thatch:'#a87a60', coral:'#ff8a7a', coral2:'#ffb070', coral3:'#c070c0', cloud:'#e07890', cloudLit:'#ffd0a0', leaf:'#3a4a4a'},
@@ -102,6 +106,7 @@ function v3palm(c,x,base,h,lean,P,seed){ const r=v3rng(seed), tx=x+lean*h, ty=ba
 // BRINE SHELF: open sea at golden hour, nothing but water to the horizon, a big slow swell that
 // tilts the world, a tall ship sailing far off, a bell buoy, dolphins and an albatross
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_shelf.js
 V3PAL.shelf = {
   day:  {top:'#4a8ad0', mid:'#9cc4e4', bot:'#ffe8b8', glow:'#fff0c0', far:'#c8b8a0', farHaze:'#f8dcb0', wTop:'#a8d0d8', wMid:'#2a7a9a', wBot:'#0c3a5a', rim:'#fff0c8', ship:'#5a5060', sail:'#f4ead8', cloud:'#ffffff', cloudLit:'#fff0d0', buoy:'#d8483a', leaf:'#5a7a6a'},
   dusk: {top:'#2a2458', mid:'#e0705a', bot:'#ffc060', glow:'#ffcc70', far:'#a86a6a', farHaze:'#ffb070', wTop:'#ffb070', wMid:'#8a4a6a', wBot:'#1a1a40', rim:'#ffd080', ship:'#3a2a3a', sail:'#ffd8b0', cloud:'#e0708a', cloudLit:'#ffd0a0', buoy:'#c8383a', leaf:'#3a3a4a'},
@@ -112,6 +117,7 @@ V3PAL.shelf = {
 // MIDNIGHT DEEP: far offshore in weather, low storm clouds racing, lightning that lights the whole sea,
 // rain sheets slanting past, a huge swell, the trawler's floodlights, a whale tail in the swell
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_deep.js
 V3PAL.deep = {
   day:  {top:'#3a4a5e', mid:'#6a7a8a', bot:'#a8b0b4', glow:'#e8ecf0', far:'#4a5866', farHaze:'#8a96a0', wTop:'#6a8290', wMid:'#2a4256', wBot:'#0a1826', rim:'#d8e0e8', cl1:'#4a5662', cl2:'#2e3a46', cloud:'#6a7682', cloudLit:'#9aa6b0', leaf:'#2a3a4a'},
   dusk: {top:'#1e1a36', mid:'#4a3048', bot:'#c8704a', glow:'#ff9a5a', far:'#3a2a3e', farHaze:'#7a4a4a', wTop:'#8a5a5a', wMid:'#2a2240', wBot:'#08081a', rim:'#ffb080', cl1:'#3a2a3e', cl2:'#221a2e', cloud:'#4a3448', cloudLit:'#a8606a', leaf:'#1a1a2a'},
@@ -122,6 +128,7 @@ V3PAL.deep = {
 // HOLLOW TRENCH: eerie twilight over black water, sea stacks in the mist, the mast of a sunken ship,
 // glowing jellyfish drifting below, plankton trails, a dark middle that swallows light, eyes in the deep
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_trench.js
 V3PAL.trench = {
   day:  {top:'#1e3a48', mid:'#3a6a70', bot:'#8ab0a8', glow:'#d8f0e8', far:'#2a4a52', farHaze:'#5a8a88', rock:'#2a3e46', rockD:'#162630', wTop:'#3a6a70', wMid:'#123a44', wBot:'#020e14', rim:'#b8e8dc', bio:'#5afff0', bio2:'#a080ff', wood:'#3a3a38', cloud:'#4a6a70', cloudLit:'#7aa0a0', leaf:'#1a3a3a'},
   dusk: {top:'#1a1a3a', mid:'#3a3a5e', bot:'#7a6a8a', glow:'#e0c0e0', far:'#2a2844', farHaze:'#5a5276', rock:'#24223a', rockD:'#141428', wTop:'#4a4a6e', wMid:'#14163a', wBot:'#03030e', rim:'#d8c0ff', bio:'#6afff0', bio2:'#c080ff', wood:'#2e2a34', cloud:'#3a3656', cloudLit:'#7a6a9a', leaf:'#1a1a2e'},
@@ -143,6 +150,7 @@ function v3stack(c,x,base,w,h,P,seed){ const r=v3rng(seed), L=[], R=[], n=11;
 // EMBER SPRINGS: a volcanic valley, a smouldering volcano with glowing veins, stone terraces of hot pools,
 // steam lifting off warm water, embers drifting up, glowing moths, a fire salamander
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_ember.js
 V3PAL.ember = {
   day:  {top:'#6a5a6a', mid:'#b88a7a', bot:'#f0c8a0', glow:'#ffe0b0', far:'#6a5050', farHaze:'#c89a88', rock:'#4a3a3a', rockD:'#2a2024', terr:'#7a6258', wTop:'#e8b090', wMid:'#8a5a5a', wBot:'#2a1a20', rim:'#ffd8b0', lava:'#ff7a2a', lava2:'#ffc04a', pool:'#7ad8d0', cloud:'#9a8080', cloudLit:'#e8c0a0', leaf:'#4a5a3a'},
   dusk: {top:'#2a1430', mid:'#8a2a3a', bot:'#ff7a3a', glow:'#ffa060', far:'#3a1a24', farHaze:'#a84a3a', rock:'#2e1c22', rockD:'#180e14', terr:'#5a3a38', wTop:'#ff9060', wMid:'#6a2a3a', wBot:'#1a0a14', rim:'#ffb070', lava:'#ff6a1a', lava2:'#ffb030', pool:'#6ab8b8', cloud:'#5a2a34', cloudLit:'#d06040', leaf:'#2e2a24'},
@@ -154,6 +162,7 @@ V3PAL.ember = {
 // floating islands with waterfalls, crystal spires, shooting stars that fall into the water, light wisps,
 // and a constellation of a fish that slowly draws itself
 // =====================================================================
+// its colours below; the scene and everything drawn on it: src/w_starfall.js
 V3PAL.starfall = {
   day:  {top:'#4a4aa8', mid:'#9a8ad8', bot:'#f0d8f0', glow:'#fff4ff', far:'#c8b8e8', farHaze:'#f0e0f8', cloudSea:'#f4ecfa', cloudSh:'#c8b8e0', isl:'#5a8a6a', islD:'#4a3a5a', wTop:'#c8b0f0', wMid:'#6a5ab0', wBot:'#1a1440', rim:'#fff0ff', cry:'#b88aff', cry2:'#7ae0ff', planet:'#f0b890', ring:'#e8d0ff', star:'#ffffff', cloud:'#ffffff', cloudLit:'#fff4ff', leaf:'#5a8a6a'},
   dusk: {top:'#1a1040', mid:'#7a3a8a', bot:'#ff9ab0', glow:'#ffd0e0', far:'#7a5a9a', farHaze:'#e8a0c0', cloudSea:'#f0b8c8', cloudSh:'#8a6a9a', isl:'#4a5a5a', islD:'#2e2440', wTop:'#e8a0d0', wMid:'#4a2a7a', wBot:'#0e0828', rim:'#ffd8f0', cry:'#c890ff', cry2:'#8ae8ff', planet:'#ffb080', ring:'#ffd0e8', star:'#ffffff', cloud:'#d890b0', cloudLit:'#ffd8e0', leaf:'#4a5a5a'},

@@ -92,7 +92,7 @@ body.pc-fhd #panel.st-on .st-pick button{display:flex;flex-direction:column;alig
 body.pc-fhd #panel.st-on .st-pick button b{font:800 12px var(--display,system-ui);color:#cfe0f2}
 body.pc-fhd #panel.st-on .st-pick button span{font-size:11.5px;color:#8fa6bf}
 body.pc-fhd #panel.st-on .st-pick button:hover{border-color:#7fe3c4aa}
-body.pc-fhd #panel.st-on .st-pick button[aria-pressed="true"]{background:linear-gradient(180deg,#1f8a86,#14666a);border-color:#7fe3c4}
+body.pc-fhd #panel.st-on .st-pick button[aria-pressed="true"]{background:linear-gradient(180deg,#197a76,#14666a);border-color:#7fe3c4}
 body.pc-fhd #panel.st-on .st-pick button[aria-pressed="true"] b,body.pc-fhd #panel.st-on .st-pick button[aria-pressed="true"] span{color:#fff}
 /* Skills: no unexplained counts beside the column titles (your skill points sit at the top right) */
 body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
@@ -107,19 +107,24 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
    waterwheel or the lantern itself, not a tiny whole home. The other features stay as chosen; choices are always put back. */
 function dkWith(el,val,fn){ const had=S.dock.el&&Object.prototype.hasOwnProperty.call(S.dock.el,el), keep=had?S.dock.el[el]:null;
   try{ S.dock.el=S.dock.el||{}; S.dock.el[el]=val; return fn(); } finally{ if(had) S.dock.el[el]=keep; else delete S.dock.el[el]; } }
+const DK_PV=new Map(); /* the open feature's style pictures and the part that changes, by water, feature and choices (not card size): a re-render after a click or a resize only redraws the cards (/simplify, 2026-11-22) */
 function dkPreviews(){ const P=$('panel'), L=LOCS[locIdx(S.loc)], Pal=v3palette.v, sp=hfSpec(S.loc); if(!P||!Pal||!HF_LAST||!S.dock||!sp) return; const dockY=HF.dockY(), groups={};
   P.querySelectorAll('.dk-sty').forEach(b=>{ const c=b.querySelector('canvas'); if(c&&c.offsetParent) (groups[b.dataset.k]=groups[b.dataset.k]||[]).push(b); });
   for(const el in groups){ const bs=groups[el], c0=bs[0].querySelector('canvas'), r=c0.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) continue;
-    const cur=hfChoice(S.loc,el), sig=[S.loc,el,w,h,...sp.els.map(e=>e.id===el?cur[1]:hfChoice(S.loc,e.id).join('.'))].join('|'); if(bs.every(b=>b.querySelector('canvas').dataset.sig===sig)) continue;
-    try{ const OW=1200, OH=750, f=hfFrame({width:OW,height:OH},0), k=OW/f.sw;
-      const imgs=bs.map(b=>{ const o=document.createElement('canvas'); o.width=OW; o.height=OH; dkWith(el,[+b.dataset.v,cur[1]],()=>{ const x=o.getContext('2d'); x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,Pal,0,dockY,k,':pv'); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); }); return o; });
-      const D=imgs.map(o=>o.getContext('2d').getImageData(0,0,OW,OH).data); let x0=OW,y0=OH,x1=-1,y1=-1;
-      for(let y=0;y<OH;y+=3) for(let x=0;x<OW;x+=3){ const i=(y*OW+x)*4; for(let j=1;j<D.length;j++){ const a=D[0], q=D[j]; if(Math.abs(a[i]-q[i])+Math.abs(a[i+1]-q[i+1])+Math.abs(a[i+2]-q[i+2])+Math.abs(a[i+3]-q[i+3])>40){ if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1) y1=y; break; } } }
-      let bx=0, by=0, bw=OW, bh=OH, ar=w/h; if(x1>=x0){ bw=x1-x0; bh=y1-y0; const pad=Math.max(bw,bh)*.22+16; bx=x0-pad; by=y0-pad; bw+=pad*2; bh+=pad*2; }
+    const cur=hfChoice(S.loc,el), key=[S.loc,el,...sp.els.map(e=>e.id===el?cur[1]:hfChoice(S.loc,e.id).join('.'))].join('|'), sig=key+'|'+w+'|'+h; if(bs.every(b=>b.querySelector('canvas').dataset.sig===sig)) continue;
+    try{ const OW=1200, OH=750; let pv=DK_PV.get(key);
+      if(!pv){ const f=hfFrame({width:OW,height:OH},0), k=OW/f.sw; let hr=null; const imgs={};
+        for(const b of bs){ const v=+b.dataset.v, o=document.createElement('canvas'); o.width=OW; o.height=OH; dkWith(el,[v,cur[1]],()=>{ const x=o.getContext('2d'); x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,Pal,0,dockY,k,':pv'+v); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); if(!hr) hr=hc; }); imgs[v]=o; }
+        /* only the home's own area is read back and compared (sample grid kept on multiples of 3, so the box is the same as a full-frame scan) */
+        const rx=Math.max(0,Math.floor((hr.x-f.sx)*k/3)*3), ry=Math.max(0,Math.floor((hr.y-f.sy)*k/3)*3), rw=Math.min(OW,Math.ceil((hr.x+hr.w-f.sx)*k))-rx, rh=Math.min(OH,Math.ceil((hr.y+hr.h-f.sy)*k))-ry;
+        const D=bs.map(b=>imgs[+b.dataset.v].getContext('2d').getImageData(rx,ry,Math.max(1,rw),Math.max(1,rh)).data); let x0=OW,y0=OH,x1=-1,y1=-1;
+        for(let y=0;y<rh;y+=3) for(let x=0;x<rw;x+=3){ const i=(y*rw+x)*4; for(let j=1;j<D.length;j++){ const a=D[0], q=D[j]; if(Math.abs(a[i]-q[i])+Math.abs(a[i+1]-q[i+1])+Math.abs(a[i+2]-q[i+2])+Math.abs(a[i+3]-q[i+3])>40){ const X=x+rx, Y=y+ry; if(X<x0) x0=X; if(X>x1) x1=X; if(Y<y0) y0=Y; if(Y>y1) y1=Y; break; } } }
+        if(DK_PV.size>12) DK_PV.clear(); DK_PV.set(key,pv={imgs,box:x1>=x0?[x0,y0,x1,y1]:null}); }
+      let bx=0, by=0, bw=OW, bh=OH, ar=w/h; if(pv.box){ const [x0,y0,x1,y1]=pv.box; bw=x1-x0; bh=y1-y0; const pad=Math.max(bw,bh)*.22+16; bx=x0-pad; by=y0-pad; bw+=pad*2; bh+=pad*2; }
       if(bw/bh<ar){ const nw=bh*ar; bx-=(nw-bw)/2; bw=nw; } else { const nh=bw/ar; by-=(nh-bh)/2; bh=nh; }
       if(bw>OW||bh>OH){ const s=Math.min(OW/bw,OH/bh); bx+=bw*(1-s)/2; by+=bh*(1-s)/2; bw*=s; bh*=s; } bx=Math.max(0,Math.min(OW-bw,bx)); by=Math.max(0,Math.min(OH-bh,by));
-      bs.forEach((b,i)=>{ const c=b.querySelector('canvas'); if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0);
-        const gr=x.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#2a4a66'); gr.addColorStop(1,'#14283c'); x.fillStyle=gr; x.fillRect(0,0,w,h); x.imageSmoothingQuality='high'; x.drawImage(imgs[i],bx,by,bw,bh,0,0,w,h); c.dataset.sig=sig; }); }
+      bs.forEach(b=>{ const c=b.querySelector('canvas'), img=pv.imgs[+b.dataset.v]; if(!img) return; if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0);
+        const gr=x.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#2a4a66'); gr.addColorStop(1,'#14283c'); x.fillStyle=gr; x.fillRect(0,0,w,h); x.imageSmoothingQuality='high'; x.drawImage(img,bx,by,bw,bh,0,0,w,h); c.dataset.sig=sig; }); }
     catch(e){ console.error(e); } } }
 { const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
@@ -215,7 +220,7 @@ body.pc-fhd #panel .wdx-card .wd-items{grid-template-columns:repeat(auto-fill,mi
 // ---------- the header: every category button in the same teal "you can click me" style as Cooler / Aquarium / Fish Log / Stats ----------
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #pchead #catdock{gap:6px!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
-html body.pc-fhd #pchead #catdock .cdb{flex-direction:row!important;gap:8px!important;height:42px!important;min-width:0!important;padding:0 16px!important;border-radius:12px!important;background:linear-gradient(180deg,#1f8a86,#14666a)!important;border:1px solid #7fe3c4!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff33,0 3px 0 #0b3a3a,0 4px 10px #0008!important}
+html body.pc-fhd #pchead #catdock .cdb{flex-direction:row!important;gap:8px!important;height:42px!important;min-width:0!important;padding:0 16px!important;border-radius:12px!important;background:linear-gradient(180deg,#197a76,#14666a)!important;border:1px solid #7fe3c4!important;color:#fff!important;box-shadow:inset 0 1px 0 #ffffff33,0 3px 0 #0b3a3a,0 4px 10px #0008!important}
 html body.pc-fhd #pchead #catdock .cdb .cdl{font:800 14px var(--display,system-ui)!important;color:#fff!important}
 html body.pc-fhd #pchead #catdock .cdb svg{color:#e6fff6!important}
 html body.pc-fhd #pchead #catdock .cdb:hover{background:linear-gradient(180deg,#26a39e,#187a7e)!important;box-shadow:inset 0 1px 0 #ffffff40,0 3px 0 #0b3a3a,0 0 0 3px #7fe3c433,0 4px 12px #000a!important}

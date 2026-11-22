@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fish named after a real fish (tuna, mackerel, marlin, sole, moonfish, puffer and many more) now have that fish’s body in the newer waters, instead of a random shape.',
+  'The main teal buttons are a touch deeper, so their white text is easier to read.',
   'Behind the scenes: every water’s drawing now lives in a file of its own (20 files), checked to draw pixel for pixel the same at day and at night. Nothing should look different; tell us if anything does.',
   '## Test build 1447',
   'Fish no longer wear their water’s costume: the headdresses, ankhs, laurels, ties, glasses, ears, horns, food toppings and circuit lines are gone. Every fish is drawn as just the fish.',

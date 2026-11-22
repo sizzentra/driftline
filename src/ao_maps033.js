@@ -7,8 +7,8 @@
 // =====================================================================
 const M33={};
 // one owner per water and hook (Clean Scenes 5, batch 7): the original hook first, then every extra in the order the files added it.
-// It replaced 96 nested wrappers (one per extra and water); same order, same size guard, same error report, one call per hook. Proven 2026-11-22: every water drawn at a frozen time is pixel-identical to the nested version rebuilt from list.base (kept for that proof).
-function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const X=S0.__x||(S0.__x={}); if(!X[hook]){ const list=X[hook]=[], old=list.base=S0[hook];
+// It replaced 96 nested wrappers (one per extra and water); same order, same size guard, same error report, one call per hook. Proven 2026-11-22: every water drawn at a frozen time is pixel-identical to the nested version.
+function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const X=S0.__x||(S0.__x={}); if(!X[hook]){ const list=X[hook]=[], old=S0[hook];
     S0[hook]=function(){ if(old) old.apply(this,arguments); if(!(W>8&&H>8)||window.__noExtras) return; /* never draw extras on a zero-size canvas (some loops step by a fraction of W) */
       for(const f of list){ try{ f.apply(this,arguments); }catch(e){ if(!M33.err){ M33.err=1; console.error(e); } } } }; }
   X[hook].push(fn); }
@@ -16,45 +16,17 @@ function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const X=S0.
 function m33reflect(x,hz,depth,alpha,col,pathFn){ x.save(); x.beginPath(); x.rect(0,hz,W,depth); x.clip(); x.translate(0,hz*2); x.scale(1,-1); x.globalAlpha=alpha; x.fillStyle=col; pathFn(); x.fill(); x.restore(); }
 const m33dot=(c,x,y,r,col)=>{ c.fillStyle=col; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };
 
-// ---------------------------------------------------------------------
-// SALTMARSH COAST: a cliffed headland with a fishing village on the left, a sailboat on the horizon,
-// a seal basking on a rock, and tide-pool rocks with weed and a starfish in front
-// ---------------------------------------------------------------------
+// ---------- shapes the water files draw with (their scenes and moments: src/w_<id>.js) ----------
+// Saltmarsh Coast (w_coast.js): the headland and the village houses on it
 M33.headland=(c,hz)=>{ c.beginPath(); c.moveTo(-2,hz+1); c.lineTo(-2,hz-H*.072); c.bezierCurveTo(W*.05,hz-H*.086,W*.12,hz-H*.07,W*.18,hz-H*.064); c.bezierCurveTo(W*.21,hz-H*.062,W*.235,hz-H*.058,W*.246,hz-H*.05); c.lineTo(W*.252,hz-H*.03); c.lineTo(W*.262,hz-H*.016); c.lineTo(W*.27,hz+1); c.closePath(); };
 M33.houses=[[.04,.016,'#d8483a'],[.062,.02,'#3a6f9a'],[.086,.017,'#c8853a'],[.132,.019,'#4f8a4a'],[.155,.016,'#d8483a'],[.176,.018,'#7a5a9a']];
-
-// ---------------------------------------------------------------------
-// OPEN SHELF: a far island with a sea arch, a whale that surfaces and blows, drifting kelp with a
-// gull riding it, and a big swell rolling in along the bottom
-// ---------------------------------------------------------------------
+// Brine Shelf (w_shelf.js): the far island with its sea arch
 M33.island=(c,hz)=>{ const x0=W*.3; c.beginPath(); c.moveTo(x0,hz+1); c.bezierCurveTo(x0+W*.015,hz-H*.02,x0+W*.03,hz-H*.042,x0+W*.06,hz-H*.046); c.bezierCurveTo(x0+W*.085,hz-H*.048,x0+W*.1,hz-H*.03,x0+W*.11,hz-H*.024); c.lineTo(x0+W*.118,hz-H*.024); c.bezierCurveTo(x0+W*.124,hz-H*.03,x0+W*.13,hz-H*.03,x0+W*.134,hz-H*.022); c.lineTo(x0+W*.14,hz+1); c.closePath(); };
-
-// ---------------------------------------------------------------------
-// MIDNIGHT DEEP: a far rock pillar taking the spray, a cargo ship pitching on the horizon with its
-// lights on, lightning you can actually see, and whitecaps on every crest
-// ---------------------------------------------------------------------
+// Midnight Deep (w_deep.js): the far rock pillar
 M33.pillar=(c,hz)=>{ const x0=W*.33; c.beginPath(); c.moveTo(x0,hz+1); c.lineTo(x0+W*.004,hz-H*.05); c.lineTo(x0+W*.012,hz-H*.062); c.lineTo(x0+W*.022,hz-H*.056); c.lineTo(x0+W*.028,hz-H*.03); c.lineTo(x0+W*.034,hz+1); c.closePath(); };
-
-// ---------------------------------------------------------------------
-// FROSTBITE LAKE: an ice-fishing camp on the far ice (two tents, tip-up flags, a snowman), smoke from a
-// tent stove, and the ice shelf you stand on gets layers, trapped bubbles and a fish frozen in the ice
-// ---------------------------------------------------------------------
-// ---------------------------------------------------------------------
-// EMBER SPRINGS: steaming lava islets with glowing cracks out on the lake, bubbling vents, and warm
-// pumice stones bobbing in the foreground
-// ---------------------------------------------------------------------
+// Ember Springs (w_ember.js): the steaming lava islets
 M33.islets=[[.38,.1,.05,.018],[.86,.19,.065,.024],[.6,.33,.04,.016]];
 M33.islet=(c,hz,i)=>{ const [ix,iy,iw,ih]=M33.islets[i], X=W*ix, Y=hz+H*iy, w=W*iw, h=H*ih; c.beginPath(); c.moveTo(X-w,Y); c.lineTo(X-w*.7,Y-h*.7); c.lineTo(X-w*.3,Y-h); c.lineTo(X+w*.1,Y-h*.8); c.lineTo(X+w*.5,Y-h*1.05); c.lineTo(X+w*.85,Y-h*.5); c.lineTo(X+w,Y); c.closePath(); };
-
-// ---------------------------------------------------------------------
-// STONEBROOK RIVER: a pair of otters that pop up and play (the moored rowboat now sits at the mill jetty, cc_river06.js)
-// ---------------------------------------------------------------------
-
-// ---------------------------------------------------------------------
-// MOONLIT TRENCH: drifting ribbons of glowing plankton that brighten where your float stirs the water
-// ---------------------------------------------------------------------
-
-// river leaves carried down the current, turning slowly, wrapping well off screen so they never pop
 
 // ---------- Starfall waterfalls: a ribbon that widens and shimmers as it falls, then lands properly in the cloud sea
 // with billowing mist, droplets arcing out, spreading rings and a few glints
