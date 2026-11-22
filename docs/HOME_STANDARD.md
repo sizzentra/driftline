@@ -17,7 +17,7 @@ One job: what every home is, how it is built, what the player can change. Part o
 - **A free zone above and behind the deck** for each home's own shape (sail, roof, arch), inside a set box that never blocks the casting water.
 
 ## What the player customises
-- **6 features per home (director, 2026-11-21):** the **light** and the **seat** on every home (resting sits the angler in it, pets sit with them), plus **4 features that fit that home** (a dock: deck, supports, rail, canopy; the reed boat: hull, sail, cabin, canopy). Every home's features and styles: `docs/HOME_DESIGNS.md`. Decorations no longer exist.
+- **6 features per home:** the **seat** on every home (resting sits the angler in it), plus **5 features made for that water from its description** (director, 2026-11-22: only the seat is shared; Willow Pond keeps light, deck, posts, rail, canopy). One feature per home carries its light at night. Every home's features and styles: `docs/HOME_DESIGNS.md`. Decorations no longer exist.
 - **3 real styles per element**, each fitting the map (no neon at Willow Pond, no rustic lantern at Circuit Lake). **Nothing is no choice:** an element that offers \
 - **One colour list per home, at least 16 colours, shared by every feature** (director, 2026-11-21: so parts can be set to the same shade), taken from the water's palette in `docs/MAP_THEMES.md`; phones show 8 per row (2 full rows).
 - **No unlocking:** as soon as a water is reached, its home and every style and colour are free to use.
