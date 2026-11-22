@@ -10,7 +10,7 @@
 { const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='cooler') return r; const P=$('panel'); if(!P) return r;
       const t=P.querySelector('.sellf .fld-title'); if(t) t.textContent='Sell all:';
       const inp=P.querySelector('.sellf [data-sp]'); if(inp) inp.placeholder='Max price';
-      const sh=P.querySelector('.sellf [data-ssh]'); if(sh&&!sh.dataset.mb8){ sh.dataset.mb8='1'; sh.innerHTML='<span class="ssh-star" aria-hidden="true">✦</span> Shinies'; }
+      const sh=P.querySelector('.sellf [data-ssh]'); if(sh&&!sh.dataset.mb8){ sh.dataset.mb8='1'; sh.innerHTML='<span class="ssh-star" aria-hidden="true">✦</span> Shinies'; } const hy=P.querySelector('.sellf [data-shy]'); if(hy&&!hy.dataset.mb8){ hy.dataset.mb8='1'; hy.innerHTML='<span class="ssh-star" aria-hidden="true">×</span> Hybrids'; }
       const dm=[...P.querySelectorAll('.tile')].find(x=>/fishmonger wants/i.test(x.textContent)); if(dm) dm.classList.add('cl8-dm');
     }catch(e){ console.error(e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>

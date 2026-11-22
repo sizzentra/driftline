@@ -17,7 +17,7 @@ function uiTidy(P){ if(!P) return; const t=S.tab;
   if(t==='cooler'){ const f=P.querySelector('.sellf'); if(f&&!f.classList.contains('lab')){ f.classList.add('lab'); const s=f.querySelector(':scope > .meta'); if(s) s.remove();
       const wrap=(el,l)=>{ if(!el) return; const d=document.createElement('div'); d.className='fld'; d.innerHTML=`<span class="fld-l">${l}</span>`; el.parentNode.insertBefore(d,el); d.appendChild(el); };
       wrap(f.querySelector('[data-sf="sellR"]'),'Rarity'); const pr=f.querySelector('.sellp'); if(pr){ const sp=pr.querySelector('span'); if(sp) sp.remove(); wrap(pr,'Price under'); const x=f.querySelector('[data-spclear]'); if(x) pr.parentNode.appendChild(x); }
-      wrap(f.querySelector('[data-ssh]'),'Shinies');
+      wrap(f.querySelector('[data-ssh]'),'Shinies'); wrap(f.querySelector('[data-shy]'),'Hybrids');
       f.insertAdjacentHTML('afterbegin','<div class="fld-title">Sell all: what to sell</div>'); } }
   // any text box without a name gets one read out by screen readers and shown as a title
   P.querySelectorAll('input[type=text]:not([aria-label]):not([id])').forEach(i=>{ if(!i.closest('label')&&!(i.previousElementSibling&&/LABEL|SPAN|B/.test(i.previousElementSibling.tagName))) i.setAttribute('aria-label',i.placeholder||'Text'); }); }
@@ -95,7 +95,7 @@ if(/[?&]test\b/.test(location.search)) window.__search=q=>searchFind(q).map(e=>e
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 .ctl-l{display:block;font:800 11px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#97abc2;margin:10px 0 6px}
-.sellf.lab{display:grid;grid-template-columns:auto auto auto;align-items:end;gap:10px 14px;margin:6px 0 10px;padding:10px 12px;border:1px solid var(--line,#26385180);border-radius:14px;background:#0e1828}
+.sellf.lab{display:grid;grid-template-columns:auto auto auto auto;align-items:end;gap:10px 14px;margin:6px 0 10px;padding:10px 12px;border:1px solid var(--line,#26385180);border-radius:14px;background:#0e1828}
 .sellf.lab .fld-title{grid-column:1/-1;font:800 13px var(--display,system-ui);color:var(--ink,#eef3f8)}
 .sellf.lab .fld{display:flex;flex-direction:column;gap:5px;min-width:0}
 .sellf.lab .fld-l{font:800 10.5px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#97abc2}
