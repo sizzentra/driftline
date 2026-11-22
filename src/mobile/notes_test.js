@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  '## Test build 2301',
   'Wardrobe › Tide Pass: the aura previews are bigger and stay bright while locked, so you can see each aura before you reach it.',
   'Empty Cooler: a picture, what the Cooler is for, and a Go fishing button instead of a mostly blank page.',
   'Boardwalk: Mystery crates has a picture like the other games, and Higher or lower keeps its picture after a game.',
