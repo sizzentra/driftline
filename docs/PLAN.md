@@ -18,19 +18,19 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☐ Re-run Run every check on both phones once the tool is fixed, and read the game findings (director, 2026-11-20). Fixes from the first reports (build 2035): Bounties sideways row confirmed fixed on the iPhone (director); Market Rush with the Merchant Path and the phone Bait card counted as fixed until the next reports (Market Rush can only be tested while one is on).
 - ☐ The Pixel reports its real screen as 924×412 (the checks used 915×412 for Android before); the sweep now uses the real size on phones. Keep.
 **Shelved for the next build** (director, 2026-11-20: "we want them in the build, but shelf them for now")
-- ☐ Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
-- ☐ Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
+- ☑ (batch 2, 2026-11-21, test builds) Fishmonger's Gamble, empty cooler, phones only: idle picture row 🐟 ⚖️ 🪙 above "Your cooler is empty…", like the other cards' idle art (before/after shown 2026-11-20, pictures in `tools/shots/gamble/`). PC stays as it is (no room: the picture pushed the message out of the card).
+- ☑ (batch 2: buttons two to a row, name shortens, price never; result aligned; feel call) Fishmonger's Gamble after a play (Android, likely iPhone): the result line pushes the 4 fish buttons down so the card is taller than the screen, and the centred result line sits over left-aligned buttons. Options to show the director first: a shorter result line, or the buttons in two columns.
 - ☑ (fixed with the Boardwalk cards, 2026-11-20) PC Boardwalk › Games at 1920×1080 (test build): Mystery crates card text overlaps ("Small crate" over the description) and the Legendary crate row spills below the card. A bug, not a look choice: fix it with this batch, check whether live has it too.
 
 **Found by the content check, first run (2026-11-20; all confirmed by measuring and pictures)**
 - ✔ **Live and test, PC full HD:** Rods › "In your hands" was squeezed to the screen and hid its Upgrade button and attachment slot. Fixed in the test builds and live as hotfix 0.4.8.9.5 (PC only, 2026-11-20, director: "Push it live. It looks great"). Pictures: `tools/shots/rodslot/`.
 - ☑ (fixed 2026-11-20: cards grow with their content, the games area scrolls) **Test, PC 1920×1080, Boardwalk › Games:** the cards have one fixed height, so content spills: Treasure chests' "Open" button sits under the Counter specials section (can't be clicked); Coin flip's 50% button and the Gamble fish buttons hang over the card edge; after a game is played, results overlap buttons on most cards (Duck pond, Scratch card, Claw machine, Gamble, Treasure chests). One cause, one fix (cards grow with their content). 1440×900 and 1024×640 are fine.
 - ☑ (fixed 2026-11-20: milestones one per row) **Test, PC all sizes:** Map › Set sail again › Voyage milestones are squeezed into a narrow column (one word per line) and "after N voyages" is printed over the descriptions (like the old Boons bug, #114).
-- ☐ **Decision (rule 4, pictures in a group):** Boardwalk › Mystery crates has no picture on every platform (7 of 9 game cards have one); Higher or lower loses its picture after a game on PC. Picture or listed exception.
+- ☑ (batch 2: Mystery crates got a picture, Higher or lower keeps its picture after a game) **Decision (rule 4, pictures in a group):** Boardwalk › Mystery crates has no picture on every platform (7 of 9 game cards have one); Higher or lower loses its picture after a game on PC. Picture or listed exception.
 
 **Look items noted, not fixed** (2026-11-19 outsider review)
-- ☐ The empty Cooler page is mostly blank space.
-- ☐ The aura previews in the Wardrobe › Tide Pass tab are small.
+- ☑ (batch 2: picture, what the cooler is for, Go fishing button; feel call) The empty Cooler page was mostly blank space.
+- ☑ (batch 2: bigger, and bright while locked; feel call) The aura previews in the Wardrobe › Tide Pass tab were small.
 
 **Parked fixes** (undone with phase 2 on 2026-11-20; redo when the director wants)
 - ☐ A brand-new save can lose some Wisdom Pearls on its first reload (`fresh()` has no `pearlV`, #121).
@@ -38,7 +38,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - ☑ Flaky QA test: a random shiny broke the batch 5 waters price limit (#127): fixed 2026-11-20 (the test compares a plain fish).
 
 **Needs the director's eye**
-- ☐ Aquarium speed-up: drawing the fish costs ≈0.5 ms each (24 fish ≈ 10 ms, forced-sync test; phones not measured). The fix (cached tail-wag frames per fish) changes the animation slightly.
+- ☑ (batch 2, measured again 2026-11-21: 24 fish now cost 1.6 ms a frame, 0.07 ms each, after the fish drawing caches; no change needed, the animation stays as it is. Reopen only if a phone shows aquarium lag) Aquarium speed-up: drawing the fish costs ≈0.5 ms each (24 fish ≈ 10 ms, forced-sync test; phones not measured). The fix (cached tail-wag frames per fish) changes the animation slightly.
 
 **Decisions waiting on the director**
 - Bigger tap targets (ours 32–40 pt vs 44 pt guidance) · text size · left-handed / menu side · colour-blind help · a real tablet layout · the Trophy Room name · whether the aquarium empties on a new voyage.
@@ -122,6 +122,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 | **8. Balance** (last of the queue) | 19 Endgame balance targets | decided with the director and Cam once the content is set: how long things take, prestige clearly stronger; a tool checks them | the targets |
 | **9. Added during the run** | (to fill) | everything the director or Cam add while the queue is in progress goes here (director, 2026-11-21); bugs still go to the front. When 0.5 ships is the director's call | |
 
+**Batch 2 status (2026-11-21 evening):** done on the test builds (not yet published): 4 aquarium boosts (shown = applied, QA proven), 5 Hybrids switch, 6 phone side panel with the catch card, 7 pictures blanking as the scroll bar faded (touch screens use their own scroll bar), 8b no self-install + Defender scan at build, 8c Gamble on phones / Mystery crates and Higher or lower pictures / empty Cooler / aura previews / Aquarium (measured, no change needed), 8d catch card picture (also live PC hotfix 0.4.8.9.6). **8 PC frame rate: no fault found here** (Willow Pond 1.9-2.8 ms a frame, no spikes in a minute, not heavier than other waters, home picture cached); needs the director's save code and the frame counter reading from his PC to reproduce. Not yet: the end-of-batch clean-up, full sweep, notes and publish.
 Parked in Ideas: the Report a problem button.
 ### Decisions for the queue (director, 2026-11-21) so the work never has to stop
 1. **Save backup = a backup copy on the device**, refreshed automatically (not on every save: at most every few minutes and when the app is hidden, so it costs nothing noticeable), restorable from Settings if the main save breaks; works offline.
