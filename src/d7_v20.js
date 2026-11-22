@@ -4,83 +4,8 @@
 // Fishing Derby, richer scenery for every water, two new waters' looks
 // =====================================================================
 
-// ---------- Home: dock style, decorations, cozy ----------
-const DOCK_WOODS = [['oak','Oak',0,'#6b4a2e'],['birch','Birch',1500,'#c8a878'],['walnut','Walnut',2500,'#3e2a1c'],['driftwood','Driftwood',2000,'#8a7a6a'],['white','Painted white',3000,'#e4e0d6'],
-  ['blue','Harbour blue',3000,'#3a6f9a'],['red','Barn red',3000,'#9a3a2a'],['mint','Seafoam',3500,'#7fc8a9'],['pearl','Pearl',0,'#f0e8f4']];
-// id, name, price, cozy points, source
-const DOCK_DECOR = [['mug','Steaming Mug',600,1],['books','Stack of Books',800,1],['tacklebox','Tackle Box',900,1],['plants','Potted Plants',1200,2],['gnome','Dock Gnome',1500,1],['lantern','Lantern',1500,2],
-  ['bunting','Bunting Flags',1800,2],['blanket','Picnic Blanket',2000,2],['umbrella','Beach Umbrella',2200,2],['chair','Cozy Chair',2500,3],['windchime','Wind Chime',2600,2],['birdhouse','Birdhouse',2800,2],
-  ['catbed','Cat Bed',3000,2],['lights','String Lights',3500,3],['radio','Old Radio',4000,2],['campfire','Campfire',6000,4],['telescope','Telescope',9000,2],['cottage','Little Cottage',60000,6],
-  ['tideflag','Tide Flag',0,2,'pass'],['shipwheel','Ship’s Wheel',0,3,'pass'],['minilight','Tiny Lighthouse',0,4,'pass']].map(a=>({id:a[0],name:a[1],price:a[2],cozy:a[3],src:a[4]||'shop'}));
-const DOCKI = Object.fromEntries(DOCK_DECOR.map(d=>[d.id,d]));
-const DOCK_SLOTS = 8;
-let DOCK_PV=null;
-const dockWood = () => { const w=DOCK_WOODS.find(x=>x[0]===((DOCK_PV&&DOCK_PV.kind==='wood')?DOCK_PV.id:S.dock.wood))||DOCK_WOODS[0]; return w[3]; };
-function dockView(){ const d=S.dock.decor.slice(); if(DOCK_PV&&DOCK_PV.kind==='decor'&&!d.includes(DOCK_PV.id)) d.push(DOCK_PV.id); return d; }
-function cozy(){ let c=S.dock.wood!=='oak'?1:0; for(const id of S.dock.decor) if(DOCKI[id]) c+=DOCKI[id].cozy; return c; }
-const cozyBonus = () => Math.min(40*pathMul('cozycap'),cozy()*pathMul('cozy')); // 0.3: cap 40 (was 25)
-const COZY_NAMES = [[0,'Bare boards'],[4,'Snug'],[9,'Homey'],[15,'Cozy'],[22,'Hygge']];
-const cozyName = () => COZY_NAMES.filter(x=>cozy()>=x[0]).pop()[1];
-function renderHome(P){ if(HOMEF[S.loc]) return renderHomeF(P); /* a home in the home format: its 5 elements */ const wood=S.dock.wood, c=cozy(), cb=cozyBonus();
-  const pvBar = DOCK_PV ? `<div class="pvbar"><span>Previewing on your dock: <b>${esc(DOCK_PV.name)}</b></span><span class="row"><button class="btn sm" data-act="${DOCK_PV.kind==='wood'?'dockwood':DOCK_PV.kind==='style'?'dockstyle':'dockdecor'}" data-k="${DOCK_PV.id}" ${S.money>=DOCK_PV.price?'':'disabled'}>Buy · <span class="coin">${fmt(DOCK_PV.price)}</span></button><button class="btn alt sm" data-act="dockpvoff">Stop</button></span></div>` : pvHintHTML();
-  P.innerHTML=`<div class="row spread"><div><h2>Home</h2><p class="sub">Your dock goes with you to every water. Make it yours: pick the wood, add decorations, and the cozier it gets, the better you fish.</p></div>
-   <div class="tile" style="min-width:200px"><div class="rar" style="color:#ff9ac0">Cozy level: ${cozyName()}</div><b>${c} ♥</b> <span class="meta">· +${cb}% XP, +${(cb*.5).toFixed(1)}% bite speed, +${(cb*.5).toFixed(1)}% sale price</span><div class="prog"><i style="width:${Math.min(1,c/40)*100}%;background:#ff9ac0"></i></div></div></div>
-   ${pvBar}<div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>${S.dock.decor.length?`<p class="sub" style="margin-top:6px">Drag decorations and pets along the dock to move them.</p>`:""}
-   <h5>Wood</h5><div class="chips">${DOCK_WOODS.filter(w=>w[2]||S.dock.owned.includes(w[0])||w[0]==='oak').map(w=>{ const own=S.dock.owned.includes(w[0]); const pv=DOCK_PV&&DOCK_PV.kind==='wood'&&DOCK_PV.id===w[0];
-     return `<button class="chipb" data-act="${own?'dockwood':'dockpv'}" data-k="${own?w[0]:'wood:'+w[0]}" aria-pressed="${wood===w[0]||pv}"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${w[3]};margin-right:6px;vertical-align:-1px"></span>${w[1]}${own?'':' · '+fmt(w[2])}</button>`; }).join('')}</div>
-   ${dockStyleChipsHTML()}
-   <h5>Decorations · ${S.dock.decor.length} of ${DOCK_SLOTS} placed</h5><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${DOCK_DECOR.map(d=>{ const own=S.dock.owned.includes(d.id), placed=S.dock.decor.includes(d.id), hidden=!own&&d.src!=='shop';
-     return `<div class="tile ${placed?'done':''}" style="align-items:center;text-align:center;gap:4px"><canvas width="160" height="120" data-dock="${d.id}" data-own="${own||!hidden?1:0}" style="width:80px;height:60px;cursor:default"></canvas><b style="font-size:14px">${hidden?'???':d.name}</b><span class="meta">+${d.cozy} ♥ cozy</span>
-     ${own?`<button class="btn ${placed?'alt':''} sm" data-act="dockdecor" data-k="${d.id}">${placed?'Remove':'Place'}</button>`:hidden?'<span class="meta">A Tide Pass reward</span>':`<div class="row" style="justify-content:center;gap:4px"><button class="btn alt sm" data-act="dockpv" data-k="decor:${d.id}">Preview</button><button class="btn sm" data-act="dockdecor" data-k="${d.id}" ${S.money>=d.price?'':'disabled'}>Buy · <span class="coin">${fmt(d.price)}</span></button></div>`}</div>`; }).join('')}</div>`;
-  P.querySelectorAll('canvas[data-dock]').forEach(cv2=>{ const x=cv2.getContext('2d'); x.clearRect(0,0,160,120); if(cv2.dataset.own!=='1') mysteryThumb(x,160,120,cv2.dataset.dock); else dockThumb(x,cv2.dataset.dock,160,120); });
-  paintHome(); homeDragSetup(); }
-function paintHome(){ const c=$("homecv"); if(!c) return; if(V3ON && paintHome3(c)) return; const x=c.getContext('2d'), w=c.width, h=c.height, t=performance.now()/1000; x.clearRect(0,0,w,h);
-  const sky=x.createLinearGradient(0,0,0,h*.6); sky.addColorStop(0,'#86bcd9'); sky.addColorStop(1,'#f2dcb6'); x.fillStyle=sky; x.fillRect(0,0,w,h*.6);
-  const wt=x.createLinearGradient(0,h*.55,0,h); wt.addColorStop(0,'#3f827b'); wt.addColorStop(1,'#173e42'); x.fillStyle=wt; x.fillRect(0,h*.55,w,h*.45);
-  const dy=h*.62, s=2.4; x.fillStyle=dockWood(); x.fillRect(0,dy,w*.92,14); x.fillStyle=mix(dockWood(),'#000000',.3); for(let i=0;i<5;i++) x.fillRect(30+i*w*.2,dy+14,12,h-dy); x.fillStyle=mix(dockWood(),'#ffffff',.12); for(let px=0;px<w*.92;px+=26) x.fillRect(px,dy,2,14);
-  const items=dockView(); const xs=homeSlots(items.length,w*.04,w*.88,w*.5,w*.62);
-  items.forEach((id,i)=>drawDockItem(x,id,xs[i],dy,s*(id==='cottage'?.9:1),t,0));
-  drawPetStyled(x,S.pet,w*.5,dy,S.pet==='horse'||S.pet==='cow'?2.2:3,t); drawAngler(x,w*.58,dy,2.6,S.look,{t}); }
-function homeSlots(n,x0,x1,avoid0,avoid1){ const out=[]; const span=(x1-x0)-(avoid1-avoid0); for(let i=0;i<n;i++){ let x=x0+span*(i+.5)/Math.max(n,1); if(x>avoid0) x+=avoid1-avoid0; out.push(x); } return out; }
-// decorations drawn on the dock in the scene, behind the angler
-function drawHome(L,t,night,dockY,pb,sc){ if(HOMEF[L.id]) return; /* format homes have no decorations (docs/HOME_STANDARD.md) */ const items=dockView(); if(!items.length) return; const PW=W*.19, ax=W*.12;
-  const surf = dockY+pb, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax-40*sc-X0)/(X1-X0),(ax+12*sc-X0)/(X1-X0));
-  const cot=items.indexOf('cottage'); if(cot>=0) drawDockItem(g,'cottage',W*.045,surf,sc*1.5,t,night,true);
-  items.forEach(id=>{ if(id==='cottage'||P[id]==null) return; drawDockItem(g,id,X0+P[id]*(X1-X0),surf,sc*dockItemScale(id),t,night); }); }
-function drawDockItem(c,id,x,y,s,t,night,back){ c.save(); c.translate(x,y); c.scale(s,s); const D=cl=>night?mix(cl,'#0a1018',night*.45):cl; c.lineCap='round';
-  const R=(x,y,w,h,cl)=>{ c.fillStyle=D(cl); c.fillRect(x,y,w,h); }, Ci=(x,y,r,cl)=>{ c.fillStyle=D(cl); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, glow=(gx,gy,r,col)=>{ if(night<.25 && !back) return; const gr=c.createRadialGradient(gx,gy,1,gx,gy,r); gr.addColorStop(0,col); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(gx-r,gy-r,r*2,r*2); };
-  switch(id){
-    default: drawDockZ(c,id,t,R,Ci,D); break;
-    case 'mug': R(-3,-6,6,6,'#d8553a'); c.strokeStyle=D('#d8553a'); c.lineWidth=1.2; c.beginPath(); c.arc(3.5,-3,1.8,-1.5,1.5); c.stroke(); c.strokeStyle='rgba(255,255,255,.5)'; c.lineWidth=.8; for(let i=0;i<2;i++){ c.beginPath(); c.moveTo(-1+i*2,-7); c.quadraticCurveTo(-2+i*2+Math.sin(t*2+i)*1.5,-11,-1+i*2,-14); c.stroke(); } break;
-    case 'books': R(-6,-3,12,3,'#3a6f9a'); R(-5,-6,11,3,'#c8553a'); R(-6,-9,10,3,'#4f8a4a'); R(-4,-11,8,2,'#e0c050'); break;
-    case 'tacklebox': R(-7,-7,14,7,'#4a7a4a'); R(-7,-8,14,2,'#3a6a3a'); R(-2,-10,4,2,'#888'); break;
-    case 'plants': for(const [px,cl] of [[-5,'#c8703a'],[4,'#a85a3a']]){ c.fillStyle=D(cl); c.beginPath(); c.moveTo(px-3,0); c.lineTo(px-4,-6); c.lineTo(px+4,-6); c.lineTo(px+3,0); c.fill(); for(let i=-2;i<=2;i++){ c.strokeStyle=D('#3a9a4a'); c.lineWidth=1.4; c.beginPath(); c.moveTo(px,-6); c.quadraticCurveTo(px+i*2,-10,px+i*3+Math.sin(t+i)*.6,-14+Math.abs(i)); c.stroke(); } } Ci(5,-14,1.4,'#ff7ab0'); break;
-    case 'gnome': c.fillStyle=D('#d8473a'); c.beginPath(); c.moveTo(-3,-9); c.lineTo(3,-9); c.lineTo(0,-17); c.fill(); Ci(0,-8,2.5,'#f6d0b0'); c.fillStyle=D('#f4f4f4'); c.beginPath(); c.moveTo(-2.5,-7); c.lineTo(2.5,-7); c.lineTo(0,-2); c.fill(); R(-3,-3,6,3,'#3a6fca'); break;
-    case 'lantern': R(-.7,-20,1.4,20,'#3a2a1a'); R(-3,-26,6,6,'#2a2a2a'); R(-2.2,-25,4.4,4.4,night>.25?'#ffe08a':'#c8b880'); glow(0,-23,28,'rgba(255,216,138,.35)'); break;
-    case 'bunting': { c.strokeStyle=D('#c8b08a'); c.lineWidth=.6; c.beginPath(); c.moveTo(-12,-22); c.quadraticCurveTo(0,-17,12,-22); c.stroke(); R(-12.5,-22,1,22,'#5a3a20'); R(11.5,-22,1,22,'#5a3a20'); const cols=['#ff6a6a','#ffd84a','#5aa9ff','#7fc8a9','#c38bff']; for(let i=0;i<5;i++){ const fx=-9+i*4.5, fy=-20.5+Math.sin((i/4)*Math.PI)*2.2; c.fillStyle=D(cols[i]); c.beginPath(); c.moveTo(fx-1.6,fy); c.lineTo(fx+1.6,fy); c.lineTo(fx,fy+3.4+Math.sin(t*3+i)*.3); c.fill(); } break; }
-    case 'blanket': c.fillStyle=D('#d84a4a'); c.beginPath(); c.moveTo(-10,0); c.lineTo(10,0); c.lineTo(8,-2.5); c.lineTo(-8,-2.5); c.fill(); c.fillStyle=D('#ffffff'); for(let i=-8;i<8;i+=4) c.fillRect(i,-2.5,2,2.5); R(-3,-5,6,3,'#c89a5a'); break;
-    case 'umbrella': R(-.5,-22,1,22,'#ddd'); c.fillStyle=D('#ff7a5a'); c.beginPath(); c.moveTo(-12,-18); c.quadraticCurveTo(0,-30,12,-18); c.closePath(); c.fill(); c.fillStyle=D('#ffffff'); c.beginPath(); c.moveTo(-4,-18); c.quadraticCurveTo(0,-29.5,4,-18); c.closePath(); c.fill(); break;
-    case 'chair': R(-6,-6,12,2,'#8a5a3a'); R(-6,-14,2,10,'#8a5a3a'); R(-6,-4,1.5,4,'#6a4228'); R(4.5,-4,1.5,4,'#6a4228'); R(-5,-13,2.4,7,'#d8a84a'); R(-4,-6.5,9,2,'#d8a84a'); R(4,-9,2,5,'#8a5a3a'); break;
-    case 'windchime': R(-.5,-26,1,4,'#888'); R(-5,-22,10,1.2,'#8a6a4a'); for(let i=0;i<4;i++){ const sw=Math.sin(t*2+i)*.8; R(-4+i*2.6+sw,-21,1,6+i%2*2,'#b8c8d8'); } break;
-    case 'birdhouse': R(-.6,-16,1.2,16,'#5a3a20'); R(-4,-24,8,8,'#4a8ab8'); c.fillStyle=D('#c8553a'); c.beginPath(); c.moveTo(-5.5,-24); c.lineTo(0,-28); c.lineTo(5.5,-24); c.fill(); Ci(0,-20.5,1.4,'#1a1a1a'); if(night<.5 && Math.sin(t*.7)>.5){ Ci(5,-27,1.4,'#c86a3a'); } break;
-    case 'catbed': c.fillStyle=D('#9a5aa8'); c.beginPath(); c.ellipse(0,-2,8,3.4,0,0,7); c.fill(); c.fillStyle=D('#c89ad8'); c.beginPath(); c.ellipse(0,-3,6,2,0,0,7); c.fill(); break;
-    case 'lights': { c.strokeStyle=D('#444'); c.lineWidth=.5; c.beginPath(); c.moveTo(-14,-24); c.quadraticCurveTo(0,-18,14,-24); c.stroke(); R(-14.5,-24,1,24,'#5a3a20'); R(13.5,-24,1,24,'#5a3a20'); const cols=['#ffd84a','#ff7a5a','#7fc8a9','#5aa9ff','#ff9ad0'];
-      for(let i=0;i<7;i++){ const lx=-12+i*4, ly=-22.6+Math.sin((i/6)*Math.PI)*2.8, on=night>.25; c.fillStyle=on?cols[i%5]:D('#c8c0a0'); c.beginPath(); c.arc(lx,ly+1,1.1,0,7); c.fill(); if(on){ const gr=c.createRadialGradient(lx,ly+1,.5,lx,ly+1,6); gr.addColorStop(0,cols[i%5]+'88'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(lx-6,ly-5,12,12); } } break; }
-    case 'radio': R(-6,-7,12,7,'#a85a3a'); R(-5,-6,5,5,'#c8b890'); Ci(3,-3.5,1.8,'#2a2a2a'); R(-1,-10,.8,3,'#888'); if(Math.sin(t*.8)>0){ c.fillStyle='rgba(255,255,255,.7)'; c.font='6px system-ui'; c.fillText('♪',6+Math.sin(t*2)*2,-10-((t*6)%6)); } break;
-    case 'campfire': { for(let i=-1;i<=1;i++){ c.save(); c.rotate(i*.5); R(-6,-1.4,12,2.4,'#6a4228'); c.restore(); } const fl=Math.sin(t*12)*.6; c.fillStyle='#ff7a1a'; c.beginPath(); c.moveTo(-4,-1); c.quadraticCurveTo(-2,-9-fl,0,-12+fl); c.quadraticCurveTo(2,-9+fl,4,-1); c.fill(); c.fillStyle='#ffd84a'; c.beginPath(); c.moveTo(-2,-1); c.quadraticCurveTo(0,-7+fl,2,-1); c.fill();
-      { const gr=c.createRadialGradient(0,-4,1,0,-4,night>.25?42:14); gr.addColorStop(0,'rgba(255,150,60,.35)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(-42,-46,84,84); } c.fillStyle='rgba(200,200,200,.25)'; for(let i=0;i<3;i++){ const k=((t*.4+i/3)%1); c.beginPath(); c.arc(Math.sin(t+i)*3,-14-k*20,2+k*3,0,7); c.fill(); } break; }
-    case 'telescope': R(-.6,-10,1.2,10,'#5a3a20'); R(-4,-2,8,1,'#5a3a20'); c.save(); c.translate(0,-11); c.rotate(-.5); R(-7,-1.8,14,3.6,'#c8a050'); R(6,-2.2,3,4.4,'#a88030'); c.restore(); break;
-    case 'cottage': { c.save(); if(back) c.globalAlpha=.97; R(-16,-26,32,26,'#c8a878'); c.fillStyle=D('#8a3a2a'); c.beginPath(); c.moveTo(-20,-26); c.lineTo(0,-42); c.lineTo(20,-26); c.fill(); R(8,-44,5,10,'#6a4a3a'); R(-4,-14,8,14,'#6a3a20'); const win=night>.25?'#ffd88a':'#9ad0e8'; R(-13,-20,7,6,win); R(7,-20,7,6,win);
-      if(night>.25){ const gr=c.createRadialGradient(-9,-17,1,-9,-17,18); gr.addColorStop(0,'rgba(255,210,130,.4)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(-28,-36,40,40); }
-      c.fillStyle='rgba(220,220,220,.35)'; for(let i=0;i<4;i++){ const k=((t*.25+i/4)%1); c.beginPath(); c.arc(10.5+k*6,-46-k*22,2+k*4,0,7); c.fill(); } c.restore(); break; }
-    case 'tideflag': R(-.6,-26,1.2,26,'#ddd'); c.fillStyle=D('#2a8aa8'); c.beginPath(); c.moveTo(.6,-26); c.quadraticCurveTo(7,-24+Math.sin(t*3)*1.5,13,-26+Math.sin(t*3+1)); c.lineTo(13,-18+Math.sin(t*3+1)); c.quadraticCurveTo(7,-16+Math.sin(t*3)*1.5,.6,-18); c.fill(); c.strokeStyle='#fff'; c.lineWidth=.8; c.beginPath(); c.moveTo(3,-22); c.quadraticCurveTo(6,-24,9,-22); c.stroke(); break;
-    case 'shipwheel': { c.save(); c.translate(0,-11); c.rotate(Math.sin(t*.5)*.3); c.strokeStyle=D('#8a5a2a'); c.lineWidth=1.6; c.beginPath(); c.arc(0,0,7,0,7); c.stroke(); for(let i=0;i<8;i++){ const a=i*Math.PI/4; c.beginPath(); c.moveTo(0,0); c.lineTo(Math.cos(a)*10,Math.sin(a)*10); c.stroke(); } Ci(0,0,2,'#c8a050'); c.restore(); R(-.8,-4,1.6,4,'#6a4228'); break; }
-    case 'minilight': { R(-3,-22,6,22,'#f4f0e8'); R(-3,-16,6,3,'#c8403a'); R(-3,-8,6,3,'#c8403a'); R(-4,-26,8,4,'#333'); if(night>.25){ /* lit at night: the lamp glows at full brightness (night shading used to grey it out) and the beam sweeps out and fades */
-        const k=Math.min(1,(night-.25)/.35), a=t*1.5, L=86*Math.abs(Math.cos(a))+14, dir=Math.cos(a)<0?-1:1, bg=c.createLinearGradient(0,-24,dir*L,-24); bg.addColorStop(0,'rgba(255,240,170,'+(.42*k)+')'); bg.addColorStop(1,'rgba(255,240,170,0)');
-        c.fillStyle=bg; c.beginPath(); c.moveTo(0,-24); c.lineTo(dir*L,-24-12); c.lineTo(dir*L,-24+12); c.closePath(); c.fill(); glow(0,-24,11,'rgba(255,236,160,'+(.8*k)+')'); c.fillStyle='#fff2a8'; c.fillRect(-2.4,-25.4,4.8,2.8); }
-      else R(-2.4,-25.4,4.8,2.8,'#d8d0a0'); break; }
-  }
-  c.restore(); }
+function renderHome(P){ dockSync(); renderHomeF(P); } /* every water has a home in the home format (batch 5; the old dock page is gone) */
+function paintHome(){ const c=$("homecv"); if(c&&HOMEF[S.loc]&&typeof cv!=='undefined'&&cv&&W>0) hfCloseup(c,hfFrame(c,0)); } /* platform layers (phones, PC full HD) frame it their own way */
 
 // ---------- Tide Pass (0.3: a longer climb, a Tide-only item every five levels, every reward spelled out) ----------
 const PASS_MAX = 100; /* 0.4.9: five chapters of 20 (cj_tidepass.js) */
@@ -96,7 +21,7 @@ const PASS_SPECIAL = {3:['aq','lantern','Sea Lantern','Aquarium decoration: a la
 function passReward(L){ const sp=PASS_SPECIAL[L]; return sp?sp[2]:passPlain(L).name; }
 function addPassXP(n){ S.pass.xp+=Math.round(n*(1+.06*pr('tidewalker'))*(relic('tidecaller')?1.3:1)); let ups=0; while(S.pass.xp>=passNeed(S.pass.lvl+1)){ S.pass.xp-=passNeed(S.pass.lvl+1); S.pass.lvl++; ups++; } if(ups){ setTimeout(()=>toast('Tide Pass level '+S.pass.lvl+'! Rewards are waiting in the Pass tab.'),1300); } }
 function passArt(x,w,h,L){ const sp=PASS_SPECIAL[L]; x.clearRect(0,0,w,h); const cx=w/2, s=w/120;
-  if(sp){ const [k,id]=sp; if(k==='aq') drawDecor(x,id,w/2,h*.92,w/160,0); else if(k==='dock') dockThumb(x,id,w,h); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
+  if(sp){ const [k,id]=sp; if(k==='aq') drawDecor(x,id,w/2,h*.92,w/160,0); else if(k==='hat') hatPreview(x,w,h,id,S.look.hatCol); else if(k==='out') drawAngler(x,cx,h*.96,h/80,Object.assign({},S.look,{outfit:id,hat:'none'}),{});
     else if(k==='tint') drawPetStyled(x,S.pet,cx,h*.86,2.8*s,0,0,Object.assign({},petLook(),{tint:id})); else if(k==='wood'){ x.fillStyle='#f0e8f4'; x.fillRect(w*.08,h*.5,w*.84,h*.13); x.fillStyle='#c8b8d0'; for(let i=0;i<5;i++) x.fillRect(w*(.12+i*.17),h*.5,2*s,h*.13); }
     else if(k==='shoe'||k==='neck'||k==='back') wearPreview(x,k,id,w,h); else if(k==='bait') drawJunk(x,w,h,'goldlure'); else drawJunk(x,w,h,'chest'); return; }
   const p=L>PASS_MAX?{k:'coins'}:passPlain(L); if(p.k==='big'||p.k==='small') drawJunk(x,w,h,'chest'); else if(p.k==='coins'||p.k==='bonus') drawJunk(x,w,h,'coin');
@@ -171,12 +96,6 @@ function extraAct5(b){ const k=b.dataset.k; { const hr=hfAct(b); if(hr!==undefin
   switch(b.dataset.act){
     case 'derby': { if(S.derby||G.st!=='idle') return 'skip'; const c=derbyCost(); if(S.money<c) return 'skip'; S.money-=c; startDerby(); return 'render'; }
     case 'passclaim': { const got=[]; while(S.pass.claimed<S.pass.lvl){ S.pass.claimed++; got.push(grantPass(S.pass.claimed)); } if(got.length){ sfx.shiny(); toast('Tide Pass: '+got.slice(0,3).join(', ')+(got.length>3?' and more':'')); renderBait(); } return 'render'; }
-    case 'dockstyle': { const s2=DOCK_STYLES.find(x=>x[0]===k); if(!s2) return 'skip'; S.dock.styles=S.dock.styles||['plank']; if(!S.dock.styles.includes(k)){ if(S.money<s2[2]) return 'skip'; S.money-=s2[2]; S.dock.styles.push(k); sfx.coin(); toast('New dock style: '+s2[1]+'.'); } S.dock.style=k; DOCK_PV=null; save(); return 'render'; }
-    case 'dockwood': { const w=DOCK_WOODS.find(x=>x[0]===k); if(!w) return 'skip'; if(!S.dock.owned.includes(k)){ if(!w[2]||S.money<w[2]) return 'skip'; S.money-=w[2]; S.dock.owned.push(k); sfx.coin(); } S.dock.wood=k; DOCK_PV=null; return 'render'; }
-    case 'dockdecor': { const d=DOCKI[k]; if(!d) return 'skip'; DOCK_PV=null; if(!S.dock.owned.includes(k)){ if(d.src!=='shop'||S.money<d.price) return 'skip'; S.money-=d.price; S.dock.owned.push(k); sfx.coin(); }
-      if(S.dock.decor.includes(k)) S.dock.decor=S.dock.decor.filter(x=>x!==k); else if(S.dock.decor.length<DOCK_SLOTS){ S.dock.decor.push(k); toast(d.name+' placed. Cozy!'); } else toast('Your dock is full. Remove something first.'); return 'render'; }
-    case 'dockpv': { const [kind,id]=k.split(':'); if(kind==='style'){ const s2=DOCK_STYLES.find(x=>x[0]===id); if(!s2) return 'skip'; DOCK_PV={kind:'style',id,name:s2[1]+' dock',price:s2[2]}; } else if(kind==='wood'){ const w=DOCK_WOODS.find(x=>x[0]===id); DOCK_PV={kind,id,name:w[1]+' wood',price:w[2]}; } else { const d=DOCKI[id]; DOCK_PV={kind:'decor',id,name:d.name,price:d.price}; } setTimeout(()=>{ pvReveal('homecv'); },30); return 'render'; }
-    case 'dockpvoff': DOCK_PV=null; return 'render';
   }
   return undefined; }
 
@@ -192,8 +111,3 @@ function drawWaterDecoX(L,t,night,hz){ if(L.id==='ember'){ for(let i=0;i<10;i++)
     for(const [fx,fy] of [[.45,.7],[.8,.62],[.6,.85]]){ const x=W*fx, y=H*fy; g.fillStyle='#2a1a18'; g.beginPath(); g.ellipse(x,y,16,6,0,Math.PI,0); g.fill(); g.fillStyle='rgba(255,110,40,'+(.5+.3*Math.sin(t*2+fx*9))+')'; g.fillRect(x-6,y-3,12,1.5); } }
   if(L.id==='starfall'){ for(let i=0;i<40;i++){ const x=(i*61)%W, y=hz+((i*37)%100)/100*(H-hz); g.fillStyle='rgba(255,255,255,'+(.25+.35*Math.abs(Math.sin(t*1.5+i)))+')'; g.fillRect(x,y,1.4,1.4); }
     g.strokeStyle='rgba(200,160,255,.25)'; g.lineWidth=1; for(let i=0;i<3;i++){ g.beginPath(); g.ellipse(W*(.4+.25*i),H*(.7+.05*i),30+10*Math.sin(t+i),6,0,0,7); g.stroke(); } } }
-function drawPlatformX(L,t,night,dockY,pb){ const PW=W*.19, N=(cl,k=.6)=>mix(cl,'#0a1018',night*k);
-  if(L.plat==='stone'){ g.fillStyle=N('#3a2a28'); g.beginPath(); g.moveTo(-2,dockY); g.lineTo(PW*.4,dockY-3); g.lineTo(PW+8,dockY+2); g.lineTo(PW+20,H); g.lineTo(-2,H); g.fill(); g.fillStyle=N('#4a3a36'); for(let i=0;i<6;i++){ g.beginPath(); g.ellipse(((i*37)%100)/100*PW,dockY+10+((i*53)%60)/100*(H-dockY),8,4,0,0,7); g.fill(); }
-    g.strokeStyle='rgba(255,110,40,'+(.5+.2*Math.sin(t*2))+')'; g.lineWidth=1.5; g.beginPath(); g.moveTo(PW*.2,dockY+8); g.lineTo(PW*.35,dockY+20); g.lineTo(PW*.3,dockY+34); g.stroke(); g.fillStyle=N(dockWood()); g.fillRect(-2,dockY-2,PW*.9,4); }
-  else { const y=dockY+Math.sin(t*.8)*2; g.fillStyle=N('#8a7ad8',.4); g.beginPath(); g.moveTo(-2,y); g.lineTo(PW+6,y); g.lineTo(PW*.75,y+H*.14); g.lineTo(PW*.4,y+H*.22); g.lineTo(PW*.1,y+H*.12); g.lineTo(-2,y+H*.1); g.fill();
-    g.fillStyle='rgba(220,200,255,.35)'; g.beginPath(); g.moveTo(PW*.2,y); g.lineTo(PW*.4,y+H*.18); g.lineTo(PW*.5,y); g.fill(); g.fillStyle=N(dockWood(),.4); g.fillRect(-2,y-3,PW+8,4); for(let i=0;i<3;i++){ g.fillStyle='rgba(200,180,255,'+(.4+.3*Math.sin(t*2+i))+')'; g.fillRect(PW*(.3+.2*i),y+H*.2+((t*14+i*9)%18),2,2); } } }

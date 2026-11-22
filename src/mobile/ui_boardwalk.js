@@ -14,7 +14,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (max-width:560px){
 // two rows: a long name wraps inside its button, never cut), the result line lines up with them, and an empty cooler shows the card's idle picture.
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel .bwx-gl,html body.phone-app #menuov #panel .bwx-gl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-html body.phone-land #menuov #panel .bwx-gl .btn,html body.phone-app #menuov #panel .bwx-gl .btn{min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;height:auto!important;min-height:34px;padding-top:4px!important;padding-bottom:4px!important} /* a long name wraps: the button grows with it (extreme save: two lines spilled over the button below) */
+html body.phone-land #menuov #panel .bwx-gl button.btn.btn,html body.phone-app #menuov #panel .bwx-gl button.btn.btn{min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;height:auto!important;min-height:34px!important;padding-top:4px!important;padding-bottom:4px!important} /* a long name wraps: the button grows with it (extreme save: two lines spilled over the button below) */
 html body.phone-land #menuov #panel .bwx-gl .gn,html body.phone-app #menuov #panel .bwx-gl .gn{min-width:0;white-space:normal;line-height:1.15;text-align:left;overflow-wrap:anywhere} /* names wrap, never cut (TEXT_STANDARD) */
 html body.phone-land #menuov #panel .bwx-gl .coin,html body.phone-app #menuov #panel .bwx-gl .coin{flex:0 0 auto}
 html body.phone-land #menuov #panel .bwx-res:has(+ .bwx-gl),html body.phone-app #menuov #panel .bwx-res:has(+ .bwx-gl){text-align:left}

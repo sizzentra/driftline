@@ -152,21 +152,6 @@ m33wrap('frost','live',function(P,t,hz){ const ib=hz+H*.018, FX=S.settings.effec
   if(FX){ const X=W*.42+H*.01; for(let i=0;i<5;i++){ const k=((t*.15+i/5)%1); g.fillStyle=v3rgba(mix('#e8e8f0',P.farHaze,.3),.35*(1-k)); g.beginPath(); g.arc(X+k*W*.02,ib-H*.03-k*H*.06,H*(.003+k*.008),0,7); g.fill(); } }
   const lit=clamp(P.night*1.3+P.d*.8,0,1); if(lit>.1){ v3glow(g,W*.36,ib-H*.01,H*.03,'rgba(255,190,110,.9)',.4*lit); v3glow(g,W*.42,ib-H*.01,H*.025,'rgba(255,190,110,.9)',.3*lit); }
 });
-// the ice shelf you stand on: layered blues, trapped bubbles and a fish frozen mid-swim
-const _v3icePlat_33 = v3icePlat;
-v3icePlat = function(P,t,night,dockY){ _v3icePlat_33(P,t,night,dockY); if(!(W>8&&H>8)) return;
-  const PW=W*.19, ed=PW+W*.012, path=()=>{ g.beginPath(); g.moveTo(-2,dockY+H*.01); g.lineTo(ed-W*.01,dockY+H*.01); g.lineTo(ed,dockY+H*.02); g.lineTo(ed+W*.006,H*.78); g.lineTo(ed-W*.004,H+2); g.lineTo(-2,H+2); g.closePath(); }, N=c=>mix(c,'#0a1020',night*.4);
-  g.save(); path(); g.clip();
-  for(let k=0;k<4;k++){ const y=dockY+H*(.06+k*.07); g.fillStyle=v3rgba(k%2?P.iceD:mix(P.ice,'#ffffff',.3),.16); g.beginPath(); g.moveTo(-2,y); g.quadraticCurveTo(PW*.5,y+H*.012*Math.sin(k*2.1),ed+W*.01,y-H*.004); g.lineTo(ed+W*.01,y+H*.03); g.quadraticCurveTo(PW*.5,y+H*.04,-2,y+H*.028); g.closePath(); g.fill(); }
-  const r=v3rng(19); g.strokeStyle=v3rgba('#ffffff',.35); g.lineWidth=.8; for(let i=0;i<16;i++){ const bx=r()*PW, by=dockY+H*(.04+r()*.3), br=1+r()*2.4; g.beginPath(); g.arc(bx,by,br,0,7); g.stroke(); }
-  // the frozen fish, slightly blurred by the ice
-  { const fx=PW*.42, fy=dockY+H*.17, s=H*.022; g.save(); g.globalAlpha=.55; g.translate(fx,fy); g.rotate(-.12); g.fillStyle=N('#5a7a9a'); g.beginPath(); g.ellipse(0,0,s*1.6,s*.6,0,0,7); g.fill(); g.beginPath(); g.moveTo(-s*1.4,0); g.lineTo(-s*2.3,-s*.6); g.lineTo(-s*2.3,s*.6); g.closePath(); g.fill(); g.fillStyle=N('#c8d8e8'); g.beginPath(); g.ellipse(s*.2,s*.2,s*1.1,s*.25,0,0,7); g.fill(); m33dot(g,s*1.05,-s*.12,s*.14,'#1a2030'); g.restore();
-    g.fillStyle=v3rgba('#ffffff',.18); g.beginPath(); g.ellipse(fx,fy,s*2.8,s*1.2,-.12,0,7); g.fill(); }
-  // a hairline crack running down from the lip
-  g.strokeStyle=v3rgba('#ffffff',.4); g.lineWidth=.9; g.beginPath(); let X=PW*.7, Y=dockY+H*.01; g.moveTo(X,Y); for(let k=0;k<6;k++){ X+=(r()-.5)*W*.02; Y+=H*.03; g.lineTo(X,Y); } g.stroke();
-  g.restore(); };
-V3PLAT.ice=(P,t,night,dockY)=>v3icePlat(P,t,night,dockY);
-
 // ---------------------------------------------------------------------
 // EMBER SPRINGS: steaming lava islets with glowing cracks out on the lake, bubbling vents, and warm
 // pumice stones bobbing in the foreground
@@ -206,28 +191,6 @@ m33wrap('trench','live',function(P,t,hz){ if(!S.settings.effects) return; const 
       g.fillStyle=v3rgba(r%2?bio2:bio,Math.min(.9,a)); g.fillRect(x,y,1.6+near,1.6+near); } }
 });
 
-// ---------------------------------------------------------------------
-// STARFALL SEA: the crystal you stand on gets inner facets, glowing veins, a fringe of moss and
-// little shards hanging beneath it that sway and glint
-// ---------------------------------------------------------------------
-// the underside of the crystal slab at x (the bottom outline of the same points the slab uses)
-function m33crystalEdge(X,PW,ed,dockY){ const B=[[-2,dockY+H*.12],[PW*.15,dockY+H*.15],[PW*.35,dockY+H*.24],[PW*.6,dockY+H*.17],[ed-W*.02,dockY+H*.08],[ed,dockY]]; for(let i=0;i<B.length-1;i++){ const [x0,y0]=B[i],[x1,y1]=B[i+1]; if(X>=x0&&X<=x1) return y0+(y1-y0)*(X-x0)/(x1-x0); } return dockY; }
-const _v3crystalPlat_33 = v3crystalPlat;
-v3crystalPlat = function(P,t,night,dockY){ if(!(W>8&&H>8)) return _v3crystalPlat_33(P,t,night,dockY); const PW=W*.19, ed=PW+W*.012, sa=.5+night*.5;
-  // hanging shards first, so the slab sits over their roots
-  for(const [hx,len,ph] of [[.2,.07,0],[.45,.1,1.3],[.75,.06,2.1],[.6,.045,3]]){ const X=PW*hx, top=m33crystalEdge(X,PW,ed,dockY)-H*.012, L=H*len, sw=Math.sin(t*.9+ph)*.04; g.save(); g.translate(X,top); g.rotate(sw); const cg=g.createLinearGradient(0,0,0,L); cg.addColorStop(0,mix(P.cry,'#ffffff',.2)); cg.addColorStop(1,v3rgba(P.cry2,.4)); g.fillStyle=cg; g.beginPath(); g.moveTo(-L*.12,0); g.lineTo(L*.12,0); g.lineTo(0,L); g.closePath(); g.fill(); g.fillStyle=v3rgba('#ffffff',.35); g.beginPath(); g.moveTo(-L*.04,0); g.lineTo(L*.02,0); g.lineTo(0,L*.8); g.closePath(); g.fill(); g.restore(); if(((t*.7+ph)%3)<.25) m33dot(g,X,top+L,1.6,v3rgba('#ffffff',.9)); }
-  _v3crystalPlat_33(P,t,night,dockY);
-  const pts=[[-2,dockY],[ed,dockY],[ed-W*.02,dockY+H*.08],[PW*.6,dockY+H*.17],[PW*.35,dockY+H*.24],[PW*.15,dockY+H*.15],[-2,dockY+H*.12]], path=()=>{ g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const p of pts) g.lineTo(p[0],p[1]); g.closePath(); };
-  g.save(); path(); g.clip();
-  // inner facets catching the light at different angles
-  for(const [a,b2,c2,al] of [[[PW*.1,dockY],[PW*.25,dockY+H*.1],[-2,dockY+H*.08],.1],[[PW*.45,dockY],[PW*.5,dockY+H*.12],[PW*.3,dockY+H*.06],.12],[[ed-W*.02,dockY+H*.08],[PW*.72,dockY+H*.06],[PW*.6,dockY+H*.17],.08]]){ g.fillStyle=v3rgba('#ffffff',al); g.beginPath(); g.moveTo(a[0],a[1]); g.lineTo(b2[0],b2[1]); g.lineTo(c2[0],c2[1]); g.closePath(); g.fill(); }
-  // glowing veins that pulse slowly
-  const p=.5+.5*Math.sin(t*1.4); g.strokeStyle=v3rgba(P.cry2,.35+.35*p*sa); g.lineWidth=Math.max(1,H*.0022); g.beginPath(); g.moveTo(PW*.05,dockY+H*.03); g.lineTo(PW*.22,dockY+H*.08); g.lineTo(PW*.35,dockY+H*.2); g.moveTo(PW*.22,dockY+H*.08); g.lineTo(PW*.5,dockY+H*.07); g.lineTo(PW*.62,dockY+H*.14); g.moveTo(PW*.5,dockY+H*.07); g.lineTo(PW*.8,dockY+H*.03); g.stroke();
-  g.restore(); v3glow(g,PW*.35,dockY+H*.12,H*.12,'rgba(150,230,255,.8)',.08+.08*p*sa);
-  // a fringe of starlit moss along the top edge
-  g.fillStyle=mix(P.isl||'#5a8a6a',P.wBot,night*.4); g.beginPath(); g.moveTo(-2,dockY+1); for(let X=0;X<=ed;X+=W*.006) g.lineTo(X,dockY+H*(.004+.004*Math.abs(Math.sin(X*.3)))); g.lineTo(ed,dockY+1); g.closePath(); g.fill();
-};
-V3PLAT.crystal=(P,t,night,dockY)=>v3crystalPlat(P,t,night,dockY);
 // river leaves carried down the current, turning slowly, wrapping well off screen so they never pop
 m33wrap('river','live',function(P,t,hz){ const lc=['#d8a03a','#c8603a','#8aa84a'];
   for(let i=0,n=gfxHigh()?9:6;i<n;i++){ const lane=hz+H*(.2+(i%6)*.1+(i>5?.05:0)), sp=.012+i*.004, x=W*((((i*.29+t*sp)%1.3)+1.3)%1.3-.15), y=lane+Math.sin(t*.9+i*2)*H*.006, s=H*(.006+(i%3)*.0015), r=t*.4+i;

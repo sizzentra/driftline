@@ -63,7 +63,6 @@ PLAT.willowRepaintS=()=>MOB()?.25:.03;      /* Willow curtain repaints 4x a seco
 PLAT.rippleBands=MOB;                       /* storms: rain rings in 3 brightness bands, 3 strokes instead of ~46 */
 PLAT.anglerReuseMs=()=>MOB()?33:0;          /* the lit angler picture is redrawn ~30x a second, at once on any state change */
 PLAT.glowPx=()=>MOB()?128:256;              /* smaller glow dots */
-PLAT.movingDecorMs=()=>MOB()?100:0;         /* moving decorations refresh 10x a second */
 PLAT.quietTabSwitch=MOB;                    /* tab switches without the per-card animation or a forced layout */
 PLAT.touch=()=>true;                        /* phones are touch screens: hints and cards say Tap / Let go and never Space or click, even if a browser reports a mouse */
 PLAT.fpsText=fps=>(MOB()&&typeof mobFpsText==='function')?mobFpsText(fps):null;

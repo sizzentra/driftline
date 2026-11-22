@@ -102,13 +102,32 @@ const HK = {
     HK.hi(o,x0,y,bow-x0,1.2,.3); o.posts.push({x:x1,w:W*.02},{x:x0+W*.02,w:W*.02}); /* the water flowing past the hull ends */ },
 
   /* ---------- roofs and canopies (side view) ---------- */
-  roof(o,col,kind,f0,f1){ const a=HK.at(o,f0==null?.03:f0), b=HK.at(o,f1==null?.47:f1), y=o.dockY, c=col, wood=HK.dk(col,.4), lit=HK.lit(o), post=(px,top)=>HK.rect(o,px-1.5,top,3,y-top,wood);
+  /* every cover (director, 2026-11-22: "stuff that's functionally a roof or cover needs to cover the player"): it runs from before
+     the seat to past the standing angler, and is lifted until its lowest edge clears the standing angler's hat (on PC the angler is
+     small next to the screen, so PC covers barely lift). ROOF_LOW: each kind's lowest edge over the angler, as a share of H. */
+  ROOF_LOW:{umbrella:.14,beachumbrella:.14,logoumbrella:.14,leanto:.134,shingle:.134,tin:.134,canvas:.134,sail:.14,gable:.12,slate:.12,barn:.12,shack:.12,aframe:.2,shackbox:.13,
+    curved:.126,tiled:.126,thatch:.114,thatchgate:.114,torii:.145,leaf:.14,fronds:.108,flat:.142,ttop:.142,hardtop:.142,glass:.142,ceiling:.142,overhang:.142,bimini:.136,
+    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13},
+  coverSpan(o,f0,f1){ const sc=HF.sc(); return [Math.min(HK.at(o,f0==null?.03:f0),HF.seatX()-16*sc), Math.min(o.pw-W*.008,Math.max(HK.at(o,f1==null?.47:f1),W*.12+14*sc))]; },
+  roof(o,col,kind,f0,f1){ const [a,b]=HK.coverSpan(o,f0,f1), y=o.dockY, k=Math.max(1,(84*HF.sc()/H)/(HK.ROOF_LOW[kind]||.14)), x=o.x;
+    if(k>1){ x.save(); x.translate(0,y); x.scale(1,k); x.translate(0,-y); }
+    HK.roofShape(o,col,kind,a,b); if(k>1) x.restore();
+    o.top=Math.min(o.top==null?y-H*.23:o.top,y-H*.235*k); },
+  roofShape(o,col,kind,a,b){ const y=o.dockY, c=col, wood=HK.dk(col,.4), lit=HK.lit(o), post=(px,top)=>HK.rect(o,px-1.5,top,3,y-top,wood);
     switch(kind){
-      case 'umbrella': case 'beachumbrella': case 'logoumbrella': { const ux=(a+b)/2, R=(b-a)*.48, ty=y-H*.17, ey=ty+H*.03; HK.rect(o,ux-1.2,ty,2.4,y-ty,'#3a3a40'); HK.rect(o,ux-H*.007,y-H*.004,H*.014,H*.004,'#3a3a40');
-        HK.poly(o,[ux-R,ey,ux-R*.55,ty-H*.004,ux,ty-H*.012,ux+R*.55,ty-H*.004,ux+R,ey],c); if(kind==='beachumbrella') for(let i=0;i<3;i++) HK.poly(o,[ux-R+i*R*.66,ey,ux-R*.55+i*R*.5,ty-H*.003,ux-R*.3+i*R*.5,ty-H*.006,ux-R*.66+i*R*.66,ey],'#f4efe6');
-        if(kind==='logoumbrella') HK.circ(o,ux,ty+H*.012,H*.008,'#f4f6f8'); for(let i=0;i<6;i++) HK.circ(o,ux-R+(2*R)*(i+.5)/6,ey,R/6.5,HK.dk(c,.22)); HK.circ(o,ux,ty-H*.015,2,'#2a2a2e'); break; }
-      case 'leanto': case 'shingle': case 'tin': case 'canvas': { const y1=y-H*.18, y2=y-H*.14, t2=H*.012; post(a,y1); post(b,y2); HK.poly(o,[a-W*.008,y1-t2*.5,b+W*.01,y2-t2*.5,b+W*.01,y2+t2*.5,a-W*.008,y1+t2*.5],c);
-        const n=kind==='tin'?14:7; for(let i=1;i<n;i++){ const u=i/n; HK.line(o,[a+(b-a)*u,y1+(y2-y1)*u-t2*.5,a+(b-a)*u,y1+(y2-y1)*u+t2*.5],v3rgba('#000000',.2)); } HK.line(o,[a-W*.008,y1-t2*.5,b+W*.01,y2-t2*.5],v3rgba(o.P.rim||'#fff0d0',.4*lit),1.2); break; }
+      case 'umbrella': case 'beachumbrella': case 'logoumbrella': { /* side view: a shallow cap on one pole between the seat and the standing angler, wide enough for both */
+        const sc=HF.sc(), ux=(HF.seatX()+W*.12)/2, R=(W*.12-HF.seatX())/2+15*sc, ty=y-H*.17, ey=ty+H*.026, x=o.x; HK.rect(o,ux-1.2,ty,2.4,y-ty,'#3a3a40'); HK.rect(o,ux-H*.007,y-H*.004,H*.014,H*.004,'#3a3a40');
+        const cap=()=>{ x.beginPath(); x.moveTo(ux-R,ey); x.quadraticCurveTo(ux-R*.62,ty-H*.006,ux,ty-H*.008); x.quadraticCurveTo(ux+R*.62,ty-H*.006,ux+R,ey); x.quadraticCurveTo(ux,ey-H*.012,ux-R,ey); x.closePath(); };
+        x.fillStyle=HK.n(o,c); cap(); x.fill();
+        if(kind==='beachumbrella'){ x.save(); cap(); x.clip(); for(let i=0;i<4;i++) HK.rect(o,ux-R+(2*R)*(i*2+1)/8,ty-H*.02,(2*R)/8,H*.06,'#f4efe6'); x.restore(); }
+        if(kind==='logoumbrella') HK.ell(o,ux,ty+H*.01,H*.012,H*.006,'#f4f6f8');
+        HK.curve(o,ux-R,ey,ux,ey-H*.012,ux+R,ey,HK.dk(c,.3),Math.max(1.5,H*.004)); /* the hem: one edge seen from the side */
+        x.strokeStyle=v3rgba('#ffffff',.25*lit); x.lineWidth=1; x.beginPath(); x.moveTo(ux-R*.8,ey-H*.006); x.quadraticCurveTo(ux-R*.5,ty-H*.002,ux,ty-H*.006); x.stroke();
+        HK.circ(o,ux,ty-H*.011,2,'#2a2a2e'); break; }
+      case 'leanto': case 'shingle': case 'tin': case 'canvas': { /* side view: two posts and one thin roof line sloping down to the front */
+        const y1=y-H*.18, y2=y-H*.14, t2=Math.max(2.5,H*.007); post(a,y1); post(b,y2); HK.poly(o,[a-W*.008,y1-t2,b+W*.01,y2-t2,b+W*.01,y2,a-W*.008,y1],c);
+        HK.line(o,[a-W*.008,y1,b+W*.01,y2],HK.dk(c,.35),1.2); if(kind==='tin') HK.line(o,[a-W*.008,y1-t2*.5,b+W*.01,y2-t2*.5],HK.lt(c,.25),1);
+        HK.line(o,[a-W*.008,y1-t2,b+W*.01,y2-t2],v3rgba(o.P.rim||'#fff0d0',.4*lit),1.2); break; }
       case 'sail': { const py=y-H*.17, t2=Math.max(2.4,H*.0055); post(a,py); post(b,py+H*.008); o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.moveTo(a,py); o.x.quadraticCurveTo((a+b)/2,py+H*.024,b,py+H*.008); o.x.lineTo(b,py+H*.008+t2); o.x.quadraticCurveTo((a+b)/2,py+H*.024+t2,a,py+t2); o.x.fill(); break; }
       case 'gable': case 'slate': case 'barn': case 'aframe': case 'shack': { const h=kind==='aframe'?H*.2:H*.08, base=y-H*.12, m=(a+b)/2; if(kind!=='aframe'){ post(a+W*.004,base); post(b-W*.004,base); }
         HK.poly(o,[a-W*.01,kind==='aframe'?y:base,m,base-h,b+W*.01,kind==='aframe'?y:base],c); HK.poly(o,[m,base-h,b+W*.01,kind==='aframe'?y:base,m+(b-m)*.2,kind==='aframe'?y:base],HK.dk(c,.18));

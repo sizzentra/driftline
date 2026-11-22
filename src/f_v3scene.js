@@ -235,34 +235,9 @@ function v3lanternReflect(x,y0,lit,t,rgb){ if(lit<.05) return; const L=H*.13, sc
 // the dock for areas with a wooden dock (pond first): grain, nails, moss,
 // rope, a bucket, and a lantern whose light sits BEHIND its pole and housing
 // =====================================================================
-function v3dock(P,t,night,dockY){
-  const PW=W*.19, wd=dockWood(), N=c=>mix(c,'#0a1020',night*.55);
-  const top=N(mix(wd,'#ffffff',.1)), face=N(mix(wd,'#000000',.22)), dark=N(mix(wd,'#000000',.45));
-  const lit=clamp(night*1.2+P.d*.9,0,1), lx=PW-W*.008, ly=dockY-H*.1;
-  // lantern light first, so the pole and housing are drawn over it
-  if(lit>.05){ v3glow(g,lx,ly,H*.2,'rgba('+homeLight('255,200,110')+',.85)',lit*.6*(.93+.07*Math.sin(t*7.1)*Math.sin(t*3.3)));
-    // a soft oval pool of light on the boards (no hard edges), and a gentle broken reflection on the water below
-    v3lightPool(lx-W*.02,dockY-1,W*.085,homeLight('255,190,110'),.3*lit);
-    v3lanternReflect(lx,dockY+H*.075,lit,t,homeLight('255,210,130')); }
-  // posts, deck and front in the chosen dock style (planks, boardwalk, bamboo, driftwood, stone, pontoon)
-  const pw=Math.max(5,W*.011), th=Math.max(4,H*.012), fh=Math.max(6,H*.018), st=dockStyleCur();
-  drawDockStyle(g,{x0:-2,x1:PW,y:dockY,th,fh,bottom:H,wd,N,rim:P.rim,t,posts:dockPosts5(-2,PW,pw),pw,wl:dockY+H*.075,wc:P.wMid});
-  if(st==='plank'||st==='boardwalk'||st==='driftwood'){ const px=dockPosts5(-2,PW,pw)[4]; g.strokeStyle=N('#c9a070'); g.lineWidth=1.6; for(let k=0;k<3;k++){ g.beginPath(); g.moveTo(px-1,dockY+H*.025+k*3.2); g.lineTo(px+pw+1,dockY+H*.03+k*3.2); g.stroke(); } }
-  // bucket (the old grey box), now a little tin pail with a handle
-  { const bx=W*.155, s=H*.024; g.fillStyle=N('#8f93a8'); g.beginPath(); g.moveTo(bx,dockY-th); g.lineTo(bx+s*.12,dockY-th-s); g.lineTo(bx+s*.88,dockY-th-s); g.lineTo(bx+s,dockY-th); g.closePath(); g.fill();
-    g.fillStyle=N('#c4c8da'); g.fillRect(bx+s*.1,dockY-th-s,s*.8,1.4); g.strokeStyle=N('#c4c8da'); g.lineWidth=1; g.beginPath(); g.arc(bx+s*.5,dockY-th-s,s*.42,Math.PI,0); g.stroke(); }
-  // lantern post and housing, drawn over the light
-  const pX=lx-1.5; g.fillStyle=N('#2c2232'); g.fillRect(pX,ly+H*.022,3,dockY-th-(ly+H*.022)); g.fillRect(pX-3,dockY-th-2,9,2);
-  const hw=H*.022, hh=H*.032;
-  g.fillStyle=lit>.05?v3rgba('#ffd27a',.35+lit*.6):N('#6a6a78'); g.fillRect(lx-hw/2,ly-hh/2,hw,hh);
-  if(lit>.05){ const fl=1+Math.sin(t*13)*.08+Math.sin(t*7.7)*.06; g.fillStyle='#fff2c4'; g.beginPath(); g.ellipse(lx,ly+hh*.08,hw*.16,hh*.22*fl,0,0,7); g.fill(); }
-  g.strokeStyle=N('#2c2232'); g.lineWidth=1.4; g.strokeRect(lx-hw/2,ly-hh/2,hw,hh); g.beginPath(); g.moveTo(lx,ly-hh/2); g.lineTo(lx,ly+hh/2); g.stroke();
-  g.fillStyle=N('#2c2232'); g.beginPath(); g.moveTo(lx-hw*.7,ly-hh/2); g.lineTo(lx,ly-hh*.95); g.lineTo(lx+hw*.7,ly-hh/2); g.closePath(); g.fill(); g.fillRect(lx-hw*.55,ly+hh/2,hw*1.1,2);
-  g.strokeStyle=N('#2c2232'); g.lineWidth=1.2; g.beginPath(); g.arc(lx,ly-hh*1.05,2.2,0,7); g.stroke();
-}
 
 const V3SCENES = { pond: V3POND };
-const V3PLAT = { dock:(P,t,night,dockY)=>v3dock(P,t,night,dockY) };
+
 
 // ---------- entry points called from draw() ----------
 // the camera drifts slowly side to side (two slow waves, never a loop you notice); off for reduced motion
@@ -304,11 +279,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(tl) g.restore();
   return true;
 }
-function v3Platform(L,t,night,dockY,pb){
-  if(V3ON&&V3SCENES[L.id]&&HOMEF[L.id]&&v3palette.v){ hfDraw(L,t,night,dockY,pb,v3palette.v); return true; } /* a home in the home format (docs/HOME_STANDARD.md) */
-  const fn=V3PLAT[L.plat]; if(!V3ON || !V3SCENES[L.id] || !fn) return false;
-  const P=v3palette.v; if(!P) return false; fn(P,t,night,dockY,pb,L); return true;
-}
+function v3Platform(L,t,night,dockY,pb){ const P=v3palette.v; if(!HOMEF[L.id]||!P) return false; hfDraw(L,t,night,dockY,pb,P); return true; } /* every water has a home in the home format (batch 5; the old platform drawers are gone) */
 function v3Fore(L,t,night){
   if(!V3ON || !V3SCENES[L.id] || !V3SCENES[L.id].fore) return false;
   V3SCENES[L.id].fore(v3palette.v||v3palette(L.id,night,0,0),t); return true;

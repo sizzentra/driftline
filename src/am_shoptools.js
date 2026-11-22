@@ -1,24 +1,23 @@
 // =====================================================================
 // 0.3.1 sort and filter for the decoration shops (aquarium and Home).
-// A small bar above each list: sort by price, name or bonus (cozy at Home), show all / owned / for sale,
+// A small bar above the aquarium's decorations: sort by price, name or bonus, show all / owned / for sale,
 // and in the aquarium pick a bonus kind. It only reorders and hides the tiles that are already there,
 // so it is instant; your choice is remembered on this device.
 // =====================================================================
 const SHOPT=(()=>{ let o={aq:{sort:'price',show:'all',kind:'all'},home:{sort:'price',show:'all'}}; try{ const v=JSON.parse(localStorage.getItem('dl-shoptools')||'null'); if(v&&v.aq&&v.home) o=Object.assign(o,v); }catch(e){} return o; })();
 function shoptSave(){ try{ localStorage.setItem('dl-shoptools',JSON.stringify(SHOPT)); }catch(e){} }
 function shopTools(){ const P=$('panel'); if(!P) return;
-  const aqTile=P.querySelector('canvas[data-decor]'), hmTile=P.querySelector('canvas[data-dock]');
-  if(aqTile) shopToolsFor(aqTile.closest('.grid'),'aq'); if(hmTile) shopToolsFor(hmTile.closest('.grid'),'home'); }
-function shopItem(tile,which){ const cv=tile.querySelector(which==='aq'?'canvas[data-decor]':'canvas[data-dock]'); if(!cv) return null; const id=which==='aq'?cv.dataset.decor:cv.dataset.dock;
-  const d=which==='aq'?DECORI[id]:DOCKI[id]; if(!d) return null; const own=which==='aq'?S.aq.owned.includes(id):S.dock.owned.includes(id);
-  return {id,d,own,name:d.name,price:+d.price||0,forSale:!own&&(+d.price>0)&&(which==='aq'||d.src==='shop'),bonus:which==='aq'?decorVal(d):(+d.cozy||0),kind:which==='aq'?decorKind(id):null}; }
+  const aqTile=P.querySelector('canvas[data-decor]');
+  if(aqTile) shopToolsFor(aqTile.closest('.grid'),'aq'); }
+function shopItem(tile){ const cv=tile.querySelector('canvas[data-decor]'); if(!cv) return null; const id=cv.dataset.decor, d=DECORI[id]; if(!d) return null; const own=S.aq.owned.includes(id);
+  return {id,d,own,name:d.name,price:+d.price||0,forSale:!own&&(+d.price>0),bonus:decorVal(d),kind:decorKind(id)}; }
 function shopToolsFor(grid,which){ if(!grid||!grid.isConnected||!grid.parentNode) return; /* 0.4.9 QC: a filter chip that outlived a redraw no longer throws */ const st=SHOPT[which], tiles=[...grid.children].filter(t=>t.classList.contains('tile'));
-  const items=tiles.map(t=>({t,it:shopItem(t,which)})).filter(x=>x.it);
+  const items=tiles.map(t=>({t,it:shopItem(t)})).filter(x=>x.it);
   // aquarium tiles say what kind of bonus they give
   if(which==='aq') for(const {t,it} of items){ const m=t.querySelector('.meta'); if(m&&/income$/.test(m.textContent.trim())) m.innerHTML=`+${Math.round(it.bonus*100)}% ${DECOR_KIND_NAME[it.kind]}`; if(!t.querySelector('.dkind')){ const b=document.createElement('span'); b.className='dkind k-'+it.kind; b.textContent=DECOR_KIND_SHORT[it.kind]; t.insertBefore(b,t.firstChild); } }
   let bar=grid.previousElementSibling; if(!bar||!bar.classList||!bar.classList.contains('shoptools')){ bar=document.createElement('div'); bar.className='shoptools'; grid.parentNode.insertBefore(bar,grid); }
   const chip=(grp,v,label,cur)=>`<button type="button" class="chipb" data-st="${grp}" data-v="${v}" aria-pressed="${cur===v}">${label}</button>`;
-  const sorts=[['price','Price: low to high'],['pricehi','Price: high to low'],['name','Name A to Z'],['bonus',which==='aq'?'Bonus: biggest first':'Cozy: most first']];
+  const sorts=[['price','Price: low to high'],['pricehi','Price: high to low'],['name','Name A to Z'],['bonus','Bonus: biggest first']];
   bar.innerHTML=`<label class="st-sort">Sort <select data-st="sort">${sorts.map(([v,n])=>`<option value="${v}" ${st.sort===v?'selected':''}>${n}</option>`).join('')}</select></label>
     <div class="chips">${chip('show','all','All',st.show)}${chip('show','owned','Owned',st.show)}${chip('show','sale','For sale',st.show)}</div>
     ${which==='aq'?`<div class="chips">${chip('kind','all','Any bonus',st.kind)}${chip('kind','income','Income',st.kind)}${chip('kind','boost','Fish buffs',st.kind)}${chip('kind','show','Showpiece',st.kind)}</div>`:''}`;

@@ -11,10 +11,10 @@
 // =====================================================================
 const HOMEF={};
 /* the format, in the scene's own units (W, H): the same for every format home */
-const HF = { pw:()=>W*.19, x0:()=>-4 /* the deck starts at the left edge (no bank: director, 2026-11-21) */, dockY:()=>H*.6, wl:dockY=>dockY+H*.075, top:dockY=>dockY-H*.25, lightX:()=>W*.19-W*.012,
+const HF = { pw:()=>W*.19, x0:()=>-4 /* the deck starts at the left edge (no bank: director, 2026-11-21) */, dockY:()=>H*.6, wl:dockY=>dockY+H*.075, top:dockY=>dockY-H*.42 /* the stored picture reaches high enough for a lifted cover (HK.roof) */, lightX:()=>W*.19-W*.012,
   seatX:()=>W*.064 /* the seat: behind the angler (who stands at W*.12), under the canopy; resting sits the angler in it */, sc:()=>clamp(H/420,.7,1.25) /* the angler's scale */ };
 const hfSpec = id => HOMEF[id]||null;
-function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const c=S.dock&&S.dock.el&&S.dock.el[el];
+function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const src=(S.dockAt===id||!S.dockAt)?S.dock:(S.docks&&S.docks[id]), c=src&&src.el&&src.el[el]; /* each water's own choices: the map pictures of other waters showed the current water's (2026-11-22) */
   return [Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length?c[1]|0:(e.def?e.def[1]:0)]; }
 function hfColor(id,el){ const sp=hfSpec(id); return sp.colors[hfChoice(id,el)[1]][1]; }
 /* the light's glow colour: the chosen colour, lifted toward white so even a deep shade still reads as light */
@@ -32,7 +32,7 @@ function hfPaintCache(L,P,night,dockY,dIn,slot){ const sp=hfSpec(L.id), d=dIn||M
   if(!c){ c={cv:document.createElement('canvas')}; HF_CACHE[id]=c; } c.key=key; c.x=x0; c.y=y0; c.w=x1-x0; c.h=y1-y0;
   c.cv.width=Math.max(1,Math.ceil(c.w*d)); c.cv.height=Math.max(1,Math.ceil(c.h*d)); const x=c.cv.getContext('2d'); x.setTransform(d,0,0,d,-x0*d,-y0*d); x.clearRect(x0,y0,c.w,c.h);
   const N=col=>mix(col,'#0a1020',night*.55), ctx={x,P,night,dockY,N,id:L.id,pw:HF.pw(),wl:HF.wl(dockY),posts:[]};
-  sp.paint(ctx); c.posts=ctx.posts; c.lights=ctx.lights||[]; return c; }
+  sp.paint(ctx); c.posts=ctx.posts; c.top=ctx.top==null?dockY-H*.23:ctx.top; c.lights=ctx.lights||[]; return c; }
 /* the water flowing past each support (director, 2026-11-21: subtle, like water going by, not rings that grow and shrink): a faint
    contact line where the support meets the water, and two short ripples drifting away downstream and fading. Drawn BEFORE the home,
    so the support covers the start of each line. */
@@ -71,7 +71,10 @@ function hfPost(o,px,w,col,kind,top){ const {x,N,P,wl}=o, wc=P.wMid||'#3a6a7a'; 
     else { x.fillStyle=mix(c,'#000000',.3); x.fillRect(px+w*.15,top,w*.35,wl-top); } }
   /* under the water line: the support runs on down to the bottom of the screen, taking on the water's colour and fading out gradually
      (director, 2026-11-21: they stopped as hard blocks above the bottom) */
-  const gr=x.createLinearGradient(0,wl,0,H); gr.addColorStop(0,v3rgba(mix(c,wc,.4),.92)); gr.addColorStop(.3,v3rgba(mix(c,wc,.68),.6)); gr.addColorStop(.7,v3rgba(mix(c,wc,.88),.22)); gr.addColorStop(1,v3rgba(wc,0)); x.fillStyle=gr; x.fillRect(px-w/2,wl,w,H-wl);
+  /* director, 2026-11-22: "blend into the water properly": under the surface the support is murky, darker than the water around it
+     (never a pale block), and it is lost in the depth well before the bottom */
+  const deep=P.wBot||mix(wc,'#000000',.4), mur=mix(mix(c,deep,.7),'#000000',.12), gr=x.createLinearGradient(0,wl,0,Math.min(H,wl+H*.2));
+  gr.addColorStop(0,v3rgba(mur,.62)); gr.addColorStop(.25,v3rgba(mur,.36)); gr.addColorStop(.6,v3rgba(deep,.14)); gr.addColorStop(1,v3rgba(deep,0)); x.fillStyle=gr; x.fillRect(px-w/2,wl,w,Math.min(H,wl+H*.2)-wl);
   o.posts.push({x:px,w}); }
 
 /* ---------- Willow Pond: the starter dock (pilot; docs/HOME_DESIGNS.md › 1) ---------- */
@@ -133,28 +136,8 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
         x.fillStyle=cc; x.fillRect(sx-w/2,by-1.6*s,w,2.6*s); x.save(); x.translate(sx-w*.45,by-1); x.rotate(-.42); for(let i=0;i<3;i++) x.fillRect(0,-16*s+i*5.6*s,2.6*s,4.6*s); x.fillRect(-.6*s,-16.5*s,3.8*s,17*s*.06+1); x.restore();
         x.fillStyle=dark; x.fillRect(sx-w*.5,by-7*s,w*.9,1.8*s); x.fillRect(sx+w*.3,by-7*s,1.8*s,7*s);
         x.fillStyle=v3rgba('#ffffff',.2*lit); x.fillRect(sx-w/2,by-1.6*s,w,1); } }
-    /* canopy: in true side view, drawn after the rail so it stands on the deck (director: it looked attached to the rail) */
-    { const cs=hfStyle(id,'canopy'), cc=N(canC), shade=N(mix(canC,'#000000',.22)), wood=N(mix(deckC,'#000000',.35)), iron=N('#3a3a40');
-      const foot=(px)=>{ x.fillStyle=iron; x.fillRect(px-H*.007,dockY-H*.004,H*.014,H*.004); }; /* a small foot on the boards */
-      if(cs===1){ /* patio umbrella (the director's model): one pole on a foot, a shallow dome with panels, its scalloped rim */
-        const ux=at(.27), R=(pw-x0)*.19, ty=dockY-H*.17, ey=ty+H*.03; x.fillStyle=iron; x.fillRect(ux-1.2,ty,2.4,dockY-ty); foot(ux);
-        x.fillStyle=cc; x.beginPath(); x.moveTo(ux-R,ey); x.quadraticCurveTo(ux-R*.55,ty-H*.006,ux,ty-H*.012); x.quadraticCurveTo(ux+R*.55,ty-H*.006,ux+R,ey); x.closePath(); x.fill();
-        x.fillStyle=shade; for(let i=0;i<6;i++){ const u0=i/6, u1=(i+1)/6; x.beginPath(); x.arc(ux-R+(2*R)*(u0+u1)/2,ey,R/6,0,Math.PI); x.fill(); }
-        x.strokeStyle=v3rgba('#000000',.18); x.lineWidth=1; for(const f of [-.6,-.2,.2,.6]){ x.beginPath(); x.moveTo(ux,ty-H*.012); x.lineTo(ux+R*f,ey); x.stroke(); }
-        x.fillStyle=v3rgba('#ffffff',.25*lit); x.beginPath(); x.moveTo(ux-R*.85,ey-H*.004); x.quadraticCurveTo(ux-R*.5,ty-H*.002,ux,ty-H*.009); x.lineTo(ux,ty-H*.004); x.quadraticCurveTo(ux-R*.5,ty+H*.004,ux-R*.85,ey-H*.002); x.fill();
-        x.fillStyle=N('#2a2a2e'); x.beginPath(); x.arc(ux,ty-H*.015,2,0,7); x.fill(); }
-      if(cs===2){ /* lean-to roof: a tall post at the back, a shorter one in front, a plank roof sloping down between them (side view: one roof line) */
-        const a=at(.03), b=at(.46), y1=dockY-H*.18, y2=dockY-H*.14, t2=H*.012; x.fillStyle=wood; x.fillRect(a-1.6,y1,3.2,dockY-y1); x.fillRect(b-1.6,y2,3.2,dockY-y2);
-        x.fillStyle=cc; x.beginPath(); x.moveTo(a-W*.008,y1-t2*.5); x.lineTo(b+W*.01,y2-t2*.5); x.lineTo(b+W*.01,y2+t2*.5); x.lineTo(a-W*.008,y1+t2*.5); x.closePath(); x.fill();
-        x.fillStyle=shade; x.beginPath(); x.moveTo(a-W*.008,y1+t2*.15); x.lineTo(b+W*.01,y2+t2*.15); x.lineTo(b+W*.01,y2+t2*.5); x.lineTo(a-W*.008,y1+t2*.5); x.closePath(); x.fill();
-        x.strokeStyle=v3rgba('#000000',.2); x.lineWidth=1; for(let i=1;i<7;i++){ const u=i/7, px=a-W*.008+(b-a+W*.018)*u, py=y1+(y2-y1)*u; x.beginPath(); x.moveTo(px,py-t2*.5); x.lineTo(px,py+t2*.5); x.stroke(); }
-        x.fillStyle=v3rgba(P.rim||'#fff0d0',rimA); x.beginPath(); x.moveTo(a-W*.008,y1-t2*.5); x.lineTo(b+W*.01,y2-t2*.5); x.lineTo(b+W*.01,y2-t2*.5+1.2); x.lineTo(a-W*.008,y1-t2*.5+1.2); x.fill(); }
-      if(cs===3){ /* sailcloth shade: a pole at each end, the cloth stretched between them as a thin line with a gentle sag, tied at the tops */
-        const a=at(.03), b=at(.48), py=dockY-H*.17, sag=H*.012, t2=Math.max(2.4,H*.0055); x.fillStyle=wood; x.fillRect(a-1.4,py,2.8,dockY-py); x.fillRect(b-1.4,py+H*.008,2.8,dockY-py-H*.008);
-        x.fillStyle=cc; x.beginPath(); x.moveTo(a,py); x.quadraticCurveTo((a+b)/2,py+sag*2,b,py+H*.008); x.lineTo(b,py+H*.008+t2); x.quadraticCurveTo((a+b)/2,py+sag*2+t2,a,py+t2); x.closePath(); x.fill();
-        x.fillStyle=shade; x.beginPath(); x.moveTo(a,py+t2*.55); x.quadraticCurveTo((a+b)/2,py+sag*2+t2*.55,b,py+H*.008+t2*.55); x.lineTo(b,py+H*.008+t2); x.quadraticCurveTo((a+b)/2,py+sag*2+t2,a,py+t2); x.closePath(); x.fill();
-        x.strokeStyle=N(mix('#c8a878',canC,.3)); x.lineWidth=1; for(const [px,qy] of [[a,py],[b,py+H*.008]]){ x.beginPath(); x.moveTo(px,qy); x.lineTo(px+(px===a?-W*.006:W*.006),qy-H*.012); x.stroke(); }
-        x.fillStyle=v3rgba('#ffffff',.22*lit); x.beginPath(); x.moveTo(a,py); x.quadraticCurveTo((a+b)/2,py+sag*2,b,py+H*.008); x.lineTo(b,py+H*.008+1); x.quadraticCurveTo((a+b)/2,py+sag*2+1,a,py+1); x.fill(); } }
+    /* canopy: the shared side-view cover (cw_homekit.js HK.roof), over the seat and the standing angler */
+    { const cs=hfStyle(id,'canopy'); if(cs) HK.roof(o,canC,['','umbrella','leanto','sail'][cs]); }
     /* the light at the light spot (its glow is drawn live); all three stand on the deck at the end of the dock */
     { const ls=hfStyle(id,'light'), lx=HF.lightX(), iron=N('#2a2a30'), metal=iron; /* the fixture stays iron: the light's colour is its glow */ o.lights=[];
       if(ls===0){ x.fillStyle=metal; x.fillRect(lx-1.5,dockY-H*.1,3,H*.1); x.fillRect(lx-H*.009,dockY-H*.118,H*.018,2.5); x.strokeStyle=metal; x.lineWidth=1.2; x.strokeRect(lx-H*.008,dockY-H*.115,H*.016,H*.02); x.beginPath(); x.moveTo(lx-H*.01,dockY-H*.116); x.lineTo(lx,dockY-H*.128); x.lineTo(lx+H*.01,dockY-H*.116); x.stroke();
@@ -184,11 +167,11 @@ function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
 /* the 6 features become the page's tabs */
 function hfSections(P){ const sp=hfSpec(S.loc); if(!sp) return false; sectionize(P,'home',sp.els.map(e=>({name:e.label,nodes:[...P.querySelectorAll(':scope > [data-hel="'+e.id+'"]')]}))); return true; }
 /* the Home view frames the home: its footprint, the free zone above it and the water under it, at the view's own shape */
-function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), want={x:0,y:HF.top(dy)+H*.02,w:pw*1.08,h:(HF.wl(dy)+H*.05)-(HF.top(dy)+H*.02)}, ar=c.width/c.height;
-  let w=want.w, h=w/ar; /* the home fills the view's width */
+function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), hc=HF_CACHE[S.loc], ft=Math.min(dy-H*.23,(hc&&hc.top!=null?hc.top:dy)-H*.02) /* the home's highest point (a lifted cover) */, want={x:0,y:ft,w:pw*1.08,h:(HF.wl(dy)+H*.05)-ft}, ar=c.width/c.height;
+  let w=want.w, h=w/ar; /* the home fills the view's width */ if(h<want.h){ h=want.h; w=h*ar; } /* never cut the home: a tall cover zooms the view out until the whole home shows (director, 2026-11-22: the umbrella showed only its pole) */
   if(h>H*.96){ h=H*.96; w=h*ar; } if(h<H*.25){ h=H*.25; w=h*ar; } /* never so flat that the deck or the canopy is cut */ /* the preview shows only the home (director, 2026-11-21): framed on the home's width, never the fishing scene beside it; a wide view crops water below instead */
   let y=h>=want.h?Math.min(want.y+want.h/2,dy-H*.03)-h/2:dy-H*.205; y=Math.max(top||0,Math.min(H-h,y)); return {sx:0,sy:y,sw:Math.min(W,w),sh:h}; }
 /* a choice: the element's style or color (saved with this water's home) */
 function hfAct(b){ const a=b.dataset.act; if(a!=='hfel'&&a!=='hfcol') return undefined; const sp=hfSpec(S.loc), e=sp&&sp.els.find(x=>x.id===b.dataset.k), v=+b.dataset.v; if(!e) return 'skip';
   const cur=hfChoice(S.loc,e.id); if(a==='hfel'){ if(!(v>=0&&v<e.styles.length)) return 'skip'; cur[0]=v; } else { if(!(v>=0&&v<sp.colors.length)) return 'skip'; cur[1]=v; }
-  S.dock.el=hfClean(S.dock.el); S.dock.el[e.id]=cur; try{ sfx.coin(); }catch(er){} save(); return 'render'; }
+  S.dock.el=hfClean(S.dock.el); S.dock.el[e.id]=cur; try{ V3THUMB[S.loc]=undefined; }catch(er){} /* its map picture is painted again */ try{ sfx.coin(); }catch(er){} save(); return 'render'; }

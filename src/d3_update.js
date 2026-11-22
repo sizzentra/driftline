@@ -561,8 +561,8 @@ let PET_NIGHT=0, PET_BOX=null, PET_BOX2=null, hearts=[], petT=-9999, petT2=-9999
 function drawOnePet(id,px,ay,sc,t,night,pt,cx){ const g2=cx||g; /* any canvas: the scene, or the Home close-up */ const big=id==='horse'||id==='cow'; const s=sc*(big?.85:1);
   const k=(performance.now()-pt)/650; g2.save(); if(k>=0&&k<1){ const b=Math.sin(k*Math.PI); g2.translate(px,ay); g2.scale(1+.1*b,1-.12*b); g2.translate(-px,-ay-b*7*sc); }
   drawPetStyled(g2,id,px,ay,s,t,night*.6); g2.restore(); return {x0:px-18*s,x1:px+(big?22:16)*s,y0:ay-(big?48:30)*s,y1:ay+4,k}; }
-function drawPetScene(ax,ay,sc,t,night,cx){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const fix=!!HOMEF[S.loc] /* format homes: the pets' spots are fixed */, px=(!fix&&S.dock&&S.dock.petPos!=null&&G.st!=='rest')?scenePetX(S.dock.petPos):ax-(big?44:31)*sc;
-  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(!fix&&S.dock&&S.dock.pet2Pos!=null&&G.st!=='rest') x2=scenePetX(S.dock.pet2Pos); else if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2,cx); } else PET_BOX2=null;
+function drawPetScene(ax,ay,sc,t,night,cx){ PET_NIGHT=night; const id=S.pet, big=id==='horse'||id==='cow'; const px=ax-(big?44:31)*sc; /* the pets' spots are fixed beside the angler */
+  if(S.pet2&&PETI[S.pet2]){ const big2=S.pet2==='horse'||S.pet2==='cow'; let x2=px-(big?22:15)*sc-(big2?36:26)*sc, y2=ay; if(x2-(big2?20:13)*sc<2){ x2=px-(big?24:15)*sc; y2=ay-2.2*sc; } PET_BOX2=drawOnePet(S.pet2,x2,y2,sc*.9,t,night,petT2,cx); } else PET_BOX2=null;
   PET_BOX=drawOnePet(id,px,ay,sc,t,night,petT,cx);
   const two=PET_BOX2&&PET_BOX2.k<PET_BOX.k, nb=two?PET_BOX2:PET_BOX, nmId=two?S.pet2:id, k=nb.k;
   if(k>=0&&k<2.2){ const nm=(nmId===id&&S.pet2?'★ ':'')+petName(nmId), cx=(nb.x0+nb.x1)/2; g.font='700 11px system-ui'; g.textAlign='center'; const tw=g.measureText(nm).width; g.globalAlpha=Math.min(1,2.2-k); g.fillStyle='rgba(5,14,20,.7)'; rr(cx-tw/2-7,nb.y0-22,tw+14,17,8); g.fill(); g.fillStyle='#ffc94d'; g.fillText(nm,cx,nb.y0-10); g.globalAlpha=1; }

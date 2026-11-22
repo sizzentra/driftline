@@ -14,25 +14,7 @@
     try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; V3WIL.c=wl.c; V3WIL.t=wl.t; V3WIL.k=wl.k; V3WIL.turn=wl.turn; try{ v3palette.k=null; }catch(e){} } }; }
 { const _tn=thumbNext; thumbNext=function(){ if(S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
 
-/* 2) Dock decorations: every decoration went through litDraw (its own offscreen canvas plus several light passes) every frame, even a
-   chair that never changes. Each item is now kept as a finished picture, by WHAT it is (id, size, light level, front/back), drawn
-   wherever the dock or boat carries it. Still items are lit once and reused until the light level changes; moving ones (flags,
-   campfire, wind chime...) are drawn fresh every frame on PC and refreshed 10 times a second on phones. Same box as litDraw uses. */
-{ const _dd=drawDockItem, DC=new Map(), DA={}; /* DA[id]: true = this decoration moves, false = still */ for(const k of ['birdhouse','bunting','campfire','cottage','minilight','mug','plants','radio','shipwheel','tideflag','windchime']) DA[k]=true; /* from the drawing code (cases that use the clock); other items are tested once */
-  drawDockItem=function(c,id,x,y,s,t,night,back){ if(c!==g) return _dd.apply(this,arguments); const mvMs=PLAT.movingDecorMs(); if(DA[id]&&!mvMs) return _dd.apply(this,arguments);
-    const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(k>0)||!(s>0)) return _dd.apply(this,arguments);
-    const big=id==='cottage', w=(big?46:44)*s, hg=(big?64:96)*s, bx=-w, by=-hg, bw=2*w, bh=hg+6*s, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k);
-    if(!(pw>2&&ph>2)||pw*ph>4e6) return _dd.apply(this,arguments);
-    const key=id+'|'+Math.round(s*200)+'|'+Math.round((night||0)*20)+'|'+(back?1:0)+'|'+pw+'x'+ph, now=performance.now();
-    let e=DC.get(key); if(!e){ e={c:document.createElement('canvas'),at:-1e9,seen:now}; DC.set(key,e); if(DC.size>60){ for(const [kk,v] of DC) if(now-v.seen>3000) DC.delete(kk); } }
-    e.seen=now;
-    const paint=(cv2,tt)=>{ if(cv2.width!==pw||cv2.height!==ph){ cv2.width=pw; cv2.height=ph; } const tx=cv2.getContext('2d'); tx.setTransform(1,0,0,1,0,0); tx.clearRect(0,0,pw,ph); tx.setTransform(k,0,0,k,-bx*k,-by*k); _dd(tx,id,0,0,s,tt,night,back); };
-    if(DA[id]===undefined){ try{ const t2=document.createElement('canvas'); paint(e.c,t||0); paint(t2,(t||0)+.37); const a=e.c.getContext('2d').getImageData(0,0,pw,ph).data, b=t2.getContext('2d').getImageData(0,0,pw,ph).data; let same=true; for(let i=0;i<a.length;i+=16){ if(a[i]!==b[i]||a[i+3]!==b[i+3]){ same=false; break; } } DA[id]=!same; e.at=now; }catch(er){ DA[id]=true; }
-      if(DA[id]&&!mvMs){ DC.delete(key); return _dd.apply(this,arguments); } }
-    else if(e.at<0||(DA[id]&&now-e.at>=mvMs)){ paint(e.c,t); e.at=now; }
-    c.drawImage(e.c,x+bx,y+by,bw,bh); }; }
-
-/* 3) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
+/* 2) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every
    call, over 30 a frame at Starfall. Now a ready-made soft dot per color (same centre color, same fade to nothing) is stamped at the
    same size and strength (256 px on PC for big screens, 128 px on phones). */
 { const _gl=v3glow, GS=new Map();
@@ -43,13 +25,13 @@
     let s=GS.get(key); if(!s){ s=document.createElement('canvas'); s.width=s.height=S2; const sx=s.getContext('2d'), gr=sx.createRadialGradient(H,H,0,H,H,H); gr.addColorStop(0,'rgba('+p.rgb+',1)'); gr.addColorStop(1,'rgba(0,0,0,0)'); sx.fillStyle=gr; sx.fillRect(0,0,S2,S2); if(GS.size>96) GS.clear(); GS.set(key,s); }
     const ga=a*p.a; if(!(ga>0)) return; c.save(); c.globalAlpha=Math.min(1,ga); c.drawImage(s,x-r,y-r,r*2,r*2); c.restore(); }; }
 
-/* 4) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
+/* 3) Starfall's sky events: sfEvent counted every event from the start of the session on every call (twice a frame), a little more
    work the longer you play. It now resumes from where the last call got to (same events, same timing). */
 { const _sf=sfEvent; let cs=0, cn=0;
   sfEvent=function(t){ if(!(t>=cs)){ cs=0; cn=0; } let start=cs, n=cn; while(true){ const gap=18+((Math.sin(n*91.7)*43758.5)%1+1)%1*22; if(start+gap>t) break; start+=gap; n++; } cs=start; cn=n;
     const kind=Math.floor((((Math.sin(n*37.3)*12345.6)%1+1)%1)*5); return {kind,into:t-start,n}; }; }
 
-/* 5) Tinted pets: a canvas color filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
+/* 4) Tinted pets: a canvas color filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
    once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
 { const _dp=drawPetStyled; let PC=null;
   drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
@@ -61,7 +43,7 @@
     const r=_dp(px,id,x,y,s,t,night,Object.assign({},lk,{tint:undefined}));
     c.save(); c.setTransform(1,0,0,1,0,0); c.filter=f; c.drawImage(PC,0,0,pw,ph,m.a*(x+bx)+m.e,m.d*(y+by)+m.f,pw,ph); c.restore(); return r; }; }
 
-/* 6) The top bar (hud): it ran every frame (up to 120 times a second), reading the clock, weather, coins and badges and building a
+/* 5) The top bar (hud): it ran every frame (up to 120 times a second), reading the clock, weather, coins and badges and building a
    comparison key each time, though what it shows changes at most once a second. It now runs at most 10 times a second, and at
    once whenever something asks for a refresh (lastHud cleared) or the fishing state changes (hints follow the line right away). */
 { const _hd=hud; let at=0, st=''; hud=function(){ const now=performance.now(); if(lastHud!==''&&G.st===st&&now-at<100) return; at=now; st=G.st; return _hd.apply(this,arguments); }; }

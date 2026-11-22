@@ -78,14 +78,7 @@ html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav,html body.phone-l
   paintPetCustom=function(){ if(!MOB()) return _pp.apply(this,arguments); const a=arguments, self=this;
     queueMicrotask(()=>{ const c=$('petcv'); if(!c) return; if(c.getClientRects().length){ _pp.apply(self,a); return; }
       clearTimeout(io); io=setTimeout(()=>{ try{ if($('petcv')) _pp(); }catch(er){} },120); }); };
-  /* Dock: the decoration cards (the Decorations tab) */
-  let q=null; const _dt=dockThumb, _mt=mysteryThumb;
-  dockThumb=function(x){ if(q&&x&&x.canvas&&x.canvas.dataset&&x.canvas.dataset.dock){ q.push([_dt,this,[...arguments]]); return; } return _dt.apply(this,arguments); };
-  mysteryThumb=function(x){ if(q&&x&&x.canvas&&x.canvas.dataset&&x.canvas.dataset.dock){ q.push([_mt,this,[...arguments]]); return; } return _mt.apply(this,arguments); };
-  const _rh=renderHome; renderHome=function(){ if(!MOB()) return _rh.apply(this,arguments); q=[]; let jobs; try{ return _rh.apply(this,arguments); } finally{ jobs=q; q=null;
-      if(jobs.length) queueMicrotask(()=>{ const now=[], later=[]; for(const j of jobs){ const c=j[2][0].canvas; if(!c||!c.isConnected) continue; (c.getClientRects().length?now:later).push(j); }
-        for(const [f,t,a] of now){ try{ f.apply(t,a); }catch(e){} }
-        const step=()=>{ const part=later.splice(0,8); for(const [f,t,a] of part){ if(a[0].canvas.isConnected) try{ f.apply(t,a); }catch(e){} } if(later.length) setTimeout(step,0); }; if(later.length) setTimeout(step,0); }); } }; }
+  }
 /* labels in a section that was hidden when the page was built are fitted when you open that section (the fit step runs on any
    change inside the menu: a tiny no-op change after each section switch triggers it) */
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('#panel.aq07 .aq07-sheet > .bwx-nav > button, #panel.aq07 .aq07-sheet > .sect-nav > button'); if(!b||!MOB()) return;

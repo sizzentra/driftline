@@ -7,10 +7,10 @@
 //    (a category, a link, the goal chip, search, settings) opens it; Back to fishing, Esc or the phone's back gesture
 //    closes it. While it is open the line waits: fishing is paused, never reset. Clocks (events, aquarium) keep running.
 //  S.tab==='dash' means fishing mode, so every old "if(S.tab==='x')" check stays correct.
-// Also: Home is now the Dock, and every water has its own dock layout (decorations, wood, style, spots).
+// Also: every water keeps its own home choices.
 // =====================================================================
 const DASH='dash';
-const DOCK_KEYS=['wood','decor','style','pos','petPos','pet2Pos','light','hull','el'];
+const DOCK_KEYS=['el'];
 
 // ---------- the 5 categories (the menus read MENU_SECS, so changing it in place changes every menu) ----------
 const SEC_ICONS={
@@ -46,16 +46,15 @@ KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or
   menuSubKey=''; })();
 
 // ---------- per-water docks ----------
-function dockCopy(d){ d=d||{}; return {wood:d.wood||'oak', decor:Array.isArray(d.decor)?d.decor.filter(x=>typeof x==='string'&&DOCKI[x]).slice(0,DOCK_SLOTS):[], style:typeof d.style==='string'?d.style:'plank',
-  pos:(d.pos&&typeof d.pos==='object')?Object.fromEntries(Object.entries(d.pos).filter(([k,v])=>typeof v==='number'&&isFinite(v))):{}, petPos:typeof d.petPos==='number'?d.petPos:null, pet2Pos:typeof d.pet2Pos==='number'?d.pet2Pos:null, ...(d.light&&homeLightOk(d.light)?{light:d.light}:{}), ...(d.hull&&homeHullOk(d.hull)?{hull:d.hull}:{}), ...(Object.keys(hfClean(d.el)).length?{el:hfClean(d.el)}:{})}; } /* el: format-home choices, only when there are some (a save round trip stays identical) */
+function dockCopy(d){ d=d||{}; const el=hfClean(d.el); return Object.keys(el).length?{el}:{}; } /* el: this water's home choices (docs/HOME_STANDARD.md), only when there are some (a save round trip stays identical) */
 function dockApply(L){ const D=dockCopy(L); for(const k of DOCK_KEYS) S.dock[k]=D[k]; }
 // keep S.dock (what the game draws and edits) showing the dock of the water you are at
 function dockSync(){ if(!S||!S.dock) return; if(!S.docks||typeof S.docks!=='object'||Array.isArray(S.docks)) S.docks={};
   const here=S.loc; if(S.dockAt===here&&S.docks[here]) return;
   if(S.dockAt&&LOCS.some(L=>L.id===S.dockAt)) S.docks[S.dockAt]=dockCopy(S.dock); // store the dock you are leaving
-  if(S.docks[here]) dockApply(S.docks[here]); // its own layout
-  S.docks[here]=dockCopy(S.dock); // a water you never fished at starts with a copy of the dock you arrive with
-  S.dockAt=here; DOCK_PV=null; }
+  dockApply(S.docks[here]||{}); // its own choices; a water you never fished at starts with its defaults
+  S.docks[here]=dockCopy(S.dock);
+  S.dockAt=here; }
 function dockStore(){ try{ dockSync(); if(S.dockAt) S.docks[S.dockAt]=dockCopy(S.dock); }catch(e){} }
 { const _save04=save; save=function(){ dockStore(); return _save04.apply(this,arguments); }; }
 function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){} }
@@ -64,20 +63,6 @@ rodsClean(S); perksClean(S);
 { const _mig04=migrate; migrate=function(o){ const st=_mig04(o); rodsClean(st); perksClean(st); try{ if(!st.docks||typeof st.docks!=='object'||Array.isArray(st.docks)) st.docks={};
     for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else st.docks[k]=dockCopy(st.docks[k]); }
     if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} return st; }; }
-let dockCopyAsk=null;
-function dockSummary(id){ const d=id===S.dockAt?S.dock:(S.docks&&S.docks[id]); if(!d) return null; let c=d.wood&&d.wood!=='oak'?1:0; for(const x of d.decor||[]) if(DOCKI[x]) c+=DOCKI[x].cozy; return {cozy:c, n:(d.decor||[]).length}; }
-// the Dock page: which water you are editing, and every other water's dock
-{ const _rh=renderHome; renderHome=function(P){ dockSync(); _rh(P); try{ const L=LOCS[locIdx(S.loc)], h=P.querySelector('h2'); if(h) h.textContent='Dock';
-    const sub=h&&h.parentElement.querySelector('.sub'); if(sub) sub.textContent='Every water has its own dock. Pick the wood, the style and the decorations for this one: the cozier it gets, the better you fish here.';
-    const all=S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b)); if(dockPick&&(dockPick===S.loc||!all.includes(dockPick))) dockPick=null;
-    const pk=dockPick, ps=pk&&dockSummary(pk), pn=pk&&LOCS[locIdx(pk)].name, ask=dockCopyAsk===pk;
-    const box=document.createElement('div'); box.className='dockbar';
-    box.innerHTML=`<div class="dock-h"><span class="meta">Your docks</span>${all.map(id=>{ const s=dockSummary(id), here=id===S.loc;
-        return `<button type="button" class="dock-c${here?' here':''}" data-act="dockpick" data-k="${id}" aria-pressed="${here||pk===id}" ${here?'aria-current="true"':''}><b>${esc(LOCS[locIdx(id)].name)}</b><span>${here?'editing':s?s.cozy+' ♥':'new'}</span></button>`; }).join('')}</div>
-      ${pk?`<div class="dock-pick"><span class="meta"><b>${esc(pn)}</b>: ${ps?ps.n+' decoration'+(ps.n===1?'':'s')+' · '+ps.cozy+' ♥ cozy':'not built yet. It starts as a copy of the dock you arrive with.'}</span><span class="row" style="gap:6px;flex-wrap:wrap">${ps?`<button class="btn alt sm ${ask?'warn':''}" data-act="dockcopy" data-k="${pk}">${ask?'Tap again: replace the '+esc(L.name)+' dock':'Copy its layout here'}</button>`:''}<button class="btn sm" data-act="goto" data-k="${pk}" ${G.st==='idle'?'':'disabled title="Reel in first"'}>Travel there</button></span></div>`
-        :`<div class="dock-pick"><span class="meta">You are editing the dock at <b>${esc(L.name)}</b>.${all.length>1?' Pick another water to copy its layout here or travel to it.':' Unlock more waters for more docks.'}</span></div>`}`;
-    const cv=P.querySelector('#homecv'), tile=cv&&cv.closest('.tile'), hint=tile&&tile.nextElementSibling; if(hint&&hint.tagName==='P'&&/Drag/.test(hint.textContent)) hint.after(box); else if(tile) tile.after(box); else { const row=h?h.closest('.row'):null; if(row&&row.parentElement===P) row.after(box); else P.prepend(box); } }catch(e){} }; }
-let dockPick=null;
 
 // ---------- menu mode ----------
 let MENU_OPEN=false, menuHist=false, dashPress=false;
@@ -206,9 +191,6 @@ function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'
     if(a==='dcol'){ const c=dashCol(); if(c[k]) delete c[k]; else c[k]=1; return 'render'; }
     if(a==='dhunts'){ encLoc=S.loc; encSel=null; S.settings.logShow='hunt'; setTab('journal'); save(); return 'skip'; }
     if(a==='dbait'){ searchGo(['','shop',['tackleview','bait']]); return 'skip'; }
-    if(a==='dockcopy'){ if(!S.docks||!S.docks[k]||k===S.loc) return 'skip'; if(dockCopyAsk!==k){ dockCopyAsk=k; renderPanel(); return 'skip'; } dockCopyAsk=null; dockStore(); dockApply(S.docks[k]); S.docks[S.loc]=dockCopy(S.dock); toast('Copied the '+LOCS[locIdx(k)].name+' dock here'); return 'render'; }
-    if(a==='dockpick'){ dockCopyAsk=null; dockPick=(k===S.loc||dockPick===k)?null:k; renderPanel(); return 'skip'; }
-    if(a!=='dockcopy') dockCopyAsk=null;
     return _xa(b); }; }
 // the panel shows the dashboard in fishing mode, the page otherwise
 { const _rp=renderPanel; renderPanel=function(){ dockSync(); if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
@@ -216,7 +198,7 @@ setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
 
-if(/[?&]test\b/.test(location.search)) window.__ui={open:(...a)=>openMenu(...a), close:(...a)=>closeMenu(...a), isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync, dockSummary};
+if(/[?&]test\b/.test(location.search)) window.__ui={open:(...a)=>openMenu(...a), close:(...a)=>closeMenu(...a), isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
@@ -330,10 +312,6 @@ body.phone-app #panel .dwb{padding:0 10px 9px;gap:6px}
 </style>`);
 // the old "hide menus" toggle is gone (fishing is always full screen); its search entry goes too
 for(let i=SEARCH_IDX.length-1;i>=0;i--) if(SEARCH_IDX[i][0]==='Hide menus') SEARCH_IDX.splice(i,1);
-// the Dock page measures each decoration's drawing the first time it opens (about 90 ms); do it in idle moments after load instead
-(function(){ const ids=Object.keys(typeof DOCK_H==='object'?DOCK_H:{}); let i=0; const idle=window.requestIdleCallback||(f=>setTimeout(()=>f({timeRemaining:()=>8}),200));
-  const step=dl=>{ while(i<ids.length&&dl.timeRemaining()>4){ try{ dockNative(ids[i]); }catch(e){} i++; } if(i<ids.length) idle(step,{timeout:3000}); };
-  setTimeout(()=>idle(step,{timeout:3000}),4000); })();
 // a save that could not be read was kept aside at load: say so once
 if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
 // save codes and the account copy carry the current dock exactly as it is right now
@@ -1139,14 +1117,9 @@ let paintFish, paintDecor; // set just below (pictures drawn once and reused)
 { const KEEP=new Map(), keep=(k,w,h,paint)=>{ let o=KEEP.get(k); if(!o){ o=document.createElement('canvas'); o.width=w; o.height=h; paint(o); if(KEEP.size>800) KEEP.clear(); KEEP.set(k,o); } return o; };
   paintFish=function(P){ P.querySelectorAll('canvas[data-fish]').forEach(c=>{ const sp=SPI[c.dataset.fish]; if(!sp) return; const known=c.dataset.known!=='0', sh=+c.dataset.sh||0, pv=c.dataset.pv||null;
     const o=keep(['f',sp.id,known?1:0,sh,pv,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>fishCanvas(o,sp,known,sh,pv)); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
-  const _dt=dockThumb;
-  dockThumb=function(x,id,w,h,night){ const m=x.getTransform&&x.getTransform(); if(!m||m.a!==1||m.d!==1||m.b||m.c||m.e||m.f) return _dt.apply(this,arguments); // only plain, unscaled canvases are kept
-    x.drawImage(keep(['d',id,w,h,night||0].join('|'),w,h,o=>_dt(o.getContext('2d'),id,w,h,night)),0,0); };
   paintDecor=function(P){ P.querySelectorAll('canvas[data-decor]').forEach(c=>{ const id=c.dataset.decor, D=DECORI[id]; if(!D) return; const myst=c.dataset.own!=='1'&&!D.price;
     const o=keep(['a',id,myst?1:0,c.width,c.height,V3ON?1:0].join('|'),c.width,c.height,o=>{ const x=o.getContext('2d'); if(myst) mysteryThumb(x,o.width,o.height,id); else drawDecor(x,id,80,id==='duck'?70:112,1,0); }); const x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); x.drawImage(o,0,0); }); };
-  // measure every decoration's size in spare moments after load, so the first visit to the Dock doesn't pay for it
-  const idle=f=>window.requestIdleCallback?requestIdleCallback(f,{timeout:4000}):setTimeout(f,200);
-  setTimeout(()=>{ const ids=DOCK_DECOR.map(d=>d.id); const step=()=>{ const id=ids.shift(); if(!id) return; try{ dockNative(id); }catch(e){} idle(step); }; idle(step); },1000); }
+  }
 // Tapping fast between sections and pages: the first tap switches at once (highlight and page together); taps that arrive
 // while a page is still being built only remember where you want to go, and that one page is built on the next frame.
 // The save that remembers your last page waits until the tapping stops instead of writing on every tap.
@@ -1252,7 +1225,6 @@ body.phone-app.dl-fish .hud > #goalchip{grid-column:3 / 6!important;grid-row:2!i
 </style>`);
 //@layer pc pc/ui_header_row.js
 //@layer pc pc/ui_menu_still.js
-//@layer pc pc/ui_dock_sharp.js
 // Settings is labelled wherever there is room (director, 2026-11-17): "⚙ Settings" on sideways phones (the goal gives up the room)
 // and on PC, where the fishing header and the menu header use the very same button so both rows still line up. Phones held
 // upright keep the gear alone: their top row has no room left for a word.

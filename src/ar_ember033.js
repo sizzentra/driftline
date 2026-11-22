@@ -3,26 +3,6 @@
 // =====================================================================
 // the shelf: one weathered slab of dark basalt with a worn flat top, soft joints, a warm crust, ferns in the cracks,
 // a glowing seam and a little steam vent, standing in the warm water (the part under the surface fades into it)
-function v3stonePlat2(P,t,night,dockY){ const PW=W*.19, ed=PW+W*.014, N=c=>mix(c,'#050204',night*.3), lit=.4+night*.6, lx=PW-W*.012, ly=dockY-H*.07, wl=dockY+H*.07, rock=N('#3a2e2c'), rockL=N('#5a4844'), rockD=N('#1e1616');
-  v3glow(g,lx,ly,H*.17,'rgba('+homeLight('255,170,90')+',.85)',lit*.45*(.92+.08*Math.sin(t*5.7)));
-  const body=()=>{ g.beginPath(); g.moveTo(-2,dockY-H*.004); g.lineTo(ed-W*.03,dockY-H*.006); g.quadraticCurveTo(ed-W*.008,dockY-H*.004,ed,dockY+H*.02); g.quadraticCurveTo(ed+W*.006,dockY+H*.06,ed-W*.004,wl+H*.01); g.lineTo(ed-W*.01,H+2); g.lineTo(-2,H+2); g.closePath(); };
-  const bg=g.createLinearGradient(0,dockY,0,H); bg.addColorStop(0,rock); bg.addColorStop(.35,mix(rock,rockD,.4)); bg.addColorStop(1,rockD); g.fillStyle=bg; body(); g.fill();
-  g.save(); body(); g.clip();
-  for(let i=0;i<9;i++){ const x0=W*(.012+i*.022)+Math.sin(i*2.3)*W*.004; g.strokeStyle=v3rgba(mix(rockD,'#000000',.3),.5); g.lineWidth=Math.max(1,H*.0022); g.beginPath(); g.moveTo(x0,dockY+H*.006); g.lineTo(x0+Math.sin(i)*W*.003,dockY+H*.06); g.lineTo(x0-Math.sin(i*1.7)*W*.003,H); g.stroke(); g.fillStyle=v3rgba(rockL,.12); g.fillRect(x0+1,dockY+H*.006,W*.006,H); }
-  const r=v3rng(37); g.fillStyle=v3rgba(rockD,.6); for(let i=0;i<40;i++){ g.beginPath(); g.arc(r()*ed,dockY+H*(.02+r()*.2),H*(.0015+r()*.003),0,7); g.fill(); }
-  const wg=g.createLinearGradient(0,wl,0,H); wg.addColorStop(0,v3rgba(P.wMid,.35)); wg.addColorStop(1,v3rgba(P.wBot,.75)); g.fillStyle=wg; g.fillRect(-2,wl,ed+4,H-wl);
-  g.restore();
-  g.fillStyle=rockL; g.beginPath(); g.moveTo(-2,dockY-H*.004); g.lineTo(ed-W*.03,dockY-H*.006); g.quadraticCurveTo(ed-W*.008,dockY-H*.004,ed-W*.004,dockY+H*.008); g.lineTo(-2,dockY+H*.006); g.closePath(); g.fill();
-  g.fillStyle=v3rgba(P.rim,.4); g.fillRect(-2,dockY-H*.006,ed-W*.03,1.2);
-  for(const [cx,cw,col] of [[.03,.03,'#a86a3a'],[.11,.02,'#c8b04a'],[.16,.018,'#a86a3a']]){ g.fillStyle=v3rgba(N(col),.45); g.beginPath(); g.ellipse(W*cx,dockY,W*cw,H*.004,0,0,7); g.fill(); }
-  const sp=.55+.45*Math.sin(t*1.4); g.strokeStyle=v3rgba(P.lava,.55+.35*sp); g.lineWidth=Math.max(1.2,H*.0025); g.beginPath(); g.moveTo(W*.09,dockY+H*.006); g.lineTo(W*.094,dockY+H*.03); g.lineTo(W*.088,dockY+H*.05); g.lineTo(W*.092,wl); g.stroke(); v3glow(g,W*.091,dockY+H*.03,H*.03,v3rgba(P.lava,.9),.15*sp);
-  if(S.settings.effects){ for(let k=0;k<4;k++){ const q=((t*.18+k/4)%1); g.fillStyle=v3rgba('#f0e8e0',.2*(1-q)); g.beginPath(); g.arc(W*.09+Math.sin(q*5+k)*W*.004,dockY-q*H*.06,H*(.004+q*.01),0,7); g.fill(); } }
-  g.strokeStyle=N('#4a6a3a'); g.lineWidth=1; for(const [fx,fl] of [[.005,.03],[.17,.025]]){ for(let k=0;k<4;k++){ const a=-Math.PI/2+(k-1.5)*.4+Math.sin(t*.8+k)*.04; g.beginPath(); g.moveTo(W*fx,dockY); g.quadraticCurveTo(W*fx+Math.cos(a)*H*fl*.5,dockY+Math.sin(a)*H*fl*.6,W*fx+Math.cos(a)*H*fl,dockY+Math.sin(a)*H*fl*.9); g.stroke(); } }
-  g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.5); g.lineWidth=1; g.beginPath(); for(let X=-2;X<=ed+W*.01;X+=4) g.lineTo(X,wl+Math.sin(X*.1+t*1.6)*1.2); g.stroke();
-  { const s=H*.012, bx=lx; g.fillStyle=N('#6a5a54'); g.fillRect(bx-s*1.2,dockY-H*.012,s*2.4,s*.7); g.fillRect(bx-s*.45,ly+s*1.6,s*.9,dockY-H*.012-(ly+s*1.6)); g.fillRect(bx-s*1.1,ly-s*1.1,s*2.2,s*2.6); g.fillStyle=v3rgba('#ffb060',.6+lit*.4); g.fillRect(bx-s*.55,ly-s*.6,s*1.1,s*1.4);
-    g.fillStyle=N('#5a4a44'); g.beginPath(); g.moveTo(bx-s*1.9,ly-s*1.1); g.lineTo(bx,ly-s*2.4); g.lineTo(bx+s*1.9,ly-s*1.1); g.closePath(); g.fill(); g.beginPath(); g.arc(bx,ly-s*2.5,s*.35,0,7); g.fill(); }
-  { const bx=W*.152, s=H*.018, by=dockY-H*.006; g.fillStyle=N('#a07a48'); g.beginPath(); g.moveTo(bx,by); g.lineTo(bx+s*.15,by-s); g.lineTo(bx+s*1.15,by-s); g.lineTo(bx+s*1.3,by); g.closePath(); g.fill(); } }
-V3PLAT.stone=(P,t,night,dockY)=>v3stonePlat2(P,t,night,dockY);
 
 // the travertine hillside: a soft hill with creamy terraces stepping down it, turquoise pools on each step, scrub on top
 function embHillY(hz,X){ const segs=[[[-2,hz-H*.135],[W*.06,hz-H*.15],[W*.14,hz-H*.12],[W*.22,hz-H*.06]],[[W*.22,hz-H*.06],[W*.28,hz-H*.03],[W*.33,hz-H*.008],[W*.37,hz+1]]];
@@ -81,12 +61,12 @@ const THUMB_Q={busy:false};
 function thumbIdle(fn){ (window.requestIdleCallback||((f)=>setTimeout(()=>f({timeRemaining:()=>16}),120)))(fn,{timeout:1500}); }
 const THUMB_FAIL={};
 function thumbNext(){ const id=LOCS.map(l=>l.id).find(id=>V3SCENES[id]&&!V3THUMB[id]&&(THUMB_FAIL[id]||0)<2); if(!id){ THUMB_Q.busy=false; return; } THUMB_Q.busy=true;
-  (S.tab==='map'&&MENU_OPEN?f=>setTimeout(f,40):thumbIdle)(()=>{ if((G.st!=='idle'&&G.st!=='waiting')||!MENU_OPEN){ /* Cam's list #2: with the Map open the pictures come one after another, not one per idle moment */ setTimeout(thumbNext,1500); return; } /* only while a menu is open (thumbnails are only seen there): never a hitch while fishing */ v3Thumb(id); if(!V3THUMB[id]) THUMB_FAIL[id]=(THUMB_FAIL[id]||0)+1; const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
+  (S.tab==='map'&&MENU_OPEN?f=>setTimeout(f,40):thumbIdle)(()=>{ if((G.st!=='idle'&&G.st!=='waiting'&&G.st!=='rest')||!MENU_OPEN){ /* resting is calm too (2026-11-22). Cam's list #2: with the Map open the pictures come one after another, not one per idle moment */ setTimeout(thumbNext,1500); return; } /* only while a menu is open (thumbnails are only seen there): never a hitch while fishing */ v3Thumb(id); if(!V3THUMB[id]) THUMB_FAIL[id]=(THUMB_FAIL[id]||0)+1; const i=LOCS.findIndex(l=>l.id===id), el=document.querySelectorAll('.loc .sw2')[i]; if(el&&V3THUMB[id]){ el.style.background='url('+V3THUMB[id]+') center/cover'; el.classList.add('v3th'); el.animate&&el.animate([{opacity:.3},{opacity:1}],{duration:400}); } setTimeout(thumbNext,60); }); }
 setTimeout(thumbNext,3000);
 // the Waters pictures are kept on the device between visits (Cam's list #2: after a restart they took about 10 s to appear); a new
 // build or a changed home makes fresh ones, and old ones are cleared out
 const THUMB_DB={ready:null};
-const thumbSig = () => { const s=(window.DL_VERSION||'')+'|'+JSON.stringify((S&&S.dock)||{}); let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h>>>0); };
+const thumbSig = () => { const s=(window.DL_VERSION||'')+'|'+JSON.stringify(LOCS.map(L=>{ const sp=hfSpec(L.id); return sp?sp.els.map(e=>hfChoice(L.id,e.id).join('.')).join(','):''; })); /* every water's own home choices: travelling no longer throws the saved pictures away (2026-11-22) */ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h>>>0); };
 function thumbDB(){ if(THUMB_DB.ready) return THUMB_DB.ready; return THUMB_DB.ready=new Promise(res=>{ try{ const r=indexedDB.open('dl-thumbs',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('t'); }catch(e){} }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ res(null); } }); }
 function thumbSave(id,url){ if(!url||!window.indexedDB) return; const k=thumbSig()+'|'+id; thumbDB().then(db=>{ if(!db) return; try{ db.transaction('t','readwrite').objectStore('t').put(url,k); }catch(e){} }); }
 function thumbLoadAll(){ if(!window.indexedDB) return; const sig=thumbSig(); thumbDB().then(db=>{ if(!db) return; try{ const rq=db.transaction('t','readwrite').objectStore('t').openCursor();

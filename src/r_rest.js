@@ -26,9 +26,8 @@ function restLand(){ const f=chooseCatch(); splash(G.bob.x,G.bob.y,18); sfx.pull
   checkFeats(); save(); lastHud=''; if(S.tab==='cooler'||S.tab==='journal'||S.tab==='bounties') refreshAll();
   if(S.cooler.length>=gv('cooler')){ toast('Your cooler is full, so you stand up again.'); setRest(false); return; }
   restCast(); }
-// where and how the angler sits: in the chair if it is on the dock, else on the dock edge
-function restPose(dockY,pb,sc){ if(HOMEF[S.loc]&&HOMEF[S.loc].seatH){ const ss=hfStyle(S.loc,"seat"); return {ax:HF.seatX()+3*sc, ay:dockY+pb, sit:{seat:HOMEF[S.loc].seatH[ss],hang:false}, hx:10, hy:-26}; } /* format homes: resting sits the angler in the home's seat (batch 5) */ const items=dockView(); if(items.includes('chair')){ const PW=W*.19, ax0=W*.12, X0=W*.008, X1=PW-W*.012, P=dockPositions(items,(ax0-40*sc-X0)/(X1-X0),(ax0+12*sc-X0)/(X1-X0));
-    return {ax:X0+P.chair*(X1-X0)+3*sc, ay:dockY+pb, sit:{seat:17,hang:false}, hx:10, hy:-26}; }
+// where and how the angler sits: in the home's seat (every water has one since batch 5)
+function restPose(dockY,pb,sc){ const sp=HOMEF[S.loc]; if(sp&&sp.seatH){ const ss=hfStyle(S.loc,"seat"); return {ax:HF.seatX()+3*sc, ay:dockY+pb, sit:{seat:sp.seatH[ss],hang:false}, hx:10, hy:-26}; } /* resting sits the angler in the home's seat (batch 5) */
   return {ax:W*.19-14*sc, ay:dockY+pb, sit:{seat:.5,hang:true}, hx:10, hy:-12}; }
 // the toggle on the water
 function restBtn(){ let b=$('resttog'); if(!b){ $('stage').insertAdjacentHTML('beforeend','<button id="resttog" class="resttog" type="button" title="Rest mode: sit down and fish slowly by yourself"></button>'); b=$('resttog');

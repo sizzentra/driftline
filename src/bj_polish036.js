@@ -238,8 +238,9 @@ body.pc-wide #panel .wd-nav button{min-width:0}
 // (with the taller water of the new layouts they came out as a cropped middle band: no sky, no mountains)
 // ---------------------------------------------------------------------
 const _v3Thumb_04=v3Thumb;
-v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const oW=W, oH=H, want=Math.round(oW/2.6);
-  if(want>=oH) return _v3Thumb_04(id); const ch=cv.height;
-  try{ H=want; cv.height=Math.round(want*DPR); return _v3Thumb_04(id); } finally{ H=oH; cv.height=ch; g.setTransform(DPR,0,0,DPR,0,0); } };
+/* painted at the picture's own size (840 px wide), not at the screen's sharpness (director, 2026-11-22: the map pictures took long to
+   appear; on a 3x iPhone each one painted about 9 times the pixels it kept) */
+v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const oH=H, oD=DPR, cw=cv.width, ch=cv.height, want=Math.min(oH,Math.round(W/2.6)), d=840/W;
+  try{ H=want; DPR=d; cv.width=840; cv.height=Math.round(want*d); return _v3Thumb_04(id); } finally{ H=oH; DPR=oD; cv.width=cw; cv.height=ch; g.setTransform(DPR,0,0,DPR,0,0); } };
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .loc .sw2{background-position:50% 40%!important}</style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .wd-nav .wl{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.1;text-align:center}</style>`);

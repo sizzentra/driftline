@@ -2,6 +2,14 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Roofs, umbrellas, sheds and tents now cover you: each one reaches from before your seat to past where you stand, and stands tall enough to clear your hat.',
+  'Covers are drawn from the side: the umbrella is a cap on a pole, the lean-to is one roof line.',
+  'Posts and supports blend into the water: murky under the surface, fading out a short way down.',
+  'Stonebrook River: the waterwheel turns under the landing beside the mill shed instead of hanging off the end.',
+  'The Home preview always shows your whole home, roof included.',
+  'Map pictures appear much faster, show each water’s own home, stay saved when you travel, and are also made while you rest.',
+  'A water you visit for the first time starts with its own home’s look instead of copying the last one.',
+  '## Test build 0145',
   'Every water now has its own home, made from that water’s look and story: a mill landing with a waterwheel, a tea house deck, a pier end, an ice camp, a lodge ledge, a beach hut, a flats skiff, a sport-fishing boat, a stilt house, a trawler, a salvage raft, a bathhouse, a crystal platform, a barn dock, a gingerbread platter, an office deck, a reed boat, a hover pad and a temple porch.',
   'Every home has a seat plus 5 parts of its own, 3 styles each, and one list of 16 colors. Boats, rafts and platforms bob on the water. Resting sits you in your seat.',
   'Every water has its own music now (12 new themes), and each plays softer at night.',

@@ -4,7 +4,7 @@
 //   boost    : +% strength of every buff your aquarium fish give
 //   showpiece: +% income from shiny and hybrid fish in the tank
 // Some older pieces moved to the new kinds (at a matching value), and new pieces join both the
-// aquarium and the dock. Saves keep what you own and where it stands; only what a piece does changed.
+// aquarium. Saves keep what you own and where it stands; only what a piece does changed.
 // =====================================================================
 const DECOR_KIND={ kelp:'boost', coral:'boost', bonsai:'boost', starfish:'boost', jellylamp:'boost', crystal:'boost', lantern:'boost', bigclam:'boost', gardenbench:'boost',
   treasurepile:'show', neon:'show', disco:'show', carousel:'show', tvfish:'show', chest:'show', ufo:'show' };
@@ -55,29 +55,6 @@ Object.assign(TANK_ART,{
     c.fillStyle='#f4f0ea'; c.beginPath(); c.moveTo(-12,-8); c.lineTo(-8,-90); c.lineTo(8,-90); c.lineTo(12,-8); c.closePath(); c.fill(); c.fillStyle='#d8302a'; for(const y of [-30,-62]){ c.beginPath(); c.moveTo(-11.2-(y+8)*.05,y); c.lineTo(-10.2-(y+8)*.05,y-12); c.lineTo(10.2+(y+8)*.05,y-12); c.lineTo(11.2+(y+8)*.05,y); c.closePath(); c.fill(); }
     R(-11,-96,22,6,'#3a3a44'); R(-7,-108,14,12,'rgba(255,240,180,.9)'); c.fillStyle='#d8302a'; c.beginPath(); c.moveTo(-9,-108); c.lineTo(0,-118); c.lineTo(9,-108); c.closePath(); c.fill(); R(-3,-34,6,9,'#5a4a3a');
     const a=t*.9; if(typeof v3glow==='function') v3glow(c,0,-102,26,'rgba(255,230,150,.9)',.5); c.save(); c.globalAlpha=.22; c.fillStyle='#fff4c0'; c.beginPath(); c.moveTo(0,-102); c.lineTo(Math.cos(a)*90,-102+Math.sin(a)*14-8); c.lineTo(Math.cos(a)*90,-102+Math.sin(a)*14+8); c.closePath(); c.fill(); c.restore(); },
-});
-
-// ---------- new dock pieces ----------
-[['rockingchair','Rocking Chair',5200,3],['teakettle','Camp Stove & Kettle',2400,2],['mailbox','Mailbox',1300,1],['buoy','Old Buoy',1700,1],['lemontree','Potted Lemon Tree',6200,3]]
-  .forEach(a=>{ if(DOCKI[a[0]]) return; const d={id:a[0],name:a[1],price:a[2],cozy:a[3],src:'shop'}; DOCK_DECOR.push(d); DOCKI[d.id]=d; });
-Object.assign(DOCK_H,{rockingchair:40,teakettle:16,mailbox:30,buoy:22,lemontree:44});
-Object.assign(DOCK_ART,{
-  rockingchair(c,t,D){ const {R,RR,L,E}=dkHelpers(c,D), r=Math.sin(t*1.1)*.07; c.save(); c.rotate(r);
-    c.strokeStyle=D('#6a4426'); c.lineWidth=2.4; c.lineCap='round'; c.beginPath(); c.moveTo(-18,-1); c.quadraticCurveTo(0,4,16,-1); c.stroke();
-    L([-12,0,-11,-20],'#7a5030',2.2); L([10,1,9,-20],'#7a5030',2.2); RR(-13,-22,24,4,1.5,'#8a5a34'); L([-12,-22,-14,-42],'#7a5030',2.4); for(let i=0;i<4;i++) L([-12.4+i*.1,-26-i*4,-2,-25-i*4.2],'#8a5a34',1.4);
-    RR(-12,-28,14,6,2,'#c8553a'); E(-5,-26,6,2,'#d86a4a'); L([8,-21,9,-30,1,-30],'#7a5030',1.6); c.restore(); },
-  teakettle(c,t,D,night){ const {R,RR,E,L}=dkHelpers(c,D); RR(-9,-6,18,6,1,'#3a3a44'); R(-8,-7,16,1.2,'#5a5a66'); for(const x of [-7,6]) R(x,-1,1.4,1.4,'#2a2a30');
-    if(typeof v3glow==='function') v3glow(c,0,-6,10,'rgba(120,170,255,.9)',.3+.15*Math.sin(t*8)); c.fillStyle='rgba(120,180,255,.85)'; for(let i=0;i<5;i++){ c.beginPath(); c.ellipse(-4+i*2,-7.6,.7,1.2+Math.sin(t*12+i)*.3,0,0,7); c.fill(); }
-    c.fillStyle=D('#d8302a'); c.beginPath(); c.moveTo(-6,-8); c.quadraticCurveTo(-7,-15,0,-15.6); c.quadraticCurveTo(7,-15,6,-8); c.closePath(); c.fill(); L([5,-11,10,-14],'#d8302a',1.6); L([-3,-15.4,0,-18,3,-15.4],'#2a2a30',.8); E(0,-15.8,1.4,.7,'#2a2a30');
-    c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=.8; for(let i=0;i<2;i++){ const k=((t*.6+i/2)%1); c.globalAlpha=1-k; c.beginPath(); c.moveTo(10.4,-14.4-k*10); c.quadraticCurveTo(12+Math.sin(t*2+i)*2,-17-k*10,10.4,-20-k*10); c.stroke(); } c.globalAlpha=1; },
-  mailbox(c,t,D){ const {R,RR,P,E}=dkHelpers(c,D), flag=(Math.sin(t*.25)>.6); R(-1.2,-20,2.4,20,'#6a4426'); RR(-7,-28,14,9,4,'#3a6f9a'); R(-7,-23.5,14,4.5,'#3a6f9a'); E(-7,-23.6,1.2,4.4,'#2a5a80');
-    c.save(); c.translate(6,-24); c.rotate(flag?-1.4:0); R(0,-.6,1,6,'#d8302a'); R(-.2,-1.4,4,3,'#d8302a'); c.restore(); R(-3,-26,6,.8,'#f4f0ea'); },
-  buoy(c,t,D){ const {R,RR,E,L}=dkHelpers(c,D), b=Math.sin(t*1.3)*.5; c.save(); c.translate(0,b*.3); RR(-7,-16,14,15,6,'#e8483a'); R(-7,-12,14,3,'#f4f0ea'); R(-7,-6,14,3,'#f4f0ea'); RR(-2,-22,4,6,1,'#5a5a66'); E(0,-23,3,1.2,'#3a3a44');
-    c.strokeStyle=D('#c8b088'); c.lineWidth=1; c.beginPath(); c.moveTo(6,-4); c.quadraticCurveTo(12,0,9,1); c.stroke(); E(-3,-11,1.4,3,'rgba(255,255,255,.3)'); c.restore(); },
-  lemontree(c,t,D){ const {R,RR,E,P}=dkHelpers(c,D); P([-7,-10,7,-10,5.6,0,-5.6,0],'#c8693a'); R(-7.6,-11,15.2,2,'#a8552a'); R(-.9,-30,1.8,20,'#6a4426');
-    c.fillStyle=D('#4f8a4a'); for(let i=0;i<14;i++){ const a=i*2.4, r=6+((i*5)%5); c.beginPath(); c.ellipse(Math.cos(a)*r,-34+Math.sin(a)*r*.7+Math.sin(t*1.2+i)*.3,4,2,a,0,7); c.fill(); }
-    c.fillStyle=D('#6aa860'); for(let i=0;i<6;i++){ const a=i*1.1; c.beginPath(); c.ellipse(Math.cos(a)*5-2,-38+Math.sin(a)*3,3,1.4,a,0,7); c.fill(); }
-    for(const [x,y] of [[-6,-30],[5,-36],[1,-28],[-3,-40],[8,-30]]){ E(x,y,1.8,2.2,'#ffd84a'); E(x-.5,y-.8,.5,.6,'rgba(255,255,255,.6)'); } },
 });
 
 // =====================================================================

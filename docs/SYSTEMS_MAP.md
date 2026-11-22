@@ -30,6 +30,9 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 | `HOMEF[id]` (every water's home: features, styles, 16 colors, seat heights, paint) | `cv_homefmt.js` (format, cache, Willow Pond), `cw_homekit.js` (side-view parts: deck, supports, hull, roof, rail, light, seat), `cw_homes.js` (the other 19) | the scene (`f_v3scene.js` draws HOMEF instead of the old home), the Home page close-up (`hfCloseup`; phones `page_home.js`, PC `br_pc05.js`), resting (`restPose`, the seat height), the header Home chip (home name), `__qa` home-format test |
 | Light carried by a feature (`light:true` or id `light`) | `hfGlow` (cv_homefmt) | the glow, light pool and reflection drawn live each frame |
 | Music per water (`MUS_AREA` → `STYLES` + `V3MUS`) | `j_music.js` (themes), `cn_waterart.js` (newer waters' mapping) | Settings › Sound music list ("Follow the water") |
+| Per-water home choices (`S.dock.el`, stored per water in `S.docks`) | `dockSync` / `dockCopy` (`bm_ui04.js`) | travel and saving; a water never visited starts with its defaults (batch 3) |
+| Covers (`HK.roof`, `HK.coverSpan`, `HK.ROOF_LOW`) | `cw_homekit.js` | every home's cover over the seat and the standing angler, lifted to clear the hat; Willow Pond's canopy too; the stored home picture's top (`c.top`) frames the Home preview (`hfFrame`) |
+| Map pictures (`v3Thumb`, `thumbNext`, `thumbSig`) | `ar_ember033.js`, `bj_polish036.js` (840 px paint), wrappers in `bm_ui04.js` and `cd_efficiency.js` | Map page; each water's own home choices (`hfChoice` by id); saved on the device under every water's choices |
 
 ## Angler, wardrobe, pets
 | Piece | Defined in | Shows up in |
@@ -37,11 +40,10 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 | `drawAngler` -> `drawAngler3` (legs, shoes, outfit) | `d_draw.js`, `g_angler.js`, wear in `l_wear.js` | fishing scene (every water), Wardrobe preview (`w_wardrobe.js`, PC `pc/br_pc05.js`), Boardwalk (`q_boardwalk.js`), Tide Pass (`y_pass.js`), feats (`bq_feat04.js`), boards (`t_board.js`), previews (`d6_preview.js`) |
 | `drawPet` | `d_draw.js`, `d2_extra.js`, `d3_update.js` | scene, Pets page, Wardrobe stand, previews |
 
-## Homes and docks
+## Aquarium decorations
 | Piece | Defined in | Shows up in |
 |---|---|---|
-| `HOME_FEATURES`, `homeLight`, `homeHull` | `bu_home05.js` | lamp/glow drawing in `f_v3scene.js`, `f2_areas.js`, `ar_ember033.js`; pages: PC `pc/br_pc05.js` + `pc/ui_round5.js`, phones `mobile/home06.js` |
-| `dockThumb`, `drawDecor`, `paintDecor` | `ac_dockart.js`, `ab_decor.js`, `be_decor036.js`, cache in `bm_ui04.js` | Your home page, Tide Pass rewards, boards, previews, aquarium decor (`d2_extra.js`, `f2_areas.js`) |
+| `drawDecor`, `paintDecor` | `ab_decor.js`, `be_decor036.js`, cache in `bm_ui04.js` | Tide Pass rewards, boards, previews, aquarium decor (`d2_extra.js`, `f2_areas.js`) |
 | Aquarium sizes `tankK`, fish size | `aw_menu035.js`, `d_draw.js` drawTank | Aquarium tank (all platforms); phones throttle it in `mobile/perf_round6.js` |
 
 ## Scenes (waters)

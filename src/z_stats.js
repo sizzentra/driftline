@@ -54,7 +54,7 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; const o=S.owned, U=(arr
   U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=3;
   U(o.hats,HATS.map(h=>h.id)); U(o.cols,SHOP_COLS.map(c=>c[0])); U(o.pats,PATTERNS.map(p=>p[0])); U(o.outfits,OUTFITS.map(x=>x[0])); U(o.glasses,GLASSES.map(x=>x[0])); U(o.shoes,SHOES.map(x=>x[0])); U(o.necks,NECKS.map(x=>x[0])); U(o.backs,BACKS.map(x=>x[0]));
   U(o.pets,PETS.filter(p=>(p.id!=='lily'||o.pets.includes('lily'))&&(p.id!=='daxniko'||o.pets.includes('daxniko'))).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
-  U(S.dock.owned,[...DOCK_DECOR.map(d=>d.id),...DOCK_WOODS.map(w=>w[0])]); U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;
+  U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;
   for(const b2 in BAIT) if(b2!=='worm') S.bait[b2]=(S.bait[b2]||0)+99; S.lvl=Math.max(S.lvl,40); S.tokens.small+=5; S.tokens.big+=5; S.tokens.legend+=5;
   return 'Everything unlocked for testing.'; }
 const _renderPanel_1 = renderPanel;

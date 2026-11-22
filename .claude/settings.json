@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Browser__read_console_messages",
+      "mcp__Claude_Browser__tabs_context",
+      "mcp__Claude_Browser__find",
+      "mcp__Claude_Browser__get_page_text",
+      "mcp__Claude_Browser__read_network_requests",
+      "mcp__Claude_Browser__read_page",
+      "mcp__Claude_Browser__preview_list",
+      "mcp__Claude_Browser__preview_logs",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__read",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__guide",
+      "mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__query",
+      "mcp__ccd_pr__get_status",
+      "Bash(tasklist)",
+      "Bash(tasklist *)"
+    ]
+  }
+}

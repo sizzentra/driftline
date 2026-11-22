@@ -8,7 +8,6 @@ const PLAT={
   rippleBands:()=>false,       // rain rings drawn as 3 brightness bands instead of one stroke each (ap_weather033)
   anglerReuseMs:()=>0,         // reuse the lit angler picture for this long (g_angler)
   glowPx:()=>256,              // size of the ready-made soft glow dot (cd_efficiency)
-  movingDecorMs:()=>0,         // moving dock decorations: 0 = drawn fresh every frame, else cached for this long (cd_efficiency)
   quietTabSwitch:()=>false,    // tab switches skip the per-card entry animation and its forced layout (af_smooth, aw_menu035, bm_ui04)
   fpsText:null,                // (fps)=>text for the frame counter, null = default text (bm_ui04)
   detail:()=>1,                // how much finer moving detail is drawn (particles, ripples, stars): PC full screen draws more (src/pc/ui_display.js)

@@ -17,11 +17,9 @@
  ['tanknet','Aquarium Net','tank',[.08,.16,.28],'Catches them gently so they show off later.'],
 ].forEach(a=>{ const t={id:a[0],name:a[1],k:a[2],v:a[3],d:a[4]}; ATTS.push(t); ATT_I[t.id]=t; });
 
-// ---------- aquarium decor, dock items, junk, relics, outfits ----------
+// ---------- aquarium decor, junk, relics, outfits ----------
 [['starfish','Starfish Family',1600,.02],['gardenbench','Tiny Garden Bench',2400,.02],['duckarmy','Rubber Duck Army',3800,.03],['mushroomhouse','Mushroom House',9500,.05],['ufo','Crashed UFO',22000,.06]]
   .forEach(a=>{ const d={id:a[0],name:a[1],price:a[2],b:a[3]}; DECOR.push(d); DECORI[d.id]=d; });
-[['pumpkins','Pumpkin Pile',1400,2],['surfboard','Surfboard',2600,1],['grill','Little Grill',4500,3],['bookshelf','Bookshelf',5200,3],['hammock','Hammock',7500,4]]
-  .forEach(a=>{ const d={id:a[0],name:a[1],price:a[2],cozy:a[3],src:'shop'}; DOCK_DECOR.splice(DOCK_DECOR.length-3,0,d); DOCKI[d.id]=d; });
 [['rubberchicken','Rubber Chicken',0,{buff:['calm',.35,5]},'It squeaks. The fish are too confused to fight.'],
  ['vhs','VHS Tape',0,{buff:['xp',.3,5]},'“How to Fish, Vol. 2.” Rewound, thankfully.'],
  ['pizzabox','Pizza Box',0,{buff:['bite',.35,5]},'One slice left. The fish want it.'],
@@ -123,13 +121,6 @@ function drawDecorZ(c,id,t,h){ const {R,Ci,E,P}=h;
     case 'duckarmy': for(let i=0;i<5;i++){ const dx=-28+i*14, dy=-6-Math.abs(Math.sin(t*3+i))*3; E(dx,dy,6,4,'#ffd23a'); Ci(dx+4,dy-5,3.2,'#ffd23a'); P([dx+6.5,dy-5.5,dx+10,dy-4.5,dx+6.5,dy-3.5],'#ff8a2a'); } break;
     case 'mushroomhouse': R(-12,-30,24,30,'#f4ecdc'); c.fillStyle='#d8403a'; c.beginPath(); c.ellipse(0,-32,30,20,0,Math.PI,0); c.fill(); for(const [x,y,r] of [[-14,-40,4],[4,-46,5],[16,-36,3.5]]) Ci(x,y,r,'#fff'); R(-5,-16,10,16,'#8a5a3a'); Ci(8,-22,3,'#ffe08a'); break;
     case 'ufo': c.save(); c.rotate(-.3); E(0,-14,30,9,'#a8b0b8'); c.fillStyle='rgba(154,216,255,.7)'; c.beginPath(); c.ellipse(0,-20,13,11,0,Math.PI,0); c.fill(); for(let i=0;i<5;i++) Ci(-20+i*10,-12,2,Math.sin(t*4+i)>0?'#5aff8a':'#ff5a8a'); c.restore(); c.fillStyle='rgba(200,255,200,.12)'; c.beginPath(); c.moveTo(-8,-10); c.lineTo(8,-10); c.lineTo(20,0); c.lineTo(-20,0); c.fill(); break;
-  } }
-function drawDockZ(c,id,t,R,Ci,D){ switch(id){
-    case 'pumpkins': for(const [px,r] of [[-6,4.5],[3,3.4],[8,2.6]]){ c.fillStyle=D('#ff8a1a'); c.beginPath(); c.ellipse(px,-r,r*1.2,r,0,0,7); c.fill(); R(px-.5,-r*2-2,1,2.4,'#3a8a3a'); } break;
-    case 'surfboard': c.save(); c.rotate(-.18); c.fillStyle=D('#5ad8e8'); c.beginPath(); c.ellipse(0,-14,3.6,14,0,0,7); c.fill(); c.fillStyle=D('#ff7a5a'); c.fillRect(-3.6,-16,7.2,2.4); c.restore(); break;
-    case 'grill': R(-.6,-8,1.2,8,'#2a2a2a'); R(-5,-8,10,1.4,'#2a2a2a'); c.fillStyle=D('#3a3a3a'); c.beginPath(); c.arc(0,-9,6,Math.PI,0); c.fill(); c.fillStyle='rgba(200,200,200,.3)'; for(let i=0;i<3;i++){ const k=((t*.5+i/3)%1); c.beginPath(); c.arc(Math.sin(t+i)*2,-16-k*14,1.6+k*2.4,0,7); c.fill(); } break;
-    case 'bookshelf': R(-8,-22,16,22,'#6a4228'); for(let s=0;s<3;s++){ R(-7,-21+s*7,14,.8,'#4a2a18'); const cols=['#c8553a','#3a6f9a','#4f8a4a','#e0c050','#7a4a9a']; for(let i=0;i<5;i++) R(-6.5+i*2.6,-20+s*7,2,6,cols[(i+s)%5]); } break;
-    case 'hammock': R(-15,-20,1.6,20,'#6a4228'); R(13.4,-20,1.6,20,'#6a4228'); c.strokeStyle=D('#e0c890'); c.lineWidth=2.2; c.beginPath(); c.moveTo(-14,-17); c.quadraticCurveTo(0,-4+Math.sin(t*1.2),14,-17); c.stroke(); c.strokeStyle=D('#c8553a'); c.lineWidth=1; c.beginPath(); c.moveTo(-12,-15); c.quadraticCurveTo(0,-3+Math.sin(t*1.2),12,-15); c.stroke(); break;
   } }
 function drawJunkZ(c,id,R,Ci,E,P,Ln){ switch(id){
     case 'rubberchicken': E(0,10,22,46,'#ffd23a',.9); Ci(36,-24,14,'#ffd23a'); P([48,-26,66,-20,48,-16],'#ff8a2a'); P([30,-36,34,-48,40,-36],'#ff4a4a'); Ci(40,-28,3,'#111'); break;
