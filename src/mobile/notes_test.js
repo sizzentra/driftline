@@ -3,7 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'Settings: Download for Windows now gives the Driftline Test program (it gave the live app, and failed for some).',
+  'Settings: the Download for Windows button is gone from test builds (it gave the live app; play the test build in the browser instead).',
   '## Test build 1549',
   'Living maps, every water held to the map standard: Willow Pond, a mother duck leads 3 to 5 ducklings across the far water by day and a tawny owl glides low over the pond at night (every 50 s). Saltmarsh Coast, a pod of porpoises rolls past (every 42 s). Ember Springs, a geyser at the foot of the hill erupts (every 45 s, a little higher or lower each time) and ravens circle by day. Animal Farm, fireflies by the fence and a barn owl at night, birds only by day, the tractor every 55 s. The Nile, fruit bats at night. Corporate Pond, pigeons strut on the ticker by day. The Buffet, a gummy bear rows a cracker across the lake. Stonebrook otters every 24 s.',
   'Moments made bigger so they read on a phone: the leaping fish at Florida Keys, the meatball at The Buffet, the paper plane at Corporate Pond, the whale tail at Midnight Deep and the eyes at Hollow Trench.',

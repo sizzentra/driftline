@@ -29,8 +29,3 @@ $refs = @("$fw\WPF\PresentationFramework.dll","$fw\WPF\PresentationCore.dll","$f
 & "$fw\csc.exe" /nologo /target:winexe /platform:x64 /optimize+ "/win32icon:$(Join-Path $out 'driftline.ico')" "/out:$(Join-Path $out 'DriftlineTest.exe')" @refs (Join-Path $here 'DriftlineTest.cs')
 if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
 Write-Output ("Built " + (Join-Path $out 'DriftlineTest.exe'))
-# the download on the test site (Settings › Download for Windows on /driftline/next/)
-$zip = Join-Path $root 'site\next\download\DriftlineTest.zip'
-New-Item -ItemType Directory -Force (Split-Path $zip) | Out-Null
-Compress-Archive -Path (Join-Path $out '*') -DestinationPath $zip -Force
-Write-Output ("Zipped " + $zip)
