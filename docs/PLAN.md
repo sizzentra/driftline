@@ -110,7 +110,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 
 | Batch | Projects | Details | Open before building |
 |---|---|---|---|
-| **1. Fishing feel** (most urgent) | 1 Cam's fish feel update · 2 Oddities reel in more slowly · 3 Fight modifier audit | 1: tension keeps building while reeling, temper drops fast when not; full temper = rapid fight actions using much less fight; easing up drops tension steadily (slower during a fight action); reeling during a fight action drains fight faster (not during a jump toward you); hidden states between actions: still, or swimming toward you (reel 25-50% faster, 0.25-3 s, shorter for rarer fish); tired fish reel 10-60% faster by rarity (mythic 10, legendary 20, rare 30 …); second winds 1 for all, +1 rare/epic, +2 legendary/mythic, later ones on 50/50 flips after 5 / 3 / 1 s, a legendary/mythic's 3rd doubles the waits and gives 25% fight; dives = 1/3 of runs where they exist; perfect hooks back to their former glory. 2: easing for rarer oddities. 3: every source of tension, reel speed and temper changes makes a real difference | what "perfect hooks back to their former glory" means (Cam); exact rates the update leaves open (feel calls) |
+| **1. Fishing feel** (most urgent) | 1 Cam's fish feel update · 2 Oddities reel in more slowly · 3 Fight modifier audit | 1: tension keeps building while reeling, temper drops fast when not; full temper = rapid fight actions using much less fight; easing up drops tension steadily (slower during a fight action); reeling during a fight action drains fight faster (not during a jump toward you); hidden states between actions: still, or swimming toward you (reel 25-50% faster, 0.25-3 s, shorter for rarer fish); tired fish reel 10-60% faster by rarity (mythic 10, legendary 20, rare 30 …); second winds 1 for all, +1 rare/epic, +2 legendary/mythic, later ones on 50/50 flips after 5 / 3 / 1 s, a legendary/mythic's 3rd doubles the waits and gives 25% fight; dives = 1/3 of runs where they exist; perfect hooks back to their former glory. 2: easing for rarer oddities. 3: every source of tension, reel speed and temper changes makes a real difference. **Cam's answers and extra notes (dives 5-20 s, "Careful" message, fight speed, spool cap 200): "Cam's answers" below** | none (Cam answered 2026-11-21) |
 | **2. Gameplay hotfixes** | 4 Aquarium net boosts · 5 Hybrid toggle · 6 Catch card side panel · 7 Fish pictures flashing · 8 PC frame rate | 4: boosts show their real total with hybrids and other sources. 5: Cooler Scrap / Sell filter, next to Shinies. 6: phones, the side panel vanishes when the catch card shows. 7: phones (PC to check), pictures in scrolling lists reload as the scroll bar fades (director's video). 8: Willow Pond unstable on PC; every water measured on PC full screen, heavy ones lightened without a look change | |
 | **3. Safe saves + untangling** | 9 Automatic save backup · 10 Clean Pages 2-3 | 9: progress never lost by accident for real players (a device backup, a reminded backup file, or an optional cloud copy). 10: Clean Pages 2 and 3, see "Untangling plan" below | which backup idea |
 | **4. Fish revamp + map updates** | 11 Real fish families · 12 Decoration check · 12b Map updates | 11: the newer waters' fish recipe learns real families (arowana, catfish, sturgeon / shovelnose, knifefish, piranha, cichlid, tetra, gar, lungfish, pike …) with their own body, head, fins, whiskers and pattern; every fish where possible and realistic; joke fish keep their gag. 12: decorations re-checked on the new shapes. 12b (director, 2026-11-21: map updates belong in the roadmap): the director and Cam's verdicts on the map pictures (Florida Keys, Amazon, and the new moments at Willow Pond, Saltmarsh Coast, Ember Springs, Animal Farm, The Buffet, Corporate Pond, the Nile), the map-standard rules no tool checks yet (nothing over the fishing area, reflections under objects, no gaps between layers) gone through water by water, and any map changes the director adds. Before / after pictures | which map changes the director wants beyond these |
@@ -128,7 +128,7 @@ Parked in Ideas: the Report a problem button.
 4. **Fish revamp: built in full**, before / after pictures judged afterwards.
 5. **Each finished batch goes onto the test builds at once** (live stays the director's call).
 6. **Device reports: a Record mode on the Run every check page** (play, then Copy report: device, errors, what happened). **Plus, test builds only: when the game fails to open or something goes wrong, a "Copy error report" option right there**, working even when the game itself can't start.
-7. **Batch 1 waits for Cam's answers**; the run starts with batch 2 (director's go, 2026-11-21) and, when Cam answers, batch 1 is built next, right after the batch in progress.
+7. **Batch 1 waited for Cam's answers**; the run started with batch 2 (director's go, 2026-11-21). Cam answered the same day, so batch 1 is built right after batch 2.
 8. **Hotfix 0.4.8.9.6 dropped** (director, 2026-11-21): live waits for 0.5.
 9. **PC Wardrobe converted to the phone layout** (batch 7, with Clean Pages 4).
 10. **Older open items go into batch 9** (polish before 0.5): Mystery crates picture, the Fishmonger's Gamble card height after a play, the empty Cooler page, the Wardrobe aura previews, the Aquarium speed-up; a first version of each, judged from pictures.
@@ -145,17 +145,24 @@ Parked in Ideas: the Report a problem button.
 - **Afterwards (not in a batch yet):** the system wrappers (save 12, migrate 13, extraAct2 11, toast 9, draw 8, showCard 7).
 - **Target:** phones' wrap layers under 200 after batch 3, under 150 after batch 7; scenes' `m33wrap` gone.
 
-### Questions for Cam (fish feel update, before batch 1 is built)
-Each has Claude's suggested answer, so Cam can just say yes or give his own.
-1. **Perfect hooks "back to their former glory":** what should a perfect hook give? Facts (checked in the code): before the new fight, a perfect hook started the fish at 80% fight with no tension and a first rest of only 0.5-0.9 s; with Quick Reflexes maxed the fish also started halfway in. In the new fight the 80% fight and the halfway start still apply, but the short first rest is lost (the new fight sets its own first rest of 0.7-1.4 s). Does Cam want exactly the old effect back, or something stronger?
-2. **Temper drop when not reeling:** how fast? Suggested: from full to empty in about 3 s.
-3. **Full temper, "much reduced amount of fight" per action:** how much? Suggested: each action costs the fish half of its normal fight.
-4. **Tension falling when you ease up:** how fast? Suggested: about 35 a second (full to empty in about 3 s), a third of that during a fight action.
-5. **Reeling during a fight action drains its fight faster:** by how much? Suggested: 1.5 times.
-6. **Tired fish reel-in by rarity:** epic is missing (mythic 10%, legendary 20%, rare 30% …). Suggested: common 60%, uncommon 45%, rare 30%, epic 25%, legendary 20%, mythic 10%.
-7. **Swimming toward you:** how often does a fish switch between still and swimming toward you? Suggested: a new choice every 1-2 s, swimming toward you less often the rarer the fish.
-8. **Second winds:** the flips continue until one succeeds, so later second winds always come eventually unless the fish is landed first. Is that right? Suggested: yes.
-9. **Conflicts with his first document:** where this update and FIGHT_FEEL.md differ (for example the second wind "once, after 10 s tired, to 50%"), this update wins. Suggested: yes.
+### Cam's answers (fish feel update, 2026-11-21; batch 1 is unblocked)
+The 9 questions (Claude's suggestion in brackets) and Cam's answers, as the director passed them on:
+1. **Perfect hooks** [old effect back, or stronger?]: the fish doesn't fight for **1.5 s base** after a perfect hook (today 0.7-1.4 s, before the new fight 0.5-0.9 s); if what exists is already stronger, keep it. 1.5 s is longer, so it applies.
+2. **Temper drop when not reeling** [full to empty in about 3 s]: yes.
+3. **Full temper, cost per action:** **proportional to how much faster the fish acts.** If full temper doubles how often it starts fight actions, each costs half; triple the rate, a third. (Replaces the suggested flat half.)
+4. **Tension falling when you ease up** [about 35 a second, a third during a fight action]: yes. **Plus: tension rises slightly while reeling** (it didn't before). Reeling builds tension; not reeling drops it, more slowly during a fight action.
+5. **Reeling during a fight action drains fight faster** [1.5 times]: yes.
+6. **Tired fish reel-in by rarity** [common 60, uncommon 45, rare 30, epic 25, legendary 20, mythic 10 %]: yes.
+7. **Swimming toward you** [a new choice every 1-2 s, less often for rarer fish]: yes.
+8. **Second winds (corrected):** the **first second wind stays exactly as it is today.** Only the extra ones change: when the fish tires for the second time (and later), instead of a sure second wind after the wait, a 50/50 flip; success = another second wind, failure = try again after the intervals given (5 s, then 3 s, then 1 s). Purpose: no fish can be waited out with almost no input and then reeled in all at once.
+9. **This update wins over FIGHT_FEEL.md:** yes. The first document built the systems; this one tunes the feel.
+
+**Cam's extra notes (to build in batch 1):**
+- **The feel he is after:** fights with common fish are too slow and not engaging; strong fish are slightly too overwhelming. A common fish's head shake shouldn't break the line but can't be ignored completely. The temper bar threatens nothing today and can be ignored while reeling (answer 3 fixes that). Tension shouldn't drop the moment a fish stops its action: not reeling is what drops it.
+- **Dives:** last much longer, **5 s minimum base, scaling up to 20 s**, and **stop once tension stays inside the zone for 1.5 s**. They pull line out more slowly, but can pull out much more in total. Today dives end by themselves too quickly and there is almost no way to control tension.
+- **"Careful" message:** does nothing now; it must mean something (warn of a real danger, matched to what happens).
+- **Fight speed:** speed fishing up so a fight runs at roughly half the speed of the old fishing style with great gear (old style with great gear = the reference). **Feel call:** the first version is measured against the old fight and flagged.
+- **Spool-out cap raised to 200.**
 
 
 ## Earlier production queue (2026-11-21 overnight run; history: batches 1-4 done, its open items are carried into the queue to 0.5 above)
