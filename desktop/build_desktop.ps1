@@ -31,3 +31,4 @@ $dl = Join-Path $root 'site\download'; New-Item -ItemType Directory -Force $dl |
 $zip = Join-Path $dl 'Driftline-Setup.zip'; if (Test-Path $zip) { Remove-Item $zip }
 Compress-Archive -Path (Join-Path $out '*') -DestinationPath $zip
 Write-Output ("Built " + $zip + " (" + [Math]::Round((Get-Item $zip).Length/1KB) + " KB)")
+& (Join-Path $here 'scan_download.ps1') -Path $zip   # refuses a download Defender flags

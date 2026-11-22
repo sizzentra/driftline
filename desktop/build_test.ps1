@@ -1,6 +1,6 @@
-# Builds "Driftline Test", the director's local testing app (preview build, full screen), and installs it with a desktop
-# shortcut. Not published: it is a tool for this PC. Uses the .NET Framework compiler and the WebView2 files that ship with
-# Visual Studio, like build_desktop.ps1.
+# Builds "Driftline Test", the director's testing app (preview build, full screen). It runs from its folder (no self-install,
+# 2026-11-21). Packs it into desktop/dist/DriftlineTest.zip and scans it with Windows Defender. Uses the .NET Framework compiler
+# and the WebView2 files that ship with Visual Studio, like build_desktop.ps1.
 $ErrorActionPreference = 'Stop'
 $here = $PSScriptRoot; $root = Split-Path $here
 $fw = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319'
@@ -29,3 +29,6 @@ $refs = @("$fw\WPF\PresentationFramework.dll","$fw\WPF\PresentationCore.dll","$f
 & "$fw\csc.exe" /nologo /target:winexe /platform:x64 /optimize+ "/win32icon:$(Join-Path $out 'driftline.ico')" "/out:$(Join-Path $out 'DriftlineTest.exe')" @refs (Join-Path $here 'DriftlineTest.cs')
 if ($LASTEXITCODE -ne 0) { throw 'compile failed' }
 Write-Output ("Built " + (Join-Path $out 'DriftlineTest.exe'))
+$zip = Join-Path $here 'dist\DriftlineTest.zip'; if (Test-Path $zip) { Remove-Item $zip }
+Compress-Archive -Path (Join-Path $out '*') -DestinationPath $zip
+& (Join-Path $here 'scan_download.ps1') -Path $zip   # refuses a download Defender flags

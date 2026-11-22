@@ -1,10 +1,9 @@
 // Driftline desktop app: a standalone Windows window for the game (no browser needed).
-// It loads the live game, so it always has the newest version, keeps progress in its own
-// folder, works offline after the first run, and installs itself with Start-menu and desktop icons.
+// It loads the live game, so it always has the newest version, keeps progress in its own data folder and works offline
+// after the first run. It runs from the folder it was unzipped to (no self-install: see Main).
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -15,78 +14,28 @@ using Microsoft.Web.WebView2.Wpf;
 public class DriftlineApp : Application
 {
     const string GameUrl = "https://sizzentra.github.io/driftline/";
-    static readonly string[] Files = { "Driftline.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.Wpf.dll", "WebView2Loader.dll", "driftline.ico" };
 
+    // Runs from the folder it was unzipped to: it no longer copies itself, makes shortcuts or restarts itself (2026-11-21:
+    // that self-install pattern made Windows' download check call the file a Trojan). Progress lives in its own data folder
+    // (%LOCALAPPDATA%\Driftline\Data) wherever the program sits, so moving the folder loses nothing.
     [STAThread]
     public static void Main(string[] args)
     {
-        string here = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-        string home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Driftline");
-        bool portable = Array.IndexOf(args, "--portable") >= 0;
-        if (!portable && !string.Equals(Path.GetFullPath(here), Path.GetFullPath(home), StringComparison.OrdinalIgnoreCase))
-        {
-            if (Install(here, home)) return;
-        }
         var app = new DriftlineApp();
-        app.Run(new GameWindow(GameUrl, home));
-    }
-
-    // copies the app to %LOCALAPPDATA%\Programs\Driftline and adds Start-menu + desktop shortcuts
-    static bool Install(string from, string to)
-    {
-        try
-        {
-            Directory.CreateDirectory(to);
-            foreach (string f in Files)
-            {
-                string src = Path.Combine(from, f);
-                if (File.Exists(src)) File.Copy(src, Path.Combine(to, f), true);
-            }
-            string offSrc = Path.Combine(from, "offline"), offDst = Path.Combine(to, "offline");
-            if (Directory.Exists(offSrc))
-            {
-                Directory.CreateDirectory(offDst);
-                foreach (string f in Directory.GetFiles(offSrc)) File.Copy(f, Path.Combine(offDst, Path.GetFileName(f)), true);
-            }
-            string exe = Path.Combine(to, "Driftline.exe"), ico = Path.Combine(to, "driftline.ico");
-            string startMenu = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Driftline.lnk");
-            string desktop = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Driftline.lnk");
-            MakeShortcut(startMenu, exe, to, ico);
-            MakeShortcut(desktop, exe, to, ico);
-            Process.Start(new ProcessStartInfo(exe) { WorkingDirectory = to, UseShellExecute = true });
-            return true;
-        }
-        catch (Exception e)
-        {
-            MessageBox.Show("Driftline couldn't install itself, so it will run from this folder.\n\n" + e.Message, "Driftline");
-            return false;
-        }
-    }
-
-    static void MakeShortcut(string lnk, string target, string dir, string icon)
-    {
-        Type t = Type.GetTypeFromProgID("WScript.Shell");
-        object shell = Activator.CreateInstance(t);
-        object sc = t.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { lnk });
-        Type st = sc.GetType();
-        st.InvokeMember("TargetPath", BindingFlags.SetProperty, null, sc, new object[] { target });
-        st.InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, sc, new object[] { dir });
-        st.InvokeMember("IconLocation", BindingFlags.SetProperty, null, sc, new object[] { icon });
-        st.InvokeMember("Description", BindingFlags.SetProperty, null, sc, new object[] { "Driftline, a cosy fishing game" });
-        st.InvokeMember("Save", BindingFlags.InvokeMethod, null, sc, null);
+        app.Run(new GameWindow(GameUrl));
     }
 }
 
 public class GameWindow : Window
 {
     readonly WebView2 view = new WebView2();
-    readonly string url, home;
+    readonly string url;
     bool triedOffline, full;
     WindowState prevState; WindowStyle prevStyle;
 
-    public GameWindow(string url, string home)
+    public GameWindow(string url)
     {
-        this.url = url; this.home = home;
+        this.url = url;
         Title = "Driftline";
         Width = 1280; Height = 880; MinWidth = 420; MinHeight = 520;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;

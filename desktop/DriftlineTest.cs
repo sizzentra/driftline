@@ -2,11 +2,10 @@
 // the proper way to test this, I should have a testing app"). The same kind of window as the Driftline desktop app, but it
 // loads the PREVIEW build (/next/), starts in full screen on the main monitor, and keeps its own data folder, so it never
 // touches the live game's save. F11 switches between full screen and a window, F5 reloads (to pick up a new preview build),
-// F12 opens the developer tools. Local tool only: it is not published on the site.
+// F12 opens the developer tools. It runs from the folder it was unzipped to (no self-install: see Main).
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,57 +16,15 @@ using Microsoft.Web.WebView2.Wpf;
 public class DriftlineTestApp : Application
 {
     const string GameUrl = "https://sizzentra.github.io/driftline/next/";
-    static readonly string[] Files = { "DriftlineTest.exe", "Microsoft.Web.WebView2.Core.dll", "Microsoft.Web.WebView2.Wpf.dll", "WebView2Loader.dll", "driftline.ico" };
 
+    // Runs from the folder it was unzipped to: it no longer copies itself, makes shortcuts or restarts itself (2026-11-21:
+    // that self-install pattern made Windows' download check call the file a Trojan). Its data folder
+    // (%LOCALAPPDATA%\DriftlineTest\Data) stays the same wherever the program sits.
     [STAThread]
     public static void Main(string[] args)
     {
-        string here = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-        string home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "DriftlineTest");
-        bool portable = Array.IndexOf(args, "--portable") >= 0, installOnly = Array.IndexOf(args, "--install-only") >= 0;
-        if (!portable && !string.Equals(Path.GetFullPath(here), Path.GetFullPath(home), StringComparison.OrdinalIgnoreCase))
-        {
-            if (Install(here, home, !installOnly)) return;
-        }
         var app = new DriftlineTestApp();
         app.Run(new TestWindow(GameUrl));
-    }
-
-    // copies the app to %LOCALAPPDATA%\Programs\DriftlineTest and adds a desktop + Start-menu shortcut "Driftline Test"
-    static bool Install(string from, string to, bool launch)
-    {
-        try
-        {
-            Directory.CreateDirectory(to);
-            foreach (string f in Files)
-            {
-                string src = Path.Combine(from, f);
-                if (File.Exists(src)) File.Copy(src, Path.Combine(to, f), true);
-            }
-            string exe = Path.Combine(to, "DriftlineTest.exe"), ico = Path.Combine(to, "driftline.ico");
-            MakeShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Driftline Test.lnk"), exe, to, ico);
-            MakeShortcut(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Driftline Test.lnk"), exe, to, ico);
-            if (launch) Process.Start(new ProcessStartInfo(exe) { WorkingDirectory = to, UseShellExecute = true });
-            return true;
-        }
-        catch (Exception e)
-        {
-            MessageBox.Show("Driftline Test couldn't install itself, so it will run from this folder.\n\n" + e.Message, "Driftline Test");
-            return false;
-        }
-    }
-
-    static void MakeShortcut(string lnk, string target, string dir, string icon)
-    {
-        Type t = Type.GetTypeFromProgID("WScript.Shell");
-        object shell = Activator.CreateInstance(t);
-        object sc = t.InvokeMember("CreateShortcut", BindingFlags.InvokeMethod, null, shell, new object[] { lnk });
-        Type st = sc.GetType();
-        st.InvokeMember("TargetPath", BindingFlags.SetProperty, null, sc, new object[] { target });
-        st.InvokeMember("WorkingDirectory", BindingFlags.SetProperty, null, sc, new object[] { dir });
-        st.InvokeMember("IconLocation", BindingFlags.SetProperty, null, sc, new object[] { icon });
-        st.InvokeMember("Description", BindingFlags.SetProperty, null, sc, new object[] { "Driftline Test: the preview build, full screen" });
-        st.InvokeMember("Save", BindingFlags.InvokeMethod, null, sc, null);
     }
 }
 
