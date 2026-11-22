@@ -7,6 +7,7 @@
 //    behind the settings gear; the gear keeps Settings and Save. Your Level in the top bar also opens Stats (teal: tap me).
 // Android + iPhone + tablets.
 // =====================================================================
+const AFTER_EVERY=[]; /* steps run after every page draw, in order (Clean Pages 3; the wrapper is at the end of this file) */
 /* Stats is its own section on the side panel (director, 2026-11-18); the list itself lives in bm_ui04.js since PC Reborn */
 try{ if(typeof SECT==='object'&&SECT.settings==='Save & codes') delete SECT.settings; }catch(e){}
 
@@ -75,7 +76,7 @@ html body.phone-land .hud > .st-lvl[data-mbtap]:active,html body.phone-app .hud 
 </style>`);
 /* Skills (director: "In skill tabs it doesn't make sense for each category to have a badge, just the skill points"): the category tabs
    carry no counts; your unspent skill points stay the one badge (the Skills tab and the side panel) */
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='skills') document.querySelectorAll('#panel .bwx-nav > button[data-sect] .sdot').forEach(d=>d.remove()); }catch(e){} return r; }; }
+pageDone('skills',P=>{ if(MOB()) P.querySelectorAll('.bwx-nav > button[data-sect] .sdot').forEach(d=>d.remove()); }); /* Clean Pages 2: a page step */
 /* Skills: an XP bar next to your Level (director, 2026-11-18: "We could use a xp bar next to the Level that functions and looks neat
    in this tab"). Fills with your XP toward the next level and says how much ("120 / 400 XP"); it follows every catch live while the
    page is open (a light check twice a second, only on this page) and fills up in a short glide. */
@@ -84,10 +85,10 @@ html body.phone-land .hud > .st-lvl[data-mbtap]:active,html body.phone-app .hud 
   const paint=()=>{ const P=$('panel'); if(!MOB()||S.tab!=='skills'||!P){ clearInterval(tm); tm=0; return; } const cell=P.querySelector('.mb-lvcell'); if(!cell){ clearInterval(tm); tm=0; return; }
     const key=S.lvl+'|'+Math.floor(S.xp); if(key===last) return; last=key; const b=cell.querySelector('b'); if(b) b.textContent=S.lvl; const w=cell.querySelector('.mb-xp'); if(!w) return;
     const need=xpNeed(S.lvl), k=Math.max(0,Math.min(1,S.xp/need)), bar=w.querySelector('.mb-xpbar'); w.querySelector('i').style.width=(k*100).toFixed(1)+'%'; w.querySelector('.mb-xpt').textContent=fmt(Math.floor(S.xp))+' / '+fmt(need)+' XP'; bar.setAttribute('aria-valuenow',Math.floor(S.xp)); bar.setAttribute('aria-valuemax',need); bar.setAttribute('aria-label','XP to level '+(S.lvl+1)); };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='skills') return r; const P=$('panel'); const bank=P&&P.querySelector('.pg08-bank'); if(!bank) return r;
-      const cell=[...bank.children].find(c=>c.tagName==='DIV'&&/^Level\b/.test((c.querySelector('.sub')||{}).textContent||'')); if(!cell||cell.querySelector('.mb-xp')) return r;
+  pageDone('skills',P=>{ if(!MOB()) return; const bank=P.querySelector('.pg08-bank'); if(!bank) return; /* Clean Pages 2: a page step, not a renderPanel layer */
+      const cell=[...bank.children].find(c=>c.tagName==='DIV'&&/^Level\b/.test((c.querySelector('.sub')||{}).textContent||'')); if(!cell||cell.querySelector('.mb-xp')) return;
       cell.classList.add('mb-lvcell'); cell.title='Your XP toward the next level. Catches give XP; every level gives a skill point.'; cell.insertAdjacentHTML('beforeend',`<span class="mb-xp">${xpHTML()}</span>`); last=S.lvl+'|'+Math.floor(S.xp);
-      if(!tm) tm=setInterval(paint,500); }catch(e){ console.error(e); } return r; }; }
+      if(!tm) tm=setInterval(paint,500); }); }
 
 /* side panel (director's screenshot: the Challenges count covered its label): counts sit on the corner of the icon, never over the name */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -157,14 +158,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
   menuTidy2=function(){ if(MOB()){ try{ quick(); }catch(e){} if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){} }); return; } return _mt.apply(this,arguments); }; try{ menuTidy=menuTidy2; }catch(e){} } /* the page switch calls the older alias menuTidy */
 /* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
    tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='trophy') return r; const P=$('panel'), room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return r;
-      room.classList.add('tp8'); const emp=room.querySelector('.tp-empty'); if(emp&&!emp.querySelector('.tp8-wall')){ const g=emp.querySelector('.tp-ghost'); if(g) g.remove(); emp.insertAdjacentHTML('afterbegin','<div class="tp8-wall" aria-hidden="true"><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div></div>'); } /* empty room (director, 2026-11-19: "super small ui when empty"): a wall of three empty plaques fills the page */ const grid=room.querySelector('.tp-grid'); if(!grid) return r;
+pageDone('trophy',P=>{ try{ if(!MOB()) return; const room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return; /* Clean Pages 3: a page step */
+      room.classList.add('tp8'); const emp=room.querySelector('.tp-empty'); if(emp&&!emp.querySelector('.tp8-wall')){ const g=emp.querySelector('.tp-ghost'); if(g) g.remove(); emp.insertAdjacentHTML('afterbegin','<div class="tp8-wall" aria-hidden="true"><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div><div class="tp-plaque tp-ghost"></div></div>'); } /* empty room (director, 2026-11-19: "super small ui when empty"): a wall of three empty plaques fills the page */ const grid=room.querySelector('.tp-grid'); if(!grid) return;
       let bar=room.querySelector('.tp8-bar'); if(!bar){ bar=document.createElement('div'); bar.className='tp8-bar'; bar.innerHTML='<span class="meta">Tap a trophy to see it up close.</span>'; grid.after(bar); }
       grid.querySelectorAll('.tp-item').forEach((it,i)=>{ it.tabIndex=0; it.setAttribute('role','button');
         it.addEventListener('click',e=>{ if(e.target.closest('.tp-out')) return; grid.querySelectorAll('.tp-item.sel').forEach(x=>x.classList.remove('sel')); it.classList.add('sel');
           const nm=it.querySelector('.tp-plate b'), sub=it.querySelector('.tp-plate span'), meta=it.querySelector('.tp-meta'), out=it.querySelector('.tp-out');
           bar.innerHTML=`<div class="tp8-info"><b>${nm?nm.innerHTML:''}</b><span class="meta">${sub?sub.textContent:''}${meta?' · '+meta.textContent:''}</span></div>`; if(out){ const c=out.cloneNode(true); c.classList.add('tp8-out'); bar.appendChild(c); } }); });
-    }catch(e){ console.error(e); } return r; }; }
+    }catch(e){ console.error(e); } });
 /* TIDE PASS: the "next Tide reward" is one slim row (small picture, name, what it is, levels to go) instead of a big card */
 /* BOARDWALK: two wider game cards a row on phones (three narrow ones stretched each game to 360-560 px), game pictures capped */
 /* "Waters" is called "Map" (director, 2026-11-18) */
@@ -224,8 +225,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8
 /* EVENTS (director, 2026-11-18: "Events tab shows duplicates across the calendar, challenges and derby menus"): the intro line no longer
    tops every tab, the big "Challenges" / "Fishing Derby" headings (the tab names them) are gone, and Derby rewards no longer repeats
    "four minutes, one water, heaviest catch wins" (the derby card above says it). */
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()||S.tab!=='events') return r; const P=$('panel');
-      P.querySelectorAll('.tile').forEach(t=>{ const h=t.querySelector('h4,b'); if(h&&/^Derby rewards/.test(h.textContent.trim())){ const m=t.querySelector(':scope > .meta, :scope > div > .meta'); if(m&&/heaviest/i.test(m.textContent)) m.style.display='none'; } }); }catch(e){} return r; }; }
+pageDone('events',P=>{ try{ if(!MOB()) return; /* Clean Pages 3: a page step */
+      P.querySelectorAll('.tile').forEach(t=>{ const h=t.querySelector('h4,b'); if(h&&/^Derby rewards/.test(h.textContent.trim())){ const m=t.querySelector(':scope > .meta, :scope > div > .meta'); if(m&&/heaviest/i.test(m.textContent)) m.style.display='none'; } }); }catch(e){} });
 /* FEATS (director: "Feats can definitely shrink in size overall when it comes to each card"): each card is two short lines and a thin
    bar (title + progress, then what to do + the reward), about half the height */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -316,7 +317,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
     const t=h.textContent.trim(); if(t===N){ h.classList.add('dl-dupname'); h.dataset.dupDone=N; return; }
     if(t.startsWith(N+' ·')||t.startsWith(N+' -')){ const w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT), texts=[]; let n; while(n=w.nextNode()) if(n.textContent.trim()) texts.push(n); const f=texts[0]; if(!f) return; if(f.textContent.trim()===N){ f.textContent=''; if(texts[1]) texts[1].textContent=texts[1].textContent.replace(/^\s*[·-]\s*/,''); } else f.textContent=f.textContent.replace(N,'').replace(/^\s*[·-]\s*/,''); const g=texts.find(x=>x.textContent.trim()); if(g) g.textContent=g.textContent.replace(/^(\s*)(\S)/,(m,s,c)=>s+c.toUpperCase()); h.dataset.dupDone=N; } };
   /* after every other renderPanel step (later files wrap it again and add their headings after this one runs) */
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); queueMicrotask(()=>{ try{ dedupe(); }catch(e){} }); return r; };
+  AFTER_EVERY.push(()=>queueMicrotask(()=>{ try{ dedupe(); }catch(e){} })); /* after every other renderPanel step: run by the one wrapper at the end of this file */
   /* twice after a tab switch: the page engine can show the new tab after the first run, which left "Decorate" under the Decorate tab until the next redraw (and then the list jumped up 35 px, found by __snapQC) */
   document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')){ const run=()=>{ try{ dedupe(); }catch(er){} }; setTimeout(run,0); setTimeout(()=>setTimeout(run,0),0); } },true); /* the second pass queues behind the page engine's own zero-delay switch */
   PHONE_DEDUPE=dedupe; document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .dl-dupname{display:none!important}</style>'); }
@@ -333,7 +334,7 @@ document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuo
       const r=bar.getBoundingClientRect(), b=box.getBoundingClientRect(), want=Math.floor(b.bottom-r.top-6);
       if(want>120&&(b.bottom-r.bottom>24||bar.scrollHeight>bar.clientHeight+1)) bar.style.setProperty('height',want+'px','important'); }catch(e){} };
   const later=()=>{ requestAnimationFrame(fit); setTimeout(fit,120); };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); later(); return r; };
+  AFTER_EVERY.push(later);
   addEventListener('resize',()=>{ const bar=document.querySelector('#menuov #tabs .secbar'); if(bar) bar.style.removeProperty('height'); later(); });
   if(/[?&]test\b/.test(location.search)) window.__fitRail=fit; }
 /* the name a page tab shows (its own text, without a badge); data-sect can differ ("Dock" shows as "Your boat") */
@@ -366,7 +367,9 @@ document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land .hud >
       b.addEventListener('click',e=>{ e.stopPropagation(); openMenu(S.tab==='cooler'?'aquarium':'cooler'); }); const set=tools.querySelector('[data-mo="settings"]'); if(set) set.after(b); else tools.appendChild(b); }
     const on=S.tab==='cooler'||S.tab==='aquarium'; b.hidden=!on; if(on){ const to=S.tab==='cooler'?'Aquarium':'Cooler'; b.textContent=(to==='Aquarium'?'🐠 ':'🧊 ')+to; b.setAttribute('aria-label','Switch to the '+to); } }catch(e){} };
   /* kept in step with every page change: menu changes and page draws (2026-11-20: opening the Fish Log from a fish left the Cooler switch showing) */
-  const _ms=menuSync; menuSync=function(){ const r=_ms.apply(this,arguments); swapSync(); return r; }; const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); swapSync(); return r; }; }
+  const _ms=menuSync; menuSync=function(){ const r=_ms.apply(this,arguments); swapSync(); return r; }; AFTER_EVERY.push(swapSync);
+  /* Clean Pages 3: the steps that follow every page draw (names not repeated, the rail fitted, the Cooler switch) have one owner: this wrapper runs them in their old order */
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); for(const fn of AFTER_EVERY){ try{ fn(); }catch(e){} } return r; }; }
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap{width:auto!important;min-width:0!important;padding:0 12px!important;font:800 13px var(--display,system-ui)!important;font-size:13px!important;color:#dbe7f3!important;white-space:nowrap}html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap[hidden],html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap[hidden]{display:none!important}html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap::before,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap::before,html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap::after,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap::after{content:none!important;display:none!important}</style>');
 /* C12 (director + Cam, 2026-11-20): a chosen color keeps its own color and gets a gold box around it (the general "chosen chip" gold
    used to fill the whole swatch, so you couldn't see which color you had) */

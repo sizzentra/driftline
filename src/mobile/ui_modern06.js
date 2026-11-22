@@ -65,7 +65,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app #menuov .mo-tools .mo-tb.on,body.phone-land #menuov .mo-tools .mo-tb.on{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important}
 </style>`);
 // Pets: your favourite's "★ Favourite" reads as chosen (gold), not as a greyed-out button
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()&&S.tab==='pets') $('panel').querySelectorAll('.tile .btn:disabled').forEach(b=>{ if(/^★\s*Favourite$/.test(b.textContent.trim())) b.classList.add('mt-chosen'); }); }catch(e){} return r; }; }
+pageDone('pets',P=>{ if(MOB()) P.querySelectorAll('.tile .btn:disabled').forEach(b=>{ if(/^★\s*Favourite$/.test(b.textContent.trim())) b.classList.add('mt-chosen'); }); }); /* Clean Pages 2: a page step, not a renderPanel layer */
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app #panel .btn.mt-chosen,body.phone-land #panel .btn.mt-chosen{background:var(--mt-gold)!important;border-color:var(--mt-gold-b)!important;color:#2a1c05!important;opacity:1!important}
 </style>`);
