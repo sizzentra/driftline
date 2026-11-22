@@ -49,12 +49,14 @@ function v3range(c,o){
   const K=Math.max(3,Math.round(6/step)), cols=raw.map((h,i)=>{ let s=0,wsum=0; for(let j=-K;j<=K;j++){ const v=raw[Math.min(raw.length-1,Math.max(0,i+j))], w=1-Math.abs(j)/(K+1); s+=v*w; wsum+=w; } return o.base-s/wsum; }); /* a wide soft smoothing: natural, rounded ridges */
   const path=()=>{ c.beginPath(); c.moveTo(0,o.base); for(let i=0;i<cols.length;i++) c.lineTo(i*step,cols[i]); c.lineTo(W,o.base); c.closePath(); };
   const sk=Math.max(4,Math.round(8/step)), sl=i=>{ const a=cols[Math.max(0,i-sk)], b=cols[Math.min(cols.length-1,i+sk)]; return (b-a)/(2*sk*step); };
-  c.save(); path(); c.clip();
-  for(let i=0;i<cols.length;i++){ const lit=clamp(.5+sl(i)*1.9,0,1);
-    const top=Math.min(cols[i],cols[i+1]??cols[i])-1; c.fillStyle=mix(o.shadow,o.light,lit); c.fillRect(i*step,top,step+.6,o.base-top+1); }
-  if(o.snow){ for(let i=0;i<cols.length;i++){ if(cols[i]>=o.snowLine) continue; const above=o.snowLine-cols[i];
-      const depth=above*(.5+.45*m(i*step*.012))+above*.35*Math.max(0,m(i*step*.033+3)-.45);
-      const lit=clamp(.5+sl(i)*1.9,0,1); const top=Math.min(cols[i],cols[i+1]??cols[i])-1; c.fillStyle=mix(mix(o.snow,'#8088bc',.4),o.snow,lit); c.fillRect(i*step,top,step+.6,depth+cols[i]-top); } }
+  // 8b: the slope shading is one left-to-right gradient over the whole range (a stop every ~3 px), not ~1,300 clipped column fills:
+  // the same shading, but the graphics card paints one shape instead of spending ~170 ms of a light change on the columns
+  const nc=cols.length, gs=Math.max(1,Math.round(3/step)), shade=(a,b)=>{ const lg=c.createLinearGradient(0,0,(nc-1)*step,0); for(let i=0;i<nc;i+=gs) lg.addColorStop(i/(nc-1),mix(a,b,clamp(.5+sl(i)*1.9,0,1))); return lg; };
+  c.save(); path(); c.fillStyle=shade(o.shadow,o.light); c.fill(); c.clip();
+  if(o.snow){ const dep=cols.map((y,i)=>{ if(y>=o.snowLine) return -1; const above=o.snowLine-y; return above*(.5+.45*m(i*step*.012))+above*.35*Math.max(0,m(i*step*.033+3)-.45); });
+    c.beginPath(); for(let a=0;a<nc;a++){ if(dep[a]<0) continue; let b=a; while(b+1<nc&&dep[b+1]>=0) b++; /* one run of snow: along the crest, back along its lower edge */
+      c.moveTo(a*step,cols[a]-1); for(let i=a;i<=b;i++) c.lineTo(i*step+step,cols[i]-1); for(let i=b;i>=a;i--) c.lineTo(i*step+step,cols[i]+dep[i]); c.lineTo(a*step,cols[a]+dep[a]); c.closePath(); a=b; }
+    c.fillStyle=shade(mix(o.snow,'#8088bc',.4),o.snow); c.fill(); }
   const hg=c.createLinearGradient(0,o.base-o.amp,0,o.base); hg.addColorStop(0,v3rgba(o.haze,0)); hg.addColorStop(.55,v3rgba(o.haze,o.hazeA*.35)); hg.addColorStop(1,v3rgba(o.haze,o.hazeA)); c.fillStyle=hg; c.fillRect(0,o.base-o.amp,W,o.amp+1);
   c.restore();
 }
@@ -67,20 +69,42 @@ let V3CACHE=null, V3PREV=null;
 // smoothly; light changes are redrawn between frames, so the extra steps never make a frame late. Phones keep the original steps.
 function v3steps(){ return document.body.classList.contains('pch-on')?[24,16,12]:[14,9,6]; }
 function v3fade(){ return document.body.classList.contains('pch-on')?1.8:3.4; } // seconds a new light level takes to fade in
+// 8b (director, 2026-11-21, option 20 of the light-change choices; the director's PC showed single frames of 291-329 ms at dawn and dusk):
+// a new light level is painted ahead in slices. The land drawing is recorded (every canvas call, in order) and then replayed a few
+// milliseconds per frame onto a spare picture; only when it is complete does it fade in. Same painting, same look, no long frame.
+function v3rec(x){ const ops=[], stack=[]; let sh={};
+  const ctx=new Proxy(x,{ get(t,k){ if(k==='canvas') return t.canvas; if(k in sh) return sh[k]; const v=t[k]; if(typeof v!=='function') return v;
+      if(k==='save') return ()=>{ stack.push(Object.assign({},sh)); ops.push(['save',[]]); };
+      if(k==='restore') return ()=>{ sh=stack.pop()||{}; ops.push(['restore',[]]); };
+      if(/^create/.test(k)) return v.bind(t); /* gradients and patterns are made now and used at replay */
+      if(k==='measureText') return s=>{ const f=t.font; if(sh.font) t.font=sh.font; const m=t.measureText(s); t.font=f; return m; };
+      return (...a)=>{ ops.push([k,a.map(z=>Array.isArray(z)?z.slice():z)]); }; },
+    set(t,k,v){ sh[k]=v; ops.push([0,k,v]); return true; } });
+  return {ctx,ops}; }
+const V3FLUSH=document.createElement('canvas'); V3FLUSH.width=V3FLUSH.height=1;
+/* a slice is at most ~1,200 canvas calls and is handed to the graphics card at once (drawn into a 1-pixel canvas): the card paints a
+   picture only when it is first used, so without this the whole picture landed on one frame however finely the calls were spread */
+function v3play(J,ms){ const x=J.x, o=J.ops, t0=performance.now(), end=Math.min(o.length,J.i+1200); while(J.i<end){ for(let n=0;n<32&&J.i<end;n++){ const p=o[J.i++]; if(typeof p==='function') p(); else if(p[0]===0) x[p[1]]=p[2]; else x[p[0]].apply(x,p[1]); } if(performance.now()-t0>ms) break; }
+  V3FLUSH.getContext('2d').drawImage(x.canvas,0,0,1,1); return J.i>=o.length; }
+function v3prep(c){ const DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
+  const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); return x; } /* still scenery at most 2x: sharp on every phone, far less to repaint */
 function v3land(L,P,hz){
-  const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key;
-  if(V3CACHE && V3CACHE.key===key) return V3CACHE;
+  const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key, base=L.id+'|'+W+'|'+H+'|'+DPR;
+  if(V3CACHE && V3CACHE.key===key){ v3land.job=null; return V3CACHE; } /* back to the light on screen: a half-painted next picture is dropped */
   // only the light changed (same place and size): keep the old picture to fade from; otherwise start clean
-  const same=V3CACHE && V3CACHE.base===L.id+'|'+W+'|'+H+'|'+DPR;
-  // a light change is redrawn between frames, not inside one (the new light fades in over 3.4 s anyway), so it never makes a
-  // frame late on fast monitors; a new water or a new size is still drawn at once
-  if(same&&!v3land.now){ if(!v3land.q){ v3land.q=setTimeout(()=>{ v3land.q=0; v3land.now=true; try{ v3land(L,P,hz); }catch(e){} v3land.now=false; },0); } return V3CACHE; }
-  const spare=V3PREV&&V3PREV.c, old=V3CACHE;
-  const c=(same?spare:(old&&old.c))||document.createElement('canvas'), DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
-  const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); /* still scenery at most 2x: sharp on every phone, far less to repaint */
-  V3SCENES[L.id].land(x,P,hz,c);
+  const same=V3CACHE && V3CACHE.base===base;
+  // a light change is painted ahead in slices (above) while the current picture stays; a new water or a new size is drawn at once
+  if(same&&!v3land.now){ const J=v3land.job;
+    if(J&&J.base===base){ if(v3play(J,4)){ v3land.job=null; V3PREV={c:V3CACHE.c,t0:performance.now()}; V3CACHE={key:J.key,base,c:J.c}; } return V3CACHE; }
+    if(V3PREV&&V3PREV.t0>0) return V3CACHE; /* the last light level is still fading in: its picture is not free yet */
+    const c=(V3PREV&&V3PREV.c)||document.createElement('canvas'), x=v3prep(c), R=v3rec(x); V3SCENES[L.id].land(R.ctx,P,hz,c);
+    v3land.job={key,base,c,x,ops:R.ops,i:0}; return V3CACHE; }
+  v3land.job=null;
+  const old=V3CACHE, c=(same?V3PREV&&V3PREV.c:(old&&old.c))||document.createElement('canvas'), x=v3prep(c);
+  // v3land.rec (PC's look-ahead picture): record now, replay in slices by the caller (C.ops)
+  const R=v3land.rec?v3rec(x):null; V3SCENES[L.id].land(R?R.ctx:x,P,hz,c);
   V3PREV=same?{c:old.c,t0:performance.now()}:null;
-  V3CACHE={key,base:L.id+'|'+W+'|'+H+'|'+DPR,c}; return V3CACHE;
+  V3CACHE={key,base,c}; if(R){ V3CACHE.x=x; V3CACHE.ops=R.ops; V3CACHE.i=0; } return V3CACHE;
 }
 // the cached scenery, with the previous light level fading out on top while a new one comes in
 function v3landDraw(L,P,hz){ const C=v3land(L,P,hz); g.drawImage(C.c,0,0,W,H);
@@ -292,7 +316,7 @@ if(/[?&]test\b/.test(location.search)){
   window.__crop=(x,y,w,h,s=2)=>{ document.getElementById('dbg')?.remove(); const d=cv.width/cv.getBoundingClientRect().width, o=document.createElement('canvas'); o.width=w*s; o.height=h*s; o.getContext('2d').drawImage(cv,x*d,y*d,w*d,h*d,0,0,w*s,h*s); const im=document.createElement('img'); im.src=o.toDataURL(); im.id='dbg'; im.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#000;width:'+(w*s)+'px'; document.body.appendChild(im); return [o.width,o.height]; };
   window.__go=id=>{ S.loc=id; if(!S.unlocked.includes(id)) S.unlocked.push(id); };
   window.__v3st=()=>({cache:V3CACHE&&V3CACHE.key, prev:V3PREV&&V3PREV.t0});
-  window.__landCost=(n=5)=>{ let mx=0; for(let i=0;i<n;i++){ if(V3CACHE) V3CACHE.key=""; v3palette.k=null; const t0=performance.now(); draw(performance.now()); mx=Math.max(mx,performance.now()-t0); } return +mx.toFixed(2); };
+  window.__landCost=(n=5)=>{ let mx=0; for(let i=0;i<n;i++){ if(V3CACHE) V3CACHE.key=""; v3palette.k=null; v3land.now=true; const t0=performance.now(); try{ draw(performance.now()); } finally{ v3land.now=false; } mx=Math.max(mx,performance.now()-t0); } return +mx.toFixed(2); };
   window.__drawCost=(n=30)=>{ const t0=performance.now(); for(let i=0;i<n;i++) draw(performance.now()); return +((performance.now()-t0)/n).toFixed(2); };
   window.__setWeather=k=>{ for(let i=0;i<3000;i++){ window.__off+=137000; if(weather().k===k) return k; } return 'none'; };
   window.__post=(name,url)=>fetch('/shot/'+name,{method:'POST',body:url});

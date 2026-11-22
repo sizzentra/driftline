@@ -2,6 +2,16 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fish: real fish families look like themselves: catfish get their whiskers and flat heads, the tiger shovelnose is a striped catfish, arowana and arapaima are long and scaled, piranhas have teeth, cichlids, oscars, discus, tetras, plecos, loaches, snakeheads, gobies, lungfish and bichirs have their real shapes and markings.',
+  'Long fish are slim: arowanas, loaches, plecos, bichirs and snakeheads, and the Nile electric catfish is a catfish (it was drawn like a sunfish).',
+  'The black ghost knifefish and the black phantom tetra are dark fish now, not see-through.',
+  'Opening the game in a browser shows a welcome once with how to install it on this device; Settings › Install Driftline brings it back.',
+  'The install welcome waits until other cards (like these notes) are closed.',
+  'Dawn, dusk and weather changes: the scenery’s new light is painted a little at a time, and the mountains are much cheaper to paint, so the short freezes when the light changes should be gone. Tell us if you still see one.',
+  'Behind the scenes: each water’s extra scenery (boats, birds, lights, waves) now has one owner instead of layers stacked on layers. Nothing should look different; tell us if anything does.',
+  '## Test build 0407',
+  'Save › Backup on this device: your progress is copied every few minutes and whenever you leave the game; Restore brings it back (click twice). If your progress suddenly drops, the better copy is kept as an earlier backup.',
+  '## Test build 0351',
   'Your home on PC: the parts are larger and easier to read on a full-HD screen, their column ends where they end, and the home view gets more room.',
   'Selected tabs and styles are gold on every PC page, like on the phones.',
   'The home label reads like on the phones (Willow Pond · dock).',

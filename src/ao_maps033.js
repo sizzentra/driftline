@@ -6,8 +6,12 @@
 //   fore  : foreground along the bottom edge, which the float never reaches (waterY is above ~0.84H there)
 // =====================================================================
 const M33={};
-// wrap one scene hook: the original first, then ours
-function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const old=S0[hook]; S0[hook]=function(){ if(old) old.apply(this,arguments); if(!(W>8&&H>8)||window.__noExtras) return; /* never draw extras on a zero-size canvas (some loops step by a fraction of W) */ try{ fn.apply(this,arguments); }catch(e){ if(!M33.err){ M33.err=1; console.error(e); } } }; }
+// one owner per water and hook (Clean Scenes 5, batch 7): the original hook first, then every extra in the order the files added it.
+// It replaced 96 nested wrappers (one per extra and water); same order, same size guard, same error report, one call per hook. Proven 2026-11-22: every water drawn at a frozen time is pixel-identical to the nested version rebuilt from list.base (kept for that proof).
+function m33wrap(id,hook,fn){ const S0=V3SCENES[id]; if(!S0) return; const X=S0.__x||(S0.__x={}); if(!X[hook]){ const list=X[hook]=[], old=list.base=S0[hook];
+    S0[hook]=function(){ if(old) old.apply(this,arguments); if(!(W>8&&H>8)||window.__noExtras) return; /* never draw extras on a zero-size canvas (some loops step by a fraction of W) */
+      for(const f of list){ try{ f.apply(this,arguments); }catch(e){ if(!M33.err){ M33.err=1; console.error(e); } } } }; }
+  X[hook].push(fn); }
 // a soft mirror of whatever pathFn draws, just under the horizon
 function m33reflect(x,hz,depth,alpha,col,pathFn){ x.save(); x.beginPath(); x.rect(0,hz,W,depth); x.clip(); x.translate(0,hz*2); x.scale(1,-1); x.globalAlpha=alpha; x.fillStyle=col; pathFn(); x.fill(); x.restore(); }
 const m33dot=(c,x,y,r,col)=>{ c.fillStyle=col; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); };

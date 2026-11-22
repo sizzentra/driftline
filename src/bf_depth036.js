@@ -53,11 +53,11 @@ function finGrain(){ if(FIN036.grain) return FIN036.grain; const n=160, c=docume
   x.putImageData(im,0,0); return FIN036.grain=c; }
 const _v3land_036=v3land;
 v3land=function(L,P,hz){ const before=V3CACHE&&V3CACHE.key, C=_v3land_036(L,P,hz);
-  if(C.key!==before && !C.fin){ C.fin=1; try{ const x=C.c.getContext('2d'); x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop';
+  if(C.key!==before && !C.fin){ C.fin=1; const fin=()=>{ try{ const x=C.c.getContext('2d'); x.save(); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-atop';
     const k=Math.max(1,Math.round(C.c.width/1400)); const hzq=Math.round(hz*C.c.height/H)+2; x.globalAlpha=.42; x.fillStyle=x.createPattern(finGrain(),'repeat'); if(k>1&&x.fillStyle.setTransform) x.fillStyle.setTransform(new DOMMatrix().scale(k,k)); x.fillRect(0,0,C.c.width,hzq);
     // light falls from above: the tops of things lighter, the ground near the camera darker
     x.globalAlpha=1; const hzp=hz*C.c.height/H, lg=x.createLinearGradient(0,0,0,C.c.height); lg.addColorStop(0,'rgba(255,248,235,.06)'); lg.addColorStop(Math.min(.98,hzp/C.c.height),'rgba(255,248,235,0)'); lg.addColorStop(1,'rgba(0,4,12,.16)'); x.fillStyle=lg; x.fillRect(0,0,C.c.width,C.c.height);
-    x.restore(); }catch(e){} }
+    x.restore(); }catch(e){} }; if(C.ops) C.ops.push(fin); else fin(); } /* a picture painted in slices (8b) gets its finish as the last slice */
   return C; };
 function finVignette(){ const key=W+'x'+H; if(FIN036.vig&&FIN036.vig.key===key) return FIN036.vig.c;
   const c=document.createElement('canvas'), q=Math.min(1,600/Math.max(W,H)); c.width=Math.max(8,Math.round(W*q)); c.height=Math.max(8,Math.round(H*q)); const x=c.getContext('2d'), w=c.width, h=c.height, R=Math.hypot(w,h)/2;

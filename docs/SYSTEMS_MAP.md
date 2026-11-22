@@ -50,6 +50,7 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 | Piece | Defined in | Notes |
 |---|---|---|
 | `V3SCENES.<water>.land/live/fore` | `f2_areas.js` (+ `f_v3scene.js`) | `land` is cached (rebuilt only when light changes, PC `pc/scene_light.js`); `live` runs every frame |
+| Light changes painted in slices (8b, 2026-11-22) | `f_v3scene.js` (`v3rec`, `v3play`, `v3land.job`, `v3land.rec`), `pc/scene_light.js` (J), `bf_depth036.js` (finish as last slice) | a new light level is recorded once, replayed at most ~1,200 canvas calls per frame and handed to the graphics card each frame, then fades in; a new water or size still paints at once. Anything that paints on the land picture after `v3land` returns must push itself into `C.ops` when they exist (as the depth finish does). `v3range` paints each range as one shaded shape (no clipped columns). Check: real-speed dusk in the visible pane, worst frame |
 | per-water extras `m33wrap(id,'land'/'live'/'fore')` | `ao_maps033.js`, `aq_life033.js`, `at_starfall033.js`, `ar_ember033.js` | animals, otters, leaves, dolphins... |
 | Stonebrook village / jetty / wheel / river | `cc_river06.js` | sizes via `rvH()` = min(H, W*.8) so tall phones keep proportions |
 | Shared scale rule | any `H*` size in a scene | phones are tall (H >> W): size buildings by `min(H, W*k)`, not `H` |

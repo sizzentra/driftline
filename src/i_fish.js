@@ -67,10 +67,31 @@ function fishDesign(sp){
   if(has('grouper','roughy','redfish','oilfish','escolar','blackcod','slickhead')){ d.plan=d.plan==='fusi'?'grouper':d.plan; d.eye=has('roughy','redfish','slickhead')?'big':d.eye; }
   if(has('jelly')) d.plan='jelly'; if(has('squid','octopus','kraken','dreamer','endless','telescope','dumbo','mimic')) d.plan=has('octopus','dumbo','mimic','telescope')?'octopus':'squid';
   if(has('crab','lobster','isopod','krill','shrimp','mantis')) d.plan=has('lobster')?'lobster':has('isopod')?'isopod':has('krill')?'krill':has('mantis')?'shrimp':'crab';
+  // batch 4 (director, 2026-11-21: "fish that are based off of real fish should still look like them: arowana don't, most catfish don't,
+  // tiger shovelnose doesn't look anything like its description"): the real families of the newer waters, from the parts above
+  if(has('catfish','bullhead','corydoras','namazu')){ d.barbel='cat'; if(!has('corydoras','upside')) d.h=Math.min(d.h,.34); d.adipose=1; d.tail=has('corydoras')?'fork':'round'; }
+  if(has('shovelnose')&&!has('sturgeon')){ d.plan='long'; d.barbel='cat'; d.pat='tiger'; d.tail='fork';  d.h=Math.min(d.h,.22); } /* the tiger shovelnose is a catfish, not the sturgeon */
+  if(has('arowana')){ d.plan='long'; d.h=Math.min(d.h,.27); d.pat='scales'; d.barbel='short'; d.tail='round'; }
+  if(has('arapaima')){ d.plan='long'; d.h=Math.min(d.h,.26); d.pat='scales'; d.tail='round'; }
+  if(has('knifefish')){ d.plan='eel'; d.ribbon=1; }
+  if(has('electric eel')) d.plan='eel';
+  if(has('piranha')){ d.plan='deep'; d.teeth=1; d.tail='fork'; }
+  if(has('pacu')){ d.plan='deep'; d.tail='fork'; }
+  if(has('cichlid','oscar','tilapia')){ d.plan='deep'; d.dorsal='spiny'; d.tail='round'; if(has('oscar')) d.pat='eyespot'; }
+  if(has('discus')){ d.plan='disc'; if(d.pat==='none') d.pat='vbars'; }
+  if(has('peacock bass')){ d.plan='fusi'; d.dorsal='spiny'; d.pat='eyespot'; d.mouth='big'; }
+  if(has('tetra')){ d.plan='fusi'; d.adipose=1; d.tail='fork'; if(has('neon','cardinal')) d.pat='neon'; }
+  if(has('lungfish')){ d.plan='eel'; if(d.pat==='none') d.pat='spots'; }
+  if(has('bichir')){ d.plan='long'; d.h=Math.min(d.h,.2); d.dorsal='spines3'; d.tail='round'; if(d.pat==='none') d.pat='blotch'; }
+  if(has('pleco')){ d.plan='long'; d.h=Math.min(d.h,.3); d.sucker=1; d.dorsal='sail'; if(d.pat==='none') d.pat='dots'; }
+  if(has('loach')){ d.plan='long'; d.h=Math.min(d.h,.22); d.barbel=d.barbel||'short'; d.tail='round'; if(d.pat==='none') d.pat='marble'; }
+  if(has('snakehead')){ d.plan='long'; d.h=Math.min(d.h,.24); d.dorsal='long'; d.mouth='big'; d.tail='round'; if(d.pat==='none') d.pat='blotch'; }
+  if(has('goby')) d.plan='blenny';
+  if(has('catfish','bullhead','corydoras','namazu','shovelnose','arowana','arapaima','knifefish','electric eel','piranha','pacu','cichlid','oscar','tilapia','discus','peacock bass','tetra','lungfish','bichir','pleco','loach','snakehead','goby')) d.fam=1; /* a real family: the new waters' random body (cq_traits) leaves it alone */
   // element touches from the area
   if(sp.loc==='ember'&&!has('jelly')) d.ember=1; if(sp.loc==='starfall') d.cosmic=1; if(sp.loc==='frost') d.frost=1; if(sp.loc==='trench'||sp.loc==='deep') d.deepsea=1;
   if(has('glow','lantern','light','firefly','aurora','neon','twinkle','star','comet','pulsar','galaxy','nebula')) d.glow=1;
-  if(has('ghost','phantom','wraith','spirit','glass','crystal','clear')) d.ghost=1;
+  if(has('ghost','phantom','wraith','spirit','glass','crystal','clear')&&!has('ghost knifefish','phantom tetra')) d.ghost=1; /* real fish with ghost or phantom in their name (black ghost knifefish, black phantom tetra) are dark, not see-through */
   // patterns from the old pattern flag
   if(d.pat==='none'||d.pat==='scales'){ if(sp.pat===1) d.pat=has('tiger')?'tiger':pick(['vbars','vbars','hstripe']); else if(sp.pat===2) d.pat=pick(['spots','dots','spots','marble']); }
   // a little individual variety
