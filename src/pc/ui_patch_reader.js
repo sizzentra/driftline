@@ -7,7 +7,7 @@
 { const _sw=showWhatsNew, _sp=showPatchNotes;
   const pc=()=>document.body.classList.contains('pch-on');
   // short sections side by side; long ones (more than 5 points) full width below, their points flowing in columns
-  const body=p=>{ const d=document.createElement('div'); d.innerHTML=patchHTML(p); const g=d.querySelector('.pn-grid'); if(g){ g.classList.add('pnr-grid'); const secs=[...g.children]; secs.filter(s=>s.querySelectorAll('li').length>5).forEach(s=>{ s.classList.add('wide'); g.appendChild(s); }); } return d.innerHTML; };
+  const body=p=>{ const d=document.createElement('div'); d.innerHTML=patchHTML(p); const g=d.querySelector('.pn-grid'); if(g){ g.classList.add('pnr-grid'); const secs=[...g.children]; secs.filter(s=>s.querySelectorAll('li').length>5).forEach(s=>{ s.classList.add('wide'); if(p.v!=='test') g.appendChild(s); }); } /* test notes keep newest first: a long section stays where it is (batch 1: the two newest test builds sank below the older ones) */ return d.innerHTML; };
   const open=(list,title,sub,after)=>{ G.st='event'; let cur=0;
     const rail=list.length>1?`<nav class="pnr-rail">${list.map((p,i)=>`<button type="button" class="pnr-it" data-i="${i}" aria-pressed="${i===0}"><span class="pnr-v">${p.label?esc(p.label):'Update '+esc(p.v)}</span><b>${esc(p.name)}</b>${i===0?'<span class="pnr-new">Newest</span>':''}</button>`).join('')}</nav>`:'';
     $('evin').innerHTML=`<div class="pnr${list.length>1?'':' one'}"><header class="pnr-top"><div><div class="rar" style="color:var(--gold)">${title}</div><h3>${sub}</h3></div><button class="btn" data-ev="skip">Let’s fish!</button></header><div class="pnr-main">${rail}<article class="pnr-body">${body(list[0])}</article></div></div>`;

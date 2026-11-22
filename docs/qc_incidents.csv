@@ -184,3 +184,4 @@
 "183","2026-11-21","Aquarium page, fish lines and catch badge left out the titled-shiny lift, so shown boosts were lower than applied","ui-logic","director","test_app","1","QA [18]: shown boost includes the lift","fixed","unknown","batch 2"
 "184","2026-11-21","Phones: the side panel vanished while a catch card showed (a hiding rule)","ui","director","real_iphone","1","by hand (card-open opacity check)","fixed","unknown","batch 2"
 "185","2026-11-21","Phones: fish pictures in lists blanked as the custom scroll bar faded (the fade repainted the whole list)","performance","director","real_android","1","by hand on the phones (device-only)","fixed","unknown","batch 2"
+"186","2026-11-21","PC patch notes: long test-build sections were moved below older builds, so the two newest test builds looked missing","ui","director","test_app","1","by hand (newest-first order on the PC notes reader)","fixed","unknown","2026.11.21-2338"

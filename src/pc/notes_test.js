@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Patch notes: the newest test builds show first again (long sections were moved below the older ones).',
   'Cam’s fish feel update: tension builds a little while you reel and only falls when you stop (steadily, slower during a move). Temper empties in about 3 s once you stop; a fish at full temper moves up to 3 times as often (each move costs it less Fight). Reeling into a move drains its Fight faster.',
   'Between moves a fish sometimes swims toward you for a moment: reel faster then. Tired fish come in faster, most for common fish.',
   'Second winds: rare and epic fish can get one more, legendary and mythic two more, each a coin flip while the fish is tired, so a fish can no longer just be waited out.',
