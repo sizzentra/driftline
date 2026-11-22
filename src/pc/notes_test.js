@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Empty Cooler: a picture, what the Cooler is for, and a Go fishing button instead of a mostly blank page.',
   'Boardwalk: Mystery crates has a picture like the other games, and Higher or lower keeps its picture after a game.',
   'Catch cards always show what you caught: after a shiny or mythic fish, the next card (an oddity, say) kept showing that fish.',
   'Cooler: a Hybrids switch beside Shinies in the Sell all filter. Off keeps hybrids when you Sell all or Scrap all; it starts like Shinies.',
