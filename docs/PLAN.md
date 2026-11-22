@@ -128,7 +128,7 @@ Parked in Ideas: the Report a problem button.
 4. **Fish revamp: built in full**, before / after pictures judged afterwards.
 5. **Each finished batch goes onto the test builds at once** (live stays the director's call).
 6. **Device reports: a Record mode on the Run every check page** (play, then Copy report: device, errors, what happened). **Plus, test builds only: when the game fails to open or something goes wrong, a "Copy error report" option right there**, working even when the game itself can't start.
-7. **Batch 1 waits for Cam's answers**; batches 2 onward go first, batch 1 is built when the answers arrive.
+7. **Batch 1 waits for Cam's answers**; the run starts with batch 2 (director's go, 2026-11-21) and, when Cam answers, batch 1 is built next, right after the batch in progress.
 8. **Hotfix 0.4.8.9.6 dropped** (director, 2026-11-21): live waits for 0.5.
 9. **PC Wardrobe converted to the phone layout** (batch 7, with Clean Pages 4).
 10. **Older open items go into batch 9** (polish before 0.5): Mystery crates picture, the Fishmonger's Gamble card height after a play, the empty Cooler page, the Wardrobe aura previews, the Aquarium speed-up; a first version of each, judged from pictures.
