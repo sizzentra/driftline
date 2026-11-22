@@ -4,13 +4,13 @@
 
 // ---------- Rods: every attachment slot is one compact picker, so rods with 2 or 3 slots show all of them ----------
 // (each slot used to list every attachment in a tall column, which pushed slots 2 and 3 out of sight)
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='rods'||!FHD()) return r; const P=$('panel');
+PC_STEPS.post.push(()=>{ try{ if(S.tab!=='rods'||!FHD()) return; /* a PC page step (pages_pc.js runs them) */ const P=$('panel');
       P.querySelectorAll('.slotrow').forEach(row=>{ if(row.querySelector('select')) return; const chips=row.querySelector('.chips'); if(!chips) return; const btns=[...chips.querySelectorAll('[data-act="rodatt"]')];
         const sel=document.createElement('select'); sel.className='rd-sel'; sel.setAttribute('aria-label',(row.querySelector('b')||{}).textContent||'Attachment slot');
         btns.forEach(b=>{ const o=document.createElement('option'); o.value=b.dataset.k; o.textContent=b.textContent.replace(/\s+/g,' ').trim(); if(b.getAttribute('aria-pressed')==='true') o.selected=true; sel.appendChild(o); });
         sel.addEventListener('change',e=>{ e.stopPropagation(); const b=btns.find(x=>x.dataset.k===sel.value); if(b) b.click(); });
         chips.hidden=true; chips.style.display='none'; row.appendChild(sel); });
-      const att=P.querySelector('.fhd-you'); if(att) att.classList.add('rd-slots'); }catch(e){ console.error(e); } return r; }; }
+      const att=P.querySelector('.fhd-you'); if(att) att.classList.add('rd-slots'); }catch(e){ console.error(e); } });
 
 // ---------- Your home: the page and its tab are called "Your home" on PC (every water has one, not only a dock) ----------
 { let lbl=null; const sync=()=>{ const b=menuTabBtn('home'); if(!b) return; if(lbl==null) lbl=b.dataset.label; const want=FHD()?'🏠 Your home':lbl; if(b.dataset.label!==want){ b.dataset.label=want; try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} } };

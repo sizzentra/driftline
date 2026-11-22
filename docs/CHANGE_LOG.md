@@ -202,3 +202,9 @@ Change either weather message's wording: update the two patterns in `weather07.j
 | Light changes recorded and replayed in slices (`v3rec`, `v3play`, `v3land.job`, PC `J`), finish as last slice | `f_v3scene.js`, `pc/scene_light.js`, `bf_depth036.js` | dawn, dusk, weather on every water |
 | Mountain ranges as one shaded shape (no clipped columns) | `f_v3scene.js` (`v3range`) | waters with mountains |
 | One owner per water hook for the extra scenery (96 nested wrappers → a list per hook) | `ao_maps033.js` (`m33wrap`) | every water (pixel-identical) |
+
+## Test builds 2026.11.22-0540
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| Install welcome on every visit that is not the installed app (director), starts after 6 s and waits for idle and closed cards | `cy_install.js` | every browser visit |
+| Five PC page layers became PC_STEPS run by the PC page engine (wraps 257 → 252) | `pc/br_pc05.js`, `pc/ui_round5.js`, `pc/pages_pc.js` | PC Aquarium, Your home, Rods, Wardrobe (fingerprint-identical) |

@@ -1,25 +1,25 @@
 // =====================================================================
-// Install welcome (batch 6; director 2026-11-21, option B of three: "players can't find how to install"; decided: shown once per
-// device, Install stays one tap away in Settings; goal: everyone plays the installed version, not the browser). Shared by every platform.
-// The first time the game opens in a browser (not installed), a card offers that device's own way to install, or playing in the browser.
+// Install welcome (batch 6; director 2026-11-21, option B of three: "players can't find how to install"; changed 2026-11-22: "should always
+// open on the versions not installed in their own way", so every visit in a browser, not once per device; Install stays one tap away in
+// Settings; goal: everyone plays the installed version, not the browser). Shared by every platform.
+// Every time the game opens in a browser (not installed), a card offers that device's own way to install, or playing in the browser.
 // Never in the installed app, the Windows app, or test pages (?test, ?sweep), where it would sit over the checks.
 // The Windows download is not offered here until the director has tested it (CLAUDE.md: never publish the Windows exes untested).
 // =====================================================================
-const INSTALL_SEEN='dl-install-welcome';
 function installSteps(){ const p=window.DL_PLAT||{}, ip=window.__dlInstallPrompt;
   if(p.ios) return {html:'In <b>Safari</b>, tap <b>Share</b>, then <b>Add to Home Screen</b>. Then open Driftline from your home screen.', act:null};
   if(ip) return {html:'Install it in one '+(PLAT.touch()?'tap':'click')+'.', act:'Install Driftline'};
   if(p.android) return {html:'Open the browser menu <b>⋮</b> and tap <b>Install app</b> (or <b>Add to Home screen</b>).', act:null};
   return {html:'In <b>Chrome</b> or <b>Edge</b>, click the install icon at the right of the address bar, or open the menu and choose <b>Install Driftline</b>.', act:null}; }
 function installWelcome(force){ const p=window.DL_PLAT||{}, mm=q=>!!(window.matchMedia&&matchMedia(q).matches); if(p.app||window.DL_DESKTOP||mm('(display-mode: fullscreen)')||mm('(display-mode: minimal-ui)')||document.getElementById('dl-install')) return; /* the installed Android app runs in fullscreen display mode */
-  if(!force){ if(/[?&](test|sweep)\b/.test(location.search)) return; try{ if(localStorage.getItem(INSTALL_SEEN)) return; }catch(e){ return; } }
+  if(!force&&/[?&](test|sweep)\b/.test(location.search)) return;
   const st=installSteps(), el=document.createElement('div'); el.id='dl-install'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-labelledby','dl-install-h');
   el.innerHTML=`<div class="dli-card"><h3 id="dl-install-h">Play Driftline like an app</h3><p>Install it once: it gets its own icon, plays full screen and works offline. It updates itself.</p><p class="dli-steps">${st.html}</p><div class="dli-row">${st.act?`<button type="button" class="dli-go" data-dli="install">${st.act}</button>`:`<button type="button" class="dli-go" data-dli="ok">Got it</button>`}<button type="button" class="dli-alt" data-dli="skip">Play in the browser</button></div><p class="dli-note">You can find this again in Settings.</p></div>`;
-  const close=()=>{ try{ localStorage.setItem(INSTALL_SEEN,'1'); }catch(e){} el.remove(); };
+  const close=()=>el.remove();
   el.addEventListener('click',e=>{ const b=e.target.closest('[data-dli]'); if(!b) return; if(b.dataset.dli==='install'){ const ip=window.__dlInstallPrompt; if(ip){ ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; }); } } close(); });
   document.body.appendChild(el); const go=el.querySelector('.dli-go'); if(go) go.focus(); }
 function installWhenIdle(){ const ev=document.getElementById('evcard'); if((typeof G!=='undefined'&&G.st!=='idle')||(ev&&ev.offsetWidth)){ setTimeout(installWhenIdle,3000); return; } try{ installWelcome(false); }catch(e){} } /* never over another card (patch notes, the first-day tips) or mid-cast */
-setTimeout(installWhenIdle,2500); /* after loading (the browser's install offer usually arrives first) */
+setTimeout(installWhenIdle,6000); /* after loading and after the cards that open by themselves (what's new ~1 s, test notes 3.5 s); the browser's install offer usually arrives first */
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="installhelp"]'); if(b) installWelcome(true); }); /* Settings › Install Driftline */
 document.head.insertAdjacentHTML('beforeend',`<style>
 #dl-install{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,10,16,.72)}

@@ -5,7 +5,10 @@
 // =====================================================================
 const FHD=()=>document.body.classList.contains('pc-fhd');
 // every page tags the panel with its name, so full-HD styles can be scoped to one page (data-pg="skills" ...)
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){} return r; }; }
+/* PC page steps (Clean Pages 4, batch 7): this file's and ui_round5's page touches run from the PC page engine (pages_pc.js) in the order
+   they were added, instead of five renderPanel wrappers; pre steps run before the page is built (last added first, as the wrappers did) */
+const PC_STEPS={pre:[],post:[]};
+PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){} });
 
 // ---------- smooth menus: the fishing scene is hidden behind a full-HD menu, so it is not drawn while one is open ----------
 // (the aquarium tank and every page animation then get the whole frame; the Dock page still needs the scene: it shows it)
@@ -26,14 +29,14 @@ body:not(.pc-fhd) #dltip{display:none}
 
 
 // ---------- Aquarium: one compact header bar (title, a one-line note, the boosts, the earnings), the drag hint on the tank ----------
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab!=='aquarium'||!FHD()) return r; const P=$('panel'), hd=P.querySelector(':scope > .dl-head'); if(!hd||P.querySelector('.aqh')) return r;
+PC_STEPS.post.push(()=>{ try{ if(S.tab!=='aquarium'||!FHD()) return; const P=$('panel'), hd=P.querySelector(':scope > .dl-head'); if(!hd||P.querySelector('.aqh')) return;
       const bank=hd.querySelector('.bank'), badges=P.querySelector(':scope > .badges'), tank=P.querySelector(':scope > .tank'), hint=tank&&tank.nextElementSibling;
       const bar=document.createElement('div'); bar.className='aqh';
       bar.innerHTML=`<div class="aqh-t"><h2>Aquarium</h2><span>Visitors pay to see your fish, even while you are away. Every fish on display adds its boost.</span></div><div class="aqh-b"></div>`;
       if(badges){ badges.removeAttribute('style'); bar.querySelector('.aqh-b').appendChild(badges); }
       if(bank) bar.appendChild(bank);
       hd.replaceWith(bar);
-      if(hint&&hint.tagName==='P'&&/Drag/.test(hint.textContent)){ hint.remove(); if(tank){ tank.style.position='relative'; tank.insertAdjacentHTML('beforeend','<span class="aq-drag">Drag a decoration along the sand to move it</span>'); } } }catch(e){ console.error(e); } return r; }; }
+      if(hint&&hint.tagName==='P'&&/Drag/.test(hint.textContent)){ hint.remove(); if(tank){ tank.style.position='relative'; tank.insertAdjacentHTML('beforeend','<span class="aq-drag">Drag a decoration along the sand to move it</span>'); } } }catch(e){ console.error(e); } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-fhd #panel .aqh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:22px;padding:12px 16px;border-radius:16px;background:#0e1a2c;border:1px solid #ffffff14}
 body.pc-fhd #panel .aqh-t{display:flex;flex-direction:column;gap:2px;min-width:0;max-width:420px}
@@ -104,15 +107,15 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
     hfCloseup(c,hfFrame(c,0)); /* framed on the home, drawn sharp at the close-up's own size */ };
-  const _rp=renderPanel; renderPanel=function(){ const P0=$('panel'); if(P0) P0.classList.remove('dk-on','dk-hfp'); const r=_rp.apply(this,arguments); try{ if(S.tab!=='home'||!FHD()) return r; const P=$('panel'); if(P.querySelector('.dk-top')||!P.querySelector(':scope > .hf-mark')) return r;
-      const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)], c=P.querySelector('#homecv'), tile=c&&c.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return r;
+  PC_STEPS.pre.push(()=>{ const P0=$('panel'); if(P0) P0.classList.remove('dk-on','dk-hfp'); }); PC_STEPS.post.push(()=>{ try{ if(S.tab!=='home'||!FHD()) return; const P=$('panel'); if(P.querySelector('.dk-top')||!P.querySelector(':scope > .hf-mark')) return;
+      const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)], c=P.querySelector('#homecv'), tile=c&&c.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return;
       const top=document.createElement('div'); top.className='dk-top dk-top1'; const view=document.createElement('div'); view.className='dk-view'; c.style.cssText=''; view.appendChild(c);
       view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)}<span> · ${esc(sp.hname)}</span></span>`); /* like the phones: the water, then the home's short name (2026-11-22 review: "Willow Pond · Willow Pond dock") */
       const col=document.createElement('section'); col.className='dk-col'; col.innerHTML='<div class="dk-body"></div>'; const body=col.querySelector('.dk-body'); body.appendChild(nav);
       P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el)); body.querySelectorAll('.chips').forEach(row=>{ const on=row.querySelector('.hf-col[aria-pressed="true"]'), hd=row.previousElementSibling; if(on&&hd&&hd.tagName==='H5') hd.innerHTML='Color <span class="dk-cn">· '+esc(on.title)+'</span>'; }); /* the chosen color's name in the heading, like the phones */
       top.append(view,col);
       [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
-      P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); }catch(e){ console.error(e); } return r; }; }
+      P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); }catch(e){ console.error(e); } }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:14px}
 html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
@@ -142,7 +145,7 @@ body.pc-fhd #panel .dk-body{flex:1 1 0;min-height:0;overflow:auto;padding:14px 1
         if(!card){ card=document.createElement('section'); card.className='wdx-card'; opts.appendChild(card); } card.appendChild(c); }
       nav.classList.add('wdx-rail'); const rail=document.createElement('aside'); rail.className='wdx-side'; rail.innerHTML='<h5>Wardrobe</h5>'; rail.appendChild(nav);
       const x=document.createElement('div'); x.className='wdx'; x.append(rail,prev,opts); wrap.replaceWith(x); P.classList.add('wdx-on'); }catch(e){ console.error(e); } }; }
-{ const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('wdx-on'); return _rp.apply(this,arguments); }; }
+PC_STEPS.pre.push(()=>{ const P=$('panel'); if(P) P.classList.remove('wdx-on'); });
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #menuov #panel.wdx-on{display:flex!important;flex-direction:column!important;overflow:hidden!important}
 html body.pc-fhd #menuov #panel.wdx-on > .wdx{flex:1 1 0;min-height:0}
