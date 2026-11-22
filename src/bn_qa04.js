@@ -111,6 +111,14 @@ saves(){ QA.sys='Saves';
   T('save code: make -> read gives the same progress',()=>{ return {ok:'async'}; });
   T('a very old minimal save (2.x era: coins, level, a few fish) loads with valid data',()=>{ const old={money:5400, lvl:7, xp:120, journal:{bluegill:{n:3,kg:.4,big:.4}}, gear:{rod:2,reel:1}, cooler:[{id:'bluegill',kg:.3,value:12}], bait:{cricket:4}, loc:'pond', unlocked:['pond'], tab:'shop', v:1};
       const st=migrate(old); restore(JSON.stringify(st)); dockSync(); const p=inv(); if(p.length) return {ok:false,detail:p.join('; ')}; return (S.money===5400&&S.lvl===7&&S.cooler.length===1&&S.bait.cricket===4&&S.journal.bluegill)?true:{ok:false,detail:'values changed: '+[S.money,S.lvl,S.cooler.length,S.bait.cricket].join(',')}; });
+  T('save backup: a copy is made on this device, a drop in progress keeps the better copy, and the backup can be restored',()=>{ const keep=JSON.stringify(S), ka=localStorage.getItem(AUTO_BK), kk=localStorage.getItem(AUTO_BK_KEEP), kb=localStorage.getItem(BACKUP_KEY), e=[];
+    try{ localStorage.removeItem(AUTO_BK); localStorage.removeItem(AUTO_BK_KEEP); S.lvl=Math.max(S.lvl,12); autoBackup(true); const a=bkRead(AUTO_BK); if(!a||a.lvl!==S.lvl) e.push('no backup made');
+      const lv=S.lvl; S=fresh(); autoBackup(true); const k=bkRead(AUTO_BK_KEEP); if(!k||k.lvl!==lv) e.push('a reset overwrote the good backup');
+      autoBackup(false); if(bkRead(AUTO_BK).bkAt!==bkRead(AUTO_BK).bkAt) e.push('timing');
+      const back=migrate(k); if(back.lvl!==lv) e.push('restore lost the level ('+back.lvl+')');
+      if(typeof autoBackupHTML()!=='string'||!/Earlier backup/.test(autoBackupHTML())) e.push('Save page does not offer the kept backup'); }
+    finally{ S=JSON.parse(keep); const put=(k,v)=>{ if(v==null) localStorage.removeItem(k); else localStorage.setItem(k,v); }; put(AUTO_BK,ka); put(AUTO_BK_KEEP,kk); put(BACKUP_KEY,kb); }
+    return e.length?{ok:false,detail:e.join('; ')}:okInv(); });
   T('per-water homes: each water keeps its own home choices through travel and a save round trip, a new water starts with its defaults',()=>{ S.unlocked=uniq(['pond','reef',...S.unlocked]); S.docks={}; S.dockAt=null; S.loc='pond'; dockSync(); S.dock.el={seat:[1,3]};
       dockStore(); const st=migrate(JSON.parse(JSON.stringify(S))); restore(JSON.stringify(st)); S.loc='reef'; dockSync(); if(S.dock.el) return {ok:false,detail:'reef copied '+JSON.stringify(S.dock.el)};
       S.loc='pond'; dockSync(); return JSON.stringify(S.dock.el)===JSON.stringify({seat:[1,3]})?okInv():{ok:false,detail:'pond '+JSON.stringify(S.dock.el)}; });
@@ -906,3 +914,7 @@ window.__mapQC=async(o={})=>{ const keep={loc:S.loc,off:window.__off,np:window._
 if(/[?&]test\b/.test(location.search)) window.__shot=async(name,id,rest,full)=>{ __go(id); dockSync(); V3CACHE=null; G.st=rest?'rest':'idle'; if(rest) restCast(); draw(performance.now()); draw(performance.now()+16);
   const d=cv.width/W; let url; if(full) url=cv.toDataURL('image/png'); else { const sx=0, sy=H*.2*d, sw=W*.34*d, sh=H*.72*d, k=Math.max(1,900/sw), o=document.createElement('canvas'); o.width=Math.round(sw*k); o.height=Math.round(sh*k); const x=o.getContext('2d'); x.imageSmoothingQuality='high'; x.drawImage(cv,sx,sy,sw,sh,0,0,o.width,o.height); url=o.toDataURL('image/png'); }
   const r=await fetch('/shot/'+name,{method:'POST',body:url}); return r.status; };
+// test builds: __fingerprint(root) lists every visible element under the page (its path, text, place, size and key styles), so an
+// untangling step can prove nothing visible changed: take one before, one after, and compare (Clean Pages, docs/PLAN.md › Untangling plan)
+if(/[?&]test\b/.test(location.search)) window.__fingerprint=(root=document.getElementById('panel'))=>{ const out=[]; const walk=(el,path)=>{ for(const c of el.children){ const r=c.getBoundingClientRect(); if(!r.width&&!r.height) continue; const cs=getComputedStyle(c); if(cs.display==='none'||cs.visibility==='hidden') continue; const p=path+'>'+c.tagName.toLowerCase()+(c.className&&typeof c.className==='string'?'.'+c.className.trim().split(/\s+/).sort().join('.'):''); const own=[...c.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent.trim()).join(' ').slice(0,40);
+  out.push([p,own,Math.round(r.left),Math.round(r.top),Math.round(r.width),Math.round(r.height),cs.color,cs.backgroundColor,cs.backgroundImage.slice(0,40),cs.fontSize,cs.fontWeight].join('|')); walk(c,p); } }; walk(root,''); return out; };

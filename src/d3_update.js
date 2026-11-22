@@ -647,8 +647,26 @@ function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
 function hasBackup(){ try{ return !!localStorage.getItem(BACKUP_KEY); }catch(e){ return false; } }
+/* ---------- automatic backup on this device (batch 3, director 2026-11-21: "a backup copy on the device, refreshed automatically,
+   restorable from Settings if the main save breaks; works offline"): a copy of the save at most every 5 minutes and whenever the app
+   is hidden or closed. If progress suddenly drops (a reset, a broken save, a smaller save loaded in), the old copy is moved to a kept
+   slot first, so a good backup is never overwritten by a worse one. ---------- */
+const AUTO_BK=LS_KEY+'-auto', AUTO_BK_KEEP=LS_KEY+'-auto-kept', AUTO_BK_MS=5*60*1000;
+const bkScore=s=>{ try{ return Object.keys((s&&s.journal)||{}).length+((s&&s.tides)||0)*100+((s&&s.lvl)||0); }catch(e){ return 0; } }; /* the Fish Log, voyages and level only grow in play */
+const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } };
+let autoBkAt=0, bkAsk=null;
+function autoBackup(now){ if(window.__dlUnreadable||!S) return; const t=Date.now(); if(!now&&t-autoBkAt<AUTO_BK_MS) return; autoBkAt=t;
+  try{ const old=bkRead(AUTO_BK); if(old&&bkScore(S)<bkScore(old)*.5) localStorage.setItem(AUTO_BK_KEEP, JSON.stringify(old));
+    localStorage.setItem(AUTO_BK, JSON.stringify(Object.assign({},S,{bkAt:t}))); }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) autoBackup(true); });
+addEventListener('pagehide',()=>autoBackup(true));
+function agoText(t){ const m=Math.max(0,Math.round((Date.now()-t)/60000)); return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'; }
+function autoBackupHTML(){ const a=bkRead(AUTO_BK), k=bkRead(AUTO_BK_KEEP), row=(s,act,label,note)=>s?`<div class="toggle"><div><b>${label}</b><div class="meta">${note} · saved ${agoText(s.bkAt||s.savedAt||Date.now())} · level ${s.lvl||1}, ${Object.keys(s.journal||{}).length} species</div></div><button class="btn alt sm" data-act="${act}">${bkAsk===act?'Tap again to restore':'Restore'}</button></div>`:'';
+  return `<details class="tile" style="margin-top:12px"><summary style="cursor:pointer"><b>Backup on this device</b> <span class="meta">· made automatically</span></summary>
+   <p class="sub">Your progress is copied every few minutes and whenever you leave the game. If your save ever breaks, restore it here. Restoring replaces your current progress.</p>
+   ${row(a,'autobk','Latest backup','Made by itself')}${row(k,'autobkkept','Earlier backup','Kept when your progress dropped')}${a||k?'':'<p class="meta">No backup yet: the first one is made a few minutes after you start playing.</p>'}</details>`; }
 function dangerHTML(){ const bk=hasBackup();
-  return `<details class="tile" style="margin-top:12px;border-color:#ff546855"><summary style="cursor:pointer"><b>Danger zone</b> <span class="meta">· reset progress</span></summary>
+  return autoBackupHTML()+`<details class="tile" style="margin-top:12px;border-color:#ff546855"><summary style="cursor:pointer"><b>Danger zone</b> <span class="meta">· reset progress</span></summary>
    <p class="sub">This erases your coins, fish, pets, rods, everything. A backup is saved first, so you can restore it on this device afterwards.</p>
    <label class="meta" for="resetword">Type <b>DELETE</b> to confirm</label><div class="row" style="margin-top:6px"><input id="resetword" autocomplete="off" style="background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:7px;width:140px">
    <button class="btn sm" id="resetbtn" data-act="safereset" style="background:var(--danger)" disabled>Erase everything</button></div>
@@ -699,6 +717,9 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){}
       S=fresh(); S.seenPatch=GAME_VERSION; S.tab='settings'; S.savedAt=Date.now(); G.st='idle'; fillBounties(); toast('Progress erased. A backup was kept. You can restore it in Settings.'); return 'render'; }
     case 'restorebk': { try{ const raw=localStorage.getItem(BACKUP_KEY); if(!raw) return 'skip'; S=migrate(JSON.parse(raw)); S.savedAt=Date.now(); localStorage.removeItem(BACKUP_KEY); G.st='idle'; toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
+    case 'autobk': case 'autobkkept': { if(bkAsk!==b.dataset.act){ bkAsk=b.dataset.act; return 'render'; } bkAsk=null; const s=bkRead(b.dataset.act==='autobk'?AUTO_BK:AUTO_BK_KEEP); if(!s) return 'skip';
+      try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){} /* the progress being replaced becomes the backup above, so a restore can be undone */
+      try{ S=migrate(s); delete S.bkAt; S.savedAt=Date.now(); G.st='idle'; window.__dlUnreadable=false; save(); toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
     case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(bwEarn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
     case 'hilostart': { const c=bestLoot()*2; if(S.money<c) return 'skip'; S.money-=c; newHilo(); taskProgress('game',1); return 'render'; }

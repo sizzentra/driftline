@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Your home: color buttons have a faint light ring, so the darkest colors stay visible.',
+  '## Test build 0305',
   'Roofs, umbrellas, sheds and tents now cover you: each one reaches from before your seat to past where you stand, and stands tall enough to clear your hat.',
   'Covers are drawn from the side: the umbrella is a cap on a pole, the lean-to is one roof line.',
   'Posts and supports blend into the water: murky under the surface, fading out a short way down.',

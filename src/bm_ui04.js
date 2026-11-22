@@ -313,7 +313,7 @@ body.phone-app #panel .dwb{padding:0 10px 9px;gap:6px}
 // the old "hide menus" toggle is gone (fishing is always full screen); its search entry goes too
 for(let i=SEARCH_IDX.length-1;i>=0;i--) if(SEARCH_IDX[i][0]==='Hide menus') SEARCH_IDX.splice(i,1);
 // a save that could not be read was kept aside at load: say so once
-if(window.__dlUnreadable) setTimeout(()=>toast('Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
+if(window.__dlUnreadable) setTimeout(()=>toast(localStorage.getItem(AUTO_BK)?'Your saved game could not be read. Restore it from Save, Backup on this device.':'Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
 // save codes and the account copy carry the current dock exactly as it is right now
 { const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
 //@layer mobile mobile/ui_topbar_land.js

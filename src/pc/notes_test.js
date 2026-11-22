@@ -2,6 +2,11 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Your home on PC: the parts are larger and easier to read on a full-HD screen, their column ends where they end, and the home view gets more room.',
+  'Selected tabs and styles are gold on every PC page, like on the phones.',
+  'The home label reads like on the phones (Willow Pond · dock).',
+  'Color buttons have a faint light ring, so the darkest colors stay visible.',
+  '## Test build 0305',
   'Roofs, umbrellas, sheds and tents now cover you: each one reaches from before your seat to past where you stand, and stands tall enough to clear your hat.',
   'Covers are drawn from the side: the umbrella is a cap on a pole, the lean-to is one roof line.',
   'Posts and supports blend into the water: murky under the surface, fading out a short way down.',

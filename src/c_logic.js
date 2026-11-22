@@ -66,7 +66,7 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
 try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw)); } catch(e) { try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){} } } } catch(e) {} // 0.4: a save that cannot be read is kept aside, never overwritten
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
-function save(){ S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){}
+function save(){ S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} try{ autoBackup(); }catch(e){} /* at most every 5 minutes (d3_update.js) */
   if (cloudDoc){ clearTimeout(saveTimer); saveTimer = setTimeout(pushCloud, 2500); } }
 async function pushCloud(){ if(!cloudDoc) return; if(saving){ pendingSave=true; return; } saving=true;
   try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
