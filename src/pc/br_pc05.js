@@ -128,7 +128,7 @@ const DK_CROP=()=>{ const c=$('homecv'); if(!c) return null; if(HOMEF[S.loc]) re
         /* no side box and no "Parts of your …" heading (director, 2026-11-21): the home view and its features share the page side by side */
         top.append(view); top.classList.add("dk-top1");
         const col=document.createElement('section'); col.className='dk-col'; col.innerHTML='<div class="dk-body"></div>'; const body=col.querySelector('.dk-body'); body.appendChild(nav);
-        P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el));
+        P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el)); body.querySelectorAll('.chips').forEach(row=>{ const on=row.querySelector('.hf-col[aria-pressed="true"]'), hd=row.previousElementSibling; if(on&&hd&&hd.tagName==='H5') hd.innerHTML='Color <span class="dk-cn">· '+esc(on.title)+'</span>'; }); /* the chosen colour's name in the heading, like the phones */
         top.append(col); /* the same layout as phones held sideways (director: same on PC and phones, PC just has more room): the home on the left, its features on the right */
         [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
         P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); return r; }
@@ -169,6 +169,7 @@ html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
 html body.pc-fhd #menuov #panel.dk-on > .dk-split{flex:1 1 0;min-height:0}
 body.pc-fhd #panel .dk-top{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:14px;height:calc(40*var(--uvh,1vh));min-height:300px}
 html body.pc-fhd #menuov #panel.dk-on > .dk-top.dk-top1{grid-template-columns:minmax(0,1.15fr) minmax(440px,1fr);height:auto;flex:1 1 0;min-height:0} body.pc-fhd #panel .dk-top1 > .dk-col{min-height:0;overflow:auto;scrollbar-width:thin} /* format homes: the home view left, its features right (batch 5) */
+body.pc-fhd #panel.dk-hfp .chips:has(.hf-col){display:flex;flex-wrap:wrap;gap:10px;max-width:460px} body.pc-fhd #panel.dk-hfp .hf-col{width:48px!important;height:48px!important;min-width:0!important;padding:0!important;border-radius:50%!important;font-size:0!important;color:transparent!important;justify-content:center;align-items:center;overflow:hidden} body.pc-fhd #panel.dk-hfp .hf-col .hm-sw{width:34px;height:34px;border-radius:50%;margin:0;box-shadow:inset 0 0 0 1px #ffffff33} body.pc-fhd #panel.dk-hfp .hf-col[aria-pressed="true"]{box-shadow:0 0 0 3px var(--gold,#ffd36a)} body.pc-fhd #panel .dk-cn{color:var(--gold,#ffd36a);text-transform:none;letter-spacing:0} /* colours look like the phones: round swatches, the name in the heading (director) */
 body.pc-fhd #panel .dk-view{position:relative;border-radius:16px;overflow:hidden;border:1px solid #ffffff18;background:#08111e}
 html body.pc-fhd #menuov #panel .dk-view #homecv{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;aspect-ratio:auto!important;cursor:grab;touch-action:none;display:block}
 body.pc-fhd #panel .dk-where{position:absolute;left:12px;top:10px;padding:5px 12px;border-radius:999px;background:#0009;color:#fff;font:800 12.5px var(--display,system-ui);pointer-events:none}

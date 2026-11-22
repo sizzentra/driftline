@@ -545,7 +545,7 @@ const WA_MORE={
         g.fillStyle='rgba(255,255,255,.95)'; g.beginPath(); g.moveTo(-s*.2,-s*.6); g.quadraticCurveTo(-s*1.6,-s*(2.6+f*1.4),-s*3,-s*(2+f*2)); g.quadraticCurveTo(-s*1.4,-s*(1+f*.6),s*.8,-s*.6); g.fill(); g.strokeStyle='#e8d090'; g.lineWidth=1; g.beginPath(); g.moveTo(-s*2.4,0); g.quadraticCurveTo(-s*3.2,s*.2,-s*3.6,s*1); g.stroke(); g.restore(); v3glow(g,px,py,H*.04,'rgba(255,230,160,.9)',.25); } } } }
 };
 // music, depth motes and search words for the new waters
-try{ Object.assign(MUS_AREA,{blossom:'musicbox', rockies:'strings', keys:'island', amazon:'taiko', farm:'shanty', buffet:'island', corporate:'strings', nile:'cello', circuit:'abyss', olympus:'celestial'}); }catch(e){}
+try{ Object.assign(MUS_AREA,{blossom:'hanami', rockies:'glacier', keys:'flats', amazon:'canopy', farm:'fair', buffet:'dinner', corporate:'lounge', nile:'nile', circuit:'neon', olympus:'thunder'}); }catch(e){} /* batch 5: every water its own theme (j_music.js) */
 try{ Object.assign(DEPTH_MOTE,{blossom:'255,230,240', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){}
 try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' cherry blossom japan rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){}
 // end-game waters: open them for anyone with enough voyages (start-up, any load, and after setting sail)

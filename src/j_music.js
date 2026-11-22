@@ -81,3 +81,76 @@ const V3MUS = {
 
 // settings list and the per-area pick replace the old three-way choice in the preview
 if(typeof V3ON!=='undefined'&&V3ON){ /* curStyle and the settings list read these when the preview is on */ }
+
+// ---- batch 5 (director, 2026-11-22: a music rework for every water): every water has its own theme, made from its "Music and
+// ambience" line in docs/MAP_THEMES.md with the same live instruments; each plays calmer at night (fewer notes, softer).
+const MAJ=[0,2,4,5,7,9,11], DOR=[0,2,3,5,7,9,10], HIJAZ=[0,1,4,5,7,8,10];
+const mNight = () => tod()==='Night';
+Object.assign(STYLES,{
+  cabin:  {bpm:72, swing:.06, key:67, progs:[[[55,[0,4,7,11]],[52,[0,3,7,10]],[48,[0,4,7,9]],[50,[0,4,7]]],[[48,[0,4,7,11]],[55,[0,4,7]],[52,[0,3,7]],[50,[0,5,7]]]], mel:0},
+  mill:   {bpm:96, swing:.1, key:62, progs:[[[50,[0,4,7]],[55,[0,4,7]],[57,[0,4,7]],[50,[0,4,7]]],[[50,[0,4,7]],[48,[0,4,7]],[55,[0,4,7]],[57,[0,4,7,10]]]], mel:0},
+  hanami: {bpm:64, swing:0, key:69, progs:[[[45,[0,3,7]],[41,[0,4,7]],[43,[0,5,7]],[45,[0,3,7]]]], mel:0},
+  glacier:{bpm:84, swing:.05, key:64, progs:[[[52,[0,4,7]],[59,[0,4,7]],[49,[0,3,7]],[57,[0,4,7]]],[[57,[0,4,7]],[52,[0,4,7]],[59,[0,4,7]],[52,[0,4,7,9]]]], mel:0},
+  flats:  {bpm:100, swing:.12, key:65, progs:[[[53,[0,4,7]],[58,[0,4,7]],[48,[0,4,7,10]],[53,[0,4,7]]]], mel:0},
+  canopy: {bpm:92, swing:.08, key:62, progs:[[[50,[0,3,7]],[48,[0,4,7]],[46,[0,4,7]],[48,[0,4,7]]]], mel:0},
+  fair:   {bpm:112, swing:.14, key:67, progs:[[[55,[0,4,7]],[48,[0,4,7]],[50,[0,4,7]],[55,[0,4,7]]],[[55,[0,4,7]],[52,[0,3,7]],[50,[0,4,7,10]],[55,[0,4,7]]]], mel:0},
+  dinner: {bpm:108, swing:.18, key:65, progs:[[[53,[0,4,7,11]],[50,[0,3,7,10]],[55,[0,3,7,10]],[48,[0,4,7,10]]]], mel:0},
+  lounge: {bpm:96, swing:.14, key:62, progs:[[[50,[0,3,7,10]],[55,[0,4,7,10]],[48,[0,4,7,11]],[45,[0,3,7,10]]]], mel:0},
+  nile:   {bpm:84, swing:.06, key:62, progs:[[[50,[0,4,7]],[51,[0,4,7]],[50,[0,4,7]],[48,[0,3,7]]]], mel:0},
+  neon:   {bpm:104, swing:0, key:57, progs:[[[45,[0,3,7]],[41,[0,4,7]],[48,[0,4,7]],[43,[0,4,7]]]], mel:0},
+  thunder:{bpm:76, swing:0, key:62, progs:[[[50,[0,4,7]],[46,[0,4,7]],[48,[0,4,7]],[45,[0,4,7]]],[[43,[0,3,7]],[46,[0,4,7]],[48,[0,4,7]],[50,[0,4,7]]]], mel:0}
+});
+const m3Vib=(o,f,t,d,rate)=>{ const v=AC.createOscillator(), vg=AC.createGain(); v.frequency.value=rate||5.5; vg.gain.value=f*.008; v.connect(vg); vg.connect(o.frequency); v.start(t); v.stop(t+d); };
+Object.assign(V3MUS,{
+  cabin(t,s,root,ivs,L,n,bar){ /* Willow Pond: fingerpicked guitar, felt-piano chords, a glockenspiel now and then */
+    const nt=mNight(), pat=[0,2,1,3,2,1,3,2]; if(!nt||s%2===0) i3Pluck(mtof(root+12+ivs[pat[s]%ivs.length]),t,nt?.016:.024,.9,[n.dry,n.wet],2400);
+    if(s===0) ivs.slice(0,3).forEach(iv=>mv('triangle',mtof(root+iv),t,L*7,.012,.3,[n.dry,n.wet])); if(s===0||s===4) mv('sine',mtof(root-12+(s===4?7:0)),t,L*3,.07,.02,[n.dry]);
+    if(!nt&&s===6&&Math.random()<.35) i3Bell(mtof(STYLES.cabin.key+12+m3Wander(PENT,3,9)),t,.02,1.4,[n.dry,n.wet,n.dls]); },
+  mill(t,s,root,ivs,L,n,bar){ /* Stonebrook River: a folk fiddle over a walking guitar and bass */
+    const nt=mNight(); if(s%2===0) mv('sine',mtof(root-12+[0,7,4,7][s/2]),t,L*1.6,.08,.01,[n.dry]); if(s===1||s===5) ivs.slice(0,3).forEach((iv,k)=>i3Pluck(mtof(root+12+iv),t+k*.012,.016,.4,[n.dry],2800));
+    if(s%2===0&&Math.random()<(nt?.2:.5)){ const m=STYLES.mill.key+12+m3Wander(MAJ,3,12); i3Saw(mtof(m),t,L*(Math.random()<.4?2.6:1.4),.011,.03,2200,[n.dry,n.wet,n.dls],4,5.5); } },
+  hanami(t,s,root,ivs,L,n,bar){ /* Cherry Blossom Lake: koto plucks in a Japanese scale, a breathy flute, a temple bell */
+    const nt=mNight(); if(Math.random()<(nt?.3:.6)) i3Pluck(mtof(STYLES.hanami.key+m3Wander(YO,2,10)),t,.03,1.4,[n.dry,n.wet,n.dls],3800);
+    if(s===0) mv('triangle',mtof(root-12),t,L*8,.05,.6,[n.dry,n.wet]);
+    if(s%4===0&&Math.random()<(nt?.15:.35)){ const m=STYLES.hanami.key+12+m3Wander(YO,3,9), d=L*3; mv('sine',mtof(m),t,d,.025,.12,[n.dry,n.wet,n.dls]); nz(t,d*.5,.005,'bandpass',mtof(m)*2,n.wet); }
+    if(S.settings.ambient&&s===0&&bar%4===0&&Math.random()<.4) i3Bell(196,t,.03,3.5,[BUS.amb]); },
+  glacier(t,s,root,ivs,L,n,bar){ /* Canadian Rockies: open guitar strums, banjo rolls, a wide string pad */
+    const nt=mNight(); if(s===0||s===4) ivs.slice(0,3).concat([12]).forEach((iv,k)=>i3Pluck(mtof(root+iv+12),t+k*.02,.02,.9,[n.dry,n.wet],2600));
+    if(s===0) ivs.slice(0,3).forEach(iv=>i3Saw(mtof(root+iv),t,L*8.4,.006,L*2.6,800,[n.wet],10)); if(s===0||s===4) mv('sine',mtof(root-12),t,L*3,.08,.02,[n.dry]);
+    if(!nt&&Math.random()<.45) i3Pluck(mtof(root+24+ivs[(s*2+bar)%ivs.length]),t,.012,.35,[n.dry,n.dls],5200); },
+  flats(t,s,root,ivs,L,n,bar){ /* Florida Keys: easy off-beat guitar, a steel drum tune, a shaker, a lazy bass */
+    const nt=mNight(); if(s===2||s===6) ivs.slice(0,3).forEach(iv=>i3Pluck(mtof(root+12+iv),t,.018,.3,[n.dry,n.wet],3000)); if(s===0||s===5) mv('sine',mtof(root-12+(s===5?7:0)),t,L*1.6,.09,.01,[n.dry]);
+    nz(t,.03,s%2?.006:.01,'highpass',6800,n.dry); if(s%2===0&&Math.random()<(nt?.15:.45)) i3Steel(mtof(STYLES.flats.key+12+m3Wander(PENT,2,9)),t,.035,[n.dry,n.wet]); },
+  canopy(t,s,root,ivs,L,n,bar){ /* Amazon: hand drums and shakers, a marimba, a wooden flute */
+    const nt=mNight(); if(s===0||s===3||s===6) i3Drum(s===0?150:200,s===0?90:120,t,nt?.06:.1,.25,n.dry); nz(t,.03,s%2?.008:.012,'bandpass',5000,n.dry);
+    if(s%2===0&&Math.random()<(nt?.25:.55)) i3Pluck(mtof(STYLES.canopy.key+m3Wander(PENT_MIN,3,10)),t,.03,.5,[n.dry,n.wet],1800);
+    if(s===0&&Math.random()<(nt?.2:.4)){ const m=STYLES.canopy.key+12+m3Wander(PENT_MIN,3,9), d=L*3.2; mv('sine',mtof(m),t,d,.022,.1,[n.dry,n.wet,n.dls]); nz(t,d*.5,.005,'bandpass',mtof(m)*2,n.wet); }
+    if(s===0) mv('sine',mtof(root-12),t,L*8,.06,.4,[n.dry]); },
+  fair(t,s,root,ivs,L,n,bar){ /* Animal Farm: banjo picking, an oom-pah bass, a harmonica wail */
+    const nt=mNight(); if(s%2===0) mv('sine',mtof(root-12+(s%4?7:0)),t,L*.9,.09,.01,[n.dry]); if(!nt||s%2) i3Pluck(mtof(root+12+ivs[(s*2)%ivs.length]+(s%3?12:0)),t,.014,.25,[n.dry],5200);
+    if(s%4===0&&Math.random()<(nt?.2:.45)){ const m=STYLES.fair.key+m3Wander(MAJ,3,11), f=mtof(m); m3Vib(mv('square',f,t,L*2.2,.008,.04,[n.dry,n.wet,n.dls]),f,t,L*2.4,6); } },
+  dinner(t,s,root,ivs,L,n,bar){ /* The Buffet: brushed drums, a walking upright bass, a vibraphone */
+    const nt=mNight(); if(s%2===0) mv('sine',mtof(root-12+[0,4,7,9][s/2]),t,L*1.8,.08,.01,[n.dry]); nz(t,L*.9,s===2||s===6?.012:.005,'bandpass',2500,n.dry);
+    if(s===0||s===3) ivs.forEach(iv=>mv('sine',mtof(root+12+iv),t,L*2.4,.007,.01,[n.dry,n.wet]));
+    if(s%2===0&&Math.random()<(nt?.2:.45)){ const f=mtof(STYLES.dinner.key+12+m3Wander(MAJ,3,12)); m3Vib(mv('sine',f,t,1.2,.03,.004,[n.dry,n.wet,n.dls]),f,t,1.2,5); } },
+  lounge(t,s,root,ivs,L,n,bar){ /* Corporate Pond: electric piano, a soft sax, a gentle bossa beat (played very straight-faced) */
+    const nt=mNight(); if(s===0||s===3||s===6) ivs.forEach(iv=>{ mv('sine',mtof(root+12+iv),t,L*2.2,.008,.01,[n.dry,n.wet]); mv('sine',mtof(root+24+iv),t,L*.6,.002,.003,[n.wet]); });
+    if(s===0||s===3||s===5) mv('sine',mtof(root-12+(s===5?7:0)),t,L*1.4,.07,.01,[n.dry]); if(s===2||s===6) nz(t,.05,.008,'highpass',4000,n.dry);
+    if(s%4===0&&Math.random()<(nt?.2:.5)) i3Saw(mtof(STYLES.lounge.key+m3Wander(DOR,4,11)),t,L*(Math.random()<.5?3:1.8),.009,L*.3,1300,[n.dry,n.wet,n.dls],3,5); },
+  nile(t,s,root,ivs,L,n,bar){ /* The Nile: oud plucks in a Middle Eastern scale, a ney-like flute, a frame drum */
+    const nt=mNight(); if(s===0) i3Drum(90,50,t,.14,.5,n.dry); if(s===3||s===5) nz(t,.06,.012,'bandpass',900,n.dry); if(s===6) i3Drum(110,70,t,.07,.3,n.dry);
+    if(Math.random()<(nt?.3:.6)) i3Pluck(mtof(STYLES.nile.key+m3Wander(HIJAZ,3,11)),t,.028,.6,[n.dry,n.wet,n.dls],2000);
+    if(s===0&&bar%2===0&&Math.random()<(nt?.25:.5)){ const m=STYLES.nile.key+12+m3Wander(HIJAZ,4,10), d=L*4; mv('sine',mtof(m),t,d,.02,.15,[n.dry,n.wet,n.dls]); nz(t,d*.6,.006,'bandpass',mtof(m)*2,n.wet); }
+    if(s===0) mv('triangle',mtof(root-12),t,L*8,.03,.5,[n.dry,n.wet]); },
+  neon(t,s,root,ivs,L,n,bar){ /* Circuit Lake: synthwave, warm pads, a drum machine, a bright arpeggio */
+    const nt=mNight(); if(s===0||s===4) i3Drum(60,40,t,.18,.3,n.dry); if(s===2||s===6) nz(t,.12,.03,'bandpass',1800,n.dry); if(!nt||s%2===0) nz(t,.02,.006,'highpass',8000,n.dry);
+    if(s===0) ivs.forEach(iv=>i3Saw(mtof(root+12+iv),t,L*8.4,.006,L*1.2,1400,[n.dry,n.wet],12));
+    mv('square',mtof(root+24+ivs[s%ivs.length]+(s>=4?12:0)),t,L*.7,nt?.004:.007,.003,[n.dry,n.dls]); if(s%2===0) mv('sawtooth',mtof(root-12),t,L*.8,.02,.01,[n.dry]); },
+  thunder(t,s,root,ivs,L,n,bar){ /* Mount Olympus: harp arpeggios, a brass fanfare on the big beats, a choir, distant timpani */
+    const nt=mNight(); i3Pluck(mtof(root+12+ivs[s%ivs.length]+(s>=4?12:0)),t,nt?.014:.022,1.1,[n.dry,n.wet],3600);
+    if(s===0&&bar%2===0) ivs.slice(0,3).forEach(iv=>i3Choir(mtof(root+12+iv),t,L*16,.012,[n.dry,n.wet]));
+    if(!nt&&s===0&&bar%4===0) ivs.slice(0,3).forEach(iv=>i3Saw(mtof(root+iv+12),t,L*2,.012,.04,2600,[n.dry,n.wet],5));
+    if(s===0){ i3Drum(70,46,t,.1,.8,n.dry); mv('sine',mtof(root-12),t,L*8,.07,.5,[n.dry]); } }
+});
+Object.assign(MUS_AREA,{pond:'cabin', river:'mill'});
+MUS_NAMES.splice(MUS_NAMES.findIndex(x=>x[0]==='lofi'),0,['cabin','Cabin morning'],['mill','Mill stream'],['hanami','Hanami'],['glacier','Glacier light'],['flats','Flats breeze'],['canopy','Canopy'],['fair','County fair'],['dinner','Dinner jazz'],['lounge','Elevator lounge'],['nile','River of gold'],['neon','Neon nights'],['thunder','Halls of thunder']);
