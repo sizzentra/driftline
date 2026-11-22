@@ -371,3 +371,6 @@ document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuo
 /* C12 (director + Cam, 2026-11-20): a chosen color keeps its own color and gets a gold box around it (the general "chosen chip" gold
    used to fill the whole swatch, so you couldn't see which color you had) */
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-app #menuov .chips .sw[aria-pressed="true"],html body.phone-land #menuov .chips .sw[aria-pressed="true"]{background:var(--swc)!important;border-color:transparent!important;box-shadow:0 0 0 2px #0b1626,0 0 0 4px #ffd36a!important}</style>');
+pageDone('games',P=>{ /* Fishmonger's Gamble with an empty cooler: the card's idle picture, like the other game cards (batch 2; the rest is in ui_boardwalk.js) */
+  const c=[...P.querySelectorAll('.bwx-card')].find(x=>/Gamble/.test(x.textContent)); const m=c&&[...c.querySelectorAll('.meta')].find(x=>/cooler is empty/i.test(x.textContent));
+  if(m&&!c.querySelector('.bwx-art')) m.insertAdjacentHTML('beforebegin','<div class="bwx-art" aria-hidden="true">🐟 ⚖️ 🪙</div>'); });
