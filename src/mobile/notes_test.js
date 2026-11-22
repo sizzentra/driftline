@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'The side panel stays on screen while a catch card is showing (it vanished).',
   'Cooler: a Hybrids switch beside Shinies in the Sell all filter. Off keeps hybrids when you Sell all or Scrap all; it starts like Shinies.',
   'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card (they showed less than you got). A new species’ catch card shows that fish’s own boost, not the species’ average.',
   'Settings: the Download for Windows button is gone from test builds (it gave the live app; play the test build in the browser instead).',

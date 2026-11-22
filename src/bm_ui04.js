@@ -692,7 +692,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #catdock .cddot{position:absolute!important;top:-6px!important;right:calc(50% - 25px)!important;left:auto!important;min-width:18px!important;height:18px!important;padding:0 5px!important;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a);color:#2a1206;font:800 10.5px/18px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 8px #ff8a5c88}
 #catdock .cddot[hidden]{display:none!important}
 #catdock .cdb.live::before{content:"";position:absolute;top:5px;left:calc(50% - 21px);width:8px;height:8px;border-radius:50%;background:#ff5a6a;box-shadow:0 0 8px #ff5a6a;animation:livepulse 1.6s ease-in-out infinite}
-body.card-open #catdock{opacity:0;pointer-events:none}
 /* the tip line and the Rest button sit clear of the bar */
 body.dl-fish .wrap > #hint,body.dl-fish #stage > #hint{bottom:70px!important}
 /* PC and tablets: icon and name side by side */
