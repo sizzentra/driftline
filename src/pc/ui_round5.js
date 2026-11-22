@@ -49,7 +49,6 @@ body.pc-fhd #panel .dk-pin .dk-cozy{margin:0!important;display:grid!important;gr
 body.pc-fhd #panel .dk-pin .dk-cozy em{font-style:normal;font-size:12px;color:#cfb3c2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.pc-fhd #panel .dk-pin .shoptools{margin:0!important}
 body.pc-fhd #panel .hm-sw{display:inline-block;width:20px;height:20px;border-radius:6px;flex:0 0 auto;box-shadow:inset 0 0 0 1px #ffffff30}
-body.pc-fhd #panel .hm-glow{border-radius:50%;background-color:#0a1424!important}
 body.pc-fhd #panel .dk-hulls .chipb,body.pc-fhd #panel .dk-lights .chipb{flex-direction:row!important;align-items:center!important;gap:8px!important;min-height:40px;justify-content:flex-start!important}
 /* Bait: auto-restock */
 body.pc-fhd #panel .bt-auto{display:flex;align-items:center;gap:10px;width:100%;margin-top:4px;padding:8px 12px;border-radius:12px;border:1px solid #ffffff22;background:#0a1424;color:#dbe6f2;text-align:left;cursor:pointer;font:inherit}

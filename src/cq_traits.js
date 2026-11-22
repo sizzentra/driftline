@@ -42,7 +42,9 @@ function traitProbe(sp){ if(TRAIT_PROBE[sp.id]!==undefined) return TRAIT_PROBE[s
     let bot=null, top=null; for(let py=S-1;py>=0;py--) if(on(bx,py)){ bot=(py-S/2)/M; break; } for(let py=0;py<S;py++) if(on(bx,py)){ top=(py-S/2)/M; break; }
     /* the eye: where the pupil sits next to eye-white, from the normal drawing */ let eye=null; try{ x.clearRect(0,0,S,S); drawCreature3(x,sp,S/2,S/2,M,{t:0,still:1}); const e=x.getImageData(0,0,S,S).data, dark=(px,py)=>{ const i=(py*S+px)*4; return e[i]<45&&e[i+1]<45&&e[i+2]<50&&e[i+3]>200; }, white=(px,py)=>{ const i=(py*S+px)*4; return Math.abs(e[i]-244)<14&&Math.abs(e[i+1]-240)<14&&Math.abs(e[i+2]-230)<16&&e[i+3]>200; };
       let sx=0, sy=0, n=0; for(let py=2;py<S-2;py++) for(let px=S/2;px<S-2;px++){ if(!white(px,py)) continue; let ok=false; for(let dy=-4;dy<=4&&!ok;dy++) for(let dx=-4;dx<=4;dx++) if(dark(px+dx,py+dy)){ ok=true; break; } if(ok){ sx+=px; sy+=py; n++; } } if(n>=4) eye={x:(sx/n-S/2)/M, y:(sy/n-S/2)/M, r:Math.sqrt(n/Math.PI)/M}; }catch(e){}
-    TRAIT_PROBE[sp.id]={nose,bot,top,head,eye}; }catch(e){} return TRAIT_PROBE[sp.id]; }const TRAIT_MASKS={}, TRAIT_OFF=document.createElement('canvas'); let TRAIT_MASKN=0;
+    const prof=[]; for(let f=-.5;f<=.56;f+=.02){ const px=Math.round(S/2+M*f); for(let py=0;py<S;py++) if(on(px,py)){ prof.push([f,(py-S/2)/M]); break; } } /* the top outline along the body: things that sit on the back rest on it (2026-11-22) */
+    TRAIT_PROBE[sp.id]={nose,bot,top,head,eye,prof}; }catch(e){} return TRAIT_PROBE[sp.id]; }
+function traitTopAt(pr,f){ const p=pr&&pr.prof; if(!p||!p.length) return null; let best=p[0]; for(const q of p) if(Math.abs(q[0]-f)<Math.abs(best[0]-f)) best=q; return Math.abs(best[0]-f)<.05?best[1]:null; }const TRAIT_MASKS={}, TRAIT_OFF=document.createElement('canvas'); let TRAIT_MASKN=0;
 function traitMask(sp,L){ const Lb=Math.max(12,Math.round(L/8)*8), key=sp.id+'|'+Lb; let m=TRAIT_MASKS[key]; const S=Math.ceil(L*1.9);
   if(!m){ if(++TRAIT_MASKN>400){ for(const k in TRAIT_MASKS) delete TRAIT_MASKS[k]; TRAIT_MASKN=1; } const Sb=Math.ceil(Lb*1.9); m=document.createElement('canvas'); m.width=m.height=Sb; drawCreature3(m.getContext('2d'),sp,Sb/2,Sb/2,Lb,{sil:'#000000',t:0,still:1}); TRAIT_MASKS[key]=m; }
   return {m,S}; }
@@ -91,7 +93,10 @@ function drawTraits(c0,sp,L,col,belly,t){ const T=fishTraits(sp); if(!T) return;
         c.moveTo(x0,y); c.lineTo(xb,y); c.lineTo(xb+L*.04,y+dy); c.lineTo(x1,y+dy); pads.push([x1,y+dy]); }
       c.stroke(); F('#3af0ff'); for(const [px,py] of pads) E(px,py,1.1*k,1.1*k); break; }    case 'antenna': S('#c8c8d0',1); c.beginPath(); c.moveTo(hx,top+2*k); c.lineTo(hx-3*k,top-10*k); c.stroke(); F(Math.sin(t*4)>0?'#ff3ab8':'#ff9ad8'); E(hx-3*k,top-10*k,1.8*k,1.8*k); break;
     case 'led': v3glow(c,L*.33,-hh*.28,L*.06,'rgba(255,58,184,.9)',.6); break;
-    case 'laurel': { const thin=pr0&&pr0.top!=null&&pr0.bot!=null&&pr0.bot-pr0.top<.2, hx=thin?L*(pr0.head-.12):L*(pr0&&pr0.head!=null?pr0.head:.3); /* on a thin body the crown sits behind the eye, not on it */ F('#5a9a3a'); for(let i=0;i<6;i++) E(hx-6*k+i*2.4*k,top+(i%2?0:-1.4)*k,2.2*k,1.1*k,(i%2?.6:-.6)); F('#e8c040'); E(hx+8*k,top+1*k,1.2*k,1.2*k); break; }
+    case 'laurel': { /* a laurel crown resting ON the back behind the eye (director, 2026-11-22: it lay across the eye and body on many Olympus
+         fish, and its yellow berry read as a second eye): each leaf sits on the fish's real top outline there, pointing up and back */
+      const ex=pr0&&pr0.eye?pr0.eye.x-pr0.eye.r-.05:(pr0&&pr0.head!=null?pr0.head:.3)-.08;
+      for(let i=0;i<6;i++){ const f=ex-i*.035, ty=traitTopAt(pr0,f), y=(ty!=null?ty*L:top)-1.3*k; F(i%2?'#4f8f34':'#68a844'); E(f*L,y,2.4*k,1.05*k,-.75); } break; }
     case 'gilded': S('rgba(255,211,106,.85)',1.4); c.beginPath(); c.moveTo(-L*.3,-hh*.2); c.quadraticCurveTo(0,-hh*1.1,L*.3,-hh*.6); c.stroke(); break;
     case 'bolt': F('#ffe84a'); P([-L*.05,-hh*.6,L*.05,-hh*.6,0,-hh*.1,L*.07,-hh*.1,-L*.06,hh*.6,-L*.01,0,-L*.08,0]); break;
     case 'tridentcrown': F('#e8c040'); for(const dx of [-4,0,4]) P([hx+dx*k-1.2*k,top+1*k,hx+dx*k,top-(dx?6:9)*k,hx+dx*k+1.2*k,top+1*k]); c.fillRect(hx-6*k,top,12*k,1.6*k); break;

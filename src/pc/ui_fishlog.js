@@ -55,7 +55,7 @@
     P.append(ttl,top,wrap); P.classList.add('fl-on');
     const selCard=grid&&grid.querySelector('.jcard.sel'); if(selCard){ const r=selCard.getBoundingClientRect(), m=main.getBoundingClientRect(); if(r.bottom>m.bottom||r.top<m.top) selCard.scrollIntoView({block:'nearest'}); }
   }catch(e){ console.error(e); } };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('fl-on'); return _rp.apply(this,arguments); };}
+  PC_STEPS.pre.push(()=>{ const P=$('panel'); if(P) P.classList.remove('fl-on'); });}
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #menuov #panel.fl-on{overflow:hidden!important;display:flex!important;flex-direction:column!important} /* #menuov added 2026-11-19: "body #menuov #panel{display:block!important}" outranked this, so the columns were never fitted (1440x900 cut 133 px off with no scroll) */
 body.pch-on #panel.fl-on > *{flex:0 0 auto}

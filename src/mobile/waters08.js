@@ -23,7 +23,7 @@
         const sps=spAt(L.id), got=caughtAt(L.id), here=S.loc===L.id, open=S.unlocked.includes(L.id);
         card.title=(blurb?blurb.textContent.trim():''); card.classList.add('wt8');
         const info=document.createElement('div'); info.className='wt8-info';
-        info.innerHTML=`<div class="wt8-top"><h4>${esc(L.name)}</h4></div><div class="meta wt8-sub">Depth ${esc(depthStr(L.depth))}</div>${strStandHTML(sps)}<div class="wt8-sp"><span class="wt8-bar"><i style="width:${(got/sps.length*100).toFixed(1)}%"></i></span><span class="meta" title="Species found here">${got}/${sps.length} fish</span></div>`;
+        info.innerHTML=`<div class="wt8-top"><h4>${esc(L.name)}</h4></div><div class="meta wt8-sub">Depth ${esc(depthStr(L.depth))}</div>${strStandHTML(sps)}<div class="wt8-sp"><span class="wt8-bar"><i style="width:${(got/sps.length*100).toFixed(1)}%"></i></span><span class="meta" title="Species found here">${got} of ${sps.length} caught</span></div>`;
         if(req&&!open){ req.classList.add('wt8-req'); info.appendChild(req); }
         if(here) info.insertAdjacentHTML('beforeend','<span class="wt8-here">You are here</span>');
         if(btn&&!here){ btn.classList.add('wt8-btn'); if(open&&btn.disabled) btn.title='Reel in your line first'; info.appendChild(btn); }

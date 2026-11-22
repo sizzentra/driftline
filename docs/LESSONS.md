@@ -186,3 +186,8 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **A later pass can undo an earlier rule:** the fish family rules set real bodies, then the newer waters' variety pass (`cq_traits.js`) gave every fish still marked `fusi` a random body, so a catfish became a sunfish. Rules that mean "this fish is decided" mark it (`d.fam`) and later passes skip marked fish; check the picture sheet, not just the rule.
 - **Cards over the game wait their turn:** a first-run card shown on a timer landed on top of the patch notes. Anything shown on its own waits until `G.st` is idle and `#evcard` is closed.
 - **Long work between frames is still a long frame:** moving the scenery repaint into `setTimeout(0)` kept it out of the draw call but the next frame still waited 300 ms. Record the canvas calls (`v3rec`), replay a few ms per frame (`v3play`), and swap only when complete.
+
+## 2026-11-22 afternoon (homes batch, director's feedback)
+- **A thing that sits on a fish rests on its measured outline:** the Olympus laurel used one height for the whole fish and lay across many eyes. `traitProbe` now records the top outline along the body (`prof`, read with `traitTopAt`); anything placed on the back or head uses it.
+- **One number for a circle's size:** a swatch sized by a shrinking grid column plus a minimum tap height became an oval on iPhone. Width, height and min-height now come from one value that shrinks evenly.
+- **The saved test save is a wrapper:** `tools/shots/testsave.json` is `{save, at}`; restoring the whole file gives the game an empty save, and tests that depend on progress fail on every build at once.

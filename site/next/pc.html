@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } window.DL_VERSION='2026.11.22-0540';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } window.DL_VERSION='2026.11.22-1436';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -2091,7 +2091,7 @@ const fishPull = s => s.str*4/3;
 const anglerStr = () => gv('line')/tensionMult()*(1+.02*boonR('strength')); /* C30: + the Strong Arms boon */
 const strTxt = v => Math.round(wNum(v))+' '+wUnit();
 function strStand(sps){ const ps=sps.map(fishPull), lo=Math.min(...ps), hi=Math.max(...ps), a=anglerStr(); return {lo, hi, a, beat:ps.filter(p=>p<=a).length, n:ps.length, pos:clamp((a-lo)/Math.max(1,hi-lo),0,1)}; }
-function strStandHTML(sps){ const s=strStand(sps); return `<div class="meta strst" title="Angler strength comes from your Line (Tackle) and skills that lower tension. Fish stronger than you put up a fight: let them run, reel when they rest.">Fish ${strTxt(s.lo)}–${strTxt(s.hi)} <span class="strbar" aria-hidden="true"><i style="left:${(s.pos*100).toFixed(0)}%"></i></span> you ${strTxt(s.a)} · stronger than ${s.beat} of ${s.n}</div>`; }
+function strStandHTML(sps){ const s=strStand(sps); return `<div class="meta strst" title="Angler strength comes from your Line (Tackle) and skills that lower tension. Fish stronger than you put up a fight: let them run, reel when they rest.">Fish ${Math.round(wNum(s.lo))}–${strTxt(s.hi)} <span class="strbar" aria-hidden="true"><i style="left:${(s.pos*100).toFixed(0)}%"></i></span> your line holds ${strTxt(s.a)}, enough for ${s.beat>=s.n?"all "+s.n:s.beat+" of "+s.n}</div>`; }
 document.head.insertAdjacentHTML('beforeend','<style>.strst{white-space:normal;overflow-wrap:anywhere}.strst .strbar{white-space:nowrap}.strbar{display:inline-block;position:relative;width:56px;height:6px;border-radius:3px;margin:0 4px;vertical-align:middle;background:linear-gradient(90deg,#5ad8b0,#ffd36a,#ff7a5a)}.strbar i{position:absolute;top:-3px;width:4px;height:12px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 3px #000c}</style>');
 // Legendary and mythic fish have a signature surge: halfway in (and again near the end for mythics) they make one long,
 // heavy run with a burst of spray, then go still for a moment, then leap. Watching the fish beats it; holding loses it.
@@ -14040,6 +14040,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // A water thumbnail is drawn on the game canvas; afterwards the game's own scenery picture is put back, so the next frame does not
 // have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
 { const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
+/* PC page steps (Clean Pages 4): PC page touches push here instead of wrapping renderPanel; pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
+const PC_STEPS={pre:[],post:[]};
 // PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
 // page or section change and window resize.
@@ -14064,7 +14066,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
     if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<4) soon(); } cache.set(key(),z); };
   let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
-  const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
+  PC_STEPS.pre.push(()=>{ try{ pre(); }catch(e){} }); PC_STEPS.post.push(()=>soon()); /* PC page steps (pages_pc.js runs them) */
   document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
   addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
   window.__pcfitSoon=()=>{ passes=0; soon(); }; // a page that changes its own content (a category picked) asks for a fresh fit
@@ -14243,7 +14245,7 @@ html body.pch-on.dl-fish .hud > .st-cool{margin-left:auto!important}
     P.append(ttl,top,wrap); P.classList.add('fl-on');
     const selCard=grid&&grid.querySelector('.jcard.sel'); if(selCard){ const r=selCard.getBoundingClientRect(), m=main.getBoundingClientRect(); if(r.bottom>m.bottom||r.top<m.top) selCard.scrollIntoView({block:'nearest'}); }
   }catch(e){ console.error(e); } };
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'); if(P) P.classList.remove('fl-on'); return _rp.apply(this,arguments); };}
+  PC_STEPS.pre.push(()=>{ const P=$('panel'); if(P) P.classList.remove('fl-on'); });}
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pch-on #menuov #panel.fl-on{overflow:hidden!important;display:flex!important;flex-direction:column!important} /* #menuov added 2026-11-19: "body #menuov #panel{display:block!important}" outranked this, so the columns were never fitted (1440x900 cut 133 px off with no scroll) */
 body.pch-on #panel.fl-on > *{flex:0 0 auto}
@@ -14331,11 +14333,11 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
 </style>`); /* the PC look of these tiles lives in src/pc/ui_pets_find.js (moved 2026-11-19) */
 // PC, Pets > Find more: headings over the pets you can adopt and the ones still to find; they follow the section tabs
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return r;
+PC_STEPS.post.push(()=>{ try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return;
       const add=(sel,txt)=>{ const list=[...g.querySelectorAll(':scope > '+sel)]; if(!list.length) return; const h=document.createElement('div'); h.className='pet-h'; h.dataset.for=sel; h.innerHTML=`<span>${txt}</span><span class="meta">${list.length}</span>`; g.insertBefore(h,list[0]); };
       add('.pet-sale','Adopt'); add('.pet-hid','Still to find');
       const sync=()=>g.querySelectorAll('.pet-h').forEach(h=>{ const n=[...g.querySelectorAll(':scope > '+h.dataset.for)].filter(t=>t.style.display!=='none').length; h.style.display=n?'':'none'; h.querySelector('.meta').textContent=n; });
-      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} return r; }; }
+      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} });
 /* PC: the shop cards are compact and the pets still to find are short wide rows (moved here from bm_ui04.js on 2026-11-19).
    The rows' display:grid skips tiles a page tab hid: a forced display kept "Still to find" on Your pets and Customize at 1440×900 (0.4.8.9.4 hotfix). */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -14698,7 +14700,7 @@ body.pch-on #menuov.mo-show #tabs .subbar{animation:none!important}
 // PC Reborn (2026-11-21): Skills, Save, Rods, Feats, Cooler and Stats use the shared page engine (src/cx_pages.js) like the phones;
 // their PC-only full-HD layouts (side-by-side boards, the rod pair, the cooler side panel, Stats on one screen) were removed.
 // full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} return r; }; }
+PC_STEPS.post.push(()=>{ try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} });
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-fhd #menuov #panel > .grid.fhd-gear{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
 body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;gap:8px!important}
@@ -16907,7 +16909,7 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
 };
 /* ---------- the Home page for a format home: a close-up of the home and its 6 features (styles, then the home's one colour list) ---------- */
 function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
-  const sw=(e,c,i,on)=>`<button type="button" class="chipb hf-col" data-act="hfcol" data-k="${e.id}" data-v="${i}" aria-pressed="${on}" title="${esc(c[0])}"><span class="hm-sw${e.id==='light'?' hm-glow':''}" style="background:${e.id==='light'?'radial-gradient(circle,'+c[1]+' 0%,'+c[1]+'59 55%,transparent 75%)':c[1]}"></span>${esc(c[0])}</button>`;
+  const sw=(e,c,i,on)=>`<button type="button" class="chipb hf-col" data-act="hfcol" data-k="${e.id}" data-v="${i}" aria-pressed="${on}" title="${esc(c[0])}"><span class="hm-sw" style="background:${c[1]}"></span>${esc(c[0])}</button>`;
   P.innerHTML=`<i class="hf-mark" hidden></i>
    <div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>`+
    sp.els.map(e=>{ const [s,c]=hfChoice(S.loc,e.id);
@@ -17549,7 +17551,9 @@ function traitProbe(sp){ if(TRAIT_PROBE[sp.id]!==undefined) return TRAIT_PROBE[s
     let bot=null, top=null; for(let py=S-1;py>=0;py--) if(on(bx,py)){ bot=(py-S/2)/M; break; } for(let py=0;py<S;py++) if(on(bx,py)){ top=(py-S/2)/M; break; }
     /* the eye: where the pupil sits next to eye-white, from the normal drawing */ let eye=null; try{ x.clearRect(0,0,S,S); drawCreature3(x,sp,S/2,S/2,M,{t:0,still:1}); const e=x.getImageData(0,0,S,S).data, dark=(px,py)=>{ const i=(py*S+px)*4; return e[i]<45&&e[i+1]<45&&e[i+2]<50&&e[i+3]>200; }, white=(px,py)=>{ const i=(py*S+px)*4; return Math.abs(e[i]-244)<14&&Math.abs(e[i+1]-240)<14&&Math.abs(e[i+2]-230)<16&&e[i+3]>200; };
       let sx=0, sy=0, n=0; for(let py=2;py<S-2;py++) for(let px=S/2;px<S-2;px++){ if(!white(px,py)) continue; let ok=false; for(let dy=-4;dy<=4&&!ok;dy++) for(let dx=-4;dx<=4;dx++) if(dark(px+dx,py+dy)){ ok=true; break; } if(ok){ sx+=px; sy+=py; n++; } } if(n>=4) eye={x:(sx/n-S/2)/M, y:(sy/n-S/2)/M, r:Math.sqrt(n/Math.PI)/M}; }catch(e){}
-    TRAIT_PROBE[sp.id]={nose,bot,top,head,eye}; }catch(e){} return TRAIT_PROBE[sp.id]; }const TRAIT_MASKS={}, TRAIT_OFF=document.createElement('canvas'); let TRAIT_MASKN=0;
+    const prof=[]; for(let f=-.5;f<=.56;f+=.02){ const px=Math.round(S/2+M*f); for(let py=0;py<S;py++) if(on(px,py)){ prof.push([f,(py-S/2)/M]); break; } } /* the top outline along the body: things that sit on the back rest on it (2026-11-22) */
+    TRAIT_PROBE[sp.id]={nose,bot,top,head,eye,prof}; }catch(e){} return TRAIT_PROBE[sp.id]; }
+function traitTopAt(pr,f){ const p=pr&&pr.prof; if(!p||!p.length) return null; let best=p[0]; for(const q of p) if(Math.abs(q[0]-f)<Math.abs(best[0]-f)) best=q; return Math.abs(best[0]-f)<.05?best[1]:null; }const TRAIT_MASKS={}, TRAIT_OFF=document.createElement('canvas'); let TRAIT_MASKN=0;
 function traitMask(sp,L){ const Lb=Math.max(12,Math.round(L/8)*8), key=sp.id+'|'+Lb; let m=TRAIT_MASKS[key]; const S=Math.ceil(L*1.9);
   if(!m){ if(++TRAIT_MASKN>400){ for(const k in TRAIT_MASKS) delete TRAIT_MASKS[k]; TRAIT_MASKN=1; } const Sb=Math.ceil(Lb*1.9); m=document.createElement('canvas'); m.width=m.height=Sb; drawCreature3(m.getContext('2d'),sp,Sb/2,Sb/2,Lb,{sil:'#000000',t:0,still:1}); TRAIT_MASKS[key]=m; }
   return {m,S}; }
@@ -17598,7 +17602,10 @@ function drawTraits(c0,sp,L,col,belly,t){ const T=fishTraits(sp); if(!T) return;
         c.moveTo(x0,y); c.lineTo(xb,y); c.lineTo(xb+L*.04,y+dy); c.lineTo(x1,y+dy); pads.push([x1,y+dy]); }
       c.stroke(); F('#3af0ff'); for(const [px,py] of pads) E(px,py,1.1*k,1.1*k); break; }    case 'antenna': S('#c8c8d0',1); c.beginPath(); c.moveTo(hx,top+2*k); c.lineTo(hx-3*k,top-10*k); c.stroke(); F(Math.sin(t*4)>0?'#ff3ab8':'#ff9ad8'); E(hx-3*k,top-10*k,1.8*k,1.8*k); break;
     case 'led': v3glow(c,L*.33,-hh*.28,L*.06,'rgba(255,58,184,.9)',.6); break;
-    case 'laurel': { const thin=pr0&&pr0.top!=null&&pr0.bot!=null&&pr0.bot-pr0.top<.2, hx=thin?L*(pr0.head-.12):L*(pr0&&pr0.head!=null?pr0.head:.3); /* on a thin body the crown sits behind the eye, not on it */ F('#5a9a3a'); for(let i=0;i<6;i++) E(hx-6*k+i*2.4*k,top+(i%2?0:-1.4)*k,2.2*k,1.1*k,(i%2?.6:-.6)); F('#e8c040'); E(hx+8*k,top+1*k,1.2*k,1.2*k); break; }
+    case 'laurel': { /* a laurel crown resting ON the back behind the eye (director, 2026-11-22: it lay across the eye and body on many Olympus
+         fish, and its yellow berry read as a second eye): each leaf sits on the fish's real top outline there, pointing up and back */
+      const ex=pr0&&pr0.eye?pr0.eye.x-pr0.eye.r-.05:(pr0&&pr0.head!=null?pr0.head:.3)-.08;
+      for(let i=0;i<6;i++){ const f=ex-i*.035, ty=traitTopAt(pr0,f), y=(ty!=null?ty*L:top)-1.3*k; F(i%2?'#4f8f34':'#68a844'); E(f*L,y,2.4*k,1.05*k,-.75); } break; }
     case 'gilded': S('rgba(255,211,106,.85)',1.4); c.beginPath(); c.moveTo(-L*.3,-hh*.2); c.quadraticCurveTo(0,-hh*1.1,L*.3,-hh*.6); c.stroke(); break;
     case 'bolt': F('#ffe84a'); P([-L*.05,-hh*.6,L*.05,-hh*.6,0,-hh*.1,L*.07,-hh*.1,-L*.06,hh*.6,-L*.01,0,-L*.08,0]); break;
     case 'tridentcrown': F('#e8c040'); for(const dx of [-4,0,4]) P([hx+dx*k-1.2*k,top+1*k,hx+dx*k,top-(dx?6:9)*k,hx+dx*k+1.2*k,top+1*k]); c.fillRect(hx-6*k,top,12*k,1.6*k); break;
@@ -18514,7 +18521,6 @@ const FHD=()=>document.body.classList.contains('pc-fhd');
 // every page tags the panel with its name, so full-HD styles can be scoped to one page (data-pg="skills" ...)
 /* PC page steps (Clean Pages 4, batch 7): this file's and ui_round5's page touches run from the PC page engine (pages_pc.js) in the order
    they were added, instead of five renderPanel wrappers; pre steps run before the page is built (last added first, as the wrappers did) */
-const PC_STEPS={pre:[],post:[]};
 PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){} });
 
 // ---------- smooth menus: the fishing scene is hidden behind a full-HD menu, so it is not drawn while one is open ----------
@@ -18610,6 +18616,25 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
 // Your home (full HD): the close-up of this water's home on the left, its 6 features (docs/HOME_STANDARD.md) on the right, the
 // same layout as phones held sideways (director: same on PC and phones, PC just has more room).
 // =====================================================================
+/* style cards (director, 2026-11-22: PC Home had "so much empty space"): every style of the open feature is drawn on this water's home in
+   daylight, the part of the picture that changes between the styles is found, and every card zooms on that part, so a card shows the
+   waterwheel or the lantern itself, not a tiny whole home. The other features stay as chosen; choices are always put back. */
+function dkWith(el,val,fn){ const had=S.dock.el&&Object.prototype.hasOwnProperty.call(S.dock.el,el), keep=had?S.dock.el[el]:null;
+  try{ S.dock.el=S.dock.el||{}; S.dock.el[el]=val; return fn(); } finally{ if(had) S.dock.el[el]=keep; else delete S.dock.el[el]; } }
+function dkPreviews(){ const P=$('panel'), L=LOCS[locIdx(S.loc)], Pal=v3palette.v, sp=hfSpec(S.loc); if(!P||!Pal||!HF_LAST||!S.dock||!sp) return; const dockY=HF.dockY(), groups={};
+  P.querySelectorAll('.dk-sty').forEach(b=>{ const c=b.querySelector('canvas'); if(c&&c.offsetParent) (groups[b.dataset.k]=groups[b.dataset.k]||[]).push(b); });
+  for(const el in groups){ const bs=groups[el], c0=bs[0].querySelector('canvas'), r=c0.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) continue;
+    const cur=hfChoice(S.loc,el), sig=[S.loc,el,w,h,...sp.els.map(e=>e.id===el?cur[1]:hfChoice(S.loc,e.id).join('.'))].join('|'); if(bs.every(b=>b.querySelector('canvas').dataset.sig===sig)) continue;
+    try{ const OW=1200, OH=750, f=hfFrame({width:OW,height:OH},0), k=OW/f.sw;
+      const imgs=bs.map(b=>{ const o=document.createElement('canvas'); o.width=OW; o.height=OH; dkWith(el,[+b.dataset.v,cur[1]],()=>{ const x=o.getContext('2d'); x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,Pal,0,dockY,k,':pv'); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); }); return o; });
+      const D=imgs.map(o=>o.getContext('2d').getImageData(0,0,OW,OH).data); let x0=OW,y0=OH,x1=-1,y1=-1;
+      for(let y=0;y<OH;y+=3) for(let x=0;x<OW;x+=3){ const i=(y*OW+x)*4; for(let j=1;j<D.length;j++){ const a=D[0], q=D[j]; if(Math.abs(a[i]-q[i])+Math.abs(a[i+1]-q[i+1])+Math.abs(a[i+2]-q[i+2])+Math.abs(a[i+3]-q[i+3])>40){ if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1) y1=y; break; } } }
+      let bx=0, by=0, bw=OW, bh=OH, ar=w/h; if(x1>=x0){ bw=x1-x0; bh=y1-y0; const pad=Math.max(bw,bh)*.22+16; bx=x0-pad; by=y0-pad; bw+=pad*2; bh+=pad*2; }
+      if(bw/bh<ar){ const nw=bh*ar; bx-=(nw-bw)/2; bw=nw; } else { const nh=bw/ar; by-=(nh-bh)/2; bh=nh; }
+      if(bw>OW||bh>OH){ const s=Math.min(OW/bw,OH/bh); bx+=bw*(1-s)/2; by+=bh*(1-s)/2; bw*=s; bh*=s; } bx=Math.max(0,Math.min(OW-bw,bx)); by=Math.max(0,Math.min(OH-bh,by));
+      bs.forEach((b,i)=>{ const c=b.querySelector('canvas'); if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0);
+        const gr=x.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#2a4a66'); gr.addColorStop(1,'#14283c'); x.fillStyle=gr; x.fillRect(0,0,w,h); x.imageSmoothingQuality='high'; x.drawImage(imgs[i],bx,by,bw,bh,0,0,w,h); c.dataset.sig=sig; }); }
+    catch(e){ console.error(e); } } }
 { const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
@@ -18620,13 +18645,22 @@ body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
       view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)}<span> · ${esc(sp.hname)}</span></span>`); /* like the phones: the water, then the home's short name (2026-11-22 review: "Willow Pond · Willow Pond dock") */
       const col=document.createElement('section'); col.className='dk-col'; col.innerHTML='<div class="dk-body"></div>'; const body=col.querySelector('.dk-body'); body.appendChild(nav);
       P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el)); body.querySelectorAll('.chips').forEach(row=>{ const on=row.querySelector('.hf-col[aria-pressed="true"]'), hd=row.previousElementSibling; if(on&&hd&&hd.tagName==='H5') hd.innerHTML='Color <span class="dk-cn">· '+esc(on.title)+'</span>'; }); /* the chosen color's name in the heading, like the phones */
-      top.append(view,col);
+      /* PC has the room (director, 2026-11-22: "so much empty space"): each style is a picture card of this home drawn in that style, and
+         the column ends with the whole home at a glance (every feature's style and color; a click opens that feature) */
+      body.querySelectorAll('.chips').forEach(row=>{ if(row.querySelector('.hf-col')) return; row.classList.add('dk-styles');
+        row.querySelectorAll('.chipb[data-act="hfel"]').forEach(b=>{ const n=b.textContent; b.classList.add('dk-sty'); b.innerHTML='<canvas class="dk-pv"></canvas><span></span>'; b.querySelector('span').textContent=n; }); });
+      const gl=document.createElement('div'); gl.className='dk-glance'; gl.innerHTML='<h5>Your home at a glance</h5><div class="dk-gls">'+sp.els.map((e,i)=>{ const [s,ci]=hfChoice(S.loc,e.id), cc=sp.colors[ci]; return `<button type="button" class="dk-gl" data-gi="${i}"><b>${esc(e.label)}</b><span>${esc(e.styles[s])}</span><em><i style="background:${cc[1]}"></i>${esc(cc[0])}</em></button>`; }).join('')+'</div>';
+      gl.addEventListener('click',ev=>{ const g=ev.target.closest('.dk-gl'); if(!g) return; const t=nav.querySelectorAll('button')[+g.dataset.gi]; if(t) t.click(); setTimeout(dkPreviews,0); });
+      nav.addEventListener('click',()=>setTimeout(dkPreviews,0)); col.appendChild(gl);
+      top.append(view,col); requestAnimationFrame(dkPreviews);
       [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
       P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); }catch(e){ console.error(e); } }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:14px}
 html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
-html body.pc-fhd #menuov #panel.dk-on > .dk-top.dk-top1{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(560px,1fr);gap:14px;flex:1 1 0;min-height:0} body.pc-fhd #panel .dk-top1 > .dk-col{min-height:0;overflow:auto;scrollbar-width:thin;align-self:start;max-height:100%} /* the column ends where its parts end; the home view gets the room; the parts column is sized for its content (2026-11-22 review: two thirds of it was empty) */
+html body.pc-fhd #menuov #panel.dk-on > .dk-top.dk-top1{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(560px,1fr);gap:14px;flex:1 1 0;min-height:0} body.pc-fhd #panel .dk-top1 > .dk-col{min-height:0;overflow:auto;scrollbar-width:thin;align-self:stretch} /* the column fills the height: style picture cards, colors, then the home at a glance at the bottom (director, 2026-11-22: "so much empty space") */
+body.pc-fhd #panel.dk-hfp .dk-styles:not([style*="display: none"]){display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px} body.pc-fhd #panel.dk-hfp .dk-body .chipb.dk-sty{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;padding:8px 8px 10px!important;min-height:0!important;height:auto!important;border-radius:14px!important;white-space:normal;line-height:1.2} body.pc-fhd #panel.dk-hfp .dk-styles:has(> :nth-child(4)){grid-template-columns:repeat(4,minmax(0,1fr))} body.pc-fhd #panel.dk-hfp .dk-pv{display:block;width:100%;aspect-ratio:1;border-radius:10px;background:#0b1626;pointer-events:none} body.pc-fhd #panel.dk-hfp .dk-sty > span{font:800 15px var(--display,system-ui);text-align:center}
+body.pc-fhd #panel.dk-hfp .dk-glance{margin-top:auto;padding:16px 20px 18px;border-top:1px solid #ffffff14} body.pc-fhd #panel.dk-hfp .dk-glance h5{font-size:13.5px!important;margin:0 0 10px!important} body.pc-fhd #panel.dk-hfp .dk-gls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px} body.pc-fhd #panel.dk-hfp .dk-gl{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:10px 12px;border-radius:12px;background:#0a1424;border:1px solid #ffffff14;color:#e6efe8;cursor:pointer;text-align:left;font:inherit} body.pc-fhd #panel.dk-hfp .dk-gl:hover{border-color:#ffd36a66} body.pc-fhd #panel.dk-hfp .dk-gl b{font:800 14px var(--display,system-ui)} body.pc-fhd #panel.dk-hfp .dk-gl span{color:#9fb2c8;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} body.pc-fhd #panel.dk-hfp .dk-gl em{font-style:normal;font-size:13px;display:flex;align-items:center;gap:6px;color:#e6efe8} body.pc-fhd #panel.dk-hfp .dk-gl i{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px #ffffff66}
 body.pc-fhd #panel.dk-hfp .dk-body{padding:18px 20px;gap:18px;flex:0 1 auto} body.pc-fhd #panel.dk-hfp .dk-body .bwx-nav button{font-size:15px!important;min-height:44px} body.pc-fhd #panel.dk-hfp .dk-body h5{font-size:13.5px!important;margin:0 0 10px!important} body.pc-fhd #panel.dk-hfp .dk-body .chipb:not(.hf-col){font-size:15px!important;min-height:44px;padding:6px 18px!important} /* full-HD sizes: read from a couch */
 body.pc-fhd #panel.dk-hfp .chips:has(.hf-col){display:grid;grid-template-columns:repeat(8,56px);gap:14px} body.pc-fhd #panel.dk-hfp .hf-col{width:56px!important;height:56px!important;min-width:0!important;padding:0!important;border-radius:50%!important;font-size:0!important;color:transparent!important;justify-content:center;align-items:center;overflow:hidden} body.pc-fhd #panel.dk-hfp .hf-col .hm-sw{width:42px;height:42px;border-radius:50%;margin:0;box-shadow:inset 0 0 0 1.5px #ffffff66} body.pc-fhd #panel.dk-hfp .hf-col[aria-pressed="true"]{box-shadow:0 0 0 3px var(--gold,#ffd36a)} body.pc-fhd #panel .dk-cn{color:var(--gold,#ffd36a);text-transform:none;letter-spacing:0} /* round swatches, 2 rows of 8 like the phones; a brighter ring so the darkest colors stay visible (accessibility review) */
 body.pc-fhd #panel .dk-where span{color:#9fb2c8;font-weight:700}
@@ -18772,7 +18806,6 @@ body.pc-fhd #panel .dk-pin .dk-cozy{margin:0!important;display:grid!important;gr
 body.pc-fhd #panel .dk-pin .dk-cozy em{font-style:normal;font-size:12px;color:#cfb3c2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.pc-fhd #panel .dk-pin .shoptools{margin:0!important}
 body.pc-fhd #panel .hm-sw{display:inline-block;width:20px;height:20px;border-radius:6px;flex:0 0 auto;box-shadow:inset 0 0 0 1px #ffffff30}
-body.pc-fhd #panel .hm-glow{border-radius:50%;background-color:#0a1424!important}
 body.pc-fhd #panel .dk-hulls .chipb,body.pc-fhd #panel .dk-lights .chipb{flex-direction:row!important;align-items:center!important;gap:8px!important;min-height:40px;justify-content:flex-start!important}
 /* Bait: auto-restock */
 body.pc-fhd #panel .bt-auto{display:flex;align-items:center;gap:10px;width:100%;margin-top:4px;padding:8px 12px;border-radius:12px;border:1px solid #ffffff22;background:#0a1424;color:#dbe6f2;text-align:left;cursor:pointer;font:inherit}
@@ -19051,6 +19084,12 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Mount Olympus fish: the laurel sits on top of the head, behind the eye, instead of lying across the eye and back (the yellow dot that looked like a second eye is gone).',
+  'Map: clearer wording. The top line says how to open the next water (or that all are open), each card says how strong your line is and how many of its fish that covers, and the count reads “2 of 52 caught”.',
+  'Your home on PC: each style is a picture card that zooms in on that feature, drawn on your own home, so you see it before you pick. The column ends with your whole home at a glance; click a feature there to open it.',
+  'Your home: colors look the same for every feature (the lantern colors no longer glow).',
+  'Behind the scenes: the last four PC page layers joined the same list as the others. Nothing should look different.',
+  '## Test build 0540',
   'Fish: real fish families look like themselves: catfish get their whiskers and flat heads, the tiger shovelnose is a striped catfish, arowana and arapaima are long and scaled, piranhas have teeth, cichlids, oscars, discus, tetras, plecos, loaches, snakeheads, gobies, lungfish and bichirs have their real shapes and markings.',
   'Long fish are slim: arowanas, loaches, plecos, bichirs and snakeheads, and the Nile electric catfish is a catfish (it was drawn like a sunfish).',
   'The black ghost knifefish and the black phantom tetra are dark fish now, not see-through.',
@@ -19501,7 +19540,7 @@ ui(){ QA.sys='UI';
         if(!(EAT_STRIP[5]===1&&EAT_STRIP.every((v,i)=>!i||v>EAT_STRIP[i-1]))) e.push('distance does not rise with rarity to all of it for mythics'); }
     } finally{ save=sv; toast=ts; G.st='idle'; G.fish=null; G.eat=null; } return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'ok'}; });
   T('Angler strength: one number in the units of fish strength; "heavy" means stronger than you; every water shows where you stand',()=>{ const e=[]; const a=anglerStr(); if(!(a>0)) e.push('no Angler strength'); const L=LOCS[0], sps=SP.filter(s=>s.loc===L.id), st=strStand(sps); if(st.beat<0||st.beat>st.n) e.push('bad standing');
-    openMenu('map'); const P=$('panel'); const cards=P.querySelectorAll('.strst'); if(!cards.length) e.push('no strength line on the Waters cards'); else if(!/you /.test(cards[0].textContent)) e.push('Waters line does not show your strength'); closeMenu();
+    openMenu('map'); const P=$('panel'); const cards=P.querySelectorAll('.strst'); if(!cards.length) e.push('no strength line on the Waters cards'); else if(!/your line holds /.test(cards[0].textContent)) e.push('Waters line does not show your strength'); closeMenu();
     const ss=statSec; statSec='overview'; openMenu('stats'); if(!/Angler strength/.test($('panel').textContent)) e.push('not in Stats › Overview'); statSec='gear'; renderPanel(); if(!/Angler strength/.test($('panel').textContent)) e.push('not in Stats › Gear'); statSec=ss; closeMenu();
     const ls=GEAR.line.lv, maxPull=Math.max(...SP.map(fishPull)); if(ls[7]>=maxPull) e.push('line level 7 already beats every fish ('+ls[7]+' vs '+Math.round(maxPull)+')'); if(ls[ls.length-1]<maxPull) e.push('the best line never beats the strongest fish');
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'you '+Math.round(a)+', first water '+st.beat+'/'+st.n}; });
@@ -20415,14 +20454,14 @@ function renderJournal(P){
   paintFish(P); P.querySelectorAll('canvas[data-junk]').forEach(c=>{ const cx=c.getContext('2d'); cx.clearRect(0,0,c.width,c.height); if(c.dataset.known==='1') drawJunk(cx,c.width,c.height,c.dataset.junk,null); else mysteryThumb(cx,c.width,c.height,c.dataset.junk); });
 }
 function renderMap(P){
-  P.innerHTML=`<h2>Waters</h2><p class="sub">Unlock new waters with coins once you have caught ${unlockNeed()} fish in the one before this voyage (10 more every voyage, up to 50). Each has ${spAt('pond').length} fish of its own, its own junk and treasure, and is tougher than the last.</p><div class="grid">`+
+  P.innerHTML=`<h2>Waters</h2><p class="sub">${LOCS.every(L=>S.unlocked.includes(L.id))?`All ${LOCS.length} waters are open. Every one has ${spAt("pond").length} fish of its own, its own junk and treasure.`:`Open a new water with coins after catching ${unlockNeed()} fish at the water before it. Each voyage adds 10 more, up to 50. Every water has ${spAt("pond").length} fish of its own, its own junk and treasure, and is a little tougher than the last.`}</p><div class="grid">`+
   LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), here=S.loc===L.id; const prev=i?LOCS[i-1]:null; const met=unlockMet(i); const sps=spAt(L.id);
     const btn = here ? '<button class="btn alt" disabled>Fishing here</button>' : open ? `<button class="btn" data-act="goto" data-k="${L.id}" ${G.st==='idle'?'':'disabled'}>Travel here</button>`
       : L.eg&&!egCharted(L) ? `<button class="btn" disabled>Complete voyage ${L.eg} to unlock</button>` /* Cam's list #12 */
       : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=locCost(L)&&locPrevOk(i)?'':'disabled'}>Unlock · <span class="coin">${fmt(locCost(L))}</span></button>`;
     const egHead=L.eg&&!(prev&&prev.eg)?`<div class="eg-head"><h3>End-game waters</h3><span class="meta">These open after later voyages (see Set sail again). Their fish are much tougher and worth much more.</span></div>`:"";
     return egHead+`<div class="tile loc ${here?"here":""}"><div class="sw2" style="background:linear-gradient(${L.sky[0]},${L.sky[1]} 48%,${L.water[0]} 52%,${L.water[1]})"></div>
-    <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${depthStr(L.depth)} · ${caughtAt(L.id)}/${sps.length} species</div>${strStandHTML(sps)}
+    <h4>${L.name}</h4><div class="meta">${L.blurb}</div><div class="meta">Depth ${depthStr(L.depth)} · ${caughtAt(L.id)} of ${sps.length} caught</div>${strStandHTML(sps)}
     ${!open&&prev?`<div class="meta" style="color:${met?'var(--kelp)':'var(--muted)'}">${met?'✓':'·'} ${unlockLine(i)}</div>`:''}${btn}</div>`; }).join('')+'</div>'; /* Set sail again and Pearl relics live on the Prestige page (cw_pages08.js) */
 }
 const canRetire = () => S.unlocked.includes('trench') && pearlsFor() > 0 && G.st==='idle';

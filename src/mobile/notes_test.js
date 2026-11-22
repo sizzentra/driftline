@@ -3,6 +3,10 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Mount Olympus fish: the laurel sits on top of the head, behind the eye, instead of lying across the eye and back (the yellow dot that looked like a second eye is gone).',
+  'Map: clearer wording. The top line says how to open the next water (or that all are open), each card says how strong your line is and how many of its fish that covers, and the count reads “2 of 52 caught”.',
+  'Your home: the 16 colors are real circles like the old canopy colors, 2 rows of 8, and look the same for every feature (the lantern colors no longer glow).',
+  '## Test build 0540',
   'Fish: real fish families look like themselves: catfish get their whiskers and flat heads, the tiger shovelnose is a striped catfish, arowana and arapaima are long and scaled, piranhas have teeth, cichlids, oscars, discus, tetras, plecos, loaches, snakeheads, gobies, lungfish and bichirs have their real shapes and markings.',
   'Long fish are slim: arowanas, loaches, plecos, bichirs and snakeheads, and the Nile electric catfish is a catfish (it was drawn like a sunfish).',
   'The black ghost knifefish and the black phantom tetra are dark fish now, not see-through.',

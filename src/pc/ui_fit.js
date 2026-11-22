@@ -1,3 +1,5 @@
+/* PC page steps (Clean Pages 4): PC page touches push here instead of wrapping renderPanel; pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
+const PC_STEPS={pre:[],post:[]};
 // PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
 // page or section change and window resize.
@@ -22,7 +24,7 @@
     if(Math.abs(z-z0)>.004){ p.style.zoom=z===1?'':String(+z.toFixed(3)); if(passes++<4) soon(); } cache.set(key(),z); };
   let passes=0; const pre=()=>{ passes=0; const p=P(); if(!p||!document.body.classList.contains('pch-on')) return; const z=cache.get(key()); if(z!==undefined) p.style.zoom=z===1?'':String(+z.toFixed(3)); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fit); };
-  const _rp=renderPanel; renderPanel=function(){ try{ pre(); }catch(e){} const r=_rp.apply(this,arguments); soon(); return r; };
+  PC_STEPS.pre.push(()=>{ try{ pre(); }catch(e){} }); PC_STEPS.post.push(()=>soon()); /* PC page steps (pages_pc.js runs them) */
   document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#panel .sect-nav,#panel .bwx-nav,#panel details summary')) setTimeout(()=>{ passes=0; soon(); },30); },true);
   addEventListener('resize',()=>setTimeout(soon,60)); document.addEventListener('fullscreenchange',()=>setTimeout(soon,200));
   window.__pcfitSoon=()=>{ passes=0; soon(); }; // a page that changes its own content (a category picked) asks for a fresh fit

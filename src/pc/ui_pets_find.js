@@ -1,9 +1,9 @@
 // PC, Pets > Find more: headings over the pets you can adopt and the ones still to find; they follow the section tabs
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return r;
+PC_STEPS.post.push(()=>{ try{ if(S.tab==='pets'&&document.body.classList.contains('pch-on')){ const P=$('panel'), g=P.querySelector(':scope > .grid'); if(!g) return;
       const add=(sel,txt)=>{ const list=[...g.querySelectorAll(':scope > '+sel)]; if(!list.length) return; const h=document.createElement('div'); h.className='pet-h'; h.dataset.for=sel; h.innerHTML=`<span>${txt}</span><span class="meta">${list.length}</span>`; g.insertBefore(h,list[0]); };
       add('.pet-sale','Adopt'); add('.pet-hid','Still to find');
       const sync=()=>g.querySelectorAll('.pet-h').forEach(h=>{ const n=[...g.querySelectorAll(':scope > '+h.dataset.for)].filter(t=>t.style.display!=='none').length; h.style.display=n?'':'none'; h.querySelector('.meta').textContent=n; });
-      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} return r; }; }
+      sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); } }catch(e){} });
 /* PC: the shop cards are compact and the pets still to find are short wide rows (moved here from bm_ui04.js on 2026-11-19).
    The rows' display:grid skips tiles a page tab hid: a forced display kept "Still to find" on Your pets and Customize at 1440×900 (0.4.8.9.4 hotfix). */
 document.head.insertAdjacentHTML('beforeend',`<style>

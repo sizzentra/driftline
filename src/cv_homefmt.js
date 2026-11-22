@@ -157,7 +157,7 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
 };
 /* ---------- the Home page for a format home: a close-up of the home and its 6 features (styles, then the home's one colour list) ---------- */
 function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
-  const sw=(e,c,i,on)=>`<button type="button" class="chipb hf-col" data-act="hfcol" data-k="${e.id}" data-v="${i}" aria-pressed="${on}" title="${esc(c[0])}"><span class="hm-sw${e.id==='light'?' hm-glow':''}" style="background:${e.id==='light'?'radial-gradient(circle,'+c[1]+' 0%,'+c[1]+'59 55%,transparent 75%)':c[1]}"></span>${esc(c[0])}</button>`;
+  const sw=(e,c,i,on)=>`<button type="button" class="chipb hf-col" data-act="hfcol" data-k="${e.id}" data-v="${i}" aria-pressed="${on}" title="${esc(c[0])}"><span class="hm-sw" style="background:${c[1]}"></span>${esc(c[0])}</button>`;
   P.innerHTML=`<i class="hf-mark" hidden></i>
    <div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>`+
    sp.els.map(e=>{ const [s,c]=hfChoice(S.loc,e.id);

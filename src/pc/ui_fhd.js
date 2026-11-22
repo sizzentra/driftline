@@ -8,7 +8,7 @@
 // PC Reborn (2026-11-21): Skills, Save, Rods, Feats, Cooler and Stats use the shared page engine (src/cx_pages.js) like the phones;
 // their PC-only full-HD layouts (side-by-side boards, the rod pair, the cooler side panel, Stats on one screen) were removed.
 // full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} return r; }; }
+PC_STEPS.post.push(()=>{ try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} });
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-fhd #menuov #panel > .grid.fhd-gear{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
 body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;gap:8px!important}

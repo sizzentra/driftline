@@ -208,3 +208,13 @@ Change either weather message's wording: update the two patterns in `weather07.j
 |---|---|---|
 | Install welcome on every visit that is not the installed app (director), starts after 6 s and waits for idle and closed cards | `cy_install.js` | every browser visit |
 | Five PC page layers became PC_STEPS run by the PC page engine (wraps 257 → 252) | `pc/br_pc05.js`, `pc/ui_round5.js`, `pc/pages_pc.js` | PC Aquarium, Your home, Rods, Wardrobe (fingerprint-identical) |
+
+## Test builds 2026.11.22-1436 (homes batch)
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| One plain swatch look for every feature (lantern glow removed) | `cv_homefmt.js` (`renderHomeF`), `pc/ui_round5.js` | Your home, phones and PC |
+| Phone swatches: real circles sized by one number, 2 rows of 8, tighter gap on small phones | `mobile/page_home.js` | phone Your home |
+| PC Your home: style picture cards zoomed on the feature (`dkPreviews`, `dkWith`), the home at a glance | `pc/br_pc05.js` | PC Your home |
+| Map wording | `e_ui.js`, `c_logic.js` (`strStandHTML`), `mobile/waters08.js`, `bn_qa04.js` | Map page, phones and PC |
+| Laurel on the measured outline (`traitProbe.prof`, `traitTopAt`) | `cq_traits.js` | Mount Olympus fish |
+| Last four PC page layers as PC_STEPS (wraps 252 → 248) | `pc/ui_fit.js`, `pc/ui_fishlog.js`, `pc/ui_fhd.js`, `pc/ui_pets_find.js` | PC pages (fingerprint-identical) |
