@@ -14,10 +14,15 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 | `fishCanvas(cnv,sp,known,shiny,pv)` (still fish picture) | `d_draw.js`, wrapped by `ca_shiny06.js` (sparkle FX) | catch card (`c_logic.js` showCard), Cooler / Aquarium lists, Fish Log cards + detail, Trophy Room plaques (all via `paintFish`), prism sheet (`n_play.js`) |
 | `paintFish(P)` (draws every `canvas[data-fish]` in a page) | `e_ui.js`, kept-copy cache in `bm_ui04.js`, wrapped by `ca_shiny06.js` | every menu page with fish pictures; PC extras in `pc/ui_fhd.js`, `pc/ui_round5.js` |
 | `data-sh` / `data-pv` on list canvases | `e_ui.js` (cooler line 96, tank 137, journal), `ax_trophy035.js` | must carry both or prismatic colours are lost |
-| `drawCreature` / `drawCreature3` (fish body) | `d_draw.js`, `i_fish.js`; shiny glint + in-water sparkles in `al_decor04.js` | water (hooked fish, jumps), aquarium tank, pictures; Starfall reflections (`at_starfall033.js`) |
+| `drawCreature` / `drawCreature3` (fish body) | `d_draw.js`, `i_fish.js` (the catch card lets go of the last sparkle animation in `showCard`, batch 2); shiny glint + in-water sparkles in `al_decor04.js` | water (hooked fish, jumps), aquarium tank, pictures; Starfall reflections (`at_starfall033.js`) |
 | `prismOverlay(c,w,h,v,t)` | `n_play.js` | prismatic pictures (`fishCanvas` shiny===2) |
 | `sparkles()` (old static stars) | `d_draw.js` | disabled inside `fishCanvas` by `ca_shiny06.js`; still used by decor/other art |
 | `SHINY3.still` | set by `ca_shiny06.js` | stops the in-water glint/stars freezing into still pictures |
+
+## Aquarium boosts (batch 2, 2026-11-21)
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| `aqNet(f)` (a fish's boosts times the titled-shiny lift; titled shinies lift every other fish, not themselves) | `c_logic.js`, from `aqBuffsOf` (n_play, wrapped by decor / hybrid / nibbles layers) | `aqSum` (what `bonus(k)` applies), Aquarium page totals and fish lines (`aqTxt`, e_ui), the catch card's "In the aquarium" badge, hybrid card badges (`bv_catch06`). One owner: shown = applied |
 
 ## Angler, wardrobe, pets
 | Piece | Defined in | Shows up in |
