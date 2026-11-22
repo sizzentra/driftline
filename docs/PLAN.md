@@ -128,7 +128,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 Parked in Ideas: the Report a problem button.
 ### Decisions for the queue (director, 2026-11-21) so the work never has to stop
 1. **Save backup = a backup copy on the device**, refreshed automatically (not on every save: at most every few minutes and when the app is hidden, so it costs nothing noticeable), restorable from Settings if the main save breaks; works offline.
-2. **Homes: Claude writes every home's idea and side-view descriptions, reworks Willow Pond and draws them all**; the director judges the pictures afterwards. **First, a map theme guide** (docs/MAP_THEMES.md): every water's description, theme, culture, materials, colours, creatures and what does and doesn't belong, so new things (homes, creatures, moments) fit their water.
+2. **Homes: Claude writes every home's idea and side-view descriptions, reworks Willow Pond and draws them all**; the director judges the pictures afterwards. **First, a map theme guide (written 2026-11-22, with palettes, 16 home colours per water, culture and music cues)** (docs/MAP_THEMES.md): every water's description, theme, culture, materials, colours, creatures and what does and doesn't belong, so new things (homes, creatures, moments) fit their water.
 3. **Map updates: no extra list**; Claude goes through the map rules water by water, the director judges pictures.
 4. **Fish revamp: built in full**, before / after pictures judged afterwards.
 5. **Each finished batch goes onto the test builds at once** (live stays the director's call).

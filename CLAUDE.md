@@ -15,7 +15,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 - `docs/HOME_STANDARD.md`: what every home is, how it is built, what the player customises (decided 2026-11-21; the Willow Pond pilot is built, its rework and the other homes are in the queue to 0.5).
 - `docs/TEXT_STANDARD.md`: how every line of game text is written (voice, device words, lengths); checked by `__contentQC` rule 6 and the `__qa` text tests.
 - `docs/QC_ANALYSIS.md` and `docs/qc_incidents.csv`: the bug log (labels checked by build.ps1) and what the numbers say about the checklist.
-- `docs/MAP_THEMES.md` (to be written, batch 5): every water's theme, what belongs there and what doesn't.
+- `docs/MAP_THEMES.md`: every water's theme (written 2026-11-22): place and story, culture and inspiration, palette (day / dusk / night colours and 16 home colours), materials, life, belongs / doesn't belong, music and ambience, home direction. Checked before anything new goes on a water (homes, creatures, moments, sound).
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
