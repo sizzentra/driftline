@@ -184,5 +184,13 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Market Rush now adds its full 30% when you follow the Merchant Path (it gave a little less).',
   'Picking a water on the Bounties page no longer makes the row jump back to its start: a row you scrolled sideways stays where it was.',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space (iPhones could run short of memory after opening many pages).',
-  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.']});
+  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.',
+  '## Fixes',
+  'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card.',
+  'Catch cards always show what you caught (after a shiny or mythic fish, the next card kept showing that fish).',
+  'Cooler: a Hybrids switch beside Shinies in the Sell all filter. An empty Cooler shows a Go fishing button instead of a blank page.',
+  'Boardwalk: Mystery crates has a picture, and Higher or lower keeps its picture after a game.',
+  'Wardrobe › Tide Pass: bigger aura previews that stay bright while locked, so you can see each one before you reach it.',
+  'The Windows app runs straight from the folder you unzip it to.'
+]});
 

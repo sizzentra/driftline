@@ -70,3 +70,6 @@ if(/[?&]test\b/.test(location.search)) window.__pcSpec=async()=>{ const w=ms=>ne
     el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); };
   const wire=()=>{ link('#pchead .stat.st-lvl','skills','Your level. Click for Skills, where your skill points go.'); link('#pchead .stat.st-coins','stats','Your coins. Click for Stats: what you earn and why.'); };
   setTimeout(wire,0); setTimeout(wire,1200); }
+// Fishmonger's Gamble on PC (batch 2, 2026-11-21): in the eight-column games grid the card was 226 px wide, so a long fish name wrapped
+// its button onto two lines (41 px, off the button standard). The card takes two columns and lists one fish per row, on one line.
+document.head.insertAdjacentHTML('beforeend','<style>body.pch-on #panel .bwx-grid > .bwx-card:has(.bwx-gl){grid-column:span 2}body.pch-on #panel .bwx-gl{display:grid;grid-template-columns:1fr;gap:6px}body.pch-on #panel .bwx-gl .btn{white-space:nowrap;width:100%}</style>');

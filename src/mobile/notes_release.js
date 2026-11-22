@@ -312,4 +312,12 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   'Quests shows the live event when one is on, and each Feats category says what finishing it gives.',
   'Small iPhones: the top bar keeps every word whole; when room runs out, the chips sit a little closer together instead of cutting the bait name.',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space (iPhones could run short of memory after opening many pages).',
-  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.'])});
+  'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.',
+  '## Fixes',
+  'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card.',
+  'Catch cards always show what you caught (after a shiny or mythic fish, the next card kept showing that fish), and the side panel stays on screen while one shows.',
+  'Fish pictures in lists no longer blink as the scroll bar fades.',
+  'Cooler: a Hybrids switch beside Shinies in the Sell all filter. An empty Cooler shows a Go fishing button instead of a blank page.',
+  'Boardwalk: Fishmonger’s Gamble keeps its fish buttons two to a row, so the card fits after a play. Mystery crates has a picture, and Higher or lower keeps its picture after a game.',
+  'Wardrobe › Tide Pass: bigger aura previews that stay bright while locked, so you can see each one before you reach it.'
+])});
