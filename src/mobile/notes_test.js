@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card (they showed less than you got). A new species’ catch card shows that fish’s own boost, not the species’ average.',
   'Settings: the Download for Windows button is gone from test builds (it gave the live app; play the test build in the browser instead).',
   '## Test build 1549',
   'Living maps, every water held to the map standard: Willow Pond, a mother duck leads 3 to 5 ducklings across the far water by day and a tawny owl glides low over the pond at night (every 50 s). Saltmarsh Coast, a pod of porpoises rolls past (every 42 s). Ember Springs, a geyser at the foot of the hill erupts (every 45 s, a little higher or lower each time) and ravens circle by day. Animal Farm, fireflies by the fence and a barn owl at night, birds only by day, the tractor every 55 s. The Nile, fruit bats at night. Corporate Pond, pigeons strut on the ticker by day. The Buffet, a gummy bear rows a cracker across the lake. Stonebrook otters every 24 s.',

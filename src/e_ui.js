@@ -88,7 +88,7 @@ var rpOld=null, rpT=0; /* var: a page drawn while the game is still loading must
 function rpRelease(){ clearTimeout(rpT); if(rpOld) for(const c of rpOld) if(!c.isConnected&&c.width){ c.width=0; c.height=0; } rpOld=null; }
 function renderPanel(){ const P=$('panel'); rpRelease(); rpOld=[...P.getElementsByTagName('canvas')]; rpT=setTimeout(rpRelease,0); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, home:renderHome, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
-const aqTxt = f => { const L=aqBuffsOf(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
+const aqTxt = f => { const L=aqNet(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
 
 const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
 /* C14 (director + Cam, 2026-11-20): sort the cooler by most/least recent, sell value, aquarium bonus or species. Most recent after
@@ -111,7 +111,7 @@ document.head.insertAdjacentHTML('beforeend','<style>.cool-sort{display:flex;fle
   paintFish(P);
 }
 function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const next=TANK_COST[S.tankSlots];
-  const sums={}; for(const f of S.tank) for(const e of aqBuffsOf(f)) sums[e.k]=(sums[e.k]||0)+e.v;
+  const sums={}; for(const f of S.tank) for(const e of aqNet(f)) sums[e.k]=(sums[e.k]||0)+e.v;
   const chips=Object.entries(sums).map(([k,v])=>`<span class="badge k">${fmtB(k,Math.min(v,BONUS_CAP[k]||9))}</span>`).join('');
   P.innerHTML=`<div class="row spread"><div><h2>Aquarium</h2><p class="sub">Visitors pay to see your fish, even while you’re away (up to 8 hours). Every fish gives a boost while on display, and boosts stack. Each fish rolls its own boost when caught: usually one that fits its rarity, now and then a much better (or weaker) one. Heavier fish give more, shiny fish double, and the strangest catches give the most.</p></div>
   <div class="bank"><div><div class="sub">Earning</div><b class="coin" title="${fmt(rate*60)} coins an hour">${fmtShort(rate*60)}</b><span class="sub"> / hour</span></div><div><div class="sub">Ready to collect</div><b class="coin" id="tankbank" title="${fmt(S.tankBank)} coins">${fmtShort(S.tankBank)}</b></div>

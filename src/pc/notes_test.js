@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card (they showed less than you got). A new species’ catch card shows that fish’s own boost, not the species’ average.',
   'Settings: the Download for Windows button is gone from test builds (it gave the live app; play the test build in the browser instead).',
   '## Test build 1549',
   'Living maps, every water held to the map standard: Willow Pond, ducklings by day and an owl at night (every 50 s); Saltmarsh Coast, porpoises (every 42 s); Ember Springs, a geyser (every 45 s) and ravens by day; Animal Farm, fireflies and a barn owl at night; The Nile, bats at night; Corporate Pond, pigeons; The Buffet, a gummy bear rowing a cracker. Bigger moments at Florida Keys, The Buffet, Corporate Pond, Midnight Deep and Hollow Trench.',

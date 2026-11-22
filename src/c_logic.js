@@ -108,8 +108,11 @@ const hashStr = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charC
 function buffSum(k){ const t=Date.now(); let s=0; for(const b of S.buffs) if(b.k===k && b.until>t) s+=b.v; return s; }
 const aqCache = {};
 function aqBase(id){ if(!(id in aqCache)){ const sp=SPI[id]; aqCache[id] = sp.r ? {k:AQ_KEYS[hashStr(id)%AQ_KEYS.length], v:AQ_MAG[sp.r]} : null; } return aqCache[id]; }
-function aqEff(f){ return aqBuffsOf(f)[0]||null; }
-function aqSum(k){ const aura=1+titleAura(); let s=0; for(const f of S.tank){ const m=f.sh===2?1:aura; for(const e of aqBuffsOf(f)) if(e.k===k) s+=e.v*m; } return s; } /* [18] titled shinies lift every other fish */
+/* one owner for what a fish really gives in the aquarium (batch 2, 2026-11-21): its own boosts times the titled-shiny lift
+   (titled shinies lift every other fish, not themselves). Every total, line and badge reads this, so shown = applied. */
+function aqNet(f){ const L=aqBuffsOf(f); const m=f.sh===2?1:1+titleAura(); return m===1?L:L.map(e=>Object.assign({},e,{v:e.v*m})); }
+function aqEff(f){ return aqNet(f)[0]||null; }
+function aqSum(k){ let s=0; for(const f of S.tank) for(const e of aqNet(f)) if(e.k===k) s+=e.v; return s; } /* [18] titled shinies lift every other fish */
 const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
@@ -306,7 +309,7 @@ function landFish(){
   const b=[]; if(f.shiny===2){ b.push(['g',PRISM[f.pv].n+' prismatic ×'+PRISM_VALUE+' value']); const T=TITLE_BUFFS[f.pv]; if(T) b.push(['g','In your aquarium: +'+T.keys.map(k=>BK[k]).join(', +')+', and every other fish’s bonuses +'+Math.round(T.aura*100)+'%']); if(titleNew) b.push(['g','New title: +'+Math.round(TITLE_COIN*100)+'% coins on every voyage'+(titleLegacy()>=TITLE_COIN_CAP?' (at the +'+Math.round(TITLE_COIN_CAP*100)+'% cap)':'')]); } else if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.hy) b.push(['g','Hybrid: the weight of a '+SPI[f.hy].name+(f.hx?' and still its own size: ×'+f.hx+' value and aquarium income':'')]); if(hyNew) b.push(['g','First hybrid of this fish']); b.push(...preyB); if(f.ate) b.push(['g','Swallowed your catch: ×1.5 coins']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
   if(scl) b.push(['k','+'+scl+' Scales']); if(tok) b.push(['g','+1 '+(tok==='big'?'big':'small')+' Mystery Crate']);
-  if(isNew) b.push(['','New species']); if(record) b.push(['g','Personal record']); const ae=aqBase(sp.id); if(ae && isNew) b.push(['k','In the aquarium: '+fmtB(ae.k,ae.v)]);
+  if(isNew) b.push(['','New species']); if(record) b.push(['g','Personal record']); const ae=G.lastEntry&&!G.lastEntry.hy&&aqEff(G.lastEntry); if(ae && isNew) b.push(['k','In the aquarium: '+fmtB(ae.k,ae.v)]);
   const ms=mastery(sp.id); if(ms && [3,10,30,100][ms-1]===S.journal[sp.id].n) b.push(['g','Mastery '+'★'.repeat(ms)+': +'+ms*10+'% value for this fish']);
   const rk=checkRank(); if(rk) b.push(['g',rk]);
   if(lvUps) b.push(['g','Level up! Lv '+S.lvl+' · +'+lvUps+' skill point']); bdone.forEach(()=>b.push(['g','Bounty ready'])); if(setNow) b.push(['g',LOCS[locIdx(sp.loc)].name+' complete: +'+fmt(setNow)]);
