@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Boardwalk: Mystery crates has a picture like the other games, and Higher or lower keeps its picture after a game.',
   'Catch cards always show what you caught: after a shiny or mythic fish, the next card (an oddity, say) kept showing that fish.',
   'Cooler: a Hybrids switch beside Shinies in the Sell all filter. Off keeps hybrids when you Sell all or Scrap all; it starts like Shinies.',
   'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card (they showed less than you got). A new species’ catch card shows that fish’s own boost, not the species’ average.',
