@@ -4,16 +4,18 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 
 **Sessions start in this folder (`C:\Users\sizze\Driftline`), never in OutPace's** (director, 2026-11-19): a mixed session loads OutPace's long rulebook and Driftline's rules slip. Driftline has its own memory.
 
-**One session keeps going while the work is connected** (director, 2026-11-20): rounds that build on each other stay in the same Driftline session. Start a new session only when the work changes direction, or when the session gets summarized (then write "Where we left off" first).
+**One session keeps going while the work is connected** (director, 2026-11-20): rounds that build on each other stay in the same Driftline session. Stay in the session, also after it gets summarized (director, 2026-11-21: starting new sessions went wrong before); what keeps work safe across a summary is this file being current, see "Where we left off".
 
 **This file is the single source of rules for working on Driftline** (again since 2026-11-20: the one-page rulebook of 2026-11-19 was retired; `docs/REFERENCE.md` and `docs/HANDOFF.md` are kept as history only). Claude's memory only points here. Other docs, each with one job:
 - `docs/PLATFORM_DESIGN.md`: what every screen looks like per platform (numbers, layouts).
 - `docs/SYSTEMS_MAP.md`: what affects what (the lasting map). `docs/CHANGE_LOG.md`: what every round changed (split off 2026-11-21).
 - `docs/LESSONS.md`: error bookmarks (symptom → cause → fix → catch) and what works.
 - `docs/PLAN.md`: the active work list.
-- `docs/MAP_STANDARD.md`: what every water must have (decided 2026-11-21; not built yet).
-- `docs/HOME_STANDARD.md`: what every home is, how it is built, what the player customises (decided 2026-11-21; not built yet).
+- `docs/MAP_STANDARD.md`: what every water must have (decided 2026-11-21; every water brought up to it the same day, checked by `__mapQC`).
+- `docs/HOME_STANDARD.md`: what every home is, how it is built, what the player customises (decided 2026-11-21; the Willow Pond pilot is built, its rework and the other homes are in the queue to 0.5).
 - `docs/TEXT_STANDARD.md`: how every line of game text is written (voice, device words, lengths); checked by `__contentQC` rule 6 and the `__qa` text tests.
+- `docs/QC_ANALYSIS.md` and `docs/qc_incidents.csv`: the bug log (labels checked by build.ps1) and what the numbers say about the checklist.
+- `docs/MAP_THEMES.md` (to be written, batch 5): every water's theme, what belongs there and what doesn't.
 - `docs/HISTORY.md`: old status notes and round plans (history, never rules).
 
 ## ▶ Where we left off (read first; keep it to current facts only)
@@ -175,4 +177,5 @@ When a project or a batch of the plan is finished, before reporting it done:
 - **Art direction "Glow Diorama":** rich glow lighting, crisp layered depth, rim light, bloom on lights, everything gently alive. Nothing floats or looks pasted on: attachments are placed from the real outline (`f3TopY`, `f3TopAt`, `horseCX`), never guessed offsets.
 
 ## Plan
-The one active work list is `docs/PLAN.md` (the director's list in batches, plus older open items). Update its status marks every round. Game ideas (nothing decided) are at its bottom, under "Ideas".
+The active work list is `docs/PLAN.md` › "Production queue to 0.5", with the director's answers under "Decisions for the queue". Update its status marks every round. Game ideas (nothing decided) are at its bottom, under "Ideas".
+**Keeping this file current (director, 2026-11-21):** after every decision or change, reread the whole file (not only "Where we left off") and fix every line it made untrue, in the same step.
