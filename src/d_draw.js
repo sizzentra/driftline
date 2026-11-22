@@ -46,11 +46,11 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
 /* Shadows (o.sil) are one even tone (director, 2026-11-19: "shadows are multitone"): drawn see-through, every overlapping part (fins, tail,
    body) added up darker. A see-through silhouette is now drawn solid into a small picture, then put down once at the wanted strength. */
 { const _dc=drawCreature; let SC=null; drawCreature=function(c,sp,x,y,L,o){ const a=c.globalAlpha; if(!o||!o.sil||!(a<.999)||!(L>0)) return _dc.apply(this,arguments);
-    const m=c.getTransform(); if(m.b||m.c||!(m.a>0)||!(m.d>0)) return _dc.apply(this,arguments);
-    const bw=L*2.4, bh=L*1.8, pw=Math.ceil(bw*m.a), ph=Math.ceil(bh*m.d); if(pw<2||ph<2||pw*ph>4e6) return _dc.apply(this,arguments);
+    const m=c.getTransform(); if(m.b||m.c||!m.a||!m.d) return _dc.apply(this,arguments); /* batch 2 (director): a flipped fish (facing the other way while it takes line) gets the even shadow too */
+    const ax=Math.abs(m.a), ay=Math.abs(m.d), bw=L*2.4, bh=L*1.8, pw=Math.ceil(bw*ax), ph=Math.ceil(bh*ay); if(pw<2||ph<2||pw*ph>4e6) return _dc.apply(this,arguments);
     if(!SC) SC=document.createElement("canvas"); if(SC.width<pw||SC.height<ph){ SC.width=Math.max(SC.width,pw); SC.height=Math.max(SC.height,ph); }
-    const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,(bw/2-x)*m.a,(bh/2-y)*m.d); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
-    c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*(x-bw/2)+m.e,m.d*(y-bh/2)+m.f,pw,ph); c.restore(); }; }
+    const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,pw/2-m.a*x,ph/2-m.d*y); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
+    c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*x+m.e-pw/2,m.d*y+m.f-ph/2,pw,ph); c.restore(); }; }
 function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 /* C36 (2026-11-20: the Golden Seahorse showed as a thin strip in the Cooler): a creature's real drawn height, measured once from its
