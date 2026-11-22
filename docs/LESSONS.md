@@ -49,6 +49,8 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - Windows Defender called the Driftline Test download a Trojan → unsigned exe that copied itself to AppData, made shortcuts and restarted itself (the dropper pattern) → apps run where unzipped, `desktop/scan_download.ps1` scans every download at build → a local Defender scan passing does not prove the browser's download check will (cloud reputation), so never re-host without the director testing the download.
 - Shown boosts lower than applied → `aqSum` multiplied by the titled-shiny aura, the page totals and fish lines did not (two formulas for one number) → one owner `aqNet(f)` used by every total, line and badge → QA [18] compares the shown line with the lifted value.
 - A self-made false alarm: `__setPhase('dawn')` (it takes a 0-1 fraction) set the clock offset to NaN, and the scene then threw in `v3mist` at every water → read a hook's signature before calling it, and reset `__off=0` before trusting any scene error found afterwards.
+- An awk `-v f=$TEMP/...` path lost its backslashes (Windows path escapes) and `getline` read nothing, deleting the lines it was meant to replace → write temp files under /tmp and insert with `sed -i 'Nr /tmp/file'` → print the lines around every line-based edit right after.
+- The home test painted every style × colour × day/night at full screen size (about 2,400 pictures) and froze the page for minutes → paint at a quarter size, every style once and every colour once → a test's cost grows with content; size it when content multiplies.
 
 **What works and why**
 - One engine + the aquarium's own classes (`aq07-*`) for every page → one look, one set of checks; drift impossible.

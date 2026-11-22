@@ -2,7 +2,7 @@
 PATCHES.unshift({v:'0.4.8', name:'The Full Screen Rework', items:[
   '## Full screen PC',
   'Every page has one fixed size: headers no longer jump when you switch tabs, and clicks always land on the button you aimed at.',
-  'Menus open under the header, which never moves. The section buttons and the Cooler, Aquarium, Fish Log and Stats buttons use one clear clickable colour and turn gold while open; click a gold one again to close it.',
+  'Menus open under the header, which never moves. The section buttons and the Cooler, Aquarium, Fish Log and Stats buttons use one clear clickable color and turn gold while open; click a gold one again to close it.',
   'Menus feel smoother: the water rests while a menu covers it.',
   'Hover hints match the game’s look.',
   'The Boardwalk has its own button in the header.',
@@ -11,7 +11,7 @@ PATCHES.unshift({v:'0.4.8', name:'The Full Screen Rework', items:[
   'Aquarium: one compact header with your earnings inside it, and smoother tank animations.',
   'Fish Log: the rarity row works as a filter too; clear Day and Night tags; a Now tag that follows the clock; hunt slots that show what you are hunting, when it bites and your chance per catch.',
   'Stats: everything on one screen, and you choose what the Stats button in the header shows.',
-  'The Dock is now Your home, and it works at every water: a dock, pier, boat, trawler, raft, ice camp, beach, stone ledge or crystal shelf. Each one offers what fits it: wood where there is wood, the dock’s shape at a dock, hull paint on boats, and a light colour everywhere.',
+  'The Dock is now Your home, and it works at every water: a dock, pier, boat, trawler, raft, ice camp, beach, stone ledge or crystal shelf. Each one offers what fits it: wood where there is wood, the dock’s shape at a dock, hull paint on boats, and a light color everywhere.',
   'Your home shows your real spot at the water you’re fishing, with your decorations and pets where they stand. Your home and the decorations sit side by side, and the cozy level stays in place above the decorations.',
   'Wardrobe: categories on the left, your angler in the middle and the options in tidy cards.',
   'Pets: everything on one screen. Filter by what pets boost, pick one to see it, dress it up or bring it along.',
@@ -34,7 +34,7 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
 
   '## Shiny fish come alive',
   'Shiny fish sparkle for real: flashes of light that pop on new spots of the fish, flare and fade, with glitter and sweeping shine. It shows everywhere: in the water, the aquarium tank, the catch card and every list.',
-  'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts colour, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
+  'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts color, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
   '## Your angler',
   'Legs now stand side-on like the rest of the body, one in front of the other.',
   'Special cosmetics come alive: crowns and tiaras glint, wizard and witch hats trail stars, the astronaut visor catches the light, the diving helmet bubbles, the Tide coat glows, the spacesuit lights blink, gold chains shine.',
@@ -44,7 +44,7 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:[
   'Countdowns no longer make text or the screen jitter: numbers keep the same width, and the live event chip keeps its size while it counts down.',
   'With hints switched off, the empty dark bubble at the bottom of the water is gone.',
   'Market Rush shows a clear money bag instead of a tiny coin.',
-  'Prismatic fish keep their colours in the Aquarium list.',
+  'Prismatic fish keep their colors in the Aquarium list.',
   'Your angler’s nearer shoe is drawn in front, the Ocean Sunfish’s fins sit on its body, and the Stonebrook otters swim clear of the rocks.',
   '## Quality of life',
   'Travel here closes the menu and takes you straight to the new water.',
@@ -64,7 +64,7 @@ PATCHES.unshift({v:'0.4.8.2', name:'Save Codes Fix', items:[
 ]});
 PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:[
   'Opening Settings or another menu no longer shows a different water’s scenery for a moment.',
-  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, colored pets, the top bar and Starfall’s sky all cost less to draw.',
   'Water pictures for the Map are only made while the Map is open.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).']});
 PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:[
@@ -190,6 +190,10 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
   'Picking a water on the Bounties page no longer makes the row jump back to its start: a row you scrolled sideways stays where it was.',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space (iPhones could run short of memory after opening many pages).',
   'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.',
+  '## Homes and music',
+  'Every water has its own home now, built from that water’s look and story, from a mill landing with a waterwheel to a hover pad and a temple porch. Each has a seat plus 5 parts of its own, 3 styles each and 16 colors, all free.',
+  'Every water has its own music, softer at night.',
+  'Home decorations and the cozy bonus are gone. The Tide Pass gives aquarium decorations instead, and the Homebody path is now Pet Nap: rest, and your pets grow closer by themselves.',
   '## Fixes',
   'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card.',
   'Catch cards always show what you caught (after a shiny or mythic fish, the next card kept showing that fish).',

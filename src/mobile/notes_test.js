@@ -3,7 +3,11 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'Your home at Willow Pond, reworked from the director’s notes: 6 parts (Light, Deck, Posts, Rail, Canopy and a new Seat), 3 styles each, and one list of 16 colours shared by every part so pieces can match.',
+  'Every water now has its own home, made from that water’s look and story: a mill landing with a waterwheel, a tea house deck, a pier end, an ice camp, a lodge ledge, a beach hut, a flats skiff, a sport-fishing boat, a stilt house, a trawler, a salvage raft, a bathhouse, a crystal platform, a barn dock, a gingerbread platter, an office deck, a reed boat, a hover pad and a temple porch.',
+  'Every home has a seat plus 5 parts of its own, 3 styles each, and one list of 16 colors. Boats, rafts and platforms bob on the water. Resting sits you in your seat.',
+  'Every water has its own music now (12 new themes), and each plays softer at night.',
+  'Home decorations and the cozy bonus are gone (decorations were cheap and every home part is free). The Tide Pass gives aquarium decorations instead, and the Homebody path is now Pet Nap: while you rest, your pets nap beside you and their bond grows by itself.',
+  'Your home at Willow Pond, reworked from the director’s notes: 6 parts (Light, Deck, Posts, Rail, Canopy and a new Seat), 3 styles each, and one list of 16 colors shared by every part so pieces can match.',
   'New styles: a log deck, round piles with rope, a low log rail, a lean-to roof and a sailcloth shade (drawn from the side like the umbrella), and three seats: a camp chair, a log bench and a deck chair. Resting sits you in your seat.',
   'The posts run all the way down and fade into the water, the water flows past them instead of rings growing and shrinking, and the umbrella stands on the deck instead of the rail.',
   'The Home preview shows just your home. Where you are is a small label on the view; the strip under it is gone.',

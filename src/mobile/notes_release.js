@@ -17,7 +17,7 @@ PATCHES.unshift({v:'0.4.8', name:'Rewards Worth Chasing', items:phoneNotes([
 PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:phoneNotes([
   '## Shiny fish come alive',
   'Shiny fish sparkle for real: flashes of light that pop on new spots of the fish, flare and fade, with glitter and sweeping shine. It shows everywhere: in the water, the aquarium tank, the catch card and every list.',
-  'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts colour, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
+  'Every shiny fish has its own style of sparkle, and each prismatic kind has its own signature: Rainbow shifts color, Starry twinkles with shooting stars, Spectral sheds ghostly wisps, Ancient drifts gold dust.',
   '## A cleaner look',
   'Teal means you can tap it, gold means it is open or chosen (your current water, your favourite pet, the page you are on).',
   'Held sideways, the side panel is a tidy card with even buttons, the same open and closed; hide and show sits at the bottom.',
@@ -43,7 +43,7 @@ PATCHES.unshift({v:'0.4.8.1', name:'Smoother and Steadier', items:phoneNotes([
   '## Waters and fixes',
   'Stonebrook River has been reworked: a village on the hill, the river running on through the bridge arches, a rowboat tied at the mill jetty and a new waterwheel.',
   'The Saltmarsh seal is a real seal now. Aquarium fish and decorations are a little smaller, so every piece can be seen.',
-  'Prismatic fish keep their colours in the Aquarium list; Market Rush shows a clear money bag.',
+  'Prismatic fish keep their colors in the Aquarium list; Market Rush shows a clear money bag.',
   'Your angler’s nearer shoe is drawn in front, the Ocean Sunfish’s fins sit on its body, and the otters swim clear of the rocks.'])});
 PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:phoneNotes([
   {android:'Full screen stays on: if you left the game in full screen, closing or switching away from the app no longer forgets it; your first tap when you come back puts it back.'},
@@ -72,7 +72,7 @@ PATCHES.unshift({v:'0.4.8.3', name:'One Look, Easy Aquarium', items:phoneNotes([
   'Upright, page tabs (Tackle, Rods, Skills, Paths...) always fit on screen with an icon each: no more sideways scrolling to find a page.',
   'Upright, the Fishing tab lights up gold while you fish, like the side panel does sideways.',
   '## A new aquarium',
-  'The tank stays on screen while you scroll: upright it sits at the top, sideways it is on the left. Every new fish, water colour and decoration shows the moment you pick it.',
+  'The tank stays on screen while you scroll: upright it sits at the top, sideways it is on the left. Every new fish, water color and decoration shows the moment you pick it.',
   'The tank is bigger and always fully drawn (it used to stop short of the bottom). Earnings, Collect and Feed sit right under it.',
   'Switching between Your tank, Decorate and Add fish is instant, and the tank keeps swimming while you try, place or buy things (it used to blink and restart).',
   'New Add fish tab: put fish from your Cooler on display without leaving the aquarium.',
@@ -110,7 +110,7 @@ PATCHES.unshift({v:'0.4.8.5', name:'Easy Finds', items:phoneNotes([
   {ios:'Hints speak touch only (no keyboard keys), and homes are called homes everywhere, not docks. Save, App shows how to put Driftline on your Home Screen.'},
   'The top bar is tidier: a small Goal chip shows your next goal in a few words and opens exactly the right page; live events get their own Live chip; Tasks and Tide Pass sit up there too when there is room.',
   'Your home shows the real home of every water (boat, pier, ice camp, beach, raft, ledge...), live, with only the options that fit it.',
-  'Colour choices are small round swatches, with the chosen colour named next to the heading.',
+  'Colour choices are small round swatches, with the chosen color named next to the heading.',
   'Every menu page is now organised like the aquarium: the important numbers and the main button first (Sell all, Reset skills...), the sections as tabs at the top, one list that scrolls. Badges show where a reward is waiting.',
   'The Wardrobe shows your angler big, with the categories in Options. Pages keep your place when something changes, and open faster.',
   'Your home is laid out like the aquarium: your home fills the screen, with Options to open Your home and Decorations. Tap a decoration to try it, tap again to buy or place.',
@@ -175,7 +175,7 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:phoneNotes([
   'Much smoother with a decorated home: decorations on the dock (and on boats and floating docks) no longer slow the game down.',
   'Smoother fights, storms, dusk, dawn and weather changes on phones.',
   'Stardust is now always the best rare bait at Starfall Lake (odds ×2.5 there).',
-  'Lighter on phones: glowing lights (lanterns, lamps, Starfall’s sky) and coloured pets cost far less to draw, and the game no longer stays at a lower sharpness after switching waters.',
+  'Lighter on phones: glowing lights (lanterns, lamps, Starfall’s sky) and colored pets cost far less to draw, and the game no longer stays at a lower sharpness after switching waters.',
   'Opening and closing a menu no longer shows another water’s scenery for a moment.',
   'After moving your progress from another device, patch notes you already saw on this phone don’t come back.',
   'Android draws a steady 60 frames a second (also on 120 Hz screens) and iPhone runs at its natural rate; the frame-rate choice is gone from Settings.',
@@ -183,7 +183,7 @@ PATCHES.unshift({v:'0.4.8.6.2', name:'Fixes', items:phoneNotes([
   'Android: the game is always full screen, like on iPhone: the installed game opens without the bars, and a tap brings full screen back if they appear.'])});
 PATCHES.unshift({v:'0.4.8.7', name:'Lighter and Smoother', items:phoneNotes([
   'Willow Pond runs much smoother on phones.',
-  'Less work on every frame, everything looks the same: lights and glows, still home decorations, coloured pets, the top bar and Starfall’s sky all cost less to draw.',
+  'Less work on every frame, everything looks the same: lights and glows, still home decorations, colored pets, the top bar and Starfall’s sky all cost less to draw.',
   'In narrow windows (split-screen), the top bar shows Home again and your coins, level and water are readable instead of cut off.'])});
 PATCHES.unshift({v:'0.4.8.8', name:'Fixes and Small Wishes', items:phoneNotes([
   '## New',
@@ -318,6 +318,10 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
   'Small iPhones: the top bar keeps every word whole; when room runs out, the chips sit a little closer together instead of cutting the bait name.',
   'Menus use much less memory: pictures a page no longer shows are let go at once, and outfit previews share their drawing space (iPhones could run short of memory after opening many pages).',
   'A few fish that shared a name with another now have names of their own (your Fish Log keeps every catch). Tall creatures show whole in their pictures, and picking an option in a menu no longer makes the page jump.',
+  '## Homes and music',
+  'Every water has its own home now, built from that water’s look and story, from a mill landing with a waterwheel to a hover pad and a temple porch. Each has a seat plus 5 parts of its own, 3 styles each and 16 colors, all free.',
+  'Every water has its own music, softer at night.',
+  'Home decorations and the cozy bonus are gone. The Tide Pass gives aquarium decorations instead, and the Homebody path is now Pet Nap: rest, and your pets grow closer by themselves.',
   '## Fixes',
   'Aquarium boosts show what you really get: a titled shiny’s lift on the other fish now counts on the Aquarium page, in each fish’s line and on the catch card.',
   'Catch cards always show what you caught (after a shiny or mythic fish, the next card kept showing that fish), and the side panel stays on screen while one shows.',

@@ -24,6 +24,13 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 |---|---|---|
 | `aqNet(f)` (a fish's boosts times the titled-shiny lift; titled shinies lift every other fish, not themselves) | `c_logic.js`, from `aqBuffsOf` (n_play, wrapped by decor / hybrid / nibbles layers) | `aqSum` (what `bonus(k)` applies), Aquarium page totals and fish lines (`aqTxt`, e_ui), the catch card's "In the aquarium" badge, hybrid card badges (`bv_catch06`). One owner: shown = applied |
 
+## Homes (batch 5, 2026-11-22)
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| `HOMEF[id]` (every water's home: features, styles, 16 colors, seat heights, paint) | `cv_homefmt.js` (format, cache, Willow Pond), `cw_homekit.js` (side-view parts: deck, supports, hull, roof, rail, light, seat), `cw_homes.js` (the other 19) | the scene (`f_v3scene.js` draws HOMEF instead of the old home), the Home page close-up (`hfCloseup`; phones `page_home.js`, PC `br_pc05.js`), resting (`restPose`, the seat height), the header Home chip (home name), `__qa` home-format test |
+| Light carried by a feature (`light:true` or id `light`) | `hfGlow` (cv_homefmt) | the glow, light pool and reflection drawn live each frame |
+| Music per water (`MUS_AREA` → `STYLES` + `V3MUS`) | `j_music.js` (themes), `cn_waterart.js` (newer waters' mapping) | Settings › Sound music list ("Follow the water") |
+
 ## Angler, wardrobe, pets
 | Piece | Defined in | Shows up in |
 |---|---|---|
