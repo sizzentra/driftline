@@ -203,7 +203,7 @@ const isEgLoc = id => { const L=LOCS[locIdx(id)]; return !!(L&&L.eg); };
 /* Cam's list #12: an end-game water is "Uncharted Waters" (name and card) until you reach its voyage; then it opens for coins like any
    water and stays open for good once paid for (S.egPaid). Waters a save already had open count as paid. */
 /* (function declarations: the name getters below can run while the page is still loading) */
-function egCharted(L){ try{ return !!L && (S.tides||0) >= (L.eg||0); }catch(e){ return false; } }
+function egCharted(L){ try{ return !!L && ((S.tides||0) >= (L.eg||0) || S.unlocked.includes(L.id)); }catch(e){ return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
 const egCost = L => Math.max(1000, Math.round(30*bestNormalLoot()*(1+.15*((L.eg||2)-2))/1000)*1000); /* balance first version (the director and Cam decide): about 30 catches' worth at your best water */
 function egOpenAdd(st){ st=st||S; if(!st||!Array.isArray(st.unlocked)) return; if(!Array.isArray(st.egPaid)) st.egPaid=[];
   for(const Wd of WATER_EG){ if(st.unlocked.includes(Wd.id)&&!st.egPaid.includes(Wd.id)) st.egPaid.push(Wd.id); if(st.egPaid.includes(Wd.id)&&!st.unlocked.includes(Wd.id)) st.unlocked.push(Wd.id); } }

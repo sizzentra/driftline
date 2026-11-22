@@ -111,6 +111,38 @@ Taken from the director's phone screenshots (iPhone, Your home page, Lantern tab
 Each batch: a rollback tag first; quick checks per change, the full checks once at the end of the batch; then onto the test builds. Look and feel calls go to the director with pictures. Open questions are settled before a batch is built.
 **Order now (2026-11-22 afternoon, after the director's homes feedback and proposal choices):** A homes batch (one plain round color look everywhere, real circles on phones like the old canopy colors; PC Your home style picture cards and the home at a glance; Map wording, proposal 9) → B PC smoothness (proposals 3 and 4 in the Windows apps, a new Driftline Test download the director tests; then the 2 frame-hitch recorder if PC still stutters; 8b part 22) → C batch 7 rest today (each water in its own file, proven with a frozen-start tool; proposal 11) → D batch 4 rest (proposal 8 second fish families pass; items, clothing and characters by the design system's rules; proposal 7 deeper teal) → E clean-up pass and bug-log recount → F a plan page for proposal 6 (the Windows installer). Bookmarked: proposals 5, 12 and 1; batch 8 balance (director and Cam); batch 7's device report session (waits for the testers).
 
+### Director's map-by-map review (started 2026-11-22 evening)
+**How (director):** "store information for now then we'll decide what's best": everything below is only collected; nothing is built until all 20 maps are reviewed; then the director and Claude decide together what to build.
+**General**
+- PC dawn and dusk after proposals 3 and 4 (new Driftline Test, strong graphics card): slowest about 211 fps during the transition; "the change looks a ton better".
+- Your home: the home preview stutters badly and looks choppy (Driftline Test on PC).
+- **Fixed in 1718:** after Tester tools › Unlock everything, Travel here sometimes did nothing (the buttons look greyed out in the screenshot). Claude's first guess, to check: travel is blocked while resting or while the line is out, with no message saying so, which would explain "works sometimes".
+- **Fixed in 1718:** the six end-game waters were still named "Uncharted Waters" with "Complete voyage N to chart these waters" after Unlock everything, although their cards offer Travel here.
+- PC header (top bar): the parts are not one consistent size and structure, and the bar has lots of room to give them one. The 7 page buttons on the left are icon-only teal tiles while Cooler, Aquarium, Home, Fish Log, Tasks and Stats are label chips; Settings is wider than it needs to be and could take much less space while still showing its icon and word. (Screenshots 2026-11-22: the Map page and Stonebrook River at 1920x1080; in the first crop the "Map" pill under the header looks cut off at the left edge.) Players cannot tell what the 7 icon-only page buttons are (director: "the players have no idea what some of them are"): they need their names. (PC only: the phones already show names beside their icons.) When the names do show (later screenshots), they look cramped (director, confirmed by Claude): Collection, Challenges and Customize touch the tile edges, icon and name are stacked tightly, the count badges sit on the tile corners, and the left tiles look like a different design from the roomy chips on the right.
+**Willow Pond** (director, 2026-11-22, PC screenshots: aurora night, clear night, rainbow day, rain night resting, Your home)
+- Background: no mountains; a forest instead, to keep the background consistent. Also: all our mountains look the same (across waters), which the director doesn't like.
+- Water flow effects don't all point the same way.
+- The deer (or whatever it is) stands in the water: it should stand in the greenery; it also disappears at random.
+- Light transitions between times of day: look great (keep).
+- Aurora (weather): looks choppy, as if drawn in steps; should be smooth.
+- Some stars are drawn over the clouds: should be behind them.
+- The posts under the home don't blend into the water properly (the blend rule again).
+- Willow tree: looks good; can it be cheaper to draw without changing how it looks? It runs smoother on PC than on phones; the director worries it is still expensive in the wrong ways.
+- Ducks: no realistic wake, just a sideways V; looks bad.
+- Frog hopping between lily pads: lacks detail, and the hop animation doesn't look right.
+- Rainbow reflection: poor, and doesn't line up with the rainbow itself. The other reflections look great (keep).
+- Your home preview (PC): super choppy and not smooth, even laggy; probably not run the right way. Director open to a more static preview: Claude's call.
+- Your home (Willow Pond): switching between style options leaves an after-image of the previous choice.
+- Posts style "Stone piers" doesn't fit Willow Pond's wooden theme.
+- Resting: the rod goes through the canopy; make it a rule (a rod never pokes through a cover). Moving the seat closer to the front would make that easier.
+- Canopies: only the patio umbrella looks good (it makes the most sense and has the most depth); the other canopy styles don't.
+- Frame rate still drops at dusk at Willow Pond (screenshot: heavy fog, resting with the umbrella, ducklings out: 153 fps, slowest 12.6 ms on the counter; the director is not sure whether the ducks are the cause).
+- Noted by Claude from these screenshots: the PC header page buttons show their names here (Quests, Map, Upgrades…) while the earlier screenshot showed icons only, so the header changes between states; check together with the header note above.
+**Stonebrook River**
+- Remove the waterwheel home feature from the dock: the scene already has a waterwheel (at the mill), a second one makes no sense, and it does not spin.
+- Replace it with a feature that fits a mill landing (director: "yes replace it"; Claude proposes options with pictures, e.g. a mooring post with rope and fenders, or flour sacks on a cart).
+**Order of the review (director):** the maps in the order they are listed: Willow Pond, Stonebrook River, Cherry Blossom Lake, Saltmarsh Coast, Frostbite Lake, Canadian Rockies, Coral Shallows, Florida Keys, Brine Shelf, Amazon Rainforest, Midnight Deep, Hollow Trench, Ember Springs, Starfall Lake, Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
+
 | Batch | Projects | Details | Open before building |
 |---|---|---|---|
 | **1. Fishing feel** (most urgent) | 1 Cam's fish feel update · 2 Oddities reel in more slowly · 3 Fight modifier audit · 3b Even shadow when the hooked fish faces the other way (director, 2026-11-21: the one-tone shadow rule, also for a fish turned away while taking line) | 1: tension keeps building while reeling, temper drops fast when not; full temper = rapid fight actions using much less fight; easing up drops tension steadily (slower during a fight action); reeling during a fight action drains fight faster (not during a jump toward you); hidden states between actions: still, or swimming toward you (reel 25-50% faster, 0.25-3 s, shorter for rarer fish); tired fish reel 10-60% faster by rarity (mythic 10, legendary 20, rare 30 …); second winds 1 for all, +1 rare/epic, +2 legendary/mythic, later ones on 50/50 flips after 5 / 3 / 1 s, a legendary/mythic's 3rd doubles the waits and gives 25% fight; dives = 1/3 of runs where they exist; perfect hooks back to their former glory. 2: easing for rarer oddities. 3: every source of tension, reel speed and temper changes makes a real difference. **Cam's answers and extra notes (dives 5-20 s, "Careful" message, fight speed, spool cap 200): "Cam's answers" below** | none (Cam answered 2026-11-21) |
