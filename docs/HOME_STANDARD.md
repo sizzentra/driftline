@@ -51,3 +51,15 @@ Before any piece of art is drawn:
 
 ## Checked by tools (to build with it)
 - Every home fills every part of the format; 6 features (7 where a part splits in two), light and seat included; every style draws with every colour; pets and the angler stand on the surface; the home picture is repainted only on a change.
+
+## The Rockies standard for homes (director, 2026-11-23: the log cabin is the new standard)
+Reference: the Canadian Rockies log cabin (src/cw_homes.js `hfMake('rockies')`, docs/reviews/rockies.md).
+- **One base building per water** that fits its theme (the Rockies: a log cabin). The choices change aspects of it (walls, roof, chimney, porch, door, windows, seat), never swap it for a different concept or add loose props. Every option is a real-life choice for that place; a choice never mixes two parts (door and windows are two parts).
+- **Colours real ones come in,** per part and per style (`pal`, `palS`); a style is never named after a colour; seats too (`seatPal`).
+- **Proportions:** the building is wide (at least 2.9 times as wide as its walls are tall), walls about 1.3 times the angler's height; on narrow screens it runs on past the screen edge instead of squeezing.
+- **It belongs to the place:** it connects to the land (a bank or shore behind, a ledge or footing under it), never a box floating in the water.
+- **Built, not drawn:** real foundations; posts meet the deck's underside, braced, strapped, wet at the waterline, carrying straight on under the water; no gaps anywhere (log ends, corners, posts, deck, bank, water); a stone base reaches under the log ends.
+- **Front to back as you would see it:** a rail stands in front of the angler, the chair and the pets; a porch roof is in the roof's material and shades the wall, so it reads as a roof.
+- **Details are real:** chimneys keep their stones inside the stack, a stovepipe has joints, a collar and a cap; a sod roof has bark, turf and a turf log; flowers have petals; the chair's parts all join.
+- **Living:** windows glow at night, the chimney smokes, the resting rod never crosses a cover, the seat sits at the deck's edge close to the water.
+- **Checked in every combination:** `__hfAll` (every style pair of the parts that touch and every colour of every style, fishing and resting) and `__hfOne` at full size, phone and PC, day and night.

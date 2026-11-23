@@ -66,3 +66,30 @@ Every object on a map has exactly one placement type, and its type decides its r
 ## Checked by tools
 - **Built (`__mapQC`, bn_qa04.js; sweep part Maps, phone build and PC):** draws at dawn, day, dusk and night and in every weather without errors; at least 3 moving things and life after dark listed per water (`MAP_STD`); the moment every 20–60 s and visibly on screen (frames outside its window make an envelope of normal motion; the frame inside it must clearly break out); frame cost at most 3.2× the median water (rule 13's ceiling, set 2026-11-21 just above today's heaviest smooth water). Midnight Deep's moment is judged by eye (the whole view rocks and its rain never stops).
 - Not a tool yet (judged by the director and Cam from pictures): nothing over the fishing area, reflections under objects on the water, no empty strips between layers, the rest of rules 15–21.
+
+## The Rockies standard (director, 2026-11-23: "Canadian Rockies is our most polished map, the new standard for all maps")
+Every water is brought up to this, in its own theme. Reference: the Canadian Rockies (src/w_rockies.js; how it got there: docs/reviews/rockies.md, rounds 1-4).
+**Start from the real place.** Read the water's MAP_THEMES entry and look at real reference pictures of the place before drawing; nothing goes in that doesn't belong there (no birches at Lake Louise), nothing iconic of the place is missing.
+**Landforms**
+- Natural outlines from noise, never plain triangles, zebra stripes, teeth or tents; each water its own landforms (nothing recycled).
+- Layered depth: a far range, a nearer range, framing slopes at the sides, a band of forest or land at their foot, haze between the layers.
+- Rock texture that fits the geology (the Rockies' limestone strata), blended at its edges, never hard-edged stripes or stickers; light from one side, shade consistent across rock and snow.
+- Snow and similar fields end raggedly, never in hanging teeth, stair steps or floating ovals; no hair-thin vertical lines, no floating patches, no stray triangles.
+**Plants**
+- Species that grow there, drawn in detail (tiers of branches, a trunk, a lit side), varied heights, never an even row of the same shape.
+**Shore and water**
+- A thin, natural shoreline (grass, shrubs, boulders, a wet edge) unless the place really has a beach.
+- Where the water is clear, its floor shows only in the near shallows and drops away to deep water, so fights happen over the deep; it fades in, no edge.
+- Anything standing in the water sits in it: its underwater part takes the water's colour, a bright line rings it at the surface, reeds and posts carry on faintly below.
+- Water always comes from somewhere: a waterfall is fed by a stream from the land, realistic from a distance (hidden in a forested ravine, glimpsed where it cascades, open just before the lip).
+- Effects never run across solid things (the glitter is drawn under the beaver dam).
+**Life**
+- Animals and people never pop in or out: they enter and leave off-screen, behind something or under the water, with ripples and splashes; they stand on real surfaces (the beaver on its dam top), their parts join (the otter's neck), their paths never pass through rocks or logs.
+- An animal gets a corner with things to use (the otter: a fallen log to dive by, a boulder to climb, sedges that part as it passes).
+- People have routines (the canoeist paddles home at dusk, walks in through his door, comes out at dawn); repeating life varies (each goose flock flies a different formation).
+**Time and light**
+- Dusk tints, night dims everything (bright rock and foliage too), windows glow, chimneys smoke.
+**Play and speed**
+- Fights never leave the screen; heavy still detail is kept as its own cached picture (lake floor, near corners, dam) so light changes don't repaint it.
+**Checked with pictures, by Claude, before the director sees it**
+- Full-size pictures at dawn, day, dusk and night and in weather, phone (956×440) and PC (1920×1080); crops of every detail; `__timeSheet` for every moving animal and person through its whole loop; compared against the reference pictures and the director's earlier notes.

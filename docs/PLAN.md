@@ -494,4 +494,25 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
    - Candy Maker: +1% per rank for a higher-rank nibble on a successful scrap; up to rank 10.
    - Cooler: the sell-by-rarity menu closes while hovering Rare and below.
    - Cooler: filters don't work; the shiny and hybrid sell toggles don't work.
-3. Rockies music listening page. 4. Willow Pond (one water, published alone). 5. Wisdom Pearls lost on a new save's first reload. 6. Proposals page for game notes 2-9 (prestige, boons, progress unlocks, gold only from bounties, PC Aquarium). 7. Stonebrook if time. Then the final full check and a morning report.
+3. Rockies music listening page. 4. Wisdom Pearls lost on a new save's first reload. 5. Proposals page for game notes 2-9 (prestige, boons, progress unlocks, gold only from bounties, PC Aquarium). 6. **The map batches below, one water per batch, each published on its own,** as far as the night allows. Then the final full check and a morning report.
+### Map batches to the Rockies standard (director, 2026-11-23: "1 map = 1 batch… one at a time thoroughly")
+Each batch: analyse the map and home (pictures at every time and weather, phone and PC), bring both to the Rockies standard (CLAUDE.md, MAP_STANDARD, HOME_STANDARD), check every home option and combination and every moving thing with pictures, write docs/reviews/<water>.md, publish that one water to the test builds. Base buildings proposed from each water's MAP_THEMES "Home direction" (Feel calls for the director):
+1. **Willow Pond:** a cedar boathouse on the dock: siding, roof, lantern, porch rail, door, windows, seat (respect PLAN › Willow Pond home notes).
+2. **Stonebrook River:** a stone-footed mill shed with its waterwheel: walls, roof, waterwheel, chimney, door, windows, seat.
+3. **Cherry Blossom Lake:** a tea house on the water: roof (tiles, thatch, copper), walls (shoji, lattice, plaster), lanterns, veranda rail, door, seat.
+4. **Saltmarsh Coast:** a bait shack at the end of a pier: siding, roof, lamp, pilings, door, windows, seat.
+5. **Frostbite Lake:** an ice-fishing hut on the ice: walls, roof with snow, stovepipe, runners, door, windows, seat.
+6. **Coral Shallows:** a thatched beach hut on stilts: walls, thatch roof, hammock rail, stilts, door, windows, seat.
+7. **Florida Keys:** a flats skiff (floats): hull, T-top, console, poling platform, cooler, seat.
+8. **Brine Shelf:** a sport-fishing boat's stern (floats): hull, flybridge, outriggers, rail, lights, fighting chair.
+9. **Amazon Rainforest:** a riverside stilt house (palafito): walls, steep roof, lashed stilts, hammock, door, windows, seat.
+10. **Midnight Deep:** a trawler's work deck (floats): hull, wheelhouse, net drum, floodlights, rail, seat.
+11. **Hollow Trench:** a salvaged raft home (floats): deck, sail roof, lantern pole, barrels, door, seat.
+12. **Ember Springs:** a hot-spring bathhouse on basalt: walls, iron roof, lanterns, steaming pool edge, door, seat.
+13. **Starfall Lake:** a crystal pavilion: pillars, moon canopy, star lantern, rail, door, seat.
+14. **Animal Farm:** a red barn boathouse: siding, roof, hay loft door, lantern, rail, seat.
+15. **The Buffet:** a gingerbread house on a platter: walls, icing roof, candle lantern, wafer posts, door, seat.
+16. **Corporate Pond:** an office pavilion on steel posts: glass walls, awning, desk lamp, rail, door, office chair.
+17. **The Nile:** a papyrus reed boat (floats): hull, linen sail or awning, lotus lamp, cabin, oars, seat.
+18. **Circuit Lake:** a hover pad pavilion: hull plates, holographic canopy, neon sign, lights, door, gaming chair.
+19. **Mount Olympus:** a marble temple porch: columns, pediment roof, brazier, steps, doors, throne.
