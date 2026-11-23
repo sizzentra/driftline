@@ -114,10 +114,6 @@ const WA_TORO=[.21,.31,.53,.66];
 // with a stone chimney and porch, the Canadian flag on its pole; fireweed on the shore; crystal-clear water with rocks and weeds on the
 // bottom; clear, starry nights with the Milky Way.
 const WA_FALL={x:.815, top:.075}; /* waterfall: its x, and how far above the horizon it starts (in H) */
-function waBirch(c,x,base,h,P,seed){ const r=v3rng(seed), bark=mix('#f0ece4',P.back,.25+P.night*.55), leaf=mix('#9ac04a',P.back,.3+P.night*.45); c.fillStyle=bark; c.fillRect(x-h*.02,base-h*.72,h*.04,h*.72);
-  c.fillStyle=mix('#2a2a2a',P.back,.3); for(let k=0;k<5;k++) c.fillRect(x-h*.02,base-h*(.1+k*.12),h*.024,h*.012);
-  c.fillStyle=leaf; c.beginPath(); for(let k=0;k<9;k++){ const bx=x+(r()-.5)*h*.32, by=base-h*(.6+r()*.34), br=h*(.07+r()*.06); c.moveTo(bx+br,by); c.arc(bx,by,br,0,7); } c.fill();
-  c.fillStyle=v3rgba(mix(leaf,'#ffffff',.35),.55); c.beginPath(); for(let k=0;k<4;k++){ const bx=x+(r()-.3)*h*.2, by=base-h*(.75+r()*.18), br=h*.05; c.moveTo(bx+br,by); c.arc(bx,by,br,0,7); } c.fill(); }
 function waCabin(c,x,b,s,P){ const k=P.night*.55, log=mix('#8a5432',P.front,k), logL=mix('#9a6440',P.front,k), roof=mix('#3a3430',P.front,k*.8), roofL=mix(roof,'#ffffff',.15), stone=mix('#8a8a90',P.front,k), endC=mix('#d8b080',P.front,k), w=s*12, h=s*5.4, fl=b-s*.8;
   c.fillStyle=mix(log,'#000000',.3); c.fillRect(x-s*2,fl,w+s*4,s*.8);
   c.fillStyle=stone; c.fillRect(x+w*.74,fl-h-s*6,s*1.6,s*6+h*.5); c.fillStyle=mix(stone,'#000000',.25); for(let i=0;i<3;i++) c.fillRect(x+w*.74+(i%2)*s*.6,fl-h-s*5.6+i*s*.9,s*.9,s*.25); c.fillRect(x+w*.74-s*.2,fl-h-s*6.2,s*2,s*.4); /* the stone chimney stands behind the roof and rises above its ridge, never across the cabin's front (director, 2026-11-23) */

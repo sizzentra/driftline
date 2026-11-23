@@ -3,6 +3,14 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Canadian Rockies, from your latest notes: the lake floor now shows only in the shallows near you and drops away into deep water, so fights happen out over the deep.',
+  'The otter’s head joins its body when it sits on the rock, and it swims in above the boulder and the log instead of through them.',
+  'The rocks, the log and the reeds in the near corners sit in the water: their underwater parts take the water’s color and a bright line rings them at the surface.',
+  'Your cabin’s chimney smokes; the stone base reaches out under the log ends so the corners line up; the bank under the cabin is one grassy slope with moss, ferns and stones; the Muskoka chair’s parts all join.',
+  'Geese fly over in different flocks each time: V, lopsided V, a single line or a loose skein, either way across.',
+  'The canoeist pulls up his canoe at dusk, walks to his cabin and goes in; at dawn he walks back out.',
+  'The waterfall now has a source: a mountain stream winds down the forested slope from a snowfield, white over its rapids, and pours over the cliff. The beaver sits on its dam. The blue glacier on the mountain and the birches are gone (they don’t belong at this lake).',
+  '## Test build 2026.11.23-0053',
   'Fishing feel: Middle is now the game’s feel for everyone (Cam: “the one for sure”). Your Feel lab settings start fresh on Middle.',
   'Temper builds much faster the longer you keep reeling and cools faster the longer you ease off, and the hotter the fish, the harder its moves pull the line tight.',
   'Two kinds of runs: darting runs are short sharp bursts that zigzag (let them go and the fish tires itself), long runs pull steadily for several seconds (short pulls in rhythm win line back and build your combo).',

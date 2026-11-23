@@ -170,7 +170,7 @@ ui(){ QA.sys='UI';
     return e.length?{ok:false,detail:e.join(' | ')}:{ok:true,detail:'ok'}; });
   T('fight pass: with the best gear a top mythic takes 30–60 s, never letting go loses almost every legendary and mythic fish (Cam: tension always matters, but no instant snaps), voyages make fish harder up to a cap',()=>{ const e=[], MAX=[9,10,11,6,9,5], last=LOCS[LOCS.length-1].id;
     const m=(l)=>{ const x=l.match(/: (\d+)% in ([\d.]+|-)s/); return x?{p:+x[1],t:x[2]==='-'?null:+x[2]}:{p:0,t:null}; };
-    const a=__fightSim({tides:0, places:[[last,80,MAX,'starrod']], rars:[4,5], players:[['watcher',.18,82],['holder',0,999]], N:24}); /* 24: at 16 the mythic rate swung 69-87% between runs (batch 1) */
+    const a=__fightSim({tides:0, places:[[last,80,MAX,'starrod']], rars:[4,5], players:[['watcher',.18,82],['holder',0,999]], N:36}); /* 36: at 16 the mythic rate swung 69-87% between runs (batch 1), at 24 a run fell to 67% (2026-11-23) */
     const myth=m(a[2]), mythH=m(a[3]), legH=m(a[1]); if(myth.p<70) e.push('mythic landed only '+myth.p+'%'); if(myth.t==null||myth.t<30||myth.t>60) e.push('mythic took '+myth.t+' s'); if(mythH.p>10||legH.p>20) e.push('holding the reel landed legendary '+legH.p+'% / mythic '+mythH.p+'%');
     /* voyages: both runs get the same random sequence, so only the voyage boost differs (batch 1: the Second-wind flips made two free runs swing past each other) */
     /* measured directly (landing times only count the fish that were landed, so a harder fish could look faster): one second of steady

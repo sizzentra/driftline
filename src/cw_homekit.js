@@ -309,11 +309,13 @@ const HK = {
       case 'campchair': { const w=14*s; HK.line(o,[x-w/2,y,x+w/2,top,x+w/2,y,x-w/2,top],metal,1.4*s); HK.ell(o,x,top+1,w*.5,1.6*s,c); back(x-w*.5,14*s,c,.12); break; }
       case 'logbench': case 'driftbench': { const w=24*s; HK.rect(o,x-w*.38,top,3.4*s,sh,d); HK.rect(o,x+w*.38-3.4*s,top,3.4*s,sh,d); HK.rect(o,x-w/2,top,w,3.6*s,c); HK.circ(o,x+w/2-1,top+1.8*s,1.6*s,lt); break; }
       case 'deckchair': { const w=16*s; legs(w); HK.rect(o,x-w/2,top-1.6*s,w,2.6*s,c); back(x-w*.45,16*s,c,.42); HK.rect(o,x-w*.5,top-7*s,w*.9,1.8*s,d); break; }
-      case 'muskoka': { /* a Muskoka (Adirondack) chair from the side, facing the water: the long side stringer from the back foot to the seat's front, the seat sloping back, the tall slatted back leaning far back, the wide flat arm on its front leg */
-        HK.line(o,[x-9*s,y,x+7*s,top+2*s],d,2.4*s); HK.rect(o,x+5*s,y-16*s,2.4*s,16*s,c); HK.rect(o,x-6.4*s,y-16*s,2*s,10*s,d);
-        HK.line(o,[x+7.5*s,top,x-4*s,top+3*s],c,2.6*s); HK.line(o,[x-3.5*s,top+3*s,x-12*s,top-20*s],d,3.6*s); HK.line(o,[x-3*s,top+2.5*s,x-11.4*s,top-20.4*s],c,2.6*s); HK.circ(o,x-11.6*s,top-20.6*s,1.5*s,c);
-        for(const k of [.3,.6]) HK.line(o,[x-3.5*s-8.5*s*k,top+3*s-23*s*k-1.2*s,x-3.5*s-8.5*s*k+1.6*s,top+3*s-23*s*k+.6*s],d,.7*s); /* slat joints */
-        HK.rect(o,x-8*s,y-17.2*s,17.5*s,2*s,lt); HK.rect(o,x-8*s,y-15.4*s,17.5*s,.7*s,d); HK.poly(o,[x+5*s,y-15.2*s,x+8*s,y-15.2*s,x+5*s,y-12*s],d); break; } /* the arm and its bracket */
+      case 'muskoka': { /* a Muskoka (Adirondack) chair from the side, facing the water, every part joined (director, 2026-11-23: "the new chair isn't connected"): the back leg and the front leg carry the wide arm; the side rail runs from the back foot up to the front leg; the seat slats lie on the rail; the tall back rests on the seat's back end and leans back past the arm */
+        HK.line(o,[x-7*s,y,x-6*s,y-16.5*s],d,2*s); /* back leg (far side) */
+        HK.line(o,[x-3*s,y-9.6*s,x-10.5*s,y-31*s],d,4*s); HK.line(o,[x-2.6*s,y-9.8*s,x-10*s,y-31*s],c,2.8*s); HK.circ(o,x-10.3*s,y-31.2*s,1.6*s,c); for(const k of [.3,.6]) HK.line(o,[x-2.8*s-7.3*s*k-1.2*s,y-9.8*s-21.2*s*k,x-2.8*s-7.3*s*k+1.4*s,y-9.8*s-21.2*s*k+.5*s],d,.7*s); /* the slatted back */
+        HK.line(o,[x-8.5*s,y,x+6*s,y-12*s],d,2.6*s); /* the side rail, foot to front leg */
+        HK.line(o,[x+6.5*s,y-12.6*s,x-3*s,y-10*s],c,2.6*s); /* the seat slats on the rail */
+        HK.rect(o,x+4.8*s,y-16*s,2.4*s,16*s,c); /* front leg */
+        HK.rect(o,x-7.5*s,y-17.6*s,17*s,2*s,lt); HK.rect(o,x-7.5*s,y-15.8*s,17*s,.7*s,d); HK.poly(o,[x+4.8*s,y-15.6*s,x+8.4*s,y-15.6*s,x+4.8*s,y-12.4*s],d); break; } /* the wide arm on both legs, and its bracket */
       case 'stump': HK.block(o,x-6*s,top,12*s,sh,c); HK.ell(o,x,top,6*s,1.6*s,lt); break;
       case 'stumpblanket': { const bark='#5a4232', barkD='#3e2c20', wood='#c8a070'; /* a spruce stump with root flares and a wool point blanket folded over it */
         HK.poly(o,[x-9*s,y,x-6.5*s,y-2.5*s,x-6*s,top,x+6*s,top,x+6.5*s,y-2.5*s,x+9*s,y],bark); o.x.strokeStyle=HK.n(o,barkD); o.x.lineWidth=Math.max(.7,.6*s); o.x.beginPath(); for(let i=0;i<5;i++){ const bx=x-5*s+i*2.5*s; o.x.moveTo(bx,top+1.5*s); o.x.lineTo(bx+(i-2)*.4*s,y-1); } o.x.stroke();

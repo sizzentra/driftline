@@ -371,7 +371,7 @@ function draw(now){
   if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   drawPetScene(pax,pay,sc,t,night);
-  if(L.id==='rockies'&&HOMEF.rockies) rkFront(night); /* a home's front edge in front of the angler (the cabin's porch rail) */
+  if(L.id==='rockies'&&HOMEF.rockies){ rkFront(night); rkSmoke(night,t); } /* a home's front edge in front of the angler (the cabin's porch rail) */
   if(fishNew()) feelDraw(t); /* Feel lab: hook flash, perfect-pull ring, pop-ups, combo (c2_fightfeel.js) */
   if(HOMEF[L.id]) HF_LAST={ax,ay,sc,hx,hy,t,rodA,night,sit:RP?RP.sit:null,rim:PV?PV.rim:null,glow:PV?PV.glow:null,tx,ty,pax,pay,ten:G.st==='reeling'?G.ten:0}; /* where the angler, rod and pets were drawn: the Home close-up redraws them sharp */
   let lp=null;

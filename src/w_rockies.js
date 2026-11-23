@@ -35,10 +35,7 @@ function rkRange(x,R,base,o){ const ys=R.ys, N=ys.length, top=Math.min(...ys), t
   const sTop=Math.min(...ys), sg=x.createLinearGradient(0,sTop,0,base); sg.addColorStop(0,o.shade); sg.addColorStop(.6,o.shade); sg.addColorStop(1,'rgba(24,34,74,.06)'); /* the shade fades toward the foot, so its edges never run as lines to the bottom */
   x.fillStyle=sg; x.beginPath(); for(let i=1;i<N;i++){ if(!(ys[i]>ys[i-1])) continue; let j=i; while(j+1<N&&ys[j+1]>=ys[j]) j++; const pk=i-1, vy=ys[j], dx=(R.at(j)-R.at(pk)); if(vy-ys[pk]<H*.012||dx<W*.008){ i=j; continue; } /* only real faces cast shade: tiny steps made hair-thin shadows that ran down as lines (director) */
       x.moveTo(R.at(pk),ys[pk]); for(let k=pk;k<=j;k++) x.lineTo(R.at(k),ys[k]); x.quadraticCurveTo(R.at(j)+dx*.08,(vy+base)/2,R.at(j)-dx*.15,base); x.lineTo(R.at(pk)+dx*.28,base); x.quadraticCurveTo(R.at(pk)+dx*.05,(ys[pk]+base)/2,R.at(pk),ys[pk]); x.closePath(); i=j; } x.fill();
-  if(o.glacier){ const G2=o.glacier, i0=Math.round((W*G2[0]-R.at(0))/R.step), i1=Math.round((W*G2[1]-R.at(0))/R.step), tongue=base-H*G2[2], ice=o.ice, blue=o.iceBlue; /* a glacier filling the saddle, its top the ridge itself, flowing down to a blue ice front */
-    x.fillStyle=ice; x.beginPath(); x.moveTo(R.at(i0),ys[i0]); for(let i=i0;i<=i1;i++) x.lineTo(R.at(i),ys[i]+1); const mx=(R.at(i0)+R.at(i1))/2, hw=(R.at(i1)-R.at(i0))/2; x.quadraticCurveTo(mx+hw*.5,tongue-H*.03,mx+hw*.18,tongue); x.quadraticCurveTo(mx,tongue+H*.008,mx-hw*.2,tongue); x.quadraticCurveTo(mx-hw*.55,tongue-H*.04,R.at(i0),ys[i0]); x.closePath(); x.fill();
-    x.fillStyle=blue; x.beginPath(); x.moveTo(mx-hw*.2,tongue); x.quadraticCurveTo(mx,tongue+H*.008,mx+hw*.18,tongue); x.lineTo(mx+hw*.17,tongue+H*.012); x.quadraticCurveTo(mx,tongue+H*.02,mx-hw*.19,tongue+H*.012); x.closePath(); x.fill();
-    x.strokeStyle=v3rgba(blue,.55); x.lineWidth=1; for(let k=1;k<6;k++){ const yy=tongue-(tongue-Math.max(ys[i0],ys[i1]))*k/6, ww=hw*(.25+.12*k); x.beginPath(); x.moveTo(mx-ww,yy); x.quadraticCurveTo(mx,yy+H*.008,mx+ww,yy); x.stroke(); } }
+  /* (no glacier: its pale blue sheet read as a blue patch on the mountain, director 2026-11-23) */
   /* (the thin gully strokes are gone: they read as cracks or wires, director 2026-11-22) lit edges along the big ridges */
   x.strokeStyle=o.rim; x.lineWidth=Math.max(1,H*.0018); x.beginPath(); for(let i=1;i<N;i++){ if(ys[i]<ys[i-1]){ x.moveTo(R.at(i-1),ys[i-1]+.5); x.lineTo(R.at(i),ys[i]+.5); } } x.stroke();
   const hg=x.createLinearGradient(0,base-(base-Math.min(...ys))*.55,0,base); hg.addColorStop(0,v3rgba(o.haze,0)); hg.addColorStop(1,v3rgba(o.haze,o.hazeA)); x.fillStyle=hg; x.fillRect(0,base-H*.4,W,H*.4+1);
@@ -69,9 +66,21 @@ function rkSpruce(x,X,base,h,col,rim,rimA,seed){ const r=v3rng(seed||1), n=6+(se
    after the stones of Lake Louise): rounded stones in tan, rust, grey and cream, small and lost in the turquoise far out, big and clear near
    you, each with its shadow and a lit top. Built once per screen size into its own picture and laid into the scenery (it would otherwise be
    repainted at every light step); at night it fades into the dark water */
+/* the stream that feeds the waterfall (director, 2026-11-23: "the water is flowing from a place that clearly isn't defined… maybe a river
+   from the hills"): it comes down from the rock band high on the right mountainside, winding through the forest in its own gully, widening as
+   it goes, white over the rapids, and pours over the cliff's lip as the falls */
+function rkStreamPts(hz){ return [[.915,.112],[.9,.104],[.906,.097],[.884,.091],[.866,.086],[.845,.082],[WA_FALL.x+.006,WA_FALL.top+.002]].map(([x,y])=>[W*x,hz-H*y]); }
+function rkStream(x,P,hz){ const pts=rkStreamPts(hz), n=pts.length, nk=P.night, gul=mix(mix('#14261c',P.back,.3),'#060c0c',nk*.9), wat=mix(mix('#cfe8ee',P.wTop||'#7ac8d0',.35),'#28385a',nk*.6), foam=mix('#ffffff','#5a6a8a',nk*.55), md=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  /* realistic from across a lake (director: the ribbon "doesn't look realistic at all"): the stream is hidden in a forested ravine, a soft
+     shadow through the trees; it shows only where it tumbles over steps, and in its last open run to the cliff's lip */
+  const seg=(i,col,w)=>{ const a=i===1?pts[0]:md(pts[i-1],pts[i]), b=i===n-1?pts[n-1]:md(pts[i],pts[i+1]); x.strokeStyle=col; x.lineWidth=Math.max(1,w); x.beginPath(); x.moveTo(a[0],a[1]); x.quadraticCurveTo(pts[i][0],pts[i][1],b[0],b[1]); x.stroke(); };
+  x.lineCap='round'; x.save(); x.globalAlpha=.3; for(let i=1;i<n;i++) seg(i,gul,W*(.004+.006*i/(n-1))); x.globalAlpha=.6; for(let i=1;i<n;i++) seg(i,gul,W*(.0015+.003*i/(n-1))); x.restore(); /* the ravine, soft at its edges */
+  for(const [i,len] of [[2,.008],[4,.01]]){ const [X,Y]=pts[i]; x.strokeStyle=wat; x.lineWidth=Math.max(1,W*.0018); x.beginPath(); x.moveTo(X-W*.002,Y-H*len*.4); x.lineTo(X+W*.001,Y+H*len*.6); x.stroke(); x.fillStyle=v3rgba(foam,.7); x.beginPath(); x.ellipse(X+W*.001,Y+H*len*.6,W*.003,H*.002,0,0,7); x.fill(); } /* cascades glimpsed between the trees */
+  seg(n-2,wat,W*.0028); seg(n-1,wat,W*.004); x.strokeStyle=foam; x.lineWidth=1; x.beginPath(); { const [X,Y]=pts[n-2]; x.moveTo(X-W*.003,Y); x.lineTo(X+W*.002,Y-1); } x.stroke(); x.lineCap='butt'; /* the open run to the lip */
+  const r=v3rng(77), tc=mix(mix('#24402e',P.back,.3),'#0a1410',nk*.9); for(let i=0;i<n-1;i++){ const [X,Y]=pts[i]; for(const sd of [-1,1]){ if(r()<.25) continue; rkSpruce(x,X+sd*W*(.003+r()*.004),Y+H*(.01+r()*.006),H*(.024+r()*.014),tc,P.rim,.18*(1-nk),i*7+(sd>0?3:1)); } } } /* spruces on its banks, in front of the ravine */
 let rkBedC=null;
 function rkLakebed(x,P,hz){ const DL=Math.min(DPR||1,2), key=W+'x'+H+':'+hz+':'+DL;
-  if(!rkBedC||rkBedC.key!==key){ const y0=hz+H*.16, c=document.createElement('canvas'); c.width=Math.ceil(W*DL); c.height=Math.ceil((H-y0)*DL); const q=c.getContext('2d'); q.scale(DL,DL); q.translate(0,-y0);
+  if(!rkBedC||rkBedC.key!==key){ const y0=hz+(H-hz)*.52, c=document.createElement('canvas'); c.width=Math.ceil(W*DL); c.height=Math.ceil((H-y0)*DL); const q=c.getContext('2d'); q.scale(DL,DL); q.translate(0,-y0);
     const r=v3rng(73), lake='#2a8a96', cols=['#b8a078','#a86a48','#8e8c86','#d4c8a8','#8a8a62','#6e6a64','#c49a6a','#9a8a7a'];
     const sb=q.createLinearGradient(0,y0,0,H); sb.addColorStop(0,'rgba(200,184,144,0)'); sb.addColorStop(1,'rgba(200,184,144,.3)'); q.fillStyle=sb; q.fillRect(0,y0,W,H-y0); /* a pale bed between the stones, clearer toward you */
     for(let y=y0;y<H+H*.06;){ const k=clamp((y-hz)/(H-hz),0,1), s=H*(.0045+.052*Math.pow(k,1.8)), ry=s*.55, tint=.93-k*.55, al=.12+k*.6;
@@ -82,8 +91,9 @@ function rkLakebed(x,P,hz){ const DL=Math.min(DPR||1,2), key=W+'x'+H+':'+hz+':'+
         q.fillStyle=v3rgba(mix(base,'#000000',.3),al*.6); q.beginPath(); q.ellipse(sx+rx*.15,sy+rr*.3,rx*.8,rr*.55,0,0,Math.PI); q.fill(); /* the underside in shade */
         q.fillStyle=v3rgba(mix(base,'#fffaf0',.45),al*.55); q.beginPath(); q.ellipse(sx-rx*.22,sy-rr*.35,rx*.42,rr*.22,-.15,0,7); q.fill(); } /* the lit top */
       y+=ry*1.2; }
-    const sh=q.createLinearGradient(0,y0,0,H); sh.addColorStop(0,v3rgba(lake,.6)); sh.addColorStop(.4,v3rgba(lake,.25)); sh.addColorStop(1,v3rgba(lake,.1)); q.fillStyle=sh; q.fillRect(0,y0,W,H-y0); q.globalCompositeOperation='destination-in'; { const fm=q.createLinearGradient(0,y0,0,y0+H*.24); fm.addColorStop(0,'rgba(0,0,0,0)'); fm.addColorStop(1,'rgba(0,0,0,1)'); q.fillStyle=fm; q.fillRect(0,y0,W,H-y0); } q.globalCompositeOperation='source-over'; /* it fades in from the deep water, no edge */ /* the water over it, deeper and greener far out */
+    const sh=q.createLinearGradient(0,y0,0,H); sh.addColorStop(0,v3rgba(lake,.6)); sh.addColorStop(.4,v3rgba(lake,.25)); sh.addColorStop(1,v3rgba(lake,.1)); q.fillStyle=sh; q.fillRect(0,y0,W,H-y0); q.globalCompositeOperation='destination-in'; { const fm=q.createLinearGradient(0,y0,0,y0+H*.09); fm.addColorStop(0,'rgba(0,0,0,0)'); fm.addColorStop(1,'rgba(0,0,0,1)'); q.fillStyle=fm; q.fillRect(0,y0,W,H-y0); } q.globalCompositeOperation='source-over'; /* it fades in from the deep water, no edge */ /* the water over it, deeper and greener far out */
     rkBedC={key,c,y0}; }
+  { const dy=rkBedC.y0, dg=x.createLinearGradient(0,dy-H*.06,0,dy+H*.03); dg.addColorStop(0,v3rgba(P.wBot||'#0a3040',0)); dg.addColorStop(.7,v3rgba(P.wBot||'#0a3040',.28)); dg.addColorStop(1,v3rgba(P.wBot||'#0a3040',0)); x.fillStyle=dg; x.fillRect(0,dy-H*.06,W,H*.09); } /* the shelf drops into deep water: fights happen out over the deep, the stones show only in the shallows near you (director, 2026-11-23: "make it cut deeper earlier") */
   x.save(); x.globalAlpha=1-P.night*.82; x.drawImage(rkBedC.c,0,rkBedC.y0,W,H-rkBedC.y0); x.restore(); }
 /* the beaver dam and its lodge by the waterfall, kept as one small picture and drawn after the water's glitter, so the sparkle never runs
    across the sticks (director, 2026-11-23: "the water effects collide with it") */
@@ -95,21 +105,22 @@ function rkDams(P,hz){ const DL=Math.min(DPR||1,2), key=W+'x'+H+':'+hz+':'+DL+':
     rkDamC={key,c}; }
   g.drawImage(rkDamC.c,ox,oy,cw,ch); }
 const rkCan={n:0,dir:1}; /* the canoeist's heading: home as the night deepens, out again at dawn */
+/* the canoeist on foot, small on the far shore: a walking stride, his cap and jacket as in the canoe; a = how much of him shows (he fades
+   only as he steps through the cabin door) */
+function rkWalker(x,y,s,P,t,a,dir){ const N=c0=>mix(c0,P.front,P.night*.55), st=Math.sin(t*7); g.save(); g.globalAlpha=a; g.translate(x,y); g.scale(dir,1);
+  g.strokeStyle=N('#2a2e36'); g.lineWidth=Math.max(1,s*.7); g.beginPath(); g.moveTo(0,-s*3); g.lineTo(st*s*1.2,0); g.moveTo(0,-s*3); g.lineTo(-st*s*1.2,0); g.stroke();
+  g.fillStyle=N('#3a4048'); g.beginPath(); g.ellipse(0,-s*4.6,s*1,s*1.8,0,0,7); g.fill(); g.fillStyle=N('#c8987a'); g.beginPath(); g.arc(s*.1,-s*7,s*.75,0,7); g.fill(); g.fillStyle=N('#5a4a3a'); g.fillRect(-s*.8,-s*7.8,s*1.8,s*.45); g.fillRect(-s*.4,-s*8.3,s*1,s*.6); g.restore(); }
 /* the otter's corner (director, 2026-11-23: "move it to the bottom left of the fishing scene, give its paths more dynamic, and give it
    scenery/greenery to interact with"): a mossy fallen spruce half in the water, two boulders and a bed of sedges near you. A river otter swims in
    from off the left edge, dives by the log and glides under the clear water with a trail of bubbles, surfaces with a crayfish and eats it
    floating on its back, climbs onto the boulder to groom and shake off, slides back in, weaves through the sedges (which part around it) and
    swims off the edge again. It never appears or vanishes in view: it enters and leaves off-screen or under the water, with ripples and splashes */
-function rkOtterNook(P,t){ const nk=P.night, N=c0=>mix(c0,'#0c1420',nk*.55), wy=H*.935, FX=S.settings.effects, per=52, q=(t%per)/per;
-  /* the path: [time, x (of W), y (of H), pose, heading] keyframes; poses: s swim, d dive, u under water, b on its back, r on the rock */
-  const K=[[0,-.06,.95,'s',1],[.1,.12,.93,'s',1],[.15,.17,.925,'d',1],[.17,.19,.93,'u',1],[.27,.31,.955,'u',1],[.29,.33,.95,'s',1],[.31,.33,.95,'b',1],[.47,.36,.945,'b',1],[.5,.37,.95,'s',1],[.55,.385,.955,'s',1],[.57,.39,.94,'r',1],[.72,.39,.94,'r',-1],[.75,.36,.95,'s',-1],[.86,.24,.965,'s',-1],[.9,.2,.96,'u',-1],[1,-.08,.97,'u',-1]];
+function rkOtterNook(P,t){ const nk=P.night, N=c0=>mix(c0,'#0c1420',nk*.55), FX=S.settings.effects, per=52, q=(t%per)/per;
+  /* the path: [time, x (of W), y (of H), pose, heading] keyframes; poses: s swim, d dive, u under water, b on its back, r on the rock.
+     It swims in above the corner boulder and the log, never through them (director, 2026-11-23) */
+  const K=[[0,-.06,.915,'s',1],[.1,.12,.915,'s',1],[.15,.17,.925,'d',1],[.17,.19,.93,'u',1],[.27,.31,.945,'u',1],[.29,.33,.95,'s',1],[.31,.33,.95,'b',1],[.47,.36,.945,'b',1],[.5,.37,.95,'s',1],[.55,.385,.955,'s',1],[.57,.39,.94,'r',1],[.72,.39,.94,'r',-1],[.75,.36,.95,'s',-1],[.86,.24,.93,'s',-1],[.9,.2,.925,'u',-1],[1,-.08,.92,'u',-1]];
   let i=0; while(i<K.length-2&&q>K[i+1][0]) i++; const A=K[i], B=K[i+1], u=clamp((q-A[0])/(B[0]-A[0]),0,1), e=u*u*(3-2*u), ox=W*(A[1]+(B[1]-A[1])*e), oy=H*(A[2]+(B[2]-A[2])*e), pose=A[3], dir=A[4], s=H*.005*(oy/H/.94);
-  /* the boulder it climbs and the log, drawn first; the sedges after the otter where it passes behind them */
-  const rx=W*.39, ry=H*.955; v3rock(g,W*.07,H+H*.01,W*.06,H*.05,P,null,true,41); v3rock(g,rx,ry+H*.03,W*.035,H*.045,P,null,true,42);
-  g.fillStyle=N('#4f6a34'); g.beginPath(); g.ellipse(rx-W*.004,ry-H*.01,W*.018,H*.006,-.1,Math.PI,0); g.fill(); /* moss on the boulder */
-  { const lx0=W*.1, ly0=H*.985, lx1=W*.26, ly1=H*.955, lw=H*.016; g.strokeStyle=N('#5a4630'); g.lineWidth=lw; g.lineCap='round'; g.beginPath(); g.moveTo(lx0,ly0); g.lineTo(lx1,ly1); g.stroke(); g.strokeStyle=N('#7a6244'); g.lineWidth=lw*.35; g.beginPath(); g.moveTo(lx0,ly0-lw*.25); g.lineTo(lx1,ly1-lw*.25); g.stroke();
-    g.strokeStyle=N('#4a3a28'); g.lineWidth=Math.max(1.5,lw*.25); g.beginPath(); g.moveTo(W*.16,H*.974); g.lineTo(W*.17,H*.95); g.moveTo(W*.22,H*.963); g.lineTo(W*.235,H*.94); g.stroke(); g.lineCap='butt'; rkLogMoss(g,N,lx0,ly0,lx1,ly1,lw);
-    g.strokeStyle=v3rgba('#e8f4f0',.25*(1-nk)); g.lineWidth=1; g.beginPath(); g.ellipse((lx0+lx1)/2,(ly0+ly1)/2+lw*.5,W*.085,H*.006,-.19,0,Math.PI); g.stroke(); } /* a fallen spruce, bark and peeled wood, two snapped branches, moss, the water line along it */
+  rkNookStatic(P); /* the boulders, the log and their water lines, kept as one picture */
   const ot=()=>rkOtterDraw(ox,oy,s,pose,dir,t,N);
   if(pose==='u'){ g.save(); g.globalAlpha=.32; ot(); g.restore(); if(FX) for(let k=0;k<4;k++){ const bq=((t*1.6+k*.25)%1); g.strokeStyle=v3rgba('#e8f8ff',.5*(1-bq)); g.lineWidth=1; g.beginPath(); g.arc(ox-dir*s*(4+k*3),oy-s*2-bq*s*8,s*.5,0,7); g.stroke(); } } /* seen gliding under the clear water, bubbles rising behind */
   else if(pose==='r') ot();
@@ -118,9 +129,32 @@ function rkOtterNook(P,t){ const nk=P.night, N=c0=>mix(c0,'#0c1420',nk*.55), wy=
   /* splashes where it dives, surfaces, climbs out and slides in */
   if(FX) for(const [t0,x0,y0] of [[.15,.17,.925],[.29,.33,.95],[.57,.385,.955],[.72,.385,.955]]){ const d=q-t0; if(d>=0&&d<.035){ const k=d/.035; g.strokeStyle=v3rgba('#ffffff',.7*(1-k)); g.lineWidth=1.3; g.beginPath(); g.ellipse(W*x0,H*y0,s*(3+k*12),s*(.8+k*2.5),0,0,7); g.stroke(); g.fillStyle=v3rgba('#ffffff',.8*(1-k)); for(let j=0;j<6;j++){ const a=-Math.PI*(.15+j*.14); g.fillRect(W*x0+Math.cos(a)*s*6*k,H*y0+Math.sin(a)*s*7*Math.sin(k*Math.PI),1.8,1.8); } } }
   if(pose==='r'&&FX&&q<.62){ g.fillStyle=v3rgba('#e8f8ff',.6); for(let j=0;j<3;j++){ const dq=((t*2+j*.33)%1); g.fillRect(ox+(j-1)*s*2,oy+s*2+dq*s*6,1.2,1.6); } } /* drips as it climbs out */
-  /* the sedges: a clump near you that bends with the breeze and parts around the otter as it swims through */
-  for(let j=0;j<16;j++){ const bx=W*(.27+j*.0085)+Math.sin(j*3.7)*W*.004, by=H*(.975+((j*7)%3)*.008), hh=H*(.06+((j*5)%4)*.012), d=(bx-ox)/(s*14), push=Math.abs(oy-by)<H*.05&&Math.abs(d)<1&&pose!=='r'?(1-Math.abs(d))*Math.sign(d||1)*hh*.35:0, sw=Math.sin(t*1.2+j*.9)*H*.004+push;
-    g.strokeStyle=N(j%3?'#4a6a34':'#5e7e3c'); g.lineWidth=Math.max(1.2,H*.0028); g.beginPath(); g.moveTo(bx,by); g.quadraticCurveTo(bx+sw*.3,by-hh*.6,bx+sw,by-hh); g.stroke(); if(j%4===1){ g.fillStyle=N('#6a4a2a'); g.beginPath(); g.ellipse(bx+sw*.95,by-hh*.92,H*.0025,H*.009,0,0,7); g.fill(); } } }
+  /* the sedges: a clump rising out of the water near you; each stem goes on down under the surface, faint, and rings the water where it
+     comes out (director, 2026-11-23: "the reeds aren't flush"); they bend with the breeze and part around the otter as it swims through */
+  const wc=v3rgba('#e8f4f0',.3*(1-nk*.6)); g.lineWidth=1; g.strokeStyle=wc; g.beginPath(); for(let j=0;j<16;j+=3){ const bx=W*(.27+j*.0085)+Math.sin(j*3.7)*W*.004, by=H*(.975+((j*7)%3)*.008); g.moveTo(bx+W*.008,by); g.ellipse(bx,by,W*.008,H*.003,0,0,7); } g.stroke();
+  for(let j=0;j<16;j++){ const bx=W*(.27+j*.0085)+Math.sin(j*3.7)*W*.004, by=H*(.975+((j*7)%3)*.008), hh=H*(.06+((j*5)%4)*.012), d=(bx-ox)/(s*14), push=Math.abs(oy-by)<H*.05&&Math.abs(d)<1&&pose!=='r'?(1-Math.abs(d))*Math.sign(d||1)*hh*.35:0, sw=Math.sin(t*1.2+j*.9)*H*.004+push, sc=N(j%3?'#4a6a34':'#5e7e3c');
+    g.strokeStyle=v3rgba(sc,.35); g.lineWidth=Math.max(1.2,H*.0028); g.beginPath(); g.moveTo(bx,by); g.lineTo(bx-sw*.1,by+H*.03); g.stroke(); /* under the water */
+    g.strokeStyle=sc; g.beginPath(); g.moveTo(bx,by); g.quadraticCurveTo(bx+sw*.3,by-hh*.6,bx+sw,by-hh); g.stroke(); if(j%4===1){ g.fillStyle=N('#6a4a2a'); g.beginPath(); g.ellipse(bx+sw*.95,by-hh*.92,H*.0025,H*.009,0,0,7); g.fill(); } } }
+/* the still parts of the near corners: the boulders, the fallen spruce and the granite at the right, each sitting in the water: the part
+   under the surface takes the water's colour and a bright line rings it where the surface meets it (director, 2026-11-23: "the rocks in the
+   bottom of the screen don't show in the water"). Built once per screen size and light step */
+let rkNookC=null;
+function rkNookStatic(P){ const DL=Math.min(DPR||1,2), y0=H*.82, key=W+'x'+H+':'+DL+':'+Math.round(P.night*12)+':'+P.wMid;
+  if(!rkNookC||rkNookC.key!==key){ const c=document.createElement('canvas'); c.width=Math.ceil(W*DL); c.height=Math.ceil((H-y0)*DL); const q=c.getContext('2d'); q.scale(DL,DL); q.translate(0,-y0);
+    const nk=P.night, N=c0=>mix(c0,'#0c1420',nk*.55), wcol=mix(P.wMid||'#2a8a96',P.wBot||'#0a3040',.4), b=H+2;
+    const lit=1-nk, ring=(x0,x1,y)=>{ q.strokeStyle=v3rgba('#e8f4f0',.4*lit+.08); q.lineWidth=1.2; q.beginPath(); q.ellipse((x0+x1)/2,y,(x1-x0)/2,H*.004,0,0,Math.PI); q.stroke(); };
+    const sink=(x0,x1,y,yb)=>{ q.save(); q.globalCompositeOperation='source-atop'; const gr=q.createLinearGradient(0,y,0,yb); gr.addColorStop(0,v3rgba(wcol,.35)); gr.addColorStop(1,v3rgba(wcol,.8)); q.fillStyle=gr; q.fillRect(x0,y,x1-x0,yb-y); q.restore(); }; /* only over what is drawn: the part under the surface */
+    /* the left boulder */ v3rock(q,W*.06,H+H*.012,W*.055,H*.05,P,null,true,41); sink(0,W*.13,H*.982,H);
+    /* the boulder the otter climbs */ const rx=W*.39, ry=H*.955; v3rock(q,rx,ry+H*.03,W*.035,H*.045,P,null,true,42); q.fillStyle=N('#4f6a34'); q.beginPath(); q.ellipse(rx-W*.004,ry-H*.01,W*.018,H*.006,-.1,Math.PI,0); q.fill(); sink(rx-W*.04,rx+W*.04,H*.972,H);
+    /* the fallen spruce, its lower half under the water */ const lx0=W*.1, ly0=H*.985, lx1=W*.26, ly1=H*.955, lw=H*.016; q.lineCap='round'; q.strokeStyle=N('#5a4630'); q.lineWidth=lw; q.beginPath(); q.moveTo(lx0,ly0); q.lineTo(lx1,ly1); q.stroke(); q.strokeStyle=N('#7a6244'); q.lineWidth=lw*.35; q.beginPath(); q.moveTo(lx0,ly0-lw*.25); q.lineTo(lx1,ly1-lw*.25); q.stroke();
+    q.strokeStyle=N('#4a3a28'); q.lineWidth=Math.max(1.5,lw*.25); q.beginPath(); q.moveTo(W*.16,H*.974); q.lineTo(W*.17,H*.95); q.moveTo(W*.22,H*.963); q.lineTo(W*.235,H*.94); q.stroke(); q.lineCap='butt'; rkLogMoss(q,N,lx0,ly0,lx1,ly1,lw);
+    q.save(); q.globalCompositeOperation='source-atop'; q.fillStyle=v3rgba(wcol,.55); q.beginPath(); q.moveTo(lx0-lw,ly0+lw*.05); q.lineTo(lx1+lw,ly1+lw*.05); q.lineTo(lx1+lw,ly1+lw*2); q.lineTo(lx0-lw,ly0+lw*2); q.closePath(); q.fill(); q.restore();
+    q.strokeStyle=v3rgba('#e8f4f0',.4*lit+.08); q.lineWidth=1.2; q.beginPath(); q.moveTo(lx0-lw*.3,ly0+lw*.08); q.lineTo(lx1+lw*.3,ly1+lw*.08); q.stroke();
+    ring(0,W*.12,H*.982); ring(rx-W*.035,rx+W*.035,H*.972);
+    /* the granite at the right corner, with lichen and moss */ v3rock(q,W*.94,b-H*.03,W*.07,H*.075,P); v3rock(q,W*.995,b-H*.06,W*.05,H*.06,P); q.fillStyle=N('#5a7a3a'); q.beginPath(); q.ellipse(W*.93,b-H*.085,W*.03,H*.008,-.1,0,7); q.fill(); q.fillStyle=v3rgba(N('#d8d0a0'),.6); for(let k=0;k<6;k++){ q.beginPath(); q.arc(W*(.92+k*.009),b-H*(.06+(k%3)*.01),H*.0025,0,7); q.fill(); }
+    sink(W*.86,W,b-H*.035,b); ring(W*.87,W,b-H*.035);
+    rkNookC={key,c,y0}; }
+  g.drawImage(rkNookC.c,0,rkNookC.y0,W,H-rkNookC.y0); }
 /* moss along the top of the fallen log */
 function rkLogMoss(c,N,x0,y0,x1,y1,lw){ c.fillStyle=N('#5a7a3a'); for(let i=0;i<7;i++){ const u=.08+i*.13, X=x0+(x1-x0)*u, Y=y0+(y1-y0)*u-lw*.45; c.beginPath(); c.ellipse(X,Y,lw*1.1,lw*.35,-.19,Math.PI,0); c.fill(); } }
 /* a river otter from the side, s per unit, facing dir: long sleek body, small round head with ears, whiskers and a pale throat, short legs,
@@ -128,8 +162,9 @@ function rkLogMoss(c,N,x0,y0,x1,y1,lw){ c.fillStyle=N('#5a7a3a'); for(let i=0;i<
    b floating on its back eating, r on the rock (sitting up, grooming) */
 function rkOtterDraw(x,y,s,pose,dir,t,N){ const fur=N('#5a3a22'), furL=N('#7a5434'), thr=N('#c8aa88'), dk=N('#1c120c');
   g.save(); g.translate(x,y); g.scale(dir,1);
-  if(pose==='r'){ const gr=Math.sin(t*5)>0, hb=Math.sin(t*3)*s*.6; g.translate(0,-s*3); g.fillStyle=fur; g.beginPath(); g.moveTo(-s*7,s*3); g.quadraticCurveTo(-s*11,s*2.5,-s*13,s*3.4); g.lineTo(-s*6,s*3.8); g.fill(); /* the tail along the rock */
+  if(pose==='r'){ const gr=Math.sin(t*5)>0, hb=Math.sin(t*3)*s*.35; g.translate(0,-s*3); g.fillStyle=fur; g.beginPath(); g.moveTo(-s*7,s*3); g.quadraticCurveTo(-s*11,s*2.5,-s*13,s*3.4); g.lineTo(-s*6,s*3.8); g.fill(); /* the tail along the rock */
     g.beginPath(); g.ellipse(-s*1,-s*1,s*3.4,s*5.4,-.25,0,7); g.fill(); g.fillStyle=thr; g.beginPath(); g.ellipse(s*.8,-s*2,s*1.6,s*3.2,-.25,0,7); g.fill(); /* sitting up, the pale chest */
+    g.fillStyle=fur; g.beginPath(); g.ellipse(s*.9,-s*5.2+hb*.5,s*2.2,s*2.8,-.35,0,7); g.fill(); g.fillStyle=thr; g.beginPath(); g.ellipse(s*1.9,-s*5,s*1,s*1.8,-.3,0,7); g.fill(); /* the neck joins head and body (it looked detached, director 2026-11-23) */
     g.fillStyle=fur; g.beginPath(); g.ellipse(s*1.6,-s*7.2+hb,s*2.6,s*2.2,0,0,7); g.fill(); g.beginPath(); g.ellipse(s*3.6,-s*6.8+hb,s*1.4,s*1.1,0,0,7); g.fill(); g.fillStyle=thr; g.beginPath(); g.ellipse(s*3.4,-s*6.2+hb,s*1.1,s*.7,0,0,7); g.fill();
     g.fillStyle=dk; g.beginPath(); g.arc(s*4.8,-s*7+hb,s*.45,0,7); g.fill(); g.beginPath(); g.arc(s*2.6,-s*7.8+hb,s*.32,0,7); g.fill(); g.fillStyle=fur; g.beginPath(); g.arc(s*.6,-s*8.9+hb,s*.6,0,7); g.fill();
     g.strokeStyle=v3rgba('#e8e0d0',.6); g.lineWidth=.6; g.beginPath(); g.moveTo(s*4.4,-s*6.6+hb); g.lineTo(s*6.4,-s*6.9+hb); g.moveTo(s*4.4,-s*6.4+hb); g.lineTo(s*6.2,-s*6+hb); g.stroke();
@@ -158,7 +193,7 @@ V3SCENES.rockies={
       const far=rkRidge(21,[[.1,.2,.14],[.24,.27,.1],[.36,.22,.09],[.5,.3,.12],[.6,.24,.08],[.72,.29,.11],[.84,.25,.1],[.96,.21,.12]],hz+1,.9);
       rkRange(x,far,hz+1,{seed:21,bedDark:'rgba(30,34,62,'+(.1+nk*.05)+')',bedLight:v3rgba('#ffffff',.06*(1-nk)),bedWarm:v3rgba('#d8a880',.08*(1-nk)),ledge:v3rgba('#fff4e0',.12*(1-nk)),snowShade:'rgba(40,50,96,.22)',rock:mix(mix(P.far,'#aab0c4',.25),'#1a2240',nk),snow:snowFar,snowLine:hz-H*.17,shade,line:v3rgba(mix(P.far,'#2a3050',.5),.45),rim:v3rgba(P.rim||'#fff0d0',.25*(1-nk)),haze:P.farHaze,hazeA:.62});
       const near=rkRidge(44,[[.44,.31,.15],[.505,.26,.05],[.56,.3,.05],[.62,.38,.12],[.67,.33,.045],[.79,.33,.12],[.74,.3,.05],[.85,.27,.06]],hz+1,1.15);
-      rkRange(x,near,hz+1,{seed:44,bedDark:'rgba(24,28,52,'+(.22+nk*.06)+')',bedLight:v3rgba('#ffffff',.12*(1-nk)),bedWarm:v3rgba('#d8a070',.17*(1-nk)),ledge:v3rgba('#fff4e0',.3*(1-nk)),snowShade:'rgba(40,50,96,.3)',glacier:[.665,.765,.13],ice:mix(mix('#e8f4ff',P.farHaze,.08),'#2a3a68',nk),iceBlue:mix('#6aaed8','#1a2a58',nk),rock:mix(mix(P.far,'#8a8a98',.4),'#141a30',nk),snow,snowLine:hz-H*.2,shade,line:v3rgba('#1a1e30',.55),rim:v3rgba(P.rim||'#fff0d0',.4*(1-nk)),haze:P.farHaze,hazeA:.45});
+      rkRange(x,near,hz+1,{seed:44,bedDark:'rgba(24,28,52,'+(.22+nk*.06)+')',bedLight:v3rgba('#ffffff',.12*(1-nk)),bedWarm:v3rgba('#d8a070',.17*(1-nk)),ledge:v3rgba('#fff4e0',.3*(1-nk)),snowShade:'rgba(40,50,96,.3)',rock:mix(mix(P.far,'#8a8a98',.4),'#141a30',nk),snow,snowLine:hz-H*.2,shade,line:v3rgba('#1a1e30',.55),rim:v3rgba(P.rim||'#fff0d0',.4*(1-nk)),haze:P.farHaze,hazeA:.45});
       /* forest at the foot of the peaks across the valley floor, hazier with distance, so the mountains rise out of trees, not bare ground */
       { const R2=v3rng(88), fc=mix(mix('#2e4a38',P.farHaze,.35),'#0c1618',nk), fc2=mix(mix('#3e5e48',P.farHaze,.35),'#101c1c',nk), topY=X=>hz-H*(.03+.012*Math.sin(X*.011)+.008*Math.sin(X*.037));
         x.fillStyle=fc; x.beginPath(); x.moveTo(W*.2,hz+1); for(let X=W*.2;X<=W*.82;X+=6) x.lineTo(X,topY(X)+H*.004); x.lineTo(W*.82,hz+1); x.closePath(); x.fill();
@@ -179,10 +214,11 @@ V3SCENES.rockies={
       x.fillStyle=v3rgba('#000000',.22); x.beginPath(); x.moveTo(fx+W*.012,ft); x.bezierCurveTo(fx+W*.04,ft+H*.004,fx+W*.06,ft+H*.03,fx+W*.065,hz+1); x.lineTo(fx+W*.02,hz+1); x.closePath(); x.fill(); x.restore(); /* the same layered rock as the mountains, its right side in shade (the floating light and moss ovals are gone: director) */
       x.strokeStyle=rkD; x.lineWidth=1; x.beginPath(); x.moveTo(fx-W*.035,ft+H*.02); x.lineTo(fx-W*.03,ft+H*.05); x.lineTo(fx-W*.034,ft+H*.07); x.moveTo(fx+W*.03,ft+H*.03); x.lineTo(fx+W*.036,ft+H*.06); x.stroke(); /* joints */
       for(const [ox,hh] of [[-.042,.035],[-.03,.026],[.028,.03],[.042,.022]]){ const X=fx+W*ox, Y=ft+H*(.002+Math.abs(ox)*.12); rkSpruce(x,X,Y,H*hh,mix(mix('#24402e',P.back,.3),'#0a1410',P.night*.9),P.rim,.2*(1-P.night),Math.round(ox*1000)+60); } } /* spruces rooted on the cliff top */
+    rkStream(x,P,hz); /* the stream that feeds the falls, over the cliff top */
     /* the shore forest (director: no recycled look): uneven spruce of very different heights with golden larches among them, never one even row */
     { const r=v3rng(23); for(let row=0;row<2;row++) for(let i=0;i<30;i++){ const px=W*(i/29)+(r()-.5)*W*.02, base=hz-H*(.004+row*.004), h=H*(.035+r()*.07)*(row?1.15:1); if(row&&((px>W*.34&&px<W*.62)||(px>W*.76&&px<W*.86))) continue;
       const larch=r()<.22, col=larch?mix('#c89a3a',P.front,.25+P.night*.5):(row?P.front:mix(P.back,P.farHaze,.3)); rkSpruce(x,px,base,h*(larch?.85:1),col,P.rim,.25*(1-P.night),row*40+i+1); } } /* spruce with drooping tiers of branches, a trunk and a lit side (director: the trees need more detail) */
-    for(const [px,hh] of [[.26,.06],[.31,.05],[.55,.065],[.68,.055],[.93,.06]]) waBirch(x,W*px,hz-H*.006,H*hh,P,Math.round(px*1000));
+    /* (no birches: they do not grow at this lake, director 2026-11-23) */
     // fireweed along the shore
     { const r=v3rng(12); for(let i=0;i<30;i++){ const px=W*(.2+r()*.75), hh=H*(.008+r()*.01); if(px>W*.76&&px<W*.88) continue; x.strokeStyle=mix('#4a6a3a',P.front,P.night*.5); x.lineWidth=1; x.beginPath(); x.moveTo(px,hz); x.lineTo(px,hz-hh); x.stroke(); x.fillStyle=mix('#d8508a',P.front,.15+P.night*.55); x.fillRect(px-1,hz-hh,2,hh*.55); } }
     waCabin(x,W*.3,hz-H*.004,H*.0058,P); /* out on the far shore in full view (behind the lodge it was hidden, director) */
@@ -194,21 +230,27 @@ V3SCENES.rockies={
     g.fillStyle=v3rgba(mix('#ffffff',P.wTop,.25),.8-P.night*.3); g.beginPath(); g.moveTo(fx-W*.006,ft); g.lineTo(fx+W*.006,ft); g.lineTo(fx+W*.01,hz+H*.004); g.lineTo(fx-W*.01,hz+H*.004); g.closePath(); g.fill();
     if(FX){ g.strokeStyle='rgba(255,255,255,.75)'; g.lineWidth=1; for(let i=0;i<6;i++){ const xx=fx-W*.005+i*W*.002, q=((t*1.4+i*.37)%1), y=ft+q*(hz-ft); g.beginPath(); g.moveTo(xx,y); g.lineTo(xx,y+H*.015); g.stroke(); }
       for(let i=0;i<5;i++){ const q=((t*.4+i*.2)%1); g.fillStyle='rgba(240,250,255,'+(.3*(1-q))+')'; g.beginPath(); g.arc(fx+(i-2)*W*.006,hz-q*H*.025,H*(.006+q*.012),0,7); g.fill(); } }
+    if(FX){ const pts=rkStreamPts(hz); g.strokeStyle='rgba(255,255,255,'+(.6-P.night*.35)+')'; g.lineWidth=1; g.beginPath(); for(let j=0;j<5;j++){ const q=(t*.3+j/5)%1, f=Math.min(pts.length-1.001,(pts.length-3)+q*2), i=Math.floor(f), u=f-i, a=pts[i], b=pts[i+1], X=a[0]+(b[0]-a[0])*u, Y=a[1]+(b[1]-a[1])*u; g.moveTo(X,Y); g.lineTo(X+(b[0]-a[0])*.18,Y+(b[1]-a[1])*.18); } g.stroke(); } /* the stream flowing down to the falls */
     // chimney smoke
     if(FX) for(let i=0;i<5;i++){ const q=((t*.15+i*.2)%1), sx=W*.3+H*.0058*12*.74+H*.0058*.8+q*H*.03, sy=hz-H*.077-q*H*.08; g.fillStyle='rgba(220,226,234,'+(.25*(1-q))+')'; g.beginPath(); g.arc(sx,sy,H*(.006+q*.012),0,7); g.fill(); }
     waFlag(W*.37,hz-H*.006-H*.0105*4.6,H*.0105,P,t);
     // a beaver gnaws on its dam (the swimmer moved to the near corner as the otter: rkOtterNook, director 2026-11-23)
-    { const bx=W*(WA_FALL.x+.012), by=hz-H*.008, s=H*.004, ch=Math.sin(t*9)*.25*(Math.sin(t*.7)>0?1:0), oc=mix('#5a3a22',P.front,P.night*.5); g.fillStyle=oc; g.beginPath(); g.ellipse(bx,by,s*1.8,s*1.4,0,0,7); g.fill(); g.beginPath(); g.ellipse(bx+s*1.6,by-s*.6+ch*s,s*.9,s*.75,.2,0,7); g.fill(); g.fillStyle=mix('#3a2614',P.front,P.night*.5); g.beginPath(); g.ellipse(bx-s*2.2,by+s*.9,s*1.3,s*.4,.3,0,7); g.fill(); m33dot(g,bx+s*1.9,by-s*.9+ch*s,s*.16,'#140c08'); }
+    { const bx=W*(WA_FALL.x+.012), du=(.012+.045)/.12, s=H*.004, by=hz+H*.006+H*.012-H*.034*4*du*(1-du)*.95-s*.6,  ch=Math.sin(t*9)*.25*(Math.sin(t*.7)>0?1:0), oc=mix('#5a3a22',P.front,P.night*.5); g.fillStyle=oc; g.beginPath(); g.ellipse(bx,by,s*1.8,s*1.4,0,0,7); g.fill(); g.beginPath(); g.ellipse(bx+s*1.6,by-s*.6+ch*s,s*.9,s*.75,.2,0,7); g.fill(); g.fillStyle=mix('#3a2614',P.front,P.night*.5); g.beginPath(); g.ellipse(bx-s*2.2,by+s*.9,s*1.3,s*.4,.3,0,7); g.fill(); m33dot(g,bx+s*1.9,by-s*.9+ch*s,s*.16,'#140c08'); }
     waMoose(W*.42,hz-H*.004,H*.0034,P,t);
     // Canada geese: a pair swimming near the far shore, and now and then a V flying over
     for(let i=0;i<2;i++){ const ph=t*.015+i*.5, y=hz+H*(.02+i*.012); waGoose(W*(.58+.08*Math.sin(ph))+i*H*.03,y,H*.0045,Math.cos(ph)>=0?1:-1,P,t,i,false); }
-    if(FX){ const per=37, q=(t%per)/per; if(q<.45){ const e=q/.45, lx=W*(1.1-e*1.3), ly=hz*.32+Math.sin(e*3)*hz*.04; for(let i=0;i<7;i++){ const row=Math.ceil(i/2), side=i%2?1:-1; waGoose(lx+row*H*.03,ly+side*row*H*.016,H*.0035,-1,P,t,i,true); } } }
+    /* geese flying over, a different flock each pass (director, 2026-11-23: "give them more variety in the pattern"): 5 to 11 birds in a V,
+       a lopsided V, a single slanting line or a loose wavy skein, either way across, higher or lower, each bird keeping its own little gap */
+    if(FX){ const per=37, n=Math.floor(t/per), q=(t%per)/per; if(q<.45){ const r=v3rng(1000+n), cnt=5+Math.floor(r()*7), kind=Math.floor(r()*4), dir=r()<.5?-1:1, alt=hz*(.18+r()*.26), sp=H*(.024+r()*.012), e=q/.45, lx=dir<0?W*(1.1-e*1.3):W*(-.1+e*1.3), ly=alt+Math.sin(e*3+n)*hz*.04;
+      for(let i=0;i<cnt;i++){ const jx=(r()-.5)*sp*.35, jy=(r()-.5)*sp*.3; let dx, dy; if(kind===2){ dx=i*sp; dy=i*sp*.45; } else if(kind===3){ dx=i*sp*1.1; dy=Math.sin(i*1.3+n)*sp*.6; } else { const row=Math.ceil(i/2), side=i%2?1:-1, arm=kind===1&&side>0?1.35:1; dx=row*sp*arm; dy=side*row*sp*.5*arm; }
+        waGoose(lx-dir*(dx+jx),ly+dy+jy+Math.sin(t*2+i)*H*.002,H*.0035,dir,P,t,i,true); } } }
     /* the canoeist fishes by day and paddles home to the cabin as night falls, then his canoe lies pulled up on the shore beside it until he
        paddles out again at dawn (director, 2026-11-23: "at night time, the kayak guy fishing should go back to his cabin") */
     { const n=P.night, k=clamp((n-.25)/.4,0,1), e=k*k*(3-2*k); if(n>rkCan.n+1e-4) rkCan.dir=-1; else if(n<rkCan.n-1e-4) rkCan.dir=1; rkCan.n=n;
-      const fx=W*(.5+.1*Math.sin(t*.012)), fy=hz+H*.075, hx=W*.345, hy=hz+H*.01, s0=H*.0045;
-      if(k<=0) waCanoe(fx,fy,s0,P,t,0,1); else if(k<1) waCanoe(fx+(hx-fx)*e,fy+(hy-fy)*e,s0*(1-e*.5),P,t,1,rkCan.dir); else waCanoe(hx,hz-H*.002,s0*.5,P,t,2,1); }
+      const fx=W*(.5+.1*Math.sin(t*.012)), fy=hz+H*.075, hx=W*.345, hy=hz+H*.003, s0=H*.0045;
+      if(k<=0) waCanoe(fx,fy,s0,P,t,0,1); else if(k<1) waCanoe(fx+(hx-fx)*e,fy+(hy-fy)*e,s0*(1-e*.5),P,t,1,rkCan.dir); else { waCanoe(hx,hy,s0*.5,P,t,2,1);
+        const w=clamp((n-.65)/.1,0,1), door=W*.3+H*.0058*6; if(w<1){ const wx=hx+(door-hx)*w, a=w>.85?(1-w)/.15:1; rkWalker(wx,hz-H*.004,s0*.5,P,t,a,door<hx?-1:1); } } } /* he pulls the canoe up, walks to the cabin and goes in at the door (never vanishing in view: director, 2026-11-23); at dawn the same, backwards */
     v3mist(P,t,hz,.14+P.night*.06); },
-  fore(P,t){ rkOtterNook(P,t); /* the near shore corner: two granite boulders with lichen and moss and a clump of fireweed swaying (one-water rework: the big flat corner pine was a dark silhouette) */ const b=H+2, N=c0=>mix(c0,P.top,P.night*.45); v3rock(g,W*.94,b-H*.03,W*.07,H*.075,P); v3rock(g,W*.995,b-H*.06,W*.05,H*.06,P); g.fillStyle=N('#5a7a3a'); g.beginPath(); g.ellipse(W*.93,b-H*.085,W*.03,H*.008,-.1,0,7); g.fill(); g.fillStyle=v3rgba(N('#d8d0a0'),.6); for(let i=0;i<6;i++){ g.beginPath(); g.arc(W*(.92+i*.009),b-H*(.06+(i%3)*.01),H*.0025,0,7); g.fill(); }
+  fore(P,t){ rkOtterNook(P,t); /* the near corners (the boulders and the right corner's granite are in rkNookStatic) and a clump of fireweed swaying at the right */ const b=H+2, N=c0=>mix(c0,P.top,P.night*.45);
     for(let i=0;i<8;i++){ const x0=W*(.885+i*.008), sw=Math.sin(t*1.1+i)*H*.005, h=H*(.09+((i*7)%4)*.015); g.strokeStyle=N('#4a6a3a'); g.lineWidth=Math.max(1.2,H*.003); g.beginPath(); g.moveTo(x0,b); g.quadraticCurveTo(x0+sw*.4,b-h*.6,x0+sw,b-h); g.stroke(); g.fillStyle=N('#d8508a'); for(let k=0;k<5;k++){ g.beginPath(); g.ellipse(x0+sw*(1-k*.08),b-h+k*H*.009,H*.004,H*.0045,0,0,7); g.fill(); } } }
 };
