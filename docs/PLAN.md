@@ -494,7 +494,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
    - Candy Maker: +1% per rank for a higher-rank nibble on a successful scrap; up to rank 10.
    - Cooler: the sell-by-rarity menu closes while hovering Rare and below.
    - Cooler: filters don't work; the shiny and hybrid sell toggles don't work.
-3. Wisdom Pearls lost on a new save's first reload. 4. Proposals page for game notes 2-9 (prestige, boons, progress unlocks, gold only from bounties, PC Aquarium). 5. **The map batches below, one water per batch, each published on its own,** as far as the night allows. Then the final full check and a morning report.
+3. Wisdom Pearls lost on a new save's first reload. 4. **The map batches below, one water per batch.** 5. Proposals page for game notes 2-9 (prestige, boons, progress unlocks, gold only from bounties, PC Aquarium; proposals only). Then the final full check and a morning report. **Every batch is published to the test builds before the next one starts** (director, 2026-11-23).
 ### Map batches to the Rockies standard (director, 2026-11-23: "1 map = 1 batch… one at a time thoroughly")
 Each batch: analyse the map and home (pictures at every time and weather, phone and PC), bring both to the Rockies standard (CLAUDE.md, MAP_STANDARD, HOME_STANDARD), check every home option and combination and every moving thing with pictures, write docs/reviews/<water>.md, publish that one water to the test builds. Base buildings proposed from each water's MAP_THEMES "Home direction" (Feel calls for the director):
 1. **Willow Pond:** a cedar boathouse on the dock: siding, roof, lantern, porch rail, door, windows, seat (respect PLAN › Willow Pond home notes).
