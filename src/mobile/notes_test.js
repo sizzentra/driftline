@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Amazon Rainforest, redone in its own style: your home is a palafito, a stilt house high on vine-lashed poles with a very steep thatched roof hanging low over its walls. Pick the walls, roof, door, river gear, lamp and seat in Your home.',
+  'Amazon Rainforest: a notched log ladder climbs down to the water, giant water lilies with red rims float around the stilts, and the buttress roots of a huge tree reach in from the left.',
+  '## Test build 2026.11.23-0634',
   'Brine Shelf: your boat is rebuilt as a big-game sport-fisher, stern toward the fish: a tall hull with chrome rails, a transom door and swim platform, her name on the side, a cabin with a raked windscreen, portholes and a life ring, and a flybridge with a ladder (or a wheelhouse, or a tuna tower) with outriggers splayed out. Your saved choices carry over.',
   '## Test build 2026.11.23-0624',
   'Florida Keys: your skiff is rebuilt as a real flats skiff, bow toward the fish: a low fiberglass hull with a rub rail, a stripe at the waterline and its registration, an outboard on the back, a center console with a windscreen (or a poling platform, or a tiller boat), and a T-top, bimini or umbrella. It is staked out with a push pole in the sand. Your saved choices carry over.',

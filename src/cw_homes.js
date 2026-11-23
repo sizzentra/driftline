@@ -359,7 +359,7 @@ hfMake('shelf',{ name:'Sport-fisher', hname:'boat', floats:true, seatX:()=>HF.pw
 /* 10. Amazon Rainforest: the palafito (overnight, 2026-11-23; its own design, src/cw_palafito.js): a stilt house high on lashed poles with a
    very steep A-frame thatch roof hanging low over half walls; vine-lashed braces, a notched log ladder, giant Victoria lily pads, buttress roots.
    The old stilts, floor and roof choices became this one building; river gear and lamp keep their ids */
-{ const GA=()=>AP.geo({pw:HF.pw(),dockY:HF.dockY()});
+{
 hfMake('amazon',{ name:'Palafito', hname:'palafito', glow:'255,190,110', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Hardwood=#7a5a3e;Dark hardwood=#4a3420;Vine=#5a6a2a;Palm thatch=#c8a85a;Dry thatch=#a8843a;River clay=#a8683a;Jungle green=#2e6a32;Deep jungle=#123a18;Fern=#6aa04a;Leaf highlight=#a8e07a;Tannin water=#3a5a32;Macaw red=#d8302a;Macaw blue=#2a6ad8;Macaw yellow=#f0c83a;Orchid pink=#e070b0;Mist=#e8f4e0'),
   els:[{id:'walls',label:'Walls',styles:['Split palm','Woven cane','Clay plaster'],def:[0,0],palS:[[0,1,3],[3,4,0],[5,3,4]]},
@@ -377,18 +377,19 @@ hfMake('amazon',{ name:'Palafito', hname:'palafito', glow:'255,190,110', seatX:(
     ['seat'],
     ['lamp',(o,s)=>HK.light(o,['gourd','fireflybasket','torch'][s])]] }); }
 
-/* 11. Midnight Deep: the trawler deck (floats) */
-hfMake('deep',{ name:'Trawler deck', hname:'trawler', floats:true,
+/* 11. Midnight Deep: the trawler (overnight, 2026-11-23; its own design, src/cw_trawler.js; floats): a rust-streaked steel stern trawler with a
+   high bulwark, freeing ports, tyre fenders and a towering wheelhouse forward; net drum, gantry with a trawl door, or crab pots. Same ids as before */
+hfMake('deep',{ name:'Trawler', hname:'trawler', floats:true, seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Steel grey=#6a7480;Dark steel=#3a424c;Gunmetal=#2a2e34;Rust=#8a4a2a;Rust light=#b8683a;Safety orange=#f0782a;Float orange=#e85a2a;Oilskin yellow=#d8b030;Floodlight=#f4eccc;Net green=#4a6a5a;Deck black=#1a1c20;Sea grey=#6a8290;Deep sea=#0a1826;Foam white=#e8ecf0;Bruised amber=#c8704a;Cold rim=#8aa0d8'),
   els:[{id:'hull',label:'Hull',styles:['Steel deck','Rusty trawler','Wood on steel'],def:[0,0]},{id:'house',label:'Wheelhouse',styles:['Boxy wheelhouse','Low pilothouse','Open helm'],def:[0,13]},
        {id:'gear',label:'Trawl gear',styles:['Net drum','A-frame gantry','Crab pots'],def:[0,9]},{id:'mast',label:'Mast',none:true,styles:['No mast','Mast and boom','Radar mast','Antenna mast'],def:[1,1]},
        {id:'light',label:'Floodlight',light:true,styles:['Floodlight','Caged lamp','Swinging lantern'],def:[0,8]}],
   seat:['floatcrate','steelbench','ropecoil'], seatNames:['Crate of floats','Steel bench','Rope coil'], seatDef:[0,9],
   order:[
-    ['hull',(o,s,c)=>HK.hull(o,c,['steel','rusty','woodsteel'][s])],
-    ['gear',(o,s,c)=>{ const x=HK.at(o,.08), y=o.dockY; if(s===0){ HK.rect(o,x,y-H*.035,W*.03,H*.035,'#3a424c'); HK.ell(o,x+W*.015,y-H*.035,W*.015,H*.02,c); for(let i=0;i<4;i++) HK.line(o,[x+W*.004,y-H*.05+i*H*.008,x+W*.026,y-H*.05+i*H*.008],HK.dk(c,.3)); } if(s===1){ HK.line(o,[x,y,x+W*.02,y-H*.16,x+W*.04,y],c,2.4); HK.line(o,[x+W*.02,y-H*.16,x+W*.02,y-H*.08],'#2a2e34',1); } if(s===2) for(let i=0;i<3;i++) for(let j=0;j<2;j++){ HK.block(o,x+j*W*.018,y-H*.02*(i+1),W*.016,H*.019,HK.dk(c,.05*i)); HK.line(o,[x+j*W*.018,y-H*.02*(i+.5),x+j*W*.018+W*.016,y-H*.02*(i+.5)],'#2a2e34'); } }],
-    ['house',(o,s,c)=>{ const a=HK.at(o,.5), b=HK.at(o,.86), y=o.dockY; if(s===0){ HK.block(o,a,y-H*.12,b-a,H*.12,c); for(let i=0;i<3;i++) HK.rect(o,a+(b-a)*(.1+i*.3),y-H*.105,(b-a)*.2,H*.03,'#2a2e34'); HK.rect(o,a-W*.004,y-H*.125,b-a+W*.008,H*.008,'#3a424c'); } if(s===1){ HK.poly(o,[a,y,a,y-H*.07,b-W*.01,y-H*.07,b,y-H*.04,b,y],c); HK.rect(o,a+W*.01,y-H*.06,(b-a)*.6,H*.02,'#2a2e34'); } if(s===2){ HK.rect(o,b-W*.01,y-H*.04,2,H*.04,'#3a424c'); HK.circ(o,b-W*.01,y-H*.045,H*.01,'#3a424c'); HK.rect(o,b-W*.02,y-H*.07,W*.004,H*.03,v3rgba('#c0c8cc',.6)); } }],
-    ['mast',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.42), top=o.dockY-H*.23; HK.rect(o,x,top,2.4,H*.23,c); if(s===1) HK.line(o,[x,top+H*.04,HK.at(o,.05),o.dockY-H*.06],c,1.6); if(s===2){ HK.rect(o,x-W*.012,top,W*.024,H*.004,c); HK.ell(o,x,top-H*.012,W*.006,H*.01,'#c0c8cc'); } if(s===3) HK.line(o,[x+1,top,x+1,top-H*.06],c,1); }],
+    ['hull',(o,s,c)=>MT.hull(o,s,c)],
+    ['house',(o,s,c)=>MT.house(o,s,c)],
+    ['mast',(o,s,c)=>MT.mast(o,s,c)],
+    ['gear',(o,s,c)=>MT.gear(o,s,c)],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['floodpole','workcage','hook'][s])]] });
 
