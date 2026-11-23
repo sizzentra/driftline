@@ -108,7 +108,7 @@ const HK = {
      small next to the screen, so PC covers barely lift). ROOF_LOW: each kind's lowest edge over the angler, as a share of H. */
   ROOF_LOW:{umbrella:.14,beachumbrella:.14,logoumbrella:.14,leanto:.134,shingle:.134,tin:.134,canvas:.134,sail:.14,gable:.12,slate:.12,barn:.12,shack:.12,aframe:.2,shackbox:.13,
     curved:.126,tiled:.126,thatch:.114,thatchgate:.114,torii:.145,leaf:.14,fronds:.108,flat:.142,ttop:.142,hardtop:.142,glass:.142,ceiling:.142,overhang:.142,bimini:.136,
-    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12},
+    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12,timberframe:.12},
   coverSpan(o,f0,f1){ const sc=HF.sc(); return [Math.min(HK.at(o,f0==null?.03:f0),HF.seatX()-16*sc), Math.min(o.pw-W*.008,Math.max(HK.at(o,f1==null?.47:f1),W*.12+14*sc))]; },
   roof(o,col,kind,f0,f1){ const [a,b]=HK.coverSpan(o,f0,f1), y=o.dockY, k=Math.max(1,(84*HF.sc()/H)/(HK.ROOF_LOW[kind]||.14)), x=o.x;
     if(k>1){ x.save(); x.translate(0,y); x.scale(1,k); x.translate(0,-y); }
@@ -155,6 +155,10 @@ const HK = {
         if(kind==='bower') for(let i=0;i<9;i++){ const an=Math.PI+Math.PI*i/8; HK.circ(o,m+Math.cos(an)*R,cy+Math.sin(an)*R,H*.008,'#ffb8e0'); } break; }
       case 'slab': { HK.ell(o,a+W*.004,y-H*.004,W*.006,H*.006,'#3a3436'); HK.ell(o,b-W*.004,y-H*.004,W*.006,H*.006,'#3a3436'); HK.rect(o,a-W*.008,y-H*.13,b-a+W*.016,H*.012,c); post(a+W*.004,y-H*.12); post(b-W*.004,y-H*.12); break; }
       case 'iron': { const top=y-H*.14; HK.rect(o,a+W*.004,top,2,y-top,'#3a3436'); HK.rect(o,b-W*.004,top,2,y-top,'#3a3436'); HK.poly(o,[a-W*.008,top,(a+b)/2,top-H*.04,b+W*.008,top],c); HK.line(o,[a-W*.008,top,(a+b)/2,top-H*.04,b+W*.008,top],'#3a3436',1.5); break; }
+      case 'timberframe': { /* side view: a steep gable roof on two corner posts, its gable end in front filled with white plaster between dark oak beams */ const base=y-H*.12, h=H*.075, m=(a+b)/2, ob=HK.dk(c,.45);
+        post(a+W*.004,base); post(b-W*.004,base); HK.poly(o,[a+W*.004,base,m,base-h*.85,b-W*.004,base],'#efe8d8');
+        HK.line(o,[a+W*.004,base,b-W*.004,base],ob,2); HK.line(o,[m,base,m,base-h*.85],ob,1.6); HK.line(o,[a+(m-a)*.45,base,m,base-h*.45],ob,1.4); HK.line(o,[b-(b-m)*.45,base,m,base-h*.45],ob,1.4);
+        HK.poly(o,[a-W*.012,base+H*.004,m,base-h,b+W*.012,base+H*.004,b+W*.006,base+H*.008,m,base-h*.88,a-W*.006,base+H*.008],c); break; }
       case 'pergola': { /* side view: two posts, a long beam, rafter ends sticking out above it and climbing leaves hanging from it */ const top=y-H*.15, bt=Math.max(3,H*.008), wd=HK.dk(c,.15);
         post(a+W*.006,top); post(b-W*.006,top); HK.rect(o,a-W*.012,top-bt,b-a+W*.024,bt,c); HK.hi(o,a-W*.012,top-bt,b-a+W*.024,1,.35);
         for(let i=0;i<=7;i++){ const px=a-W*.008+(b-a+W*.016)*i/7; HK.rect(o,px-1.5,top-bt-H*.008,3,H*.008,wd); }
@@ -199,6 +203,8 @@ const HK = {
       case 'chochin': pole(H*.12,'#5a3a26'); HK.ell(o,x-H*.012,y-H*.09,H*.011,H*.016,'#d8302a'); HK.rect(o,x-H*.02,y-H*.106,H*.016,2,'#2a2426'); return L(x-H*.012,y-H*.09,.17,.6);
       case 'cage': pole(H*.1); HK.rect(o,x,y-H*.1,H*.014,2,iron); o.x.strokeStyle=HK.n(o,iron); o.x.lineWidth=1; o.x.strokeRect(x+H*.006,y-H*.096,H*.014,H*.02); return L(x+H*.013,y-H*.086);
       case 'hanging': pole(H*.11); HK.curve(o,x,y-H*.11,x-H*.012,y-H*.112,x-H*.016,y-H*.1,iron,1.4); HK.ell(o,x-H*.016,y-H*.088,H*.006,H*.01,'#e8d8a0'); return L(x-H*.016,y-H*.088,.13);
+      case 'bracket': { /* a stout post with a scrolled iron arm, the lantern hanging from its end on a short chain */ HK.rect(o,x-2,y-H*.12,4,H*.12,'#5a4030'); HK.line(o,[x,y-H*.115,x+H*.03,y-H*.115],iron,2); HK.curve(o,x,y-H*.09,x+H*.012,y-H*.1,x+H*.024,y-H*.114,iron,1.4);
+        HK.line(o,[x+H*.028,y-H*.115,x+H*.028,y-H*.104],iron,1); HK.rect(o,x+H*.021,y-H*.104,H*.014,2,iron); HK.ell(o,x+H*.028,y-H*.094,H*.0055,H*.009,v3rgba('#e8f0f4',.35)); HK.rect(o,x+H*.021,y-H*.085,H*.014,2,iron); return L(x+H*.028,y-H*.094,.14); }
       case 'candle': case 'millcandle': HK.ell(o,x,y-H*.004,H*.014,H*.005,'#9a948a'); HK.rect(o,x-H*.003,y-H*.024,H*.006,H*.02,'#f4ece0'); HK.ell(o,x,y-H*.028,1.4,2.6,'#ffd060'); return L(x,y-H*.028,.11,.5,{small:1});
       case 'lighthouse': HK.rect(o,x-H*.006,y-H*.07,H*.012,H*.07,'#f4f0e6'); for(let i=0;i<3;i++) HK.rect(o,x-H*.006,y-H*.06+i*H*.02,H*.012,H*.008,'#c8483a'); HK.rect(o,x-H*.008,y-H*.085,H*.016,H*.015,'#e8f0f4'); HK.poly(o,[x-H*.01,y-H*.085,x,y-H*.095,x+H*.01,y-H*.085],'#c8483a'); return L(x,y-H*.078,.16);
       case 'buoy': pole(H*.11); HK.line(o,[x,y-H*.11,x-H*.014,y-H*.11,x-H*.014,y-H*.08],'#c8a878',1); HK.circ(o,x-H*.014,y-H*.072,H*.008,'#c8483a'); return L(x-H*.014,y-H*.082,.14);

@@ -45,7 +45,9 @@ function hfLights(x,L,c,t,night,dockY,b,P,scene){ const lit=clamp(night*1.2+P.d*
   for(const l of c.lights){ const fl=.93+.07*Math.sin(t*7.1+l.x)*Math.sin(t*3.3+l.y);
     if(lit>.05){ v3glow(x,l.x,l.y+b,H*(l.r||.2),'rgba('+rgb+',.85)',lit*(l.a||.6)*fl); if(scene&&!l.small){ v3lightPool(l.x-W*.01,dockY-1+b,W*.075,rgb,.28*lit); v3lanternReflect(l.x,HF.wl(dockY),lit,t,rgb); } }
     if(l.jar){ for(let i=0;i<3;i++){ const a=t*(1.1+i*.37)+i*2.1; x.fillStyle='rgba('+rgb+','+(.35+.55*lit)*(.6+.4*Math.sin(t*5+i))+')'; x.beginPath(); x.arc(l.x+Math.cos(a)*H*.004,l.y+b+Math.sin(a*1.3)*H*.006,Math.max(.8,H*.0016),0,7); x.fill(); } }
-    else { x.fillStyle=lit>.05?'rgba(255,240,205,'+(.55+lit*.45)+')':(l.glass||'rgba(200,210,220,.55)'); x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.004:H*.007),0,7); x.fill(); } } }
+    /* the glass shows the chosen colour by day too (director, 2026-11-22: "changing the colour barely changes anything", on every home) */
+    else { x.fillStyle=lit>.05?'rgba('+rgb+','+(.6+lit*.4)+')':'rgba('+rgb+',.8)'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.0045:H*.0085),0,7); x.fill();
+      if(lit>.05){ x.fillStyle='rgba(255,248,230,'+(.5*lit)+')'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.002:H*.0035),0,7); x.fill(); } } } }
 /* drawn every frame on the water: rings, the stored picture (with the bob), the light */
 function hfDraw(L,t,night,dockY,pb,P){ const sp=hfSpec(L.id), c=hfPaintCache(L,P,night,dockY), b=sp.floats?(pb||0):0;
   hfRings(g,c,t,night,dockY); g.drawImage(c.cv,c.x,c.y+b,c.w,c.h); hfLights(g,L,c,t,night,dockY,b,P,true); }
@@ -183,7 +185,7 @@ function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
 /* the 6 features become the page's tabs */
 function hfSections(P){ const sp=hfSpec(S.loc); if(!sp) return false; sectionize(P,'home',sp.els.map(e=>({name:e.label,nodes:[...P.querySelectorAll(':scope > [data-hel="'+e.id+'"]')]}))); return true; }
 /* the Home view frames the home: its footprint, the free zone above it and the water under it, at the view's own shape */
-function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), hc=HF_CACHE[S.loc], ft=Math.min(dy-H*.23,(hc&&hc.top!=null?hc.top:dy)-H*.02) /* the home's highest point (a lifted cover) */, want={x:0,y:ft,w:pw*1.08,h:(HF.wl(dy)+H*.05)-ft}, ar=c.width/c.height;
+function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), ft=dy-H*.255*Math.max(1,(84*HF.sc()/H)/.12) /* room for the tallest lifted cover, the same whatever is chosen (director, 2026-11-22: picking a shed changed the zoom) */, want={x:0,y:ft,w:pw*1.08,h:(HF.wl(dy)+H*.05)-ft}, ar=c.width/c.height;
   let w=want.w, h=w/ar; /* the home fills the view's width */ if(h<want.h){ h=want.h; w=h*ar; } /* never cut the home: a tall cover zooms the view out until the whole home shows (director, 2026-11-22: the umbrella showed only its pole) */
   if(h>H*.96){ h=H*.96; w=h*ar; } if(h<H*.25){ h=H*.25; w=h*ar; } /* never so flat that the deck or the canopy is cut */ /* the preview shows only the home (director, 2026-11-21): framed on the home's width, never the fishing scene beside it; a wide view crops water below instead */
   let y=h>=want.h?Math.min(want.y+want.h/2,dy-H*.03)-h/2:dy-H*.205; y=Math.max(top||0,Math.min(H-h,y)); return {sx:0,sy:y,sw:Math.min(W,w),sh:h}; }

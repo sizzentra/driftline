@@ -10,7 +10,14 @@ V3SCENES.river = {
     v3hillBand(x,hz+1,[[0,.1*H],[.18,.15*H],[.36,.11*H],[.55,.16*H],[.74,.12*H],[.92,.15*H],[1,.13*H]],mix(P.far,P.farHaze,.25));
     const hg=x.createLinearGradient(0,hz-.16*H,0,hz); hg.addColorStop(0,v3rgba(P.farHaze,0)); hg.addColorStop(1,v3rgba(P.farHaze,.45)); x.fillStyle=hg; x.fillRect(0,hz-.16*H,W,.16*H);
     riverVillage(x,P,hz);
-    v3hillBand(x,hz+1,[[0,.07*H],[.2,.05*H],[.4,.075*H],[.6,.045*H],[.8,.07*H],[1,.06*H]],P.hill);
+    x.save(); v3hillBand(x,hz+1,[[0,.07*H],[.2,.05*H],[.4,.075*H],[.6,.045*H],[.8,.07*H],[1,.06*H]],P.hill); x.clip();
+    /* map redo (director, 2026-11-22: "the hills don't look right", every water's hills alike): the near hills are farmland, a patchwork of
+       fields in slightly different greens and wheat, split by dark hedgerows with little round shrubs along them */
+    { const fr=v3rng(83), cols=[mix(P.hill,'#ffffff',.08),mix(P.hill,'#000000',.08),mix(P.hill,'#d8c08a',.35),mix(P.hill,P.leaf,.4)], hedge=mix(P.hill,'#14200e',.45);
+      let X=-W*.02; while(X<W){ const w=W*(.05+fr()*.07), sl=W*(.01+fr()*.02); x.fillStyle=cols[Math.floor(fr()*4)]; x.beginPath(); x.moveTo(X,hz+2); x.lineTo(X+sl,hz-H*.09); x.lineTo(X+w+sl,hz-H*.09); x.lineTo(X+w,hz+2); x.closePath(); x.fill();
+        x.strokeStyle=hedge; x.lineWidth=Math.max(1.2,H*.0025); x.beginPath(); x.moveTo(X,hz+2); x.lineTo(X+sl,hz-H*.09); x.stroke(); x.fillStyle=hedge; for(let k=0;k<4;k++){ const u=fr(); x.beginPath(); x.arc(X+sl*u,hz+2-(H*.092)*u,H*.0035,0,7); x.fill(); } X+=w; }
+      x.strokeStyle=hedge; x.lineWidth=Math.max(1,H*.002); x.beginPath(); x.moveTo(0,hz-H*.022); x.bezierCurveTo(W*.3,hz-H*.03,W*.6,hz-H*.015,W,hz-H*.026); x.stroke(); }
+    x.restore();
     // groves of round trees on both banks (back row smaller and hazier)
     const r=v3rng(29);
     for(let i=0;i<10;i++){ const tx=W*(.02+i*.04+r()*.02); v3tree(x,tx,hz+1,H*(.07+r()*.03),Object.assign({},P,{leaf:mix(P.back,P.farHaze,.15)}),40+i,P.d*.2); }
@@ -24,12 +31,10 @@ V3SCENES.river = {
     // the stone arch bridge across the river (arches cut out so the far hills show through; reflections come from the mirror pass)
     { const x0=W*.42, x1=W*.76, top=hz-rvH()*.085, dh=rvH()*.018, n=3, span=(x1-x0)/n, ar=Math.min(span*.42,(hz-top-dh*.6)/1.15), cyA=hz+1-ar*.15;
       const arches=(p)=>{ for(let i=0;i<n;i++){ const ax=x0+span*(i+.5); p.moveTo(ax+ar,hz+1); p.arc(ax,cyA,ar,0,Math.PI,true); p.closePath(); } };
-      // round 6 (director: "remove the grass behind each pillar"): through each arch you see the river running on upstream,
-      // a far bank and hazy sky, instead of a wall of green hill
       x.save(); x.beginPath(); arches(x); x.clip();
-      { const sky=x.createLinearGradient(0,top,0,hz); sky.addColorStop(0,mix(P.mid,P.farHaze,.5)); sky.addColorStop(1,mix(P.bot,P.farHaze,.4)); x.fillStyle=sky; x.fillRect(x0,top,x1-x0,hz-top+2);
-        const bankY=hz-ar*.42; x.fillStyle=mix(P.back,P.farHaze,.55); x.beginPath(); x.moveTo(x0,bankY); for(let xx=x0;xx<=x1;xx+=W*.008) x.lineTo(xx,bankY-H*.006*(1+Math.sin(xx*.21)+Math.sin(xx*.07))); x.lineTo(x1,hz); x.lineTo(x0,hz); x.closePath(); x.fill();
-        const wy=hz-ar*.3, wg=x.createLinearGradient(0,wy,0,hz+1); wg.addColorStop(0,mix(P.wTop,P.farHaze,.45)); wg.addColorStop(1,P.wTop); x.fillStyle=wg; x.fillRect(x0,wy,x1-x0,hz-wy+2);
+      /* map redo (director, 2026-11-22: "the wrong background" and "a strange green" in the openings): no painted sky any more; the real hill
+         and village behind show through, with the river running on upstream along the bottom of each opening */
+      { const wy=hz-ar*.22, wg=x.createLinearGradient(0,wy,0,hz+1); wg.addColorStop(0,mix(P.wTop,P.farHaze,.45)); wg.addColorStop(1,P.wTop); x.fillStyle=wg; x.fillRect(x0,wy,x1-x0,hz-wy+2);
         x.strokeStyle=v3rgba(P.rim,.35+P.d*.2); x.lineWidth=.8; x.beginPath(); for(let k=0;k<5;k++){ const yy=wy+(hz-wy)*(.2+k*.18); for(let xx=x0+((k*37)%23);xx<x1;xx+=W*.03){ x.moveTo(xx,yy); x.lineTo(xx+W*(.006+k*.002),yy); } } x.stroke(); }
       x.restore();
       x.save(); x.beginPath(); x.rect(x0,top,x1-x0,hz-top+1); arches(x); x.fillStyle=P.stone; x.fill('evenodd'); x.clip('evenodd');
@@ -72,8 +77,11 @@ V3SCENES.river = {
     v3mist(P,t,hz,.12*(1-night)*(1-d)+.16*d+.08*night);
     // fast current lines flowing right to left at many depths
     g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.55),.28); g.lineWidth=1;
+    /* never across the jetty or the moored rowboat (director, 2026-11-22: "water running through them") */
+    const jx=W*.79, jl=rvH()*.034; g.save(); g.beginPath(); g.rect(0,hz,W,H); g.rect(jx-W*.026/2-rvH()*.0038*22,hz-2,W*.026+rvH()*.0038*22+4,jl+rvH()*.03); g.clip('evenodd');
     for(let r0=0;r0<12;r0++){ const y=hz+H*.025+Math.pow(r0/12,1.4)*(H-hz)*.95, sp=W*(.06+r0*.012), len=W*(.02+r0*.006), spd=W*(.05+r0*.01);
       g.beginPath(); for(let X=W+sp-((t*spd+r0*71)%sp);X>-len;X-=sp){ const yy=y+Math.sin(X*.03+r0)*1.2; g.moveTo(X,yy); g.lineTo(X+len,yy+.4); } g.stroke(); }
+    g.restore();
     // river rocks with foam churning around them (kept off the casting line)
     const foam=mix(P.wTop,'#ffffff',.75);
     for(const [rx,ry,rw,sd] of [[.43,.62,.026,1],[.82,.88,.038,2],[.6,.95,.032,3]]){ const X=W*rx, Y=H*ry, w=W*rw;
@@ -89,7 +97,7 @@ V3SCENES.river = {
       for(let i=0;i<7;i++){ const k=((t*.8+i/7)%1), fx=X-w*1.0-k*w*2.6, fy=Y+w*.05+Math.sin(k*7+i*2)*w*.1; g.fillStyle=v3rgba(foam,.6*(1-k)); g.beginPath(); g.ellipse(fx,fy,w*.08*(1-k*.6),w*.03,0,0,7); g.fill(); } }
     v3fishRing(P,t,hz,6.1,.45,.9);
     // a heron stands in the shallows by the far bank, dipping its head now and then
-    { const hx=W*.955, hy=hz+H*.05, s=H*.0016, dip=((t%11)>9.6)?Math.sin(((t%11)-9.6)/1.4*Math.PI):0, hc=mix('#8a94a4',P.front,night*.6);
+    { const hx=W*.955, hy=hz+H*.022 /* in the shallows at the reeds, close to the bank (director asked whether it made sense out in the river) */, s=H*.0016, dip=((t%11)>9.6)?Math.sin(((t%11)-9.6)/1.4*Math.PI):0, hc=mix('#8a94a4',P.front,night*.6);
       /* thin, true-to-life legs with a little backward knee, standing in a slow ripple */
       { const lc=mix('#c8a060',P.front,.35+night*.4); g.strokeStyle=lc; g.lineWidth=Math.max(.6,s*.95); g.lineCap='round'; g.beginPath(); g.moveTo(hx-s*3.2,hy+s*1); g.lineTo(hx-s*2.6,hy-s*8); g.lineTo(hx-s*2.2,hy-s*16); g.moveTo(hx+s*.8,hy+s*1); g.lineTo(hx+s*.2,hy-s*8); g.lineTo(hx-s*.4,hy-s*16); g.stroke();
         g.fillStyle=lc; g.beginPath(); g.arc(hx-s*2.6,hy-s*8,s*.8,0,7); g.arc(hx+s*.2,hy-s*8,s*.8,0,7); g.fill();
@@ -114,14 +122,14 @@ m33wrap('river','live',function(P,t,hz){ const night=P.night, FX=S.settings.effe
     if(FX){ g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.5*up); g.lineWidth=1; g.beginPath(); g.ellipse(x,y+1,s*(2.6+e*4),s*(.6+e*.8),0,0,7); g.stroke(); } }
 });
 m33wrap('river','live',function(P,t,hz){ const lc=['#d8a03a','#c8603a','#8aa84a'];
-  for(let i=0,n=gfxHigh()?9:6;i<n;i++){ const lane=hz+H*(.2+(i%6)*.1+(i>5?.05:0)), sp=.012+i*.004, x=W*((((i*.29+t*sp)%1.3)+1.3)%1.3-.15), y=lane+Math.sin(t*.9+i*2)*H*.006, s=H*(.006+(i%3)*.0015), r=t*.4+i;
+  for(let i=0,n=gfxHigh()?9:6;i<n;i++){ const lane=hz+H*(.2+(i%6)*.1+(i>5?.05:0)), sp=.012+i*.004, x=W*(1.15-(((i*.29+t*sp)%1.3)+1.3)%1.3) /* downstream is left (director, 2026-11-22) */, y=lane+Math.sin(t*.9+i*2)*H*.006, s=H*(.006+(i%3)*.0015), r=t*.4+i;
     g.save(); g.translate(x,y); g.rotate(r); g.fillStyle=mix(lc[i%3],P.wMid,.2+P.night*.5); g.beginPath(); g.moveTo(-s*1.4,0); g.quadraticCurveTo(0,-s,s*1.4,0); g.quadraticCurveTo(0,s,-s*1.4,0); g.fill(); g.strokeStyle=v3rgba('#000000',.2); g.lineWidth=.6; g.beginPath(); g.moveTo(-s*1.2,0); g.lineTo(s*1.2,0); g.stroke(); g.restore();
     g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.25); g.lineWidth=.8; g.beginPath(); g.ellipse(x,y+1,s*2.2,s*.5,0,0,7); g.stroke(); } });
 wx3WaterLayer('river');
 l3wakeLayer('river');
 l3gustLayer('river');
 m33wrap('river','live',function(P,t,hz){ if(!S.settings.effects) return; const foam=mix(P.wTop,'#ffffff',.7); g.strokeStyle=v3rgba(foam,.4); g.lineWidth=1;
-  for(const [rx,ry] of [[.43,.21],[.6,.45],[.82,.43]]){ for(let k=0;k<3;k++){ const q=((t*.5+k/3)%1), x=W*rx+q*W*.06, y=hz+H*ry-H*.004+Math.sin(q*6+k)*H*.004; g.globalAlpha=.6*(1-q); g.beginPath(); g.moveTo(x,y); g.lineTo(x+W*.02,y+H*.002); g.stroke(); } } g.globalAlpha=1; });
+  for(const [rx,ry] of [[.43,.21],[.6,.45],[.82,.43]]){ for(let k=0;k<3;k++){ const q=((t*.5+k/3)%1), x=W*rx-q*W*.06-W*.02, y=hz+H*ry-H*.004+Math.sin(q*6+k)*H*.004; g.globalAlpha=.6*(1-q); g.beginPath(); g.moveTo(x,y); g.lineTo(x+W*.02,y+H*.002); g.stroke(); } } g.globalAlpha=1; });
 depthHazeLayer('river');
 m33wrap('river','live',function(P,t,hz){ const night=P.night, d=P.d, lit=clamp(night*1.2+d*.7,0,1), hh=rvH()*.017, hw=rvH()*.024;
   if(lit>.05){ g.fillStyle=v3rgba('#ffcf7a',.25+lit*.7); for(const [fx,dy,big] of RV_HOUSES){ const bx=W*fx, by=rvBaseY(hz,dy), w=hw*(big?1.15:.9), h=hh*(big?1.05:.9), on=(Math.sin(fx*91)+1)/2<.75+lit*.25;

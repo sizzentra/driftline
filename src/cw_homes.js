@@ -14,17 +14,34 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
 /* 2. Stonebrook River: the mill landing */
 hfMake('river',{ name:'Stonebrook mill landing', hname:'mill landing',
   colors:C16('River stone=#bab2a2;Dark stone=#8a8478;Slate=#5a6470;Mill oak=#7a5a3e;Dark oak=#4a3626;Roof brick=#7a4a3a;Iron=#3a3a40;Moss=#6a9a5e;Fern=#4f8050;River blue=#5a9aa4;Deep teal=#28525e;Sky=#a8d0ec;Birch white=#eef0e2;Autumn orange=#c8783a;Maple red=#a8402e;Wheat=#d8c08a'),
-  els:[{id:'wheel',label:'Waterwheel',styles:['Overshot wheel','Iron-banded wheel','Paddle wheel'],def:[0,3]},{id:'landing',label:'Landing',styles:['Flagstones','Oak on stone','Millstone'],def:[0,0]},
+  /* map redo (director, 2026-11-22): the waterwheel feature is gone (the mill already has one, and it didn't turn): a mooring feature
+     instead; the landing styles are three different builds; the lantern offers no open candle on a river landing */
+  els:[{id:'moor',label:'Mooring',styles:['Mooring post','Flour sacks','Sack barrow'],def:[0,3]},{id:'landing',label:'Landing',styles:['Flagstones','Oak boards','Brick quay'],def:[0,0]},
        {id:'shed',label:'Mill shed',none:true,styles:['No shed','Slate roof','Timber frame','Thatch'],def:[1,2]},{id:'rack',label:'Fly rack',none:true,styles:['No rack','Rod rack','Creel and net','Fly line'],def:[1,3]},
-       {id:'light',label:'Lantern',light:true,styles:['Cage lantern','Oil lamp','Millstone candle'],def:[0,13]}],
+       {id:'light',label:'Lantern',light:true,styles:['Cage lantern','Oil lamp','Wall bracket'],def:[0,13]}],
   seat:['stump','gardenbench','barrel'], seatNames:['Stump stool','Garden bench','Barrel'], seatDef:[1,3],
   order:[
-    ['wheel',(o,s,c)=>{ /* under the landing beside the mill shed, half in the race, behind the supports (director, 2026-11-22: it hung off the end) */ const R=s===2?H*.045:H*.058, cx=HK.at(o,.2), cy=o.wl+H*.004; o.x.strokeStyle=HK.n(o,s===1?'#3a3a40':c); o.x.lineWidth=3; o.x.beginPath(); o.x.arc(cx,cy,R,0,7); o.x.stroke(); for(let k=0;k<10;k++){ const a=k*Math.PI/5; HK.line(o,[cx,cy,cx+Math.cos(a)*R,cy+Math.sin(a)*R],HK.dk(c,.2),1.5); HK.rect(o,cx+Math.cos(a)*R-2,cy+Math.sin(a)*R-2,4,4,c); } HK.circ(o,cx,cy,H*.006,'#3a3a40'); { const x=o.x, wl=o.wl, g2=x.createLinearGradient(0,wl,0,wl+R+4); g2.addColorStop(0,'rgba(0,0,0,.35)'); g2.addColorStop(1,'rgba(0,0,0,.85)'); x.save(); x.globalCompositeOperation='destination-out'; x.fillStyle=g2; x.fillRect(cx-R-4,wl,2*R+8,R+6); x.restore(); } /* the half in the water fades into it */ o.posts.push({x:cx,w:R*1.2}); }],
-    ['landing',(o,s,c)=>{ HK.supports(o,'#9a948a',s===1?'stone':'stone',4); HK.deck(o,c,s===1?'planks':'stone'); if(s===2) HK.ell(o,HK.at(o,.6),o.dockY+HK.fh()*.5,W*.03,HK.fh()*.5,HK.dk(c,.1)); }],
-    ['rack',(o,s,c)=>{ const x=HK.at(o,.42), y=o.dockY; if(s===1){ HK.rect(o,x,y-H*.06,W*.02,2,c); for(let i=0;i<3;i++) HK.line(o,[x+i*W*.006,y,x+i*W*.007+W*.004,y-H*.12],HK.dk(c,.2),1.2); } if(s===2){ HK.poly(o,[x,y,x+W*.012,y,x+W*.014,y-H*.02,x-W*.002,y-H*.02],c); HK.line(o,[x+W*.018,y,x+W*.024,y-H*.1],'#5a4030',1.4); HK.ell(o,x+W*.025,y-H*.11,W*.006,H*.01,v3rgba('#3a3a40',.4)); } if(s===3){ HK.line(o,[x-W*.01,y-H*.1,x+W*.03,y-H*.1],'#c8a878',1); for(let i=0;i<5;i++) HK.circ(o,x-W*.006+i*W*.008,y-H*.094,1.6,[c,'#c8783a','#a8402e'][i%3]); } }],
-    ['shed',(o,s,c)=>{ if(s) HK.roof(o,c,['','slate','gable','thatch'][s],.02,.36); }],
+    ['landing',(o,s,c)=>{
+      if(s===0){ HK.supports(o,'#9a948a','stone',4); HK.deck(o,c,'stone'); }
+      if(s===1){ HK.supports(o,HK.dk(c,.15),'square',5); HK.deck(o,c,'planks'); }
+      if(s===2){ /* a solid brick quay wall down into the water instead of supports */ const x0=HF.x0(), top=o.dockY+HK.fh(), x=o.x, bc=HK.n(o,c), wl=o.wl;
+        x.fillStyle=bc; x.fillRect(x0,top,o.pw-x0,wl-top); x.strokeStyle=HK.n(o,HK.dk(c,.35)); x.lineWidth=.8; const rh=H*.009;
+        for(let yy=top,row=0;yy<wl;yy+=rh,row++){ x.beginPath(); x.moveTo(x0,yy); x.lineTo(o.pw,yy); for(let xx=x0+(row%2)*W*.006;xx<o.pw;xx+=W*.012){ x.moveTo(xx,yy); x.lineTo(xx,Math.min(wl,yy+rh)); } x.stroke(); }
+        const wg=x.createLinearGradient(0,wl-H*.03,0,wl); wg.addColorStop(0,'rgba(26,36,24,0)'); wg.addColorStop(1,'rgba(26,36,24,.5)'); x.fillStyle=wg; x.fillRect(x0,wl-H*.03,o.pw-x0,H*.03);
+        const deep=o.P.wBot||'#1a3040', ug=x.createLinearGradient(0,wl,0,wl+H*.16); ug.addColorStop(0,v3rgba(mix(c,deep,.7),.6)); ug.addColorStop(1,v3rgba(deep,0)); x.fillStyle=ug; x.fillRect(x0,wl,o.pw-x0,H*.16);
+        for(let i=0;i<5;i++) o.posts.push({x:x0+(o.pw-x0)*(i+.5)/5,w:W*.02}); HK.deck(o,'#9a948a','stone'); } }],
+    ['rack',(o,s,c)=>{ const x=HK.at(o,.42), y=o.dockY; if(s===1){ HK.rect(o,x,y-H*.06,W*.02,2,c); for(let i=0;i<3;i++) HK.line(o,[x+i*W*.006,y,x+i*W*.007+W*.004,y-H*.12],HK.dk(c,.2),1.2); } if(s===2){ HK.poly(o,[x,y,x+W*.012,y,x+W*.014,y-H*.02,x-W*.002,y-H*.02],c); HK.line(o,[x+W*.018,y,x+W*.024,y-H*.1],'#5a4030',1.4); HK.ell(o,x+W*.025,y-H*.11,W*.006,H*.01,v3rgba('#3a3a40',.4)); }
+      if(s===3){ /* a fly line strung between two posts, sagging under its own weight, with tied flies hanging on short threads (director: it had no physics) */ const a=x-W*.012, b=x+W*.034, ty=y-H*.1, sag=H*.016; HK.rect(o,a-1,ty,2,y-ty,c); HK.rect(o,b-1,ty,2,y-ty,c);
+        HK.curve(o,a,ty,(a+b)/2,ty+sag*2,b,ty,'#d8c8a0',1); for(let i=1;i<6;i++){ const u=i/6, px=a+(b-a)*u, py=ty+sag*4*u*(1-u); HK.line(o,[px,py,px,py+H*.008],v3rgba('#e8e0c8',.8),.7); HK.circ(o,px,py+H*.009,1.7,['#c8783a','#a8402e','#d8c08a','#6a9a5e','#5a9aa4'][i-1]); } } }],
+    ['shed',(o,s,c)=>{ if(s) HK.roof(o,c,['','slate','timberframe','thatch'][s],.02,.36); }],
+    ['moor',(o,s,c)=>{ const x=HK.at(o,.7), y=o.dockY, sc=HF.sc(); /* on the landing's front half, clear of the angler */
+      if(s===0){ HK.rect(o,x-3.5*sc,y-9*sc,7*sc,9*sc,'#3a3a40'); HK.ell(o,x,y-9*sc,5*sc,1.6*sc,'#4a4a52'); HK.ell(o,x+9*sc,y-1.6*sc,6*sc,1.8*sc,c); HK.ell(o,x+9*sc,y-1.6*sc,3.5*sc,1*sc,HK.dk(c,.3)); /* an iron bollard and a coil of rope */
+        HK.curve(o,x+3*sc,y-7*sc,x+12*sc,y+2*sc,x+16*sc,o.wl,c,Math.max(1.2,1.1*sc)); }
+      if(s===1){ for(const [dx,dy,k] of [[0,0,1],[9,0,1],[4.5,-7,1]]){ const bx=x+dx*sc, by=y+dy*sc; HK.poly(o,[bx-4.5*sc,by,bx+4.5*sc,by,bx+4*sc,by-7*sc,bx-4*sc,by-7*sc],'#e8dcc0'); HK.rect(o,bx-4.4*sc,by-4.6*sc,8.8*sc,1.6*sc,c); HK.ell(o,bx,by-7.4*sc,1.4*sc,1*sc,'#c8b890'); } } /* flour sacks with the mill's band */
+      if(s===2){ const wx=x+2*sc; HK.line(o,[x-4*sc,y-18*sc,x+1*sc,y-2*sc,x+10*sc,y-2*sc],HK.dk(c,.2),Math.max(1.4,1.4*sc)); HK.circ(o,wx,y-3*sc,3*sc,'#3a3a40'); HK.circ(o,wx,y-3*sc,1.2*sc,c);
+        for(const k of [0,1]){ const by=y-3*sc-k*6.5*sc, bx=x+5*sc-k*1.5*sc; HK.poly(o,[bx-4*sc,by,bx+4*sc,by,bx+3.6*sc,by-6*sc,bx-3.6*sc,by-6*sc],'#e8dcc0'); HK.rect(o,bx-3.9*sc,by-3.8*sc,7.8*sc,1.4*sc,c); } } }],
     ['seat'],
-    ['light',(o,s)=>HK.light(o,['cage','hanging','millcandle'][s])]] });
+    ['light',(o,s)=>HK.light(o,['cage','hanging','bracket'][s])]] });
 
 /* 3. Cherry Blossom Lake: the tea house deck */
 hfMake('blossom',{ name:'Tea house deck', hname:'tea house deck',
