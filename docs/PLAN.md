@@ -480,3 +480,18 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 ## Paused 2026-11-23 (director: "can we pause for tonight?")
 - **Next: Rockies music.** Director: "Glacier light" is too repetitive and distracting over time; wants more atmosphere and to **listen first**. Plan (not built yet): slower (56 bpm), four chord loops picked at random (about 2 minutes before it repeats instead of 46 s), no strums or banjo; a slow string wash, a low drone, sparse echoing bell notes, an occasional distant loon call and a breath of wind; calmer at night. A listening page (artifact) with today's theme next to the new one and a day/night switch, built from the game's own engine (src/j_music.js, d2_extra.js `startAudio`/`musicTick`); the game changes only after the director's yes. Engine needs `st.shuffle` (random loop per 8 bars).
 - Then the next water in the one-at-a-time order (Willow Pond), unless the director has more Rockies notes.
+
+## Overnight queue draft (2026-11-23, director; NOT started: waiting for the director's go)
+1. **Fishing feel** (director's answers): run share 40%; short runs 65% / long 35% (darters 85% short, long runners 40%); long runs +1 combo per 5 good pulls; at least 1.2 s rest after a run and a second run in a row half as likely; no rest under 0.6 s whatever the temper; dart chains 1-2 extra (3 for legendary and mythic); each good pull cuts 0.3 s off a long run; fight length 0.8 -> 0.88; second wind after 5 s; rare+ hooked at 40% of a cast or closer surge for 3 s (about 2.5 / 4 / 5.5 / 7 m by rarity, replacing the old "runs first" rule); run messages: open (the director didn't take the proposal); bug: the hook flash stays as a white haze in oddity fights.
+2. **Director's list (2026-11-23):**
+   - A combo reaction makes the game jump or stutter: find and fix.
+   - A valid save code: go back to the fishing screen to accept loading it.
+   - Voyage map unlocks open for purchase after the first voyage, not the second.
+   - Water Reader: drop "one more try per bite". A new skill: 1 extra bite at level 3, 2 at 6, 3 at 9; +5% higher-rarity chance per extra bite per level; at max level a missed hotspot doesn't break the streak (name, cost and level count: Claude proposes).
+   - Gourmet: fish caught on their favourite food sell for 6% more (scaling with the existing buff).
+   - Snag Sense text: "Better at avoiding snags."
+   - Naturalist: replace with a balanced mastery-score buff (numbers: Claude proposes).
+   - Candy Maker: +1% per rank for a higher-rank nibble on a successful scrap; up to rank 10.
+   - Cooler: the sell-by-rarity menu closes while hovering Rare and below.
+   - Cooler: filters don't work; the shiny and hybrid sell toggles don't work.
+3. Rockies music listening page. 4. Willow Pond (one water, published alone). 5. Wisdom Pearls lost on a new save's first reload. 6. Proposals page for game notes 2-9 (prestige, boons, progress unlocks, gold only from bounties, PC Aquarium). 7. Stonebrook if time. Then the final full check and a morning report.
