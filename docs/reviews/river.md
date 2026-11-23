@@ -1,0 +1,4 @@
+# Stonebrook River to the Rockies standard (overnight batch 5, 2026-11-23)
+**Analysis (pictures: tools/shots/r_day.png night scene, r1/r2 home):** the scene fits the theme: the stone arch bridge, the village with its church spire, the mill with its turning waterwheel, the heron, otters surfacing with rings, river stones sitting in the water with foam, falling leaves. The home was the old landing (mooring, fly rack, shed none-style), not one building.
+**Home:** a stone mill shed (base-home kit): walls (fieldstone, timber frame, clapboard), roof (slate, cedar shakes, thatch), chimney (fieldstone, brick, stovepipe) with smoke, lantern (iron cage, lamp post, lantern string), door (plank, Dutch, arched), windows (four-pane, arched, shuttered), seat (stump, slatted bench, barrel) at the deck's edge; fieldstone piers carrying on under the water; autumn woods on the bank.
+**Checked:** __hfOne at full size day and night; the scene at night.

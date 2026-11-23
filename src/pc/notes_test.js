@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Stonebrook River: your home is now a stone mill shed on fieldstone piers you customise: walls, roof (slate, shakes or thatch), chimney with smoke, lantern, door, windows and seat, with autumn woods on the bank behind it.',
+  '## Test build 2026.11.23-0352',
   'Willow Pond: your home is now a pine boathouse you customise: walls, roof, lantern, shade (including the patio umbrella), door, windows and seat, on a pine bank with round piles. Your seat sits at the deck’s edge.',
   'Willow Pond: the weeping willow is green again by day.',
   '## Test build 2026.11.23-0332',
