@@ -72,16 +72,21 @@ hfMake('blossom',{ name:'Tea house deck', hname:'tea house deck',
 hfMake('coast',{ name:'Saltmarsh pier end', hname:'pier',
   colors:C16('Driftwood=#a8a090;Silver-grey=#8a8a84;Tar black=#2e2a28;Weathered blue=#5a7a8a;Sea glass=#9adcd8;Sea teal=#3aa0a8;Deep sea=#145a6a;Sand=#e8d6a4;Dune grass=#8aa85a;Rope tan=#c8a878;Buoy red=#c8483a;Buoy yellow=#e8c04a;Lighthouse white=#f4f0e6;Shingle brown=#6a5440;Gull grey=#c8ccd0;Oilskin yellow=#d8b030'),
   els:[{id:'pilings',label:'Pilings',styles:['Tarred pilings','Braced pilings','Rock jetty'],def:[0,2]},{id:'deck',label:'Pier deck',styles:['Salt-grey boards','Tarred planks','Steel grating'],def:[0,0]},
-       {id:'shack',label:'Bait shack',none:true,styles:['No shack','Shingle shack','Lobster shack','Canvas lean-to'],def:[1,3]},{id:'gear',label:'Fishing gear',none:true,styles:['No gear','Lobster pots','Drying net','Buoys'],def:[3,10]},
-       {id:'light',label:'Lamp',light:true,styles:['Ship’s lantern','Lighthouse lamp','Buoy light'],def:[0,13]}],
+       {id:'shack',label:'Bait shack',none:true,styles:['No shack','Shingle shack','Boathouse','Sail awning'],def:[1,3]},{id:'gear',label:'Fishing gear',none:true,styles:['No gear','Lobster pots','Drying net','Buoys'],def:[3,10]},
+       {id:'light',label:'Lamp',light:true,styles:['Ship’s lantern','Harbour lamp','Buoy light'],def:[0,13]}],
   seat:['crate','bucket','driftbench'], seatNames:['Fish crate','Upturned bucket','Driftwood bench'], seatDef:[0,0],
   order:[
     ['pilings',(o,s,c)=>HK.supports(o,c,['tarred','braced','jetty'][s],5)],
     ['deck',(o,s,c)=>HK.deck(o,c,['boards','planks','grate'][s])],
-    ['shack',(o,s,c)=>{ if(s===1) HK.roof(o,c,'shackbox',.02,.3); if(s===2){ HK.roof(o,c,'shackbox',.02,.3); for(let i=0;i<3;i++) HK.circ(o,HK.at(o,.06+i*.07),o.dockY-H*.07,H*.006,['#c8483a','#e8c04a','#f4f0e6'][i]); } if(s===3) HK.roof(o,c,'canvas',.02,.34); }],
-    ['gear',(o,s,c)=>{ const x=HK.at(o,.4), y=o.dockY; if(s===1) for(let i=0;i<2;i++){ HK.block(o,x,y-H*.02*(i+1),W*.024,H*.02,HK.dk(c,.1)); for(let k=0;k<4;k++) HK.line(o,[x+k*W*.006,y-H*.02*(i+1),x+k*W*.006,y-H*.02*i],'#2e2a28'); }
+    /* map redo (director, 2026-11-22: "no real variety", options recycled from other homes, buoys floating beside the angler): a shingle
+       shack, a boathouse with a board wall and a porthole, a boat's sail rigged as an awning; the buoys hang from a line between two posts */
+    ['shack',(o,s,c)=>{ const y=o.dockY, sc=HF.sc(); if(s===1){ HK.roof(o,c,'shackbox',.02,.3); for(let i=1;i<6;i++) HK.line(o,[HK.at(o,.02),y-H*.13+i*H*.004,HK.at(o,.3),y-H*.13-H*.03*(i/6)+i*H*.004],HK.dk(c,.35),.8); }
+      if(s===2){ const a=HK.at(o,.0), b=HK.at(o,.12), top=y-H*.12; HK.block(o,a,top,b-a,y-top,HK.dk(c,.1)); for(let i=1;i<6;i++) HK.line(o,[a+(b-a)*i/6,top,a+(b-a)*i/6,y],HK.dk(c,.35),.8); HK.circ(o,(a+b)/2,top+H*.035,H*.008,'#3a3a40'); HK.circ(o,(a+b)/2,top+H*.035,H*.0055,v3rgba('#9adcd8',.7)); HK.roof(o,c,'gable',.0,.34); }
+      if(s===3) HK.roof(o,c,'sailawning',.02,.36); }],
+    ['gear',(o,s,c)=>{ const x=HK.at(o,.55), y=o.dockY; if(s===1) for(let i=0;i<2;i++){ HK.block(o,x,y-H*.02*(i+1),W*.024,H*.02,HK.dk(c,.1)); for(let k=0;k<4;k++) HK.line(o,[x+k*W*.006,y-H*.02*(i+1),x+k*W*.006,y-H*.02*i],'#2e2a28'); }
       if(s===2){ HK.rect(o,x+W*.01,y-H*.13,2,H*.13,'#6a5440'); o.x.fillStyle=v3rgba(c,.5); o.x.beginPath(); o.x.moveTo(x+W*.011,y-H*.13); o.x.quadraticCurveTo(x-W*.01,y-H*.08,x,y-H*.02); o.x.lineTo(x+W*.011,y-H*.04); o.x.fill(); }
-      if(s===3){ HK.line(o,[x-W*.01,y-H*.08,x+W*.03,y-H*.08],'#c8a878'); for(let i=0;i<4;i++) HK.ell(o,x-W*.006+i*W*.01,y-H*.068,H*.006,H*.009,[c,'#e8c04a','#f4f0e6','#c8483a'][i]); } }],
+      if(s===3){ const a=x-W*.012, b=x+W*.034, ty=y-H*.085; HK.rect(o,a-1,ty,2.2,y-ty,'#6a5440'); HK.rect(o,b-1,ty,2.2,y-ty,'#6a5440'); HK.curve(o,a,ty,(a+b)/2,ty+H*.016,b,ty,'#c8a878',1.2);
+        for(let i=0;i<4;i++){ const u=(i+1)/5, px=a+(b-a)*u, py=ty+H*.032*u*(1-u); HK.line(o,[px,py,px,py+H*.008],'#c8a878',.8); HK.ell(o,px,py+H*.016,H*.006,H*.009,[c,'#e8c04a','#f4f0e6','#c8483a'][i]); } } }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['hook','lighthouse','buoy'][s])]] });
 

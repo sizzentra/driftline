@@ -67,7 +67,7 @@ V3SCENES.coast = {
     v3fishRing(P,t,hz,7.3,.42,.85);
     // the moment, every 42 s (map standard, 2026-11-21): a pod of porpoises rolls past out on the far water, backs and fins arcing up
     // and under, each a little apart; the pod is three or four strong and takes its own line each time
-    { const per=42, q=t%per, n=Math.floor(t/per); if(q<9){ const r=v3rng(n*53+9), np=3+(r()<.5?1:0), yy=hz+H*(.07+r()*.03), col=mix('#3a4652',P.wMid,.25+night*.5), s=H*.011*(1+(yy-hz)/H*2);
+    { const per=42, q=t%per, n=Math.floor(t/per); if(q<9){ const r=v3rng(n*53+9), np=3+(r()<.5?1:0), yy=hz+H*(.022+r()*.012) /* far out, beyond the seal's rock, so nothing pops up beside it (director) */, col=mix('#3a4652',P.wMid,.25+night*.5), s=H*.011*(1+(yy-hz)/H*2);
       for(let i=0;i<np;i++){ const e=(q-i*.55)/9; if(e<0||e>1) continue; const cx=W*(.95-e*.5)+i*s*3, k=((q*.9+i*.37)%1.6)/1.6, up=k<.5?Math.sin(k/.5*Math.PI):0, by=yy+i*H*.004;
         if(up>.02){ g.save(); g.beginPath(); g.rect(0,0,W,by); g.clip(); g.fillStyle=col; g.beginPath(); g.ellipse(cx,by+s*(1.2-up*1.6),s*2.6,s*1.1,0,Math.PI,0); g.fill();
           g.beginPath(); g.moveTo(cx-s*.2,by-s*(up*1.6-1.2)-s*.9); g.lineTo(cx+s*.5,by-s*(up*1.6-1.2)-s*1.9); g.lineTo(cx+s*.9,by-s*(up*1.6-1.2)-s*.9); g.fill(); g.restore(); }
@@ -90,6 +90,29 @@ m33wrap('coast','land',function(x,P,hz){
   x.strokeStyle=v3rgba(mix(P.stoneD,P.far,.3),.6); x.lineWidth=1; for(let k=0;k<4;k++){ const y=hz-H*(.045-k*.011); x.beginPath(); x.moveTo(W*.214+k*W*.004,y); x.lineTo(W*.26,y+H*.004); x.stroke(); }
   const hg=x.createLinearGradient(0,hz-H*.09,0,hz); hg.addColorStop(0,v3rgba(P.rim,.18)); hg.addColorStop(1,v3rgba(P.farHaze,.45)); x.fillStyle=hg; x.fillRect(0,hz-H*.09,W*.28,H*.09);
   x.restore();
+  /* map redo (director, 2026-11-22: "great buildings slapped onto some garbage", the land needs depth and love): terraced fields held
+     by dry-stone walls with gorse along them, a footpath zig-zagging down, and a stone harbour wall at the water with two fishing boats */
+  { const st=mix('#9a948a',P.far,.15), stD=mix('#5a564e',P.far,.15), fr=v3rng(97); x.save(); M33.headland(x,hz); x.clip();
+    for(const [k,y0] of [[0,.062],[1,.045],[2,.03]]){ const yy=f=>hz-H*(y0-.006*Math.sin(f*7+k)); x.fillStyle=mix(farC,k%2?'#d8c890':'#6a8a4a',.18); x.beginPath(); x.moveTo(0,yy(0)); for(let X=0;X<=W*.27;X+=W*.01) x.lineTo(X,yy(X/W)); x.lineTo(W*.27,yy(.27)+H*.016); x.lineTo(0,yy(0)+H*.016); x.closePath(); x.fill();
+      x.strokeStyle=stD; x.lineWidth=Math.max(1.5,H*.003); x.beginPath(); x.moveTo(0,yy(0)); for(let X=0;X<=W*.27;X+=W*.01) x.lineTo(X,yy(X/W)); x.stroke();
+      x.fillStyle=st; for(let X=W*.004;X<W*.26;X+=W*.007) x.fillRect(X,yy(X/W)-1.2,W*.005,1.2);
+      x.fillStyle=mix('#d8b830',P.far,.3); for(let i=0;i<9;i++){ const X=fr()*W*.25; x.beginPath(); x.arc(X,yy(X/W)-H*.003,H*.003,0,7); x.fill(); } }
+    x.strokeStyle=mix('#e0d4b0',P.far,.3); x.lineWidth=Math.max(1.2,H*.0025); x.beginPath(); x.moveTo(W*.16,hz-H*.068); x.lineTo(W*.1,hz-H*.05); x.lineTo(W*.17,hz-H*.034); x.lineTo(W*.11,hz-H*.018); x.lineTo(W*.15,hz-H*.006); x.stroke();
+    x.restore();
+    const qt=hz-H*.016; x.fillStyle=st; x.fillRect(-2,qt,W*.22,hz+1-qt); x.strokeStyle=stD; x.lineWidth=.8; x.beginPath(); for(let yy=qt+H*.004,row=0;yy<hz;yy+=H*.004,row++){ x.moveTo(0,yy); x.lineTo(W*.22,yy); for(let X=(row%2)*W*.004;X<W*.22;X+=W*.008){ x.moveTo(X,yy-H*.004); x.lineTo(X,yy); } } x.stroke();
+    x.fillStyle=v3rgba(P.rim,.35); x.fillRect(-2,qt,W*.22,1); for(const bx of [.05,.13]){ x.fillStyle=stD; x.fillRect(W*bx,qt-H*.004,H*.004,H*.004); }
+    for(const [bx,col] of [[.07,'#c8503a'],[.15,'#3a7a9a']]){ const s=H*.0045, by=hz-H*.001, hc=mix(col,P.far,.2); x.fillStyle=hc; x.beginPath(); x.moveTo(W*bx-s*7,by-s*1.6); x.lineTo(W*bx+s*7,by-s*1.6); x.quadraticCurveTo(W*bx+s*6,by+s*1.2,W*bx+s*3,by+s*1.4); x.lineTo(W*bx-s*4,by+s*1.4); x.quadraticCurveTo(W*bx-s*6.5,by+s*1,W*bx-s*7,by-s*1.6); x.fill();
+      x.fillStyle=mix('#f0ead8',P.far,.2); x.fillRect(W*bx-s*7,by-s*1.9,s*14,s*.5); x.fillStyle=stD; x.fillRect(W*bx-s*.4,by-s*9,s*.8,s*7.5); x.strokeStyle=v3rgba(mix('#d8c49a',P.far,.3),.8); x.lineWidth=.8; x.beginPath(); x.moveTo(W*bx-s*7,by-s*1.6); x.lineTo(W*bx-s*9,qt); x.stroke(); } }
+  /* the lighthouse side (director: "empty, bland and boring"): a row of striped beach huts on the dunes, a band of wet sand at the water,
+     a rowboat pulled up on the beach and a stack of lobster pots */
+  { const fr=v3rng(61), sand=mix(P.sandD||P.sand||'#c8b080',P.far,.15);
+    x.fillStyle=v3rgba(mix(sand,'#3a3020',.35),.55); x.beginPath(); x.moveTo(W*.5,hz+1); x.quadraticCurveTo(W*.65,hz-H*.004,W*.78,hz-H*.003); x.lineTo(W*.78,hz+1); x.closePath(); x.fill();
+    const cols=['#c8503a','#3a7a9a','#e0b040','#5a9a6a','#f0ead8'];
+    for(let i=0;i<5;i++){ const hx=W*(.55+i*.028), hb=hz-H*(.009+.004*Math.sin(i)), hw=W*.016, hh=H*.022, c0=mix(cols[i],P.far,.2);
+      x.fillStyle=mix('#f4efe6',P.far,.2); x.fillRect(hx-hw/2,hb-hh,hw,hh); x.fillStyle=c0; for(let k=0;k<4;k++) if(k%2===0) x.fillRect(hx-hw/2+k*hw/4,hb-hh,hw/4,hh);
+      x.fillStyle=mix(c0,'#000000',.25); x.beginPath(); x.moveTo(hx-hw*.62,hb-hh); x.lineTo(hx,hb-hh-H*.012); x.lineTo(hx+hw*.62,hb-hh); x.closePath(); x.fill(); x.fillStyle=mix('#3a2a20',P.far,.3); x.fillRect(hx-hw*.15,hb-hh*.6,hw*.3,hh*.6); }
+    { const s=H*.005, bx=W*.7, by=hz-H*.002, hc=mix('#e8e0cc',P.far,.2); x.save(); x.translate(bx,by); x.rotate(-.12); x.fillStyle=hc; x.beginPath(); x.moveTo(-s*6,-s*1.4); x.lineTo(s*6,-s*1.4); x.quadraticCurveTo(s*5,s*1.2,s*2,s*1.3); x.lineTo(-s*3,s*1.3); x.quadraticCurveTo(-s*5.6,s*.9,-s*6,-s*1.4); x.fill(); x.fillStyle=mix('#3a7a9a',P.far,.2); x.fillRect(-s*6,-s*1.6,s*12,s*.5); x.restore(); }
+    for(const [px,py] of [[.735,0],[.745,0],[.74,-1]]){ const s=H*.004, X=W*px, Y=hz-H*.004+py*s*2.2; x.strokeStyle=mix('#8a6a4a',P.far,.3); x.lineWidth=.8; x.strokeRect(X-s*1.4,Y-s*2,s*2.8,s*2); x.beginPath(); x.moveTo(X-s*1.4,Y-s); x.lineTo(X+s*1.4,Y-s); x.stroke(); } }
   m33village(x,P,hz);
   m33reflect(x,hz,H*.07,.22,mix(farC,P.wMid,.5),()=>M33.headland(x,hz));
 });
@@ -132,7 +155,7 @@ m33wrap('coast','live',function(P,t,hz){ const night=P.night, d=P.d, FX=S.settin
 });
 wx3WaterLayer('coast');
 l3wakeLayer('coast');
-m33wrap('coast','live',function(P,t,hz){ if(P.night>.7) return; for(let i=0;i<3;i++){ const x=W*(.62+((t*.02+i*.07)%.3)), run=Math.sin(t*2+i)>0, y=hz-H*.003, s=H*.0035, bc=mix('#8a7a64',P.sandD,.3);
+m33wrap('coast','live',function(P,t,hz){ if(P.night>.7) return; for(let i=0;i<3;i++){ const x=W*(.5+((t*.02+i*.07)%.2)) /* on the open sand only, never across the lighthouse rocks (director) */, run=Math.sin(t*2+i)>0, y=hz-H*.003, s=H*.0035, bc=mix('#8a7a64',P.sandD,.3);
   g.fillStyle=bc; g.beginPath(); g.ellipse(x,y-s*1.4,s*1.4,s*.8,0,0,7); g.fill(); g.beginPath(); g.arc(x+s*1.2,y-s*2,s*.55,0,7); g.fill(); g.strokeStyle='#2a241c'; g.lineWidth=.6; g.beginPath(); g.moveTo(x+s*1.6,y-s*2); g.lineTo(x+s*2.6,y-s*1.8); g.moveTo(x,y-s*.8); g.lineTo(x+(run?Math.sin(t*20+i)*s*.6:0),y); g.stroke(); } });
 depthHazeLayer('coast');
 m33wrap('coast','fore',function(P,t){ const b=H+2, sh=mix(P.stone,P.wBot,.2+P.night*.3), dk=mix(P.stoneD,P.wBot,.2+P.night*.3);

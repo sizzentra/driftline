@@ -73,7 +73,7 @@ const HK = {
       if(kind==='tarred'){ HK.rect(o,px-w*.65,b-H*.012,w*1.3,H*.012,HK.dk(col,.4)); }
       if(kind==='glass'){ HK.rect(o,px-w/2,t,w,b-t,v3rgba('#9ad0e0',.35)); HK.line(o,[px-w/2,t,px-w/2,b],'#3ae8ff'); }
       if(kind==='mangrove'){ HK.curve(o,px,t+H*.02,px-W*.01,b-H*.02,px-W*.014,b,col,2); HK.curve(o,px,t+H*.02,px+W*.01,b-H*.02,px+W*.015,b,col,2); }
-      if(kind==='boulder'||kind==='jetty'){ HK.ell(o,px,b-H*.01,w*1.1,H*.022,HK.dk(col,.1)); HK.ell(o,px-w*.3,b-H*.026,w*.7,H*.016,HK.lt(col,.05)); } } },
+      if(kind==='boulder'||kind==='jetty'){ const rc=mix('#8a8a84',col,.25); /* rock is rock-coloured whatever the colour choice (a tar-black jetty made black blobs, 2026-11-22) */ HK.ell(o,px,b-H*.01,w*1.1,H*.022,HK.dk(rc,.1)); HK.ell(o,px-w*.3,b-H*.026,w*.7,H*.016,HK.lt(rc,.08)); HK.ell(o,px+w*.35,b-H*.03,w*.45,H*.012,HK.lt(rc,.15)); } } },
   /* supports that don't touch the water: glowing, floating or hovering (Starfall, Circuit Lake) */
   under(o,col,kind,xs){ const t=o.dockY+HK.fh();
     for(const px of xs){ const g=o.x.createLinearGradient(0,t,0,o.wl+H*.08);
@@ -108,7 +108,7 @@ const HK = {
      small next to the screen, so PC covers barely lift). ROOF_LOW: each kind's lowest edge over the angler, as a share of H. */
   ROOF_LOW:{umbrella:.14,beachumbrella:.14,logoumbrella:.14,leanto:.134,shingle:.134,tin:.134,canvas:.134,sail:.14,gable:.12,slate:.12,barn:.12,shack:.12,aframe:.2,shackbox:.13,
     curved:.126,tiled:.126,thatch:.114,thatchgate:.114,torii:.145,leaf:.14,fronds:.108,flat:.142,ttop:.142,hardtop:.142,glass:.142,ceiling:.142,overhang:.142,bimini:.136,
-    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12,timberframe:.12,wisteria:.12},
+    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12,timberframe:.12,wisteria:.12,sailawning:.12},
   coverSpan(o,f0,f1){ const sc=HF.sc(); return [Math.min(HK.at(o,f0==null?.03:f0),HF.seatX()-16*sc), Math.min(o.pw-W*.008,Math.max(HK.at(o,f1==null?.47:f1),W*.12+14*sc))]; },
   roof(o,col,kind,f0,f1){ const [a,b]=HK.coverSpan(o,f0,f1), y=o.dockY, k=Math.max(1,(84*HF.sc()/H)/(HK.ROOF_LOW[kind]||.14)), x=o.x;
     if(k>1){ x.save(); x.translate(0,y); x.scale(1,k); x.translate(0,-y); }
@@ -159,6 +159,10 @@ const HK = {
         post(a+W*.004,base); post(b-W*.004,base); HK.poly(o,[a+W*.004,base,m,base-h*.85,b-W*.004,base],'#efe8d8');
         HK.line(o,[a+W*.004,base,b-W*.004,base],ob,2); HK.line(o,[m,base,m,base-h*.85],ob,1.6); HK.line(o,[a+(m-a)*.45,base,m,base-h*.45],ob,1.4); HK.line(o,[b-(b-m)*.45,base,m,base-h*.45],ob,1.4);
         HK.poly(o,[a-W*.012,base+H*.004,m,base-h,b+W*.012,base+H*.004,b+W*.006,base+H*.008,m,base-h*.88,a-W*.006,base+H*.008],c); break; }
+      case 'sailawning': { /* side view: a boat's sail rigged as shade, a short mast at the back with its gaff, the canvas sloping down to a front post, guy ropes */ const mt=y-H*.2, ft=y-H*.135, x=o.x;
+        HK.rect(o,a-1.5,mt,3,y-mt,'#6a5440'); post(b,ft); HK.line(o,[a,mt+H*.006,a+(b-a)*.35,mt-H*.004],'#6a5440',2);
+        x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(a+1,mt+H*.008); x.lineTo(a+(b-a)*.35,mt-H*.002); x.quadraticCurveTo(a+(b-a)*.7,ft-H*.02,b,ft); x.lineTo(a+1,ft+H*.012); x.closePath(); x.fill();
+        HK.line(o,[a+(b-a)*.2,mt+H*.02,b,ft],HK.dk(c,.25),.8); HK.line(o,[b,ft,b+W*.012,y],'#c8a878',.8); HK.line(o,[a,mt,a-W*.008,y],'#c8a878',.8); break; }
       case 'wisteria': { /* side view: a fuji-dana, two posts and a trellis beam with rafter ends, long racemes of wisteria hanging from it */ const top=y-H*.15, bt=Math.max(3,H*.007), wd='#5a3a26', x=o.x;
         post(a+W*.006,top); post(b-W*.006,top); HK.rect(o,a-W*.01,top-bt,b-a+W*.02,bt,wd); for(let i=0;i<=8;i++) HK.rect(o,a-W*.008+(b-a+W*.016)*i/8-1.2,top-bt-H*.006,2.4,H*.006,wd);
         for(let i=0;i<13;i++){ const px=a+(b-a)*(i+.5)/13, len=H*(.02+.028*((Math.sin(i*2.3)+1)/2)), w0=H*.006;
@@ -201,18 +205,20 @@ const HK = {
     const lantern=(lx,ly,gw)=>{ HK.rect(o,lx-gw*.6,ly-gw*1.1,gw*1.2,2,iron); HK.ell(o,lx,ly,gw*.5,gw*.8,v3rgba('#e8f0f4',.35)); HK.rect(o,lx-gw*.6,ly+gw*.8,gw*1.2,2,iron); };
     switch(kind){
       case 'post': pole(H*.1); foot(); lantern(x,y-H*.105,H*.012); return L(x,y-H*.105);
-      case 'hook': pole(H*.11); HK.rect(o,x-H*.016,y-H*.11,H*.016,2,iron); lantern(x-H*.014,y-H*.085,H*.011); return L(x-H*.014,y-H*.085);
       case 'table': HK.rect(o,x-H*.012,y-H*.006,H*.024,H*.006,iron); lantern(x,y-H*.022,H*.012); return L(x,y-H*.022,.14,.5);
       case 'paperline': { const a=HK.at(o,.05), b=o.pw-W*.01, top=y-H*.14; HK.rect(o,b-1,top,2,y-top,'#5a3a26'); HK.curve(o,a,top+H*.01,(a+b)/2,top+H*.03,b,top,'#3a2a20',1); for(let i=1;i<5;i++){ const u=i/5, lx=a+(b-a)*u, ly=top+H*.01+H*.022*(1-Math.pow(2*u-1,2))-u*H*.01; HK.ell(o,lx,ly+H*.01,H*.007,H*.009,'#f0a848'); } return L((a+b)/2,top+H*.03,.2,.55); }
       case 'toro': HK.rect(o,x-H*.008,y-H*.008,H*.016,H*.008,'#9a948a'); HK.rect(o,x-2,y-H*.03,4,H*.022,'#9a948a'); HK.rect(o,x-H*.009,y-H*.046,H*.018,H*.016,'#9a948a'); HK.rect(o,x-H*.005,y-H*.043,H*.01,H*.01,'#f0a848'); HK.poly(o,[x-H*.014,y-H*.046,x,y-H*.058,x+H*.014,y-H*.046],'#6a665e'); return L(x,y-H*.038,.13,.5);
       case 'chochin': pole(H*.12,'#5a3a26'); HK.ell(o,x-H*.012,y-H*.09,H*.011,H*.016,'#d8302a'); HK.rect(o,x-H*.02,y-H*.106,H*.016,2,'#2a2426'); return L(x-H*.012,y-H*.09,.17,.6);
       case 'cage': pole(H*.1); HK.rect(o,x,y-H*.1,H*.014,2,iron); o.x.strokeStyle=HK.n(o,iron); o.x.lineWidth=1; o.x.strokeRect(x+H*.006,y-H*.096,H*.014,H*.02); return L(x+H*.013,y-H*.086);
       case 'hanging': pole(H*.11); HK.curve(o,x,y-H*.11,x-H*.012,y-H*.112,x-H*.016,y-H*.1,iron,1.4); HK.ell(o,x-H*.016,y-H*.088,H*.006,H*.01,'#e8d8a0'); return L(x-H*.016,y-H*.088,.13);
+      case 'hook': /* a ship's lantern on a curved davit arm, hanging from it on a short chain (director: it wasn't attached to anything) */ pole(H*.115); HK.curve(o,x,y-H*.1,x-H*.004,y-H*.118,x-H*.02,y-H*.115,iron,2); HK.line(o,[x-H*.02,y-H*.115,x-H*.02,y-H*.098],iron,1); lantern(x-H*.02,y-H*.086,H*.011); return L(x-H*.02,y-H*.086);
+      case 'lighthouse': /* a cast-iron harbour lamp post: flared foot, fluted post, a glass lamp head under a cap */ HK.poly(o,[x-H*.01,y,x+H*.01,y,x+H*.004,y-H*.016,x-H*.004,y-H*.016],iron); HK.rect(o,x-1.6,y-H*.12,3.2,H*.104,iron); HK.rect(o,x-H*.006,y-H*.122,H*.012,2,iron);
+        HK.poly(o,[x-H*.007,y-H*.122,x+H*.007,y-H*.122,x+H*.009,y-H*.142,x-H*.009,y-H*.142],v3rgba('#e8f0f4',.35)); HK.poly(o,[x-H*.011,y-H*.142,x+H*.011,y-H*.142,x,y-H*.152],iron); return L(x,y-H*.132,.17);
+      case 'buoy': /* a red-and-white navigation buoy hauled up on the deck end, its light on a little cage on top */ HK.poly(o,[x-H*.012,y,x+H*.012,y,x+H*.007,y-H*.04,x-H*.007,y-H*.04],'#c8483a'); HK.rect(o,x-H*.0105,y-H*.026,H*.021,H*.008,'#f4f0e6');
+        HK.line(o,[x-H*.005,y-H*.04,x-H*.002,y-H*.056,x+H*.002,y-H*.056,x+H*.005,y-H*.04],iron,1.2); HK.ell(o,x,y-H*.06,H*.0045,H*.005,v3rgba('#e8f0f4',.4)); return L(x,y-H*.06,.13);
       case 'bracket': { /* a stout post with a scrolled iron arm, the lantern hanging from its end on a short chain */ HK.rect(o,x-2,y-H*.12,4,H*.12,'#5a4030'); HK.line(o,[x,y-H*.115,x+H*.03,y-H*.115],iron,2); HK.curve(o,x,y-H*.09,x+H*.012,y-H*.1,x+H*.024,y-H*.114,iron,1.4);
         HK.line(o,[x+H*.028,y-H*.115,x+H*.028,y-H*.104],iron,1); HK.rect(o,x+H*.021,y-H*.104,H*.014,2,iron); HK.ell(o,x+H*.028,y-H*.094,H*.0055,H*.009,v3rgba('#e8f0f4',.35)); HK.rect(o,x+H*.021,y-H*.085,H*.014,2,iron); return L(x+H*.028,y-H*.094,.14); }
       case 'candle': case 'millcandle': HK.ell(o,x,y-H*.004,H*.014,H*.005,'#9a948a'); HK.rect(o,x-H*.003,y-H*.024,H*.006,H*.02,'#f4ece0'); HK.ell(o,x,y-H*.028,1.4,2.6,'#ffd060'); return L(x,y-H*.028,.11,.5,{small:1});
-      case 'lighthouse': HK.rect(o,x-H*.006,y-H*.07,H*.012,H*.07,'#f4f0e6'); for(let i=0;i<3;i++) HK.rect(o,x-H*.006,y-H*.06+i*H*.02,H*.012,H*.008,'#c8483a'); HK.rect(o,x-H*.008,y-H*.085,H*.016,H*.015,'#e8f0f4'); HK.poly(o,[x-H*.01,y-H*.085,x,y-H*.095,x+H*.01,y-H*.085],'#c8483a'); return L(x,y-H*.078,.16);
-      case 'buoy': pole(H*.11); HK.line(o,[x,y-H*.11,x-H*.014,y-H*.11,x-H*.014,y-H*.08],'#c8a878',1); HK.circ(o,x-H*.014,y-H*.072,H*.008,'#c8483a'); return L(x-H*.014,y-H*.082,.14);
       case 'stove': { HK.block(o,x-H*.016,y-H*.026,H*.03,H*.026,iron); HK.rect(o,x-H*.008,y-H*.018,H*.012,H*.008,'#f0983a'); HK.rect(o,x+H*.004,y-H*.075,H*.005,H*.05,iron); for(let i=0;i<3;i++) HK.circ(o,x+H*.006+i*H*.004,y-H*.08-i*H*.008,H*.004+i*.6,v3rgba('#c8ccd0',.35-i*.08)); return L(x-H*.002,y-H*.014,.15,.55); }
       case 'stake': HK.rect(o,x-1,y-H*.05,2,H*.05,'#7a5440'); lantern(x,y-H*.06,H*.011); return L(x,y-H*.06);
       case 'campfire': case 'firering': case 'firebowl': { if(kind==='firebowl') HK.poly(o,[x-H*.018,y-H*.02,x+H*.018,y-H*.02,x+H*.01,y,x-H*.01,y],'#3a3436'); else for(let i=0;i<5;i++) HK.ell(o,x-H*.016+i*H*.008,y-H*.003,H*.005,H*.004,'#7a7a74');
