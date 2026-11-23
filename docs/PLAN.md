@@ -476,3 +476,7 @@ Their words, sorted by area. ⚑ = a number or look the list leaves open: Claude
 - **Optional cloud backup** via a code.
 - **Patch test checklist** (archived by the director 2026-11-20): a per-patch list of what to try for each change, with iPhone / Pixel / PC ticks, so it's clear when a test build is ready to go live. Overlaps with the test card the testers already get (one short line per change); revisit only if the director asks.
 - *(Removed: "controller support on PC, haptics on phones": already in the game since 0.3, `src/k_controls.js` (gamepad: A/Cross casts, right trigger reels; phone vibration on bite, near-snap and catch, Android only because iPhone browsers can't vibrate).)*
+
+## Paused 2026-11-23 (director: "can we pause for tonight?")
+- **Next: Rockies music.** Director: "Glacier light" is too repetitive and distracting over time; wants more atmosphere and to **listen first**. Plan (not built yet): slower (56 bpm), four chord loops picked at random (about 2 minutes before it repeats instead of 46 s), no strums or banjo; a slow string wash, a low drone, sparse echoing bell notes, an occasional distant loon call and a breath of wind; calmer at night. A listening page (artifact) with today's theme next to the new one and a day/night switch, built from the game's own engine (src/j_music.js, d2_extra.js `startAudio`/`musicTick`); the game changes only after the director's yes. Engine needs `st.shuffle` (random loop per 8 bars).
+- Then the next water in the one-at-a-time order (Willow Pond), unless the director has more Rockies notes.
