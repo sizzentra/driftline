@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Corporate Pond, redone in its own style: your home is a modernist glass pavilion on steel columns in the reflecting pool, with a thin roof slab and the company logo, steel frames, and the office visible inside (a desk and glowing monitor, a ficus and water cooler, or a whiteboard of charts). A concrete planter and a coffee cup sit on the deck. Your partition and lamp choices carry over.',
+  '## Test build 2026.11.23-0757',
   'Cherry Blossom Lake, redrawn to the director’s picture: Fuji large and to the right, a big cherry tree painted in thousands of petals over the house, a grassy bank behind the house whose stone path climbs away to the red bridge with its fence and lantern posts getting smaller with distance, cherry trees on that bank, a little island past the bridge, a forested cliff with the waterfall and its pavilion, a row of cherries on the right shore, a larger torii on its rocks, and pink flowers in the bottom-left corner.',
   '## Test build 2026.11.23-0749',
   'Cherry Blossom Lake, rebuilt to match the director’s picture: the house has a low, wide roof of dark grey tiles with a heavy ridge over glowing shoji walls and round windows, on brown wooden posts, with a much bigger cherry tree spilling over it.',

@@ -9,7 +9,7 @@ const CO = {
   geo(o){ const C=BH.cab(o,{h:1.05,ratio:2}), wh=C.wh, x0=Math.max(HF.x0(),0)+W*.006, w=Math.min(wh*2.1,o.pw*.5), x1=x0+w; return {x0,x1,vx:x0,w,wh,wallTop:C.wallTop,mid:(x0+x1)/2}; },
   walls(o,g,kind,c){ const q=o.x, y=o.dockY, lit=HK.lit(o), top=g.wallTop;
     if(kind===2){ HK.rect(o,g.x0,top,g.w*.3,y-top,'#9a9a98'); for(let k=1;k<5;k++) HK.rect(o,g.x0,top+(y-top)*k/5,g.w*.3,1,'#7a7a78'); }
-    const ga=kind===2?g.x0+g.w*.3:g.x0, gl=q.createLinearGradient(0,top,0,y); gl.addColorStop(0,HK.n(o,v3rgba(c,kind===1?.85:.55))); gl.addColorStop(1,HK.n(o,v3rgba(HK.dk(c,.3),kind===1?.9:.6))); q.fillStyle=gl; q.fillRect(ga,top,g.x1-ga,y-top);
+    const ga=kind===2?g.x0+g.w*.3:g.x0, gl=q.createLinearGradient(0,top,0,y); gl.addColorStop(0,HK.n(o,v3rgba(c,kind===1?.9:.72))); gl.addColorStop(1,HK.n(o,v3rgba(HK.dk(c,.35),kind===1?.92:.8))); q.fillStyle=gl; q.fillRect(ga,top,g.x1-ga,y-top);
     q.fillStyle=v3rgba('#ffffff',.2*lit); q.beginPath(); q.moveTo(ga+g.w*.1,top); q.lineTo(ga+g.w*.2,top); q.lineTo(ga+g.w*.05,y); q.lineTo(ga,y); q.lineTo(ga,y-(y-top)*.3); q.closePath(); q.fill(); /* a sheen across the glass */
     const n=Math.round((g.x1-ga)/(W*.03)); for(let k=0;k<=n;k++) HK.rect(o,ga+(g.x1-ga)*k/n-1.5,top,3,y-top,'#5a6470'); HK.rect(o,ga,top+(y-top)*.55,g.x1-ga,2,'#5a6470'); /* steel mullions and a transom */ },
   /* the inside, seen through the glass: a desk with a glowing monitor and an office chair, a ficus and a water cooler, or a whiteboard of charts */

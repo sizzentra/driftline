@@ -1,0 +1,3 @@
+# Corporate Pond: review (overnight 2026-11-23)
+Home in its own design, `src/cw_officebox.js` (CO): a modernist glass pavilion on steel columns, a thin flat roof slab cantilevering past the glass (plain, green roof, solar panels) with the logo "SYNERGY", steel mullions and a transom, glass curtain wall, frosted glass or concrete and glass; inside: desk with glowing monitor, ficus and water cooler, or a whiteboard with a chart and sticky note. Around it: a concrete planter with clipped shrubs, a coffee cup, the columns seen through the water. Old floor / supports / awning choices became this one building (new ids glass, slab, inside); partition and lamp kept.
+Checked: day, every pair (__hfAll).
