@@ -5,6 +5,7 @@ const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPh
   '## New in this build',
   'Cherry Blossom Lake, redone in its own style: your home is a tea house raised on red-lacquered posts, with a layered roof whose eaves curve up at the tips, shoji walls between dark posts, paper lanterns under the eaves and a rope railing along the veranda. Pick the walls, roof, lanterns, railing, door, windows and seat in Your home.',
   'Cherry Blossom Lake: a big cherry tree frames the corner over your roof, and a mossy bank with a stone path, bamboo fence and azaleas runs behind the tea house down to the water.',
+  'Cherry Blossom Lake: a mossy stone corner in the bottom right with steps down into the water, a stone lantern that glows at night, a rope fence and pink lotus flowers on their stems.',
   '## Test build 2026.11.23-0507',
   'Stonebrook River, redone in its own style: your home is a two-storey stone mill house over the mill race, the river running through its arch, a dormer with a hoist and flour sack (or a window, or a pigeon loft), a steep roof and a chimney; choose walls, roof, dormer, chimney, door, windows and seat. Around it: a stone retaining wall with steps, ferns and foxgloves.',
   'Stonebrook River: a fly fisher wades mid-river in his waders, casting in loops (he goes home at night).',

@@ -9,4 +9,4 @@ The director: the box tea house copied the Rockies layout. Now `src/cw_teahouse.
 - Shoji, plaster or bamboo walls between dark posts; two paper lanterns, a row of small lanterns or a stone lantern (the light); a rope or bamboo railing along the veranda (front layer) or an open deck.
 - Its own ground: a mossy bank behind the house with a stone path, a bamboo fence and azaleas, sloping into the water past the deck with mossy rocks; nothing under the deck but water.
 - A big cherry tree framing the top-left: a trunk at the left edge (the director once removed a branch that "came from nowhere"), a dark limb and clouds of blossom.
-Checked: day and night crops, every pair of parts at rest and fishing (__hfAll). Still to add from the reference (next pass): the stone steps with lanterns and a rope fence in the near corner, lotus flowers, koi.
+Checked: day and night crops, every pair of parts at rest and fishing (__hfAll). Added in 0533: the near corner (a mossy stone bank, steps into the water, a stone lantern glowing at night, a rope fence, lotus on stems), in the static layer under the line. Koi left out: the ducks replaced them earlier.
