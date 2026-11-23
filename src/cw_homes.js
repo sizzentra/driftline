@@ -54,28 +54,29 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
       ['roof',(o,s,c)=>MH.roof(o,MH.geo(o),['tiles','shakes','thatch'][s],c)],
       ['dormer',(o,s,c)=>{ const g=MH.geo(o), ws=hfStyle('river','walls'); MH.dormer(o,g,s,c,['stone','stone','plaster'][ws],ws===1?mix('#f6f2ea',hfColor('river','walls'),.1):hfColor('river','walls'),null,hfColor('river','roof')); HK.deck(o,'#7a5a3e','boards'); }],
       ['seat']] }); }
-/* 3. Cherry Blossom Lake: the tea house (the Rockies standard, overnight batch 6, 2026-11-23): one base building, a little tea house on
-   the water (MAP_THEMES › Cherry Blossom: red-lacquered posts, a curved tiled roof, paper lanterns). Its walls, roof, lantern, shade,
-   door, windows and seat change aspects of it; cherry trees in blossom on the bank behind it */
-{ const P3=()=>BH.cab({pw:HF.pw(),dockY:HF.dockY()});
+/* 3. Cherry Blossom Lake: the tea house (overnight, 2026-11-23; its own design, src/cw_teahouse.js, inspired by the director's reference
+   picture docs/reference/blossom_director_ref.png): a tea house raised on red-lacquered posts with a layered irimoya roof whose eaves curve
+   up at the tips, shoji walls between dark posts, paper lanterns under the eaves and a veranda deck with a thick rope railing; a mossy bank
+   with a stone path, bamboo fence and azaleas behind it, and a big cherry tree framing the top-left corner */
+{ const G3=()=>TH.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G3(); return Object.assign({},g,{winA:g.vx+W*.06,winB:g.x1-W*.03}); };
   hfMake('blossom',{ name:'Tea house', hname:'tea house', glow:'255,200,150', seatX:()=>HF.pw()-W*.028,
     colors:C16('Lacquer red=#b8322a;Vermilion=#d8503a;Cedar=#9a6a42;Dark cedar=#5a3a26;Black lacquer=#2a2426;Paper white=#f4ece0;Rice beige=#e0d0b0;Bamboo=#b8b06a;Moss=#6a8a52;Jade=#5a9a9a;Deep jade=#1e4a58;Blossom pink=#f4a8c4;Pale sakura=#ffe4ee;Wisteria=#a88ac8;Lantern amber=#f0a848;Stone grey=#9a948a'),
-    front:null, smoke:null,
+    front:(n,cx)=>{ TH.tree(n,cx); TH.rail(n,cx,hfStyle('blossom','rail'),hfColor('blossom','rail')); }, smoke:null,
     els:[{id:'walls',label:'Walls',styles:['Shoji screens','Plaster and timber','Bamboo'],def:[0,3],palS:[[2,3,4,0],[5,6],[7,2]]},
          {id:'roof',label:'Roof',styles:['Curved clay tiles','Cypress bark','Copper'],def:[0,4],palS:[[4,15,3,10],[2,3],[9,10,2]]},
-         {id:'light',label:'Lantern',light:true,styles:['Paper lantern','Stone lantern','String of lanterns'],def:[0,0],palS:[[0,1,5,11,14],[15,4],[0,1,5,11,14]]},
-         {id:'shade',label:'Shade',none:true,styles:['Open sky','Veranda roof','Wisteria trellis','Paper parasol'],def:[0,0],palS:[null,[4,15,3,10],[2,3,4,0],[0,1,5,11,12,13,9]]},
+         {id:'light',label:'Lanterns',light:true,styles:['Two paper lanterns','Row of small lanterns','Stone lantern'],def:[0,0],palS:[[0,1,5,11,14],[0,1,5,11,14],[15,4]]},
+         {id:'rail',label:'Railing',styles:['Rope railing','Bamboo railing','Open deck'],def:[0,2],pal:[0,2,3,4,7]},
          {id:'door',label:'Door',styles:['Sliding shoji','Plank door','Noren curtain'],def:[2,10],palS:[[2,3,4,0],[2,3,4,0],[0,10,13,4,5,9]]},
-         {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Four-pane windows'],def:[1,3],pal:[2,3,4,0]}],
+         {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Lattice windows'],def:[1,3],pal:[2,3,4,0]}],
     seat:['cushion','lowbench','stool'], seatNames:['Zabuton cushion','Bamboo bench','Lacquer stool'], seatDef:[0,0], seatPal:[0,1,4,5,6,7,9,10,11,13],
     order:[
-      ['base',(o)=>{ BH.bank(o,{trees:'round',g1:'#4a6a42',g2:'#2c4228',grass:'#6a8a52',rock:'#9a948a',t1:'#f4a8c4',t2:'#ffd0e0',seed:47}); BH.piles(o,'square','#b8322a'); HK.deck(o,'#9a6a42','boards'); }],
-      ['walls',(o,s,c)=>BH.walls(o,P3(),['shoji','plaster','bamboo'][s],c)],
-      ['door',(o,s,c)=>BH.door(o,P3(),['shoji','plank','noren'][s],c)],
-      ['windows',(o,s,c)=>BH.windows(o,P3(),['shoji','round','four'][s],c)],
-      ['roof',(o,s,c)=>BH.roof(o,P3(),['curvetiles','shakes','copper'][s],c)],
-      ['light',(o,s,c)=>BH.lantern(o,P3(),['paper','stone','string'][s],c)],
-      ['shade',(o,s,c)=>BH.shade(o,P3(),[null,'porch','trellis','umbrella'][s],c,hfColor('blossom','roof'))],
+      ['base',(o)=>{ TH.ground(o); BH.piles(o,'square','#b8322a'); HK.deck(o,'#9a6a42','boards'); }],
+      ['walls',(o,s,c)=>TH.walls(o,TH.geo(o),s,c,'#3a2420')],
+      ['door',(o,s,c)=>BH.door(o,TH.geo(o),['shoji','plank','noren'][s],c)],
+      ['windows',(o,s,c)=>BH.windows(o,WN(),['shoji','round','four'][s],c)],
+      ['roof',(o,s,c)=>TH.roof(o,TH.geo(o),s,c)],
+      ['light',(o,s,c)=>TH.lanterns(o,TH.geo(o),s,c)],
+      ['rail',()=>{}],
       ['seat']] }); }
 /* 4. Saltmarsh Coast: the pier end */
 hfMake('coast',{ name:'Saltmarsh pier end', hname:'pier',
