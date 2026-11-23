@@ -23,7 +23,7 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
          {id:'light',label:'Lantern',light:true,styles:['Hurricane lantern','Lamp post','String lights'],def:[0,13],pal:[2,3,5,12,13]}],
     seat:['deckchair','logbench','campchair'], seatNames:['Wooden folding chair','Log bench','Camp chair'], seatDef:[0,0], seatPal:[0,1,2,4,5,8,9,10,12,13],
     order:[
-      ['base',(o)=>{ BH.bank(o,{trees:'pine',g1:'#3a5a3c',g2:'#24382a',grass:'#5f8a4e',rock:'#8a8680',t1:'#456f5c',t2:'#2c4a3e'}); BH.piles(o,'log','#8a6a4a'); HK.deck(o,'#b98a5a','planks'); }],
+      ['base',(o)=>{ PH.ground(o); BH.piles(o,'log','#8a6a4a'); HK.deck(o,'#b98a5a','planks'); }],
       ['walls',(o,s,c)=>{ const g=PH.geo(o), K=['batten','shiplap','shingles'][s]; PH.leanTo(o,g,K,c,['shingles','shakes','tin'][hfStyle('pond','roof')],hfColor('pond','roof')); }],
       ['windows',(o,s,c)=>BH.windows(o,LT(),['four','boxes','shutters'][s],c)],
       ['bay',(o,s,c)=>{ const g=PH.geo(o); PH.block(o,g,['batten','shiplap','shingles'][hfStyle('pond','walls')],hfColor('pond','walls'),['shingles','shakes','tin'][hfStyle('pond','roof')],hfColor('pond','roof'),s,c); }],
