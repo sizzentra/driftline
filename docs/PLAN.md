@@ -167,7 +167,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 - The rainbow's reflection doesn't line up here either (rainbow day screenshots).
 - Noted by Claude from the screenshots: one frame of 45.8 ms on the counter during the rainbow at Stonebrook (otherwise 221-240 fps); the update banner showed 1718 (the travel fix) arriving.
 **Cherry Blossom Lake** (director, 2026-11-22: day clear, night blood moon, Your home)
-- The map doesn't feel like Japan; cherry blossoms are a huge part of Japanese culture. Its focus should be giant cherry blossom trees (no animation needed) with big, lush masses of blossom, like Japan's cherry blossom forests. Right now the focus is the mountain; the director doesn't like that, and asks whether the mountain even fits the theme.
+- The map doesn't feel like Japan; cherry blossoms are a huge part of Japanese culture. Its focus should be giant cherry blossom trees (no animation needed) with big, lush masses of blossom, like Japan's cherry blossom forests. Right now the focus is the mountain; the director doesn't like that, and asks whether the mountain even fits the theme. **Settled (director, 2026-11-22 evening): Mount Fuji stays, because it is Japan, but the other changes still apply:** the giant lush cherry blossom trees become the focus and Fuji sits behind them as the backdrop.
 - The branch in the top right comes from nowhere and lacks detail: dots on a straight branch.
 - The trees don't look lush at all.
 - The duck seems to come out of nowhere.
