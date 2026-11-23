@@ -61,6 +61,17 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
+## Director's game notes (2026-11-22 evening, "notes from yesterday as well"; STORED, nothing built yet: balance and feel, decided together before building)
+1. **Fishing feel:** settle in the middle between the old feel (before batch 1, tag `rollback/before-fishing-feel`) and the new one. "New too slow, old too new" (probably meaning too fast).
+2. **Prestige doesn't reset enough:** restarting with so many things makes no sense; relics and the like are the point of prestiging. Decide what a prestige keeps and what it resets.
+3. **Boons feel weak.**
+4. **Map progress is too fast and easy:** unlocking waters should be based on progress (limiting), not bought with gold. It gives more direction and is easier to balance.
+5. **Feats should not give gold.**
+6. **Tasks should not give gold.**
+7. **Weekly quests should not give gold.**
+8. **Bounties do give gold, and more of it.**
+9. **PC Aquarium:** needs much better organization on PC.
+
 ## Director's bug list (2026-11-21, being collected in spurts; STORED ONLY, not fixed until the director says the list is finished)
 - PC: some maps run badly; Willow Pond's frame rate is very unstable. Fix it, and make sure no map has the problem.
 - **Ongoing fish graphics revamp** (part bug, part new art): a pass so fish based on real fish look like them. Named: arowana; most catfish and catfish-like fish (the tiger shovelnose looks nothing like its description). Fish should become more recognisable; the fish models haven't had love in a while. The director sees it as a good test of a picture comparison tool (note: automatic picture comparisons were dropped 2026-11-20; what exists is the fish sheet `__fishSheet` for side-by-side pictures, to talk over).
@@ -118,6 +129,7 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 - Your home: the home preview stutters badly and looks choppy (Driftline Test on PC).
 - **Fixed in 1718:** after Tester tools › Unlock everything, Travel here sometimes did nothing (the buttons look greyed out in the screenshot). Claude's first guess, to check: travel is blocked while resting or while the line is out, with no message saying so, which would explain "works sometimes".
 - **Fixed in 1718:** the six end-game waters were still named "Uncharted Waters" with "Complete voyage N to chart these waters" after Unlock everything, although their cards offer Travel here.
+- Under every home (all waters so far): the supports look unfinished, dry, and run straight down into the water with nothing to define them (director, 2026-11-22: "really consistent across them all").
 - PC header (top bar): the parts are not one consistent size and structure, and the bar has lots of room to give them one. The 7 page buttons on the left are icon-only teal tiles while Cooler, Aquarium, Home, Fish Log, Tasks and Stats are label chips; Settings is wider than it needs to be and could take much less space while still showing its icon and word. (Screenshots 2026-11-22: the Map page and Stonebrook River at 1920x1080; in the first crop the "Map" pill under the header looks cut off at the left edge.) Players cannot tell what the 7 icon-only page buttons are (director: "the players have no idea what some of them are"): they need their names. (PC only: the phones already show names beside their icons.) The names come and go (director, 2026-11-22: shown in the Willow Pond screenshots, missing again at Stonebrook River in heavy fog at night, resting; cause to find; Claude's first guess: the header drops the names when the chips on the right get wider, since the names show with "Home: Dock" at Willow Pond and vanish with "Home: Mill landing" at Stonebrook):  (director, confirmed by Claude) When they show, they look cramped: Collection, Challenges and Customize touch the tile edges, icon and name are stacked tightly, the count badges sit on the tile corners, and the left tiles look like a different design from the roomy chips on the right.
 **Willow Pond** (director, 2026-11-22, PC screenshots: aurora night, clear night, rainbow day, rain night resting, Your home)
 - Background: no mountains; a forest instead, to keep the background consistent. Also: all our mountains look the same (across waters), which the director doesn't like.
@@ -169,6 +181,37 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 - Veranda styles don't look different from the earlier homes' options.
 - Some options overlap each other when picked and look cluttered instead of neat (screenshot: weeping cherry with the lanterns and wind chime under the roof).
 - Overall the home options don't capture Japan well, or don't look good.
+**Saltmarsh Coast** (director, 2026-11-22: dusk rainbow, night clear, night rain, day storm, Your home)
+- The village buildings on the left look good; the land under them doesn't: "great buildings slapped onto some garbage". The land needs depth and love.
+- Something pops up around the otter (the director can't tell what), and it appears and disappears abruptly.
+- The land around the lighthouse is empty, bland and boring. An open map is fine; bland and boring is not.
+- Frame rate: laggy at every time of day (counter in the screenshots: 171 fps at dusk, 118 at night, 100 in night rain, 93-112 in a day storm; slowest frames up to 20.9 ms).
+- Your home preview: laggy.
+- Some home options look bad ("what even is that"); many options are recycled from earlier homes, so the homes don't feel different.
+- Bait shack: no real variety, and something floats around the player (the buoys hanging beside him).
+- Lamp options: abysmal, and the colour barely changes them. The ship's lantern isn't even attached to anything.
+- The animals in the background on the right run in front of the rocks.
+- The director asked: "are you even criticising and looking at this yourself?" (answer and lesson below).
+**Frostbite Lake** (director, 2026-11-22: night storm, dusk gilded, Your home)
+- This is where mountains belong, but they have no real shape; they need more love and should be bigger.
+- Rain makes no sense here (a frozen lake): it rains in the night storm screenshot.
+- The home block (the ice platform the camp stands on): "what even is that", too blocky.
+- The ice huts (canvas tent, timber shanty, snow igloo): the director likes them a lot; they clearly sit behind the player and show you are outside. **The first building option the director has liked** (keep as the reference for what works).
+- Floor options don't line up with the strange block underneath, and a customisable floor makes no sense outdoors.
+- Stoves: a great idea, but the storm lantern is not a stove, and changing the colours doesn't work.
+- The timber shanty's roof doesn't connect to the building at all (it floats above the walls).
+- Sled: a great concept, but it blocks the hut's door and looks undetailed; hard to tell what each one is (box sled, snowmobile, dog sled).
+- The owl covers an entire tree.
+- **General, from here on assumed for every water** (director): the home preview runs badly, and switching between options leaves problems; both are global, no need to repeat per water.
+**Canadian Rockies** (director, 2026-11-22: night clear)
+- Floating trees (the big pine hanging in from the top right edge; trees not standing on anything).
+- Recycled mountains again (the same mountain shape as other waters).
+- Home: options cover the player while fishing and resting; options recycled from other homes.
+- **Direction for the whole game (director):** "you need to update all maps because they need to be unique and use no recycled assets": every water gets its own scenery shapes and its own home options; nothing reused from another water.
+**Director's direction after six waters (2026-11-22):** "I want them all redone and adjusted": every water is redone by the rules above (unique scenery and home options, fits the theme, no bland land, nothing popping in or out, physics that makes sense, home options clearly different and good, smooth frame rate). Claude reviews the remaining 14 waters itself with its own pictures (every time of day and weather, every home option), writes notes in the same format, and puts them on one picture page for the director to correct and add to; then the director and Claude decide together.
+- **Starfall Lake:** the scenery looks beautiful (keep it); the home still gets fixed; anything more added to the scenery is Claude's call.
+- **Open water is fine where it makes sense** (Midnight Deep and Hollow Trench may stay open sea): openness is not the problem, blandness is.
+- **The open-water maps have horrible frame rates** (director, 2026-11-22; Midnight Deep in rain at day: 93 fps, slowest 16.7 ms). Claude measures the draw cost of every water in the review.
 **Order of the review (director):** the maps in the order they are listed: Willow Pond, Stonebrook River, Cherry Blossom Lake, Saltmarsh Coast, Frostbite Lake, Canadian Rockies, Coral Shallows, Florida Keys, Brine Shelf, Amazon Rainforest, Midnight Deep, Hollow Trench, Ember Springs, Starfall Lake, Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus.
 
 | Batch | Projects | Details | Open before building |
@@ -199,6 +242,25 @@ Each batch: a rollback tag first; quick checks per change, the full checks once 
 **Batch 1 status (2026-11-21 night): done and published** (test builds, stamp in CLAUDE.md): Cam's whole update (tension, temper, rate and cost, hidden still / toward states, tired reel-in, Second-wind flips, dives 5-20 s with the 1.5 s band stop, perfect hook 1.5 s, Careful at temper 2+, spool 200), fights faster (tire times 12-19 s, was 15-24: with the best gear rares 17-25 s, epics 25-39 s, legendaries 41-56 s, about twice the old fight with great gear; **Feel call**), rarer oddities slower (treasure 36% slower than junk; **Feel call**), even shadow for a fish turned away, the fight modifier audit (every fight perk changes the outcome; **for batch 8: Soft Touch at max lifts Ember legendaries from 40% to 98%**, temper matters far more now). QA test proven by planting the old rules. Not run: the 30-minute full sweep (director wanted the PC free; the __qa suite ran on PC and phones, all 118 pass, plus the gate); it runs first thing when the queue resumes.
 **Batch 2 status (2026-11-21 evening):** done on the test builds (not yet published): 4 aquarium boosts (shown = applied, QA proven), 5 Hybrids switch, 6 phone side panel with the catch card, 7 pictures blanking as the scroll bar faded (touch screens use their own scroll bar), 8b no self-install + Defender scan at build, 8c Gamble on phones / Mystery crates and Higher or lower pictures / empty Cooler / aura previews / Aquarium (measured, no change needed), 8d catch card picture (also live PC hotfix 0.4.8.9.6). **8 PC frame rate: found** from the director's frame counter (300 ms freezes at dawn and dusk: the still scenery repainted for each light level); the hidden test pane had shown nothing (no real frames). Fix queued as batch 8b (director). Not yet: the end-of-batch clean-up, full sweep, notes and publish.
 Parked in Ideas: the Report a problem button.
+
+#### Claude's own review of the other waters (2026-11-22 evening; pictures `tools/shots/rvsheet_<id>.png`, dawn/day/dusk/night/resting/rain/storm/fog on PC; first pass, home options not yet pictured; the director corrects and adds)
+- **Shared across many waters (recycling to remove):** the same thatched umbrella pier (Coral Shallows, Amazon, Willow Pond, The Buffet, Mount Olympus); one white motorboat hull (Florida Keys, Brine Shelf, Midnight Deep); the ghost sailing ship (Brine Shelf, Midnight Deep); the same striped wave bands (Brine Shelf, Midnight Deep); the same palms (Coral Shallows, Florida Keys, The Nile); one lighthouse (Florida Keys, Saltmarsh); a flat horizon strip with small props on it at most waters; nothing under the homes (the director's Saltmarsh note holds everywhere); a corner plant stuck in the bottom right (Keys fronds, Amazon leaf, Farm sunflowers, Nile reeds, Corporate pot plant, Starfall crystals).
+- **Canadian Rockies:** the snow peaks are one triangle repeated; one even row of identical pines; bright white peaks at night; flat water with nothing in front.
+- **Coral Shallows:** the day water has a net-like grid of lines; coral clumps float mid-water instead of sitting on the seabed; a large purple lantern glow at night.
+- **Florida Keys:** almost empty: one long flat bridge; giant fronds in the corner read as claws; plain water.
+- **Brine Shelf:** the wave bands look like lined paper; ship and boat recycled; the island with the arch is the only character.
+- **Amazon Rainforest:** the waterfall is a hard white block; the "lollipop" trees and lily pads float above the canopy; the vines read as bamboo poles; the cliff looks different between pictures (check). Murky water fits.
+- **Midnight Deep:** open water is right here; the stripes in sky and sea read as flat bands; one boxy cabin boat; fps (director).
+- **Hollow Trench:** jellyfish are good; the sea stacks are one shape repeated; a bright fog band crosses the horizon in rain and storm (Midnight Deep too).
+- **Ember Springs:** the volcano is a strong focus; bare grey hills around it; the lava rocks float; the day sky is washed-out beige.
+- **Starfall Lake:** keep (director); the gold arch home ring sits over the angler; the crystal pier supports look like teeth.
+- **Animal Farm:** sunflowers grow out of the water; the barn and fields are a tiny strip far away; the middle of the screen is empty; grey water.
+- **The Buffet:** a giant fork floats in the water; the brown hills are flat cut-outs.
+- **Corporate Pond:** a flat wall of identical grey blocks; the stock ticker is the one joke; a pot plant floats in the corner.
+- **The Nile:** pyramids good; flat sand strip; reeds in the corner float.
+- **Circuit Lake:** the neon grid is good; a wall of identical towers; a ring cut off at the right edge.
+- **Mount Olympus:** a row of identical cloud domes; the temple on a white cone; a column pillar stuck at the right edge.
+- **A drawing bug found in these pictures (fix written, not yet proven):** on some pictures the skyline came out cut into mountain curves (Corporate Pond, Circuit Lake and The Buffet by day; Amazon). Likely cause: a light change dropped half painted leaves its cut-out shape on the reused canvas. Fix: `v3prep` in `f_v3scene.js` resets the canvas before reuse (`x.reset()`). Not yet reproduced on demand (25 forced light jumps at Corporate Pond did not hit it); prove it before it is built.
 ### Decisions for the queue (director, 2026-11-21) so the work never has to stop
 1. **Save backup = a backup copy on the device**, refreshed automatically (not on every save: at most every few minutes and when the app is hidden, so it costs nothing noticeable), restorable from Settings if the main save breaks; works offline.
 2. **Homes: Claude writes every home's idea and side-view descriptions, reworks Willow Pond and draws them all**; the director judges the pictures afterwards. **First, a map theme guide (written 2026-11-22, with palettes, 16 home colours per water, culture and music cues)** (docs/MAP_THEMES.md): every water's description, theme, culture, materials, colours, creatures and what does and doesn't belong, so new things (homes, creatures, moments) fit their water.
