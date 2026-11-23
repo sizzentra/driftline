@@ -18,7 +18,7 @@ function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); 
   return [Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length?c[1]|0:(e.def?e.def[1]:0)]; }
 function hfColor(id,el){ const sp=hfSpec(id); return sp.colors[hfChoice(id,el)[1]][1]; }
 /* the light's glow colour: the chosen colour, lifted toward white so even a deep shade still reads as light */
-function hfGlow(id){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.light||x.id==='light'); const v=hex2rgb(mix(hfColor(id,e?e.id:'light'),'#ffffff',.3)); return v.join(','); } /* the feature that carries the home's light (batch 5: not always called "light") */
+function hfGlow(id){ const sp=hfSpec(id); if(sp&&sp.glow) return sp.glow; /* a home whose light is a window glows warm whatever the door's colour */ const e=sp&&sp.els.find(x=>x.light||x.id==='light'); const v=hex2rgb(mix(hfColor(id,e?e.id:'light'),'#ffffff',.3)); return v.join(','); } /* the feature that carries the home's light (batch 5: not always called "light") */
 function hfStyle(id,el){ return hfChoice(id,el)[0]; }
 /* the saved choices of one home: only valid numbers survive (dockCopy) */
 function hfClean(o){ const r={}; if(o&&typeof o==='object'&&!Array.isArray(o)) for(const k in o){ const v=o[k]; if(Array.isArray(v)&&v.length===2&&v.every(n=>Number.isInteger(n)&&n>=0&&n<32)) r[k]=[v[0],v[1]]; } return r; }
@@ -45,6 +45,7 @@ function hfLights(x,L,c,t,night,dockY,b,P,scene){ const lit=clamp(night*1.2+P.d*
   for(const l of c.lights){ const fl=.93+.07*Math.sin(t*7.1+l.x)*Math.sin(t*3.3+l.y);
     if(lit>.05){ v3glow(x,l.x,l.y+b,H*(l.r||.2),'rgba('+rgb+',.85)',lit*(l.a||.6)*fl); if(scene&&!l.small){ v3lightPool(l.x-W*.01,dockY-1+b,W*.075,rgb,.28*lit); v3lanternReflect(l.x,HF.wl(dockY),lit,t,rgb); } }
     if(l.jar){ for(let i=0;i<3;i++){ const a=t*(1.1+i*.37)+i*2.1; x.fillStyle='rgba('+rgb+','+(.35+.55*lit)*(.6+.4*Math.sin(t*5+i))+')'; x.beginPath(); x.arc(l.x+Math.cos(a)*H*.004,l.y+b+Math.sin(a*1.3)*H*.006,Math.max(.8,H*.0016),0,7); x.fill(); } }
+    else if(l.win){ const [ww,wh]=l.win; x.fillStyle=lit>.05?'rgba('+rgb+','+(.35+lit*.6)+')':'rgba(40,52,64,.9)'; x.fillRect(l.x-ww/2,l.y+b-wh/2,ww,wh); x.fillStyle='rgba(40,30,20,.85)'; x.fillRect(l.x-.5,l.y+b-wh/2,1,wh); x.fillRect(l.x-ww/2,l.y+b-.5,ww,1); } /* a lit window glows across the whole pane, its cross bars dark */
     /* the glass shows the chosen colour by day too (director, 2026-11-22: "changing the colour barely changes anything", on every home) */
     else { x.fillStyle=lit>.05?'rgba('+rgb+','+(.6+lit*.4)+')':'rgba('+rgb+',.8)'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.0045:H*.0085),0,7); x.fill();
       if(lit>.05){ x.fillStyle='rgba(255,248,230,'+(.5*lit)+')'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.002:H*.0035),0,7); x.fill(); } } } }

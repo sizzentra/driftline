@@ -3,6 +3,10 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Canadian Rockies, rebuilt by itself with full care: a jagged row of snowy peaks with a glacier, forested mountainsides with larches and avalanche paths, rose snow at dusk and a dim navy night, a canoe dock with red canoes, fireweed and granite on the near shore.',
+  'Your home at the Rockies is now a log cabin you customise: log walls, roof (cedar shakes, green tin, sod with wildflowers), chimney, porch (open, covered, or with a log rail), door and windows (they glow at night), and seat.',
+  'The cabin stands on a granite ledge and braced log posts that sit on the rock and on boulders under the water.',
+  '## Test build 2026.11.22-2221',
   'Tester tools › Feel lab: try the fight with different settings, live. Presets: Old, Current (Cam’s update), Middle and Arcade; then change any number with − and +. Kept on this device.',
   'New in the fight (Middle and Arcade): shorter fights; a short warning before a run, a shake or a dive; the right reaction pays (ease off in runs and shakes, reel when it jumps or swims toward you, hold the dive band).',
   'Perfect pull: as a move ends the float glows for a moment. Press reel right then and the fish loses a chunk of its fight.',
