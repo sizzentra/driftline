@@ -2,6 +2,12 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake comes alive: the lake’s reflections ripple, the painted waterfall flows with foam and mist at its foot, the big cherry tree sways and the shore flowers nod in the breeze.',
+  'Life on the lake: koi glide through the clear shallows, birds cross the sky, butterflies flutter over the flowers, dragonflies dart and hover, a fish leaps now and then, sunlight glints on the water and fireflies come out at night.',
+  'Your tea house now mirrors in the lake, its paper lanterns are proper chochin with ribs, caps and tassels that glow warm, and the lily pads float in front of its posts.',
+  'Stars and the moon now stay in the open sky, behind Fuji and the hills.',
+  'The swirl of petals on the breeze is all pink now, so it no longer looks like little white fish.',
+  '## Test build 2026.11.23-1201',
   'Cherry Blossom Lake now uses your newest painting: hills full of cherry trees, the near shore with mossy stones, flowers and clear water, the lake, bridge, waterfall, pagoda and torii, all painted.',
   'Your house stands on a full set of posts along its whole deck, with cross braces, a beam under the deck and a tie beam through the posts.',
   'The waterfall runs with falling water that speeds up as it drops, foam at its foot and drifting mist.',

@@ -39,3 +39,12 @@ docs/reference/blossom_director_ref.png is now the corrected picture (the earlie
 - Home: posts all along the deck (6, square, with braces), a beam under the deck and a nuki tie beam.
 - Waterfall: 16 sheets accelerating down a clipped column, foam at the foot, a pulsing mist. Lanterns: toro nagashi (float, lit paper box, frame, roof, glow, v3lanternReflect). Glitter and lake petals start at picture row 410 (below the islands and the torii's feet). Stars at 70 spots measured from the picture's open sky; moon only where the sky is open.
 - Checked with pictures: PC day and night, iPhone day.
+
+## 2026-11-23 afternoon: alive (test build 1223)
+- Director on 1201: "do you see anything wrong with this scenery?" (my list: the house looks pasted on, no reflection, underwater posts over the lilies, lanterns unlit, the petal swirl reads as white fish); "more realistic animations for the water fall and water"; "the stars also show over the mountain and there's some ordering issues"; "make it feel more alive".
+- Movement from the painting itself: strips of the stored scenery redrawn a little shifted each frame (blStrips): reflections ripple (more toward you), the big tree sways (tips most), five shore flower beds nod (heads more than roots); the waterfall's painted column scrolls down with two half-strength layers hiding the seam, under the sheets, foam and mist. Phones on lower graphics keep only the ripples.
+- Life (blLife): 4 koi in the clear shallows, glints, a leaping fish with rings every 21 s, butterflies over the flowers, 2 dragonflies (dart then hover), a flock crossing the sky every 58 s, fireflies at night.
+- Home: hfReflect (home option reflect:true) mirrors the stored home picture in swaying strips behind the posts; TH chochin lanterns (ribs, caps, tassel, warm paper); the lily clusters in front of the home are stored under the picture (rows 894+) and drawn in fore(), tinted per light level and moving with the painting's drift.
+- Sky: open-sky outline every 20 px cut by the hills and Fuji's traced outline; stars filtered by it; the moon clipped to it.
+- Bug caught before publishing: the lily layer's cut-out ran once per cluster, the second erasing the first (empty layer); now one pass from a combined picture.
+- The scene moment check (__mapQC) failed once because the lake now moves everywhere; the petal gust is fuller (120 petals, larger) and passes.

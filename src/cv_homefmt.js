@@ -54,7 +54,14 @@ function hfLights(x,L,c,t,night,dockY,b,P,scene){ const lit=clamp(night*1.2+P.d*
       if(lit>.05){ x.fillStyle='rgba(255,248,230,'+(.5*lit)+')'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.002:H*.0035),0,7); x.fill(); } } } }
 /* drawn every frame on the water: rings, the stored picture (with the bob), the light */
 function hfDraw(L,t,night,dockY,pb,P){ const sp=hfSpec(L.id), c=hfPaintCache(L,P,night,dockY), b=sp.floats?(pb||0):0;
-  hfRings(g,c,t,night,dockY); g.drawImage(c.cv,c.x,c.y+b,c.w,c.h); hfLights(g,L,c,t,night,dockY,b,P,true); }
+  if(sp.reflect) hfReflect(c,t,night,dockY); hfRings(g,c,t,night,dockY); g.drawImage(c.cv,c.x,c.y+b,c.w,c.h); hfLights(g,L,c,t,night,dockY,b,P,true); }
+/* a home that stands in a painted lake mirrors in it (director, 2026-11-23, Cherry Blossom: the trees, bridge and torii all reflect, so the house
+   must too): the stored picture flipped at the water line in thin strips that sway with the ripples, fading with depth, behind the posts */
+function hfReflect(c,t,night,dockY){ const wl=HF.wl(dockY), k=c.cv.height/c.h, ht=Math.min(wl-c.y,H-wl), st=Math.max(3,Math.round(H/260)); if(ht<=0) return;
+  g.save(); g.beginPath(); g.rect(0,wl,W,H-wl); g.clip(); g.translate(0,2*wl); g.scale(1,-1);
+  for(let yy=0;yy<ht;yy+=st){ const y0=wl-yy-st, a=.28*(1-yy/ht)**1.6*(1-night*.3); if(a<.01) break; g.globalAlpha=a; const off=Math.sin(t*1.6+yy*.09)*(1+yy*.012)*H/700;
+    g.drawImage(c.cv,0,Math.max(0,(y0-c.y)*k),c.cv.width,st*k,c.x+off,y0,c.w,st); }
+  g.restore(); }
 /* the Home close-up, drawn at its own size (director, 2026-11-21: the stretched scene made the angler blurry): a soft copy of the
    water behind, then the home from a stored picture at close-up resolution, the light, the angler with the rod, and the pets, all sharp */
 function hfCloseup(c,f){ const L=LOCS[locIdx(S.loc)], P=v3palette.v, A=HF_LAST; if(!P||!A) return false; const x=c.getContext('2d'), d=cv.width/W, k=c.width/f.sw, dockY=HF.dockY(), night=A.night, t=performance.now()/1000;

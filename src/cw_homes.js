@@ -59,7 +59,7 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
    up at the tips, shoji walls between dark posts, paper lanterns under the eaves and a veranda deck with a thick rope railing; a mossy bank
    with a stone path, bamboo fence and azaleas behind it, and a big cherry tree framing the top-left corner */
 { const G3=()=>TH.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G3(); return Object.assign({},g,{winA:g.vx+W*.06,winB:g.x1-W*.03}); };
-  hfMake('blossom',{ name:'Tea house', hname:'tea house', glow:'255,200,150', seatX:()=>HF.pw()-W*.028,
+  hfMake('blossom',{ name:'Tea house', hname:'tea house', glow:'255,200,150', reflect:true /* it mirrors in the painted lake */, seatX:()=>HF.pw()-W*.028,
     colors:C16('Lacquer red=#b8322a;Vermilion=#d8503a;Cedar=#9a6a42;Dark cedar=#5a3a26;Black lacquer=#2a2426;Paper white=#f4ece0;Rice beige=#e0d0b0;Bamboo=#b8b06a;Moss=#6a8a52;Jade=#5a9a9a;Deep jade=#1e4a58;Blossom pink=#f4a8c4;Pale sakura=#ffe4ee;Wisteria=#a88ac8;Lantern amber=#f0a848;Stone grey=#9a948a'),
     front:(n,cx)=>{ if(!BL_IMG.ok) TH.tree(n,cx); /* the painted scenery has the director's own cherry tree */ TH.rail(n,cx,hfStyle('blossom','rail'),hfColor('blossom','rail')); }, smoke:null,
     els:[{id:'walls',label:'Walls',styles:['Shoji screens','Plaster and timber','Bamboo'],def:[0,3],palS:[[2,3,4,0],[5,6],[7,2]]},
