@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fixed: a brand-new save no longer loses most of its Wisdom Pearls the first time the game reloads.',
+  '## Test build 2026.11.23-0322',
   'New skill, Second Bite: one more try per bite at ranks 3, 6 and 9, better rare odds on every try after a miss, and at full rank a missed hotspot bite doesn’t break your streak. Water Reader no longer gives the extra try.',
   'Gourmet: fish caught on their favourite food also sell for more (6% a rank).',
   'Naturalist is now a mastery skill: each mastery star adds a little more value, and at full rank the first star comes at 2 catches.',
