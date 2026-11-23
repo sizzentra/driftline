@@ -3,6 +3,12 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fishing feel: runs come a little less often, short darting runs are more common than long ones, and a fish rests at least a moment after a run instead of chaining runs back to back.',
+  'Long runs: each good short pull ends the run sooner, and the combo grows every 5 good pulls. Darting runs have fewer darts in a row (a few more for the rarest fish).',
+  'Fish have a little more fight, and a tired fish gets its second wind a bit sooner.',
+  'A rare or rarer fish hooked close to you (within 40% of a cast) surges and takes line for its first 3 seconds, more the rarer it is.',
+  'Fixed: the screen no longer turns white while you reel in junk and oddities.',
+  '## Test build 2026.11.23-0124',
   'Canadian Rockies, from your latest notes: the lake floor now shows only in the shallows near you and drops away into deep water, so fights happen out over the deep.',
   'The otter’s head joins its body when it sits on the rock, and it swims in above the boulder and the log instead of through them.',
   'The rocks, the log and the reeds in the near corners sit in the water: their underwater parts take the water’s color and a bright line rings them at the surface.',
