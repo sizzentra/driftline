@@ -2,6 +2,12 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'A fish with a full temper bar punishes reeling: tension builds faster and faster as the bar fills past half, up to 2.5 times as fast when it is full.',
+  'Special fish fight harder: a shiny a little harder, a titled fish by its kind (Rainbow, then Starry, Spectral, Ancient), and a hybrid by its size, big ones much harder.',
+  'Small hybrids keep more of their worth: they lose only half the sale value their low weight would cost, and earn in the aquarium as if they weighed the usual amount.',
+  'During runs the fight only says “It’s darting” or “It’s running!”.',
+  'The band that stops a dive is 15% narrower.',
+  '## Test build 2026.11.23-1223',
   'Cherry Blossom Lake comes alive: the lake’s reflections ripple, the painted waterfall flows with foam and mist at its foot, the big cherry tree sways and the shore flowers nod in the breeze.',
   'Life on the lake: koi glide through the clear shallows, birds cross the sky, butterflies flutter over the flowers, dragonflies dart and hover, a fish leaps now and then, sunlight glints on the water and fireflies come out at night.',
   'Your tea house now mirrors in the lake, its paper lanterns are proper chochin with ribs, caps and tassels that glow warm, and the lily pads float in front of its posts.',

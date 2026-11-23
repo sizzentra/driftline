@@ -24,6 +24,8 @@ const FF = { FAR_M:40, SPOOL_M:200, LB:.4536,
   TEN_RISE:[3,4],                   /* tension per second while you reel between moves: base + up to this much more for a strong fish (Feel call) */
   TEN_DROP:35, TEN_DROP_ACT:35/3,   /* Cam: easing up drops tension 35 a second, a third of that during a move */
   TEMPER_DROP:1, TEMPER_RATE:3,     /* Cam: temper empties in 3 s; full temper = moves up to 3 times as often (Feel call), each costing 1/3 */
+  DIVE_HALF:10.625,                 /* Cam, 2026-11-23: the band that stops a dive is 15% narrower than before (25% wide to 21.25%) */
+  TEMPER_TEN:1.5,                   /* Cam, 2026-11-23: "high temper needs to be more punishing": reeling between moves builds tension up to 1 + this times faster as the temper bar fills past half (2.5x when full; Feel call) */
   ACT_DRAIN:1.5,                    /* Cam: reeling into a move drains Fight 1.5 times as fast */
   SWIM_P:[.5,.45,.38,.32,.26,.2], SWIM_K:[1.25,1.5], SWIM_T:[.25,3], SWIM_EVERY:[1,2], /* Cam: still or swimming toward you between moves */
   TIRED_FAST:[.6,.45,.3,.25,.2,.1], /* Cam: a tired fish reels in this much faster, by rarity */
@@ -127,7 +129,7 @@ function fightNew(dt){
   const rk=fishRank(f), tk=Math.min(5,rk+(f.shiny===2?1:0)) /* Cam: titled shinies fight much harder */, B=BEH[f.beh]||BEH.calm, wc=ffWeightClass(f), kg=f.kg||.1;
   const AV=ffAvg(S.loc), rel=clamp(((f.str||1)/AV.str+kg/AV.kg)/2,.3,3), over=clamp(fishPull(f)/Math.max(.1,anglerStr()),.2,4), gearK=clamp(Math.sqrt(over),.6,1.6);
   const lively=clamp(.2+.3*(f.th||.4)+.25*(f.aggr||.3)+.05*tk,0,1); /* Cam: commons are lazier */
-  const I=(.6+.4*G.temper/3)*(1+.1*tk)*(tk>=4?1.25:1); /* Cam: temper sets how intense a move is; rarity too (legendary and mythic moves hit hardest) */
+  const fk=ffFightK(f), I=(.6+.4*G.temper/3)*(1+.1*tk)*(tk>=4?1.25:1)*fk; /* Cam: temper sets how intense a move is; rarity too (legendary and mythic moves hit hardest) */
   const wtK=clamp(.45+.55*(1-Math.exp(-kg/(AV.kg*1.2))),.45,1); /* Cam: tension from moves grows with weight, levelling off at both ends */
   /* the groove (Claude's idea, Feel lab "Groove bonus"): between moves, keeping the line between 50% and 80% while you reel brings the fish in 15% faster; it takes feathering the reel, so it rewards a steady hand */
   const inGroove=(FEEL.groove||0)>0&&!G.ffA&&!G.tell&&G.sta>0&&G.ten>=50&&G.ten<=80; G.grooveT=inGroove&&(V3ON?G.prevRin>0:G.hold)?(G.grooveT||0)+dt:0; if(G.grooveT>=1.2&&!G.groovePaid){ G.groovePaid=1; feelPop('In the groove!'); feelCombo(1); } if(!G.grooveT) G.groovePaid=0;
@@ -155,7 +157,7 @@ function fightNew(dt){
       else { if(G.ev!=='jump'){ G.ev='jump'; splash(G.bob.x,G.bob.y,14); sfx.jump(); } G.evDur=Math.max(0,A.dur-A.t);
         if(!A.away) gainK=1.6; /* Cam: a jump toward you is the time to reel */
         else { gainK=wc===1?.4:wc>=2?0:1; if(wc===3) outV=runV*1.2; if(wc>=1) tenRate=140*wtK*I; } } }
-    else if(A.k==='dive'){ gainK=0; const inZ=G.ten>=A.zone-12.5&&G.ten<=A.zone+12.5; A.inZ=inZ; const add=Math.min(A.max-A.got,(4+3*rel)*I*FF.DIVE_RATE*(inZ?.3:1)*dt); A.got+=add; G.d+=add; G.dd+=add; tenRate=48;
+    else if(A.k==='dive'){ gainK=0; const inZ=G.ten>=A.zone-FF.DIVE_HALF&&G.ten<=A.zone+FF.DIVE_HALF; A.inZ=inZ; const add=Math.min(A.max-A.got,(4+3*rel)*I*FF.DIVE_RATE*(inZ?.3:1)*dt); A.got+=add; G.d+=add; G.dd+=add; tenRate=48;
       A.inZT=inZ?(A.inZT||0)+dt:0; if(A.inZT>=FF.DIVE_HOLD||A.got>=A.max-1e-6) A.t=A.dur; } /* Cam: holding the band for 1.5 s stops the dive at once */
     /* Feel lab, the right reaction pays: ease off in a run, a shake or a jump away; reel into a jump toward you; hold the dive band */
     if(A.k==='run'&&A.style==='long'){ const press=rin>0&&!(G.prevRin>0); A.holdT=rin>0?(A.holdT||0)+dt:0; /* a long run: short pulls in rhythm pay; holding on strains the line */
@@ -170,13 +172,13 @@ function fightNew(dt){
   if(rin>0){ const tired=G.sta<=0, fast=tired?1+FF.TIRED_FAST[tk]:1, res=wc>=1?clamp(FF.RESIST[tk]*Math.pow(Math.max(0,G.sta),.6)*(B.heavy?1.1:1),0,.97):0, gain=Math.min(reel*rin*(1-res)*gainK*fast, FF.FAR_M*fast/(tired?3:FF.SHORT_T[tk]*FEEL.len))*dt; /* Cam: a tired fish comes in 10-60% faster by rarity */ /* Cam: never faster than its rarity's shortest time while it has fight; a tired fish comes in at full speed (about 3 s from the far edge at most) */
     if(G.dd>0){ const back=Math.min(G.dd,.75*gain); G.dd-=back; } G.d-=gain; /* Cam: dive distance comes back at a 75% rate */
     const intoMove=A&&!(A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP)?FF.ACT_DRAIN:1; /* Cam: reeling into a move (not a jump toward you) drains its Fight 1.5x */
-    G.sta=Math.max(0,G.sta-intoMove*rin*dt/(FF.TIRE_T[tk]*FEEL.len*clamp(Math.sqrt(over),1,2)*(B.heavy?1.15:1)*(1+.5*(fightVoy()-1)))*(1-.25*G.temper/3)); /* Cam: the temper keeps its Fight from draining */
+    G.sta=Math.max(0,G.sta-intoMove*rin*dt/(FF.TIRE_T[tk]*fk*FEEL.len*clamp(Math.sqrt(over),1,2)*(B.heavy?1.15:1)*(1+.5*(fightVoy()-1)))*(1-.25*G.temper/3)); /* Cam: the temper keeps its Fight from draining */
     G.tickT-=rin*dt; if(G.tickT<=0){ G.tickT=.07; sfx.tick(); } }
   if(rin<1 && outV>0) G.d+=outV*(1-rin)*dt; /* only a fish over 5 lb takes line, and only while you let it */
   // tension: moves strain the line while you reel into them; between moves it settles; letting go lets it fall (slower for heavy fish)
   const tm=Math.max(.7,tensionMult()), tgK=clamp(Math.pow(over,.25),.85,1.4); /* Cam: tension cuts never make the dive band impossible, and gear eases a move's strain but never removes it */
   if(rin>0){ if(tenRate>0) G.ten+=Math.min(75*(1+.35*(FEEL.tx||0)*clamp((G.temper||0)/3,0,1)),tenRate*tm*tgK)*rin*dt; /* never from 0 to a snap in an instant (a hot-tempered fish gets closer) */
-    else if(!(A&&A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP)) G.ten+=(FF.TEN_RISE[0]+FF.TEN_RISE[1]*Math.min(1,over)*(.3+.7*G.sta)*wtK)*tensionMult()*rin*dt; } /* Cam: reeling builds tension slightly, also between moves; it never falls while you reel */
+    else if(!(A&&A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP)) G.ten+=(FF.TEN_RISE[0]+FF.TEN_RISE[1]*Math.min(1,over)*(.3+.7*G.sta)*wtK)*tensionMult()*(1+FF.TEMPER_TEN*Math.pow(clamp(((G.temper||0)-1.5)/1.5,0,1),1.5))*rin*dt; } /* Cam: reeling builds tension slightly, also between moves; it never falls while you reel */
   if(rin<1) G.ten=Math.max(0,G.ten-(1-rin)*dt*(A&&!(A.k==='jump'&&!A.away)?FF.TEN_DROP_ACT:FF.TEN_DROP)); /* Cam: easing up drops it steadily, 35 a second, a third of that during a move */
   if(A&&A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP) G.ten=Math.max(0,G.ten-30*dt);
   // a tired fish: "Reel hard!"; left 10 s it gets one Second wind (back to half its Fight)
@@ -209,8 +211,16 @@ function fightNew(dt){
 // the fight's one-line instruction, shared by the PC panel (d_draw.js) and the phones' card (mobile/fight08.js)
 function fightMsg(danger,oddDanger){ const NF=fishNew(), odd=G.fish&&G.fish.kind!=='fish';
   if(odd) return G.ev==='snag'?'Snagged!':oddDanger?'Ease off!':'Dead Weight';
-  if(NF&&G.tell) return G.tell.k==='dive'?'It’s about to dive!':G.tell.k==='run'?(G.tell.st==='dart'?'It’s about to dart!':G.tell.st==='long'?'Long run coming!':'It’s about to run!'):'Head shake coming!'; /* Feel lab */
+  if(NF&&G.tell) return G.tell.k==='dive'?'It’s about to dive!':G.tell.k==='run'?(G.tell.st==='dart'?'It’s about to dart!':G.tell.st==='long'?'It’s about to run!':'It’s about to run!'):'Head shake coming!'; /* Feel lab */
   if(NF&&G.ppw>0&&!G.ffA) return 'Pull now!';
-  return G.swT>0?'Second wind!':G.ev==='windup'?'It’s jumping!':G.ev==='jump'?(NF&&!G.jumpAway?'Reel now!':'Let go!'):G.ev==='dive'?'It’s diving!':G.ev==='shake'?'Head shake!':G.run?(NF&&G.ffA&&G.ffA.style==='dart'?'It’s darting! Let it go!':NF&&G.ffA&&G.ffA.style==='long'?'Long run! Short pulls!':'It’s running!'):NF&&FEEL.read&&G.swim?'Swimming in, reel!':NF&&G.sta<=0?'Reel hard!':(NF?G.temper>2:G.temper>1.7)&&G.hold?'Careful!':danger?'Ease off!':G.hold?'Reeling…':'Hold to reel'; }
-// the dive's tension band (Cam: 25% wide; light magenta while the line is inside it)
-const fightZone = () => fishNew()&&G.dive&&G.ev==='dive' ? {lo:(G.dive.zone-12.5)/100, hi:(G.dive.zone+12.5)/100, inZ:!!G.dive.inZ} : null;
+  return G.swT>0?'Second wind!':G.ev==='windup'?'It’s jumping!':G.ev==='jump'?(NF&&!G.jumpAway?'Reel now!':'Let go!'):G.ev==='dive'?'It’s diving!':G.ev==='shake'?'Head shake!':G.run?(NF&&G.ffA&&G.ffA.style==='dart'?'It’s darting':NF&&G.ffA&&G.ffA.style==='long'?'It’s running!':'It’s running!'):NF&&FEEL.read&&G.swim?'Swimming in, reel!':NF&&G.sta<=0?'Reel hard!':(NF?G.temper>2:G.temper>1.7)&&G.hold?'Careful!':danger?'Ease off!':G.hold?'Reeling…':'Hold to reel'; }
+// the dive's tension band (Cam: 21.25% wide since 2026-11-23, was 25%; light magenta while the line is inside it)
+const fightZone = () => fishNew()&&G.dive&&G.ev==='dive' ? {lo:(G.dive.zone-FF.DIVE_HALF)/100, hi:(G.dive.zone+FF.DIVE_HALF)/100, inZ:!!G.dive.inZ} : null;
+/* special fish fight harder (Cam, 2026-11-23: "if the fish is a shiny, hybrid, titled, etc. they need to have noticeably more fight"): their
+   moves hit harder and their Fight lasts longer by this much. A shiny a little more; a titled (prismatic) one by its tier; a hybrid by its
+   size against its own kind's usual weight, bigger ones far more, small ones still a touch more (all Feel calls) */
+const FF_SPECIAL={shiny:1.12, titled:{rainbow:1.2,starry:1.3,spectral:1.4,ancient:1.55}, hybrid:[1.05,1.2,1.65]}; /* hybrid: smallest, usual size, largest */
+function ffFightK(f){ if(!f||f.kind!=='fish'||!f.sp) return 1; let k=1;
+  if(f.shiny===2) k*=FF_SPECIAL.titled[f.pv]||FF_SPECIAL.titled.rainbow; else if(f.shiny===1) k*=FF_SPECIAL.shiny;
+  if(f.hy){ const R=(f.kg||.1)/((f.sp.min+f.sp.max)/2), H=FF_SPECIAL.hybrid, u=clamp(Math.log(R)/Math.log(8),-1,1); k*=u<0?H[1]+(H[1]-H[0])*u:H[1]+(H[2]-H[1])*u; } /* 8x lighter or heavier is the end of the scale */
+  return k; }
