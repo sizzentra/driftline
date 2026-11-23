@@ -3,6 +3,13 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Less grace at full tension: the line now snaps after about a third of a second of reeling at 100% (was half a second).',
+  'Long runs: every 3 good pulls in rhythm give +1 combo and shorten the run (was every 5).',
+  'Tired Rare, Epic, Legendary and Mythic fish come in a little slower.',
+  'Second Bite has 10 ranks: one more try per bite at ranks 1, 5 and 10. Its rare odds boost lasts only for that cast and ends once a fish is hooked or your tries run out.',
+  'Tackle upgrades now start at level 0 and every one goes to at least level 10: Hook and Fish Finder have more, smaller steps, and Rod length and Cooler gained a new top level. New prices for every upgrade, climbing to a much higher top.',
+  'Attachments have five tiers (were three) and cost more: 5,000, 25,000, 125,000, 625,000 and 3,000,000 coins.',
+  '## Test build 2026.11.23-1252',
   'A fish with a full temper bar punishes reeling: tension builds faster and faster as the bar fills past half, up to 2.5 times as fast when it is full.',
   'Special fish fight harder: a shiny a little harder, a titled fish by its kind (Rainbow, then Starry, Spectral, Ancient), and a hybrid by its size, big ones much harder.',
   'Small hybrids keep more of their worth: they lose only half the sale value their low weight would cost, and earn in the aquarium as if they weighed the usual amount.',

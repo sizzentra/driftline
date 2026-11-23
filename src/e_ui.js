@@ -265,7 +265,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'buytank': { const c=TANK_COST[S.tankSlots]; if(c==null||S.money<c) return; S.money-=c; S.tankSlots++; sfx.coin(); toast('Your tank grew: room for '+aqCap()+' fish'); break; }
     case 'perk': { const p=PERKS[k]; if(!p||ptsFree()<=0||pr(k)>=p.max) return; S.perks[k]=pr(k)+1; sfx.coin(); toast(p.name+' rank '+S.perks[k]); break; }
     case 'respec': { const c=50*S.lvl; if(S.money<c) return; S.money-=c; S.perks={}; toast('Skills reset. Points refunded.'); break; }
-    case 'buygear': { const lv=S.gear[k], c=GEAR[k].cost[lv+1]; if(c==null||S.money<c) return; S.money-=c; S.gear[k]++; sfx.coin(); toast(GEAR[k].name+' upgraded to level '+(S.gear[k]+1)); break; }
+    case 'buygear': { const lv=S.gear[k], c=GEAR[k].cost[lv+1]; if(c==null||S.money<c) return; S.money-=c; S.gear[k]++; sfx.coin(); toast(GEAR[k].name+' upgraded to level '+S.gear[k]); break; }
     case 'buybait': { const bt=BAIT[k]; if(!bt||bt.junk||!(bt.pack>0)||!(bt.scales>0||bt.price>0)) return; if(bt.scales){ if(S.scales<bt.scales) return; S.scales-=bt.scales; S.bait[k]+=bt.pack; } else { const n=+b.dataset.n||1, cost=n>1?bt.price*4.5:bt.price; if(S.money<cost) return; S.money-=cost; S.bait[k]+=bt.pack*n; } if(S.baitSel==='worm') S.baitSel=k; sfx.coin(); toast('Bought '+bt.name); break; }
     case 'usebait': S.baitSel=k; break;
     case 'claim': { const bo=S.bounties[i]; if(!bo||!bDone(bo)) return; const paid=earn(bo.reward*coinMult()*1); if(bo.scales) S.scales+=bo.scales; S.bounties.splice(i,1); fillBounties(); sfx.coin(); toast('Bounty paid: '+fmt(paid)+' coins'+(bo.scales?' and '+bo.scales+' Scales':'')); break; }

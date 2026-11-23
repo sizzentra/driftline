@@ -467,25 +467,26 @@ const ROD_SC = {willow:5, pondrod:10, fibre:20, carbon:40, reefrod:60, frostrod:
 const rodScales = r => (r&&ROD_SC[r.id])||0;
 // id, name, key, values per tier, description
 const ATTS = [
- ['bobber','Bright Bobber','bite',[.08,.15,.25],'Fish notice your bait sooner.'],
- ['sinker','Lead Sinker','rare',[.05,.1,.18],'Gets your bait down to the good stuff.'],
- ['swivel','Ball Swivel','tension',[.05,.1,.16],'Stops the line from twisting under strain.'],
- ['bell','Bite Bell','hook',[.08,.15,.25],'Rings when they bite. More time to strike.'],
- ['charm','Lucky Charm','shiny',[.15,.3,.5],'A tiny four-leaf clover in resin.'],
- ['spool','Deep Spool','spool',[10,20,35],'More line before a runner gets away.'],
- ['bead','Glow Bead','night',[.1,.2,.35],'Glows in the dark. Night fish come to look.'],
- ['magnet','Magnet Tip','treasure',[.2,.4,.7],'Junk and treasure stick to it.'],
- ['feather','Feather Fly','trophy',[.1,.2,.35],'Big fish can’t resist a fancy feather.'],
- ['whistle','Calm Whistle','calm',[.08,.15,.25],'A soothing little tune. Tempers cool.'],
+ ['bobber','Bright Bobber','bite',[.08,.15,.25,.35,.45],'Fish notice your bait sooner.'],
+ ['sinker','Lead Sinker','rare',[.05,.1,.18,.25,.32],'Gets your bait down to the good stuff.'],
+ ['swivel','Ball Swivel','tension',[.05,.1,.16,.22,.28],'Stops the line from twisting under strain.'],
+ ['bell','Bite Bell','hook',[.08,.15,.25,.35,.45],'Rings when they bite. More time to strike.'],
+ ['charm','Lucky Charm','shiny',[.15,.3,.5,.7,.9],'A tiny four-leaf clover in resin.'],
+ ['spool','Deep Spool','spool',[10,20,35,50,65],'More line before a runner gets away.'],
+ ['bead','Glow Bead','night',[.1,.2,.35,.5,.65],'Glows in the dark. Night fish come to look.'],
+ ['magnet','Magnet Tip','treasure',[.2,.4,.7,1,1.3],'Junk and treasure stick to it.'],
+ ['feather','Feather Fly','trophy',[.1,.2,.35,.5,.65],'Big fish can’t resist a fancy feather.'],
+ ['whistle','Calm Whistle','calm',[.08,.15,.25,.35,.45],'A soothing little tune. Tempers cool.'],
  /* 0.4.9 [14] (director: "a few more rod attachments that represent some of the newer fishing systems") */
- ['snagguard','Snag Guard','snag',[.15,.3,.5],'Oddities snag and strain the line less.'],
- ['scentbead','Scent Bead','fav',[.1,.2,.35],'A fish’s favourite food pulls even harder.'],
- ['twinhook','Twin Hook','hybrid',[.15,.3,.5],'More hybrids bite.'],
- ['nibpouch','Nibble Pouch','nib',[.05,.1,.15],'Scrapping a fish gives Nibbles more often.'],
- ['grip','Fighter’s Grip','grip',[.08,.15,.25],'Rare fish hold back less while you reel.'],
+ ['snagguard','Snag Guard','snag',[.15,.3,.5,.65,.8],'Oddities snag and strain the line less.'],
+ ['scentbead','Scent Bead','fav',[.1,.2,.35,.5,.65],'A fish’s favourite food pulls even harder.'],
+ ['twinhook','Twin Hook','hybrid',[.15,.3,.5,.7,.9],'More hybrids bite.'],
+ ['nibpouch','Nibble Pouch','nib',[.05,.1,.15,.2,.25],'Scrapping a fish gives Nibbles more often.'],
+ ['grip','Fighter’s Grip','grip',[.08,.15,.25,.35,.45],'Rare fish hold back less while you reel.'],
 ].map(a=>({id:a[0],name:a[1],k:a[2],v:a[3],d:a[4]}));
 const ATT_I = Object.fromEntries(ATTS.map(a=>[a.id,a]));
-const ATT_COST = [[1500,0],[12000,10],[60000,60]];
+const ATT_COST = [[5000,0],[25000,10],[125000,60],[625000,150],[3000000,300]]; /* Cam, 2026-11-23: five tiers at these coin prices (were three: 1,500, 12,000, 60,000); Scales for tiers 4 and 5 are a Feel call */
+const ATT_MAX = ATT_COST.length;
 const rod = () => ROD_I[S.rods.eq] || ROD_I.bamboo;
 const rodLvl = (id=S.rods.eq) => S.rods.lvl[id]||0;
 function rodAtts(id=S.rods.eq){ return (S.rods.att[id]||[]).filter(a=>ATT_I[a] && S.atts[a]).slice(0,(ROD_I[id]||ROD_I.bamboo).slots); }
@@ -517,8 +518,8 @@ function renderRods(P){ const r=rod(), atts=rodAtts();
   <h2 style="margin-top:16px">Rod rack</h2><div class="grid">${RODS.map(x=>{ const own=S.rods.owned.includes(x.id), here=S.rods.eq===x.id, open=S.unlocked.includes(x.need), hidden=!own&&x.src!=='shop'&&x.src!=='start';
     const btn = here?'<button class="btn alt sm" disabled>Equipped</button>' : own?`<button class="btn sm" data-act="rodeq" data-k="${x.id}">Equip</button>` : x.src==='shop'?(open?`<button class="btn sm" data-act="rodbuy" data-k="${x.id}" ${S.money>=x.price&&S.scales>=rodScales(x)?'':'disabled'}>Buy · <span class="coin">${fmt(x.price)}</span>${rodScales(x)?' + '+rodScales(x)+' Scales':''}</button>`:`<span class="meta">Unlock ${LOCS[locIdx(x.need)].name} first</span>`) : '<span class="meta">Not sold anywhere. Keep fishing…</span>';
     return `<div class="tile ${here?'done':''}">${rodSVG(hidden?"#2a4a55":x.col,own?rodLvl(x.id):0,hidden?null:x.id)}<h4>${hidden?'???':x.name}</h4><div class="meta">${hidden?'How to get it: '+esc(rodHint(x)):esc(x.d)}</div><div class="meta">${hidden?'':stats(x)+' · '+x.slots+' slot'+(x.slots>1?'s':'')}</div>${btn}</div>`; }).join('')}</div>
-  <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has three tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<3?ATT_COST[t]:null;
-    return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / 3</span></div><div class="pips">${[0,1,2].map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
+  <h2 style="margin-top:16px">Attachments</h2><p class="sub">Each attachment has five tiers. Once you own one, it fits on any rod.</p><div class="grid">${ATTS.map(a=>{ const t=S.atts[a.id]||0, next=t<ATT_MAX?ATT_COST[t]:null;
+    return `<div class="tile"><div class="row spread"><h4>${a.name}</h4><span class="meta">Tier ${t} / ${ATT_MAX}</span></div><div class="pips">${ATT_COST.map((_,i)=>i).map(i=>`<i class="${i<t?'on':''}"></i>`).join('')}</div><div class="meta">${esc(a.d)}</div>
       <div class="val" style="font-size:14px">${t?statTxt(a.k,a.v[t-1]):'Not owned'}${next?` <span class="meta">→ ${statTxt(a.k,a.v[t])}</span>`:''}</div>
       ${next?`<button class="btn sm" data-act="attbuy" data-k="${a.id}" ${S.money>=next[0]&&S.scales>=next[1]?'':'disabled'}>${t?'Upgrade':'Buy'} · <span class="coin">${fmt(next[0])}</span>${next[1]?' + '+next[1]+' Scales':''}</button>`:'<span class="badge g">Max tier</span>'}</div>`; }).join('')}</div>`; }
 
@@ -705,7 +706,7 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'rodbuy': { const r=ROD_I[k]; if(!r||r.src!=='shop'||S.rods.owned.includes(k)||S.money<r.price||S.scales<rodScales(r)||!S.unlocked.includes(r.need)) return 'skip'; S.money-=r.price; S.scales-=rodScales(r); S.rods.owned.push(k); S.rods.eq=k; sfx.coin(); toast('New rod: '+r.name+'!'); return 'render'; }
     case 'rodup': { const c=rodUpCost(k); if(rodLvl(k)>=10||S.money<c.coins||S.scales<c.scales) return 'skip'; S.money-=c.coins; S.scales-=c.scales; S.rods.lvl[k]=rodLvl(k)+1; sfx.catch(2); toast(ROD_I[k].name+' is now level '+S.rods.lvl[k]); return 'render'; }
     case 'rodatt': { const [si,a]=k.split(':'); const id=S.rods.eq, list=(S.rods.att[id]||[]).slice(); list[+si]=a||''; S.rods.att[id]=list.slice(0,rod().slots); return 'render'; }
-    case 'attbuy': { const t=S.atts[k]||0; if(t>=3) return 'skip'; const c=ATT_COST[t]; if(S.money<c[0]||S.scales<c[1]) return 'skip'; S.money-=c[0]; S.scales-=c[1]; S.atts[k]=t+1; sfx.coin(); toast(ATT_I[k].name+' tier '+(t+1)+'!');
+    case 'attbuy': { const t=S.atts[k]||0; if(t>=ATT_MAX) return 'skip'; const c=ATT_COST[t]; if(S.money<c[0]||S.scales<c[1]) return 'skip'; S.money-=c[0]; S.scales-=c[1]; S.atts[k]=t+1; sfx.coin(); toast(ATT_I[k].name+' tier '+(t+1)+'!');
       const cur=S.rods.att[S.rods.eq]||[]; if(!t && cur.filter(Boolean).length<rod().slots && !cur.includes(k)){ const l=cur.slice(); const free=l.findIndex(x=>!x); if(free>=0) l[free]=k; else l.push(k); S.rods.att[S.rods.eq]=l.slice(0,rod().slots); } return 'render'; }
     case 'pettint': { const tt=PET_TINTS.find(x=>x[0]===k); if(!tt) return 'skip'; PET_PV=null; if(!S.petTints.includes(k)){ if(!tt[2]||S.money<tt[2]) return 'skip'; S.money-=tt[2]; S.petTints.push(k); sfx.coin(); } petLook().tint=k; return 'render'; }
     case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }

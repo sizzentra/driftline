@@ -25,7 +25,7 @@ function baitGroupsHTML(list){ const L=baitSorted(list); return '<div class="tk-
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='baitfold'){ const g=+b.dataset.k; if(g>=0&&g<3) baitFold[g]=!baitFold[g]; return 'render'; } if(b.dataset.act==='tackleview'&&b.dataset.k==='bait') baitFold=[true,true,true]; return _ea(b); }; }
 function renderShop(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
   const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
-    return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv+1} / ${max+1}</span></div><div class="pips">${G2.lv.map((_,i)=>`<i class="${i<=lv?'on':''}"></i>`).join('')}</div>
+    return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv} / ${max}</span></div><div class="pips">${G2.lv.slice(1).map((_,i)=>`<i class="${i<lv?"on":""}"></i>`).join('')}</div>
     <div class="meta">${G2.what}</div><div class="val">${G2.fmt(G2.lv[lv])}${lv<max?` <span class="meta">→ ${G2.fmt(G2.lv[lv+1])}</span>`:''}</div>
     ${lv<max?`<button class="btn" data-act="buygear" data-k="${k}" ${S.money>=next?'':'disabled'}>Upgrade · <span class="coin">${fmt(next)}</span></button>`:'<button class="btn alt" disabled>Maxed out</button>'}</div>`; }).join('');
   const owned=junkBait.filter(([k])=>S.bait[k]>0).length;

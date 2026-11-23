@@ -16,8 +16,8 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
     return `<p class="sub">Every bonus and where it comes from. Boosts are timed buffs from junk and tasks; Aquarium is your displayed fish; Pets are your favourite and companion; Rod includes its level and attachments.</p>
       <div class="st-table-wrap"><table class="st-table"><thead><tr><th></th><th>Boosts</th><th>Aquarium</th><th>Pets</th><th>Rod</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table></div>`; }
   if(statSec==='gear'){ const g=k=>GEAR[k].fmt(gv(k));
-    return `<div class="st-grid"><div class="tile"><h4>Tackle</h4>${statRow('Rod length',g('rod'),'Level '+(S.gear.rod+1)+' of '+GEAR.rod.lv.length)}${statRow('Reel',g('reel'),'Level '+(S.gear.reel+1)+' of '+GEAR.reel.lv.length)}${statRow('Line',g('line'),'Level '+(S.gear.line+1)+' of '+GEAR.line.lv.length)}${statRow('Angler strength',strTxt(anglerStr()),'Line plus skills that lower tension')}
-      ${statRow('Hook',g('hook'),'Level '+(S.gear.hook+1)+' of '+GEAR.hook.lv.length)}${statRow('Cooler',g('cooler'))}${statRow('Fish finder',g('finder'))}</div>
+    return `<div class="st-grid"><div class="tile"><h4>Tackle</h4>${statRow('Rod length',g('rod'),'Level '+S.gear.rod+' of '+(GEAR.rod.lv.length-1))}${statRow('Reel',g('reel'),'Level '+S.gear.reel+' of '+(GEAR.reel.lv.length-1))}${statRow('Line',g('line'),'Level '+S.gear.line+' of '+(GEAR.line.lv.length-1))}${statRow('Angler strength',strTxt(anglerStr()),'Line plus skills that lower tension')}
+      ${statRow('Hook',g('hook'),'Level '+S.gear.hook+' of '+(GEAR.hook.lv.length-1))}${statRow('Cooler',g('cooler'))}${statRow('Fish finder',g('finder'))}</div>
       <div class="tile"><h4>Rod: ${esc(rod().name)}</h4>${statRow('Rod level',rodLvl()+' / 10')}${Object.keys(rod().st).map(k=>statRow(k==='cast'?'Cast distance':BK[k]?BK[k][0].toUpperCase()+BK[k].slice(1):k, k==='cast'?mulS(rod().st[k]):k==='hook'?'+'+rod().st[k].toFixed(2)+' s':pctS(rod().st[k]))).join('')||'<div class="meta">No special stats</div>'}
       ${statRow('Attachments',rodAtts().length?rodAtts().map(a=>esc(ATT_I[a].name)).join(', '):'None')}</div>
       <div class="tile"><h4>Bait</h4>${statRow('In use',esc(b.name)+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0)+' left':''))}${statRow('Bite speed',mulS(b.speed))}${statRow('Rare odds',b.rare?'+'+Math.round(b.rare*100)+'%':'—')}</div></div>`; }
@@ -67,7 +67,7 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; if(k.startsWith('tod:')
   if(k==='cooler'){ const pool=SP.filter(s=>s.loc===S.loc); let n=0; while(S.cooler.length<gv('cooler')&&n<200){ const sp=pool[n%pool.length]; S.cooler.push({id:sp.id,kg:1,value:100,sh:0,tr:0}); n++; } return n+' fish added to your cooler.'; }
   if(k==='time'){ const h=8*3600e3; try{ S.tankT=(S.tankT||Date.now())-h; accrue(); }catch(e){} try{ S.wheelT=(S.wheelT||Date.now())-h; accrueSpins(); }catch(e){} return 'Skipped 8 hours: collect your aquarium and spins.'; }
   S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.pearls=(S.pearls||0)+20; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
-  U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=3;
+  U(S.rods.owned,RODS.map(r=>r.id)); for(const r of RODS) S.rods.lvl[r.id]=10; for(const a of ATTS) S.atts[a.id]=ATT_MAX;
   U(o.hats,HATS.map(h=>h.id)); U(o.cols,SHOP_COLS.map(c=>c[0])); U(o.pats,PATTERNS.map(p=>p[0])); U(o.outfits,OUTFITS.map(x=>x[0])); U(o.glasses,GLASSES.map(x=>x[0])); U(o.shoes,SHOES.map(x=>x[0])); U(o.necks,NECKS.map(x=>x[0])); U(o.backs,BACKS.map(x=>x[0]));
   U(o.pets,PETS.filter(p=>(p.id!=='lily'||o.pets.includes('lily'))&&(p.id!=='daxniko'||o.pets.includes('daxniko'))).map(p=>p.id)); U(S.petTints,PET_TINTS.map(x=>x[0])); U(S.petAccs,PET_ACCS.map(x=>x[0]));
   U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;

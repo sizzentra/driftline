@@ -15,7 +15,7 @@
 //    during a move; temper empties in about 3 s when you stop; full temper makes the fish act up to 3 times as often, each move
 //    costing its Fight in proportion (twice as often, half the cost); reeling into a move (not a jump toward you) drains Fight 1.5x
 //  - between moves the fish is either still or swimming toward you (reel 25-50% faster, 0.25-3 s, less often and shorter for rarer fish)
-//  - a tired fish reels in faster by rarity (common 60% ... mythic 10%)
+//  - a tired fish reels in faster by rarity (common 60% ... mythic 10%); rare to mythic then a little slower (FF.TIRED_SLOW), with its Second-wind clock slowed the same, so it comes in slower without more chances to escape
 //  - Second winds: the first is as before; rare and epic fish may get 1 more, legendary and mythic 2 more, each a 50/50 flip after
 //    5 s tired, then 3 s, then every 1 s; a legendary or mythic's third waits twice as long and gives only 25% Fight
 //  - in waters with dives a third of runs are dives; a dive lasts 5-20 s and stops once tension stays in its band for 1.5 s; it pulls
@@ -29,6 +29,7 @@ const FF = { FAR_M:40, SPOOL_M:200, LB:.4536,
   ACT_DRAIN:1.5,                    /* Cam: reeling into a move drains Fight 1.5 times as fast */
   SWIM_P:[.5,.45,.38,.32,.26,.2], SWIM_K:[1.25,1.5], SWIM_T:[.25,3], SWIM_EVERY:[1,2], /* Cam: still or swimming toward you between moves */
   TIRED_FAST:[.6,.45,.3,.25,.2,.1], /* Cam: a tired fish reels in this much faster, by rarity */
+  TIRED_SLOW:[1,1,1.1,1.15,1.2,1.25], /* Cam, 2026-11-23: “a little slower reel in when the fish is tired” for rare to mythic: tired reeling divided by this, and the tired (Second-wind) clock runs as much slower, so the fish gets no extra chances (a first version that only slowed the reel cut a steady player’s legendaries landed from about 70% to 25-40%); Feel call */
   SW_EXTRA:[0,0,1,1,2,2], SW_WAITS:[5,3,1], SW_LAST_TO:.25, /* Cam: extra Second winds by rarity, their flip waits, the legendary / mythic third */
   DIVE_SHARE:1/3, DIVE_T:[5,20], DIVE_HOLD:1.5, DIVE_RATE:.5, DIVE_MK:3, /* Cam: dives = a third of runs, 5-20 s, stopped by 1.5 s in the band, slower but longer */
   PERFECT_REST:1.5,                 /* Cam: after a perfect hook the fish doesn't fight for 1.5 s */
@@ -38,7 +39,7 @@ const FF = { FAR_M:40, SPOOL_M:200, LB:.4536,
   CHAIN:[1,1,2,3,4,5],              /* Cam: moves in a row, by rank (common and uncommon never chain) */
   DIVE_N:[1,2,3,4,5,6], DIVE_M:[3,5,10,15,20,20], DEEP_M:100, /* Cam: dives per fight and metres if the band is missed; deep = 100 m+ (director) */
   SHORT_T:[3,6,10,15,20,30],        /* Cam: shortest landing time from the far edge by rank; a fish that still has fight never comes in faster */
-  NOREEL:10, SNAP_HOLD:.5, SW_AFTER:10, SW_TO:.5, RUN_T:[1.5,5], REST_T:[1,5] };
+  NOREEL:10, SNAP_HOLD:.325, /* Cam, 2026-11-23: 35% less grace at full tension (was .5 s) */ SW_AFTER:10, SW_TO:.5, RUN_T:[1.5,5], REST_T:[1,5] };
 // the switch: test builds only (Stats › Tester tools › Fishing: New / Old); read once, changed by the button
 let FISH_OLD = (()=>{ try{ return !!window.DL_PREVIEW && localStorage.getItem('dl-fish-old')==='1'; }catch(e){ return false; } })();
 const fishNew = () => !FISH_OLD;
@@ -84,7 +85,7 @@ const FF_AVG = {};
 function ffAvg(loc){ if(FF_AVG[loc]) return FF_AVG[loc]; const ps=SP.filter(s=>s.loc===loc); const n=Math.max(1,ps.length);
   const str=ps.reduce((a,s)=>a+(s.str||1),0)/n, kg=ps.reduce((a,s)=>a+((s.min||0)+(s.max||0))/2,0)/n; return FF_AVG[loc]={str:Math.max(.5,str), kg:Math.max(.05,kg)}; }
 // how many tries a bite gives before it's gone (Cam's list #10): one to start; Quick Reflexes at ranks 5 and 10 and a full Water Reader add one each
-const hookTries = () => 1 + (pr('reflex')>=5?1:0) + (pr('reflex')>=10?1:0) + Math.floor(pr('secondbite')/3); /* Second Bite ranks 3, 6 and 9 (director, 2026-11-23; was Water Reader's full rank) */
+const hookTries = () => 1 + (pr('reflex')>=5?1:0) + (pr('reflex')>=10?1:0) + (pr('secondbite')>=1?1:0) + (pr('secondbite')>=5?1:0) + (pr('secondbite')>=10?1:0); /* Second Bite ranks 1, 5 and 10 (Cam, 2026-11-23; were 3, 6 and 9) */
 // a fresh fight on the new rules (called by hookIt)
 function ffInit(){ const f=G.fish; G.surge3=null;
   G.d0=G.d=Math.max(3, FF.FAR_M*clamp(G.lastCast,0,1)); G.dd=0; G.maxOut=FF.SPOOL_M+rodSpool();
@@ -161,7 +162,7 @@ function fightNew(dt){
       A.inZT=inZ?(A.inZT||0)+dt:0; if(A.inZT>=FF.DIVE_HOLD||A.got>=A.max-1e-6) A.t=A.dur; } /* Cam: holding the band for 1.5 s stops the dive at once */
     /* Feel lab, the right reaction pays: ease off in a run, a shake or a jump away; reel into a jump toward you; hold the dive band */
     if(A.k==='run'&&A.style==='long'){ const press=rin>0&&!(G.prevRin>0); A.holdT=rin>0?(A.holdT||0)+dt:0; /* a long run: short pulls in rhythm pay; holding on strains the line */
-      if(press){ const gap=A.t-A.lastPress; if(gap>.18&&gap<.9){ A.taps++; G.sta=Math.max(0,G.sta-.012*Math.max(.5,FEEL.counter||0)); G.dQ=(G.dQ||0)+.25; A.dur=Math.max(A.t+.2,A.dur-.3); if(A.taps===2) feelPop('Steady!'); if(A.taps%5===0) feelCombo(1); } /* each good pull shortens the run; +1 combo per 5 (director, 2026-11-23) */ A.lastPress=A.t; }
+      if(press){ const gap=A.t-A.lastPress; if(gap>.18&&gap<.9){ A.taps++; G.sta=Math.max(0,G.sta-.012*Math.max(.5,FEEL.counter||0)); G.dQ=(G.dQ||0)+.25; if(A.taps===2) feelPop('Steady!'); if(A.taps%3===0){ feelCombo(1); A.dur=Math.max(A.t+.2,A.dur-.9); } } /* every 3 good pulls: +1 combo and the run 0.9 s shorter (Cam, 2026-11-23: back to 3; was every 5, and 0.3 s off each pull) */ A.lastPress=A.t; }
       if(A.holdT>1.1&&!A.bad){ A.bad=1; feelCombo(-1); } }
     else if(FEEL.counter>0){ const live=!(A.k==='jump'&&A.t<JUMP_WINDUP), good=!live?false:A.k==='dive'?!!A.inZ:(A.k==='jump'&&!A.away)?rin>.6:rin<.25;
       if(good){ A.good=(A.good||0)+dt; G.sta=Math.max(0,G.sta-dt*.035*FEEL.counter*(A.style==='dart'?1.5:1)); if(!A.paid&&A.good>=.4){ A.paid=1; feelPop(A.k==='dive'?'Held it!':(A.k==='jump'&&!A.away)?'Reeled in!':A.style==='dart'?'Let it dart!':'Nice!'); feelCombo(1); } } /* letting a dart go tires the fish faster */
@@ -169,7 +170,7 @@ function fightNew(dt){
     if(A.t>=A.dur){ if(A.k==='jump') splash(G.bob.x+(A.away?30:-30),G.bob.y,18); ffEnd(f,tk,lively); } }
   if(tenRate>0) tenRate*=1+.7*(FEEL.tx||0)*clamp((G.temper||0)/3,0,1); /* Cam, 2026-11-23: the more temper, the harder every move pulls the line tight */
   // reeling: a fresh fish holds against you by rank (only fish of 1.5 lb and up); a tired one comes in at full speed
-  if(rin>0){ const tired=G.sta<=0, fast=tired?1+FF.TIRED_FAST[tk]:1, res=wc>=1?clamp(FF.RESIST[tk]*Math.pow(Math.max(0,G.sta),.6)*(B.heavy?1.1:1),0,.97):0, gain=Math.min(reel*rin*(1-res)*gainK*fast, FF.FAR_M*fast/(tired?3:FF.SHORT_T[tk]*FEEL.len))*dt; /* Cam: a tired fish comes in 10-60% faster by rarity */ /* Cam: never faster than its rarity's shortest time while it has fight; a tired fish comes in at full speed (about 3 s from the far edge at most) */
+  if(rin>0){ const tired=G.sta<=0, fast=tired?(1+FF.TIRED_FAST[tk])/FF.TIRED_SLOW[tk]:1, res=wc>=1?clamp(FF.RESIST[tk]*Math.pow(Math.max(0,G.sta),.6)*(B.heavy?1.1:1),0,.97):0, gain=Math.min(reel*rin*(1-res)*gainK*fast, FF.FAR_M*fast/(tired?3:FF.SHORT_T[tk]*FEEL.len))*dt; /* Cam: a tired fish comes in 10-60% faster by rarity */ /* Cam: never faster than its rarity's shortest time while it has fight; a tired fish comes in at full speed (about 3 s from the far edge at most) */
     if(G.dd>0){ const back=Math.min(G.dd,.75*gain); G.dd-=back; } G.d-=gain; /* Cam: dive distance comes back at a 75% rate */
     const intoMove=A&&!(A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP)?FF.ACT_DRAIN:1; /* Cam: reeling into a move (not a jump toward you) drains its Fight 1.5x */
     G.sta=Math.max(0,G.sta-intoMove*rin*dt/(FF.TIRE_T[tk]*fk*FEEL.len*clamp(Math.sqrt(over),1,2)*(B.heavy?1.15:1)*(1+.5*(fightVoy()-1)))*(1-.25*G.temper/3)); /* Cam: the temper keeps its Fight from draining */
@@ -184,7 +185,7 @@ function fightNew(dt){
   // a tired fish: "Reel hard!"; left 10 s it gets one Second wind (back to half its Fight)
   // Second winds (Cam): the first as before (10 s tired, back to half); rare and epic fish may get 1 more, legendary and mythic 2 more,
   // each a 50/50 flip after 5 s tired, then 3 s, then every 1 s; a legendary or mythic's third waits twice as long and gives 25%
-  if(G.sta<=0){ G.tiredT=(G.tiredT||0)+dt; const n=G.swN||0, sw=to=>{ G.swN=n+1; G.swUsed=true; G.sta=to; G.tiredT=0; G.swStep=0; G.swNext=0; G.swT=1.4; sfx.warn(); if(V3ON) vib([30,30,30]); };
+  if(G.sta<=0){ G.tiredT=(G.tiredT||0)+dt/FF.TIRED_SLOW[tk]; const n=G.swN||0, sw=to=>{ G.swN=n+1; G.swUsed=true; G.sta=to; G.tiredT=0; G.swStep=0; G.swNext=0; G.swT=1.4; sfx.warn(); if(V3ON) vib([30,30,30]); };
     if(n===0){ if(G.tiredT>=FF.SW_AFTER*FEEL.sw) sw(FF.SW_TO); }
     else if(n<=FF.SW_EXTRA[rk]){ const k2=n===2?2:1; if(!G.swNext) G.swNext=FF.SW_WAITS[0]*k2*FEEL.sw; if(G.tiredT>=G.swNext){ if(Math.random()<.5) sw(n===2?FF.SW_LAST_TO:FF.SW_TO); else { G.swStep=Math.min(FF.SW_WAITS.length-1,(G.swStep||0)+1); G.swNext=G.tiredT+FF.SW_WAITS[G.swStep]*k2*FEEL.sw; } } } }
   else G.tiredT=0;
@@ -204,7 +205,7 @@ function fightNew(dt){
   G.bob.x=x0+(x1-x0)*Math.min(frac,1.25)+(G.run?Math.sin(performance.now()/90)*3:0)+(G.ffA&&G.ffA.style==='dart'?G.ffA.dir*Math.sin(Math.min(1,G.ffA.t/G.ffA.dur)*Math.PI)*W*.025:0) /* a dart zigzags */+(G.ev==='shake'?Math.sin(performance.now()/30)*3:0)+(G.tell?Math.sin(performance.now()/22)*2:0); G.bob.x=clamp(G.bob.x,W*.2,W*.93); /* the fight never leaves the screen (director, 2026-11-22: "fish fights keep escaping the viewable screen") */ G.bob.y=waterY(G.bob.x);
   if(G.ten>=100){ G.ten=100; G.fullT=rin>0?(G.fullT||0)+dt:0; } else G.fullT=0;
   if(G.fullT>0 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.fullT=0; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
-  if(G.fullT>=FF.SNAP_HOLD) endFight('snap'); /* Cam: the line goes after about half a second of reeling at 100% */
+  if(G.fullT>=FF.SNAP_HOLD) endFight('snap'); /* Cam: the line goes after about a third of a second of reeling at 100% (FF.SNAP_HOLD) */
   else if(G.d>=G.maxOut) endFight('spool');
   else if(G.noReelT>=FF.NOREEL) endFight('escape'); /* Cam: 10 s without reeling and it swims off */
   else if(G.d<=0){ if(FEEL.juice&&(rk>=3||rel>1.5)){ splash(G.bob.x,G.bob.y,34); try{ tone(523,.09,'triangle',.07); setTimeout(()=>tone(659,.09,'triangle',.07),90); setTimeout(()=>tone(784,.18,'triangle',.08),180); }catch(e){} if(V3ON) vib([40,30,90]); } /* landing a big one (Claude's idea): a big splash, a rising chime and a buzz */ endFight('caught'); } }

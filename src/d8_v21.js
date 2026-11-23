@@ -11,10 +11,10 @@
  ['emberrod','Magma Rod','shop',2000000,'ember',3,'#ff5a1a',{rare:.4,tension:.25,reel:.2},'Forged in the springs. Warm to hold.'],
  ['starrod','Starcaster','shop',5000000,'starfall',3,'#c8a0ff',{rare:.55,hot:.5,cast:1.15},'Casts so far the line touches the stars.'],
 ].forEach(a=>{ const r={id:a[0],name:a[1],src:a[2],price:a[3],need:a[4],slots:a[5],col:a[6],st:a[7],d:a[8]}; RODS.push(r); ROD_I[r.id]=r; });
-[['gears','Oiled Gears','reel',[.06,.12,.2],'A drop of oil. The reel purrs.'],
- ['logclip','Logbook Clip','xp',[.05,.1,.18],'Keeps notes on every catch. You learn faster.'],
- ['pricetag','Price Tag','sell',[.04,.08,.14],'Somehow fish sell for more with a tag on.'],
- ['tanknet','Aquarium Net','tank',[.08,.16,.28],'Catches them gently so they show off later.'],
+[['gears','Oiled Gears','reel',[.06,.12,.2,.28,.36],'A drop of oil. The reel purrs.'],
+ ['logclip','Logbook Clip','xp',[.05,.1,.18,.25,.32],'Keeps notes on every catch. You learn faster.'],
+ ['pricetag','Price Tag','sell',[.04,.08,.14,.2,.26],'Somehow fish sell for more with a tag on.'],
+ ['tanknet','Aquarium Net','tank',[.08,.16,.28,.4,.52],'Catches them gently so they show off later.'],
 ].forEach(a=>{ const t={id:a[0],name:a[1],k:a[2],v:a[3],d:a[4]}; ATTS.push(t); ATT_I[t.id]=t; });
 
 // ---------- aquarium decor, junk, relics, outfits ----------

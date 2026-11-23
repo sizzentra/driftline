@@ -419,8 +419,8 @@ function draw(now){
     g.lineWidth=4.5; g.strokeStyle='rgba(6,14,22,.55)'; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke();
     g.lineWidth=2; g.strokeStyle=inHot?(G.hot.col||'#ffd65a'):'rgba(255,120,70,.98)'; g.setLineDash([5,3]); g.lineDashOffset=-performance.now()/60; g.beginPath(); g.ellipse(x,wy,12,3.8,0,0,7); g.stroke(); g.setLineDash([]); g.lineDashOffset=0;
     g.fillStyle='rgba(6,14,22,.55)'; g.beginPath(); g.arc(x,wy,3.4,0,7); g.fill(); g.fillStyle=inHot?'#ffe08a':'#ffffff'; g.beginPath(); g.arc(x,wy,2,0,7); g.fill(); g.lineWidth=1; }
-  if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=S.gear.finder; let col='#ffc94d', lab='';
-    if(fl>=1 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5&&S.journal[pf.sp.id]?pf.sp.name:(fl>=5?'New '+RAR[pf.sp.r].k:RAR[pf.sp.r].k)) /* the top Fish Finder names only species you have caught (director, 2026-11-19) */ : pf.kind==='hat'?'Something wearable':'Junk'; }
+  if(G.st==='bite'){ const s=1+Math.sin(t*20)*.08; const pf=G.pend, fl=gv("finder"); let col='#ffc94d', lab='';
+    if(fl>0 && pf){ col = pf.kind==='fish' ? RAR[pf.sp.r].c : pf.kind==='hat' ? '#ffc94d' : '#c8b8a0'; if(fl>=3) lab = pf.kind==='fish' ? (fl>=5&&S.journal[pf.sp.id]?pf.sp.name:(fl>=5?'New '+RAR[pf.sp.r].k:RAR[pf.sp.r].k)) /* the top Fish Finder names only species you have caught (director, 2026-11-19) */ : pf.kind==='hat'?'Something wearable':'Junk'; }
     g.save(); g.translate(G.bob.x,G.bob.y-34); g.scale(s,s); g.fillStyle=col; g.font='800 34px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.fillText('!',0,0); g.restore();
     const left=clamp((G.biteEnd-G.waitT)/hookWin(),0,1); g.fillStyle='rgba(255,201,77,.9)'; rr(G.bob.x-20,G.bob.y-26,40*left,4,2); g.fill();
     if(lab){ g.font='700 12px system-ui'; g.textAlign='center'; const tw=g.measureText(lab).width; g.fillStyle='rgba(5,14,20,.75)'; rr(G.bob.x-tw/2-7,G.bob.y-72,tw+14,18,9); g.fill(); g.fillStyle=col; g.fillText(lab,G.bob.x,G.bob.y-59); } }

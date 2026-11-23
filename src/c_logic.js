@@ -2,7 +2,7 @@
 // ---------- state ----------
 const LS_KEY = 'driftline-save-v1';
 const baitZero = () => Object.fromEntries(Object.keys(BAIT).filter(k=>k!=='worm').map(k=>[k,0]));
-const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:0,cooler:0,finder:0}, bait:baitZero(), baitSel:'worm',
+const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:0,cooler:0,finder:0}, gearV:2, bait:baitZero(), baitSel:'worm',
   unlocked:['pond'], loc:'pond', cooler:[], journal:{}, bounties:[], egPaid:[], setDone:{},
   perks:{}, bonusPts:0, tank:[], tankSlots:3, tankT:0, tankBank:0, feats:{}, pearls:0, pearlV:2, tides:0, streak:0,
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a',nose:'button',brows:'soft',mouth:'smile',blush:'on',aura:'none',bob:'none',line:'none',face:'natural',eyeShape:'round'},
@@ -37,7 +37,7 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   if(o.pass){ for(const k of ['xp','lvl','claimed']) if(typeof o.pass[k]==='number') o.pass[k]=Math.max(0,Math.floor(o.pass[k])); if(o.pass.claimed>o.pass.lvl) o.pass.claimed=o.pass.lvl||0; }
   if(o.bait&&isObj(o.bait)) for(const k in o.bait){ const n=+o.bait[k]; o.bait[k]=isFinite(n)&&n>0?Math.floor(n):0; }
   const m=Object.assign(d,o);
-  m.gear=Object.assign(fresh().gear,o.gear||{}); for(const k in GEAR) m.gear[k]=clamp(m.gear[k]|0,0,GEAR[k].lv.length-1);
+  m.gear=Object.assign(fresh().gear,o.gear||{}); if(!(o.gearV>=2)){ m.gear.hook=Math.ceil((m.gear.hook|0)*5/3-1e-9); m.gear.finder=(m.gear.finder|0)*2; } m.gearV=2; /* Cam, 2026-11-23: Hook (7 steps) and Fish Finder (6) now have 11; old saves keep at least the window and finder they had */ for(const k in GEAR) m.gear[k]=clamp(m.gear[k]|0,0,GEAR[k].lv.length-1);
   m.bait=Object.assign(baitZero(),o.bait||{}); if(!BAIT[m.baitSel]) m.baitSel='worm';
   m.stats=Object.assign(fresh().stats,o.stats||{}); m.perks=Object.assign({},o.perks||{}); for(const k in m.perks){ if(!PERKS[k]) delete m.perks[k]; else m.perks[k]=Math.min(m.perks[k],PERKS[k].max); }
   m.feats=Object.assign({},o.feats||{}); m.tank=(m.tank||[]).filter(f=>SPI[f.id]); m.tankBank=+m.tankBank||0; for(const f of m.tank.concat(m.cooler||[])) if(f&&SPI[f.id]&&!(+f.value>0)) f.value=Math.max(1,Math.round(SPI[f.id].base*RAR[SPI[f.id].r].val)); m.cooler=(m.cooler||[]).filter(f=>SPI[f.id]);
@@ -129,7 +129,7 @@ const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel')
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
 const tempMult = () => Math.max(.25, (1 - .06*pr('softtouch')) * (1 - bonus('calm')) * (1 - (BAIT[S.baitSel].calm||0)) * (spec('gentle')?.65:1));
 const farAt = () => .8 - .02*pr('caster');
-const hotRate = () => Math.min(4, (1 + .1*pr('reader') + .2*S.gear.finder + bonus('hot')) * (relic('compass')?1.4:1) * pathMul('hotrate')); /* batch 6: hotspots at most 4× as often */
+const hotRate = () => Math.min(4, (1 + .1*pr('reader') + .2*gv("finder") + bonus('hot')) * (relic('compass')?1.4:1) * pathMul('hotrate')); /* batch 6: hotspots at most 4× as often */
 /* C29 (director + Cam, 2026-11-20): a hotspot's color tells its lowest rarity: green uncommon (most often) .. gold legendary (rarest);
    about 1 in 20 also promises a shiny (rising sparkles). In a hotspot hybrids, shinies and titles come more often. Feel calls: all numbers here. */
 const HOT_TIERS=[[1,'#5ee08a',.55],[2,'#5aa8ff',.28],[3,'#c27bff',.13],[4,'#ffc94d',.04]], HOT_SHINY=.05, HOT_SHINY_K=2.5, HOT_HYBRID_K=1.5, HOT_PRISM_K=1.5;
@@ -268,7 +268,7 @@ function catchOdds(opts={}){ const keep={bait:S.baitSel, rod:S.rods&&S.rods.eq, 
     const ev=opts.ev?pool.reduce((a,s,i)=>a+ws[i]/tot*opts.ev(s),0):0; return {by, epic:by[3]+by[4]+by[5], legend:by[4]+by[5], ev, rare, shares:pool.map((s,i)=>[s,ws[i]/tot])}; }
   finally{ S.baitSel=keep.bait; if(S.rods) S.rods.eq=keep.rod; S.perks=keep.perks; } }
 const fmtOdds = x => x>=.1 ? (x*100).toFixed(0)+'%' : x>=.01 ? (x*100).toFixed(1)+'%' : (x*100).toFixed(2)+'%';
-function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.perfect = perfect;
+function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hookWin(); G.fish = G.pend || chooseCatch(); G.pend=null; G.missN=0; /* Second Bite's odds boost ends once a fish is hooked (Cam, 2026-11-23) */ G.perfect = perfect;
   if(S.baitSel!=='worm'&&!pathSave()){ S.bait[S.baitSel]=Math.max(0,S.bait[S.baitSel]-1); if(S.bait[S.baitSel]===0) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); save(); }
   G.st='reeling'; G.crank=0; G.d0=G.d= 6 + G.lastCast*gv('rod')*.6*rodCast(); G.maxOut = gv('rod')*rodCast() + 28 + rodSpool(); G.ten=10; G.sta=1; G.temper=0; G.run=false; G.face=1; G.runT=rnd(.5,1.1); G.ev=null; G.evT=rnd(1,2.2); G.hold=false; tone(660,.08,'square',.05);
   G.fightT=0; G.saved=false; G.eat=null; G.strip=null; G.swN=0; G.hotT=0; G.hotRolled=false; G.swT=0; G.eatDone=false; G.behT=0; G.surge=null; G.surgeN=0; G.dd=0; if(fishNew()) ffInit();
