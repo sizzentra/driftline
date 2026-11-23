@@ -393,16 +393,17 @@ hfMake('deep',{ name:'Trawler', hname:'trawler', floats:true, seatX:()=>HF.pw()-
     ['seat'],
     ['light',(o,s)=>HK.light(o,['floodpole','workcage','hook'][s])]] });
 
-/* 12. Hollow Trench: the salvage raft (floats) */
-hfMake('trench',{ name:'Salvage raft', hname:'raft', floats:true,
+/* 12. Hollow Trench: the castaway raft (overnight, 2026-11-23; its own design, src/cw_castaway.js; floats): barrels and salvaged planks lashed with
+   rope, glowing growth below; the shelter an upturned lifeboat on props, a sailcloth tent over an oar, or a plank shack with a porthole */
+hfMake('trench',{ name:'Castaway raft', hname:'raft', floats:true, glow:'255,180,90', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Salvage plank=#6a5a48;Dark plank=#3a3028;Tarred barrel=#4a3a2a;Barrel band=#5a5a5a;Rope=#9a8868;Old brass=#a8884a;Lantern amber=#f0b050;Sail scrap=#c8bca0;Abyss black=#020e14;Deep teal=#123a44;Trench teal=#3a6a70;Bio cyan=#5afff0;Bio violet=#a080ff;Pale glow=#b8e8dc;Wet rock=#2a3e46;Bone=#e0dccc'),
   els:[{id:'raft',label:'Raft',styles:['Barrel raft','Plank raft','Door raft'],def:[0,2]},{id:'mast',label:'Mast',styles:['Scrap sail','Crow’s nest','Oar flag'],def:[0,7]},
-       {id:'salvage',label:'Salvage',styles:['Sea chest','Anchor','Ship’s wheel'],def:[0,5]},{id:'shelter',label:'Shelter',none:true,styles:['No shelter','Sailcloth tent','Plank lean-to','Upturned boat'],def:[1,7]},
+       {id:'salvage',label:'Salvage',styles:['Sea chest','Anchor','Ship’s wheel'],def:[0,5]},{id:'cabin',label:'Shelter',styles:['Upturned lifeboat','Sailcloth tent','Plank shack'],def:[0,2],palS:[[2,0,4,7],[7,4],[0,1,2]]},
        {id:'light',label:'Lantern',light:true,styles:['Pole lantern','Jellyfish jar','Wreck lamp'],def:[0,6]}],
   seat:['barrel','seachest','crate'], seatNames:['Barrel','Sea chest','Broken crate'], seatDef:[0,2],
   order:[
-    ['raft',(o,s,c)=>HK.hull(o,c,['barrels','planks','door'][s])],
-    ['shelter',(o,s,c)=>{ if(s===1) HK.roof(o,c,'tent',.02,.36); if(s===2) HK.roof(o,c,'leanto',.02,.36); if(s===3){ const a=HK.at(o,.02), b=HK.at(o,.38), y=o.dockY-H*.09; HK.rect(o,a+W*.004,y,2,o.dockY-y,'#3a3028'); HK.rect(o,b-W*.004,y,2,o.dockY-y,'#3a3028'); o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.moveTo(a-W*.01,y); o.x.quadraticCurveTo((a+b)/2,y-H*.05,b+W*.012,y); o.x.lineTo(a-W*.01,y); o.x.fill(); } }],
+    ['raft',(o,s,c)=>TR.raft(o,s,c)],
+    ['cabin',(o,s,c)=>TR.shelter(o,s,c)],
     ['mast',(o,s,c)=>{ const x=HK.at(o,.5), top=o.dockY-H*.2; HK.rect(o,x,top,2.4,H*.2,'#3a3028'); if(s===0) HK.poly(o,[x+2,top+H*.01,x+W*.035,top+H*.03,x+W*.03,top+H*.1,x+2,top+H*.12],c); if(s===1) HK.poly(o,[x-W*.008,top,x+W*.01,top,x+W*.008,top+H*.02,x-W*.006,top+H*.02],c); if(s===2) HK.poly(o,[x+2,top,x+W*.02,top+H*.006,x+W*.016,top+H*.03,x+2,top+H*.024],c); }],
     ['salvage',(o,s,c)=>{ const x=HK.at(o,.78), y=o.dockY; if(s===0){ HK.block(o,x,y-H*.024,W*.026,H*.024,'#4a3a2a'); HK.rect(o,x,y-H*.016,W*.026,1.6,c); } if(s===1){ HK.line(o,[x+W*.01,y,x+W*.01,y-H*.04],c,2.4); HK.curve(o,x,y-H*.012,x+W*.01,y+H*.004,x+W*.02,y-H*.012,c,2.4); HK.rect(o,x+W*.004,y-H*.036,W*.012,2,c); } if(s===2){ o.x.strokeStyle=HK.n(o,c); o.x.lineWidth=2; o.x.beginPath(); o.x.arc(x+W*.012,y-H*.03,H*.022,0,7); o.x.stroke(); for(let k=0;k<8;k++){ const a=k*Math.PI/4; HK.line(o,[x+W*.012,y-H*.03,x+W*.012+Math.cos(a)*H*.03,y-H*.03+Math.sin(a)*H*.03],c,1.4); } } }],
     ['seat'],
