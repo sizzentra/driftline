@@ -451,18 +451,25 @@ hfMake('starfall',{ name:'Star observatory', hname:'observatory', floats:true, g
     ['seat'],
     ['light',(o,s)=>HK.light(o,['star','moon','wisps'][s])]] });
 
-/* 15. Animal Farm: the barn dock */
-hfMake('farm',{ name:'Barn dock', hname:'barn dock',
+/* 15. Animal Farm: the red barn (overnight, 2026-11-23; its own design, src/cw_barn.js): a red barn seen from its gable end with a gambrel roof,
+   white trim, a hayloft with a hoist and big white X-braced doors; a grassy bank with a hay stack and sunflowers; the dock on fence posts. The old
+   deck, footing and roof choices became this one building; the fence and lantern keep their ids */
+hfMake('farm',{ name:'Red barn', hname:'barn', glow:'255,205,130', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Barn red=#b8322a;Dark barn=#7a2a22;Trim white=#f4f0e6;Fence grey=#9a948a;Weathered board=#8a6a4a;Hay gold=#e0c060;Straw=#d8b46a;Tin=#a8b0b4;Rust tin=#a8683a;Grass green=#6aaa4a;Field green=#3a6a2a;Pond green=#5a7a4a;Sky blue=#a8d8f4;Gingham blue=#5a8ad8;Sunflower=#f0c83a;Mud brown=#6a5038'),
-  els:[{id:'deck',label:'Deck',styles:['Barn-red boards','Weathered boards','Hay-strewn planks'],def:[0,0]},{id:'footing',label:'Footing',styles:['Fence posts','Hay bales','Tractor tyres'],def:[0,4]},
-       {id:'fence',label:'Fence',none:true,styles:['No fence','Picket fence','Post-and-rail','Wagon wheel'],def:[1,2]},{id:'roof',label:'Barn roof',none:true,styles:['Open sky','Tin lean-to','Barn gable','Windmill vane'],def:[2,0]},
+  els:[{id:'walls',label:'Walls',styles:['Barn-red boards','Weathered boards','White clapboard'],def:[0,0],palS:[[0,1,4],[4,1],[2,3]]},
+       {id:'gambrel',label:'Roof',styles:['Shingles','Tin roof','Rusty tin'],def:[0,1],palS:[[1,4,3],[7,3],[8,7]]},
+       {id:'loft',label:'Hayloft',styles:['Open loft and hoist','Closed loft doors','Round window'],def:[0,1],pal:[0,1,4,2]},
+       {id:'doors',label:'Doors',styles:['X-braced doors','Dutch door','Doors rolled open'],def:[0,0],pal:[0,1,4,2]},
+       {id:'fence',label:'Fence',none:true,styles:['No fence','Picket fence','Post-and-rail','Wagon wheel'],def:[1,2]},
        {id:'light',label:'Lantern',light:true,styles:['Lantern on a nail','String of bulbs','Milk-can lantern'],def:[0,14]}],
   seat:['haybale','milkcan','rocker'], seatNames:['Hay bale','Milk-can stool','Rocking chair'], seatDef:[0,5],
   order:[
-    ['footing',(o,s,c)=>HK.supports(o,c,['fence','hay','tyres'][s],5)],
-    ['deck',(o,s,c)=>HK.deck(o,c,['red','boards','hay'][s])],
+    ['base',(o)=>{ AB.ground(o); HK.supports(o,'#9a948a','fence',5); HK.deck(o,'#8a6a4a','boards'); }],
+    ['walls',(o,s,c)=>AB.walls(o,AB.geo(o),s,c)],
+    ['doors',(o,s,c)=>AB.doors(o,AB.geo(o),s,c)],
+    ['loft',(o,s,c)=>AB.loft(o,AB.geo(o),s,c)],
+    ['gambrel',(o,s,c)=>AB.roof(o,AB.geo(o),s,c)],
     ['fence',(o,s,c)=>{ if(s) HK.rail(o,c,['','picket','postrail','wheel'][s]); }],
-    ['roof',(o,s,c)=>{ if(s===1) HK.roof(o,c,'tin',.02,.4); if(s===2) HK.roof(o,c,'barn',.02,.4); if(s===3){ const x=HK.at(o,.04); HK.rect(o,x,o.dockY-H*.16,2,H*.16,'#7a2a22'); HK.poly(o,[x,o.dockY-H*.16,x+W*.06,o.dockY-H*.14,x+W*.06,o.dockY-H*.12,x,o.dockY-H*.135],c); } }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['nail','bulbs','milkcan'][s])]] });
 

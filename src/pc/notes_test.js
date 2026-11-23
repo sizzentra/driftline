@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Starfall Lake, redone in its own style: your home is a round star observatory of moonstone with a crystal, silver or star-blossom dome and a gold star on top, a moon-shaped door and a frieze of tiny constellations, standing on a floating rock island with crystals hanging beneath. Your telescope and star lantern choices carry over.',
+  '## Test build 2026.11.23-0716',
   'Ember Springs, redone in its own style: your home is a basalt bathhouse on hexagonal basalt columns rising from the hot water, with a curved iron barrel roof, round windows that glow at night, a vent that lets off steam, and the steaming pool beside it. Pick the walls, roof, door, hot pool, lantern and seat in Your home.',
   '## Test build 2026.11.23-0706',
   'Hollow Trench, redone in its own style: your home is a castaway raft of tarred barrels and salvaged planks lashed with rope, glowing growth on the barrels below the water. Its shelter is the wrecked lifeboat of a lost ship turned upside down on props (or a sailcloth tent over an oar, or a crooked plank shack with a ship’s porthole). Your raft, mast, salvage and lantern choices carry over.',
