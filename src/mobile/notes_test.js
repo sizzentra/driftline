@@ -3,6 +3,15 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fishing feel: Middle is now the game’s feel for everyone (Cam: “the one for sure”). Your Feel lab settings start fresh on Middle.',
+  'Temper builds much faster the longer you keep reeling and cools faster the longer you ease off, and the hotter the fish, the harder its moves pull the line tight.',
+  'Two kinds of runs: darting runs are short sharp bursts that zigzag (let them go and the fish tires itself), long runs pull steadily for several seconds (short pulls in rhythm win line back and build your combo).',
+  'In the groove: between moves, keep the line between 50% and 80% while you reel and the fish comes in faster.',
+  'Landing a big one now ends with a big splash and a little fanfare.',
+  'A predator that swallows your catch no longer races off the screen: it runs out at most 45 m for the rarest, less for commoner ones, never past 50 m.',
+  'The “Reel hard!” moment before a second wind is a little shorter.',
+  'Feel lab has three new knobs: Temper curve, Darting and long runs, Groove bonus.',
+  '## Test build 2026.11.23-0034',
   'Canadian Rockies, from your notes: the mountains now show layered rock with snow lying on the ledges, the snowfields end without teeth or steps, and the forested mountainsides have the same layered rock instead of white triangles.',
   'The lake is crystal clear: you can see the stony lake floor, rounded stones in tan, rust, grey and cream, big and clear near you and fading into the turquoise far out.',
   'The far shore is a thin green bank with shrubs and boulders instead of a pink beach; the spruces have real branches; the cabin’s stone chimney stands behind its roof; the waterfall cliff is layered rock with spruces on top.',
