@@ -32,7 +32,7 @@ const FF = { FAR_M:40, SPOOL_M:200, LB:.4536,
   PERFECT_REST:1.5,                 /* Cam: after a perfect hook the fish doesn't fight for 1.5 s */
   RESIST:[.15,.55,.75,.86,.9,.92],   /* maths: how hard a fresh fish of each rank holds against your reel (C U R E L M) */
   TIRE_T:[12,12,13,15,18,19],       /* seconds of reeling a fish needs to tire with the best gear (Cam 2026-11-21: "speed up fishing" to about half the speed of the old fight with great gear; was 15-24) */
-  SHARE:{shake:35,run:40,jump:20},  /* Cam: rough share of each move (runs 45 to 40: director, 2026-11-23, so runs don't crowd out the rest) */
+  SHARE:{shake:35,run:45,jump:20},  /* Cam: rough share of each move (Middle and Arcade: runs 40, see ffPick) */
   CHAIN:[1,1,2,3,4,5],              /* Cam: moves in a row, by rank (common and uncommon never chain) */
   DIVE_N:[1,2,3,4,5,6], DIVE_M:[3,5,10,15,20,20], DEEP_M:100, /* Cam: dives per fight and metres if the band is missed; deep = 100 m+ (director) */
   SHORT_T:[3,6,10,15,20,30],        /* Cam: shortest landing time from the far edge by rank; a fish that still has fight never comes in faster */
@@ -96,7 +96,7 @@ function ffInit(){ const f=G.fish; G.surge3=null;
 // how often the fish acts, from its temper: 1x calm, up to FF.TEMPER_RATE x at full temper (Cam: full temper = rapid moves)
 const ffRate = () => 1+(FF.TEMPER_RATE-1)*clamp((G.temper||0)/3,0,1);
 function ffWeightClass(f){ const lb=(f.kg||0)/FF.LB; return lb<1.5?0:lb<3?1:lb<5?2:3; }
-function ffPick(f,rk,deep){ if(G.ffOpen){ G.ffOpen=false; return 'run'; } const b=f.beh, w={shake:FF.SHARE.shake*(b==='thrash'?2.2:b==='sulk'?1.3:1), run:FF.SHARE.run*(b==='run'?1.8:b==='dart'?1.3:1)*(FEEL.runs&&G.lastK==='run'?.5:1), jump:FF.SHARE.jump*(b==='jump'?2.2:1)};
+function ffPick(f,rk,deep){ if(G.ffOpen){ G.ffOpen=false; return 'run'; } const b=f.beh, w={shake:FF.SHARE.shake*(b==='thrash'?2.2:b==='sulk'?1.3:1), run:FF.SHARE.run*(FEEL.runs?40/45:1)*(b==='run'?1.8:b==='dart'?1.3:1)*(FEEL.runs&&G.lastK==='run'?.5:1), /* runs 45 to 40 with the new run rules (director, 2026-11-23: runs mustn't crowd out the rest) */ jump:FF.SHARE.jump*(b==='jump'?2.2:1)};
   let x=Math.random()*Object.values(w).reduce((a,c)=>a+c,0), k='shake'; for(const q in w){ x-=w[q]; if(x<=0){ k=q; break; } }
   if(k==='run' && deep && (G.diveN||0)<FF.DIVE_N[rk] && Math.random()<FF.DIVE_SHARE*(b==='dive'?1.6:1)) k='dive'; /* Cam: in waters with dives, a third of runs are dives */
   return k; }
