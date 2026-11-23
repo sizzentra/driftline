@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Animal Farm, redone in its own style: your home is a red barn with the classic two-pitch barn roof and white trim, a hayloft with a hoist and a bundle of hay, and big white X-braced doors (or a Dutch door, or doors rolled open with hay inside). A grassy bank with a hay stack and sunflowers runs behind it. Your fence and lantern choices carry over.',
+  '## Test build 2026.11.23-0727',
   'Starfall Lake, redone in its own style: your home is a round star observatory of moonstone with a crystal, silver or star-blossom dome and a gold star on top, a moon-shaped door and a frieze of tiny constellations, standing on a floating rock island with crystals hanging beneath. Your telescope and star lantern choices carry over.',
   '## Test build 2026.11.23-0716',
   'Ember Springs, redone in its own style: your home is a basalt bathhouse on hexagonal basalt columns rising from the hot water, with a curved iron barrel roof, round windows that glow at night, a vent that lets off steam, and the steaming pool beside it. Pick the walls, roof, door, hot pool, lantern and seat in Your home.',

@@ -473,18 +473,25 @@ hfMake('farm',{ name:'Red barn', hname:'barn', glow:'255,205,130', seatX:()=>HF.
     ['seat'],
     ['light',(o,s)=>HK.light(o,['nail','bulbs','milkcan'][s])]] });
 
-/* 16. The Buffet: the gingerbread platter */
-hfMake('buffet',{ name:'Gingerbread platter', hname:'platter',
+/* 16. The Buffet: the gingerbread house (overnight, 2026-11-23; its own design, src/cw_ginger.js): a gingerbread house seen from its gable end with a
+   steep roof under dripping icing and gumdrops, candy-cane corners, icing piping, a peppermint window; a giant fork in the soup with a cherry, a dollop
+   of cream on the platter. The old platter, posts and roof choices became this one building; trim and candle keep their ids */
+hfMake('buffet',{ name:'Gingerbread house', hname:'gingerbread house', glow:'255,200,130', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Gingerbread=#b8743a;Dark gingerbread=#7a4a22;Wafer=#e8c890;Biscuit=#d8a860;Chocolate=#5a3420;Milk chocolate=#8a5a3a;Icing white=#fff6ee;Strawberry=#f4a0b0;Mint=#a8e0c8;Lemon=#f8e08a;Blueberry=#7a8ad8;Cherry red=#d8303a;Caramel=#d88a3a;Candle gold=#ffd060;Porcelain=#f0f0f4;Broth gold=#e8b060'),
-  els:[{id:'platter',label:'Platter',styles:['Silver platter','Porcelain plate','Giant cracker'],def:[0,14]},{id:'posts',label:'Posts',styles:['Pretzel sticks','Wafer pillars','Candy canes'],def:[0,1]},
-       {id:'trim',label:'Trim',none:true,styles:['No trim','Icing piping','Licorice rope','Breadsticks'],def:[1,6]},{id:'roof',label:'Roof',none:true,styles:['Open sky','Gingerbread roof','Cloche lid','Waffle-cone parasol'],def:[1,0]},
+  els:[{id:'walls',label:'Walls',styles:['Gingerbread','Chocolate bar','Shortbread'],def:[0,0],palS:[[0,1,3],[4,5],[2,3]]},
+       {id:'iroof',label:'Roof',styles:['Icing snow','Chocolate tiles','Candy shingles'],def:[0,1],palS:[[1,0,4],[4,5],[7,8]]},
+       {id:'door',label:'Door',styles:['Chocolate bar door','Candy-cane arch','Cookie door'],def:[0,4],palS:[[4,5],[7,8,1],[3,2]]},
+       {id:'windows',label:'Window',styles:['Peppermint','Sugar glass','Iced lattice'],def:[0,10],pal:[10,11,12,7,8]},
+       {id:'trim',label:'Trim',none:true,styles:['No trim','Icing piping','Licorice rope','Breadsticks'],def:[1,6]},
        {id:'light',label:'Candle',light:true,styles:['Dripping candle','Cupcake candles','Jelly mould'],def:[0,13]}],
   seat:['cupcake','teacup','macaron'], seatNames:['Cupcake stool','Teacup chair','Macaron pouf'], seatDef:[0,7],
   order:[
-    ['posts',(o,s,c)=>HK.supports(o,s===2?'#d8303a':c,['pretzel','wafer','cane'][s],5)],
-    ['platter',(o,s,c)=>HK.deck(o,c,['platter','plate','cracker'][s])],
+    ['base',(o)=>{ GB.ground(o); HK.supports(o,'#e8c890','wafer',5); HK.deck(o,'#c8c8d0','platter'); }],
+    ['walls',(o,s,c)=>GB.walls(o,GB.geo(o),s,c)],
+    ['door',(o,s,c)=>GB.door(o,GB.geo(o),s,c)],
+    ['windows',(o,s,c)=>GB.windows(o,GB.geo(o),s,c)],
+    ['iroof',(o,s,c)=>GB.roof(o,GB.geo(o),s,c)],
     ['trim',(o,s,c)=>{ if(s) HK.rail(o,c,['','icing','licorice','breadstick'][s]); }],
-    ['roof',(o,s,c)=>{ if(s===1){ HK.roof(o,c,'gable',.02,.4); for(let i=0;i<10;i++) HK.ell(o,HK.at(o,.02+i*.04),o.dockY-H*.12+H*.004,H*.003,H*.006,'#fff6ee'); } if(s===2) HK.roof(o,c,'cloche',.02,.4); if(s===3) HK.roof(o,c,'cone',.04,.4); }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['dripcandle','cupcake','jellymould'][s])]] });
 
