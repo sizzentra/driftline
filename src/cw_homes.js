@@ -495,18 +495,23 @@ hfMake('buffet',{ name:'Gingerbread house', hname:'gingerbread house', glow:'255
     ['seat'],
     ['light',(o,s)=>HK.light(o,['dripcandle','cupcake','jellymould'][s])]] });
 
-/* 17. Corporate Pond: the office deck */
-hfMake('corporate',{ name:'Office deck', hname:'office deck',
+/* 17. Corporate Pond: the glass pavilion (overnight, 2026-11-23; its own design, src/cw_officebox.js): a modernist glass office on steel columns
+   with a thin cantilevered roof slab and a logo, the office visible inside; a concrete planter and a coffee cup on the deck. The old floor,
+   supports and awning choices became this one building; the partition and lamp keep their ids */
+hfMake('corporate',{ name:'Glass pavilion', hname:'glass pavilion', glow:'230,240,255', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Brushed steel=#a8b0b8;Dark steel=#5a6470;Concrete=#9a9a98;Light concrete=#c8c8c4;Glass cyan=#9ad0e0;Glass blue=#4a6a88;Corporate navy=#1e2e4a;Carpet grey=#6a6e74;Office white=#f4f6f8;Ficus green=#4a8a4a;Coffee brown=#6a4a32;Sticky yellow=#f8e070;Ticker green=#4ad86a;Ticker red=#e84a4a;Lanyard blue=#2a6ad8;Walnut=#8a5a3a'),
-  els:[{id:'floor',label:'Floor',styles:['Carpet tiles','Polished concrete','Walnut boardroom'],def:[0,7]},{id:'supports',label:'Supports',styles:['Steel columns','Glass legs','Filing cabinets'],def:[0,0]},
-       {id:'partition',label:'Partition',none:true,styles:['None','Glass balustrade','Cubicle wall','Velvet rope'],def:[1,4]},{id:'awning',label:'Awning',none:true,styles:['Open sky','Glass awning','Logo umbrella','Ceiling tiles'],def:[1,4]},
+  els:[{id:'glass',label:'Walls',styles:['Glass curtain wall','Frosted glass','Concrete and glass'],def:[0,4],palS:[[4,5],[8,4],[4,5]]},
+       {id:'slab',label:'Roof',styles:['Flat slab','Green roof','Solar panels'],def:[0,0],palS:[[0,1,2,6],[2,3],[0,1]]},
+       {id:'inside',label:'Inside',styles:['Desk and monitor','Ficus and water cooler','Whiteboard'],def:[0,4],pal:[4,5,6,11,12]},
+       {id:'partition',label:'Partition',none:true,styles:['None','Glass balustrade','Cubicle wall','Velvet rope'],def:[1,4]},
        {id:'light',label:'Lamp',light:true,styles:['Desk lamp','Floor lamp','Open 9–5 sign'],def:[0,8]}],
   seat:['swivel','executive','beanbag'], seatNames:['Swivel chair','Executive chair','Beanbag'], seatDef:[0,6],
   order:[
-    ['supports',(o,s,c)=>HK.supports(o,c,['iron','glass','cabinet'][s],5)],
-    ['floor',(o,s,c)=>HK.deck(o,c,['carpet','concrete','walnut'][s])],
+    ['base',(o)=>{ CO.ground(o); HK.deck(o,'#c8c8c4','concrete'); }],
+    ['glass',(o,s,c)=>CO.walls(o,CO.geo(o),s,c)],
+    ['inside',(o,s,c)=>CO.inside(o,CO.geo(o),s,c)],
+    ['slab',(o,s,c)=>CO.roof(o,CO.geo(o),s,c)],
     ['partition',(o,s,c)=>{ if(s) HK.rail(o,c,['','glass','cubicle','velvet'][s]); }],
-    ['awning',(o,s,c)=>{ if(s===1) HK.roof(o,c,'glass',.02,.44); if(s===2) HK.roof(o,c,'logoumbrella',.06,.4); if(s===3) HK.roof(o,c,'ceiling',.02,.44); }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['desk','floor','sign'][s])]] });
 

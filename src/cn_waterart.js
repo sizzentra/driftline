@@ -98,7 +98,7 @@ function waDuck(x,y,s,dir,P,t,i,kind){ const N=c0=>mix(c0,P.wMid,P.night*.55); g
   g.fillStyle=mix(body,'#ffffff',.25); g.beginPath(); g.ellipse(-s*.3,-s*.25,s*.8,s*.28,-.1,0,7); g.fill();
   g.fillStyle=head; g.beginPath(); g.arc(s*1.1,-s*.95,s*.5,0,7); g.fill(); g.fillStyle=N('#e8b830'); g.beginPath(); g.moveTo(s*1.5,-s*1.02); g.lineTo(s*2,-s*.86); g.lineTo(s*1.5,-s*.74); g.fill();
   if(kind){ g.fillStyle=N('#ffffff'); g.fillRect(s*.9,-s*1.16,s*.55,s*.13); } g.fillStyle='#101010'; g.fillRect(s*1.25,-s*1.06,s*.15,s*.15); g.restore(); }
-function waFuji(x,P,hz){ const cx=W*.5, top=hz-H*.34, bw=W*.46, cw=W*.03, far=mix(P.far,P.farHaze,.25), lit=mix(far,'#ffffff',.2), sh=mix(far,'#1c1c44',.22), r=v3rng(88);
+function waFuji(x,P,hz){ const cx=W*.69, top=hz-H*.41, bw=W*.36, cw=W*.024, /* right of centre and steeper, as in the director's Cherry Blossom picture */ far=mix(P.far,P.farHaze,.25), lit=mix(far,'#ffffff',.2), sh=mix(far,'#1c1c44',.22), r=v3rng(88);
   const path=()=>{ x.beginPath(); x.moveTo(cx-bw,hz+1); x.bezierCurveTo(cx-bw*.42,hz-H*.035,cx-cw*2.6,top+H*.07,cx-cw,top); x.lineTo(cx-cw*.35,top-H*.004); x.lineTo(cx+cw*.3,top+H*.003); x.lineTo(cx+cw,top); x.bezierCurveTo(cx+cw*2.6,top+H*.07,cx+bw*.42,hz-H*.035,cx+bw,hz+1); x.closePath(); };
   x.save(); path(); x.clip(); const gr=x.createLinearGradient(cx-W*.12,0,cx+W*.12,0); gr.addColorStop(0,lit); gr.addColorStop(.46,lit); gr.addColorStop(.56,sh); gr.addColorStop(1,sh); x.fillStyle=gr; x.fillRect(cx-bw,top-4,bw*2,hz-top+6);
   x.strokeStyle=v3rgba(sh,.3); x.lineWidth=1; for(let i=0;i<14;i++){ const u=i/13-.5; x.beginPath(); x.moveTo(cx+u*cw*3,top+H*.02); x.quadraticCurveTo(cx+u*bw*.35,hz-H*.12,cx+u*bw*(.6+r()*.2),hz); x.stroke(); }
