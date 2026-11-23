@@ -68,6 +68,12 @@ V3SCENES.pond = {
     x.fillStyle=v3rgba(P.wTop,.35); for(let i=0;i<9;i++){ const y=hz+3+i*i*1.6; x.fillRect(0,y,W,1); }
     // the waterline: a thin bright edge where shore meets water
     x.fillStyle=v3rgba(P.rim,.28+P.d*.2); x.fillRect(0,hz,W,1.2);
+    /* the cabin's own little jetty with its rowboat tied up (overnight, 2026-11-23: Willow Pond's own expansion): weathered planks on posts
+       out over the water, a mooring line, an old wooden rowboat with its oars shipped */
+    { const cx=W*.265, jx=cx+H*.04, jw=H*.07, jy=hz+H*.004, nk=P.night*.6, wood=mix(mix('#8a6a4a',P.cabin,.4),'#0a1020',nk), woodD=mix(wood,'#000000',.3);
+      x.fillStyle=woodD; for(let i=0;i<=3;i++) x.fillRect(jx+jw*i/3-1,jy,2,H*.012); x.fillStyle=wood; x.fillRect(jx-1,jy-H*.003,jw+2,H*.003); x.fillStyle=v3rgba('#000000',.25); x.fillRect(jx,jy,jw,1);
+      const bx=jx+jw*.6, by=jy+H*.012, L=H*.03; x.fillStyle=mix(mix('#6a4a32',P.cabin,.3),'#0a1020',nk); x.beginPath(); x.moveTo(bx-L,by-H*.004); x.quadraticCurveTo(bx-L*.2,by+H*.005,bx+L,by-H*.005); x.lineTo(bx+L*.85,by-H*.007); x.quadraticCurveTo(bx,by-H*.002,bx-L,by-H*.004); x.fill(); x.fillStyle=v3rgba('#ffffff',.18*(1-P.night)); x.fillRect(bx-L*.8,by-H*.005,L*1.6,1);
+      x.strokeStyle=mix('#c8a878',P.cabin,.3); x.lineWidth=1; x.beginPath(); x.moveTo(bx+L*.9,by-H*.006); x.quadraticCurveTo(bx+L*1.1,by-H*.002,jx+jw,jy-H*.002); x.stroke(); x.strokeStyle=woodD; x.beginPath(); x.moveTo(bx-L*.5,by-H*.008); x.lineTo(bx+L*.4,by-H*.004); x.stroke(); }
   },
 
   // living parts, every frame
@@ -95,6 +101,7 @@ V3SCENES.pond = {
     for(let r0=0;r0<9;r0++){ const y=hz+H*.03+Math.pow(r0/9,1.5)*(H-hz)*.95; const sp=W*(.08+r0*.02), len=W*(.012+r0*.004); g.beginPath(); for(let X=-((t*(5+r0*2)+r0*53)%sp);X<W;X+=sp){ const yy=y+Math.sin(X*.02+t+r0)*1; g.moveTo(X,yy); g.quadraticCurveTo(X+len/2,yy-1.2,X+len,yy); } g.stroke(); }
     // the willow: trunk on the bank, drooping strands swaying in the breeze
     this.willow(P,t,hz);
+    { const ax=W*.872, ay=hz-H*.16, L=H*.13, sw=Math.sin(t*.9)*.05, ex=ax+Math.sin(sw)*L, ey=ay+Math.cos(sw)*L, nk=P.night*.6; g.strokeStyle=mix('#c8a878','#1a2030',nk); g.lineWidth=Math.max(1,H*.0016); g.beginPath(); g.moveTo(ax-H*.006,ay); g.lineTo(ex-H*.007,ey); g.moveTo(ax+H*.006,ay); g.lineTo(ex+H*.007,ey); g.stroke(); g.fillStyle=mix('#8a6a4a','#141a28',nk); g.fillRect(ex-H*.011,ey-H*.002,H*.022,H*.004); } /* a rope swing under the willow, stirring in the breeze (overnight, 2026-11-23: Willow Pond's own expansion) */
     // ducks gliding across, leaving a wake
     { const k=((t/70)%1), dx=W*(1.05-k*1.15), dy=hz+H*.045; for(let i=0;i<2;i++){ const px=dx+i*W*.03, py=dy+i*H*.006, s=H*.012;
         pondWake(px+s*.2,py,s,t,P,i);

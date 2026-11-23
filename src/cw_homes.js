@@ -10,29 +10,27 @@ function hfMake(id,d){ d.seatH=d.seat.map(k=>HK.seatH(k));
     for(const [e,fn] of d.order){ o.elCol=col(e); /* lights read their feature's colour (a stove's body, director 2026-11-22: colours did nothing) */ const r=e==='seat'?HK.seat(o,d.seat[hfStyle(id,'seat')],col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
   HOMEF[id]=d; }
 const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.trim()]; });
-/* 1. Willow Pond: the pine boathouse (the Rockies standard, overnight batch 4, 2026-11-23): one base building, the little boathouse the
-   pond sits behind (MAP_THEMES › Willow Pond: pine shores, a boathouse, warm cabin light). Its walls, roof, lantern, shade, door,
-   windows and seat change aspects of it; a pine bank behind it, round piles under the deck */
-{ const PW=C16('Honey pine=#b98a5a;Weathered pine=#8a6a4a;Dark stain=#5a4030;Driftwood=#9a9488;Moss=#5f8a6c;Pine green=#2c4a3e;Sage=#9ab08a;Willow=#7fae5c;Lake teal=#3f827b;Sky blue=#86bcd9;Canvas=#f3e4ca;Warm white=#f4efe6;Barn red=#a8483a;Lantern gold=#e8b04a;Dusk rose=#c97a8a;Lilac=#8a7aa8'), P1=()=>BH.cab({pw:HF.pw(),dockY:HF.dockY()});
-  hfMake('pond',{ name:'Boathouse', hname:'boathouse', glow:'255,210,140', seatX:()=>HF.pw()-W*.028, colors:PW,
-    front:(n,cx)=>{ if(hfStyle('pond','shade')===3) BH.rail(n,cx,'slat',hfColor('pond','shade'),P1()); }, smoke:null,
-    els:[{id:'walls',label:'Walls',styles:['Board and batten','Shiplap','Cedar shingles'],def:[0,0],pal:[0,1,2,3,4,5,6,8,10,11,12]},
+/* 1. Willow Pond: the boathouse (overnight, 2026-11-23; its own design, src/cw_pondhouse.js): a gable-end boathouse over the water with its
+   boat bay at the waterline, a cupola on the ridge and a lean-to porch along its side; a pine bank behind it, round piles under the deck */
+{ const PW=C16('Honey pine=#b98a5a;Weathered pine=#8a6a4a;Dark stain=#5a4030;Driftwood=#9a9488;Moss=#5f8a6c;Pine green=#2c4a3e;Sage=#9ab08a;Willow=#7fae5c;Lake teal=#3f827b;Sky blue=#86bcd9;Canvas=#f3e4ca;Warm white=#f4efe6;Barn red=#a8483a;Lantern gold=#e8b04a;Dusk rose=#c97a8a;Lilac=#8a7aa8');
+  const G1=()=>PH.geo({pw:HF.pw(),dockY:HF.dockY()}), LT=()=>{ const g=G1(); return {x0:g.xb,x1:g.x1,vx:g.xb,wallTop:g.lt,winA:g.xb+W*.014,winB:g.x1-W*.03}; };
+  hfMake('pond',{ name:'Boathouse', hname:'boathouse', glow:'255,210,140', seatX:()=>HF.pw()-W*.028, colors:PW, front:null, smoke:null,
+    els:[{id:'walls',label:'Walls',styles:['Board and batten','Shiplap','Cedar shingles'],def:[0,12],pal:[0,1,2,3,4,5,6,8,10,11,12]},
          {id:'roof',label:'Roof',styles:['Asphalt shingles','Cedar shakes','Tin roof'],def:[1,1],palS:[[2,3,4,5,12],[0,1,2,3],[3,4,5,8,9,11,12]]},
-         {id:'light',label:'Lantern',light:true,styles:['Hurricane lantern','Lamp post','String lights'],def:[0,13],pal:[2,3,5,12,13]},
-         {id:'shade',label:'Shade',none:true,styles:['Open sky','Patio umbrella','Canvas awning','Covered porch with rail'],def:[1,10],pal:[0,1,2,4,8,9,10,11,12,14,15]},
-         {id:'door',label:'Door',styles:['Barn door','Plank door','Door with a glass pane'],def:[0,12],pal:[0,1,2,4,5,8,9,10,11,12]},
-         {id:'windows',label:'Windows',styles:['Four-pane windows','Windows with flower boxes','Shuttered windows'],def:[0,11],pal:[0,1,2,4,5,8,9,10,11,12]}],
+         {id:'cupola',label:'Cupola',styles:['Cupola with a fish vane','Rooster weathervane','Little bell'],def:[0,11],pal:[0,1,2,4,5,10,11,12]},
+         {id:'bay',label:'Boat bay',styles:['Open, canoe inside','Swing doors','Sliding door'],def:[0,11],pal:[0,1,2,4,5,8,10,11,12]},
+         {id:'windows',label:'Windows',styles:['Four-pane windows','Windows with flower boxes','Shuttered windows'],def:[0,11],pal:[0,1,2,4,5,8,9,10,11,12]},
+         {id:'light',label:'Lantern',light:true,styles:['Hurricane lantern','Lamp post','String lights'],def:[0,13],pal:[2,3,5,12,13]}],
     seat:['deckchair','logbench','campchair'], seatNames:['Wooden folding chair','Log bench','Camp chair'], seatDef:[0,0], seatPal:[0,1,2,4,5,8,9,10,12,13],
     order:[
       ['base',(o)=>{ BH.bank(o,{trees:'pine',g1:'#3a5a3c',g2:'#24382a',grass:'#5f8a4e',rock:'#8a8680',t1:'#456f5c',t2:'#2c4a3e'}); BH.piles(o,'log','#8a6a4a'); HK.deck(o,'#b98a5a','planks'); }],
-      ['walls',(o,s,c)=>BH.walls(o,P1(),['batten','shiplap','shingles'][s],c)],
-      ['door',(o,s,c)=>BH.door(o,P1(),['barn','plank','glass'][s],c)],
-      ['windows',(o,s,c)=>BH.windows(o,P1(),['four','boxes','shutters'][s],c)],
-      ['roof',(o,s,c)=>BH.roof(o,P1(),['shingles','shakes','tin'][s],c)],
-      ['light',(o,s,c)=>BH.lantern(o,P1(),['hurricane','lamppost','string'][s],c)],
-      ['shade',(o,s,c)=>BH.shade(o,P1(),[null,'umbrella','awning','porch'][s],c,hfColor('pond','roof'))],
+      ['walls',(o,s,c)=>{ const g=PH.geo(o), K=['batten','shiplap','shingles'][s]; PH.leanTo(o,g,K,c,['shingles','shakes','tin'][hfStyle('pond','roof')],hfColor('pond','roof')); }],
+      ['windows',(o,s,c)=>BH.windows(o,LT(),['four','boxes','shutters'][s],c)],
+      ['bay',(o,s,c)=>{ const g=PH.geo(o); PH.block(o,g,['batten','shiplap','shingles'][hfStyle('pond','walls')],hfColor('pond','walls'),['shingles','shakes','tin'][hfStyle('pond','roof')],hfColor('pond','roof'),s,c); }],
+      ['roof',()=>{}],
+      ['cupola',(o,s,c)=>PH.cupola(o,PH.geo(o),s,c)],
+      ['light',(o,s,c)=>BH.lantern(o,LT(),['hurricane','lamppost','string'][s],c)],
       ['seat']] }); }
-
 /* 2. Stonebrook River: the stone mill shed (the Rockies standard, overnight batch 5, 2026-11-23): one base building, the miller's little
    fishing shed on fieldstone piers beside the mill (MAP_THEMES › Stonebrook: stacked fieldstone, river-worn timber, slate). Its walls,
    roof, chimney, lantern, door, windows and seat change aspects of it; autumn woods on the bank behind it */

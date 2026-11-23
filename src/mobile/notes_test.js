@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Willow Pond, redone in its own style: your home is a tall red boathouse over the water with a cupola and weathervane, its boat bay at the waterline (a canoe inside, swing doors or a sliding door) and a lean-to porch beside it; choose its walls, roof, cupola, boat bay, windows, lantern and seat.',
+  'Willow Pond: the far cabin has its own little jetty with a rowboat tied up, and a rope swing hangs under the willow.',
+  '## Test build 2026.11.23-0418',
   'Cherry Blossom Lake: your home is now a tea house on red-lacquered posts you customise: walls (shoji, plaster and timber, bamboo), roof (curved clay tiles, cypress bark, copper), lantern (paper, stone, a string of lanterns), shade (veranda roof, wisteria trellis, paper parasol), door (sliding shoji, plank, noren curtain), windows and seat, with cherry trees in blossom behind it.',
   '## Test build 2026.11.23-0403',
   'Stonebrook River: your home is now a stone mill shed on fieldstone piers you customise: walls, roof (slate, shakes or thatch), chimney with smoke, lantern, door, windows and seat, with autumn woods on the bank behind it.',
