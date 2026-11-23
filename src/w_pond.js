@@ -4,12 +4,23 @@
 // (weather, the float's wake, wind gusts, depth haze and motes) are added here by name, at their place in that order. Its colours stay
 // in V3PAL (f_v3scene.js / f2_areas.js) and shared drawing helpers stay in their files.
 // =====================================================================
+/* a swimming bird's wake (director, 2026-11-22: "no realistic wake, just a sideways V"): ripples shed behind it every so often that drift
+   back, widen and fade, inside a faint V that opens out behind; the bird swims left, so the wake trails to its right */
+function pondWake(px,py,s,t,P,seed){ const wc=mix(P.wTop,'#ffffff',.6);
+  for(let k=0;k<4;k++){ const u=((t*.9+k/4+seed*.37)%1), cx=px+s*(1.1+u*6), rx=s*(.45+u*2.2), ry=s*(.12+u*.32);
+    g.strokeStyle=v3rgba(wc,.32*(1-u)); g.lineWidth=1; g.beginPath(); g.ellipse(cx,py+s*.42,rx,ry,0,0,Math.PI*2); g.stroke(); }
+  const L=s*7, sp=s*1.1; g.strokeStyle=v3rgba(wc,.18); g.beginPath(); g.moveTo(px+s*1.1,py+s*.36); g.quadraticCurveTo(px+L*.5,py+s*.36-sp*.4,px+L,py+s*.36-sp); g.moveTo(px+s*1.1,py+s*.5); g.quadraticCurveTo(px+L*.5,py+s*.5+sp*.4,px+L,py+s*.5+sp); g.stroke(); }
 V3SCENES.pond = {
   // still parts: mountains, hills, pine shores, cabin, willow bank, water base, reflections
   land(x,P,hz,cnv){
-    // two mountain ranges: a tall far one with snow, a lower nearer one for depth
-    v3range(x,{seed:11, base:hz+1, amp:.215*H, massifs:[[.29,1,.12],[.41,.78,.08],[.6,.55,.1],[.71,.92,.1],[.86,.62,.09]], light:mix(P.far,'#ffffff',.18), shadow:mix(P.far,'#1a1030',.32), haze:P.farHaze, snow:P.snow, snowLine:hz-.12*H, hazeA:.6});
-    v3range(x,{seed:37, base:hz+1, amp:.085*H, massifs:[[.12,.8,.14],[.5,.6,.16],[.83,.75,.13]], light:mix(P.far,P.hill,.55), shadow:mix(mix(P.far,P.hill,.55),'#100a24',.3), haze:P.farHaze, snow:null, hazeA:.45});
+    // director, 2026-11-22: no mountains at Willow Pond (and every water's mountains looked alike): two forested ridges instead, the far
+    // one hazy and the nearer one darker, each a rolling hill line crowned with its own small pines and round treetops
+    { const ridge=(seed,base,amp,col,treeC,step,th)=>{ const n=v3noise(seed), yAt=f=>base-amp*(.55+.3*n(f*2.3+.4)+.15*n(f*6.1+2)), r=v3rng(seed+5);
+        x.fillStyle=col; x.beginPath(); x.moveTo(0,hz+1); for(let X=0;X<=W+4;X+=4) x.lineTo(X,yAt(X/W)); x.lineTo(W,hz+1); x.closePath(); x.fill();
+        for(let X=-W*.005;X<W*1.01;X+=W*step*(.6+r()*.8)){ const y=yAt(X/W)+H*.004, h=H*th*(.7+r()*.6);
+          if(r()<.62) v3pine(x,X,y,h,treeC,P.rim,P.d*.15); else { x.fillStyle=treeC; x.beginPath(); x.ellipse(X,y-h*.45,h*.42,h*.5,0,0,7); x.fill(); } } };
+      ridge(11,hz+1,.13*H,mix(P.far,P.farHaze,.35),mix(P.far,P.back,.35),.0065,.028);
+      ridge(37,hz+1,.075*H,mix(P.far,P.hill,.6),mix(P.back,P.hill,.3),.008,.036); }
     // mid hills: wide smooth curves
     x.fillStyle=P.hill; x.beginPath(); x.moveTo(0,hz+1); x.lineTo(0,hz-.035*H); x.bezierCurveTo(W*.16,hz-.07*H,W*.3,hz-.05*H,W*.42,hz-.028*H); x.bezierCurveTo(W*.55,hz-.06*H,W*.7,hz-.055*H,W*.84,hz-.03*H); x.bezierCurveTo(W*.92,hz-.045*H,W*.97,hz-.04*H,W,hz-.036*H); x.lineTo(W,hz+1); x.closePath(); x.fill();
     // back pine rows (hazier), thick on the shores, open in the middle of the lake
@@ -77,16 +88,16 @@ V3SCENES.pond = {
     if(sun.vis>.05){ const gx=clamp(sun.x,W*.05,W*.95); g.fillStyle=v3rgba(sun.up?P.glow:'#dfe6ff',.9*sun.vis);
       for(let i=0;i<10;i++){ const y=hz+3+i*i*2.1; if(y>H*.8) break; const w2=(W*.07-i*W*.005)*(.7+.3*Math.sin(t*2.3+i*1.7)); const off=Math.sin(t*1.3+i*2.1)*W*.006; g.globalAlpha=(.85-i*.07)*sun.vis*(.6+.4*Math.sin(t*3+i)); g.fillRect(gx-w2/2+off,y,w2,1.6+i*.15); }
       g.globalAlpha=1; }
-    // drifting mist bands at dusk and night
-    if(FX){ const ma=.18*d+.1*night; if(ma>.02){ for(let i=0;i<2;i++){ const mx=((t*(6+i*3)+i*W*.4)%(W*1.6))-W*.3, my=hz+H*(.02+i*.05), mw=W*.7; const mg=g.createLinearGradient(mx,0,mx+mw,0); const mc=mix(P.farHaze,'#ffffff',.4); mg.addColorStop(0,v3rgba(mc,0)); mg.addColorStop(.5,v3rgba(mc,ma)); mg.addColorStop(1,v3rgba(mc,0)); g.fillStyle=mg; g.fillRect(mx,my,mw,H*.025); } } }
+    // drifting mist bands at dusk and night (with the water: everything drifts left, director 2026-11-22)
+    if(FX){ const ma=.18*d+.1*night; if(ma>.02){ for(let i=0;i<2;i++){ const mx=W*1.3-((t*(6+i*3)+i*W*.4)%(W*1.6))-W*.3, my=hz+H*(.02+i*.05), mw=W*.7; const mg=g.createLinearGradient(mx,0,mx+mw,0); const mc=mix(P.farHaze,'#ffffff',.4); mg.addColorStop(0,v3rgba(mc,0)); mg.addColorStop(.5,v3rgba(mc,ma)); mg.addColorStop(1,v3rgba(mc,0)); g.fillStyle=mg; g.fillRect(mx,my,mw,H*.025); } } }
     // gentle wave glints
     g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.22); g.lineWidth=1;
-    for(let r0=0;r0<9;r0++){ const y=hz+H*.03+Math.pow(r0/9,1.5)*(H-hz)*.95; const sp=W*(.08+r0*.02), len=W*(.012+r0*.004); g.beginPath(); for(let X=((t*(5+r0*2)+r0*53)%sp)-sp;X<W;X+=sp){ const yy=y+Math.sin(X*.02+t+r0)*1; g.moveTo(X,yy); g.quadraticCurveTo(X+len/2,yy-1.2,X+len,yy); } g.stroke(); }
+    for(let r0=0;r0<9;r0++){ const y=hz+H*.03+Math.pow(r0/9,1.5)*(H-hz)*.95; const sp=W*(.08+r0*.02), len=W*(.012+r0*.004); g.beginPath(); for(let X=-((t*(5+r0*2)+r0*53)%sp);X<W;X+=sp){ const yy=y+Math.sin(X*.02+t+r0)*1; g.moveTo(X,yy); g.quadraticCurveTo(X+len/2,yy-1.2,X+len,yy); } g.stroke(); }
     // the willow: trunk on the bank, drooping strands swaying in the breeze
     this.willow(P,t,hz);
     // ducks gliding across, leaving a wake
     { const k=((t/70)%1), dx=W*(1.05-k*1.15), dy=hz+H*.045; for(let i=0;i<2;i++){ const px=dx+i*W*.03, py=dy+i*H*.006, s=H*.012;
-        g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.35); g.lineWidth=1; g.beginPath(); g.moveTo(px+s*1.2,py+s*.6); g.lineTo(px+s*4,py+s*.2); g.moveTo(px+s*1.2,py+s*.7); g.lineTo(px+s*4,py+s*1.3); g.stroke();
+        pondWake(px+s*.2,py,s,t,P,i);
         const bob=Math.sin(t*2+i)*.6; g.fillStyle=mix(P.cabin,'#8a6a4a',.5); g.beginPath(); g.ellipse(px+s*.8,py+bob,s*1.1,s*.5,0,0,7); g.fill();
         g.fillStyle=i?mix('#2f6a4a',P.front,night*.7):mix('#8a6a4a',P.front,night*.6); g.beginPath(); g.arc(px,py-s*.5+bob,s*.38,0,7); g.fill();
         g.fillStyle=mix('#f0b040',P.front,night*.6); g.beginPath(); g.moveTo(px-s*.35,py-s*.5+bob); g.lineTo(px-s*.75,py-s*.38+bob); g.lineTo(px-s*.33,py-s*.32+bob); g.fill();
@@ -104,7 +115,7 @@ V3SCENES.pond = {
     { const per=50, q=t%per, n=Math.floor(t/per), r=v3rng(n*41+3);
       if(night<.55){ if(q<26){ const e=q/26, nd=3+Math.floor(r()*3), yy=hz+H*(.05+r()*.02), s0=H*.011, N=c0=>mix(c0,P.front,night*.6);
         for(let i=0;i<=nd;i++){ const big=i===0, s=big?s0:s0*.55, px=W*(1.04-e*1.12)+i*s0*2.3+(big?0:s0*.8), py=yy+(big?0:s0*.15), bob=Math.sin(t*2.4+i*1.3)*s*.12; if(px<-s*4||px>W+s*4) continue;
-          g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.3); g.lineWidth=1; g.beginPath(); g.moveTo(px+s*1.1,py+s*.35); g.lineTo(px+s*2.6,py+s*.15); g.moveTo(px+s*1.1,py+s*.45); g.lineTo(px+s*2.6,py+s*.75); g.stroke();
+          pondWake(px,py-s*.1,s,t,P,i+2);
           g.fillStyle=N(big?'#8a6a48':'#c8a850'); g.beginPath(); g.ellipse(px+s*.3,py+bob,s*1.05,s*.48,0,Math.PI,0); g.quadraticCurveTo(px+s*.3,py+bob+s*.35,px-s*.75,py+bob); g.fill(); g.beginPath(); g.moveTo(px+s*1.2,py+bob); g.lineTo(px+s*1.65,py+bob-s*.35); g.lineTo(px+s*1.2,py+bob-s*.2); g.fill();
           g.fillStyle=N(big?'#6a5038':'#d8b858'); g.beginPath(); g.arc(px-s*.55,py+bob-s*.62,s*.36,0,7); g.fill(); g.fillStyle=N('#e8a030'); g.beginPath(); g.moveTo(px-s*.85,py+bob-s*.66); g.lineTo(px-s*1.2,py+bob-s*.56); g.lineTo(px-s*.85,py+bob-s*.5); g.fill();
           g.fillStyle='#1a1410'; g.fillRect(px-s*.65,py+bob-s*.72,1.2,1.2); } } }
@@ -142,14 +153,25 @@ l3gustLayer('pond');
 m33wrap('pond','live',function(P,t,hz){ const night=P.night, FX=S.settings.effects;
   // the frog: sits, then leaps in a little arc to the next pad (ripple where it lands)
   { const per=9, cyc=Math.floor(t/per), q=(t%per)/per, a=L3.pads[cyc%4], b=L3.pads[(cyc+1)%4], hop=q>.82?(q-.82)/.18:0, e=l3s(hop);
-    const x=W*(a[0]+(b[0]-a[0])*e)+W*.008, y=H*(a[1]+(b[1]-a[1])*e)-H*.012-Math.sin(e*Math.PI)*H*.05, s=H*.0055, fc=mix('#5a9a3a',P.wBot,night*.55);
-    g.fillStyle=fc; g.beginPath(); g.ellipse(x,y,s*2,s*1.3,0,0,7); g.fill(); g.beginPath(); g.arc(x+s*1.4,y-s*.8,s*.9,0,7); g.fill();
-    g.fillStyle=mix('#c8e080',P.wBot,night*.5); g.beginPath(); g.ellipse(x,y+s*.5,s*1.4,s*.5,0,0,7); g.fill(); g.fillStyle='#14140e'; g.beginPath(); g.arc(x+s*1.6,y-s*1.4,s*.35,0,7); g.fill();
-    if(hop>0&&hop<1){ g.strokeStyle=fc; g.lineWidth=s*.5; g.beginPath(); g.moveTo(x-s*1.4,y+s*.4); g.lineTo(x-s*2.8,y+s*1.6); g.stroke(); }
+    const x=W*(a[0]+(b[0]-a[0])*e)+W*.008, y=H*(a[1]+(b[1]-a[1])*e)-H*.012-Math.sin(e*Math.PI)*H*.05, s=H*.0055, fc=mix('#5a9a3a',P.wBot,night*.55), dk=mix('#3a6a28',P.wBot,night*.55), belly=mix('#d8e8a0',P.wBot,night*.5);
+    /* director, 2026-11-22 ("lacks detail, the hop doesn't look right"): a side-view frog, crouched with its hind legs folded while it sits;
+       in the air the body stretches along the arc, hind legs kicked out straight behind and front legs reaching ahead */
+    const air=hop>0&&hop<1, dir=b[0]>=a[0]?1:-1, ang=air?Math.atan2(-Math.cos(e*Math.PI)*.05*H*Math.PI,(b[0]-a[0])*W*dir+1e-3)*.6:-.25;
+    g.save(); g.translate(x,y); g.scale(dir,1); g.rotate(ang);
+    if(air){ g.strokeStyle=dk; g.lineWidth=s*.55; g.lineCap='round'; g.beginPath(); g.moveTo(-s*1.5,s*.2); g.lineTo(-s*3.4,s*.5); g.lineTo(-s*4.6,s*.3); g.moveTo(s*1.2,s*.5); g.lineTo(s*2.4,s*.9); g.stroke(); g.lineCap='butt'; }
+    else { g.fillStyle=dk; g.beginPath(); g.ellipse(-s*1.1,s*.35,s*1.2,s*.7,-.3,0,7); g.fill(); g.fillRect(-s*1.6,s*.8,s*2.2,s*.35); /* folded thigh and foot */ g.fillRect(s*1,s*.3,s*.4,s*1); /* front leg */ }
+    g.fillStyle=fc; g.beginPath(); g.ellipse(0,0,s*2*(air?1.15:1),s*1.15*(air?.85:1),0,0,7); g.fill();
+    g.beginPath(); g.ellipse(s*1.6,-s*.35,s*1,s*.75,.2,0,7); g.fill(); /* head */
+    g.fillStyle=belly; g.beginPath(); g.ellipse(s*.2,s*.6,s*1.5,s*.45,0,0,7); g.fill();
+    g.fillStyle=dk; for(const [sx,sy] of [[-.8,-.5],[.2,-.7],[-.2,-.1]]) { g.beginPath(); g.arc(sx*s,sy*s,s*.22,0,7); g.fill(); } /* spots */
+    g.fillStyle=fc; g.beginPath(); g.arc(s*1.7,-s*1,s*.5,0,7); g.fill(); g.fillStyle='#f0e070'; g.beginPath(); g.arc(s*1.8,-s*1.05,s*.32,0,7); g.fill(); g.fillStyle='#14140e'; g.fillRect(s*1.72,-s*1.15,s*.22,s*.22); /* eye */
+    g.strokeStyle=dk; g.lineWidth=Math.max(.6,s*.12); g.beginPath(); g.moveTo(s*2.5,-s*.2); g.quadraticCurveTo(s*1.9,s*.05,s*1.2,-s*.1); g.stroke(); /* mouth */
+    g.restore();
     if(FX&&q>.95){ const k=(q-.95)/.05; g.strokeStyle=v3rgba('#ffffff',.5*(1-k)); g.lineWidth=1; g.beginPath(); g.ellipse(W*b[0]+W*.008,H*b[1]-H*.008,s*(2+k*6),s*(.6+k*1.6),0,0,7); g.stroke(); } }
-  // the deer: comes out of the trees at dawn and dusk, drinks, and goes back (fades in and out)
-  { const per=70, q=((t+20)%per)/per; if(q<.45){ const a=l3s(Math.min(1,q/.06))*l3s(Math.min(1,(.45-q)/.06)), dip=Math.max(0,Math.sin((q-.08)/.3*Math.PI*3))*(q>.08&&q<.38?1:0), x=W*.62, y=hz+H*.004, s=H*.006, dc=mix('#8a5a34',P.front,.35+night*.4);
-      g.save(); g.globalAlpha=a; g.fillStyle=dc; g.beginPath(); g.ellipse(x,y-s*3.4,s*3.2,s*1.5,0,0,7); g.fill(); for(const lx of [-2.2,-1.6,1.8,2.4]) g.fillRect(x+lx*s,y-s*2.4,s*.45,s*2.4);
+  // the deer (director, 2026-11-22: it stood in the water and vanished at random): it walks out from behind the willow onto the grass
+  // bank, lowers its head to the water's edge to drink, and walks back behind the willow; it never fades in or out
+  { const per=70, q=((t+20)%per)/per; if(q<.45){ const walk=q<.08?1-q/.08:q>.37?(q-.37)/.08:0, a=1, dip=Math.max(0,Math.sin((q-.08)/.29*Math.PI*3))*(q>.08&&q<.37?1:0), x=W*(.875+walk*.16), y=hz-H*.004, s=H*.006, dc=mix('#8a5a34',P.front,.35+night*.4);
+      g.save(); g.translate(x,0); g.scale(q>.37?1:-1,1); g.translate(-x,0); /* faces where it walks: left to the water, right on the way back */ g.globalAlpha=a; g.fillStyle=dc; g.beginPath(); g.ellipse(x,y-s*3.4,s*3.2,s*1.5,0,0,7); g.fill(); for(const lx of [-2.2,-1.6,1.8,2.4]) g.fillRect(x+lx*s,y-s*2.4,s*.45,s*2.4);
       g.save(); g.translate(x+s*2.8,y-s*4.2); g.rotate(.4+dip*1.1); g.fillRect(-s*.45,-s*3,s*.9,s*3); g.beginPath(); g.ellipse(0,-s*3.3,s*1.1,s*.7,.5,0,7); g.fill(); g.strokeStyle=dc; g.lineWidth=s*.3; g.beginPath(); g.moveTo(-s*.3,-s*3.8); g.lineTo(-s*1,-s*5.2); g.moveTo(-s*.6,-s*4.6); g.lineTo(-s*1.6,-s*4.8); g.stroke(); g.restore();
       g.fillStyle=mix('#f4ead8',P.front,.4+night*.4); g.fillRect(x-s*3.3,y-s*4,s*.7,s*.7); g.restore();
       g.save(); g.globalAlpha=a*.25; g.fillStyle=dc; g.beginPath(); g.ellipse(x,y+s*2.2,s*3.2,s*1,0,0,7); g.fill(); g.restore(); } }

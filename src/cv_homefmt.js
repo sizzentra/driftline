@@ -32,7 +32,7 @@ function hfPaintCache(L,P,night,dockY,dIn,slot){ const sp=hfSpec(L.id), d=dIn||M
   if(!c){ c={cv:document.createElement('canvas')}; HF_CACHE[id]=c; } c.key=key; c.x=x0; c.y=y0; c.w=x1-x0; c.h=y1-y0;
   c.cv.width=Math.max(1,Math.ceil(c.w*d)); c.cv.height=Math.max(1,Math.ceil(c.h*d)); const x=c.cv.getContext('2d'); x.setTransform(d,0,0,d,-x0*d,-y0*d); x.clearRect(x0,y0,c.w,c.h);
   const N=col=>mix(col,'#0a1020',night*.55), ctx={x,P,night,dockY,N,id:L.id,pw:HF.pw(),wl:HF.wl(dockY),posts:[]};
-  sp.paint(ctx); c.posts=ctx.posts; c.top=ctx.top==null?dockY-H*.23:ctx.top; c.lights=ctx.lights||[]; return c; }
+  sp.paint(ctx); c.posts=ctx.posts; c.top=ctx.top==null?dockY-H*.23:ctx.top; c.low=ctx.low; c.lights=ctx.lights||[]; return c; }
 /* the water flowing past each support (director, 2026-11-21: subtle, like water going by, not rings that grow and shrink): a faint
    contact line where the support meets the water, and two short ripples drifting away downstream and fading. Drawn BEFORE the home,
    so the support covers the start of each line. */
@@ -69,6 +69,11 @@ function hfPost(o,px,w,col,kind,top){ const {x,N,P,wl}=o, wc=P.wMid||'#3a6a7a'; 
   else { x.fillStyle=c; x.fillRect(px-w/2,top,w,wl-top);
     if(kind==='round'){ const gr=x.createLinearGradient(px-w/2,0,px+w/2,0); gr.addColorStop(0,v3rgba('#ffffff',.18*(1-o.night*.6))); gr.addColorStop(.45,v3rgba('#000000',0)); gr.addColorStop(1,v3rgba('#000000',.35)); x.fillStyle=gr; x.fillRect(px-w/2,top,w,wl-top); }
     else { x.fillStyle=mix(c,'#000000',.3); x.fillRect(px+w*.15,top,w*.35,wl-top); } }
+  /* director, 2026-11-22 ("dry, just runs straight down with nothing to define its look"): a cap where the support meets the deck beam,
+     a wet dark band just above the water line and a ragged fringe of weed where the water laps it */
+  if(kind!=='stone'){ x.fillStyle=mix(c,'#000000',.38); x.fillRect(px-w*.62,top,w*1.24,Math.max(1.5,H*.005)); }
+  const wb=Math.min(H*.03,(wl-top)*.5), wg=x.createLinearGradient(0,wl-wb,0,wl); wg.addColorStop(0,v3rgba('#1a2418',0)); wg.addColorStop(1,v3rgba('#1a2418',.42*(1-o.night*.3))); x.fillStyle=wg; x.fillRect(px-w/2,wl-wb,w,wb);
+  x.fillStyle=N(mix('#3f5a2c',wc,.25)); for(let i=0;i<4;i++){ const fx=px-w/2+w*(i+.5)/4, fh=H*(.004+.004*((Math.sin(px*.37+i*2.1)+1)/2)); x.fillRect(fx-w*.09,wl-fh,w*.18,fh); }
   /* under the water line: the support runs on down to the bottom of the screen, taking on the water's colour and fading out gradually
      (director, 2026-11-21: they stopped as hard blocks above the bottom) */
   /* director, 2026-11-22: "blend into the water properly": under the surface the support is murky, darker than the water around it
@@ -76,6 +81,13 @@ function hfPost(o,px,w,col,kind,top){ const {x,N,P,wl}=o, wc=P.wMid||'#3a6a7a'; 
   const deep=P.wBot||mix(wc,'#000000',.4), mur=mix(mix(c,deep,.7),'#000000',.12), gr=x.createLinearGradient(0,wl,0,Math.min(H,wl+H*.2));
   gr.addColorStop(0,v3rgba(mur,.62)); gr.addColorStop(.25,v3rgba(mur,.36)); gr.addColorStop(.6,v3rgba(deep,.14)); gr.addColorStop(1,v3rgba(deep,0)); x.fillStyle=gr; x.fillRect(px-w/2,wl,w,Math.min(H,wl+H*.2)-wl);
   o.posts.push({x:px,w}); }
+/* cross bracing between neighbouring wooden or iron supports (behind them): one diagonal pair per gap, from under the beam to just above
+   the water, so a row of supports reads as one built frame (director, 2026-11-22: they ran "straight down with nothing to define" them) */
+/* beam:true gives one horizontal crossbeam (a waling) instead, so round piles and square posts stay clearly different */
+function hfBraces(o,xs,top,col,w,beam){ const x=o.x; x.save(); x.globalCompositeOperation='destination-over'; x.strokeStyle=o.N(mix(col,'#000000',.45)); x.lineWidth=Math.max(1.2,w*(beam?.5:.32));
+  if(beam){ const by=top+(o.wl-top)*.55; x.beginPath(); x.moveTo(xs[0],by); x.lineTo(xs[xs.length-1],by); x.stroke(); x.restore(); return; }
+  for(let i=0;i+1<xs.length;i++){ const a=xs[i], b=xs[i+1], t=top+H*.008, bt=o.wl-H*.006; if(b-a<H*.03||bt-t<H*.02) continue; x.beginPath(); x.moveTo(a,t); x.lineTo(b,bt); x.moveTo(b,t); x.lineTo(a,bt); x.stroke(); }
+  x.restore(); }
 
 /* ---------- Willow Pond: the starter dock (pilot; docs/HOME_DESIGNS.md › 1) ---------- */
 /* a feature whose first style is "nothing" (none:true) offers 3 real styles besides it (director, 2026-11-21: "nothing" is no choice) */
@@ -86,9 +98,9 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
   els:[
     {id:'light', label:'Light', styles:['Lamp post','Hurricane lantern','Firefly jar'], def:[0,13]},
     {id:'deck', label:'Deck', styles:['Pine planks','Weathered boards','Log deck'], def:[0,0]},
-    {id:'posts', label:'Posts', styles:['Square posts','Round piles','Stone piers'], def:[1,2]},
+    {id:'posts', label:'Posts', styles:['Square posts','Round piles','Twin piles'], def:[1,2]},
     {id:'rail', label:'Rail', none:true, styles:['No rail','Rope rail','Slat rail','Log rail'], def:[0,1]},
-    {id:'canopy', label:'Canopy', none:true, styles:['Open sky','Patio umbrella','Lean-to roof','Sailcloth shade'], def:[0,10]},
+    {id:'canopy', label:'Canopy', none:true, styles:['Open sky','Patio umbrella','Vine pergola','Willow arbor'], def:[0,10]},
     {id:'seat', label:'Seat', styles:['Camp chair','Log bench','Deck chair'], def:[0,12]}
   ],
   /* where the seat holds the angler, in the angler's own units (restPose sits them at this height) */
@@ -96,10 +108,14 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
   paint(o){ const {x,N,P,dockY,pw,id}=o, th=Math.max(4,H*.012), fh=Math.max(6,H*.018), night=o.night, rimA=.35*(1-night*.6), lit=1-night*.6;
     const deckC=hfColor(id,'deck'), postC=hfColor(id,'posts'), railC=hfColor(id,'rail'), canC=hfColor(id,'canopy'), seatC=hfColor(id,'seat'), x0=HF.x0(), at=f=>x0+(pw-x0)*f, sc=HF.sc();
     /* supports: from the deck's underside down into the water, every one fully under the deck */
-    { const ps=hfStyle(id,'posts'), w=ps===2?Math.max(8,W*.018):Math.max(5,W*.011), xs=[.08,.3,.53,.76,.97].map(f=>Math.min(pw-w/2-1,at(f))), under=dockY+fh;
+    { const ps=hfStyle(id,'posts'), w=ps===2?Math.max(4,W*.008):Math.max(5,W*.011), xs=[.08,.3,.53,.76,.97].map(f=>Math.min(pw-w/2-1,at(f))), under=dockY+fh;
+      if(ps===2){ /* twin piles (director, 2026-11-22: stone piers don't fit Willow Pond's wooden dock): pairs of thin round piles lashed together with rope */
+        const pairs=xs.map(px=>[px-w*.62,px+w*.62]).flat(); for(const px of pairs) hfPost(o,px,w,postC,'round',under);
+        x.fillStyle=N(mix('#c8a878',postC,.25)); for(const px of xs) for(const f of [.25,.6]){ const ly=under+(o.wl-under)*f; x.fillRect(px-w*1.2,ly,w*2.4,Math.max(2,H*.004)); }
+      } else {
       if(ps===0){ x.strokeStyle=N(mix(postC,'#000000',.2)); x.lineWidth=Math.max(2,W*.004); for(let i=0;i<xs.length-1;i++){ x.beginPath(); x.moveTo(xs[i],under); x.lineTo(xs[i+1],o.wl-H*.01); x.moveTo(xs[i+1],under); x.lineTo(xs[i],o.wl-H*.01); x.stroke(); } } /* square posts: cross-braced */
-      for(const px of xs) hfPost(o,px,w,postC,['square','round','stone'][ps],under);
-      if(ps===1){ x.fillStyle=N(mix('#c8a878',postC,.25)); for(const px of xs){ x.fillRect(px-w/2-.5,under+H*.006,w+1,Math.max(2,H*.004)); x.fillRect(px-w/2-.5,under+H*.013,w+1,Math.max(1.5,H*.003)); } } } /* round piles: a band of rope near the top */
+      for(const px of xs) hfPost(o,px,w,postC,['square','round'][ps],under); if(ps===1) hfBraces(o,xs,under,postC,w,true);
+      if(ps===1){ x.fillStyle=N(mix('#c8a878',postC,.25)); for(const px of xs){ x.fillRect(px-w/2-.5,under+H*.006,w+1,Math.max(2,H*.004)); x.fillRect(px-w/2-.5,under+H*.013,w+1,Math.max(1.5,H*.003)); } } } } /* round piles: a band of rope near the top */
     /* deck: surface, face, seams, a hint of grain, lit edge */
     { const ds=hfStyle(id,'deck'), top=N(mix(deckC,'#ffffff',.08)), face=N(mix(deckC,'#000000',.24));
       x.fillStyle=face; x.fillRect(x0,dockY+th,pw-x0,fh-th); x.fillStyle=top; x.fillRect(x0,dockY,pw-x0,th);
@@ -137,7 +153,7 @@ HOMEF.pond = { name:'Willow Pond dock', hname:'dock',
         x.fillStyle=dark; x.fillRect(sx-w*.5,by-7*s,w*.9,1.8*s); x.fillRect(sx+w*.3,by-7*s,1.8*s,7*s);
         x.fillStyle=v3rgba('#ffffff',.2*lit); x.fillRect(sx-w/2,by-1.6*s,w,1); } }
     /* canopy: the shared side-view cover (cw_homekit.js HK.roof), over the seat and the standing angler */
-    { const cs=hfStyle(id,'canopy'); if(cs) HK.roof(o,canC,['','umbrella','leanto','sail'][cs]); }
+    { const cs=hfStyle(id,'canopy'); if(cs) HK.roof(o,canC,['','umbrella','pergola','willowarbor'][cs]); }
     /* the light at the light spot (its glow is drawn live); all three stand on the deck at the end of the dock */
     { const ls=hfStyle(id,'light'), lx=HF.lightX(), iron=N('#2a2a30'), metal=iron; /* the fixture stays iron: the light's colour is its glow */ o.lights=[];
       if(ls===0){ x.fillStyle=metal; x.fillRect(lx-1.5,dockY-H*.1,3,H*.1); x.fillRect(lx-H*.009,dockY-H*.118,H*.018,2.5); x.strokeStyle=metal; x.lineWidth=1.2; x.strokeRect(lx-H*.008,dockY-H*.115,H*.016,H*.02); x.beginPath(); x.moveTo(lx-H*.01,dockY-H*.116); x.lineTo(lx,dockY-H*.128); x.lineTo(lx+H*.01,dockY-H*.116); x.stroke();

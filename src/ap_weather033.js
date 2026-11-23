@@ -14,7 +14,7 @@ function wx3BloodMoon(hz){ const s=wx3sun(hz); return s.up?{x:W*.78,y:hz*.32}:{x
 function wx3BloodMoonDisc(mx,my,a){ const r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,60,50,.9)',.35*a); g.save(); g.globalAlpha=a; const mg=g.createRadialGradient(mx-r*.3,my-r*.3,r*.1,mx,my,r); mg.addColorStop(0,'#ff8a6a'); mg.addColorStop(.7,'#d8302a'); mg.addColorStop(1,'#8a1018'); g.fillStyle=mg; g.beginPath(); g.arc(mx,my,r,0,7); g.fill();
   g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
 function wx3Rainbow(hz){ const s=wx3sun(hz), R=H*.66; if(!s.up) return {cx:W*.62, cy:hz+H*.28, R};
-  const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.2+.36*elev); return {cx, cy, R}; }
+  const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.12+.2*elev); return {cx, cy, R}; } /* map redo 2026-11-22: a little higher, so more of the arc clears the trees */
 function wx3k(){ try{ return weather().k; }catch(e){ return 'Clear'; } }
 const wx3A=()=>typeof WXA==='number'?WXA:1;
 
@@ -28,9 +28,10 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
     // and are soft, so nobody can tell) and added to the sky in one step. Drawing ~240 additive strips straight onto a
     // full-density screen every frame tripled the scene's cost on phones (2026-11-17 QC).
     const AU=wx3Sky.au||(wx3Sky.au={c:document.createElement('canvas'),t:-1,w:0,h:0}), q=.5, cw=Math.max(8,Math.ceil(W*q)), chh=Math.max(8,Math.ceil(hz*.62*q));
-    if(AU.w!==cw||AU.h!==chh||Math.abs(t-AU.t)>.05){ if(AU.w!==cw||AU.h!==chh){ AU.c.width=cw; AU.c.height=chh; AU.w=cw; AU.h=chh; }
+    /* director, 2026-11-22 ("choppy, as if drawn in steps"): high graphics repaint the curtains every frame in strips half as wide; phones keep ~20 a second */
+    const HI=typeof gfxHigh==='function'&&gfxHigh(); if(AU.w!==cw||AU.h!==chh||Math.abs(t-AU.t)>(HI?0:.05)){ if(AU.w!==cw||AU.h!==chh){ AU.c.width=cw; AU.c.height=chh; AU.w=cw; AU.h=chh; }
       AU.t=t; const o=AU.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,chh); o.setTransform(q,0,0,q,0,0); o.globalCompositeOperation='lighter';
-      const cs=['90,255,170','150,110,255','90,220,255'], sw=Math.max(4,W/80);
+      const cs=['90,255,170','150,110,255','90,220,255'], sw=Math.max(3,W/(HI?160:80));
       for(let b=0;b<3;b++){ const y0=hz*(.18+b*.11);
         // one shared gradient per ribbon (light at the curtain's foot, fading up); each strip just moves and dims it
         const gr=o.createLinearGradient(0,y0+hz*.08,0,y0-hz*.24); gr.addColorStop(0,'rgba('+cs[b]+',0)'); gr.addColorStop(.25,'rgba('+cs[b]+',1)'); gr.addColorStop(1,'rgba('+cs[b]+',0)'); o.fillStyle=gr;
@@ -44,7 +45,7 @@ function wx3Sky(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night
   if(k==='Storm'||k==='Rain'){ const A=a*(k==='Storm'?.55:.32); g.fillStyle=k==='Storm'?'rgba(40,46,56,'+A+')':'rgba(70,78,90,'+A+')';
     for(let i=0;i<6;i++){ const sp=k==='Storm'?.025:.012, cw=W*(.22+(i%3)*.08), cx=((i*.31+t*sp*(1+i%2*.4))%1.4)*W-W*.2, cy=hz*(.12+(i%3)*.14); g.beginPath(); g.ellipse(cx,cy,cw*.5,hz*.05,0,0,7); g.ellipse(cx+cw*.25,cy+hz*.02,cw*.35,hz*.045,0,0,7); g.ellipse(cx-cw*.28,cy+hz*.025,cw*.3,hz*.04,0,0,7); g.fill(); } }
 }
-function wx3SkyLayer(id){ m33wrap(id,'sky',function(P,t,hz){ wx3Sky(P,t,hz); }); } /* each older water file adds it at its place (src/w_<id>.js) */
+function wx3SkyLayer(id){ m33wrap(id,'skyBack',function(P,t,hz){ wx3Sky(P,t,hz); }); } /* each older water file adds it (src/w_<id>.js); 'skyBack' is drawn behind the clouds (director, 2026-11-22: the aurora covered them) */
 
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
@@ -68,8 +69,10 @@ function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const nig
       const depth=Math.min(H-hz,H*.3), q=.5, cw=Math.max(8,Math.ceil(W*q)), ch=Math.max(4,Math.ceil(depth*q)), RB=wx3Water.rb||(wx3Water.rb={c:document.createElement('canvas')}), RP=wx3Rainbow(hz), key=cw+'|'+ch+'|'+Math.round(H)+'|'+Math.round(hz)+'|'+Math.round(RP.cx/2)+'|'+Math.round(RP.cy/2);
       if(RB.key!==key){ RB.key=key; if(RB.c.width!==cw||RB.c.height!==ch){ RB.c.width=cw; RB.c.height=ch; } const o=RB.c.getContext('2d'); o.setTransform(1,0,0,1,0,0); o.clearRect(0,0,cw,ch); o.setTransform(q,0,0,q,0,0);
         const cx=RP.cx, R=RP.R, cols=['#ff4a4a','#ff9a3a','#ffe04a','#5ad86a','#4aa8ff','#5a5aff','#b05aff'], bw=H*.012; o.lineWidth=bw*1.25;
-        for(let i=0;i<7;i++){ o.strokeStyle=cols[i]; o.beginPath(); o.arc(cx,-(RP.cy-hz),R-i*bw,0,Math.PI); o.stroke(); }
-        o.setTransform(1,0,0,1,0,0); o.globalCompositeOperation='destination-in'; const fg=o.createLinearGradient(0,0,0,ch); fg.addColorStop(0,'rgba(0,0,0,1)'); fg.addColorStop(.45,'rgba(0,0,0,.55)'); fg.addColorStop(1,'rgba(0,0,0,0)'); o.fillStyle=fg; o.fillRect(0,0,cw,ch); o.globalCompositeOperation='source-over'; }
+        /* director, 2026-11-22 ("doesn't line up with the rainbow"): mirrored the way the land is (squashed to .72, like every water's land
+           reflection), and hidden in the band where the shore's own reflection lies, just as the trees hide the arc's feet in the sky */
+        for(let i=0;i<7;i++){ o.strokeStyle=cols[i]; o.beginPath(); o.ellipse(cx,-(RP.cy-hz)*.72,R-i*bw,(R-i*bw)*.72,0,0,Math.PI); o.stroke(); }
+        const sh0=Math.min(.6,(H*.075)/depth); o.setTransform(1,0,0,1,0,0); o.globalCompositeOperation='destination-in'; const fg=o.createLinearGradient(0,0,0,ch); fg.addColorStop(0,'rgba(0,0,0,0)'); fg.addColorStop(sh0,'rgba(0,0,0,0)'); fg.addColorStop(Math.min(.9,sh0+.1),'rgba(0,0,0,.9)'); fg.addColorStop(Math.min(.95,sh0+.4),'rgba(0,0,0,.5)'); fg.addColorStop(1,'rgba(0,0,0,0)'); o.fillStyle=fg; o.fillRect(0,0,cw,ch); o.globalCompositeOperation='source-over'; }
       g.save(); g.globalAlpha=A; const sh=Math.max(2,H/220); for(let y=0;y<depth;y+=sh){ const u=y/depth, dx=Math.sin(y*.21+t*1.7)*(.6+u*3.2)+Math.sin(y*.07-t*.9)*(.4+u*1.4); g.drawImage(RB.c,0,y*q,cw,Math.max(1,sh*q),dx,hz+y,W,sh+.5); } g.restore(); }
     if(FX){ g.fillStyle='rgba(255,250,230,'+(.6*a*(1-night))+')'; for(let i=0;i<10;i++){ const x=W*((i*.173+t*.01)%1), y=hz+H*(.03+((i*37)%10)/40); if(Math.sin(t*3+i*2)>.6) g.fillRect(x,y,1.6,1.6); } } }
   if(k==="Aurora"){ const A=a*(.5+.5*night); g.save(); g.globalCompositeOperation='lighter'; for(let i=0;i<14;i++){ const x=W*((i*.071+Math.sin(t*.2+i)*.01)%1), y=hz+H*(.01+((i*13)%9)/80), cl=i%3===1?'150,110,255':'90,255,170'; g.fillStyle='rgba('+cl+','+(A*(.12+.1*Math.sin(t*1.5+i)))+')'; g.fillRect(x,y,W*(.03+(i%4)*.01),1.6); } g.restore(); }

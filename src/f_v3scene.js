@@ -87,7 +87,8 @@ const V3FLUSH=document.createElement('canvas'); V3FLUSH.width=V3FLUSH.height=1;
 function v3play(J,ms){ const x=J.x, o=J.ops, t0=performance.now(), end=Math.min(o.length,J.i+1200); while(J.i<end){ for(let n=0;n<32&&J.i<end;n++){ const p=o[J.i++]; if(typeof p==='function') p(); else if(p[0]===0) x[p[1]]=p[2]; else x[p[0]].apply(x,p[1]); } if(performance.now()-t0>ms) break; }
   V3FLUSH.getContext('2d').drawImage(x.canvas,0,0,1,1); return J.i>=o.length; }
 function v3prep(c){ const DL=(typeof gfxHigh==="function"&&gfxHigh())?DPR:Math.min(DPR,2), cw=Math.round(W*DL), ch=Math.round(H*DL); if(c.width!==cw||c.height!==ch){ c.width=cw; c.height=ch; }
-  const x=c.getContext('2d'); x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); return x; } /* still scenery at most 2x: sharp on every phone, far less to repaint */
+  const x=c.getContext('2d'); if(x.reset) x.reset(); else c.width=cw; /* a picture dropped half painted leaves its saves and cut-out shapes on the canvas (a range's outline then cut the next picture's skyline): start every reuse from a clean state */
+  x.setTransform(DL,0,0,DL,0,0); x.clearRect(0,0,W,H); return x; } /* still scenery at most 2x: sharp on every phone, far less to repaint */
 function v3land(L,P,hz){
   const key=L.id+'|'+W+'|'+H+'|'+DPR+'|'+P.key, base=L.id+'|'+W+'|'+H+'|'+DPR;
   if(V3CACHE && V3CACHE.key===key){ v3land.job=null; return V3CACHE; } /* back to the light on screen: a half-painted next picture is dropped */
@@ -148,13 +149,16 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const px=v3par(t); g.save(); g.translate(px*.35,0);
   // stars (twinkling) after dusk
   if(night>.05 && gloom<.5 && !SC.overcast){ if(!v3Scene.st||v3Scene.st.w!==W){ const r=v3rng(3); v3Scene.st={w:W,a:Array.from({length:90},()=>[r()*W,r()*hz*.85,r(),.6+r()*1.1])}; }
-    g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
+    /* a star never shows through a cloud (director, 2026-11-22): the clouds are see-through at their edges, so stars inside one are skipped */
+    const cl=SC.noClouds?[]:[0,1,2].map(i=>{ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015); return [cx-cw*.05,cx+cw*1.05,cy-chh*1.1,cy+chh*.2]; });
+    g.fillStyle='#ffffff'; for(const s of v3Scene.st.a){ if(cl.some(c=>s[0]>c[0]&&s[0]<c[1]&&s[1]>c[2]&&s[1]<c[3])) continue; g.globalAlpha=night*(1-gloom)*(.3+.7*Math.abs(Math.sin(t*.7+s[2]*11))); g.fillRect(s[0],s[1],s[3],s[3]); } g.globalAlpha=1; }
   // sun or moon on the game's clock (same path as before)
   const sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45, sx=W*(.1+.8*k), sy=hz-Math.sin(k*Math.PI)*hz*.8+10;
   const vis=(1-gloom*.85)*(up?1:clamp(night*1.2,0,1))*(1-(SC.overcast||0));
   if(up){ v3glow(g,sx,sy,H*.42,v3rgba(P.glow,.9),vis*(.55+P.d*.4)); g.fillStyle=mix(P.glow,'#ffffff',.5); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.045,0,7); g.fill(); g.globalAlpha=1; }
   else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); g.save(); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sx,sy,H*.03,0,Math.PI*2); g.moveTo(sx+H*.013+H*.028,sy-H*.009); g.arc(sx+H*.013,sy-H*.009,H*.028,0,Math.PI*2); g.fill('evenodd'); g.restore(); }
   if(!up&&typeof wx3BloodMoonDisc==='function'&&wx3k()==='Blood Moon'&&wx3A()>.01) wx3BloodMoonDisc(sx,sy,wx3A()); // the blood moon is the moon (2026-11-17)
+  if(SC.skyBack) SC.skyBack(P,t,hz); /* weather in the sky (aurora, rainbow, blood moon tint, gilded rays) sits behind the clouds */
   // soft clouds: a bumpy top made of overlapping puffs, a flat base, lighter on top, lit underside; drifting
   for(let i=0;i<(SC.noClouds?0:3);i++){ const cw=W*(.16+i*.05), cx=((t*(2.2+i)+i*W*.45)%(W+cw*2))-cw, cy=hz*(.3+i*.17), chh=hz*(.09-i*.015);
     const cg=g.createLinearGradient(0,cy-chh,0,cy); cg.addColorStop(0,v3rgba(mix(P.cloud,'#ffffff',.25),.85*(1-gloom*.3))); cg.addColorStop(1,v3rgba(P.cloud,.8*(1-gloom*.3)));

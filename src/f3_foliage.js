@@ -40,7 +40,7 @@ function v3willow(P,t,hz){ const DP=Math.min(DPR||1,2), bxw=W*.905, x0=bxw-H*.17
 function v3willowDraw(c,P,t,hz,part){ /* part: undefined = the whole tree; 0, 1, 2 = a third of it in drawing order (0 includes the trunk, limbs and crown) */
   const ALL=part===undefined, BASE=ALL||part===0;
   const bx=W*.905, by=hz+H*.012, th=H*.1, wood=mix(P.cabin,'#000000',.25), woodL=mix(P.cabin,P.rim,.25), u=H/500;
-  const leafD=mix(P.leaf,'#000000',.45), leafM=mix(P.leaf,'#000000',.12), leafL=mix(P.leaf,P.leafHi,.3+P.d*.15);
+  const nk=(P.night||0)*.7, leafD=mix(mix(P.leaf,'#000000',.45),P.front,nk), leafM=mix(mix(P.leaf,'#000000',.12),P.front,nk), leafL=mix(mix(P.leaf,P.leafHi,.3+P.d*.15),P.front,nk*.9); /* map redo 2026-11-22: the willow glowed lime green at night; it darkens with the trees around it */
   const wind=Math.sin(t*.6)*H*.006+Math.sin(t*1.3)*H*.002;
   // reflection first (under everything)
   if(BASE){ c.save(); c.globalAlpha=.14; c.fillStyle=leafM; c.beginPath(); c.ellipse(bx-H*.005,hz+H*.05,H*.12,H*.04,0,0,7); c.fill(); c.restore();

@@ -59,6 +59,7 @@ const HK = {
     if(kind==='cloud'){ for(const px of xs){ for(let k=0;k<6;k++) HK.circ(o,px+(k%2?2:-2),under+k*H*.03,w*.7,v3rgba(HK.lt(col,.1),Math.max(.15,1-k*.15))); o.posts.push({x:px,w}); } return; }
     if(kind==='spires'||kind==='floatstones'||kind==='glowroots'||kind==='rings'||kind==='jets'||kind==='coils'){ HK.under(o,col,kind,xs); return; }
     for(const px of xs) hfPost(o,px,w,col,base,under);
+    if(['square','fence','hex','iron'].includes(kind)) hfBraces(o,xs,under,col,w); else if(['round','stilts','tarred','mangrove','bamboo','palm'].includes(kind)) hfBraces(o,xs,under,col,w,true);
     for(const px of xs){ const t=under, b=o.wl;
       if(kind==='bamboo'||kind==='palm') for(let y=t+H*.012;y<b;y+=H*.018) HK.rect(o,px-w/2,y,w,1.2,HK.dk(col,.35));
       if(kind==='hex') HK.line(o,[px-w*.15,t,px-w*.15,b],HK.dk(col,.4));
@@ -107,12 +108,13 @@ const HK = {
      small next to the screen, so PC covers barely lift). ROOF_LOW: each kind's lowest edge over the angler, as a share of H. */
   ROOF_LOW:{umbrella:.14,beachumbrella:.14,logoumbrella:.14,leanto:.134,shingle:.134,tin:.134,canvas:.134,sail:.14,gable:.12,slate:.12,barn:.12,shack:.12,aframe:.2,shackbox:.13,
     curved:.126,tiled:.126,thatch:.114,thatchgate:.114,torii:.145,leaf:.14,fronds:.108,flat:.142,ttop:.142,hardtop:.142,glass:.142,ceiling:.142,overhang:.142,bimini:.136,
-    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13},
+    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12},
   coverSpan(o,f0,f1){ const sc=HF.sc(); return [Math.min(HK.at(o,f0==null?.03:f0),HF.seatX()-16*sc), Math.min(o.pw-W*.008,Math.max(HK.at(o,f1==null?.47:f1),W*.12+14*sc))]; },
   roof(o,col,kind,f0,f1){ const [a,b]=HK.coverSpan(o,f0,f1), y=o.dockY, k=Math.max(1,(84*HF.sc()/H)/(HK.ROOF_LOW[kind]||.14)), x=o.x;
     if(k>1){ x.save(); x.translate(0,y); x.scale(1,k); x.translate(0,-y); }
     HK.roofShape(o,col,kind,a,b); if(k>1) x.restore();
-    o.top=Math.min(o.top==null?y-H*.23:o.top,y-H*.235*k); },
+    o.top=Math.min(o.top==null?y-H*.23:o.top,y-H*.235*k);
+    o.low=Math.max(o.low==null?-1e9:o.low,y-H*(HK.ROOF_LOW[kind]||.14)*k); /* the cover's lowest edge: the resting rod stays under it (director: a rod never pokes through a cover) */ },
   roofShape(o,col,kind,a,b){ const y=o.dockY, c=col, wood=HK.dk(col,.4), lit=HK.lit(o), post=(px,top)=>HK.rect(o,px-1.5,top,3,y-top,wood);
     switch(kind){
       case 'umbrella': case 'beachumbrella': case 'logoumbrella': { /* side view: a shallow cap on one pole between the seat and the standing angler, wide enough for both */
@@ -153,6 +155,15 @@ const HK = {
         if(kind==='bower') for(let i=0;i<9;i++){ const an=Math.PI+Math.PI*i/8; HK.circ(o,m+Math.cos(an)*R,cy+Math.sin(an)*R,H*.008,'#ffb8e0'); } break; }
       case 'slab': { HK.ell(o,a+W*.004,y-H*.004,W*.006,H*.006,'#3a3436'); HK.ell(o,b-W*.004,y-H*.004,W*.006,H*.006,'#3a3436'); HK.rect(o,a-W*.008,y-H*.13,b-a+W*.016,H*.012,c); post(a+W*.004,y-H*.12); post(b-W*.004,y-H*.12); break; }
       case 'iron': { const top=y-H*.14; HK.rect(o,a+W*.004,top,2,y-top,'#3a3436'); HK.rect(o,b-W*.004,top,2,y-top,'#3a3436'); HK.poly(o,[a-W*.008,top,(a+b)/2,top-H*.04,b+W*.008,top],c); HK.line(o,[a-W*.008,top,(a+b)/2,top-H*.04,b+W*.008,top],'#3a3436',1.5); break; }
+      case 'pergola': { /* side view: two posts, a long beam, rafter ends sticking out above it and climbing leaves hanging from it */ const top=y-H*.15, bt=Math.max(3,H*.008), wd=HK.dk(c,.15);
+        post(a+W*.006,top); post(b-W*.006,top); HK.rect(o,a-W*.012,top-bt,b-a+W*.024,bt,c); HK.hi(o,a-W*.012,top-bt,b-a+W*.024,1,.35);
+        for(let i=0;i<=7;i++){ const px=a-W*.008+(b-a+W*.016)*i/7; HK.rect(o,px-1.5,top-bt-H*.008,3,H*.008,wd); }
+        for(let i=0;i<11;i++){ const px=a+(b-a)*(i+.5)/11, len=H*(.012+.03*((Math.sin(i*2.7)+1)/2)), x=o.x; HK.curve(o,px,top,px+W*.002,top+len*.5,px-W*.001,top+len,'#3f5a2a',1); /* a vine strand with small leaves along it */
+          for(let k=0;k<5;k++){ const ly=top+len*(k+.5)/5, lx=px+(k%2?2:-2)*HF.sc(); x.save(); x.translate(lx,ly); x.rotate(k%2?.6:-.6); x.fillStyle=HK.n(o,k%3?'#5a8a3c':'#4a7a32'); x.beginPath(); x.ellipse(0,0,H*.0045,H*.0025,0,0,7); x.fill(); x.restore(); } } break; }
+      case 'willowarbor': { /* side view: a bent-willow arch over the seat with long leafy strands hanging down its front */ const m=(a+b)/2, R=(b-a)*.55, cy=y-H*.11, x=o.x;
+        x.strokeStyle=HK.n(o,c); x.lineWidth=Math.max(2.5,H*.006); x.beginPath(); x.moveTo(a,y); x.lineTo(a,cy); x.quadraticCurveTo(m,cy-H*.07,b,cy); x.lineTo(b,y); x.stroke();
+        for(let i=0;i<18;i++){ const f=(i+.5)/18, px=a+(b-a)*f, py=cy-H*.07*4*f*(1-f)*.5-H*.004, len=H*(.025+.03*((Math.sin(i*1.9)+1)/2));
+          HK.curve(o,px,py,px+W*.002,py+len*.5,px-W*.002,py+len,i%3?'#6f9a4a':'#5a8a3c',Math.max(1.2,H*.003)); } break; }
       case 'holo': { const top=y-H*.15; o.x.fillStyle=v3rgba(c,.35); o.x.beginPath(); o.x.moveTo(a,top); o.x.quadraticCurveTo((a+b)/2,top-H*.03,b,top); o.x.lineTo(b,top+H*.008); o.x.quadraticCurveTo((a+b)/2,top-H*.02,a,top+H*.008); o.x.fill(); for(let i=0;i<5;i++) HK.line(o,[a+(b-a)*i/4,top,a+(b-a)*i/4,y],v3rgba(c,.25)); break; }
       default: break; } },
 

@@ -11,7 +11,12 @@ PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.
 
 // ---------- smooth menus: the fishing scene is hidden behind a full-HD menu, so it is not drawn while one is open ----------
 // (the aquarium tank and every page animation then get the whole frame; the Dock page still needs the scene: it shows it)
-{ const _dr=draw; draw=function(now){ if(MENU_OPEN&&FHD()&&S.tab!=='home') return; return _dr.apply(this,arguments); }; }
+/* Your home (director, 2026-11-22: "super choppy", an after-image when switching styles): the preview is copied from the scene, which the
+   shared menu rule drew only 4 times a second, so the copy stuttered and kept the old style for up to a quarter second. On the Home page
+   the scene now draws every frame and the preview is copied right after each draw, in the same frame (as on the phones). */
+{ const _dr=draw; draw=function(now){ if(!MENU_OPEN||!FHD()) return _dr.apply(this,arguments); if(S.tab!=='home') return;
+    const f=resize.force; resize.force=true; let r; try{ r=_dr.apply(this,arguments); } finally{ resize.force=f; }
+    paintHome.now=true; try{ paintHome(); }catch(e){} paintHome.now=false; paintHome.at=performance.now(); return r; }; }
 
 // ---------- one tooltip in the game's own look for everything with a title in the full-HD menus and header ----------
 { const tip=document.createElement('div'); tip.id='dltip'; tip.hidden=true; document.body.appendChild(tip); let cur=null;
@@ -127,6 +132,7 @@ function dkPreviews(){ const P=$('panel'), L=LOCS[locIdx(S.loc)], Pal=v3palette.
         const gr=x.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#2a4a66'); gr.addColorStop(1,'#14283c'); x.fillStyle=gr; x.fillRect(0,0,w,h); x.imageSmoothingQuality='high'; x.drawImage(img,bx,by,bw,bh,0,0,w,h); c.dataset.sig=sig; }); }
     catch(e){ console.error(e); } } }
 { const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
+    if(!paintHome.now&&performance.now()-(paintHome.at||0)<150) return; /* the scene copies itself right after each draw (above) */
     const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
     if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
     hfCloseup(c,hfFrame(c,0)); /* framed on the home, drawn sharp at the close-up's own size */ };
