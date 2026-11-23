@@ -10,13 +10,18 @@ V3SCENES.nile={
     { const sx=W*.6, sb=hz-H*.008, s=H*.02; x.fillStyle=mix(P.sandD,P.farHaze,.2); x.fillRect(sx-s*3,sb-s*1.1,s*4.4,s*1.1); x.beginPath(); x.moveTo(sx+s*.6,sb-s*1.1); x.lineTo(sx+s*.9,sb-s*2.6); x.lineTo(sx+s*1.9,sb-s*2.4); x.lineTo(sx+s*1.9,sb-s*1.1); x.closePath(); x.fill(); x.fillRect(sx+s*1.4,sb-s*.6,s*1.6,s*.6); }
     for(const [px,hh,l] of [[.07,.1,.12],[.12,.08,-.1],[.78,.09,.1],[.9,.11,-.12]]) v3palm(x,W*px,hz-H*.006,H*hh,l,P,Math.round(px*100)+7);
     v3reeds(x,W*.68,W*.76,hz+H*.005,H*.035,mix('#6a8a3a',P.front,P.night*.5),73);
+    /* map redo (Claude's review: "a flat sand strip"): dunes with wind ripples behind, and along the bank a mud-brick village with flat
+       roofs and a palm grove, a shaduf (the lever well) dipping into the river */
+    { const r=v3rng(19), sd=mix(P.sandD,P.farHaze,.25); x.strokeStyle=v3rgba(sd,.5); x.lineWidth=1; for(let i=0;i<26;i++){ const px=r()*W, py=hz-H*(.006+r()*.02); x.beginPath(); x.moveTo(px,py); x.quadraticCurveTo(px+W*.01,py-H*.003,px+W*.02,py); x.stroke(); } }
+    { const mb=mix('#c8a070',P.farHaze,.15+P.night*.5), mbD=mix('#a07a4a',P.farHaze,.15+P.night*.5); for(const [hx,hw,hh] of [[.66,.022,.018],[.69,.016,.024],[.715,.026,.015],[.745,.018,.021],[.84,.02,.017],[.865,.015,.022]]){ const bx=W*hx, bb=hz-H*.004; x.fillStyle=mb; x.fillRect(bx,bb-H*hh,W*hw,H*hh); x.fillStyle=mbD; x.fillRect(bx+W*hw*.6,bb-H*hh,W*hw*.4,H*hh); x.fillRect(bx-1,bb-H*hh-1.5,W*hw+2,2); x.fillStyle=mix('#3a2a1a',P.farHaze,P.night*.3); x.fillRect(bx+W*hw*.25,bb-H*hh*.55,W*hw*.18,H*hh*.55); } }
+    { const sx=W*.81, sb=hz-H*.002, s=H*.006, wd=mix('#6a4a2a',P.farHaze,.2+P.night*.5); x.strokeStyle=wd; x.lineWidth=Math.max(1.2,s*.4); x.beginPath(); x.moveTo(sx,sb); x.lineTo(sx,sb-s*6); x.moveTo(sx+s*2,sb); x.lineTo(sx+s*2,sb-s*6); x.moveTo(sx-s*5,sb-s*8.5); x.lineTo(sx+s*7,sb-s*4.5); x.stroke(); x.beginPath(); x.moveTo(sx+s*7,sb-s*4.5); x.lineTo(sx+s*7,sb-s*1); x.stroke(); x.fillStyle=wd; x.beginPath(); x.arc(sx-s*5,sb-s*8.5,s*.9,0,7); x.fill(); }
     waMore('nile','shore',x,P,hz); v3water(x,P,hz,cnv,.36); waMore('nile','water',x,P,hz); },
   live(P,t,hz,sun){ waMore('nile','live',null,P,hz,t); v3glitter(P,t,hz,sun);
     // a felucca sailing slowly across
     { const per=80, q=(t%per)/per, x=W*(-.1+q*1.2), y=hz+H*.03, s=H*.03; g.fillStyle=mix('#5a3a2a','#202030',P.night*.6); g.beginPath(); g.moveTo(x-s*1.2,y); g.lineTo(x+s*1.2,y); g.lineTo(x+s*.9,y+s*.3); g.lineTo(x-s*.9,y+s*.3); g.closePath(); g.fill();
       g.fillStyle=mix('#f8f0e0','#6a6a80',P.night*.6); g.beginPath(); g.moveTo(x,y-s*.05); g.lineTo(x-s*.2,y-s*2.2); g.lineTo(x+s*1.1,y-s*.4); g.closePath(); g.fill(); }
     if(S.settings.effects&&P.night<.4){ g.save(); g.globalAlpha=.05; g.fillStyle='#fff8e0'; for(let i=0;i<3;i++){ const y=hz-H*(.01+i*.012)+Math.sin(t*2+i)*1.5; g.fillRect(0,y,W,H*.004); } g.restore(); } },
-  fore(P,t){ v3reeds(g,W*.88,W,H*1.01,H*.2,mix('#4a7a2a',P.top,P.night*.5),91,{sway:Math.sin(t*.8)*.04}); }
+  fore(P,t){ /* the papyrus grows from a mud bank in the corner, not from open water (Claude's review) */ g.fillStyle=mix('#6a5a3a',P.top,P.night*.5); g.beginPath(); g.moveTo(W*.85,H+2); g.quadraticCurveTo(W*.9,H*.9,W*1.01,H*.88); g.lineTo(W*1.01,H+2); g.closePath(); g.fill(); v3reeds(g,W*.88,W,H*.95,H*.2,mix('#4a7a2a',P.top,P.night*.5),91,{sway:Math.sin(t*.8)*.04}); }
 };
 WA_MORE.nile={
     shore(x,P,hz){ const N=c0=>mix(c0,P.farHaze,.2+P.night*.4); x.fillStyle=N('#d8b878'); x.beginPath(); x.moveTo(W*.505,hz-H*.006); x.lineTo(W*.509,hz-H*.075); x.lineTo(W*.512,hz-H*.082); x.lineTo(W*.515,hz-H*.075); x.lineTo(W*.519,hz-H*.006); x.fill(); x.fillStyle=N('#b89858'); x.fillRect(W*.513,hz-H*.075,W*.006,H*.069); },

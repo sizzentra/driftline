@@ -26,7 +26,7 @@ const WA_PAL={
  amazon:{day:{top:'#5a9ac0',mid:'#a8d0d8',bot:'#e8f4e0',far:'#4a7a5a',farHaze:'#a8c8b0',hill:'#2e6a32',back:'#1e5226',front:'#123a18',bank:'#3a6a2a',wTop:'#7a9a5a',wMid:'#3a5a32',wBot:'#142414',leaf:'#3a8a3a',leafHi:'#a8e07a'},
    dusk:{top:'#2a2a5a',mid:'#b06a6a',bot:'#ffb070',far:'#4a3a4a',farHaze:'#c08070',hill:'#2a3a2a',leaf:'#3a4a2a',wTop:'#c08060',wMid:'#4a3a3a'},
    night:{top:'#040a14',mid:'#0c1a24',bot:'#18303a',far:'#10201e',farHaze:'#1e3438',hill:'#0a1a10',leaf:'#10241a',leafHi:'#3a6a4a',wTop:'#1a3030',wMid:'#0a1a18'}},
- farm:{day:{top:'#5aa8e8',mid:'#a8d8f4',bot:'#fff4dc',far:'#8ab0a0',farHaze:'#d8e8dc',hill:'#6aaa4a',back:'#4a8a3a',front:'#3a6a2a',bank:'#6a9a4a',wTop:'#9ab88a',wMid:'#5a7a4a',wBot:'#2a3a22',leaf:'#6aaa4a',leafHi:'#d8f0a0',cabin:'#b8322a',roof:'#5a2a22'},
+ farm:{day:{top:'#5aa8e8',mid:'#a8d8f4',bot:'#fff4dc',far:'#8ab0a0',farHaze:'#d8e8dc',hill:'#6aaa4a',back:'#4a8a3a',front:'#3a6a2a',bank:'#6a9a4a',wTop:'#8ac8b0',wMid:'#4a8a7a',wBot:'#1e3a3a',leaf:'#6aaa4a',leafHi:'#d8f0a0',cabin:'#b8322a',roof:'#5a2a22'},
    dusk:{top:'#2a2a5a',mid:'#c06a7a',bot:'#ffc080',hill:'#4a4a3a',wTop:'#e09a7a',wMid:'#6a4a4a'},
    night:{top:'#050a1a',mid:'#101a3a',bot:'#24306a',hill:'#141e24',wTop:'#22305a',wMid:'#101a30'}},
  buffet:{day:{top:'#f8b878',mid:'#fcd8a8',bot:'#fff6e4',far:'#e8d8c0',farHaze:'#fff0dc',hill:'#f4ecd8',back:'#e8d8b8',front:'#c89858',bank:'#d8a860',wTop:'#e8b060',wMid:'#c07a30',wBot:'#7a3a10',cloud:'#fffaf0',cloudLit:'#ffffff',leaf:'#3a8a3a',leafHi:'#8ad06a'},
