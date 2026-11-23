@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Stonebrook River, redone in its own style: your home is a two-storey stone mill house over the mill race, the river running through its arch, a dormer with a hoist and flour sack (or a window, or a pigeon loft), a steep roof and a chimney; choose walls, roof, dormer, chimney, door, windows and seat. Around it: a stone retaining wall with steps, ferns and foxgloves.',
+  'Stonebrook River: a fly fisher wades mid-river in his waders, casting in loops (he goes home at night).',
+  '## Test build 2026.11.23-0450',
   'Willow Pond: the ground around the boathouse is its own now: a grassy slope with a gravel path down to the deck, a split-rail fence, lupines and daisies, pines and a young maple, and cattails in the shallows.',
   '## Test build 2026.11.23-0440',
   'Willow Pond, redone in its own style: your home is a tall red boathouse over the water with a cupola and weathervane, its boat bay at the waterline (a canoe inside, swing doors or a sliding door) and a lean-to porch beside it; choose its walls, roof, cupola, boat bay, windows, lantern and seat.',

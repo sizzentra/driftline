@@ -68,6 +68,14 @@ V3SCENES.river = {
     riverJetty(x,P,hz);
   },
   live(P,t,hz,sun){ const FX=S.settings.effects, d=P.d, night=P.night;
+    /* a fly fisher wading mid-river in chest waders (overnight, 2026-11-23: Stonebrook's own expansion, its fly-fishing culture): he false-casts,
+       the line rolling out in a loop behind and in front of him, and lays it on the water; his rings spread where he stands; at night he has
+       gone home */
+    if(night<.6){ const fx=W*.64, fy=hz+H*.07, s=H*.0048, N=c0=>mix(c0,P.wMid,night*.6), cyc=(t%7)/7, rodA=cyc<.5?-1.1+Math.sin(cyc*2*Math.PI)*.8:-.35, a=1-night/.6; g.save(); g.globalAlpha=a;
+      g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.45); g.lineWidth=1; for(let k=0;k<2;k++){ const q=((t*.5+k*.5)%1); g.beginPath(); g.ellipse(fx,fy,s*(3+q*6),s*(.6+q*1.2),0,0,7); g.stroke(); }
+      g.fillStyle=N('#4a5a3a'); g.beginPath(); g.ellipse(fx,fy-s*1.6,s*1.5,s*2.2,0,0,7); g.fill(); g.fillStyle=N('#6a4a32'); g.fillRect(fx-s*1.4,fy-s*3.6,s*2.8,s*.6); g.fillStyle=N('#c8987a'); g.beginPath(); g.arc(fx,fy-s*4.6,s*.8,0,7); g.fill(); g.fillStyle=N('#5a5040'); g.fillRect(fx-s*1.3,fy-s*5.4,s*2.6,s*.5); g.fillRect(fx-s*.7,fy-s*6,s*1.4,s*.7); /* waders, vest, face, a felt hat */
+      const hx=fx+s*.8, hy=fy-s*3, tx=hx+Math.cos(rodA)*s*9, ty=hy+Math.sin(rodA)*s*9; g.strokeStyle=N('#3a2a1a'); g.lineWidth=Math.max(1,s*.25); g.beginPath(); g.moveTo(hx,hy); g.lineTo(tx,ty); g.stroke(); /* the fly rod */
+      g.strokeStyle=v3rgba('#f4f0e0',.7); g.lineWidth=1; g.beginPath(); g.moveTo(tx,ty); if(cyc<.5){ const lx=tx+(cyc<.25?-1:1)*s*14*Math.sin(cyc*4*Math.PI), ly=ty-s*3; g.quadraticCurveTo((tx+lx)/2,ly-s*4,lx,ly); g.quadraticCurveTo(lx+s*2,ly+s*2,lx-s,ly+s*3); } else { g.quadraticCurveTo(tx+s*8,ty+s*3,tx+s*18,fy); } g.stroke(); g.restore(); } /* the loop of the false cast, then the line laid on the water */
     // the mill window glows after dusk
     const lit=clamp(night*1.2+d*.8,0,1), mx=W*.88, mb=hz-H*.005, mw=rvH()*.13, mh=rvH()*.08;
     if(lit>.05){ for(const wx of [mx+mw*.12,mx-mw*.3]){ v3glow(g,wx+mw*.07,mb-mh*.74,mh*.6,'rgba(255,200,110,.9)',lit*.45); g.fillStyle=v3rgba('#ffcf7a',.3+lit*.7); g.fillRect(wx,mb-mh*.85,mw*.14,mh*.22); } }

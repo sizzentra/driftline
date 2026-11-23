@@ -31,28 +31,28 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
       ['cupola',(o,s,c)=>PH.cupola(o,PH.geo(o),s,c)],
       ['light',(o,s,c)=>BH.lantern(o,LT(),['hurricane','lamppost','string'][s],c)],
       ['seat']] }); }
-/* 2. Stonebrook River: the stone mill shed (the Rockies standard, overnight batch 5, 2026-11-23): one base building, the miller's little
-   fishing shed on fieldstone piers beside the mill (MAP_THEMES › Stonebrook: stacked fieldstone, river-worn timber, slate). Its walls,
-   roof, chimney, lantern, door, windows and seat change aspects of it; autumn woods on the bank behind it */
-{ const P2=()=>BH.cab({pw:HF.pw(),dockY:HF.dockY()});
-  hfMake('river',{ name:'Mill shed', hname:'mill shed', glow:'255,205,140', seatX:()=>HF.pw()-W*.028,
+/* 2. Stonebrook River: the mill house (overnight, 2026-11-23; its own design, src/cw_millhouse.js): a two-storey stone mill house over the
+   mill race with the river running through its arch, a dormer with a hoist, a steep roof and a chimney; a stone retaining wall with steps,
+   ferns and foxgloves around it; the deck runs along its front as a walkway */
+{ const G2=()=>MH.geo({pw:HF.pw(),dockY:HF.dockY()}), LW=()=>{ const g=G2(), fl=g.wallTop+(HF.dockY()-g.wallTop)*.48; return {x0:g.x0,x1:g.x1,vx:g.vx,wallTop:fl,winA:g.x0+(g.x1-g.x0)*.5,winB:g.x1-W*.026}; };
+  hfMake('river',{ name:'Mill house', hname:'mill house', glow:'255,205,140', seatX:()=>HF.pw()-W*.026,
     colors:C16('River stone=#bab2a2;Dark stone=#8a8478;Slate=#5a6470;Mill oak=#7a5a3e;Dark oak=#4a3626;Roof brick=#7a4a3a;Iron=#3a3a40;Moss=#6a9a5e;Fern=#4f8050;River blue=#5a9aa4;Deep teal=#28525e;Sky=#a8d0ec;Birch white=#eef0e2;Autumn orange=#c8783a;Maple red=#a8402e;Wheat=#d8c08a'),
-    front:null, smoke:(n,t)=>BH.smoke(n,t,BH.chimTop(P2(),['stone','brick','pipe'][hfStyle('river','chimney')]),hfStyle('river','chimney')===2?.7:1),
-    els:[{id:'walls',label:'Walls',styles:['Fieldstone','Timber frame','Clapboard'],def:[0,0],pal:[0,1,2,3,4,12,15]},
+    front:null, smoke:(n,t)=>BH.smoke(n,t,MH.chimTop(G2(),['stone','brick','pipe'][hfStyle('river','chimney')]),hfStyle('river','chimney')===2?.7:1),
+    els:[{id:'walls',label:'Walls',styles:['Fieldstone','Whitewashed stone','Timber frame'],def:[0,0],palS:[[0,1,2],[12,0,15],[12,15,0]]},
          {id:'roof',label:'Roof',styles:['Slate','Cedar shakes','Thatch'],def:[0,2],palS:[[2,1,5,6],[3,4,1],[15,3,13]]},
+         {id:'dormer',label:'Dormer',styles:['Hoist and flour sack','Dormer window','Pigeon loft'],def:[0,3],pal:[3,4,6,9,10,14]},
          {id:'chimney',label:'Chimney',styles:['Fieldstone','Brick','Stovepipe'],def:[0,1],palS:[[0,1,2],[5,14,13],[6,4,10]]},
-         {id:'light',label:'Lantern',light:true,styles:['Iron cage lantern','Lamp post','Lantern string'],def:[0,6],pal:[6,4,3,13]},
-         {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[0,3],pal:[3,4,5,7,8,9,10,14]},
-         {id:'windows',label:'Windows',styles:['Four-pane windows','Arched windows','Shuttered windows'],def:[0,4],pal:[3,4,5,7,8,9,10,14]}],
+         {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[2,3],pal:[3,4,5,7,8,9,10,14]},
+         {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Arched windows','Shuttered windows'],def:[1,4],pal:[3,4,5,7,8,9,10,14]}],
     seat:['stump','gardenbench','barrel'], seatNames:['Stump stool','Slatted bench','Barrel'], seatDef:[1,3], seatPal:[0,1,3,4,7,8,13,14,15],
     order:[
-      ['base',(o)=>{ BH.bank(o,{trees:'round',g1:'#4a6a3e',g2:'#2c4228',grass:'#6a9a5e',rock:'#8a8478',t1:'#c8783a',t2:'#4f8050',seed:31}); BH.piles(o,'stone','#8a8478'); HK.deck(o,'#7a5a3e','boards'); }],
-      ['chimney',(o,s,c)=>BH.chimney(o,P2(),['stone','brick','pipe'][s],c)],
-      ['walls',(o,s,c)=>BH.walls(o,P2(),['stone','plaster','clapboard'][s],c)],
-      ['door',(o,s,c)=>BH.door(o,P2(),['plank','dutch','arched'][s],c)],
-      ['windows',(o,s,c)=>BH.windows(o,P2(),['four','arched','shutters'][s],c)],
-      ['roof',(o,s,c)=>BH.roof(o,P2(),['tiles','shakes','thatch'][s],c)],
-      ['light',(o,s,c)=>BH.lantern(o,P2(),['hurricane','lamppost','string'][s],c)],
+      ['base',(o)=>{ MH.ground(o); BH.piles(o,'stone','#8a8478'); }],
+      ['chimney',(o,s,c)=>MH.chimney(o,G2(),['stone','brick','pipe'][s],c)],
+      ['walls',(o,s,c)=>{ const K=['stone','stone','plaster'][s]; MH.walls(o,MH.geo(o),K,s===1?mix('#f6f2ea',c,.1):c); }],
+      ['door',(o,s,c)=>BH.door(o,LW(),['plank','dutch','arched'][s],c)],
+      ['windows',(o,s,c)=>BH.windows(o,LW(),['four','arched','shutters'][s],c)],
+      ['roof',(o,s,c)=>MH.roof(o,MH.geo(o),['tiles','shakes','thatch'][s],c)],
+      ['dormer',(o,s,c)=>{ const g=MH.geo(o), ws=hfStyle('river','walls'); MH.dormer(o,g,s,c,['stone','stone','plaster'][ws],ws===1?mix('#f6f2ea',hfColor('river','walls'),.1):hfColor('river','walls'),null,hfColor('river','roof')); HK.deck(o,'#7a5a3e','boards'); }],
       ['seat']] }); }
 /* 3. Cherry Blossom Lake: the tea house (the Rockies standard, overnight batch 6, 2026-11-23): one base building, a little tea house on
    the water (MAP_THEMES › Cherry Blossom: red-lacquered posts, a curved tiled roof, paper lanterns). Its walls, roof, lantern, shade,
