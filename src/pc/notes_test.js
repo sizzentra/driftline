@@ -2,6 +2,9 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Saltmarsh Coast, redone in its own style: your home is a tall saltbox lobster shack at the end of the pier, with a stovepipe, buoys on its wall (or stacked lobster pots, or a net drying on a pole). Pick the siding, roof, door, windows, gear, lamp and seat in Your home.',
+  'Saltmarsh Coast: the pier stands on tall tarred pilings with cross bracing, barnacles and weed at the tide line; a ladder goes down to a dory tied at the end, and a gull stands on the mooring post. A bell buoy rocks offshore (its light blinks at night).',
+  '## Test build 2026.11.23-0534',
   'Cherry Blossom Lake, redone in its own style: your home is a tea house raised on red-lacquered posts, with a layered roof whose eaves curve up at the tips, shoji walls between dark posts, paper lanterns under the eaves and a rope railing along the veranda. Pick the walls, roof, lanterns, railing, door, windows and seat in Your home.',
   'Cherry Blossom Lake: a big cherry tree frames the corner over your roof, and a mossy bank with a stone path, bamboo fence and azaleas runs behind the tea house down to the water.',
   'Cherry Blossom Lake: a mossy stone corner in the bottom right with steps down into the water, a stone lantern that glows at night, a rope fence and pink lotus flowers on their stems.',

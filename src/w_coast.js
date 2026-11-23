@@ -65,6 +65,12 @@ V3SCENES.coast = {
     if(night<.7){ for(let i=0;i<3;i++){ const per=24+i*7, k=((t+i*9)%per)/per, gx=W*(1.1-k*1.3), gy=hz*(.35+i*.14)+Math.sin(t*.8+i)*hz*.03, s=H*(.006+i*.0015), fl=Math.sin(t*(3+i)+i)*.7;
         g.strokeStyle=v3rgba(mix('#ffffff',P.top,night*.8),.9); g.lineWidth=Math.max(1,s*.5); g.beginPath(); g.moveTo(gx-s*2.2,gy-s*fl*.8); g.quadraticCurveTo(gx-s,gy-s*(.4+fl*.6),gx,gy); g.quadraticCurveTo(gx+s,gy-s*(.4+fl*.6),gx+s*2.2,gy-s*fl*.8); g.stroke(); } }
     v3fishRing(P,t,hz,7.3,.42,.85);
+    // a bell buoy offshore (overnight 2026-11-23, MAP_THEMES: "a far-off bell buoy"): a red float with a little tower and bell, rocking on the swell; its light blinks at night
+    { const bx=W*.4, by=hz+H*.04, s=H*.011, a=Math.sin(t*1.1)*.18, N=c0=>mix(c0,P.wMid,night*.55); g.save(); g.translate(bx,by+Math.sin(t*1.1+1)*s*.15); g.rotate(a);
+      g.fillStyle=N('#c8483a'); g.beginPath(); g.moveTo(-s*1.1,0); g.lineTo(s*1.1,0); g.lineTo(s*.8,s*.55); g.lineTo(-s*.8,s*.55); g.closePath(); g.fill(); g.fillStyle=N('#f4f0e6'); g.fillRect(-s*1.1,-s*.12,s*2.2,s*.18);
+      g.strokeStyle=N('#3a3a40'); g.lineWidth=Math.max(1,s*.12); g.beginPath(); g.moveTo(-s*.6,0); g.lineTo(-s*.2,-s*2); g.lineTo(s*.2,-s*2); g.lineTo(s*.6,0); g.moveTo(-s*.4,-s); g.lineTo(s*.4,-s); g.stroke(); g.fillStyle=N('#b8902a'); g.beginPath(); g.arc(0,-s*1.35,s*.32,Math.PI,0); g.fill();
+      if(night>.3&&(t%3)<.5) v3glow(g,0,-s*2.2,s*2.5,'rgba(255,90,70,.9)',night); g.restore();
+      g.fillStyle=v3rgba('#ffffff',.25*(1-night*.5)); g.fillRect(bx-s*1.4,by+s*.5,s*2.8,1.2); }
     // the moment, every 42 s (map standard, 2026-11-21): a pod of porpoises rolls past out on the far water, backs and fins arcing up
     // and under, each a little apart; the pod is three or four strong and takes its own line each time
     { const per=42, q=t%per, n=Math.floor(t/per); if(q<9){ const r=v3rng(n*53+9), np=3+(r()<.5?1:0), yy=hz+H*(.022+r()*.012) /* far out, beyond the seal's rock, so nothing pops up beside it (director) */, col=mix('#3a4652',P.wMid,.25+night*.5), s=H*.011*(1+(yy-hz)/H*2);

@@ -78,27 +78,29 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
       ['light',(o,s,c)=>TH.lanterns(o,TH.geo(o),s,c)],
       ['rail',()=>{}],
       ['seat']] }); }
-/* 4. Saltmarsh Coast: the pier end */
-hfMake('coast',{ name:'Saltmarsh pier end', hname:'pier',
+/* 4. Saltmarsh Coast: the lobster shack (overnight, 2026-11-23; its own design, src/cw_saltshack.js): a tall saltbox shack at the end of a long
+   weathered pier, seen from its gable end, with a stovepipe; buoys on its wall, lobster pots or a drying net; the pier's tarred pilings with
+   bracing, barnacles and weed, a ladder with a dory tied to it and a gull on the mooring piling */
+{ const G4=()=>SS.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G4(); return {x0:g.x0,x1:g.x1,vx:g.vx,wallTop:g.wallTop,winA:g.x0+g.w*.36,winB:g.x0+g.w*.6}; };
+  hfMake('coast',{ name:'Lobster shack', hname:'lobster shack', glow:'255,210,150', seatX:()=>HF.pw()-W*.03,
   colors:C16('Driftwood=#a8a090;Silver-grey=#8a8a84;Tar black=#2e2a28;Weathered blue=#5a7a8a;Sea glass=#9adcd8;Sea teal=#3aa0a8;Deep sea=#145a6a;Sand=#e8d6a4;Dune grass=#8aa85a;Rope tan=#c8a878;Buoy red=#c8483a;Buoy yellow=#e8c04a;Lighthouse white=#f4f0e6;Shingle brown=#6a5440;Gull grey=#c8ccd0;Oilskin yellow=#d8b030'),
-  els:[{id:'pilings',label:'Pilings',styles:['Tarred pilings','Braced pilings','Rock jetty'],def:[0,2]},{id:'deck',label:'Pier deck',styles:['Salt-grey boards','Tarred planks','Steel grating'],def:[0,0]},
-       {id:'shack',label:'Bait shack',none:true,styles:['No shack','Shingle shack','Boathouse','Sail awning'],def:[1,3]},{id:'gear',label:'Fishing gear',none:true,styles:['No gear','Lobster pots','Drying net','Buoys'],def:[3,10]},
-       {id:'light',label:'Lamp',light:true,styles:['Ship’s lantern','Harbour lamp','Buoy light'],def:[0,13]}],
+  front:null, smoke:null,
+  els:[{id:'siding',label:'Siding',styles:['Cedar shingles','Clapboard','Board and batten'],def:[0,1],palS:[[0,1,13,14],[3,10,12,6,14],[0,1,3,10,12]]},
+       {id:'roof',label:'Roof',styles:['Asphalt shingles','Cedar shakes','Tin roof'],def:[0,2],palS:[[2,1,6,13],[13,0,1],[1,14,10,3]]},
+       {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[0,10],pal:[2,3,5,6,10,11,12,15]},
+       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Porthole windows','Shuttered windows'],def:[0,12],pal:[2,3,5,6,10,12,15]},
+       {id:'tackle',label:'Fishing gear',styles:['Buoys on the wall','Lobster pots','Drying net'],def:[0,10],palS:[[10,11,12,5,15],[13,0,3,10],[5,8,9,6]]},
+       {id:'light',label:'Lamp',styles:['Ship’s lantern','Harbour lamp','Buoy light'],def:[0,13]}],
   seat:['crate','bucket','driftbench'], seatNames:['Fish crate','Upturned bucket','Driftwood bench'], seatDef:[0,0],
   order:[
-    ['pilings',(o,s,c)=>HK.supports(o,c,['tarred','braced','jetty'][s],5)],
-    ['deck',(o,s,c)=>HK.deck(o,c,['boards','planks','grate'][s])],
-    /* map redo (director, 2026-11-22: "no real variety", options recycled from other homes, buoys floating beside the angler): a shingle
-       shack, a boathouse with a board wall and a porthole, a boat's sail rigged as an awning; the buoys hang from a line between two posts */
-    ['shack',(o,s,c)=>{ const y=o.dockY, sc=HF.sc(); if(s===1){ HK.roof(o,c,'shackbox',.02,.3); for(let i=1;i<6;i++) HK.line(o,[HK.at(o,.02),y-H*.13+i*H*.004,HK.at(o,.3),y-H*.13-H*.03*(i/6)+i*H*.004],HK.dk(c,.35),.8); }
-      if(s===2){ const a=HK.at(o,.0), b=HK.at(o,.12), top=y-H*.12; HK.block(o,a,top,b-a,y-top,HK.dk(c,.1)); for(let i=1;i<6;i++) HK.line(o,[a+(b-a)*i/6,top,a+(b-a)*i/6,y],HK.dk(c,.35),.8); HK.circ(o,(a+b)/2,top+H*.035,H*.008,'#3a3a40'); HK.circ(o,(a+b)/2,top+H*.035,H*.0055,v3rgba('#9adcd8',.7)); HK.roof(o,c,'gable',.0,.34); }
-      if(s===3) HK.roof(o,c,'sailawning',.02,.36); }],
-    ['gear',(o,s,c)=>{ const x=HK.at(o,.55), y=o.dockY; if(s===1) for(let i=0;i<2;i++){ HK.block(o,x,y-H*.02*(i+1),W*.024,H*.02,HK.dk(c,.1)); for(let k=0;k<4;k++) HK.line(o,[x+k*W*.006,y-H*.02*(i+1),x+k*W*.006,y-H*.02*i],'#2e2a28'); }
-      if(s===2){ HK.rect(o,x+W*.01,y-H*.13,2,H*.13,'#6a5440'); o.x.fillStyle=v3rgba(c,.5); o.x.beginPath(); o.x.moveTo(x+W*.011,y-H*.13); o.x.quadraticCurveTo(x-W*.01,y-H*.08,x,y-H*.02); o.x.lineTo(x+W*.011,y-H*.04); o.x.fill(); }
-      if(s===3){ const a=x-W*.012, b=x+W*.034, ty=y-H*.085; HK.rect(o,a-1,ty,2.2,y-ty,'#6a5440'); HK.rect(o,b-1,ty,2.2,y-ty,'#6a5440'); HK.curve(o,a,ty,(a+b)/2,ty+H*.016,b,ty,'#c8a878',1.2);
-        for(let i=0;i<4;i++){ const u=(i+1)/5, px=a+(b-a)*u, py=ty+H*.032*u*(1-u); HK.line(o,[px,py,px,py+H*.008],'#c8a878',.8); HK.ell(o,px,py+H*.016,H*.006,H*.009,[c,'#e8c04a','#f4f0e6','#c8483a'][i]); } } }],
+    ['base',(o)=>{ SS.ground(o); HK.deck(o,'#a8a090','boards'); }],
+    ['siding',(o,s,c)=>SS.walls(o,SS.geo(o),['shingles','clapboard','batten'][s],c)],
+    ['door',(o,s,c)=>BH.door(o,SS.geo(o),['plank','dutch','arched'][s],c)],
+    ['windows',(o,s,c)=>BH.windows(o,WN(),['four','porthole','shutters'][s],c)],
+    ['roof',(o,s,c)=>SS.roof(o,SS.geo(o),s,c)],
+    ['tackle',(o,s,c)=>SS.gear(o,SS.geo(o),s,c)],
     ['seat'],
-    ['light',(o,s)=>HK.light(o,['hook','lighthouse','buoy'][s])]] });
+    ['light',(o,s)=>HK.light(o,['hook','lighthouse','buoy'][s])]] }); }
 
 /* 5. Frostbite Lake: the ice camp (stands on the ice) */
 hfMake('frost',{ name:'Ice camp', hname:'ice camp', ice:true,
