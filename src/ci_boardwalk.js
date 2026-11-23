@@ -24,7 +24,7 @@ function gamblePlay(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; c
 function chestPrize(){ const r=Math.random(), base=bestLoot(); const caught=Object.keys(S.journal||{}).filter(id=>SPI[id]);
   if(r<.34) return {k:'tix', n:rint(60,260)}; if(r<.54) return {k:'scales', n:rint(6,24)}; if(r<.70&&caught.length) return {k:'nib', id:pick(caught), n:rint(2,6)};
   if(r<.84) return {k:'food', id:pick(FOOD_KEYS), n:10}; if(r<.97) return {k:'coins', n:rnd(8,30)}; return {k:'petcol'}; }
-function chestLabel(p){ return p.k==='tix'?'🎟 '+p.n+' tickets':p.k==='scales'?'◆ '+p.n+' Scales':p.k==='nib'?'🍬 '+p.n+' '+SPI[p.id].name+' Nibbles':p.k==='food'?'🪱 10 '+BAIT[p.id].name:p.k==='coins'?'🪙 Coins':'🎨 Pet color'; }
+function chestLabel(p){ return p.k==='tix'?'🎟 '+p.n+' tickets':p.k==='scales'?'◆ '+p.n+' Scales':p.k==='nib'?'🍬 '+p.n+' '+SPI[p.id].name+' Nibbles':p.k==='food'?'🎣 10 '+BAIT[p.id].name:p.k==='coins'?'💰 Coins':'🎨 Pet color'; }
 function chestGive(p){ if(p.k==='tix') return '+'+addTickets(p.n)+' tickets'; if(p.k==='scales'){ S.scales+=p.n; return '+'+p.n+' Scales'; }
   if(p.k==='nib'){ nibAdd(p.id,p.n); return '+'+p.n+' '+nibRarName(p.id)+' Nibbles'; }
   if(p.k==='food'){ S.bait[p.id]=(S.bait[p.id]||0)+10; return '+10 '+BAIT[p.id].name; }

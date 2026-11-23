@@ -15,7 +15,7 @@ openEvent = function(kind){ if(!MG_NEW.includes(kind)) return _openEvent0(kind);
   if(kind==='memory') box.innerHTML=head('Tackle box shuffle','Your lures got mixed up. Find the matching pairs in eight tries or fewer.')+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="mgstart">Open the box</button>${skip}</div>`;
   if(kind==='skip') box.innerHTML=head('Skip a stone','The water is glassy. Throw when the marker is in the green: the closer to the middle, the more skips. Three throws.')+`<div class="row" style="justify-content:center;margin-top:12px"><button class="btn" data-ev="mgstart">Pick up a stone</button>${skip}</div>`;
   $('evcard').hidden=false; sfx.hot(); };
-const MG_ARROWS=['←','↑','→','↓'], MG_LURES=['🐟','🦀','🐚','🪱','🦐','🐙'];
+const MG_ARROWS=['←','↑','→','↓'], MG_LURES=['🐟','🦀','🐚','🐛','🦐','🐙'];
 function mgDone(title,coins,extra){ clearInterval(MG&&MG.iv); const c=coins>0?bwEarn(coins*coinMult()):0; S.gstats.minis=(S.gstats.minis||0)+1; MG=null; sfx.catch(c?3:1); if(c) sfx.coin();
   $('evin').innerHTML=`<h3>${esc(title)}</h3><p class="sub">${c?'You earned <b class="coin">'+fmt(c)+'</b>.':'Nothing this time.'}${extra?' '+esc(extra):''}</p><button class="btn" data-ev="skip">Keep fishing</button>`; checkFeats(); save(); lastHud=''; }
 function mgRender(){ const box=$('evin'), base=bestLoot();

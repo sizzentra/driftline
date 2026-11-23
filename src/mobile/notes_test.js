@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Some icons showed as an empty box on older PCs and phones (the bait reward on daily tasks, the Bait tab, Boardwalk coins): they use icons every device has now.',
+  '## Test build 2026.11.23-1521',
   'Less grace at full tension: the line now snaps after about a third of a second of reeling at 100% (was half a second).',
   'Long runs: every 3 good pulls in rhythm give +1 combo and shorten the run (was every 5).',
   'Tired Rare, Epic, Legendary and Mythic fish come in a little slower.',
