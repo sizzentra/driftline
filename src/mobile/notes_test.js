@@ -3,6 +3,17 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Every water redone: new scenery shapes of its own (no more shared mountains), and things that floated now stand on something.',
+  'Willow Pond: a forest ridge instead of mountains, the deer walks on the bank, ducks leave a real wake, a livelier frog.',
+  'Stonebrook River: the arches show the hills behind, leaves drift downstream, farmland on the hills; a mooring post replaces the dock waterwheel.',
+  'Cherry Blossom Lake: two giant cherry trees in front of Mount Fuji, a second pagoda, a clearer torii; lanterns and ducks come in from the edges.',
+  'Saltmarsh Coast: terraced fields and a harbour under the village, beach huts by the lighthouse.',
+  'Frostbite Lake: taller mountains with real shape; it snows here instead of raining. Canadian Rockies: layered mountains, golden larches.',
+  'Many more waters got new details: stilt houses, a sea arch, cinder cones, a farmhouse, a landmark tower, a mud-brick village and more.',
+  'Homes: options are clearly different, none borrowed from another water, and covers keep the rain off you; the resting rod stays under covers.',
+  'Supports under every home have shape now (caps, wet bands, bracing). Lantern colours show by day too.',
+  'The aurora is smooth and sits behind the clouds, stars no longer shine through clouds, and the rainbow’s reflection lines up.',
+  '## Test build 2026.11.22-1735',
   'Tester tools (Stats): new Time and weather buttons. Jump to dawn, day, dusk or night, or to any weather, at once; Real time puts the clock back. The jump is kept when you reload.',
   'Travel works while you rest (you keep resting at the new water); with a line out, Travel says to reel in first instead of doing nothing.',
   'Waters you have opened are never called Uncharted Waters any more.',

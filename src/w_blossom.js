@@ -53,6 +53,6 @@ V3SCENES.blossom={
     if(P.night>.3){ for(const px of WA_TORO) v3glow(g,W*px,hz-H*.006-H*.018,H*.025,'rgba(255,190,110,.9)',.6*P.night);
       for(let i=0;i<5;i++){ const q=((t*.01+i*.2)%1), x=W*(-.05+q*1.1) /* in from beyond the left edge and out past the right, never popping up mid-lake (director) */, y=hz+H*(.04+i*.035)+Math.sin(t*.8+i)*2, s=H*.006*(1+(y-hz)/(H-hz)*3); v3glow(g,x,y,s*5,'rgba(255,180,120,.9)',.5*P.night); g.fillStyle='rgba(255,210,150,'+P.night+')'; g.fillRect(x-s*.6,y-s,s*1.2,s*1.2); g.fillStyle=v3rgba('#ffc890',.25*P.night); g.fillRect(x-s*.4,y+s*.4,s*.8,s*3); } }
     // now and then a gust carries a swirl of petals across the lake
-    if(FX){ const q=t%47; if(q<7){ const e=q/7; for(let i=0;i<36;i++){ const u=i/36, x=-W*.1+(e*1.4-u*.35)*W*1.1, y=hz*.55+Math.sin(u*9+t*2)*H*.08+u*H*.25; if(x<-10||x>W+10) continue; wa.petal(g,x,y,2.4,t*4+i,i%3?'rgba(255,190,210,.9)':'rgba(255,236,244,.95)'); } } } },
+    if(FX){ const q=t%47; if(q<7){ const e=q/7; for(let i=0;i<64;i++){ const u=i/64, x=-W*.1+(e*1.4-u*.16)*W*1.1+Math.cos(u*13+t*3)*W*.02, y=hz*.95+Math.sin(u*13+t*3)*H*.04+u*H*.08; /* a tight swirl, so it reads as one gust */ /* low over the water, where it shows: over the giant pink trees it vanished (map QC) */ if(x<-10||x>W+10) continue; wa.petal(g,x,y,3.8,t*4+i,i%3?'rgba(255,200,220,.95)':'rgba(255,244,250,1)'); } } } },
   fore(){ /* the bare branch in the top corner is gone (director: it came from nowhere); the giant cherries frame the lake now */ }
 };

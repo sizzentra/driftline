@@ -244,6 +244,7 @@ PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:phoneNotes([
   'Top bar: with a live event on, the Bait button no longer gets squeezed to a sliver at waters with long names.'])});
 PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:phoneNotes(['Tide Pass: the Claim button is back, so you can collect your rewards.','Split-screen windows: during a live event, the Live button no longer sits under the search button.'])});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:phoneNotes([
+'## Every water redone',  'Every water has scenery of its own now, with new details everywhere, and nothing floats in the air or the water.',  'Homes: every option is clearly different and made for its water; covers keep you dry, and supports have real shape.',
   '## Fish Nibbles',
   'Scrap a fish in the Cooler for Fish Nibbles of its rarity: always for common fish, less often for rarer ones, and more for shiny, hybrid and titled fish.',
   'Feed Nibbles to any fish of the same rarity in your Aquarium: every fish swims up to the food, the one you fed earns more, and every 10 Nibbles its bonuses grow (sometimes it gains a new one, up to 5). Half of your Nibbles expire when you set sail again.',

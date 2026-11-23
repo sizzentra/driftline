@@ -59,7 +59,7 @@ const HK = {
     if(kind==='cloud'){ for(const px of xs){ for(let k=0;k<6;k++) HK.circ(o,px+(k%2?2:-2),under+k*H*.03,w*.7,v3rgba(HK.lt(col,.1),Math.max(.15,1-k*.15))); o.posts.push({x:px,w}); } return; }
     if(kind==='spires'||kind==='floatstones'||kind==='glowroots'||kind==='rings'||kind==='jets'||kind==='coils'){ HK.under(o,col,kind,xs); return; }
     for(const px of xs) hfPost(o,px,w,col,base,under);
-    if(['square','fence','hex','iron'].includes(kind)) hfBraces(o,xs,under,col,w); else if(['round','stilts','tarred','mangrove','bamboo','palm'].includes(kind)) hfBraces(o,xs,under,col,w,true);
+    if(['square','fence','iron'].includes(kind)) hfBraces(o,xs,under,col,w); else if(['round','stilts','tarred','mangrove','bamboo','palm'].includes(kind)) hfBraces(o,xs,under,col,w,true);
     for(const px of xs){ const t=under, b=o.wl;
       if(kind==='bamboo'||kind==='palm') for(let y=t+H*.012;y<b;y+=H*.018) HK.rect(o,px-w/2,y,w,1.2,HK.dk(col,.35));
       if(kind==='hex') HK.line(o,[px-w*.15,t,px-w*.15,b],HK.dk(col,.4));
@@ -89,10 +89,10 @@ const HK = {
     const shape=(bt,sk)=>{ HK.poly(o,[x0,y,bow,y-H*(sk||0),x1-W*.005,d,x0+W*.01,bt||d],col); };
     switch(kind){
       case 'skiff': shape(d-H*.01,.004); HK.rect(o,x0,y,bow-x0,H*.005,HK.lt(col,.3)); break;
-      case 'console': case 'sport': shape(d,.012); HK.rect(o,x0,y+H*.012,bow-x0,H*.006,'#1e3a5a'); break;
-      case 'jon': HK.poly(o,[x0,y,x1+W*.01,y,x1,d,x0,d],col); HK.rect(o,x0,y+H*.02,x1-x0,H*.006,HK.dk(col,.2)); break;
-      case 'cruiser': shape(d,.01); for(let i=0;i<4;i++) HK.line(o,[x0,y+H*(.008+i*.01),bow-W*.004*i,y+H*(.008+i*.01)],HK.dk(col,.25)); break;
-      case 'work': case 'steel': case 'rusty': shape(d+H*.01,.008); HK.rect(o,x0,y+H*.008,bow-x0,H*.006,'#1a1c20'); if(kind==='rusty') for(let i=0;i<9;i++) HK.rect(o,at(i/9+.03),y+H*.016,1.5,H*.03,'#8a4a2a'); break;
+      case 'console': case 'sport': shape(d,.012); HK.rect(o,x0,y+H*.012,bow-x0,H*.006,'#1e3a5a'); HK.rect(o,x0+W*.006,wl-H*.004,x1-x0,H*.01,'#a83a2a'); break; /* red bottom paint at the waterline */
+      case 'jon': { const al=mix(col,'#c0c8d0',.55); HK.poly(o,[x0,y,x1+W*.012,y-H*.006,x1+W*.004,d,x0,d],al); HK.rect(o,x0,y+H*.02,x1-x0,H*.006,HK.dk(al,.2)); for(let i=0;i<14;i++) HK.circ(o,at(i/14+.03),y+H*.008,1,HK.dk(al,.35)); break; } /* an aluminium jon boat: square raked bow, rivets, whatever the colour (map redo QC: the three hulls looked alike) */
+      case 'cruiser': col=mix(col,'#8a5a32',.65); shape(d,.01); HK.rect(o,x0,y,bow-x0,H*.004,'#f4efe6'); /* varnished wood with a white rubbing strake, whatever the colour */ for(let i=0;i<4;i++) HK.line(o,[x0,y+H*(.008+i*.01),bow-W*.004*i,y+H*(.008+i*.01)],HK.dk(col,.25)); break;
+      case 'work': case 'steel': case 'rusty': col=mix(col,'#4e525a',.55); shape(d+H*.01,.008); for(let i=0;i<16;i++) HK.circ(o,at(i/16+.02),y+H*.022,.9,HK.lt(col,.25)); /* dark riveted steel, whatever the colour */ HK.rect(o,x0,y+H*.008,bow-x0,H*.006,'#1a1c20'); if(kind==='rusty') for(let i=0;i<9;i++) HK.rect(o,at(i/9+.03),y+H*.016,1.5,H*.03,'#8a4a2a'); break;
       case 'woodsteel': shape(d,.006); HK.rect(o,x0,y,bow-x0,H*.008,'#a8743a'); break;
       case 'reed': case 'barque': { HK.poly(o,[x0-W*.01,y-H*.03,x0+W*.01,y,x1-W*.01,y,bow+W*.005,y-H*.035,x1,d,x0,d],col); for(let i=0;i<10;i++) HK.line(o,[at(i/10),y+H*.004,at(i/10)+W*.004,d-H*.004],HK.dk(col,.25)); if(kind==='barque') for(const f of [.2,.5,.8]) HK.rect(o,at(f),y,W*.004,d-y,'#d8a830'); break; }
       case 'felucca': shape(d,.02); for(let i=0;i<3;i++) HK.line(o,[x0,y+H*(.01+i*.012),bow-W*.006,y+H*(.01+i*.012)],HK.dk(col,.3)); break;
@@ -161,11 +161,11 @@ const HK = {
         HK.poly(o,[a-W*.012,base+H*.004,m,base-h,b+W*.012,base+H*.004,b+W*.006,base+H*.008,m,base-h*.88,a-W*.006,base+H*.008],c); break; }
       case 'crescentgate': { /* a tall crescent moon standing on its lower tip behind the seat, with a star hanging inside it */ const R=H*.085, m=Math.max(a+(b-a)*.35,HF.x0()+R*1.1), cy=y-H*.1, x=o.x; x.fillStyle=HK.n(o,c); x.beginPath(); x.arc(m,cy,R,Math.PI*.55,Math.PI*1.45); x.arc(m+R*.38,cy,R*.86,Math.PI*1.37,Math.PI*.63,true); x.closePath(); x.fill();
         HK.rect(o,m-R*.12,y-H*.012,R*.5,H*.012,HK.dk(c,.3)); HK.line(o,[m-R*.05,cy-R*.4,m-R*.05,cy-R*.1],HK.lt(c,.3),.8); HK.circ(o,m-R*.05,cy-R*.06,H*.005,'#fff4c0'); break; }
-      case 'planet': { /* a ringed planet on a slender pedestal at the back of the deck */ const m=a+(b-a)*.2, py=y-H*.14, R=H*.032, x=o.x; HK.rect(o,m-1.5,py,3,y-py,HK.dk(c,.35)); HK.rect(o,m-H*.01,y-H*.006,H*.02,H*.006,HK.dk(c,.35));
+      case 'planet': { /* a ringed planet on a slender pedestal at the back of the deck */ const R=H*.032, m=Math.max(a+(b-a)*.3,HF.x0()+R*2.4), py=y-H*.14, x=o.x; HK.rect(o,m-1.5,py,3,y-py,HK.dk(c,.35)); HK.rect(o,m-H*.01,y-H*.006,H*.02,H*.006,HK.dk(c,.35));
         x.strokeStyle=HK.n(o,HK.lt(c,.25)); x.lineWidth=2; x.beginPath(); x.ellipse(m,py,R*1.8,R*.42,-.2,Math.PI,Math.PI*2); x.stroke(); HK.circ(o,m,py,R,c); x.strokeStyle=HK.n(o,HK.lt(c,.25)); x.beginPath(); x.ellipse(m,py,R*1.8,R*.42,-.2,0,Math.PI); x.stroke(); break; }
       case 'palapa': { /* side view: a round palm-thatch cone on one stout pole, its ragged fringe hanging down */ const m=(a+b)/2, top=y-H*.2, ey=y-H*.14, R=(b-a)*.62, x=o.x; HK.rect(o,m-2,top,4,y-top,'#7a5a3e');
         x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(m,top); x.lineTo(m+R,ey); x.lineTo(m-R,ey); x.closePath(); x.fill(); for(let i=0;i<=20;i++){ const px=m-R+2*R*i/20; HK.line(o,[px,ey-H*.002,px+(i%2?1:-1),ey+H*(.008+(i%3)*.004)],HK.dk(c,.2),1.2); } HK.line(o,[m-R*.5,ey-H*.03,m+R*.5,ey-H*.03],HK.dk(c,.25),1); break; }
-      case 'scallop': { /* side view: a giant scallop shell tipped up as a sunshade on a driftwood post, its ribs fanning out */ const m=(a+b)/2, top=y-H*.19, R=(b-a)*.58, x=o.x; HK.rect(o,b-W*.006,top+H*.04,3,y-top-H*.04,'#a8a090');
+      case 'scallop': { /* side view: a giant scallop shell tipped up as a sunshade on a driftwood post, its ribs fanning out */ const m=(a+b)/2+(b-a)*.08, top=y-H*.18, R=Math.min((b-a)*.46,H*.07), x=o.x; HK.rect(o,b-W*.006,top+H*.04,3,y-top-H*.04,'#a8a090');
         x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(b,top+H*.05); x.arc(m,top+H*.05,R,Math.PI,0); x.closePath(); x.fill(); for(let i=1;i<9;i++){ const an=Math.PI+Math.PI*i/9; HK.line(o,[m,top+H*.05,m+Math.cos(an)*R,top+H*.05+Math.sin(an)*R],HK.dk(c,.2),1); } HK.curve(o,m-R,top+H*.05,m,top+H*.065,m+R,top+H*.05,HK.lt(c,.25),1.4); break; }
       case 'shadesail': { /* side view: a taut triangular shade sail between a tall mast at the back and a low post in front, edges curving in */ const t1=y-H*.2, t2=y-H*.13, x=o.x; HK.rect(o,a-1.5,t1,3,y-t1,'#c8c8c0'); HK.rect(o,b-1.2,t2,2.4,y-t2,'#c8c8c0');
         x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(a,t1); x.quadraticCurveTo((a+b)/2,(t1+t2)/2+H*.006,b,t2); x.quadraticCurveTo((a+b)*.42,(t1+t2)/2+H*.03,a,t1+H*.045); x.closePath(); x.fill(); HK.line(o,[a,t1,b,t2],HK.lt(c,.3),.8); break; }
@@ -173,7 +173,7 @@ const HK = {
         x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(m,top); x.quadraticCurveTo(m+(b-a)*.3,top+H*.04,b+W*.016,ey+H*.004); x.lineTo(a-W*.016,ey+H*.004); x.quadraticCurveTo(m-(b-a)*.3,top+H*.04,m,top); x.closePath(); x.fill();
         for(let k=1;k<5;k++){ const yy=top+(ey-top)*k/5; HK.line(o,[m-(m-a+W*.016)*k/5,yy,m+(b+W*.016-m)*k/5,yy],HK.dk(c,.22),1); } for(let i=0;i<=22;i++){ const px=a-W*.016+(b-a+W*.032)*i/22; HK.line(o,[px,ey+H*.003,px,ey+H*(.01+(i%3)*.004)],HK.dk(c,.25),1); } break; }
       case 'copper': { /* side view: a hammered copper hood over the hot pool, curving down at the front, gone green at the seams, on two iron posts */ const top=y-H*.17, x=o.x; HK.rect(o,a+W*.006,top,2.4,y-top,'#3a3436'); HK.rect(o,b-W*.006,top+H*.02,2.4,y-top-H*.02,'#3a3436');
-        const cc=mix('#c87a4a',c,.35); x.fillStyle=HK.n(o,cc); x.beginPath(); x.moveTo(a-W*.01,top+H*.006); x.quadraticCurveTo((a+b)/2,top-H*.03,b+W*.014,top+H*.03); x.lineTo(b+W*.01,top+H*.04); x.quadraticCurveTo((a+b)/2,top-H*.016,a-W*.01,top+H*.016); x.closePath(); x.fill();
+        const cc=mix('#8a4422',c,.25); x.fillStyle=HK.n(o,cc); /* darker copper: the bright one vanished against Ember's orange sky (QC) */ x.beginPath(); x.moveTo(a-W*.01,top+H*.006); x.quadraticCurveTo((a+b)/2,top-H*.03,b+W*.014,top+H*.03); x.lineTo(b+W*.01,top+H*.04); x.quadraticCurveTo((a+b)/2,top-H*.016,a-W*.01,top+H*.016); x.closePath(); x.fill();
         for(let i=1;i<6;i++){ const px=a+(b-a)*i/6; HK.line(o,[px,top-H*.012+Math.abs(i-3)*H*.003,px+W*.002,top+H*.006+Math.abs(i-3)*H*.003],v3rgba('#5ab8a0',.7),1.2); } break; }
       case 'pylon': { /* side view: an Egyptian temple pylon canopy, two tapering posts and a flat roof with the flared cavetto cornice and a sun disc */ const top=y-H*.15, x=o.x; HK.poly(o,[a,y,a+W*.01,y,a+W*.008,top,a+W*.002,top],c); HK.poly(o,[b-W*.01,y,b,y,b-W*.002,top,b-W*.008,top],c);
         HK.rect(o,a-W*.006,top-H*.012,b-a+W*.012,H*.012,c); HK.poly(o,[a-W*.01,top-H*.012,b+W*.01,top-H*.012,b+W*.014,top-H*.024,a-W*.014,top-H*.024],HK.lt(c,.15)); HK.circ(o,(a+b)/2,top-H*.006,H*.005,'#d8a830');

@@ -237,3 +237,10 @@ Change either weather message's wording: update the two patterns in `weather07.j
 | Deeper teal button top `#197a76` (white text 5.1 : 1) | 7 UI files | main buttons, phones and PC |
 | PC style cards cached (`DK_PV`), one stored picture per style, home-area diff | `pc/br_pc05.js` | PC Your home |
 | Old-fight jump test checks the rule, not the first event | `bn_qa04.js` | test builds |
+
+## Map redo batch (2026-11-22 evening, test builds)
+Every water redone from the director's map-by-map notes and Claude's own review (PLAN › "Director's map-by-map review", "Claude's own review"); rollback tag `rollback/before-map-redo`.
+- Shared: PC home preview drawn every frame (no after-image); resting rod under covers (`o.low`, d_draw); supports with caps, wet band, weed and bracing (`hfBraces`); lantern glass shows its colour; steady preview zoom (`hfFrame`); canvas reset in `v3prep`; weather sky behind clouds (`skyBack` hook), stars skip clouds, smooth aurora on high graphics, rainbow reflection mirrored like the land; softer rain mist band; snow instead of rain at Frostbite (`WX_SNOW`); hulls by material (jon, cruiser, steel); rock jetties rock-coloured.
+- Scenery: Willow Pond forest ridge, deer on the bank, `pondWake`, new frog; Stonebrook arches, downstream drift, farmland; Cherry Blossom giants (`blossomGiant`), Fuji backdrop, second pagoda, torii; Saltmarsh terraces, harbour, beach huts; Frostbite faceted peaks; Rockies slab peaks, larches, rooted pine; Farm, Buffet, Corporate, Nile, Circuit, Olympus, Coral Shallows, Keys, Shelf, Amazon, Trench, Ember details (see the commits "Map redo (part 1-7)").
+- Homes: new cover kinds (pergola, willow arbor, timber frame, wisteria, sail awning, log porch, tarp, canvas fly, palapa, scallop, shade sail, maloca, copper hood, pylon, crescent gate, planet), new features (Stonebrook mooring, Frostbite gear and ice shelf), new lights (davit lantern, harbour lamp, navigation buoy, wall bracket, pot-belly stove).
+- Test tools: `__hfSheet(id)`, `__qcSheet(ids,name)`, `__cropShot`, `__mkSheet`.

@@ -108,6 +108,7 @@ PATCHES.unshift({v:'0.4.8.9.4', name:'Hotfix', items:['Oddities: long names wrap
 PATCHES.unshift({v:'0.4.8.9.5', name:'Hotfix', items:['Rods (full screen): the rod in your hands shows its attachment slots again, so you can fit attachments.']});
 PATCHES.unshift({v:'0.4.8.9.6', name:'Hotfix', items:['Catch cards always show what you caught: after a shiny or mythic fish, the next card kept showing that fish.']});
 PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
+'## Every water redone',  'Every water has scenery of its own now, with new details everywhere, and nothing floats in the air or the water.',  'Homes: every option is clearly different and made for its water; covers keep you dry, and supports have real shape.',
   '## PC, rebuilt',
   'PC now has everything the phone versions have, all in the header: Quests, Map, Upgrades, Collection, Challenges, Customize and Prestige, plus Cooler, Aquarium, Home, Fish Log, Tasks and Stats.',
   'Quests: your next goal, short lessons, where to find everything, and answers to common questions.',
