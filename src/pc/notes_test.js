@@ -2,6 +2,13 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Canadian Rockies cabin, checked in every combination: the covered porch now has a real shed roof in the cabin roof’s own material, with a shadow on the wall, so you can see it.',
+  'The Rockies cabin keeps its real proportions on every screen: lower walls and a low roof, and on phones it carries on past the left edge as one long lodge instead of a tall, squeezed box.',
+  'The porch’s log rail now runs in front of you, your chair and your pet, instead of behind them.',
+  'Dutch door and window box now gives both windows a flower box; shuttered windows have louvred shutters in the door’s color that stand out from the logs.',
+  'Each cabin part offers only colors a real cabin would have (no turquoise logs or snow-white roofs).',
+  'The old snow on the forested mountainsides now lies in long streaks down the gullies instead of round patches.',
+  '## Test build 2026.11.22-2306',
   'Canadian Rockies, rebuilt by itself with full care: a jagged row of snowy peaks with a glacier, forested mountainsides with larches and avalanche paths, rose snow at dusk and a dim navy night, a canoe dock with red canoes, fireweed and granite on the near shore.',
   'Your home at the Rockies is now a log cabin you customise: log walls, roof (cedar shakes, green tin, sod with wildflowers), chimney, porch (open, covered, or with a log rail), door and windows (they glow at night), and seat.',
   'The cabin stands on a granite ledge and braced log posts that sit on the rock and on boulders under the water.',

@@ -177,7 +177,7 @@ function fightNew(dt){
     if(G.ten>92&&rin>0&&(G.combo||0)>0&&!G.ffA) feelCombo(-1); }
   G.noReelT=rin>0?0:(G.noReelT||0)+dt;
   const frac=clamp((G.d-(G.dd||0))/G.d0,0,1.6), x0=W*.24, x1=castX(G.lastCast);
-  G.bob.x=x0+(x1-x0)*Math.min(frac,1.25)+(G.run?Math.sin(performance.now()/90)*3:0)+(G.ev==='shake'?Math.sin(performance.now()/30)*3:0)+(G.tell?Math.sin(performance.now()/22)*2:0); G.bob.y=waterY(G.bob.x);
+  G.bob.x=x0+(x1-x0)*Math.min(frac,1.25)+(G.run?Math.sin(performance.now()/90)*3:0)+(G.ev==='shake'?Math.sin(performance.now()/30)*3:0)+(G.tell?Math.sin(performance.now()/22)*2:0); G.bob.x=clamp(G.bob.x,W*.2,W*.93); /* the fight never leaves the screen (director, 2026-11-22: "fish fights keep escaping the viewable screen") */ G.bob.y=waterY(G.bob.x);
   if(G.ten>=100){ G.ten=100; G.fullT=rin>0?(G.fullT||0)+dt:0; } else G.fullT=0;
   if(G.fullT>0 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.fullT=0; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
   if(G.fullT>=FF.SNAP_HOLD) endFight('snap'); /* Cam: the line goes after about half a second of reeling at 100% */

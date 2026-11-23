@@ -343,7 +343,7 @@ function draw(now){
   if(G.st==='reeling' && G.fish){ const f=G.fish; const len = f.kind!=='fish' ? 26 : 30 + Math.min(60, Math.sqrt(f.kg||1)*8);
     /* C21: one arc out of the water and back: it travels toward its nose (left, toward you), nose up on the way out and nose down on the
        way in (it used to tilt the other way round) */
-    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85, aw=fishNew()&&G.jumpAway, sd=aw?-1:1; /* Cam: a jump can go away from you too */ const jx=G.bob.x+sd*(len*.2-k*30), jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); if(aw) g.scale(-1,1); g.rotate(Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
+    if(G.ev==='jump' && f.kind==='fish'){ const k=1-G.evDur/.85, aw=fishNew()&&G.jumpAway, sd=aw?-1:1; /* Cam: a jump can go away from you too */ const jx=clamp(G.bob.x+sd*(len*.2-k*30),len*.7,W-len*.7), jy=G.bob.y-Math.sin(k*Math.PI)*H*.13; g.save(); g.translate(jx,jy); if(aw) g.scale(-1,1); g.rotate(Math.cos(k*Math.PI)*.9); drawCreature(g,f.sp,0,0,len,{shiny:f.shiny,pv:f.pv,wag:t*20,flip:true}); g.restore(); }
     else { g.globalAlpha=.35; if(f.kind!=='fish'){ drawHookedOdd(f, G.bob.x+(G.ev==='snag'?0:Math.sin(t*1.6)*3), G.bob.y+4); } else {
       /* C20 (Cam, 2026-11-20): a running fish turns to swim away, a calm one turns back toward you; the turn is smooth (the body narrows
          through the turn) and the line stays at its mouth. Fish only: oddities and objects never turn. */
@@ -371,6 +371,7 @@ function draw(now){
   if(V3ON){ v3Rod(g,hand,{x:tx,y:ty},(hand.x+tx)/2,(hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0),ROD_I[S.rods.eq],night,t,G.st==='reeling'&&(G.hold||G.crank>0||G.padReel>0)); if(hp&&hp.fingers) hp.fingers(); } else { g.strokeStyle=mix(ROD_I[S.rods.eq]?ROD_I[S.rods.eq].col:'#d9c7a0','#2a2620',night*.4); g.lineWidth=2.5; g.beginPath(); g.moveTo(hand.x,hand.y); g.quadraticCurveTo((hand.x+tx)/2, (hand.y+ty)/2 - 6 + (G.st==='reeling'?G.ten*.08:0), tx, ty); g.stroke(); }
   if(!V3ON){ g.fillStyle='#2a2a2a'; g.beginPath(); g.arc(hand.x+3,hand.y-2,3,0,7); g.fill(); }
   drawPetScene(pax,pay,sc,t,night);
+  if(L.id==='rockies'&&HOMEF.rockies) rkFront(night); /* a home's front edge in front of the angler (the cabin's porch rail) */
   if(fishNew()) feelDraw(t); /* Feel lab: hook flash, perfect-pull ring, pop-ups, combo (c2_fightfeel.js) */
   if(HOMEF[L.id]) HF_LAST={ax,ay,sc,hx,hy,t,rodA,night,sit:RP?RP.sit:null,rim:PV?PV.rim:null,glow:PV?PV.glow:null,tx,ty,pax,pay,ten:G.st==='reeling'?G.ten:0}; /* where the angler, rod and pets were drawn: the Home close-up redraws them sharp */
   let lp=null;

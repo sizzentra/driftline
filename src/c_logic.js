@@ -576,7 +576,7 @@ function fight(dt){ if(fishNew()){ fightNew(dt); return; } /* Cam's fight feel (
      strains the line, which can break), and it never takes more than its rank allows (all of it only for mythics) */
   if(G.strip){ const P=G.strip; P.t+=dt; const k=Math.min(1,P.t/P.dur), e=1-Math.pow(1-k,2); G.d=Math.max(G.d, P.from+(P.to-P.from)*e); G.run=true; G.runT=Math.max(G.runT,.2); if(rin>0) G.ten+=EAT_STRIP_TEN*rin*dt*tensionMult(); if(k>=1) G.strip=null; }
   const frac = clamp(G.d/G.d0,0,1.6); const x0=W*.24, x1=castX(G.lastCast);
-  G.bob.x = x0 + (x1-x0)*Math.min(frac,1.25) + (G.run ? Math.sin(performance.now()/90)*3 : 0) + (G.ev==='shake'?Math.sin(performance.now()/30)*3:0); G.bob.y = waterY(G.bob.x);
+  G.bob.x = x0 + (x1-x0)*Math.min(frac,1.25) + (G.run ? Math.sin(performance.now()/90)*3 : 0) + (G.ev==='shake'?Math.sin(performance.now()/30)*3:0); G.bob.x = clamp(G.bob.x,W*.2,W*.93); G.bob.y = waterY(G.bob.x); /* never off screen */
   if(G.ten>=100 && maxed('steady') && !G.saved){ G.saved=true; G.ten=65; G.hold=false; toast('Second wind! Your line held.'); tone(700,.15,'triangle',.07); }
   if(G.ten>=100) endFight('snap'); else if(G.d>=G.maxOut) endFight('spool'); else if(G.d<=0) endFight('caught');
 }

@@ -12,10 +12,10 @@
 const HOMEF={};
 /* the format, in the scene's own units (W, H): the same for every format home */
 const HF = { pw:()=>W*.19, x0:()=>-4 /* the deck starts at the left edge (no bank: director, 2026-11-21) */, dockY:()=>H*.6, wl:dockY=>dockY+H*.075, top:dockY=>dockY-H*.42 /* the stored picture reaches high enough for a lifted cover (HK.roof) */, lightX:()=>W*.19-W*.012,
-  seatX:()=>W*.064 /* the seat: behind the angler (who stands at W*.12), under the canopy; resting sits the angler in it */, sc:()=>clamp(H/420,.7,1.25) /* the angler's scale */ };
+  seatX:()=>{ const sp=typeof HOMEF!=='undefined'&&S&&HOMEF[S.loc]; return W*(sp&&sp.seatX||.064); } /* a home can place its seat (the Rockies cabin: nearer the front of the dock, director) */ /* the seat: behind the angler (who stands at W*.12), under the canopy; resting sits the angler in it */, sc:()=>clamp(H/420,.7,1.25) /* the angler's scale */ };
 const hfSpec = id => HOMEF[id]||null;
 function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const src=(S.dockAt===id||!S.dockAt)?S.dock:(S.docks&&S.docks[id]), c=src&&src.el&&src.el[el]; /* each water's own choices: the map pictures of other waters showed the current water's (2026-11-22) */
-  return [Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length?c[1]|0:(e.def?e.def[1]:0)]; }
+  return [Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length&&(!e.pal||e.pal.includes(c[1]|0))?c[1]|0:(e.def?e.def[1]:0)]; } /* a feature may offer only the colours real ones come in (e.pal: indices into the home's list) */
 function hfColor(id,el){ const sp=hfSpec(id); return sp.colors[hfChoice(id,el)[1]][1]; }
 /* the light's glow colour: the chosen colour, lifted toward white so even a deep shade still reads as light */
 function hfGlow(id){ const sp=hfSpec(id); if(sp&&sp.glow) return sp.glow; /* a home whose light is a window glows warm whatever the door's colour */ const e=sp&&sp.els.find(x=>x.light||x.id==='light'); const v=hex2rgb(mix(hfColor(id,e?e.id:'light'),'#ffffff',.3)); return v.join(','); } /* the feature that carries the home's light (batch 5: not always called "light") */
@@ -59,7 +59,7 @@ function hfCloseup(c,f){ const L=LOCS[locIdx(S.loc)], P=v3palette.v, A=HF_LAST; 
   x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,P,night,dockY,k,':close'); hfRings(x,hc,t,night,dockY); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); hfLights(x,L,hc,t,night,dockY,0,P,false);
   try{ const hp=drawAngler(x,A.ax,A.ay,A.sc,S.look,{night:night*.8,hx:A.hx,hy:A.hy,t:A.t,rodA:A.rodA,sit:A.sit,rim:A.rim,glow:A.glow}); const hand=hp&&hp.x!=null?{x:hp.x,y:hp.y}:{x:A.ax+A.hx*A.sc,y:A.ay+A.hy*A.sc};
     if(V3ON){ v3Rod(x,hand,{x:A.tx,y:A.ty},(hand.x+A.tx)/2,(hand.y+A.ty)/2-6+A.ten*.08,ROD_I[S.rods.eq],night,t,false); if(hp&&hp.fingers) hp.fingers(); }
-    drawPetScene(A.pax,A.pay,A.sc,A.t,night,x); }catch(e){}
+    drawPetScene(A.pax,A.pay,A.sc,A.t,night,x); if(S.loc==='rockies') rkFront(night,x); /* the porch rail in front, as in the scene */ }catch(e){}
   x.setTransform(1,0,0,1,0,0); return true; }
 
 /* ---------- shared pieces for format homes (draw into the stored picture) ---------- */
@@ -181,7 +181,7 @@ function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
    <div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>`+
    sp.els.map(e=>{ const [s,c]=hfChoice(S.loc,e.id);
      return `<h5 data-hel="${e.id}">Style</h5><div class="chips" data-hel="${e.id}">${e.styles.map((n,i)=>`<button type="button" class="chipb" data-act="hfel" data-k="${e.id}" data-v="${i}" aria-pressed="${i===s}">${esc(n)}</button>`).join('')}</div>`+
-       `<h5 data-hel="${e.id}">Color</h5><div class="chips" data-hel="${e.id}">${sp.colors.map((col,i)=>sw(e,col,i,i===c)).join('')}</div>`; }).join('');
+       `<h5 data-hel="${e.id}">Color</h5><div class="chips" data-hel="${e.id}">${sp.colors.map((col,i)=>(!e.pal||e.pal.includes(i))?sw(e,col,i,i===c):'').join('')}</div>`; }).join('');
   paintHome(); }
 /* the 6 features become the page's tabs */
 function hfSections(P){ const sp=hfSpec(S.loc); if(!sp) return false; sectionize(P,'home',sp.els.map(e=>({name:e.label,nodes:[...P.querySelectorAll(':scope > [data-hel="'+e.id+'"]')]}))); return true; }
@@ -192,5 +192,5 @@ function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), ft=dy-H*.255*Math.max(
   let y=h>=want.h?Math.min(want.y+want.h/2,dy-H*.03)-h/2:dy-H*.205; y=Math.max(top||0,Math.min(H-h,y)); return {sx:0,sy:y,sw:Math.min(W,w),sh:h}; }
 /* a choice: the element's style or color (saved with this water's home) */
 function hfAct(b){ const a=b.dataset.act; if(a!=='hfel'&&a!=='hfcol') return undefined; const sp=hfSpec(S.loc), e=sp&&sp.els.find(x=>x.id===b.dataset.k), v=+b.dataset.v; if(!e) return 'skip';
-  const cur=hfChoice(S.loc,e.id); if(a==='hfel'){ if(!(v>=0&&v<e.styles.length)) return 'skip'; cur[0]=v; } else { if(!(v>=0&&v<sp.colors.length)) return 'skip'; cur[1]=v; }
+  const cur=hfChoice(S.loc,e.id); if(a==='hfel'){ if(!(v>=0&&v<e.styles.length)) return 'skip'; cur[0]=v; } else { if(!(v>=0&&v<sp.colors.length)||(e.pal&&!e.pal.includes(v))) return 'skip'; cur[1]=v; }
   S.dock.el=hfClean(S.dock.el); S.dock.el[e.id]=cur; try{ V3THUMB[S.loc]=undefined; }catch(er){} /* its map picture is painted again */ try{ sfx.coin(); }catch(er){} save(); return 'render'; }

@@ -29,3 +29,15 @@ Theme: docs/MAP_THEMES.md › 6 (Lake Louise / Moraine Lake, turquoise glacier l
 - Map: own jagged ridgelines (rkRidge / rkRange: lit and shaded faces, snow with couloir fingers, limestone bed lines, a glacier in the saddle), two forested shoulders (rkShoulder: tree line, snow streaks, avalanche paths, larches, scree fans), forest at the foot of the peaks, a canoe dock with red canoes, a granite and fireweed corner; dusk rose snow, navy night.
 - Home: a wide log lodge seen from its long side (director: a set building you customise, "make sure the lodge is actually wide"), walls / roof / chimney / porch / door and windows / seat; windows glow warm at night (sp.glow, lit window panes); a granite ledge foundation with braced log posts on rock and submerged boulders, one clean deck (director: "all things need to line up correctly on the base platform").
 - Checked: PC day, dusk, night, rain, fishing and resting, every style (__hfSheet); phone 956x440 fishing and resting, day and night; gate, start-up, test suite and map check pass.
+
+## All-options check (director, 2026-11-22 night: "check all options as well")
+Tool: `__hfAll(id,name,pairs,big)` (every style pair of the features that touch, and every allowed colour, fishing and resting) and `__hfOne(id,name,set,rest,phase)` (one combination at full size). Sheets: tools/shots/rk_all_pairs.png, rk_big1-4.png, rk_one_a-f.png, rk_ph_a-b.png (iPhone 956x440).
+Found and fixed:
+1. Every colour was allowed on every part (turquoise logs, snow-white roofs): each feature now has a realistic palette (`pal`, checked in hfChoice, the swatches and hfAct).
+2. The porch's log rail was drawn behind the chair and the angler: now `rkFront`, drawn after them in the scene and the close-up.
+3. The covered porch vanished into the log wall: now a shed roof in the cabin roof's material with a shadow on the wall and darker posts.
+4. Dutch door and window box gave only one window: both windows now, each with its flower box.
+5. Shutters were invisible against the logs: louvred board shutters in the door's colour with an outline.
+6. A duplicate copy of the rail function had been left in the file: removed.
+7. The shoulder snow drifts still read as pebbles: long streaks tapering down the gullies.
+8. On phones the cabin looked "very stretched out" (director's iPhone picture): the phone shows only about 145 px of deck left of the angler, so the whole cabin was squeezed into a tall box (1.4 to 1). Now the walls are a real 1.3 person-heights, the roof pitch follows the visible part, and the lodge is always at least 2.9 times as wide as its walls are tall, running on past the left screen edge where it does not fit (PC 3.2 to 1).
