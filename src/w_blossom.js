@@ -20,8 +20,29 @@ function blossomBridge(x,P,hz){ const a=W*.38, b=W*.48, y=hz+H*.012, h=H*.035, r
   x.strokeStyle=red; x.lineWidth=Math.max(3,H*.006); x.beginPath(); x.moveTo(a,y); x.quadraticCurveTo((a+b)/2,y-h*2,b,y); x.stroke(); x.lineWidth=Math.max(2,H*.003); x.beginPath(); x.moveTo(a,y-h*.5); x.quadraticCurveTo((a+b)/2,y-h*2.5,b,y-h*.5); x.stroke();
   x.fillStyle=red; for(let k=0;k<=8;k++){ const u=k/8, px=a+(b-a)*u, py=y-h*2*2*u*(1-u)*1; x.fillRect(px-1.5,py-h*.5,3,h*.5); } x.fillStyle=N('#5a3a2a'); x.fillRect(a-2,y,4,H*.012); x.fillRect(b-2,y,4,H*.012); x.fillRect((a+b)/2-2,y-h*.6,4,h*.6+H*.012);
   x.strokeStyle=v3rgba(red,.3); x.lineWidth=2; x.beginPath(); x.moveTo(a,y+H*.006); x.quadraticCurveTo((a+b)/2,y+h*1.8,b,y+H*.006); x.stroke(); /* its reflection */ }
+/* THE PAINTED SCENERY (director, 2026-11-23: "make a 1:1 layout of cherry blossom map as this, and texture/detail it accordingly"; "i also like
+   more cherry blossom trees like this one"): the director's picture itself is the scenery (src/w_blossom_art.js, cleaned of labels, house,
+   angler and line). It fills the screen's width with its waterline on the game's horizon (the sky above it is cropped on wide screens); below
+   it the lake goes on in its own deep blue. Light and weather tint it from the palette (the palette's colour over its daytime colour), dusk adds
+   warmth, and at night stars, the moon and the pagoda's windows come out over it. The drawn scene below stays for the first frames while the
+   picture loads. */
+const BL_IW=1578, BL_IH=691, BL_WL=392; /* the picture's size and its waterline row */
+const BL_IMG=new Image(); BL_IMG.onload=()=>{ BL_IMG.ok=1; V3CACHE=null; V3PREV=null; v3land.job=null; }; BL_IMG.src=BLOSSOM_ART;
+function blMap(hz){ const s=W/BL_IW; return {s,oy:hz-BL_WL*s}; } /* picture pixels to screen: X*s, oy+Y*s */
+/* the sky's outline in picture pixels (where stars may show) and its painted clouds (where they may not) */
+const BL_SKY=[[640,196],[760,192],[860,212],[1000,156],[1100,102],[1170,86],[1250,88],[1330,126],[1440,176],[1480,190],[1578,186]];
+const BL_CLOUDS=[[660,960,78,134],[580,840,126,192],[440,570,152,196],[1400,1578,80,205],[860,1110,192,228]];
+function blSkyY(X){ for(let i=1;i<BL_SKY.length;i++){ const [a,ay]=BL_SKY[i-1], [b,by]=BL_SKY[i]; if(X<=b) return ay+(by-ay)*(X-a)/(b-a); } return 186; }
+function blPainted(x,P,hz){ const m=blMap(hz), s=m.s, ih=BL_IH*s, bot=m.oy+ih, top=Math.max(0,m.oy);
+  x.drawImage(BL_IMG,0,m.oy,W,ih);
+  if(m.oy>0){ const f=x.createLinearGradient(0,m.oy,0,m.oy+H*.05); f.addColorStop(0,V3PAL.blossom.day.top); f.addColorStop(1,v3rgba(V3PAL.blossom.day.top,0)); x.fillStyle=f; x.fillRect(0,m.oy,W,H*.05); } /* tall windows: the picture's top melts into the sky */
+  if(bot<H){ const f=x.createLinearGradient(0,bot-H*.03,0,H); f.addColorStop(0,'rgba(21,70,104,0)'); f.addColorStop(Math.min(.5,H*.03/(H-bot+H*.03)),'rgb(21,70,104)'); f.addColorStop(1,'rgb(12,38,66)'); x.fillStyle=f; x.fillRect(0,bot-H*.03,W,H-bot+H*.03); } /* the near lake below the picture */
+  const D=V3PAL.blossom.day, q=k=>{ const a=hex2rgb(rgb2hex(P[k])), b=hex2rgb(rgb2hex(D[k])); return a.map((v,i)=>Math.min(1,v/Math.max(8,b[i]))); }, A=q('far'), B=q('wMid'), f=A.map((v,i)=>(v+B[i])/2);
+  if(f.some(v=>v<.995)){ x.globalCompositeOperation='multiply'; x.fillStyle='rgb('+f.map(v=>Math.round(v*255)).join(',')+')'; x.fillRect(0,top,W,H-top); x.globalCompositeOperation='source-over'; } /* light and weather */
+  if(P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(255,140,80,'+(.4*P.d)+')'; x.fillRect(0,top,W,H-top); x.globalCompositeOperation='source-over'; } /* dusk and dawn warmth */ }
 V3SCENES.blossom={
   land(x,P,hz,cnv){
+    if(BL_IMG.ok){ blPainted(x,P,hz); return; }
     waFuji(x,P,hz);
     /* no recycled mountain range: Fuji alone behind hazy hills thick with distant blossom (a cherry blossom forest) */
     blossomForest(x,P,hz); blossomFalls(x,P,hz); /* the reference layout: ridges, forested hills, the waterfall and its pavilion */
@@ -46,7 +67,11 @@ V3SCENES.blossom={
     /* side by side with a little water between them, never on top of each other (director: they covered each other) */
     { const r=v3rng(41); for(const [cx,cy,n] of [[.42,.06,3],[.62,.1,2],[.7,.3,3],[.74,.44,4],[.34,.48,4]]){ const k=cy*H/(H-hz), s0=H*(.008+k*.04); let px=W*cx-s0*1.5*(n-1);
       for(let i=0;i<n;i++){ const s=s0*(.75+r()*.35), yy=hz+H*cy+(i%2?1:-1)*s0*.35, fl=r()<.75?(r()<.85?'#f4a0c0':'#fff4f8'):null; waLily(x,px,yy,s,P,500+i+Math.round(cx*100),fl); px+=s0*3.1; } } } },
-  live(P,t,hz,sun){ const FX=S.settings.effects; v3glitter(P,t,hz,sun);
+  live(P,t,hz,sun){ const FX=S.settings.effects, PT=BL_IMG.ok, M=blMap(hz); v3glitter(P,t,hz,sun);
+    if(PT&&P.night>.05){ const k=P.night*(1-P.gloom); if(!blMap.st){ const r=v3rng(9), a=[]; while(a.length<70){ const X=660+r()*918, Y=r()*190; if(Y>blSkyY(X)-10||BL_CLOUDS.some(c=>X>c[0]&&X<c[1]&&Y>c[2]&&Y<c[3])) continue; a.push([X,Y,r()*7,.6+r()*1.1]); } blMap.st=a; } /* stars in the painted sky, never on a mountain or a cloud */
+      g.fillStyle='#ffffff'; for(const s of blMap.st){ const y=M.oy+s[1]*M.s; if(y<0) continue; g.globalAlpha=k*(.3+.7*Math.abs(Math.sin(t*.7+s[2]))); g.fillRect(s[0]*M.s,y,s[3],s[3]); } g.globalAlpha=1;
+      if(!sun.up&&sun.vis>.05&&(sun.y-M.oy)/M.s<blSkyY(sun.x/M.s)-20){ v3glow(g,sun.x,sun.y,H*.12,'rgba(220,230,255,.6)',sun.vis*.5); g.save(); g.globalAlpha=sun.vis; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.moveTo(sun.x+H*.041,sun.y-H*.009); g.arc(sun.x+H*.013,sun.y-H*.009,H*.028,0,7); g.fill('evenodd'); g.restore(); } /* the moon, which the picture's sky would hide */
+      for(const wy of [212,232,252]) v3glow(g,1293*M.s,M.oy+wy*M.s,H*.02,'rgba(255,200,120,.9)',.7*P.night); } /* the pagoda's windows */
     // petals resting on the lake, drifting slowly with the breeze (smaller and flatter toward the far shore)
     for(let i=0,n=gfxHigh()?30:18;i<n;i++){ const y=hz+H*(.015+((i*.377)%1)*.75), k=(y-hz)/(H-hz), x=((W*((i*.618)%1)+t*W*(.003+(i%3)*.0015)*(1+k))%(W*1.05))-W*.02, s=1+k*3.2;
       g.fillStyle=i%3?'rgba(255,196,214,.85)':'rgba(255,236,244,.9)'; g.beginPath(); g.ellipse(x,y+Math.sin(t*.8+i)*k*1.5,s,s*.42,(i%5)*.3,0,7); g.fill(); }
@@ -57,10 +82,10 @@ V3SCENES.blossom={
     { const per=80, q=(t%per)/per, lap=Math.floor(t/per)%2, dir=lap?1:-1; if(q<.6){ const e=q/.6; for(let i=0;i<2;i++){ const y=hz+H*(.07+i*.02), k=(y-hz)/(H-hz), s=H*(.006+k*.012), xx=lap?W*(-.06+e*1.12)-i*s*3:W*(1.06-e*1.12)+i*s*3;
       g.save(); if(dir>0){ g.translate(xx,0); g.scale(-1,1); g.translate(-xx,0); } pondWake(xx+s*.4,y-s*.2,s,t,P,i); g.restore(); waDuck(xx,y,s,dir,P,t,i,i===1); } } }
     // the waterfall falls (streaks running down it) and koi shadows glide slowly under the near water (the director's reference has both)
-    { const fx=W*.7, top=hz-H*.144; g.fillStyle=v3rgba('#ffffff',.6); for(let i=0;i<7;i++){ const q=((t*.9+i/7)%1), yy=top+q*(hz-top); g.fillRect(fx-W*.009+i*W*.0028,yy,1.5,H*.016); } }
+    { const fx=PT?1242*M.s:W*.7, top=PT?M.oy+286*M.s:hz-H*.144, bt=PT?M.oy+370*M.s:hz, fw=PT?34*M.s:W*.018; g.fillStyle=v3rgba('#ffffff',.6*(1-P.night*.65)); for(let i=0;i<7;i++){ const q=((t*.9+i/7)%1), yy=top+q*(bt-top); g.fillRect(fx-fw/2+i*fw/7,yy,1.5,H*.016); } }
     for(let i=0;i<4;i++){ const per=70+i*13, q=((t+i*29)%per)/per, dir=i%2?1:-1, y=H*(.7+i*.055), s=H*(.012+i*.002), xx=dir>0?W*(-.08+q*1.16):W*(1.08-q*1.16), wig=Math.sin(t*3+i)*s*.15; g.fillStyle=v3rgba('#1a2a40',.22); g.beginPath(); g.ellipse(xx,y,s*1.6,s*.45,wig*.02,0,7); g.fill(); g.beginPath(); g.moveTo(xx-dir*s*1.5,y); g.lineTo(xx-dir*s*2.3,y-s*.45+wig); g.lineTo(xx-dir*s*2.3,y+s*.45+wig); g.closePath(); g.fill(); }
     // the stone lanterns glow at night and paper lanterns drift on the lake
-    if(P.night>.3){ for(const px of WA_TORO) v3glow(g,W*px,hz-H*.006-H*.018,H*.025,'rgba(255,190,110,.9)',.6*P.night); 
+    if(P.night>.3){ if(!PT) for(const px of WA_TORO) v3glow(g,W*px,hz-H*.006-H*.018,H*.025,'rgba(255,190,110,.9)',.6*P.night); 
       for(let i=0;i<5;i++){ const q=((t*.01+i*.2)%1), x=W*(-.05+q*1.1) /* in from beyond the left edge and out past the right, never popping up mid-lake (director) */, y=hz+H*(.04+i*.035)+Math.sin(t*.8+i)*2, s=H*.006*(1+(y-hz)/(H-hz)*3); v3glow(g,x,y,s*5,'rgba(255,180,120,.9)',.5*P.night); g.fillStyle='rgba(255,210,150,'+P.night+')'; g.fillRect(x-s*.6,y-s,s*1.2,s*1.2); g.fillStyle=v3rgba('#ffc890',.25*P.night); g.fillRect(x-s*.4,y+s*.4,s*.8,s*3); } }
     // now and then a gust carries a swirl of petals across the lake
     if(FX){ const q=t%47; if(q<7){ const e=q/7; for(let i=0;i<64;i++){ const u=i/64, x=-W*.1+(e*1.4-u*.16)*W*1.1+Math.cos(u*13+t*3)*W*.02, y=hz*.95+Math.sin(u*13+t*3)*H*.04+u*H*.08; /* a tight swirl, so it reads as one gust */ /* low over the water, where it shows: over the giant pink trees it vanished (map QC) */ if(x<-10||x>W+10) continue; wa.petal(g,x,y,3.8,t*4+i,i%3?'rgba(255,200,220,.95)':'rgba(255,244,250,1)'); } } } },

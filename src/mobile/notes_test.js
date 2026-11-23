@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake now uses your painted picture as its scenery: Fuji, the cherry trees, the red bridge and island, the waterfall and pagoda, the torii and the lotus, all painted. Your house, angler, line and the lake’s moving life are drawn on top.',
+  'The painting follows the time of day and weather: warm at dusk, dark blue at night with stars, the moon and the pagoda’s lit windows; the waterfall still runs.',
+  '## Test build 2026.11.23-0856',
   'Cherry Blossom Lake, rebuilt to the director’s corrected picture: clear blue water and sky, Fuji right of centre, the house with warm glowing shoji walls standing on its deck over open water, the big cherry tree over it, the red bridge to a little island, rocky islets with cherry trees along the far shore, the waterfall and its pavilion right of centre with the pagoda on the hill above, the torii on its rocks to the right, and lotus clusters in the near water. The lantern path and the stone-step corner from the earlier picture are gone.',
   '## Test build 2026.11.23-0815',
   'The Nile: your reed boat is redrawn the way Egyptian paintings show it: a crescent hull of papyrus bundles with rope lashings, slim horns at both ends rising to papyrus flower heads (gold lotus on the gilded barque, with a painted eye), a steering oar at the stern, and a cabin on lotus columns, a temple pylon or a striped tent. Your saved choices carry over.',
