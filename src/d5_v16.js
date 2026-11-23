@@ -36,6 +36,7 @@ const MASTERY_FX = {
   caster:'Bullseye: a full-power cast makes its own little hotspot.',
   trophy:'Trophy-size fish give double Scales.',
   reader:'Hotspots last twice as long.',
+  secondbite:'Missing a hotspot bite never breaks your streak.',
   scavenger:'Junk pays 50% more coins.',
   haggler:'The fishmonger’s wanted fish pays ×3 instead of ×2.',
   keeper:'The aquarium keeps earning for 16 hours while you’re away, not 8.',

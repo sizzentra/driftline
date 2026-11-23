@@ -42,7 +42,7 @@ function specLocValue(loc){ return spec('elemental') ? (['ember','starfall','fro
 // ---------- new skills' mastery effects ----------
 Object.assign(MASTERY_FX,{
   weatherwise:'Clear skies count too: the bite bonus works in every weather.',
-  naturalist:'Every new species also gives 5 Scales.',
+  naturalist:'The first mastery star comes at 2 catches instead of 3.',
   aquarist:'Shiny fish in the aquarium give triple boosts instead of double.',
   derbypro:'Derbies last 5 minutes instead of 4.',
   tidewalker:'Every 10th Tide Pass level gives an extra big Mystery Crate.',

@@ -11,9 +11,14 @@ function sellFilterOn(){ const s=S.settings; return (s.sellR&&s.sellR!=='all')||
 // shinies: the "Sell shinies too" box decides on its own (it starts as before: off while Protect rare fish is on)
 function sellShinyOn(){ const s=S.settings; return s.sellShiny!=null ? !!s.sellShiny : !s.protectRare; }
 function sellHybridOn(){ const s=S.settings; return s.sellHybrid!=null ? !!s.sellHybrid : !s.protectRare; } /* batch 2: the Hybrid switch beside Shinies starts the same way */
-function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true; if(f.hy && !sellHybridOn()) return true; if(f.sh) { if(!sellShinyOn()) return true; } else if(isProtected(f)) return true;
-  if(f.sh && s.protectRare && sp.r>=3) return true;
-  if(s.sellR&&s.sellR!=='all'&&sp.r>+s.sellR) return true; if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
+/* what Sell all keeps (bug fix, director 2026-11-23: "filters just don't work, same with the sell toggles"): the cooler's own choices win.
+   A rarity picked in the dropdown sells up to that rarity even with Protect rare fish on; "Sell shinies too" and "Sell hybrids too" sell
+   them whatever their rarity; Protect rare fish keeps Epic and up only while the dropdown says Any rarity */
+function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true;
+  if(f.hy && !sellHybridOn()) return true; if(f.sh && !sellShinyOn()) return true;
+  const pick=s.sellR&&s.sellR!=='all', chosen=(f.sh&&sellShinyOn())||(f.hy&&sellHybridOn());
+  if(pick){ if(sp.r>+s.sellR) return true; } else if(s.protectRare && sp.r>=3 && !chosen) return true;
+  if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
 const _renderCooler_034 = renderCooler;
 renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;

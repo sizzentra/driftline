@@ -4,7 +4,7 @@ let last=performance.now();
 function frame(now){ const dt=Math.min(.05,(now-last)/1000); last=now; try{ update(dt); draw(now); if(S.tab==='aquarium') drawTank(now); }catch(e){ if(!frame.err){ frame.err=1; console.error(e); } } hud(); requestAnimationFrame(frame); } /* 0.4.8.9.1: one failing frame never stops the game loop */
 let lastBuffN=-1, lastShopSlot=Math.floor(Date.now()/1000/SHOP_LEN);
 setInterval(()=>{ accrue(); const el=$('tankbank'); if(el){ const t=fmtShort(S.tankBank); if(el.textContent!==t){ el.textContent=t; el.title=fmt(S.tankBank)+' coins'; } } /* short form like the top bar, so big numbers never overflow (2026-11-19) */ const cb=$('collectbtn'); if(cb) cb.disabled=S.tankBank<1;
-  const dl=$('dmleft'); if(dl){ dl.textContent=mmss(wxLeft()); if(wxLeft()>=WX_LEN-1 && S.tab==='cooler') renderPanel(); }
+  const dl=$('dmleft'); if(dl){ dl.textContent=mmss(wxLeft()); if(wxLeft()>=WX_LEN-1 && S.tab==='cooler' && !(document.activeElement&&document.activeElement.tagName==='SELECT')) renderPanel(); } /* never redraw under an open menu (bug: the Sell rarity menu closed by itself, director 2026-11-23) */
   const t=Date.now(); const ended=S.buffs.filter(b=>b.until<=t); if(ended.length){ S.buffs=S.buffs.filter(b=>b.until>t); toast('Boost ended: '+ended.map(b=>b.src).join(', ')); save(); }
   const bn=activeBuffs().length; if(bn!==lastBuffN){ lastBuffN=bn; lastHud=''; }
   const sl=$('shopleft'); const slot=Math.floor(t/1000/SHOP_LEN); if(sl) sl.textContent=mmss(Math.ceil(SHOP_LEN-(t/1000%SHOP_LEN))); if(slot!==lastShopSlot){ lastShopSlot=slot; if(S.tab==='style') renderPanel(); } }, 1000);
@@ -92,7 +92,7 @@ function renderPanel(){ const P=$('panel'); rpRelease(); rpOld=[...P.getElements
 const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const L=aqNet(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
 
-const isProtected = f => S.settings.protectRare && (f.sh || SPI[f.id].r>=3);
+/* (isProtected went into sellKeep, src/au_fix034.js: the cooler's choices win over Protect rare fish) */
 /* C14 (director + Cam, 2026-11-20): sort the cooler by most/least recent, sell value, aquarium bonus or species. Most recent after
    every restart (kept in memory only), otherwise it remembers the last choice. Rows keep their real cooler index for the buttons. */
 let coolSort='recent'; const COOL_SORTS=[['recent','Newest'],['old','Oldest'],['rarity','Rarity'],['value','Sell value'],['aq','Aquarium bonus'],['species','Species']]; /* Rarity: Cam's list #8 */
@@ -105,7 +105,7 @@ document.head.insertAdjacentHTML('beforeend','<style>.cool-empty{display:flex;fl
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
   <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell ${sellFilterOn()?"matching":"all"}${S.cooler.some(sellKeep)?" (keeping "+S.cooler.filter(sellKeep).length+")":""} for <span class="coin">${fmt(total)}</span></button></div>
   <div class="tile" style="margin-top:10px;flex-direction:row;align-items:center;gap:12px"><canvas width="128" height="64" data-fish="${dm.id}" style="width:64px;height:32px"></canvas>
-  <div style="min-width:0"><b>The fishmonger wants ${dm.name}</b> <span class="meta">(${LOCS[locIdx(dm.loc)].name})</span><div class="meta">Pays double for it until the weather changes (<span id="dmleft">${mmss(wxLeft())}</span>).</div></div></div>`+
+  <div style="min-width:0"><b>The fishmonger wants ${dm.name}</b> <span class="meta">(${LOCS[locIdx(dm.loc)].name})</span><div class="meta">Pays double for it until the weather changes (<span id="dmleft" style="font-variant-numeric:tabular-nums;display:inline-block;min-width:2.6em">${mmss(wxLeft())}</span>).</div></div></div>`+
   (S.cooler.length ? coolSortBar()+'<div class="list">'+coolOrder().map(({f,i})=>{ const sp=SPI[f.id]; return `<div class="fishrow"><canvas width="128" height="64" data-fish="${f.id}" data-sh="${f.sh||0}" data-pv="${f.pv||''}"></canvas>
    <div class="nm"><span style="color:${RAR[sp.r].c}">${sp.name}</span><small>${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">Aquarium: ${aqTxt(f)}</span></small></div>
    <div class="val coin" ${dm.id===f.id?'style="color:var(--gold)" title="Fishmonger pays double"':''}>${fmt(salePrice(f))}${dm.id===f.id?' ×2':''}</div><div class="acts"><button class="btn alt sm" data-act="totank" data-i="${i}" ${tankFree?'':'disabled'} title="${tankFree?'Earns '+fmt(fishRate(f)*60)+' coins per hour':'Aquarium is full'}">To aquarium</button><button class="btn alt sm" data-act="sell" data-i="${i}">Sell</button>${nibScrapBtn(f,i)}</div></div>`; }).join('')+'</div>'
@@ -165,7 +165,7 @@ function renderJournal(P){
       <h2>${j?sel.name:'Not caught yet'}</h2><p class="sub">${j?sel.note:'Keep fishing '+L.name+(sel.time!=='any'?' at '+(sel.time==='night'?'night':'day'):'')+'.'}</p>
       <div class="kv" style="margin-top:8px">${j?`<div><span>Nibbles (${nibRarName(sel.id)})</span> ${nibOf(sel.id)}</div>`:''}${foodLine(sel,j)}<div><span>Heaviest</span> ${j&&j.best?kgStr(j.best):'—'}</div><div><span>Smallest</span> ${j&&j.min!=null?kgStr(j.min):'—'}</div>${j&&j.hb!=null?`<div><span>Hybrid heaviest</span> <span class="sh">${kgStr(j.hb)}</span></div><div><span>Hybrid lightest</span> <span class="sh">${kgStr(j.hs)}</span></div>`:''}<div><span>Best sale value</span> ${j&&j.bv?'<span class="coin">'+fmt(j.bv)+'</span>':'—'}</div><div><span>Times caught</span> ${j?fmt(j.n):0}</div>
       <div><span>Size range</span> ${kgStr(sel.min)}–${kgStr(sel.max)}</div><div><span>Active</span> ${sel.time==='any'?'Day and night':sel.time==='night'?'Night only':'Day only'}</div><div><span>Strength</span> ${strTxt(fishPull(sel))}${fishPull(sel)>anglerStr()?' · heavy for you':''}</div>
-      <div><span>Mastery</span> <span class="sh">${starStr(mastery(sel.id))}</span> +${mastery(sel.id)*10}%${mastery(sel.id)<4?` · next at ${MASTERY[mastery(sel.id)]}`:''}</div>
+      <div><span>Mastery</span> <span class="sh">${starStr(mastery(sel.id))}</span> +${Math.round(mastery(sel.id)*masteryK()*100)}%${mastery(sel.id)<4?` · next at ${masteryT()[mastery(sel.id)]}`:''}</div>
       <div><span>Fights like a</span> ${B.n.toLowerCase()}</div><div><span>Temper</span> ${'●'.repeat(Math.round(sel.aggr*5))+'○'.repeat(5-Math.round(sel.aggr*5))}</div><div><span>In the aquarium</span> ${ae?fmtB(ae.k,ae.v):'—'}</div>
       ${j&&j.first?`<div><span>First caught</span> ${new Date(j.first).toLocaleDateString()}</div>`:''}</div><p class="sub" style="margin-top:6px">${B.d}</p></div></div>`; }
     body=`<div class="row spread" style="margin-top:6px"><span class="sub">${got} / ${list.length} found${S.setDone[L.id]?' · complete':` · find them all for <span class="coin">${fmt(L.bonus)}</span>`}${open?'':' · water locked'}</span><span class="sub">${PLAT.touch()?'Tap':'Click'} a fish for its records</span></div>
@@ -187,7 +187,7 @@ function renderMap(P){
   P.innerHTML=`<h2>Waters</h2><p class="sub">${LOCS.every(L=>S.unlocked.includes(L.id))?`All ${LOCS.length} waters are open. Every one has`:`Open a new water with coins after catching ${unlockNeed()} fish at the water before it. Each voyage adds 10 more, up to 50. Every water has`} ${spAt("pond").length} fish of its own, its own junk and treasure${LOCS.every(L=>S.unlocked.includes(L.id))?"":", and is a little tougher than the last"}.</p><div class="grid">`+
   LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), here=S.loc===L.id; const prev=i?LOCS[i-1]:null; const met=unlockMet(i); const sps=spAt(L.id);
     const btn = here ? '<button class="btn alt" disabled>Fishing here</button>' : open ? `<button class="btn" data-act="goto" data-k="${L.id}" ${G.st==='idle'||G.st==='rest'?'':'disabled title="Reel in your line first"'}>Travel here</button>`
-      : L.eg&&!egCharted(L) ? `<button class="btn" disabled>Complete voyage ${L.eg} to unlock</button>` /* Cam's list #12 */
+      : L.eg&&!egCharted(L) ? `<button class="btn" disabled>Complete voyage ${egVoy(L)} to unlock</button>` /* Cam's list #12 */
       : `<button class="btn" data-act="unlock" data-k="${L.id}" ${met&&S.money>=locCost(L)&&locPrevOk(i)?'':'disabled'}>Unlock · <span class="coin">${fmt(locCost(L))}</span></button>`;
     const egHead=L.eg&&!(prev&&prev.eg)?`<div class="eg-head"><h3>End-game waters</h3><span class="meta">These open after later voyages (see Set sail again). Their fish are much tougher and worth much more.</span></div>`:"";
     return egHead+`<div class="tile loc ${here?"here":""}"><div class="sw2" style="background:linear-gradient(${L.sky[0]},${L.sky[1]} 48%,${L.water[0]} 52%,${L.water[1]})"></div>
@@ -225,6 +225,12 @@ function renderPets(P){ const pp=PETI[S.pet];
 
 // ---------- save codes ----------
 let pendingLoad=null;
+/* a valid save code takes you back to the fishing screen, where you confirm the load (director, 2026-11-23) */
+function showLoadAsk(){ const old=$('loadask'); if(old) old.remove(); if(!pendingLoad) return; const o=pendingLoad, d=document.createElement('div'); d.id='loadask'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true');
+  d.style.cssText='position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(4,10,18,.55);padding:16px';
+  d.innerHTML=`<div style="max-width:420px;width:100%;background:#0f2233;color:#eef6fa;border-radius:16px;padding:18px 18px 14px;box-shadow:0 10px 40px #0008;border:1px solid #ffffff1f"><h3 style="margin:0 0 8px">Load this save?</h3><p style="margin:0 0 14px;line-height:1.45">It replaces this device’s progress with level ${o.lvl}, ${fmt(o.money||0)} coins and ${Object.keys(o.journal||{}).length} species.</p><div style="display:flex;gap:10px;justify-content:flex-end"><button type="button" class="btn alt" data-la="no">Cancel</button><button type="button" class="btn" data-la="yes">Load save</button></div></div>`;
+  d.addEventListener('click',e=>{ const b=e.target.closest('[data-la]'); if(!b&&e.target!==d) return; if(b&&b.dataset.la==='yes'&&pendingLoad){ S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; offlineIncome(); fillBounties(); save(); renderPanel(); toast('Progress loaded. Welcome back!'); } else pendingLoad=null; d.remove(); });
+  document.body.appendChild(d); const y=d.querySelector('[data-la="yes"]'); if(y) y.focus(); }
 async function makeCode(){ const json=JSON.stringify(S);
   try{ if(window.CompressionStream){ const st=new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw')); const buf=new Uint8Array(await new Response(st).arrayBuffer()); let bin=''; for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000)); return 'DL1:'+btoa(bin); } }catch(e){}
   return 'DL0:'+btoa(unescape(encodeURIComponent(json))); }
@@ -248,7 +254,7 @@ function renderSave(P){ const isApp=window.matchMedia && matchMedia('(display-mo
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b||b.disabled) return; const k=b.dataset.k, i=+b.dataset.i;
   switch(b.dataset.act){
     case 'copysave': { const t=$('savecode'); if(!t||!t.value.startsWith('DL')) return; (navigator.clipboard?navigator.clipboard.writeText(t.value):Promise.reject()).then(()=>toast('Save code copied')).catch(()=>{ t.focus(); t.select(); toast('Press Ctrl+C (or long-press, Copy) to copy the code'); }); return; }
-    case 'loadsave': { const v=codeFromAny(($('loadcode')||{}).value||''); readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; renderPanel(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
+    case 'loadsave': { const v=codeFromAny(($('loadcode')||{}).value||''); readCode(v).then(o=>{ if(!o||typeof o!=='object'||!o.journal) throw 0; pendingLoad=o; closeMenu(); showLoadAsk(); }).catch(()=>toast('That code didn’t work. Copy the whole thing and try again.')); return; }
     case 'loadok': { if(!pendingLoad) return; S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; S.tab='save'; offlineIncome(); fillBounties(); toast('Progress loaded. Welcome back!'); break; }
     case 'install': { const ip=window.__dlInstallPrompt; if(!ip) return; ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; renderPanel(); }); return; }
     case "sellall": { const sell=S.cooler.filter(f=>!sellKeep(f)); if(!sell.length) return; const tot=earn(sell.reduce((a,f)=>a+salePrice(f),0)); S.cooler=S.cooler.filter(f=>sellKeep(f)); sfx.coin(); toast('Sold '+sell.length+' fish for '+fmt(tot)+' coins'+(S.cooler.length?' (rare fish kept)':'')+'. '+quip('sell')); break; }

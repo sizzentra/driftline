@@ -82,7 +82,7 @@ const FF_AVG = {};
 function ffAvg(loc){ if(FF_AVG[loc]) return FF_AVG[loc]; const ps=SP.filter(s=>s.loc===loc); const n=Math.max(1,ps.length);
   const str=ps.reduce((a,s)=>a+(s.str||1),0)/n, kg=ps.reduce((a,s)=>a+((s.min||0)+(s.max||0))/2,0)/n; return FF_AVG[loc]={str:Math.max(.5,str), kg:Math.max(.05,kg)}; }
 // how many tries a bite gives before it's gone (Cam's list #10): one to start; Quick Reflexes at ranks 5 and 10 and a full Water Reader add one each
-const hookTries = () => 1 + (pr('reflex')>=5?1:0) + (pr('reflex')>=10?1:0) + (maxed('reader')?1:0);
+const hookTries = () => 1 + (pr('reflex')>=5?1:0) + (pr('reflex')>=10?1:0) + Math.floor(pr('secondbite')/3); /* Second Bite ranks 3, 6 and 9 (director, 2026-11-23; was Water Reader's full rank) */
 // a fresh fight on the new rules (called by hookIt)
 function ffInit(){ const f=G.fish; G.surge3=null;
   G.d0=G.d=Math.max(3, FF.FAR_M*clamp(G.lastCast,0,1)); G.dd=0; G.maxOut=FF.SPOOL_M+rodSpool();
@@ -92,7 +92,7 @@ function ffInit(){ const f=G.fish; G.surge3=null;
   else if(f&&f.kind==='fish'&&fishRank(f)>=2&&G.d0<25){ G.ffOpen=true; G.ffRest=.35; }
   G.swim=null; G.swimT=rnd(FF.SWIM_EVERY[0],FF.SWIM_EVERY[1]); G.swStep=0; G.swNext=0; G.swN=0;
   if(G.perfect){ G.ffOpen=false; G.ffRest=Math.max(FF.PERFECT_REST,G.ffRest); } /* Cam: a perfect hook holds the fish still for 1.5 s */
-  G.combo=0; G.pops=[]; G.ppw=0; G.tell=null; G.prevRin=0; G.dartNext=false; G.dartLeft=0; G.grooveT=0; G.reelHold=0; G.restHold=0; G.flashT=FEEL.juice&&f&&f.kind==='fish'?.18:0; G.ffMin=0; G.lastK=null; if(G.perfect) feelPop('Perfect hook!'); /* Feel lab */ }
+  G.combo=0; G.pops=[]; G.ppw=0; G.tell=null; G.prevRin=0; G.dartNext=false; G.dartLeft=0; G.grooveT=0; G.reelHold=0; G.restHold=0; G.flashT=FEEL.juice&&f&&f.kind==='fish'?.18:0; G.ffMin=0; G.lastK=null; G.dQ=0; if(G.perfect) feelPop('Perfect hook!'); /* Feel lab */ }
 // how often the fish acts, from its temper: 1x calm, up to FF.TEMPER_RATE x at full temper (Cam: full temper = rapid moves)
 const ffRate = () => 1+(FF.TEMPER_RATE-1)*clamp((G.temper||0)/3,0,1);
 function ffWeightClass(f){ const lb=(f.kg||0)/FF.LB; return lb<1.5?0:lb<3?1:lb<5?2:3; }
@@ -159,7 +159,7 @@ function fightNew(dt){
       A.inZT=inZ?(A.inZT||0)+dt:0; if(A.inZT>=FF.DIVE_HOLD||A.got>=A.max-1e-6) A.t=A.dur; } /* Cam: holding the band for 1.5 s stops the dive at once */
     /* Feel lab, the right reaction pays: ease off in a run, a shake or a jump away; reel into a jump toward you; hold the dive band */
     if(A.k==='run'&&A.style==='long'){ const press=rin>0&&!(G.prevRin>0); A.holdT=rin>0?(A.holdT||0)+dt:0; /* a long run: short pulls in rhythm pay; holding on strains the line */
-      if(press){ const gap=A.t-A.lastPress; if(gap>.18&&gap<.9){ A.taps++; G.sta=Math.max(0,G.sta-.012*Math.max(.5,FEEL.counter||0)); G.d=Math.max(.5,G.d-.25); A.dur=Math.max(A.t+.2,A.dur-.3); if(A.taps===2) feelPop('Steady!'); if(A.taps%5===0) feelCombo(1); } /* each good pull shortens the run; +1 combo per 5 (director, 2026-11-23) */ A.lastPress=A.t; }
+      if(press){ const gap=A.t-A.lastPress; if(gap>.18&&gap<.9){ A.taps++; G.sta=Math.max(0,G.sta-.012*Math.max(.5,FEEL.counter||0)); G.dQ=(G.dQ||0)+.25; A.dur=Math.max(A.t+.2,A.dur-.3); if(A.taps===2) feelPop('Steady!'); if(A.taps%5===0) feelCombo(1); } /* each good pull shortens the run; +1 combo per 5 (director, 2026-11-23) */ A.lastPress=A.t; }
       if(A.holdT>1.1&&!A.bad){ A.bad=1; feelCombo(-1); } }
     else if(FEEL.counter>0){ const live=!(A.k==='jump'&&A.t<JUMP_WINDUP), good=!live?false:A.k==='dive'?!!A.inZ:(A.k==='jump'&&!A.away)?rin>.6:rin<.25;
       if(good){ A.good=(A.good||0)+dt; G.sta=Math.max(0,G.sta-dt*.035*FEEL.counter*(A.style==='dart'?1.5:1)); if(!A.paid&&A.good>=.4){ A.paid=1; feelPop(A.k==='dive'?'Held it!':(A.k==='jump'&&!A.away)?'Reeled in!':A.style==='dart'?'Let it dart!':'Nice!'); feelCombo(1); } } /* letting a dart go tires the fish faster */
@@ -193,9 +193,10 @@ function fightNew(dt){
   // a predator that swallowed your catch strips line (n_play.js), as before
   if(G.strip){ const P=G.strip; P.t+=dt; const k=Math.min(1,P.t/P.dur), e=1-Math.pow(1-k,2); G.d=Math.max(G.d,P.from+(P.to-P.from)*e); G.run=true; if(rin>0) G.ten+=EAT_STRIP_TEN*rin*dt*tensionMult(); if(k>=1){ G.strip=null; if(!G.ffA) G.run=false; } }
   /* Feel lab: the perfect pull (press reel inside the glowing window as a move ends), the hook flash, pop-ups, a mistake at the snap line */
-  { const press=rin>0&&!(G.prevRin>0); if(G.ppw>0){ G.ppw-=dt; if(press&&G.sta>0){ G.ppw=0; G.sta=Math.max(0,G.sta-.1*FEEL.pull); G.d=Math.max(.5,G.d-1.2*FEEL.pull); feelPop('Perfect pull!'); feelCombo(1); try{ tone(880,.08,'triangle',.06); }catch(e){} } }
+  { const press=rin>0&&!(G.prevRin>0); if(G.ppw>0){ G.ppw-=dt; if(press&&G.sta>0){ G.ppw=0; G.sta=Math.max(0,G.sta-.1*FEEL.pull); G.dQ=(G.dQ||0)+1.2*FEEL.pull; feelPop('Perfect pull!'); feelCombo(1); try{ tone(880,.08,'triangle',.06); }catch(e){} } }
     G.prevRin=rin; if(G.flashT>0) G.flashT=Math.max(0,G.flashT-dt); if(G.pops){ for(const p of G.pops) p.t+=dt; G.pops=G.pops.filter(p=>p.t<1.1); }
     if(G.ten>92&&rin>0&&(G.combo||0)>0&&!G.ffA) feelCombo(-1); }
+  if(G.dQ>0){ const st=Math.min(G.dQ,Math.max(.05,G.dQ*dt*8)); G.d=Math.max(.5,G.d-st); G.dQ-=st; } /* line won back by a reward comes in over a moment, so the float glides instead of jumping (bug: "landing a combo reaction, the game jumps", director 2026-11-23) */
   G.noReelT=rin>0?0:(G.noReelT||0)+dt;
   const frac=clamp((G.d-(G.dd||0))/G.d0,0,1.6), x0=W*.24, x1=castX(G.lastCast);
   G.bob.x=x0+(x1-x0)*Math.min(frac,1.25)+(G.run?Math.sin(performance.now()/90)*3:0)+(G.ffA&&G.ffA.style==='dart'?G.ffA.dir*Math.sin(Math.min(1,G.ffA.t/G.ffA.dur)*Math.PI)*W*.025:0) /* a dart zigzags */+(G.ev==='shake'?Math.sin(performance.now()/30)*3:0)+(G.tell?Math.sin(performance.now()/22)*2:0); G.bob.x=clamp(G.bob.x,W*.2,W*.93); /* the fight never leaves the screen (director, 2026-11-22: "fish fights keep escaping the viewable screen") */ G.bob.y=waterY(G.bob.x);

@@ -2,6 +2,16 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'New skill, Second Bite: one more try per bite at ranks 3, 6 and 9, better rare odds on every try after a miss, and at full rank a missed hotspot bite doesn’t break your streak. Water Reader no longer gives the extra try.',
+  'Gourmet: fish caught on their favourite food also sell for more (6% a rank).',
+  'Naturalist is now a mastery skill: each mastery star adds a little more value, and at full rank the first star comes at 2 catches.',
+  'Candy Maker goes up to rank 10, and each rank gives a small chance that the Nibbles from scrapping are a rarity higher.',
+  'Snag Sense says what it does: better at avoiding snags.',
+  'End-game waters open one voyage sooner: Animal Farm after your first voyage, and one more after each voyage.',
+  'Loading a save code takes you back to the fishing screen to confirm the load.',
+  'Fixed: the cooler’s Sell choices now always decide (the rarity menu, Sell shinies too and Sell hybrids too were overruled by Protect rare fish); the rarity menu no longer closes by itself.',
+  'Fixed: landing a reward in a fight no longer makes the float jump; the line it wins back comes in smoothly.',
+  '## Test build 2026.11.23-0259',
   'Fishing feel: runs come a little less often, short darting runs are more common than long ones, and a fish rests at least a moment after a run instead of chaining runs back to back.',
   'Long runs: each good short pull ends the run sooner, and the combo grows every 5 good pulls. Darting runs have fewer darts in a row (a few more for the rarest fish).',
   'Fish have a little more fight, and a tired fish gets its second wind a bit sooner.',

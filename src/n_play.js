@@ -78,7 +78,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
      fish its size, in coins and in aquarium income */
   const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r]*pathMul('hx') : 0;
   let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))));
-  value=Math.round(value*RAR[sp.r].val*(1+(spec('collector')?.15:.1)*mastery(sp.id))*specLocValue(sp.loc)); if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
+  value=Math.round(value*RAR[sp.r].val*(1+masteryK()*mastery(sp.id))*specLocValue(sp.loc)); { const bb=BAIT[S.baitSel]; if(pr('gourmet')&&bb&&bb.food&&typeof FISH_FAV!=='undefined'&&FISH_FAV[sp.id]===bb.id) value=Math.round(value*(1+.06*pr('gourmet'))); } /* Gourmet: caught on its favourite food, it sells for 6% more a rank (director, 2026-11-23) */ if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
   const f={kind:'fish', sp, kg, rel:clamp(rel,0,1), str, th:sp.th, beh:sp.beh, aggr:sp.aggr, value, shiny, pv, hy, hx, ab, ab2, trophy, storm: wx.k==='Storm', hot:G.inHot, prey:null};

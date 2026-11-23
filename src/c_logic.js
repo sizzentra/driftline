@@ -156,7 +156,7 @@ function caughtAt(loc){ return SP.filter(s=>s.loc===loc && S.journal[s.id]).leng
 const unlockNeed = () => Math.max(5,Math.round(Math.min(50, 10*((S.tides||0)+1))*pathMul('unlock')));
 const voyCatchAt = loc => (S.voyCatch&&S.voyCatch[loc])||0;
 const unlockMet = i => i<=0 || S.unlocked.includes(LOCS[i].id) || (LOCS[i].eg ? egCharted(LOCS[i]) : voyCatchAt(LOCS[i-1].id) >= unlockNeed()); /* [69] end-game waters open by voyages, not catches */
-const unlockLine = i => { if(LOCS[i].eg) return egCharted(LOCS[i]) ? 'Voyage '+LOCS[i].eg+' complete: open it for coins' : 'Complete voyage '+LOCS[i].eg+' to unlock ('+(S.tides||0)+' so far)'; const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
+const unlockLine = i => { if(LOCS[i].eg) return egCharted(LOCS[i]) ? 'Voyage '+egVoy(LOCS[i])+' complete: open it for coins' : 'Complete voyage '+egVoy(LOCS[i])+' to unlock ('+(S.tides||0)+' so far)'; const prev=LOCS[i-1]; return Math.min(voyCatchAt(prev.id),unlockNeed())+' / '+unlockNeed()+' fish caught at '+prev.name+' this voyage'; };
 const spAt = loc => SP.filter(s=>s.loc===loc);
 
 const CYCLE = 360;
@@ -239,7 +239,7 @@ function beginWait(){ G.st='waiting'; G.waitT=0; G.missN=0; const b=BAIT[S.baitS
 function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearlOld||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
-  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc); return rare; }
+  if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc)*(G.missN>0?1+.05*pr('secondbite'):1); return rare; } /* Second Bite: better odds on every try after a miss */
 function shinyChance(hot){ const b=BAIT[S.baitSel], wx=weather(); return Math.min(.15, (.02 + .003*pr('lucky')) * (wx.shiny||1) * (b.shiny||1) * (1+bonus('shiny')) * (hot?HOT_SHINY_K:1) * (spec('shinyhunter')?1.6:1) * (relic('luckypearl')?1.5:1)); } /* batch 6: at most 15% shiny, whatever stacks */
 const junkChance = () => Math.min(.2, .05*(1+.1*pr('scavenger'))*(1+bonus('treasure'))*(BAIT[S.baitSel].treasure||1)*(G.inHot?1.5:1)*(spec('tinker')?1.6:1)*(weather().treasure||1)*pathMul('junk')); /* batch 6: at most 1 cast in 5 brings up an oddity, however it is stacked */
 function pickJunk(){ const ws=JUNK.map(j=>JUNK_W[j.t]); let x=Math.random()*ws.reduce((a,b)=>a+b,0); for(let i=0;i<JUNK.length;i++){ x-=ws[i]; if(x<=0) return JUNK[i]; } return JUNK[0]; }
@@ -280,7 +280,7 @@ function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hook
 function breakStreak(why){ const n=S.streak; if(!n){ if(why) toast(why); return; } const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; const msg=keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"; if(why) toast(n>=3?why+' '+msg+'.':why); else if(n>=3) setTimeout(()=>toast(msg),1200); save(); } /* why: Cam's list #10 puts the reason into the streak message */ /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
-  if(kind==='baited'){ G.st='idle'; G.fish=null; G.inHot=false; sfx.lost(); if(S.baitSel!=='worm'&&(S.bait[S.baitSel]||0)>0&&!pathSave()){ S.bait[S.baitSel]--; if(!S.bait[S.baitSel]) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); } breakStreak('You waited too long, the fish got your bait!'); return; } /* Cam's list #10: every try missed at a hotspot */
+  if(kind==='baited'){ G.st='idle'; G.fish=null; G.inHot=false; sfx.lost(); if(S.baitSel!=='worm'&&(S.bait[S.baitSel]||0)>0&&!pathSave()){ S.bait[S.baitSel]--; if(!S.bait[S.baitSel]) toast(BAIT[S.baitSel].name+' used up. Back to worms.'); renderBait(); } if(!maxed('secondbite')) breakStreak('You waited too long, the fish got your bait!'); return; } /* Second Bite at full rank: a missed hotspot bite keeps the streak */ /* Cam's list #10: every try missed at a hotspot */
   G.st='idle'; G.fish=null; G.inHot=false; if(kind!=='nohook') breakStreak(); /* director 2026-11-18: a missed strike keeps the streak; only a hooked fish that gets away ends it */
   if(kind==='snap'){ S.stats.snapped++; sfx.snap(); toast((G.temper>1.6 ? 'Snap! Let go when it gets angry. ' : fishNew() ? 'Snap! Short pulls when it fights. ' : 'Snap! Ease off when it runs. ')+quip('snap')); checkFeats(); save(); }
   else if(kind==='nohook'){ sfx.lost(); toast('Missed a bite'); } /* a missed strike said "slipped off the hook" before */
@@ -295,8 +295,8 @@ function landFish(){
   journalAdd(f);
   S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = Math.min(streakCap(),.05*(S.streak-1));
   if(G.perfect && relic('goldhook')) f.value=Math.round(f.value*1.1);
-  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*((!j||j.n<3)?1+.05*pr('naturalist'):1));
-  if(isNew && maxed('naturalist')) S.scales+=5;
+  const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*1);
+  /* (Naturalist's Scales for new species moved: it is a mastery skill now, director 2026-11-23) */
   f.demand = demandSp().id===sp.id; if(f.demand) S.stats.demand++; f.streakBonus=streakBonus;
   { const ce=coolerEntry(f); S.cooler.push(ce); G.lastEntry=ce; } S.stats.caught++; if(f.shiny===2) S.stats.prism=(S.stats.prism||0)+1; if(f.hy) S.stats.hybrid=(S.stats.hybrid||0)+1;
   const preyB=[]; for(const p of (f.prey||[])){ journalAdd(p); S.stats.caught++; S.cooler.push(coolerEntry(p)); preyB.push(['k','Swallowed '+p.sp.name+' ('+kgStr(p.kg)+'): in your cooler'+(S.cooler.length>gv('cooler')?' (over its limit)':'')]); } /* C19 (director + Cam, 2026-11-20): fish a predator swallowed always go to the cooler, even past its limit */
@@ -310,7 +310,7 @@ function landFish(){
   if(f.demand) b.push(['g','Fishmonger wants it: ×2 if sold now']); if(G.perfect) b.push(['','Perfect hook']); if(S.streak>=2) b.push(['','Streak '+S.streak+' · +'+Math.round(streakBonus*100)+'% XP']);
   if(scl) b.push(['k','+'+scl+' Scales']); if(tok) b.push(['g','+1 '+(tok==='big'?'big':'small')+' Mystery Crate']);
   if(isNew) b.push(['','New species']); if(record) b.push(['g','Personal record']); const ae=G.lastEntry&&!G.lastEntry.hy&&aqEff(G.lastEntry); if(ae && isNew) b.push(['k','In the aquarium: '+fmtB(ae.k,ae.v)]);
-  const ms=mastery(sp.id); if(ms && [3,10,30,100][ms-1]===S.journal[sp.id].n) b.push(['g','Mastery '+'★'.repeat(ms)+': +'+ms*10+'% value for this fish']);
+  const ms=mastery(sp.id); if(ms && masteryT()[ms-1]===S.journal[sp.id].n) b.push(['g','Mastery '+'★'.repeat(ms)+': +'+Math.round(ms*masteryK()*100)+'% value for this fish']);
   const rk=checkRank(); if(rk) b.push(['g',rk]);
   if(lvUps) b.push(['g','Level up! Lv '+S.lvl+' · +'+lvUps+' skill point']); bdone.forEach(()=>b.push(['g','Bounty ready'])); if(setNow) b.push(['g',LOCS[locIdx(sp.loc)].name+' complete: +'+fmt(setNow)]);
   showCard({draw:c=>fishCanvas(c,sp,true,f.shiny,f.pv), shiny:!!f.shiny, rar:(f.shiny===2?PRISM[f.pv].n+' prismatic ':f.shiny?'Shiny ':'')+(f.hy?'hybrid ':'')+RAR[sp.r].k, rarCol:f.shiny===2?PRISM[f.pv].c:f.shiny?'var(--gold)':RAR[sp.r].c, name:sp.name,

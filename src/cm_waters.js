@@ -180,7 +180,7 @@ const WATER_EG = WATERS_NEW.filter(w=>w.eg);
     let idx; if(Wd.eg){ idx=LOCS.length; } else { idx=fidx(Wd.after)+1; }
     const prev=Wd.eg?'starfall':LOCS[idx-1].id, next=Wd.eg?'starfall':LOCS[idx].id;
     LOCS.splice(idx,0,{id:Wd.id, name:Wd.name, cost:Wd.cost, bonus:Wd.bonus, plat:Wd.plat, blurb:Wd.blurb, sky:Wd.sky, water:Wd.water, hill:Wd.hill, amp:Wd.amp, freq:Wd.freq, depth:Wd.depth, loot:Wd.loot, eg:Wd.eg||0});
-    if(Wd.eg){ const o=LOCS[idx]; Object.defineProperty(o,'name',{get(){ return egCharted(this)?Wd.name:'Uncharted Waters'; },configurable:true,enumerable:true}); Object.defineProperty(o,'blurb',{get(){ return egCharted(this)?Wd.blurb:'Complete voyage '+Wd.eg+' to chart these waters.'; },configurable:true,enumerable:true}); } /* Cam's list #12 */
+    if(Wd.eg){ const o=LOCS[idx]; Object.defineProperty(o,'name',{get(){ return egCharted(this)?Wd.name:'Uncharted Waters'; },configurable:true,enumerable:true}); Object.defineProperty(o,'blurb',{get(){ return egCharted(this)?Wd.blurb:'Complete voyage '+egVoy(this)+' to chart these waters.'; },configurable:true,enumerable:true}); } /* Cam's list #12 */
     const lpA=LOCS[fidx(prev)], lpB=LOCS[fidx(next)], w=Wd.eg?0:cl(Math.log(Wd.loot/lpA.loot)/Math.log(lpB.loot/lpA.loot),0,1);
     const R=r=>{ const a=ref(prev,r), b=ref(next,r), g=(x,y)=>x>0&&y>0?Math.exp(Math.log(x)*(1-w)+Math.log(y)*w):(x||y); return {base:g(a.base,b.base),min:g(a.min,b.min),max:g(a.max,b.max),str:a.str*(1-w)+b.str*w}; };
     Wd.fish.forEach((e,i)=>{ const [name,note]=e.split('|'); const id=Wd.pre+'_'+slug(name), r=RAR_OF[i], meme=i>=50, nm=name.toLowerCase(); if(SPI[id]) return;
@@ -203,7 +203,8 @@ const isEgLoc = id => { const L=LOCS[locIdx(id)]; return !!(L&&L.eg); };
 /* Cam's list #12: an end-game water is "Uncharted Waters" (name and card) until you reach its voyage; then it opens for coins like any
    water and stays open for good once paid for (S.egPaid). Waters a save already had open count as paid. */
 /* (function declarations: the name getters below can run while the page is still loading) */
-function egCharted(L){ try{ return !!L && ((S.tides||0) >= (L.eg||0) || S.unlocked.includes(L.id)); }catch(e){ return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
+const egVoy = L => Math.max(1,(L.eg||0)-1); /* the voyages an end-game water needs: Animal Farm after the first voyage, one more for each after it (director, 2026-11-23: was one later) */
+function egCharted(L){ try{ return !!L && ((S.tides||0) >= egVoy(L) || S.unlocked.includes(L.id)); }catch(e){ return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
 const egCost = L => Math.max(1000, Math.round(30*bestNormalLoot()*(1+.15*((L.eg||2)-2))/1000)*1000); /* balance first version (the director and Cam decide): about 30 catches' worth at your best water */
 function egOpenAdd(st){ st=st||S; if(!st||!Array.isArray(st.unlocked)) return; if(!Array.isArray(st.egPaid)) st.egPaid=[];
   for(const Wd of WATER_EG){ if(st.unlocked.includes(Wd.id)&&!st.egPaid.includes(Wd.id)) st.egPaid.push(Wd.id); if(st.egPaid.includes(Wd.id)&&!st.unlocked.includes(Wd.id)) st.unlocked.push(Wd.id); } }

@@ -444,7 +444,8 @@ const PERKS = {
   lucky:    {name:'Lucky Charm',    max:10, per:'Better rare odds, +0.3% shiny chance', d:'Rarer fish and more shinies.'},
   caster:   {name:'Long Caster',    max:10, per:'Far casts count sooner and give more', d:'Better rewards for casting far.'},
   trophy:   {name:'Trophy Hunter',  max:10, per:'+6% trophy-size chance', d:'Heavier fish, more wall mounts.'},
-  reader:   {name:'Water Reader',   max:10, per:'Hotspots +10% more often, last longer', d:'Spot the ripples where rare fish gather. Full rank: one more try per bite.'},
+  reader:   {name:'Water Reader',   max:10, per:'Hotspots +10% more often, last longer', d:'Spot the ripples where rare fish gather.'}, /* the extra try per bite moved to Second Bite (director, 2026-11-23) */
+  secondbite:{name:'Second Bite',   max:9,  per:'+5% rare odds on every try after a miss; ranks 3, 6 and 9: one more try per bite', d:'Missed it? The fish comes back for another look.'}, /* director, 2026-11-23 */
   scavenger:{name:'Scavenger',      max:10, per:'+10% junk and treasure chance', d:'Hook more of humanity’s lost things.'},
   haggler:  {name:'Haggler',        max:10, per:'+4% sale price', d:'The fishmonger pays you more.'},
   keeper:   {name:'Fish Keeper',    max:10, per:'+8% aquarium income', d:'Happier fish, more visitors.'},
@@ -452,7 +453,7 @@ const PERKS = {
   streaker: {name:'On a Roll',      max:5,  per:'+10% max streak bonus', d:'Long catch streaks pay more XP.'},
   nightowl: {name:'Night Owl',      max:5,  per:'Better rare odds at dusk and night', d:'The dark is where the good fish hide.'},
   weatherwise:{name:'Weatherwise',  max:10, per:'+4% bite speed in any weather but clear', d:'You read the sky like a book.'},
-  naturalist:{name:'Naturalist',    max:10, per:'+5% XP from fish you’ve caught fewer than 3 times', d:'New discoveries teach you the most.'},
+  naturalist:{name:'Naturalist',    max:10, per:'Each mastery star adds 1% more value', d:'You know every species inside out.'}, /* director, 2026-11-23: was XP for species caught under 3 times, best only when bought first; now a mastery buff */
   aquarist: {name:'Aquarist',       max:10, per:'+3% to aquarium fish boosts', d:'Your fish thrive under your care.'},
   derbypro: {name:'Derby Pro',      max:5,  per:'Derby rivals score 4% less', d:'You know the competition’s tricks.'},
   tidewalker:{name:'Tidewalker',    max:10, per:'+6% Tide Pass XP', d:'The tide carries you further.'},
@@ -460,9 +461,9 @@ const PERKS = {
   dozer:    {name:'Lazy Days',      max:5,  per:'Rest mode bites come sooner', d:'While resting, fish bite in 30 s to 3 min at full rank (3 to 10 min to start).'},
   /* 0.4.9 [15] (director: "More skills. More ways to get skill points") */
   grappler: {name:'Grappler',       max:5,  per:'Rare fish hold back 4% less while you reel', d:'Strong hands for the big ones.'},
-  snagwise: {name:'Snag Sense',     max:5,  per:'Oddities strain the line 8% less', d:'You feel a snag before it bites.'},
-  gourmet:  {name:'Gourmet',        max:5,  per:'Favourite foods pull 6% harder', d:'You know exactly what every fish likes.'},
-  nibbler:  {name:'Candy Maker',    max:5,  per:'+4% chance that scrapping gives Nibbles', d:'Nothing goes to waste.'},
+  snagwise: {name:'Snag Sense',     max:5,  per:'Oddities strain the line 8% less', d:'Better at avoiding snags.'},
+  gourmet:  {name:'Gourmet',        max:5,  per:'Favourite foods pull 6% harder; fish caught on them sell for 6% more', d:'You know exactly what every fish likes.'},
+  nibbler:  {name:'Candy Maker',    max:10, per:'+4% chance that scrapping gives Nibbles; +1% chance they are a rarity higher', d:'Nothing goes to waste.'},
   prismkeeper:{name:'Prism Keeper', max:5,  per:'Titled shinies lift your other fish 2% more', d:'Your titled shinies shine for everyone.'},
 };
 const WEATHERS = [

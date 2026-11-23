@@ -35,9 +35,10 @@ const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 let NIB_ANIM=null;
 /* one fish: removes it and returns the Nibbles it gave (0 on a miss); shared by Scrap and Scrap all */
 function nibScrapOne(f){ const sp=SPI[f.id], ok=Math.random()<nibOdds(f); S.stats.scrapped=(S.stats.scrapped||0)+1;
-  if(!ok) return 0; const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); nibAdd(sp.id,n); return n; }
+  if(!ok) return 0; const n=nibAmount(f)+(maxed('nibbler')?1:0)+Math.round(pathAdd('nibplus')); NIB_UP=null; const up=sp.r<5&&Math.random()<.01*pr('nibbler')?SP.find(s=>s.r===sp.r+1):null; if(up) NIB_UP=up.id; nibAdd(up?up.id:sp.id,n); return n; } /* Candy Maker: 1% a rank that the Nibbles are a rarity higher (director, 2026-11-23) */
+let NIB_UP=null;
 function nibScrap(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id]; S.cooler.splice(i,1); const n=nibScrapOne(f);
-  if(n){ sfx.coin(); toast('+'+nibTierWord(sp.id,n)+' for your Aquarium.'); } else toast('Scrapped. No Nibbles this time.'); /* Cam's list #1: the message names the Nibble tier, not the fish */
+  if(n){ sfx.coin(); toast('+'+nibTierWord(NIB_UP||sp.id,n)+(NIB_UP?' (a rarity higher!)':'')+' for your Aquarium.'); } else toast('Scrapped. No Nibbles this time.'); /* Cam's list #1: the message names the Nibble tier, not the fish */
   return 'render'; }
 /* C11 (director + Cam, 2026-11-20): Scrap all, like Sell all and with the same filters (what Sell all would sell gets scrapped) */
 function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if(!go.length) return 'skip'; S.cooler=S.cooler.filter(f=>!go.includes(f)); let got=0; const by={}; for(const f of go){ const n=nibScrapOne(f); if(n){ got+=n; const r=SPI[f.id].r; by[r]=(by[r]||0)+n; } }
