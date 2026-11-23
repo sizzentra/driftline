@@ -2,6 +2,10 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake, rebuilt to match the director’s picture: the house has a low, wide roof of dark grey tiles with a heavy ridge over glowing shoji walls and round windows, on brown wooden posts, with a much bigger cherry tree spilling over it.',
+  'Cherry Blossom Lake: blue ridges and forested hills in front of Fuji, a waterfall from a rocky cliff with a small pavilion on top, a red arched bridge, a fenced stone path with lantern posts along the left shore, the torii on a rocky islet, the pagoda on the right-hand hill, more pink lotus, koi shadows under the near water, and a bigger near corner with wide stone steps, two wooden lanterns, a rope fence and pink flowers. Lanterns glow at night.',
+  'The Buffet, redone in its own style: your home is a gingerbread house with a steep roof under dripping icing and gumdrops, candy-cane corners and a peppermint window, on a silver platter; a giant fork with a cherry stands in the soup beside it. Your trim and candle choices carry over.',
+  '## Test build 2026.11.23-0737',
   'Animal Farm, redone in its own style: your home is a red barn with the classic two-pitch barn roof and white trim, a hayloft with a hoist and a bundle of hay, and big white X-braced doors (or a Dutch door, or doors rolled open with hay inside). A grassy bank with a hay stack and sunflowers runs behind it. Your fence and lantern choices carry over.',
   '## Test build 2026.11.23-0727',
   'Starfall Lake, redone in its own style: your home is a round star observatory of moonstone with a crystal, silver or star-blossom dome and a gold star on top, a moon-shaped door and a frieze of tiny constellations, standing on a floating rock island with crystals hanging beneath. Your telescope and star lantern choices carry over.',

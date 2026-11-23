@@ -1,0 +1,3 @@
+# The Buffet: review (overnight 2026-11-23)
+Home in its own design, `src/cw_ginger.js` (GB): a gingerbread house seen from its gable end, steep roof under icing that drips over the eaves, gumdrops along the slopes, candy-cane corner posts, icing piping; chocolate-bar, candy-cane arch or cookie door; peppermint, sugar-glass or iced-lattice window. Around it: wafer posts, a silver platter, a giant fork with a cherry standing in the soup, a dollop of cream. Old platter / posts / roof choices became this one building (new ids walls, iroof, door, windows); trim and candle kept.
+Checked: day crop and the sweep.
