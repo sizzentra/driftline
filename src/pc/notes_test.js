@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Hollow Trench, redone in its own style: your home is a castaway raft of tarred barrels and salvaged planks lashed with rope, glowing growth on the barrels below the water. Its shelter is the wrecked lifeboat of a lost ship turned upside down on props (or a sailcloth tent over an oar, or a crooked plank shack with a ship’s porthole). Your raft, mast, salvage and lantern choices carry over.',
+  '## Test build 2026.11.23-0655',
   'Midnight Deep: your trawler is rebuilt as a working steel stern trawler: a deep hull with a high bulwark, freeing ports with rust streaks below them, old tyres hung as fenders, her name and number, a towering wheelhouse forward, and a net drum wound with net and orange floats (or a stern gantry with a trawl door, or stacked crab pots). Your saved choices carry over.',
   '## Test build 2026.11.23-0645',
   'Amazon Rainforest, redone in its own style: your home is a palafito, a stilt house high on vine-lashed poles with a very steep thatched roof hanging low over its walls. Pick the walls, roof, door, river gear, lamp and seat in Your home.',

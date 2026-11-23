@@ -409,21 +409,27 @@ hfMake('trench',{ name:'Castaway raft', hname:'raft', floats:true, glow:'255,180
     ['seat'],
     ['light',(o,s)=>HK.light(o,['hook','jellyjar','wreck'][s])]] });
 
-/* 13. Ember Springs: the bathhouse */
-hfMake('ember',{ name:'Hot-spring bathhouse', hname:'bathhouse',
+/* 13. Ember Springs: the basalt bathhouse (overnight, 2026-11-23; its own design, src/cw_bathhouse.js): a low basalt bathhouse on hexagonal basalt
+   columns with a curved iron barrel-vault roof, round glowing windows and a steam vent; the steaming pool beside it. The old base, floor and roof
+   choices became this one building; the pool and lantern keep their ids */
+{ const G13=()=>EB.geo({pw:HF.pw(),dockY:HF.dockY()});
+hfMake('ember',{ name:'Basalt bathhouse', hname:'bathhouse', glow:'255,150,80', seatX:()=>HF.pw()-W*.03, front:null, smoke:(n,t)=>BH.smoke(n,t,EB.ventTop(G13()),.9),
   colors:C16('Basalt=#4a3a3a;Black basalt=#2a2024;Obsidian=#1a1418;Ash grey=#7a6e6a;Volcanic earth=#7a6258;Iron=#3a3436;Forged iron=#5a4a44;Copper=#b8683a;Ember orange=#ff7a2a;Lava gold=#ffc04a;Crimson=#a83030;Spring turquoise=#7ad8d0;Steam white=#f0e8e4;Onsen cedar=#a87a52;Tile red=#b8483a;Amber sky=#f0c8a0'),
-  els:[{id:'base',label:'Basalt base',styles:['Basalt columns','Stone blocks','Iron pillars'],def:[0,0]},{id:'floor',label:'Floor',styles:['Basalt slabs','Tiled floor','Onsen cedar'],def:[0,1]},
-       {id:'pool',label:'Hot pool',styles:['Stone bath','Cedar tub','Lava-rock ring'],def:[0,11]},{id:'roof',label:'Roof',none:true,styles:['Open sky','Iron frame','Copper hood','Obsidian slab'],def:[2,13]},
+  els:[{id:'walls',label:'Walls',styles:['Basalt stone','Ash render','Charred cedar'],def:[0,0],palS:[[0,1,3,4],[3,4,0],[2,1,5]]},
+       {id:'vault',label:'Roof',styles:['Corrugated iron','Copper vault','Slate vault'],def:[0,5],palS:[[5,6,3],[7,6],[1,2,3]]},
+       {id:'door',label:'Door',styles:['Iron-strapped door','Dutch door','Arched door'],def:[0,6],pal:[5,6,7,2,1]},
+       {id:'pool',label:'Hot pool',styles:['Stone bath','Cedar tub','Lava-rock ring'],def:[0,11]},
        {id:'light',label:'Lantern',light:true,styles:['Iron lantern','Lava bowl','Steam lamp'],def:[0,8]}],
   seat:['steelbench','bathstool','warmrock'], seatNames:['Stone bench','Bath stool','Warm rock'], seatDef:[0,3],
   order:[
-    ['base',(o,s,c)=>HK.supports(o,c,['hex','stone','iron'][s],5)],
-    ['floor',(o,s,c)=>HK.deck(o,c,['stone','tile','walnut'][s])],
-    ['roof',(o,s,c)=>{ if(s===1) HK.roof(o,c,'iron',.02,.38); if(s===2) HK.roof(o,c,'copper',.02,.38); if(s===3) HK.roof(o,c,'slab',.02,.38); }],
-    ['pool',(o,s,c)=>{ const x=HK.at(o,.4), y=o.dockY, w=W*.04, g=s===2?'#ffc04a':c; if(s===0) HK.block(o,x,y-H*.022,w,H*.022,'#5a4a44'); if(s===1){ HK.poly(o,[x,y-H*.024,x+w,y-H*.024,x+w-W*.003,y,x+W*.003,y],'#a87a52'); HK.rect(o,x,y-H*.018,w,1.5,'#3a3436'); HK.rect(o,x,y-H*.008,w,1.5,'#3a3436'); } if(s===2) for(let i=0;i<6;i++) HK.ell(o,x+i*w/5,y-H*.006,W*.004,H*.006,i%2?'#4a3a3a':'#2a2024');
-      HK.ell(o,x+w/2,y-H*.022,w*.42,H*.004,g); for(let i=0;i<3;i++) HK.circ(o,x+w*(.3+i*.2),y-H*.035-i*H*.01,H*.007,v3rgba('#f0e8e4',.25)); }],
+    ['base',(o)=>EB.ground(o)],
+    ['deck',(o)=>HK.deck(o,'#4a3a3a','stone')],
+    ['walls',(o,s,c)=>EB.walls(o,EB.geo(o),s,c)],
+    ['door',(o,s,c)=>BH.door(o,EB.geo(o),['plank','dutch','arched'][s],c)],
+    ['vault',(o,s,c)=>EB.roof(o,EB.geo(o),s,c)],
+    ['pool',(o,s,c)=>EB.pool(o,EB.geo(o),s,c)],
     ['seat'],
-    ['light',(o,s)=>HK.light(o,['chain','lavabowl','steam'][s])]] });
+    ['light',(o,s)=>HK.light(o,['chain','lavabowl','steam'][s])]] }); }
 
 /* 14. Starfall Lake: the floating crystal platform (floats) */
 hfMake('starfall',{ name:'Crystal platform', hname:'crystal platform', floats:true,
