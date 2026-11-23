@@ -2,6 +2,9 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Coral Shallows, redone in its own style: your home is an overwater bungalow high on palm stilts, with a tall thatched roof, a shaggy fringe and a little vent at the top. Pick the walls, roof, door, windows, beach gear, torch and seat in Your home.',
+  'Coral Shallows: a ladder goes down into the clear water, the sandbar with coral and a starfish shows through under the bungalow, and a coconut palm leans out over the roof.',
+  '## Test build 2026.11.23-0600',
   'Frostbite Lake, redone in its own style: your home is a timber ice shanty on sled skids, with a snow-capped roof and icicles, a stovepipe with smoke and a window that glows at night. Pick the walls, roof, stovepipe, door, windows, gear and seat in Your home.',
   'Frostbite Lake: snow drifts against the shanty, footprints lead to a tip-up flag over its hole, and a box sled waits beside it.',
   '## Test build 2026.11.23-0547',
