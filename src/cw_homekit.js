@@ -108,7 +108,7 @@ const HK = {
      small next to the screen, so PC covers barely lift). ROOF_LOW: each kind's lowest edge over the angler, as a share of H. */
   ROOF_LOW:{umbrella:.14,beachumbrella:.14,logoumbrella:.14,leanto:.134,shingle:.134,tin:.134,canvas:.134,sail:.14,gable:.12,slate:.12,barn:.12,shack:.12,aframe:.2,shackbox:.13,
     curved:.126,tiled:.126,thatch:.114,thatchgate:.114,torii:.145,leaf:.14,fronds:.108,flat:.142,ttop:.142,hardtop:.142,glass:.142,ceiling:.142,overhang:.142,bimini:.136,
-    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12,timberframe:.12},
+    tent:.15,stripedtent:.15,walltent:.15,cloche:.12,cone:.12,pediment:.14,crescent:.12,neonarch:.12,rainbow:.12,sundisc:.105,ring:.09,bower:.12,slab:.118,iron:.14,holo:.13,pergola:.12,willowarbor:.12,timberframe:.12,wisteria:.12},
   coverSpan(o,f0,f1){ const sc=HF.sc(); return [Math.min(HK.at(o,f0==null?.03:f0),HF.seatX()-16*sc), Math.min(o.pw-W*.008,Math.max(HK.at(o,f1==null?.47:f1),W*.12+14*sc))]; },
   roof(o,col,kind,f0,f1){ const [a,b]=HK.coverSpan(o,f0,f1), y=o.dockY, k=Math.max(1,(84*HF.sc()/H)/(HK.ROOF_LOW[kind]||.14)), x=o.x;
     if(k>1){ x.save(); x.translate(0,y); x.scale(1,k); x.translate(0,-y); }
@@ -159,6 +159,11 @@ const HK = {
         post(a+W*.004,base); post(b-W*.004,base); HK.poly(o,[a+W*.004,base,m,base-h*.85,b-W*.004,base],'#efe8d8');
         HK.line(o,[a+W*.004,base,b-W*.004,base],ob,2); HK.line(o,[m,base,m,base-h*.85],ob,1.6); HK.line(o,[a+(m-a)*.45,base,m,base-h*.45],ob,1.4); HK.line(o,[b-(b-m)*.45,base,m,base-h*.45],ob,1.4);
         HK.poly(o,[a-W*.012,base+H*.004,m,base-h,b+W*.012,base+H*.004,b+W*.006,base+H*.008,m,base-h*.88,a-W*.006,base+H*.008],c); break; }
+      case 'wisteria': { /* side view: a fuji-dana, two posts and a trellis beam with rafter ends, long racemes of wisteria hanging from it */ const top=y-H*.15, bt=Math.max(3,H*.007), wd='#5a3a26', x=o.x;
+        post(a+W*.006,top); post(b-W*.006,top); HK.rect(o,a-W*.01,top-bt,b-a+W*.02,bt,wd); for(let i=0;i<=8;i++) HK.rect(o,a-W*.008+(b-a+W*.016)*i/8-1.2,top-bt-H*.006,2.4,H*.006,wd);
+        for(let i=0;i<13;i++){ const px=a+(b-a)*(i+.5)/13, len=H*(.02+.028*((Math.sin(i*2.3)+1)/2)), w0=H*.006;
+          const wc=mix('#a88ac8',c,.3); /* always wisteria: the chosen colour only tints it (a dark colour made black teeth) */ x.fillStyle=HK.n(o,HK.dk(wc,.15)); x.beginPath(); x.moveTo(px-w0,top); x.quadraticCurveTo(px-w0*.8,top+len*.6,px,top+len); x.quadraticCurveTo(px+w0*.8,top+len*.6,px+w0,top); x.closePath(); x.fill();
+          x.fillStyle=HK.n(o,HK.lt(wc,.25)); for(let k=0;k<4;k++){ const ly=top+len*(k+.5)/5; x.beginPath(); x.arc(px+(k%2?1:-1)*w0*.35,ly,w0*.4*(1-k*.15),0,7); x.fill(); } } break; }
       case 'pergola': { /* side view: two posts, a long beam, rafter ends sticking out above it and climbing leaves hanging from it */ const top=y-H*.15, bt=Math.max(3,H*.008), wd=HK.dk(c,.15);
         post(a+W*.006,top); post(b-W*.006,top); HK.rect(o,a-W*.012,top-bt,b-a+W*.024,bt,c); HK.hi(o,a-W*.012,top-bt,b-a+W*.024,1,.35);
         for(let i=0;i<=7;i++){ const px=a-W*.008+(b-a+W*.016)*i/7; HK.rect(o,px-1.5,top-bt-H*.008,3,H*.008,wd); }

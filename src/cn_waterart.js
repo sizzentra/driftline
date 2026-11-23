@@ -92,7 +92,7 @@ function waLily(c,x,y,s,P,seed,flower){ const r=v3rng(seed), pad=mix('#4a8a3a',P
   c.fillStyle=pad; c.beginPath(); c.moveTo(0,0); c.arc(0,0,s,a+.3,a+6); c.closePath(); c.fill(); c.strokeStyle=v3rgba(hi,.5); c.lineWidth=Math.max(.5,s*.08); c.beginPath(); c.arc(0,0,s*.62,a+1.5,a+3.5); c.stroke(); c.restore();
   if(flower){ const pk=mix(flower,P.wMid,P.night*.4); for(let i=0;i<7;i++){ const an=i/7*Math.PI*2; c.fillStyle=i%2?pk:mix(pk,'#ffffff',.35); c.beginPath(); c.ellipse(x+Math.cos(an)*s*.28,y-s*.18+Math.sin(an)*s*.1,s*.32,s*.14,an,0,7); c.fill(); } c.fillStyle=mix('#ffd84a',P.wMid,P.night*.4); c.beginPath(); c.arc(x,y-s*.22,s*.12,0,7); c.fill(); } }
 function waDuck(x,y,s,dir,P,t,i,kind){ const N=c0=>mix(c0,P.wMid,P.night*.55); g.save(); g.translate(x,y+Math.sin(t*2+i)*s*.15); g.scale(dir,1);
-  g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.6),.45); g.lineWidth=1; g.beginPath(); g.moveTo(-s*1.6,s*.25); g.lineTo(-s*4.6,s*.9); g.moveTo(-s*1.6,s*.25); g.lineTo(-s*4.6,-s*.2); g.stroke();
+  /* the wake is drawn by the caller (pondWake: ripples, not a stiff V; director 2026-11-22) */
   const body=kind?N('#8a5a3a'):N('#8a7a6a'), head=kind?N('#e8783a'):N('#2a6a3a');
   g.fillStyle=body; g.beginPath(); g.moveTo(-s*1.7,-s*.2); g.quadraticCurveTo(-s*1.2,s*.45,s*.6,s*.35); g.quadraticCurveTo(s*1.4,s*.2,s*1.2,-s*.4); g.quadraticCurveTo(0,-s*.9,-s*1.7,-s*.2); g.fill();
   g.fillStyle=mix(body,'#ffffff',.25); g.beginPath(); g.ellipse(-s*.3,-s*.25,s*.8,s*.28,-.1,0,7); g.fill();

@@ -46,17 +46,25 @@ hfMake('river',{ name:'Stonebrook mill landing', hname:'mill landing',
 /* 3. Cherry Blossom Lake: the tea house deck */
 hfMake('blossom',{ name:'Tea house deck', hname:'tea house deck',
   colors:C16('Lacquer red=#b8322a;Vermilion=#d8503a;Cedar=#9a6a42;Dark cedar=#5a3a26;Black lacquer=#2a2426;Paper white=#f4ece0;Rice beige=#e0d0b0;Bamboo=#b8b06a;Moss=#6a8a52;Jade=#5a9a9a;Deep jade=#1e4a58;Blossom pink=#f4a8c4;Pale sakura=#ffe4ee;Wisteria=#a88ac8;Lantern amber=#f0a848;Stone grey=#9a948a'),
-  els:[{id:'engawa',label:'Veranda',styles:['Cedar veranda','Bamboo slats','Stepping stones'],def:[0,2]},{id:'roof',label:'Roof',none:true,styles:['Open sky','Curved tiles','Thatched gate','Torii'],def:[1,4]},
+  /* map redo (director, 2026-11-22: "veranda styles don't look different from the earlier homes", "options overlap and look cluttered",
+     "don't capture Japan", the torii covered nothing): three different builds, a wisteria trellis instead of the torii, the tree kept to
+     the left of the seat, the wind chime hanging from the roof's front edge (or its own bamboo pole when there is no roof) */
+  els:[{id:'engawa',label:'Veranda',styles:['Cedar engawa','Bamboo deck','Red bridge deck'],def:[0,2]},{id:'roof',label:'Roof',none:true,styles:['Open sky','Curved tiles','Thatched gate','Wisteria trellis'],def:[1,4]},
        {id:'lanterns',label:'Lanterns',light:true,styles:['Paper lanterns','Stone tōrō','Red chōchin'],def:[0,14]},{id:'tree',label:'Cherry tree',none:true,styles:['No tree','Blossom branch','Bonsai','Weeping cherry'],def:[1,11]},
        {id:'chime',label:'Wind chime',none:true,styles:['No chime','Glass fūrin','Bamboo chimes','Temple bell'],def:[1,5]}],
   seat:['cushion','lowbench','stool'], seatNames:['Zabuton cushion','Bamboo bench','Lacquer stool'], seatDef:[0,0],
   order:[
-    ['engawa',(o,s,c)=>{ HK.supports(o,'#b8322a',s===1?'bamboo':'square',5); HK.deck(o,c,s===1?'bamboo':s===2?'stone':'walnut'); }],
-    ['tree',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.02), y=o.dockY; if(s===2){ HK.poly(o,[x+W*.04,y,x+W*.07,y,x+W*.066,y-H*.012,x+W*.044,y-H*.012],'#5a3a26'); HK.curve(o,x+W*.055,y-H*.012,x+W*.045,y-H*.04,x+W*.06,y-H*.05,'#5a3a26',2.5); for(let i=0;i<5;i++) HK.circ(o,x+W*.05+i*W*.005,y-H*.05-Math.sin(i)*H*.008,H*.008,c); return; }
-      HK.curve(o,x,y,x+W*.004,y-H*.14,x+W*.04,y-H*.17,'#5a3a26',4); HK.curve(o,x+W*.03,y-H*.165,x+W*.07,y-H*.16,x+W*.09,y-H*.13,'#5a3a26',2.4); for(let i=0;i<14;i++){ const u=i/13; HK.circ(o,x+W*(.02+.075*u),y-H*(.17-.04*u)+Math.sin(i*2.1)*H*.008,H*.009,i%3?c:HK.lt(c,.3)); }
-      if(s===3) for(let i=0;i<7;i++) HK.line(o,[x+W*(.03+i*.009),y-H*.16,x+W*(.03+i*.009),y-H*.09],v3rgba(c,.8),1.4); }],
-    ['roof',(o,s,c)=>{ if(s) HK.roof(o,c,['','curved','thatchgate','torii'][s],.04,.5); }],
-    ['chime',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.48), y=o.dockY-H*.12; HK.line(o,[x,y-H*.02,x,y],'#3a2a20',1); if(s===1){ HK.ell(o,x,y+H*.006,H*.006,H*.007,v3rgba(HK.lt(c,.3),.7)); HK.rect(o,x-1,y+H*.012,2,H*.016,c); } if(s===2) for(let i=-2;i<=2;i++) HK.rect(o,x+i*H*.004-1,y,2,H*.02+Math.abs(i)*H*.004,'#b8b06a'); if(s===3){ HK.rect(o,x-H*.012,y-H*.02,H*.024,2,'#5a3a26'); HK.poly(o,[x-H*.008,y+H*.014,x-H*.006,y,x+H*.006,y,x+H*.008,y+H*.014],'#a8743a'); } }],
+    ['engawa',(o,s,c)=>{ if(s===0){ HK.supports(o,'#3a3436','square',5); HK.deck(o,c,'walnut'); HK.rect(o,HF.x0(),o.dockY-1,o.pw-HF.x0(),Math.max(2,H*.004),'#c8c49a'); } /* dark cedar on black posts, a tatami-edge strip along the boards */
+      if(s===1){ HK.supports(o,'#b8b06a','bamboo',6); HK.deck(o,c,'bamboo'); }
+      if(s===2){ HK.supports(o,c,'round',4); HK.deck(o,c,'red'); const x0=HF.x0(), y=o.dockY, rh=H*.04; for(let i=0;i<=4;i++){ const px=x0+(o.pw-x0)*i/4; HK.rect(o,px-2,y-rh,4,rh,c); HK.ell(o,px,y-rh-H*.004,H*.005,H*.006,'#3a3436'); } HK.rect(o,x0,y-rh*.75,o.pw-x0,Math.max(2.5,H*.005),c); } }], /* a red bridge rail with black giboshi caps */
+    ['roof',(o,s,c)=>{ if(s) HK.roof(o,c,['','curved','thatchgate','wisteria'][s],.04,.5); }],
+    ['tree',(o,s,c)=>{ if(!s) return; const y=o.dockY, cx=HK.at(o,.68), w=W*.035, X=f=>cx+w*(f-.5); /* a small cherry in a stone planter on the open deck past the angler, in front of the roof, clear of the lanterns and chime */
+      HK.poly(o,[X(.3),y,X(.7),y,X(.74),y-H*.014,X(.26),y-H*.014],'#8a847a'); HK.rect(o,X(.24),y-H*.016,w*.52,H*.004,'#6a645a');
+      if(s===2){ HK.curve(o,X(.5),y-H*.014,X(.38),y-H*.04,X(.56),y-H*.05,'#5a3a26',2.5); for(let i=0;i<6;i++) HK.circ(o,X(.36+i*.06),y-H*.052-Math.sin(i*1.3)*H*.008,H*.008,i%2?c:HK.lt(c,.3)); return; }
+      HK.curve(o,X(.5),y-H*.014,X(.46),y-H*.07,X(.55),y-H*.1,'#5a3a26',3); HK.curve(o,X(.52),y-H*.08,X(.8),y-H*.09,X(.95),y-H*.08,'#5a3a26',1.8); HK.curve(o,X(.5),y-H*.075,X(.25),y-H*.09,X(.08),y-H*.075,'#5a3a26',1.8);
+      for(let i=0;i<16;i++){ const k=i/15; HK.circ(o,X(.05+.9*k),y-H*(.095+.02*Math.sin(k*Math.PI))+Math.sin(i*2.1)*H*.006,H*.0085,i%3?c:HK.lt(c,.3)); }
+      if(s===3) for(let i=0;i<8;i++) HK.line(o,[X(.1+i*.11),y-H*.09,X(.1+i*.11),y-H*(.045+(i%3)*.01)],v3rgba(c,.85),1.3); }],
+    ['chime',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.48), y=o.dockY-H*.12; if(!hfStyle(o.id,'roof')){ HK.rect(o,x+H*.012-1,y-H*.02,2.4,o.dockY-y+H*.02,'#b8b06a'); HK.line(o,[x,y-H*.02,x+H*.012,y-H*.02],'#b8b06a',1.6); } /* no roof: its own bamboo pole */ HK.line(o,[x,y-H*.02,x,y],'#3a2a20',1); if(s===1){ HK.ell(o,x,y+H*.006,H*.006,H*.007,v3rgba(HK.lt(c,.3),.7)); HK.rect(o,x-1,y+H*.012,2,H*.016,c); } if(s===2) for(let i=-2;i<=2;i++) HK.rect(o,x+i*H*.004-1,y,2,H*.02+Math.abs(i)*H*.004,'#b8b06a'); if(s===3){ HK.rect(o,x-H*.012,y-H*.02,H*.024,2,'#5a3a26'); HK.poly(o,[x-H*.008,y+H*.014,x-H*.006,y,x+H*.006,y,x+H*.008,y+H*.014],'#a8743a'); } }],
     ['seat'],
     ['lanterns',(o,s)=>HK.light(o,['paperline','toro','chochin'][s])]] });
 
