@@ -102,15 +102,19 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
     ['seat'],
     ['light',(o,s)=>HK.light(o,['hook','lighthouse','buoy'][s])]] }); }
 
-/* 5. Frostbite Lake: the ice camp (stands on the ice) */
-hfMake('frost',{ name:'Ice camp', hname:'ice camp', ice:true,
+/* 5. Frostbite Lake: the ice shanty (overnight, 2026-11-23; its own design, src/cw_icehut.js): a timber fish house on sled skids standing on
+   the ice shelf, a steep roof under a snow cap with icicles, a stovepipe with smoke, a window glowing at night; drifts against its walls,
+   footprints to a tip-up over its hole, a box sled beside it. The old tent, igloo, stove, hole and sled choices became this one building */
+{ const G5=()=>FS.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G5(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop,winA:g.x0+g.w*.45,winB:g.x0+g.w*.72}; }, DR=()=>{ const g=G5(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop}; };
+hfMake('frost',{ name:'Ice shanty', hname:'ice shanty', ice:true, glow:'255,190,120', seatX:()=>HF.pw()-W*.03,
   colors:C16('Snow white=#f6f8ff;Frost=#d8e8f6;Ice blue=#8aaad0;Glacier=#4a6a9a;Deep ice=#1a2a4a;Spruce=#3e5a78;Birch=#e8e0d0;Birch bark=#4a4440;Timber=#7a5440;Dark timber=#4a3428;Wool red=#b8383a;Wool cream=#f0e6d0;Stove iron=#2a2a30;Lantern orange=#f0983a;Aurora green=#7af0b0;Dusk mauve=#9a88b8'),
-  /* map redo (director, 2026-11-22): the ice huts stay (the first building the director liked); the blocky platform becomes an ice shelf
-     with a ragged snow-capped edge; a floor choice made no sense outdoors, so that slot is the angler's gear; the stoves are stoves (no
-     storm lantern) and take the chosen colour; the shanty's roof sits on its walls; the sleds stand clear of the hut door, with detail */
-  els:[{id:'hut',label:'Ice hut',styles:['Canvas tent','Timber shanty','Snow igloo'],def:[0,10]},{id:'gear',label:'Gear',styles:['Hand auger','Bait bucket','Catch on the ice'],def:[0,10]},
-       {id:'hole',label:'Ice hole',styles:['Tip-up flag','Skimmer','Twin holes'],def:[0,10]},{id:'stove',label:'Stove',light:true,styles:['Box stove','Pot-belly stove','Campfire tray'],def:[0,12]},
-       {id:'sled',label:'Sled',none:true,styles:['No sled','Box sled','Snowmobile','Dog sled'],def:[1,8]}],
+  front:null, smoke:(n,t)=>BH.smoke(n,t,FS.chimTop(G5(),hfStyle('frost','chimney')),.8),
+  els:[{id:'walls',label:'Walls',styles:['Painted boards','Shiplap','Canvas over a frame'],def:[0,10],palS:[[10,5,3,8,6,15],[8,9,6],[11,10,5,3]]},
+       {id:'roof',label:'Roof',styles:['Tin roof','Shingles','Canvas'],def:[0,12],palS:[[12,3,10,5],[9,7,12],[11,5,10]]},
+       {id:'chimney',label:'Stovepipe',styles:['Straight pipe','Capped pipe','Elbow pipe'],def:[0,12],pal:[12,7,9,13]},
+       {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[0,9],pal:[9,8,10,11,5,3]},
+       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Round windows','Shuttered windows'],def:[0,11],pal:[11,9,10,5,3,6]},
+       {id:'gear',label:'Gear',styles:['Hand auger','Bait bucket','Catch on the ice'],def:[0,10]}],
   seat:['bucket','furbench','icechair'], seatNames:['Bucket stool','Fur bench','Ice chair'], seatDef:[0,12],
   order:[
     ['shelf',(o)=>{ const x0=HF.x0(), y=o.dockY, x=o.x, pw=o.pw+W*.012, wl=o.wl, r=v3rng(7); /* the ice shelf the camp stands on: snow on top, blue ice face, ragged foot with icicles, fading into the water */
@@ -124,17 +128,13 @@ hfMake('frost',{ name:'Ice camp', hname:'ice camp', ice:true,
       if(s===0){ HK.line(o,[x,y,x+3*sc,y-26*sc],'#5a5a62',1.6*sc); HK.line(o,[x+1.5*sc,y-13*sc,x+9*sc,y-15*sc],c,1.6*sc); HK.line(o,[x+3*sc,y-26*sc,x-4*sc,y-25*sc],c,1.8*sc); for(let k=0;k<4;k++) HK.line(o,[x-1*sc,y-2*sc-k*2*sc,x+2*sc,y-3*sc-k*2*sc],'#8a8a92',1); } /* a hand auger leaning, its crank and handle in the chosen colour */
       if(s===1){ HK.poly(o,[x-4*sc,y,x+4*sc,y,x+5*sc,y-9*sc,x-5*sc,y-9*sc],c); HK.ell(o,x,y-9*sc,5*sc,1.3*sc,HK.dk(c,.3)); HK.curve(o,x-5*sc,y-9*sc,x,y-15*sc,x+5*sc,y-9*sc,'#5a5a62',1); } /* a bait bucket with its handle */
       if(s===2){ for(const [dx,k] of [[0,1],[7,.8]]){ const fx=x+dx*sc, L=10*sc*k; HK.ell(o,fx,y-1.4*sc,L*.5,1.6*sc*k,mix('#8aa0b8',c,.25)); HK.poly(o,[fx+L*.45,y-1.4*sc,fx+L*.7,y-3*sc*k,fx+L*.7,y+.2*sc],mix('#6a8098',c,.25)); HK.circ(o,fx-L*.32,y-1.8*sc,.8*sc,'#14181e'); } } }], /* two fish laid on the ice */
-    ['hole',(o,s,c)=>{ const x=HK.at(o,.97), y=o.dockY+H*.004; HK.ell(o,x,y,W*.01,H*.003,'#1a2a4a'); if(s===0){ HK.line(o,[x+W*.006,y,x+W*.012,y-H*.03],'#4a4440',1.2); HK.poly(o,[x+W*.012,y-H*.03,x+W*.024,y-H*.026,x+W*.012,y-H*.022],c); } if(s===1){ HK.line(o,[x-W*.008,y,x-W*.018,y-H*.04],'#4a3428',1.4); HK.ell(o,x-W*.008,y,W*.004,H*.003,c); } if(s===2){ HK.ell(o,x-W*.02,y,W*.006,H*.003,'#1a2a4a'); HK.poly(o,[x-W*.012,y,x-W*.004,y,x-W*.005,y-H*.016,x-W*.011,y-H*.016],c); } }],
-    ['hut',(o,s,c)=>{ if(s===0) HK.roof(o,c,'walltent',.02,.4); if(s===1){ HK.roof(o,c,'shackbox',.02,.34); HK.rect(o,HK.at(o,.08),o.dockY-H*.09,W*.012,H*.014,'#f0983a'); } if(s===2){ const m=HK.at(o,.2), R=(HK.at(o,.4)-HK.at(o,.0))*.5; o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.arc(m,o.dockY,R,Math.PI,0); o.x.fill(); for(let i=1;i<4;i++){ o.x.strokeStyle=HK.n(o,HK.dk(c,.12)); o.x.beginPath(); o.x.arc(m,o.dockY,R*i/4+R*.2,Math.PI,0); o.x.stroke(); } HK.poly(o,[m+R*.3,o.dockY,m+R*.3,o.dockY-R*.4,m+R*.6,o.dockY-R*.4,m+R*.6,o.dockY],'#1a2a4a'); } }],
-    ['sled',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.74), y=o.dockY, sc=HF.sc()*.8; /* past the angler, clear of the hut door */
-      if(s===1){ HK.curve(o,x-2*sc,y-.5*sc,x+12*sc,y+.6*sc,x+20*sc,y-4*sc,'#4a4440',1.4*sc); HK.line(o,[x+1*sc,y-.5*sc,x+1*sc,y-3*sc],'#4a4440',1); HK.line(o,[x+15*sc,y-.5*sc,x+15*sc,y-3*sc],'#4a4440',1);
-        HK.block(o,x,y-11*sc,17*sc,8*sc,c); for(let k=1;k<4;k++) HK.line(o,[x+k*17*sc/4,y-11*sc,x+k*17*sc/4,y-3*sc],HK.dk(c,.3),.8); HK.curve(o,x+17*sc,y-9*sc,x+24*sc,y-6*sc,x+26*sc,y,'#c8a878',.9); } /* a box sled: curled runners, slatted box, tow rope */
-      if(s===2){ HK.curve(o,x-1*sc,y,x+14*sc,y+.6*sc,x+22*sc,y-3*sc,'#2a2a30',1.6*sc); HK.poly(o,[x,y-2*sc,x+18*sc,y-2*sc,x+21*sc,y-7*sc,x+12*sc,y-11*sc,x+2*sc,y-10*sc],c); HK.poly(o,[x+12*sc,y-11*sc,x+16*sc,y-16*sc,x+18*sc,y-15*sc,x+16*sc,y-10*sc],v3rgba('#cfe0f4',.7));
-        HK.block(o,x+1*sc,y-13*sc,9*sc,3*sc,'#2a2a30'); HK.rect(o,x-1*sc,y-4*sc,10*sc,3*sc,'#3a3a40'); for(let k=0;k<5;k++) HK.rect(o,x+k*2*sc-1*sc,y-4*sc,1,3*sc,'#5a5a62'); HK.rect(o,x+19*sc,y-8*sc,2*sc,1.4*sc,'#f0e080'); } /* a snowmobile: front ski, body, windshield, seat, track, headlight */
-      if(s===3){ HK.curve(o,x-2*sc,y,x+14*sc,y+.6*sc,x+22*sc,y-5*sc,'#4a3428',1.4*sc); HK.line(o,[x+2*sc,y,x+2*sc,y-6*sc],'#4a3428',1); HK.line(o,[x+14*sc,y,x+14*sc,y-6*sc],'#4a3428',1);
-        o.x.fillStyle=HK.n(o,v3rgba(c,.85)); o.x.beginPath(); o.x.moveTo(x+1*sc,y-6*sc); o.x.quadraticCurveTo(x+8*sc,y-3*sc,x+16*sc,y-6*sc); o.x.lineTo(x+16*sc,y-10*sc); o.x.lineTo(x+1*sc,y-10*sc); o.x.closePath(); o.x.fill(); HK.line(o,[x+1*sc,y-6*sc,x-2*sc,y-17*sc,x+3*sc,y-17*sc],'#4a3428',1.4*sc); } }], /* a dog sled: runners, a basket in the chosen colour, the driver's handlebar */
-    ['seat'],
-    ['stove',(o,s)=>HK.light(o,['stove','potbelly','firering'][s],HK.at(o,.6))]] });
+    ['shanty',(o)=>{ FS.ground(o); FS.skids(o,FS.geo(o)); }],
+    ['walls',(o,s,c)=>FS.walls(o,FS.geo(o),['batten','shiplap','canvas'][s],c)],
+    ['door',(o,s,c)=>BH.door(o,DR(),['plank','dutch','arched'][s],c)],
+    ['windows',(o,s,c)=>BH.windows(o,WN(),['four','round','shutters'][s],c)],
+    ['chimney',(o,s,c)=>FS.chimney(o,FS.geo(o),s,c)],
+    ['roof',(o,s,c)=>FS.roof(o,FS.geo(o),s,c)],
+    ['seat']] }); }
 
 /* 6. Canadian Rockies: the log cabin */
 hfMake('rockies',{ name:'Log cabin', hname:'log cabin', glow:'255,205,130', front:(n,cx)=>rkFront(n,cx), smoke:(n,t)=>rkSmoke(n,t), seatX:()=>HF.pw()-W*.028 /* at the deck's edge, close to the water (director, 2026-11-23: "why would anybody ever fish from that far away") */,
@@ -297,21 +297,29 @@ function rkLedge(o){ const x=o.x, y=o.dockY, yu=y+HK.fh(), wl=o.wl, at=f=>HK.at(
     HK.rect(o,px-pw2/2-1,wl-1,pw2+2,1.5,v3rgba('#e8f4f0',.35*lit+.05)); /* the bright line where the surface meets it */
     o.posts.push({x:px,w:pw2}); } }
 
-/* 7. Coral Shallows: the beach hut on stilts */
-hfMake('reef',{ name:'Beach hut', hname:'beach hut',
+/* 7. Coral Shallows: the overwater bungalow (overnight, 2026-11-23; its own design, src/cw_bungalow.js): a hut high on palm stilts over the
+   shallows with a tall thatched hip roof, a shaggy fringe and a gablet vent; a ladder into the clear water, the sandbar with coral heads and a
+   starfish showing through, a coconut palm leaning over the roof. The old stilts, platform and cover choices became this one building */
+{ const G7=()=>RB.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G7(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop,winA:g.x0+g.w*.45,winB:g.x0+g.w*.72}; };
+hfMake('reef',{ name:'Overwater bungalow', hname:'bungalow', glow:'255,200,140', seatX:()=>HF.pw()-W*.03,
   colors:C16('Palm wood=#9a7a52;Bleached wood=#c8b088;Thatch=#d8b46a;Dark thatch=#a8843a;Sand=#f4e2b0;Shell white=#fbf2e4;Turquoise=#18b0c0;Lagoon=#7ae8e0;Deep reef=#0a6a8a;Palm green=#3a9a4a;Frond dark=#22703a;Coral=#ff7a6a;Mango=#ffb84a;Orchid=#c86ad8;Hibiscus red=#e0403a;Sky blue=#6ccaf4'),
-  els:[{id:'stilts',label:'Stilts',styles:['Palm trunks','Bamboo','Coral stone'],def:[0,0]},{id:'deck',label:'Platform',styles:['Palm planks','Reed mat','Driftwood'],def:[0,1]},
-       {id:'roof',label:'Hut roof',none:true,styles:['Open sky','Palapa','Scallop shell','Shade sail'],def:[1,2]},{id:'gear',label:'Beach gear',none:true,styles:['No gear','Surfboard','Snorkel set','Shell garland'],def:[1,11]},
+  front:null, smoke:null,
+  els:[{id:'walls',label:'Walls',styles:['Woven bamboo','Palm planks','Reed screens'],def:[0,1],palS:[[1,0,4],[0,1,5,6],[1,2,3]]},
+       {id:'thatch',label:'Roof',styles:['Palm thatch','Layered reed thatch','Palm-leaf shingles'],def:[0,2],palS:[[2,3],[2,3,1],[9,10,3]]},
+       {id:'door',label:'Door',styles:['Cloth curtain','Plank door','Arched door'],def:[0,11],palS:[[11,12,13,14,6,5],[0,1,6,8],[0,1,6,8]]},
+       {id:'windows',label:'Windows',styles:['Shuttered windows','Round windows','Four-pane windows'],def:[0,6],pal:[0,1,5,6,8,11,12]},
+       {id:'gear',label:'Beach gear',none:true,styles:['No gear','Surfboard','Snorkel set','Shell garland'],def:[1,11]},
        {id:'torch',label:'Torch',light:true,styles:['Tiki torch','Shell lantern','Glass floats'],def:[0,13]}],
   seat:['beachchair','hammock','peacock'], seatNames:['Beach chair','Hammock','Peacock chair'], seatDef:[0,6],
   order:[
-    ['stilts',(o,s,c)=>HK.supports(o,c,['palm','bamboo','stone'][s],5)],
-    ['deck',(o,s,c)=>HK.deck(o,c,['planks','mat','boards'][s])],
-    ['roof',(o,s,c)=>{ if(s===1) HK.roof(o,c,'palapa',.02,.42); if(s===2) HK.roof(o,c,'scallop',.02,.42); if(s===3) HK.roof(o,c,'shadesail',.02,.42); /* its own covers (map redo: thatch, fronds and the beach umbrella were shared with other homes) */ }],
+    ['base',(o)=>{ RB.ground(o); HK.supports(o,'#9a7a52','palm',5); HK.deck(o,'#c8b088','planks'); }],
+    ['walls',(o,s,c)=>RB.walls(o,RB.geo(o),['woven','shiplap','bamboo'][s],c)],
+    ['door',(o,s,c)=>BH.door(o,RB.geo(o),['noren','plank','arched'][s],c)],
+    ['windows',(o,s,c)=>BH.windows(o,WN(),['shutters','round','four'][s],c)],
+    ['thatch',(o,s,c)=>RB.roof(o,RB.geo(o),s,c)],
     ['gear',(o,s,c)=>{ const x=HK.at(o,.42), y=o.dockY; if(s===1){ HK.ell(o,x+W*.006,y-H*.05,W*.006,H*.05,c,-.08); HK.line(o,[x+W*.006,y-H*.09,x+W*.006,y-H*.01],'#f4efe6',1); } if(s===2){ HK.rect(o,x,y-H*.1,2,H*.1,'#9a7a52'); HK.ell(o,x+W*.006,y-H*.08,W*.004,H*.006,c); HK.poly(o,[x+W*.002,y-H*.06,x+W*.012,y-H*.06,x+W*.016,y-H*.035,x+W*.004,y-H*.04],HK.dk(c,.2)); } if(s===3){ HK.curve(o,x-W*.02,y-H*.11,x,y-H*.08,x+W*.02,y-H*.11,'#c8a878',1); for(let i=0;i<6;i++) HK.circ(o,x-W*.016+i*W*.0064,y-H*(.1-Math.sin(i/5*Math.PI)*.02),H*.004,i%2?c:'#fbf2e4'); } }],
     ['seat'],
-    ['torch',(o,s)=>HK.light(o,['tiki','shells','floats'][s])]] });
-
+    ['torch',(o,s)=>HK.light(o,['tiki','shells','floats'][s])]] }); }
 /* 8. Florida Keys: the flats skiff (floats) */
 hfMake('keys',{ name:'Flats skiff', hname:'skiff', floats:true,
   colors:C16('Boat white=#f4f6f4;Fiberglass cream=#ece4d0;Aluminium=#b8c0c4;Teak=#9a6a3a;Flats aqua=#28c0c8;Shallow mint=#8af0e0;Deep channel=#0a7090;Conch pink=#f0a0a8;Flamingo=#f06a8a;Mint=#9ae0c0;Lemon=#f4e07a;Sunset orange=#f8a050;Sand=#f4e6c0;Palm green=#3a8a5a;Navy trim=#1e3a5a;Cooler red=#d8483a'),

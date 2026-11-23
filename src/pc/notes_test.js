@@ -2,6 +2,9 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Frostbite Lake, redone in its own style: your home is a timber ice shanty on sled skids, with a snow-capped roof and icicles, a stovepipe with smoke and a window that glows at night. Pick the walls, roof, stovepipe, door, windows, gear and seat in Your home.',
+  'Frostbite Lake: snow drifts against the shanty, footprints lead to a tip-up flag over its hole, and a box sled waits beside it.',
+  '## Test build 2026.11.23-0547',
   'Saltmarsh Coast, redone in its own style: your home is a tall saltbox lobster shack at the end of the pier, with a stovepipe, buoys on its wall (or stacked lobster pots, or a net drying on a pole). Pick the siding, roof, door, windows, gear, lamp and seat in Your home.',
   'Saltmarsh Coast: the pier stands on tall tarred pilings with cross bracing, barnacles and weed at the tide line; a ladder goes down to a dory tied at the end, and a gull stands on the mooring post. A bell buoy rocks offshore (its light blinks at night).',
   '## Test build 2026.11.23-0534',
