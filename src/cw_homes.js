@@ -356,20 +356,26 @@ hfMake('shelf',{ name:'Sport-fisher', hname:'boat', floats:true, seatX:()=>HF.pw
     ['seat'],
     ['light',(o,s)=>HK.light(o,['brass','mast','flood'][s],s===1?HK.at(o,.62):undefined)]] });
 
-/* 10. Amazon Rainforest: the stilt house */
-hfMake('amazon',{ name:'River stilt house', hname:'stilt house',
+/* 10. Amazon Rainforest: the palafito (overnight, 2026-11-23; its own design, src/cw_palafito.js): a stilt house high on lashed poles with a
+   very steep A-frame thatch roof hanging low over half walls; vine-lashed braces, a notched log ladder, giant Victoria lily pads, buttress roots.
+   The old stilts, floor and roof choices became this one building; river gear and lamp keep their ids */
+{ const GA=()=>AP.geo({pw:HF.pw(),dockY:HF.dockY()});
+hfMake('amazon',{ name:'Palafito', hname:'palafito', glow:'255,190,110', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Hardwood=#7a5a3e;Dark hardwood=#4a3420;Vine=#5a6a2a;Palm thatch=#c8a85a;Dry thatch=#a8843a;River clay=#a8683a;Jungle green=#2e6a32;Deep jungle=#123a18;Fern=#6aa04a;Leaf highlight=#a8e07a;Tannin water=#3a5a32;Macaw red=#d8302a;Macaw blue=#2a6ad8;Macaw yellow=#f0c83a;Orchid pink=#e070b0;Mist=#e8f4e0'),
-  els:[{id:'stilts',label:'Stilts',styles:['Hardwood stilts','Mangrove roots','Bamboo bundles'],def:[0,1]},{id:'floor',label:'Floor',styles:['Lashed planks','Split bamboo','Reed mat'],def:[0,0]},
-       {id:'roof',label:'Roof',none:true,styles:['Open sky','Maloca roof','Giant leaf','Palm fronds'],def:[1,3]},{id:'canoe',label:'River gear',none:true,styles:['No gear','Dugout canoe','Paddle and trap','Hanging net'],def:[1,1]},
+  els:[{id:'walls',label:'Walls',styles:['Split palm','Woven cane','Clay plaster'],def:[0,0],palS:[[0,1,3],[3,4,0],[5,3,4]]},
+       {id:'thatch',label:'Roof',styles:['Palm thatch','Dry thatch','Giant leaves'],def:[0,3],palS:[[3,4],[4,3],[6]]},
+       {id:'door',label:'Door',styles:['Woven mat','Plank door','Bead curtain'],def:[0,4],palS:[[3,4,2],[0,1],[11,12,13,14,15]]},
+       {id:'canoe',label:'River gear',none:true,styles:['No gear','Dugout canoe','Paddle and trap','Hanging net'],def:[1,1]},
        {id:'lamp',label:'Lamp',light:true,styles:['Gourd lamp','Firefly basket','Bamboo torch'],def:[0,13]}],
   seat:['hammock','wovenstool','logseat'], seatNames:['Hammock','Woven stool','Carved log seat'], seatDef:[0,11],
   order:[
-    ['stilts',(o,s,c)=>HK.supports(o,c,['stilts','mangrove','bamboo'][s],5)],
-    ['floor',(o,s,c)=>HK.deck(o,c,['planks','bamboo','mat'][s])],
+    ['base',(o)=>{ AP.ground(o); HK.deck(o,'#7a5a3e','planks'); }],
+    ['walls',(o,s,c)=>AP.walls(o,AP.geo(o),['batten','woven','plaster'][s],c)],
+    ['door',(o,s,c)=>BH.door(o,AP.geo(o),['noren','plank','noren'][s],c)],
     ['canoe',(o,s,c)=>{ const x=HK.at(o,.3), y=o.dockY; if(s===1){ o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.moveTo(x,o.wl-H*.004); o.x.quadraticCurveTo(x+W*.04,o.wl+H*.016,x+W*.08,o.wl-H*.004); o.x.lineTo(x,o.wl-H*.004); o.x.fill(); o.posts.push({x:x+W*.08,w:W*.01}); } if(s===2){ HK.line(o,[HK.at(o,.42),y,HK.at(o,.46),y-H*.1],c,2); HK.ell(o,HK.at(o,.46),y-H*.1,W*.003,H*.012,c); HK.ell(o,HK.at(o,.5),y-H*.012,W*.008,H*.012,'#a8843a'); } if(s===3){ HK.rect(o,HK.at(o,.44),y-H*.13,2,H*.13,'#4a3420'); o.x.fillStyle=v3rgba(c,.5); o.x.beginPath(); o.x.moveTo(HK.at(o,.44),y-H*.13); o.x.lineTo(HK.at(o,.38),y-H*.04); o.x.lineTo(HK.at(o,.44),y-H*.05); o.x.fill(); } }],
-    ['roof',(o,s,c)=>{ if(s===1) HK.roof(o,c,'maloca',.02,.44); if(s===2) HK.roof(o,c,'leaf',.02,.46); if(s===3) HK.roof(o,c,'fronds',.02,.44); }],
+    ['thatch',(o,s,c)=>AP.roof(o,AP.geo(o),s,c)],
     ['seat'],
-    ['lamp',(o,s)=>HK.light(o,['gourd','fireflybasket','torch'][s])]] });
+    ['lamp',(o,s)=>HK.light(o,['gourd','fireflybasket','torch'][s])]] }); }
 
 /* 11. Midnight Deep: the trawler deck (floats) */
 hfMake('deep',{ name:'Trawler deck', hname:'trawler', floats:true,

@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Brine Shelf: your boat is rebuilt as a big-game sport-fisher, stern toward the fish: a tall hull with chrome rails, a transom door and swim platform, her name on the side, a cabin with a raked windscreen, portholes and a life ring, and a flybridge with a ladder (or a wheelhouse, or a tuna tower) with outriggers splayed out. Your saved choices carry over.',
+  '## Test build 2026.11.23-0624',
   'Florida Keys: your skiff is rebuilt as a real flats skiff, bow toward the fish: a low fiberglass hull with a rub rail, a stripe at the waterline and its registration, an outboard on the back, a center console with a windscreen (or a poling platform, or a tiller boat), and a T-top, bimini or umbrella. It is staked out with a push pole in the sand. Your saved choices carry over.',
   'Florida Keys: a green channel marker stands in the flats with a pelican resting on top; its light blinks green at night.',
   '## Test build 2026.11.23-0610',
