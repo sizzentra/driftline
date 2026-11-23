@@ -5,7 +5,7 @@
 // letting off steam, a heavy door; beside it the steaming pool. Parts: walls, roof (vault), door, hot pool, lantern, seat.
 // =====================================================================
 const EB = {
-  geo(o){ const C=BH.cab(o,{h:.95,ratio:2}), wh=C.wh, x0=Math.max(HF.x0(),0)+W*.006, w=Math.min(wh*2.2,o.pw*.5), x1=x0+w; return {x0,x1,vx:x0,w,wh,wallTop:C.wallTop,vt:C.wallTop-w*.22,mid:(x0+x1)/2}; },
+  geo(o){ const C=BH.cab(o,{h:.95,ratio:2}), wh=C.wh, x0=Math.max(HF.x0(),0)+W*.006, w=Math.min(wh*2.2,o.pw*.5), x1=x0+w; return {x0,x1,vx:x0,w,wh,wallTop:C.wallTop,vt:C.wallTop-w*.36,mid:(x0+x1)/2}; },
   walls(o,g,kind,c){ BH.walls(o,{x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop},['stone','plaster','batten'][kind],c); HK.rect(o,g.x0,g.wallTop,g.w,H*.006,'#3a3436'); for(const e of [g.x0,g.x1-W*.005]) HK.rect(o,e,g.wallTop,W*.005,o.dockY-g.wallTop,'#2a2024');
     for(let k=0;k<2;k++){ const cx=g.x0+g.w*(.5+k*.25), cy=g.wallTop+(o.dockY-g.wallTop)*.4, r=H*.016; HK.circ(o,cx,cy,r+2,'#5a4a44'); HK.circ(o,cx,cy,r,'#2a1a18'); o.lights.push({x:cx,y:cy,r:.08,a:.5,small:1}); } /* round windows in iron rims, glowing at night */ },
   /* the barrel vault: a half-round roof seen end-on along the long side, ribbed corrugations, an iron eave band */
@@ -27,5 +27,6 @@ const EB = {
   ground(o){ const y=o.dockY, wl=o.wl, q=o.x, N=c0=>HK.n(o,c0), x0=HF.x0(), xe=o.pw+W*.02, cw=W*.014, r=v3rng(29);
     for(let X=x0,i=0;X<xe;X+=cw,i++){ const top=y+HK.fh()-(i%3)*H*.004; q.fillStyle=N(i%2?'#3a2e30':'#2a2024'); q.fillRect(X,top,cw-1,H-top); q.fillStyle=N('#4a3a3a'); q.fillRect(X,top,cw-1,H*.004); q.fillStyle=v3rgba('#000000',.25); q.fillRect(X+cw*.6,top,cw*.3,H-top); } /* the columns */
     q.fillStyle=N('#c8b890'); for(let X=x0;X<xe;X+=W*.006) q.fillRect(X,wl-H*.004+r()*H*.003,W*.004,H*.003); /* mineral crust */
+    q.fillStyle=v3rgba(o.P.wMid||'#8a5a5a',.55); q.fillRect(x0,wl,xe-x0+W*.03,H-wl); /* the columns below the waterline seen through the water */
     for(let k=0;k<3;k++){ const sx=xe-W*.01+k*W*.006; q.fillStyle=N('#2a2024'); q.fillRect(sx,y+HK.fh()+k*H*.02,W*.006,H-y); } /* columns stepping down past the deck's end */ }
 };

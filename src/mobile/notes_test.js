@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Ember Springs, redone in its own style: your home is a basalt bathhouse on hexagonal basalt columns rising from the hot water, with a curved iron barrel roof, round windows that glow at night, a vent that lets off steam, and the steaming pool beside it. Pick the walls, roof, door, hot pool, lantern and seat in Your home.',
+  '## Test build 2026.11.23-0706',
   'Hollow Trench, redone in its own style: your home is a castaway raft of tarred barrels and salvaged planks lashed with rope, glowing growth on the barrels below the water. Its shelter is the wrecked lifeboat of a lost ship turned upside down on props (or a sailcloth tent over an oar, or a crooked plank shack with a ship’s porthole). Your raft, mast, salvage and lantern choices carry over.',
   '## Test build 2026.11.23-0655',
   'Midnight Deep: your trawler is rebuilt as a working steel stern trawler: a deep hull with a high bulwark, freeing ports with rust streaks below them, old tyres hung as fenders, her name and number, a towering wheelhouse forward, and a net drum wound with net and orange floats (or a stern gantry with a trawl door, or stacked crab pots). Your saved choices carry over.',

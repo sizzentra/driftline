@@ -431,17 +431,22 @@ hfMake('ember',{ name:'Basalt bathhouse', hname:'bathhouse', glow:'255,150,80', 
     ['seat'],
     ['light',(o,s)=>HK.light(o,['chain','lavabowl','steam'][s])]] }); }
 
-/* 14. Starfall Lake: the floating crystal platform (floats) */
-hfMake('starfall',{ name:'Crystal platform', hname:'crystal platform', floats:true,
+/* 14. Starfall Lake: the star observatory (overnight, 2026-11-23; its own design, src/cw_observatory.js; floats): a round moonstone observatory with a
+   crystal, silver or star-blossom dome and a gold star finial, a moon-shaped door, on a floating rock island with crystals hanging beneath. The old
+   platform, underglow and arch choices became this one building; telescope and star lantern keep their ids */
+hfMake('starfall',{ name:'Star observatory', hname:'observatory', floats:true, glow:'220,200,255', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Moonstone=#e8e0f4;Silver=#c8c8d8;Starlight=#fff8ff;Crystal violet=#b88aff;Crystal cyan=#7ae0ff;Deep violet=#6a5ab0;Night indigo=#2a1a5a;Lilac=#c8a0e8;Cloud lavender=#c8b8e0;Moon gold=#f0d080;Planet peach=#f0b890;Rose=#ff9ab0;Plum=#7a3a8a;Island moss=#5a8a6a;Twilight blue=#4a4aa8;Star ring=#e8d0ff'),
-  els:[{id:'platform',label:'Platform',styles:['Crystal disc','Moonstone slab','Cloud platform'],def:[0,3]},{id:'under',label:'Underglow',styles:['Crystal spires','Floating stones','Glowing roots'],def:[0,4]},
-       {id:'arch',label:'Arch',none:true,styles:['Open sky','Crescent moon','Planet ring','Star-blossom bower'],def:[1,9]},{id:'scope',label:'Telescope',none:true,styles:['None','Brass telescope','Astrolabe','Star chart'],def:[1,9]},
+  els:[{id:'walls',label:'Walls',styles:['Moonstone blocks','Silver plaster','Starlight glass'],def:[0,0],palS:[[0,1,8],[1,0,7],[4,3,2]]},
+       {id:'dome',label:'Dome',styles:['Crystal dome','Silver dome','Star-blossom dome'],def:[0,3],palS:[[3,4,7],[1,0],[7,8]]},
+       {id:'door',label:'Door',styles:['Crescent window door','Starry door','Crystal bead curtain'],def:[0,5],pal:[5,6,3,1]},
+       {id:'scope',label:'Telescope',none:true,styles:['None','Brass telescope','Astrolabe','Star chart'],def:[1,9]},
        {id:'light',label:'Star lantern',light:true,styles:['Star lantern','Moon orb','Constellation wisps'],def:[0,2]}],
   seat:['crescent','cloudcushion','crystalstool'], seatNames:['Crescent bench','Cloud cushion','Crystal stool'], seatDef:[0,0],
   order:[
-    ['under',(o,s,c)=>HK.supports(o,c,['spires','floatstones','glowroots'][s],5)],
-    ['platform',(o,s,c)=>HK.deck(o,c,['crystal','moonstone','cloud'][s])],
-    ['arch',(o,s,c)=>{ if(s) HK.roof(o,c,['','crescentgate','planet','bower'][s],.02,.46); }], /* map redo (director: "the home still gets fixed"): a crescent-moon sculpture behind the seat and a ringed planet on a pedestal instead of a ring and an arc hanging over the angler */
+    ['base',(o)=>{ SO.ground(o); HK.deck(o,'#e8e0f4','moonstone'); }],
+    ['walls',(o,s,c)=>SO.walls(o,SO.geo(o),s,c)],
+    ['door',(o,s,c)=>SO.door(o,SO.geo(o),s,c)],
+    ['dome',(o,s,c)=>SO.dome(o,SO.geo(o),s,c)],
     ['scope',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.42), y=o.dockY; if(s===1){ HK.line(o,[x,y,x+W*.008,y-H*.04,x+W*.016,y],'#5a4030',1.2); HK.line(o,[x+W*.002,y-H*.042,x+W*.022,y-H*.062],c,3); } if(s===2){ HK.rect(o,x+W*.006,y-H*.03,2,H*.03,c); o.x.strokeStyle=HK.n(o,c); o.x.lineWidth=1.4; o.x.beginPath(); o.x.arc(x+W*.007,y-H*.045,H*.014,0,7); o.x.stroke(); HK.line(o,[x-W*.004,y-H*.045,x+W*.018,y-H*.045],c,1); } if(s===3){ HK.line(o,[x,y,x+W*.01,y-H*.06,x+W*.02,y],'#5a4030',1.2); HK.rect(o,x+W*.002,y-H*.07,W*.018,H*.03,'#2a1a5a'); for(let i=0;i<5;i++) HK.circ(o,x+W*(.005+i*.003),y-H*(.065-(i%2)*.012),1,c); } }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['star','moon','wisps'][s])]] });
