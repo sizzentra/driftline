@@ -67,10 +67,10 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
          {id:'light',label:'Lanterns',light:true,styles:['Two paper lanterns','Row of small lanterns','Stone lantern'],def:[0,14],palS:[[0,1,5,11,14],[0,1,5,11,14],[15,4]]},
          {id:'rail',label:'Railing',styles:['Rope railing','Bamboo railing','Open deck'],def:[0,2],pal:[0,2,3,4,7]},
          {id:'door',label:'Door',styles:['Sliding shoji','Plank door','Noren curtain'],def:[2,10],palS:[[2,3,4,0],[2,3,4,0],[0,10,13,4,5,9]]},
-         {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Lattice windows'],def:[1,3],pal:[2,3,4,0]}],
+         {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Lattice windows'],def:[0,3],pal:[2,3,4,0]}],
     seat:['cushion','lowbench','stool'], seatNames:['Zabuton cushion','Bamboo bench','Lacquer stool'], seatDef:[0,0], seatPal:[0,1,4,5,6,7,9,10,11,13],
     order:[
-      ['base',(o)=>{ TH.ground(o); BH.piles(o,'square','#6a4a32'); HK.deck(o,'#9a6a42','boards'); }],
+      ['base',(o)=>{ BH.piles(o,'square','#6a4a32'); HK.deck(o,'#9a6a42','boards'); }] /* no bank: the house stands on its deck over open water, as in the director's picture */,
       ['walls',(o,s,c)=>TH.walls(o,TH.geo(o),s,c,'#3a2420')],
       ['door',(o,s,c)=>BH.door(o,TH.geo(o),['shoji','plank','noren'][s],c)],
       ['windows',(o,s,c)=>BH.windows(o,WN(),['shoji','round','four'][s],c)],

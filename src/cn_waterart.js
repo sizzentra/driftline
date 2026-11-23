@@ -14,7 +14,7 @@
 // =====================================================================
 const WA_BASE={blossom:'pond', rockies:'pond', keys:'coast', amazon:'river', farm:'pond', buffet:'coast', corporate:'coast', nile:'reef', circuit:'starfall', olympus:'pond'};
 const WA_PAL={
- blossom:{day:{top:'#7ab4e4',mid:'#bcdcf0',bot:'#ffe4ec',far:'#8a9ac8',farHaze:'#e8d8ea',snow:'#ffffff',hill:'#6a9a6a',back:'#4a7a5a',front:'#2e5240',bank:'#5a8a52',wTop:'#a8d4d8',wMid:'#5a9aa4',wBot:'#1e4a58',leaf:'#f4a8c4',leafHi:'#ffe4ee'},
+ blossom:{day:{top:'#3a8ae0',mid:'#9ccaf0',bot:'#eaf2fa',far:'#7a90d0',farHaze:'#dce6f4',snow:'#ffffff',hill:'#6a9a6a',back:'#4a7a5a',front:'#2e5240',bank:'#5a8a52',wTop:'#8ac4ec',wMid:'#3a78b8',wBot:'#16365e',leaf:'#f4a8c4',leafHi:'#ffe4ee'},
    dusk:{top:'#2a2a64',mid:'#c06a94',bot:'#ffc4a0',far:'#8a6aa0',farHaze:'#f0a0b4',hill:'#5a4a7a',leaf:'#d08aa8',leafHi:'#ffc8d8',wTop:'#f0a8a8',wMid:'#7a5a8a'},
    night:{top:'#060a1e',mid:'#141c44',bot:'#2c3470',far:'#2a3260',farHaze:'#3c4680',hill:'#1c2444',leaf:'#4a3a5a',leafHi:'#8a7ab0',wTop:'#2a3670',wMid:'#141c44'}},
  rockies:{day:{top:'#3a86d8',mid:'#8cc4ec',bot:'#e8f4fa',far:'#7a8ca8',farHaze:'#c8dcec',snow:'#ffffff',hill:'#3e6450',back:'#2e5040',front:'#1e3a2e',bank:'#4a6a48',wTop:'#7ad8d8',wMid:'#2a9aa8',wBot:'#0a4858'},
@@ -98,7 +98,7 @@ function waDuck(x,y,s,dir,P,t,i,kind){ const N=c0=>mix(c0,P.wMid,P.night*.55); g
   g.fillStyle=mix(body,'#ffffff',.25); g.beginPath(); g.ellipse(-s*.3,-s*.25,s*.8,s*.28,-.1,0,7); g.fill();
   g.fillStyle=head; g.beginPath(); g.arc(s*1.1,-s*.95,s*.5,0,7); g.fill(); g.fillStyle=N('#e8b830'); g.beginPath(); g.moveTo(s*1.5,-s*1.02); g.lineTo(s*2,-s*.86); g.lineTo(s*1.5,-s*.74); g.fill();
   if(kind){ g.fillStyle=N('#ffffff'); g.fillRect(s*.9,-s*1.16,s*.55,s*.13); } g.fillStyle='#101010'; g.fillRect(s*1.25,-s*1.06,s*.15,s*.15); g.restore(); }
-function waFuji(x,P,hz){ const cx=W*.69, top=hz-H*.41, bw=W*.36, cw=W*.024, /* right of centre and steeper, as in the director's Cherry Blossom picture */ far=mix(P.far,P.farHaze,.25), lit=mix(far,'#ffffff',.2), sh=mix(far,'#1c1c44',.22), r=v3rng(88);
+function waFuji(x,P,hz){ const cx=W*.66, top=hz-H*.33, bw=W*.32, cw=W*.022, /* right of centre and steeper, as in the director's Cherry Blossom picture */ far=mix(P.far,P.farHaze,.25), lit=mix(far,'#ffffff',.2), sh=mix(far,'#1c1c44',.22), r=v3rng(88);
   const path=()=>{ x.beginPath(); x.moveTo(cx-bw,hz+1); x.bezierCurveTo(cx-bw*.42,hz-H*.035,cx-cw*2.6,top+H*.07,cx-cw,top); x.lineTo(cx-cw*.35,top-H*.004); x.lineTo(cx+cw*.3,top+H*.003); x.lineTo(cx+cw,top); x.bezierCurveTo(cx+cw*2.6,top+H*.07,cx+bw*.42,hz-H*.035,cx+bw,hz+1); x.closePath(); };
   x.save(); path(); x.clip(); const gr=x.createLinearGradient(cx-W*.12,0,cx+W*.12,0); gr.addColorStop(0,lit); gr.addColorStop(.46,lit); gr.addColorStop(.56,sh); gr.addColorStop(1,sh); x.fillStyle=gr; x.fillRect(cx-bw,top-4,bw*2,hz-top+6);
   x.strokeStyle=v3rgba(sh,.3); x.lineWidth=1; for(let i=0;i<14;i++){ const u=i/13-.5; x.beginPath(); x.moveTo(cx+u*cw*3,top+H*.02); x.quadraticCurveTo(cx+u*bw*.35,hz-H*.12,cx+u*bw*(.6+r()*.2),hz); x.stroke(); }
