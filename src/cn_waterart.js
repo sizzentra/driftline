@@ -120,9 +120,9 @@ function waBirch(c,x,base,h,P,seed){ const r=v3rng(seed), bark=mix('#f0ece4',P.b
   c.fillStyle=v3rgba(mix(leaf,'#ffffff',.35),.55); c.beginPath(); for(let k=0;k<4;k++){ const bx=x+(r()-.3)*h*.2, by=base-h*(.75+r()*.18), br=h*.05; c.moveTo(bx+br,by); c.arc(bx,by,br,0,7); } c.fill(); }
 function waCabin(c,x,b,s,P){ const k=P.night*.55, log=mix('#8a5432',P.front,k), logL=mix('#9a6440',P.front,k), roof=mix('#3a3430',P.front,k*.8), roofL=mix(roof,'#ffffff',.15), stone=mix('#8a8a90',P.front,k), endC=mix('#d8b080',P.front,k), w=s*12, h=s*5.4, fl=b-s*.8;
   c.fillStyle=mix(log,'#000000',.3); c.fillRect(x-s*2,fl,w+s*4,s*.8);
+  c.fillStyle=stone; c.fillRect(x+w*.74,fl-h-s*6,s*1.6,s*6+h*.5); c.fillStyle=mix(stone,'#000000',.25); for(let i=0;i<3;i++) c.fillRect(x+w*.74+(i%2)*s*.6,fl-h-s*5.6+i*s*.9,s*.9,s*.25); c.fillRect(x+w*.74-s*.2,fl-h-s*6.2,s*2,s*.4); /* the stone chimney stands behind the roof and rises above its ridge, never across the cabin's front (director, 2026-11-23) */
   for(let i=0;i<6;i++){ const y=fl-(i+1)*h/6; c.fillStyle=i%2?log:logL; c.fillRect(x,y,w,h/6-.4); c.fillStyle=endC; c.beginPath(); c.arc(x,y+h/12,h/12,0,7); c.moveTo(x+w+h/12,y+h/12); c.arc(x+w,y+h/12,h/12,0,7); c.fill(); }
   c.fillStyle=logL; c.beginPath(); c.moveTo(x,fl-h); c.lineTo(x+w*.5,fl-h-s*3.6); c.lineTo(x+w,fl-h); c.closePath(); c.fill();
-  c.fillStyle=stone; c.fillRect(x+w*.74,fl-h-s*4.6,s*1.6,s*4.6+h); c.fillStyle=mix(stone,'#000000',.25); for(let i=0;i<5;i++) c.fillRect(x+w*.74+(i%2)*s*.6,fl-h-s*4.2+i*s*1.6,s*.9,s*.25);
   c.fillStyle=roof; c.beginPath(); c.moveTo(x-s*1.4,fl-h+s*.4); c.lineTo(x+w*.5,fl-h-s*4.2); c.lineTo(x+w+s*1.4,fl-h+s*.4); c.lineTo(x+w+s*1.4,fl-h+s*1.1); c.lineTo(x+w*.5,fl-h-s*3.4); c.lineTo(x-s*1.4,fl-h+s*1.1); c.closePath(); c.fill();
   c.strokeStyle=roofL; c.lineWidth=Math.max(.6,s*.25); c.beginPath(); c.moveTo(x-s*1.4,fl-h+s*.4); c.lineTo(x+w*.5,fl-h-s*4.2); c.lineTo(x+w+s*1.4,fl-h+s*.4); c.stroke();
   const lit=P.night>.3; c.fillStyle=mix('#4a2a18',P.front,k); c.fillRect(x+w*.42,fl-h*.72,w*.16,h*.72);
@@ -146,10 +146,15 @@ function waGoose(x,y,s,dir,P,t,i,fly){ const N=c0=>mix(c0,fly?P.top:P.wMid,P.nig
 function waFlag(x,y,s,P,t){ const N=c0=>mix(c0,P.top,P.night*.5), fw=s*2.2, fh=s*1.1, red=N('#d8202a'), wht=N('#f8f4f0');
   g.fillStyle=N('#c8c8cc'); g.fillRect(x-s*.06,y,s*.12,s*4.6); for(let i=0;i<12;i++){ const u=i/12, u2=(i+1)/12, oy=Math.sin(t*4-u*5)*fh*.12*u; g.fillStyle=(u<.25||u>=.75)?red:wht; g.fillRect(x+fw*u,y+oy,fw/12+.6,fh); }
   const cx=x+fw*.5, cy=y+fh*.5+Math.sin(t*4-2.5)*fh*.06, r=fh*.32; g.fillStyle=red; g.beginPath(); for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r; g.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr*.95); } g.closePath(); g.fill(); g.fillRect(cx-r*.06,cy+r*.3,r*.12,r*.55); }
-function waCanoe(x,y,s,P,t){ const N=c0=>mix(c0,P.wMid,P.night*.55), cast=(t%19)/19; g.save(); g.translate(x,y+Math.sin(t*1.1)*s*.15);
-  g.fillStyle=v3rgba(N('#000000'),.15); g.beginPath(); g.ellipse(0,s*.5,s*6,s*.5,0,0,7); g.fill();
+/* the canoeist (Rockies): mode 0 fishing, 1 paddling (facing dir), 2 the canoe pulled up empty on the shore by his cabin */
+function waCanoe(x,y,s,P,t,mode,dir){ const N=c0=>mix(c0,P.wMid,P.night*.55), cast=(t%19)/19; g.save(); g.translate(x,y+(mode===2?0:Math.sin(t*1.1)*s*.15)); g.scale(dir||1,1);
+  if(mode!==2){ g.fillStyle=v3rgba(N('#000000'),.15); g.beginPath(); g.ellipse(0,s*.5,s*6,s*.5,0,0,7); g.fill(); }
+  if(mode===2) g.rotate(-.06);
   g.fillStyle=N('#2a6a4a'); g.beginPath(); g.moveTo(-s*6,-s*.8); g.quadraticCurveTo(0,s*1.4,s*6,-s*.8); g.quadraticCurveTo(0,s*.2,-s*6,-s*.8); g.fill(); g.fillStyle=N('#c8a070'); g.fillRect(-s*4.5,-s*.25,s*9,s*.25);
+  if(mode===2){ g.restore(); return; }
   g.fillStyle=N('#3a4048'); g.beginPath(); g.ellipse(-s*.6,-s*1.9,s*1,s*1.5,0,0,7); g.fill(); g.fillStyle=N('#c8987a'); g.beginPath(); g.arc(-s*.4,-s*3.7,s*.75,0,7); g.fill(); g.fillStyle=N('#5a4a3a'); g.fillRect(-s*1.3,-s*4.5,s*1.8,s*.45); g.fillRect(-s*.9,-s*5,s*1,s*.6);
+  if(mode===1){ const a=Math.sin(t*2.6), px=s*(.6+a*1.6), side=a>0; g.strokeStyle=N('#6a4a2a'); g.lineWidth=Math.max(.9,s*.28); g.beginPath(); g.moveTo(px-s*1.2,-s*3); g.lineTo(px+s*1.4,s*(side?1.2:.2)); g.stroke(); g.fillStyle=N('#8a6a42'); g.beginPath(); g.ellipse(px+s*1.5,s*(side?1.4:.4),s*.4,s*.9,-.5,0,7); g.fill();
+    if(side){ g.strokeStyle=v3rgba('#ffffff',.4); g.lineWidth=.8; g.beginPath(); g.ellipse(px+s*1.6,s*.6,s*1.2,s*.3,0,0,7); g.stroke(); } g.restore(); return; } /* a paddle stroke, with a swirl where the blade bites */
   const ra=cast<.08?-1.2+cast/.08*1.6:.4; g.strokeStyle=N('#2a2a2a'); g.lineWidth=Math.max(.8,s*.18); g.beginPath(); g.moveTo(s*.2,-s*2.2); g.lineTo(s*.2+Math.cos(-ra-.6)*s*6,-s*2.2+Math.sin(-ra-.6)*s*6); g.stroke();
   g.strokeStyle=v3rgba('#ffffff',.35); g.lineWidth=.8; g.beginPath(); g.moveTo(s*.2+Math.cos(-ra-.6)*s*6,-s*2.2+Math.sin(-ra-.6)*s*6); g.lineTo(s*7,s*.2); g.stroke(); g.restore(); }
 let waStarsC=null;

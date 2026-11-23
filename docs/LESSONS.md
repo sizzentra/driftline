@@ -199,3 +199,12 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **Resting is the state that breaks homes.** Covers, the rod and the seat collide only while resting; QC sheets are taken resting (`__qcSheet`).
 - **Hidden-pane timing bugs need the condition forced.** The skyline clip came from a half-painted light change dropped mid-replay; it did not reproduce on demand, so the fix (reset the canvas before reuse) went in at the source.
 - **Check the theme guide before calling something out of place.** The QC pass renamed Olympus's Yggdrasil roots and winged sun disc as "theme slips"; the water's card and MAP_THEMES say Olympus mixes Greek, Norse and Egyptian gods on purpose. Reverted the same evening.
+
+## Rockies round 3 (2026-11-23)
+- **A part's colours depend on its style** (a sod roof grows grass, tin is painted): one palette per feature locked "Green tin" to green. Fix: `palS` per style, read through `hfPal`; switching style moves the colour to one the new style offers. Catch: `__hfAll` colour sheet covers every colour of every style.
+- **A choice that mixes two things is two parts** (door and windows). The home standard allows a 7th feature for a split.
+- **Hard-edged bands read as stickers:** strata drawn as crisp stripes looked pasted on (director: "doesn't look blended"). Fade each band's edges (stacked inset fills at low alpha) and keep ledge lines faint.
+- **Snapping an edge to a grid makes stair steps** wherever the edge follows a slope; let the snowfield edge stay ragged and put the layering in the rock and the ledge snow.
+- **Underwater continuations stay on the same line:** a "refraction" sideways shift made the posts look broken at the surface.
+- **Big static detail (a stone lake floor) goes in its own cached picture** laid into the scenery, so light steps don't repaint a thousand stones.
+- **Moving life gets a time sheet** (`__timeSheet`): one picture per moment through its whole loop, to check it never pops in or out.

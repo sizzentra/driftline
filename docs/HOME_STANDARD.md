@@ -17,7 +17,7 @@ One job: what every home is, how it is built, what the player can change. Part o
 - **A free zone above and behind the deck** for each home's own shape (sail, roof, arch), inside a set box that never blocks the casting water.
 
 ## What the player customises
-- **6 features per home:** the **seat** on every home (resting sits the angler in it), plus **5 features made for that water from its description** (director, 2026-11-22: only the seat is shared; Willow Pond keeps light, deck, posts, rail, canopy). One feature per home carries its light at night. Every home's features and styles: `docs/HOME_DESIGNS.md`. Decorations no longer exist.
+- **6 features per home:** the **seat** on every home (resting sits the angler in it), plus **5 features made for that water from its description** (director, 2026-11-22: only the seat is shared; Willow Pond keeps light, deck, posts, rail, canopy). One feature per home carries its light at night. A home may have a 6th made feature where one part would mix two things (director, 2026-11-23: the Rockies "door and windows" became Door and Windows). **Colours per part:** each feature offers only the colours real ones come in (`pal`), per style where styles differ (`palS`: a sod roof grows grass, a tin roof is painted any colour). Every home's features and styles: `docs/HOME_DESIGNS.md`. Decorations no longer exist.
 - **3 real styles per element**, each fitting the map (no neon at Willow Pond, no rustic lantern at Circuit Lake). **Nothing is no choice:** an element that offers \
 - **One colour list per home, at least 16 colours, shared by every feature** (director, 2026-11-21: so parts can be set to the same shade), taken from the water's palette in `docs/MAP_THEMES.md`; phones show 8 per row (2 full rows).
 - **No unlocking:** as soon as a water is reached, its home and every style and colour are free to use.
@@ -50,4 +50,4 @@ Before any piece of art is drawn:
 - **Stonebrook River: a mill landing** (stone and timber by the watermill, with a millstone), so it no longer shares Willow Pond's dock.
 
 ## Checked by tools (to build with it)
-- Every home fills every part of the format; exactly 6 features (light and seat included); every style draws with every colour; pets and the angler stand on the surface; the home picture is repainted only on a change.
+- Every home fills every part of the format; 6 features (7 where a part splits in two), light and seat included; every style draws with every colour; pets and the angler stand on the surface; the home picture is repainted only on a change.

@@ -5,7 +5,7 @@
 // A home listed here replaces that water's older home (the scene draws HOMEF homes instead, f_v3scene.js).
 // =====================================================================
 function hfMake(id,d){ d.seatH=d.seat.map(k=>HK.seatH(k));
-  d.els.push({id:'seat',label:'Seat',styles:d.seatNames,def:d.seatDef||[0,0]});
+  d.els.push({id:'seat',label:'Seat',styles:d.seatNames,def:d.seatDef||[0,0],pal:d.seatPal}); /* a home may limit its seats to real colours (seatPal) */
   d.paint=function(o){ o.lights=[]; const col=e=>hfColor(id,e);
     for(const [e,fn] of d.order){ o.elCol=col(e); /* lights read their feature's colour (a stove's body, director 2026-11-22: colours did nothing) */ const r=e==='seat'?HK.seat(o,d.seat[hfStyle(id,'seat')],col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
   HOMEF[id]=d; }
@@ -124,57 +124,100 @@ hfMake('frost',{ name:'Ice camp', hname:'ice camp', ice:true,
     ['seat'],
     ['stove',(o,s)=>HK.light(o,['stove','potbelly','firering'][s],HK.at(o,.6))]] });
 
-/* 6. Canadian Rockies: the lodge ledge */
-hfMake('rockies',{ name:'Log cabin', hname:'log cabin', glow:'255,205,130', seatX:.092,
+/* 6. Canadian Rockies: the log cabin */
+hfMake('rockies',{ name:'Log cabin', hname:'log cabin', glow:'255,205,130', seatX:()=>HF.pw()-W*.028 /* at the deck's edge, close to the water (director, 2026-11-23: "why would anybody ever fish from that far away") */,
   colors:C16('Cedar log=#9a6a42;Spruce log=#7a5a3e;Dark log=#4a3426;Granite=#9a948a;Dark granite=#5a5650;Glacier turquoise=#2a9aa8;Ice teal=#7ad8d8;Deep lake=#0a4858;Spruce green=#2e5040;Moss=#5a7a4a;Snow=#f4f8fc;Flannel red=#b8322a;Flannel black=#2a2626;Maple orange=#d8702a;Birch cream=#ece2cc;Canoe green=#3a6a4a'),
-  /* the log cabin (director, 2026-11-22 night: "the Canadian place doesn't have a log cabin to customise… customise aspects of a log cabin
-     instead of some of the garbage choices"): a wide log lodge seen from its long side at the back of a log deck on a granite ledge; its walls, roof,
-     chimney, porch and door and windows are the choices; the windows glow at night; a covered porch reaches over the angler */
-  els:[{id:'walls',label:'Log walls',styles:['Round logs','Squared timbers','Whitewashed chinking'],def:[0,0],pal:[0,1,2,3,11,12]},{id:'roof',label:'Cabin roof',styles:['Cedar shakes','Green tin','Sod roof'],def:[0,4],pal:[0,2,3,4,8,9,11,12,15]},
-       {id:'chimney',label:'Chimney',styles:['Fieldstone','Stovepipe','Brick'],def:[0,3],pal:[2,3,4,11,14]},{id:'porch',label:'Porch',styles:['Open deck','Covered porch','Porch with log rail'],def:[1,1],pal:[0,1,2,8,12]},
-       {id:'door',label:'Door and windows',light:true,styles:['Plank door','Dutch door and window box','Shuttered windows'],def:[0,11],pal:[0,1,2,5,7,8,11,12,13,15]}],
-  seat:['muskoka','stumpblanket','rocker'], seatNames:['Muskoka chair','Stump and blanket','Log rocker'], seatDef:[0,11],
+  /* the log cabin (director, 2026-11-22 night: "customise aspects of a log cabin"): a wide log lodge seen from its long side at the back of a
+     log deck on a granite ledge. Its walls, roof, chimney, porch, door and windows are the choices, each one real-life option for that part
+     in the colours real ones come in (director, 2026-11-23: door and windows are two parts; "tin" any colour; a real sod roof) */
+  els:[{id:'walls',label:'Log walls',styles:['Round logs','Dovetailed timbers','Logs on a stone base'],def:[0,0],pal:[0,1,2,8,11,12,13,14,15]},
+       {id:'roof',label:'Cabin roof',styles:['Cedar shakes','Tin roof','Sod roof'],def:[0,4],palS:[[0,1,2,3,4,8,12,13,14],[0,2,3,4,5,7,8,10,11,12,13,14,15],[9,8,13,14]]},
+       {id:'chimney',label:'Chimney',styles:['Fieldstone','Stovepipe','Brick'],def:[0,3],palS:[[3,4,14,0],[12,2,4,7,8,11,15],[11,13,0,2,14,12]]},
+       {id:'porch',label:'Porch',styles:['Open deck','Covered porch','Porch with log rail'],def:[1,1],pal:[0,1,2,8,11,12,13,14,15]},
+       {id:'door',label:'Door',styles:['Plank door','Dutch door','Door with a glass pane'],def:[0,11],pal:[0,1,2,5,7,8,11,12,13,14,15]},
+       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Windows with flower boxes','Shuttered windows'],def:[0,2],pal:[0,1,2,5,7,8,11,12,13,14,15]}],
+  seat:['muskoka','stumpblanket','logrocker'], seatNames:['Muskoka chair','Stump and blanket','Log rocker'], seatDef:[0,11], seatPal:[0,1,2,8,11,12,13,14,15],
   order:[
     ['base',(o)=>{ rkShore(o); rkLedge(o); HK.deck(o,'#8a6040','logs'); }],
-    ['chimney',(o,s,c)=>{ const C=rkCab(o), x=C.x1-W*.04, w=W*.016, top=C.roofTop-H*.045, y=C.wallTop+H*.01; /* at the lodge's right end, clear of the far shore's little cabin */
-      if(s===0){ HK.rect(o,x,top,w,y-top,HK.dk(mix('#8a8680',c,.3),.05)); const r=v3rng(4); for(let yy=top;yy<y;yy+=H*.008){ for(let xx=x;xx<x+w;xx+=W*(.003+r()*.003)) HK.rect(o,xx,yy,W*.0025,H*.007,r()<.5?mix('#9a948a',c,.3):mix('#7a7670',c,.3)); } HK.rect(o,x-W*.002,top-H*.005,w+W*.004,H*.006,'#5a5650'); }
-      if(s===1){ HK.rect(o,x+w*.3,top-H*.01,W*.004,C.roofTop-top+H*.02,'#2a2a30'); HK.poly(o,[x+w*.3-W*.003,top-H*.01,x+w*.3+W*.007,top-H*.01,x+w*.3+W*.002,top-H*.02],'#2a2a30'); }
-      if(s===2){ HK.rect(o,x,top,w,y-top,mix('#a8483a',c,.25)); o.x.strokeStyle=HK.n(o,'#e0d0c0'); o.x.lineWidth=.6; o.x.beginPath(); for(let yy=top,row=0;yy<y;yy+=H*.006,row++){ o.x.moveTo(x,yy); o.x.lineTo(x+w,yy); for(let xx=x+(row%2)*w/4;xx<x+w;xx+=w/2){ o.x.moveTo(xx,yy); o.x.lineTo(xx,yy+H*.006); } } o.x.stroke(); HK.rect(o,x-W*.002,top-H*.004,w+W*.004,H*.005,mix('#7a3428',c,.2)); } }],
-    ['walls',(o,s,c)=>{ const C=rkCab(o), x0=C.x0, x1=C.x1, top=C.wallTop, y=o.dockY, n=9, lh=(y-top)/n;
-      for(let k=0;k<n;k++){ const ly=top+k*lh;
-        if(s===0){ HK.rect(o,x0-W*.003,ly,x1-x0+W*.006,lh-.5,k%2?c:HK.lt(c,.07)); HK.rect(o,x0-W*.003,ly+lh*.7,x1-x0+W*.006,lh*.3,HK.dk(c,.2)); /* the logs run right out to their rounded ends: no gap at the corners */ for(const ex of [x0-W*.003,x1+W*.003]){ HK.circ(o,ex,ly+lh/2,lh*.5,HK.lt(c,.18)); HK.circ(o,ex,ly+lh/2,lh*.22,HK.dk(c,.15)); } }
-        if(s===1){ HK.rect(o,x0,ly,x1-x0,lh-1,k%2?c:HK.dk(c,.06)); HK.rect(o,k%2?x0-W*.004:x0,ly,W*.004,lh-1,HK.dk(c,.2)); HK.rect(o,k%2?x1:x1-W*.004,ly,W*.004,lh-1,HK.dk(c,.2)); }
-        if(s===2){ HK.rect(o,x0-W*.003,ly,x1-x0+W*.006,lh*.72,HK.dk(c,.12)); HK.rect(o,x0-W*.003,ly+lh*.72,x1-x0+W*.006,lh*.28,'#f0ece2'); for(const ex of [x0-W*.003,x1+W*.003]) HK.circ(o,ex,ly+lh*.36,lh*.38,HK.lt(c,.12)); } }
+    ['chimney',(o,s,c)=>{ const C=rkCab(o), x=C.x1-W*.04, w=W*.016, top=C.roofTop-H*.045, y=C.wallTop+H*.01, q=o.x; /* at the lodge's right end; drawn before the roof, which covers its foot */
+      if(s===0){ q.save(); q.beginPath(); q.rect(x,top,w,y-top); q.clip(); HK.rect(o,x,top,w,y-top,HK.dk(mix('#8a8680',c,.4),.25)); const r=v3rng(4); for(let yy=top,row=0;yy<y;yy+=H*.008,row++){ for(let xx=x-(row%2)*W*.002;xx<x+w;){ const sw=W*(.003+r()*.003); HK.rect(o,xx+.6,yy+.6,sw-1.2,H*.008-1.2,mix(r()<.5?'#a8a298':'#7a7670',c,.45)); xx+=sw; } } q.restore(); /* fieldstones laid in courses, inside the stack */
+        HK.rect(o,x-W*.002,top-H*.006,w+W*.004,H*.007,HK.dk(mix('#6a6660',c,.3),.1)); HK.rect(o,x-W*.002,top-H*.006,w+W*.004,1,v3rgba('#ffffff',.25*HK.lit(o))); } /* the capstone */
+      if(s===1){ const px=x+w*.45, pw=Math.max(4,W*.0055), pt=C.roofTop-H*.06, pc=mix('#2a2a30',c,.85), grd=q.createLinearGradient(px-pw/2,0,px+pw/2,0); grd.addColorStop(0,HK.n(o,HK.lt(pc,.25))); grd.addColorStop(.4,HK.n(o,pc)); grd.addColorStop(1,HK.n(o,HK.dk(pc,.35))); q.fillStyle=grd; q.fillRect(px-pw/2,pt,pw,y-pt);
+        for(let yy=pt+H*.014;yy<C.roofTop;yy+=H*.014){ HK.rect(o,px-pw/2-.6,yy,pw+1.2,Math.max(1.4,H*.0022),HK.dk(pc,.3)); HK.rect(o,px-pw/2-.6,yy,pw+1.2,.7,v3rgba('#ffffff',.18*HK.lit(o))); } /* crimped joints between the pipe's sections */
+        HK.poly(o,[px-pw*1.1,C.roofTop-H*.002,px+pw*1.1,C.roofTop-H*.002,px+pw*.62,C.roofTop-H*.012,px-pw*.62,C.roofTop-H*.012],HK.dk(pc,.15)); /* the storm collar where it leaves the roof */
+        HK.circ(o,px+pw*.5+1.5,C.roofTop-H*.022,Math.max(1.4,pw*.22),HK.dk(pc,.4)); HK.rect(o,px+pw*.5+1.5,C.roofTop-H*.0225,pw*.9,Math.max(1,H*.0016),HK.dk(pc,.4)); /* the damper handle */
+        q.strokeStyle=HK.n(o,HK.dk(pc,.2)); q.lineWidth=.7; q.beginPath(); for(let k=0;k<3;k++){ q.moveTo(px-pw/2,pt-H*.002-k*H*.0025); q.lineTo(px+pw/2,pt-H*.002-k*H*.0025); } q.moveTo(px-pw*.25,pt); q.lineTo(px-pw*.25,pt-H*.008); q.moveTo(px+pw*.25,pt); q.lineTo(px+pw*.25,pt-H*.008); q.stroke(); /* the spark-arrestor mesh and the cap's legs */
+        HK.poly(o,[px-pw*1.5,pt-H*.008,px+pw*1.5,pt-H*.008,px,pt-H*.02],pc); HK.rect(o,px-pw*1.5,pt-H*.008,pw*3,Math.max(1,H*.0016),HK.dk(pc,.35)); } /* the rain cap */
+      if(s===2){ const bc=mix('#a8483a',c,.6); q.save(); q.beginPath(); q.rect(x,top,w,y-top); q.clip(); HK.rect(o,x,top,w,y-top,bc); q.strokeStyle=HK.n(o,mix('#d8ccb8',c,.15)); q.lineWidth=.6; q.beginPath(); for(let yy=top,row=0;yy<y;yy+=H*.006,row++){ q.moveTo(x,yy); q.lineTo(x+w,yy); for(let xx=x+(row%2)*w/4;xx<x+w;xx+=w/2){ q.moveTo(xx,yy); q.lineTo(xx,yy+H*.006); } } q.stroke(); q.restore(); /* running-bond bricks, inside the stack */
+        HK.rect(o,x-W*.002,top-H*.005,w+W*.004,H*.006,HK.dk(bc,.25)); HK.rect(o,x+w*.2,top-H*.011,w*.22,H*.006,HK.dk(bc,.35)); HK.rect(o,x+w*.58,top-H*.011,w*.22,H*.006,HK.dk(bc,.35)); } }], /* a corbelled cap and two clay flue pots */
+    ['walls',(o,s,c)=>{ const C=rkCab(o), x0=C.x0, x1=C.x1, top=C.wallTop, y=o.dockY, n=9, lh=(y-top)/n, ex=W*.003, q=o.x;
+      const roundLog=(ly)=>{ HK.rect(o,x0-ex,ly,x1-x0+ex*2,lh-.5,HK.lt(c,.04)); HK.rect(o,x0-ex,ly+lh*.68,x1-x0+ex*2,lh*.32,HK.dk(c,.22)); HK.rect(o,x0-ex,ly+lh*.12,x1-x0+ex*2,1,v3rgba('#ffffff',.12*HK.lit(o))); for(const e of [x0-ex,x1+ex]){ HK.circ(o,e,ly+lh/2,lh*.5,HK.lt(c,.18)); HK.circ(o,e,ly+lh/2,lh*.3,HK.lt(c,.1)); HK.circ(o,e,ly+lh/2,lh*.12,HK.dk(c,.15)); } }; /* a peeled log: rounded shading, its end grain showing at both corners */
+      if(s===0) for(let k=0;k<n;k++) roundLog(top+k*lh);
+      if(s===1){ const ck=mix('#d8d0bc',c,.15); HK.rect(o,x0-ex,top,x1-x0+ex*2,y-top,ck); /* chinking behind */ const r=v3rng(8);
+        for(let k=0;k<n;k++){ const ly=top+k*lh, tc=k%3===1?HK.dk(c,.06):k%3===2?HK.lt(c,.04):c; HK.rect(o,x0-ex,ly+.7,x1-x0+ex*2,lh-1.4,tc); HK.rect(o,x0-ex,ly+lh-2.2,x1-x0+ex*2,1.5,HK.dk(c,.2)); /* a hewn timber, flat faced, the chinking line between */
+          q.strokeStyle=HK.n(o,HK.dk(c,.14)); q.lineWidth=.7; q.beginPath(); for(let i=0;i<10;i++){ const ax=x0+(x1-x0)*r(), ay=ly+lh*(.25+r()*.4); q.moveTo(ax,ay); q.lineTo(ax+W*.006,ay+lh*.12); } q.stroke(); /* adze marks */
+          for(const [e,d] of [[x0-ex,1],[x1+ex,-1]]){ const cw=W*.007, cx=d>0?e:e-cw; HK.rect(o,cx,ly+.7,cw,lh-1.4,HK.lt(c,k%2?.16:.1)); HK.line(o,[d>0?cx+cw:cx,ly+.7,d>0?cx+cw:cx,ly+lh-.7],HK.dk(c,.3),.8); HK.line(o,[cx+cw*.3,ly+lh*.35,cx+cw*.7,ly+lh*.65],HK.dk(c,.18),.6); } } } /* dovetail corners: the timbers end flush, their end grain in a straight column at each corner */
+      if(s===2){ const sb=3, sy=y-sb*lh, r=v3rng(14); for(let k=0;k<n-sb;k++) roundLog(top+k*lh); /* logs above a fieldstone base */
+        q.save(); q.beginPath(); q.rect(x0-ex,sy,x1-x0+ex*2,y-sy); q.clip(); HK.rect(o,x0-ex,sy,x1-x0+ex*2,y-sy,'#6a6660'); for(let yy=sy,row=0;yy<y;yy+=H*.011,row++){ for(let xx=x0-ex-(row%2)*W*.005;xx<x1+ex;){ const sw=W*(.007+r()*.008), sh=H*.011; o.x.fillStyle=HK.n(o,['#a8a298','#8e8a84','#b4a890','#7e7a76'][Math.floor(r()*4)]); o.x.beginPath(); o.x.roundRect?o.x.roundRect(xx+1,yy+1,sw-2,sh-2,Math.min(sw,sh)*.35):o.x.rect(xx+1,yy+1,sw-2,sh-2); o.x.fill(); HK.rect(o,xx+2,yy+1.5,sw*.5,1,v3rgba('#ffffff',.2*HK.lit(o))); xx+=sw; } } q.restore();
+        HK.rect(o,x0-ex,sy-H*.004,x1-x0+ex*2,H*.006,HK.dk(c,.3)); } /* the sill log the walls stand on */
       HK.rect(o,x0,top,x1-x0,H*.005,HK.dk(c,.35)); }],
-    ['door',(o,s,c)=>{ const C=rkCab(o), y=o.dockY, dw=W*.018, dh=(y-C.wallTop)*.7, dx=C.vx+W*.012, wy=C.wallTop+(y-C.wallTop)*.22, wh=(y-C.wallTop)*.3;
-      const win=(wx,ww)=>{ HK.rect(o,wx-2,wy-2,ww+4,wh+4,HK.dk(c,.35)); HK.rect(o,wx,wy,ww,wh,'#2a3440'); HK.rect(o,wx+ww/2-.5,wy,1,wh,HK.dk(c,.35)); HK.rect(o,wx,wy+wh/2-.5,ww,1,HK.dk(c,.35)); return {x:wx+ww/2,y:wy+wh/2,r:.1,a:.5,small:1,win:[ww,wh]}; };
-      const door=(split)=>{ HK.rect(o,dx-2,y-dh-2,dw+4,dh+2,HK.dk(c,.38)); HK.rect(o,dx,y-dh,dw,dh,HK.dk(c,.28)); for(let i=1;i<4;i++) HK.line(o,[dx+dw*i/4,y-dh,dx+dw*i/4,y],HK.dk(c,.45),.8); if(split) HK.line(o,[dx,y-dh*.5,dx+dw,y-dh*.5],HK.dk(c,.5),1.2); HK.circ(o,dx+dw*.82,y-dh*.48,1.6,'#c8a050'); };
-      const wA=W*.084, wB=C.x1-W*.026; /* the windows sit between the chair and the angler, and past the angler, so neither hides them */
-      if(s===0){ door(false); const L=win(wA,W*.018); o.lights.push(win(wB,W*.016)); return L; }
-      if(s===1){ door(true); const L=win(wA,W*.02); o.lights.push(win(wB,W*.018)); for(const bx of [wA,wB]){ HK.rect(o,bx-W*.002,wy+wh+2,W*.024,H*.006,'#6a4a32'); for(let i=0;i<6;i++) HK.circ(o,bx+W*(.001+i*.0036),wy+wh+1,H*.003,['#d8508a','#f0c040','#ffffff','#d8508a','#8a6ad8','#f0c040'][i]); } return L; } /* both windows keep their flower boxes */
-      door(false); const L1=win(wA,W*.014), L2=win(wB,W*.014), sw=W*.0065; for(const sx of [wA-sw-2,wA+W*.014+2,wB-sw-2,wB+W*.014+2]){ HK.rect(o,sx-1,wy-3,sw+2,wh+6,HK.dk(c,.45)); HK.rect(o,sx,wy-2,sw,wh+4,c); for(let k=1;k<6;k++) HK.rect(o,sx+1,wy-2+(wh+4)*k/6,sw-2,1,HK.dk(c,.3)); } /* board shutters in the door's colour, louvred, outlined so they stand off the logs */ o.lights.push(L2); return L1; }],
-    ['roof',(o,s,c)=>{ const C=rkCab(o), x=o.x, ov=W*.01, L0=C.x0-ov, R0=C.x1+ov, bt=C.wallTop+H*.004, tp=C.roofTop, rc=s===1?mix('#3a6a4a',c,.3):s===2?mix('#5a4a32',c,.2):c;
-      /* seen from the long side: the near roof slope as a band above the wall, eaves overhanging both ends, a ridge cap along the top */
-      x.fillStyle=HK.n(o,rc); x.beginPath(); x.moveTo(L0,bt); x.lineTo(C.x0+ov*.2,tp); x.lineTo(C.x1-ov*.2,tp); x.lineTo(R0,bt); x.closePath(); x.fill();
-      if(s===0){ x.strokeStyle=HK.n(o,HK.dk(c,.3)); x.lineWidth=1; const rows=5; for(let k=1;k<=rows;k++){ const yy=tp+(bt-tp)*k/rows, l=L0+(C.x0+ov*.2-L0)*(1-k/rows), r2=R0-(R0-(C.x1-ov*.2))*(1-k/rows); x.beginPath(); x.moveTo(l,yy); x.lineTo(r2,yy); x.stroke(); x.beginPath(); for(let xx=l+((k%2)*W*.004);xx<r2;xx+=W*.008){ x.moveTo(xx,yy-(bt-tp)/rows); x.lineTo(xx,yy); } x.stroke(); } } /* cedar shake courses */
-      if(s===1){ x.strokeStyle=HK.n(o,HK.lt(rc,.18)); x.lineWidth=1.2; x.beginPath(); for(let xx=C.x0;xx<C.x1;xx+=W*.007){ x.moveTo(xx,tp+1); x.lineTo(xx-(xx-(C.x0+C.x1)/2)*.02,bt-1); } x.stroke(); } /* standing seams of the tin */
-      if(s===2){ const r=v3rng(9); x.fillStyle=HK.n(o,mix('#6a9a4a',c,.15)); x.beginPath(); x.moveTo(C.x0+ov*.2,tp+H*.004); for(let xx=C.x0+ov*.2;xx<=C.x1-ov*.2;xx+=W*.004) x.lineTo(xx,tp-H*(.004+.006*r())); x.lineTo(C.x1-ov*.2,tp+H*.006); x.closePath(); x.fill(); x.fillStyle=HK.n(o,mix('#5a8a3a',c,.15)); x.fillRect(L0+ov*.3,tp+H*.002,R0-L0-ov*.6,(bt-tp)*.35); for(let i=0;i<12;i++) HK.circ(o,C.x0+r()*(C.x1-C.x0),tp-H*.002+r()*(bt-tp)*.3,H*.0024,['#f0c040','#d8508a','#ffffff'][i%3]); } /* turf and wildflowers on the sod */
-      HK.rect(o,C.x0+ov*.1,tp-H*.003,C.x1-C.x0-ov*.2,H*.004,HK.dk(rc,.3)); HK.line(o,[L0,bt,R0,bt],HK.dk(rc,.45),1.4); /* ridge cap and the eave's shadow line */
+    ['door',(o,s,c)=>{ const C=rkCab(o), y=o.dockY, dw=W*.018, dh=(y-C.wallTop)*.72, dx=C.vx+W*.012, dk=HK.dk(c,.3), q=o.x;
+      HK.rect(o,dx-3,y-dh-3,dw+6,dh+3,HK.dk(mix('#6a4a32',c,.2),.25)); HK.rect(o,dx-3,y-dh-3,dw+6,1,v3rgba('#ffffff',.15*HK.lit(o))); /* the door frame */
+      if(s===0){ HK.rect(o,dx,y-dh,dw,dh,c); for(let i=1;i<4;i++) HK.line(o,[dx+dw*i/4,y-dh,dx+dw*i/4,y],dk,.8); for(const yy of [.18,.78]) HK.rect(o,dx,y-dh*(1-yy)-H*.003,dw,H*.006,HK.dk(c,.12)); HK.line(o,[dx+1,y-dh*.18,dx+dw-1,y-dh*.78],HK.dk(c,.12),Math.max(2,H*.004)); /* a ledged and braced plank door: boards, two ledges and the Z brace */
+        for(const yy of [.2,.8]) HK.rect(o,dx-1,y-dh*(1-yy)-1,dw*.55,Math.max(2,H*.003),'#2a2a2e'); HK.circ(o,dx+dw*.84,y-dh*.5,1.7,'#2a2a2e'); HK.rect(o,dx+dw*.78,y-dh*.5-.5,dw*.12,1.5,'#2a2a2e'); } /* forged strap hinges and a thumb latch */
+      if(s===1){ for(const [y0,y1] of [[y-dh,y-dh*.5],[y-dh*.5,y]]){ HK.rect(o,dx,y0,dw,y1-y0-1,c); for(let i=1;i<4;i++) HK.line(o,[dx+dw*i/4,y0,dx+dw*i/4,y1-1],dk,.8); HK.rect(o,dx-1,y0+H*.006,dw*.5,Math.max(2,H*.003),'#2a2a2e'); }
+        HK.rect(o,dx-1,y-dh*.5-H*.003,dw+4,H*.005,HK.lt(c,.08)); HK.circ(o,dx+dw*.84,y-dh*.3,1.7,'#c8a050'); } /* a Dutch door: two halves, the lower one with a ledge */
+      if(s===2){ HK.rect(o,dx,y-dh,dw,dh,c); const gx=dx+dw*.18, gy=y-dh*.86, gw=dw*.64, gh=dh*.38; HK.rect(o,gx,gy,gw,gh,'#2a3440'); HK.rect(o,gx+gw/2-.5,gy,1,gh,dk); HK.rect(o,gx,gy+gh/2-.5,gw,1,dk);
+        for(const py of [.56,.78]) HK.rect(o,dx+dw*.18,y-dh*(1-py),dw*.64,dh*.16,HK.dk(c,.12)); HK.circ(o,dx+dw*.84,y-dh*.5,1.7,'#c8a050'); o.lights.push({x:gx+gw/2,y:gy+gh/2,r:.08,a:.45,small:1,win:[gw,gh]}); } }], /* a door with a glass pane: four lights above two raised panels; the glass glows at night */
+    ['windows',(o,s,c)=>{ const C=rkCab(o), y=o.dockY, wy=C.wallTop+(y-C.wallTop)*.22, wh=(y-C.wallTop)*.3, wA=W*.084, wB=C.x1-W*.026, ww=W*.016, dk=HK.dk(c,.3), q=o.x;
+      const win=(wx)=>{ HK.rect(o,wx-3,wy-3,ww+6,wh+6,c); HK.rect(o,wx-3,wy-3,ww+6,1,v3rgba('#ffffff',.2*HK.lit(o))); HK.rect(o,wx,wy,ww,wh,'#2a3440'); HK.rect(o,wx+ww/2-.6,wy,1.2,wh,c); HK.rect(o,wx,wy+wh/2-.6,ww,1.2,c); HK.rect(o,wx-4,wy+wh+2,ww+8,Math.max(2,H*.004),HK.dk(c,.15)); return {x:wx+ww/2,y:wy+wh/2,r:.1,a:.5,small:1,win:[ww,wh]}; }; /* trim, four panes, a sill */
+      const L1=win(wA), L2=win(wB);
+      if(s===1){ const r=v3rng(31); for(const bx of [wA,wB]){ const by=wy+wh+2+Math.max(2,H*.004), bw=ww+8, bh=H*.012; HK.rect(o,bx-4,by,bw,bh,HK.dk(c,.1)); HK.line(o,[bx-4,by+bh*.5,bx-4+bw,by+bh*.5],dk,.6); /* a planter box under each window */
+          for(let i=0;i<9;i++){ const lx=bx-3+bw*(i+.5)/9, ly=by-H*(.001+r()*.004); q.fillStyle=HK.n(o,i%2?'#3e6a34':'#4f7a3a'); q.beginPath(); q.ellipse(lx,ly,H*.004,H*.0028,(r()-.5)*1.2,0,7); q.fill(); } /* leaves */
+          q.strokeStyle=HK.n(o,'#4a7a3a'); q.lineWidth=1; q.beginPath(); for(const tx of [bx-2,bx+bw-7]){ q.moveTo(tx,by+bh*.4); q.quadraticCurveTo(tx-2,by+bh*1.4,tx+1,by+bh*2.1); } q.stroke(); /* trailing ivy */
+          for(let i=0;i<5;i++){ const fx=bx-1+bw*(i+.5)/5, fy=by-H*(.005+r()*.004), pc=['#d83a3a','#f4f0f0','#e86a9a','#f0c040','#d83a3a'][i]; rkFlower(q,fx,fy,H*.0032,HK.n(o,pc),HK.n(o,'#f0d040')); } } } /* geraniums and daisies in bloom */
+      if(s===2){ const sw=W*.0065, sc=mix(c,'#000000',0); for(const sx of [wA-sw-4,wA+ww+4,wB-sw-4,wB+ww+4]){ HK.rect(o,sx-1,wy-3,sw+2,wh+6,HK.dk(sc,.45)); HK.rect(o,sx,wy-2,sw,wh+4,sc); for(let k=1;k<7;k++) HK.rect(o,sx+1,wy-2+(wh+4)*k/7,sw-2,1.2,HK.dk(sc,.28)); HK.rect(o,sx+1,wy-2,sw-2,1,v3rgba('#ffffff',.2*HK.lit(o))); } } /* louvred shutters, in the windows' colour */
+      o.lights.push(L2); return L1; }],
+    ['roof',(o,s,c)=>{ const C=rkCab(o), x=o.x, ov=W*.01, L0=C.x0-ov, R0=C.x1+ov, bt=C.wallTop+H*.004, tp=C.roofTop, lit=HK.lit(o);
+      /* seen from the long side: the near roof slope as a band above the wall, eaves overhanging both ends */
+      const slope=(k)=>[L0+(C.x0+ov*.2-L0)*(1-k),R0-(R0-(C.x1-ov*.2))*(1-k)]; /* the slope's left and right edge at a height k (0 eave, 1 ridge) */
+      if(s<2){ x.fillStyle=HK.n(o,c); x.beginPath(); x.moveTo(L0,bt); x.lineTo(C.x0+ov*.2,tp); x.lineTo(C.x1-ov*.2,tp); x.lineTo(R0,bt); x.closePath(); x.fill(); }
+      if(s===0){ x.strokeStyle=HK.n(o,HK.dk(c,.3)); x.lineWidth=1; const rows=5, r=v3rng(12); for(let k=1;k<=rows;k++){ const yy=tp+(bt-tp)*k/rows, [l,r2]=slope(1-k/rows); x.beginPath(); x.moveTo(l,yy); x.lineTo(r2,yy); x.stroke(); x.beginPath(); for(let xx=l+((k%2)*W*.004);xx<r2;xx+=W*(.006+r()*.004)){ x.moveTo(xx,yy-(bt-tp)/rows); x.lineTo(xx,yy); } x.stroke(); }
+        HK.rect(o,C.x0+ov*.1,tp-H*.003,C.x1-C.x0-ov*.2,H*.004,HK.dk(c,.3)); } /* cedar shake courses and the ridge cap */
+      if(s===1){ x.strokeStyle=HK.n(o,HK.lt(c,.2)); x.lineWidth=1.2; x.beginPath(); for(let xx=C.x0;xx<C.x1;xx+=W*.007){ x.moveTo(xx,tp+1); x.lineTo(xx-(xx-(C.x0+C.x1)/2)*.02,bt-1); } x.stroke(); x.strokeStyle=HK.n(o,HK.dk(c,.25)); x.lineWidth=.8; x.beginPath(); for(let xx=C.x0+2;xx<C.x1;xx+=W*.007){ x.moveTo(xx,tp+1); x.lineTo(xx-(xx-(C.x0+C.x1)/2)*.02,bt-1); } x.stroke(); /* standing seams, lit and shaded */
+        const sh=x.createLinearGradient(0,tp,0,bt); sh.addColorStop(0,v3rgba('#ffffff',.18*lit)); sh.addColorStop(.5,'rgba(255,255,255,0)'); x.fillStyle=sh; x.beginPath(); x.moveTo(L0,bt); x.lineTo(C.x0+ov*.2,tp); x.lineTo(C.x1-ov*.2,tp); x.lineTo(R0,bt); x.closePath(); x.fill(); /* the sheen of painted metal */
+        HK.rect(o,C.x0+ov*.1,tp-H*.004,C.x1-C.x0-ov*.2,H*.005,HK.dk(c,.2)); HK.rect(o,L0,bt-1,R0-L0,2,HK.dk(c,.35)); } /* the ridge cap and the drip edge */
+      if(s===2){ const r=v3rng(9), th=H*.014, gc=c, soil='#3a2a1c', bk='#e8dcc4';
+        /* a real sod roof: boards, a layer of birch bark, then thick turf over the whole slope, held at the eave by a log on wooden brackets;
+           the turf bulges over the ridge and its grass hangs over the eave; wildflowers grow in it (director, 2026-11-23: "look like an actual sod roof") */
+        x.fillStyle=HK.n(o,'#4a3626'); x.beginPath(); x.moveTo(L0,bt); x.lineTo(C.x0+ov*.2,tp); x.lineTo(C.x1-ov*.2,tp); x.lineTo(R0,bt); x.closePath(); x.fill(); /* the roof boards */
+        x.fillStyle=HK.n(o,HK.dk(gc,.25)); x.beginPath(); x.moveTo(L0-W*.002,bt-H*.002); for(let X=C.x0+ov*.2;X<=C.x1-ov*.2;X+=W*.004) x.lineTo(X,tp-th*(.75+.35*r())); x.lineTo(R0+W*.002,bt-H*.002); x.closePath(); x.fill(); /* the turf body, bumpy along the top */
+        x.fillStyle=HK.n(o,gc); x.beginPath(); x.moveTo(L0,bt-H*.004); for(let X=C.x0+ov*.2;X<=C.x1-ov*.2;X+=W*.004) x.lineTo(X,tp-th*(.6+.3*r())); x.lineTo(R0,bt-H*.004); x.lineTo(R0-ov*.4,bt-(bt-tp)*.35); x.lineTo(L0+ov*.4,bt-(bt-tp)*.35); x.closePath(); x.fill(); /* its lit grass */
+        x.strokeStyle=HK.n(o,HK.lt(gc,.22)); x.lineWidth=.8; x.beginPath(); for(let i=0;i<140;i++){ const k=r(), [l,rr]=slope(k), X=l+(rr-l)*r(), Y=bt-(bt-tp)*k-th*.4*k; x.moveTo(X,Y); x.lineTo(X+(r()-.5)*2,Y-H*(.003+r()*.004)); } x.stroke(); /* grass blades */
+        x.strokeStyle=HK.n(o,HK.lt(gc,.12)); x.lineWidth=1; x.beginPath(); for(let X=C.x0+ov*.2;X<=C.x1-ov*.2;X+=W*.0022){ const Y=tp-th*.62; x.moveTo(X,Y); x.lineTo(X+(r()-.5)*3,Y-H*(.004+r()*.006)); } x.stroke(); x.strokeStyle=v3rgba(o.P.rim||'#fff0d0',.35*lit); x.beginPath(); for(let X=C.x0+ov*.2;X<=C.x1-ov*.2;X+=W*.006){ x.moveTo(X,tp-th*.66); x.lineTo(X+W*.004,tp-th*.7); } x.stroke(); /* tufts along the top, lit by the sky */
+        x.strokeStyle=HK.n(o,HK.dk(gc,.3)); x.beginPath(); for(let X=L0;X<R0;X+=W*.0025){ const hl=H*(.004+r()*.006); x.moveTo(X,bt-H*.003); x.quadraticCurveTo(X+1,bt+hl*.5,X-.5+r(),bt+hl); } x.stroke(); /* grass hanging over the eave */
+        HK.rect(o,L0,bt-H*.0045,R0-L0,1.2,bk); /* the birch-bark layer showing at the edge */
+        const lg=Math.max(3,H*.006); HK.rect(o,L0+ov*.3,bt-lg*.6,R0-L0-ov*.6,lg,'#6a4a30'); HK.rect(o,L0+ov*.3,bt-lg*.6,R0-L0-ov*.6,1,v3rgba('#ffffff',.2*lit)); HK.circ(o,L0+ov*.3,bt-lg*.1,lg*.5,'#a87a50'); HK.circ(o,R0-ov*.3,bt-lg*.1,lg*.5,'#a87a50');
+        for(let X=L0+ov*.8;X<R0-ov*.5;X+=W*.03) HK.rect(o,X,bt-lg*.6,Math.max(2,W*.002),lg*1.6,'#4a3020'); /* the turf log on its brackets */
+        for(let i=0;i<16;i++){ const k=.15+r()*.75, [l,rr]=slope(k), X=l+(rr-l)*(.04+r()*.92), Y=bt-(bt-tp)*k-th*.5*k; if(i%4===0){ x.strokeStyle=HK.n(o,'#4a7a3a'); x.lineWidth=1; x.beginPath(); x.moveTo(X,Y); x.lineTo(X,Y-H*.012); x.stroke(); for(let b=0;b<4;b++) HK.circ(o,X,Y-H*(.006+b*.0018),H*.0016,'#d8508a'); } else rkFlower(x,X,Y-H*.004,H*.0026,HK.n(o,['#f4f0f0','#f0c040','#8a8ad8'][i%3]),HK.n(o,'#f0d040')); } } /* daisies, buttercups, harebells and a fireweed spike */
+      HK.line(o,[L0,bt,R0,bt],HK.dk(s===2?'#3a2a1c':c,.45),1.4); /* the eave's shadow line */
       o.top=Math.min(o.top==null?o.dockY-H*.23:o.top,tp-H*.04); o.low=Math.max(o.low==null?-1e9:o.low,C.wallTop+H*.01); /* the resting rod stays under the eaves, never across the roof */ }],
     ['porch',(o,s,c)=>{ if(!s) return; const C=rkCab(o), y=o.dockY, sc=HF.sc(), lo=y-84*sc*1.06, th=Math.max(4,H*.012), a=C.x0-W*.004, b=C.x1+W*.01, x=o.x;
-      /* a porch roof across the cabin's front, lower than the cabin roof, on log posts standing on the deck; the angler fishes under it */
-      /* the porch roof is a shed roof in the cabin roof's own material, sloping from the wall down to a fascia on the posts; it shades the wall
-         under it, so it reads as a roof and not as one more log (it vanished into the logs before: the all-options check, 2026-11-22 night) */
-      const rs=hfStyle('rockies','roof'), rc0=hfColor('rockies','roof'), rc=rs===1?mix('#3a6a4a',rc0,.3):rs===2?mix('#5a4a32',rc0,.2):rc0, bk=Math.max(C.wallTop+H*.008,lo-th-H*.026);
+      /* a porch roof across the cabin's front, lower than the cabin roof, on log posts standing on the deck; the angler fishes under it. It is a
+         shed roof in the cabin roof's own material (a sod roof's porch keeps cedar shakes), sloping from the wall down to a fascia on the posts,
+         and it shades the wall under it, so it reads as a roof and not as one more log */
+      const rs=hfStyle('rockies','roof'), rc=rs===2?'#5a4a3a':hfColor('rockies','roof'), bk=Math.max(C.wallTop+H*.008,lo-th-H*.026);
       const sh=x.createLinearGradient(0,lo,0,lo+H*.03); sh.addColorStop(0,'rgba(10,8,6,.42)'); sh.addColorStop(1,'rgba(10,8,6,0)'); x.fillStyle=sh; x.fillRect(C.x0-W*.003,lo,C.x1-C.x0+W*.006,H*.03); /* its shadow on the wall */
       for(const px of [C.vx+W*.006,(C.vx+C.x1)/2+W*.02,C.x1-W*.006]){ HK.rect(o,px-3,lo,6,y-lo,'#3e2a1c'); HK.rect(o,px-1.5,lo,1.5,y-lo,v3rgba('#c89a6a',.5*HK.lit(o)+.15)); HK.rect(o,px-4,lo,8,H*.004,'#2e2016'); HK.rect(o,px-4,y-H*.004,8,H*.004,'#2e2016'); } /* posts stand on the deck in front of the wall, inside its ends */
       x.fillStyle=HK.n(o,rc); x.beginPath(); x.moveTo(a+W*.004,bk); x.lineTo(b-W*.004,bk); x.lineTo(b,lo-th); x.lineTo(a,lo-th); x.closePath(); x.fill();
-      x.strokeStyle=HK.n(o,HK.dk(rc,.3)); x.lineWidth=1; x.beginPath(); if(rs===1){ for(let xx=a+W*.006;xx<b;xx+=W*.007){ x.moveTo(xx,bk+1); x.lineTo(xx,lo-th-1); } } else { for(let k=1;k<3;k++){ const yy=bk+(lo-th-bk)*k/3; x.moveTo(a,yy); x.lineTo(b,yy); } } x.stroke(); /* tin seams, or shake courses (sod roofs keep shakes on the porch) */
+      x.strokeStyle=HK.n(o,HK.dk(rc,.3)); x.lineWidth=1; x.beginPath(); if(rs===1){ for(let xx=a+W*.006;xx<b;xx+=W*.007){ x.moveTo(xx,bk+1); x.lineTo(xx,lo-th-1); } } else { for(let k=1;k<3;k++){ const yy=bk+(lo-th-bk)*k/3; x.moveTo(a,yy); x.lineTo(b,yy); } } x.stroke(); /* tin seams, or shake courses */
       HK.rect(o,a,bk-H*.002,b-a,H*.003,HK.dk(rc,.35)); /* the flashing where it meets the wall */
       x.fillStyle=HK.n(o,mix('#6a5040',c,.35)); x.fillRect(a,lo-th,b-a,th); x.fillStyle=HK.n(o,HK.dk(mix('#6a5040',c,.35),.25)); x.fillRect(a,lo-H*.003,b-a,H*.003); HK.line(o,[a,lo-th,b,lo-th],v3rgba(o.P.rim||'#fff0d0',.4*HK.lit(o)),1); /* the fascia, in the porch's colour */
       /* (the porch's log rail is drawn in front of the angler and the chair: rkFront, called after them by the scene) */
       o.low=Math.max(o.low==null?-1e9:o.low,lo-th); }],
     ['seat']] });
+/* a small five-petal flower seen face on (daisies, geraniums in a window box, flowers in the sod): petals around a centre */
+function rkFlower(q,x,y,r,pc,cc){ q.fillStyle=pc; for(let i=0;i<5;i++){ const a=i*1.2566; q.beginPath(); q.ellipse(x+Math.cos(a)*r*.75,y+Math.sin(a)*r*.75,r*.55,r*.38,a,0,7); q.fill(); } q.fillStyle=cc; q.beginPath(); q.arc(x,y,r*.38,0,7); q.fill(); }
 /* the cabin's frame, shared by its parts: seen from its long side at the back of the deck, the walls a little taller than the angler */
 /* the porch rail runs along the deck's front edge, nearest to you, so it is drawn after the angler, the chair and the pets (director: "ordering issues") */
 function rkFront(night,cx){ const q=cx||g; if(hfStyle('rockies','porch')!==2) return; const y=HF.dockY(), C=rkCab({pw:HF.pw(),dockY:y}), x0=C.x0, x1=C.x1, rh=H*.034, c=hfColor('rockies','porch'), N=c0=>mix(c0,'#0a1020',night*.55), wood=N(mix('#8a6040',c,.3)), post=N('#5a3e2a');
@@ -188,7 +231,7 @@ function rkShore(o){ const x=o.x, y=o.dockY, wl=o.wl, x0=HF.x0(), xe=o.pw+W*.022
   const top0=y-H*.27, topY=X=>{ const u=clamp((X-x0)/(xe-x0),0,1); return wl-(wl-top0)*Math.pow(1-u,1.1)+H*.004*Math.sin(X*.05)*(1-u); }; /* reaches the water line smoothly at its end: no edge */
   x.fillStyle=N('#24382a'); x.beginPath(); x.moveTo(x0,wl); for(let X=x0;X<=xe;X+=4) x.lineTo(X,Math.min(wl,topY(X))); x.lineTo(xe,wl); x.closePath(); x.fill();
   x.fillStyle=N('#2e4a34'); x.beginPath(); x.moveTo(x0,wl); for(let X=x0;X<=xe;X+=4) x.lineTo(X,Math.min(wl,topY(X)+H*.02)); x.lineTo(xe,wl); x.closePath(); x.fill(); /* the bank's lit near slope */
-  for(let i=0;i<7;i++){ const X=x0+(xe-x0)*(.04+i*.105)+(r()-.5)*W*.006, /* none at the bank's foot by the deck's end, where one seemed to stand on the deck */ base=Math.min(wl,topY(X))+H*.004, h=H*(.09+r()*.07)*(1-i*.05); v3pine(x,X,base,h,N(i%3===1?'#3a5e40':'#1e3a2a'),o.P.rim,.25*lit); } /* spruces on the bank */
+  for(let i=0;i<7;i++){ const X=x0+(xe-x0)*(.04+i*.105)+(r()-.5)*W*.006, /* none at the bank's foot by the deck's end, where one seemed to stand on the deck */ base=Math.min(wl,topY(X))+H*.004, h=H*(.09+r()*.07)*(1-i*.05); rkSpruce(x,X,base,h,N(i%3===1?'#3a5e40':'#1e3a2a'),o.P.rim,.25*lit,i+11); } /* spruces on the bank */
   x.fillStyle=N('#7a7468'); x.beginPath(); x.moveTo(o.pw-W*.04,wl); x.quadraticCurveTo(o.pw-W*.01,wl-H*.009,xe+W*.006,wl); x.closePath(); x.fill(); /* wet shingle at the water's edge, tapering out */
   for(const [fx,s] of [[.86,1],[.97,1.3],[1.06,.8]]){ const X=x0+(o.pw-x0)*fx, rs=H*.012*s; x.fillStyle=N('#8a8680'); x.beginPath(); x.ellipse(X,wl-rs*.35,rs*1.4,rs*.8,0,Math.PI,0); x.fill(); x.fillStyle=v3rgba('#ffffff',.15*lit); x.beginPath(); x.ellipse(X-rs*.3,wl-rs*.7,rs*.5,rs*.18,0,0,7); x.fill(); } /* granite boulders at the foot of the bank */
   x.fillStyle=N('#3e6040'); for(let i=0;i<10;i++){ const X=o.pw-W*.035+r()*W*.05, Y=wl-H*(.004+r()*.012); x.beginPath(); x.ellipse(X,Y,W*.004,H*.005,0,Math.PI,0); x.fill(); } } /* shrubs */
@@ -218,7 +261,7 @@ function rkLedge(o){ const x=o.x, y=o.dockY, yu=y+HK.fh(), wl=o.wl, at=f=>HK.at(
   /* piles (director, 2026-11-22 night: "the support beams going into the water look bad, not natural at all"): above the water a peeled log
      with bark checks, an iron strap and knee braces up to the deck; at the surface a dark wet band, weed and a ripple; below it the pile is
      seen through the water: shifted a little by refraction, darker, and fading into the depth on its way to the lake bed, never ending on a disc */
-  for(const f of [.5,.7,.92]){ const px=Math.min(o.pw-W*.006,at(f)), pw2=Math.max(5,W*.0075), foot=surf(px), sub=foot>wl, end=sub?wl:foot;
+  for(const f of [.5,.7,.92]){ const px=Math.min(o.pw-W*.006,at(f)), pw2=Math.max(6,W*.0085), foot=surf(px), sub=foot>wl, end=sub?wl:foot;
     const pg=x.createLinearGradient(px-pw2/2,0,px+pw2/2,0); pg.addColorStop(0,woodL); pg.addColorStop(.45,wood); pg.addColorStop(1,woodD); x.fillStyle=pg; x.fillRect(px-pw2/2,bt,pw2,end-bt);
     x.strokeStyle=v3rgba('#2a1c12',.45); x.lineWidth=.8; x.beginPath(); for(let k=0;k<4;k++){ const yy=bt+(end-bt)*(k+.5)/4; x.moveTo(px-pw2/2,yy); x.lineTo(px-pw2*.1,yy+H*.003); } x.stroke();
     x.fillStyle=N('#3a3a40'); x.fillRect(px-pw2/2-.5,bt+H*.006,pw2+1,Math.max(1.5,H*.003));
@@ -226,8 +269,11 @@ function rkLedge(o){ const x=o.x, y=o.dockY, yu=y+HK.fh(), wl=o.wl, at=f=>HK.at(
     if(!sub) continue;
     const w2=x.createLinearGradient(0,wl-H*.022,0,wl); w2.addColorStop(0,'rgba(18,24,20,0)'); w2.addColorStop(1,'rgba(18,24,20,.6)'); x.fillStyle=w2; x.fillRect(px-pw2/2,wl-H*.022,pw2,H*.022);
     x.fillStyle=N('#3f5a2c'); for(let k=0;k<4;k++){ const wx=px-pw2/2+pw2*k/4, wh=H*(.004+.004*((k*7)%3)/2); x.beginPath(); x.moveTo(wx,wl); x.quadraticCurveTo(wx+pw2*.2,wl-wh*.6,wx+pw2*.1,wl-wh); x.lineTo(wx+pw2*.25,wl); x.fill(); }
-    const deep=o.P.wBot||'#0a3040', uc=mix(mix('#4a3424',deep,.55),'#000000',.1), dx=Math.max(1,pw2*.18), depth=H*.1; /* under the surface */
-    for(let k=0;k<10;k++){ const y0=wl+depth*k/10, a=.75*(1-k/10)*(1-k/10); x.fillStyle=v3rgba(uc,a); x.fillRect(px-pw2/2+dx,y0,pw2*.96,depth/10+.5); x.fillStyle=v3rgba(mix(uc,'#8ab8a0',.25),a*.5); x.fillRect(px-pw2/2+dx,y0,pw2*.22,depth/10+.5); }
+    /* under the surface the same pile carries straight on down (no sideways jump: director, 2026-11-23 "the support beams don't line up with
+       the water"), taking the water's colour as it goes, to the lake bed */
+    const deep=o.P.wBot||'#0a3040', uc=mix(mix('#4a3424',deep,.45),'#000000',.05), depth=H*.16, ug=x.createLinearGradient(0,wl,0,wl+depth); ug.addColorStop(0,v3rgba(uc,.92)); ug.addColorStop(.55,v3rgba(mix(uc,deep,.4),.55)); ug.addColorStop(1,v3rgba(deep,0)); x.fillStyle=ug; x.fillRect(px-pw2/2,wl,pw2,depth);
+    const ul=x.createLinearGradient(0,wl,0,wl+depth*.7); ul.addColorStop(0,v3rgba(mix(uc,'#9ac8b0',.35),.5*lit)); ul.addColorStop(1,'rgba(150,200,180,0)'); x.fillStyle=ul; x.fillRect(px-pw2/2,wl,pw2*.25,depth*.7); /* its lit side, fading with depth */
+    HK.rect(o,px-pw2/2-1,wl-1,pw2+2,1.5,v3rgba('#e8f4f0',.35*lit+.05)); /* the bright line where the surface meets it */
     o.posts.push({x:px,w:pw2}); } }
 
 /* 7. Coral Shallows: the beach hut on stilts */
