@@ -2,6 +2,13 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Tester tools › Feel lab: try the fight with different settings, live. Presets: Old, Current (Cam’s update), Middle and Arcade; then change any number with − and +. Kept on this device.',
+  'New in the fight (Middle and Arcade): shorter fights; a short warning before a run, a shake or a dive; the right reaction pays (ease off in runs and shakes, reel when it jumps or swims toward you, hold the dive band).',
+  'Perfect pull: as a move ends the float glows for a moment. Press reel right then and the fish loses a chunk of its fight.',
+  'Combo: right reactions in a row speed up your reel (up to +40%); reeling into a move at the snap line resets it. A hook flash and short pop-ups show how you did.',
+  'You can now see when a fish swims toward you (arrows by the float, “Swimming in, reel!”), and second winds come sooner.',
+  'The Fishing: New / Old switch is now the Old preset in the Feel lab.',
+  '## Test build 2026.11.22-2051',
   'Every water redone: new scenery shapes of its own (no more shared mountains), and things that floated now stand on something.',
   'Willow Pond: a forest ridge instead of mountains, the deer walks on the bank, ducks leave a real wake, a livelier frog.',
   'Stonebrook River: the arches show the hills behind, leaves drift downstream, farmland on the hills; a mooring post replaces the dock waterwheel.',

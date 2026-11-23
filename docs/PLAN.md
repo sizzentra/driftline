@@ -62,7 +62,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Clean Pages** (untangling the code) is very important and continues.
 
 ## Director's game notes (2026-11-22 evening, "notes from yesterday as well"; STORED, nothing built yet: balance and feel, decided together before building)
-1. **Fishing feel:** settle in the middle between the old feel (before batch 1, tag `rollback/before-fishing-feel`) and the new one. "New too slow, old too new" (probably meaning too fast).
+1. **Fishing feel** (**Feel lab built 2026-11-22, test builds 2221**: presets and knobs in Tester tools; the director and Cam tune it there, then the numbers are locked in): settle in the middle between the old feel (before batch 1, tag `rollback/before-fishing-feel`) and the new one. "New too slow, old too new" (probably meaning too fast).
 2. **Prestige doesn't reset enough:** restarting with so many things makes no sense; relics and the like are the point of prestiging. Decide what a prestige keeps and what it resets.
 3. **Boons feel weak.**
 4. **Map progress is too fast and easy:** unlocking waters should be based on progress (limiting), not bought with gold. It gives more direction and is easier to balance.

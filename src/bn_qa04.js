@@ -905,6 +905,17 @@ if(/[?&]test\b/.test(location.search)) window.__qcSheet=async(ids,name)=>{ const
     e.styles.forEach((nm,s)=>{ S.dock.el=JSON.parse(keep); S.dock.el[e.id]=[s,hfChoice(id,e.id)[1]]; V3CACHE=null; G.st='rest'; restCast(); draw(performance.now()); draw(performance.now()+16); x.drawImage(cv,0,sy,sw,sh,120+s*cw,r*ch,cw,ch); x.fillStyle='rgba(0,0,0,.6)'; x.fillRect(120+s*cw,r*ch,cw,16); x.fillStyle='#fff'; x.fillText(nm,124+s*cw,r*ch+12); });
     S.dock.el=JSON.parse(keep); }
   G.st='idle'; draw(performance.now()); return (await fetch('/shot/'+name,{method:'POST',body:o.toDataURL('image/jpeg',.8)})).status; };
+// test builds: __feelSim(preset,n) plays n fights per rarity at the current water with a scripted player who reacts the right way
+// (eases off in runs and shakes, reels into jumps toward it, keeps the dive band, presses on a perfect pull) and reports seconds to land
+if(/[?&]test\b/.test(location.search)) window.__feelSim=(preset,n=3,stopAt=0)=>{ const keepF=JSON.stringify(FEEL), keepOld=!fishNew(); feelPreset(preset); const out={preset,ranks:[]};
+  for(let r=0;r<6;r++){ const pool=SP.filter(s=>s.loc===S.loc&&s.r===r); if(!pool.length){ out.ranks.push(null); continue; } let tot=0, landed=0, combo=0, pops=0;
+    for(let i=0;i<n;i++){ G.fish=rollFish(pool[i%pool.length],{}); G.st='reeling'; G.lastCast=.85; G.ten=0; G.temper=0; G.sta=1; G.fightT=0; G.perfect=false; G.saved=false; G.strip=null; G.eat=null; ffInit(); let t=0, ph=false, mx=0, np=0;
+      while(G.st==='reeling'&&t<150){ if(stopAt&&t>=stopAt&&(G.pops||[]).length){ draw(performance.now()); return 'stopped'; } const A=G.ffA; let h=G.ten<70;
+        if(A&&FEEL.counter>0){ const live=!(A.k==='jump'&&A.t<JUMP_WINDUP); if(live) h=A.k==='dive'?G.ten<A.zone:(A.k==='jump'&&!A.away)?true:false; }
+        if(G.ppw>0&&FEEL.pull>0){ h=!ph; } G.hold=h; ph=h; const before=(G.pops||[]).length; fightNew(1/60); np+=Math.max(0,(G.pops||[]).length-before); mx=Math.max(mx,G.combo||0); t+=1/60; }
+      if(G.st!=='reeling'){ landed++; tot+=t; } combo=Math.max(combo,mx); pops+=np; G.st='idle'; G.hold=false; }
+    out.ranks.push({r, s:landed?+(tot/landed).toFixed(1):null, landed:landed+'/'+n, combo, pops}); }
+  FEEL=JSON.parse(keepF); feelSave(); setFishOld(keepOld); G.fish=null; G.st='idle'; return out; };
 // test builds: __cropShot(name,id,x,y,w,h,rest) saves part of the frame (fractions of the screen); __mkSheet(name,id,[[label,setup,rest],…]) a 2-wide sheet of whole frames
 if(/[?&]test\b/.test(location.search)){ window.__cropShot=async(name,id,rx,ry,rw,rh,rest)=>{ await __shot('tmp',id,!!rest,true); const o=document.createElement('canvas'); o.width=Math.round(cv.width*rw); o.height=Math.round(cv.height*rh); o.getContext('2d').drawImage(cv,cv.width*rx,cv.height*ry,o.width,o.height,0,0,o.width,o.height); return (await fetch('/shot/'+name,{method:'POST',body:o.toDataURL('image/jpeg',.9)})).status; };
   window.__mkSheet=async(name,id,list)=>{ const cw=960, ch=Math.round(cw*cv.height/cv.width), o=document.createElement('canvas'); o.width=cw*2; o.height=Math.ceil(list.length/2)*ch; const x=o.getContext('2d'); x.font='22px sans-serif';
