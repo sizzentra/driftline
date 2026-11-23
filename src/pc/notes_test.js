@@ -2,6 +2,9 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Florida Keys: your skiff is rebuilt as a real flats skiff, bow toward the fish: a low fiberglass hull with a rub rail, a stripe at the waterline and its registration, an outboard on the back, a center console with a windscreen (or a poling platform, or a tiller boat), and a T-top, bimini or umbrella. It is staked out with a push pole in the sand. Your saved choices carry over.',
+  'Florida Keys: a green channel marker stands in the flats with a pelican resting on top; its light blinks green at night.',
+  '## Test build 2026.11.23-0610',
   'Coral Shallows, redone in its own style: your home is an overwater bungalow high on palm stilts, with a tall thatched roof, a shaggy fringe and a little vent at the top. Pick the walls, roof, door, windows, beach gear, torch and seat in Your home.',
   'Coral Shallows: a ladder goes down into the clear water, the sandbar with coral and a starfish shows through under the bungalow, and a coconut palm leans out over the roof.',
   '## Test build 2026.11.23-0600',

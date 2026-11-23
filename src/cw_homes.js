@@ -320,32 +320,38 @@ hfMake('reef',{ name:'Overwater bungalow', hname:'bungalow', glow:'255,200,140',
     ['gear',(o,s,c)=>{ const x=HK.at(o,.42), y=o.dockY; if(s===1){ HK.ell(o,x+W*.006,y-H*.05,W*.006,H*.05,c,-.08); HK.line(o,[x+W*.006,y-H*.09,x+W*.006,y-H*.01],'#f4efe6',1); } if(s===2){ HK.rect(o,x,y-H*.1,2,H*.1,'#9a7a52'); HK.ell(o,x+W*.006,y-H*.08,W*.004,H*.006,c); HK.poly(o,[x+W*.002,y-H*.06,x+W*.012,y-H*.06,x+W*.016,y-H*.035,x+W*.004,y-H*.04],HK.dk(c,.2)); } if(s===3){ HK.curve(o,x-W*.02,y-H*.11,x,y-H*.08,x+W*.02,y-H*.11,'#c8a878',1); for(let i=0;i<6;i++) HK.circ(o,x-W*.016+i*W*.0064,y-H*(.1-Math.sin(i/5*Math.PI)*.02),H*.004,i%2?c:'#fbf2e4'); } }],
     ['seat'],
     ['torch',(o,s)=>HK.light(o,['tiki','shells','floats'][s])]] }); }
-/* 8. Florida Keys: the flats skiff (floats) */
-hfMake('keys',{ name:'Flats skiff', hname:'skiff', floats:true,
+/* 8. Florida Keys: the flats skiff (overnight, 2026-11-23; its own design, src/cw_skiff.js; floats): a shallow-draft fiberglass skiff, bow
+   to the right, with a rub rail, boot stripe, registration and an outboard; console, top and gear choices; staked out with a push pole.
+   Same ids as before, so saved choices still fit */
+hfMake('keys',{ name:'Flats skiff', hname:'skiff', floats:true, seatX:()=>HF.pw()-W*.03,
   colors:C16('Boat white=#f4f6f4;Fiberglass cream=#ece4d0;Aluminium=#b8c0c4;Teak=#9a6a3a;Flats aqua=#28c0c8;Shallow mint=#8af0e0;Deep channel=#0a7090;Conch pink=#f0a0a8;Flamingo=#f06a8a;Mint=#9ae0c0;Lemon=#f4e07a;Sunset orange=#f8a050;Sand=#f4e6c0;Palm green=#3a8a5a;Navy trim=#1e3a5a;Cooler red=#d8483a'),
-  els:[{id:'hull',label:'Hull',styles:['Flats skiff','Center console','Pastel jon boat'],def:[0,0]},{id:'top',label:'Top',none:true,styles:['Open sky','T-top','Bimini','Clamp umbrella'],def:[1,1]},
-       {id:'console',label:'Console',styles:['Center console','Poling platform','Tiller outboard'],def:[0,0]},{id:'gear',label:'Gear',styles:['Rod holders','Cooler and bucket','Flamingo float'],def:[0,15]},
+  front:null, smoke:null,
+  els:[{id:'hull',label:'Hull',styles:['Flats skiff','Bay boat','Pastel jon boat'],def:[0,0]},{id:'top',label:'Top',none:true,styles:['Open sky','T-top','Bimini','Clamp umbrella'],def:[1,1]},
+       {id:'console',label:'Console',styles:['Center console','Poling platform','Tiller boat'],def:[0,0]},{id:'gear',label:'Gear',styles:['Rod holders','Cooler','Flamingo float'],def:[0,15]},
        {id:'light',label:'Nav lights',light:true,styles:['Bow lights','T-top light','Cooler lantern'],def:[0,13]}],
   seat:['captain','coolerseat','beanbag'], seatNames:['Captain’s chair','Cooler seat','Bean bag'], seatDef:[0,14],
   order:[
-    ['hull',(o,s,c)=>HK.hull(o,c,['skiff','console','jon'][s])],
-    ['console',(o,s,c)=>{ const x=HK.at(o,.5), y=o.dockY; if(s===0){ HK.block(o,x,y-H*.035,W*.02,H*.035,c); HK.poly(o,[x,y-H*.035,x+W*.006,y-H*.05,x+W*.016,y-H*.05,x+W*.02,y-H*.035],v3rgba('#9ad0e0',.6)); } if(s===1){ const a=HK.at(o,.04); for(const px of [a,a+W*.022]) HK.rect(o,px,y-H*.1,2,H*.1,'#b8c0c4'); HK.rect(o,a-W*.002,y-H*.1,W*.026,H*.006,c); } if(s===2){ const a=HF.x0(); HK.block(o,a-W*.012,y-H*.03,W*.014,H*.03,'#2a2a30'); HK.rect(o,a-W*.008,y,W*.004,H*.06,'#2a2a30'); } }],
-    ['top',(o,s,c)=>{ if(s===1) HK.roof(o,c,'ttop',.36,.72); if(s===2) HK.roof(o,c,'bimini',.3,.72); if(s===3) HK.roof(o,c,'beachumbrella',.1,.42); }],
-    ['gear',(o,s,c)=>{ const x=HK.at(o,.8), y=o.dockY; if(s===0) for(let i=0;i<3;i++) HK.line(o,[x+i*W*.005,y,x+i*W*.007+W*.01,y-H*.13],'#2a2a30',1.2); if(s===1){ HK.block(o,x,y-H*.024,W*.024,H*.024,c); HK.rect(o,x,y-H*.024,W*.024,H*.006,'#f4f6f4'); } if(s===2){ HK.ell(o,x+W*.016,o.wl,W*.016,H*.008,c); HK.curve(o,x+W*.03,o.wl-H*.006,x+W*.036,o.wl-H*.03,x+W*.03,o.wl-H*.034,c,2.4); } }],
+    ['stake',(o)=>FK.ground(o)],
+    ['hull',(o,s,c)=>FK.hull(o,s,c)],
+    ['console',(o,s,c)=>FK.console(o,s,c)],
+    ['top',(o,s,c)=>FK.top(o,s,c)],
+    ['gear',(o,s,c)=>FK.gear(o,s,c)],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['navlight','post','table'][s])]] });
 
-/* 9. Brine Shelf: the sport-fishing boat (floats) */
-hfMake('shelf',{ name:'Sport-fishing boat', hname:'boat', floats:true,
+/* 9. Brine Shelf: the sport-fisher (overnight, 2026-11-23; its own design, src/cw_sportfisher.js; floats): the after half of a big-game boat,
+   stern toward the fish, bow off the left edge; cabin, flybridge / wheelhouse / tuna tower, outriggers. Same ids as before, so saved choices fit */
+hfMake('shelf',{ name:'Sport-fisher', hname:'boat', floats:true, seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
   colors:C16('Hull white=#f2f2ee;Deck teak=#a8743a;Dark teak=#6a4626;Brass=#c8a04a;Chrome=#c0c8cc;Navy hull=#1e2e4a;Ocean blue=#2a7a9a;Deep ocean=#0c3a5a;Foam=#e4f0f0;Sail canvas=#f4ead8;Rope=#c8a878;Flag red=#c8382e;Flag yellow=#e8c03a;Flag blue=#2a5aa8;Life-ring orange=#f0782a;Horizon gold=#ffe0a8'),
   els:[{id:'hull',label:'Hull',styles:['Sport-fisher','Wooden cruiser','Steel workboat'],def:[0,0]},{id:'bridge',label:'Flybridge',styles:['Open flybridge','Wheelhouse','Tuna tower'],def:[0,0]},
-       {id:'rig',label:'Outriggers',styles:['Twin outriggers','Rod rack','Harpoon pulpit'],def:[0,4]},{id:'flags',label:'Flags',none:true,styles:['No flags','Signal flags','Marlin pennant','Burgee'],def:[1,11]},
+       {id:'rig',label:'Outriggers',styles:['Twin outriggers','Rod rack','Gaff rack'],def:[0,4]},
+{id:'flags',label:'Flags',none:true,styles:['No flags','Signal flags','Marlin pennant','Burgee'],def:[1,11]},
        {id:'light',label:'Deck light',light:true,styles:['Brass lantern','Masthead light','Floodlight'],def:[0,15]}],
   seat:['fighting','teakbench','deckstool'], seatNames:['Fighting chair','Teak bench','Deck stool'], seatDef:[0,1],
   order:[
-    ['hull',(o,s,c)=>HK.hull(o,c,['sport','cruiser','steel'][s])],
-    ['rig',(o,s,c)=>{ const x=HK.at(o,.55), y=o.dockY; if(s===0){ HK.line(o,[x,y,x-W*.05,y-H*.2],c,1.6); HK.line(o,[x+W*.01,y,x+W*.06,y-H*.18],c,1.6); } if(s===1){ HK.rect(o,HK.at(o,.02),y-H*.03,W*.04,2,c); for(let i=0;i<4;i++) HK.line(o,[HK.at(o,.03)+i*W*.009,y-H*.03,HK.at(o,.03)+i*W*.009-W*.004,y-H*.12],'#2a2a30',1); } if(s===2){ HK.rect(o,o.pw,y-H*.004,W*.03,H*.004,c); HK.line(o,[o.pw+W*.03,y,o.pw+W*.03,y-H*.04],c,1.4); } }],
-    ['bridge',(o,s,c)=>{ const a=HK.at(o,.45), b=HK.at(o,.8), y=o.dockY; if(s===0){ HK.rect(o,a,y-H*.07,2,H*.07,'#c0c8cc'); HK.rect(o,b,y-H*.07,2,H*.07,'#c0c8cc'); HK.rect(o,a-W*.004,y-H*.075,b-a+W*.01,H*.008,c); HK.rail(Object.assign({},o,{dockY:y-H*.075}),'#c0c8cc','iron'); } if(s===1){ HK.block(o,a,y-H*.09,b-a,H*.09,c); for(let i=0;i<3;i++) HK.rect(o,a+(b-a)*(.1+i*.3),y-H*.075,(b-a)*.2,H*.025,'#1e2e4a'); } if(s===2){ for(const px of [a,b]) HK.line(o,[px,y,px+(px===a?W*.015:-W*.015),y-H*.22],'#c0c8cc',1.6); HK.rect(o,a+W*.012,y-H*.225,b-a-W*.024,H*.008,c); } }],
+    ['hull',(o,s,c)=>SF.hull(o,s,c)],
+    ['bridge',(o,s,c)=>SF.bridge(o,s,c,hfColor('shelf','hull'))],
+    ['rig',(o,s,c)=>SF.rig(o,s,c)],
     ['flags',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.62), top=o.dockY-H*.22; HK.rect(o,x,top,1.6,H*.22,'#c0c8cc'); if(s===1){ HK.line(o,[x,top,HK.at(o,.05),o.dockY-H*.04],'#c8a878',.8); for(let i=1;i<6;i++){ const u=i/6; HK.poly(o,[x+(HK.at(o,.05)-x)*u,top+(H*.18)*u,x+(HK.at(o,.05)-x)*u-W*.006,top+(H*.18)*u+H*.004,x+(HK.at(o,.05)-x)*u,top+(H*.18)*u+H*.012],['#c8382e','#e8c03a','#2a5aa8'][i%3]); } } if(s===2){ HK.poly(o,[x,top,x+W*.03,top+H*.01,x,top+H*.02],c); HK.ell(o,x+W*.012,top+H*.01,W*.006,H*.003,'#2a5aa8'); } if(s===3) HK.poly(o,[x,top,x+W*.022,top+H*.008,x,top+H*.016],c); }],
     ['seat'],
     ['light',(o,s)=>HK.light(o,['brass','mast','flood'][s],s===1?HK.at(o,.62):undefined)]] });

@@ -18,7 +18,14 @@ V3SCENES.keys={
     waMore('keys','shore',x,P,hz); v3water(x,P,hz,cnv,.3); waMore('keys','water',x,P,hz);
     // seagrass beds and sand patches seen through the shallow water
     { const r=v3rng(17); for(let i=0;i<14;i++){ const px=W*r(), py=hz+H*(.12+r()*.8), s=H*(.03+r()*.05); x.fillStyle=v3rgba(i%3?mix(P.sand,P.wMid,.5):mix('#3a7a4a',P.wMid,.5),.35); x.beginPath(); x.ellipse(px,py,s*2.2,s*.5,0,0,7); x.fill(); } } },
-  live(P,t,hz,sun){ waMore('keys','live',null,P,hz,t); v3glitter(P,t,hz,sun); if(!S.settings.effects) return;
+  /* a green channel marker on its piling with a pelican resting on top (overnight 2026-11-23): drawn whether or not effects are on, so it never vanishes */
+  marker(P,t,hz){
+    { const mx=W*.33, base=hz+H*.1, top=base-H*.07, N=c0=>mix(c0,P.wMid,P.night*.55), pw=Math.max(3,W*.004); g.fillStyle=N('#6a5a4a'); g.fillRect(mx-pw/2,top,pw,base-top+H*.01); g.fillStyle=v3rgba('#ffffff',.25*(1-P.night*.5)); g.fillRect(mx-pw*1.5,base+H*.008,pw*3,1.2);
+      g.fillStyle=N('#2a8a4a'); g.fillRect(mx-W*.008,top-H*.004,W*.016,H*.022); g.fillStyle=N('#f4f6f4'); g.font='bold '+Math.round(H*.014)+'px sans-serif'; g.textAlign='center'; g.fillText('7',mx,top+H*.013); g.textAlign='start';
+      const pr=(t%11)<1.2, s=H*.008, py=top-H*.006; g.fillStyle=N('#8a7a6a'); g.beginPath(); g.ellipse(mx,py-s*.6,s*1.3,s*.7,-.2,0,7); g.fill(); g.fillStyle=N('#e8e0d0'); g.beginPath(); g.arc(mx+s*.9,py-s*(pr?1.2:1.8),s*.45,0,7); g.fill(); g.strokeStyle=N('#e8a040'); g.lineWidth=Math.max(1,s*.25); g.beginPath(); g.moveTo(mx+s*1.2,py-s*(pr?1.2:1.8)); g.lineTo(mx+s*(pr?1.6:2.6),py-s*(pr?.6:1.4)); g.stroke();
+      if(P.night>.3&&(t%4)<.6) v3glow(g,mx,top-H*.01,H*.02,'rgba(80,255,120,.9)',P.night); }
+  },
+  live(P,t,hz,sun){ waMore('keys','live',null,P,hz,t); v3glitter(P,t,hz,sun); this.marker(P,t,hz); if(!S.settings.effects) return;
     // gulls
     if(P.night<.5) for(let i=0;i<3;i++){ const q=((t*.04+i*.33)%1), x=W*(-.05+q*1.1), y=hz*(.3+i*.12)+Math.sin(t+i)*6, f=Math.sin(t*5+i)*.6, s=H*.008; g.strokeStyle='rgba(250,250,250,.9)'; g.lineWidth=1.3; g.beginPath(); g.moveTo(x-s*2,y-s*f); g.quadraticCurveTo(x-s,y-s,x,y); g.quadraticCurveTo(x+s,y-s,x+s*2,y-s*f); g.stroke(); }
     // a pelican diving now and then
