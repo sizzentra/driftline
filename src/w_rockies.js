@@ -8,8 +8,20 @@ V3SCENES.rockies={
     for(let i=0;i<7;i++){ const u=i/6; v3glow(g,W*(.05+u*.9),hz*(.12+u*.55),H*.14,'rgba(210,215,255,.9)',.07*a); }
     g.fillStyle='#ffffff'; for(const s of waStarsC.a){ g.globalAlpha=a*(.3+.7*Math.abs(Math.sin(t*.9+s[2]*17))); const z=s[3]?1.7:.9; g.fillRect(s[0],s[1],z,z); } g.globalAlpha=1; },
   land(x,P,hz,cnv){
-    v3range(x,{seed:21, base:hz+1, amp:.29*H, massifs:[[.2,.95,.12],[.4,.78,.1],[.63,1,.12],[.86,.8,.1]], light:mix(P.far,'#ffffff',.3), shadow:mix(P.far,'#101830',.4), haze:P.farHaze, snow:P.snow, snowLine:hz-.14*H, hazeA:.45});
-    v3range(x,{seed:44, base:hz+1, amp:.1*H, massifs:[[.15,.8,.15],[.55,.7,.18],[.88,.8,.12]], light:mix(P.far,P.hill,.5), shadow:mix(P.hill,'#081018',.3), haze:P.farHaze, snow:null, hazeA:.4});
+    /* map redo (director, 2026-11-22: "recycled mountains again"): the Canadian Rockies' own shape, tilted limestone slabs: each peak a
+       long ramp of rock beds rising one way and breaking off in a steep cliff the other, the beds drawn as bands with snow lying on them;
+       the snow and the pale rock dim with the night (they shone white at night) */
+    { const nk=P.night*.55, rock=mix(mix(P.far,'#c8c0b8',.25),'#141a30',nk), rockD=mix(mix(P.far,'#3a3a50',.45),'#0a0e20',nk), sn=mix(P.snow||'#f4f8ff','#3a4a70',nk);
+      const peaks=[[.02,.16,.2,1],[.22,.3,.18,-1],[.43,.24,.16,1],[.62,.33,.2,1],[.84,.26,.18,-1],[1.02,.2,.16,1]];
+      for(const [cx,hh,ww,dir] of peaks){ const top=hz-H*hh, tx=W*cx, ramp=W*ww, cliff=W*ww*.28, foot=hz+1, lx=dir>0?tx-ramp:tx-cliff, rx=dir>0?tx+cliff:tx+ramp;
+        x.fillStyle=rock; x.beginPath(); x.moveTo(lx,foot); x.lineTo(tx,top); x.lineTo(rx,foot); x.closePath(); x.fill();
+        x.fillStyle=rockD; x.beginPath(); x.moveTo(tx,top); x.lineTo(dir>0?rx:lx,foot); x.lineTo(tx+(dir>0?cliff*.2:-cliff*.2),foot); x.closePath(); x.fill(); /* the shadowed cliff face */
+        x.save(); x.beginPath(); x.moveTo(lx,foot); x.lineTo(tx,top); x.lineTo(rx,foot); x.closePath(); x.clip(); const sl=(top-foot)/((dir>0?tx-lx:rx-tx)||1);
+        for(let k=1;k<10;k++){ const d=k*((dir>0?tx-lx:rx-tx))/10*1.15, sx=dir>0?lx+d:rx-d, ex=dir>0?sx+W*.5:sx-W*.5, ey=foot+sl*W*.5; /* rock beds parallel to the ramp, inside it */
+          x.strokeStyle=v3rgba(rockD,.5); x.lineWidth=Math.max(1,H*.0025); x.beginPath(); x.moveTo(sx,foot); x.lineTo(ex,ey); x.stroke();
+          if(k<6){ x.strokeStyle=v3rgba(sn,.85); x.lineWidth=Math.max(1.4,H*.0045); x.beginPath(); x.moveTo(sx-(dir>0?1:-1)*W*.003,foot); x.lineTo(ex-(dir>0?1:-1)*W*.003,ey); x.stroke(); } }
+        x.restore(); }
+      const hg=x.createLinearGradient(0,hz-H*.2,0,hz); hg.addColorStop(0,v3rgba(P.farHaze,0)); hg.addColorStop(1,v3rgba(P.farHaze,.55)); x.fillStyle=hg; x.fillRect(0,hz-H*.2,W,H*.2); }
     // the Canadian Shield: low rounded pink-grey granite in front of the Rockies
     { const r=v3rng(64), rock=mix(mix('#b8968e',P.far,.35),P.farHaze,.15+P.night*.3); for(let i=0;i<10;i++){ const cx=W*(i/9)+(r()-.5)*W*.05, w=W*(.06+r()*.05), h=H*(.02+r()*.022), b=hz+1;
       x.fillStyle=rock; x.beginPath(); x.moveTo(cx-w,b); x.bezierCurveTo(cx-w*.7,b-h*1.15,cx+w*.5,b-h*1.3,cx+w,b); x.closePath(); x.fill();
@@ -20,7 +32,9 @@ V3SCENES.rockies={
       x.fillStyle=rkL; x.beginPath(); x.ellipse(fx-W*.03,ft+H*.012,W*.02,H*.005,-.1,0,7); x.ellipse(fx+W*.035,ft+H*.03,W*.018,H*.004,.1,0,7); x.fill();
       x.strokeStyle=rkD; x.lineWidth=1; x.beginPath(); x.moveTo(fx-W*.035,ft+H*.02); x.lineTo(fx-W*.025,ft+H*.05); x.moveTo(fx+W*.03,ft+H*.04); x.lineTo(fx+W*.045,ft+H*.065); x.moveTo(fx-W*.045,ft+H*.045); x.lineTo(fx-W*.05,hz); x.stroke();
       x.fillStyle=mix('#4a6a3a','#0a1020',P.night*.6); x.beginPath(); x.ellipse(fx-W*.03,ft+H*.004,W*.022,H*.005,0,Math.PI,0); x.ellipse(fx+W*.032,ft+H*.006,W*.022,H*.005,0,Math.PI,0); x.fill(); }
-    for(let row=0;row<2;row++) for(let i=0;i<26;i++){ const px=W*(i/25)+((i*31)%7-3)*2, base=hz-H*(.004+row*.004), h=H*(.05+((i*17)%5)*.008)*(row?1.2:1); if(row&&((px>W*.34&&px<W*.62)||(px>W*.76&&px<W*.86))) continue; v3pine(x,px,base,h,row?P.front:mix(P.back,P.farHaze,.3),P.rim,.25*(1-P.night)); }
+    /* the shore forest (director: no recycled look): uneven spruce of very different heights with golden larches among them, never one even row */
+    { const r=v3rng(23); for(let row=0;row<2;row++) for(let i=0;i<30;i++){ const px=W*(i/29)+(r()-.5)*W*.02, base=hz-H*(.004+row*.004), h=H*(.035+r()*.07)*(row?1.15:1); if(row&&((px>W*.34&&px<W*.62)||(px>W*.76&&px<W*.86))) continue;
+      const larch=r()<.22, col=larch?mix('#c89a3a',P.front,.25+P.night*.5):(row?P.front:mix(P.back,P.farHaze,.3)); v3pine(x,px,base,h*(larch?.85:1),col,P.rim,.25*(1-P.night)); } }
     for(const [px,hh] of [[.26,.06],[.31,.05],[.55,.065],[.68,.055],[.93,.06]]) waBirch(x,W*px,hz-H*.006,H*hh,P,Math.round(px*1000));
     // fireweed along the shore
     { const r=v3rng(12); for(let i=0;i<30;i++){ const px=W*(.2+r()*.75), hh=H*(.008+r()*.01); if(px>W*.76&&px<W*.88) continue; x.strokeStyle=mix('#4a6a3a',P.front,P.night*.5); x.lineWidth=1; x.beginPath(); x.moveTo(px,hz); x.lineTo(px,hz-hh); x.stroke(); x.fillStyle=mix('#d8508a',P.front,.15+P.night*.55); x.fillRect(px-1,hz-hh,2,hh*.55); } }
@@ -54,5 +68,5 @@ V3SCENES.rockies={
     if(FX){ const per=37, q=(t%per)/per; if(q<.45){ const e=q/.45, lx=W*(1.1-e*1.3), ly=hz*.32+Math.sin(e*3)*hz*.04; for(let i=0;i<7;i++){ const row=Math.ceil(i/2), side=i%2?1:-1; waGoose(lx+row*H*.03,ly+side*row*H*.016,H*.0035,-1,P,t,i,true); } } }
     waCanoe(W*(.5+.1*Math.sin(t*.012)),hz+H*.075,H*.0045,P,t);
     v3mist(P,t,hz,.14+P.night*.06); },
-  fore(P,t){ const sw=Math.sin(t*.7)*.02; g.save(); g.translate(W*1.01,-H*.02); g.rotate(sw); for(let i=0;i<4;i++) v3pine(g,-W*.03-i*W*.012,H*.32-i*H*.01,H*.36,mix('#1a3424',P.top,P.night*.4),null,0); g.restore(); }
+fore(P,t){ /* the pine that hung in from the top corner (director: floating trees) now stands rooted on a boulder in the bottom corner */ const b=H+2, rc=mix('#6a6460',P.top,P.night*.4); v3rock(g,W*.965,b-H*.035,W*.06,H*.07,P); const sw=Math.sin(t*.7)*.01; g.save(); g.translate(W*.965,b-H*.06); g.rotate(sw); v3pine(g,0,0,H*.42,mix('#1a3424',P.top,P.night*.4),null,0); g.restore(); }
 };

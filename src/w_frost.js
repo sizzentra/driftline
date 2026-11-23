@@ -16,7 +16,20 @@ V3SCENES.frost = {
       g.strokeStyle=v3rgba(mix(col,"#ffffff",.4),al*.35); g.lineWidth=3; g.beginPath(); g.moveTo(pts[0][0],pts[0][1]); for(const [X,Y] of pts) g.lineTo(X,Y); g.stroke(); }
     g.restore(); },
   land(x,P,hz,cnv){
-    v3range(x,{seed:53, base:hz+1, amp:.17*H, massifs:[[.12,.7,.16],[.3,1,.14],[.44,.75,.12],[.64,.85,.15],[.86,.95,.14]], light:mix(P.far,"#ffffff",.25), shadow:mix(P.far,"#1a1030",.3), haze:P.farHaze, snow:P.snow, snowLine:hz-.1*H, hazeA:.55});
+    /* map redo (director, 2026-11-22: "this is where mountains belong, but they have no real shape… bigger"): its own jagged alpine range,
+       not the shared one: sharp summits with ridges running down, every face split into a sunlit side and a shadow side, snow on the
+       upper faces, a glacier tongue in each big gully, and a lower dark-rock spur in front */
+    { const pk=[[.04,.2],[.16,.34],[.27,.24],[.38,.4],[.5,.27],[.6,.36],[.72,.22],[.83,.38],[.95,.26],[1.05,.2]], lit=mix(P.far,'#ffffff',.22), sh=mix(P.far,'#141a3a',.32), sn=P.snow||'#f4f8ff', snS=mix(sn,'#8a9ac8',.4);
+      const pts=[[-W*.02,hz+1]]; for(let i=0;i<pk.length;i++){ const [f,h]=pk[i]; pts.push([W*f,hz-H*h]); if(i<pk.length-1){ const g2=pk[i+1]; pts.push([W*(f+g2[0])/2+W*.012*((i%2)?1:-1),hz-H*Math.min(h,g2[1])*(.55+((i*7)%3)*.06)]); } } pts.push([W*1.06,hz+1]);
+      x.fillStyle=sh; x.beginPath(); x.moveTo(pts[0][0],pts[0][1]); for(const p of pts) x.lineTo(p[0],p[1]); x.closePath(); x.fill();
+      for(let i=1;i<pts.length-1;i+=2){ const [px,py]=pts[i], L0=pts[i-1], R0=pts[i+1]; /* the sunlit face of each summit: from the summit down to the left saddle and the foot */
+        x.fillStyle=lit; x.beginPath(); x.moveTo(px,py); x.lineTo(L0[0],L0[1]); x.lineTo(L0[0]+(px-L0[0])*.6,hz+1); x.lineTo(px+(R0[0]-px)*.04,hz+1); /* the faces slope to the foot: no upright slabs */ x.closePath(); x.fill();
+        const sl=hz-(hz-py)*.55; x.fillStyle=sn; x.beginPath(); x.moveTo(px,py); x.lineTo(px+(L0[0]-px)*.62,py+(L0[1]-py)*.62); x.lineTo(px-(px-L0[0])*.18,sl); x.lineTo(px+(R0[0]-px)*.06,sl+H*.012); x.lineTo(px+(R0[0]-px)*.3,py+(R0[1]-py)*.4); x.closePath(); x.fill();
+        x.fillStyle=snS; x.beginPath(); x.moveTo(px,py); x.lineTo(px+(R0[0]-px)*.3,py+(R0[1]-py)*.4); x.lineTo(px+(R0[0]-px)*.06,sl+H*.012); x.closePath(); x.fill();
+        x.strokeStyle=v3rgba(mix(sh,'#000000',.2),.5); x.lineWidth=1; x.beginPath(); x.moveTo(px,py); x.lineTo(px+(R0[0]-px)*.1,hz-(hz-py)*.25); x.stroke(); }
+      for(let i=2;i<pts.length-2;i+=2){ const [gx,gy]=pts[i]; x.fillStyle=v3rgba(mix(sn,'#a8c8e8',.35),.85); x.beginPath(); x.moveTo(gx-W*.006,gy+H*.004); x.quadraticCurveTo(gx,gy+(hz-gy)*.5,gx-W*.004,hz-H*.02); x.lineTo(gx+W*.012,hz-H*.02); x.quadraticCurveTo(gx+W*.006,gy+(hz-gy)*.4,gx+W*.006,gy+H*.004); x.closePath(); x.fill(); }
+      const hzg=x.createLinearGradient(0,hz-H*.16,0,hz); hzg.addColorStop(0,v3rgba(P.farHaze,0)); hzg.addColorStop(1,v3rgba(P.farHaze,.5)); x.fillStyle=hzg; x.fillRect(0,hz-H*.16,W,H*.16);
+      x.fillStyle=mix(sh,'#0a0e20',.25); x.beginPath(); x.moveTo(-2,hz+1); x.lineTo(-2,hz-H*.06); x.lineTo(W*.08,hz-H*.1); x.lineTo(W*.14,hz-H*.07); x.lineTo(W*.2,hz-H*.085); x.lineTo(W*.27,hz-H*.03); x.lineTo(W*.3,hz+1); x.closePath(); x.fill(); }
     // snowy rolling hills
     x.fillStyle=P.hill; x.beginPath(); x.moveTo(0,hz+1); x.lineTo(0,hz-.04*H); x.bezierCurveTo(W*.15,hz-.065*H,W*.3,hz-.035*H,W*.45,hz-.025*H); x.bezierCurveTo(W*.6,hz-.05*H,W*.78,hz-.06*H,W,hz-.035*H); x.lineTo(W,hz+1); x.closePath(); x.fill();
     const hg=x.createLinearGradient(0,hz-.06*H,0,hz); hg.addColorStop(0,v3rgba(P.rim,.15)); hg.addColorStop(1,v3rgba(P.snowD,.4)); x.fillStyle=hg; x.fill();
@@ -68,7 +81,8 @@ V3SCENES.frost = {
         g.strokeStyle=fc; g.lineWidth=s*.7; g.beginPath(); for(const [lx,ph] of [[-2,0],[-1.2,Math.PI],[1.6,Math.PI],[2.4,0]]){ g.moveTo(fxp+lx*s,fy-s*2); g.lineTo(fxp+lx*s+step*s*.8*Math.cos(ph),fy); } g.stroke();
         g.fillStyle='#1a1a24'; g.beginPath(); g.arc(fxp-s*5.3,fy-s*4,s*.35,0,7); g.fill(); } }
     // the owl on the near pine: blinks, turns its head
-    { const ox=W*.08, oy=hz+3-H*.1*.62, s=H*.0042, turn=Math.sin(t*.4)>.7?1:Math.sin(t*.4)<-.8?-1:0, blink=(t%5.3)<.15, oc=mix('#c8b8a8',P.back,.2+night*.4);
+    { const ox=W*.095, oy=hz+3-H*.1*.5, s=H*.0026 /* smaller, perched out on a bough: it covered the whole tree (director) */, turn=Math.sin(t*.4)>.7?1:Math.sin(t*.4)<-.8?-1:0, blink=(t%5.3)<.15, oc=mix('#c8b8a8',P.back,.2+night*.4);
+      g.strokeStyle=mix('#3a2a20',P.back,.3+night*.4); g.lineWidth=Math.max(1.5,s*.9); g.beginPath(); g.moveTo(ox-s*9,oy+s*3.6); g.lineTo(ox+s*4,oy+s*3.2); g.stroke();
       g.fillStyle=oc; g.beginPath(); g.ellipse(ox,oy,s*2.6,s*3.4,0,0,7); g.fill(); g.beginPath(); g.arc(ox+turn*s*.4,oy-s*3.6,s*2.3,0,7); g.fill();
       g.fillStyle=mix('#f4ece0',P.back,night*.4); g.beginPath(); g.ellipse(ox,oy+s*.6,s*1.6,s*2.2,0,0,7); g.fill();
       g.beginPath(); g.moveTo(ox-s*2+turn*s*.4,oy-s*5.2); g.lineTo(ox-s*1.4+turn*s*.4,oy-s*6.4); g.lineTo(ox-s*.9+turn*s*.4,oy-s*5.4); g.moveTo(ox+s*2+turn*s*.4,oy-s*5.2); g.lineTo(ox+s*1.4+turn*s*.4,oy-s*6.4); g.lineTo(ox+s*.9+turn*s*.4,oy-s*5.4); g.fillStyle=oc; g.fill();

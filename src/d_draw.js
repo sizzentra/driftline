@@ -244,6 +244,7 @@ function drawPet(c,id,x,y,s,t,night=0,lk=null){ if(V3ON && id!=='lily' && id!=='
 // ---------- drawing: the scene ----------
 let stars=null, drops=null, flakes=null, WXA=1;
 /* rain that fits the water (map standard rule 9): what falls instead of rain drops where rain makes no sense */
+const WX_SNOW=new Set(['frost']); /* rain falls as snow on the frozen lake (director, 2026-11-22: rain makes no sense there) */
 const WX_RAINLOOK={buffet:['#ff5a8a','#5ad0ff','#ffe060','#7ae07a','#ffffff'], starfall:['#ffffff','#d8c8ff','#9ae8ff'], olympus:['#fff4c0','#ffe08a','#ffffff']};
 function nightness(p){ let n=0; if(p>=.45&&p<.55) n=(p-.45)/.1; else if(p>=.55&&p<.95) n=1; else if(p>=.95) n=1-(p-.95)/.1; else if(p<.05) n=1-(p+.05)/.1; n=clamp(n,0,1); return n*n*(3-2*n); } /* 0.3.4: eased, so dusk and dawn start and finish gently */
 function tree(x,y,h,col,snow){ g.fillStyle=col; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.32,y); g.lineTo(x+h*.32,y); g.fill(); if(snow){ g.fillStyle='#f4f8fa'; g.beginPath(); g.moveTo(x,y-h); g.lineTo(x-h*.12,y-h*.62); g.lineTo(x+h*.12,y-h*.62); g.fill(); } }
@@ -395,7 +396,8 @@ function draw(now){
   if(FX && (wx.k==='Rain'||wx.k==='Storm') && wa>.01){ const N = wx.k==='Storm'?140:80; if(!drops||drops.length!==140) drops=Array.from({length:140},()=>[Math.random(),Math.random(),.6+Math.random()*.6]);
     // rain starts as a few light drops and picks up (and thins out again before it stops)
     const n=Math.round(N*wa), slant = wx.k==='Storm'? 10 : 4, RL=WX_RAINLOOK[L.id];
-    if(RL){ /* map standard rule 9 (weather that fits the water): sprinkles at the Buffet, falling stardust above the clouds; slower and tumbling */
+    if(WX_SNOW.has(L.id)){ g.fillStyle='rgba(255,255,255,.85)'; for(let i=0;i<n;i++){ const d=drops[i], r=1+d[2]*1.6, x=((d[0]*W + t*slant*5*d[2] + Math.sin(t*1.3+i)*W*.012)%W+W)%W, y=((d[1]*H + t*(45+d[2]*55))%H); g.globalAlpha=(.45+.45*wa)*(.6+.4*d[2]); g.beginPath(); g.arc(x,y,r,0,7); g.fill(); } g.globalAlpha=1; }
+    else if(RL){ /* map standard rule 9 (weather that fits the water): sprinkles at the Buffet, falling stardust above the clouds; slower and tumbling */
       for(let i=0;i<n;i++){ const d=drops[i], x=((d[0]*W + t*slant*6*d[2] + Math.sin(t*2+i)*6)%W+W)%W, y=((d[1]*H + t*160*d[2])%H); g.globalAlpha=.35+.5*wa; g.fillStyle=RL[i%RL.length]; if(i%2) g.fillRect(x,y,2.2,2.2); else { g.save(); g.translate(x,y); g.rotate(t*3+i); g.fillRect(-3,-1,6,2); g.restore(); } } g.globalAlpha=1; }
     else { g.strokeStyle='rgba(200,220,235,'+(.12+.23*wa)+')'; g.lineWidth=1; g.beginPath();
       for(let i=0;i<n;i++){ const d=drops[i]; const x=((d[0]*W + t*slant*20*d[2])%W), y=((d[1]*H + t*700*d[2])%H); g.moveTo(x,y); g.lineTo(x-slant,y+14); } g.stroke(); } }

@@ -49,7 +49,7 @@ function wx3SkyLayer(id){ m33wrap(id,'skyBack',function(P,t,hz){ wx3Sky(P,t,hz);
 
 // ---------- water layer: hooked into every scene's live step (after the land, before the dock and angler) ----------
 function wx3Water(P,t,hz){ const k=wx3k(), a=wx3A(); if(a<.01) return; const night=P.night||0, FX=S.settings.effects, foam=mix(P.wTop||'#a8cfdf','#ffffff',.7);
-  if((k==='Rain'||k==='Storm')&&FX){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
+  if((k==='Rain'||k==='Storm')&&FX&&!WX_SNOW.has(S.loc)){ const NM=Math.round((k==="Storm"?46:28)*gfxK()), N=Math.ceil(NM*a); g.strokeStyle=v3rgba(foam,.45); g.lineWidth=1;
     /* phones (director, 2026-11-18: storms drop Android to 30-40 fps): rings are grouped into 3 brightness bands and drawn as 3 strokes
        instead of up to 46 separate ones; PC is unchanged */
     const mobB=PLAT.rippleBands()?[[],[],[]]:null;

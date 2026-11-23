@@ -7,7 +7,7 @@
 function hfMake(id,d){ d.seatH=d.seat.map(k=>HK.seatH(k));
   d.els.push({id:'seat',label:'Seat',styles:d.seatNames,def:d.seatDef||[0,0]});
   d.paint=function(o){ o.lights=[]; const col=e=>hfColor(id,e);
-    for(const [e,fn] of d.order){ const r=e==='seat'?HK.seat(o,d.seat[hfStyle(id,'seat')],col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
+    for(const [e,fn] of d.order){ o.elCol=col(e); /* lights read their feature's colour (a stove's body, director 2026-11-22: colours did nothing) */ const r=e==='seat'?HK.seat(o,d.seat[hfStyle(id,'seat')],col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
   HOMEF[id]=d; }
 const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.trim()]; });
 
@@ -93,29 +93,48 @@ hfMake('coast',{ name:'Saltmarsh pier end', hname:'pier',
 /* 5. Frostbite Lake: the ice camp (stands on the ice) */
 hfMake('frost',{ name:'Ice camp', hname:'ice camp', ice:true,
   colors:C16('Snow white=#f6f8ff;Frost=#d8e8f6;Ice blue=#8aaad0;Glacier=#4a6a9a;Deep ice=#1a2a4a;Spruce=#3e5a78;Birch=#e8e0d0;Birch bark=#4a4440;Timber=#7a5440;Dark timber=#4a3428;Wool red=#b8383a;Wool cream=#f0e6d0;Stove iron=#2a2a30;Lantern orange=#f0983a;Aurora green=#7af0b0;Dusk mauve=#9a88b8'),
-  els:[{id:'hut',label:'Ice hut',styles:['Canvas tent','Timber shanty','Snow igloo'],def:[0,10]},{id:'floor',label:'Floor',styles:['Packed snow','Plank floor','Fur rug'],def:[0,0]},
-       {id:'hole',label:'Ice hole',styles:['Tip-up flag','Skimmer','Twin holes'],def:[0,10]},{id:'stove',label:'Stove',light:true,styles:['Iron stove','Storm lantern','Campfire tray'],def:[0,13]},
+  /* map redo (director, 2026-11-22): the ice huts stay (the first building the director liked); the blocky platform becomes an ice shelf
+     with a ragged snow-capped edge; a floor choice made no sense outdoors, so that slot is the angler's gear; the stoves are stoves (no
+     storm lantern) and take the chosen colour; the shanty's roof sits on its walls; the sleds stand clear of the hut door, with detail */
+  els:[{id:'hut',label:'Ice hut',styles:['Canvas tent','Timber shanty','Snow igloo'],def:[0,10]},{id:'gear',label:'Gear',styles:['Hand auger','Bait bucket','Catch on the ice'],def:[0,10]},
+       {id:'hole',label:'Ice hole',styles:['Tip-up flag','Skimmer','Twin holes'],def:[0,10]},{id:'stove',label:'Stove',light:true,styles:['Box stove','Pot-belly stove','Campfire tray'],def:[0,12]},
        {id:'sled',label:'Sled',none:true,styles:['No sled','Box sled','Snowmobile','Dog sled'],def:[1,8]}],
   seat:['bucket','furbench','icechair'], seatNames:['Bucket stool','Fur bench','Ice chair'], seatDef:[0,12],
   order:[
-    ['floor',(o,s,c)=>{ const x0=HF.x0(), y=o.dockY; const g=o.x.createLinearGradient(0,y,0,o.wl+H*.03); g.addColorStop(0,HK.n(o,'#e8f0fa')); g.addColorStop(1,HK.n(o,'#8aaad0')); o.x.fillStyle=g; o.x.fillRect(x0,y+HK.fh(),o.pw-x0+W*.01,o.wl-y-HK.fh()+H*.03); HK.deck(o,c,['snow','planks','fur'][s]); }],
-    ['hole',(o,s,c)=>{ const x=HK.at(o,.86), y=o.dockY+H*.004; HK.ell(o,x,y,W*.01,H*.003,'#1a2a4a'); if(s===0){ HK.line(o,[x+W*.006,y,x+W*.012,y-H*.03],'#4a4440',1.2); HK.poly(o,[x+W*.012,y-H*.03,x+W*.024,y-H*.026,x+W*.012,y-H*.022],c); } if(s===1){ HK.line(o,[x-W*.008,y,x-W*.018,y-H*.04],'#4a3428',1.4); HK.ell(o,x-W*.008,y,W*.004,H*.003,c); } if(s===2){ HK.ell(o,x-W*.02,y,W*.006,H*.003,'#1a2a4a'); HK.poly(o,[x-W*.012,y,x-W*.004,y,x-W*.005,y-H*.016,x-W*.011,y-H*.016],c); } }],
+    ['shelf',(o)=>{ const x0=HF.x0(), y=o.dockY, x=o.x, pw=o.pw+W*.012, wl=o.wl, r=v3rng(7); /* the ice shelf the camp stands on: snow on top, blue ice face, ragged foot with icicles, fading into the water */
+      const g=x.createLinearGradient(0,y,0,wl+H*.04); g.addColorStop(0,HK.n(o,'#cfe0f4')); g.addColorStop(.6,HK.n(o,'#7a9ac8')); g.addColorStop(1,v3rgba(HK.n(o,'#4a6a9a'),0)); x.fillStyle=g;
+      x.beginPath(); x.moveTo(x0,y); x.lineTo(pw,y); let px=pw; for(let k=0;k<=12;k++){ const u=k/12; px=pw-(pw-x0)*u; x.lineTo(px+(k%2?W*.004:-W*.003),wl+H*(.01+r()*.03)); } x.lineTo(x0,y); x.closePath(); x.fill();
+      x.strokeStyle=v3rgba('#ffffff',.35); x.lineWidth=1; for(let i=0;i<5;i++){ const cx=x0+(pw-x0)*(.1+i*.2); x.beginPath(); x.moveTo(cx,y+H*.01); x.lineTo(cx+W*.006,y+H*.03); x.lineTo(cx+W*.002,wl); x.stroke(); }
+      x.fillStyle=HK.n(o,'#f6f8ff'); x.beginPath(); x.moveTo(x0,y+H*.004); for(let k=0;k<=16;k++){ const u=k/16; x.lineTo(x0+(pw-x0)*u,y-H*(.003+.004*Math.abs(Math.sin(u*9)))); } x.lineTo(pw+W*.004,y+H*.006); for(let k=16;k>=0;k--) x.lineTo(x0+(pw-x0)*k/16,y+H*(.006+.003*((k%3)/2))); x.closePath(); x.fill();
+      x.fillStyle=v3rgba('#e8f4ff',.8); for(let i=0;i<9;i++){ const ix=x0+(pw-x0)*(.05+i*.11), ih=H*(.006+r()*.012); x.beginPath(); x.moveTo(ix-W*.002,y+H*.008); x.lineTo(ix+W*.002,y+H*.008); x.lineTo(ix,y+H*.008+ih); x.closePath(); x.fill(); }
+      for(let i=0;i<4;i++) o.posts.push({x:x0+(pw-x0)*(i+.5)/4,w:W*.03}); }],
+    ['gear',(o,s,c)=>{ const x=HK.at(o,.86), y=o.dockY, sc=HF.sc();
+      if(s===0){ HK.line(o,[x,y,x+3*sc,y-26*sc],'#5a5a62',1.6*sc); HK.line(o,[x+1.5*sc,y-13*sc,x+9*sc,y-15*sc],c,1.6*sc); HK.line(o,[x+3*sc,y-26*sc,x-4*sc,y-25*sc],c,1.8*sc); for(let k=0;k<4;k++) HK.line(o,[x-1*sc,y-2*sc-k*2*sc,x+2*sc,y-3*sc-k*2*sc],'#8a8a92',1); } /* a hand auger leaning, its crank and handle in the chosen colour */
+      if(s===1){ HK.poly(o,[x-4*sc,y,x+4*sc,y,x+5*sc,y-9*sc,x-5*sc,y-9*sc],c); HK.ell(o,x,y-9*sc,5*sc,1.3*sc,HK.dk(c,.3)); HK.curve(o,x-5*sc,y-9*sc,x,y-15*sc,x+5*sc,y-9*sc,'#5a5a62',1); } /* a bait bucket with its handle */
+      if(s===2){ for(const [dx,k] of [[0,1],[7,.8]]){ const fx=x+dx*sc, L=10*sc*k; HK.ell(o,fx,y-1.4*sc,L*.5,1.6*sc*k,mix('#8aa0b8',c,.25)); HK.poly(o,[fx+L*.45,y-1.4*sc,fx+L*.7,y-3*sc*k,fx+L*.7,y+.2*sc],mix('#6a8098',c,.25)); HK.circ(o,fx-L*.32,y-1.8*sc,.8*sc,'#14181e'); } } }], /* two fish laid on the ice */
+    ['hole',(o,s,c)=>{ const x=HK.at(o,.97), y=o.dockY+H*.004; HK.ell(o,x,y,W*.01,H*.003,'#1a2a4a'); if(s===0){ HK.line(o,[x+W*.006,y,x+W*.012,y-H*.03],'#4a4440',1.2); HK.poly(o,[x+W*.012,y-H*.03,x+W*.024,y-H*.026,x+W*.012,y-H*.022],c); } if(s===1){ HK.line(o,[x-W*.008,y,x-W*.018,y-H*.04],'#4a3428',1.4); HK.ell(o,x-W*.008,y,W*.004,H*.003,c); } if(s===2){ HK.ell(o,x-W*.02,y,W*.006,H*.003,'#1a2a4a'); HK.poly(o,[x-W*.012,y,x-W*.004,y,x-W*.005,y-H*.016,x-W*.011,y-H*.016],c); } }],
     ['hut',(o,s,c)=>{ if(s===0) HK.roof(o,c,'walltent',.02,.4); if(s===1){ HK.roof(o,c,'shackbox',.02,.34); HK.rect(o,HK.at(o,.08),o.dockY-H*.09,W*.012,H*.014,'#f0983a'); } if(s===2){ const m=HK.at(o,.2), R=(HK.at(o,.4)-HK.at(o,.0))*.5; o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.arc(m,o.dockY,R,Math.PI,0); o.x.fill(); for(let i=1;i<4;i++){ o.x.strokeStyle=HK.n(o,HK.dk(c,.12)); o.x.beginPath(); o.x.arc(m,o.dockY,R*i/4+R*.2,Math.PI,0); o.x.stroke(); } HK.poly(o,[m+R*.3,o.dockY,m+R*.3,o.dockY-R*.4,m+R*.6,o.dockY-R*.4,m+R*.6,o.dockY],'#1a2a4a'); } }],
-    ['sled',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.42), y=o.dockY; HK.curve(o,x-W*.002,y-1,x+W*.02,y,x+W*.034,y-H*.012,'#4a4440',1.6); if(s===1) HK.block(o,x+W*.002,y-H*.022,W*.024,H*.018,c); if(s===2){ HK.poly(o,[x,y-H*.008,x+W*.03,y-H*.008,x+W*.026,y-H*.03,x+W*.008,y-H*.034],c); HK.rect(o,x+W*.008,y-H*.044,W*.006,H*.01,'#2a2a30'); } if(s===3){ HK.line(o,[x,y-H*.004,x,y-H*.03,x+W*.024,y-H*.012],c,1.6); HK.line(o,[x+W*.002,y-H*.004,x+W*.03,y-H*.004],c,1.6); } }],
+    ['sled',(o,s,c)=>{ if(!s) return; const x=HK.at(o,.74), y=o.dockY, sc=HF.sc()*.8; /* past the angler, clear of the hut door */
+      if(s===1){ HK.curve(o,x-2*sc,y-.5*sc,x+12*sc,y+.6*sc,x+20*sc,y-4*sc,'#4a4440',1.4*sc); HK.line(o,[x+1*sc,y-.5*sc,x+1*sc,y-3*sc],'#4a4440',1); HK.line(o,[x+15*sc,y-.5*sc,x+15*sc,y-3*sc],'#4a4440',1);
+        HK.block(o,x,y-11*sc,17*sc,8*sc,c); for(let k=1;k<4;k++) HK.line(o,[x+k*17*sc/4,y-11*sc,x+k*17*sc/4,y-3*sc],HK.dk(c,.3),.8); HK.curve(o,x+17*sc,y-9*sc,x+24*sc,y-6*sc,x+26*sc,y,'#c8a878',.9); } /* a box sled: curled runners, slatted box, tow rope */
+      if(s===2){ HK.curve(o,x-1*sc,y,x+14*sc,y+.6*sc,x+22*sc,y-3*sc,'#2a2a30',1.6*sc); HK.poly(o,[x,y-2*sc,x+18*sc,y-2*sc,x+21*sc,y-7*sc,x+12*sc,y-11*sc,x+2*sc,y-10*sc],c); HK.poly(o,[x+12*sc,y-11*sc,x+16*sc,y-16*sc,x+18*sc,y-15*sc,x+16*sc,y-10*sc],v3rgba('#cfe0f4',.7));
+        HK.block(o,x+1*sc,y-13*sc,9*sc,3*sc,'#2a2a30'); HK.rect(o,x-1*sc,y-4*sc,10*sc,3*sc,'#3a3a40'); for(let k=0;k<5;k++) HK.rect(o,x+k*2*sc-1*sc,y-4*sc,1,3*sc,'#5a5a62'); HK.rect(o,x+19*sc,y-8*sc,2*sc,1.4*sc,'#f0e080'); } /* a snowmobile: front ski, body, windshield, seat, track, headlight */
+      if(s===3){ HK.curve(o,x-2*sc,y,x+14*sc,y+.6*sc,x+22*sc,y-5*sc,'#4a3428',1.4*sc); HK.line(o,[x+2*sc,y,x+2*sc,y-6*sc],'#4a3428',1); HK.line(o,[x+14*sc,y,x+14*sc,y-6*sc],'#4a3428',1);
+        o.x.fillStyle=HK.n(o,v3rgba(c,.85)); o.x.beginPath(); o.x.moveTo(x+1*sc,y-6*sc); o.x.quadraticCurveTo(x+8*sc,y-3*sc,x+16*sc,y-6*sc); o.x.lineTo(x+16*sc,y-10*sc); o.x.lineTo(x+1*sc,y-10*sc); o.x.closePath(); o.x.fill(); HK.line(o,[x+1*sc,y-6*sc,x-2*sc,y-17*sc,x+3*sc,y-17*sc],'#4a3428',1.4*sc); } }], /* a dog sled: runners, a basket in the chosen colour, the driver's handlebar */
     ['seat'],
-    ['stove',(o,s)=>HK.light(o,['stove','stake','firering'][s],HK.at(o,.62))]] });
+    ['stove',(o,s)=>HK.light(o,['stove','potbelly','firering'][s],HK.at(o,.6))]] });
 
 /* 6. Canadian Rockies: the lodge ledge */
 hfMake('rockies',{ name:'Lodge ledge', hname:'lodge ledge',
   colors:C16('Cedar log=#9a6a42;Spruce log=#7a5a3e;Dark log=#4a3426;Granite=#9a948a;Dark granite=#5a5650;Glacier turquoise=#2a9aa8;Ice teal=#7ad8d8;Deep lake=#0a4858;Spruce green=#2e5040;Moss=#5a7a4a;Snow=#f4f8fc;Flannel red=#b8322a;Flannel black=#2a2626;Maple orange=#d8702a;Birch cream=#ece2cc;Canoe green=#3a6a4a'),
   els:[{id:'deck',label:'Ledge deck',styles:['Log deck','Cedar planks','Granite slab'],def:[0,0]},{id:'footing',label:'Footing',styles:['Log cribbing','Granite boulders','Log stilts'],def:[0,1]},
-       {id:'shelter',label:'Lean-to',none:true,styles:['Open sky','Shingle lean-to','A-frame','Wall tent'],def:[1,2]},{id:'canoe',label:'Canoe',none:true,styles:['No canoe','Canoe on a rack','Canoe beside','Kayak'],def:[2,15]},
+       {id:'shelter',label:'Shelter',none:true,styles:['Open sky','Log porch roof','Tarp shelter','Canvas fly'],def:[1,2]} /* map redo: its own shelters, all clear of the angler (director: options covered the player and were borrowed from other homes) */,{id:'canoe',label:'Canoe',none:true,styles:['No canoe','Canoe on a rack','Canoe beside','Kayak'],def:[2,15]},
        {id:'fire',label:'Campfire',light:true,styles:['Fire ring','Lodge lantern','Fire bowl'],def:[0,13]}],
   seat:['muskoka','stumpblanket','rocker'], seatNames:['Muskoka chair','Stump and blanket','Log rocker'], seatDef:[0,11],
   order:[
     ['footing',(o,s,c)=>HK.supports(o,c,['crib','boulder','stilts'][s],s===1?4:5)],
     ['deck',(o,s,c)=>HK.deck(o,c,['logs','planks','stone'][s])],
-    ['shelter',(o,s,c)=>{ if(s) HK.roof(o,c,['','shingle','aframe','walltent'][s],.02,.4); }],
+    ['shelter',(o,s,c)=>{ if(s) HK.roof(o,c,['','logporch','tarp','canvasfly'][s],.02,.4); }],
     ['canoe',(o,s,c)=>{ if(!s) return; const a=HK.at(o,s===1?.04:.42), y=o.dockY-(s===1?H*.07:0), L2=W*(s===3?.045:.06); if(s===1){ HK.rect(o,a+W*.006,y,2,o.dockY-y,'#4a3426'); HK.rect(o,a+L2-W*.006,y,2,o.dockY-y,'#4a3426'); }
       o.x.fillStyle=HK.n(o,c); o.x.beginPath(); o.x.moveTo(a,y-H*.012); o.x.quadraticCurveTo(a+L2/2,y+H*.014,a+L2,y-H*.012); o.x.quadraticCurveTo(a+L2/2,y-H*.002,a,y-H*.012); o.x.fill(); if(s===2) HK.line(o,[a+L2*.3,y-H*.014,a+L2*.8,y-H*.03],'#ece2cc',1.6); }],
     ['seat'],
