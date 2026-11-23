@@ -28,8 +28,9 @@ V3SCENES.shelf = {
     const foam=mix(P.wTop,'#ffffff',.75), N=6;
     for(let r0=0;r0<N;r0++){ const u=((t*.025+r0/N)%1), y=hz+H*.015+Math.pow(u,1.6)*(H-hz)*1.05, amp=1.5+u*H*.028, a=Math.sin(u*Math.PI), sp=W*(.32-u*.1), off=r0*211;
       if(a<.05) continue; const wy=X=>y-amp*(.55+.45*Math.sin((X+off)/sp*Math.PI*2+t*.4));
-      g.fillStyle=v3rgba(P.wBot,.18*a); g.beginPath(); g.moveTo(0,y+amp*3); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)+amp*1.4); g.lineTo(W,y+amp*4); g.closePath(); g.fill();
-      g.fillStyle=v3rgba(P.wTop,.26*a); g.beginPath(); g.moveTo(0,y+amp); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)); for(let X=W+10;X>=0;X-=10) g.lineTo(X,wy(X)+amp*.9); g.closePath(); g.fill();
+      const hg=(col,al)=>{ const lg=g.createLinearGradient(0,0,W,0); for(let k=0;k<=12;k++) lg.addColorStop(k/12,v3rgba(col,al*(.2+.8*Math.max(0,Math.sin(k*1.7+r0*2.1+t*.05+(off%7)))))); return lg; }; /* patchy along its length, never one even stripe across the screen (Claude's review: "lined paper") */
+      g.fillStyle=hg(P.wBot,.18*a); g.beginPath(); g.moveTo(0,y+amp*3); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)+amp*1.4); g.lineTo(W,y+amp*4); g.closePath(); g.fill();
+      g.fillStyle=hg(P.wTop,.26*a); g.beginPath(); g.moveTo(0,y+amp); for(let X=0;X<=W+10;X+=10) g.lineTo(X,wy(X)); for(let X=W+10;X>=0;X-=10) g.lineTo(X,wy(X)+amp*.9); g.closePath(); g.fill();
       g.strokeStyle=v3rgba(foam,.45*a); g.lineWidth=Math.max(1,u*2.6); g.beginPath(); for(let X=0;X<=W;X+=7){ if(V3CN((X+off)*.009+r0*2.3+t*.05)>.5){ const yy=wy(X); g.moveTo(X,yy); g.lineTo(X+7,wy(X+7)); } } g.stroke();
       // spray off the crests nearest you
       if(FX&&u>.55){ g.fillStyle=v3rgba(foam,.5*a); for(let i=0;i<8;i++){ const X=((i*197+off+t*W*.01)%W), k=((t*1.3+i*.37)%1); if(V3CN((X+off)*.009+r0*2.3+t*.05)<=.5) continue; g.globalAlpha=(1-k)*a; g.beginPath(); g.arc(X+k*W*.01,wy(X)-k*amp*2.5+k*k*amp*2,1+u*1.5,0,7); g.fill(); } g.globalAlpha=1; } }

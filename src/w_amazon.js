@@ -6,7 +6,7 @@ V3SCENES.amazon={
   land(x,P,hz,cnv){ const N=(c0,k)=>mix(c0,P.farHaze,k+P.night*.3);
     // the deep rainforest: three layers of canopy, hazier with distance, with tall emergent trees standing above it
     wa.blob(x,hz,N(P.hill,.45),.1,5,34);
-    { const r=v3rng(71); for(let i=0;i<7;i++){ const px=W*(.38+r()*.6), h=H*(.1+r()*.05); amzTree(x,[px,hz-H*.03],h,H*(.05+r()*.03),N('#3f6a3a',.42),N('#3a2e22',.45)); } }
+    { const r=v3rng(71); for(let i=0;i<7;i++){ const px=W*(.38+r()*.6), h=H*(.1+r()*.05); amzTree(x,[px,hz-H*.012] /* trunks sink into the canopy: they stood on nothing above it (Claude's review) */,h,H*(.05+r()*.03),N('#3f6a3a',.42),N('#3a2e22',.45)); } }
     wa.blob(x,hz,N(P.hill,.25),.07,7,30); v3bushes(x,W*.3,W,hz-H*.022,H*.06,P,62,{leaf:N(P.hill,.12)});
     // the jungle cliff on the left: stepped rock ledges, moss, boulders at its foot
     const cx1=W*.34, top=hz-H*.2; x.fillStyle=mix(P.back,'#000000',.22); x.beginPath(); x.moveTo(0,hz+1); x.lineTo(0,top); x.quadraticCurveTo(W*.18,top-H*.03,cx1,top+H*.02); x.quadraticCurveTo(cx1+W*.025,top+H*.1,cx1+W*.03,hz+1); x.closePath(); x.fill();
@@ -16,6 +16,7 @@ V3SCENES.amazon={
     v3bushes(x,0,cx1+W*.04,top+H*.02,H*.05,P,61,{leaf:P.back});
     // the waterfall: a curtain that ends at the water line in a foaming pool (it no longer runs past the water)
     { const fx=W*.24, fw=W*.05; const gr=x.createLinearGradient(0,top,0,hz); gr.addColorStop(0,v3rgba(mix('#ffffff',P.wTop,.25),.9)); gr.addColorStop(1,v3rgba(mix('#ffffff',P.wTop,.4),.7)); x.fillStyle=gr; x.beginPath(); x.moveTo(fx,top+H*.015); x.lineTo(fx+fw,top+H*.015); x.quadraticCurveTo(fx+fw*1.08,(top+hz)/2,fx+fw*1.12,hz); x.lineTo(fx-fw*.12,hz); x.quadraticCurveTo(fx-fw*.08,(top+hz)/2,fx,top+H*.015); x.fill();
+      { const rr=v3rng(17); for(let i=0;i<16;i++){ const sx=fx+fw*(.05+rr()*.9), sy=top+H*(.02+rr()*.05); x.strokeStyle=v3rgba(i%3?'#ffffff':mix(P.wTop,'#ffffff',.3),.35+rr()*.4); x.lineWidth=Math.max(1,fw*(.03+rr()*.05)); x.beginPath(); x.moveTo(sx,sy); x.lineTo(sx+fw*.04,hz-H*.006); x.stroke(); } } /* falling streaks, so the fall is water and not a white block */
       x.fillStyle=v3rgba('#ffffff',.85); for(let i=0;i<9;i++){ x.beginPath(); x.ellipse(fx-fw*.2+i*fw*.18,hz,fw*.16,H*.008,0,Math.PI,0); x.fill(); } }
     // the island that keeps the channel narrow (Cam: "keep the channels thinner"): sand, dense brush and two tall trees, its roots in the water
     { const ix0=W*.56, ix1=W*.98, ib=hz+H*.024; x.fillStyle=N('#8a7a52',.2); x.beginPath(); x.ellipse((ix0+ix1)/2,ib,(ix1-ix0)/2,H*.006,0,Math.PI,0); x.fill();

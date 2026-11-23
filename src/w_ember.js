@@ -7,7 +7,11 @@
 V3SCENES.ember = {
   land(x,P,hz,cnv){
     // far jagged ridges in ash haze
-    v3range(x,{seed:71, base:hz+1, amp:.09*H, massifs:[[.1,.7,.12],[.3,.5,.1],[.92,.6,.12]], light:mix(P.far,P.farHaze,.45), shadow:mix(P.far,'#000000',.2), haze:P.farHaze, snow:null, hazeA:.6});
+    /* map redo (Claude's review: the shared mountain shape): far off, a field of small cinder cones, each a dark truncated cone with a
+       crater notch and a lighter ash slope, one steaming faintly */
+    for(const [cx,cw,ch] of [[.06,.07,.06],[.17,.05,.045],[.29,.08,.07],[.88,.07,.055],[.97,.05,.04]]){ const X=W*cx, w=W*cw, h=H*ch, c0=mix(P.far,P.farHaze,.4), c1=mix(P.far,'#000000',.15);
+      x.fillStyle=c0; x.beginPath(); x.moveTo(X-w,hz+1); x.lineTo(X-w*.22,hz-h); x.lineTo(X-w*.08,hz-h*.9); x.lineTo(X+w*.08,hz-h*.93); x.lineTo(X+w*.22,hz-h); x.lineTo(X+w,hz+1); x.closePath(); x.fill();
+      x.fillStyle=c1; x.beginPath(); x.moveTo(X+w*.22,hz-h); x.lineTo(X+w,hz+1); x.lineTo(X+w*.3,hz+1); x.closePath(); x.fill(); }
     // the volcano: broad cone, glowing crater lip and veins of lava running down
     { const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh;
       const cone=()=>{ x.beginPath(); x.moveTo(vx-vw,vb); x.quadraticCurveTo(vx-vw*.4,vb-vh*.35,vx-cw,ty); x.lineTo(vx-cw*.4,ty+vh*.03); x.lineTo(vx+cw*.3,ty+vh*.015); x.lineTo(vx+cw,ty); x.quadraticCurveTo(vx+vw*.45,vb-vh*.4,vx+vw,vb); x.closePath(); };
@@ -72,6 +76,7 @@ V3SCENES.ember = {
 V3SCENES.ember.noClouds=true; /* no flat clouds: feathered ash plumes instead (sky hook below) */
 m33wrap('ember','land',function(x,P,hz){ for(let i=0;i<M33.islets.length;i++){ const [ix,iy,iw,ih]=M33.islets[i], X=W*ix, Y=hz+H*iy, w=W*iw, h=H*ih;
     x.fillStyle=mix(P.rockD,P.wMid,.15); M33.islet(x,hz,i); x.fill(); x.fillStyle=v3rgba(P.rim,.2); x.beginPath(); x.moveTo(X-w*.3,Y-h); x.lineTo(X+w*.1,Y-h*.8); x.lineTo(X+w*.5,Y-h*1.05); x.lineTo(X+w*.45,Y-h*.9); x.lineTo(X+w*.1,Y-h*.68); x.lineTo(X-w*.3,Y-h*.86); x.closePath(); x.fill();
+    x.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.5),.4); x.lineWidth=1; x.beginPath(); x.ellipse(X+w*.1,Y,w*.75,H*.004,0,0,7); x.stroke(); /* a lap of water round its foot: it sits in the water, not on top of it */
     x.save(); x.beginPath(); x.rect(0,Y,W,h*1.4); x.clip(); x.translate(0,Y*2); x.scale(1,-1); x.globalAlpha=.25; x.fillStyle=mix(P.rockD,P.wMid,.4); M33.islet(x,hz,i); x.fill(); x.restore(); } });
 m33wrap('ember','land',function(x,P,hz){ const vx=W*.62, vb=hz+1, vw=W*.26, vh=H*.22, cw=vw*.16, ty=vb-vh, r=v3rng(91);
   x.save(); embCone(x,hz); x.clip();

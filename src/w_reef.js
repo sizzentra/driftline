@@ -32,7 +32,7 @@ V3SCENES.reef = {
     // the reef below the surface: pale sand, then a few reef patches (rock mounds crowded with brain coral,
     // staghorn, sea fans, tube sponges and anemones), all seen through water that thickens with distance
     { const r=v3rng(88), top=hz+H*.09, corals=[P.coral,P.coral2,P.coral3];
-      const sb=x.createLinearGradient(0,top,0,H); sb.addColorStop(0,v3rgba(mix(P.sand,P.wMid,.6),.0)); sb.addColorStop(.5,v3rgba(mix(P.sand,P.wMid,.5),.35)); sb.addColorStop(1,v3rgba(mix(P.sand,P.wMid,.35),.5)); x.fillStyle=sb; x.fillRect(0,top,W,H-top);
+      const sb=x.createLinearGradient(0,top,0,H); sb.addColorStop(0,v3rgba(mix(P.sand,P.wMid,.6),.0)); sb.addColorStop(.5,v3rgba(mix(P.sand,P.wMid,.5),.6)); sb.addColorStop(1,v3rgba(mix(P.sand,P.wMid,.35),.8)); /* a clear sandy bottom the reef patches rest on (they looked afloat) */ x.fillStyle=sb; x.fillRect(0,top,W,H-top);
       for(const [px,py,ps] of [[.42,.52,.8],[.7,.6,1],[.92,.48,.7],[.55,.86,1.25],[.86,.9,1.15],[.33,.78,.9]]){
         const cx=W*px, cy=H*py; if(cy<hz+H*.08) continue; const k=clamp((cy-hz)/(H-hz),0,1), sc=H*.075*ps*(.5+k*.7), fade=.55-k*.3, rr=v3rng(Math.round(px*100+py*7));
         // rock base mound
@@ -59,7 +59,7 @@ V3SCENES.reef = {
   live(P,t,hz,sun){ const FX=S.settings.effects, night=P.night, d=P.d;
     v3glitter(P,t,hz,sun);
     // caustics: a wobbling web of light on the sandy bottom, finer far away and bolder close up
-    const ca=(1-night*.85)*(1-P.gloom)*(.13+.06*(1-d)); if(FX&&ca>.03){ g.save(); g.globalCompositeOperation='lighter'; g.lineJoin='round';
+    const ca=(1-night*.85)*(1-P.gloom)*(.13+.06*(1-d))*.4; /* much fainter: at full strength the web read as a net laid over the water (Claude's review) */ if(FX&&ca>.02){ g.save(); g.globalCompositeOperation='lighter'; g.lineJoin='round';
       const nR=15, nC=30, y0=hz+H*.035, pt=(r,c)=>{ const k=Math.pow(r/nR,1.35), y=y0+k*(H-y0+H*.05), ch=(H-y0)/nR*(.5+k*1.2), cw=W*1.1/nC; return [-W*.05+c*cw+Math.sin(t*1.05+c*1.7+r*2.3)*cw*.34+Math.sin(c*3.1+r*1.9)*cw*.2, y+Math.cos(t*.85+c*2.1+r*1.3)*ch*.3]; };
       const line=(get,n)=>{ let p0=get(0); g.moveTo(p0[0],p0[1]); for(let i=1;i<n;i++){ const p1=get(i), p2=get(Math.min(n-1,i+1)); g.quadraticCurveTo(p1[0],p1[1],(p1[0]+p2[0])/2,(p1[1]+p2[1])/2); } };
       for(let r=0;r<=nR;r++){ const k=r/nR, fade=Math.min(1,k*3.2); /* rows fade in with distance: no hard top edge */ g.strokeStyle=v3rgba(mix(P.wTop,'#ffffff',.7),ca*(.35+k*.65)*fade*fade); g.lineWidth=.6+k*1.8; g.beginPath(); line(c=>pt(r,c),nC+1); g.stroke(); }
