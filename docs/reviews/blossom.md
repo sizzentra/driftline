@@ -31,3 +31,11 @@ docs/reference/blossom_director_ref.png is now the corrected picture (the earlie
 - Light: multiply by the palette's colour over its daytime colour (far + water), soft-light warmth at dusk; stars only in the open sky (outline and cloud boxes in picture pixels), the moon, the pagoda's windows, waterfall streaks dimmed at night.
 - Checked with pictures: PC 1920x1080 day and night, iPhone 956x440 day, dusk, night.
 - Known: the game's house and angler are drawn in the flat game style over a painting; a home choice is drawn as before but the drawn cherry tree is left out (the painting has its own).
+
+## 2026-11-23 afternoon: the newest painting (test build 1201)
+- Director's notes on 1132: the home's supports missing pieces; the big tree missing detail with its leaves cut off; the waterfall needs a realistic animation; more cherry trees in the background; the floating "torches" should be Japanese lanterns; the near water was empty blue; water effects showed on land; the sky behind the tree was janked (seen in my working picture). Then a new painting: "can you 1:1 the changes for this? this is more what i want. The only thing you have to do is fix the home".
+- The new picture (1763x892) has the full tree, hills of cherry trees and a near shore with stones and flowers, so it answers the tree, background and near-water notes itself. Cleaned: line traced and painted over, the dangling line, rod and float removed, the house, angler, lanterns and their reflections replaced with a mirrored copy of the shore beside them, the lilies under the old reflection put back. 324 KB WebP.
+- Fit: scale = the largest of width-fit, below-horizon-fit and above-horizon-fit, so it always covers the screen with its waterline (row 378) on the horizon; extra width is cropped on the left, under the game's home.
+- Home: posts all along the deck (6, square, with braces), a beam under the deck and a nuki tie beam.
+- Waterfall: 16 sheets accelerating down a clipped column, foam at the foot, a pulsing mist. Lanterns: toro nagashi (float, lit paper box, frame, roof, glow, v3lanternReflect). Glitter and lake petals start at picture row 410 (below the islands and the torii's feet). Stars at 70 spots measured from the picture's open sky; moon only where the sky is open.
+- Checked with pictures: PC day and night, iPhone day.

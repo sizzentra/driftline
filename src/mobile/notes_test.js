@@ -3,6 +3,12 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake now uses your newest painting: hills full of cherry trees, the near shore with mossy stones, flowers and clear water, the lake, bridge, waterfall, pagoda and torii, all painted.',
+  'Your house stands on a full set of posts along its whole deck, with cross braces, a beam under the deck and a tie beam through the posts.',
+  'The waterfall runs with falling water that speeds up as it drops, foam at its foot and drifting mist.',
+  'At night the floating lights on the lake are Japanese paper lanterns (toro nagashi) on wooden floats, glowing with trembling reflections.',
+  'The sun’s sparkle and the drifting petals on the lake now start below the islands, never on the rocks.',
+  '## Test build 2026.11.23-1132',
   'Cherry Blossom Lake now uses your painted picture as its scenery: Fuji, the cherry trees, the red bridge and island, the waterfall and pagoda, the torii and the lotus, all painted. Your house, angler, line and the lake’s moving life are drawn on top.',
   'The painting follows the time of day and weather: warm at dusk, dark blue at night with stars, the moon and the pagoda’s lit windows; the waterfall still runs.',
   '## Test build 2026.11.23-0856',

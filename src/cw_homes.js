@@ -70,7 +70,7 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
          {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Lattice windows'],def:[0,3],pal:[2,3,4,0]}],
     seat:['cushion','lowbench','stool'], seatNames:['Zabuton cushion','Bamboo bench','Lacquer stool'], seatDef:[0,0], seatPal:[0,1,4,5,6,7,9,10,11,13],
     order:[
-      ['base',(o)=>{ BH.piles(o,'square','#6a4a32'); HK.deck(o,'#9a6a42','boards'); }] /* no bank: the house stands on its deck over open water, as in the director's picture */,
+      ['base',(o)=>{ HK.supports(o,'#6a4a32','square',6); { const u=o.dockY+HK.fh(), x0=Math.max(HF.x0(),-W*.01); HK.rect(o,x0,u,o.pw-x0,H*.012,'#4a3222'); HK.rect(o,x0,u+(o.wl-u)*.5,o.pw-x0-W*.004,H*.007,'#5a3a26'); } /* director, 2026-11-23: "the support for the home is missing pieces": posts all along the deck with knee braces, a beam under the deck and a tie beam (nuki) through the posts */ HK.deck(o,'#9a6a42','boards'); }] /* no bank: the house stands on its deck over open water, as in the director's picture */,
       ['walls',(o,s,c)=>TH.walls(o,TH.geo(o),s,c,'#3a2420')],
       ['door',(o,s,c)=>BH.door(o,TH.geo(o),['shoji','plank','noren'][s],c)],
       ['windows',(o,s,c)=>BH.windows(o,WN(),['shoji','round','four'][s],c)],

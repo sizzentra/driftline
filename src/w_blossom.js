@@ -26,20 +26,27 @@ function blossomBridge(x,P,hz){ const a=W*.38, b=W*.48, y=hz+H*.012, h=H*.035, r
    it the lake goes on in its own deep blue. Light and weather tint it from the palette (the palette's colour over its daytime colour), dusk adds
    warmth, and at night stars, the moon and the pagoda's windows come out over it. The drawn scene below stays for the first frames while the
    picture loads. */
-const BL_IW=1578, BL_IH=691, BL_WL=392; /* the picture's size and its waterline row */
+const BL_IW=1763, BL_IH=892, BL_WL=378, BL_WT=410; /* the picture's size, its waterline row, and the row below the islands and the torii's feet where water effects may start */
 const BL_IMG=new Image(); BL_IMG.onload=()=>{ BL_IMG.ok=1; V3CACHE=null; V3PREV=null; v3land.job=null; }; BL_IMG.src=BLOSSOM_ART;
-function blMap(hz){ const s=W/BL_IW; return {s,oy:hz-BL_WL*s}; } /* picture pixels to screen: X*s, oy+Y*s */
-/* the sky's outline in picture pixels (where stars may show) and its painted clouds (where they may not) */
-const BL_SKY=[[640,196],[760,192],[860,212],[1000,156],[1100,102],[1170,86],[1250,88],[1330,126],[1440,176],[1480,190],[1578,186]];
-const BL_CLOUDS=[[660,960,78,134],[580,840,126,192],[440,570,152,196],[1400,1578,80,205],[860,1110,192,228]];
-function blSkyY(X){ for(let i=1;i<BL_SKY.length;i++){ const [a,ay]=BL_SKY[i-1], [b,by]=BL_SKY[i]; if(X<=b) return ay+(by-ay)*(X-a)/(b-a); } return 186; }
-function blPainted(x,P,hz){ const m=blMap(hz), s=m.s, ih=BL_IH*s, bot=m.oy+ih, top=Math.max(0,m.oy);
-  x.drawImage(BL_IMG,0,m.oy,W,ih);
-  if(m.oy>0){ const f=x.createLinearGradient(0,m.oy,0,m.oy+H*.05); f.addColorStop(0,V3PAL.blossom.day.top); f.addColorStop(1,v3rgba(V3PAL.blossom.day.top,0)); x.fillStyle=f; x.fillRect(0,m.oy,W,H*.05); } /* tall windows: the picture's top melts into the sky */
-  if(bot<H){ const f=x.createLinearGradient(0,bot-H*.03,0,H); f.addColorStop(0,'rgba(21,70,104,0)'); f.addColorStop(Math.min(.5,H*.03/(H-bot+H*.03)),'rgb(21,70,104)'); f.addColorStop(1,'rgb(12,38,66)'); x.fillStyle=f; x.fillRect(0,bot-H*.03,W,H-bot+H*.03); } /* the near lake below the picture */
+/* picture pixels to screen (X*s+ox, Y*s+oy): it always covers the screen with its waterline on the horizon; where it is wider than the screen
+   the left side goes (the game's home stands there) and the torii on the right stays */
+function blMap(hz){ const s=Math.max(W/BL_IW,(H-hz)/(BL_IH-BL_WL),hz/BL_WL); return {s,ox:W-BL_IW*s,oy:hz-BL_WL*s}; }
+/* where the picture's sky is open, measured from its pixels: rows of open sky from the top in 40 px columns, and 70 star spots in it */
+const BL_SKYC=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,23,75,71,48,34,54,65,141,75,100,78,20,97,81,64,45,27,30,27,165,170,170,70,50,53,31,160];
+const BL_STARS=[[868,26],[1282,47],[1486,57],[1038,102],[1450,39],[852,97],[1363,139],[1519,139],[1063,128],[1526,63],[1541,136],[795,11],[880,115],[1342,139],[1333,121],[666,155],[1524,106],[492,110],[1485,60],[693,170],[616,95],[68,188],[729,134],[1412,117],[1079,141],[547,62],[564,49],[1071,38],[1160,149],[1113,108],[1139,87],[1085,132],[500,63],[582,91],[1025,8],[721,50],[1415,137],[1743,28],[803,150],[775,174],[715,152],[977,76],[754,42],[1477,61],[955,48],[1700,99],[1102,147],[859,11],[1304,138],[795,17],[850,31],[1718,22],[1478,68],[789,30],[992,85],[1167,43],[598,117],[1512,130],[1002,22],[1450,98],[616,163],[601,166],[851,80],[1498,29],[1308,13],[863,41],[572,144],[1086,133],[1020,124]];
+function blSkyY(X){ return BL_SKYC[Math.max(0,Math.min(BL_SKYC.length-1,Math.round(X/40)))]; }
+function blPainted(x,P,hz){ const m=blMap(hz); x.drawImage(BL_IMG,m.ox,m.oy,BL_IW*m.s,BL_IH*m.s);
   const D=V3PAL.blossom.day, q=k=>{ const a=hex2rgb(rgb2hex(P[k])), b=hex2rgb(rgb2hex(D[k])); return a.map((v,i)=>Math.min(1,v/Math.max(8,b[i]))); }, A=q('far'), B=q('wMid'), f=A.map((v,i)=>(v+B[i])/2);
-  if(f.some(v=>v<.995)){ x.globalCompositeOperation='multiply'; x.fillStyle='rgb('+f.map(v=>Math.round(v*255)).join(',')+')'; x.fillRect(0,top,W,H-top); x.globalCompositeOperation='source-over'; } /* light and weather */
-  if(P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(255,140,80,'+(.4*P.d)+')'; x.fillRect(0,top,W,H-top); x.globalCompositeOperation='source-over'; } /* dusk and dawn warmth */ }
+  if(f.some(v=>v<.995)){ x.globalCompositeOperation='multiply'; x.fillStyle='rgb('+f.map(v=>Math.round(v*255)).join(',')+')'; x.fillRect(0,0,W,H); x.globalCompositeOperation='source-over'; } /* light and weather */
+  if(P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(255,140,80,'+(.4*P.d)+')'; x.fillRect(0,0,W,H); x.globalCompositeOperation='source-over'; } /* dusk and dawn warmth */ }
+/* a toro nagashi, the floating paper lantern of Japanese summer evenings (director, 2026-11-23: "these torches look bad and need to be more of a
+   lantern symbolic of japan culture"): a wooden float, a square paper box lit from inside with a dark frame and a small roof, its glow and a
+   trembling reflection */
+function blToro(x,y,s,a,t,i){ if(a<.02) return; v3glow(g,x,y-s*1.1,s*4.5,'rgba(255,176,96,.9)',.55*a); v3lanternReflect(x,y+s*.3,a*.9,t+i,'255,190,120');
+  g.globalAlpha=a; g.fillStyle='#3a2416'; g.fillRect(x-s*1.25,y-s*.3,s*2.5,s*.35); g.fillStyle='#5a3a24'; g.fillRect(x-s*1.25,y-s*.3,s*2.5,s*.08); /* the float */
+  const pg=g.createLinearGradient(0,y-s*2.1,0,y-s*.3); pg.addColorStop(0,'#ffe2a8'); pg.addColorStop(.6,'#ffc070'); pg.addColorStop(1,'#f08a3a'); g.fillStyle=pg; g.fillRect(x-s*.85,y-s*2.1,s*1.7,s*1.8); /* the paper, lit */
+  g.fillStyle='rgba(255,250,230,.55)'; g.fillRect(x-s*.45,y-s*1.9,s*.9,s*1.3); g.fillStyle='#2a1a10'; for(const dx of [-.85,-.08,.7]) g.fillRect(x+dx*s,y-s*2.1,s*.15,s*1.8); g.fillRect(x-s*.85,y-s*1.25,s*1.7,s*.1); /* frame and middle rail */
+  g.fillRect(x-s*1.05,y-s*2.3,s*2.1,s*.22); g.fillRect(x-s*.7,y-s*2.45,s*1.4,s*.16); g.globalAlpha=1; } /* the small roof */
 V3SCENES.blossom={
   land(x,P,hz,cnv){
     if(BL_IMG.ok){ blPainted(x,P,hz); return; }
@@ -67,13 +74,12 @@ V3SCENES.blossom={
     /* side by side with a little water between them, never on top of each other (director: they covered each other) */
     { const r=v3rng(41); for(const [cx,cy,n] of [[.42,.06,3],[.62,.1,2],[.7,.3,3],[.74,.44,4],[.34,.48,4]]){ const k=cy*H/(H-hz), s0=H*(.008+k*.04); let px=W*cx-s0*1.5*(n-1);
       for(let i=0;i<n;i++){ const s=s0*(.75+r()*.35), yy=hz+H*cy+(i%2?1:-1)*s0*.35, fl=r()<.75?(r()<.85?'#f4a0c0':'#fff4f8'):null; waLily(x,px,yy,s,P,500+i+Math.round(cx*100),fl); px+=s0*3.1; } } } },
-  live(P,t,hz,sun){ const FX=S.settings.effects, PT=BL_IMG.ok, M=blMap(hz); v3glitter(P,t,hz,sun);
-    if(PT&&P.night>.05){ const k=P.night*(1-P.gloom); if(!blMap.st){ const r=v3rng(9), a=[]; while(a.length<70){ const X=660+r()*918, Y=r()*190; if(Y>blSkyY(X)-10||BL_CLOUDS.some(c=>X>c[0]&&X<c[1]&&Y>c[2]&&Y<c[3])) continue; a.push([X,Y,r()*7,.6+r()*1.1]); } blMap.st=a; } /* stars in the painted sky, never on a mountain or a cloud */
-      g.fillStyle='#ffffff'; for(const s of blMap.st){ const y=M.oy+s[1]*M.s; if(y<0) continue; g.globalAlpha=k*(.3+.7*Math.abs(Math.sin(t*.7+s[2]))); g.fillRect(s[0]*M.s,y,s[3],s[3]); } g.globalAlpha=1;
-      if(!sun.up&&sun.vis>.05&&(sun.y-M.oy)/M.s<blSkyY(sun.x/M.s)-20){ v3glow(g,sun.x,sun.y,H*.12,'rgba(220,230,255,.6)',sun.vis*.5); g.save(); g.globalAlpha=sun.vis; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.moveTo(sun.x+H*.041,sun.y-H*.009); g.arc(sun.x+H*.013,sun.y-H*.009,H*.028,0,7); g.fill('evenodd'); g.restore(); } /* the moon, which the picture's sky would hide */
-      for(const wy of [212,232,252]) v3glow(g,1293*M.s,M.oy+wy*M.s,H*.02,'rgba(255,200,120,.9)',.7*P.night); } /* the pagoda's windows */
+  live(P,t,hz,sun){ const FX=S.settings.effects, PT=BL_IMG.ok, M=blMap(hz), wt=PT?Math.max(hz,M.oy+BL_WT*M.s):hz; v3glitter(P,t,wt,sun); /* water effects start below the painted islands (director: "some water effects appear on land") */
+    if(PT&&P.night>.05){ const k=P.night*(1-P.gloom); g.fillStyle='#ffffff'; BL_STARS.forEach((s,i)=>{ const x=M.ox+s[0]*M.s, y=M.oy+s[1]*M.s; if(y<0||x<0||x>W) return; g.globalAlpha=k*(.3+.7*Math.abs(Math.sin(t*.7+i*1.7))); const z=1+(i%3)*.5; g.fillRect(x,y,z,z); }); g.globalAlpha=1; /* stars only in the picture's open sky */
+      if(!sun.up&&sun.vis>.05&&(sun.y-M.oy)/M.s<blSkyY((sun.x-M.ox)/M.s)-30){ v3glow(g,sun.x,sun.y,H*.12,'rgba(220,230,255,.6)',sun.vis*.5); g.save(); g.globalAlpha=sun.vis; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sun.x,sun.y,H*.03,0,7); g.moveTo(sun.x+H*.041,sun.y-H*.009); g.arc(sun.x+H*.013,sun.y-H*.009,H*.028,0,7); g.fill('evenodd'); g.restore(); } /* the moon, which the picture's sky would hide */
+      for(const wy of [178,196,213,232]) v3glow(g,M.ox+1460*M.s,M.oy+wy*M.s,H*.016,'rgba(255,200,120,.9)',.7*P.night); } /* the pagoda's windows */
     // petals resting on the lake, drifting slowly with the breeze (smaller and flatter toward the far shore)
-    for(let i=0,n=gfxHigh()?30:18;i<n;i++){ const y=hz+H*(.015+((i*.377)%1)*.75), k=(y-hz)/(H-hz), x=((W*((i*.618)%1)+t*W*(.003+(i%3)*.0015)*(1+k))%(W*1.05))-W*.02, s=1+k*3.2;
+    for(let i=0,n=gfxHigh()?30:18;i<n;i++){ const y=wt+H*(.015+((i*.377)%1)*.75), k=(y-hz)/(H-hz), x=((W*((i*.618)%1)+t*W*(.003+(i%3)*.0015)*(1+k))%(W*1.05))-W*.02, s=1+k*3.2;
       g.fillStyle=i%3?'rgba(255,196,214,.85)':'rgba(255,236,244,.9)'; g.beginPath(); g.ellipse(x,y+Math.sin(t*.8+i)*k*1.5,s,s*.42,(i%5)*.3,0,7); g.fill(); }
     if(FX) for(let i=0,n=gfxHigh()?22:12;i<n;i++){ const per=9+(i%5), q=((t+i*1.7)%per)/per, x=W*(((i*.137)+q*.25)%1), y=H*.05+q*H*.85+Math.sin(t*1.3+i)*6; if(y>H*.97) continue; wa.petal(g,x,y,2.6,t*2+i,i%3?'rgba(255,190,210,.85)':'rgba(255,230,240,.9)'); }
     // ducks paddling, turning at the ends of their lap (the koi are back as shadows under the near water, from the director's reference)
@@ -82,11 +88,19 @@ V3SCENES.blossom={
     { const per=80, q=(t%per)/per, lap=Math.floor(t/per)%2, dir=lap?1:-1; if(q<.6){ const e=q/.6; for(let i=0;i<2;i++){ const y=hz+H*(.07+i*.02), k=(y-hz)/(H-hz), s=H*(.006+k*.012), xx=lap?W*(-.06+e*1.12)-i*s*3:W*(1.06-e*1.12)+i*s*3;
       g.save(); if(dir>0){ g.translate(xx,0); g.scale(-1,1); g.translate(-xx,0); } pondWake(xx+s*.4,y-s*.2,s,t,P,i); g.restore(); waDuck(xx,y,s,dir,P,t,i,i===1); } } }
     // the waterfall falls (streaks running down it) and koi shadows glide slowly under the near water (the director's reference has both)
-    { const fx=PT?1242*M.s:W*.7, top=PT?M.oy+286*M.s:hz-H*.144, bt=PT?M.oy+370*M.s:hz, fw=PT?34*M.s:W*.018; g.fillStyle=v3rgba('#ffffff',.6*(1-P.night*.65)); for(let i=0;i<7;i++){ const q=((t*.9+i/7)%1), yy=top+q*(bt-top); g.fillRect(fx-fw/2+i*fw/7,yy,1.5,H*.016); } }
+    /* the waterfall (director, 2026-11-23: "needs a more realistic animation"): water sheets sliding down and speeding up as they fall, each its own
+       width, brightness and pace, foam boiling out at the foot and a drifting mist */
+    if(PT){ const fx=M.ox+1399*M.s, top=M.oy+252*M.s, bt=M.oy+346*M.s, fw=38*M.s, dim=1-P.night*.6, hh=bt-top; g.save(); g.beginPath(); g.rect(fx-fw/2,top,fw,hh); g.clip();
+      for(let i=0;i<16;i++){ const lane=((i*7)%16)/16, sp=.55+((i*5)%7)*.07, q=((t*sp+i*.37)%1), e=q*q, yy=top+e*hh*1.25-hh*.15, len=hh*(.08+e*.22), w=fw*(.04+((i*3)%5)*.012), a=(.25+((i*11)%5)*.08)*dim*(1-q*.4);
+        g.fillStyle=v3rgba('#ffffff',a); g.fillRect(fx-fw/2+lane*fw,yy,w,len); g.fillStyle=v3rgba('#cfe8ff',a*.6); g.fillRect(fx-fw/2+lane*fw+w,yy+len*.2,w*.6,len*.7); }
+      g.restore();
+      for(let i=0;i<9;i++){ const q=((t*.5+i/9)%1), dx=(i%2?1:-1)*(.2+q*.9)*fw*.8*(.5+((i*3)%4)*.18), r=fw*(.12+q*.3); g.fillStyle=v3rgba('#ffffff',(.45*(1-q))*dim); g.beginPath(); g.ellipse(fx+dx*.6,bt-r*.2-q*fw*.15,r,r*.55,0,0,7); g.fill(); } /* foam boiling out at the foot */
+      v3glow(g,fx,bt-fw*.1,fw*1.4,'rgba(235,245,255,.8)',(.25+.08*Math.sin(t*1.7))*dim); } /* and its mist */
+    else { const fx=W*.7, top=hz-H*.144, bt=hz, fw=W*.018; g.fillStyle=v3rgba('#ffffff',.6*(1-P.night*.65)); for(let i=0;i<7;i++){ const q=((t*.9+i/7)%1), yy=top+q*(bt-top); g.fillRect(fx-fw/2+i*fw/7,yy,1.5,H*.016); } }
     for(let i=0;i<4;i++){ const per=70+i*13, q=((t+i*29)%per)/per, dir=i%2?1:-1, y=H*(.7+i*.055), s=H*(.012+i*.002), xx=dir>0?W*(-.08+q*1.16):W*(1.08-q*1.16), wig=Math.sin(t*3+i)*s*.15; g.fillStyle=v3rgba('#1a2a40',.22); g.beginPath(); g.ellipse(xx,y,s*1.6,s*.45,wig*.02,0,7); g.fill(); g.beginPath(); g.moveTo(xx-dir*s*1.5,y); g.lineTo(xx-dir*s*2.3,y-s*.45+wig); g.lineTo(xx-dir*s*2.3,y+s*.45+wig); g.closePath(); g.fill(); }
     // the stone lanterns glow at night and paper lanterns drift on the lake
-    if(P.night>.3){ if(!PT) for(const px of WA_TORO) v3glow(g,W*px,hz-H*.006-H*.018,H*.025,'rgba(255,190,110,.9)',.6*P.night); 
-      for(let i=0;i<5;i++){ const q=((t*.01+i*.2)%1), x=W*(-.05+q*1.1) /* in from beyond the left edge and out past the right, never popping up mid-lake (director) */, y=hz+H*(.04+i*.035)+Math.sin(t*.8+i)*2, s=H*.006*(1+(y-hz)/(H-hz)*3); v3glow(g,x,y,s*5,'rgba(255,180,120,.9)',.5*P.night); g.fillStyle='rgba(255,210,150,'+P.night+')'; g.fillRect(x-s*.6,y-s,s*1.2,s*1.2); g.fillStyle=v3rgba('#ffc890',.25*P.night); g.fillRect(x-s*.4,y+s*.4,s*.8,s*3); } }
+    if(P.night>.3){ if(!PT) for(const px of WA_TORO) v3glow(g,W*px,hz-H*.006-H*.018,H*.025,'rgba(255,190,110,.9)',.6*P.night);
+      for(let i=0;i<5;i++){ const q=((t*.01+i*.2)%1), x=W*(-.05+q*1.1) /* in from beyond the left edge and out past the right, never popping up mid-lake (director) */, y=wt+H*(.03+i*.04)+Math.sin(t*.8+i)*2, s=H*.005*(1+(y-hz)/(H-hz)*2.2); blToro(x,y,s,Math.min(1,(P.night-.3)/.3),t,i); } }
     // now and then a gust carries a swirl of petals across the lake
     if(FX){ const q=t%47; if(q<7){ const e=q/7; for(let i=0;i<64;i++){ const u=i/64, x=-W*.1+(e*1.4-u*.16)*W*1.1+Math.cos(u*13+t*3)*W*.02, y=hz*.95+Math.sin(u*13+t*3)*H*.04+u*H*.08; /* a tight swirl, so it reads as one gust */ /* low over the water, where it shows: over the giant pink trees it vanished (map QC) */ if(x<-10||x>W+10) continue; wa.petal(g,x,y,3.8,t*4+i,i%3?'rgba(255,200,220,.95)':'rgba(255,244,250,1)'); } } } },
   fore(){ /* nothing in front: the director's picture keeps the near water open */ },
