@@ -870,7 +870,7 @@ const MAP_STD={
   ember:{m:[45,2,11], life:['geyser','ravens','moths','lava bombs','embers'], night:['moths','embers']},
   starfall:{m:null, life:['star whale','lanterns','star-blossoms','floating islands','wisps'], night:['star whale','lanterns'],
     inT:()=>{ for(let t=600;t<1200;t+=.5){ const E=sfEvent(t); if(E.into>3&&E.into<4) return t; } return 600; }, outT:j=>{ let t=700+j*9; while(sfEvent(t).into<=SF_DUR+.5) t+=.7; return t; }},
-  blossom:{m:[47,0,7], life:['ducks','petals','paper lanterns','petal gust'], night:['paper lanterns','ducks']},
+  blossom:{m:[47,0,7], eye:'no moment for now (director, 2026-11-23: the petal gust removed and nothing in its place)', life:['ducks','petals','paper lanterns','waterfall'], night:['paper lanterns','ducks']},
   rockies:{m:[37,0,16.6], life:['beavers','moose','geese','canoe','waterfall'], night:['beavers','canoe']},
   keys:{m:[29,0,3.5], life:['traffic','speedboats','pelicans','gulls','fish school','leaping fish'], night:['traffic','lighthouse']},
   amazon:{m:[60,20,32], life:['macaws','dragonflies','caiman','frogs','branches'], night:['fireflies','caiman','frogs']},
