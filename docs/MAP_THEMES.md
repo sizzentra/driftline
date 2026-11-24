@@ -68,11 +68,12 @@ Written 2026-11-22 at the director's request ("more details, so you have better 
   - Night: sky `#060a1e` → `#2c3470`; blossoms `#4a3a5a`; rim `#9fb4ff`.
   - **Home colours (16):** lacquer red `#b8322a`, vermilion `#d8503a`, cedar `#9a6a42`, dark cedar `#5a3a26`, black lacquer `#2a2426`, paper white `#f4ece0`, rice beige `#e0d0b0`, bamboo `#b8b06a`, moss `#6a8a52`, jade `#5a9a9a`, deep jade `#1e4a58`, blossom pink `#f4a8c4`, pale sakura `#ffe4ee`, wisteria `#a88ac8`, lantern amber `#f0a848`, stone grey `#9a948a`.
 - **Materials:** red-lacquered wood, cedar, paper (shoji and lanterns), bamboo, stone lanterns, tiled roofs.
-- **Life:** ducks, falling petals, paper lanterns, a petal gust as its moment; at night lanterns and ducks. Fish: Ayu Sweetfish, Medaka Ricefish · Kohaku Koi, Showa Koi · Koi Dragon, Hanzaki Salamander · Ryujin, the Dragon King.
+- **Scenery:** the director's painting (approved 2026-11-24; see MAP_STANDARD › "The painted-scenery standard"): Fuji, hills of cherry trees, the red arched bridge and island, the torii on rocks, the pagoda, a waterfall, a big cherry tree framing the left, a flowered near shore.
+- **Life:** ducks, falling petals, birds behind the tree, butterflies, dragonflies, the flowing waterfall, the sky and moon mirrored in the lake; at night white sky lanterns rising in front of the mountains, and fireflies. No moment for now; koi, the petal gust and leaping fish were removed by the director (2026-11-23). Fish: Ayu Sweetfish, Medaka Ricefish · Kohaku Koi, Showa Koi · Koi Dragon, Hanzaki Salamander · Ryujin, the Dragon King.
 - **Belongs:** torii red, paper lanterns, bonsai and stone lanterns, tea-house touches, koi, wind chimes.
 - **Doesn't belong:** Western cabins, palm trees, neon, heavy machinery.
 - **Music and ambience:** koto plucks and a breathy shakuhachi flute over soft strings, slow and airy, in a pentatonic (Japanese-style) scale. Ambience: wind in the blossoms, a distant temple bell, a wind chime, soft water.
-- **Home today:** an arched bridge. **Direction:** a little tea-house deck on the water: red-lacquered posts, a curved tiled roof in side view, hanging paper lanterns; the seat a low cushion (zabuton) or a bamboo bench.
+- **Home today:** a tea house on red-lacquered posts (src/cw_teahouse.js); not yet approved: it still looks drawn over the painting. **Direction:** a little tea-house deck on the water: red-lacquered posts, a curved tiled roof in side view, hanging paper lanterns; the seat a low cushion (zabuton) or a bamboo bench.
 
 ## 4. Saltmarsh Coast
 - **On the card:** "Grey dunes and a long pier. Strong saltwater fish and the first tuna." Depth 4–20 m.

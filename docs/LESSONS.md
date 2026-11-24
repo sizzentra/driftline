@@ -208,3 +208,17 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **Underwater continuations stay on the same line:** a "refraction" sideways shift made the posts look broken at the surface.
 - **Big static detail (a stone lake floor) goes in its own cached picture** laid into the scenery, so light steps don't repaint a thousand stones.
 - **Moving life gets a time sheet** (`__timeSheet`): one picture per moment through its whole loop, to check it never pops in or out.
+
+## Cherry Blossom, the painted scene (2026-11-23, approved by the director 2026-11-24)
+- **Code shapes could not reach a painted look:** five code-drawn redraws still read as "not my screenshot". Using the director's painting as the scenery fixed it in one build. When the target is a painting, use the painting.
+- **Separately painted dusk and night versions blur when blended** (symptom: dusk and dawn looked soft on PC) → the details sit in slightly different places in each version → relight the day painting instead → measure sharpness of each layer alone vs the blend; if each is sharp alone, the blend is the cause.
+- **Coarse light steps made dusk jump** → the stored scenery changed in 9 crossfaded steps while the moving layers switched at once → 32 light levels, each faded in over 1.3 s (`blFaded`) → measure the biggest frame-to-frame change through dusk against an ordinary daytime frame.
+- **Painted reflections never line up** → build them from the land's outline at each shoreline (`blShore`, `blReflect`) → check in full-size crops that each reflection starts at its object's feet and matches its height.
+- **A wobbling mirror line puts steps in a railing's reflection** (each 1 px of waterline moves the reflection 2 px) → smooth the shoreline hard and give a bridge one fixed line (`BL_REFL_FLAT`).
+- **Automatic grouping mirrored half a bridge with the island** (20 px too low) → list what mirrors at its own base by hand (`BL_REFL_OBJ`) and use only real far-shore rows for the shoreline.
+- **Strips over a see-through sky leave seam lines** → lean the tree and flowers as one piece from their foot (`blLean`).
+- **A cut-out run once per cluster erased the cluster before it** (empty lily layer) → one pass from a combined picture.
+- **Each ring's height used the first random number of its seed** (always small), so rain rings sat only near the far shore → skip the first number.
+- **Overlapping bands by half a pixel drew white lines** in the cloud reflections → bands meet exactly.
+- **Size by eye on the real screen:** lanterns at 36 px were "way too big", 16 px read as specks, 22 px was right. Show two sizes in pictures before choosing.
+- **What the director removed stays removed:** koi, the petal gust, leaping fish ("i dont want fish jumping on this map"). Don't add a replacement unless asked.

@@ -1,4 +1,26 @@
-# Cherry Blossom Lake to the Rockies standard (overnight batch 6, 2026-11-23)
+# Cherry Blossom Lake
+
+## Where it stands (director, 2026-11-24: "With cherry blossom lake, i'm very happy where it's at (outside of its home)")
+- **The map is approved** as of test build 2143 (lanterns and rain rings) and is unchanged in 0140. Leave it alone unless the director asks; any change gets before-and-after pictures first.
+- **The home is not approved:** the tea house (src/cw_teahouse.js, TH) is drawn in the flat game style over a painting and still needs its own pass so it sits in the painting. That is the next step for this water.
+- The method that got here is now **the painted-scenery standard** in docs/MAP_STANDARD.md. The bugs it hit are in docs/LESSONS.md › "Cherry Blossom, the painted scene".
+
+## What worked, and why things were changed (summary of the builds below)
+| Step | What changed | Why |
+|---|---|---|
+| Code-drawn redraws (0522-0757) | Tea house, bank, bridge and Fuji drawn in code, closer to the reference each time | "it doesn't look like my screenshot at all": code shapes could not reach the painted look |
+| The painting itself (1132, 1201) | The director's painting became the scenery, cleaned of house, angler, rod, line and float | "make a 1:1 layout … and texture/detail it accordingly"; the picture already had the tree, hills and near shore |
+| Movement from the painting (1223) | Strips of the picture ripple and sway; the painted waterfall flows | "make it feel more alive" without drawing new things over the painting |
+| Separate layers (1825) | Land, sky, clouds and water as separate layers; the game's own sky, sun, moon and stars show behind see-through land | One flat picture could not have a real sky, drifting clouds or water under the land |
+| Removals (1859, 1929) | Koi, the petal gust and leaping fish taken out; no moment for now | Director: "i dont want fish jumping on this map"; nothing replaces them |
+| One painting relit (1929) | Dusk and night are the day painting relit, not separately painted versions | Separately painted versions put petals in slightly different places, so blends doubled up like a blurred photo |
+| Reflections from the land (1929) | Reflections built from the land's own outline at each shoreline, not a painted reflections layer | "the reflections don't look exact at all": the bridge's reflection now starts at its feet and matches its height |
+| One fixed mirror line for the bridge (1929) | The bridge mirrors at its posts' waterline | A wobbling waterline moved the railing's reflection in steps |
+| Sky in the lake (2023, 2042) | Clouds and the moon's path mirrored in the water, cut where the land's reflection stands; no sun reflection | A real lake mirrors the sky; the director did not want the sun's reflection |
+| Sky lanterns (2023-2143) | White paper lanterns rise at night from the left, in front of the mountains, behind the tree, 22 px, dim | Floating toro lanterns read as torches; 36 px was "way too big" and 16 px read as specks |
+| Rain rings (2023, 2143) | Rings over the whole lake, drawn under the land | Rings showed only near the far shore (a seeding bug) |
+
+## Overnight batch 6 (2026-11-23): the first tea house
 **Analysis (pictures: tools/shots/b_day.png, b1-b3 home):** the scene fits (Mount Fuji, pagodas, the torii in the water, cherry trees in blossom, stone lanterns lit at night, lily pads, ducks, the petal swirl moment). The home was the old deck with separate concepts, not one building.
 **Home:** a tea house (base-home kit; new kit pieces: shoji walls, a stone lantern, a noren curtain door, a wisteria trellis): walls (shoji, plaster and timber, bamboo), roof (curved clay tiles, cypress bark, copper), lantern (paper, stone, a string of lanterns), shade (veranda roof, wisteria trellis, paper parasol), door (sliding shoji, plank, noren), windows (shoji, round, four-pane), seat (zabuton, bamboo bench, lacquer stool); red-lacquered posts carrying on under the water; cherry trees on the bank. The stone lantern moved between the door and the first window (it hid behind the seated angler).
 **Checked:** __hfOne at full size day and night in three combinations; the scene by day.

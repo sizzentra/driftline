@@ -67,6 +67,27 @@ Every object on a map has exactly one placement type, and its type decides its r
 - **Built (`__mapQC`, bn_qa04.js; sweep part Maps, phone build and PC):** draws at dawn, day, dusk and night and in every weather without errors; at least 3 moving things and life after dark listed per water (`MAP_STD`); the moment every 20–60 s and visibly on screen (frames outside its window make an envelope of normal motion; the frame inside it must clearly break out); frame cost at most 3.2× the median water (rule 13's ceiling, set 2026-11-21 just above today's heaviest smooth water). Midnight Deep's moment is judged by eye (the whole view rocks and its rain never stops).
 - Not a tool yet (judged by the director and Cam from pictures): nothing over the fishing area, reflections under objects on the water, no empty strips between layers, the rest of rules 15–21.
 
+## The painted-scenery standard (director, 2026-11-24: "With cherry blossom lake, i'm very happy where it's at (outside of its home)")
+Cherry Blossom (src/w_blossom.js, src/w_blossom_art.js; history: docs/reviews/blossom.md) is the reference for a water whose scenery is a painting. Painting other waters is the director's call. When a water is painted, it follows this:
+**Source and cleaning**
+- The director's picture is the target (1:1 layout). Everything the game draws itself is cleaned out once: house, angler, rod, line, float, labels, the frame's edge. Patch from the scenery beside it (mirrored shore, water from above). Keep the cleaned full-size source in `art/`.
+- Split it into layers: land by day, sky, clouds, water. The land's sky is see-through, so the game's own sky, sun, moon and stars show behind it. Clouds are cut out one by one and drift behind the land.
+- Edges of keyed layers take the colour just inside them (1-3 px), so no coloured line rings the ridges.
+**One painting, relit**
+- Dusk and night are the day painting relit (per colour channel), never separately painted versions. Separate versions never line up, and every blend between them doubles up like a blurred photo.
+- Painted layers are built at fine light steps (32) and faded in over about 1.3 s, so dusk and dawn change smoothly with no jumps. Arriving shows the right light at once.
+**Water and reflections**
+- The lake and its reflections are drawn under the land, and the land is drawn again on top, so no water effect (ripples, glitter, rain, petals) ever crosses rock, islands or flowers.
+- Reflections are made from the land itself at each shoreline, not painted. Something standing in front of the far shore (an island, a torii) mirrors at its own base. A bridge mirrors at one fixed line, its posts' waterline. The shoreline is smoothed hard, because a 1 px wobble moves a reflection 2 px. Check reflections in full-size crops against what they mirror.
+- The sky shows in the lake (clouds, the moon's path), cut where the land's reflection stands. There is no sun reflection on this water (director).
+- Reflections fade with depth, are a little darker and cooler, and are fainter at night.
+**Movement and life**
+- Movement comes from the painting itself: strips of it ripple (more toward you), trees and flowers lean as one piece from their foot (strips leave seam lines over a see-through sky), and the painted waterfall scrolls a seamless texture cut to its own shape. Strengths live in one table (`BL_MOTION`); reduced motion holds it all still.
+- Added life is small and sparse and fits the place: birds behind the tree, butterflies, dragonflies, fireflies, sky lanterns at night (in front of the mountains, behind the tree, dim, about 22 px). Nothing that fights the painting: no koi, no leaping fish, no petal gust (director). A painted water may have no moment (`MAP_STD` eye exception).
+**Home and cost**
+- The home is the one thing drawn in the game's own style over the painting, so it needs its own pass to sit in the light and the brushwork (Cherry Blossom's is still open).
+- Keep the atlas small (one WebP, about 0.85 MB) and measure the frame cost day and night on phone and PC (Cherry Blossom: about 3 ms day, 7 ms night on PC).
+
 ## The Rockies standard (director, 2026-11-23: "Canadian Rockies is our most polished map, the new standard for all maps")
 Every water is brought up to this, in its own theme. Reference: the Canadian Rockies (src/w_rockies.js; how it got there: docs/reviews/rockies.md, rounds 1-4).
 **Start from the real place.** Read the water's MAP_THEMES entry and look at real reference pictures of the place before drawing; nothing goes in that doesn't belong there (no birches at Lake Louise), nothing iconic of the place is missing.
