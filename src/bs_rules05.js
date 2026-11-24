@@ -17,20 +17,22 @@ function featBonusText(cat){ const b=FEAT_CAT_BONUS[cat]; if(!b) return ''; cons
 { const _v=specLocValue; specLocValue=function(loc){ return _v(loc)*(S.setDone&&S.setDone[loc]?1.1:1); }; }
 
 // ---------- bounty bonuses ----------
-function bountyBx(b){ const ox=b.x; if(ox&&typeof ox==='object'&&Number.isInteger(ox.n)&&ox.n>0&&((ox.k==='bait'&&BAIT[ox.id]&&ox.n<=12)||(ox.k==='scales'&&ox.n<=12)||(ox.k==='pass'&&ox.n<=400))) return ox; /* a saved bonus is used only if it is one the game could have rolled */ const r=Math.random(), here=Object.entries(BAIT).filter(([k,x])=>x.loc===b.loc&&!x.junk&&!x.scales), shop=Object.entries(BAIT).filter(([k,x])=>k!=='worm'&&!x.junk&&!x.scales), lure=Object.entries(BAIT).filter(([k,x])=>x.junk);
+function bountyBx(b){ const ox=b.x; if(ox&&typeof ox==='object'&&Number.isInteger(ox.n)&&ox.n>0&&((ox.k==='bait'&&BAIT[ox.id]&&ox.n<=12)||(ox.k==='scales'&&ox.n<=12)||(ox.k==='pass'&&ox.n<=400)||(ox.k==='nib'&&ox.n<=20&&Number.isInteger(ox.r)&&ox.r>=0&&ox.r<=5)||(ox.k==='crate'&&(ox.id==='small'||ox.id==='big')&&ox.n<=2))) return ox; /* a saved bonus is used only if it is one the game could have rolled */ const r=Math.random(), here=Object.entries(BAIT).filter(([k,x])=>x.loc===b.loc&&!x.junk&&!x.scales), shop=Object.entries(BAIT).filter(([k,x])=>k!=='worm'&&!x.junk&&!x.scales), lure=Object.entries(BAIT).filter(([k,x])=>x.junk);
   let x; if(b.legend||r<.12) x={k:'bait', id:pick(lure)[0], n:b.legend?2:1};
-  else if(r<.45){ const e=pick(here.length?here:shop); x={k:'bait', id:e[0], n:rint(5,10)}; }
-  else if(r<.72) x={k:'scales', n:rint(3,8)+(b.scales?2:0)};
-  else x={k:'pass', n:rint(12,30)*10};
+  else if(r<.35){ const e=pick(here.length?here:shop); x={k:'bait', id:e[0], n:rint(5,10)}; }
+  else if(r<.52) x={k:'scales', n:rint(3,8)+(b.scales?2:0)};
+  else if(r<.68) x={k:'pass', n:rint(12,30)*10};
+  else if(r<.88){ const sr=b.sp&&SPI[b.sp]?Math.min(5,SPI[b.sp].r):b.type==='shiny'||b.type==='trophy'?rint(1,3):rint(0,2); x={k:'nib', r:sr, n:sr>=4?rint(1,2):sr>=2?rint(2,4):rint(3,6)}; } /* Cam, round 5: Nibbles can be bounty rewards */
+  else x={k:'crate', id:b.legend||Math.random()<.2?'big':'small', n:1}; /* Cam, round 5: crates come from bounties (and feats), not from gold */
   b.x=x; return x; }
-function bountyBxText(x){ if(!x) return ''; if(x.k==='bait'){ const B=BAIT[x.id]; return B?x.n+' × '+B.name:''; } if(x.k==='scales') return x.n+' Scales'; if(x.k==='pass') return x.n+' Tide Pass XP'; return ''; }
-function bountyBxGive(x){ if(!x) return ''; try{ if(x.k==='bait'&&BAIT[x.id]){ S.bait[x.id]=(S.bait[x.id]||0)+x.n; try{ renderBait(); }catch(e){} } else if(x.k==='scales') S.scales+=x.n; else if(x.k==='pass') addPassXP(x.n); }catch(e){} return bountyBxText(x); }
+function bountyBxText(x){ if(!x) return ''; if(x.k==='bait'){ const B=BAIT[x.id]; return B?x.n+' × '+B.name:''; } if(x.k==='scales') return x.n+' Scales'; if(x.k==='pass') return x.n+' Tide Pass XP'; if(x.k==='nib') return x.n+' '+NIB_TIER[x.r]+' Nibble'+(x.n===1?'':'s'); if(x.k==='crate') return 'a '+(x.id==='big'?'big':'small')+' Mystery Crate'; return ''; }
+function bountyBxGive(x){ if(!x) return ''; try{ if(x.k==='bait'&&BAIT[x.id]){ S.bait[x.id]=(S.bait[x.id]||0)+x.n; try{ renderBait(); }catch(e){} } else if(x.k==='scales') S.scales+=x.n; else if(x.k==='pass') addPassXP(x.n); else if(x.k==='nib') nibAdd('r'+x.r,x.n); else if(x.k==='crate') S.tokens[x.id]=(S.tokens[x.id]||0)+x.n; }catch(e){} return bountyBxText(x); }
 { const _fb=fillBounties; fillBounties=function(){ const r=_fb.apply(this,arguments); try{ for(const b of S.bounties) bountyBx(b); }catch(e){} return r; }; }
 document.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.closest('[data-act="claim"]'); if(!btn) return; const b=S.bounties[+btn.dataset.i]; if(!b) return; const x=bountyBx(b);
   setTimeout(()=>{ if(S.bounties.includes(b)) return; const t=bountyBxGive(x); if(t){ save(); setTimeout(()=>{ try{ toast('Bounty bonus: '+t+'!'); }catch(er){} },1100); } },0); },true);
 { const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){} _rb(P); try{
       P.querySelectorAll('[data-act="reroll"][data-i],[data-act="claim"][data-i]').forEach(btn=>{ const b=S.bounties[+btn.dataset.i], card=btn.closest('.tile'); if(!b||!card||card.querySelector('.bx')) return; const t=bountyBxText(b.x); if(!t) return;
-        const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🎣'):b.x.k==='scales'?'🔷':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
+        const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🎣'):b.x.k==='scales'?'🔷':b.x.k==='nib'?'🍬':b.x.k==='crate'?'🎁':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
     }catch(e){ console.error(e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .bx{display:flex;align-items:center;gap:6px;margin:2px 0 4px;padding:4px 10px;border-radius:999px;background:#7fe3c41a;border:1px solid #7fe3c455;color:#bff3e2;font:700 12px var(--display,system-ui);width:max-content;max-width:100%}

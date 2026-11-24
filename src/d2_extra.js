@@ -126,7 +126,7 @@ $('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-ev]');
 function updateEvents(dt){
   if(G.st==='frenzy' && G.fz){ const fz=G.fz; fz.t+=dt; fz.next-=dt; if(fz.next<=0 && fz.t<fz.dur-.8){ fz.next=rnd(.25,.5); const pool=SP.filter(s=>s.loc===S.loc&&s.r<=1); /* 0.3.2: about one in nine leapers is shiny: worth 5 fish, quicker, and on a trickier path */ const sh=Math.random()<.11, pat=sh?pick(['skip','zig','high']):(Math.random()<.25?pick(['skip','zig']):'arc'); fz.jumpers.push({p:rnd(.15,.98), t:0, dur:sh?rnd(.8,1.15):rnd(1.1,1.7), h:rnd(.1,.24), sp:pick(pool), hit:0, sh, pat}); }
     for(const j of fz.jumpers) j.t+=dt; fz.jumpers=fz.jumpers.filter(j=>j.t<j.dur && !(j.hit && j.t-j.hit>.4));
-    if(fz.t>=fz.dur){ const each=bestLoot()*.25, shN=fz.sh||0; const coins=earn((fz.caught+shN*4)*each*coinMult()); S.gstats.frenzy++; S.gstats.frenzyFish+=fz.caught; G.st='idle'; G.fz=null; sfx.catch(fz.caught>=10?4:2);
+    if(fz.t>=fz.dur){ const each=bestLoot()*.25, shN=fz.sh||0; const coins=earn((fz.caught+shN*4)*each*coinMult()); S.gstats.frenzy++; S.gstats.frenzyFish+=fz.caught; G.st='idle'; G.fz=null; G.noCastT=performance.now()+1000; /* Cam, round 5: 1 s after Fish Frenzy before you can cast */ G.noCastT=performance.now()+1000; /* Cam, round 5: 1 s after Fish Frenzy before you can cast */ sfx.catch(fz.caught>=10?4:2);
       toast('Frenzy over: '+fz.caught+' fish'+(shN?' ('+shN+' shiny!)':'')+', +'+fmt(coins)+' coins'); checkFeats(); save(); lastHud=''; } }
   if(G.star){ G.star.t+=dt; if(G.star.t>G.star.dur) G.star=null; }
   else if(nightness(phase())>.7 && (G.st==='idle'||G.st==='waiting') && Math.random()<dt/80){ G.star={x0:rnd(.3,.9)*W, y0:rnd(.04,.16)*H, t:0, dur:2.8}; }
@@ -207,7 +207,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'hand': S.settings.hand=k==='l'?'l':'r'; return;
     case 'fullscreen': { const d=document; try{ if(d.fullscreenElement) d.exitFullscreen(); else d.documentElement.requestFullscreen(); }catch(e){} return 'skip'; }
     case 'spin': { if(WH.spinning) return 'skip'; accrueSpins(); const freeSpin=k==='free' && S.freeSpins>0; if(!freeSpin){ const c=wheelCost(); if(S.money<c) return 'skip'; S.money-=c; } else { if(S.freeSpins>=SPIN_BANK) S.wheelT=Date.now(); S.freeSpins--; } b.disabled=true; taskProgress('game',1); spinWheel(!freeSpin); lastHud=''; return 'skip'; }
-    case 'crate': { if(!['small','big','legend'].includes(k)) return; if(b.dataset.free){ if(S.tokens[k]<=0) return; S.tokens[k]--; } else { const c=crateCost(k); if(S.money<c) return; S.money-=c; } openCrate(k); addTickets({small:8,big:25,legend:80}[k]); taskProgress('game',1); return; }
+    case 'crate': { if(!['small','big','legend'].includes(k)) return; if(!(S.tokens[k]>0)) return; S.tokens[k]--; /* Cam, round 5: crates are claimed, never bought with gold */ openCrate(k); addTickets({small:8,big:25,legend:80}[k]); taskProgress('game',1); return; }
     case 'flip': { if(!['.1','.25','.5','0.1','0.25','0.5'].includes(String(k))) return; const amt=Math.min(Math.floor(S.money*(+k)), bestLoot()*60); if(amt<10) return; S.money-=amt; S.gstats.flips++; addTickets(2+(+k)*20); taskProgress('game',1); flipRes={txt:'The coin spins…'}; renderPanel(); tone(1200,.05,'square',.03);
       setTimeout(()=>{ const win=Math.random()<.5; if(win){ S.money+=amt*2; S.stats.earned+=amt; S.gstats.flipWins++; sfx.coin(); } else sfx.lost(); flipRes={win, txt: win?'Heads! You win '+fmt(amt)+' coins':'Tails. The Fishmonger pockets '+fmt(amt)+' coins'}; checkFeats(); save(); lastHud=''; if(S.tab==='games') renderPanel(); }, 900); return 'skip'; }
     case 'buyscratch': { const c=bestLoot()*2; if(S.money<c) return; S.money-=c; newScratch(); addTickets(6); taskProgress('game',1); return; }
@@ -242,23 +242,22 @@ const STYLES = {
 };
 const PENT=[0,2,4,7,9];
 function curStyle(){ if(V3ON) return curStyle3(); const s=S.settings.style; if(s!=='auto') return s; const t=tod(); return t==='Day'?'lofi':t==='Dawn'?'acoustic':'night'; }
-function noiseBuf(sec,brown){ const n=AC.sampleRate*sec, b=AC.createBuffer(1,n,AC.sampleRate), d=b.getChannelData(0); let last=0; for(let i=0;i<n;i++){ const w=Math.random()*2-1; if(brown){ last=(last+.02*w)/1.02; d[i]=last*3.5; } else d[i]=w; } return b; }
+function noiseBuf(sec,brown){ const n=AC.sampleRate*sec, b=AC.createBuffer(1,n,AC.sampleRate), d=b.getChannelData(0); let last=0; for(let i=0;i<n;i++){ const w=Math.random()*2-1; if(brown){ last=(last+.02*w)/1.02; d[i]=last*3.5; } else d[i]=w; } if(brown){ const off=d[n-1]-d[0]; for(let i=0;i<n;i++) d[i]-=off*i/(n-1); } /* Cam, round 5: the brown noise ends where it starts, so a looping sound (the waves) has no click at its seam */ return b; }
 function startAudio(){ const a=ac(); if(!a||MUS.started) return; MUS.started=true;
   const n={}; n.dry=AC.createGain(); n.dry.gain.value=.9; n.dry.connect(BUS.music);
   n.rev=AC.createConvolver(); const len=AC.sampleRate*2.8, ir=AC.createBuffer(2,len,AC.sampleRate); for(let ch=0;ch<2;ch++){ const d=ir.getChannelData(ch); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6); } n.rev.buffer=ir;
   n.wet=AC.createGain(); n.wet.gain.value=.45; n.wet.connect(n.rev); n.rev.connect(BUS.music);
   n.dl=AC.createDelay(2); n.dl.delayTime.value=.42; n.fb=AC.createGain(); n.fb.gain.value=.32; n.dlf=AC.createBiquadFilter(); n.dlf.type='lowpass'; n.dlf.frequency.value=1800; n.dl.connect(n.dlf); n.dlf.connect(n.fb); n.fb.connect(n.dl); n.dlf.connect(n.wet); n.dlf.connect(BUS.music); n.dls=AC.createGain(); n.dls.gain.value=.5; n.dls.connect(n.dl);
   n.white=noiseBuf(1,false);
-  // vinyl crackle for lo-fi
-  const vb=AC.createBuffer(1,AC.sampleRate*3,AC.sampleRate), vd=vb.getChannelData(0); for(let i=0;i<vd.length;i++) vd[i]=(Math.random()<.00035?(Math.random()*2-1)*.8:0); n.vin=AC.createBufferSource(); n.vin.buffer=vb; n.vin.loop=true; n.ving=AC.createGain(); n.ving.gain.value=0; const vf=AC.createBiquadFilter(); vf.type='bandpass'; vf.frequency.value=2500; n.vin.connect(vf); vf.connect(n.ving); n.ving.connect(BUS.music); n.vin.start();
+  /* the lo-fi record crackle is gone (Cam, round 5: "weird rhythmic clicking in a lot of the audio tracks": it was a 3 s loop of the same pops) */
   // ambience: waves / stream, wind
   n.wave=AC.createBufferSource(); n.wave.buffer=noiseBuf(6,true); n.wave.loop=true; n.wavef=AC.createBiquadFilter(); n.wavef.type='lowpass'; n.wavef.frequency.value=600; n.waveg=AC.createGain(); n.waveg.gain.value=.05;
   n.lfo=AC.createOscillator(); n.lfo.frequency.value=.08; n.lfog=AC.createGain(); n.lfog.gain.value=.04; n.lfo.connect(n.lfog); n.lfog.connect(n.waveg.gain); n.lfo.start();
   n.wave.connect(n.wavef); n.wavef.connect(n.waveg); n.waveg.connect(BUS.amb); n.wave.start();
   n.wind=AC.createBufferSource(); n.wind.buffer=noiseBuf(4,false); n.wind.loop=true; n.windf=AC.createBiquadFilter(); n.windf.type='bandpass'; n.windf.frequency.value=500; n.windf.Q.value=.7; n.windg=AC.createGain(); n.windg.gain.value=0; n.wind.connect(n.windf); n.windf.connect(n.windg); n.windg.connect(BUS.amb); n.wind.start();
   MUS.n=n; MUS.next=AC.currentTime+.3; MUS.timer=setInterval(musicTick,80); }
-function mv(type,f,t,dur,peak,att,outs,det=0){ const o=AC.createOscillator(), gn=AC.createGain(); o.type=type; o.frequency.value=f; if(det) o.detune.value=det; gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(peak,t+att); gn.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(gn); outs.forEach(x=>gn.connect(x)); o.start(t); o.stop(t+dur+.05); return o; }
-function nz(t,dur,peak,ftype,freq,out){ const s=AC.createBufferSource(); s.buffer=MUS.n.white; const f=AC.createBiquadFilter(); f.type=ftype; f.frequency.value=freq; const gn=AC.createGain(); gn.gain.setValueAtTime(peak,t); gn.gain.exponentialRampToValueAtTime(.0001,t+dur); s.connect(f); f.connect(gn); gn.connect(out); s.start(t); s.stop(t+dur+.02); }
+function mv(type,f,t,dur,peak,att,outs,det=0){ att=Math.max(att,.005); /* never an instant start: a 1-4 ms attack clicked on every note (Cam, round 5) */ const o=AC.createOscillator(), gn=AC.createGain(); o.type=type; o.frequency.value=f; if(det) o.detune.value=det; gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(peak,t+att); gn.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(gn); outs.forEach(x=>gn.connect(x)); o.start(t); o.stop(t+dur+.05); return o; }
+function nz(t,dur,peak,ftype,freq,out){ const s=AC.createBufferSource(); s.buffer=MUS.n.white; const f=AC.createBiquadFilter(); f.type=ftype; f.frequency.value=freq; const gn=AC.createGain(); gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(peak,t+.003); /* a 3 ms fade-in: an instant start clicked (Cam, round 5) */ gn.gain.exponentialRampToValueAtTime(.0001,t+dur); s.connect(f); f.connect(gn); gn.connect(out); s.start(t); s.stop(t+dur+.02); }
 function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
   // ambience follows the water and the time of day
   const L=curLoc(), night=nightness(phase()); const sea=['coast','shelf','deep','trench','reef'].includes(L.id);
@@ -270,10 +269,10 @@ function musicTick(){ if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
     if(night<.5 && L.id==='coast' && r>.995){ const t=now+.05; for(let i=0;i<2;i++){ const o=mv('sawtooth',950,t+i*.25,.22,.012,.02,[BUS.amb]); o.frequency.exponentialRampToValueAtTime(600,t+i*.25+.2); } }
     if(L.id==='trench' && r>.996) mv('sine',1250,now+.05,2.5,.02,.01,[BUS.amb, n.wet]); }
   // music
-  const stName=curStyle(), st=STYLES[stName]; if(!(stName==='lofi'&&S.settings.musicOn)) n.ving.gain.setTargetAtTime(0, now, .3); /* 0.4: the record crackle is no longer a constant layer, see below */
+  const stName=curStyle(), st=STYLES[stName]; 
   if(!S.settings.musicOn){ MUS.next=Math.max(MUS.next,now+.1); return; }
   const stepLen=60/st.bpm/2;
-  while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; if(stName==='lofi'){ const Lb=st.progs.length*8, bi=MUS.bar%Lb, bl=stepLen*8; /* a little record crackle only where the track loops round, and once softly halfway */ if(bi===0||bi===Math.floor(Lb/2)){ const pk=bi===0?.14:.07, hold=bi===0?bl*1.5:bl*.6; n.ving.gain.cancelScheduledValues(t0); n.ving.gain.setValueAtTime(n.ving.gain.value,t0); n.ving.gain.linearRampToValueAtTime(pk,t0+bl*.25); n.ving.gain.setValueAtTime(pk,t0+hold); n.ving.gain.linearRampToValueAtTime(0,t0+hold+bl); } } }
+  while(MUS.next<now+.6){ const t0=MUS.next, s=MUS.step%8; if(s===0){ MUS.bar++; MUS.style=stName; if(stName==='lofi'){ const Lb=st.progs.length*8, bi=MUS.bar%Lb, bl=stepLen*8;  } }
     const prog=st.progs[Math.floor(MUS.bar/8)%st.progs.length], ch=prog[MUS.bar%4]; const root=ch[0], ivs=ch[1]; const t=t0+(s%2?st.swing*stepLen:0); const barLen=stepLen*8;
     if(V3ON && V3MUS[stName]){ V3MUS[stName](t,s,root,ivs,stepLen,n,MUS.bar); MUS.step++; MUS.next+=stepLen; continue; }
     if(s===0){ const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=stName==='night'?900:1100; lp.connect(n.dry); lp.connect(n.wet);

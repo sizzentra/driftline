@@ -13,28 +13,30 @@ const PSHOP_MAX=100, PSHOP_COST=2;
 function pshopLv(k){ return clamp(Math.floor((S&&S.pshop&&S.pshop[k])||0),0,PSHOP_MAX); }
 // ---------- Boons ----------
 const BOONS=[
- ['heavy','Heavy Waters','Fish grow up to {v}% heavier than their normal range.',3],
+ ['heavy','Heavy Waters','Fish grow up to {v}% heavier than their normal range.',4],
  ['derby','Derby Crown','Derby weight ×{m} (multiplies).',.1],
  ['surge','Catch Surge','Every {n} fish in a streak: a Surge for 15 min (+8% bite speed, reel speed and rare bonus), up to 5 at once.',0],
- ['treasure','Magpie','+{v}% junk and treasure chance.',8],
- ['hotspot','Hot Water','+{v}% hotspots.',8],
- ['shine','Glimmer','+{v}% shiny chance.',6],
- ['trophy','Wall Mount','+{v}% trophy chance.',8],
- ['calm','Soft Hands','−{v}% fish temper.',5],
+ ['treasure','Magpie','+{v}% junk and treasure chance.',12],
+ ['hotspot','Hot Water','+{v}% hotspots and +{h}% rare bonus.',12],
+ ['shine','Glimmer','+{v}% shiny chance.',10],
+ ['trophy','Wall Mount','+{v}% trophy chance.',12],
+ ['calm','Soft Hands','−{v}% fish temper.',6],
  ['strength','Strong Arms','+{v}% Angler strength.',2], /* C30 (director + Cam, 2026-11-20): some strength is held in a boon (Feel call: 2% a rank) */
- ['tank','Old Friends','+{v}% aquarium income.',8],
- ['tickets','Season Pass','+{v}% tickets.',10],
- ['nibkeep','Candy Jar','Keep {v}% more of your Nibbles when you set sail.',8],
- ['cooler','Deep Cooler','+{v} cooler space every time your cooler grows.',1],
- ['nest','Nest Egg','Start each voyage with {v}% of the coins you earned on the last one (at most 100 million).',2],
- ['wisdom','Wisdom','+{v}% XP.',6],
- ['weather','Weather Eye','Weather effects {v}% stronger.',10],
- ['pearls','Pearl Sense','+{v}% Wisdom Pearls.',5],
+ ['tank','Old Friends','+{v}% aquarium income.',15],
+ ['tickets','Season Pass','+{v}% tickets.',15],
+ ['nibkeep','Candy Jar','Keep {v}% more of your Nibbles when you set sail.',10],
+ ['cooler','Deep Cooler','+{v}% cooler space at every cooler size.',6],
+ ['nest','Nest Egg','Start each voyage with {v}% of the coins you earned on the last one (at most 250 million).',3],
+ ['wisdom','Wisdom','+{v}% XP.',10],
+ ['weather','Weather Eye','Weather effects {v}% stronger.',12],
+ ['pearls','Pearl Sense','+{v}% Wisdom Pearls.',8],
+ ['habits','Old Habits','Start each voyage at level {l}.',0], /* Cam, round 5: an 18th Boon to even the menu; fits the level reset (Feel call: levels 3, 5, 7, 9, 11) */
 ].map(a=>({id:a[0],name:a[1],d:a[2],per:a[3],max:5}));
 const BOONI=Object.fromEntries(BOONS.map(b=>[b.id,b]));
 const SURGE_N=[0,50,40,30,20,10], SURGE_MIN=15, SURGE_MAX=5;
 function boonR(id){ return clamp(Math.floor((S&&S.boons&&S.boons[id])||0),0,5); }
-function boonText(b,r){ const R=Math.max(1,r); return b.d.replace('{v}',Math.round(b.per*R)).replace('{m}',Math.pow(1+b.per,R).toFixed(2)).replace('{n}',SURGE_N[R]); }
+const bv = id => BOONI[id].per/100*boonR(id); /* a Boon's effect at its rank, as a fraction (per is the % a rank) */
+function boonText(b,r){ const R=Math.max(1,r); return b.d.replace('{v}',Math.round(b.per*R)).replace('{h}',2*R).replace('{l}',1+2*R).replace('{m}',Math.pow(1+b.per,R).toFixed(2)).replace('{n}',SURGE_N[R]); }
 const boonPtsFor = t => 3+Math.floor(t/4)+(relic('boonstone')?2:0);
 // ---------- milestones up to voyage 100 ----------
 [[12,'Sailor’s Due','+2 Boon points.',{pts:2}],[14,'Fair Winds','+5% Legacy.',{legacy:.05}],[16,'Bigger Hold','+2 cooler space.',{cooler:2}],
@@ -51,34 +53,36 @@ const boonPtsFor = t => 3+Math.floor(t/4)+(relic('boonstone')?2:0);
 VOYAGE_MS.sort((a,b)=>a.n-b.n);
 function msSum(k){ let v=0; for(const m of VOYAGE_MS) if(m.fx&&m.fx[k]&&voyMs(m.n)) v=(k==='unlock'||k==='tackle'||k==='start')?Math.max(v,m.fx[k]):v+m.fx[k]; return v; }
 // ---------- more relics (one level each) ----------
-const RELIC_BONUS={seaglass:{sell:.1}, almanac:{xp:.15}, chime:{bite:.15}, goldnet:{reel:.1}, eelcharm:{tension:.1}, moonmirror:{shiny:.15}, ancientlure:{rare:.1},
+const RELIC_BONUS={seaglass:{sell:.1}, chime:{bite:.15}, goldnet:{reel:.1}, eelcharm:{tension:.1}, moonmirror:{shiny:.15}, ancientlure:{rare:.1},
   coralcrown:{tank:.2}, hourglass:{hot:.25}, plaque:{trophy:.2}, stillwater:{calm:.15}, lodestone:{treasure:.25}};
 const RELIC_MUL={cartopen:{unlock:.8}, necklace:{pearl:1.15}, tidecrown:{legacy:1.25}, kraken:{mythic:1.5}};
-[['seaglass','Sea Glass',2,'+10% sale price.'],['almanac','Angler’s Almanac',2,'+15% XP.'],['chime','Wind Chime',3,'+15% bite speed.'],['goldnet','Golden Net',3,'+10% reel speed.'],
+[['seaglass','Sea Glass',2,'+10% sale price.'],['almanac','Angler’s Almanac',2,'+5 skill points, kept through every voyage.'] /* Cam, round 5: was +15% XP, weaker than Old Mentor and dearer */,['chime','Wind Chime',3,'+15% bite speed.'],['goldnet','Golden Net',3,'+10% reel speed.'],
  ['eelcharm','Eel Charm',3,'−10% line tension.'],['moonmirror','Moon Mirror',4,'+15% shiny chance.'],['ancientlure','Ancient Lure',5,'+10% rare bonus.'],['coralcrown','Coral Crown',5,'+20% aquarium income.'],
  ['hourglass','Sand Hourglass',6,'+25% hotspots.'],['plaque','Brass Plaque',6,'+20% trophy chance.'],['stillwater','Still Water',8,'−15% fish temper.'],['lodestone','Lodestone',8,'+25% junk and treasure chance.'],
  ['boonstone','Boon Stone',10,'+2 Boon points every time you set sail.'],['cartopen','Cartographer’s Pen',12,'The next water opens with 20% fewer catches.'],['candytin','Candy Tin',12,'Keep 25% more of your Nibbles when you set sail.'],
  ['necklace','Pearl Necklace',15,'+15% Wisdom Pearls.'],['surgehorn','Surge Horn',15,'Catch Surges last 25 minutes instead of 15.'],['tidecrown','Crown of Tides',20,'Your Legacy is 25% bigger.'],
  ['secondhook','Second Hook',25,'5% chance a landed fish brings a twin into your cooler.'],['goldcompass','Golden Compass',30,'+20% coins and XP from everything.'],['kraken','Kraken Tooth',40,'Mythic fish 50% more often.'],
+ ['sweettooth','Sweet Tooth',6,'Scrapping a fish always gives Nibbles.'],['feastbowl','Feast Bowl',8,'Every Nibble you feed counts twice toward a fish’s growth.'],['dusklamp','Dusk Lantern',5,'+20% bite speed at dusk and night.'], /* Cam, round 5: 3 more relics, 2 about Nibbles (Feel calls on costs) */
 ].forEach(a=>{ if(!RELICS.some(r=>r.id===a[0])) RELICS.push({id:a[0],name:a[1],cost:a[2],d:a[3]}); });
 // ---------- effects ----------
 function voyMul(k){ let m=1; if(!S) return 1; for(const id in RELIC_MUL) if(RELIC_MUL[id][k]&&relic(id)) m*=RELIC_MUL[id][k];
-  if(k==='pearl') m*=(1+.05*boonR('pearls'))*(1+msSum('pearl')); if(k==='tix') m*=1+.1*boonR('tickets'); return m; }
-function voyAdd(k){ if(!S) return 0; if(k==='nibkeep') return .08*boonR('nibkeep')+(relic('candytin')?.25:0); return 0; }
+  if(k==='pearl') m*=(1+bv('pearls'))*(1+msSum('pearl')); if(k==='tix') m*=1+bv('tickets'); return m; }
+function voyAdd(k){ if(!S) return 0; if(k==='nibkeep') return bv('nibkeep')+(relic('candytin')?.25:0); return 0; }
 { const _pm=pathMul; pathMul=function(k){ return _pm(k)*voyMul(k); }; }
-const BOON_BONUS={treasure:['treasure',.08], hotspot:['hot',.08], shine:['shiny',.06], trophy:['trophy',.08], calm:['calm',.05], tank:['tank',.08], wisdom:['xp',.06]};
+const BOON_BONUS={treasure:'treasure', hotspot:'hot', shine:'shiny', trophy:'trophy', calm:'calm', tank:'tank', wisdom:'xp'}; /* each rank adds its Boon's per value (BOONS) */
 { const _b=bonus; bonus=function(k){ let v=_b(k), add=0; if(!S) return v;
     for(const id in RELIC_BONUS) if(RELIC_BONUS[id][k]&&relic(id)) add+=RELIC_BONUS[id][k];
-    for(const id in BOON_BONUS) if(BOON_BONUS[id][0]===k) add+=BOON_BONUS[id][1]*boonR(id);
+    for(const id in BOON_BONUS) if(BOON_BONUS[id]===k) add+=bv(id);
+    if(k==='rare') add+=.02*boonR('hotspot'); /* Cam, round 5: Hot Water also raises rarity a little */
     if(k==='rare') add+=msSum('rare');
     return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; }; }
 // Legacy = the voyage Legacy (already ×paths and ×Crown of Tides through pathMul) + milestone Legacy (×Crown of Tides) + the Golden Compass
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()+msSum('legacy')*(relic('tidecrown')?1.25:1)+(relic('goldcompass')?.2:0); }; }
-{ const _w=weather; weather=function(){ const w=_w(), r=boonR('weather'); if(!r) return w; const m=1+.1*r, amp=x=>x>1?1+(x-1)*m:x;
+{ const _w=weather; weather=function(){ const w=_w(), r=boonR('weather'); if(!r) return w; const m=1+bv('weather'), amp=x=>x>1?1+(x-1)*m:x;
     return Object.assign({},w,{bite:w.bite?amp(w.bite):w.bite, shiny:w.shiny?amp(w.shiny):w.shiny, xp:w.xp?amp(w.xp):w.xp, rare:w.rare!=null?w.rare*m:w.rare}); }; }
-{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1.1,r)).toFixed(2); }catch(e){} }; }
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*.03*r; f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
-{ const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map((v,i)=>v+add+per*i); }; voyApplyCooler(); } /* C26 (director + Cam, 2026-11-20): Deep Cooler adds its space again every time the cooler grows (each upgrade), not once */
+{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1+BOONI.derby.per,r)).toFixed(2); }catch(e){} }; }
+{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
+{ const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map(v=>v+add+Math.ceil(v*bv('cooler'))); }; voyApplyCooler(); } /* Cam, round 5: Deep Cooler reworked to a share of every cooler size (6% a rank), so it stays useful after the cooler upgrades (was +1 space per upgrade) */
 // Catch Surge and the Second Hook ride on every landed fish
 { const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
     try{ if(was){ const rk=boonR('surge'); if(rk&&S.streak>0&&S.streak%SURGE_N[rk]===0){ const t=Date.now(), mins=relic('surgehorn')?25:SURGE_MIN; let slot=1;
@@ -89,8 +93,9 @@ const BOON_BONUS={treasure:['treasure',.08], hotspot:['hot',.08], shine:['shiny'
 // ---------- setting sail: Boon points, milestone gifts ----------
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b||!canRetire()) return; const before=S.tides, earned=S.stats.runEarned||0;
   setTimeout(()=>{ if(S.tides===before) return; const t=S.tides; let pts=boonPtsFor(t); const ms=VOYAGE_MS.find(m=>m.n===t); if(ms&&ms.fx&&ms.fx.pts) pts+=ms.fx.pts; S.boonPts=(S.boonPts||0)+pts;
-    const nest=Math.min(1e8,Math.round(earned*.02*boonR('nest'))), start=msSum('start'); if(nest||start) S.money+=nest+start;
+    const nest=Math.min(2.5e8,Math.round(earned*bv('nest'))), start=msSum('start'); if(nest||start) S.money+=nest+start;
     const un=msSum('unlock'); for(let i=0;i<Math.min(un,LOCS.length);i++) if(!S.unlocked.includes(LOCS[i].id)) S.unlocked.push(LOCS[i].id);
+    const hb=boonR('habits'); if(hb){ S.lvl=Math.max(S.lvl,1+2*hb); S.xp=0; } /* Old Habits (Cam, round 5) */
     const tk=msSum('tackle'); if(tk) for(const k in S.gear) S.gear[k]=Math.max(S.gear[k],Math.min(tk,GEAR[k].lv.length-1));
     voyApplyCooler(); save(); try{ renderPanel(); }catch(er){}
     setTimeout(()=>toast('+'+pts+' Boon points to spend in Prestige, Boons.'+(nest?' Nest Egg: +'+fmt(nest)+' coins.':'')),2400); },0); },true);
@@ -116,7 +121,7 @@ if(typeof ACT_OK==='object'){ ACT_OK.pshop=k=>k==='gold'||k==='xp'; ACT_OK.boon=
 function nextPearlAt(){ const pm=voyagePearlMult()*pathMul('pearl'), n=Math.floor(Math.pow((S.stats.runEarned||0)/PEARL_DIV,1/PEARL_EXP)*pm); return Math.ceil(Math.pow((n+1)/pm,PEARL_EXP)*PEARL_DIV); }
 function renderVoyage(){ const n=pearlsFor(), ok=canRetire(), v=S.tides||0, leg=Math.round(voyageLegacy()*100), full=vaultList().length+S.tank.length>VAULT_MAX, nextMs=VOYAGE_MS.find(m=>m.n>v), np=boonPtsFor(v+1)+(nextMs&&nextMs.n===v+1&&nextMs.fx&&nextMs.fx.pts||0);
   const box = confirmBox==='retire' ? `<div class="tile voy-confirm"><h4>Set sail again?</h4>
-    <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond (and the waters your milestones keep). Your aquarium fish are mounted in your Trophy Room${full?' (as many as fit; the rest stay on display)':''}. You keep your level, skills, Paths, Fish Log, feats, Trophy Room, pets, clothes, relics, Boons, Pearl shop levels and Wisdom Pearls.</div>
+    <div class="meta">You lose your coins, tackle, bait, cooler fish, bounties and every water except Willow Pond (and the waters your milestones keep). Your aquarium fish are mounted in your Trophy Room${full?' (as many as fit; the rest stay on display)':''}. Your level goes back to 1 and your skills are handed back (the skill points from feats and the Fish Log stay to spend again). You keep your Paths (each works again once you reach its level), Fish Log, feats, Trophy Room, pets, clothes, relics, Boons, Pearl shop levels and Wisdom Pearls.</div>
     <div class="meta" style="margin-top:6px;color:var(--kelp)">You get +${n} pearl${n===1?'':'s'} and +${np} Boon points${nextMs&&nextMs.n===v+1?', and a new milestone: '+esc(nextMs.name):''}.</div>
     <div class="row" style="margin-top:8px"><button class="btn" data-act="retireok">Set sail with +${n} pearl${n===1?'':'s'}</button><button class="btn alt" data-act="cancel">Keep fishing</button></div></div>` : '';
   const got=VOYAGE_MS.filter(m=>v>=m.n).length, list=voyAll?VOYAGE_MS:VOYAGE_MS.filter(m=>m.n>v).slice(0,5);

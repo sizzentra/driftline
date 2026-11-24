@@ -18,7 +18,7 @@ function nibFold(){ if(!S.nib) return; for(const k of Object.keys(S.nib)){ if(/^
 const nibOf = id => { nibFold(); const k=nibKey(id); return (k&&S.nib&&S.nib[k])||0; };
 function nibAdd(id,n){ nibFold(); const k=nibKey(id); if(!k) return; S.nib=S.nib||{}; S.nib[k]=(S.nib[k]||0)+n; if(S.nib[k]<=0) delete S.nib[k]; }
 const nibRarName = id => { const sp=SPI[id]; return sp?NIB_RAR[Math.min(5,sp.r)]:''; };
-const nibOdds = f => { const sp=SPI[f.id]; return sp?Math.min(1,NIB_ODDS[Math.min(5,sp.r)]+rodBonus('nib')+.04*pr('nibbler')+pathAdd('nibodds')):0; }; /* [14] Nibble Pouch adds to the chance */
+const nibOdds = f => { const sp=SPI[f.id]; return sp?(relic('sweettooth')?1:Math.min(1,NIB_ODDS[Math.min(5,sp.r)]+rodBonus('nib')+.04*pr('nibbler')+pathAdd('nibodds'))):0; }; /* Sweet Tooth relic: always (Cam, round 5) */ /* [14] Nibble Pouch adds to the chance */
 const nibAmount = f => 1+(f.sh?2:0)+(f.hy?2:0)+(f.sh===2?2:0);
 const nibIncome = fed => 1+.08*Math.pow(fed||0,.8);
 const nibBuffCount = f => (f.ab?1:0)+(f.ab2?1:0)+((f.abx&&f.abx.length)||0);
@@ -45,20 +45,29 @@ function nibScrapAll(){ const go=S.cooler.filter(f=>!sellKeep(f)&&SPI[f.id]); if
   if(got) sfx.coin(); toast('Scrapped '+go.length+' fish: '+(got?Object.keys(by).sort((a,b)=>a-b).map(r=>'+'+by[r]+' '+NIB_TIER[Math.min(5,r)]).join(', ')+' Nibbles.':'no Nibbles this time.')); return 'render'; }
 const NIB_TIER=['Common','Uncommon','Rare','Epic','Legendary','Mythic'];
 const nibTierWord = (id,n) => n+' '+NIB_TIER[Math.min(5,(SPI[id]||{r:0}).r)]+' Nibble'+(n===1?'':'s');
-function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]||nibOf(f.id)<1) return 'skip'; const sp=SPI[f.id]; accrue();
-  nibAdd(sp.id,-1); f.fed=(f.fed||0)+1; let msg=sp.name+' ate a Nibble: '+fmt(Math.round(fishRate(f)*60))+' coins per hour now.';
-  if(f.fed%NIB_STEP===0){ const ch=f.fed%NIB_BIG===0?NIB_ADD_BIG:NIB_ADD;
-    if(nibBuffCount(f)<NIB_MAX_BUFFS&&Math.random()<ch){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); msg=sp.name+' grew a new bonus: +'+BK[b.k]+'!'; }
-    else { f.nbst=(f.nbst||0)+1; msg=sp.name+'’s bonuses grew stronger (+'+Math.round(NIB_BOOST*100*f.nbst)+'%).'; } }
-  NIB_ANIM={f, t0:performance.now(), col:sp.col||'#ffd36a', col2:sp.belly||'#fff3c8', beh:sp.beh}; sfx.coin(); toast(msg); save(); return f.fed%NIB_STEP!==0&&nibPatch()?'skip':'render'; }
+/* Cam, round 5: feed several at once (1x to 100x, chosen above the tank); a fish with fewer Nibbles on hand eats what there is */
+const NIB_AMTS=[1,5,10,20,50,100];
+const nibAmt = () => NIB_AMTS.includes(S.nibAmt)?S.nibAmt:1;
+function nibFeed(i){ const f=S.tank[i]; if(!f||!SPI[f.id]) return 'skip'; const sp=SPI[f.id], k=Math.min(nibAmt(),nibOf(f.id)); if(k<1) return 'skip'; accrue();
+  nibAdd(sp.id,-k); const per=relic('feastbowl')?2:1; let step=false, nb=0, st=0, last=''; /* Feast Bowl relic counts a Nibble twice (Cam, round 5) */
+  for(let j=0;j<k;j++){ const fed0=f.fed||0; f.fed=fed0+per; if(Math.floor(f.fed/NIB_STEP)<=Math.floor(fed0/NIB_STEP)) continue; step=true;
+    const ch=Math.floor(f.fed/NIB_BIG)>Math.floor(fed0/NIB_BIG)?NIB_ADD_BIG:NIB_ADD;
+    if(nibBuffCount(f)<NIB_MAX_BUFFS&&Math.random()<ch){ const b=rollAqBuff(sp,f.kg); f.abx=(f.abx||[]).concat([b]); nb++; last=BK[b.k]; } else { f.nbst=(f.nbst||0)+1; st++; } }
+  const msg=nb?sp.name+(nb>1?' grew '+nb+' new bonuses (last: +'+last+')!':' grew a new bonus: +'+last+'!'):st?sp.name+'’s bonuses grew stronger (+'+Math.round(NIB_BOOST*100*f.nbst)+'%).':sp.name+' ate '+NIB_WORD(k)+': '+fmt(Math.round(fishRate(f)*60))+' coins per hour now.';
+  NIB_ANIM={f, t0:performance.now(), col:sp.col||'#ffd36a', col2:sp.belly||'#fff3c8', beh:sp.beh}; sfx.coin(); toast(msg); save(); return !step&&nibPatch()?'skip':'render'; }
 /* Cam's list #9: a plain feed updates the page in place (the feed buttons, each fish's coins an hour, the earnings) instead of rebuilding
    the whole Aquarium, which made the phone screen jump; a feed that grows a bonus still redraws the page (its boosts change) */
 function nibPatch(){ const P=$('panel'); if(!P||S.tab!=='aquarium') return false; const bs=[...P.querySelectorAll('[data-act="nibfeed"]')]; if(!bs.length) return false; const sh=aqShownRates();
   for(const b of bs){ const i=+b.dataset.i, f=S.tank[i]; if(!f) return false; const row=b.closest('.fishrow'), html=nibFeedBtn(f,i);
     if(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); b.replaceWith(t.content.firstElementChild); } else b.remove();
     const v=row&&row.querySelector('.val .coin'); if(v) v.textContent=fmt(sh[i]); const sm=row&&row.querySelector('.nm small'); if(sm){ const sp=SPI[f.id]; sm.innerHTML=`${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span>${nibFedTxt(f)}`; } }
-  const e=P.querySelector('.bank b.coin'); if(e){ const r=tankRate()*60; e.textContent=fmtShort(r); e.title=fmt(r)+' coins an hour'; } return true; }
-{ const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); return _ea7(b); }; }
+  const e=P.querySelector('.bank b.coin'); if(e){ const r=tankRate()*60; e.textContent=fmtShort(r); e.title=fmt(r)+' coins an hour'; } const ns=P.querySelector('.nibstrip'); if(ns) ns.outerHTML=nibStripHTML(); return true; }
+{ const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); if(b.dataset.act==='nibamt'){ const n=+b.dataset.k; if(!NIB_AMTS.includes(n)) return 'skip'; S.nibAmt=n; return 'render'; } return _ea7(b); }; }
+if(typeof ACT_OK==='object') ACT_OK.nibamt=k=>NIB_AMTS.includes(+k);
+/* Cam, round 5: the feed amount and your Nibbles of every rarity, in a strip above the tank */
+function nibStripHTML(){ const a=nibAmt(), has=NIB_RAR.map((r,i)=>[i,(S.nib&&S.nib['r'+i])||0]).filter(x=>x[1]>0);
+  return `<div class="nibstrip"><div class="nibs-amt" role="group" aria-label="Nibbles per feed"><span class="meta">Feed</span>${NIB_AMTS.map(n=>`<button type="button" class="chip${n===a?' on':''}" data-act="nibamt" data-k="${n}" aria-pressed="${n===a}">${n}x</button>`).join('')}</div><div class="nibs-have">${has.length?has.map(([i,n])=>`<span class="nibs-r" style="--rc:${RAR[i].c}" title="${NIB_TIER[i]} Nibbles">${NIB_TIER[i]} <b>${fmtShort(n)}</b></span>`).join(''):'<span class="meta">No Nibbles yet: scrap fish in the Cooler.</span>'}</div></div>`; }
+document.head.insertAdjacentHTML('beforeend',`<style>.nibstrip{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin:6px 0 8px}.nibs-amt,.nibs-have{display:flex;flex-wrap:wrap;align-items:center;gap:4px}.nibs-amt .chip{min-width:40px}.nibs-r{font:700 12px var(--display,system-ui);padding:3px 8px;border-radius:999px;border:1px solid color-mix(in srgb,var(--rc) 60%,transparent);color:var(--rc);background:color-mix(in srgb,var(--rc) 12%,transparent)}.nibs-r b{color:#fff}</style>`);
 
 // ---- C28 (director + Cam, 2026-11-20): feeding the aquarium. Every fish swims up to the falling food (each at its own moment and spot),
 // eats, and goes back. Each feed: FEED_SMALL chance one fish's bonuses grow a little (not its income); FEED_BIG chance one fish earns
@@ -83,6 +92,6 @@ function nibDraw(c,t,w,h){ const A=NIB_ANIM; if(!A) return; const k=(performance
 
 // page parts: Scrap in the Cooler, Feed in the Aquarium, Nibbles in the Fish Log details, what a trophy ate
 function nibScrapBtn(f,i){ const p=Math.round(nibOdds(f)*100), n=nibAmount(f), sp=SPI[f.id]; return `<button class="btn alt sm" data-act="scrap" data-i="${i}" title="Scrap: ${p}% chance of ${n} ${nibRarName(sp.id)} Nibble${n===1?'':'s'}. Feed them to any ${nibRarName(sp.id)} fish in the Aquarium to make it earn more.">Scrap</button>`; }
-function nibFeedBtn(f,i){ const n=nibOf(f.id); if(!n&&!f.fed) return ''; return `<button class="btn ${n?'':'alt '}sm nibbtn" data-act="nibfeed" data-i="${i}" ${n?'':'disabled'} title="${n?'Feed it a Nibble: more coins per hour. Every '+NIB_STEP+' Nibbles its bonuses grow.':'Scrap '+nibRarName(f.id)+' fish in the Cooler to get Nibbles'}">Feed · ${n}</button>`; }
+function nibFeedBtn(f,i){ const n=nibOf(f.id); if(!n&&!f.fed) return ''; return `<button class="btn ${n?'':'alt '}sm nibbtn" data-act="nibfeed" data-i="${i}" ${n?'':'disabled'} title="${n?'Feed it '+NIB_WORD(Math.min(nibAmt(),n))+' ('+n+' on hand): more coins per hour. Every '+NIB_STEP+' Nibbles its bonuses grow.':'Scrap '+nibRarName(f.id)+' fish in the Cooler to get Nibbles'}">${n?'Feed '+Math.min(nibAmt(),n):'Feed · 0'}</button>`; }
 const nibFedTxt = f => f&&f.fed ? ' · ate '+NIB_WORD(f.fed) : '';
 document.head.insertAdjacentHTML('beforeend','<style>#panel .nibbtn{white-space:nowrap}</style>');

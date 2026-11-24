@@ -8,7 +8,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   buffs:[], look:{g:'m',skin:1,hair:1,shirt:'#3a6f9a',pat:'none',pants:'#2f3b4a',hat:'cap',hatCol:'#c8553a',hairStyle:'auto',beard:'none',glasses:'none',outfit:'none',outCol:'#d8a020',build:'average',eye:0,shoes:'boots',neck:'none',back:'none',accCol:'#c8553a',nose:'button',brows:'soft',mouth:'smile',blush:'on',aura:'none',bob:'none',line:'none',face:'natural',eyeShape:'round'},
   owned:{hats:['none','cap','bucket'],cols:[],pats:['none'],pets:['dog'],outfits:['none','vest'],glasses:['none','round'],shoes:['boots','sneakers','barefoot'],necks:['none'],backs:['none'],auras:[],bobs:[],lines:[]}, pet:'dog', junk:{}, tickets:0, freeSpins:1,
   settings:{master:.8, music:.55, sfx:.7, amb:.5, musicOn:true, ambient:true, style:'auto', castMode:'meter', dist:'m', vibrate:true, minigames:true, rest:false, effects:true, boostsOnScreen:true, hints:true, protectRare:true, units:'kg', hand:'r', uiScale:'auto', renderQ:'auto'},
-  aq:{theme:'lagoon', sand:'gold', decor:[], hid:[], owned:['lagoon','gold']}, voyCatch:{}, titled:{}, nib:{}, pathXP:{}, pearlOld:0, pearlMig:1, pshop:{}, boons:{}, boonPts:0, passMig:1, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
+  aq:{theme:'lagoon', sand:'gold', decor:[], hid:[], owned:['lagoon','gold']}, voyCatch:{}, titled:{}, nib:{}, nibAmt:1, pathXP:{}, pearlOld:0, pearlMig:1, pshop:{}, boons:{}, boonPts:0, passMig:1, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
   pet2:null, dock:{wood:'oak', decor:[], owned:['oak']}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
@@ -100,7 +100,7 @@ const dFt=()=>!!(S&&S.settings&&S.settings.dist==='ft'), dStr=(m,dp)=>dFt()?(m*3
 function depthStr(s){ s=String(s||''); if(!dFt()) return s; const ft=n=>{ const v=n*3.28084, st=v<20?1:v<200?5:v<2000?50:500; return Math.round(v/st)*st; }; let any=false; const out=s.replace(/(\d[\d,]*(?:\.\d+)?)/g,(x)=>{ any=true; return ft(parseFloat(x.replace(/,/g,''))).toLocaleString('en-US'); }).replace(/ m\b/g,' ft'); return any?'about '+out:s; }
 const wFix=(kg,d)=>wNum(kg).toFixed(d)+' '+wUnit();
 const kgStr = kg => { const v=wNum(kg), u=' '+wUnit(); return v < 10 ? v.toFixed(2)+u : v < 100 ? v.toFixed(1)+u : fmt(v)+u; };
-const xpNeed = l => Math.round(l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20)); // 0.3: gentler past level 20 so late levels stay reachable
+const xpNeed = l => Math.round((l<=20 ? 80*Math.pow(1.38,l-1) : 80*Math.pow(1.38,19)*Math.pow(1.22,l-20))*(l<=20&&S&&S.relics&&S.relics.includes('headstart')?.5:1)); /* Quick Study relic (Cam, round 5): the first 20 levels need half the XP */ // 0.3: gentler past level 20 so late levels stay reachable
 const PEARL_COIN=.25, PEARL_RARE=.03, PEARL_DIV=250000, PEARL_EXP=2.4; // 0.3: pearls are rarer but each one does more
 const coinMult = () => 1 + PEARL_COIN*(S.pearlOld||0) + .01*pshopLv('gold') + voyageLegacy() + titleLegacy(); /* 0.3.6: plus the Legacy of every voyage completed */
 const hashStr = s => { let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; };
@@ -134,12 +134,12 @@ const hotRate = () => Math.min(4, (1 + .1*pr('reader') + .2*gv("finder") + bonus
    about 1 in 20 also promises a shiny (rising sparkles). In a hotspot hybrids, shinies and titles come more often. Feel calls: all numbers here. */
 const HOT_TIERS=[[1,'#5ee08a',.55],[2,'#5aa8ff',.28],[3,'#c27bff',.13],[4,'#ffc94d',.04]], HOT_SHINY=.05, HOT_SHINY_K=2.5, HOT_HYBRID_K=1.5, HOT_PRISM_K=1.5;
 function hotTier(){ let x=Math.random()*HOT_TIERS.reduce((a,t)=>a+t[2],0), T=HOT_TIERS[0]; for(const t of HOT_TIERS){ x-=t[2]; if(x<=0){ T=t; break; } } return {min:T[0], col:T[1], shiny:Math.random()<HOT_SHINY}; }
-const streakCap = () => .5 + .1*pr('streaker');
+const streakCap = () => .5 + .1*pr('streaker'); const streakXP = n => Math.min(streakCap(), .025*n); /* Cam, round 5: the same top bonus, reached at twice the streak (was 5% a catch) */
 /* [15] more ways to earn skill points: +1 for every 25 species in your Fish Log, +2 for every water whose Fish Log is complete (worked out
    from the Fish Log, so nothing extra is saved and nothing can be lost; cached until the Fish Log changes) */
 let LOGPTS_K=-1, LOGPTS_V=0, LOGPTS_S=null;
 function logPts(){ const n=Object.keys(S.journal||{}).length; if(n!==LOGPTS_K||LOGPTS_S!==S){ LOGPTS_K=n; LOGPTS_S=S; const found=SP.filter(s=>S.journal[s.id]).length, done=LOCS.filter(L=>{ const a=SP.filter(s=>s.loc===L.id); return a.length&&a.every(s=>S.journal[s.id]); }).length; LOGPTS_V=Math.floor(found/25)+2*done; } return LOGPTS_V; }
-const ptsTotal = () => (S.lvl-1) + S.bonusPts + logPts();
+const ptsTotal = () => (S.lvl-1) + S.bonusPts + logPts() + (S.relics&&S.relics.includes('almanac')?5:0); /* Angler’s Almanac relic: +5 (Cam, round 5) */
 const ptsSpent = () => Object.values(S.perks).reduce((a,b)=>a+b,0);
 const ptsFree = () => ptsTotal() - ptsSpent();
 const activeBuffs = () => { const t=Date.now(); return S.buffs.filter(b=>b.until>t); };
@@ -226,7 +226,7 @@ const G = {st:'idle', power:0, pdir:1, t:0, bob:{x:0,y:0}, from:null, to:null, w
   fish:null, pend:null, d:0, d0:0, maxOut:0, ten:0, sta:1, temper:0, run:false, runT:0, ev:null, evT:2, evDur:0, hold:false, tickT:0, warnT:0,
   parts:[], lastCast:.5, flash:0, nextBolt:5, hot:null, hotNext:8, inHot:false, land:null, perfect:false};
 
-function startCharge(){ if(S.cooler.length >= gv('cooler')){ toast(quip('full')+' Sell or move fish to the Aquarium.'); setTab('cooler'); return; }
+function startCharge(){ if(G.noCastT&&performance.now()<G.noCastT) return;if(S.cooler.length >= gv('cooler')){ toast(quip('full')+' Sell or move fish to the Aquarium.'); setTab('cooler'); return; }
   if(S.baitSel!=='worm' && S.bait[S.baitSel]<=0){ S.baitSel='worm'; renderBait(); }
   G.st='charging'; G.power=0; G.pdir=1; ac(); }
 function release(){ if(G.st!=='charging') return; G.st='flying'; G.t=0; G.lastCast=G.power; const tip=TIP(); G.from={x:tip.x,y:tip.y}; const x=castX(G.power); G.to={x, y:waterY(x)};
@@ -236,7 +236,7 @@ function beginWait(){ G.st='waiting'; G.waitT=0; G.missN=0; const b=BAIT[S.baitS
   G.biteAt = rnd(1.4,4.6)/speed; S.castN=(S.castN||0)+1; if(maxed('patience') && S.castN%10===0) G.biteAt=.35; G.nib=[]; const n=Math.floor(Math.random()*3); for(let i=0;i<n;i++) G.nib.push(rnd(.5,Math.max(.6,G.biteAt-.4))); G.nibOn=0;
   splash(G.bob.x,G.bob.y,10); sfx.splash(); if(G.inHot){ splash(G.bob.x,G.bob.y,14); sfx.hot(); toast('Right in the hotspot! Rare fish are gathering.'); } }
 // shared by fishing and the Stats tab, so the sheet always shows the real numbers
-function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
+function biteSpeed(hot){ const b=BAIT[S.baitSel], wx=weather(); return b.speed*(S.relics&&S.relics.includes('dusklamp')&&isNight()?1.2:1)*(1+.01*(S.lvl-1))*(1+.05*pr('patience'))*(wx.bite||1)*(1+bonus('bite'))*(hot?1.3:1)*(spec('speedy')?1.2:1)*((wx.k!=='Clear'||maxed('weatherwise'))?1+.04*pr('weatherwise'):1); }
 function rareScore(dm,far,hot,p){ const b=BAIT[S.baitSel], wx=weather(); p=p==null?phase():p;
   let rare = dm.rare + PEARL_RARE*(S.pearlOld||0) + b.rare + (ROD_RARE[S.gear.rod]||0) + (far ? .2+.03*pr('caster') : 0) + .06*pr('lucky') + (wx.rare||0) + bonus('rare')*2 + (isNight(p)?.1*pr('nightowl'):0) + (hot?1:0);
   if(S.baitSel==='glow' && isNight(p)) rare*=1.5; if(b.loc===S.loc) rare*=(b.locMul||2); if(b.sea && SEA.includes(S.loc)) rare*=1.5; if(b.night && isNight(p)) rare*=b.night; rare*=(spec('patient')?1.2:1)*specLocRare(S.loc)*(G.missN>0?1+.05*pr('secondbite'):1); return rare; } /* Second Bite: better odds on every try after a miss */
@@ -293,7 +293,7 @@ function landFish(){
   const f=G.fish, sp=f.sp; G.st='result'; G.fish=null; S.voyCatch=S.voyCatch||{}; S.voyCatch[sp.loc]=(S.voyCatch[sp.loc]||0)+1; /* [16] catches per water this voyage */ const titleNew = f.shiny===2 && f.pv && !(S.titled=S.titled||{})[sp.id+':'+f.pv]; if(titleNew) S.titled[sp.id+':'+f.pv]=1; /* [18] */
   const j=S.journal[sp.id]; const isNew=!j; const record = j && !f.hy && f.kg > j.best; const hyNew = f.hy && !(j&&j.hb!=null);
   journalAdd(f);
-  S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = Math.min(streakCap(),.05*(S.streak-1));
+  S.streak++; S.stats.bestStreak=Math.max(S.stats.bestStreak,S.streak); const streakBonus = streakXP(S.streak-1);
   if(G.perfect && relic('goldhook')) f.value=Math.round(f.value*1.1);
   const xp = Math.round((5+Math.sqrt(f.value/(f.shiny?4:1))*3)*RAR[sp.r].xp*(f.shiny?2:1)*(1+streakBonus)*xpMult()*(weather().xp||1)*(relic('mentor')?1.25:1)*(spec('collector')&&isNew?3:1)*1);
   /* (Naturalist's Scales for new species moved: it is a mastery skill now, director 2026-11-23) */
@@ -428,6 +428,7 @@ const FEATS = [
 function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const [a,b]=f.p(); if(a>=b){ S.feats[f.id]=true; earn(f.coins); if(f.pt) S.bonusPts+=f.pt;
   let extra=''; if(f.pet && !S.owned.pets.includes(f.pet)){ S.owned.pets.push(f.pet); extra=', new pet: '+PETI[f.pet].name; }
   if(f.rod && !S.rods.owned.includes(f.rod)){ S.rods.owned.push(f.rod); extra+=', new rod: '+ROD_I[f.rod].name; }
+  { const ck=f.pt?'big':'small'; S.tokens[ck]=(S.tokens[ck]||0)+1; extra+=', a '+ck+' Mystery Crate'; } /* Cam, round 5: crates come from feats (big for a feat with a skill point) */
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
 
 // ---------- aquarium ----------
@@ -447,7 +448,7 @@ function down(e){
   switch(G.st){
     case 'frenzy': frenzyHit(e); break;
     case 'rest': toast('You are resting. Press the Rest button (bottom left of the water) to fish yourself.'); break;
-    case 'idle': if(V3ON && aimCast(e)) break; startCharge(); break;
+    case 'idle': if(G.noCastT&&performance.now()<G.noCastT) break; if(V3ON && aimCast(e)) break; startCharge(); break;
     case 'waiting': G.st='idle'; G.inHot=false; toast('Reeled in early'); break; /* director 2026-11-18: an early reel or an accidental cast is never punished */
     case 'bite': hookIt(); break;
     case 'reeling': G.hold=true; break;

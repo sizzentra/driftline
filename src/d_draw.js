@@ -51,7 +51,7 @@ function drawCreature(c,sp,x,y,L,o={}){ if(V3ON && drawCreature3(c,sp,x,y,L,o)) 
     if(!SC) SC=document.createElement("canvas"); if(SC.width<pw||SC.height<ph){ SC.width=Math.max(SC.width,pw); SC.height=Math.max(SC.height,ph); }
     const sx=SC.getContext("2d"); sx.setTransform(1,0,0,1,0,0); sx.clearRect(0,0,pw,ph); sx.setTransform(m.a,0,0,m.d,pw/2-m.a*x,ph/2-m.d*y); sx.globalAlpha=1; _dc.call(this,sx,sp,x,y,L,o);
     c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=a; c.drawImage(SC,0,0,pw,ph,m.a*x+m.e-pw/2,m.d*y+m.f-ph/2,pw,ph); c.restore(); }; }
-function sparkles(c,w,h,n=7){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const x=w*(.15+((i*37)%70)/100), y=h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
+function sparkles(c,w,h,n=7,box){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i<n;i++){ const fx=((i*37)%70)/70-.5, fy=((i*53)%70)/70-.5, x=box?box.x+fx*box.rx*1.5:w*(.15+((i*37)%70)/100), y=box?box.y+fy*box.ry*1.5:h*(.15+((i*53)%70)/100), s=Math.max(3,w*.02)*(1+(i%3)*.4);
   c.beginPath(); c.moveTo(x,y-s); c.lineTo(x+s*.28,y-s*.28); c.lineTo(x+s,y); c.lineTo(x+s*.28,y+s*.28); c.lineTo(x,y+s); c.lineTo(x-s*.28,y+s*.28); c.lineTo(x-s,y); c.lineTo(x-s*.28,y-s*.28); c.closePath(); c.fill(); } c.restore(); }
 /* C36 (2026-11-20: the Golden Seahorse showed as a thin strip in the Cooler): a creature's real drawn height, measured once from its
    outline at L=100. Pictures were sized by width only, so an upright seahorse (as tall as it is long) or a manta lost its top and bottom
@@ -64,9 +64,11 @@ function fishFit(sp,w,h){ let L=w*.66, y=h*.52; const B=creatureBox(sp); if(L*B.
 function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const FF=known?fishFit(sp,w,h):null, L=FF?FF.L:w*.66, cy=FF?FF.y:h*.52;
   if(!known){ mysteryThumb(c,w,h,sp.id); return; }
   if(shiny===2){ drawCreature(c,sp,w*.52,cy,L,{shiny:true}); prismOverlay(c,w,h,pv||'rainbow',performance.now()/1000); return; }
-  if(shiny){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,201,77,.35)'); gr.addColorStop(1,'rgba(255,201,77,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
-  if(sp.r===5){ const gr=c.createRadialGradient(w/2,h/2,0,w/2,h/2,w*.5); gr.addColorStop(0,'rgba(255,106,213,.4)'); gr.addColorStop(.6,'rgba(106,255,234,.12)'); gr.addColorStop(1,'rgba(0,0,0,0)'); c.fillStyle=gr; c.fillRect(0,0,w,h); }
-  drawCreature(c,sp,w*.52,cy,L,{shiny}); if(shiny||sp.r===5) sparkles(c,w,h,sp.r===5?10:7); }
+  /* Cam, round 5: the glow is an oval around the fish that fades out well inside the picture (it filled the whole picture, so its edges showed) */
+  const gx=w*.52, rx=Math.min(L*.62,w*.44), ry=Math.min(rx*.5,Math.min(cy,h-cy)*.85), glow=(stops)=>{ c.save(); c.translate(gx,cy); c.scale(1,ry/rx); const gr=c.createRadialGradient(0,0,0,0,0,rx); for(const s of stops) gr.addColorStop(s[0],s[1]); c.fillStyle=gr; c.beginPath(); c.arc(0,0,rx,0,7); c.fill(); c.restore(); };
+  if(shiny) glow([[0,'rgba(255,201,77,.35)'],[1,'rgba(255,201,77,0)']]);
+  if(sp.r===5) glow([[0,'rgba(255,106,213,.4)'],[.6,'rgba(106,255,234,.12)'],[1,'rgba(106,255,234,0)']]);
+  drawCreature(c,sp,w*.52,cy,L,{shiny}); if(shiny||sp.r===5) sparkles(c,w,h,sp.r===5?10:7,{x:gx,y:cy,rx,ry}); }
 
 // ---------- drawing: junk ----------
 function drawJunk(c,w,h,id,sil){ drawJunkAt(c,id,w/2,h/2,Math.min(w,h)/220,sil); }
@@ -427,7 +429,7 @@ function draw(now){
   if(G.st==='reeling') drawFightHUD(t);
   else if(G.st==='frenzy') drawFrenzyHUD(t);
   else { drawSceneChip(p,wx);
-    if(S.streak>=2&&!document.body.classList.contains('pch-on')){ const txt='Streak '+S.streak+'  ·  +'+Math.round(Math.min(streakCap(),.05*S.streak)*100)+'% XP'; g.font='700 12px system-ui'; const tw=g.measureText(txt).width;
+    if(S.streak>=2&&!document.body.classList.contains('pch-on')){ const txt='Streak '+S.streak+'  ·  +'+Math.round(streakXP(S.streak)*100)+'% XP'; g.font='700 12px system-ui'; const tw=g.measureText(txt).width;
     g.fillStyle='rgba(5,14,20,.7)'; rr(W-tw-34,12,tw+20,24,12); g.fill(); g.fillStyle=S.streak>=10?'#ffc94d':'#e6efe8'; g.textAlign='left'; g.fillText(txt,W-tw-24,28); }
     if(G.st!=='charging' && S.settings.boostsOnScreen && !document.body.classList.contains('pch-on')){ const bs=activeBuffs().slice(0,4); g.font='700 11px system-ui'; g.textAlign='left'; let yy=H-((innerWidth<=520||innerHeight<=520)?38:48); const now2=Date.now(); /* start above the Rest button in the corner */
       for(const b of bs){ const txt=fmtB(b.k,b.v)+'  '+mmss(Math.ceil((b.until-now2)/1000)); const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.7)'; rr(10,yy-15,tw+16,20,10); g.fill(); g.fillStyle='#7fc8a9'; g.fillText(txt,18,yy-1); yy-=24; } } }

@@ -62,6 +62,23 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
+## Cam's notes, round 5 (2026-11-24; BUILT in test build 0140; Feel calls: the tired-strong rule (past 1.5x the tackle, ratio/1.5 squared), Boon values, Deep Cooler 6%, Old Habits levels, relic costs, bounty bonus odds; director: "finish what he said, use your best recs please thats the only overnight run tonight", "send them all to test builds"; rollback tag `rollback/before-cam-round5`)
+Status marks: [ ] to do, [x] built.
+1. [x] Fish feel: a tired fish far stronger than the tackle must not reel in fast (Cam: a 1920 lb Maw Below, strength 106 vs his 37, came in from 35-40 m in about 2 s on Hollow Trench). Make it near-impossible, not impossible.
+2. [x] Voyages: a new voyage resets the level; skill points from levels go too; you keep the skill points from completed feats to spend at the start.
+3. [x] Streak bonus: same top bonus, reached at twice the streak it takes now.
+4. [x] 1 s after Fish Frenzy ends when you can't cast.
+5. [x] "What happened to having 3 presets in Your Rods?"
+6. [x] Shiny glow on cards and previews stays around the fish (no glow reaching the picture's edges).
+7. [x] Learn section updated to the game as it is now (fight, home no longer gives cozy, Nibbles, endgame progression and waters). Last.
+8. [x] Nibbles can be bounty rewards.
+9. [x] Rhythmic clicking in many music tracks: remove it.
+10. [x] Boardwalk: crates can be claimed there but not bought with gold; they come from feats and bounties.
+11. [x] Inspect button on fish in the Cooler and Aquarium: a Fish Card like the catch card.
+12. [x] Nibbles feed amount toggle (1x, 5x, 10x, 20x, 50x, 100x); shows "Feed 34" when you have fewer; Nibbles per rarity in open space on the top bar.
+13. [x] Aquarium filters like the Cooler's.
+14. [x] Prestige: rebalance Boons and Pearl Relics so they feel worth it in the endgame. Boons: add 1 to even the menu; Hot Water better (rarity up too); Deep Cooler reworked completely. Relics: replace Head Start and Seasoned Angler (Voyage Milestones cover them); Old Mentor and Angler's Almanac both give XP and the weaker costs more; add 3 relics (at least 1 about Nibbles).
+
 ## Cam's fish feel notes, round 4 (2026-11-23 night; BUILT in test build 2143; spool 80 m kept on the director's word (2026-11-23: "Keep 80 m"); Feel calls: shake strengths, shallow-dive sizes, hybrid 1.5x/2x, rod price tables, mythic landing about 44% for the steady test player)
 1. Waters too shallow for dives: a diver does a condensed dive there, and its runs and darts last longer.
 2. Second wind: mythics come back to 100% fight the first time, legendaries 75%.

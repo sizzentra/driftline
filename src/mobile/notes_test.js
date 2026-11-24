@@ -3,6 +3,23 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fights: a tired fish much stronger than your tackle now comes in slowly (a fish nearly 3 times your strength about 3.6 times slower), and its second wind clock keeps running, so it usually fights again before you land it.',
+  'Fish Frenzy: you can’t cast for 1 second after it ends.',
+  'Streaks: the XP bonus climbs half as fast and tops out at the same bonus.',
+  'Voyages: setting sail starts you again at level 1 and hands your skills back; you keep the skill points from feats and the Fish Log. Paths stay chosen and work again once you reach their level.',
+  'Boons: stronger values across the board, Hot Water also raises rarity, Deep Cooler now adds 6% cooler space a rank at every size, Nest Egg keeps up to 250 million, and a new 18th Boon, Old Habits, starts each voyage at a higher level.',
+  'Pearl relics: Head Start is now Quick Study (the first 20 levels need half the XP), Seasoned Angler is now Bounty Ledger (bounties pay 30% more), Angler’s Almanac gives 5 skill points, and three new relics: Sweet Tooth, Feast Bowl and Dusk Lantern.',
+  'Rods: the 3 presets are back in Your rods on every device.',
+  'Mystery crates can’t be bought with coins any more. Every feat gives one (a big one with a skill point), and bounties can give one.',
+  'Bounties can give Nibbles as a bonus.',
+  'Aquarium: choose how many Nibbles to feed at once (1x to 100x); a fish eats what you have if it’s fewer. Your Nibbles of each rarity show above your fish.',
+  'Aquarium: sort your fish like the Cooler (oldest, newest, rarity, income, species).',
+  'Inspect on every fish in the Cooler and the Aquarium opens its fish card: weight, value, income, boost, Nibbles eaten, mastery and your record.',
+  'Shiny and mythic fish pictures: the glow stays around the fish instead of filling the whole picture.',
+  'Music: the clicking in many tracks is gone (the lo-fi record crackle and the clicks at the start of notes), and the wave sound no longer clicks when it loops.',
+  'Learn and Help in Quests are updated for the game as it is now: fights, Nibbles, homes, voyages, the last waters, crates and bounties.',
+
+  '## Test build 2026.11.23-2143',
   'Cherry Blossom Lake: the sky lanterns all come in from the left, fly in front of the mountains, and glow more softly. Rain rings on the water are easier to see.',
   'Fights: legendaries come back to 75% fight on their first second wind and mythics to full fight.',
   'Fights: a fish stronger than your line has twice the fight, puts 1.5 times the strain on the line and takes 1.5 times the line on runs and jumps.',

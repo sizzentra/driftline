@@ -22,7 +22,7 @@ const SPEC_TIERS = [
    ['shinyhunter','Shiny Hunter','Shiny fish ×1.6.',''],
    ['trophyking','Trophy King','Trophy-size fish ×1.6, and worth ×2 (not ×1.5).','']]},
 ];
-const spec = id => !!(S.specs && Object.values(S.specs).includes(id));
+const spec = id => { if(!S.specs) return false; for(const ti in S.specs) if(S.specs[ti]===id) return !SPEC_TIERS[ti]||S.lvl>=SPEC_TIERS[ti].lvl; return false; }; /* Cam, round 5: levels reset each voyage, so a chosen path works again once you reach its fork's level */
 const specFee = tier => { const T=SPEC_TIERS[tier]; const L=T?T.lvl:5*(tier+1); return niceNum(Math.max(2000*Math.pow(L/5,2), bestLoot()*L*2)); };
 const maxed = k => pr(k) >= PERKS[k].max;
 // what each skill does once it is fully learned
@@ -61,7 +61,7 @@ function renderSkills2(P){ const free=ptsFree(), cost=50*S.lvl;
 
 // ---------- pearl relics ----------
 const RELICS = [
- ['headstart','Head Start',1,'Start every voyage with 25,000 coins.'],
+ ['headstart','Quick Study',1,'Your first 20 levels of every voyage need half the XP.'] /* Cam, round 5: replaces Head Start (Voyage Milestones give starting coins); same id so owners keep it */,
  ['mentor','Old Mentor',1,'+25% XP, always.'],
  ['tacklebox','Old Tackle Box',1,'Keep all your bait when you set sail.'],
  ['pockets','Deep Pockets',1,'Junk pays 25% more coins.'],
@@ -70,7 +70,7 @@ const RELICS = [
  ['tidecaller','Tide Caller',2,'+30% Tide Pass XP.'],
  ['goldhook','Golden Hook',2,'+0.15 s hook window, and perfect hooks add 10% value.'],
  ['luckypearl','Lucky Pearl',2,'+50% shiny chance.'],
- ['seasoned','Seasoned Angler',3,'Start every voyage with every piece of tackle at level 3.'],
+ ['seasoned','Bounty Ledger',3,'Bounties pay 30% more coins.'] /* Cam, round 5: replaces Seasoned Angler (milestones give starting tackle) */,
 ].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
 const relic = id => S.relics && S.relics.includes(id);
 /* C31 (director + Cam, 2026-11-20; Feel calls): water prices start a little higher (LOC_BASE) and grow with each voyage (LOC_VOY a voyage,

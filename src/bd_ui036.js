@@ -45,7 +45,7 @@ const SEARCH_IDX=[
  ['Fish Log','journal',null,'fish log encyclopedia species oddities junk collection missing'],
  ['Feats','feats',null,'feats achievements goals'],
  ['Home: dock','home','Dock','home dock style wood'],
- ['Home: decorations','home','Decorations','home dock decorations furniture cozy'],
+ ['Home: parts and colors','home',null,'home house dock walls roof windows seat style color'],
  ['Pets: your pets','pets','Your pets','pets companion favourite'],
  ['Pets: find more','pets','Find more','pets adopt buy new pets'],
  ['Pets: customize','pets','Customize','pet name color hat customize'],

@@ -46,14 +46,7 @@ pageDone('save',P=>{ if(!P.querySelector('#giftin')){ const host=[...P.querySele
   /* 2026-11-19 (director: "Your rods ... should not carry over to the other 2 tabs"): the box was inserted by a second phone block
      after the page's tabs were built, and this block looked for a '.tile.rodnow' that the page no longer has, so the presets showed
      on all three tabs. One block now: the box goes right after the first node of the "Your rods" tab and is shown and hidden with it. */
-  pageDone('rods',P=>{ /* a finishing touch of the Rods page, run by the page engine (Clean Pages 2026-11-21: was its own renderPanel wrapper) */
-      /* the page engine moves the tab bar above the page body, so the "Your rods" group is found from its content: the body's first item, before the Rod rack heading */
-      const body=P.querySelector('.pg08-body')||P, head=c=>{ const h=c.matches('h2,h4,h5')?c:c.querySelector('h2,h4,h5'); return h?h.textContent.trim():''; };
-      const ks=[...body.children].filter(c=>!c.classList.contains('pg08-note')&&!c.classList.contains('rp-box')&&!c.classList.contains('sect-nav')), rack=ks.findIndex(c=>head(c)==='Rod rack'); const first=rack>0?ks[0]:null; if(!first) return;
-      let box=P.querySelector('.rp-box'); if(!box){ first.insertAdjacentHTML('afterend',rodPresetsHTML()); box=first.nextElementSibling; } else first.after(box);
-      P.querySelectorAll('h2').forEach(h=>{ if(/^(Rod rack|Attachments)$/.test(h.textContent.trim())) h.classList.add('rp8-dup'); }); /* the tab above already names it */
-      /* shown and hidden with Your rods: synced when a tab is picked (it was a new watcher on every redraw, never released) */
-      const sync=()=>{ box.style.display=first.style.display; }; sync(); const nv=P.querySelector('.sect-nav'); if(nv) nv.addEventListener('click',()=>setTimeout(sync,0)); }); }
+  }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel h2.rp8-dup,html body.phone-app #menuov #panel h2.rp8-dup{display:none!important}

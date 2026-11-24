@@ -37,7 +37,7 @@ const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool
   ACT_DRAIN:1.5,                    /* Cam: reeling into a move drains Fight 1.5 times as fast */
   SWIM_P:[.5,.45,.38,.32,.26,.2], SWIM_K:[1.25,1.5], SWIM_T:[.25,3], SWIM_EVERY:[1,2], /* Cam: still or swimming toward you between moves */
   TIRED_FAST:[.6,.45,.3,.25,.2,.1], /* Cam: a tired fish reels in this much faster, by rarity */
-  TIRED_SLOW:[1,1,1.1,1.15,1.2,1.25], /* Cam, 2026-11-23: “a little slower reel in when the fish is tired” for rare to mythic: tired reeling divided by this, and the tired (Second-wind) clock runs as much slower, so the fish gets no extra chances (a first version that only slowed the reel cut a steady player’s legendaries landed from about 70% to 25-40%); Feel call */
+  TIRED_SLOW:[1,1,1.1,1.15,1.2,1.25], TIRED_STRONG:[1.5,2], /* Cam, round 5: a tired fish far stronger than your tackle (more than 1.5x) reels in (strength ratio / 1.5) squared slower, and its tired clock runs at full speed, so a Second wind usually comes before it is in (a 2.9x fish: about 3.6x slower; a 2x fish 1.8x); maxed tackle against top mythics stays as before; Feel call */ /* Cam, 2026-11-23: “a little slower reel in when the fish is tired” for rare to mythic: tired reeling divided by this, and the tired (Second-wind) clock runs as much slower, so the fish gets no extra chances (a first version that only slowed the reel cut a steady player’s legendaries landed from about 70% to 25-40%); Feel call */
   SW_EXTRA:[0,0,1,1,2,2], SW_WAITS:[5,3,1], SW_LAST_TO:.25, /* Cam: extra Second winds by rarity, their flip waits, the legendary / mythic third */
   DIVE_SHARE:1/3, DIVE_T:[5,20], DIVE_HOLD:1.5, DIVE_RATE:.5, DIVE_MK:3, /* Cam: dives = a third of runs, 5-20 s, stopped by 1.5 s in the band, slower but longer */
   PERFECT_REST:1.5,                 /* Cam: after a perfect hook the fish doesn't fight for 1.5 s */
@@ -184,7 +184,7 @@ function fightNew(dt){
   if(tenRate>0) tenRate*=1+.7*(FEEL.tx||0)*clamp((G.temper||0)/3,0,1); /* Cam, 2026-11-23: the more temper, the harder every move pulls the line tight */
   if(strong){ tenRate*=FF.STRONG_TEN; outV*=FF.STRONG_LINE; } /* a fish stronger than your tackle strains the line 1.5x and its runs and jumps take 1.5x line (Cam, round 4) */
   // reeling: a fresh fish holds against you by rank (only fish of 1.5 lb and up); a tired one comes in at full speed
-  if(rin>0){ const tired=G.sta<=0, fast=tired?(1+FF.TIRED_FAST[tk])/FF.TIRED_SLOW[tk]:1, res=wc>=1?clamp(FF.RESIST[tk]*Math.pow(Math.max(0,G.sta),.6)*(B.heavy?1.1:1),0,.97):0, gain=Math.min(reel*rin*(1-res)*gainK*fast, FF.FAR_M*fast/(tired?3:FF.SHORT_T[tk]*FEEL.len))*dt; /* Cam: a tired fish comes in 10-60% faster by rarity */ /* Cam: never faster than its rarity's shortest time while it has fight; a tired fish comes in at full speed (about 3 s from the far edge at most) */
+  if(rin>0){ const tired=G.sta<=0, fast=tired?(1+FF.TIRED_FAST[tk])/FF.TIRED_SLOW[tk]/Math.pow(Math.max(1,over/FF.TIRED_STRONG[0]),FF.TIRED_STRONG[1]):1, res=wc>=1?clamp(FF.RESIST[tk]*Math.pow(Math.max(0,G.sta),.6)*(B.heavy?1.1:1),0,.97):0, gain=Math.min(reel*rin*(1-res)*gainK*fast, FF.FAR_M*fast/(tired?3:FF.SHORT_T[tk]*FEEL.len))*dt; /* Cam: a tired fish comes in 10-60% faster by rarity */ /* Cam: never faster than its rarity's shortest time while it has fight; a tired fish comes in at full speed (about 3 s from the far edge at most) */
     if(G.dd>0){ const back=Math.min(G.dd,.75*gain); G.dd-=back; } G.d-=gain; /* Cam: dive distance comes back at a 75% rate */
     const intoMove=A&&!(A.k==='jump'&&!A.away&&A.t>=JUMP_WINDUP)?FF.ACT_DRAIN:1; /* Cam: reeling into a move (not a jump toward you) drains its Fight 1.5x */
     G.sta=Math.max(0,G.sta-intoMove*rin*dt/(FF.TIRE_T[tk]*fk*FEEL.len*clamp(Math.sqrt(over),1,2)*(B.heavy?1.15:1)*(1+.5*(fightVoy()-1))*(strong?FF.STRONG_FIGHT:1))*(1-.25*G.temper/3)); /* a fish stronger than your tackle has double its Fight */ /* Cam: the temper keeps its Fight from draining */
@@ -199,7 +199,7 @@ function fightNew(dt){
   // a tired fish: "Reel hard!"; left 10 s it gets one Second wind (back to half its Fight)
   // Second winds (Cam): the first as before (10 s tired, back to half); rare and epic fish may get 1 more, legendary and mythic 2 more,
   // each a 50/50 flip after 5 s tired, then 3 s, then every 1 s; a legendary or mythic's third waits twice as long and gives 25%
-  if(G.sta<=0){ G.tiredT=(G.tiredT||0)+dt/FF.TIRED_SLOW[tk]; const n=G.swN||0, sw=to=>{ G.swN=n+1; G.swUsed=true; G.sta=to; G.tiredT=0; G.swStep=0; G.swNext=0; G.swT=1.4; sfx.warn(); if(V3ON) vib([30,30,30]); };
+  if(G.sta<=0){ G.tiredT=(G.tiredT||0)+dt/(over>FF.TIRED_STRONG[0]?1:FF.TIRED_SLOW[tk]); /* Cam, round 5: a fish clearly stronger than your tackle gets no slowed tired clock */ const n=G.swN||0, sw=to=>{ G.swN=n+1; G.swUsed=true; G.sta=to; G.tiredT=0; G.swStep=0; G.swNext=0; G.swT=1.4; sfx.warn(); if(V3ON) vib([30,30,30]); };
     if(n===0){ if(G.tiredT>=FF.SW_AFTER*FEEL.sw) sw(FF.SW_FIRST[rk]); }
     else if(n<=FF.SW_EXTRA[rk]){ const k2=n===2?2:1; if(!G.swNext) G.swNext=FF.SW_WAITS[0]*k2*FEEL.sw; if(G.tiredT>=G.swNext){ if(Math.random()<.5) sw(n===2?FF.SW_LAST_TO:FF.SW_TO); else { G.swStep=Math.min(FF.SW_WAITS.length-1,(G.swStep||0)+1); G.swNext=G.tiredT+FF.SW_WAITS[G.swStep]*k2*FEEL.sw; } } } }
   else G.tiredT=0;

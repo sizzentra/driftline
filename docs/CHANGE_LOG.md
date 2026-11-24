@@ -248,3 +248,21 @@ Every water redone from the director's map-by-map notes and Claude's own review 
 ## Rockies round 3 and Cam's fight asks (2026-11-23, test builds 0034 and the next)
 - Rockies round 3 (test builds 0034): see docs/reviews/rockies.md › Round 3 (strata `rkStrata`, lake floor `rkLakebed`, `rkSpruce`, `rkDams`, otter corner `rkOtterNook`, canoeist home at night, green far bank; cabin Door/Windows split, `palS`/`hfPal`, seats `seatPal`, sod roof, chimneys, new seats `muskoka`/`stumpblanket`/`logrocker`, `seatX` as a function). Tools: `__timeSheet`, `__hfAll` colours per style.
 - Cam's fight asks (c2_fightfeel.js, n_play.js, c_logic.js): Middle is the feel for every page but test pages; Feel lab knobs `tx` (temper curve), `runs` (darting and long runs), `groove`; temper adds move tension; dart chains and long-run rhythm pulls; groove +15% between 50-80% tension; big-catch landing; predator runs `EAT_RUN_M` 25-45 m, `EAT_RUN_MAX` 50 (test updated); middle `sw` .6.
+
+## Test build 2026.11.24-0140: Cam's notes, round 5
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| `FF.TIRED_STRONG` (tired fish past 1.5x the tackle reel in (ratio/1.5)^2 slower; their tired clock is not slowed) | `c2_fightfeel.js` | every fight |
+| `G.noCastT` (1 s no-cast after Fish Frenzy) | set in `d2_extra.js`, read by `startCharge` and the idle tap in `c_logic.js` | casting |
+| `streakXP(n)` (2.5% a catch, same cap) | `c_logic.js` | catch XP, the streak line on the water (`d_draw.js`) and the PC header (`pc/ui_header.js`) |
+| Voyage level reset (`lvl:1, xp:0, perks:{}`), `S.stats.bestLvl` | `e_ui.js` retireok | skills (points from feats and the Fish Log stay), `spec()` works only at or above its fork's level (`d5_v16.js`) |
+| `bv(id)`, Boon values, Old Habits (`habits`), Deep Cooler as a share | `ch_voyage.js` | Prestige › Boons, bonuses, cooler size (`voyApplyCooler`) |
+| Relics Quick Study (`headstart`, in `xpNeed`), Bounty Ledger (`seasoned`, bounty claim), Almanac (+5 in `ptsTotal`), Sweet Tooth (`nibOdds`), Feast Bowl (`nibFeed`), Dusk Lantern (`biteSpeed`) | `d5_v16.js`, `ch_voyage.js`, `c_logic.js`, `ce_nibbles.js`, `e_ui.js` | Prestige › Pearl relics |
+| Rod presets step, now shared | `cx_pages.js` (`pageDone('rods')`) | Rods › Your rods on every build |
+| Crates claim-only; a crate per feat; bounty bonuses `nib` and `crate` | `d2_extra.js`, `t_board.js`, `c_logic.js` checkFeats, `bs_rules05.js` | Boardwalk › Mystery crates, feats, bounties |
+| `NIB_AMTS`, `nibAmt()`, `S.nibAmt`, multi-feed `nibFeed`, `nibStripHTML` | `ce_nibbles.js` (strip placed by `cx_pages.js`) | Aquarium |
+| `sortBar`, `tankSort`, `TANK_SORTS`, `tankListOrder` | `e_ui.js` | Cooler and Aquarium lists |
+| Inspect card (`inspectBtn`, `inspectOpen`, `inspectClose`) | `cz_inspect.js` | Cooler and Aquarium rows |
+| Fish picture glow as an oval; `sparkles(..., box)` | `d_draw.js` fishCanvas | every still fish picture |
+| Music: record crackle removed, seamless brown noise, `nz` and `mv` fade-ins | `d2_extra.js` | all music and ambience |
+| Learn lessons and Help answers | `cw_pages08.js` | Quests › Learn and Help |
