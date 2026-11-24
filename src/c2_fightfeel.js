@@ -20,7 +20,7 @@
 //    5 s tired, then 3 s, then every 1 s; a legendary or mythic's third waits twice as long and gives only 25% Fight
 //  - in waters with dives a third of runs are dives; a dive lasts 5-20 s and stops once tension stays in its band for 1.5 s; it pulls
 //    line more slowly but can take far more; a perfect hook holds the fish still for 1.5 s; the spool takes 200 m
-const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool-out at a base of 60 m asked, Claude's alternative 80 m (a full cast is already 40 m; at 60 m one missed dive band or a chain of darts would spool out a rare fish with no answer before upgrades): still a threat until the Deep Spool attachment adds 10-65 m (Feel call); was 200 m */
+const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool-out at a base of 60 m asked, Claude's alternative 80 m kept by the director ("Keep 80 m") (a full cast is already 40 m; at 60 m one missed dive band or a chain of darts would spool out a rare fish with no answer before upgrades): still a threat until the Deep Spool attachment adds 10-65 m (Feel call); was 200 m */
   SW_FIRST:[.5,.5,.5,.5,.75,1],     /* Cam, round 4: the first Second wind brings a fish back to this much Fight, by rarity (legendary 75%, mythic 100%; others half as before) */
   SHAKE_K:[1.25,1.2,1.12,1.06,1,1], /* Cam, round 4: head shakes a little stronger the less rare the fish (Feel call) */
   EARLY_CAST:.65,                   /* Cam, round 4: a rare-or-better fish hooked on a cast this short or shorter pulls line for its first 3-5 s, more and longer the rarer */

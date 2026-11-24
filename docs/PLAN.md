@@ -62,7 +62,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
-## Cam's fish feel notes, round 4 (2026-11-23 night; BUILT in test build 2143; Feel calls: spool 80 m instead of 60, shake strengths, shallow-dive sizes, hybrid 1.5x/2x, rod price tables, mythic landing about 44% for the steady test player)
+## Cam's fish feel notes, round 4 (2026-11-23 night; BUILT in test build 2143; spool 80 m kept on the director's word (2026-11-23: "Keep 80 m"); Feel calls: shake strengths, shallow-dive sizes, hybrid 1.5x/2x, rod price tables, mythic landing about 44% for the steady test player)
 1. Waters too shallow for dives: a diver does a condensed dive there, and its runs and darts last longer.
 2. Second wind: mythics come back to 100% fight the first time, legendaries 75%.
 3. Remove the "swimming toward you" text; keep the arrows.
