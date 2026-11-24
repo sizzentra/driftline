@@ -98,7 +98,14 @@ Status marks: [ ] to do, [x] built.
 
 ## Cherry Blossom: map feel (2026-11-23 night)
 - Done in build 2023: the moon as one clean crescent (every water), the clouds, sun and moon reflected in the lake, birds behind the big tree, white paper sky lanterns at night (reflected), rain rings, ripples a little stronger and stronger in rain and storms. Cam's Cherry Blossom list cleared on the director's word ("you can clear cams list on the cherry blossom lake now after this is done").
-- **Next (director):** once the map feel is approved, work on the Cherry Blossom home itself (the ChatGPT home brief is in docs/reference/chatgpt_home_blossom.txt).
+- **Map approved (director, 2026-11-24).**
+
+## Painted homes with ChatGPT (director, 2026-11-24: "I want to team up with chat gpt when it comes to design with maps and homes")
+- **Agreed approach** (ChatGPT's recommendation, docs/reference/chatgpt_homes_recommendation.txt, plus Claude's notes; director: "I agree with the proposed approach"): ChatGPT paints, Claude cuts, fits, relights and checks; one complete painted master home first, tested in the game before any variants or decorations; the building painted as one piece, only small decorations ever separate; day only, the game relights it; painted homes only on painted maps, water by water.
+- **The director's conditions:** the current home system stays completely intact until the painted prototype is approved; HOME_STANDARD and the existing choices are not changed yet; no variants or decorations until the first one is tested; once imported it is judged with the existing angler, pet and seat at every time of day on phone and PC; if the angler or pet looks out of place, their art is sorted first before more painted homes.
+- [x] **Step 1, measurements, guide pictures and the prompt (2026-11-24):** docs/reference/home_guides/blossom/ (SPEC.md, PROMPT.txt, five guide pictures); review page https://claude.ai/artifact/VnKtBJCGyCUtBHF4CrJhrZ . **Waiting for the director's review** before any artwork is made.
+- [ ] Step 2: the director runs the prompt in ChatGPT and picks Picture A (then B, the railing).
+- [ ] Step 3: Claude imports it as a prototype (test builds only after the director has seen the pictures), with the angler, pet and seat, every time of day, phone and PC.
 
 ## Director's game notes (2026-11-22 evening, "notes from yesterday as well"; STORED, nothing built yet: balance and feel, decided together before building)
 1. **Fishing feel** (**Feel lab built 2026-11-22, test builds 2221**: presets and knobs in Tester tools; the director and Cam tune it there, then the numbers are locked in): settle in the middle between the old feel (before batch 1, tag `rollback/before-fishing-feel`) and the new one. "New too slow, old too new" (probably meaning too fast).

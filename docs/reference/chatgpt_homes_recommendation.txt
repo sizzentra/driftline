@@ -1,0 +1,67 @@
+DRIFTLINE — PAINTED HOMES: RECOMMENDATION AND PRODUCTION PLAN
+
+RECOMMENDATION
+Use a hybrid of Option 3: complete painted architecture with limited interchangeable decorations and controlled accent colors. Preserve the cohesive painted look rather than trying to make every structural part interchangeable. Before committing to three full variants per water, prototype one master painting with overlays and compare the results.
+
+1. APPROACH
+- Paint each home's roof, walls, beams, foundation, deck, and built-in structural shadows together.
+- Initially test one approved complete home. Then test 2–3 architectural variants with the same silhouette and dimensions (for Cherry Blossom: vermilion lacquer, natural cedar, aged moss garden).
+- Keep the seat, angler, rod, and pet rendered by code.
+- Make small decorations interchangeable: lanterns, banners, hanging ornaments, plants, and potentially curtains/shades.
+- Consider precisely aligned material/color overlays as an alternative to three full architectural images. These could enable many combinations without generating entire houses for each one.
+
+2. ART CONSISTENCY AND LIMITATIONS
+AI can maintain a general style but cannot reliably reproduce pixel-perfect geometry across independently generated roof, wall, and support images. Common drift includes perspective, proportions, edges, brushwork, lighting, color, and alignment.
+
+Workflow: approve one complete home as the master; derive variants from that reference; extract or create decoration sheets; use programmatic cropping, alignment, and validation. A single sheet of decorations can improve consistency, but pieces still need inspection. Do not rely on independently generated structural pieces to fit perfectly.
+
+3. WHAT SHOULD BE SEPARATE
+Good separate pieces: lanterns, banners, plants, hanging ornaments, furniture, and some shades or curtains with fixed attachment points.
+Keep integrated: roofs, walls, major beams, structural posts, deck/foundation, and their connecting shadows. Window frames and doors generally remain in the painting; separate the lighting masks/effects rather than the whole window. Only separate a door if it needs to animate.
+
+4. COLOR CUSTOMIZATION
+Avoid tinting the entire painted home with a simple RGB multiplier: it can muddy colors and flatten material depth. Prefer curated color palettes and material-specific masks that preserve texture and luminance. Apply the existing 16-color system to suitable accents (trim, banners, lantern housings, selected fabric), not indiscriminately to wood, stone, or roofs. Some architectural colors should be painted variants.
+
+5. ASSET SPECIFICATION FOR CLAUDE
+- First inspect the actual game screenshot to determine final on-screen size; do not lock source resolution prematurely.
+- A 1024x1024 working canvas could be a starting point, with roughly 5–10% working margins, but tightly crop final sprites and avoid wasted transparent pixels.
+- Bright #00FF00 backgrounds can be removed, but painted antialiased edges may retain green halos. Transparent PNGs with edge cleanup are preferable when supported.
+- Functional layers may include rear architecture, main architecture, interchangeable decorations, foreground railings/trim, window/lantern lighting masks, and water-interaction elements. Not all need full-size images.
+- Define fixed normalized anchors for angler, seat, rod origin, waterline, decorations, and reflection origin. Keep anchors stable across variants.
+- Separate submerged-post/waterline effects and reflections as needed; apply consistent global day/dusk/night relighting to both home and map, with local glow effects afterward.
+- Target approximately 1 MB of compressed art per water, but measure exports. A 1024x1024 RGBA texture can use roughly 4 MB decoded in memory regardless of its compressed file size.
+- Crop and compress assets, reuse effects, load only the active water's textures, and validate on real phones.
+
+6. CHERRY BLOSSOM TEAHOUSE DESIGN
+Create a modest, low-profile Japanese lakeside teahouse in STRICT side elevation, not a three-quarter view, pagoda, or oversized temple. Use a gently sloping charcoal-tiled roof with extended eaves; warm off-white plaster; dark timber/lattice framing; slightly weathered vermilion support posts; and a cedar fishing deck. Add restrained lanterns and architectural details without overcrowding the scene.
+
+Posts should enter the water naturally, darkening near the waterline, with subtle contact shadows and reflections. The deck should cast a soft shadow on the lake. Paint in neutral daytime lighting with no baked-in lantern glow, so the game's dusk/night system can relight it cleanly. Keep the angler, seat, rod, and pet separate.
+
+7. SCALING TO 20 WATERS
+Standardize anchor points and rendering behaviors, not identical building silhouettes. A teahouse on posts, shore cabin, flats skiff, and reed boat require different water interactions. Define reusable behavior categories such as elevated, shore-based, and floating. Floating homes may need gentle bobbing, coordinated angler/seat offsets, hull masking, and moving reflections.
+
+Create a global style guide covering brushwork, outlines, saturation, detail density, soft shadows, strict side view, player scale, and daylight direction. Compare each new home against approved references.
+
+At 20 waters, three full variants each would mean 60 architecture paintings. Six decoration categories with three styles each would add up to 360 decorative pieces if every water had unique versions. Share or recolor suitable decorations to reduce workload.
+
+8. PRACTICAL IMAGE-GENERATION LIMITS
+- Exact repeats of independently generated geometry cannot be guaranteed.
+- Fine transparent edges may need cleanup; green-screen removal can leave halos.
+- Exact output pixel dimensions may require postprocessing.
+- Arbitrary recoloring may look unnatural without masks or curated palettes.
+- Brushstrokes can change during generative edits; use compositing when exact pixels must remain unchanged.
+- Very wide artwork may require cropping or assembly.
+- File size, alignment, and in-game appearance must be tested, not assumed.
+
+9. PROPOSED FIRST PROTOTYPE
+1) Inspect the finished Cherry Blossom background and current in-game home screenshot.
+2) Measure the home placement, waterline, angler/seat position, and required on-screen resolution.
+3) Agree on an anchor-point and layer specification with Claude.
+4) Paint ONE complete daytime teahouse and approve it.
+5) Import it into Driftline; test day/dusk/night, reflections, and phone rendering.
+6) Try one derived architectural variant and a few separate decorations.
+7) Test material masks/overlays against complete variants for quality and file size.
+8) Optimize and validate the final assets before extending the system to the other 19 waters.
+
+BOTTOM LINE
+Prioritize seamless integration with the painted maps. Start with one polished master home and validate it in-game. Prefer complete architecture plus modular decorations and carefully controlled accent colors. Decide whether additional complete variants are necessary only after comparing them with mask/overlay customization in the working game.

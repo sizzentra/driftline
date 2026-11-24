@@ -1,0 +1,42 @@
+ATTACH, IN THIS ORDER:
+1. docs/reference/blossom_director_ref3.webp (the Cherry Blossom painting: the style to match)
+2. guide_pc_close.jpg (the lake with the angler, seat and pet at real size, and the marks)
+3. guide_pc_current.jpg (today's code-drawn tea house in the same spot, for position only)
+4. guide_phone_close.jpg (the same spot on an iPhone, where the left part of the house is cut off)
+
+----- COPY FROM HERE -----
+
+We agreed on the plan for Driftline's painted homes: one complete, beautifully painted master home first, tested in the game before any variants or decorations. This is that first painting: the Cherry Blossom Lake tea house. Please paint it now.
+
+WHAT I'VE ATTACHED
+1. The Cherry Blossom Lake painting. Match its style exactly: the same soft painterly brushwork, detail density, saturation, outline softness and daylight (take the sun's direction and the softness of shadows from the painting itself). The house must look like it was painted into this picture by the same artist.
+2. A guide picture of the spot where the house goes, at the game's real size: the angler (green box), the seat (orange box, a red zabuton cushion), the pet (purple box), the deck surface they stand on (yellow line), the end of the deck (yellow dots), the waterline (cyan dashed line), the home's boundary (red dashed box) and the fishing direction (white arrow: the line goes out to the right).
+3. Today's simple code-drawn tea house in that spot, for position and size only. Do not copy its look; it is what we are replacing.
+4. The same spot on an iPhone: the left part of the house is cut off by the screen edge there.
+
+THE TEA HOUSE
+- A modest, low-profile Japanese lakeside tea house standing over the water on posts, in STRICT side elevation: we see its long side straight on. No three-quarter view, no perspective, no visible end wall, no top of the roof seen from above.
+- Roof: a gently sloping irimoya roof of dark charcoal kawara tiles with extended eaves whose ends lift slightly, a heavy ridge with raised end tiles. Not a pagoda, not a temple, not stacked roofs.
+- Walls: warm off-white plaster and shoji paper panels between dark timber posts and beams, with lattice detail. One or two shoji windows and a sliding shoji door. Paint the window and door panes in neutral daylight: no light glowing from inside.
+- Posts and deck: slightly weathered vermilion-lacquered posts carrying a cedar plank deck (an engawa veranda) along the whole front of the house, extending a little further to the right as an open fishing deck. Simple bracing between the posts.
+- Two hanging paper lanterns under the eaves are welcome, painted unlit (pale paper, no glow).
+- Calm and uncluttered: a few tasteful details (a small wind chime, a folded bamboo blind), nothing busy.
+
+SIZE AND PLACEMENT (use the guide's angler as the measuring stick: 1 AH = the standing angler's height)
+- The house stands BEHIND the angler. The angler, seat and pet stand on the deck in front of the house's wall, near its right end. The deck surface must be one flat, level line at the height of the yellow line.
+- Width about 5 AH. Height from the deck surface to the roof ridge about 2.4 AH. Wall height (deck to the eaves' lower edge) about 1.4 AH, so a standing angler fits easily under the eaves.
+- The deck's right end sits about 1.5 AH to the right of the angler, and the roof's eaves end just past it. Nothing tall stands to the right of the deck's end: that side is open to the lake where the line goes.
+- The left 40% of the house is cut off on iPhones, so keep the important features (door, lanterns, the best details) in the right 60%.
+- Posts: paint them about 1.3 AH long below the deck, going straight down, so the game can cut them at the waterline. Paint no water, ripples, reflections or shadow on the water: the game adds those.
+
+WHAT NOT TO PAINT
+- No angler, rod, fishing line, seat, cushion, pet or people. Leave the deck empty where they stand.
+- No scenery: no lake, sky, trees, shore, cherry blossoms behind the house, ground or reflections.
+- No dusk or night, no glowing windows or lanterns, no baked-in light effects. Neutral daytime only.
+- No text, labels, frame or border.
+
+WHAT I NEED BACK
+- PICTURE A: the complete tea house WITHOUT any front railing, on a flat pure #00FF00 green background (or a transparent background if you can), 1536x1024 landscape, the house filling most of the width with a small margin on every side. Keep green away from the house itself: no green paint, no green tint on edges, no green moss.
+- PICTURE B (after I approve A): only the front railing for that deck (a thick natural rope swagged between short cedar posts, or a low bamboo rail), same scale and alignment as Picture A, on the same green background, so it can be laid over the deck in front of the angler.
+
+Please make Picture A first, then tell me in a few lines how you matched the painting's style and where the deck surface line and the angler's spot are in your picture, so I can check them.
