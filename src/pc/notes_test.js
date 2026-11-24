@@ -2,6 +2,10 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake: no more blur at dusk and dawn. The dusk and night lighting are now laid over the day painting’s exact shapes, so the changing light never doubles up.',
+  'Cherry Blossom Lake: new reflections made from the scenery itself, so the bridge, torii, pagoda, waterfall, islands and Fuji are mirrored exactly under themselves, in the light of the time of day, fading with depth.',
+  'Cherry Blossom Lake: no more leaping fish.',
+  '## Test build 2026.11.23-1901',
   'Cherry Blossom Lake: the light now changes smoothly through dawn and dusk, with no blur or sudden steps.',
   'Cherry Blossom Lake: the reflections line up with what they mirror, the waterfall flows without visible repeating pieces and stays inside its painted water, and the line across a hill is gone.',
   'Cherry Blossom Lake: the koi and the swirling ribbon of petals are gone.',

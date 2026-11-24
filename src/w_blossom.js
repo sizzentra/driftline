@@ -33,7 +33,38 @@ const BL_CLOUDS=[[387,38,578,130,0,2795],[1273,48,370,109,580,2795],[35,184,393,
 const BL_TREE=[0,0,710,225]; /* the big cherry tree over the top left: it sways */
 const BL_FALL=[1310,236,48,110]; /* the painted waterfall's box: x, y, w, h */
 const BL_FLOWERS=[[0,210,668,845,0],[650,730,712,782,2.9],[1100,1260,770,845,2.1],[1270,1345,700,800,1.4],[1560,1680,640,845,3.7]]; /* shore flowers and grass: x from-to, y from-to, phase */
-const BL_REFL_DX=12; /* the reflections layer sits 12 px left of what it mirrors (measured on the torii and bridge; director: "reflections don't line up") */
+/* REFLECTIONS made from the land itself (director, 2026-11-23: ChatGPT's painted reflections were "just off in general"): every column of the
+   picture is mirrored at its own waterline, so each reflection sits exactly under what it mirrors and follows the light of the land.
+   The far shore mirrors at a smoothed shoreline; what stands out in front of it (the island, the torii's feet) mirrors at its own base as a
+   whole (BL_REFL_OBJ, measured on this painting). The waterlines are worked out once from the painting's outline. */
+const BL_REFL_FLAT=[[640,910,362]]; /* the bridge mirrors at one fixed line: the waterline of its posts */
+const BL_REFL_OBJ=[[838,908,44,1,1],[880,1140,205,1,1],[1445,1605,205,1,1]]; /* x from-to, how tall, soft left side, soft right side: under the bridge's right end only the island's rocks (their bottom 44 rows) mirror, column by column at their own waterline and partly see-through, while the bridge above keeps the water's; then the rest of the island; the torii */ /* what stands out in front of the far shore and mirrors at its own base: the island, the torii (measured: island waterline about row 383, the torii's stones 396; the far shore and the bridge over it about 360-366; the island starts after the bridge ends at 895, so the whole bridge mirrors at the water under it) */
+function blShore(){ if(blShore.v) return blShore.v; const c=document.createElement('canvas'); c.width=BL_IW; c.height=140; const x=c.getContext('2d'); x.drawImage(BL_IMG,0,280,BL_IW,140,0,0,BL_IW,140); const a=x.getImageData(0,0,BL_IW,140).data, IW=BL_IW;
+  const cont=new Float32Array(IW); for(let X=0;X<IW;X++){ let y0=BL_WL; for(let y=138;y>=0;y--){ if(a[(y*IW+X)*4+3]>128){ y0=280+y; break; } } cont[X]=y0; } /* the lowest land in each column between rows 280 and 420 */
+  const med=(X,r,keep)=>{ const w=[]; for(let k=Math.max(0,X-r);k<Math.min(IW,X+r+1);k++) if(keep(cont[k])) w.push(cont[k]); if(!w.length) return null; w.sort((p,q)=>p-q); return w[w.length>>1]; };
+  const shoreY=y=>y>=352&&y<=372; /* real far-shore waterlines only: not the island (378-384), the torii's stones (396), the gap under the bridge (332) or the waterfall's foam (347) */
+  const far=new Float32Array(IW); for(let X=0;X<IW;X++){ let v=med(X,40,shoreY); if(v==null) v=med(X,160,shoreY); far[X]=v==null?363:v; } /* the far shore's waterline: the usual level nearby, ignoring the island, the torii's feet and the gap under the bridge */
+  const box=(src,r)=>{ const o=new Float32Array(IW); for(let X=0;X<IW;X++){ let s=0,n=0; for(let k=Math.max(0,X-r);k<Math.min(IW,X+r+1);k++){ s+=src[k]; n++; } o[X]=s/n; } return o; };
+  for(const [a,b,y] of BL_REFL_FLAT) for(let X=a;X<b;X++) far[X]=y;
+  const fs=box(box(far,90),90); for(const [a,b,y] of BL_REFL_FLAT) for(let X=a;X<b;X++) fs[X]=y; /* smoothed hard, so no reflection jogs (a 1 px step in the mirror line moves the reflection 2 px: director, 2026-11-23, "this clearly doesn't line up") */
+  const near=BL_REFL_OBJ.map(([x0,x1,h,fl,fr])=>{ const v=[]; for(let k=x0;k<x1;k++) v.push(cont[k]); v.sort((p,q)=>p-q); return [x0,x1-x0,Math.round(v[Math.floor(v.length*.9)]),h,fl,fr,h<=60?cont.slice(x0,x1):null]; }); /* a low strip (rocks) mirrors column by column at its own waterline */
+  const runs=[]; for(let X=0;X<IW;){ const ax=Math.round(fs[X]); let e=X+1; while(e<IW&&Math.round(fs[e])===ax) e++; runs.push([X,e-X,ax]); X=e; }
+  return blShore.v={runs,near}; }
+/* the reflections for this light, drawn onto the lake (image coordinates, half size): the far shore, then the objects in front over it, each
+   fading toward its far end; darker and bluer than the land, fainter at night */
+function blReflect(x,P,land){ const {runs,near}=blShore(), mk=n=>blReflect[n]||(blReflect[n]=document.createElement('canvas')), R=mk('r'), T=mk('t'), K=mk('k'), LT=mk('l');
+  LT.width=BL_IW; LT.height=BL_IH; const lt=LT.getContext('2d'); lt.drawImage(land,0,0); { const [tx,ty,tw,th]=BL_TREE, e=70; lt.globalCompositeOperation='destination-out'; lt.fillStyle='#000'; lt.fillRect(tx,ty,tw-e,th-e*.5); const hg=lt.createLinearGradient(tx+tw-e,0,tx+tw,0); hg.addColorStop(0,'#000'); hg.addColorStop(1,'rgba(0,0,0,0)'); lt.fillStyle=hg; lt.fillRect(tx+tw-e,ty,e,th-e*.5); const vg=lt.createLinearGradient(0,ty+th-e*.5,0,ty+th); vg.addColorStop(0,'#000'); vg.addColorStop(1,'rgba(0,0,0,0)'); lt.fillStyle=vg; lt.fillRect(tx,ty+th-e*.5,tw-e,e*.5); lt.globalCompositeOperation='source-over'; } /* the big cherry tree is in front of the lake, not on its shore: it is not mirrored */
+  const ctx=c=>{ c.width=BL_IW; c.height=BL_IH-BL_WT0; const r=c.getContext('2d'); r.setTransform(1,0,0,1,0,-BL_WT0); return r; }, r=ctx(R), t=ctx(T), k=ctx(K);
+  const flip=(q,x0,w,ax,len)=>{ const top=Math.max(0,ax-len); q.save(); q.beginPath(); q.rect(x0,ax,w,len); q.clip(); q.translate(0,ax*2); q.scale(1,-1); q.drawImage(LT,x0,top,w,ax-top,x0,top,w,ax-top); q.restore(); };
+  for(const [x0,w,ax] of runs) flip(r,x0,w,ax,BL_IH-ax); /* the far shore */
+  const F=28; for(const [x0,w,ax,NL,fl,fr,col] of near){ if(col){ for(let i=0;i<w;i++){ const cx=x0+i, ay=Math.round(col[i]), e=.55*Math.min(1,fl?i/F:1,fr?(w-1-i)/F:1); /* the rocks' reflection lets the bridge's show through, so the arch stays whole */ flip(t,cx,1,ay,NL); const vg=k.createLinearGradient(0,ay,0,ay+NL); vg.addColorStop(0,'rgba(0,0,0,'+e+')'); vg.addColorStop(.6,'rgba(0,0,0,'+e+')'); vg.addColorStop(1,'rgba(0,0,0,0)'); k.fillStyle=vg; k.fillRect(cx,ay,1,NL); } continue; } flip(t,x0,w,ax,NL); /* each object in front at its own base, blended in with soft sides and a soft far end */
+    const hg=k.createLinearGradient(x0,0,x0+w,0), f=Math.min(.45,F/w); hg.addColorStop(0,fl?'rgba(0,0,0,0)':'#000'); hg.addColorStop(f,'#000'); hg.addColorStop(1-f,'#000'); hg.addColorStop(1,fr?'rgba(0,0,0,0)':'#000'); k.fillStyle=hg; k.fillRect(x0,ax,w,NL);
+    k.globalCompositeOperation='destination-out'; const vg=k.createLinearGradient(0,ax+NL*.6,0,ax+NL); vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,1)'); k.fillStyle=vg; k.fillRect(x0,ax+NL*.6,w,NL*.4); k.globalCompositeOperation='source-over'; }
+  for(const q of [r,t,k]) q.setTransform(1,0,0,1,0,0);
+  t.globalCompositeOperation='destination-in'; t.drawImage(K,0,0); r.globalCompositeOperation='destination-out'; r.drawImage(K,0,0); r.globalCompositeOperation='source-over'; r.drawImage(T,0,0);
+  r.globalCompositeOperation='destination-in'; const fg=r.createLinearGradient(0,0,0,BL_IH-BL_WT0); fg.addColorStop(0,'rgba(0,0,0,1)'); fg.addColorStop(.45,'rgba(0,0,0,.6)'); fg.addColorStop(1,'rgba(0,0,0,.18)'); r.fillStyle=fg; r.fillRect(0,0,BL_IW,BL_IH-BL_WT0); /* fading with depth */
+  r.globalCompositeOperation='source-atop'; r.fillStyle='rgba(24,44,78,.22)'; r.fillRect(0,0,BL_IW,BL_IH-BL_WT0); r.globalCompositeOperation='source-over'; /* water darkens and cools a reflection */
+  x.globalAlpha=(.85-.35*P.night)*(1-.2*P.gloom); x.drawImage(R,0,0); x.globalAlpha=1; }
 /* the speeds and strengths of the motion, in one place for tuning (ChatGPT's animation notes, 2026-11-23: subtle, natural, never a moving wallpaper) */
 const BL_MOTION={ripple:1.2, rippleSpeed:1, cloudSpeed:.0045, sway:1.6, flowers:2, fall:1, fade:1.3, steps:32};
 /* picture pixels to screen (X*s+ox, Y*s+oy): it always covers the screen with its waterline on the horizon; where it is wider than the screen
@@ -60,16 +91,16 @@ function blBuildLand(x,P){ const dawn=blDawn(), n=P.night, d=P.d*(dawn?.55:1), m
   if(n>.01){ x.globalAlpha=Math.min(1,n); x.drawImage(BL_IMG,0,1690,BL_IW,BL_IH,0,0,BL_IW,BL_IH); } x.globalAlpha=1;
   if(dawn&&P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle='rgba(255,176,206,'+(.45*P.d)+')'; x.fillRect(0,0,BL_IW,BL_IH); mask(); }
   if(P.gloom>.02){ x.globalCompositeOperation='multiply'; x.fillStyle=blRgb([1,1,1].map(()=>1-.28*P.gloom)); x.fillRect(0,0,BL_IW,BL_IH); mask(); } }
-/* the lake in this light: the painted water with its reflections (fainter at night and softer at dusk), shaded like the palette's water, a soft
+/* the lake in this light: the painted water shaded like the palette's water, a soft
    moonlit lift at night, warmed at dusk, pink at dawn, catching the sky's horizon colour near the far shore. Half size (soft, always rippling). */
 function blBuildLake(x,P){ const dawn=blDawn(), n=P.night;
-  x.drawImage(BL_IMG,0,2535,840,260,0,0,840,260); x.globalAlpha=(.95-.45*n)*(1-.3*P.d); x.drawImage(BL_IMG,840,2535,840,260,BL_REFL_DX/2,0,840,260); x.globalAlpha=1;
-  const f=blShade(P,'wMid'); if(f.some(v=>v<.995)){ x.globalCompositeOperation='multiply'; x.fillStyle=blRgb(f); x.fillRect(0,0,840,260); }
-  if(n>.05){ x.globalCompositeOperation='screen'; x.fillStyle='rgba(70,92,150,'+(.24*n)+')'; x.fillRect(0,0,840,260); x.globalCompositeOperation='saturation'; x.fillStyle='rgba(128,128,128,'+(.35*n)+')'; x.fillRect(0,0,840,260); }
-  if(P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle=dawn?'rgba(255,180,210,'+(.45*P.d)+')':'rgba(255,140,90,'+(.45*P.d)+')'; x.fillRect(0,0,840,260); }
-  x.globalCompositeOperation='soft-light'; const sg=x.createLinearGradient(0,0,0,150); sg.addColorStop(0,v3rgba(P.bot,.55)); sg.addColorStop(1,v3rgba(P.bot,0)); x.fillStyle=sg; x.fillRect(0,0,840,150); /* the sky's colour on the far water */
-  if(P.gloom>.02){ x.globalCompositeOperation='multiply'; x.fillStyle=blRgb([1,1,1].map(()=>1-.3*P.gloom)); x.fillRect(0,0,840,260); }
-  x.globalCompositeOperation='source-over'; }
+  x.drawImage(BL_IMG,0,2535,840,260,0,0,BL_IW,BL_IH-BL_WT0); /* full size, so the reflections drawn on it stay sharp on big screens */
+  const f=blShade(P,'wMid'); if(f.some(v=>v<.995)){ x.globalCompositeOperation='multiply'; x.fillStyle=blRgb(f); x.fillRect(0,0,BL_IW,BL_IH-BL_WT0); }
+  if(n>.05){ x.globalCompositeOperation='screen'; x.fillStyle='rgba(70,92,150,'+(.24*n)+')'; x.fillRect(0,0,BL_IW,BL_IH-BL_WT0); x.globalCompositeOperation='saturation'; x.fillStyle='rgba(128,128,128,'+(.35*n)+')'; x.fillRect(0,0,BL_IW,BL_IH-BL_WT0); }
+  if(P.d>.02){ x.globalCompositeOperation='soft-light'; x.fillStyle=dawn?'rgba(255,180,210,'+(.45*P.d)+')':'rgba(255,140,90,'+(.45*P.d)+')'; x.fillRect(0,0,BL_IW,BL_IH-BL_WT0); }
+  x.globalCompositeOperation='soft-light'; const sg=x.createLinearGradient(0,0,0,300); sg.addColorStop(0,v3rgba(P.bot,.55)); sg.addColorStop(1,v3rgba(P.bot,0)); x.fillStyle=sg; x.fillRect(0,0,BL_IW,300); /* the sky's colour on the far water */
+  if(P.gloom>.02){ x.globalCompositeOperation='multiply'; x.fillStyle=blRgb([1,1,1].map(()=>1-.3*P.gloom)); x.fillRect(0,0,BL_IW,BL_IH-BL_WT0); }
+  x.globalCompositeOperation='source-over'; const L=blFaded.land&&blFaded.land.cur; if(L) blReflect(x,P,L); } /* then the land's own reflections, already in this light */
 /* the clouds in this light: white by day, pink at dawn, peach at dusk, slate blue at night, grey in bad weather */
 function blBuildClouds(x,P){ const dawn=blDawn(); x.drawImage(BL_IMG,0,2795,BL_IW,232,0,0,BL_IW,232); let col=mix('#ffffff',dawn?'#ffc8d8':'#ffb08c',Math.min(1,P.d*1.2)); col=mix(col,'#4a5482',P.night); col=mix(col,'#9aa0aa',P.gloom*.7);
   x.globalCompositeOperation='multiply'; x.fillStyle=col; x.fillRect(0,0,BL_IW,232); x.globalCompositeOperation='destination-in'; x.drawImage(BL_IMG,0,2795,BL_IW,232,0,0,BL_IW,232); x.globalCompositeOperation='source-over'; }
@@ -92,13 +123,10 @@ function blFall(M,P,t){ const [fx,fy,fw,fh]=BL_FALL, s=M.s, dim=1-P.night*.6, T=
   const cx=M.ox+(fx+fw*.5)*s, bt=M.oy+(fy+fh*.9)*s, w=fw*.8*s;
   for(let i=0;i<9;i++){ const q=((t*.5+i/9)%1), dx=(i%2?1:-1)*(.2+q*.9)*w*.8*(.5+((i*3)%4)*.18), r=w*(.12+q*.3); g.fillStyle=v3rgba('#ffffff',(.4*(1-q))*dim); g.beginPath(); g.ellipse(cx+dx*.6,bt-r*.2-q*w*.15,r,r*.55,0,0,7); g.fill(); } /* foam boiling out at the foot */
   v3glow(g,cx,bt-w*.1,w*1.4,'rgba(235,245,255,.8)',(.22+.06*Math.sin(t*1.7))*dim); } /* and its mist */
-/* life in the water, drawn under the land (glints, a leaping fish), and life in the air over it (butterflies, dragonflies, birds, fireflies);
-   no koi (director, 2026-11-23: "the koi fish needs to be removed") */
+/* life in the water, drawn under the land (glints), and life in the air over it (butterflies, dragonflies, birds, fireflies); no koi and
+   no leaping fish (director, 2026-11-23: "the koi fish needs to be removed", "i dont want fish jumping on this map") */
 function blWaterLife(P,t,M,wt,sun){ const s=M.s, X=v=>M.ox+v*s, Y=v=>M.oy+v*s;
-  if(gfxHigh()&&sun.vis>.1) for(let i=0;i<22;i++){ const per=2.6+(i%5)*.5, q=((t+i*.83)%per)/per, r=v3rng(Math.floor((t+i*.83)/per)*7+i*101), x=X(300+r()*1330), y=Y(410+r()*260); if(y<wt) continue; g.fillStyle=v3rgba('#ffffff',Math.sin(q*Math.PI)*.7*sun.vis); g.fillRect(x-3*s,y,6*s,Math.max(1,s)); } /* glints on the water */
-  { const per=21, q=(t%per)/per, r=v3rng(Math.floor(t/per)*31+7), fx=X(570+r()*860), fy=Y(430+r()*150), L=14*s; /* now and then a fish leaps, and its rings spread */
-    if(q<.06){ const e=q/.06; g.save(); g.translate(fx+(e-.5)*L*2,fy-Math.sin(e*Math.PI)*L*1.4); g.rotate((e-.5)*2.2); g.fillStyle=v3rgba(mix('#c8d0d8','#2a3048',P.night*.6),.9); g.beginPath(); g.ellipse(0,0,L*.5,L*.16,0,0,7); g.fill(); g.beginPath(); g.moveTo(-L*.45,0); g.lineTo(-L*.72,-L*.16); g.lineTo(-L*.72,L*.16); g.fill(); g.restore(); }
-    if(q>.02&&q<.22){ const e=(q-.02)/.2; g.strokeStyle=v3rgba('#ffffff',.55*(1-e)); g.lineWidth=1.2; for(const sx of [fx-L,fx+L]){ g.beginPath(); g.ellipse(sx,fy,4*s+e*30*s,1.5*s+e*7*s,0,0,7); g.stroke(); } } } }
+  if(gfxHigh()&&sun.vis>.1) for(let i=0;i<22;i++){ const per=2.6+(i%5)*.5, q=((t+i*.83)%per)/per, r=v3rng(Math.floor((t+i*.83)/per)*7+i*101), x=X(300+r()*1330), y=Y(410+r()*260); if(y<wt) continue; g.fillStyle=v3rgba('#ffffff',Math.sin(q*Math.PI)*.7*sun.vis); g.fillRect(x-3*s,y,6*s,Math.max(1,s)); } /* glints on the water */ }
 function blAirLife(P,t,M){ const s=M.s, X=v=>M.ox+v*s, Y=v=>M.oy+v*s, day=1-P.night;
   if(day>.2){ for(const [cx,cy,c,ph] of [[110,690,'#fff6c8',0],[1640,680,'#ffffff',2],[1180,775,'#ffd2e4',4]]){ const a=t*.6+ph, x=X(cx+Math.sin(a)*60+Math.sin(a*2.3)*20), y=Y(cy+Math.cos(a*1.3)*30-20), f=Math.abs(Math.sin(t*14+ph)), w=6*s; /* butterflies over the shore flowers */
       g.globalAlpha=day; g.fillStyle=c; g.beginPath(); g.ellipse(x-w*.5,y,w*.6*f+.5,w*.45,-.4,0,7); g.ellipse(x+w*.5,y,w*.6*f+.5,w*.45,.4,0,7); g.fill(); g.fillStyle='#3a2a2a'; g.fillRect(x-.6,y-w*.4,1.2,w*.8); g.globalAlpha=1; }
@@ -143,9 +171,9 @@ V3SCENES.blossom={
     { const r=v3rng(41); for(const [cx,cy,n] of [[.42,.06,3],[.62,.1,2],[.7,.3,3],[.74,.44,4],[.34,.48,4]]){ const k=cy*H/(H-hz), s0=H*(.008+k*.04); let px=W*cx-s0*1.5*(n-1);
       for(let i=0;i<n;i++){ const s=s0*(.75+r()*.35), yy=hz+H*cy+(i%2?1:-1)*s0*.35, fl=r()<.75?(r()<.85?'#f4a0c0':'#fff4f8'):null; waLily(x,px,yy,s,P,500+i+Math.round(cx*100),fl); px+=s0*3.1; } } } },
   live(P,t,hz,sun){ const FX=S.settings.effects, PT=BL_IMG.ok, M=blMap(hz), s=M.s, wt=PT?Math.max(hz,M.oy+BL_WT*s):hz, calm=blCalm(), hi=gfxHigh(), A=BL_MOTION;
-    const ld=PT?blFaded('land',P,BL_IW,BL_IH,blBuildLand):null, lk=PT?blFaded('lake',P,840,260,blBuildLake):null;
-    if(PT){ if(calm) g.drawImage(lk,0,0,840,260,M.ox,M.oy+BL_WT0*s,BL_IW*s,(BL_IH-BL_WT0)*s);
-      else { const w0=M.oy+BL_WL*s, Hh=Math.max(1,H-w0); blRows(lk,M,.5,.5,BL_WT0,0,BL_WT0,BL_IW,BL_IH-BL_WT0,hi?2:3,(y,iy)=>{ const k=clamp((y-w0)/Hh,0,1), T=t*A.rippleSpeed; return (Math.sin(T*1.1+iy*.11)*(.35+k*1.4)+Math.sin(T*.63+iy*.047+1.7)*.5+Math.sin(T*1.9+iy*.31)*.25*k)*s*A.ripple; }); } } /* the lake and its reflections ripple, slow and uneven, more toward you */
+    const ld=PT?blFaded('land',P,BL_IW,BL_IH,blBuildLand):null, lk=PT?blFaded('lake',P,BL_IW,BL_IH-BL_WT0,blBuildLake):null;
+    if(PT){ if(calm) g.drawImage(lk,0,0,BL_IW,BL_IH-BL_WT0,M.ox,M.oy+BL_WT0*s,BL_IW*s,(BL_IH-BL_WT0)*s);
+      else { const w0=M.oy+BL_WL*s, Hh=Math.max(1,H-w0); blRows(lk,M,1,1,BL_WT0,0,BL_WT0,BL_IW,BL_IH-BL_WT0,hi?2:3,(y,iy)=>{ const k=clamp((y-w0)/Hh,0,1), T=t*A.rippleSpeed; return (Math.sin(T*1.1+iy*.11)*(.35+k*1.4)+Math.sin(T*.63+iy*.047+1.7)*.5+Math.sin(T*1.9+iy*.31)*.25*k)*s*A.ripple; }); } } /* the lake and its reflections ripple, slow and uneven, more toward you */
     v3glitter(P,t,wt,sun); /* water effects start below the painted islands (director: "some water effects appear on land") */
     // petals resting on the lake, drifting slowly with the breeze (smaller and flatter toward the far shore)
     for(let i=0,n=gfxHigh()?30:18;i<n;i++){ const y=wt+H*(.015+((i*.377)%1)*.75), k=(y-hz)/(H-hz), x=((W*((i*.618)%1)+t*W*(.003+(i%3)*.0015)*(1+k))%(W*1.05))-W*.02, s2=1+k*3.2;
