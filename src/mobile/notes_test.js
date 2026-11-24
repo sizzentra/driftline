@@ -3,6 +3,17 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake: the sky lanterns all come in from the left, fly in front of the mountains, and glow more softly. Rain rings on the water are easier to see.',
+  'Fights: legendaries come back to 75% fight on their first second wind and mythics to full fight.',
+  'Fights: a fish stronger than your line has twice the fight, puts 1.5 times the strain on the line and takes 1.5 times the line on runs and jumps.',
+  'Fights: jumps can chain like darts (jumpers more often), head shakes are a little stronger on less rare fish, and a rare-or-better fish hooked on a cast of 65% or less pulls line for its first 3 to 5 seconds.',
+  'Fights: in waters too shallow for dives, divers make a short dive and their runs and darts last longer.',
+  'Fights: small hybrids fight like ones of their usual size, the float stays where the fish really is, and the line runs out at 80 m (the Deep Spool attachment adds more).',
+  'Fight wording: It’s about to run! / Darting!, Careful… / Jumping!, Get ready… / Reel!, Watch out… / Head Shake!. The Swimming in text is gone (the arrows stay).',
+  'Legendary and mythic hybrids are worth more, and shiny, titled and hybrid bonuses all stack on one fish.',
+  'Rods cost far more Scales to buy and far more coins to upgrade; the rarest rod’s last upgrade is 10,000,000.',
+  'Updated fishing and oddity hints, and the help about snapped lines.',
+  '## Test build 2026.11.23-2049',
   'Cherry Blossom Lake: no more white lines in the water where the clouds are reflected.',
   'Cherry Blossom Lake: the sky lanterns now drift across the sky from left to right, climbing as they go, at many distances and sizes, a few at a time and spread out (near ones in front of the hills, far ones behind them), and each is mirrored as a lantern in the lake.',
   'Cherry Blossom Lake: cloud reflections stay behind the mountains’ reflections, and the sun no longer leaves a path on the water (the moon still does).',

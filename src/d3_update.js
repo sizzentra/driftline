@@ -463,7 +463,7 @@ const RODS = [
 ].map(a=>({id:a[0],name:a[1],src:a[2],price:a[3],need:a[4],slots:a[5],col:a[6],st:a[7],d:a[8]}));
 const ROD_I = Object.fromEntries(RODS.map(r=>[r.id,r]));
 /* [24] (director: "Purchasing rods should also incorporate scaling amount of scales ... scales are a harder feat"): shop rods cost Scales too, rising with the rod */
-const ROD_SC = {willow:5, pondrod:10, fibre:20, carbon:40, reefrod:60, frostrod:80, coralrod:120, stormrod:200, abyssrod:320, emberrod:500, starrod:800};
+const ROD_SC = {willow:25, pondrod:50, fibre:100, carbon:200, reefrod:300, frostrod:400, coralrod:600, stormrod:1000, abyssrod:1600, emberrod:2500, starrod:4000}; /* Cam, round 4: "much more expensive to purchase (scales)": 5x (were 5 to 800; Feel call) */
 const rodScales = r => (r&&ROD_SC[r.id])||0;
 // id, name, key, values per tier, description
 const ATTS = [
@@ -498,7 +498,10 @@ function rodBonus(k){ if(!S.rods) return 0; const r=rod(), L=rodLvl(); let v=(r.
 const rodCast = () => S.rods ? (rod().st.cast||1) : 1;
 const rodHook = () => S.rods ? (rod().st.hook||0) + rodAtts().filter(a=>a==='bell').reduce((s,a)=>s+attVal(a),0) : 0;
 const rodSpool = () => S.rods ? rodAtts().filter(a=>a==='spool').reduce((s,a)=>s+attVal(a),0) : 0;
-const rodUpCost = id => { const L=rodLvl(id); const r=ROD_I[id]; return {coins:Math.round(Math.max(5000,r.price)*.12*(L+1)), scales:(L+1)*(L+1)*2}; };
+/* Cam, round 4: rods "MUCH MUCH more expensive to upgrade (coins)": the rarest rod's 10th and last upgrade costs 10,000,000, every other rod's last upgrade by its rank below; each rod's 10 upgrades climb from 1/200 of its last one, in round numbers (Feel call; they were 600 to 6,000 for the best rods) */
+const ROD_TOP = {bamboo:50000, willow:100000, pondrod:150000, fibre:250000, scrap:250000, carbon:400000, reefrod:600000, frostrod:800000, coralrod:1200000, chillrod:1200000, stormrod:2000000, golden:2500000, abyssrod:3000000, tides:3500000, emberrod:5000000, starrod:7000000, champrod:8500000, spine:10000000};
+const roundNice = v => { const p=Math.pow(10,Math.floor(Math.log10(v))-1); return Math.round(v/p)*p; };
+const rodUpCost = id => { const L=rodLvl(id), top=ROD_TOP[id]||Math.max(50000,(ROD_I[id]&&ROD_I[id].price||0)*2); return {coins:roundNice(top*Math.pow(1/200,(9-Math.min(9,L))/9)), scales:(L+1)*(L+1)*2}; };
 const statTxt = (k,v) => k==='cast'?'+'+Math.round((v-1)*100)+'% cast distance': k==='hook'?'+'+v.toFixed(2)+' s hook window': k==='spool'?'+'+v+' m of line': k==='night'?'+'+Math.round(v*100)+'% rare bonus at night': fmtB(k,v);
 function grantRod(id){ if(S.rods.owned.includes(id)) return null; S.rods.owned.push(id); return {title:'New rod: '+ROD_I[id].name+'!', kind:'rod', id}; }
 function rodSVG(col,lvl,id){ if(id==null&&col==="#2a4a55") return `<span style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:40px;border-radius:20px;background:radial-gradient(closest-side,#5a82aa55,#1e344e33 70%,transparent);color:#cde1f5aa;font:700 26px system-ui">?</span>`; if(V3ON&&id&&ROD_I[id]) return rodImg3(id,lvl); return `<svg viewBox="0 0 120 40" width="120" height="40" aria-hidden="true"><path d="M8 34 Q60 30 112 6" stroke="${col}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="6" fill="#2a2a2a"/><circle cx="24" cy="31" r="2.5" fill="#8a8a8a"/>${lvl?`<text x="112" y="36" fill="#ffc94d" font-size="11" font-weight="700" text-anchor="end">Lv ${lvl}</text>`:''}</svg>`; }

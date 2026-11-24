@@ -40,7 +40,7 @@ function setHint(){ let h='';
     case 'flying': h='&nbsp;'; break;
     case 'waiting': h='Twitches are nibbles. <b>Wait for the big splash.</b>'; break;
     case 'bite': h=PLAT.touch()?'<b>Now!</b> Tap to hook it.':'<b>Now!</b> Click or Space to hook it.'; break;
-    case 'reeling': h=fishNew()?(V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Short pulls</b> on runs, shakes and jumps away.':'<b>Hold</b> to reel. <b>Short pulls</b> when it runs, shakes or jumps away.'):V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Let go</b> on runs, jumps, shakes and anger.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
+    case 'reeling': h=G.fish&&G.fish.kind!=='fish'?'<b>Reel</b> steadily. <b>Ease off</b> when it snags.':fishNew()?(V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Short pulls</b> on runs and shakes.':'<b>Hold</b> to reel. <b>Short pulls</b> on runs and shakes, let go on <b>Careful…</b>'):V3ON?'<b>Hold</b> or <b>draw circles</b> to reel. <b>Let go</b> on runs, jumps, shakes and anger.':'<b>Hold</b> to reel. <b>Let go</b> when it runs, jumps, shakes or gets angry.'; break;
     case 'landing': h='Pulling it out…'; break;
     case 'result': h='Nice catch.'; break;
     case 'frenzy': h=PLAT.touch()?'<b>Tap the leaping fish!</b>':'<b>Click the leaping fish!</b>'; break;

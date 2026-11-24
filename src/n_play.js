@@ -69,7 +69,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   // hybrid: the weight of another fish from the same waters
   if(!ctx.noHybrid && (ctx.forceHybrid||Math.random()<hybridChance()*(G.inHot?HOT_HYBRID_K:1))){ const others=SP.filter(s=>s.loc===sp.loc && s.id!==sp.id && Math.abs(Math.log(((s.min+s.max)/2)/((sp.min+sp.max)/2)))>.4); if(others.length){ const o=pick(others); hy=o.id; kg=o.min+(o.max-o.min)*Math.pow(Math.random(),1.8/tb); } }
   const avg=(sp.min+sp.max)/2, R=kg/avg, rel=hy?clamp(R>1?1:0,0,1):(kg-sp.min)/(sp.max-sp.min);
-  let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),.45,6);
+  let str=sp.str*(.8+.4*clamp(rel,0,1))*(wx.str||1); if(hy) str*=clamp(Math.pow(R,.35),1,6); /* a small hybrid keeps its species' strength (Cam, round 4) */
   const shRoll=(G.inHot&&G.hotShiny)||Math.random() < shinyChance(G.inHot); if(G.hotShiny) G.hotShiny=false; /* C29: a sparkling hotspot promises one shiny */
   const shiny = shRoll ? (Math.random()<PRISM_SHARE*pathMul('prism')*(G.inHot?HOT_PRISM_K:1)?2:1) : 0, pv = shiny===2 ? pick(PRISM_KEYS) : null;
   const trophy = !hy && rel > .9;
@@ -77,7 +77,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   /* [23] (director): a hybrid that still lands inside its own normal weight range is worth ×2 (common) to ×5 (mythic) of a normal
      fish its size, in coins and in aquarium income */
   const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r]*pathMul('hx') : 0;
-  let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(hyWeightK(R)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))));
+  let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(hyWeightK(R)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))*(hy?HY_TOP_K[sp.r]||1:1))); /* Cam, round 4: legendary and mythic hybrids are worth more (sale and aquarium both follow the value) */
   value=Math.round(value*RAR[sp.r].val*(1+masteryK()*mastery(sp.id))*specLocValue(sp.loc)); { const bb=BAIT[S.baitSel]; if(pr('gourmet')&&bb&&bb.food&&typeof FISH_FAV!=='undefined'&&FISH_FAV[sp.id]===bb.id) value=Math.round(value*(1+.06*pr('gourmet'))); } /* Gourmet: caught on its favourite food, it sells for 6% more a rank (director, 2026-11-23) */ if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
@@ -117,5 +117,6 @@ aqBuffsOf = function(f){ const L=_aqBuffsOf_w(f), sp=SPI[f.id]; if(!sp) return L
 /* small hybrids (Cam, 2026-11-23: "small hybrids lose only half of their sell value from the drop in weight rather than all, and don't lose any
    from aquarium revenue"): a hybrid lighter than its own kind's usual weight loses half of what its weight would cost in coins (value
    follows weight^0.85; half of that drop is given back), and in the aquarium it earns as if it weighed the usual amount */
+const HY_TOP_K=[1,1,1,1,1.5,2]; /* Cam, round 4: a legendary hybrid is worth 1.5x, a mythic 2x (on top of the hybrid rules; Feel call) */
 function hyWeightK(R){ const w=Math.pow(R,.85); return R<1?1-(1-w)/2:w; }
 function hySmall(f,sp){ if(!f||!f.hy||f.hx||!sp) return 0; const R=(+f.kg||0)/((sp.min+sp.max)/2); return R>0&&R<1?R:0; } /* its weight against the usual, when lighter (in-range hybrids are paid by their own rule) */

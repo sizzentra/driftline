@@ -85,3 +85,7 @@ docs/reference/blossom_director_ref.png is now the corrected picture (the earlie
 - Lanterns cross from beyond the left edge to beyond the right on a rising diagonal; 40% near (bigger, faster, in front of the hills, behind the big tree), 60% far (small, slow, behind the hills); each mirrored as a lantern (the far ones behind the hills' reflections, the near ones in front).
 - No sun reflection (director); the moon's path stays.
 - Same build, after the director's look: lanterns were too big and cluttered: now 16 px tall at full size (near up to about 1.25x), 10 of them (6 on low graphics), spread evenly along the way. White lines in the water by the cloud reflections: the reflection bands overlapped by half a pixel; they now meet exactly.
+
+## Build 2143: lanterns and rain rings (2026-11-23 night)
+- Every lantern now flies in front of the mountains (behind the big tree), entering from the left edge; dimmer glow (sprite glow halved, alpha 0.8, reflections 0.4); size 22 px at full size (36 was "way too big", 16 read as specks).
+- Rain rings: a light ring on a darker edge plus a smaller inner ring; they showed only near the far shore because each ring's height used the first random number of its seed (always small): skipped.
