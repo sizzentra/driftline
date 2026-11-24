@@ -1,0 +1,38 @@
+I'm attaching the background painting for one area of my 2D fishing game, Driftline ("Cherry Blossom Lake"). I need you to split this exact painting into separate layers so my game can animate the sky, clouds and water and change them for dawn, day, dusk and night.
+
+HOW TO WORK
+- Make the layers below one at a time, in order. After each image, stop and wait until I say "next" before making the next one.
+- If I say "redo", make the same layer again, fixing what I point out.
+
+RULES FOR EVERY LAYER
+1. EDIT this exact painting, do not repaint or redesign it. Same composition, same size, same framing, same horizon height, same position and shape of every island, tree, mountain, bridge, pagoda, torii and waterfall. If two layers were laid on top of each other they must line up perfectly.
+2. Output at exactly the same size and aspect ratio as the attached image. No cropping, zooming, extending or shifting.
+3. Wherever I say "background green", fill it with one flat, pure colour: #00FF00 (bright green). No gradient, no texture, no shadow, no glow or blur bleeding into it, and never use that green anywhere in the painting itself.
+4. Keep the same hand-painted style, brushwork and colours as the original.
+5. Never add: houses, people, a fisherman, rods, fishing lines, floats, boats, animals, birds, fish, koi, insects, floating lanterns, text, logos, signatures, watermarks or frames.
+6. Never add stars, a moon, a sun, sunset colours or glowing windows (unless a layer below asks for dusk or night lighting). The game adds those itself.
+
+THE LAYERS
+
+Layer 1, LAND:
+Keep everything that is solid (mountains including Mount Fuji, hills, forests, cherry trees, islands, rocks, the bridge, pagoda, torii, waterfall and its cliff, shore flowers and lily pads) exactly as painted. Replace the ENTIRE SKY, including all clouds, with flat background green #00FF00. Replace ALL OPEN WATER (the lake surface and its reflections) with flat background green #00FF00. The waterfall stays (it is part of the land). Edges between land and green must be clean and crisp, following the true outline of the trees, mountains and rooftops, with no leftover sky colour or halo around them.
+
+Layer 2, CLOUDS:
+Same size. Everything is flat background green #00FF00 except the clouds. Paint 5 to 7 soft, fluffy clouds in the same painted style as the original sky: white with gentle blue-grey shading, no warm sunset colours. Each cloud must be fully separate, with green space all around it (no cloud touching another cloud or the edge of the image). Place them in the upper part of the image only, above where the mountains are. Different sizes: 2 large, 2 to 3 medium, 1 to 2 small and thin.
+
+Layer 3, SKY:
+Same size. The full image is ONLY the sky of the original painting, with no clouds, no mountains, no land and no water. Continue the sky's colour gradient smoothly all the way down to the bottom edge, as if the land were not there (soft blue at the top, fading lighter and slightly warm near the horizon, then continuing that pale colour below). Daytime only, no sun.
+
+Layer 4, WATER:
+Same size. The top part (everything above where the lake meets the far shore) is flat background green #00FF00. Below that line, paint ONLY the open lake water, as calm water in the same style and colours as the original, continuing smoothly behind where the islands, rocks and lily pads were (as if they were removed). Keep gentle horizontal water texture and soft light streaks, but NO reflections of any trees, mountains, islands or buildings, and no lily pads. Lighter near the far shore, slowly deeper blue toward the bottom edge.
+
+Layer 5, REFLECTIONS:
+Same size. Everything flat background green #00FF00 except the reflections that appear in the lake in the original painting (the mirrored trees, mountains, islands, bridge and pagoda). Show only those reflections, in exactly the same place as in the original, softened and slightly rippled like on calm water.
+
+Layer 6, LAND AT DUSK:
+Repeat Layer 1 (land, with sky and water as background green #00FF00), but relit for dusk: warm orange and pink light from the right side of the image, long soft shadows, the far mountains turning purple. Same composition, perfectly lined up with Layer 1. No glowing windows, no sun.
+
+Layer 7, LAND AT NIGHT:
+Repeat Layer 1 (land, with sky and water as background green #00FF00), but relit for a clear moonlit night: cool deep blue tones, soft silver-blue moonlight on the edges of trees, rooftops and Mount Fuji's snow, dark shadows. Same composition, perfectly lined up with Layer 1. No glowing windows, no lanterns, no moon, no stars.
+
+Before you start, reply with one short line confirming you understand, then make Layer 1.

@@ -3,6 +3,10 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake now uses a new layered painting: clouds drift slowly behind the mountains, the lake and its reflections ripple, the big cherry tree sways and the shore flowers nod.',
+  'The scene changes properly with the time of day: a cool pink dawn, a bright day, a warm dusk with peach clouds and pink reflections, and a moonlit night where the hills, trees and Fuji are relit in blue and the water darkens.',
+  'The sky, sun, moon and stars now show behind the painted mountains and trees, and the water picks up the colour of the sky.',
+  '## Test build 2026.11.23-1655',
   'At high tension, a calm fish (low temper) lets the tension fall faster when you ease up, up to twice as fast.',
   'Darts chain less often, more for rarer fish: a common fish rarely chains darts, a mythic always chains two or three.',
   'Long runs back to back: each long run is shorter than the one before, until 3 seconds pass after a long run or the fish does something else.',

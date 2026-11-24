@@ -1,0 +1,50 @@
+I'm designing the player's home for one area of my cozy 2D fishing game, Driftline. Each fishing area ("water") has its own home that fits its place and culture. The player stands on the home's deck to fish, and can customise the home by choosing a style and colour for each of its parts. The game itself draws the home (it is built in code from your design), so I need clear DESIGN REFERENCE pictures, not a finished scene.
+
+THIS HOME
+- Water: Willow Pond
+- Place and mood: a small, quiet mountain pond in pine country; safe, warm, a little nostalgic; summer-camp and cottage-lake feel
+- The base building (always the same shape, whatever the player picks): a timber boathouse standing over the water on posts, with its gable end facing sideways, a small cupola on the roof ridge, a boat bay at the waterline, a covered porch on the right
+- Materials that belong: weathered pine planks, rope, iron lantern hardware, river stones, moss
+- Does not belong: anything tropical, modern metal or plastic, neon
+- The 6 parts the player can change (3 styles each): walls, roof, porch, door, windows, seat
+- The part that carries the light at night: a lantern hanging on the porch
+- Colour list (use only these colours): honey pine #b98a5a, weathered pine #8a6a4a, dark stain #5a4030, driftwood grey #9a9488, moss green #5f8a6c, pine green #2c4a3e, sage #9ab08a, willow green #7fae5c, lake teal #3f827b, sky blue #86bcd9, cream canvas #f3e4ca, warm white #f4efe6, barn red #a8483a, lantern gold #e8b04a, dusk rose #c97a8a, lilac #8a7aa8
+
+HOW TO WORK
+- Make the pictures below one at a time, in order. After each one, stop and wait until I say "next".
+- If I say "redo", make the same picture again, fixing what I point out.
+- Before you start, describe the home's SIDE silhouette in two or three sentences (its outline as seen from the side) and wait for me to say "go".
+
+RULES FOR EVERY PICTURE
+1. SIDE VIEW ONLY, straight from the side at eye level, like a cross-section drawing or a 2D side-scrolling game. Never a front view, never a three-quarter view, never from above or below, no perspective. A roof is seen as its side profile, a porch as its side outline, a boat as its hull outline.
+2. The home stands ON THE WATER, not on a shore: it rests on real supports (posts, stilts, piers, pontoons or a hull, whatever fits) that go down into the water, with cross braces and beams where a real builder would put them. Nothing floats in the air, no gaps between parts.
+3. Layout, left to right: the building on the left and middle; on the RIGHT, a flat, open DECK at the same height across, wide enough for one person and two pets to stand, with the seat at the deck's right edge facing right (toward the water where they fish). Nothing tall stands on the right end of the deck, and nothing sticks out past it to the right.
+4. Proportions: wider than it is tall (about 2 to 3 times as wide as the building is tall, not counting the water). Real-life proportions for doors, windows, railings and steps (a door is about the height of a person).
+5. Background: one flat, pure colour, #00FF00 (bright green), everywhere around the home. No scenery, no sky, no shore, no water surface drawn behind it (just the supports going down to a straight, simple waterline). No glow or shadow bleeding into the green, and never use that green in the home itself.
+6. Style: hand-painted cozy storybook look, soft gouache textures, clear readable shapes, gentle soft shading with light coming from the upper left, a thin warm rim light on edges. Medium detail: planks, shingles and stones hinted, not every one drawn.
+7. Daytime light unless a picture asks for night. No sunset colours.
+8. Never add: people, a fisherman, rods, lines, animals, pets, birds, text inside the drawing, logos, signatures, watermarks or frames. (Short labels UNDER separate parts are allowed only where a picture asks for them.)
+9. Use only the colours from the colour list.
+
+THE PICTURES
+
+Picture 1, THE HOME:
+The complete home in its default style (style A of every part), side view, standing on its supports in the water, on the green background. Show the whole thing from the top of the roof down to the waterline, centred, filling most of the image, with green space all around.
+
+Picture 2, THE SAME HOME AT NIGHT:
+Exactly the same home, same position and size as Picture 1, at night: cool deep blue tones, soft silver-blue moonlight on the edges, every window glowing warm gold from inside, the light part lit with a soft warm glow, chimney smoke if there is a chimney. Green background.
+
+Picture 3, PARTS SHEET (first 3 parts):
+On the green background, a neat grid: one ROW per part (walls, roof, porch), three STYLES per row (A, B, C), each drawn separately, side view, all at the same scale as the home in Picture 1, with green space around each. Under each part a short label like "Roof B: cedar shakes". Each style must be a real-life option that fits this place and fits the same base building (the same width and height where it attaches).
+
+Picture 4, PARTS SHEET (last 3 parts):
+The same layout for the other three parts (door, windows, seat). The seats are drawn from the side, the way a person would sit on them facing right.
+
+Picture 5, THE HOME WITH STYLE B:
+The same home as Picture 1, same position and size, but with style B of every part. Green background.
+
+Picture 6, THE HOME WITH STYLE C:
+The same home as Picture 1, same position and size, but with style C of every part. Green background.
+
+Picture 7, CLOSE-UP DETAILS:
+On the green background, 4 to 6 close-ups at a larger size of the details that make this home special (for example: how the supports and braces meet the deck, the door hardware, the window frames, the light fixture, the roof edge and ridge). Short label under each.

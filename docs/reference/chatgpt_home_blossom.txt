@@ -1,0 +1,52 @@
+I'm designing the player's home for one area of my cozy 2D fishing game, Driftline. Each fishing area ("water") has its own home that fits its place and culture. The player stands on the home's deck to fish, and can customise the home by choosing a style and colour for each of its parts. The game itself draws the home (it is built in code from your design), so I need clear DESIGN REFERENCE pictures, not a finished scene.
+
+I am also attaching the scenery painting this home will sit in. Use it ONLY as a reference for the painted style, brushwork, colours and light, so the home looks like it belongs in that painting. Do not copy the house in it, and do not draw any of that scenery in your pictures.
+
+THIS HOME
+- Water: Cherry Blossom Lake
+- Place and mood: a calm lake in Japan in spring, under Mount Fuji, ringed with cherry trees; serene, graceful and peaceful; inspired by hanami (cherry-blossom viewing), Japanese gardens and koi ponds, ukiyo-e prints of Mount Fuji, tea houses and torii gates
+- The base building (always the same shape, whatever the player picks): a small traditional Japanese tea house standing over the water on red-lacquered posts, with a layered irimoya (hip-and-gable) roof whose eaves curve gently upward at the ends, a raised engawa veranda running along it, and on the right an open wooden deck on the same posts
+- Materials that belong: red-lacquered wood, cedar, paper (shoji screens and lanterns), bamboo, rope, stone, clay roof tiles, copper
+- Does not belong: Western cabins, palm trees, modern metal or plastic, neon, anything heavy or industrial
+- The 6 parts the player can change (3 styles each): walls (styles to consider: shoji screens, plaster and timber, bamboo), roof (curved clay tiles, cypress bark, copper), railing (rope railing, bamboo railing, open deck), door (sliding shoji, plank door, noren curtain), windows (shoji windows, round window, lattice windows), seat (a low zabuton cushion, a bamboo bench, a wooden bench)
+- The part that carries the light at night: paper chochin lanterns hanging from the eaves (they glow warm amber at night)
+- Colour list (use only these colours): lacquer red #b8322a, vermilion #d8503a, cedar #9a6a42, dark cedar #5a3a26, black lacquer #2a2426, paper white #f4ece0, rice beige #e0d0b0, bamboo #b8b06a, moss #6a8a52, jade #5a9a9a, deep jade #1e4a58, blossom pink #f4a8c4, pale sakura #ffe4ee, wisteria #a88ac8, lantern amber #f0a848, stone grey #9a948a
+
+HOW TO WORK
+- Make the pictures below one at a time, in order. After each one, stop and wait until I say "next".
+- If I say "redo", make the same picture again, fixing what I point out.
+- Before you start, describe the home's SIDE silhouette in two or three sentences (its outline as seen from the side) and wait for me to say "go".
+
+RULES FOR EVERY PICTURE
+1. SIDE VIEW ONLY, straight from the side at eye level, like a cross-section drawing or a 2D side-scrolling game. Never a front view, never a three-quarter view, never from above or below, no perspective. A roof is seen as its side profile, a porch as its side outline, a boat as its hull outline.
+2. The home stands ON THE WATER, not on a shore: it rests on real supports (posts, stilts, piers, pontoons or a hull, whatever fits) that go down into the water, with cross braces and beams where a real builder would put them. Nothing floats in the air, no gaps between parts.
+3. Layout, left to right: the building on the left and middle; on the RIGHT, a flat, open DECK at the same height across, wide enough for one person and two pets to stand, with the seat at the deck's right edge facing right (toward the water where they fish). Nothing tall stands on the right end of the deck, and nothing sticks out past it to the right.
+4. Proportions: wider than it is tall (about 2 to 3 times as wide as the building is tall, not counting the water). Real-life proportions for doors, windows, railings and steps (a door is about the height of a person).
+5. Background: one flat, pure colour, #00FF00 (bright green), everywhere around the home. No scenery, no sky, no shore, no water surface drawn behind it (just the supports going down to a straight, simple waterline). No glow or shadow bleeding into the green, and never use that green in the home itself.
+6. Style: hand-painted cozy storybook look, soft gouache textures, clear readable shapes, gentle soft shading with light coming from the upper left, a thin warm rim light on edges. Medium detail: planks, shingles and stones hinted, not every one drawn.
+7. Daytime light unless a picture asks for night. No sunset colours.
+8. Never add: people, a fisherman, rods, lines, animals, pets, birds, text inside the drawing, logos, signatures, watermarks or frames. (Short labels UNDER separate parts are allowed only where a picture asks for them.)
+9. Use only the colours from the colour list.
+
+THE PICTURES
+
+Picture 1, THE HOME:
+The complete home in its default style (style A of every part), side view, standing on its supports in the water, on the green background. Show the whole thing from the top of the roof down to the waterline, centred, filling most of the image, with green space all around.
+
+Picture 2, THE SAME HOME AT NIGHT:
+Exactly the same home, same position and size as Picture 1, at night: cool deep blue tones, soft silver-blue moonlight on the edges, every window glowing warm gold from inside, the light part lit with a soft warm glow, chimney smoke if there is a chimney. Green background.
+
+Picture 3, PARTS SHEET (first 3 parts):
+On the green background, a neat grid: one ROW per part (walls, roof, railing), three STYLES per row (A, B, C), each drawn separately, side view, all at the same scale as the home in Picture 1, with green space around each. Under each part a short label like "Roof B: cedar shakes". Each style must be a real-life option that fits this place and fits the same base building (the same width and height where it attaches).
+
+Picture 4, PARTS SHEET (last 3 parts):
+The same layout for the other three parts (door, windows, seat). The seats are drawn from the side, the way a person would sit on them facing right.
+
+Picture 5, THE HOME WITH STYLE B:
+The same home as Picture 1, same position and size, but with style B of every part. Green background.
+
+Picture 6, THE HOME WITH STYLE C:
+The same home as Picture 1, same position and size, but with style C of every part. Green background.
+
+Picture 7, CLOSE-UP DETAILS:
+On the green background, 4 to 6 close-ups at a larger size of the details that make this home special (for example: how the red posts, beams and braces meet the deck and go into the water, the curved roof eave and ridge ornaments, the shoji lattice, the chochin lanterns, the railing). Short label under each.
