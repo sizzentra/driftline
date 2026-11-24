@@ -62,6 +62,23 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
+## Cam's fish feel notes, round 4 (2026-11-23 night; NEXT, to build as asked, open numbers as Feel calls)
+1. Waters too shallow for dives: a diver does a condensed dive there, and its runs and darts last longer.
+2. Second wind: mythics come back to 100% fight the first time, legendaries 75%.
+3. Remove the "swimming toward you" text; keep the arrows.
+4. Small hybrids fight as hard as one in its normal range: weight does not reduce their fight, and the light-fish line rules do not apply to them.
+5. Head shakes slightly stronger overall for less rare fish.
+6. Rare and above hooked on a cast of 65% or less pull more line for the first 3-5 s, scaling with rarity.
+7. Wording: "It's about to run!" warns of darting, "Darting!" while darting; "Careful..." before jumping away, "Jumping!" while jumping away; "Get ready..." before jumping toward you, "Reel!" while it does; "Watch out..." before a head shake, "Head Shake!" during it.
+8. Spool-out at a base of 60 m (Claude to say if too low before upgrades and give an alternative; a spool-out should stay a threat without upgrades).
+9. Fish stronger than your tackle: double fight, 1.5x tension from everything, runs and jumps take 1.5x line.
+10. Jumps chain with the darting rules; jumpers go past those limits.
+11. Unless a diver, a running fish's distance stays proportional to how far away it really is.
+12. Update the fishing hints and the oddity / snag hints.
+13. Hybrids of legendary or mythic fish: bigger aquarium and sale gold.
+14. Shiny, titled and hybrid modifiers all stack, so a fish rolling all of them is godlike.
+15. Rods: much more expensive to buy (Scales) and much, much more to upgrade (coins); the rarest rod's 10th and last upgrade costs 10,000,000; every other rod scaled to match.
+
 ## Cherry Blossom: map feel (2026-11-23 night)
 - Done in build 2023: the moon as one clean crescent (every water), the clouds, sun and moon reflected in the lake, birds behind the big tree, white paper sky lanterns at night (reflected), rain rings, ripples a little stronger and stronger in rain and storms. Cam's Cherry Blossom list cleared on the director's word ("you can clear cams list on the cherry blossom lake now after this is done").
 - **Next (director):** once the map feel is approved, work on the Cherry Blossom home itself (the ChatGPT home brief is in docs/reference/chatgpt_home_blossom.txt).
