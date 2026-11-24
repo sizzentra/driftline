@@ -2,6 +2,10 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake: no more white lines in the water where the clouds are reflected.',
+  'Cherry Blossom Lake: the sky lanterns now drift across the sky from left to right, climbing as they go, at many distances and sizes, a few at a time and spread out (near ones in front of the hills, far ones behind them), and each is mirrored as a lantern in the lake.',
+  'Cherry Blossom Lake: cloud reflections stay behind the mountains’ reflections, and the sun no longer leaves a path on the water (the moon still does).',
+  '## Test build 2026.11.23-2023',
   'Cherry Blossom Lake: the clouds, the sun and the moon now reflect in the lake, with a shimmering path of light under the sun or moon.',
   'Cherry Blossom Lake: white paper sky lanterns rise into the night sky, near ones lifting off in front of the hills and far ones behind them, and their glow shows in the water. The lanterns floating on the lake are gone.',
   'Cherry Blossom Lake: rain makes rings on the water, the ripples are a little stronger and grow in rain and storms, and the birds now fly behind the big cherry tree.',

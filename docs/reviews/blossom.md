@@ -79,3 +79,9 @@ docs/reference/blossom_director_ref.png is now the corrected picture (the earlie
 - **Sky lanterns (blLanterns, blLantern):** at night, up to 18 white paper lanterns (8 on low graphics) rise from the far shore: near ones (bigger) in front of the hills but behind the big tree, far ones behind the hills; they sway, flicker and fade high up; one stored picture drawn at each size. The floating lanterns on the lake are gone.
 - **Rain:** rings on the water (more in storms), drawn under the land; ripples a little stronger (1.4) and up to 1.6x in storms.
 - **Frame cost, PC 1920x1080:** day 2.3 -> 3.2 ms, night 5.3 -> about 7 ms; iPhone size 2.5 ms day, 3.2 ms night (Willow Pond at night 1.6 ms).
+
+## Build 2042: the director's notes on 2023 (2026-11-23 night)
+- Cloud reflections showed over Fuji's reflection: the mask was taken after the land's reflection faded with depth; now it is its full shape.
+- Lanterns cross from beyond the left edge to beyond the right on a rising diagonal; 40% near (bigger, faster, in front of the hills, behind the big tree), 60% far (small, slow, behind the hills); each mirrored as a lantern (the far ones behind the hills' reflections, the near ones in front).
+- No sun reflection (director); the moon's path stays.
+- Same build, after the director's look: lanterns were too big and cluttered: now 16 px tall at full size (near up to about 1.25x), 10 of them (6 on low graphics), spread evenly along the way. White lines in the water by the cloud reflections: the reflection bands overlapped by half a pixel; they now meet exactly.
