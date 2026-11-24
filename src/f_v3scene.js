@@ -137,6 +137,8 @@ const V3SCENES = {}; /* every water's scene and drawing is in its own file: src/
 // the camera drifts slowly side to side (two slow waves, never a loop you notice); off for reduced motion
 const V3PAR={dx:0,amp:0,rm:matchMedia('(prefers-reduced-motion:reduce)')};
 function v3par(t){ V3PAR.amp=W*.008; if(V3PAR.rm.matches||window.__noPar){ V3PAR.dx=0; return 0; } return V3PAR.dx=V3PAR.amp*(Math.sin(t*.105)*.68+Math.sin(t*.043+1.3)*.32); }
+/* the moon's crescent as one clean shape: a disc with the shadow disc cut out of it (director, 2026-11-23: "moon shows the entire ring around it": the old clip and even-odd fill left a faint outline of the whole circle); kept per size */
+function v3moon(r){ const k=Math.max(1,Math.min(3,DPR||1)), key=r+'|'+k; let c=v3moon.c; if(c&&c.key===key) return c; c=v3moon.c=document.createElement('canvas'); c.key=key; c.width=c.height=Math.ceil((r*2+4)*k); const x=c.getContext('2d'); x.scale(k,k); x.fillStyle='#fff4dc'; x.beginPath(); x.arc(r+2,r+2,r,0,7); x.fill(); x.globalCompositeOperation='destination-out'; x.beginPath(); x.arc(r+2+r*.4333,r+2-r*.3,r*.9333,0,7); x.fill(); return c; }
 function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   if(!V3ON || !V3SCENES[L.id]) return false;
   const P=v3palette(L.id,night,dusk,gloom), SC=V3SCENES[L.id];
@@ -156,7 +158,7 @@ function v3Scene(L,t,p,night,dusk,gloom,hz,wx){
   const sa=((p+.05)%1), up=sa<.55, k=up?sa/.55:(sa-.55)/.45, sx=W*(.1+.8*k), sy=hz-Math.sin(k*Math.PI)*hz*.8+10;
   const vis=(1-gloom*.85)*(up?1:clamp(night*1.2,0,1))*(1-(SC.overcast||0));
   if(up){ v3glow(g,sx,sy,H*.42,v3rgba(P.glow,.9),vis*(.55+P.d*.4)); g.fillStyle=mix(P.glow,'#ffffff',.5); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.045,0,7); g.fill(); g.globalAlpha=1; }
-  else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); g.save(); g.globalAlpha=vis; g.beginPath(); g.arc(sx,sy,H*.03,0,7); g.clip(); g.fillStyle='#fff4dc'; g.beginPath(); g.arc(sx,sy,H*.03,0,Math.PI*2); g.moveTo(sx+H*.013+H*.028,sy-H*.009); g.arc(sx+H*.013,sy-H*.009,H*.028,0,Math.PI*2); g.fill('evenodd'); g.restore(); }
+  else if(vis>.05){ v3glow(g,sx,sy,H*.12,'rgba(220,230,255,.6)',vis*.5); const mr=H*.03; g.globalAlpha=vis; g.drawImage(v3moon(mr),sx-mr-2,sy-mr-2,mr*2+4,mr*2+4); g.globalAlpha=1; }
   if(!up&&typeof wx3BloodMoonDisc==='function'&&wx3k()==='Blood Moon'&&wx3A()>.01) wx3BloodMoonDisc(sx,sy,wx3A()); // the blood moon is the moon (2026-11-17)
   if(SC.skyBack) SC.skyBack(P,t,hz); /* weather in the sky (aurora, rainbow, blood moon tint, gilded rays) sits behind the clouds */
   // soft clouds: a bumpy top made of overlapping puffs, a flat base, lighter on top, lit underside; drifting

@@ -3,6 +3,11 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake: the clouds, the sun and the moon now reflect in the lake, with a shimmering path of light under the sun or moon.',
+  'Cherry Blossom Lake: white paper sky lanterns rise into the night sky, near ones lifting off in front of the hills and far ones behind them, and their glow shows in the water. The lanterns floating on the lake are gone.',
+  'Cherry Blossom Lake: rain makes rings on the water, the ripples are a little stronger and grow in rain and storms, and the birds now fly behind the big cherry tree.',
+  'The moon is a clean crescent on every water (it showed a faint ring around its dark side).',
+  '## Test build 2026.11.23-1945',
   'Cherry Blossom Lake: no more blur at dusk and dawn. The dusk and night lighting are now laid over the day painting’s exact shapes, so the changing light never doubles up.',
   'Cherry Blossom Lake: new reflections made from the scenery itself, so the bridge, torii, pagoda, waterfall, islands and Fuji are mirrored exactly under themselves, in the light of the time of day, fading with depth.',
   'Cherry Blossom Lake: no more leaping fish.',
@@ -13,7 +18,7 @@ const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPh
   '## Test build 2026.11.23-1827',
   'Cherry Blossom Lake now uses a new layered painting: clouds drift slowly behind the mountains, the lake and its reflections ripple, the big cherry tree sways and the shore flowers nod.',
   'The scene changes properly with the time of day: a cool pink dawn, a bright day, a warm dusk with peach clouds and pink reflections, and a moonlit night where the hills, trees and Fuji are relit in blue and the water darkens.',
-  'The sky, sun, moon and stars now show behind the painted mountains and trees, and the water picks up the colour of the sky.',
+  'The sky, sun, moon and stars now show behind the painted mountains and trees, and the water picks up the color of the sky.',
   '## Test build 2026.11.23-1655',
   'At high tension, a calm fish (low temper) lets the tension fall faster when you ease up, up to twice as fast.',
   'Darts chain less often, more for rarer fish: a common fish rarely chains darts, a mythic always chains two or three.',
