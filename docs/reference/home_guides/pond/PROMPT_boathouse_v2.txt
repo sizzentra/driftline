@@ -1,0 +1,14 @@
+This is lovely, and the style, colours, moss, flower boxes, lantern, rope and ladder are exactly right. But I made a mistake in my instructions about where the angler stands, and the game can't show this layout on phones. Here's why, and the change.
+
+WHY: in the game the angler always stands very close to the left edge of the screen (on a phone, only about 1.5 angler heights of space to the angler's left). So anything left of the angler is cut off by the screen edge. In this painting the whole boathouse is to the LEFT of where the angler would stand (on the open deck), so on a phone you would see only the end of the deck and none of the boathouse. The building has to stand BEHIND the angler instead, with the angler on a deck in front of it.
+
+PLEASE REPAINT THE BOATHOUSE LIKE THIS (same map, same style and colours, same details):
+1. Turn the boathouse so we see its LONG SIDE, standing over the water on its wooden pilings. A deck (a veranda) runs along the whole front of it, right at the waterline side, and continues a little past its right end. The angler stands on this front deck, in front of the boathouse's right half.
+2. Keep the gable look: a steep mossy shingle roof seen from the long side, with ONE front-facing cross gable (a small triangle gable facing us) holding the loft window with its flower box. Put that cross gable in the RIGHT half of the building, so it sits just behind where the angler stands.
+3. The boat bay: under the building, at the waterline, a dark opening between the pilings with the small wooden rowboat's bow showing in the water. (So the boat is kept in a slip beneath the boathouse instead of behind a front door.)
+4. Smaller and lower than now: the walls about 1.4 angler heights above the deck, the top of the roof about 2.5 to 3 angler heights above the deck (use angler_scale.png), the whole boathouse about 6 angler heights wide.
+5. The door, the lantern, the coiled rope and the flower barrel in the RIGHT half of the building. Its left part may run off the left edge of the picture toward the shore (like a walkway), since phones cut the left side anyway.
+6. Past the boathouse's right end, an open stretch of deck about 1.5 angler heights long with the mooring post at its end and the ladder down to the water: empty, for a chair.
+7. Everything else stays: deck surface one level line seen exactly from the side, pilings ending in a wet band at the water, no reflection of the boathouse, no glow, daytime, nothing else in the map changed.
+
+Please do this repaint first. After I approve it, I'll ask for the separate pieces (map without the boathouse, the boathouse alone, and the chair), as in my last message.
