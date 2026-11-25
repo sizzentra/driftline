@@ -58,3 +58,11 @@ window.skyRim=(c,maxY)=>{const x=c.getContext('2d'),W=c.width,H=Math.min(c.heigh
 window.spillRim=(c,rings)=>{const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),p=d.data,near=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(p[(y*W+X)*4+3]<128)near[y*W+X]=1;for(let r=0;r<rings;r++){const nx=near.slice();for(let y=1;y<H-1;y++)for(let X=1;X<W-1;X++){const k=y*W+X;if(near[k])continue;if(near[k-1]||near[k+1]||near[k-W]||near[k+W])nx[k]=2+r;}near.set(nx);}let n=0;for(let k=0;k<W*H;k++){if(near[k]<2)continue;const i=k*4,r=p[i],g=p[i+1],b=p[i+2],m=Math.max(r,b),lim=m*1.12+12;if(g>lim){p[i+1]=Math.round(lim);n++;}}x.putImageData(d,0,0);return n;};
 /* the whole run for a water: await prep(); spillRim(L.land,3); spillRim(L.bh,2); spillRim(L.ch,2); await cloudKey(); await pack({bhW,chH,glow}) */
 </script>
+<script>
+/* the painted edge itself carries leftover key colour (a light or green outline against the sky): trim px pixels off every cut edge and soften the next one */
+window.erodeEdge=(c,px,maxY)=>{const x=c.getContext('2d'),W=c.width,H=c.height,Y1=Math.min(H,maxY||H),d=x.getImageData(0,0,W,H),p=d.data;let n=0;
+ for(let pass=0;pass<px+1;pass++){const hit=[];for(let y=1;y<Y1-1;y++)for(let X=1;X<W-1;X++){const i=(y*W+X)*4;if(p[i+3]<128)continue;if(p[i-1]<128||p[i+7]<128||p[i-W*4+3]<128||p[i+W*4+3]<128)hit.push(i);}
+  for(const i of hit)p[i+3]=pass<px?0:Math.round(p[i+3]*.5);n+=hit.length;}
+ x.putImageData(d,0,0);return n;};
+/* the whole run for a water: await prep(); spillRim(L.land,3); erodeEdge(L.land,2,<shoreline row+40>); spillRim(L.bh,2); spillRim(L.ch,2); await cloudKey(); await pack({bhW,chH,glow}) */
+</script>

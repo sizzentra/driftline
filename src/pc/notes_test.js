@@ -3,7 +3,7 @@
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
   'Willow Pond is now a painting: a quiet meadow pond with a great weeping willow, a duck-egg-blue boathouse where you fish from the deck by the door, its rowboat tucked underneath, and a folding chair for Rest mode.',
-  'Willow Pond: the willow and the reeds sway, clouds drift, mist lies on the far water in the morning, the pond mirrors the willow and the boathouse, and after dark the windows and lantern glow and fireflies come out.',
+  'Willow Pond: the willow and the reeds sway, clouds drift, mist lies on the far water in the morning, the water moves in rolling waves, the sun and moon lay a path of light across it, and after dark the windows and lantern glow and many fireflies drift over the shores and water.',
   '## Test build 2026.11.24-1854',
   'Homes are no longer customizable: the Your home page, its Home button and its lessons are gone, and every water keeps its home in its standard look. Your old choices stay in your save.',
   'Cherry Blossom Lake has a new painted tea house that belongs to the painting: it changes with the light, its shoji door and lantern glow after dark, and it shows in the lake.',

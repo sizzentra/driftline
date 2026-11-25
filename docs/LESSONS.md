@@ -237,3 +237,5 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **A multiply tint over half-see-through edges shows the tint itself** (a pale ring at night) → light over an opaque black ground first (`pwLight`).
 - **ChatGPT doesn't hit pixel numbers and changes picture sizes;** proportions to the angler are what matter, because the game scales the building to the angler. Check proportions (door vs angler, eave vs angler), not pixels.
 - **The building must stand behind the angler:** a phone shows only about 1.6 angler heights to the angler's left; the first boathouse, wholly left of the angler's spot, would not have shown on phones.
+- **A light outline against the sky** survived the key and the spill fix because the painted edge itself carried key colour → trim the land's cut edge 2 px and soften 1 px (`erodeEdge` in tools/paint_prep.html).
+- **Dawn/dusk jumps:** a dawn tint that differs from the dusk tint switches at the clock's turn while the light is still warm → one tint for both.
