@@ -1,0 +1,11 @@
+This is very close, thank you. Please repaint Picture A with these changes, and keep everything else exactly as it is (the roof, the shoji door and windows, the bamboo blind, the wind chime, the lanterns, the green background, the empty deck, strict side view):
+
+1. MATCH THE LAKE PAINTING'S STYLE MORE CLOSELY. Right now the house is brighter, more saturated and crisper than my Cherry Blossom painting, so it would look pasted on. Make it softer and more painterly like the painting: a gentler, slightly faded vermilion instead of strong red, softer edges and brushwork, lighter and airier overall, with the same soft daylight as the painting. It should look painted by the same artist, in the same light.
+
+2. LONGER POSTS. Below the deck, the posts should be about as long as the walls are tall (from the deck up to the eaves' lower edge), going straight down to the bottom edge of the picture. Remove the dark weathered post bottoms and any wet band: the posts should look the same all the way down, because the game adds the waterline. Keep the diagonal braces under the deck. If you need room, make the whole house a little smaller in the picture, but keep a small margin on the left, right and top.
+
+3. MOVE THE IMPORTANT DETAILS TO THE RIGHT. On phones the left 40% of the house is cut off by the screen edge. Put the sliding shoji door in the middle-right part of the wall, the two windows to its left, and keep one paper lantern near the right end of the wall. The bamboo blind and the wind chime can stay near the door.
+
+4. THE DECK AS A SIDE VIEW. Show the deck as we would see it exactly from the side: its front edge and planks' ends, with at most a very thin strip of the top surface, so the deck surface reads as one flat, level line where the angler's feet go.
+
+Same size as before: 1536x1024, pure #00FF00 green background, no angler, seat, pet, water or scenery, nothing lit. After this, I'll ask for Picture B, the front railing on its own.

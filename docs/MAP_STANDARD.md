@@ -78,6 +78,7 @@ Cherry Blossom (src/w_blossom.js, src/w_blossom_art.js; history: docs/reviews/bl
 - Painted layers are built at fine light steps (32) and faded in over about 1.3 s, so dusk and dawn change smoothly with no jumps. Arriving shows the right light at once.
 **Water and reflections**
 - The lake and its reflections are drawn under the land, and the land is drawn again on top, so no water effect (ripples, glitter, rain, petals) ever crosses rock, islands or flowers.
+- **ChatGPT paints no reflections and no water effects** (director, 2026-11-24: "you do reflections better than chat gpt for sure"): every painting request (maps, buildings, chairs) says no reflections, ripples, water, shadows on the water or glow; Claude builds them in the game.
 - Reflections are made from the land itself at each shoreline, not painted. Something standing in front of the far shore (an island, a torii) mirrors at its own base. A bridge mirrors at one fixed line, its posts' waterline. The shoreline is smoothed hard, because a 1 px wobble moves a reflection 2 px. Check reflections in full-size crops against what they mirror.
 - The sky shows in the lake (clouds, the moon's path), cut where the land's reflection stands. There is no sun reflection on this water (director).
 - Reflections fade with depth, are a little darker and cooler, and are fainter at night.

@@ -1,0 +1,19 @@
+A change of plan before you repaint, which makes this simpler.
+
+We are removing home customisation from Driftline for now (the "home" idea will come back later as something else). From now on, every map has ONE fixed building or dock that belongs to it, and it becomes part of the map's painting. Nothing needs to be swappable or recoloured.
+
+FOR CHERRY BLOSSOM LAKE (now)
+The map painting is finished and approved, so I don't want it repainted. Claude will place your tea house into the existing painting. So please repaint Picture A once more as a cut-out, with these changes, and keep everything else as it is (the roof, the shoji door and windows, the bamboo blind, the wind chime, the lanterns, strict side view, the empty deck, the green background):
+
+1. MATCH THE LAKE PAINTING'S STYLE. It is now part of the painting itself, so this matters most. Right now the house is brighter, more saturated and crisper than my painting. Make it softer and more painterly: a gentler, slightly faded vermilion instead of strong red, softer edges and brushwork, lighter and airier, in the same soft daylight as the painting. It should look painted by the same artist at the same time.
+
+2. POSTS THAT MEET THE WATER. The posts should go straight down from the deck and end where they enter the lake, with a soft darker wet band just above the waterline, like the rocks and the torii in my painting. Below the deck they should be a little shorter than the walls are tall. Paint no water, ripples or reflections: Claude adds the reflection from the painting itself.
+
+3. THE BEST DETAILS ON THE RIGHT. On phones the left part of the house can be cut off by the screen edge. Put the sliding shoji door in the middle-right part of the wall, the two windows to its left, and one paper lantern near the right end of the wall. The bamboo blind and the wind chime can stay near the door.
+
+4. THE DECK EXACTLY FROM THE SIDE. Show its front edge and the planks' ends, with at most a very thin strip of the top surface, so the deck surface reads as one flat, level line. The angler stands on the open right part of the deck and fishes to the right, so leave that part empty and keep the deck's front open: no railing.
+
+Same size and format as before: 1536x1024, pure #00FF00 green background, no angler, seat, pet, water or scenery, nothing lit (the game makes dusk, night and the glowing windows and lanterns from the daytime picture).
+
+FOR THE OTHER MAPS (later, no need to answer now)
+When we repaint the other 19 maps, I'll ask you to paint each map's own building or dock straight into the map painting, in the same style and light, at a spot we'll give you, with an open deck where the angler stands. Please tell me briefly if there's anything you'd want from us to make that work well.

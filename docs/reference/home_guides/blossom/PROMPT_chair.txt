@@ -1,0 +1,32 @@
+ATTACH: 5_angler_sitting.png (how the game's angler sits today, on the old code-drawn tea house)
+
+----- COPY FROM HERE -----
+
+Perfect, this tea house is exactly right and it's going into the game as it is. Now one last piece: a chair for the angler to sit in when the player rests.
+
+HOW THE CHAIR IS USED
+- The chair is NOT part of the tea house picture. It's a separate cut-out that the game places on the deck right where the angler is, and the game draws the angler sitting in it. If we move the angler's fishing spot later, the chair moves with them. So it must stand on its own and look right on any flat wooden deck.
+- I've attached a picture of how the game's angler sits today (on a small red cushion, on the old code-drawn house, which we are replacing). The angler is small and simple, sits upright facing right, holding the rod out toward the lake, with the knees bent and the feet on the floor in front.
+
+THE CHAIR
+- A low, simple Japanese-style wooden chair that belongs on the tea house deck you painted: a low cedar chair with a short slatted backrest and a soft, flat cushion on the seat. Calm and simple, no carving, no armrests (the angler's arm holds the rod out to the side).
+- Wood the same colour and weathering as the tea house's deck planks, with a touch of the same faded vermilion only if it looks natural; the cushion in a soft muted colour that suits the cherry blossom lake (a dusty indigo or a muted sakura pink).
+- STRICT side view, facing right: the backrest is on the LEFT, the open front of the seat on the RIGHT, both back legs and front legs seen from the side (we see one side of the chair, no perspective, no top of the seat visible beyond the cushion's edge).
+- Exactly the same painted style, brush softness, colours and soft daylight as the tea house you just made. Nothing lit, no glow.
+
+PROPORTIONS (1 AH = the height of the standing angler; the sitting angler in the picture shows the scale)
+- Seat top (on the cushion) about 0.35 AH above the floor.
+- Seat depth, front to back, about 0.4 AH.
+- Backrest top about 0.75 AH above the floor.
+- All four legs end on one flat, level line (the floor), the same line across the whole chair.
+
+WHAT I NEED BACK
+- The chair alone on a flat pure #00FF00 green background, 1024x1024. Make the chair large (about 60% of the picture's height) so it keeps its detail; the game scales it down. Keep a margin on every side.
+- No angler, no deck or floor, no shadow, no scenery, no text. Keep green out of the chair itself (no green paint, no green edges).
+
+CHECK BEFORE YOU SEND IT
+1. Strict side view, backrest on the left, facing right.
+2. Seat at about half the backrest's height.
+3. All legs end on one level line.
+4. Same style and soft colours as the tea house.
+5. Plain green background only.
