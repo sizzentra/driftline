@@ -21,7 +21,7 @@ Cherry Blossom Lake (the finished one) has: a tea house on red stilts, Mount Fuj
 ## Style rules for every painting
 1. **Strict side view.** No three-quarter view, no perspective, no tops of things seen from above. A roof is a roof profile, a deck shows its front edge.
 2. **Daytime only.** Neutral soft daylight. No dusk or night versions, no lit windows, no glowing lanterns, no light effects. (Separately painted dusk and night versions never line up and blur when blended; the game relights your day painting instead.)
-3. **No reflections, no water effects.** Don't paint reflections, ripples, wakes, splashes, shadows on the water, or sparkles. The game builds them exactly from your painting. (A painted reflection layer sat 12 px off its objects.)
+3. **No reflections, no water effects, but still real painted water.** Don't paint mirrored images of the land or sky, ripple rings, wakes, splashes, shadows on the water, or sparkles: the game builds them exactly from your painting (a painted reflection layer sat 12 px off its objects). **But never flat solid colour either:** the water itself must look like water, with a depth gradient (lighter and hazier toward the far shore, deeper toward the viewer, clearer and lighter in the near shallows) and a soft, gentle surface texture of small waves across it, in the painting's brushwork. The game ripples that texture; a flat blue gives it nothing to work with.
 4. **Soft, painterly, slightly faded colour.** Match the map painting's brushwork and saturation exactly. A first building painted bright, saturated and crisp looked pasted on; the softer, faded version blended in.
 5. **Nothing the game draws itself:** no angler, rod, fishing line, float, fish, pet, people, text, labels, frame or border.
 6. **Keep green out of the art** when you deliver on a green background: no green paint on edges, no green tint, no bright green moss right at an edge. Natural foliage is fine inside the picture, never touching the cut-out's edge.
@@ -39,7 +39,7 @@ Deliver each as its own picture at the same size and alignment, on a flat pure #
 1. **Land:** everything solid (far mountains, hills, shores, islands, trees, landmark, near corners), with the **sky and the water left empty** (green). The game shows its own sky, sun, moon and stars through it.
 2. **Sky:** the sky alone (we may use the game's own sky instead).
 3. **Clouds:** each cloud separate, so they can drift behind the land.
-4. **Water:** the water surface alone, clean, with **no reflections** (the game adds them).
+4. **Water:** the water surface alone: no mirrored land or sky, but with its depth gradient and soft wave texture painted in (never one flat colour).
 5. **The signature motion pieces:** for example a waterfall's column on its own, so it can flow.
 6. **The building with its deck and supports** (see below), as a cut-out.
 7. **The chair** (see below), as a cut-out.
@@ -68,7 +68,7 @@ A separate small cut-out the game places beside the angler; the angler sits in i
 ## Checklist before you send anything
 1. Strict side view; nothing seen from above.
 2. Daytime only; nothing lit.
-3. No reflections, ripples, splashes or water shadows.
+3. No reflections, ripple rings, splashes or water shadows, but the water is real painted water (depth gradient and soft wave texture), never flat colour.
 4. Soft, slightly faded colour matching the map painting.
 5. No angler, rod, line, fish, pet, people, text or frame.
 6. Clean pure green background; no green on the art's edges.
