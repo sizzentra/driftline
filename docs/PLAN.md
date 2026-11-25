@@ -63,7 +63,12 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
-## UI overhaul brief (director, 2026-11-25; GO for the test builds: "all of this i want in the test builds"; order: the fall map, then Cam's round 7, then this)
+## Director's game review (started 2026-11-25; one thing at a time, NOTHING built until the review is finished)
+The director goes through what they are not a fan of in the game. Each note is recorded here as said (quoted), with a one-line summary. When the review is done, Claude sorts the list and proposes an order; the director decides.
+
+(no notes yet)
+
+## UI overhaul brief (PAUSED 2026-11-25 by the director: "I think we might be thinking about ui too early"; resumes after the game review. Mockups so far: https://claude.ai/artifact/LTLCC9ZqpvqSfLrtg9mp52 , screen 9 the latest; earlier GO for the test builds: "all of this i want in the test builds"; order: the fall map, then Cam's round 7, then this)
 - The director's full brief: docs/reference/UI_OVERHAUL_BRIEF.txt (audit first, then a navigation map and design-system plan; new palette of ink/sea-glass/cream with coral and gold accents; Fishing screen as the hero; Customize, Boardwalk, Tide Pass, Challenges, Collection and Upgrades reworked; no features removed, no economy changes, saves kept).
 - Director: "i want in the test builds just backlogged if possible and saved before changes". **PC ONLY for now** (director, 2026-11-25: "i also want this ui change to only effect pc for now"): every change lives in src/pc/ (body class pch-on); phones stay as they are. When it starts: tag a rollback point first, do the audit and feature checklist, show the navigation proposal and pictures before building, then build it on the test builds section by section.
 - **Filter (director, 2026-11-25: "the Home needs to not be changed since its no longer in the game. that was sent from chat gpt so filter out anything it said thats redundant"):** the brief was written by ChatGPT; skip everything that no longer applies: renaming Home to Dock and any home/boardwalk personalisation (homes are gone), "world paintings" (painted maps are scrapped; the drawn style stays), the mobile navigation sections (PC only), zoom or focus toggles of any kind (director: "anything like zoom functions aren't what we want"), and anything the game already does (the build's own checks, Try before you buy, the Design System). Check each remaining point against the code before acting on it.
