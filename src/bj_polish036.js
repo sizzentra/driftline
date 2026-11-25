@@ -164,7 +164,7 @@ body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
 const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, daily tasks and weekly quests', events:'Challenges, the event calendar, the derby and the weather forecast',
   shop:'Line, reel and other gear, bait and special lures', rods:'Your rods, upgrades and attachments', skills:'Spend skill points on small steady gains', paths:'Big choices that shape your style',
   aquarium:'Fish that earn coins and boosts while you play', trophy:'Fish you keep forever', journal:'Every species and oddity, found and missing', feats:'Goals with rewards',
-  home:'Your dock and its decorations', pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',
+  pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',
   settings:'Sound, controls, display, patch notes and saves', stats:'Every number in the game, and your odds', save:'Move your progress to another device'};
 SEARCH_IDX.push(
  ['Events: challenges','events',null,'challenge rare run mixed bag long cast steady hands treasure dive weigh in trophy'],

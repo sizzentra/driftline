@@ -39,7 +39,7 @@ setTimeout(thumbNext,3000);
 // the Waters pictures are kept on the device between visits (Cam's list #2: after a restart they took about 10 s to appear); a new
 // build or a changed home makes fresh ones, and old ones are cleared out
 const THUMB_DB={ready:null};
-const thumbSig = () => { const s=(window.DL_VERSION||'')+'|'+JSON.stringify(LOCS.map(L=>{ const sp=hfSpec(L.id); return sp?sp.els.map(e=>hfChoice(L.id,e.id).join('.')).join(','):''; })); /* every water's own home choices: travelling no longer throws the saved pictures away (2026-11-22) */ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h>>>0); };
+const thumbSig = () => { const s=(window.DL_VERSION||'')+'|'+LOCS.map(L=>L.id).join(','); /* a new build or a new water list makes fresh pictures (homes are fixed: no choices to follow, 2026-11-25) */ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h>>>0); };
 function thumbDB(){ if(THUMB_DB.ready) return THUMB_DB.ready; return THUMB_DB.ready=new Promise(res=>{ try{ const r=indexedDB.open('dl-thumbs',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('t'); }catch(e){} }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ res(null); } }); }
 function thumbSave(id,url){ if(!url||!window.indexedDB) return; const k=thumbSig()+'|'+id; thumbDB().then(db=>{ if(!db) return; try{ db.transaction('t','readwrite').objectStore('t').put(url,k); }catch(e){} }); }
 function thumbLoadAll(){ if(!window.indexedDB) return; const sig=thumbSig(); thumbDB().then(db=>{ if(!db) return; try{ const rq=db.transaction('t','readwrite').objectStore('t').openCursor();

@@ -120,21 +120,6 @@ html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl,html
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button,html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button{padding-left:3px!important;padding-right:3px!important;justify-content:center!important}
 </style>`);
-/* "home", not "dock", wherever the text is about any water (director: "some places won't be called docks, make sure that's corrected
-   for places without a true dock"). Phones and tablets: the Home page, feats, Tide Pass rewards, notices and Search. Flavour text
-   (a fish that is "a dock regular") stays. */
-const DEDOCK=[[/\bDock decoration:/g,'Home decoration:'],[/\bDock decorations\b/g,'Home decorations'],[/\bDock wood: pale, pearly planks for any of your docks\./g,'Home wood: pale, pearly planks for any home with wood.'],
-  [/\bdecorations on your dock\b/g,'decorations at your home'],[/\bcozy on your dock\b/g,'cozy at your home'],[/\bYour dock is full\b/g,'Your home is full'],[/\bfor more docks\b/g,'for more homes'],
-  [/\bYou are editing the dock at\b/g,'You are editing your home at'],[/\bIt starts as a copy of the dock you arrive with\b/g,'It starts as a copy of the home you arrive with'],
-  [/^Tap again: replace the (.+) dock$/,'Tap again: replace your home at $1'],[/\bPreviewing on your dock:/g,'Trying at your home:'],[/\bon your dock\b/g,'at your home'],
-  [/\bYour dock and its decorations\b/g,'Your home and its decorations'],[/\bYour dock at each water\b/g,'Your home at each water'],[/^Home: dock\b/,'Home'],[/^Full dock$/,'Full home']];
-const deDockText=s=>{ if(!s||s.indexOf('ock')<0) return s; let t=s; for(const [re,to] of DEDOCK) t=t.replace(re,to); return t; };
-{ const walk=root=>{ if(!root) return; const it=document.createTreeWalker(root,NodeFilter.SHOW_TEXT); let n; while((n=it.nextNode())){ const v=n.nodeValue; if(v.indexOf('ock')<0) continue; const t=deDockText(v); if(t!==v) n.nodeValue=t; } };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()) walk($('panel')); }catch(e){} return r; };
-  const _t=toast; toast=function(m){ return _t.call(this,MOB()?deDockText(String(m)):m); };
-  /* Search results are built from the index when you type: their text is fixed as it appears */
-  new MutationObserver(ms=>{ if(!MOB()) return; for(const m of ms) for(const a of m.addedNodes) if(a.nodeType===1) walk(a); }).observe(document.body,{childList:true,subtree:false});
-  document.addEventListener('input',()=>{ if(MOB()) setTimeout(()=>{ const sv=document.getElementById('searchov'); if(sv) walk(sv); },0); },true); }
 /* Save > App on phones: how to install Driftline on THIS phone (the Windows program was the only thing offered) */
 pageDone('save',P=>{ /* a finishing touch of the Save page (Clean Pages 2026-11-21: was its own renderPanel wrapper) */
       const tile=[...P.querySelectorAll('.tile')].find(t=>/Windows desktop app/.test(t.textContent)); if(!tile||tile.dataset.mb) return; tile.dataset.mb='1';

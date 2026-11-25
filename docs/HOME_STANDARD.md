@@ -1,3 +1,5 @@
+> **HISTORY (2026-11-25): the home options described here were removed from the code. Every water now has one fixed building, platform and seat (src/cw_homes.js `look`, or a home that draws itself like Maplewood Hollow's treehouse). Kept only as a record for a later idea.**
+
 # Driftline home standard (decided with the director, 2026-11-21)
 
 > **PAUSED (director, 2026-11-24): home customisation is removed for now** ("I want to repurpose homes to a later concept… it would just slow down the progression"). Players no longer choose styles or colours: every water shows its home in its default look (`hfChoice` ignores saved choices; the choices stay in saves for the later idea). The Your home page, its Home chips, lessons and search entries are gone. Going forward each water's building is painted with its map (ChatGPT paints, Claude places; docs/MAP_STANDARD.md › "The painted-scenery standard"), with a separate painted chair placed beside the angler. Cherry Blossom is the first (src/w_blossom_home.js). This file is kept as history and for the later idea; its rules on parts, styles and colours do not apply now.

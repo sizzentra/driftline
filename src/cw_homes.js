@@ -1,27 +1,18 @@
 // =====================================================================
-// Every water's home (batch 5, 2026-11-22; designs in docs/HOME_DESIGNS.md, colours in docs/MAP_THEMES.md). Willow Pond (the
-// approved pilot) is in cv_homefmt.js; these 19 are built from the home kit (cw_homekit.js). Each home: the seat plus 5 features
-// made for that water, 3 styles each ("none" first where a feature can be left out), one list of 16 colours for every feature.
-// A home listed here replaces that water's older home (the scene draws HOMEF homes instead, f_v3scene.js).
+// Every water's home: ONE fixed building, platform and seat per water (homes are fixed since 2026-11-24; the options were removed on
+// 2026-11-25). Each home's look is a list of its parts, each part's style and colour (look), drawn by the kit (cw_homekit.js) and the
+// building's own file (src/cw_<building>.js); its seat is one kind (seat) and one part carries its light (light).
 // =====================================================================
-function hfMake(id,d){ d.seatH=d.seat.map(k=>HK.seatH(k));
-  d.els.push({id:'seat',label:'Seat',styles:d.seatNames,def:d.seatDef||[0,0],pal:d.seatPal}); /* a home may limit its seats to real colours (seatPal) */
+function hfMake(id,d){ d.seatH=HK.seatH(d.seat);
   d.paint=function(o){ o.lights=[]; const col=e=>hfColor(id,e);
-    for(const [e,fn] of d.order){ o.elCol=col(e); /* lights read their feature's colour (a stove's body, director 2026-11-22: colours did nothing) */ const r=e==='seat'?HK.seat(o,d.seat[hfStyle(id,'seat')],col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
+    for(const [e,fn] of d.order){ o.elCol=col(e); /* lights read their part's colour (a stove's body) */ const r=e==='seat'?HK.seat(o,d.seat,col('seat')):fn(o,hfStyle(id,e),col(e),col); if(r&&r.x!=null) o.lights.push(r); } };
   HOMEF[id]=d; }
-const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.trim()]; });
 /* 1. Willow Pond: the boathouse (overnight, 2026-11-23; its own design, src/cw_pondhouse.js): a gable-end boathouse over the water with its
    boat bay at the waterline, a cupola on the ridge and a lean-to porch along its side; a pine bank behind it, round piles under the deck */
-{ const PW=C16('Honey pine=#b98a5a;Weathered pine=#8a6a4a;Dark stain=#5a4030;Driftwood=#9a9488;Moss=#5f8a6c;Pine green=#2c4a3e;Sage=#9ab08a;Willow=#7fae5c;Lake teal=#3f827b;Sky blue=#86bcd9;Canvas=#f3e4ca;Warm white=#f4efe6;Barn red=#a8483a;Lantern gold=#e8b04a;Dusk rose=#c97a8a;Lilac=#8a7aa8');
-  const G1=()=>PH.geo({pw:HF.pw(),dockY:HF.dockY()}), LT=()=>{ const g=G1(); return {x0:g.xb,x1:g.x1,vx:g.xb,wallTop:g.lt,winA:g.xb+W*.014,winB:g.x1-W*.03}; };
-  hfMake('pond',{ name:'Boathouse', hname:'boathouse', glow:'255,210,140', seatX:()=>HF.pw()-W*.028, colors:PW, front:null, smoke:null,
-    els:[{id:'walls',label:'Walls',styles:['Board and batten','Shiplap','Cedar shingles'],def:[0,12],pal:[0,1,2,3,4,5,6,8,10,11,12]},
-         {id:'roof',label:'Roof',styles:['Asphalt shingles','Cedar shakes','Tin roof'],def:[1,1],palS:[[2,3,4,5,12],[0,1,2,3],[3,4,5,8,9,11,12]]},
-         {id:'cupola',label:'Cupola',styles:['Cupola with a fish vane','Rooster weathervane','Little bell'],def:[0,11],pal:[0,1,2,4,5,10,11,12]},
-         {id:'bay',label:'Boat bay',styles:['Open, canoe inside','Swing doors','Sliding door'],def:[0,11],pal:[0,1,2,4,5,8,10,11,12]},
-         {id:'windows',label:'Windows',styles:['Four-pane windows','Windows with flower boxes','Shuttered windows'],def:[0,11],pal:[0,1,2,4,5,8,9,10,11,12]},
-         {id:'light',label:'Lantern',light:true,styles:['Hurricane lantern','Lamp post','String lights'],def:[0,13],pal:[2,3,5,12,13]}],
-    seat:['deckchair','logbench','campchair'], seatNames:['Wooden folding chair','Log bench','Camp chair'], seatDef:[0,0], seatPal:[0,1,2,4,5,8,9,10,12,13],
+{   const G1=()=>PH.geo({pw:HF.pw(),dockY:HF.dockY()}), LT=()=>{ const g=G1(); return {x0:g.xb,x1:g.x1,vx:g.xb,wallTop:g.lt,winA:g.xb+W*.014,winB:g.x1-W*.03}; };
+  hfMake('pond',{ name:'Boathouse', hname:'boathouse', glow:'255,210,140', seatX:()=>HF.pw()-W*.028, front:null, smoke:null,
+    look:{walls:[0,'#a8483a'],roof:[1,'#8a6a4a'],cupola:[0,'#f4efe6'],bay:[0,'#f4efe6'],windows:[0,'#f4efe6'],light:[0,'#e8b04a'],seat:[0,'#b98a5a']}, light:'light',
+    seat:'deckchair',
     order:[
       ['base',(o)=>{ PH.ground(o); BH.piles(o,'log','#8a6a4a'); HK.deck(o,'#b98a5a','planks'); }],
       ['walls',(o,s,c)=>{ const g=PH.geo(o), K=['batten','shiplap','shingles'][s]; PH.leanTo(o,g,K,c,['shingles','shakes','tin'][hfStyle('pond','roof')],hfColor('pond','roof')); }],
@@ -36,15 +27,9 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
    ferns and foxgloves around it; the deck runs along its front as a walkway */
 { const G2=()=>MH.geo({pw:HF.pw(),dockY:HF.dockY()}), LW=()=>{ const g=G2(), fl=g.wallTop+(HF.dockY()-g.wallTop)*.48; return {x0:g.x0,x1:g.x1,vx:g.vx,wallTop:fl,winA:g.x0+(g.x1-g.x0)*.5,winB:g.x1-W*.026}; };
   hfMake('river',{ name:'Mill house', hname:'mill house', glow:'255,205,140', seatX:()=>HF.pw()-W*.026,
-    colors:C16('River stone=#bab2a2;Dark stone=#8a8478;Slate=#5a6470;Mill oak=#7a5a3e;Dark oak=#4a3626;Roof brick=#7a4a3a;Iron=#3a3a40;Moss=#6a9a5e;Fern=#4f8050;River blue=#5a9aa4;Deep teal=#28525e;Sky=#a8d0ec;Birch white=#eef0e2;Autumn orange=#c8783a;Maple red=#a8402e;Wheat=#d8c08a'),
     front:null, smoke:(n,t)=>BH.smoke(n,t,MH.chimTop(G2(),['stone','brick','pipe'][hfStyle('river','chimney')]),hfStyle('river','chimney')===2?.7:1),
-    els:[{id:'walls',label:'Walls',styles:['Fieldstone','Whitewashed stone','Timber frame'],def:[0,0],palS:[[0,1,2],[12,0,15],[12,15,0]]},
-         {id:'roof',label:'Roof',styles:['Slate','Cedar shakes','Thatch'],def:[0,2],palS:[[2,1,5,6],[3,4,1],[15,3,13]]},
-         {id:'dormer',label:'Dormer',styles:['Hoist and flour sack','Dormer window','Pigeon loft'],def:[0,3],pal:[3,4,6,9,10,14]},
-         {id:'chimney',label:'Chimney',styles:['Fieldstone','Brick','Stovepipe'],def:[0,1],palS:[[0,1,2],[5,14,13],[6,4,10]]},
-         {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[2,3],pal:[3,4,5,7,8,9,10,14]},
-         {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Arched windows','Shuttered windows'],def:[1,4],pal:[3,4,5,7,8,9,10,14]}],
-    seat:['stump','gardenbench','barrel'], seatNames:['Stump stool','Slatted bench','Barrel'], seatDef:[1,3], seatPal:[0,1,3,4,7,8,13,14,15],
+    look:{walls:[0,'#bab2a2'],roof:[0,'#5a6470'],dormer:[0,'#7a5a3e'],chimney:[0,'#8a8478'],door:[2,'#7a5a3e'],windows:[1,'#4a3626'],seat:[0,'#7a5a3e']}, light:'windows',
+    seat:'gardenbench',
     order:[
       ['base',(o)=>{ MH.ground(o); BH.piles(o,'stone','#8a8478'); }],
       ['chimney',(o,s,c)=>MH.chimney(o,G2(),['stone','brick','pipe'][s],c)],
@@ -60,15 +45,9 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
    bracing, barnacles and weed, a ladder with a dory tied to it and a gull on the mooring piling */
 { const G4=()=>SS.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G4(); return {x0:g.x0,x1:g.x1,vx:g.vx,wallTop:g.wallTop,winA:g.x0+g.w*.36,winB:g.x0+g.w*.6}; };
   hfMake('coast',{ name:'Lobster shack', hname:'lobster shack', glow:'255,210,150', seatX:()=>HF.pw()-W*.03,
-  colors:C16('Driftwood=#a8a090;Silver-grey=#8a8a84;Tar black=#2e2a28;Weathered blue=#5a7a8a;Sea glass=#9adcd8;Sea teal=#3aa0a8;Deep sea=#145a6a;Sand=#e8d6a4;Dune grass=#8aa85a;Rope tan=#c8a878;Buoy red=#c8483a;Buoy yellow=#e8c04a;Lighthouse white=#f4f0e6;Shingle brown=#6a5440;Gull grey=#c8ccd0;Oilskin yellow=#d8b030'),
   front:null, smoke:null,
-  els:[{id:'siding',label:'Siding',styles:['Cedar shingles','Clapboard','Board and batten'],def:[0,1],palS:[[0,1,13,14],[3,10,12,6,14],[0,1,3,10,12]]},
-       {id:'roof',label:'Roof',styles:['Asphalt shingles','Cedar shakes','Tin roof'],def:[0,2],palS:[[2,1,6,13],[13,0,1],[1,14,10,3]]},
-       {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[0,10],pal:[2,3,5,6,10,11,12,15]},
-       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Porthole windows','Shuttered windows'],def:[0,12],pal:[2,3,5,6,10,12,15]},
-       {id:'tackle',label:'Fishing gear',styles:['Buoys on the wall','Lobster pots','Drying net'],def:[0,10],palS:[[10,11,12,5,15],[13,0,3,10],[5,8,9,6]]},
-       {id:'light',label:'Lamp',styles:['Ship’s lantern','Harbour lamp','Buoy light'],def:[0,13]}],
-  seat:['crate','bucket','driftbench'], seatNames:['Fish crate','Upturned bucket','Driftwood bench'], seatDef:[0,0],
+  look:{siding:[0,'#8a8a84'],roof:[0,'#2e2a28'],door:[0,'#c8483a'],windows:[0,'#f4f0e6'],tackle:[0,'#c8483a'],light:[0,'#6a5440'],seat:[0,'#a8a090']}, light:'windows',
+  seat:'crate',
   order:[
     ['base',(o)=>{ SS.ground(o); HK.deck(o,'#a8a090','boards'); }],
     ['siding',(o,s,c)=>SS.walls(o,SS.geo(o),['shingles','clapboard','batten'][s],c)],
@@ -84,15 +63,9 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
    footprints to a tip-up over its hole, a box sled beside it. The old tent, igloo, stove, hole and sled choices became this one building */
 { const G5=()=>FS.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G5(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop,winA:g.x0+g.w*.45,winB:g.x0+g.w*.72}; }, DR=()=>{ const g=G5(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop}; };
 hfMake('frost',{ name:'Ice shanty', hname:'ice shanty', ice:true, glow:'255,190,120', seatX:()=>HF.pw()-W*.03,
-  colors:C16('Snow white=#f6f8ff;Frost=#d8e8f6;Ice blue=#8aaad0;Glacier=#4a6a9a;Deep ice=#1a2a4a;Spruce=#3e5a78;Birch=#e8e0d0;Birch bark=#4a4440;Timber=#7a5440;Dark timber=#4a3428;Wool red=#b8383a;Wool cream=#f0e6d0;Stove iron=#2a2a30;Lantern orange=#f0983a;Aurora green=#7af0b0;Dusk mauve=#9a88b8'),
   front:null, smoke:(n,t)=>BH.smoke(n,t,FS.chimTop(G5(),hfStyle('frost','chimney')),.8),
-  els:[{id:'walls',label:'Walls',styles:['Painted boards','Shiplap','Canvas over a frame'],def:[0,10],palS:[[10,5,3,8,6,15],[8,9,6],[11,10,5,3]]},
-       {id:'roof',label:'Roof',styles:['Tin roof','Shingles','Canvas'],def:[0,12],palS:[[12,3,10,5],[9,7,12],[11,5,10]]},
-       {id:'chimney',label:'Stovepipe',styles:['Straight pipe','Capped pipe','Elbow pipe'],def:[0,12],pal:[12,7,9,13]},
-       {id:'door',label:'Door',styles:['Plank door','Dutch door','Arched door'],def:[0,9],pal:[9,8,10,11,5,3]},
-       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Round windows','Shuttered windows'],def:[0,11],pal:[11,9,10,5,3,6]},
-       {id:'gear',label:'Gear',styles:['Hand auger','Bait bucket','Catch on the ice'],def:[0,10]}],
-  seat:['bucket','furbench','icechair'], seatNames:['Bucket stool','Fur bench','Ice chair'], seatDef:[0,12],
+  look:{walls:[0,'#b8383a'],roof:[0,'#2a2a30'],chimney:[0,'#2a2a30'],door:[0,'#4a3428'],windows:[0,'#f0e6d0'],gear:[0,'#b8383a'],seat:[0,'#2a2a30']}, light:'windows',
+  seat:'bucket',
   order:[
     ['shelf',(o)=>{ const x0=HF.x0(), y=o.dockY, x=o.x, pw=o.pw+W*.012, wl=o.wl, r=v3rng(7); /* the ice shelf the camp stands on: snow on top, blue ice face, ragged foot with icicles, fading into the water */
       const g=x.createLinearGradient(0,y,0,wl+H*.04); g.addColorStop(0,HK.n(o,'#cfe0f4')); g.addColorStop(.6,HK.n(o,'#7a9ac8')); g.addColorStop(1,v3rgba(HK.n(o,'#4a6a9a'),0)); x.fillStyle=g;
@@ -115,17 +88,11 @@ hfMake('frost',{ name:'Ice shanty', hname:'ice shanty', ice:true, glow:'255,190,
 
 /* 6. Canadian Rockies: the log cabin */
 hfMake('rockies',{ name:'Log cabin', hname:'log cabin', glow:'255,205,130', front:(n,cx)=>rkFront(n,cx), smoke:(n,t)=>rkSmoke(n,t), seatX:()=>HF.pw()-W*.028 /* at the deck's edge, close to the water (director, 2026-11-23: "why would anybody ever fish from that far away") */,
-  colors:C16('Cedar log=#9a6a42;Spruce log=#7a5a3e;Dark log=#4a3426;Granite=#9a948a;Dark granite=#5a5650;Glacier turquoise=#2a9aa8;Ice teal=#7ad8d8;Deep lake=#0a4858;Spruce green=#2e5040;Moss=#5a7a4a;Snow=#f4f8fc;Flannel red=#b8322a;Flannel black=#2a2626;Maple orange=#d8702a;Birch cream=#ece2cc;Canoe green=#3a6a4a'),
   /* the log cabin (director, 2026-11-22 night: "customise aspects of a log cabin"): a wide log lodge seen from its long side at the back of a
      log deck on a granite ledge. Its walls, roof, chimney, porch, door and windows are the choices, each one real-life option for that part
      in the colours real ones come in (director, 2026-11-23: door and windows are two parts; "tin" any colour; a real sod roof) */
-  els:[{id:'walls',label:'Log walls',styles:['Round logs','Dovetailed timbers','Logs on a stone base'],def:[0,0],pal:[0,1,2,8,11,12,13,14,15]},
-       {id:'roof',label:'Cabin roof',styles:['Cedar shakes','Tin roof','Sod roof'],def:[0,4],palS:[[0,1,2,3,4,8,12,13,14],[0,2,3,4,5,7,8,10,11,12,13,14,15],[9,8,13,14]]},
-       {id:'chimney',label:'Chimney',styles:['Fieldstone','Stovepipe','Brick'],def:[0,3],palS:[[3,4,14,0],[12,2,4,7,8,11,15],[11,13,0,2,14,12]]},
-       {id:'porch',label:'Porch',styles:['Open deck','Covered porch','Porch with log rail'],def:[1,1],pal:[0,1,2,8,11,12,13,14,15]},
-       {id:'door',label:'Door',styles:['Plank door','Dutch door','Door with a glass pane'],def:[0,11],pal:[0,1,2,5,7,8,11,12,13,14,15]},
-       {id:'windows',label:'Windows',light:true,styles:['Four-pane windows','Windows with flower boxes','Shuttered windows'],def:[0,2],pal:[0,1,2,5,7,8,11,12,13,14,15]}],
-  seat:['muskoka','stumpblanket','logrocker'], seatNames:['Muskoka chair','Stump and blanket','Log rocker'], seatDef:[0,11], seatPal:[0,1,2,8,11,12,13,14,15],
+  look:{walls:[0,'#9a6a42'],roof:[0,'#5a5650'],chimney:[0,'#9a948a'],porch:[1,'#7a5a3e'],door:[0,'#b8322a'],windows:[0,'#4a3426'],seat:[0,'#b8322a']}, light:'windows',
+  seat:'muskoka',
   order:[
     ['base',(o)=>{ rkShore(o); rkLedge(o); HK.deck(o,'#8a6040','logs'); }],
     ['chimney',(o,s,c)=>{ const C=rkCab(o), x=C.x1-W*.04, w=W*.016, top=C.roofTop-H*.045, y=C.wallTop+H*.01, q=o.x; /* at the lodge's right end; drawn before the roof, which covers its foot */
@@ -279,15 +246,9 @@ function rkLedge(o){ const x=o.x, y=o.dockY, yu=y+HK.fh(), wl=o.wl, at=f=>HK.at(
    starfish showing through, a coconut palm leaning over the roof. The old stilts, platform and cover choices became this one building */
 { const G7=()=>RB.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G7(); return {x0:g.x0,x1:g.x1,vx:g.x0,wallTop:g.wallTop,winA:g.x0+g.w*.45,winB:g.x0+g.w*.72}; };
 hfMake('reef',{ name:'Overwater bungalow', hname:'bungalow', glow:'255,200,140', seatX:()=>HF.pw()-W*.03,
-  colors:C16('Palm wood=#9a7a52;Bleached wood=#c8b088;Thatch=#d8b46a;Dark thatch=#a8843a;Sand=#f4e2b0;Shell white=#fbf2e4;Turquoise=#18b0c0;Lagoon=#7ae8e0;Deep reef=#0a6a8a;Palm green=#3a9a4a;Frond dark=#22703a;Coral=#ff7a6a;Mango=#ffb84a;Orchid=#c86ad8;Hibiscus red=#e0403a;Sky blue=#6ccaf4'),
   front:null, smoke:null,
-  els:[{id:'walls',label:'Walls',styles:['Woven bamboo','Palm planks','Reed screens'],def:[0,1],palS:[[1,0,4],[0,1,5,6],[1,2,3]]},
-       {id:'thatch',label:'Roof',styles:['Palm thatch','Layered reed thatch','Palm-leaf shingles'],def:[0,2],palS:[[2,3],[2,3,1],[9,10,3]]},
-       {id:'door',label:'Door',styles:['Cloth curtain','Plank door','Arched door'],def:[0,11],palS:[[11,12,13,14,6,5],[0,1,6,8],[0,1,6,8]]},
-       {id:'windows',label:'Windows',styles:['Shuttered windows','Round windows','Four-pane windows'],def:[0,6],pal:[0,1,5,6,8,11,12]},
-       {id:'gear',label:'Beach gear',none:true,styles:['No gear','Surfboard','Snorkel set','Shell garland'],def:[1,11]},
-       {id:'torch',label:'Torch',light:true,styles:['Tiki torch','Shell lantern','Glass floats'],def:[0,13]}],
-  seat:['beachchair','hammock','peacock'], seatNames:['Beach chair','Hammock','Peacock chair'], seatDef:[0,6],
+  look:{walls:[0,'#c8b088'],thatch:[0,'#d8b46a'],door:[0,'#ff7a6a'],windows:[0,'#18b0c0'],gear:[1,'#ff7a6a'],torch:[0,'#c86ad8'],seat:[0,'#18b0c0']}, light:'torch',
+  seat:'beachchair',
   order:[
     ['base',(o)=>{ RB.ground(o); HK.supports(o,'#9a7a52','palm',5); HK.deck(o,'#c8b088','planks'); }],
     ['walls',(o,s,c)=>RB.walls(o,RB.geo(o),['woven','shiplap','bamboo'][s],c)],
@@ -301,12 +262,9 @@ hfMake('reef',{ name:'Overwater bungalow', hname:'bungalow', glow:'255,200,140',
    to the right, with a rub rail, boot stripe, registration and an outboard; console, top and gear choices; staked out with a push pole.
    Same ids as before, so saved choices still fit */
 hfMake('keys',{ name:'Flats skiff', hname:'skiff', floats:true, seatX:()=>HF.pw()-W*.03,
-  colors:C16('Boat white=#f4f6f4;Fiberglass cream=#ece4d0;Aluminium=#b8c0c4;Teak=#9a6a3a;Flats aqua=#28c0c8;Shallow mint=#8af0e0;Deep channel=#0a7090;Conch pink=#f0a0a8;Flamingo=#f06a8a;Mint=#9ae0c0;Lemon=#f4e07a;Sunset orange=#f8a050;Sand=#f4e6c0;Palm green=#3a8a5a;Navy trim=#1e3a5a;Cooler red=#d8483a'),
   front:null, smoke:null,
-  els:[{id:'hull',label:'Hull',styles:['Flats skiff','Bay boat','Pastel jon boat'],def:[0,0]},{id:'top',label:'Top',none:true,styles:['Open sky','T-top','Bimini','Clamp umbrella'],def:[1,1]},
-       {id:'console',label:'Console',styles:['Center console','Poling platform','Tiller boat'],def:[0,0]},{id:'gear',label:'Gear',styles:['Rod holders','Cooler','Flamingo float'],def:[0,15]},
-       {id:'light',label:'Nav lights',light:true,styles:['Bow lights','T-top light','Cooler lantern'],def:[0,13]}],
-  seat:['captain','coolerseat','beanbag'], seatNames:['Captain’s chair','Cooler seat','Bean bag'], seatDef:[0,14],
+  look:{hull:[0,'#f4f6f4'],top:[1,'#ece4d0'],console:[0,'#f4f6f4'],gear:[0,'#d8483a'],light:[0,'#3a8a5a'],seat:[0,'#1e3a5a']}, light:'light',
+  seat:'captain',
   order:[
     ['stake',(o)=>FK.ground(o)],
     ['hull',(o,s,c)=>FK.hull(o,s,c)],
@@ -319,12 +277,8 @@ hfMake('keys',{ name:'Flats skiff', hname:'skiff', floats:true, seatX:()=>HF.pw(
 /* 9. Brine Shelf: the sport-fisher (overnight, 2026-11-23; its own design, src/cw_sportfisher.js; floats): the after half of a big-game boat,
    stern toward the fish, bow off the left edge; cabin, flybridge / wheelhouse / tuna tower, outriggers. Same ids as before, so saved choices fit */
 hfMake('shelf',{ name:'Sport-fisher', hname:'boat', floats:true, seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Hull white=#f2f2ee;Deck teak=#a8743a;Dark teak=#6a4626;Brass=#c8a04a;Chrome=#c0c8cc;Navy hull=#1e2e4a;Ocean blue=#2a7a9a;Deep ocean=#0c3a5a;Foam=#e4f0f0;Sail canvas=#f4ead8;Rope=#c8a878;Flag red=#c8382e;Flag yellow=#e8c03a;Flag blue=#2a5aa8;Life-ring orange=#f0782a;Horizon gold=#ffe0a8'),
-  els:[{id:'hull',label:'Hull',styles:['Sport-fisher','Wooden cruiser','Steel workboat'],def:[0,0]},{id:'bridge',label:'Flybridge',styles:['Open flybridge','Wheelhouse','Tuna tower'],def:[0,0]},
-       {id:'rig',label:'Outriggers',styles:['Twin outriggers','Rod rack','Gaff rack'],def:[0,4]},
-{id:'flags',label:'Flags',none:true,styles:['No flags','Signal flags','Marlin pennant','Burgee'],def:[1,11]},
-       {id:'light',label:'Deck light',light:true,styles:['Brass lantern','Masthead light','Floodlight'],def:[0,15]}],
-  seat:['fighting','teakbench','deckstool'], seatNames:['Fighting chair','Teak bench','Deck stool'], seatDef:[0,1],
+  look:{hull:[0,'#f2f2ee'],bridge:[0,'#f2f2ee'],rig:[0,'#c0c8cc'],flags:[1,'#c8382e'],light:[1,'#ffe0a8'] /* the light up on the tower, not a lamp post on the deck (2026-11-25) */,seat:[0,'#a8743a']}, light:'light',
+  seat:'fighting',
   order:[
     ['hull',(o,s,c)=>SF.hull(o,s,c)],
     ['bridge',(o,s,c)=>SF.bridge(o,s,c,hfColor('shelf','hull'))],
@@ -338,13 +292,8 @@ hfMake('shelf',{ name:'Sport-fisher', hname:'boat', floats:true, seatX:()=>HF.pw
    The old stilts, floor and roof choices became this one building; river gear and lamp keep their ids */
 {
 hfMake('amazon',{ name:'Palafito', hname:'palafito', glow:'255,190,110', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Hardwood=#7a5a3e;Dark hardwood=#4a3420;Vine=#5a6a2a;Palm thatch=#c8a85a;Dry thatch=#a8843a;River clay=#a8683a;Jungle green=#2e6a32;Deep jungle=#123a18;Fern=#6aa04a;Leaf highlight=#a8e07a;Tannin water=#3a5a32;Macaw red=#d8302a;Macaw blue=#2a6ad8;Macaw yellow=#f0c83a;Orchid pink=#e070b0;Mist=#e8f4e0'),
-  els:[{id:'walls',label:'Walls',styles:['Split palm','Woven cane','Clay plaster'],def:[0,0],palS:[[0,1,3],[3,4,0],[5,3,4]]},
-       {id:'thatch',label:'Roof',styles:['Palm thatch','Dry thatch','Giant leaves'],def:[0,3],palS:[[3,4],[4,3],[6]]},
-       {id:'door',label:'Door',styles:['Woven mat','Plank door','Bead curtain'],def:[0,4],palS:[[3,4,2],[0,1],[11,12,13,14,15]]},
-       {id:'canoe',label:'River gear',none:true,styles:['No gear','Dugout canoe','Paddle and trap','Hanging net'],def:[1,1]},
-       {id:'lamp',label:'Lamp',light:true,styles:['Gourd lamp','Firefly basket','Bamboo torch'],def:[0,13]}],
-  seat:['hammock','wovenstool','logseat'], seatNames:['Hammock','Woven stool','Carved log seat'], seatDef:[0,11],
+  look:{walls:[0,'#7a5a3e'],thatch:[0,'#c8a85a'],door:[0,'#a8843a'],canoe:[1,'#4a3420'],lamp:[0,'#f0c83a'],seat:[0,'#d8302a']}, light:'lamp',
+  seat:'hammock',
   order:[
     ['base',(o)=>{ AP.ground(o); HK.deck(o,'#7a5a3e','planks'); }],
     ['walls',(o,s,c)=>AP.walls(o,AP.geo(o),['batten','woven','plaster'][s],c)],
@@ -357,11 +306,8 @@ hfMake('amazon',{ name:'Palafito', hname:'palafito', glow:'255,190,110', seatX:(
 /* 11. Midnight Deep: the trawler (overnight, 2026-11-23; its own design, src/cw_trawler.js; floats): a rust-streaked steel stern trawler with a
    high bulwark, freeing ports, tyre fenders and a towering wheelhouse forward; net drum, gantry with a trawl door, or crab pots. Same ids as before */
 hfMake('deep',{ name:'Trawler', hname:'trawler', floats:true, seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Steel grey=#6a7480;Dark steel=#3a424c;Gunmetal=#2a2e34;Rust=#8a4a2a;Rust light=#b8683a;Safety orange=#f0782a;Float orange=#e85a2a;Oilskin yellow=#d8b030;Floodlight=#f4eccc;Net green=#4a6a5a;Deck black=#1a1c20;Sea grey=#6a8290;Deep sea=#0a1826;Foam white=#e8ecf0;Bruised amber=#c8704a;Cold rim=#8aa0d8'),
-  els:[{id:'hull',label:'Hull',styles:['Steel deck','Rusty trawler','Wood on steel'],def:[0,0]},{id:'house',label:'Wheelhouse',styles:['Boxy wheelhouse','Low pilothouse','Open helm'],def:[0,13]},
-       {id:'gear',label:'Trawl gear',styles:['Net drum','A-frame gantry','Crab pots'],def:[0,9]},{id:'mast',label:'Mast',none:true,styles:['No mast','Mast and boom','Radar mast','Antenna mast'],def:[1,1]},
-       {id:'light',label:'Floodlight',light:true,styles:['Floodlight','Caged lamp','Swinging lantern'],def:[0,8]}],
-  seat:['floatcrate','steelbench','ropecoil'], seatNames:['Crate of floats','Steel bench','Rope coil'], seatDef:[0,9],
+  look:{hull:[0,'#6a7480'],house:[0,'#e8ecf0'],gear:[0,'#4a6a5a'],mast:[1,'#3a424c'],light:[0,'#f4eccc'],seat:[0,'#4a6a5a']}, light:'light',
+  seat:'floatcrate',
   order:[
     ['hull',(o,s,c)=>MT.hull(o,s,c)],
     ['house',(o,s,c)=>MT.house(o,s,c)],
@@ -373,11 +319,8 @@ hfMake('deep',{ name:'Trawler', hname:'trawler', floats:true, seatX:()=>HF.pw()-
 /* 12. Hollow Trench: the castaway raft (overnight, 2026-11-23; its own design, src/cw_castaway.js; floats): barrels and salvaged planks lashed with
    rope, glowing growth below; the shelter an upturned lifeboat on props, a sailcloth tent over an oar, or a plank shack with a porthole */
 hfMake('trench',{ name:'Castaway raft', hname:'raft', floats:true, glow:'255,180,90', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Salvage plank=#6a5a48;Dark plank=#3a3028;Tarred barrel=#4a3a2a;Barrel band=#5a5a5a;Rope=#9a8868;Old brass=#a8884a;Lantern amber=#f0b050;Sail scrap=#c8bca0;Abyss black=#020e14;Deep teal=#123a44;Trench teal=#3a6a70;Bio cyan=#5afff0;Bio violet=#a080ff;Pale glow=#b8e8dc;Wet rock=#2a3e46;Bone=#e0dccc'),
-  els:[{id:'raft',label:'Raft',styles:['Barrel raft','Plank raft','Door raft'],def:[0,2]},{id:'mast',label:'Mast',styles:['Scrap sail','Crow’s nest','Oar flag'],def:[0,7]},
-       {id:'salvage',label:'Salvage',styles:['Sea chest','Anchor','Ship’s wheel'],def:[0,5]},{id:'cabin',label:'Shelter',styles:['Upturned lifeboat','Sailcloth tent','Plank shack'],def:[0,2],palS:[[2,0,4,7],[7,4],[0,1,2]]},
-       {id:'light',label:'Lantern',light:true,styles:['Pole lantern','Jellyfish jar','Wreck lamp'],def:[0,6]}],
-  seat:['barrel','seachest','crate'], seatNames:['Barrel','Sea chest','Broken crate'], seatDef:[0,2],
+  look:{raft:[0,'#4a3a2a'],mast:[0,'#c8bca0'],salvage:[0,'#a8884a'],cabin:[0,'#4a3a2a'],light:[0,'#f0b050'],seat:[0,'#4a3a2a']}, light:'light',
+  seat:'barrel',
   order:[
     ['raft',(o,s,c)=>TR.raft(o,s,c)],
     ['cabin',(o,s,c)=>TR.shelter(o,s,c)],
@@ -391,13 +334,8 @@ hfMake('trench',{ name:'Castaway raft', hname:'raft', floats:true, glow:'255,180
    choices became this one building; the pool and lantern keep their ids */
 { const G13=()=>EB.geo({pw:HF.pw(),dockY:HF.dockY()});
 hfMake('ember',{ name:'Basalt bathhouse', hname:'bathhouse', glow:'255,150,80', seatX:()=>HF.pw()-W*.03, front:null, smoke:(n,t)=>BH.smoke(n,t,EB.ventTop(G13()),.9),
-  colors:C16('Basalt=#4a3a3a;Black basalt=#2a2024;Obsidian=#1a1418;Ash grey=#7a6e6a;Volcanic earth=#7a6258;Iron=#3a3436;Forged iron=#5a4a44;Copper=#b8683a;Ember orange=#ff7a2a;Lava gold=#ffc04a;Crimson=#a83030;Spring turquoise=#7ad8d0;Steam white=#f0e8e4;Onsen cedar=#a87a52;Tile red=#b8483a;Amber sky=#f0c8a0'),
-  els:[{id:'walls',label:'Walls',styles:['Basalt stone','Ash render','Charred cedar'],def:[0,0],palS:[[0,1,3,4],[3,4,0],[2,1,5]]},
-       {id:'vault',label:'Roof',styles:['Corrugated iron','Copper vault','Slate vault'],def:[0,5],palS:[[5,6,3],[7,6],[1,2,3]]},
-       {id:'door',label:'Door',styles:['Iron-strapped door','Dutch door','Arched door'],def:[0,6],pal:[5,6,7,2,1]},
-       {id:'pool',label:'Hot pool',styles:['Stone bath','Cedar tub','Lava-rock ring'],def:[0,11]},
-       {id:'light',label:'Lantern',light:true,styles:['Iron lantern','Lava bowl','Steam lamp'],def:[0,8]}],
-  seat:['steelbench','bathstool','warmrock'], seatNames:['Stone bench','Bath stool','Warm rock'], seatDef:[0,3],
+  look:{walls:[0,'#4a3a3a'],vault:[0,'#3a3436'],door:[0,'#5a4a44'],pool:[0,'#7ad8d0'],light:[0,'#ff7a2a'],seat:[0,'#7a6e6a']}, light:'light',
+  seat:'steelbench',
   order:[
     ['base',(o)=>EB.ground(o)],
     ['deck',(o)=>HK.deck(o,'#4a3a3a','stone')],
@@ -412,13 +350,8 @@ hfMake('ember',{ name:'Basalt bathhouse', hname:'bathhouse', glow:'255,150,80', 
    crystal, silver or star-blossom dome and a gold star finial, a moon-shaped door, on a floating rock island with crystals hanging beneath. The old
    platform, underglow and arch choices became this one building; telescope and star lantern keep their ids */
 hfMake('starfall',{ name:'Star observatory', hname:'observatory', floats:true, glow:'220,200,255', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Moonstone=#e8e0f4;Silver=#c8c8d8;Starlight=#fff8ff;Crystal violet=#b88aff;Crystal cyan=#7ae0ff;Deep violet=#6a5ab0;Night indigo=#2a1a5a;Lilac=#c8a0e8;Cloud lavender=#c8b8e0;Moon gold=#f0d080;Planet peach=#f0b890;Rose=#ff9ab0;Plum=#7a3a8a;Island moss=#5a8a6a;Twilight blue=#4a4aa8;Star ring=#e8d0ff'),
-  els:[{id:'walls',label:'Walls',styles:['Moonstone blocks','Silver plaster','Starlight glass'],def:[0,0],palS:[[0,1,8],[1,0,7],[4,3,2]]},
-       {id:'dome',label:'Dome',styles:['Crystal dome','Silver dome','Star-blossom dome'],def:[0,3],palS:[[3,4,7],[1,0],[7,8]]},
-       {id:'door',label:'Door',styles:['Crescent window door','Starry door','Crystal bead curtain'],def:[0,5],pal:[5,6,3,1]},
-       {id:'scope',label:'Telescope',none:true,styles:['None','Brass telescope','Astrolabe','Star chart'],def:[1,9]},
-       {id:'light',label:'Star lantern',light:true,styles:['Star lantern','Moon orb','Constellation wisps'],def:[0,2]}],
-  seat:['crescent','cloudcushion','crystalstool'], seatNames:['Crescent bench','Cloud cushion','Crystal stool'], seatDef:[0,0],
+  look:{walls:[0,'#e8e0f4'],dome:[0,'#b88aff'],door:[0,'#6a5ab0'],scope:[1,'#f0d080'],light:[0,'#fff8ff'],seat:[0,'#e8e0f4']}, light:'light',
+  seat:'crescent',
   order:[
     ['base',(o)=>{ SO.ground(o); HK.deck(o,'#e8e0f4','moonstone'); }],
     ['walls',(o,s,c)=>SO.walls(o,SO.geo(o),s,c)],
@@ -432,14 +365,8 @@ hfMake('starfall',{ name:'Star observatory', hname:'observatory', floats:true, g
    white trim, a hayloft with a hoist and big white X-braced doors; a grassy bank with a hay stack and sunflowers; the dock on fence posts. The old
    deck, footing and roof choices became this one building; the fence and lantern keep their ids */
 hfMake('farm',{ name:'Red barn', hname:'barn', glow:'255,205,130', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Barn red=#b8322a;Dark barn=#7a2a22;Trim white=#f4f0e6;Fence grey=#9a948a;Weathered board=#8a6a4a;Hay gold=#e0c060;Straw=#d8b46a;Tin=#a8b0b4;Rust tin=#a8683a;Grass green=#6aaa4a;Field green=#3a6a2a;Pond green=#5a7a4a;Sky blue=#a8d8f4;Gingham blue=#5a8ad8;Sunflower=#f0c83a;Mud brown=#6a5038'),
-  els:[{id:'walls',label:'Walls',styles:['Barn-red boards','Weathered boards','White clapboard'],def:[0,0],palS:[[0,1,4],[4,1],[2,3]]},
-       {id:'gambrel',label:'Roof',styles:['Shingles','Tin roof','Rusty tin'],def:[0,1],palS:[[1,4,3],[7,3],[8,7]]},
-       {id:'loft',label:'Hayloft',styles:['Open loft and hoist','Closed loft doors','Round window'],def:[0,1],pal:[0,1,4,2]},
-       {id:'doors',label:'Doors',styles:['X-braced doors','Dutch door','Doors rolled open'],def:[0,0],pal:[0,1,4,2]},
-       {id:'fence',label:'Fence',none:true,styles:['No fence','Picket fence','Post-and-rail','Wagon wheel'],def:[1,2]},
-       {id:'light',label:'Lantern',light:true,styles:['Lantern on a nail','String of bulbs','Milk-can lantern'],def:[0,14]}],
-  seat:['haybale','milkcan','rocker'], seatNames:['Hay bale','Milk-can stool','Rocking chair'], seatDef:[0,5],
+  look:{walls:[0,'#b8322a'],gambrel:[0,'#7a2a22'],loft:[0,'#7a2a22'],doors:[0,'#b8322a'],fence:[1,'#f4f0e6'],light:[0,'#f0c83a'],seat:[0,'#e0c060']}, light:'light',
+  seat:'haybale',
   order:[
     ['base',(o)=>{ AB.ground(o); HK.supports(o,'#9a948a','fence',5); HK.deck(o,'#8a6a4a','boards'); }],
     ['walls',(o,s,c)=>AB.walls(o,AB.geo(o),s,c)],
@@ -454,14 +381,8 @@ hfMake('farm',{ name:'Red barn', hname:'barn', glow:'255,205,130', seatX:()=>HF.
    steep roof under dripping icing and gumdrops, candy-cane corners, icing piping, a peppermint window; a giant fork in the soup with a cherry, a dollop
    of cream on the platter. The old platter, posts and roof choices became this one building; trim and candle keep their ids */
 hfMake('buffet',{ name:'Gingerbread house', hname:'gingerbread house', glow:'255,200,130', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Gingerbread=#b8743a;Dark gingerbread=#7a4a22;Wafer=#e8c890;Biscuit=#d8a860;Chocolate=#5a3420;Milk chocolate=#8a5a3a;Icing white=#fff6ee;Strawberry=#f4a0b0;Mint=#a8e0c8;Lemon=#f8e08a;Blueberry=#7a8ad8;Cherry red=#d8303a;Caramel=#d88a3a;Candle gold=#ffd060;Porcelain=#f0f0f4;Broth gold=#e8b060'),
-  els:[{id:'walls',label:'Walls',styles:['Gingerbread','Chocolate bar','Shortbread'],def:[0,0],palS:[[0,1,3],[4,5],[2,3]]},
-       {id:'iroof',label:'Roof',styles:['Icing snow','Chocolate tiles','Candy shingles'],def:[0,1],palS:[[1,0,4],[4,5],[7,8]]},
-       {id:'door',label:'Door',styles:['Chocolate bar door','Candy-cane arch','Cookie door'],def:[0,4],palS:[[4,5],[7,8,1],[3,2]]},
-       {id:'windows',label:'Window',styles:['Peppermint','Sugar glass','Iced lattice'],def:[0,10],pal:[10,11,12,7,8]},
-       {id:'trim',label:'Trim',none:true,styles:['No trim','Icing piping','Licorice rope','Breadsticks'],def:[1,6]},
-       {id:'light',label:'Candle',light:true,styles:['Dripping candle','Cupcake candles','Jelly mould'],def:[0,13]}],
-  seat:['cupcake','teacup','macaron'], seatNames:['Cupcake stool','Teacup chair','Macaron pouf'], seatDef:[0,7],
+  look:{walls:[0,'#b8743a'],iroof:[0,'#7a4a22'],door:[0,'#5a3420'],windows:[0,'#7a8ad8'],trim:[1,'#fff6ee'],light:[0,'#ffd060'],seat:[0,'#f4a0b0']}, light:'light',
+  seat:'cupcake',
   order:[
     ['base',(o)=>{ GB.ground(o); HK.supports(o,'#e8c890','wafer',5); HK.deck(o,'#c8c8d0','platter'); }],
     ['walls',(o,s,c)=>GB.walls(o,GB.geo(o),s,c)],
@@ -476,13 +397,8 @@ hfMake('buffet',{ name:'Gingerbread house', hname:'gingerbread house', glow:'255
    with a thin cantilevered roof slab and a logo, the office visible inside; a concrete planter and a coffee cup on the deck. The old floor,
    supports and awning choices became this one building; the partition and lamp keep their ids */
 hfMake('corporate',{ name:'Glass pavilion', hname:'glass pavilion', glow:'230,240,255', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Brushed steel=#a8b0b8;Dark steel=#5a6470;Concrete=#9a9a98;Light concrete=#c8c8c4;Glass cyan=#9ad0e0;Glass blue=#4a6a88;Corporate navy=#1e2e4a;Carpet grey=#6a6e74;Office white=#f4f6f8;Ficus green=#4a8a4a;Coffee brown=#6a4a32;Sticky yellow=#f8e070;Ticker green=#4ad86a;Ticker red=#e84a4a;Lanyard blue=#2a6ad8;Walnut=#8a5a3a'),
-  els:[{id:'glass',label:'Walls',styles:['Glass curtain wall','Frosted glass','Concrete and glass'],def:[0,4],palS:[[4,5],[8,4],[4,5]]},
-       {id:'slab',label:'Roof',styles:['Flat slab','Green roof','Solar panels'],def:[0,0],palS:[[0,1,2,6],[2,3],[0,1]]},
-       {id:'inside',label:'Inside',styles:['Desk and monitor','Ficus and water cooler','Whiteboard'],def:[0,4],pal:[4,5,6,11,12]},
-       {id:'partition',label:'Partition',none:true,styles:['None','Glass balustrade','Cubicle wall','Velvet rope'],def:[1,4]},
-       {id:'light',label:'Lamp',light:true,styles:['Desk lamp','Floor lamp','Open 9–5 sign'],def:[0,8]}],
-  seat:['swivel','executive','beanbag'], seatNames:['Swivel chair','Executive chair','Beanbag'], seatDef:[0,6],
+  look:{glass:[0,'#9ad0e0'],slab:[0,'#a8b0b8'],inside:[0,'#9ad0e0'],partition:[1,'#9ad0e0'],light:[0,'#f4f6f8'],seat:[0,'#1e2e4a']}, light:'light',
+  seat:'swivel',
   order:[
     ['base',(o)=>{ CO.ground(o); HK.deck(o,'#c8c8c4','concrete'); }],
     ['glass',(o,s,c)=>CO.walls(o,CO.geo(o),s,c)],
@@ -494,11 +410,8 @@ hfMake('corporate',{ name:'Glass pavilion', hname:'glass pavilion', glow:'230,24
 
 /* 18. The Nile: the reed boat (floats; its own drawing overnight 2026-11-23, src/cw_reedboat.js: a papyrus crescent hull with high ends and flower heads, lashings, a steering oar, a lotus-column cabin) */
 hfMake('nile',{ name:'Reed boat', hname:'reed boat', floats:true, seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Sandstone=#d8b880;Dark sandstone=#a8844a;Limestone=#ece0c4;Papyrus reed=#c8b060;Papyrus green=#6a9a4a;Palm wood=#7a5a3a;Linen=#f0e8d4;Gold leaf=#d8a830;Bright gold=#f0c84a;Lapis blue=#2a4a9a;Turquoise=#3ab0a8;Nile teal=#2a7a80;Carnelian=#b8402e;Ochre=#c8803a;Kohl black=#2a2428;Lotus pink=#f0a8b8'),
-  els:[{id:'hull',label:'Hull',styles:['Papyrus reeds','Wooden felucca','Gilded barque'],def:[0,3]},{id:'sail',label:'Sail',styles:['Lateen sail','Square sail','Painted eye sail'],def:[0,6]},
-       {id:'cabin',label:'Cabin',none:true,styles:['No cabin','Linen awning','Temple pylon','Striped tent'],def:[1,6]},{id:'cargo',label:'Cargo',none:true,styles:['No cargo','Amphorae','Fish baskets','Scroll chest'],def:[1,13]},
-       {id:'light',label:'Lamp',light:true,styles:['Lotus lamp','Bronze brazier','Sun-disc lantern'],def:[0,15]}],
-  seat:['lionstool','xstool','throne'], seatNames:['Lion-foot stool','Folding X stool','Gilded throne'], seatDef:[0,5],
+  look:{hull:[0,'#c8b060'],sail:[0,'#f0e8d4'],cabin:[1,'#f0e8d4'],cargo:[1,'#c8803a'],light:[0,'#f0a8b8'],seat:[0,'#7a5a3a']}, light:'light',
+  seat:'lionstool',
   order:[
     ['hull',(o,s,c)=>NB.hull(o,s,c)], /* its own drawing (overnight 2026-11-23, src/cw_reedboat.js) */
     ['sail',(o,s,c)=>{ const x=HK.at(o,.6), y=o.dockY, top=y-H*.24; HK.rect(o,x,top,2.4,H*.24,'#7a5a3a'); if(s===0){ HK.line(o,[x-W*.04,y-H*.04,x+W*.02,top-H*.02],'#7a5a3a',1.6); HK.poly(o,[x-W*.036,y-H*.05,x+W*.018,top-H*.012,x+W*.03,y-H*.05],c); } else { HK.rect(o,x-W*.03,top+H*.02,W*.06,2,'#7a5a3a'); HK.poly(o,[x-W*.03,top+H*.022,x+W*.03,top+H*.022,x+W*.026,y-H*.06,x-W*.026,y-H*.06],c); if(s===2){ HK.ell(o,x,top+H*.09,W*.01,H*.008,'#f4f0e6'); HK.circ(o,x,top+H*.09,H*.006,'#2a4a9a'); HK.line(o,[x-W*.012,top+H*.09,x-W*.016,top+H*.1],'#2a2428',1.4); } } }],
@@ -511,13 +424,8 @@ hfMake('nile',{ name:'Reed boat', hname:'reed boat', floats:true, seatX:()=>HF.p
    home with a glowing round window (or a noodle stall, or an arcade booth), a neon sign on the roof, an antenna and a vending machine beside it.
    Pad, thrusters, trim and light keep their ids; the canopy id is retired */
 hfMake('circuit',{ name:'Capsule pod', hname:'capsule pod', glow:'255,120,220', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('Chrome=#c8ccd8;Gunmetal=#3a3e4a;Carbon=#1a1c22;Hot pink=#ff4ab8;Neon magenta=#d83ad8;Electric cyan=#3ae8ff;Deep blue=#1a1a4a;Violet=#8a3a9a;Hologram lilac=#c8a0ff;Acid green=#7aff4a;Warning yellow=#ffe04a;LED white=#f4f8ff;Night purple=#2a1050;Cable black=#0e0e14;Sunset pink=#ff7ab8;Teal glow=#2ad8c8'),
-  els:[{id:'pod',label:'Home',styles:['Capsule pod','Noodle stall','Arcade booth'],def:[0,0],palS:[[0,7,3,5],[3,4,7],[5,3,9]]},
-       {id:'sign',label:'Neon sign',styles:['NOODLES','OPEN 24/7','RAMEN'],def:[0,3],pal:[3,4,5,9]},
-       {id:'pad',label:'Pad',styles:['Chrome plate','Carbon deck','Circuit glass'],def:[0,0]},{id:'thrust',label:'Thrusters',styles:['Anti-gravity rings','Thruster jets','Magnetic coils'],def:[0,5]},
-       {id:'trim',label:'Trim',none:true,styles:['No trim','Neon strip','Hologram rail','Cable rail'],def:[1,3]},
-       {id:'light',label:'Neon light',light:true,styles:['Neon tube','Hologram','LED orb'],def:[0,3]}],
-  seat:['gaming','orbseat','arcadestool'], seatNames:['Gaming chair','Orb seat','Arcade stool'], seatDef:[0,2],
+  look:{pod:[0,'#c8ccd8'],sign:[0,'#ff4ab8'],pad:[0,'#c8ccd8'],thrust:[0,'#3ae8ff'],trim:[1,'#ff4ab8'],light:[0,'#ff4ab8'],seat:[0,'#1a1c22']}, light:'light',
+  seat:'gaming',
   order:[
     ['thrust',(o,s,c)=>HK.supports(o,c,['rings','jets','coils'][s],4)],
     ['pad',(o,s,c)=>HK.deck(o,c,['chrome','carbon','glass'][s])],
@@ -531,13 +439,8 @@ hfMake('circuit',{ name:'Capsule pod', hname:'capsule pod', glow:'255,120,220', 
    cloud-water, four columns (Doric, Ionic, Corinthian), a frieze and pediment with gold acroteria, a god's statue inside, clouds around the
    posts. The old floor, columns and roof ids are retired; balustrade and brazier keep theirs */
 hfMake('olympus',{ name:'Marble temple', hname:'temple', glow:'255,220,140', seatX:()=>HF.pw()-W*.03, front:null, smoke:null,
-  colors:C16('White marble=#f0ecf4;Veined marble=#d8d4e4;Shadow marble=#b8b4c8;Gold=#d8a830;Bright gold=#f4d060;Bronze=#a8743a;Laurel green=#6a8a4a;Olive=#8a9a5a;Royal blue=#2a4aa8;Cerulean=#4aa0d8;Sky blue=#a0c0f4;Cloud white=#ffffff;Storm violet=#5a4a9a;Lightning yellow=#fff07a;Tyrian purple=#7a2a6a;Terracotta=#c8683a'),
-  els:[{id:'colorder',label:'Columns',styles:['Doric','Ionic','Corinthian'],def:[0,0],pal:[0,1,3]},
-       {id:'pediment',label:'Pediment',styles:['Gold sun relief','Plain marble','Painted frieze'],def:[0,3],pal:[3,4,5]},
-       {id:'statue',label:'Statue',styles:['Zeus','Athena','Poseidon'],def:[0,0],pal:[0,1,3,5]},
-       {id:'balustrade',label:'Balustrade',none:true,styles:['None','Marble balustrade','Laurel garland','Golden rail'],def:[0,0]},
-       {id:'light',label:'Brazier',light:true,styles:['Golden brazier','Lightning orb','Laurel torch'],def:[0,3]}],
-  seat:['marblethrone','cloudbench','klismos'], seatNames:['Marble throne','Cloud bench','Klismos chair'], seatDef:[0,0],
+  look:{colorder:[0,'#f0ecf4'],pediment:[0,'#d8a830'],statue:[0,'#f0ecf4'],balustrade:[0,'#f0ecf4'],light:[0,'#d8a830'],seat:[0,'#f0ecf4']}, light:'light',
+  seat:'marblethrone',
   order:[
     ['base',(o)=>{ HK.supports(o,'#e8e4f0','column',5); HK.deck(o,'#f0ecf4','marble'); TP.clouds(o); TP.base(o,TP.geo(o)); }],
     ['statue',(o,s,c)=>TP.statue(o,TP.geo(o),s,c)],

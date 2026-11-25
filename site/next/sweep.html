@@ -61,7 +61,7 @@ const PHONE=[[956,440,'iPhone 16 Pro Max',[59,59,0,21]],[874,402,'iPhone 16 Pro'
 const SPLIT=[[440,460],[375,812],[360,780]];
 const CONTENT_SIZES=[['ios',956,440],['ios',915,412],['ios',667,375],['ios',440,460],['pc',1920,1080],['pc',1440,900],['pc',1024,640]];
 /* findings that are known and held for the director (docs/PLAN.md › Open now): shown yellow, not counted as failures */
-const HELD=[[/Mystery crates.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Higher or lower.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Fishmonger’s Gamble.*rule 4/,'shelved: Gamble empty-cooler picture (PLAN › Open now)']];
+const HELD=[[/fight pass: with the best gear a top mythic.*mythic (landed only|took)/,'held: Cam round 7 made top-water fights much harder; landing rates are his and the director’s call (PLAN › Open now)'],[/Mystery crates.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Higher or lower.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Fishmonger’s Gamble.*rule 4/,'shelved: Gamble empty-cooler picture (PLAN › Open now)']];
 const $=id=>document.getElementById(id), wait=ms=>new Promise(r=>setTimeout(r,ms));
 const Q=new URLSearchParams(location.search);
 if(Q.get('only')){ const on=Q.get('only').split(','); document.querySelectorAll('[data-s]').forEach(c=>c.checked=on.includes(c.dataset.s)); }

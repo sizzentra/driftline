@@ -1,13 +1,12 @@
 // =====================================================================
-// The home format (docs/HOME_STANDARD.md, decided with the director 2026-11-21). Pilot: Willow Pond.
-// Every format home has the same footprint, standing surface, light spot, seat spot and pet spots; the player changes 6 features
-// (the light and the seat always, plus 4 that fit the home), each with 3 styles, all coloured from ONE list of 16+ colours per home
-// (director, 2026-11-21: so parts can match), all free. Every home's design: docs/HOME_DESIGNS.md.
-// Performance: the still home is painted once into a stored picture and pasted every frame; it is repainted only when a choice,
-// the screen size or the light of the day (in small steps) changes. Drawn live each frame: the light's glow, its pool and its
-// reflection, the ripples at the supports, and the bob of floating homes (the stored picture pasted a little higher or lower).
-// Choices are saved per water in S.dock.el ({element id: [style, color]}), carried by dockCopy like the rest of the home.
-// Waters without a format home keep the older home system until they are converted.
+// Homes: every water has ONE fixed building, the platform the angler stands on and one seat (homes are fixed since 2026-11-24; the
+// customisation options were removed on 2026-11-25). Every home shares the same footprint, standing line, light spot, seat spot and pet
+// spots (HF below). A home is either built from the kit with a fixed look (cw_homes.js, hfMake) or draws itself (HOMEF.<id>.fixed with
+// draw, like Maplewood Hollow's treehouse in w_maple.js).
+// Performance: the still home is painted once into a stored picture and pasted every frame; it is repainted only when the screen size
+// or the light of the day (in small steps) changes. Drawn live each frame: the light's glow, its pool and its reflection, the ripples at
+// the supports, and the bob of floating homes.
+// Old saves may still hold the choices players made (S.dock.el); they are kept untouched for a later idea and never read.
 // =====================================================================
 const HOMEF={};
 /* the format, in the scene's own units (W, H): the same for every format home */
@@ -16,23 +15,20 @@ const HF = { pw:()=>W*.19, x0:()=>-4 /* the deck starts at the left edge (no ban
 const hfSpec = id => HOMEF[id]||null;
 /* homes are fixed (director, 2026-11-24: customisation removed for now, the idea comes back later as something else): every home shows its
    default look; the choices players made stay in their saves untouched (S.dock / S.docks) for that later idea */
-function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const c=null; /* each water's own choices: the map pictures of other waters showed the current water's (2026-11-22) */
-  const st=Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), pal=hfPal(e,st), d1=e.def?e.def[1]:0;
-  return [st, Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length&&(!pal||pal.includes(c[1]|0))?c[1]|0:(!pal||pal.includes(d1)?d1:pal[0])]; } /* a feature may offer only the colours real ones come in (e.pal: indices into the home's list) */
-/* the colours a feature offers in a style: e.palS[style] when its styles differ (a sod roof grows grass, a tin roof is painted any colour), else e.pal, else all */
-function hfPal(e,st){ return e.palS&&e.palS[st]||e.pal||null; }
-function hfColor(id,el){ const sp=hfSpec(id); return sp.colors[hfChoice(id,el)[1]][1]; }
-/* the light's glow colour: the chosen colour, lifted toward white so even a deep shade still reads as light */
-function hfGlow(id){ const sp=hfSpec(id); if(sp&&sp.glow) return sp.glow; /* a home whose light is a window glows warm whatever the door's colour */ const e=sp&&sp.els.find(x=>x.light||x.id==='light'); const v=hex2rgb(mix(hfColor(id,e?e.id:'light'),'#ffffff',.3)); return v.join(','); } /* the feature that carries the home's light (batch 5: not always called "light") */
-function hfStyle(id,el){ return hfChoice(id,el)[0]; }
-/* the saved choices of one home: only valid numbers survive (dockCopy) */
+/* each home's fixed look: a part's style and colour (homes are fixed since 2026-11-24; the options were removed 2026-11-25) */
+const hfPart = (id,el) => { const sp=hfSpec(id); return sp&&sp.look&&sp.look[el]||[0,'#8a8a8a']; };
+function hfColor(id,el){ return hfPart(id,el)[1]; }
+/* the light's glow colour: the light part's colour, lifted toward white so even a deep shade still reads as light */
+function hfGlow(id){ const sp=hfSpec(id); if(sp&&sp.glow) return sp.glow; /* a home whose light is a window glows warm */ const v=hex2rgb(mix(hfColor(id,sp&&sp.light||'light'),'#ffffff',.3)); return v.join(','); }
+function hfStyle(id,el){ return hfPart(id,el)[0]; }
+/* old saves' home choices: only valid numbers survive a load (migrate in bm_ui04.js); the game never reads them */
 function hfClean(o){ const r={}; if(o&&typeof o==='object'&&!Array.isArray(o)) for(const k in o){ const v=o[k]; if(Array.isArray(v)&&v.length===2&&v.every(n=>Number.isInteger(n)&&n>=0&&n<32)) r[k]=[v[0],v[1]]; } return r; }
 
 /* ---------- the stored picture ---------- */
 const HF_CACHE={};
 /* d: pixels per scene unit (the scene's own, or the close-up's); slot: a separate stored picture for the close-up */
 function hfPaintCache(L,P,night,dockY,dIn,slot){ const sp=hfSpec(L.id), d=dIn||Math.max(1,(typeof cv!=='undefined'&&cv&&W>0)?cv.width/W:1), id=L.id+(slot||'');
-  const x0=-4, y0=HF.top(dockY), x1=HF.pw()*1.14, y1=H /* down to the bottom of the screen: the supports fade into the water all the way (director) */, key=[L.id,W,H,d,Math.round(night*24),P.rim,...sp.els.map(e=>hfChoice(L.id,e.id).join('.'))].join('|');
+  const x0=-4, y0=HF.top(dockY), x1=HF.pw()*1.14, y1=H /* down to the bottom of the screen: the supports fade into the water all the way (director) */, key=[L.id,W,H,d,Math.round(night*24),P.rim].join('|');
   let c=HF_CACHE[id]; if(c&&c.key===key) return c;
   if(!c){ c={cv:document.createElement('canvas')}; HF_CACHE[id]=c; } c.key=key; c.x=x0; c.y=y0; c.w=x1-x0; c.h=y1-y0;
   c.cv.width=Math.max(1,Math.ceil(c.w*d)); c.cv.height=Math.max(1,Math.ceil(c.h*d)); const x=c.cv.getContext('2d'); x.setTransform(d,0,0,d,-x0*d,-y0*d); x.clearRect(x0,y0,c.w,c.h);

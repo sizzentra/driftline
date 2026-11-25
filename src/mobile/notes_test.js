@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Homes are now fixed for good: every water has one building, the platform you stand on and its own seat. The leftover home options are gone behind the scenes (nothing changes on screen).',
+  'Brine Shelf: the boat’s light now hangs on its mast instead of a lamp post on the deck.',
+  '## Test build 2026.11.25-0252',
   'Fish fights, Cam’s list: when you are stronger than a fish, its hold counts for less (down to about a third of it), so weaker fish reel in faster; and every kind of fish now has its own hold and stamina, so two fish of the same rarity fight differently.',
   'Temper hits harder: a fired-up fish builds tension much faster between moves, and its moves pull the line tighter.',
   'Fish are stronger everywhere: Starfall Lake’s strongest fish now pull about 200 lb, and the end-game waters climb up to about 300 lb at the last one.',

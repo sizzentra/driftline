@@ -7,10 +7,8 @@
 //    (a category, a link, the goal chip, search, settings) opens it; Back to fishing, Esc or the phone's back gesture
 //    closes it. While it is open the line waits: fishing is paused, never reset. Clocks (events, aquarium) keep running.
 //  S.tab==='dash' means fishing mode, so every old "if(S.tab==='x')" check stays correct.
-// Also: every water keeps its own home choices.
 // =====================================================================
 const DASH='dash';
-const DOCK_KEYS=['el'];
 
 // ---------- the 5 categories (the menus read MENU_SECS, so changing it in place changes every menu) ----------
 const SEC_ICONS={
@@ -41,23 +39,12 @@ KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or
   bar.innerHTML=MENU_SECS.map(s=>`<button type="button" class="secb" data-sec="${s.id}" aria-pressed="false" title="${esc(s.name)}"><span class="seci">${svg(s.icon)}</span><span class="secl"><span class="secfull">${s.name}</span><span class="secshort">${s.short}</span></span><span class="seclive" hidden>LIVE</span><span class="secdot" hidden></span></button>`).join('');
   menuSubKey=''; })();
 
-// ---------- per-water docks ----------
-function dockCopy(d){ d=d||{}; const el=hfClean(d.el); return Object.keys(el).length?{el}:{}; } /* el: this water's home choices (docs/HOME_STANDARD.md), only when there are some (a save round trip stays identical) */
-function dockApply(L){ const D=dockCopy(L); for(const k of DOCK_KEYS) S.dock[k]=D[k]; }
-// keep S.dock (what the game draws and edits) showing the dock of the water you are at
-function dockSync(){ if(!S||!S.dock) return; if(!S.docks||typeof S.docks!=='object'||Array.isArray(S.docks)) S.docks={};
-  const here=S.loc; if(S.dockAt===here&&S.docks[here]) return;
-  if(S.dockAt&&LOCS.some(L=>L.id===S.dockAt)) S.docks[S.dockAt]=dockCopy(S.dock); // store the dock you are leaving
-  dockApply(S.docks[here]||{}); // its own choices; a water you never fished at starts with its defaults
-  S.docks[here]=dockCopy(S.dock);
-  S.dockAt=here; }
-function dockStore(){ try{ dockSync(); if(S.dockAt) S.docks[S.dockAt]=dockCopy(S.dock); }catch(e){} }
-{ const _save04=save; save=function(){ dockStore(); return _save04.apply(this,arguments); }; }
+/* (the per-water home store, dockSync / dockStore, is gone: homes are fixed since 2026-11-24; old saves keep S.dock / S.docks untouched) */
 function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){} }
 function perksClean(st){ const keep=S; try{ S=st; if(ptsFree()<0) st.perks={}; }catch(e){} finally{ S=keep; } } // more ranks than points (a damaged save): refund them
 rodsClean(S); perksClean(S);
 { const _mig04=migrate; migrate=function(o){ const st=_mig04(o); rodsClean(st); perksClean(st); try{ if(!st.docks||typeof st.docks!=='object'||Array.isArray(st.docks)) st.docks={};
-    for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else st.docks[k]=dockCopy(st.docks[k]); }
+    for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else { const el=hfClean(st.docks[k]&&st.docks[k].el); st.docks[k]=Object.keys(el).length?{el}:{}; } } /* old home choices stay valid in the save, unread (homes are fixed) */
     if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} return st; }; }
 
 // ---------- menu mode ----------
@@ -105,7 +92,7 @@ addEventListener('keydown',e=>{ if(e.key!=='Escape'||!MENU_OPEN) return; const s
 addEventListener('keydown',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePropagation(); },true);
 addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePropagation(); },true);
 // the line waits while a menu is open (rest mode keeps fishing by itself); the water draws a few times a second behind it
-{ const _up=update; update=function(dt){ if(S.dockAt!==S.loc) dockSync(); if(MENU_OPEN){ if(G.st==='rest') restTick(dt); return; } return _up(dt); }; }
+{ const _up=update; update=function(dt){ if(MENU_OPEN){ if(G.st==='rest') restTick(dt); return; } return _up(dt); }; }
 { let lastD=0; const _dr=draw; draw=function(now){ if(MENU_OPEN&&now-lastD<250&&!resize.force) return; lastD=now; return _dr(now); }; }
 // a full cooler: show it on the dashboard instead of throwing you into a menu
 // a full cooler when you try to cast: the game opens the Cooler page (in the full-screen menu)
@@ -189,12 +176,12 @@ function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'
     if(a==='dbait'){ searchGo(['','shop',['tackleview','bait']]); return 'skip'; }
     return _xa(b); }; }
 // the panel shows the dashboard in fishing mode, the page otherwise
-{ const _rp=renderPanel; renderPanel=function(){ dockSync(); if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
+{ const _rp=renderPanel; renderPanel=function(){ if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
 setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&&c.textContent!==v){ c.textContent=v; c.title=fmt(S.money)+' coins'; } menuHead(); } },250);
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
 
-if(/[?&]test\b/.test(location.search)) window.__ui={open:(...a)=>openMenu(...a), close:(...a)=>closeMenu(...a), isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w), dockSync};
+if(/[?&]test\b/.test(location.search)) window.__ui={open:(...a)=>openMenu(...a), close:(...a)=>closeMenu(...a), isOpen:()=>MENU_OPEN, dash:()=>[...document.querySelectorAll('#panel .dash > [data-w]')].map(e=>e.dataset.w)};
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.chal-live .secb[data-sec="chal"] .secdot{display:none!important}
@@ -311,7 +298,7 @@ for(let i=SEARCH_IDX.length-1;i>=0;i--) if(SEARCH_IDX[i][0]==='Hide menus') SEAR
 // a save that could not be read was kept aside at load: say so once
 if(window.__dlUnreadable) setTimeout(()=>toast(localStorage.getItem(AUTO_BK)?'Your saved game could not be read. Restore it from Save, Backup on this device.':'Your saved game could not be read, so a new one started. The old file was kept on this device.'),1800);
 // save codes and the account copy carry the current dock exactly as it is right now
-{ const _mc=makeCode; makeCode=function(){ dockStore(); return _mc.apply(this,arguments); }; const _pc=pushCloud; pushCloud=function(){ dockStore(); return _pc.apply(this,arguments); }; }
+
 //@layer mobile mobile/ui_topbar_land.js
 // =====================================================================
 // Fishing mode = the water fills the screen (the top bar stays above it). Every layout (PC wide, PC stacked, tablet,

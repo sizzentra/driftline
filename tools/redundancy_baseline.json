@@ -1,20 +1,20 @@
 {
     "pc":  {
-               "wraps":  245,
+               "wraps":  242,
                "hides":  63,
                "timers":  29,
                "watchers":  13
            },
     "android":  {
-                    "wraps":  277,
+                    "wraps":  272,
                     "hides":  82,
                     "timers":  30,
-                    "watchers":  15
+                    "watchers":  14
                 },
     "ios":  {
-                "wraps":  277,
+                "wraps":  272,
                 "hides":  82,
                 "timers":  30,
-                "watchers":  15
+                "watchers":  14
             }
 }

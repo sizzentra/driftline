@@ -212,4 +212,4 @@ function mlHomeDraw(t,night,dockY,P){ if(!P) return false; const DL=Math.min(DPR
     v3lightPool(X,dockY-1,W*.06,'255,160,70',.25*lit); v3lanternReflect(X,HF.wl(dockY),lit,t,'255,170,80'); }
   if(S.settings.effects){ const sx=c0+cw*.72+W*.003, sy=wy-H*.088, sc=mix(P.farHaze,'#ffffff',.4); for(let i=0;i<5;i++){ const k=((t*.12+i/5)%1); v3glow(g,sx+Math.sin(k*4+i)*H*.006+k*H*.03,sy-k*H*.09,H*(.007+k*.025),v3rgba(sc,.9),.4*(1-k)*(k<.08?k/.08:1)); } }
   return true; }
-HOMEF.blossom={ name:'Treehouse', hname:'treehouse', fixed:true /* a home with no options (homes are fixed since 2026-11-24): it draws itself */, els:[], colors:[], seatH:[MLH_SEAT], seatX:()=>HF.pw()-W*.03, draw:mlHomeDraw, front:null, smoke:null };
+HOMEF.blossom={ name:'Treehouse', hname:'treehouse', fixed:true /* it draws itself */, seatH:MLH_SEAT, seatX:()=>HF.pw()-W*.03, draw:mlHomeDraw, front:null, smoke:null };
