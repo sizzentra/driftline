@@ -62,6 +62,14 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
+## Cam's notes, round 6 (2026-11-24; BUILT in test build 2136; rollback tag `rollback/before-cam-round6`; Feel calls: the tired cap by rarity, the rarity scale on the stronger-than-you extras, the special fish values, the late voyage step, the catch-up share)
+- [x] Tired fish: option C with 50% hold (Cam: "keep 50% not 40% resistance"): a tired fish keeps half its normal hold (FF.TIRED_RES) and takes at least FF.TIRED_T = 3, 5, 8, 8, 8, 8 s from the far edge by rarity.
+- [x] Stronger than your tackle, any rarity: the round 4 extras (2x fight, 1.5x tension, 1.5x line on runs and jumps) scale with rarity (FF.STRONG_RK 0.6 to 1.4 of the extra).
+- [x] Hybrids, shinies and titled fish fight harder (FF_SPECIAL shiny 1.25, titled 1.3/1.45/1.6/1.8, hybrid 1.2/1.35/1.9), big shinies up to 30% more, and weight never eases them (tension from moves at least 90%).
+- [x] Per voyage: after the first 5 (+8% each) fish fight +0.6% harder a voyage up to voyage 100 (fightVoy).
+- [x] The swim-toward-you arrows are removed.
+- [x] Earlier waters pay more once later ones are open in the run: up to 70% of the newest open water's everyday-fish average (waterCatchUp, CATCHUP_SHARE).
+
 ## Cam's notes, round 5 (2026-11-24; BUILT in test build 0140; Feel calls: the tired-strong rule (past 1.5x the tackle, ratio/1.5 squared), Boon values, Deep Cooler 6%, Old Habits levels, relic costs, bounty bonus odds; director: "finish what he said, use your best recs please thats the only overnight run tonight", "send them all to test builds"; rollback tag `rollback/before-cam-round5`)
 Status marks: [ ] to do, [x] built.
 1. [x] Fish feel: a tired fish far stronger than the tackle must not reel in fast (Cam: a 1920 lb Maw Below, strength 106 vs his 37, came in from 35-40 m in about 2 s on Hollow Trench). Make it near-impossible, not impossible.

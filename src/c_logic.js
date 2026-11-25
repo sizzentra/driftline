@@ -124,6 +124,11 @@ const xpMult = () => (1 + bonus('xp')) * (coinMult() + .01*(pshopLv('xp')-pshopL
 function earn(n){ n=Math.floor(n); S.money+=n; S.stats.earned+=n; S.stats.runEarned+=n; return n; }
 const pearlsFor = () => { const n=Math.floor(Math.pow(S.stats.runEarned/PEARL_DIV,1/PEARL_EXP)*voyagePearlMult()*pathMul('pearl')); return n>0 ? n+(relic("pearlseeker")?1:0) : 0; }; /* 0.3.6: experienced sailors find more pearls */
 const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxed('haggler')?3:2):1));
+/* Cam, round 6: once later waters are open in this run, fish caught at an earlier water are worth more, up to 70% of what the newest open water's
+   everyday fish (common and uncommon) are worth on average, so going back to an earlier water no longer slows you down (Feel call: CATCHUP_SHARE) */
+const CATCHUP_SHARE=.7;
+function waterAvg(id){ const c=waterAvg.c||(waterAvg.c={}); if(c[id]!=null) return c[id]; const L=SP.filter(s=>s.loc===id&&s.r<=1); return (c[id]=L.length?L.reduce((a,s)=>a+s.base,0)/L.length:1); }
+function waterCatchUp(id){ const i=locIdx(id), top=(S.unlocked||[]).reduce((m,u)=>Math.max(m,locIdx(u)),0); if(!(i>=0)||i>=top) return 1; return Math.max(1,CATCHUP_SHARE*waterAvg(LOCS[top].id)/waterAvg(id)); }
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
@@ -490,8 +495,8 @@ function fightWill(f){ if(!f||f.kind!=='fish'||!f.sp) return 0; return Math.max(
 // 30 seconds to a minute with the best gear"; "new voyages increase how hard fish fight up to a certain level"). A fish's
 // rank (rarity; prismatic shinies count as legendary) and the voyage now set how hard it holds and pulls RELATIVE to your reel,
 // so better gear shortens a fight but never removes it. Voyages add 8% per voyage, up to 5 voyages (+40%).
-const FIGHT_VOY_STEP=.08, FIGHT_VOY_CAP=5;
-const fightVoy = () => 1 + FIGHT_VOY_STEP*Math.min(FIGHT_VOY_CAP, S.tides||0);
+const FIGHT_VOY_STEP=.08, FIGHT_VOY_CAP=5, FIGHT_VOY_LATE=.006, FIGHT_VOY_MAX=100; /* Cam, round 6: after the first 5 voyages (+8% each) fish keep fighting a little harder, +0.6% a voyage, up to voyage 100 (about 2x in all; Feel call) */
+const fightVoy = () => { const v=S.tides||0; return 1 + FIGHT_VOY_STEP*Math.min(FIGHT_VOY_CAP,v) + FIGHT_VOY_LATE*Math.max(0,Math.min(FIGHT_VOY_MAX,v)-FIGHT_VOY_CAP); };
 function fishRank(f){ return f&&f.kind==='fish'&&f.sp ? Math.max(Math.min(5,f.sp.r), f.shiny===2?4:0) : 0; }
 // Angler strength (director, 2026-11-19: "simply add somewhere to see Angler strength and denote that stat in the Waters tab
 // beside each area and where you sit in that area's range"): your Line, made stronger by skills that lower tension. A fish's

@@ -66,3 +66,14 @@ window.erodeEdge=(c,px,maxY)=>{const x=c.getContext('2d'),W=c.width,H=c.height,Y
  x.putImageData(d,0,0);return n;};
 /* the whole run for a water: await prep(); spillRim(L.land,3); erodeEdge(L.land,2,<shoreline row+40>); spillRim(L.bh,2); spillRim(L.ch,2); await cloudKey(); await pack({bhW,chH,glow}) */
 </script>
+<script>
+/* a pale halo painted around foliage (seen at night as a light outline): within `ring` pixels of a cut edge, pixels clearly lighter than the solid
+   art just inside them (the 7x7 neighbourhood of fully opaque pixels) are removed */
+window.paleRim=(c,ring,maxY)=>{const x=c.getContext('2d'),W=c.width,H=c.height,Y1=Math.min(H,maxY||H),d=x.getImageData(0,0,W,H),p=d.data,dist=new Uint8Array(W*H).fill(255);
+ const q=[];for(let k=0;k<W*H;k++)if(p[k*4+3]<128){dist[k]=0;q.push(k);}
+ for(let r=1;r<=ring;r++){const nq=[];for(const k of q){const X=k%W,Y=(k/W)|0;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const a=X+dx,b=Y+dy;if(a<0||b<0||a>=W||b>=H)continue;const j=b*W+a;if(dist[j]>r){dist[j]=r;nq.push(j);}}}q.length=0;q.push(...nq);}
+ const L=k=>.3*p[k*4]+.59*p[k*4+1]+.11*p[k*4+2];let n=0;const kill=[];
+ for(let Y=3;Y<Y1-3;Y++)for(let X=3;X<W-3;X++){const k=Y*W+X;if(dist[k]===0||dist[k]>ring)continue;let s=0,m=0;for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){const j=k+dy*W+dx;if(dist[j]>ring&&p[j*4+3]===255){s+=L(j);m++;}}if(m<4)continue;if(L(k)>s/m+22)kill.push(k);}
+ for(const k of kill)p[k*4+3]=0;n=kill.length;x.putImageData(d,0,0);return n;};
+/* the whole run for a water: await prep(); spillRim(L.land,3); erodeEdge(L.land,2,<shoreline+40>); paleRim(L.land,4,<shoreline+40>); spillRim(L.bh,2); spillRim(L.ch,2); await cloudKey(); await pack({bhW,chH,glow}) */
+</script>

@@ -239,3 +239,6 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **The building must stand behind the angler:** a phone shows only about 1.6 angler heights to the angler's left; the first boathouse, wholly left of the angler's spot, would not have shown on phones.
 - **A light outline against the sky** survived the key and the spill fix because the painted edge itself carried key colour → trim the land's cut edge 2 px and soften 1 px (`erodeEdge` in tools/paint_prep.html).
 - **Dawn/dusk jumps:** a dawn tint that differs from the dusk tint switches at the clock's turn while the light is still warm → one tint for both.
+- **Every tint must be applied while the picture is solid:** restoring the outline after the first tint and then tinting again let later tints show as a pale outline (pwLight now restores the outline once, at the end).
+- **A drifted copy of a painted texture shows a seam** wherever its left and right edges meet; water movement made from lines and bars reads as "straight lines moving": make it from the painting's own wave crests.
+- **Clouds drawn complete behind the land peek out** along hilltops and through a tree's gaps, pale at night: keep them high and fade them before the tree.

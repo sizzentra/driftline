@@ -2,6 +2,15 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Tired fish: they keep half their hold now and take longer to bring in (about 3 s from the far edge for common fish, about 8 s for rare and above).',
+  'Fish stronger than your tackle: their extra fight, line strain and longer runs and jumps now grow with rarity (milder on common fish, stronger on mythics).',
+  'Shiny, titled and hybrid fish fight harder, and being light never makes them easier; the big ones fight hardest.',
+  'Voyages: after the first five, fish keep fighting a little harder every voyage, up to voyage 100.',
+  'The arrows that showed a fish swimming toward you are gone.',
+  'Earlier waters pay more once you have opened later ones in your run, so going back to fish them no longer slows you down.',
+  'Willow Pond: the water now moves in its own painted waves, with the sun and moon laying their light along them; the straight-line water effects are gone.',
+  'Willow Pond: no more pale outline around the willow at night, and clouds no longer show through the willow or peek along the hilltops.',
+  '## Test build 2026.11.24-2058',
   'Willow Pond is now a painting: a quiet meadow pond with a great weeping willow, a duck-egg-blue boathouse where you fish from the deck by the door, its rowboat tucked underneath, and a folding chair for Rest mode.',
   'Willow Pond: the willow and the reeds sway, clouds drift, mist lies on the far water in the morning, the water moves in rolling waves, the sun and moon lay a path of light across it, and after dark the windows and lantern glow and many fireflies drift over the shores and water.',
   '## Test build 2026.11.24-1854',

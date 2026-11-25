@@ -77,7 +77,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   /* [23] (director): a hybrid that still lands inside its own normal weight range is worth ×2 (common) to ×5 (mythic) of a normal
      fish its size, in coins and in aquarium income */
   const hx = hy && kg>=sp.min && kg<=sp.max ? HYBRID_IN_RANGE[sp.r]*pathMul('hx') : 0;
-  let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(hyWeightK(R)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))*(hy?HY_TOP_K[sp.r]||1:1))); /* Cam, round 4: legendary and mythic hybrids are worth more (sale and aquarium both follow the value) */
+  let value = Math.max(1,Math.round(sp.base*(hy&&!hx?clamp(hyWeightK(R)*(1+.6*Math.abs(Math.log(R))),.3,25):Math.pow(R,.85)*(hx||1))*(hy?HY_TOP_K[sp.r]||1:1)*waterCatchUp(sp.loc))); /* Cam, round 6: earlier waters pay more once later ones are open (waterCatchUp) */ /* Cam, round 4: legendary and mythic hybrids are worth more (sale and aquarium both follow the value) */
   value=Math.round(value*RAR[sp.r].val*(1+masteryK()*mastery(sp.id))*specLocValue(sp.loc)); { const bb=BAIT[S.baitSel]; if(pr('gourmet')&&bb&&bb.food&&typeof FISH_FAV!=='undefined'&&FISH_FAV[sp.id]===bb.id) value=Math.round(value*(1+.06*pr('gourmet'))); } /* Gourmet: caught on its favourite food, it sells for 6% more a rank (director, 2026-11-23) */ if(trophy) value=Math.round(value*(spec('trophyking')?2:1.5));
   if(shiny===1) value*=4; else if(shiny===2) value*=PRISM_VALUE;
   const ab=rollAqBuff(sp,kg), ab2=hy?rollAqBuff(SPI[hy],kg,true):null;
