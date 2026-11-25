@@ -627,8 +627,10 @@ function dailyLogin(){ const k=dayKey(), y=dayKey(new Date(Date.now()-86400000))
   if(!S.stats.caught && !S.savedAt) return null; const day=S.login.streak, mult=Math.min(3,1+day*.25); const coins=earn(bestLoot()*3*mult*coinMult()); const sc=Math.min(10,day); S.scales+=sc; let extra='';
   if(day%7===0){ S.tokens.big++; extra=' and a big Mystery Crate'; } S.freeSpins=Math.min(3,S.freeSpins+1);
   return 'Daily gift, day '+day+': +'+fmt(coins)+' coins, +'+sc+' Scales, a free spin'+extra+'!'; }
-function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHave(t)>=t.n).length;
-  return `<div class="tile" style="margin-bottom:12px"><div class="row spread"><div><h4>Daily tasks</h4><div class="meta">New tasks every day. Finish all three for a bonus crate. Login streak: ${S.login.streak} day${S.login.streak===1?'':'s'}.</div></div><span class="meta">${done} / 3</span></div>
+/* presses one panel action as if its button were clicked (Claim all reuses each Claim exactly) */
+function actClick(a,i){ const P=document.getElementById('panel')||document.body, b=document.createElement('button'); b.type='button'; b.dataset.act=a; b.dataset.i=i; b.hidden=true; P.appendChild(b); try{ b.click(); } finally{ b.remove(); } }
+function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHave(t)>=t.n).length, ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length;
+  return `<div class="tile" style="margin-bottom:12px"><div class="row spread"><div><h4>Daily tasks</h4><div class="meta">New tasks every day. Finish all three for a bonus crate. Login streak: ${S.login.streak} day${S.login.streak===1?'':'s'}.</div></div><span class="meta">${done} / 3</span>${ready>1?'<button class="btn sm" data-act="taskclaimall">Claim all</button>':''}</div>
    ${d.tasks.map((t,i)=>{ const h=Math.min(t.n,taskHave(t)), ok=h>=t.n; return `<div class="toggle"><div style="min-width:0"><b>${esc(t.d.replace('{n}',fmt(t.n)).replace('{pet}',petName()))}</b><div class="meta">${fmt(h)} / ${fmt(t.n)} · reward <span class="coin">${fmt(t.coins)}</span> + ${t.scales} Scales</div><div class="prog"><i style="width:${h/t.n*100}%"></i></div></div>
      ${t.claimed?'<span class="badge g">Done</span>':`<button class="btn sm" data-act="taskclaim" data-i="${i}" ${ok?'':'disabled'}>Claim</button>`}</div>`; }).join('')}
    ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
@@ -716,6 +718,8 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
     case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; addPassXP(40); earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
+    case 'claimall': { const is=S.bounties.map((b,j)=>[b,j]).filter(([b])=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).map(([,j])=>j).sort((a,b)=>b-a); if(!is.length) return 'skip'; for(const j of is) actClick('claim',j); return 'render'; } /* Cam, round 7: claim every finished bounty at once (each through its own Claim, so every bonus still applies; highest first, so the others keep their places) */
+    case 'taskclaimall': { const d=ensureDaily(), is=d.tasks.map((t,j)=>j).filter(j=>!d.tasks[j].claimed&&taskHave(d.tasks[j])>=d.tasks[j].n); if(!is.length) return 'skip'; for(const j of is) actClick('taskclaim',j); return 'render'; }
     case 'taskbonus': { const d=ensureDaily(); if(d.bonus||!d.tasks.every(t=>t.claimed)) return 'skip'; d.bonus=true; S.tokens.small++; sfx.catch(3); toast('All tasks done! A small Mystery Crate is waiting at the Boardwalk.'); return 'render'; }
     case 'patches': showPatchNotes(); return 'skip';
     case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){}

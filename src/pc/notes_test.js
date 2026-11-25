@@ -2,6 +2,16 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fish fights, Cam’s list: when you are stronger than a fish, its hold counts for less (down to about a third of it), so weaker fish reel in faster; and every kind of fish now has its own hold and stamina, so two fish of the same rarity fight differently.',
+  'Temper hits harder: a fired-up fish builds tension much faster between moves, and its moves pull the line tighter.',
+  'Fish are stronger everywhere: Starfall Lake’s strongest fish now pull about 200 lb, and the end-game waters climb up to about 300 lb at the last one.',
+  'Quick Reflexes at max rank: a perfect hook pulls common and uncommon fish halfway in, and rarer fish a shorter way (it pulled every fish halfway, mythics too).',
+  'Fish from earlier waters now also earn more in your aquarium as you open later waters, like their sale price.',
+  'No more screen flash when you hook a fish.',
+  'Claim all: one button to claim every finished bounty, and one for finished daily tasks.',
+  'The top three Line levels are stronger to keep up with the stronger fish (the last one now holds about 300 lb).',
+  'A feat that gives a pet or rod now shows it in its own pop-up, so the feat line stays short.',
+  '## Test build 2026.11.25-0218',
   'Cherry Blossom Lake is now Maplewood Hollow, a fall water drawn in the game’s own style: a treehouse in a giant maple to fish from, a red covered bridge, a pumpkin patch with a scarecrow who fishes too, falling and floating leaves, geese, a busy squirrel, bats and glowing pumpkins at night, and a little leaf whirlwind now and then. Same fish, same place on your journey; the bait is now Maple Leaves.',
   '## Test build 2026.11.25-0116',
   'Willow Pond is back to its drawn scene in the game’s own style: the red boathouse, the far cabin, ducks, the frog, deer, ducklings, fireflies and the owl. The painted version is gone.',

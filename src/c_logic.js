@@ -129,6 +129,7 @@ const salePrice = f => Math.round(f.value*sellMult()*(demandSp().id===f.id?(maxe
 const CATCHUP_SHARE=.7;
 function waterAvg(id){ const c=waterAvg.c||(waterAvg.c={}); if(c[id]!=null) return c[id]; const L=SP.filter(s=>s.loc===id&&s.r<=1); return (c[id]=L.length?L.reduce((a,s)=>a+s.base,0)/L.length:1); }
 function waterCatchUp(id){ const i=locIdx(id), top=(S.unlocked||[]).reduce((m,u)=>Math.max(m,locIdx(u)),0); if(!(i>=0)||i>=top) return 1; return Math.max(1,CATCHUP_SHARE*waterAvg(LOCS[top].id)/waterAvg(id)); }
+const REFLEX_PULL=[.5,.5,.35,.25,.15,.1]; /* Quick Reflexes at max rank: how much of the distance a perfect hook pulls in, by rarity (Cam, round 7; Feel call) */
 const hookWin = () => gv('hook') + .05*pr('reflex') + rodHook() + (relic('goldhook')?.15:0);
 const reelSpeed = () => gv('reel') * (1 + .04*pr('strong')) * (1 + bonus('reel'));
 const tensionMult = () => (1 - .04*pr('steady')) * (1 - bonus('tension'));
@@ -281,7 +282,7 @@ function hookIt(){ const perfect = (G.waitT - (G.biteEnd - hookWin())) < .3*hook
   G.eatAt = G.forceEat ? (G.forceEat=false, .5) : (G.fish.kind==='fish' && !isPredator(G.fish.sp) && G.fish.sp.r<=2 && Math.random()<.05*pathMul('eat')) ? rnd(1.4,3.8) : null; /* 0.4.9: half as often (director: "slightly rarer") */
   if(G.fish.kind==='fish' && G.fish.shiny===2) setTimeout(()=>toast('It shimmers like nothing you have seen. It will fight every way a fish can.'),400);
   if(G.fish.kind==='fish' && G.fish.hy) setTimeout(()=>toast(G.fish.kg>(G.fish.sp.min+G.fish.sp.max)/2?'This feels far too heavy for what it looks like...':'Strangely light on the line...'),600);
-  if(perfect){ G.sta=.8; G.ten=0; G.runT=rnd(.5,.9); /* 0.4.9 (director: "perfect hook needs fish inactivity time slightly reduced"): a smaller head start in stamina and a shorter first rest */ S.stats.perfect++; if(maxed('reflex')){ G.d*=.5; toast('Lightning hook! Halfway in already.'); } else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
+  if(perfect){ G.sta=.8; G.ten=0; G.runT=rnd(.5,.9); /* 0.4.9 (director: "perfect hook needs fish inactivity time slightly reduced"): a smaller head start in stamina and a shorter first rest */ S.stats.perfect++; if(maxed('reflex')){ const pk=REFLEX_PULL[(G.fish&&G.fish.sp?G.fish.sp.r:0)|0]||.1; G.d*=1-pk; toast(pk>=.5?'Lightning hook! Halfway in already.':'Lightning hook! A head start.'); } /* Cam, round 7 ("right now it's just broken"): half the way only for common and uncommon fish, less for rarer ones */ else toast('Perfect hook! The fish starts tired.'); tone(990,.1,'triangle',.07,0,.05); } }
 function breakStreak(why){ const n=S.streak; if(!n){ if(why) toast(why); return; } const keep=maxed("streaker")?Math.floor(n/2):0; /* director 2026-11-18: a streak ends only when a fish that bit gets away; On a Roll maxed keeps half */ S.streak=keep; const msg=keep?"Fish lost: streak "+n+" halved to "+keep:"Streak of "+n+" ended"; if(why) toast(n>=3?why+' '+msg+'.':why); else if(n>=3) setTimeout(()=>toast(msg),1200); save(); } /* why: Cam's list #10 puts the reason into the streak message */ /* 0.3.6: saved at once, so a refresh can't bring a broken streak back */
 function endFight(kind){
   if(kind==='caught'){ G.st='landing'; G.land={t:0, dur:.85, x0:G.bob.x, y0:G.bob.y}; splash(G.bob.x,G.bob.y,24); sfx.pull(); return; }
@@ -431,10 +432,10 @@ const FEATS = [
   {id:'tide3', name:'Old sea dog',            d:'Set sail again 3 times',    p:()=>[S.tides,3],           coins:0, pt:3},
 ];
 function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const [a,b]=f.p(); if(a>=b){ S.feats[f.id]=true; earn(f.coins); if(f.pt) S.bonusPts+=f.pt;
-  let extra=''; if(f.pet && !S.owned.pets.includes(f.pet)){ S.owned.pets.push(f.pet); extra=', new pet: '+PETI[f.pet].name; }
-  if(f.rod && !S.rods.owned.includes(f.rod)){ S.rods.owned.push(f.rod); extra+=', new rod: '+ROD_I[f.rod].name; }
+  let extra='', gift=''; if(f.pet && !S.owned.pets.includes(f.pet)){ S.owned.pets.push(f.pet); gift='New pet: '+PETI[f.pet].name+'!'; }
+  if(f.rod && !S.rods.owned.includes(f.rod)){ S.rods.owned.push(f.rod); gift+=(gift?' ':'')+'New rod: '+ROD_I[f.rod].name+'!'; } /* a pet or rod gets its own pop-up: with the crate, one line ran past 80 letters (2026-11-25) */
   { const ck=f.pt?'big':'small'; S.tokens[ck]=(S.tokens[ck]||0)+1; extra+=', a '+ck+' Mystery Crate'; } /* Cam, round 5: crates come from feats (big for a feat with a skill point) */
-  setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); }, 900); } } }
+  setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); if(gift) setTimeout(()=>toast(gift),1400); }, 900); } } }
 
 // ---------- aquarium ----------
 const fishRate = f => aqFishBase(f)*(spec('curator')?1.25:1)*(1+.08*pr('keeper'))*(1+bonus('tank')+decorBonus())*coinMult();

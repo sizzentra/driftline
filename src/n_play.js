@@ -86,7 +86,7 @@ function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{
   if(!ctx.noPrey && isPredator(sp) && Math.random()<.12+sp.aggr*.12){ const pp=preyPool(sp,SP.filter(s=>s.loc===sp.loc && timeOk(s,phase()))); if(pp.length){ f.prey=[]; const n=Math.random()<.15?2:1; for(let i=0;i<n;i++) f.prey.push(rollFish(pick(pp),{noHybrid:true,noPrey:true})); } }
   return f; }
 // the cooler entry for a landed fish
-function coolerEntry(f){ const e={id:f.sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny||0, tr:f.trophy?1:0}; if(f.pv) e.pv=f.pv; if(f.hy) e.hy=f.hy; if(f.hx) e.hx=f.hx; if(f.ab) e.ab=f.ab; if(f.ab2) e.ab2=f.ab2; return e; }
+function coolerEntry(f){ const e={id:f.sp.id, kg:+f.kg.toFixed(3), value:f.value, sh:f.shiny||0, tr:f.trophy?1:0}; if(f.pv) e.pv=f.pv; if(f.hy) e.hy=f.hy; if(f.hx) e.hx=f.hx; if(f.ab) e.ab=f.ab; if(f.ab2) e.ab2=f.ab2; const cu=waterCatchUp(f.sp.loc); if(cu>1) e.cu=+cu.toFixed(3); /* Cam, round 7: the catch-up already in its price, so the aquarium can follow today's catch-up instead */ return e; }
 // journal update incl. smallest, prismatic and hybrid records
 function journalAdd(f){ const sp=f.sp, j=S.journal[sp.id], kg=+f.kg.toFixed(3);
   const n={n:(j?j.n:0)+1, best:j?j.best:0, min:j&&j.min!=null?j.min:null, sh:(j&&j.sh)||!!f.shiny, pr:(j&&j.pr)||f.shiny===2, tr:(j&&j.tr)||f.trophy, bv:Math.max((j&&j.bv)||0, f.value), first:(j&&j.first)||Date.now()};
@@ -104,7 +104,7 @@ if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=docu
 // rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
 const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
 function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
-function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const sm=hySmall(f,sp), raw=(+f.value||0)/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1); return Math.min(raw,cap); } /* [23] in-range hybrids lift the cap by the same multiplier */
+function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const cu=waterCatchUp(sp.loc), sm=hySmall(f,sp), raw=(+f.value||0)/(+f.cu||1)*cu/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1)*cu; return Math.min(raw,cap); } /* Cam, round 7 (2026-11-25): fish from earlier waters earn more in the aquarium as later waters open, like their sale price (waterCatchUp: competitive, never better than the top water) */ /* [23] in-range hybrids lift the cap by the same multiplier */
 // 0.3.2: weight counts in the aquarium. A fish heavy for its kind earns more (its income cap grows from x0.75 for the
 // lightest to x1.7 for a record-breaker) and rolls stronger buffs, so your best prized catches belong on display.
 function aqRel(f,sp){ return sp&&sp.max>sp.min ? clamp(((+f.kg||0)-sp.min)/(sp.max-sp.min),0,1.5) : .5; }

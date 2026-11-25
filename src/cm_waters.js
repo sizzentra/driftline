@@ -198,6 +198,14 @@ const WATER_EG = WATERS_NEW.filter(w=>w.eg);
     const [bk,bn,sp,rare,price,bnote]=Wd.bait; if(!BAIT[bk]) BAIT[bk]={name:bn, speed:sp, rare, pack:10, price, loc:Wd.id, locMul:Wd.mul, note:bnote};
   }
 })();
+/* Cam, round 7 (2026-11-25): fish are stronger. Starfall's strongest fish pulls 200 lb (it was about 170), every other water gets the same
+   lift so the climb keeps its shape, and the end-game waters climb from 200 lb (the first) to 300 lb (the furthest); each water's
+   strongest fish lands on its target exactly. Strength is a fish's pull (fishPull, kg), shown in the player's unit. Feel call. */
+const STR_TOP_LB={starfall:200, eg:[200,300]};
+(()=>{ const KG=2.20462, top={}; for(const s of SP){ const p=s.str*4/3; if(!(top[s.loc]>=p)) top[s.loc]=p; }
+  const lift=STR_TOP_LB.starfall/KG/top.starfall, egs=LOCS.filter(l=>l.eg).map(l=>l.eg), e0=Math.min(...egs), e1=Math.max(...egs), k={};
+  for(const L of LOCS) k[L.id]=L.eg&&top[L.id]?(STR_TOP_LB.eg[0]+(STR_TOP_LB.eg[1]-STR_TOP_LB.eg[0])*(L.eg-e0)/Math.max(1,e1-e0))/KG/top[L.id]:lift;
+  for(const s of SP) s.str=+(s.str*(k[s.loc]||lift)).toFixed(2); })();
 // ---------- end-game waters: open by voyages, never in the unlock chain, scaled to your progress ----------
 const isEgLoc = id => { const L=LOCS[locIdx(id)]; return !!(L&&L.eg); };
 /* Cam's list #12: an end-game water is "Uncharted Waters" (name and card) until you reach its voyage; then it opens for coins like any

@@ -30,7 +30,7 @@ const MASTERY_FX = {
   steady:'Second wind: once per fight, your line survives a snap.',
   strong:'Power start: the first 2 seconds of every fight reel twice as fast.',
   softtouch:'Calm aura: fish lose their temper twice as fast whenever you let go.',
-  reflex:'Lightning hook: a perfect hook pulls the fish halfway in.',
+  reflex:'Lightning hook: a perfect hook pulls common and uncommon fish halfway in, rarer fish a shorter way.',
   patience:'Every 10th cast bites almost instantly.',
   lucky:'Every 25th catch is at least Rare.',
   caster:'Bullseye: a full-power cast makes its own little hotspot.',
