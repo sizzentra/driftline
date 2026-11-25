@@ -1,0 +1,29 @@
+ATTACH: CHATGPT_MAP_GUIDE.md, angler_guide_pc.jpg, angler_sitting.png (all in Downloads\Driftline_for_ChatGPT). If you have a reference picture you like for Willow Pond, attach it too.
+
+----- COPY FROM HERE -----
+
+We're redesigning the next map in Driftline. The attached guide (CHATGPT_MAP_GUIDE.md) has all the rules we learned on the last map; please follow it exactly. Here is this map:
+
+THE MAP: Willow Pond
+- Place and story: the very first water, where every player starts. A small, quiet storybook pond in gentle lowland meadow country in early summer: soft rolling green hills, wildflower meadows, a birch and willow grove, lily pads, reeds and cattails. Safe, warm and a little nostalgic, like a children's picture book.
+- Culture and inspiration: classic storybook illustration of pond and riverbank life, cottage gardens, a weekend of fishing with a thermos; European and English countryside ponds. Gentle, homely, unhurried.
+- Palette: soft, warm and safe: sky blues and cream, fresh meadow greens, honey and duck-egg-blue painted wood, white birch bark, pink and yellow wildflowers. Its best hour is an early summer morning with soft golden light and a little low mist lying on the water, so the day painting should already feel fresh, calm and slightly hazy.
+- Materials that belong: painted timber boards, mossy wooden shingles, rope, river stones, wicker, canvas, iron lantern hardware.
+- Life that belongs: ducks, a frog on a lily pad, dragonflies, wildflowers, birds in the reeds (paint only what stands still; the game animates the rest).
+- Doesn't belong: mountains or snowy peaks, pine or spruce forests, log cabins, canoes, anything tropical, big boats, modern metal or plastic, anything loud or neon.
+
+WHAT MAKES IT DISTINCT
+- The building: a little timber boathouse standing over the water on weathered wooden pilings: walls of painted boards in faded duck-egg blue, a steep roof of mossy wooden shingles, an open boat bay at the waterline with a small wooden rowboat moored inside, a small window with a flower box. Side silhouette: a narrow tall gable box on stilts with a steep pitched roof, the dark boat-bay opening at the bottom, a low open deck running out to its right.
+- The landmark: a huge old weeping willow on the far right bank, in the middle distance, its long fronds hanging down to touch the water; it should be the first thing you notice.
+- Framing and near corners: no framing tree or object at the top: an open soft sky with big gentle summer clouds. Bottom-left corner: tall reeds and cattails at the water's edge. Bottom-right corner: lily pads with white and pink water lilies and one frog sitting on a pad.
+- Far background: soft rolling green hills with a patchwork of meadows and hedgerows and a small birch wood; nothing tall or jagged.
+- Signature motion to paint as separate pieces: the willow's hanging fronds (as their own layer so they can sway); the reeds and cattails in the bottom-left corner (their own layer so they can bend in the wind).
+- Do NOT reuse from other maps: a tea house, red stilts, Mount Fuji, a torii, a pagoda, a cherry tree framing the top left, flowered stone corners, mountains, pine or spruce forests, a log cabin, a canoe, a waterfall.
+
+WHAT I NEED, IN THIS ORDER
+1. The full map painting, 1680x845, daytime (early summer morning), following the guide's scene layout (far shoreline at 42% of the height, open water in the fishing area, the building's spot on the left).
+2. After I approve it: the layers (land with empty sky and water, sky, each cloud, water without reflections, the willow fronds, the bottom-left reeds), same size and alignment, on pure #00FF00 green.
+3. The boathouse with its deck and pilings as a cut-out, 1536x1024 on green, sized with the angler in the attached guide picture.
+4. The chair as a cut-out, 1024x1024 on green: a simple wooden folding chair or a wicker garden chair with a small cushion.
+
+Please start with step 1 only, and tell me in a few lines how you made it distinct from the guide's list of things not to reuse.
