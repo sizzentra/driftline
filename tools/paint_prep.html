@@ -1,0 +1,60 @@
+<!doctype html><body style="margin:0;background:#334"><script>
+const ld=s=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(s);i.src=s+'?v='+Date.now();});
+const cv=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+/* green key: alpha from how much green beats red/blue, despill, then edge pixels take the colour of the solid art just inside them */
+function keyed(img){const c=cv(img.width,img.height),x=c.getContext('2d');x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),p=d.data,W=c.width,H=c.height;
+ for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2],dk=Math.sqrt(r*r+(255-g)*(255-g)+b*b);let a=dk<55?0:dk<125?(dk-55)/70:1;if(a<1){const m=Math.max(r,b);if(g>m)p[i+1]=m;}p[i+3]=Math.round(a*255);} /* only colours near the pure key green go: green leaves and moss stay solid */
+for(let pass=0;pass<2;pass++){ const o=new Uint8ClampedArray(p);for(let y=1;y<H-1;y++)for(let X=1;X<W-1;X++){const i=(y*W+X)*4;if(p[i+3]===0||p[i+3]===255&&p[i+7]===255&&p[i-1]===255&&p[i+W*4+3]===255&&p[i-W*4+3]===255)continue;
+  let best=-1,bi=0;for(const j of [i-4,i+4,i-W*4,i+W*4,i-W*4-4,i-W*4+4,i+W*4-4,i+W*4+4])if(p[j+3]>best){best=p[j+3];bi=j;}if(best>p[i+3]){o[i]=p[bi];o[i+1]=p[bi+1];o[i+2]=p[bi+2];}if(p[i+3]<255)o[i+3]=Math.min(p[i+3],Math.max(0,best-40));}
+ p.set(o);} x.putImageData(d,0,0);return c;}
+function bbox(c,th){const x=c.getContext('2d'),d=x.getImageData(0,0,c.width,c.height).data;let x0=1e9,y0=1e9,x1=-1,y1=-1;for(let y=0;y<c.height;y++)for(let X=0;X<c.width;X++)if(d[(y*c.width+X)*4+3]>(th||20)){if(X<x0)x0=X;if(X>x1)x1=X;if(y<y0)y0=y;if(y>y1)y1=y;}return [x0,y0,x1,y1];}
+function col(c,X){const d=c.getContext('2d').getImageData(X,0,1,c.height).data;let top=-1,bot=-1;for(let y=0;y<c.height;y++)if(d[y*4+3]>128){if(top<0)top=y;bot=y;}return [top,bot];}
+function row(c,Y){const d=c.getContext('2d').getImageData(0,Y,c.width,1).data;let l=-1,r=-1;for(let X=0;X<c.width;X++)if(d[X*4+3]>128){if(l<0)l=X;r=X;}return [l,r];}
+/* cloud blobs: connected parts on a quarter-size mask, boxes of the big ones */
+function blobs(c){const s=4,w=Math.ceil(c.width/s),h=Math.ceil(c.height/s),m=cv(w,h),mx=m.getContext('2d');mx.drawImage(c,0,0,w,h);const d=mx.getImageData(0,0,w,h).data,lab=new Int32Array(w*h).fill(-1),out=[];
+ for(let i=0;i<w*h;i++){if(lab[i]>=0||d[i*4+3]<40)continue;const st=[i];lab[i]=out.length;let x0=1e9,y0=1e9,x1=-1,y1=-1,n=0;while(st.length){const j=st.pop(),x=j%w,y=(j/w)|0;n++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1],[2,0],[-2,0]]){const X=x+dx,Y=y+dy;if(X<0||Y<0||X>=w||Y>=h)continue;const k=Y*w+X;if(lab[k]<0&&d[k*4+3]>=40){lab[k]=out.length;st.push(k);}}}
+  out.push([x0*s-4,y0*s-4,(x1-x0+1)*s+8,(y1-y0+1)*s+8,n]);}
+ return out.filter(b=>b[4]>30).map(b=>b.slice(0,4));}
+window.R={};
+window.prep=async()=>{const land=keyed(await ld('1_land.webp')),water0=await ld('2_water.webp'),clouds=keyed(await ld('4_clouds.webp')),bh=keyed(await ld('7_boathouse.webp')),ch=keyed(await ld('8_chair.webp'));
+ R.size=[land.width,land.height];R.landCols={};for(const X of [50,300,600,900,1000,1100,1300,1500,1700])R.landCols[X]=col(land,X);
+ /* water: keyed (its top edge), then its top rows repeated upward to row 380 so nothing shows under the shore */
+ const wk=keyed(water0);let wtop=0;{const d=wk.getContext('2d').getImageData(884,0,1,wk.height).data;for(let y=0;y<wk.height;y++)if(d[y*4+3]>200){wtop=y;break;}}R.waterTop=wtop;
+ const water=cv(wk.width,wk.height),wx=water.getContext('2d');wx.drawImage(wk,0,0);for(let y=380;y<wtop+4;y++)wx.drawImage(wk,0,wtop+6,wk.width,1,0,y,wk.width,1);
+ R.clouds=blobs(clouds);
+ R.bh=bbox(bh);R.bhCols={};for(const X of [120,180,300,500,700,862,1000,1100,1160,1200,1300,1400,1450,1500])R.bhCols[X]=col(bh,X);R.bhRows={};for(const Y of [300,450,600,700,722,730,760,900,950])R.bhRows[Y]=row(bh,Y);
+ R.ch=bbox(ch);R.chCols={};for(const X of [300,400,500,560,700,900])R.chCols[X]=col(ch,X);
+ window.L={land,water,clouds,bh,ch};return R;};
+/* pack: atlas = land (0) + water (889) + clouds band (1778, rows 0-460 of the clouds picture); boathouse toned toward the map's daylight */
+window.pack=async(o)=>{const {land,water,clouds,bh,ch}=L,IW=land.width,IH=land.height,CB=460;
+ const at=cv(IW,IH*2+CB),ax=at.getContext('2d');ax.drawImage(land,0,0);ax.drawImage(water,0,IH);ax.drawImage(clouds,0,0,IW,CB,0,IH*2,IW,CB);
+ /* boathouse: crop, scale, cool the golden light toward the map's soft daylight */
+ const [x0,y0,x1,y1]=R.bh,bw=x1-x0+1,bhh=y1-y0+1,f=o.bhW/bw,h=cv(Math.round(bw*f),Math.round(bhh*f)),hx=h.getContext('2d');hx.imageSmoothingQuality='high';hx.drawImage(bh,x0,y0,bw,bhh,0,0,h.width,h.height);
+ {const d=hx.getImageData(0,0,h.width,h.height),p=d.data;for(let i=0;i<p.length;i+=4){if(!p[i+3])continue;const r=p[i],g=p[i+1],b=p[i+2],l=.3*r+.59*g+.11*b;let R2=r*.94,G2=g*.97,B2=Math.min(255,b*1.06);R2=l+(R2-l)*.86;G2=l+(G2-l)*.86;B2=l+(B2-l)*.86;p[i]=R2;p[i+1]=G2;p[i+2]=B2;}hx.putImageData(d,0,0);}
+ /* glow mask: bright window panes inside the given rects (boathouse picture coordinates) */
+ const gm=cv(h.width,h.height),gx=gm.getContext('2d'),gd=gx.createImageData(h.width,h.height),src=bh.getContext('2d').getImageData(0,0,bh.width,bh.height).data;
+ for(const [a,b,c2,d2] of o.glow)for(let y=b;y<d2;y++)for(let X=a;X<c2;X++){const i=(y*bh.width+X)*4;if(src[i+3]<200)continue;const l=.3*src[i]+.59*src[i+1]+.11*src[i+2],dark=1-Math.min(1,l/150);if(dark<=0)continue;const tx=Math.round((X-x0)*f),ty=Math.round((y-y0)*f),j=(ty*h.width+tx)*4;gd.data[j]=255;gd.data[j+1]=196;gd.data[j+2]=130;gd.data[j+3]=Math.max(gd.data[j+3],Math.round(Math.min(1,.35+dark)*255));}
+ gx.putImageData(gd,0,0);
+ const [c0,cy0,c1,cy1]=R.ch,cw=c1-c0+1,chh=cy1-cy0+1,fc=o.chH/chh,cc=cv(Math.round(cw*fc),o.chH),ccx=cc.getContext('2d');ccx.imageSmoothingQuality='high';ccx.drawImage(ch,c0,cy0,cw,chh,0,0,cc.width,cc.height);
+ const out={atlas:at.toDataURL('image/webp',.82),house:h.toDataURL('image/webp',.86),glow:gm.toDataURL('image/webp',.8),chair:cc.toDataURL('image/webp',.86),IW,IH,CB,f,fc,bhOrigin:[x0,y0],hw:h.width,hh:h.height,chOrigin:[c0,cy0],cw:cc.width,chh:cc.height};
+ const r=await fetch('/report/pwpond',{method:'POST',body:JSON.stringify(out)});return [r.status,out.atlas.length,out.house.length,out.glow.length,out.chair.length,h.width,h.height,cc.width];};
+</script></body>
+<script>
+/* clouds are white to lavender, so anything greener than its red-blue average is background: strict alpha, colour pulled to its own grey-lavender */
+window.cloudKey=async()=>{const img=await ld('4_clouds.webp'),c=cv(img.width,img.height),x=c.getContext('2d');x.drawImage(img,0,0);const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+ for(let i=0;i<p.length;i+=4){const r=p[i],g=p[i+1],b=p[i+2],gs=g-(r+b)/2;let a=gs>40?0:gs>6?1-(gs-6)/34:1;const m=Math.max(r,b);if(g>m)p[i+1]=m;p[i+3]=Math.round(a*a*255);}
+ x.putImageData(d,0,0);L.clouds=c;return 'ok';};
+</script>
+<script>
+/* sky left around gaps in the land (ChatGPT painted the gaps' edges in sky blue before turning the sky green): light blue pixels touching a
+   see-through pixel are removed, 3 passes, only above the shoreline */
+window.skyRim=(c,maxY)=>{const x=c.getContext('2d'),W=c.width,H=Math.min(c.height,maxY),d=x.getImageData(0,0,W,c.height),p=d.data;let n=0;
+ for(let pass=0;pass<3;pass++){const kill=[];for(let y=1;y<H-1;y++)for(let X=1;X<W-1;X++){const i=(y*W+X)*4;if(p[i+3]<20)continue;const r=p[i],g=p[i+1],b=p[i+2];if(!(b>170&&b>r+40&&b>=g))continue;
+  if(p[i-1]<20||p[i+7]<20||p[i-W*4+3]<20||p[i+W*4+3]<20)kill.push(i);}for(const i of kill)p[i+3]=0;n+=kill.length;}
+ x.putImageData(d,0,0);return n;};
+</script>
+<script>
+/* green spill left in the art's own edge pixels (bright lime rims): within a few pixels of a cut edge, green may not exceed red/blue by much */
+window.spillRim=(c,rings)=>{const x=c.getContext('2d'),W=c.width,H=c.height,d=x.getImageData(0,0,W,H),p=d.data,near=new Uint8Array(W*H);for(let y=0;y<H;y++)for(let X=0;X<W;X++)if(p[(y*W+X)*4+3]<128)near[y*W+X]=1;for(let r=0;r<rings;r++){const nx=near.slice();for(let y=1;y<H-1;y++)for(let X=1;X<W-1;X++){const k=y*W+X;if(near[k])continue;if(near[k-1]||near[k+1]||near[k-W]||near[k+W])nx[k]=2+r;}near.set(nx);}let n=0;for(let k=0;k<W*H;k++){if(near[k]<2)continue;const i=k*4,r=p[i],g=p[i+1],b=p[i+2],m=Math.max(r,b),lim=m*1.12+12;if(g>lim){p[i+1]=Math.round(lim);n++;}}x.putImageData(d,0,0);return n;};
+/* the whole run for a water: await prep(); spillRim(L.land,3); spillRim(L.bh,2); spillRim(L.ch,2); await cloudKey(); await pack({bhW,chH,glow}) */
+</script>

@@ -230,3 +230,10 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **Mock up before importing:** pasting the cut-out onto a game picture with the angler showed the style match in minutes.
 - **Removing a feature breaks its callers far away:** a removed home handler (`hfAct`) left a call in a shared button chain, and every button handled after it stopped working (Nibbles, scrapping, crates). After removing a function, grep for every call, and run the adversarial and button tests.
 - **Moments are optional:** `MAP_STD` takes `none:'why'` for a water without one; `__mapQC` then skips the moment check (it used to need an "eye" exception).
+
+## Willow Pond, the second painted water (2026-11-24)
+- **A green key eats green leaves:** keying by "green beats red and blue" made green trees half see-through (pale blotches at night) → key by distance to the pure key green → `tools/paint_prep.html`.
+- **Lime rims on cut edges** (green spill mixed into the art's edge pixels) → within 2-3 px of an edge, green may not exceed red/blue by much (`spillRim`).
+- **A multiply tint over half-see-through edges shows the tint itself** (a pale ring at night) → light over an opaque black ground first (`pwLight`).
+- **ChatGPT doesn't hit pixel numbers and changes picture sizes;** proportions to the angler are what matter, because the game scales the building to the angler. Check proportions (door vs angler, eave vs angler), not pixels.
+- **The building must stand behind the angler:** a phone shows only about 1.6 angler heights to the angler's left; the first boathouse, wholly left of the angler's spot, would not have shown on phones.

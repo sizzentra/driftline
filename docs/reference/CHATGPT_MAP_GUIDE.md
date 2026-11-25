@@ -82,3 +82,12 @@ A separate small cut-out the game places beside the angler; the angler sits in i
 2. You split it into layers and paint the building and the chair.
 3. Claude sends **one** list of fixes after a mock-up; you repaint once.
 4. Claude puts it in the game and sends pictures to the director.
+
+## Mistakes we've seen before (please avoid)
+- **Flat solid water.** "No reflections" means no mirrored land or sky, never no water: paint the depth gradient and the soft wave texture.
+- **The building beside the angler.** The building stands behind the angler (the angler on its front deck), never wholly to the angler's left.
+- **The building too big or too tall.** Keep to the sizes in angler heights (about 6 AH wide, 2.2–3 AH from deck to top); the door a little taller than the angler.
+- **A tree framing the top-left corner, pines, mountains, pink blossom trees:** these belong to other maps.
+- **Lily pads or anything in the open middle of the water.**
+- **Painting the building in a different light** (golden, warmer, lanterns lit) from the map: same soft daylight as the map, nothing lit.
+- **Separate pieces of a tree** (hanging branches alone): not needed; we take the tree from the land picture.

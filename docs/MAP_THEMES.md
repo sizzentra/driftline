@@ -28,7 +28,7 @@ Written 2026-11-22 at the director's request ("more details, so you have better 
 
 ## 1. Willow Pond
 - **On the card:** "A quiet pond behind the boathouse. Gentle fish, good for learning the line." Depth 1–3 m.
-- **Place and story:** the first water. A small mountain pond in pine country behind a boathouse: snow-tipped peaks far off, pine shores, a log cabin with a warm window, a big weeping willow on the right bank, lily pads, reeds and cattails. Where everyone starts: safe, warm, a little nostalgic.
+- **Place and story (painted 2026-11-24):** the first water. A small storybook pond in gentle lowland meadow country in early summer: soft rolling hills, meadows and a birch grove, a great old weeping willow on the far right bank, reeds and cattails in the corners, morning mist on the far water. No mountains or pines (those belong to the Canadian Rockies). Where everyone starts: safe, warm, a little nostalgic.
 - **Culture and inspiration:** summer-camp and cottage-country lakes (the Adirondacks, the Pacific Northwest, Scandinavian lake cabins); classic storybook illustration of pond life (frogs on lily pads, ducks in a line); weekend fishing with a thermos and a folding chair.
 - **Palette:** soft, warm and safe. By day sky blues and cream with pine greens and honey wood; at dusk the whole scene turns rose and lilac with a peach horizon; at night deep navy with silver-blue rim light and a single warm cabin window. Accents stay small and warm (lantern gold, cabin light).
   - Day: sky `#4f86c9` → `#93bfe6` → `#f3e4ca`; water `#a8cfdf` → `#5c94aa` → `#22485c`; hills `#5f8a6c`, pines `#456f5c` / `#2c4a3e`; cabin `#6a5440`, roof `#3e302a`; leaves `#7fae5c`; rim light `#fff1c6`.
@@ -36,11 +36,11 @@ Written 2026-11-22 at the director's request ("more details, so you have better 
   - Night: sky `#05091a` → `#111a3c` → `#27306a`; water `#2a346c` → `#04060e`; rim `#9fb4ff`; leaf highlights `#6f80c8`.
   - **Home colours (16):** honey pine `#b98a5a`, weathered pine `#8a6a4a`, dark stain `#5a4030`, driftwood grey `#9a9488`, moss green `#5f8a6c`, pine green `#2c4a3e`, sage `#9ab08a`, willow green `#7fae5c`, lake teal `#3f827b`, sky blue `#86bcd9`, cream canvas `#f3e4ca`, warm white `#f4efe6`, barn red `#a8483a`, lantern gold `#e8b04a`, dusk rose `#c97a8a`, lilac `#8a7aa8`.
 - **Materials:** weathered pine planks, rope, iron lantern hardware, river stones, canvas, moss.
-- **Life:** by day ducks and ducklings (a mother duck leading 3 to 5 across the far water), a frog on the lily pads, deer, dragonflies, drifting willow leaves; at night fireflies and an owl (every 50 s). Fish: Bluegill, Pond Perch · Lantern Catfish, Escaped Goldfish · Old Whiskers, The Lily Duchess · The Pond Mother.
+- **Life (painted):** the willow, reeds and cattails swaying, drifting clouds, morning mist; at night fireflies and the boathouse's glowing windows and lantern. No moment for now (ducklings maybe later). Fish: Bluegill, Pond Perch · Lantern Catfish, Escaped Goldfish · Old Whiskers, The Lily Duchess · The Pond Mother.
 - **Belongs:** small wooden things, lanterns, fishing gear, picnic touches, cabin warmth, wildflowers.
 - **Doesn't belong:** anything tropical, big boats, modern metal or plastic, anything loud or neon.
 - **Music and ambience:** gentle fingerpicked acoustic guitar or soft felt piano, slow and warm, like a lazy summer morning; a touch of glockenspiel. Ambience: birdsong, frogs at dusk, crickets and the odd owl at night, a soft lap of water.
-- **Home today:** a wooden dock (the pilot format home: lantern, deck, posts, rail, canopy). **Direction:** the cozy starter dock: pine planks, the patio umbrella, a lamp post or hurricane lantern; the seat a wooden folding chair or a log bench.
+- **Home today (painted 2026-11-24):** a duck-egg-blue timber boathouse seen from its long side, a front cross gable with a loft window and flower box, the angler fishing from the deck by the door, a rowboat in the slip underneath, an open deck with a ladder and mooring post, and a wooden folding chair (src/w_pond_paint.js).
 
 ## 2. Stonebrook River
 - **On the card:** "Fast cold water over stones. Trout and pike that fight back." Depth 2–6 m.
