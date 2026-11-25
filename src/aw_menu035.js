@@ -15,7 +15,7 @@ const MENU_SECS=[
    icon:'<path d="M5 20 18.5 4.5"/><path d="M18.5 4.5v9.5"/><circle cx="18.5" cy="16.2" r="2.2"/><circle cx="8.6" cy="15.2" r="2.3"/>'},
   {id:'coll',  name:'Collection', tabs:['aquarium','journal','feats'],
    icon:'<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M7 13c1.8-2.4 4.8-2.9 7-.6l1.8-1.4v4l-1.8-1.4c-2.2 2.3-5.2 1.8-7-.6z"/><path d="M3.5 16.5c3 .8 5 .8 8 0s5-.8 9 0"/>'},
-  {id:'home',  name:'Home',       tabs:['home','pets','style'],
+  {id:'home',  name:'Home',       tabs:['pets','style'],
    icon:'<path d="M4 11.5 12 5l8 6.5"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>'},
   {id:'reward',name:'Rewards',    tabs:['pass','games'],
    icon:'<rect x="4" y="9.5" width="16" height="10" rx="1.5"/><path d="M3 9.5h18M12 9.5v10"/><path d="M12 9.5c-2.5 0-4.5-1-4.5-2.8S10.5 4.5 12 9.5c1.5-5 4.5-4.6 4.5-2.8S14.5 9.5 12 9.5z"/>'},

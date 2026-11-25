@@ -14,7 +14,9 @@ const HOMEF={};
 const HF = { pw:()=>W*.19, x0:()=>-4 /* the deck starts at the left edge (no bank: director, 2026-11-21) */, dockY:()=>H*.6, wl:dockY=>dockY+H*.075, top:dockY=>dockY-H*.42 /* the stored picture reaches high enough for a lifted cover (HK.roof) */, lightX:()=>W*.19-W*.012,
   seatX:()=>{ const sp=typeof HOMEF!=='undefined'&&S&&HOMEF[S.loc]; return sp&&typeof sp.seatX==='function'?sp.seatX():W*(sp&&sp.seatX||.064); } /* a home can place its seat (the Rockies cabin: nearer the front of the dock, director) */ /* the seat: behind the angler (who stands at W*.12), under the canopy; resting sits the angler in it */, sc:()=>clamp(H/420,.7,1.25) /* the angler's scale */ };
 const hfSpec = id => HOMEF[id]||null;
-function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const src=(S.dockAt===id||!S.dockAt)?S.dock:(S.docks&&S.docks[id]), c=src&&src.el&&src.el[el]; /* each water's own choices: the map pictures of other waters showed the current water's (2026-11-22) */
+/* homes are fixed (director, 2026-11-24: customisation removed for now, the idea comes back later as something else): every home shows its
+   default look; the choices players made stay in their saves untouched (S.dock / S.docks) for that later idea */
+function hfChoice(id,el){ const sp=hfSpec(id), e=sp&&sp.els.find(x=>x.id===el); if(!e) return [0,0]; const c=null; /* each water's own choices: the map pictures of other waters showed the current water's (2026-11-22) */
   const st=Array.isArray(c)&&c[0]>=0&&c[0]<e.styles.length?c[0]|0:(e.def?e.def[0]:0), pal=hfPal(e,st), d1=e.def?e.def[1]:0;
   return [st, Array.isArray(c)&&c[1]>=0&&c[1]<sp.colors.length&&(!pal||pal.includes(c[1]|0))?c[1]|0:(!pal||pal.includes(d1)?d1:pal[0])]; } /* a feature may offer only the colours real ones come in (e.pal: indices into the home's list) */
 /* the colours a feature offers in a style: e.palS[style] when its styles differ (a sod roof grows grass, a tin roof is painted any colour), else e.pal, else all */
@@ -27,7 +29,7 @@ function hfStyle(id,el){ return hfChoice(id,el)[0]; }
 function hfClean(o){ const r={}; if(o&&typeof o==='object'&&!Array.isArray(o)) for(const k in o){ const v=o[k]; if(Array.isArray(v)&&v.length===2&&v.every(n=>Number.isInteger(n)&&n>=0&&n<32)) r[k]=[v[0],v[1]]; } return r; }
 
 /* ---------- the stored picture ---------- */
-const HF_CACHE={}; let HF_LAST=null; /* HF_LAST: where the scene last drew the angler, rod and pets on a format home (for the close-up) */
+const HF_CACHE={};
 /* d: pixels per scene unit (the scene's own, or the close-up's); slot: a separate stored picture for the close-up */
 function hfPaintCache(L,P,night,dockY,dIn,slot){ const sp=hfSpec(L.id), d=dIn||Math.max(1,(typeof cv!=='undefined'&&cv&&W>0)?cv.width/W:1), id=L.id+(slot||'');
   const x0=-4, y0=HF.top(dockY), x1=HF.pw()*1.14, y1=H /* down to the bottom of the screen: the supports fade into the water all the way (director) */, key=[L.id,W,H,d,Math.round(night*24),P.rim,...sp.els.map(e=>hfChoice(L.id,e.id).join('.'))].join('|');
@@ -53,7 +55,7 @@ function hfLights(x,L,c,t,night,dockY,b,P,scene){ const lit=clamp(night*1.2+P.d*
     else { x.fillStyle=lit>.05?'rgba('+rgb+','+(.6+lit*.4)+')':'rgba('+rgb+',.8)'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.0045:H*.0085),0,7); x.fill();
       if(lit>.05){ x.fillStyle='rgba(255,248,230,'+(.5*lit)+')'; x.beginPath(); x.arc(l.x,l.y+b,(l.small?H*.002:H*.0035),0,7); x.fill(); } } } }
 /* drawn every frame on the water: rings, the stored picture (with the bob), the light */
-function hfDraw(L,t,night,dockY,pb,P){ const sp=hfSpec(L.id), c=hfPaintCache(L,P,night,dockY), b=sp.floats?(pb||0):0;
+function hfDraw(L,t,night,dockY,pb,P){ const sp=hfSpec(L.id); if(sp.draw&&sp.draw(t,night,dockY,P)) return; /* a painted home draws itself (Cherry Blossom, w_blossom_home.js) */ const c=hfPaintCache(L,P,night,dockY), b=sp.floats?(pb||0):0;
   if(sp.reflect) hfReflect(c,t,night,dockY); hfRings(g,c,t,night,dockY); g.drawImage(c.cv,c.x,c.y+b,c.w,c.h); hfLights(g,L,c,t,night,dockY,b,P,true); }
 /* a home that stands in a painted lake mirrors in it (director, 2026-11-23, Cherry Blossom: the trees, bridge and torii all reflect, so the house
    must too): the stored picture flipped at the water line in thin strips that sway with the ripples, fading with depth, behind the posts */
@@ -62,15 +64,6 @@ function hfReflect(c,t,night,dockY){ const wl=HF.wl(dockY), k=c.cv.height/c.h, h
   for(let yy=0;yy<ht;yy+=st){ const y0=wl-yy-st, a=.28*(1-yy/ht)**1.6*(1-night*.3); if(a<.01) break; g.globalAlpha=a; const off=Math.sin(t*1.6+yy*.09)*(1+yy*.012)*H/700;
     g.drawImage(c.cv,0,Math.max(0,(y0-c.y)*k),c.cv.width,st*k,c.x+off,y0,c.w,st); }
   g.restore(); }
-/* the Home close-up, drawn at its own size (director, 2026-11-21: the stretched scene made the angler blurry): a soft copy of the
-   water behind, then the home from a stored picture at close-up resolution, the light, the angler with the rod, and the pets, all sharp */
-function hfCloseup(c,f){ const L=LOCS[locIdx(S.loc)], P=v3palette.v, A=HF_LAST; if(!P||!A) return false; const x=c.getContext('2d'), d=cv.width/W, k=c.width/f.sw, dockY=HF.dockY(), night=A.night, t=performance.now()/1000;
-  x.setTransform(1,0,0,1,0,0); x.imageSmoothingEnabled=true; x.imageSmoothingQuality='low'; x.drawImage(cv,f.sx*d,f.sy*d,f.sw*d,f.sh*d,0,0,c.width,c.height);
-  x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,P,night,dockY,k,':close'); hfRings(x,hc,t,night,dockY); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); hfLights(x,L,hc,t,night,dockY,0,P,false);
-  try{ const hp=drawAngler(x,A.ax,A.ay,A.sc,S.look,{night:night*.8,hx:A.hx,hy:A.hy,t:A.t,rodA:A.rodA,sit:A.sit,rim:A.rim,glow:A.glow}); const hand=hp&&hp.x!=null?{x:hp.x,y:hp.y}:{x:A.ax+A.hx*A.sc,y:A.ay+A.hy*A.sc};
-    if(V3ON){ v3Rod(x,hand,{x:A.tx,y:A.ty},(hand.x+A.tx)/2,(hand.y+A.ty)/2-6+A.ten*.08,ROD_I[S.rods.eq],night,t,false); if(hp&&hp.fingers) hp.fingers(); }
-    drawPetScene(A.pax,A.pay,A.sc,A.t,night,x); { const hp=HOMEF[S.loc]; if(hp&&hp.front) hp.front(night,x); } /* the porch rail in front, as in the scene */ }catch(e){}
-  x.setTransform(1,0,0,1,0,0); return true; }
 
 /* ---------- shared pieces for format homes (draw into the stored picture) ---------- */
 /* a support standing IN the water, from the deck's underside: full color above the water line, then darker, fading into the water
@@ -102,24 +95,3 @@ function hfBraces(o,xs,top,col,w,beam){ const x=o.x; x.save(); x.globalComposite
   for(let i=0;i+1<xs.length;i++){ const a=xs[i], b=xs[i+1], t=top+H*.008, bt=o.wl-H*.006; if(b-a<H*.03||bt-t<H*.02) continue; x.beginPath(); x.moveTo(a,t); x.lineTo(b,bt); x.moveTo(b,t); x.lineTo(a,bt); x.stroke(); }
   x.restore(); }
 
-/* (Willow Pond's home is a base building now, built in src/cw_homes.js with the base-home kit, src/cw_basehome.js: 2026-11-23) */
-/* ---------- the Home page for a format home: a close-up of the home and its 6 features (styles, then the home's one colour list) ---------- */
-function renderHomeF(P){ const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)];
-  const sw=(e,c,i,on)=>`<button type="button" class="chipb hf-col" data-act="hfcol" data-k="${e.id}" data-v="${i}" aria-pressed="${on}" title="${esc(c[0])}"><span class="hm-sw" style="background:${c[1]}"></span>${esc(c[0])}</button>`;
-  P.innerHTML=`<i class="hf-mark" hidden></i>
-   <div class="tile" style="margin-top:10px;padding:0;overflow:hidden"><canvas id="homecv" width="900" height="360" style="width:100%;height:auto;cursor:default"></canvas></div>`+
-   sp.els.map(e=>{ const [s,c]=hfChoice(S.loc,e.id);
-     return `<h5 data-hel="${e.id}">Style</h5><div class="chips" data-hel="${e.id}">${e.styles.map((n,i)=>`<button type="button" class="chipb" data-act="hfel" data-k="${e.id}" data-v="${i}" aria-pressed="${i===s}">${esc(n)}</button>`).join('')}</div>`+
-       `<h5 data-hel="${e.id}">Color</h5><div class="chips" data-hel="${e.id}">${sp.colors.map((col,i)=>{ const pl=hfPal(e,s); return (!pl||pl.includes(i))?sw(e,col,i,i===c):''; }).join('')}</div>`; }).join('');
-  paintHome(); }
-/* the 6 features become the page's tabs */
-function hfSections(P){ const sp=hfSpec(S.loc); if(!sp) return false; sectionize(P,'home',sp.els.map(e=>({name:e.label,nodes:[...P.querySelectorAll(':scope > [data-hel="'+e.id+'"]')]}))); return true; }
-/* the Home view frames the home: its footprint, the free zone above it and the water under it, at the view's own shape */
-function hfFrame(c,top){ const pw=HF.pw(), dy=HF.dockY(), ft=dy-H*.255*Math.max(1,(84*HF.sc()/H)/.12) /* room for the tallest lifted cover, the same whatever is chosen (director, 2026-11-22: picking a shed changed the zoom) */, want={x:0,y:ft,w:pw*1.08,h:(HF.wl(dy)+H*.05)-ft}, ar=c.width/c.height;
-  let w=want.w, h=w/ar; /* the home fills the view's width */ if(h<want.h){ h=want.h; w=h*ar; } /* never cut the home: a tall cover zooms the view out until the whole home shows (director, 2026-11-22: the umbrella showed only its pole) */
-  if(h>H*.96){ h=H*.96; w=h*ar; } if(h<H*.25){ h=H*.25; w=h*ar; } /* never so flat that the deck or the canopy is cut */ /* the preview shows only the home (director, 2026-11-21): framed on the home's width, never the fishing scene beside it; a wide view crops water below instead */
-  let y=h>=want.h?Math.min(want.y+want.h/2,dy-H*.03)-h/2:dy-H*.205; y=Math.max(top||0,Math.min(H-h,y)); return {sx:0,sy:y,sw:Math.min(W,w),sh:h}; }
-/* a choice: the element's style or color (saved with this water's home) */
-function hfAct(b){ const a=b.dataset.act; if(a!=='hfel'&&a!=='hfcol') return undefined; const sp=hfSpec(S.loc), e=sp&&sp.els.find(x=>x.id===b.dataset.k), v=+b.dataset.v; if(!e) return 'skip';
-  const cur=hfChoice(S.loc,e.id); if(a==='hfel'){ if(!(v>=0&&v<e.styles.length)) return 'skip'; cur[0]=v; const pl=hfPal(e,v); if(pl&&!pl.includes(cur[1])) cur[1]=pl.includes(e.def&&e.def[1])?e.def[1]:pl[0]; } else { const pl=hfPal(e,cur[0]); if(!(v>=0&&v<sp.colors.length)||(pl&&!pl.includes(v))) return 'skip'; cur[1]=v; }
-  S.dock.el=hfClean(S.dock.el); S.dock.el[e.id]=cur; try{ V3THUMB[S.loc]=undefined; }catch(er){} /* its map picture is painted again */ try{ sfx.coin(); }catch(er){} save(); return 'render'; }

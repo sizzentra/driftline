@@ -9,14 +9,9 @@ const FHD=()=>document.body.classList.contains('pc-fhd');
    they were added, instead of five renderPanel wrappers; pre steps run before the page is built (last added first, as the wrappers did) */
 PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){} });
 
-// ---------- smooth menus: the fishing scene is hidden behind a full-HD menu, so it is not drawn while one is open ----------
+// (the aquarium tank and every page animation then get the whole frame)
 // (the aquarium tank and every page animation then get the whole frame; the Dock page still needs the scene: it shows it)
-/* Your home (director, 2026-11-22: "super choppy", an after-image when switching styles): the preview is copied from the scene, which the
-   shared menu rule drew only 4 times a second, so the copy stuttered and kept the old style for up to a quarter second. On the Home page
-   the scene now draws every frame and the preview is copied right after each draw, in the same frame (as on the phones). */
-{ const _dr=draw; draw=function(now){ if(!MENU_OPEN||!FHD()) return _dr.apply(this,arguments); if(S.tab!=='home') return;
-    const f=resize.force; resize.force=true; let r; try{ r=_dr.apply(this,arguments); } finally{ resize.force=f; }
-    paintHome.now=true; try{ paintHome(); }catch(e){} paintHome.now=false; paintHome.at=performance.now(); return r; }; }
+{ const _dr=draw; draw=function(now){ if(MENU_OPEN&&FHD()) return; return _dr.apply(this,arguments); }; }
 
 // ---------- one tooltip in the game's own look for everything with a title in the full-HD menus and header ----------
 { const tip=document.createElement('div'); tip.id='dltip'; tip.hidden=true; document.body.appendChild(tip); let cur=null;
@@ -103,71 +98,6 @@ body.pc-fhd #panel.st-on .st-pick button[aria-pressed="true"] b,body.pc-fhd #pan
 body.pc-fhd #panel[data-pg="skills"] .fhd-h .sdot{display:none!important}
 </style>`);
 
-// =====================================================================
-// Your home (full HD): the close-up of this water's home on the left, its 6 features (docs/HOME_STANDARD.md) on the right, the
-// same layout as phones held sideways (director: same on PC and phones, PC just has more room).
-// =====================================================================
-/* style cards (director, 2026-11-22: PC Home had "so much empty space"): every style of the open feature is drawn on this water's home in
-   daylight, the part of the picture that changes between the styles is found, and every card zooms on that part, so a card shows the
-   waterwheel or the lantern itself, not a tiny whole home. The other features stay as chosen; choices are always put back. */
-function dkWith(el,val,fn){ const had=S.dock.el&&Object.prototype.hasOwnProperty.call(S.dock.el,el), keep=had?S.dock.el[el]:null;
-  try{ S.dock.el=S.dock.el||{}; S.dock.el[el]=val; return fn(); } finally{ if(had) S.dock.el[el]=keep; else delete S.dock.el[el]; } }
-const DK_PV=new Map(); /* the open feature's style pictures and the part that changes, by water, feature and choices (not card size): a re-render after a click or a resize only redraws the cards (/simplify, 2026-11-22) */
-function dkPreviews(){ const P=$('panel'), L=LOCS[locIdx(S.loc)], Pal=v3palette.v, sp=hfSpec(S.loc); if(!P||!Pal||!HF_LAST||!S.dock||!sp) return; const dockY=HF.dockY(), groups={};
-  P.querySelectorAll('.dk-sty').forEach(b=>{ const c=b.querySelector('canvas'); if(c&&c.offsetParent) (groups[b.dataset.k]=groups[b.dataset.k]||[]).push(b); });
-  for(const el in groups){ const bs=groups[el], c0=bs[0].querySelector('canvas'), r=c0.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) continue;
-    const cur=hfChoice(S.loc,el), key=[S.loc,el,...sp.els.map(e=>e.id===el?cur[1]:hfChoice(S.loc,e.id).join('.'))].join('|'), sig=key+'|'+w+'|'+h; if(bs.every(b=>b.querySelector('canvas').dataset.sig===sig)) continue;
-    try{ const OW=1200, OH=750; let pv=DK_PV.get(key);
-      if(!pv){ const f=hfFrame({width:OW,height:OH},0), k=OW/f.sw; let hr=null; const imgs={};
-        for(const b of bs){ const v=+b.dataset.v, o=document.createElement('canvas'); o.width=OW; o.height=OH; dkWith(el,[v,cur[1]],()=>{ const x=o.getContext('2d'); x.setTransform(k,0,0,k,-f.sx*k,-f.sy*k); const hc=hfPaintCache(L,Pal,0,dockY,k,':pv'+v); x.drawImage(hc.cv,hc.x,hc.y,hc.w,hc.h); if(!hr) hr=hc; }); imgs[v]=o; }
-        /* only the home's own area is read back and compared (sample grid kept on multiples of 3, so the box is the same as a full-frame scan) */
-        const rx=Math.max(0,Math.floor((hr.x-f.sx)*k/3)*3), ry=Math.max(0,Math.floor((hr.y-f.sy)*k/3)*3), rw=Math.min(OW,Math.ceil((hr.x+hr.w-f.sx)*k))-rx, rh=Math.min(OH,Math.ceil((hr.y+hr.h-f.sy)*k))-ry;
-        const D=bs.map(b=>imgs[+b.dataset.v].getContext('2d').getImageData(rx,ry,Math.max(1,rw),Math.max(1,rh)).data); let x0=OW,y0=OH,x1=-1,y1=-1;
-        for(let y=0;y<rh;y+=3) for(let x=0;x<rw;x+=3){ const i=(y*rw+x)*4; for(let j=1;j<D.length;j++){ const a=D[0], q=D[j]; if(Math.abs(a[i]-q[i])+Math.abs(a[i+1]-q[i+1])+Math.abs(a[i+2]-q[i+2])+Math.abs(a[i+3]-q[i+3])>40){ const X=x+rx, Y=y+ry; if(X<x0) x0=X; if(X>x1) x1=X; if(Y<y0) y0=Y; if(Y>y1) y1=Y; break; } } }
-        if(DK_PV.size>12) DK_PV.clear(); DK_PV.set(key,pv={imgs,box:x1>=x0?[x0,y0,x1,y1]:null}); }
-      let bx=0, by=0, bw=OW, bh=OH, ar=w/h; if(pv.box){ const [x0,y0,x1,y1]=pv.box; bw=x1-x0; bh=y1-y0; const pad=Math.max(bw,bh)*.22+16; bx=x0-pad; by=y0-pad; bw+=pad*2; bh+=pad*2; }
-      if(bw/bh<ar){ const nw=bh*ar; bx-=(nw-bw)/2; bw=nw; } else { const nh=bw/ar; by-=(nh-bh)/2; bh=nh; }
-      if(bw>OW||bh>OH){ const s=Math.min(OW/bw,OH/bh); bx+=bw*(1-s)/2; by+=bh*(1-s)/2; bw*=s; bh*=s; } bx=Math.max(0,Math.min(OW-bw,bx)); by=Math.max(0,Math.min(OH-bh,by));
-      bs.forEach(b=>{ const c=b.querySelector('canvas'), img=pv.imgs[+b.dataset.v]; if(!img) return; if(c.width!==w||c.height!==h){ c.width=w; c.height=h; } const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0);
-        const gr=x.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#2a4a66'); gr.addColorStop(1,'#14283c'); x.fillStyle=gr; x.fillRect(0,0,w,h); x.imageSmoothingQuality='high'; x.drawImage(img,bx,by,bw,bh,0,0,w,h); c.dataset.sig=sig; }); }
-    catch(e){ console.error(e); } } }
-{ const _ph=paintHome; paintHome=function(){ const c=$('homecv'); if(!c||!FHD()||!MENU_OPEN||!c.closest('.dk-top')) return _ph.apply(this,arguments);
-    if(!paintHome.now&&performance.now()-(paintHome.at||0)<150) return; /* the scene copies itself right after each draw (above) */
-    const r=c.getBoundingClientRect(), w=Math.round(r.width*(devicePixelRatio||1)), h=Math.round(r.height*(devicePixelRatio||1)); if(w<20||h<20) return;
-    if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
-    hfCloseup(c,hfFrame(c,0)); /* framed on the home, drawn sharp at the close-up's own size */ };
-  PC_STEPS.pre.push(()=>{ const P0=$('panel'); if(P0) P0.classList.remove('dk-on','dk-hfp'); }); PC_STEPS.post.push(()=>{ try{ if(S.tab!=='home'||!FHD()) return; const P=$('panel'); if(P.querySelector('.dk-top')||!P.querySelector(':scope > .hf-mark')) return;
-      const sp=hfSpec(S.loc), L=LOCS[locIdx(S.loc)], c=P.querySelector('#homecv'), tile=c&&c.closest('.tile'), nav=P.querySelector(':scope > .sect-nav'); if(!tile||!nav) return;
-      const top=document.createElement('div'); top.className='dk-top dk-top1'; const view=document.createElement('div'); view.className='dk-view'; c.style.cssText=''; view.appendChild(c);
-      view.insertAdjacentHTML('beforeend',`<span class="dk-where">${esc(L.name)}<span> · ${esc(sp.hname)}</span></span>`); /* like the phones: the water, then the home's short name (2026-11-22 review: "Willow Pond · Willow Pond dock") */
-      const col=document.createElement('section'); col.className='dk-col'; col.innerHTML='<div class="dk-body"></div>'; const body=col.querySelector('.dk-body'); body.appendChild(nav);
-      P.querySelectorAll(':scope > [data-hel]').forEach(el=>body.appendChild(el)); body.querySelectorAll('.chips').forEach(row=>{ const on=row.querySelector('.hf-col[aria-pressed="true"]'), hd=row.previousElementSibling; if(on&&hd&&hd.tagName==='H5') hd.innerHTML='Color <span class="dk-cn">· '+esc(on.title)+'</span>'; }); /* the chosen color's name in the heading, like the phones */
-      /* PC has the room (director, 2026-11-22: "so much empty space"): each style is a picture card of this home drawn in that style, and
-         the column ends with the whole home at a glance (every feature's style and color; a click opens that feature) */
-      body.querySelectorAll('.chips').forEach(row=>{ if(row.querySelector('.hf-col')) return; row.classList.add('dk-styles');
-        row.querySelectorAll('.chipb[data-act="hfel"]').forEach(b=>{ const n=b.textContent; b.classList.add('dk-sty'); b.innerHTML='<canvas class="dk-pv"></canvas><span></span>'; b.querySelector('span').textContent=n; }); });
-      const gl=document.createElement('div'); gl.className='dk-glance'; gl.innerHTML='<h5>Your home at a glance</h5><div class="dk-gls">'+sp.els.map((e,i)=>{ const [s,ci]=hfChoice(S.loc,e.id), cc=sp.colors[ci]; return `<button type="button" class="dk-gl" data-gi="${i}"><b>${esc(e.label)}</b><span>${esc(e.styles[s])}</span><em><i style="background:${cc[1]}"></i>${esc(cc[0])}</em></button>`; }).join('')+'</div>';
-      gl.addEventListener('click',ev=>{ const g=ev.target.closest('.dk-gl'); if(!g) return; const t=nav.querySelectorAll('button')[+g.dataset.gi]; if(t) t.click(); setTimeout(dkPreviews,0); });
-      nav.addEventListener('click',()=>setTimeout(dkPreviews,0)); col.appendChild(gl);
-      top.append(view,col); requestAnimationFrame(dkPreviews);
-      [...P.children].forEach(ch=>{ if(!ch.classList.contains('crumb')&&!ch.classList.contains('hf-mark')) ch.remove(); });
-      P.prepend(top); P.classList.add('dk-on','dk-hfp'); requestAnimationFrame(()=>{ try{ paintHome(); }catch(e){} }); }catch(e){ console.error(e); } }); }
-document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pc-fhd #menuov #panel.dk-on{display:flex!important;flex-direction:column!important;overflow:hidden!important;gap:14px}
-html body.pc-fhd #menuov #panel.dk-on > *{flex:0 0 auto}
-html body.pc-fhd #menuov #panel.dk-on > .dk-top.dk-top1{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(560px,1fr);gap:14px;flex:1 1 0;min-height:0} body.pc-fhd #panel .dk-top1 > .dk-col{min-height:0;overflow:auto;scrollbar-width:thin;align-self:stretch} /* the column fills the height: style picture cards, colors, then the home at a glance at the bottom (director, 2026-11-22: "so much empty space") */
-body.pc-fhd #panel.dk-hfp .dk-styles:not([style*="display: none"]){display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px} body.pc-fhd #panel.dk-hfp .dk-body .chipb.dk-sty{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;padding:8px 8px 10px!important;min-height:0!important;height:auto!important;border-radius:14px!important;white-space:normal;line-height:1.2} body.pc-fhd #panel.dk-hfp .dk-styles:has(> :nth-child(4)){grid-template-columns:repeat(4,minmax(0,1fr))} body.pc-fhd #panel.dk-hfp .dk-pv{display:block;width:100%;aspect-ratio:1;border-radius:10px;background:#0b1626;pointer-events:none} body.pc-fhd #panel.dk-hfp .dk-sty > span{font:800 15px var(--display,system-ui);text-align:center}
-body.pc-fhd #panel.dk-hfp .dk-glance{margin-top:auto;padding:16px 20px 18px;border-top:1px solid #ffffff14} body.pc-fhd #panel.dk-hfp .dk-glance h5{font-size:13.5px!important;margin:0 0 10px!important} body.pc-fhd #panel.dk-hfp .dk-gls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px} body.pc-fhd #panel.dk-hfp .dk-gl{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0;padding:10px 12px;border-radius:12px;background:#0a1424;border:1px solid #ffffff14;color:#e6efe8;cursor:pointer;text-align:left;font:inherit} body.pc-fhd #panel.dk-hfp .dk-gl:hover{border-color:#ffd36a66} body.pc-fhd #panel.dk-hfp .dk-gl b{font:800 14px var(--display,system-ui)} body.pc-fhd #panel.dk-hfp .dk-gl span{color:#9fb2c8;font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} body.pc-fhd #panel.dk-hfp .dk-gl em{font-style:normal;font-size:13px;display:flex;align-items:center;gap:6px;color:#e6efe8} body.pc-fhd #panel.dk-hfp .dk-gl i{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px #ffffff66}
-body.pc-fhd #panel.dk-hfp .dk-body{padding:18px 20px;gap:18px;flex:0 1 auto} body.pc-fhd #panel.dk-hfp .dk-body .bwx-nav button{font-size:15px!important;min-height:44px} body.pc-fhd #panel.dk-hfp .dk-body h5{font-size:13.5px!important;margin:0 0 10px!important} body.pc-fhd #panel.dk-hfp .dk-body .chipb:not(.hf-col){font-size:15px!important;min-height:44px;padding:6px 18px!important} /* full-HD sizes: read from a couch */
-body.pc-fhd #panel.dk-hfp .chips:has(.hf-col){display:grid;grid-template-columns:repeat(8,56px);gap:14px} body.pc-fhd #panel.dk-hfp .hf-col{width:56px!important;height:56px!important;min-width:0!important;padding:0!important;border-radius:50%!important;font-size:0!important;color:transparent!important;justify-content:center;align-items:center;overflow:hidden} body.pc-fhd #panel.dk-hfp .hf-col .hm-sw{width:42px;height:42px;border-radius:50%;margin:0;box-shadow:inset 0 0 0 1.5px #ffffff66} body.pc-fhd #panel.dk-hfp .hf-col[aria-pressed="true"]{box-shadow:0 0 0 3px var(--gold,#ffd36a)} body.pc-fhd #panel .dk-cn{color:var(--gold,#ffd36a);text-transform:none;letter-spacing:0} /* round swatches, 2 rows of 8 like the phones; a brighter ring so the darkest colors stay visible (accessibility review) */
-body.pc-fhd #panel .dk-where span{color:#9fb2c8;font-weight:700}
-html body #menuov .bwx-nav button[aria-selected="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;box-shadow:none} html body #menuov #panel .chipb:not(.hf-col)[aria-pressed="true"]{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:transparent} /* gold means selected, on PC as on the phones (design system; 2026-11-22 review) */
-body.pc-fhd #panel .dk-view{position:relative;border-radius:16px;overflow:hidden;border:1px solid #ffffff18;background:#08111e}
-html body.pc-fhd #menuov #panel .dk-view #homecv{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;margin:0!important;aspect-ratio:auto!important;touch-action:none;display:block}
-body.pc-fhd #panel .dk-where{position:absolute;left:12px;top:10px;padding:5px 12px;border-radius:999px;background:#0009;color:#fff;font:800 12.5px var(--display,system-ui);pointer-events:none}
-body.pc-fhd #panel .dk-col{display:flex;flex-direction:column;min-height:0;border-radius:16px;background:#0e1a2c;border:1px solid #ffffff14;overflow:hidden}
-body.pc-fhd #panel .dk-body{flex:1 1 0;min-height:0;overflow:auto;padding:14px 16px;scrollbar-width:thin;display:flex;flex-direction:column;gap:14px}
-</style>`);
 
 // =====================================================================
 // Wardrobe (full HD): the categories are a fixed rail on the left (the header never changes size), your angler stands big in

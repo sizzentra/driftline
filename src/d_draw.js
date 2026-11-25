@@ -375,7 +375,6 @@ function draw(now){
   drawPetScene(pax,pay,sc,t,night);
   { const hp=HOMEF[L.id]; if(hp&&hp.front) hp.front(night); if(hp&&hp.smoke) hp.smoke(night,t); } /* a home's front edge in front of the angler (the cabin's porch rail) */
   if(fishNew()) feelDraw(t); /* Feel lab: hook flash, perfect-pull ring, pop-ups, combo (c2_fightfeel.js) */
-  if(HOMEF[L.id]) HF_LAST={ax,ay,sc,hx,hy,t,rodA,night,sit:RP?RP.sit:null,rim:PV?PV.rim:null,glow:PV?PV.glow:null,tx,ty,pax,pay,ten:G.st==='reeling'?G.ten:0}; /* where the angler, rod and pets were drawn: the Home close-up redraws them sharp */
   let lp=null;
   if(G.st==='landing'){ const k=G.land.t/G.land.dur, e=1-Math.pow(1-k,2.2); const ex=W*.2, ey=H*.24; const lx=G.land.x0+(ex-G.land.x0)*e, ly=G.land.y0+(ey-G.land.y0)*e - Math.sin(k*Math.PI)*H*.16; lp={x:lx,y:ly,k}; }
   if(G.st==='flying'||G.st==='waiting'||G.st==='bite'||G.st==='reeling'||G.st==='rest'){ const sag = G.st==='reeling' ? (1-clamp(G.ten/100,0,1))*30 : 30;

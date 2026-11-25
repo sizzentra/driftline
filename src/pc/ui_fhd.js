@@ -15,7 +15,7 @@ body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* full HD Cooler (and any fish list): fish as cards in two columns, so name, value and buttons sit together; bigger fish */
-body.pc-fhd #menuov #panel .list:has(> .fishrow){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body.pc-fhd #menuov #panel .list:has(> .fishrow):not([style*="display: none"]){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 body.pc-fhd #menuov #panel .list > .fishrow{border:1px solid #ffffff14;border-radius:14px;background:#0e1a2c;padding:10px 14px!important;margin:0!important;gap:14px}
 body.pc-fhd #menuov #panel .list > .fishrow{grid-template-columns:96px minmax(0,1fr) auto auto!important}
 body.pc-fhd #menuov #panel .list > .fishrow canvas{width:96px!important;height:48px!important}
@@ -60,12 +60,11 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
       ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
       statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
     if(statsBtn.parentElement!==box) box.appendChild(statsBtn);
-    /* PC Reborn (director, 2026-11-21): Home and Tasks join the header, like the phones' top bar (Home is in no section any more) */
-    for(const [k,lbl,tip,after] of [['home','Home','Your home at this water. Click to open it.','aquarium'],['bounties','Tasks','Daily tasks, weekly quests and bounties. Click to open them.','journal']]){ let b=box.querySelector(':scope > [data-page="'+k+'"]'); if(!b){ b=document.createElement('div'); b.className='stat hudx hud-link st-'+k; b.dataset.page=k; b.setAttribute('role','button'); b.tabIndex=0; b.title=tip; b.innerHTML=svg(k)+'<span class="lbl">'+lbl+'</span><b class="pcs-v"></b>'; const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(k); }; ['pointerdown','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',go); b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); } const ref=box.querySelector(':scope > [data-page="'+after+'"]'); if(ref&&b.previousElementSibling!==ref) ref.after(b); }
+    /* PC Reborn (director, 2026-11-21): Tasks joins the header, like the phones' top bar (the Home chip went with homes, 2026-11-24) */
+    for(const [k,lbl,tip,after] of [['bounties','Tasks','Daily tasks, weekly quests and bounties. Click to open them.','journal']]){ let b=box.querySelector(':scope > [data-page="'+k+'"]'); if(!b){ b=document.createElement('div'); b.className='stat hudx hud-link st-'+k; b.dataset.page=k; b.setAttribute('role','button'); b.tabIndex=0; b.title=tip; b.innerHTML=svg(k)+'<span class="lbl">'+lbl+'</span><b class="pcs-v"></b>'; const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(k); }; ['pointerdown','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',go); b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); } const ref=box.querySelector(':scope > [data-page="'+after+'"]'); if(ref&&b.previousElementSibling!==ref) ref.after(b); }
     return true; };
   const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; }
     const set=(k,v,ready)=>{ const c=document.querySelector('.pch-stats > [data-page="'+k+'"]'); if(!c) return; const b=c.querySelector('.pcs-v'); if(b&&b.textContent!==v) b.textContent=v; c.classList.toggle('ready',!!ready); };
-    try{ const hn=(HOMEF[S.loc]&&HOMEF[S.loc].hname)||'home'; set('home',hn.charAt(0).toUpperCase()+hn.slice(1)); }catch(e){} /* the home's name (batch 5: the cozy score is gone) */
     try{ const d=ensureDaily(), n=bountyReady(); set('bounties',n?n+' ready':d.tasks.filter(t=>t.claimed).length+'/'+d.tasks.length+' done',n>0); }catch(e){} }catch(e){} };
   setInterval(tick,1500);
   // in the menus the same buttons stay in the top row (the header itself is covered by the menu)

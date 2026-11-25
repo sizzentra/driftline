@@ -37,7 +37,7 @@ html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-side,html body.phone-l
 { const keep={}; const sec=P=>{ const s=P.querySelector('.aq07-sheet .sect-nav [aria-selected="true"]'); return s?s.textContent.trim():''; };
   const _rp=renderPanel; renderPanel=function(){ const P0=$('panel'); const t0=S.tab; delete keep[t0]; if(P0&&((t0==='aquarium'&&P0.classList.contains('aq07')&&!P0.classList.contains('dk08')&&!P0.classList.contains('pg08')&&!P0.classList.contains('wd08'))||(t0==='home'&&P0.classList.contains('dk08')))){ const b=P0.querySelector('.aq07-body'); if(b&&b.scrollTop>0) keep[t0]={top:b.scrollTop, sec:sec(P0)}; }
     const r=_rp.apply(this,arguments);
-    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&(t==='aquarium'||t==='home')&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){} return r; }; }
+    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&t==='aquarium'&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){} return r; }; }
 /* the Wardrobe works like the Dock: your angler is the live view, the categories are the Options panel's tabs */
 { let WD_OPEN=true; try{ WD_OPEN=localStorage.getItem('dl-wd-open')!=='0'; }catch(e){}
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };

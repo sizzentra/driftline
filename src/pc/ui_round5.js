@@ -12,10 +12,6 @@ PC_STEPS.post.push(()=>{ try{ if(S.tab!=='rods'||!FHD()) return; /* a PC page st
         chips.hidden=true; chips.style.display='none'; row.appendChild(sel); });
       const att=P.querySelector('.fhd-you'); if(att) att.classList.add('rd-slots'); }catch(e){ console.error(e); } });
 
-// ---------- Your home: the page and its tab are called "Your home" on PC (every water has one, not only a dock) ----------
-{ let lbl=null; const sync=()=>{ const b=menuTabBtn('home'); if(!b) return; if(lbl==null) lbl=b.dataset.label; const want=FHD()?'🏠 Your home':lbl; if(b.dataset.label!==want){ b.dataset.label=want; try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} } };
-  new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(sync,0); setTimeout(sync,900); }
-
 // ---------- Fish Log: clear Day / Night tags (not ☀ ☾), a live "Now", and hunt slots with real information ----------
 { const tags=P=>{ P.querySelectorAll('.fl-main .jcard small.loghint').forEach(h=>{ const t=h.firstChild; if(t&&t.nodeType===3){ const m=/^\s*(☀|☾)\s*/.exec(t.textContent); if(m){ t.textContent=t.textContent.slice(m[0].length); h.insertAdjacentHTML('afterbegin',m[1]==='☀'?'<span class="lt day">Day</span>':'<span class="lt night">Night</span>'); } } }); };
   const biteText=s=>{ if(s.time==='any') return 'Bites day and night'; const ok=timeOk(s,phase()); return (s.time==='night'?'Bites at night':'Bites by day')+(ok?' · biting now':' · not now'); };

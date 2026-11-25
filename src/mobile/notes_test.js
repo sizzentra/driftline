@@ -3,6 +3,10 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Homes are no longer customizable: the Your home page, its Home button and its lessons are gone, and every water keeps its home in its standard look. Your old choices stay in your save.',
+  'Cherry Blossom Lake has a new painted tea house that belongs to the painting: it changes with the light, its shoji door and lantern glow after dark, and it shows in the lake.',
+  'Cherry Blossom Lake: a painted wooden chair stands on the tea house deck; Rest mode sits your angler in it.',
+  '## Test build 2026.11.24-0140',
   'Fights: a tired fish much stronger than your tackle now comes in slowly (a fish nearly 3 times your strength about 3.6 times slower), and its second wind clock keeps running, so it usually fights again before you land it.',
   'Fish Frenzy: you can’t cast for 1 second after it ends.',
   'Streaks: the XP bonus climbs half as fast and tops out at the same bonus.',

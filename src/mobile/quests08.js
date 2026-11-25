@@ -23,9 +23,9 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="quests"] .q8-sec > h2,html
    to be at the front of the upper panel"):
    - search lives on the fishing screen's top bar only; the menus' top row no longer repeats it
    - picking a page from the empty-search map now opens it (it only switched the page behind the scenes when no menu was open)
-   - the map starts with the Top bar pages (Cooler, Aquarium, Home, Bait, Fish Log, Tasks); results say "Top bar" / "Settings" instead
+   - the map starts with the Top bar pages (Cooler, Aquarium, Bait, Fish Log, Tasks); results say "Top bar" / "Settings" instead
      of "Menu"; the same result never shows twice */
-{ const TOP={cooler:1,aquarium:1,home:1,bait:1,journal:1,bounties:1};
+{ const TOP={cooler:1,aquarium:1,bait:1,journal:1,bounties:1};
   const where=t=>{ if(TOP[t]) return 'Top bar'; try{ const s=menuSecOf(t); if(s) return s.id==='more'?'Settings':s.name; }catch(e){} return t==='settings'||t==='save'?'Settings':''; };
   const _sf=searchFind; searchFind=function(q){ const r=_sf.apply(this,arguments); if(!MOB()) return r; const seen=new Set(); return r.filter(e=>{ const k=e[0]+'|'+e[1]; if(seen.has(k)) return false; seen.add(k); return true; }); };
   const res=$('searchres'), ov=$('searchov');
@@ -51,10 +51,9 @@ if(/[?&]test\b/.test(location.search)) window.__searchQC=async()=>{ const w=ms=>
   open(); await w(150); q.value=''; q.dispatchEvent(new Event('input',{bubbles:true})); await w(150); const tabs=[...ov.querySelectorAll('.sv-p')].map(b=>b.dataset.tab);
   for(const t of tabs){ open(); await w(120); q.value=''; q.dispatchEvent(new Event('input',{bubbles:true})); await w(100); const b=[...ov.querySelectorAll('.sv-p')].find(x=>x.dataset.tab===t); if(!b){ bad.push('map missing '+t); continue; } b.click(); await w(260); n++; if(S.tab!==t||!MENU_OPEN) bad.push('map '+t+' -> '+S.tab+(MENU_OPEN?'':' (menu closed)')); }
   try{ closeMenu(); }catch(e){} ov.hidden=true; return {checked:n, mapPages:tabs.length, bad}; };
-/* search entries on phones: no keyboard shortcuts (touch screens); Save & codes lives in Save now; "Dock" entries say Home */
+/* search entries on phones: no keyboard shortcuts (touch screens); Save & codes lives in Save now */
 try{ for(let i=SEARCH_IDX.length-1;i>=0;i--){ const e=SEARCH_IDX[i]; if(e[1]==='__keys'||e[0]==='Keyboard shortcuts'){ if(typeof MOB==='function') SEARCH_IDX.splice(i,1); continue; }
-    if(e[1]==='settings'&&/Save & codes/.test(e[2]||'')) SEARCH_IDX[i]=['Save codes and gift codes','save','Save codes',e[3]+' gift'];
-    if(/^Dock:/.test(e[0])) SEARCH_IDX[i]=[e[0].replace(/^Dock:/,'Home:'),e[1],e[2],e[3]]; } }catch(e){}
+    if(e[1]==='settings'&&/Save & codes/.test(e[2]||'')) SEARCH_IDX[i]=['Save codes and gift codes','save','Save codes',e[3]+' gift']; } }catch(e){}
 /* section names that carry a count ("Find more · 30") still match a plain name from search, Quests or a link ("Find more"); search sets
    the section before it opens the page, so it opens right there */
 { const _sz=sectionize; sectionize=function(P,tab,groups,before){ try{ const s=SECT[tab]; if(s&&groups&&!groups.some(g=>g.name===s)){ const g=groups.find(g=>g.nodes&&g.nodes.length&&String(g.name).startsWith(s)); if(g) SECT[tab]=g.name; } }catch(e){} return _sz.apply(this,arguments); };

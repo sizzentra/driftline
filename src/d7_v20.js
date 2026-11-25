@@ -1,11 +1,8 @@
 
 // =====================================================================
-// Driftline 2.0: Paths tab, Home (dock customization & cozy), Tide Pass,
+// Driftline 2.0: Paths tab, Tide Pass,
 // Fishing Derby, richer scenery for every water, two new waters' looks
 // =====================================================================
-
-function renderHome(P){ dockSync(); renderHomeF(P); } /* every water has a home in the home format (batch 5; the old dock page is gone) */
-function paintHome(){ const c=$("homecv"); if(c&&HOMEF[S.loc]&&typeof cv!=='undefined'&&cv&&W>0) hfCloseup(c,hfFrame(c,0)); } /* platform layers (phones, PC full HD) frame it their own way */
 
 // ---------- Tide Pass (0.3: a longer climb, a Tide-only item every five levels, every reward spelled out) ----------
 const PASS_MAX = 100; /* 0.4.9: five chapters of 20 (cj_tidepass.js) */
@@ -92,7 +89,7 @@ function drawAmbient(L,t,night,hz,dt){ if(!S.settings.effects) return;
 function drawVignette(night){ const gr=g.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(4,10,16,'+(.22+night*.2)+')'); g.fillStyle=gr; g.fillRect(0,0,W,H); }
 
 // ---------- actions ----------
-function extraAct5(b){ const k=b.dataset.k; { const hr=hfAct(b); if(hr!==undefined) return hr; } /* format home choices */
+function extraAct5(b){ const k=b.dataset.k;
   switch(b.dataset.act){
     case 'derby': { if(S.derby||G.st!=='idle') return 'skip'; const c=derbyCost(); if(S.money<c) return 'skip'; S.money-=c; startDerby(); return 'render'; }
     case 'passclaim': { const got=[]; while(S.pass.claimed<S.pass.lvl){ S.pass.claimed++; got.push(grantPass(S.pass.claimed)); } if(got.length){ sfx.shiny(); toast('Tide Pass: '+got.slice(0,3).join(', ')+(got.length>3?' and more':'')); renderBait(); } return 'render'; }

@@ -44,8 +44,6 @@ const SEARCH_IDX=[
  ['Trophy Room','trophy',null,'trophy room keep mount museum forever collection storage'],
  ['Fish Log','journal',null,'fish log encyclopedia species oddities junk collection missing'],
  ['Feats','feats',null,'feats achievements goals'],
- ['Home: dock','home','Dock','home dock style wood'],
- ['Home: parts and colors','home',null,'home house dock walls roof windows seat style color'],
  ['Pets: your pets','pets','Your pets','pets companion favourite'],
  ['Pets: find more','pets','Find more','pets adopt buy new pets'],
  ['Pets: customize','pets','Customize','pet name color hat customize'],

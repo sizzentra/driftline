@@ -97,7 +97,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
    The sweep runs it on PC and on a phone and compares the two (PC Reborn rule: PC never falls behind the phones again). */
 if(/[?&]test\b/.test(location.search)) window.__menuMap=async()=>{ const w=ms=>new Promise(r=>setTimeout(r,ms)), clean=s=>String(s||'').replace(/\s*·\s*\d.*$/,'').replace(/\s+\d+$/,'').trim();
   const label=t=>{ try{ return (menuTabLabel(t)||[])[1]||t; }catch(e){ return t; } };
-  const pages=new Set(['cooler','aquarium','home','journal','bait','stats','settings']); for(const s of MENU_SECS) for(const t of s.tabs) pages.add(t);
+  const pages=new Set(['cooler','aquarium','journal','bait','stats','settings']); for(const s of MENU_SECS) for(const t of s.tabs) pages.add(t);
   const out={secs:MENU_SECS.map(s=>({id:s.id, name:s.short||s.name, tabs:s.tabs.slice()})), labels:{}, tabs:{}};
   for(const t of pages){ out.labels[t]=label(t); try{ openMenu(t); }catch(e){ continue; } await w(220); const P=$('panel'); if(!P||S.tab!==t) continue;
     out.tabs[t]=[...P.querySelectorAll('.sect-nav > button')].map(b=>clean(b.dataset.sect||b.textContent)).filter(Boolean); }

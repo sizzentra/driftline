@@ -5,7 +5,7 @@
 // Everything sits under the one header row; the header's Stats chip is where Stats lives on PC, so Stats is not a section here.
 // One size on every page (PC_UI below, checked by __pcSpec in test builds).
 // =====================================================================
-['journal','aquarium','home'].forEach(t=>PAGES_SKIP.add(t)); /* own frames: the Fish Log (PC's own), the Aquarium and Your home (the tank or home on top, their tabs under it, like the phones) */
+['journal','aquarium'].forEach(t=>PAGES_SKIP.add(t)); /* own frames: the Fish Log (PC's own), the Aquarium (the tank on top, their tabs under it, like the phones) */
 /* Stats lives in the header chip on PC (one place per page) */
 { const i=MENU_SECS.findIndex(s=>s.id==='stats'); if(i>=0) MENU_SECS.splice(i,1); const b=document.querySelector('#catdock [data-cd="stats"]'); if(b) b.remove(); const s=document.querySelector('#tabs .secbar [data-sec="stats"]'); if(s) s.remove(); }
 /* every section's tabs share one row on PC */

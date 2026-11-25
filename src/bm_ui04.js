@@ -20,7 +20,7 @@ const SEC_ICONS={
   chal:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4"/><path d="M12 13v3M9 20h6M10 16h4v4h-4z"/>',
   cust:'<path d="M14.5 4.5 19.5 9.5 10 19H5v-5z"/><path d="M12.5 6.5l5 5"/>'};
 /* one set of sections on every platform (PC Reborn, director 2026-11-21: PC gets every system and name the phones got). The Cooler,
-   Aquarium, Home, Fish Log and Bait open from their own top-bar chips, so they are in no section. PC shows Stats as its header chip
+   Aquarium, Fish Log and Bait open from their own top-bar chips, so they are in no section. PC shows Stats as its header chip
    (pc/pages_pc.js leaves that section out there). */
 MENU_SECS.splice(0,MENU_SECS.length,
   {id:'quests',   name:'Quests',        short:'Quests',     tabs:['quests'],                                   icon:'<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/>'},
@@ -32,10 +32,6 @@ MENU_SECS.splice(0,MENU_SECS.length,
   {id:'cust',     name:'Customization', short:'Customize',  tabs:['style','pets'],                             icon:SEC_ICONS.cust},
   {id:'prestige', name:'Prestige',      short:'Prestige',   tabs:['prestige'],                                 icon:'<circle cx="12" cy="13" r="6.5"/><path d="M9.2 10.6a3.4 3.4 0 0 1 3-1.8"/><path d="M12 3.5v2M6.2 5.6l1.3 1.5M17.8 5.6l-1.3 1.5"/>'});
 { const i=MENU_MORE.tabs.indexOf('stats'); if(i>=0) MENU_MORE.tabs.splice(i,1); } /* Stats is a section now, not behind the settings button */
-// Home is the Dock now
-{ const b=menuTabBtn('home'); if(b){ b.dataset.label='⚓ Dock'; for(const n of b.childNodes) if(n.nodeType===3&&n.textContent.includes('Home')) n.textContent=n.textContent.replace(/🏡\s*Home/,'⚓ Dock'); } }
-PAGE_DESC.home='Your dock at each water: wood, style and decorations';
-SEARCH_IDX.forEach((e,i)=>{ if(e[1]==='home'&&/^Home/.test(e[0])) SEARCH_IDX[i]=[e[0].replace(/^Home: dock/,'Dock: wood and style').replace(/^Home:/,'Dock:'),e[1],e[2],e[3]+' home'] });
 KEYS[0][1]='Open a category (Fishing, Upgrades, Collections, Challenges, Customization)';
 KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or the search']; if(k[0]==='M') KEYS[i]=['M','Open or close the menu']; });
 // rebuild the category row with the new categories (the click handler finds them by data-sec)
@@ -1253,15 +1249,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.dl-fish .hud > .stat.loc b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;min-width:0}
 }
 </style>`);
-// The Dock preview is live (director, 2026-11-17): it used to be drawn only when the page was built or something was dragged,
-// so the time of day and the animations stood still and jumped ahead on every redraw (e.g. tapping a water chip). It now redraws
-// about 30 times a second while the Dock page is on screen, and stops as soon as you leave it or the game is hidden.
-{ let live=false, last=0;
-  const step=now=>{ const c=$('homecv'); if(!c||!c.isConnected||S.tab!=='home'||document.hidden||!c.getClientRects().length){ live=false; return; }
-    if(now-last>=32){ last=now; try{ paintHome(); }catch(e){} } requestAnimationFrame(step); };
-  const start=()=>{ if(live||S.tab!=='home') return; live=true; last=0; requestAnimationFrame(step); };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ start(); }catch(e){} return r; };
-  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) start(); }); }
 // Settings > Display > Frame rate: frames per second and the slowest recent frame, in the corner of the water
 { const el=document.createElement('div'); el.id='fpsbox'; el.hidden=true; const st=$('stage'); if(st) st.appendChild(el);
   let on=false, ts=[], lastT=0, shown=0;

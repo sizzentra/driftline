@@ -88,7 +88,7 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-land .hud > #mblive,html body.phone-land .hud > .mb-x{flex:0 1 auto!important}
-html body.phone-app .hud > .mb-x:not(#mbhome),html body.phone-app .hud > #mblive{display:none!important} /* Live too (2026-11-20, the sweep: it sat exactly under the search button; it steps aside like it does when a sideways bar runs out of room, Events stays in the menu). The narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
+html body.phone-app .hud > .mb-x,html body.phone-app .hud > #mblive{display:none!important} /* Live too (2026-11-20, the sweep: it sat exactly under the search button; it steps aside like it does when a sideways bar runs out of room, Events stays in the menu). The narrow layout (split-screen windows; phones themselves are landscape-only) hides the extra chips, but never Home: it is the only way into your home on phones (2026-11-19) */
 html body.phone-land .hud > .mb-x[hidden]{display:none!important}
 html body.phone-land .hud > .mb-x.ready{border-color:#ffd36a!important;box-shadow:0 0 0 1px #ffd36a66!important}
 html body.phone-land .hud > .mb-x.ready .lbl{color:#ffd36a!important}
@@ -126,16 +126,9 @@ html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-app .hud > .m
 html body.phone-land .hud > .mb-stat8 > .stat b,html body.phone-app .hud > .mb-stat8 > .stat b{color:#fff!important}
 html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-app .hud > .mb-stat8 > .stat.loc .lbl::after{content:none!important;display:none!important}
 </style>`);
-/* round 8 (director, 2026-11-18: "Tide pass doesn't need to be on the top header" / "Move home to the top panel next to aquarium.
-   Customize should just consist of wardrobe and pets"): no Tide Pass chip (it lives in Challenges); a Home chip right after the
-   Aquarium shows how cozy your home here is and opens it. Home is reached from this chip only, so it never steps aside for room. */
-{ const ensure=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; const pz=document.getElementById('mbpass'); if(pz&&!pz.hidden) pz.hidden=true;
-    const aq=hud.querySelector('.st-aq'); if(!aq) return; let h=document.getElementById('mbhome');
-    if(!h){ h=document.createElement('button'); h.type='button'; h.id='mbhome'; h.className='stat hudx mb-x mb-home'; h.innerHTML='<span class="lbl">Home</span><b></b>'; h.title='Your home at this water. Tap to open it.';
-      h.addEventListener('pointerdown',e=>e.stopPropagation()); h.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('home'); }); }
-    if(h.previousElementSibling!==aq) aq.after(h);
-    let v='—'; try{ const hn=((HOMEF[S.loc]&&HOMEF[S.loc].hname)||'home').split(' ').pop(); v=hn.charAt(0).toUpperCase()+hn.slice(1); /* the last word fits the narrowest chip */ }catch(e){} /* the home's name (batch 5: the cozy score is gone) */ const b=h.querySelector('b'); if(b.textContent!==v) b.textContent=v; };
-  ensure(); setInterval(ensure,1000); addEventListener('resize',()=>setTimeout(ensure,220)); } /* built as the page loads (a 60 ms delay let the top bar open without Home and then shift; the QA top-bar check caught it right after a reload) */
+/* round 8 (director, 2026-11-18: "Tide pass doesn't need to be on the top header"): no Tide Pass chip (it lives in Challenges). The Home chip went with homes (director, 2026-11-24). */
+{ const ensure=()=>{ if(!MOB()) return; const pz=document.getElementById('mbpass'); if(pz&&!pz.hidden) pz.hidden=true; };
+  ensure(); setInterval(ensure,1000); }
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud > .mb-stat8,html body.phone-land .hud > .mb-stat8 > .stat{flex:0 0 auto!important;min-width:max-content!important}html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-land .hud > .mb-stat8 > .stat b{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important}html body.phone-land .hud.mb-compact{column-gap:3px!important}html body.phone-land .hud.mb-compact > .stat,html body.phone-land .hud.mb-compact > .hud-link,html body.phone-land .hud.mb-compact > .stat.mb-x,html body.phone-land .hud.mb-compact > .mb-stat8 > .stat{padding-left:3px!important;padding-right:3px!important}html body.phone-land .hud.mb-compact > .mb-stat8{padding:0 2px!important}</style>`); /* the info box never squeezes its words (when even that is not enough, .mb-compact trims every chip’s padding, fit() above); the chips to its right make room (Tasks steps aside first) */
 /* round 8 (director, 2026-11-18: "goal shouldn't be on the top header. Bait should move up there instead"): the goal lives in Quests
    (side panel); Bait sits in the top bar after Tasks: the bait you use (and how many are left), tap to open Tackle, Bait. The Bait
@@ -155,18 +148,17 @@ html body.phone-land .hud > #mbbait > b{max-width:120px;white-space:nowrap;overf
 </style>`);
 /* Narrow layout (split-screen windows; phones themselves are landscape-only), 2026-11-19: the bar was already two rows, but Home was
    hidden (the only way into your home on phones) and the Coins / Level / Fishing at box was squeezed into two columns, cutting all
-   of its text. Now: the info box takes the whole first row (gear on the right), Cooler, Aquarium, Home and Fish Log share the second
+   of its text. Now: the info box takes the whole first row (gear on the right), Cooler, Aquarium and Fish Log share the second
    row (search on the right), every label readable. */
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.phone-app.dl-fish .hud{grid-template-columns:repeat(4,minmax(0,1fr)) 32px!important}
-html body.phone-app.dl-fish .hud > .mb-stat8{grid-column:1 / 5!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud{grid-template-columns:repeat(3,minmax(0,1fr)) 32px!important}
+html body.phone-app.dl-fish .hud > .mb-stat8{grid-column:1 / 4!important;grid-row:1!important}
 html body.phone-app.dl-fish .hud > .mb-stat8 > .stat{flex:1 1 0!important}
 html body.phone-app.dl-fish .hud > .st-cool{grid-column:1!important;grid-row:2!important}
 html body.phone-app.dl-fish .hud > .st-aq{grid-column:2!important;grid-row:2!important}
-html body.phone-app.dl-fish .hud > #mbhome{grid-column:3!important;grid-row:2!important}
-html body.phone-app.dl-fish .hud > .st-log{grid-column:4!important;grid-row:2!important}
-html body.phone-app.dl-fish .hud #settingsbtn{grid-column:5!important;grid-row:1!important}
-html body.phone-app.dl-fish .hud #searchbtn{grid-column:5!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud > .st-log{grid-column:3!important;grid-row:2!important}
+html body.phone-app.dl-fish .hud #settingsbtn{grid-column:4!important;grid-row:1!important}
+html body.phone-app.dl-fish .hud #searchbtn{grid-column:4!important;grid-row:2!important}
 </style>`);
 /* 0.4.9 QC (outsider pass): with a live event and a long water name the Bait chip was squeezed to 15 px ("BA|"): the small chips could shrink, so the bar
    never overflowed and the "step aside" rule above never ran. Small chips now keep their full width; Tasks, then Live make room as designed.
