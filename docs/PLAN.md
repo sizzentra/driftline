@@ -62,6 +62,19 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 - **Testing:** lighter where it was heavy (quick path in CLAUDE.md). A future sit-down: Claude says what it wants to see from the testers' devices, and they give it through a recorded tool.
 - **Clean Pages** (untangling the code) is very important and continues.
 
+## Cam's notes, round 7 (2026-11-25, via the director; STORED, not built yet: waiting for the director's go)
+1. Aquarium income catch-up: alongside sell value, fish from earlier waters give higher aquarium income bonuses, competitive with (not better than) the highest water open in the run (same idea as waterCatchUp).
+2. Stronger than the fish = its grip/resistance counts less, up to a cap, so reeling a fish that isn't tired is faster. Goal: fish within one rarity feel different to fight, true variety with a noticeable difference (Claude's call how).
+3. Temper hits harder still.
+4. Toggleable fight indicators: Old, New and Middle ground (middle ground still in a circle, but below the angler in the water).
+5. Claim all for tasks and bounties.
+6. No screen flash on perfect hooks.
+7. Deeper Inspect on Cooler, Aquarium and Trophy Room fish.
+8. Quick Reflexes max rank ("right now it's just broken"): today a perfect hook at max rank pulls ANY fish halfway in, mythics too (c_logic.js, maxed('reflex'): G.d*=.5). Cam: keep about half on common/uncommon with diminishing returns on rarer fish, OR rework it into something else (Claude to propose).
+9. Fish strength higher: Starfall's top end reaches 200 lb, the furthest end-game waters 300 lb.
+10. More ways to change Scales earnings in the current systems.
+11. 5 daily challenges and 10 weekly challenges; daily challenges stay per water like bounties; the weekly "Complete X daily..." becomes "Complete all daily challenges on a single water".
+- Open questions before building: what "Old", "New" and "Middle ground" indicators look like exactly (Claude to show pictures of each); which Scales sources (10) to add.
 ## Cam's notes, round 6 (2026-11-24; BUILT in test build 2136; rollback tag `rollback/before-cam-round6`; Feel calls: the tired cap by rarity, the rarity scale on the stronger-than-you extras, the special fish values, the late voyage step, the catch-up share)
 - [x] Tired fish: option C with 50% hold (Cam: "keep 50% not 40% resistance"): a tired fish keeps half its normal hold (FF.TIRED_RES) and takes at least FF.TIRED_T = 3, 5, 8, 8, 8, 8 s from the far edge by rarity.
 - [x] Stronger than your tackle, any rarity: the round 4 extras (2x fight, 1.5x tension, 1.5x line on runs and jumps) scale with rarity (FF.STRONG_RK 0.6 to 1.4 of the extra).
