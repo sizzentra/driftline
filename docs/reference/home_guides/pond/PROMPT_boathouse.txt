@@ -1,0 +1,23 @@
+This water is exactly right now. Keep the whole map as it is. Next, the player's fishing spot: a boathouse, painted INTO this scene so it belongs to it. Please do this in two steps.
+
+STEP 1: PAINT THE BOATHOUSE INTO THIS MAP
+Add it on the left side of the picture, standing in the near water, so it looks like it was always part of this painting (same light direction, same soft brushwork and colours, same scale logic: it is close to us, so it is much larger than the far trees).
+- Use the attached angler_scale.png for size: the boathouse is about 6 angler heights (AH) wide in total and its deck surface sits a little below the middle of the picture, roughly where the near water begins to fill the frame.
+- The building: a little timber boathouse of painted boards in faded duck-egg blue with white trim, on weathered wooden pilings. Its tall, narrow gable end faces us: a steep triangle roof of mossy wooden shingles, a small loft window in the gable, and at the bottom the dark open boat bay at the waterline with a small wooden rowboat moored inside. On its right side, a lower lean-to roof over part of the deck (a little porch), then an open stretch of deck about 1.5 AH long with nothing on it, where the angler stands and a chair will go.
+- How it fits logically: it is built out from the near-left bank. Its deck continues to the left as a plank walkway that runs off the left edge of the picture toward the shore (cut by the picture's edge), so it is clearly connected to land, not floating alone. The pilings go straight down into the water and end there with a soft darker wet band. A mooring post with a coiled rope at the deck's right end, and a short wooden ladder down to the water.
+- A lantern hanging under the lean-to (unlit, daytime) and a flower box under the loft window are welcome. Its best details in its right 60%: on phones the left part is cut off.
+- Deck surface: one flat, level line, seen exactly from the side (its front edge, at most a thin strip of its top). The deck is empty: no person, chair, cushion or pet.
+- Still no reflections of the boathouse in the water (the game makes them), no glow, daytime only.
+- Keep the bottom-left reeds and rock below and in front of the pilings, small.
+
+STEP 2 (after I approve step 1): THE PIECES THE GAME NEEDS
+The game fits the map to every screen shape differently, while the angler always stands at the same place on screen, so the boathouse has to come as its own piece too. From the approved painting, please give me, all at 1680x845 in exactly the same alignment as the painting, on pure #00FF00 green:
+a. The land: everything solid except the boathouse (the boathouse area filled in with the water and shore that would be behind it), with the sky and the water left empty (green).
+b. The water alone (as it is now, without the boathouse).
+c. The sky alone, and each cloud as its own piece.
+d. The willow's hanging fronds on their own (so they can sway), and the bottom-left reeds and the bottom-right cattails on their own.
+Then separately:
+e. The boathouse with its deck, walkway and pilings alone, cut out on green, 1536x1024, the same painting at a larger size.
+f. A chair, 1024x1024 on green: a simple wooden folding chair or a wicker garden chair with a small cushion, strict side view facing right (backrest on the left), legs on one level line, seat about 0.25-0.35 AH high, same style.
+
+Please do STEP 1 now and tell me in a few lines where the deck line is and how you connected it to the shore.
