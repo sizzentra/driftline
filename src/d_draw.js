@@ -433,12 +433,49 @@ function draw(now){
     if(G.st!=='charging' && S.settings.boostsOnScreen && !document.body.classList.contains('pch-on')){ const bs=activeBuffs().slice(0,4); g.font='700 11px system-ui'; g.textAlign='left'; let yy=H-((innerWidth<=520||innerHeight<=520)?38:48); const now2=Date.now(); /* start above the Rest button in the corner */
       for(const b of bs){ const txt=fmtB(b.k,b.v)+'  '+mmss(Math.ceil((b.until-now2)/1000)); const tw=g.measureText(txt).width; g.fillStyle='rgba(5,14,20,.7)'; rr(10,yy-15,tw+16,20,10); g.fill(); g.fillStyle='#7fc8a9'; g.fillText(txt,18,yy-1); yy-=24; } } }
 }
+/* the fight display the player chose in Settings (Cam's round 7, 2026-11-25; per device, New the first time):
+   'old' = the live layout (tension ring, card and words at the fish, pop-ups and combo) without the newer rings around the lure,
+   'new' = everything around the lure and the fish (the test builds' look), 'mid' = Middle ground: one dial under the dock, the words above
+   the fish and the combo beside it, so nothing covers the fish */
+const fightUi = () => { const v=S&&S.settings&&S.settings.fightUi; return v==='old'||v==='mid'?v:'new'; };
+/* Middle ground: everything in one dial in the water right under the dock. The outer ring is the tension (fills clockwise from the top and
+   turns green, yellow, red; the snap zone and the dive band marked on it); the inner left half is the fish's Fight, the inner right half its
+   Temper; the middle shows how far out it is, with the line out as a thin bar. The warning and groove cues light the dial's rim. The words
+   stay above the fish, the combo and pop-ups beside it (feelDraw). */
+function drawFightDial(t){ const ten=clamp(G.ten/100,0,1), danger=ten>.8, warn=ten>.55, dockY=HF.dockY(), r=clamp(H*.062,22,56), lw=Math.max(4,r*.18);
+  const cx=clamp(HF.pw()*.52,r+lw+8,W*.4), cy=Math.min(H-r-lw-10,HF.wl(dockY)+r+lw+H*.012), shake=ten>.85?Math.sin(t*60)*1.5:0, A0=-Math.PI/2;
+  const tc=ten<.55?mix('#7fe3c4','#ffc94d',ten/.55):mix('#ffc94d','#ff5468',clamp((ten-.55)/.3,0,1));
+  g.save(); g.translate(shake,0);
+  g.fillStyle='rgba(5,14,20,.66)'; g.beginPath(); g.arc(cx,cy,r+lw*.9,0,7); g.fill();
+  if(G.tell){ const k=(t*4)%1; g.strokeStyle='rgba(255,140,90,'+(.7*(1-k))+')'; g.lineWidth=2; g.beginPath(); g.arc(cx,cy,r+lw*.9+2+k*6,0,7); g.stroke(); } /* a move is coming */
+  if(G.grooveT>.3){ g.strokeStyle='rgba(150,240,170,'+(.45+.2*Math.sin(t*5))+')'; g.lineWidth=2.5; g.beginPath(); g.arc(cx,cy,r+lw*.9+1.5,0,7); g.stroke(); } /* in the groove */
+  g.lineCap='round'; g.lineWidth=lw; g.strokeStyle='rgba(255,255,255,.08)'; g.beginPath(); g.arc(cx,cy,r,0,7); g.stroke();
+  g.strokeStyle='rgba(255,84,104,.28)'; g.beginPath(); g.arc(cx,cy,r,A0+Math.PI*2*.8,A0+Math.PI*2); g.stroke(); /* the snap zone */
+  const Z=fightZone(); if(Z){ g.strokeStyle=Z.inZ?'rgba(255,170,240,.7)':'rgba(255,170,240,.38)'; g.lineWidth=lw+4; g.beginPath(); g.arc(cx,cy,r,A0+Math.PI*2*Z.lo,A0+Math.PI*2*Z.hi); g.stroke(); g.lineWidth=lw; }
+  if(danger){ const p=.5+.5*Math.sin(t*14); g.strokeStyle='rgba(255,84,104,'+(.2+.15*p)+')'; g.lineWidth=lw+5+p*4; g.beginPath(); g.arc(cx,cy,r,A0,A0+Math.PI*2*ten); g.stroke(); g.lineWidth=lw; }
+  g.strokeStyle=Z&&Z.inZ?'#ffb0f0':tc; g.beginPath(); g.arc(cx,cy,r,A0,A0+Math.PI*2*Math.max(.02,ten)); g.stroke();
+  /* Fight (left) and Temper (right): half rings filling from the bottom up */
+  const ri=r*.64, li=Math.max(3,r*.13), hot=G.temper>1.7; g.lineWidth=li; g.strokeStyle='rgba(255,255,255,.08)'; g.beginPath(); g.arc(cx,cy,ri,Math.PI*.5+.12,Math.PI*1.5-.12); g.stroke(); g.beginPath(); g.arc(cx,cy,ri,-Math.PI*.5+.12,Math.PI*.5-.12); g.stroke();
+  const fs=clamp(G.sta,0,1), tp=clamp((G.temper||0)/3,0,1), span=Math.PI-.24;
+  if(fs>.01){ g.strokeStyle='#ff8a4a'; g.beginPath(); g.arc(cx,cy,ri,Math.PI*.5+.12,Math.PI*.5+.12+span*fs); g.stroke(); }
+  if(tp>.01){ g.strokeStyle=hot?'#ff5468':'#c38bff'; g.beginPath(); g.arc(cx,cy,ri,Math.PI*.5-.12,Math.PI*.5-.12-span*tp,true); g.stroke(); }
+  /* the middle: distance and line out */
+  g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#e6efe8'; g.font='800 '+Math.round(r*.36)+'px system-ui'; g.fillText(dStr(Math.max(0,G.d)),cx,cy-r*.06);
+  const lim=clamp(G.d/G.maxOut,0,1), bw=r*.7; g.fillStyle='rgba(255,255,255,.12)'; rr(cx-bw/2,cy+r*.22,bw,3,1.5); g.fill(); g.fillStyle=lim>.8?'#ff5468':'#5aa9ff'; rr(cx-bw/2,cy+r*.22,Math.max(2,bw*lim),3,1.5); g.fill();
+  g.restore();
+  /* the words, right above the fish (no ring around it) */
+  const msg=fightMsg(danger,danger), alert=!!(G.ev||G.run||G.temper>1.7||G.swT>0||danger||(fishNew()&&G.sta<=0&&G.fish.kind==='fish'));
+  g.save(); g.font='800 '+(W<700?15:17)+'px "Bricolage Grotesque", system-ui'; g.textAlign='center'; g.textBaseline='alphabetic';
+  const mw=g.measureText(msg).width+22, mx=clamp(G.bob.x,mw/2+8,W-mw/2-8), my=clamp(G.bob.y-H*.07,48,H-80);
+  g.fillStyle=alert?'rgba(40,24,6,.82)':'rgba(5,14,20,.78)'; rr(mx-mw/2,my-19,mw,27,13.5); g.fill();
+  if(alert){ g.strokeStyle='#ffc94d99'; g.lineWidth=1.5; rr(mx-mw/2,my-19,mw,27,13.5); g.stroke(); }
+  g.fillStyle=alert?'#ffd36a':'#ffffff'; g.fillText(msg,mx,my); g.restore(); }
 function rr(x,y,w,h,r){ g.beginPath(); g.roundRect ? g.roundRect(x,y,Math.max(0,w),h,r) : g.rect(x,y,Math.max(0,w),h); }
 /* the fish fight, drawn where the action is (shared since PC Reborn, director 2026-11-21: "PC and mobile fishing should match"; it was the
    phones' layout, mobile/fight08.js): a TENSION RING around the fish (green / yellow / red, shakes and glows near breaking; the dive band
    in light magenta), the instruction right above it, a small card under it (distance, Fight, Temper, line out) and a soft light under the
    fish so it stands out on any water. The card and words stay inside the water and clear of the corners wherever the fish swims. */
-function drawFightHUD(t){ if(!G.fish||!G.bob) return;
+function drawFightHUD(t){ if(!G.fish||!G.bob) return; if(fightUi()==='mid') return drawFightDial(t);
 
     const ten=clamp(G.ten/100,0,1), danger=ten>.8, warn=ten>.55, col=danger?'#ff5468':warn?'#ffc94d':'#7fe3c4';
     const r=clamp(H*.085,24,44), shake=ten>.85?Math.sin(t*60)*2:0;

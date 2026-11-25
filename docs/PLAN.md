@@ -72,7 +72,7 @@ Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.
 1. Aquarium income catch-up: alongside sell value, fish from earlier waters give higher aquarium income bonuses, competitive with (not better than) the highest water open in the run (same idea as waterCatchUp).
 2. Stronger than the fish = its grip/resistance counts less, up to a cap, so reeling a fish that isn't tired is faster. Goal: fish within one rarity feel different to fight, true variety with a noticeable difference (Claude's call how).
 3. Temper hits harder still.
-4. Toggleable fight indicators: Old, New and Middle ground (middle ground still in a circle, but below the angler in the water).
+4. Toggleable fight indicators: Old, New and Middle ground (middle ground still in a circle, but below the angler in the water). **BUILT 2026-11-25 (test build 1249)** from Cam's answers: Settings › Display › Fight display: Classic = live layout without the lure rings, Around the fish = test layout (default), Dial under the dock = one dial (tension ring, Fight and Temper halves, distance, line out; warning and groove light its rim) with words above the fish and combo beside it; per device (DEV_KEYS fightUi). The dial is a first draft to workshop (Feel call).
 5. Claim all for tasks and bounties.
 6. No screen flash on perfect hooks.
 7. Deeper Inspect on Cooler, Aquarium and Trophy Room fish.

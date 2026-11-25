@@ -11,7 +11,7 @@
 //    two are hidden there. The help text speaks about touch only (no mouse wheel, no keyboard).
 // Android + iPhone only.
 // =====================================================================
-const DEV_KEYS=['master','music','sfx','amb','musicOn','ambient','style','castMode','units','dist','hand','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
+const DEV_KEYS=['fightUi','master','music','sfx','amb','musicOn','ambient','style','castMode','units','dist','hand','vibrate','effects','boostsOnScreen','hints','showFps','gfx','fpsCap','dockMini','hdrStat','logShow','vaultSort','hideGoal','lastPage','pageLast'];
 const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));

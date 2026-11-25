@@ -78,10 +78,10 @@ function feelPop(txt){ if(!FEEL.juice) return; (G.pops=G.pops||[]).push({txt,t:0
 function feelCombo(d){ if(!FEEL.combo&&d>0) return; const was=G.combo||0; G.combo=d>0?Math.min(10,was+1):0; if(d<0&&was>=2) feelPop('Combo lost'); }
 const feelReelK = () => 1+Math.min(.4,.05*(G.combo||0)*(FEEL.combo||0));
 /* drawn over the fight every frame (d_draw.js): the hook flash, the perfect-pull ring, pop-ups rising from the float and the combo badge */
-function feelDraw(t){ if(G.st!=='reeling'||!G.fish) return; const bx=G.bob.x, by=G.bob.y, s=clamp(H/420,.7,1.25);
-  if(G.ppw>0){ const k=1-G.ppw/.45; g.strokeStyle='rgba(255,230,120,'+(.9-k*.5)+')'; g.lineWidth=2.5*s; g.beginPath(); g.ellipse(bx,by,(10+k*14)*s,(4+k*5)*s,0,0,7); g.stroke(); }
-  if(G.tell){ g.strokeStyle='rgba(255,140,90,.8)'; g.lineWidth=2*s; const k=(t*6)%1; g.beginPath(); g.ellipse(bx,by,(6+k*10)*s,(2.5+k*4)*s,0,0,7); g.stroke(); }
-  if(G.grooveT>.3){ g.strokeStyle='rgba(150,240,170,'+(.45+.2*Math.sin(t*5))+')'; g.lineWidth=2*s; g.beginPath(); g.ellipse(bx,by,13*s,5*s,0,0,7); g.stroke(); } /* in the groove */
+function feelDraw(t){ if(G.st!=='reeling'||!G.fish) return; const bx=G.bob.x, by=G.bob.y, s=clamp(H/420,.7,1.25), ui=fightUi(); /* Old: none of the rings at the lure; Middle ground: the warning and groove cues sit on the dial under the dock */
+  if(G.ppw>0&&ui!=='old'){ const k=1-G.ppw/.45; g.strokeStyle='rgba(255,230,120,'+(.9-k*.5)+')'; g.lineWidth=2.5*s; g.beginPath(); g.ellipse(bx,by,(10+k*14)*s,(4+k*5)*s,0,0,7); g.stroke(); }
+  if(G.tell&&ui==='new'){ g.strokeStyle='rgba(255,140,90,.8)'; g.lineWidth=2*s; const k=(t*6)%1; g.beginPath(); g.ellipse(bx,by,(6+k*10)*s,(2.5+k*4)*s,0,0,7); g.stroke(); }
+  if(G.grooveT>.3&&ui==='new'){ g.strokeStyle='rgba(150,240,170,'+(.45+.2*Math.sin(t*5))+')'; g.lineWidth=2*s; g.beginPath(); g.ellipse(bx,by,13*s,5*s,0,0,7); g.stroke(); } /* in the groove */
   /* (no swim-direction arrows: Cam, round 6 "remove fish swim direction indicator arrows entirely") */
   g.save(); g.textAlign='left'; g.font='800 '+Math.round(15*s)+'px system-ui'; (G.pops||[]).forEach((p,i,arr)=>{ const a=Math.max(0,1-p.t/1.1), off=(arr.length-1-i)*17*s; g.fillStyle='rgba(20,24,30,'+(a*.6)+')'; g.fillText(p.txt,bx+71*s,by-2*s-off-p.t*30*s+1); g.fillStyle=p.txt.startsWith('Combo lost')?'rgba(255,140,120,'+a+')':'rgba(255,236,150,'+a+')'; g.fillText(p.txt,bx+70*s,by-2*s-off-p.t*30*s); }); /* beside the float, clear of the fight card, newest lowest */
   if(FEEL.juice&&(G.combo||0)>=2){ g.font='700 '+Math.round(12*s)+'px system-ui'; g.fillStyle='rgba(255,236,150,.95)'; g.fillText('×'+G.combo+' combo',bx+70*s,by+18*s); }
