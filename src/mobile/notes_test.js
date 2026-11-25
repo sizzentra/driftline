@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Willow Pond is back to its drawn scene in the game’s own style: the red boathouse, the far cabin, ducks, the frog, deer, ducklings, fireflies and the owl. The painted version is gone.',
+  '## Test build 2026.11.24-2136',
   'Tired fish: they keep half their hold now and take longer to bring in (about 3 s from the far edge for common fish, about 8 s for rare and above).',
   'Fish stronger than your tackle: their extra fight, line strain and longer runs and jumps now grow with rarity (milder on common fish, stronger on mythics).',
   'Shiny, titled and hybrid fish fight harder, and being light never makes them easier; the big ones fight hardest.',

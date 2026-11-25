@@ -12,7 +12,7 @@ function pondWake(px,py,s,t,P,seed){ const wc=mix(P.wTop,'#ffffff',.6);
   const L=s*7, sp=s*1.1; g.strokeStyle=v3rgba(wc,.18); g.beginPath(); g.moveTo(px+s*1.1,py+s*.36); g.quadraticCurveTo(px+L*.5,py+s*.36-sp*.4,px+L,py+s*.36-sp); g.moveTo(px+s*1.1,py+s*.5); g.quadraticCurveTo(px+L*.5,py+s*.5+sp*.4,px+L,py+s*.5+sp); g.stroke(); }
 V3SCENES.pond = {
   // still parts: mountains, hills, pine shores, cabin, willow bank, water base, reflections
-  land(x,P,hz,cnv){ if(pwOk('pond')) return; /* the painted map draws every frame (w_paint.js), so the stored scenery stays empty */
+  land(x,P,hz,cnv){
     // director, 2026-11-22: no mountains at Willow Pond (and every water's mountains looked alike): two forested ridges instead, the far
     // one hazy and the nearer one darker, each a rolling hill line crowned with its own small pines and round treetops
     { const ridge=(seed,base,amp,col,treeC,step,th)=>{ const n=v3noise(seed), yAt=f=>base-amp*(.55+.3*n(f*2.3+.4)+.15*n(f*6.1+2)), r=v3rng(seed+5);
@@ -77,9 +77,7 @@ V3SCENES.pond = {
   },
 
   // living parts, every frame
-  get noClouds(){ return pwOk('pond'); },
-  sky(P,t,hz){ if(pwOk('pond')) pwSky('pond',P,t,hz); },
-  live(P,t,hz,sun){ if(pwOk('pond')) return pwLive('pond',P,t,hz,sun);
+  live(P,t,hz,sun){
     const d=P.d, night=P.night, FX=S.settings.effects;
     // cabin window glow + chimney smoke
     const cx=W*.265, cw=H*.075, ch=H*.042, cb=hz+1, lit=clamp(night*1.2+d*.8,0,1);
@@ -147,7 +145,7 @@ V3SCENES.pond = {
     g.fillStyle='#ffe58a'; g.beginPath(); g.arc(bx,by,s*.22,0,7); g.fill();
   },
 
-  fore(P,t){ if(pwOk('pond')) return;
+  fore(P,t){
     // cattails and reeds in the bottom-right corner, swaying, rim lit at dusk
     const base=H+2, x0=W*.925;
     for(let i=0;i<9;i++){ const x=x0+i*W*.0085, h=H*(.1+((i*13)%5)*.022), sw=Math.sin(t*1.1+i*.6)*H*.008;
@@ -159,7 +157,7 @@ wx3SkyLayer('pond');
 wx3WaterLayer('pond');
 l3wakeLayer('pond');
 l3gustLayer('pond');
-m33wrap('pond','live',function(P,t,hz){ if(pwOk('pond')) return; /* the code-drawn life belongs to the code-drawn scene */ const night=P.night, FX=S.settings.effects;
+m33wrap('pond','live',function(P,t,hz){ const night=P.night, FX=S.settings.effects;
   // the frog: sits, then leaps in a little arc to the next pad (ripple where it lands)
   { const per=9, cyc=Math.floor(t/per), q=(t%per)/per, a=L3.pads[cyc%4], b=L3.pads[(cyc+1)%4], hop=q>.82?(q-.82)/.18:0, e=l3s(hop);
     const x=W*(a[0]+(b[0]-a[0])*e)+W*.008, y=H*(a[1]+(b[1]-a[1])*e)-H*.012-Math.sin(e*Math.PI)*H*.05, s=H*.0055, fc=mix('#5a9a3a',P.wBot,night*.55), dk=mix('#3a6a28',P.wBot,night*.55), belly=mix('#d8e8a0',P.wBot,night*.5);

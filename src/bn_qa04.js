@@ -887,7 +887,7 @@ if(/[?&]test\b/.test(location.search)) window.__textInv=()=>{ const out={}, add=
 // frame cost stays under the ceiling (rule 13: a ceiling just above today's heaviest smooth water, as a multiple of the median water).
 // none: 'why' = this water has no moment (moments are optional, director 2026-11-24); else m: [period, from, to] seconds of the moment's window (the drawing code's own timing); life/night: what moves (counted from the code).
 const MAP_STD={
-  pond:{none:'no moment (painted 2026-11-24; ducklings maybe later, after the director sees the painting)', life:['willow sway','reeds','cattails','clouds','mist','ripples'], night:['fireflies','lantern']},
+  pond:{m:[50,2,24], life:['ducks','frog','deer','dragonflies','willow leaves','ducklings'], night:['fireflies','owl']},
   river:{m:[24,0,7.6], life:['otters','heron','kingfisher','waterwheel','leaves'], night:['otters','waterwheel']},
   coast:{m:[42,0,9], life:['gulls','seal','sandpipers','sailboat','crab','porpoises'], night:['seal','sailboat','porpoises']},
   frost:{m:[40,0,28], life:['arctic fox','owl','seal','ice floes','tip-up flags'], night:['owl','fox','seal']},
