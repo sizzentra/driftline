@@ -350,6 +350,6 @@ Written 2026-11-22 at the director's request ("more details, so you have better 
 ---
 
 ## Using this guide
-- **Homes (batch 5):** each home's six parts (light, deck, supports, rail, canopy, seat) are chosen from this water's materials. Its colour list starts from the 16 home colours above (more can be added from the same palette). The idea goes to the director for approval before it is drawn.
+- **Painted maps (director, 2026-11-24):** before a water is painted, its entry and its row on the distinctness board (docs/MAP_STANDARD.md › "The painted-map standard") say what makes it distinct: its building and supports, landmark position, framing and near corners, best hour, signature motion, moment or none, and the live events and weather that fit. Those fill in the ChatGPT prompt (docs/reference/CHATGPT_MAP_PROMPT.txt). Home customisation is gone; each water has one fixed building.
 - **Map updates, creatures and music (batch 4):** new moments, creatures and sounds are checked against the water's culture, life, belongs / doesn't belong and music lines.
 - **Keeping it current:** when a water changes (a new creature, a new moment, an approved home, new music), its entry is updated in the same commit.

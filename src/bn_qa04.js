@@ -878,7 +878,7 @@ if(/[?&]test\b/.test(location.search)) window.__textInv=()=>{ const out={}, add=
 // ---------- map standard check (docs/MAP_STANDARD.md, 2026-11-21): every water draws at dawn, day, dusk and night and in every weather
 // without errors; has at least 3 moving things and life after dark; its moment comes every 20-60 s and visibly draws something; and its
 // frame cost stays under the ceiling (rule 13: a ceiling just above today's heaviest smooth water, as a multiple of the median water).
-// m: [period, from, to] seconds of the moment's window (the drawing code's own timing); life/night: what moves (counted from the code).
+// none: 'why' = this water has no moment (moments are optional, director 2026-11-24); else m: [period, from, to] seconds of the moment's window (the drawing code's own timing); life/night: what moves (counted from the code).
 const MAP_STD={
   pond:{m:[50,2,24], life:['ducks','frog','deer','dragonflies','willow leaves','ducklings'], night:['fireflies','owl']},
   river:{m:[24,0,7.6], life:['otters','heron','kingfisher','waterwheel','leaves'], night:['otters','waterwheel']},
@@ -891,7 +891,7 @@ const MAP_STD={
   ember:{m:[45,2,11], life:['geyser','ravens','moths','lava bombs','embers'], night:['moths','embers']},
   starfall:{m:null, life:['star whale','lanterns','star-blossoms','floating islands','wisps'], night:['star whale','lanterns'],
     inT:()=>{ for(let t=600;t<1200;t+=.5){ const E=sfEvent(t); if(E.into>3&&E.into<4) return t; } return 600; }, outT:j=>{ let t=700+j*9; while(sfEvent(t).into<=SF_DUR+.5) t+=.7; return t; }},
-  blossom:{m:[47,0,7], eye:'no moment for now (director, 2026-11-23: the petal gust removed and nothing in its place)', life:['ducks','petals','paper lanterns','waterfall'], night:['paper lanterns','ducks']},
+  blossom:{none:'no moment (director, 2026-11-23: the petal gust removed; moments are optional, 2026-11-24)', life:['ducks','petals','sky lanterns','waterfall','butterflies'], night:['sky lanterns','ducks']},
   rockies:{m:[37,0,16.6], life:['beavers','moose','geese','canoe','waterfall'], night:['beavers','canoe']},
   keys:{m:[29,0,3.5], life:['traffic','speedboats','pelicans','gulls','fish school','leaping fish'], night:['traffic','lighthouse']},
   amazon:{m:[60,20,32], life:['macaws','dragonflies','caiman','frogs','branches'], night:['fireflies','caiman','frogs']},
@@ -914,12 +914,12 @@ window.__mapQC=async(o={})=>{ const keep={loc:S.loc,off:window.__off,np:window._
       for(const ph of [.98,.3,.5,.85]){ await window.__setPhase(ph); for(const T of [101,137.3]){ errs.length=0; try{ frame(T); }catch(e){ errs.push(e.message); } if(errs.length) R.issues.push('error at phase '+ph+': '+errs[0]); } }
       for(const W0 of WEATHERS){ if(window.__setWeather(W0.k)==='none') continue; errs.length=0; try{ frame(120); }catch(e){ errs.push(e.message); } if(errs.length) R.issues.push('error in '+W0.k+': '+errs[0]); }
       // the moment: frames outside its window make an envelope of what normally moves; the frame inside it must clearly break out
-      try{ await window.__setPhase(.3); const per=D.m?D.m[0]:0, n0=10, inT=D.inT?D.inT():n0*per+(D.m[1]+D.m[2])/2, outT=j=>D.outT?D.outT(j):n0*per+D.m[2]+(per-D.m[2]+D.m[1])*(j+.5)/10;
+      try{ if(D.none) R.moment={none:D.none}; else { await window.__setPhase(.3); const per=D.m?D.m[0]:0, n0=10, inT=D.inT?D.inT():n0*per+(D.m[1]+D.m[2])/2, outT=j=>D.outT?D.outT(j):n0*per+D.m[2]+(per-D.m[2]+D.m[1])*(j+.5)/10;
       const lo=new Uint8ClampedArray(w*h*4).fill(255), hi=new Uint8ClampedArray(w*h*4); for(let j=0;j<16;j++){ const d=frame(outT(j*10/16)); for(let i=0;i<d.length;i++){ if(d[i]<lo[i]) lo[i]=d[i]; if(d[i]>hi[i]) hi[i]=d[i]; } }
       /* score = the most changed pixels in any 12x9 cell: a moment is one solid new shape, ordinary motion is scattered */
       const over=d=>{ const cells=new Uint16Array(400); for(let y=0;y<h;y++) for(let x=0;x<w;x++){ const i=(y*w+x)*4; let m=0; for(let k=0;k<3;k++){ const v=d[i+k]; m=Math.max(m,v-hi[i+k],lo[i+k]-v); } if(m>36) cells[Math.min(14,Math.floor(y/h*15))*20+Math.min(19,Math.floor(x/w*20))]++; } const top=[...cells].sort((a,b)=>b-a); return Math.round((top[0]+top[1]+top[2])/cellK); }; /* the three busiest cells: a compact shape or a spread one like a gust of petals */
       const span=D.m?D.m[2]-D.m[1]:1, ins=D.inT?[inT]:[.3,.5,.7].map(f=>n0*per+D.m[1]+span*f);
-      const bs=[.33,2.4,5.33,7.1,9.1].map(f=>over(frame(outT(f)))).sort((a,b)=>a-b), base=bs[2], mom=Math.max(...ins.map(T=>over(frame(T)))); R.moment={base,mom}; if(D.eye) R.moment.eye=D.eye; else if(!(mom>=Math.max(14,base*1.6+3))) R.issues.push('moment not visible ('+mom+' vs '+base+' normally, changed pixels in one spot)');
+      const bs=[.33,2.4,5.33,7.1,9.1].map(f=>over(frame(outT(f)))).sort((a,b)=>a-b), base=bs[2], mom=Math.max(...ins.map(T=>over(frame(T)))); R.moment={base,mom}; if(D.eye) R.moment.eye=D.eye; else if(!(mom>=Math.max(14,base*1.6+3))) R.issues.push('moment not visible ('+mom+' vs '+base+' normally, changed pixels in one spot)'); }
       { let best=1e9; for(let rep=0;rep<2;rep++){ const t0=performance.now(); for(let i=0;i<12;i++) draw((200+i*.1)*1000); best=Math.min(best,(performance.now()-t0)/12); } costs[id]=best; } }catch(e){ R.issues.push('error while checking the moment: '+e.message); } }
     const cs=Object.values(costs).sort((a,b)=>a-b), med=cs[cs.length>>1]||1; for(const R of out){ if(costs[R.id]==null) continue; R.cost=+(costs[R.id]/med).toFixed(2); if(R.cost>MAP_COST_CEIL) R.issues.push('frame cost '+R.cost+'x the median water (ceiling '+MAP_COST_CEIL+'x)'); }
   } finally { console.error=oe; S.loc=keep.loc; window.__off=keep.off; window.__noPar=keep.np; }

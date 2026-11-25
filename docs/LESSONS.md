@@ -222,3 +222,11 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **Overlapping bands by half a pixel drew white lines** in the cloud reflections → bands meet exactly.
 - **Size by eye on the real screen:** lanterns at 36 px were "way too big", 16 px read as specks, 22 px was right. Show two sizes in pictures before choosing.
 - **What the director removed stays removed:** koi, the petal gust, leaping fish ("i dont want fish jumping on this map"). Don't add a replacement unless asked.
+
+## Painted homes and the map process (2026-11-24)
+- **A building on a cover-fitted painting must be its own layer:** the painting is scaled to cover each screen shape (extra width cut on the left) while the angler stands at fixed screen fractions, so anything the angler stands on is placed from the angler, never baked into the painting.
+- **Light a painted piece like the land around it:** measure the painting's own day-to-dusk and day-to-night colour change near the shore once (`blLandRatio`) and multiply the piece by it; a generic tint never matched.
+- **A guide picture with the real angler beats any description:** ChatGPT sized and placed the tea house right on the first try from boxes marked at real size and sizes given in angler heights.
+- **Mock up before importing:** pasting the cut-out onto a game picture with the angler showed the style match in minutes.
+- **Removing a feature breaks its callers far away:** a removed home handler (`hfAct`) left a call in a shared button chain, and every button handled after it stopped working (Nibbles, scrapping, crates). After removing a function, grep for every call, and run the adversarial and button tests.
+- **Moments are optional:** `MAP_STD` takes `none:'why'` for a water without one; `__mapQC` then skips the moment check (it used to need an "eye" exception).
