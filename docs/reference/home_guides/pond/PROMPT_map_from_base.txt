@@ -1,0 +1,18 @@
+ATTACH: Willow_Pond_base.webp (the director's mock-up), CHATGPT_MAP_GUIDE.md, angler_guide_pc.jpg, angler_sitting.png (all in Downloads\Driftline_for_ChatGPT).
+
+----- COPY FROM HERE -----
+
+We're redesigning the next map in Driftline: Willow Pond. The attached guide (CHATGPT_MAP_GUIDE.md) has all the rules we learned on the last map; please follow it exactly.
+
+I've attached a mock-up (Willow_Pond_base.webp) that we like as the base. Keep its painted style, its big weeping willow on the right with the fronds touching the water, its open lake, its clouds and the cattails in the bottom-right corner. Please repaint it with these changes:
+
+1. ONE WILLOW ONLY. Remove the willow branches hanging in from the top-left corner. Our last map had a tree framing the top left, so this map keeps the top left as open sky. The big willow on the right is the landmark.
+2. NO PINES OR MOUNTAINS. Replace the pine and spruce forest and the blue mountains with gentle lowland country: soft, low rolling green hills, meadows and hedgerows, a small grove of white-barked birches and round leafy trees. Nothing pointed or jagged (another map has the pine forest and the mountains).
+3. FEWER PINK BUSHES. Replace most of the pink flowering bushes along the far shore with meadow wildflowers in white, yellow and soft purple (pink trees belong to another map). A touch of pink is fine.
+4. NO REFLECTIONS. Paint the water clean, with no reflections, ripples or sparkles; the game builds the reflections itself.
+5. KEEP THE FISHING AREA CLEAR. Move the lily pads out of the open middle of the lake: keep them only near the bottom-right corner and close to the shores.
+6. THE LEFT SIDE: the player's boathouse will stand in the water on the left (we add it as a separate layer). Keep the bottom-left corner low: just a few reeds and a rock at the very edge, no tall grass, so the boathouse and its reflection can be seen.
+7. MORNING LIGHT. Make it an early summer morning: soft, slightly warm golden light and a faint low mist lying on the far water, a little hazier in the distance. Still clearly daytime.
+8. SIZE AND LAYOUT: 1680x845, with the far shoreline at 42% of the height, as in the guide.
+
+Please do step 1 only for now (the repainted full map). After I approve it, I'll ask for the layers, the boathouse and the chair as described in the guide. Tell me in a few lines what you changed.

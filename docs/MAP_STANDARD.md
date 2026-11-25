@@ -135,7 +135,7 @@ Measured in the game (docs/reference/home_guides/blossom/SPEC.md). The unit is t
 | Water | Building and how it meets the water | Landmark and where | Framing and foreground | Best hour | Signature motion | Moment |
 |---|---|---|---|---|---|---|
 | Cherry Blossom (painted) | Tea house on lacquered stilts, open deck | Fuji far right, torii and pagoda right | Cherry tree top left; flowered stone corners | Dusk into night | Waterfall, sky lanterns, rippling reflections | None |
-| Willow Pond (proposed 2026-11-24) | Duck-egg-blue timber boathouse on wooden pilings, rowboat in its boat bay, open deck | Huge weeping willow, far right bank, mid-distance | No top framing (open summer sky); reeds and cattails bottom left, lily pads and a frog bottom right | Early summer morning, low mist | Willow fronds and reeds swaying, drifting mist, fireflies at night | None (ducklings maybe, after the painting) |
+| Willow Pond (proposed 2026-11-24) | Duck-egg-blue timber boathouse on wooden pilings, rowboat in its boat bay, open deck | Huge weeping willow, far right bank, mid-distance | No top framing (open summer sky); reeds and cattails bottom left, lily pads and a frog bottom right | Early summer morning, low mist (base: the director's mock-up, docs/reference/home_guides/pond/director_mockup.webp) | Willow fronds and reeds swaying, drifting mist, fireflies at night | None (ducklings maybe, after the painting) |
 | Stonebrook River | Stone mill house over the race | (to fill) | | | | |
 | Saltmarsh Coast | Lobster shack on a tarred pier | (to fill) | | | | |
 | Frostbite Lake | Ice shanty on sled skids | (to fill) | | | | |
