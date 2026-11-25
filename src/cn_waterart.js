@@ -1,7 +1,7 @@
 // =====================================================================
 // 0.4.9 [3]-[7] [69] scenes for the ten new waters (data in cm_waters.js). Each water: a palette for day, dusk and night, still land
 // (cached like every other water), a live layer (kept light: a few dozen shapes a frame) and a foreground corner.
-//  Cherry Blossom Lake: a distant Mount Fuji among lower ranges, cherry trees, a pagoda, stone lanterns, a torii, lilies; ducks, petals on the water (C33).
+//  Maplewood Hollow (was Cherry Blossom Lake until 2026-11-25): its own file, src/w_maple.js.
 //  Canadian Rockies: peaks and Shield granite, pines and birches, a waterfall, beaver dam and lodge, cabin and flag; beavers, moose, geese, a canoe, starry nights (C34).
 //  Florida Keys: low islands with palms and a long arched bridge over turquoise flats; pelicans diving, gulls.
 //  Amazon Rainforest: a waterfall pouring off a jungle cliff; mist, parrots, fireflies at night, hanging vines.
@@ -14,9 +14,9 @@
 // =====================================================================
 const WA_BASE={blossom:'pond', rockies:'pond', keys:'coast', amazon:'river', farm:'pond', buffet:'coast', corporate:'coast', nile:'reef', circuit:'starfall', olympus:'pond'};
 const WA_PAL={
- blossom:{day:{top:'#3a8ae0',mid:'#9ccaf0',bot:'#eaf2fa',far:'#7a90d0',farHaze:'#dce6f4',snow:'#ffffff',hill:'#6a9a6a',back:'#4a7a5a',front:'#2e5240',bank:'#5a8a52',wTop:'#8ac4ec',wMid:'#3a78b8',wBot:'#16365e',leaf:'#f4a8c4',leafHi:'#ffe4ee'},
-   dusk:{top:'#2a2a64',mid:'#c06a94',bot:'#ffc4a0',far:'#8a6aa0',farHaze:'#f0a0b4',hill:'#5a4a7a',leaf:'#d08aa8',leafHi:'#ffc8d8',wTop:'#f0a8a8',wMid:'#7a5a8a'},
-   night:{top:'#060a1e',mid:'#141c44',bot:'#2c3470',far:'#2a3260',farHaze:'#3c4680',hill:'#1c2444',leaf:'#4a3a5a',leafHi:'#8a7ab0',wTop:'#2a3670',wMid:'#141c44'}},
+ blossom:{day:{top:'#7fa6b0',mid:'#cfd3b0',bot:'#f3dcae',far:'#9a8a78',farHaze:'#e6d2b4',snow:'#ffffff',hill:'#8a7a3e',back:'#7a4a2e',front:'#4a3424',bank:'#7a7a3a',wTop:'#8aa098',wMid:'#3e5a5e',wBot:'#18282c',leaf:'#c8642a',leafHi:'#f0a040'}, /* Maplewood Hollow (2026-11-25): dusty teal sky to apricot cream, olive and rust, a sage-teal lake */
+   dusk:{top:'#2e1e3a',mid:'#a04a3e',bot:'#f0a058',far:'#6a4048',farHaze:'#e08a5a',snow:'#f0c8a8',hill:'#5a3a2e',back:'#5a2a22',front:'#33221c',bank:'#5a4a2a',wTop:'#c8785a',wMid:'#4a3440',wBot:'#1a1420',leaf:'#a84a2a',leafHi:'#f08a40'},
+   night:{top:'#0a0810',mid:'#1a1424',bot:'#2e2230',far:'#241c26',farHaze:'#3a2c36',snow:'#3a3440',hill:'#1c1618',back:'#181014',front:'#100a0c',bank:'#1e1a16',wTop:'#2a2a36',wMid:'#141420',wBot:'#06060c',leaf:'#3a2420',leafHi:'#6a4430'}},
  rockies:{day:{top:'#3a86d8',mid:'#8cc4ec',bot:'#e8f4fa',far:'#7a8ca8',farHaze:'#c8dcec',snow:'#ffffff',hill:'#3e6450',back:'#2e5040',front:'#1e3a2e',bank:'#4a6a48',wTop:'#7ad8d8',wMid:'#2a9aa8',wBot:'#0a4858'},
    dusk:{top:'#1e2a5a',mid:'#a0608a',bot:'#ffb880',far:'#7a5a88',farHaze:'#e09090',hill:'#3a3460',wTop:'#e8988a',wMid:'#5a5a8a'},
    night:{top:'#040a1c',mid:'#0e1a3a',bot:'#1e2c60',far:'#1e2a50',farHaze:'#2e3c70',hill:'#121c34',wTop:'#1e3a68',wMid:'#0c1e3c'}},
@@ -55,38 +55,8 @@ const wa = {
   rect(x,c,X,Y,w,h){ x.fillStyle=c; x.fillRect(X,Y,w,h); },
   petal(c,x,y,s,a,col){ c.save(); c.translate(x,y); c.rotate(a); c.fillStyle=col; c.beginPath(); c.ellipse(0,0,s,s*.55,0,0,7); c.fill(); c.restore(); },
 };
+// ---------- shared water birds and lilies (Cherry Blossom's helpers waCherry, waPagoda, waToro and waFuji went with it, 2026-11-25) ----------
 // ---------- the scenes ----------
-// ---------- C33 Cherry Blossom Lake, quality pass (Cam, 2026-11-20) ----------
-// Mount Fuji further back and larger (hazier, a crater top, snow running down its gullies, a scarf of cloud) with lower ranges either side;
-// cherry trees with real branching, blossom clouds on the branch ends, weeping cherries and petals fallen on the grass; a five-tier pagoda
-// on a stone base and stone lanterns along the shore; the torii in the shallows; water lilies; ducks instead of the koi; petals resting
-// and drifting on the lake; floating lanterns at night; now and then a gust carries a swirl of petals across.
-function waCherry(c,x,base,h,P,seed,o={}){ const r=v3rng(seed), bark=mix('#3a2420',P.hill,.18), leaf=o.leaf||P.leaf, dk=mix(leaf,'#6a2a48',.42), lt=mix(leaf,'#ffffff',.45), tw=h*.045, lean=(r()-.5)*h*.14, fx=x+lean, fy=base-h*.42;
-  c.fillStyle=bark; c.beginPath(); c.moveTo(x-tw,base); c.quadraticCurveTo(x-tw*.3+lean*.2,base-h*.24,fx-tw*.4,fy); c.lineTo(fx+tw*.4,fy); c.quadraticCurveTo(x+tw*.5+lean*.2,base-h*.22,x+tw*1.1,base); c.closePath(); c.fill();
-  const tips=[], nb=4+(r()*3|0); c.strokeStyle=bark; c.lineCap='round';
-  for(let i=0;i<nb;i++){ const a=-Math.PI/2+(i/(nb-1)-.5)*2.3+(r()-.5)*.3, L=h*(.3+r()*.14), ex=fx+Math.cos(a)*L*1.3, ey=fy+Math.sin(a)*L*.7, mx=fx+Math.cos(a)*L*.55, my=fy+Math.sin(a)*L*.5-h*.05, tx=mx+Math.cos(a-.7)*L*.4, ty=my+Math.sin(a-.7)*L*.35;
-    c.lineWidth=Math.max(.8,tw*.75); c.beginPath(); c.moveTo(fx,fy); c.quadraticCurveTo(mx,my,ex,ey); c.stroke();
-    c.lineWidth=Math.max(.5,tw*.35); c.beginPath(); c.moveTo(mx,my+h*.02); c.lineTo(tx,ty); c.stroke(); tips.push([ex,ey],[tx,ty]); }
-  c.lineCap='butt';
-  const B=[]; for(const [tx,ty] of tips) for(let k=0;k<5;k++) B.push([tx+(r()-.5)*h*.22,ty+(r()-.65)*h*.1,h*(.045+r()*.045)]);
-  const pass=(col,dx,dy,k,f)=>{ c.fillStyle=col; c.beginPath(); for(const [bx,by,br] of B){ if(f&&!f(by)) continue; c.moveTo(bx+dx+br*k,by+dy); c.arc(bx+dx,by+dy,br*k,0,7); } c.fill(); };
-  pass(dk,0,h*.018,1.08); pass(leaf,0,0,.94); pass(lt,-h*.012,-h*.022,.5,by=>by<fy-h*.12);
-  if(o.weep){ c.strokeStyle=v3rgba(leaf,.85); c.lineWidth=Math.max(.6,h*.012); c.lineCap='round'; for(const [tx,ty] of tips) for(let k=0;k<3;k++){ const sx=tx+(k-1)*h*.045, L=h*(.16+r()*.16); c.beginPath(); c.moveTo(sx,ty); c.quadraticCurveTo(sx+h*.025,ty+L*.5,sx+h*.012,ty+L); c.stroke(); } c.lineCap='butt'; }
-  c.fillStyle=v3rgba(lt,.75); for(let k=0;k<14;k++) c.fillRect(x+(r()-.5)*h*.8,base-h*.005+r()*h*.02,Math.max(1,h*.012),Math.max(.8,h*.007)); }
-function waPagoda(c,x,base,s,P){ const T=(c0,k0)=>mix(mix(c0,P.farHaze,.15),'#141a38',k0), red=T('#c8402a',P.night*.62), wall=T('#f2e8d6',P.night*.68), roof=T('#34343e',P.night*.4), edge=mix(roof,'#ffffff',.28), stone=T('#a09a90',P.night*.65);
-  c.fillStyle=stone; c.fillRect(x-s*5.2,base-s*1.1,s*10.4,s*1.1); c.fillStyle=mix(stone,'#000000',.22); c.fillRect(x-s*5.2,base-s*.35,s*10.4,s*.35);
-  let y=base-s*1.1;
-  for(let i=0;i<5;i++){ const w=s*(3.6-i*.48), hh=s*(2-i*.1);
-    c.fillStyle=wall; c.fillRect(x-w,y-hh,w*2,hh); c.fillStyle=red; c.fillRect(x-w,y-hh,w*.22,hh); c.fillRect(x+w*.78,y-hh,w*.22,hh); c.fillRect(x-w,y-hh,w*2,hh*.16); c.fillRect(x-w*.18,y-hh*.84,w*.36,hh*.84);
-    if(P.night>.3){ c.fillStyle=v3rgba('#ffc878',P.night*.8); c.fillRect(x-w*.12,y-hh*.7,w*.24,hh*.6); }
-    const rw=w*1.8, ry=y-hh, rt=s*.85, eave=()=>{ c.moveTo(x-rw,ry-rt*1.25); c.quadraticCurveTo(x-rw*.5,ry+rt*.25,x,ry+rt*.15); c.quadraticCurveTo(x+rw*.5,ry+rt*.25,x+rw,ry-rt*1.25); };
-    c.fillStyle=roof; c.beginPath(); eave(); c.quadraticCurveTo(x+rw*.55,ry-rt*.85,x+w*.6,ry-rt*1.8); c.lineTo(x-w*.6,ry-rt*1.8); c.quadraticCurveTo(x-rw*.55,ry-rt*.85,x-rw,ry-rt*1.25); c.closePath(); c.fill();
-    c.strokeStyle=edge; c.lineWidth=Math.max(.6,s*.18); c.beginPath(); eave(); c.stroke();
-    y=ry-rt*1.8; }
-  c.fillStyle=T('#c8a040',P.night*.55); c.fillRect(x-s*.12,y-s*4.4,s*.24,s*4.4); for(let i=0;i<7;i++) c.fillRect(x-s*.45,y-s*1-i*s*.45,s*.9,s*.16); c.beginPath(); c.arc(x,y-s*4.5,s*.3,0,7); c.fill(); }
-function waToro(c,x,base,s,P){ const st=mix(mix('#9a968c',P.hill,.2),'#141a38',P.night*.6), dk=mix(st,'#000000',.25); c.fillStyle=st; c.fillRect(x-s*.9,base-s*.5,s*1.8,s*.5); c.fillRect(x-s*.25,base-s*2.4,s*.5,s*1.9); c.fillRect(x-s*.8,base-s*2.8,s*1.6,s*.4);
-  c.fillStyle=dk; c.fillRect(x-s*.6,base-s*3.8,s*1.2,s); c.fillStyle=P.night>.3?'rgba(255,200,120,.95)':mix(dk,'#000000',.3); c.fillRect(x-s*.3,base-s*3.6,s*.6,s*.6);
-  c.fillStyle=st; c.beginPath(); c.moveTo(x-s*1.3,base-s*3.8); c.quadraticCurveTo(x,base-s*4.9,x+s*1.3,base-s*3.8); c.closePath(); c.fill(); c.fillRect(x-s*.15,base-s*5.1,s*.3,s*.5); }
 function waLily(c,x,y,s,P,seed,flower){ const r=v3rng(seed), pad=mix('#4a8a3a',P.wMid,.3+P.night*.45), hi=mix(pad,'#d8f0a0',.3), a=r()*7;
   c.save(); c.translate(x,y); c.scale(1,.38); c.fillStyle=mix(pad,'#000000',.28); c.beginPath(); c.moveTo(0,s*.14); c.arc(0,s*.14,s,a+.3,a+6); c.closePath(); c.fill();
   c.fillStyle=pad; c.beginPath(); c.moveTo(0,0); c.arc(0,0,s,a+.3,a+6); c.closePath(); c.fill(); c.strokeStyle=v3rgba(hi,.5); c.lineWidth=Math.max(.5,s*.08); c.beginPath(); c.arc(0,0,s*.62,a+1.5,a+3.5); c.stroke(); c.restore();
@@ -98,15 +68,6 @@ function waDuck(x,y,s,dir,P,t,i,kind){ const N=c0=>mix(c0,P.wMid,P.night*.55); g
   g.fillStyle=mix(body,'#ffffff',.25); g.beginPath(); g.ellipse(-s*.3,-s*.25,s*.8,s*.28,-.1,0,7); g.fill();
   g.fillStyle=head; g.beginPath(); g.arc(s*1.1,-s*.95,s*.5,0,7); g.fill(); g.fillStyle=N('#e8b830'); g.beginPath(); g.moveTo(s*1.5,-s*1.02); g.lineTo(s*2,-s*.86); g.lineTo(s*1.5,-s*.74); g.fill();
   if(kind){ g.fillStyle=N('#ffffff'); g.fillRect(s*.9,-s*1.16,s*.55,s*.13); } g.fillStyle='#101010'; g.fillRect(s*1.25,-s*1.06,s*.15,s*.15); g.restore(); }
-function waFuji(x,P,hz){ const cx=W*.66, top=hz-H*.33, bw=W*.32, cw=W*.022, /* right of centre and steeper, as in the director's Cherry Blossom picture */ far=mix(P.far,P.farHaze,.25), lit=mix(far,'#ffffff',.2), sh=mix(far,'#1c1c44',.22), r=v3rng(88);
-  const path=()=>{ x.beginPath(); x.moveTo(cx-bw,hz+1); x.bezierCurveTo(cx-bw*.42,hz-H*.035,cx-cw*2.6,top+H*.07,cx-cw,top); x.lineTo(cx-cw*.35,top-H*.004); x.lineTo(cx+cw*.3,top+H*.003); x.lineTo(cx+cw,top); x.bezierCurveTo(cx+cw*2.6,top+H*.07,cx+bw*.42,hz-H*.035,cx+bw,hz+1); x.closePath(); };
-  x.save(); path(); x.clip(); const gr=x.createLinearGradient(cx-W*.12,0,cx+W*.12,0); gr.addColorStop(0,lit); gr.addColorStop(.46,lit); gr.addColorStop(.56,sh); gr.addColorStop(1,sh); x.fillStyle=gr; x.fillRect(cx-bw,top-4,bw*2,hz-top+6);
-  x.strokeStyle=v3rgba(sh,.3); x.lineWidth=1; for(let i=0;i<14;i++){ const u=i/13-.5; x.beginPath(); x.moveTo(cx+u*cw*3,top+H*.02); x.quadraticCurveTo(cx+u*bw*.35,hz-H*.12,cx+u*bw*(.6+r()*.2),hz); x.stroke(); }
-  const sl=top+H*.11, snow=P.snow||'#ffffff', sLit=mix(snow,far,.08), sSh=mix(snow,'#8a94c8',.4), sg=x.createLinearGradient(cx-W*.1,0,cx+W*.1,0); sg.addColorStop(0,sLit); sg.addColorStop(.48,sLit); sg.addColorStop(.56,sSh); sg.addColorStop(1,sSh); x.fillStyle=sg;
-  x.beginPath(); x.moveTo(cx-W*.2,top-5); x.lineTo(cx-W*.2,sl); for(let i=0;i<=44;i++){ const u=i/44, f=Math.abs(u-.5)*2, gul=Math.pow(Math.max(0,Math.sin(u*31+r()*1.5)),3); x.lineTo(cx-W*.2+u*W*.4,sl-f*H*.045+gul*H*(.025+r()*.03)*(1-f*.5)-r()*H*.008); } x.lineTo(cx+W*.2,top-5); x.closePath(); x.fill();
-  const hg=x.createLinearGradient(0,top,0,hz); hg.addColorStop(0,v3rgba(P.farHaze,.12)); hg.addColorStop(.6,v3rgba(P.farHaze,.35)); hg.addColorStop(1,v3rgba(P.farHaze,.75)); x.fillStyle=hg; x.fillRect(cx-bw,top-4,bw*2,hz-top+6); x.restore();
-  x.fillStyle=v3rgba(mix('#ffffff',P.farHaze,.3),.38*(1-P.night*.5)); for(const [dx,dy,w2] of [[-.06,.2,.12],[.05,.22,.1],[0,.205,.07]]){ x.beginPath(); x.ellipse(cx+W*dx,top+H*dy,W*w2,H*.012,0,0,7); x.fill(); } }
-const WA_TORO=[.21,.31,.53,.66];
 // ---------- C34 Canadian Rockies (Cam, 2026-11-20) ----------
 // The jagged Rockies with the rounded pink-grey granite of the Canadian Shield right in front; pines and white birches; a river runs down
 // to a granite cliff and drops over a waterfall and meets a beaver dam and lodge; beavers swim, slap their tails and gnaw on the dam; a moose
@@ -203,9 +164,9 @@ function keysFastBoat(x,y,s,dir,kind,P,t){ const N=c0=>mix(c0,P.wMid,P.night*.55
 function waRing(x,y,s,k,a){ g.strokeStyle='rgba(255,255,255,'+(a*(1-k))+')'; g.lineWidth=1.2; g.beginPath(); g.ellipse(x,y,s*(1+k*4),s*(.3+k*1.2),0,0,7); g.stroke(); }
 const WA_MORE={}; /* each newer water's extra life and its moment: src/w_<id>.js (Clean Scenes 5, 2026-11-22) */
 // music, depth motes and search words for the new waters
-try{ Object.assign(MUS_AREA,{blossom:'hanami', rockies:'glacier', keys:'flats', amazon:'canopy', farm:'fair', buffet:'dinner', corporate:'lounge', nile:'nile', circuit:'neon', olympus:'thunder'}); }catch(e){} /* batch 5: every water its own theme (j_music.js) */
-try{ Object.assign(DEPTH_MOTE,{blossom:'255,230,240', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){}
-try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' cherry blossom japan rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){}
+try{ Object.assign(MUS_AREA,{blossom:null /* Maplewood Hollow plays the cozy home tune for now; its own fall music is a later job */, rockies:'glacier', keys:'flats', amazon:'canopy', farm:'fair', buffet:'dinner', corporate:'lounge', nile:'nile', circuit:'neon', olympus:'thunder'}); }catch(e){} /* batch 5: every water its own theme (j_music.js) */
+try{ Object.assign(DEPTH_MOTE,{blossom:'255,220,170', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){}
+try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow autumn fall leaves rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){}
 // end-game waters: open them for anyone with enough voyages (start-up, any load, and after setting sail)
 { const _m=migrate; migrate=function(o){ const m=_m(o); try{ egOpenAdd(m); }catch(e){} return m; }; }
 try{ egOpenAdd(S); }catch(e){}

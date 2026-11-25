@@ -631,7 +631,7 @@ T('page tabs: a part hidden by a page tab never stays on screen (a forced style 
     const odds=items.match(/\b\d+(\.\d+)?\s?% (chance|odds)\b/gi); if(odds) e.push('exact odds: '+odds.join(', '));
     return e.length?{ok:false,detail:e.slice(0,10).join(' | ')}:{ok:true,detail:'version '+P0.v+', '+(P0.items||[]).length+' lines'}; });
   T('home format (docs/HOME_STANDARD.md): every format home has 6 features (a seat and one carrying its light), 3 styles each and one shared list of 16+ colours, every style and color paints by day and night, choices survive a save, the pets keep their fixed spots',()=>{ const e=[]; let n=0; const keepDock=JSON.parse(JSON.stringify(S.dock)), keepLoc=S.loc;
-    try{ for(const id in HOMEF){ const sp=HOMEF[id]; if(!LOCS.some(L=>L.id===id)) e.push(id+': not a water');
+    try{ for(const id in HOMEF){ const sp=HOMEF[id]; if(!LOCS.some(L=>L.id===id)) e.push(id+': not a water'); if(sp.fixed){ /* a fixed home with no options (homes are fixed since 2026-11-24) draws itself: it needs its drawing and its seat */ if(typeof sp.draw!=='function') e.push(id+': fixed home without a drawing'); if(!Array.isArray(sp.seatH)||!(sp.seatH[0]>0)) e.push(id+': fixed home without a seat height'); continue; }
         if(sp.els.length<6||sp.els.length>7) e.push(id+': '+sp.els.length+' features (6, or 7 where a part splits in two: the Rockies door and windows)'); if(!sp.els.some(x=>x.id==='seat')) e.push(id+': no seat'); if(!Array.isArray(sp.colors)||sp.colors.length<16) e.push(id+': '+(sp.colors||[]).length+' shared colours (16+)'); if(!sp.els.some(x=>x.light||x.id==='light')) e.push(id+': no feature carries its light');
         for(const el of sp.els){ if(el.styles.length!==(el.none?4:3)) e.push(id+' '+el.id+': '+el.styles.length+' styles ('+(el.none?'nothing + 3':'3')+')'); }
         S.loc=id; const P0=v3palette.v||v3palette(id,0,.1,0);
@@ -898,7 +898,7 @@ const MAP_STD={
   ember:{m:[45,2,11], life:['geyser','ravens','moths','lava bombs','embers'], night:['moths','embers']},
   starfall:{m:null, life:['star whale','lanterns','star-blossoms','floating islands','wisps'], night:['star whale','lanterns'],
     inT:()=>{ for(let t=600;t<1200;t+=.5){ const E=sfEvent(t); if(E.into>3&&E.into<4) return t; } return 600; }, outT:j=>{ let t=700+j*9; while(sfEvent(t).into<=SF_DUR+.5) t+=.7; return t; }},
-  blossom:{none:'no moment (director, 2026-11-23: the petal gust removed; moments are optional, 2026-11-24)', life:['ducks','petals','sky lanterns','waterfall','butterflies'], night:['sky lanterns','ducks']},
+  blossom:{m:[45,2,9], life:['falling leaves','floating leaves','geese','crow','squirrel','swaying canopy','mist'], night:['bats','jack-o-lanterns','glowing treehouse','stovepipe smoke']}, /* Maplewood Hollow (2026-11-25): the leaf whirlwind, ML_GUST */
   rockies:{m:[37,0,16.6], life:['beavers','moose','geese','canoe','waterfall'], night:['beavers','canoe']},
   keys:{m:[29,0,3.5], life:['traffic','speedboats','pelicans','gulls','fish school','leaping fish'], night:['traffic','lighthouse']},
   amazon:{m:[60,20,32], life:['macaws','dragonflies','caiman','frogs','branches'], night:['fireflies','caiman','frogs']},

@@ -10,8 +10,8 @@
 // Entries: 'Name|note'. Order = rarity: 15 common, 13 uncommon, 11 rare, 6 epic, 4 legendary, 1 mythic; then 2 meme fish (uncommon, rare).
 // =====================================================================
 const WATERS_NEW=[
- {id:'blossom', name:'Cherry Blossom Lake', after:'river', cost:1400, bonus:9000, loot:230, plat:'dock', depth:'1–4 m', pre:'cb', mul:3, bait:['petalbait','Sakura Petals',1.45,.55,900,'Soft pink petals: odds ×3 at Cherry Blossom Lake.'],
-  blurb:'A quiet lake under Mount Fuji, ringed with cherry trees. Koi glide under the petals; eels hide in the reeds.', sky:['#9ec8e8','#ffe0ea'], water:['#5a9a9a','#1e4a52'], hill:'#5a7a5a', amp:.06, freq:2.1,
+ {id:'blossom', name:'Maplewood Hollow', after:'river', cost:1400, bonus:9000, loot:230, plat:'dock', depth:'1–4 m', pre:'cb', mul:3, bait:['petalbait','Maple Leaves',1.45,.55,900,'Crunchy red maple leaves: odds ×3 at Maplewood Hollow.'],
+  blurb:'A sleepy hollow in full autumn color. Leaves drift onto the water, koi glide under them, and the squirrels are definitely up to something.', sky:['#7fa6b0','#f3dcae'], water:['#8aa098','#3e5a5e'], hill:'#8a7a3e', amp:.06, freq:2.1,
   cols:['#e86a8a','#f4a0b8','#e8e0d0','#d84a3a','#3a3a44','#c8a050','#6a8aa0','#8aa070'], fish:[
   'Ayu Sweetfish|Smells faintly of watermelon. Really.','Medaka Ricefish|Lives in rice paddies. Dreams of the ocean.','Oikawa Chub|Wears its breeding colors like a festival kimono.','Ugui Dace|Turns red in spring, like everyone else here.','Moroko Gudgeon|Small, round and very polite about it.',
   'Tanago Bitterling|Lays its eggs inside a mussel. Rent-free.','Kawamutsu Minnow|A dark-cheeked minnow with a stern face.','Dojo Loach|Wriggles to the surface when rain is coming.','Yoshinobori Goby|Climbs little waterfalls with its sucker fins.','Wakasagi Smelt|Fished through the ice in winter, fried in spring.',

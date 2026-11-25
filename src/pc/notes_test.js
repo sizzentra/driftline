@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Cherry Blossom Lake is now Maplewood Hollow, a fall water drawn in the game’s own style: a treehouse in a giant maple to fish from, a red covered bridge, a pumpkin patch with a scarecrow who fishes too, falling and floating leaves, geese, a busy squirrel, bats and glowing pumpkins at night, and a little leaf whirlwind now and then. Same fish, same place on your journey; the bait is now Maple Leaves.',
+  '## Test build 2026.11.25-0116',
   'Willow Pond is back to its drawn scene in the game’s own style: the red boathouse, the far cabin, ducks, the frog, deer, ducklings, fireflies and the owl. The painted version is gone.',
   '## Test build 2026.11.24-2136',
   'Tired fish: they keep half their hold now and take longer to bring in (about 3 s from the far edge for common fish, about 8 s for rare and above).',

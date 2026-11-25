@@ -1,0 +1,128 @@
+DRIFTLINE — COMPREHENSIVE UI/UX AUDIT AND REDESIGN BRIEF FOR CLAUDE CODE
+
+CONTEXT AND INTENT
+You are working on Driftline, a cozy 2D fishing game for PC and mobile. The screenshots I supplied show the current preview build, including the persistent top navigation, Customize/Wardrobe, Boardwalk, Tide Pass, Feats, Collection/Oddities/Trophy Room, and Upgrades/Paths. Treat the screenshots as the starting point, not a visual specification to preserve. I want a cohesive, polished game interface that feels intentionally designed rather than a functional collection of blue cards and buttons. Be ambitious in layout and usability, but preserve working game systems, rewards, saves, progression, and art. Do not interpret this as permission to remove features.
+
+FIRST: AUDIT BEFORE CHANGING
+1. Inspect the actual component hierarchy, styles, navigation state, data models, responsive breakpoints, input handling, persistence, and relevant tests. Identify shared primitives versus one-off markup. Do not guess at existing functionality from screenshots alone.
+2. Build an inventory of every current screen, subtab, action, status indicator, currency, claimable reward, purchase path, and gameplay loop. Record what can be consolidated, what must remain accessible, and what is redundant.
+3. Identify concrete problems: excessive blank space, overlong horizontal rows, small text, inconsistent card density, unclear selection states, nested tabs, excessive scrolling, weak focal points, and duplicated information. Distinguish actual defects from stylistic preferences.
+4. Propose a compact navigation map and a component/design-system plan before implementing major structural changes. You may decide the precise implementation, but explain any tradeoffs and keep all existing features reachable.
+
+OVERALL DESIGN DIRECTION
+- Keep Driftline cozy, inviting, colorful, legible, and lightly playful. The world paintings and characters should be the emotional centerpiece; UI should support them rather than overpower them.
+- The current heavy navy-blue treatment is too uniform. Introduce a restrained palette with deep ocean/ink foundations, soft blue-green surfaces, warm cream text, sea-glass highlights, and selective coral/gold accents. Colors should have consistent meanings (selected, actionable, premium, completed, warning), not arbitrary decoration.
+- Avoid excessive gradients, luminous borders, pill outlines, and nested rectangular boxes. Use hierarchy through spacing, type scale, contrast, alignment, and a small number of meaningful surfaces.
+- Create reusable design tokens for color, typography, spacing, radius, border, shadow, icon size, motion, and responsive breakpoints. Support readable scaling on both desktop and mobile.
+- Establish clear typography: page heading, section heading, card title, key value, explanatory copy, and metadata. Tiny descriptive text is currently a recurring weakness. Do not solve density by shrinking everything.
+- Use subtle illustrations or thematic details where they enhance personality, not decorative clutter. Prefer actual game assets and consistent icons to generic emoji or mismatched icon styles.
+- Every screen should have one obvious primary action and a coherent visual scan order.
+
+GLOBAL NAVIGATION AND INFORMATION ARCHITECTURE
+- Review the existing top row: level, coins, Quests, Map, Upgrades, Collection, Challenges, Customize, Prestige, Cooler, Aquarium, Fish Log, Tasks, Stats, search, Settings. It is dense and forces nearly every system to compete for equal attention.
+- Separate primary destinations from persistent quick-access status. Level/currency and key actionable indicators can live in a compact status strip; major destinations belong in a deliberate navigation system. Less frequent utilities should not occupy the same visual priority as core gameplay.
+- Preserve user-requested major concepts: Fishing, Map, Upgrades, Collection, Challenges, Customize, and Prestige as appropriate. 'Home' should be renamed to Dock (or a clearly superior nautical equivalent). Equipment belongs under Fishing without disappearing. Pets belong under Customize. Do not silently remove Equipment or other systems during consolidation.
+- Treat Customize as the place for the player's appearance, pets, and home/boardwalk personalization, while recognizing that Boardwalk minigames, shops, and events may deserve their own discoverable destination. Decide whether Events needs its own main category based on frequency, depth, and navigation cost; do not automatically bury it.
+- Avoid showing a top-level destination and then several unrelated tab rows beneath it. Prefer clear subnavigation, breadcrumbs/back behavior, and persistent section headings.
+- Add appropriate notification badges only for meaningful actionable states (claimable rewards, new items, finished tasks), not every informational change. Badge counts must be accurate and disappear when resolved.
+- Keep back-to-fishing prominent and predictable. Returning to gameplay should restore appropriate state without unexpected resets.
+- On smaller screens, replace the desktop-wide tab bar with a mobile-appropriate navigation pattern; do not merely squeeze or horizontally overflow all tabs.
+
+FISHING SCREEN: THE MOST IMPORTANT SCREEN
+- Treat the fishing scene as the hero. Avoid permanent panels that obscure the landscape, fish, cast location, or core animations.
+- Make essential information readable at a glance: equipped rod/tackle or bait, relevant active boosts, current zone, cooler capacity, and immediate actions. Keep optional details collapsible or accessible through purposeful panels.
+- Surface the aquarium's passive income rate and a clear Collect action when rewards are ready; communicate available amount, collection state, and any relevant cap without making the player leave fishing unnecessarily.
+- Consider compact contextual controls for fish log, quests/tasks, and upgrades, but avoid turning the scene into a dashboard. The goal is a clean fishing experience with meaningful optional depth.
+- Casting, bite, catch, rarity, sale, XP, and milestone feedback should feel satisfying and distinct. Use concise floating feedback or a restrained catch summary instead of stacking alerts over the scene.
+- Support mouse, keyboard, touch, and different aspect ratios. Keep interactive controls out of unsafe screen edges and away from overlapping game art.
+
+CUSTOMIZE / WARDROBE
+- The current left character preview and right settings layout has a good foundation, but the preview is underused and the right side often becomes a wall of tiny controls.
+- Make the character and pet preview a clear focal point, with a consistent side view matching the actual game. Allow a useful zoom or focus toggle where technically appropriate. The avatar should remain large enough to evaluate hats, glasses, hair, shoes, and outfits.
+- Organize appearance into clear subcategories: Body, Clothes, Hats, Glasses, Shoes, Neck & Back, Pets, and any home/boardwalk customization that belongs here. Avoid duplicating the same settings across unrelated screens.
+- For Body, group related controls logically (body type/build, skin, face, eyes, hair, facial hair). Avoid full-width empty panels for a handful of options. Use a compact two-column layout or grouped editor when space allows.
+- For Clothes, separate color, secondary-color pattern, fabric, outfit, and trousers into distinct but compact sections. Long swatch strips need wrapping, grouping, labels/tooltips, and a clear selected state. Make it obvious which garment or region each color modifies.
+- For Hats and similar item grids, increase the usefulness of each tile: larger consistent previews, readable names, clear equipped/owned/locked/new states, and optional filtering or sorting. Do not show every item with identical visual weight if the catalog is large.
+- Support preview-before-equip or purchase, with visible feedback and no accidental spending. Distinguish equipped, owned, unlockable, and unavailable states.
+- Make pet selection and pet accessories/color feel part of the same cohesive editor. Preserve pet gameplay effects and display them clearly when relevant, without making cosmetic items misleadingly appear stat-bearing.
+- On mobile, the character preview can occupy an upper panel and the controls a scrollable lower panel; avoid shrinking the avatar to an unreadable thumbnail.
+
+BOARDWALK: RESTRUCTURE, DO NOT JUST RESTYLE
+- Screenshots show a large currency summary (Tickets, Scales, Free Spins), three major tabs (Games, Prize Counter, Counter Specials), a mixture of minigames and prizes, and a bottom strip of rotating specials that duplicates content and eats space.
+- Create a clear Boardwalk landing experience: concise currency summary, time-sensitive highlights, and three unmistakable destinations: Games, Prize Counter, and Specials. Use consistent headings and contextual descriptions.
+- Games should feel like individual attractions, not narrow columns crammed across one horizontal row. Each game needs an understandable name, short rule explanation, cost, potential reward, available/free actions, and a clear Play button. Present game content in balanced cards or an attraction grid that responds well to screen size.
+- For Lucky Wheel, Mystery Crates, Duck Pond, Higher or Lower, Coin Flip, Scratch Card, Claw Machine, Fishmonger's Gamble, and Treasure Chests, preserve the underlying odds, prices, inventory, and results. Improve the presentation and interaction flow without silently rebalancing them.
+- Prize Counter should provide item previews, price, category, ownership, and unlock/equip behavior. Use filters for cosmetics, pets, pet colors, decor, bait, and other actual reward types if the data supports them. Do not force users to scroll through an unstructured wall of cards.
+- Specials should have a clear reset countdown, stock/ownership information, and a single authoritative representation. Remove or redesign duplicated specials strips if they show the same inventory as the main tab; do not remove useful quick access without a replacement.
+- Ensure bought/owned items cannot be purchased again unintentionally unless repeat purchases are explicitly supported. Make insufficient funds, sold out, and owned states unambiguous.
+- The Boardwalk is playful; use restrained accent colors and subtle attraction-specific visuals so it feels more like a pier arcade than a generic settings page.
+
+TIDE PASS
+- Current screenshots show a level/progress header, chapter information, a next-reward preview, and a long sequence of small reward cards with substantial empty space below.
+- Rebuild as a clear reward journey: current level and progress, next unlock, claimable rewards, chapter milestones, and an accessible track of levels. A horizontal track can work on desktop, but it must remain readable and usable on mobile.
+- Distinguish claimed, claimable, upcoming, and locked rewards visually. Give claimable rewards priority; avoid requiring players to hunt through the entire track.
+- Show chapter context and milestone rewards without overwhelming the player with every detail at once. Use an item detail preview for reward descriptions when necessary.
+- Keep the existing reward logic, level caps, chapter structure, bonuses, and claim behavior intact. Test reward claims and save/load carefully.
+
+CHALLENGES / FEATS / BOUNTIES / EVENTS
+- Feats currently appear as many small cards organized in dense rows with large unused areas. Their completed and incomplete views should feel like a coherent achievement journal rather than a spreadsheet.
+- Add a summary of overall completion and meaningful category progress. Allow category browsing, search/filtering if useful, and a clear toggle between active, completed, and all.
+- Use consistent progress indicators, meaningful reward displays, and compact but legible descriptions. Completed achievements should remain satisfying to browse without dominating active objectives.
+- Clarify the difference between Feats, Bounties, Tasks, Quests, and Events through naming, placement, and brief explanatory text. Players should immediately know which are daily, one-time, long-term, rotating, or milestone-based.
+- Highlight near-complete goals and claimable rewards without manufacturing urgency. If Events has enough depth, frequency, and time-sensitive content, justify a dedicated destination; otherwise integrate it thoughtfully.
+- Preserve all challenge conditions, counters, reward multipliers, and persistence. Validate progress updates against gameplay events, including repeated and edge-case actions.
+
+COLLECTION / FISH LOG / ODDITIES / TROPHY ROOM
+- The Oddities screen shows 0/263 and Treasures 0/37 as huge grids of identical mystery tiles. This communicates volume but provides little navigational help.
+- Keep the excitement of undiscovered silhouettes, but organize large catalogs by sensible categories, rarity, location, or discovery status where game data allows. Consider a discovery index, section progress, filters, and useful detail views.
+- Unknown items should remain unknown when intended; do not spoil names or sources prematurely. Once discovered, show a satisfying item presentation and relevant collection information.
+- The Trophy Room screenshot shows a very wide empty mount area. Make the empty state feel intentional and aspirational: explain how to mount a fish, show available slots and scale, and use the room's visual identity instead of an oversized blank panel.
+- For Fish Log, prioritize completion by zone, rarity, discovered variants, and useful player-facing information. Ensure it is easy to return to the fish being hunted or the zone relevant to the collection goal.
+- Distinguish Collection (discovery/completion) from Cooler (current catch inventory) and Aquarium (display/passive income). Do not mix their actions or make the same item appear to be stored in multiple places incorrectly.
+
+UPGRADES / SKILLS / PATHS / EQUIPMENT
+- Screenshots show Paths as a long two-column series of level-gated forks, each with three choices and significant explanatory text. The information is interesting but currently hard to scan.
+- Present the Path system as a meaningful progression of choices: clear unlocked/locked states, chosen path, level requirement, effect, and respec cost. Show 0/15 or equivalent progress prominently and make current available forks stand out.
+- Consider a vertical milestone path or grouped fork sections instead of endless near-identical cards. Do not hide important numerical modifiers or the cost of switching/removing a path.
+- Improve readability of the effect text and standardize wording, percentages, and cost formatting. Provide comparison clarity before committing to a choice.
+- Keep Tackle, Rods, Skills, and Paths distinct, but make their relationship understandable. Equipment should remain reachable from Fishing and not disappear due to category cleanup.
+- Support large skill trees or upgrade lists with sensible filters, grouping, and consistent progress display. Avoid badge overload or treating every upgrade as equally urgent.
+
+GENERAL CARD, GRID, AND EMPTY-STATE RULES
+- Stop using the same full-width rounded blue container for every content type. A page header, reward track, inventory grid, and mini-game should not all share identical visual treatment.
+- Use responsive grids with a sensible minimum card width. Do not fit more cards on a row by sacrificing readability; use scrolling when it improves clarity, not as a workaround for broken sizing.
+- Avoid giant unused lower portions of the screen. Let content determine height, or intentionally use the space for contextual art, helpful summaries, or a well-designed empty state.
+- Align card content consistently: title, image, description, progress/status, and action. Avoid buttons drifting to different heights within equivalent cards.
+- Build meaningful empty states: no trophies, no oddities discovered, no claimable rewards, no search results, and locked systems should explain what to do next.
+- Confirmations should be reserved for destructive/expensive actions; routine actions should be quick and reversible where possible.
+
+MOTION, FEEDBACK, AND ACCESSIBILITY
+- Add light, polished transitions for navigation, selection, reward claims, catches, unlocks, and purchases. Animation should reinforce meaning, not delay interaction.
+- Respect reduced-motion settings and avoid expensive continuous effects. No unnecessary shimmering borders, particles, or idle animations on every card.
+- Provide clear hover, pressed, focus, selected, disabled, loading, and success/error states. Support keyboard navigation and visible focus, not only mouse clicks.
+- Ensure readable contrast and adequately sized touch targets. Do not rely solely on color to convey ownership, progress, rarity, or errors.
+- Use tooltips/details for complex mechanics but keep the most important information visible without hovering, especially on touch devices.
+- Keep sounds and animations optional or appropriately configurable. Do not interrupt fishing for routine notifications.
+
+TECHNICAL QUALITY AND PERFORMANCE
+- Refactor toward reusable UI components and shared design tokens; avoid one-off CSS overrides that accumulate inconsistencies.
+- Preserve game logic and save compatibility. UI refactoring must not change item ownership, currencies, reward probabilities, prices, unlock thresholds, progression counters, pet bonuses, or equipment behavior unless explicitly approved.
+- Prevent unnecessary rerenders, giant always-mounted lists, and repeated expensive computations. Use virtualization or pagination where catalog size warrants it, without breaking focus/scroll restoration.
+- Ensure responsive behavior for desktop and mobile, including touch, small viewports, tall/short aspect ratios, and browser zoom/text scaling.
+- Handle loading, delayed state updates, stale data, rapid repeated clicks, and navigation during transactions. Purchases and reward claims must be idempotent or protected from double submission.
+- Keep a consistent UI state model so selection, previews, filters, modal state, and return navigation behave predictably.
+
+IMPLEMENTATION APPROACH
+1. Inspect the codebase and create a feature-preservation checklist and navigation proposal.
+2. Establish the visual system and global shell first (navigation, status, typography, buttons, panels, badges, dialogs).
+3. Redesign the fishing screen and core navigation, then Customize, Boardwalk, Tide Pass, Challenges, Collection, and Upgrades in a logical sequence.
+4. After each section, verify that all original actions and rewards still work. Use existing automated tests and add targeted regression tests where coverage is missing.
+5. Compare desktop and mobile layouts, test keyboard and touch behavior, and audit empty/locked/owned/claimable/insufficient-funds states.
+6. Run build, lint, type checks, tests, and performance checks available in this project. Report what actually ran, what passed, and any remaining gaps. Do not claim error-free behavior without evidence.
+7. Give me before/after screenshots or a concise visual walkthrough of major redesigns, plus a summary of structural decisions and any items needing my approval.
+
+DECISION-MAKING BOUNDARIES
+You have creative freedom to improve hierarchy, layout, spacing, navigation, component styling, and interactions. Do not arbitrarily replace Driftline's cozy art style with a sterile corporate dashboard, nor turn every screen into a noisy arcade. Do not delete features to make the interface simpler. Do not alter game economy or progression without asking. When there are several valid designs, choose the one that best serves clarity, atmosphere, and long-term maintainability, and explain your choice briefly.
+
+SUCCESS CRITERIA
+The result should feel like a cohesive, polished fishing game on both PC and mobile. A new player should understand where to fish, customize, upgrade, collect, claim rewards, and visit the Boardwalk without confusion. Important actions should be obvious, large catalogs should remain browsable, and advanced systems should retain depth. Every existing system must still work, with no lost progress or accidental economy changes. Prioritize quality of the actual user experience over simply changing colors or adding decoration.

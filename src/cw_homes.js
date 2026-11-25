@@ -54,30 +54,7 @@ const C16=s=>s.split(';').map(p=>{ const [n,h]=p.split('='); return [n.trim(),h.
       ['roof',(o,s,c)=>MH.roof(o,MH.geo(o),['tiles','shakes','thatch'][s],c)],
       ['dormer',(o,s,c)=>{ const g=MH.geo(o), ws=hfStyle('river','walls'); MH.dormer(o,g,s,c,['stone','stone','plaster'][ws],ws===1?mix('#f6f2ea',hfColor('river','walls'),.1):hfColor('river','walls'),null,hfColor('river','roof')); HK.deck(o,'#7a5a3e','boards'); }],
       ['seat']] }); }
-/* 3. Cherry Blossom Lake: the tea house (overnight, 2026-11-23; its own design, src/cw_teahouse.js, inspired by the director's reference
-   picture docs/reference/blossom_director_ref.png): a tea house raised on red-lacquered posts with a layered irimoya roof whose eaves curve
-   up at the tips, shoji walls between dark posts, paper lanterns under the eaves and a veranda deck with a thick rope railing; a mossy bank
-   with a stone path, bamboo fence and azaleas behind it, and a big cherry tree framing the top-left corner */
-{ const G3=()=>TH.geo({pw:HF.pw(),dockY:HF.dockY()}), WN=()=>{ const g=G3(); return Object.assign({},g,{winA:g.vx+W*.06,winB:g.x1-W*.03}); };
-  hfMake('blossom',{ name:'Tea house', hname:'tea house', glow:'255,200,150', reflect:true /* it mirrors in the painted lake */, seatX:()=>HF.pw()-W*.028,
-    colors:C16('Lacquer red=#b8322a;Vermilion=#d8503a;Cedar=#9a6a42;Dark cedar=#5a3a26;Black lacquer=#2a2426;Paper white=#f4ece0;Rice beige=#e0d0b0;Bamboo=#b8b06a;Moss=#6a8a52;Jade=#5a9a9a;Deep jade=#1e4a58;Blossom pink=#f4a8c4;Pale sakura=#ffe4ee;Wisteria=#a88ac8;Lantern amber=#f0a848;Stone grey=#9a948a'),
-    front:(n,cx)=>{ if(!BL_IMG.ok) TH.tree(n,cx); /* the painted scenery has the director's own cherry tree */ TH.rail(n,cx,hfStyle('blossom','rail'),hfColor('blossom','rail')); }, smoke:null,
-    els:[{id:'walls',label:'Walls',styles:['Shoji screens','Plaster and timber','Bamboo'],def:[0,3],palS:[[2,3,4,0],[5,6],[7,2]]},
-         {id:'roof',label:'Roof',styles:['Curved clay tiles','Cypress bark','Copper'],def:[0,4],palS:[[4,15,3,10],[2,3],[9,10,2]]},
-         {id:'light',label:'Lanterns',light:true,styles:['Two paper lanterns','Row of small lanterns','Stone lantern'],def:[0,14],palS:[[0,1,5,11,14],[0,1,5,11,14],[15,4]]},
-         {id:'rail',label:'Railing',styles:['Rope railing','Bamboo railing','Open deck'],def:[0,2],pal:[0,2,3,4,7]},
-         {id:'door',label:'Door',styles:['Sliding shoji','Plank door','Noren curtain'],def:[2,10],palS:[[2,3,4,0],[2,3,4,0],[0,10,13,4,5,9]]},
-         {id:'windows',label:'Windows',styles:['Shoji windows','Round window','Lattice windows'],def:[0,3],pal:[2,3,4,0]}],
-    seat:['cushion','lowbench','stool'], seatNames:['Zabuton cushion','Bamboo bench','Lacquer stool'], seatDef:[0,0], seatPal:[0,1,4,5,6,7,9,10,11,13],
-    order:[
-      ['base',(o)=>{ HK.supports(o,'#6a4a32','square',6); { const u=o.dockY+HK.fh(), x0=Math.max(HF.x0(),-W*.01); HK.rect(o,x0,u,o.pw-x0,H*.012,'#4a3222'); HK.rect(o,x0,u+(o.wl-u)*.5,o.pw-x0-W*.004,H*.007,'#5a3a26'); } /* director, 2026-11-23: "the support for the home is missing pieces": posts all along the deck with knee braces, a beam under the deck and a tie beam (nuki) through the posts */ HK.deck(o,'#9a6a42','boards'); }] /* no bank: the house stands on its deck over open water, as in the director's picture */,
-      ['walls',(o,s,c)=>TH.walls(o,TH.geo(o),s,c,'#3a2420')],
-      ['door',(o,s,c)=>BH.door(o,TH.geo(o),['shoji','plank','noren'][s],c)],
-      ['windows',(o,s,c)=>BH.windows(o,WN(),['shoji','round','four'][s],c)],
-      ['roof',(o,s,c)=>TH.roof(o,TH.geo(o),s,c)],
-      ['light',(o,s,c)=>TH.lanterns(o,TH.geo(o),s,c)],
-      ['rail',()=>{}],
-      ['seat']] }); }
+/* 3. Maplewood Hollow (was Cherry Blossom Lake until 2026-11-25): the treehouse draws itself, src/w_maple.js (its tea house, cw_teahouse.js, is gone) */
 /* 4. Saltmarsh Coast: the lobster shack (overnight, 2026-11-23; its own design, src/cw_saltshack.js): a tall saltbox shack at the end of a long
    weathered pier, seen from its gable end, with a stovepipe; buoys on its wall, lobster pots or a drying net; the pier's tarred pilings with
    bracing, barnacles and weed, a ladder with a dory tied to it and a gull on the mooring piling */

@@ -58,23 +58,22 @@ Written 2026-11-22 at the director's request ("more details, so you have better 
 - **Music and ambience:** folk fiddle and acoustic guitar with a light, walking rhythm (Celtic and Appalachian folk feel). Ambience: rushing water over stones, the creak and splash of the waterwheel, birds, rustling leaves.
 - **Home today:** a wooden dock. **Direction:** a stone-footed fishing platform by the mill: fieldstone piers, timber deck, a little mill-shed roof in side view; the seat a stump stool or a slatted bench.
 
-## 3. Cherry Blossom Lake
-- **On the card:** "A quiet lake under Mount Fuji, ringed with cherry trees. Koi glide under the petals; eels hide in the reeds." Depth 1–4 m.
-- **Place and story:** Japan in spring: Mount Fuji on the horizon, cherry trees around the shore, an arched bridge, paper lanterns. Serene and graceful.
-- **Culture and inspiration:** hanami (cherry-blossom viewing), Japanese gardens and koi ponds, ukiyo-e woodblock prints of Mount Fuji, tea houses, torii gates, stone tōrō lanterns, red-lacquered taiko bridges.
-- **Palette:** pastel and graceful. Powder-blue sky over blossom pink, jade water, soft greens, with lacquer red and paper-lantern warmth as accents. Dusk goes rose-violet; night is navy with the lanterns glowing.
-  - Day: sky `#7ab4e4` → `#bcdcf0` → `#ffe4ec`; water `#a8d4d8` → `#5a9aa4` → `#1e4a58`; blossoms `#f4a8c4` / `#ffe4ee`; hills `#6a9a6a`; Fuji `#8a9ac8` with snow `#ffffff`.
-  - Dusk: sky `#2a2a64` → `#c06a94` → `#ffc4a0`; blossoms `#d08aa8`; water `#f0a8a8` → `#7a5a8a`.
-  - Night: sky `#060a1e` → `#2c3470`; blossoms `#4a3a5a`; rim `#9fb4ff`.
-  - **Home colours (16):** lacquer red `#b8322a`, vermilion `#d8503a`, cedar `#9a6a42`, dark cedar `#5a3a26`, black lacquer `#2a2426`, paper white `#f4ece0`, rice beige `#e0d0b0`, bamboo `#b8b06a`, moss `#6a8a52`, jade `#5a9a9a`, deep jade `#1e4a58`, blossom pink `#f4a8c4`, pale sakura `#ffe4ee`, wisteria `#a88ac8`, lantern amber `#f0a848`, stone grey `#9a948a`.
-- **Materials:** red-lacquered wood, cedar, paper (shoji and lanterns), bamboo, stone lanterns, tiled roofs.
-- **Scenery:** the director's painting (approved 2026-11-24; see MAP_STANDARD › "The painted-scenery standard"): Fuji, hills of cherry trees, the red arched bridge and island, the torii on rocks, the pagoda, a waterfall, a big cherry tree framing the left, a flowered near shore.
-- **Life:** ducks, falling petals, birds behind the tree, butterflies, dragonflies, the flowing waterfall, the sky and moon mirrored in the lake; at night white sky lanterns rising in front of the mountains, and fireflies. No moment for now; koi, the petal gust and leaping fish were removed by the director (2026-11-23). Fish: Ayu Sweetfish, Medaka Ricefish · Kohaku Koi, Showa Koi · Koi Dragon, Hanzaki Salamander · Ryujin, the Dragon King.
-- **Belongs:** torii red, paper lanterns, bonsai and stone lanterns, tea-house touches, koi, wind chimes.
-- **Doesn't belong:** Western cabins, palm trees, neon, heavy machinery.
-- **Music and ambience:** koto plucks and a breathy shakuhachi flute over soft strings, slow and airy, in a pentatonic (Japanese-style) scale. Ambience: wind in the blossoms, a distant temple bell, a wind chime, soft water.
-- **Home today:** a tea house on red-lacquered posts (src/cw_teahouse.js); not yet approved: it still looks drawn over the painting. **Direction:** a little tea-house deck on the water: red-lacquered posts, a curved tiled roof in side view, hanging paper lanterns; the seat a low cushion (zabuton) or a bamboo bench.
-
+## 3. Maplewood Hollow (replaced Cherry Blossom Lake on 2026-11-25; id stays `blossom`, fish unchanged)
+- **On the card:** "A sleepy hollow in full autumn colour. Leaves drift onto the water, koi glide under them, and the squirrels are definitely up to something." Depth 1–4 m.
+- **Why it exists:** the director, 2026-11-25: "we're missing a fall themed map". Cherry Blossom's painted scene was scrapped with the painted maps; its fish (koi and friends) stay and fit an autumn koi pond.
+- **Personality and purpose:** a cozy, slightly silly autumn hollow, not a real place: a treehouse to fish from, a scarecrow that fishes too (badly), a crow that keeps landing on it, a squirrel with an acorn plan. Drawn in the game's own style (Starfall and the Rockies are the style references), never painted.
+- **Palette:** colours no other water leans on. Burnt orange, rust, burgundy, mustard and olive under a dusty-teal-to-apricot sky, over a sage-teal lake. Dusk goes rust and plum with an amber horizon; night is wine-black with warm pumpkin and window light.
+  - Day: sky `#7fa6b0` → `#cfd3b0` → `#f3dcae`; water `#8aa098` → `#3e5a5e` → `#18282c`; hills `#8a7a3e`; far `#9a8a78`.
+  - Dusk: sky `#2e1e3a` → `#a04a3e` → `#f0a058`; water `#c8785a` → `#4a3440`.
+  - Night: sky `#0a0810` → `#2e2230`; water `#2a2a36` → `#06060c`.
+  - Leaves (ML_LEAF): `#c8642a` burnt orange, `#a8361e` rust, `#7e2a3a` burgundy, `#d9a23a` mustard, `#b8762a` amber, `#e08a2a` pumpkin.
+- **Scenery (src/w_maple.js):** hazy ridges dotted with autumn treetops (no mountains: a hollow is low); olive hills with a few dark spruces; a red covered bridge over the creek that feeds the lake; a pumpkin patch with hay bales, a split-rail fence and the fishing scarecrow; big mixed-colour maples along the shore; the squirrel's maple on the right bank with a raked leaf pile and a rake left leaning on it; rust cattails in the near corner.
+- **Life:** falling leaves that land and float off, leaves drifting on the lake, geese heading south in a V, the crow, the squirrel's routine (out to the pile to bury an acorn, then home; it stays in its tree at night), the treehouse canopy swaying, morning and evening mist, rising fish. At night: bats, flickering jack-o'-lanterns in the patch and on the deck, the bridge lantern, the treehouse windows and stovepipe smoke.
+- **The moment (every 45 s, 7 s):** a little leaf whirlwind spins across the water (ML_GUST).
+- **Home:** a treehouse in a giant maple standing in the water behind the deck: a faded barn-red cabin on the branches with a burgundy shingle roof, a round window and a square one, a pennant and a stovepipe; a rope ladder down to the plank deck; pumpkins (one carved) and a mustard Adirondack chair on the deck. Fixed, no options (homes are fixed since 2026-11-24).
+- **Belongs:** pumpkins, hay, scarecrows, cider, flannel, squirrels, geese, crows, covered bridges, falling leaves, cozy windows.
+- **Doesn't belong:** realism for its own sake, snow, palms, neon, anything Japanese-specific beyond the fish.
+- **Music:** for now the cozy home tune (Willow Pond's); its own fall music (acoustic guitar, fiddle, a slow harvest waltz) is a later job, on the director's word.
 ## 4. Saltmarsh Coast
 - **On the card:** "Grey dunes and a long pier. Strong saltwater fish and the first tuna." Depth 4–20 m.
 - **Place and story:** a windswept northern beach: grey dunes, marsh grass, a long pier, a sailboat offshore. The first taste of the sea.
