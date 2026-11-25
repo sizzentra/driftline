@@ -1,4 +1,4 @@
-ATTACH: Willow_Pond_base.webp (the director's mock-up), CHATGPT_MAP_GUIDE.md, angler_guide_pc.jpg, angler_sitting.png (all in Downloads\Driftline_for_ChatGPT).
+ATTACH: Willow_Pond_base.webp (the director's mock-up), CHATGPT_MAP_GUIDE.md, angler_scale.png (all in Downloads\Driftline_for_ChatGPT).
 
 ----- COPY FROM HERE -----
 

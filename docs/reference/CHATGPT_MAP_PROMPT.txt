@@ -1,4 +1,4 @@
-HOW TO USE: Claude fills in the {curly} parts from the water's MAP_THEMES entry and its row on the distinctness board (docs/MAP_STANDARD.md), then the director pastes everything below the line into ChatGPT, with CHATGPT_MAP_GUIDE.md and the reference pictures attached.
+HOW TO USE: Claude fills in the {curly} parts from the water's MAP_THEMES entry and its row on the distinctness board (docs/MAP_STANDARD.md), then the director pastes everything below the line into ChatGPT, with CHATGPT_MAP_GUIDE.md, docs/reference/angler_scale.png and the reference pictures attached.
 
 ----- COPY FROM HERE -----
 
@@ -22,7 +22,7 @@ WHAT MAKES IT DISTINCT
 WHAT I NEED, IN THIS ORDER
 1. The full map painting, 1680x845, daytime, following the guide's scene layout (far shoreline at 42% of the height, open water in the fishing area, the building's spot on the left).
 2. After I approve it: the layers (land with empty sky and water, sky, each cloud, water without reflections, {signature motion pieces}), same size and alignment, on pure #00FF00 green.
-3. The building with its deck and supports as a cut-out, 1536x1024 on green, sized with the angler in the attached guide picture.
+3. The building with its deck and supports as a cut-out, 1536x1024 on green, sized with the angler in the attached angler_scale.png.
 4. The chair as a cut-out, 1024x1024 on green.
 
 Please start with step 1 only, and tell me in a few lines how you made it distinct from the guide's list of things not to reuse.

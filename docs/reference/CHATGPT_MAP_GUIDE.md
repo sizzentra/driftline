@@ -47,7 +47,7 @@ Make the layers from one master painting so they line up exactly.
 
 ## The building (the player's spot)
 The building is the player's fixed home on this map. It is painted in the map's own style, but delivered as its own cut-out, because the game places it under the angler's feet on every screen shape.
-- **Measuring stick: 1 AH = the standing angler's height** (we send a guide picture with the angler at real size).
+- **Measuring stick: 1 AH = the standing angler's height** (we send angler_scale.png: the angler standing and sitting on a deck with lines at 1, 2 and 3 AH).
 - **Size:** about 6 AH wide; 2.2–2.5 AH from the deck surface to the top; walls (or the lowest overhang) about 1.4 AH above the deck, so a standing angler fits under them.
 - **The deck surface is one flat, level line** where the angler stands. Show the deck exactly from the side: its front edge, at most a very thin strip of its top.
 - **The angler stands on the deck in front of the building's wall, near its right end.** To the right of the building, leave **an open stretch of deck about 1.5 AH long** where the chair goes; nothing tall right of the deck's end (the line goes out there).
