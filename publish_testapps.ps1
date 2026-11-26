@@ -4,6 +4,6 @@
 # Run after a preview build:  powershell -ExecutionPolicy Bypass -File publish_testapps.ps1
 Set-Location $PSScriptRoot
 git add testapps
-git commit -q -m 'Phone test apps: new preview build' -m 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
-git subtree push --prefix testapps https://github.com/sizzentra/driftline-test.git gh-pages
+git commit -q -m 'Phone test apps: new preview build' -m 'Co-Authored-By: Claude Fable 5.2 <noreply@anthropic.com>'
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/push_folder.ps1 -Prefix testapps -Remote https://github.com/sizzentra/driftline-test.git
 Write-Output 'Phone test apps published. Live in about a minute at https://sizzentra.github.io/driftline-test/'

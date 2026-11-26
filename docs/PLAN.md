@@ -5,6 +5,19 @@ builds, through the round checklist in CLAUDE.md, before the next one starts. St
 (test builds), ✔ live. The release is **0.4.9** (new content). Numbers in brackets = the director's line numbers.
 Finished work leaves this list once it is live: batches 1–2 (live since 0.4.8.9) are in `docs/HISTORY.md`.
 
+## Foundation first (director, 2026-11-26: "I trust your recs"; comes before everything below)
+From the outside review of 2026-11-26 (the PC's measurements: `docs/reviews/outside_review_2026-11-26.md`). Rule for all of it: nothing a
+player can see or feel changes; each step proven with `?frozen` pictures and the save round trip, behind a rollback tag, one step per
+session, reported in plain words. No new features, waters or Cam rounds until it is done. Live untouched.
+- ☑ **Fast publish** (2026-11-26): `tools/push_folder.ps1` replaces `git subtree push` in the three publish scripts (was 3 to 4.5 minutes per folder; now seconds). Proven: the published files are identical to the commit (checked by the script on every publish).
+- ☐ **F1 Safety net:** three scrubbed test saves in git (new, mid-game, end-game heavy) that the sweep loads itself; baseline `?frozen` pictures (every water at dawn, day, dusk, night; every page; phone and PC); the sweep from one command in an invisible browser. Includes the one-line fix for the `docks` save-test mismatch (a new save and a reloaded one must be identical), since the net cannot be green without it, and `__qa` in the Fresh save part.
+- ☐ **F4 Short rulebook:** CLAUDE.md cut to what is true now, garbled characters repaired, an encoding gate in the build (proven by planting one), routines as skills, then propose a fresh session per batch.
+- ☐ **F2 Branches:** `live` = what players have, `main` = the test build; hotfixes become ordinary commits on `live`.
+- ☐ **F5 The 0.5 list:** everything the test build has that live does not, for the director and Cam to mark keep / switch off / remove; feature switches for the larger items.
+- ☐ **F6 Code, cut down:** fold the save loader's layers into one function, and one shared reporter for the 355 silenced errors. The rest (page and action tables, regrouping files) only when a feature touches that code.
+- ✗ **F3 Automatic publishing on GitHub:** skipped (little gain for two testers once publishing is fast and the checks run from one command); revisit only if publishing becomes a chore again.
+- **After the foundation:** the review's bug fixes (offline after one visit, the app descriptions' fish and water counts, Willow Pond's repaint on PC after a real-frame measurement, README, the stale #124 line below), then the 0.5 list, then release.
+
 ## Open now (the one place for open work and decisions; CLAUDE.md only points here)
 - **Cam's round 7 made top-water fights much harder (found 2026-11-25, held for Cam and the director):** with the best gear and no Boons, relics or big pet and attachment bonuses, a top-water mythic is landed about 6-25% of the time (target was 40%+, about 44% before round 7) and a legendary about 11-19%; with a strong save about 42-44% for mythics. The causes are round 7's harder temper (TEMPER_TEN 2.5, TEMPER_MOVE 1.1) and stronger fish. The fight-pass check is held yellow in the sweep until Cam decides. Options: ease the temper numbers back part of the way, or accept harder top-water fights and lower the target.
 - **Flaky checks (2026-11-23):** the fight-pass test (mythic landing at least 65% over 36 random fights) failed once at 64% and passed on re-run (#225): give the fight sim a fixed seed or more fights. The phone maps check measured Starfall at 3.61x the median frame cost (ceiling 3.2x) in the final full sweep and passed on re-run: hidden-pane timing noise; measure Starfall on a real phone.
