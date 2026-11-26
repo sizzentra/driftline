@@ -1,0 +1,210 @@
+DRIFTLINE: MY FULL GAME REVIEW
+==================================================
+I went through the whole game piece by piece. Big picture: SYSTEMS FIRST,
+UI POLISH LAST. A lot of menus look rough, but there's no point polishing
+screens for systems that are still changing. Everything here is also saved
+in the plan word for word. Read through it, and tell me what you agree
+with, what you'd change and what I missed.
+
+
+--------------------------------------------------
+1. FISHING
+--------------------------------------------------
+Too much pop-up text in fights
+- "Nice!", "Steady!", call-outs and tips stack up around the fish.
+- It hand-holds instead of letting you read the fish and learn the fight,
+  and that takes away the fun for me.
+- Fewer words, more feel: the fish's movement, the line and the sounds
+  should tell you what's going on.
+
+Fight pace
+- With no upgrades, nothing should feel instant or too easy.
+- But when a fight drags and the fish visually crawls in, it feels like a
+  slow escort quest, not a tough battle.
+- Fights should be hard because they're TENSE (tension, timing, reading
+  the fish), not because they're SLOW.
+
+(Already done on the test builds: the option to switch back to the old
+fight display, in Settings > Display > Fight display.)
+
+
+--------------------------------------------------
+2. PROGRESSION
+--------------------------------------------------
+Too fast and shallow once you're built up
+- Prestige only needs Hollow Trench open (the 12th water).
+- Each water opens after 10 catches at the one before, plus coins
+  (10 more catches each voyage, up to 50).
+- Brand-new player: coins hold you back, about 1,180 catches to reach
+  Hollow Trench.
+- With built-up bonuses: fish pay about 100x more, prices stop mattering,
+  and you're at Hollow Trench in about 190 catches.
+- Not a grind, but unlocking should depend on progress at each water
+  (its fish, oddities, bounties), not "catch 10 fish and have coins".
+  (Numbers checked in the test build, counting fish sales only.)
+
+Upgrade numbers feel tiny
+- A 5% upgrade doesn't feel like anything; 15-25% steps do.
+- Why is billions of coins the ceiling? Bigger numbers are fine (even e26
+  someday) if the balance holds. Open question: how.
+
+No real builds
+- Skills don't work together, so the only "builds" are shiny or junk.
+- Some skills are clearly way better than others.
+- The max-rank bonus idea is great, keep it.
+
+Paths are too narrow
+- Every fork should be a real decision; right now lots are obvious picks.
+
+Saved loadouts (big one)
+- Min-maxers swap gear, Paths, skills, bait and pets across a bunch of
+  menus every time they switch between shiny hunting, the Fish Log and
+  oddity chasing.
+- Save a whole setup and switch in one click: a huge quality-of-life win.
+
+
+--------------------------------------------------
+3. PRESTIGE
+--------------------------------------------------
+- Reset most things. Carrying everything over doesn't feel right;
+  permanent progress comes from feats and earned rewards.
+  (Already done on the test builds: skill points from feats and the Fish
+  Log carry over.)
+- The Wisdom Pearl formula doesn't feel good.
+- Boons are a great idea, but earning them has no direction.
+- Relics need balancing. Some are no-brainers, and because billions of
+  coins come so easily, you pick up way too many too fast.
+- Expensive rewards should feel like rewards. Junk chance is useless if
+  you don't want junk.
+- Better choices that aren't so narrowly targeted, maybe unlocking new
+  features or systems? Not sure yet.
+
+
+--------------------------------------------------
+4. CHALLENGES
+--------------------------------------------------
+Drop daily tasks and weekly quests
+- They're hard to make good, and they don't add much.
+- Make BOUNTIES the main thing to chase instead: deeper, more rewarding,
+  with rewards you can choose, and easy to notice (right now they're easy
+  to overlook).
+- !! This pulls against your 5 daily / 10 weekly challenges per water idea.
+  Let's settle it together.
+
+Feats should be the real challenges
+- No coins as rewards (right now even "Land 10 fish" pays 100 coins).
+- Every goal has to say clearly what to do. Some make no sense
+  ("catch a falling star"?).
+- Better rewards, and they're the natural home for permanent account
+  progress.
+- Bring back the feat groups from the live build (Catching, Collection,
+  Legends & myths, Pets...), each with a progress bar and a "Finish all"
+  bonus that lasts forever, like +5% bite speed. The bonuses still work on
+  the test builds, but the clear group list got lost in a menu rework.
+  Bring it back with more depth.
+
+Tide Pass needs a real rework
+- It's unengaging for what it should be.
+- Better rewards, or move its depth into better feats.
+- Scales are hard to earn, and the game never says where they come from.
+
+Events, the Challenges tab and the Derby
+- The event calendar is great but needs more variety, something players
+  actually want to watch for.
+- A tab called "Challenges" inside the Challenges menu is confusing, and
+  most of those challenges need love and expansion.
+- The Derby is too easy, feels out of place and has zero depth.
+- If we add co-op down the road, that's where a lot of this could really
+  shine.
+
+
+--------------------------------------------------
+5. WATERS & FISH
+--------------------------------------------------
+- Fish should belong to their water. A lot don't match their
+  environment's theme.
+- More meme fish, and we approve every meme fish's name, description and
+  card picture (not every fish, just the memes).
+- Waters should play differently, not just look different. Right now a
+  new water is mostly new scenery.
+
+
+--------------------------------------------------
+6. COLLECTING
+--------------------------------------------------
+- We love collecting (a lot of us grew up on Pokemon).
+- Oddities and treasures can't really be chased. Players don't know how to
+  find them and struggle to get any; on live it's an extreme chase.
+- One big pool is okay, but maybe split it up with a creative idea so you
+  can work toward specific ones.
+- No permanent home for fish. After a prestige there's nowhere to keep
+  favourites on purpose. The Trophy Room was a placeholder and could
+  become a record log.
+
+
+--------------------------------------------------
+7. COOLER, AQUARIUM & NIBBLES
+--------------------------------------------------
+- The Cooler could be organized more cleanly.
+- Inspect is solid, but more information could show without opening it.
+- Choosing between selling and the aquarium is easy (good).
+- Scrapping is under-explained and feels outside the loop, even though
+  Nibbles are a great idea.
+- Nibbles (they grow the aquarium) and duplicate catches (Fish Log
+  mastery) need more nuance and better progression layers.
+
+
+--------------------------------------------------
+8. EVERYTHING ELSE
+--------------------------------------------------
+Pets
+- Great, but levelling should be more than tapping. Going all in on pets
+  could unlock global buffs and rewards, with clear goals like feats.
+
+Boardwalk
+- Chance games are fun, but they shouldn't push your progress ahead.
+- They need a purpose besides coins and materials, maybe rerolls?
+- The games themselves should feel more fun and intentional.
+  (Still undecided.)
+
+Customizing
+- Love it. Some pieces look off, and we need funnier options.
+
+Music
+- Cozy, but some loops are short and get repetitive over a long session.
+
+Weather & events
+- Better visuals first.
+- An easy way to see what's active, for how long and what it does.
+- Locking fish to specific weather would be a pain unless there's a
+  really good idea for it.
+
+Teaching the game
+- Show players the real formulas, so they can judge what's good for the
+  way they like to play.
+- No pop-up tips.
+- The Quests tab should be cleaned up, thorough and above all 100%
+  accurate.
+- The fishing feel is a skill you learn over time, not something the
+  interface hands you.
+
+Saving
+- About 4 save systems and download options sit side by side, never
+  organized. Make it one simple path a player understands at a glance.
+
+Phones
+- The top header and side panel around the fishing scene are great.
+- The insides of the menus need work.
+- PC needs its own headers and fishing scene, since it has way more room.
+
+UI overall
+- Rough in a lot of places, but it gets polished LAST, once the systems
+  above are done.
+
+
+==================================================
+FOR YOU, CAM
+==================================================
+1. Dailies/weeklies vs one big bounty system: where do you land?
+2. Anything here you disagree with?
+3. Anything I missed?
