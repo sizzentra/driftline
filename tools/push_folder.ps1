@@ -6,7 +6,7 @@
 # Run (after committing):  powershell -ExecutionPolicy Bypass -File tools/push_folder.ps1 -Prefix site -Remote origin
 param([Parameter(Mandatory=$true)][string]$Prefix, [Parameter(Mandatory=$true)][string]$Remote, [string]$Branch = 'gh-pages', [string]$Message = '')
 Set-Location (Split-Path $PSScriptRoot -Parent)
-$dirty = git status --porcelain -- $Prefix
+$dirty = git status --porcelain --untracked-files=no -- $Prefix
 if ($dirty) { Write-Error "push_folder: $Prefix has uncommitted changes; commit first."; exit 1 }
 $tree = git rev-parse "HEAD:$Prefix"
 if ($LASTEXITCODE -ne 0 -or -not $tree) { Write-Error "push_folder: no folder $Prefix in the last commit."; exit 1 }
