@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Behind the scenes only, nothing changes on screen: publishing test builds is faster, and a brand-new save now starts with the same empty home record a reloaded save has (a self-check disagreed with itself about it).',
+  '## Test build 2026.11.25-1249',
   'New setting, Settings › Display › Fight display: Classic (the fight signs from the live game), Around the fish (everything around the lure and the fish, as on the test builds) or Dial under the dock (one dial in the water under your dock, so nothing covers the fish; tips stay above it). Around the fish is the default, and your device remembers your choice.',
   '## Test build 2026.11.25-1233',
   'Homes are now fixed for good: every water has one building, the platform you stand on and its own seat. The leftover home options are gone behind the scenes (nothing changes on screen).',

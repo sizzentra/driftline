@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Driftline baseline</title>
+<!-- Foundation F1 (2026-11-26): makes the baseline fingerprints of one test save (?save=new|mid|heavy, from tools/saves/): every water at
+     dawn, day, dusk and night and every menu page, on the PC, iPhone and Android test builds opened with ?test&frozen (same random numbers,
+     a clock that only moves when asked, no frame loop). The result is posted to the local server as tools/shots/baseline_<save>.json;
+     tools/baseline.ps1 keeps the agreed set in tools/baseline/ and compares a new run against it. Copied beside the preview builds by
+     build.ps1 -Preview; never in a release build. The save that was in this browser is put back at the end. ?only=pc|ios|android runs one build. -->
+<style>body{margin:0;background:#0d1824;color:#e8f0f7;font:14px/1.4 system-ui,Segoe UI,sans-serif;padding:12px} iframe{border:0;display:block;margin-top:8px}</style>
+</head>
+<body>
+<div id="s">Driftline baseline</div>
+<iframe id="f" title="game under test"></iframe>
+<script>
+const Q=new URLSearchParams(location.search), NAME=(Q.get('save')||'new').replace(/[^a-z0-9_-]/gi,''), KEY='driftline-save-next';
+const BUILDS=[['pc','pc.html?test&frozen',1920,1080],['ios','ios.html?test&frozen&iphone',956,440],['android','android.html?test&frozen',915,412]];
+const wait=ms=>new Promise(r=>setTimeout(r,ms)), status=t=>{ document.getElementById('s').textContent='Baseline ('+NAME+'): '+t; document.title='Baseline: '+t; };
+const load=(f,url)=>new Promise(r=>{ f.onload=()=>{ f.onload=null; r(); }; f.src=url; });
+window.__R={state:'idle'};
+async function run(){ window.__R={state:'running'}; const orig=localStorage.getItem(KEY), out={save:NAME, made:new Date().toISOString(), stamp:'', builds:{}}, f=document.getElementById('f');
+  try{ const j=await (await fetch('saves/'+NAME+'.json',{cache:'no-store'})).json(), sv=j.save==null?null:(typeof j.save==='string'?j.save:JSON.stringify(j.save));
+    out.stamp=(await (await fetch('version.txt',{cache:'no-store'})).text()).trim();
+    for(const [b,url,w,h] of BUILDS){ if(Q.get('only')&&Q.get('only')!==b) continue; status(b+' '+w+'x'+h+'…');
+      if(sv==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,sv);
+      f.style.width=w+'px'; f.style.height=h+'px'; await load(f,url); const W=f.contentWindow, s=Date.now(); try{ Object.defineProperty(W.navigator,'getGamepads',{value:()=>[]}); }catch(e){} /* deaf to game controllers */
+      while(Date.now()-s<30000&&!(W.__baseline&&W.document.getElementById('panel'))) await wait(200);
+      await wait(500); out.builds[b]=await W.__baseline(); await load(f,'about:blank'); } }
+  catch(e){ out.error=String(e&&e.message||e); }
+  finally{ if(orig==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,orig); }
+  try{ await fetch('/report/baseline_'+NAME,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(out,null,1)}); }catch(e){}
+  window.__R=Object.assign({state:'done'},out); status(out.error?'FAILED: '+out.error:'done'); }
+if(Q.has('go')) setTimeout(run,300);
+</script>
+</body>
+</html>

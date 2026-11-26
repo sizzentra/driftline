@@ -64,6 +64,10 @@ const CONTENT_SIZES=[['ios',956,440],['ios',915,412],['ios',667,375],['ios',440,
 const HELD=[[/fight pass: with the best gear a top mythic.*mythic (landed only|took)/,'held: Cam round 7 made top-water fights much harder; landing rates are his and the director’s call (PLAN › Open now)'],[/Mystery crates.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Higher or lower.*rule 4/,'held: picture decision (PLAN › Open now)'],[/Fishmonger’s Gamble.*rule 4/,'shelved: Gamble empty-cooler picture (PLAN › Open now)']];
 const $=id=>document.getElementById(id), wait=ms=>new Promise(r=>setTimeout(r,ms));
 const Q=new URLSearchParams(location.search);
+/* Foundation F1 (2026-11-26): ?save=new|mid|heavy runs every check on that save from tools/saves/ (copied beside this page by the build),
+   so a run gives the same result on any machine; the save that was here is put back at the end, and the report goes to sweep_<name>.json */
+const SAVE_NAME=(Q.get('save')||'').replace(/[^a-z0-9_-]/gi,''), ORIG='sweep-orig-save';
+async function namedSave(){ const j=await (await fetch('saves/'+SAVE_NAME+'.json',{cache:'no-store'})).json(); return j.save==null?null:(typeof j.save==='string'?j.save:JSON.stringify(j.save)); }
 if(Q.get('only')){ const on=Q.get('only').split(','); document.querySelectorAll('[data-s]').forEach(c=>c.checked=on.includes(c.dataset.s)); }
 if(Q.has('android')) document.querySelector('[data-s="android"]').checked=true;
 /* small changes (director, 2026-11-21: "PC changes should only test PC, phone changes only phones"): ?for=pc or ?for=phones runs only that
@@ -111,6 +115,7 @@ async function blank(){ const f=$('f'); if(f.src&&f.src!=='about:blank'){ const 
 async function open(b,w,h,o={}){ if(!o.any&&!inScope(b)) throw SKIP; await blank(); const f=$('f'); if(!o.keepSave) putSaveBack(); if(o.fresh) localStorage.removeItem(KEY);
   f.style.width=w+'px'; f.style.height=h+'px'; const sc=Math.min(384/w,216/h); f.style.transform=`scale(${sc})`;
   const p=onload(f); f.src=URL_[b]; await p; const W=f.contentWindow, s=Date.now();
+  if(SAVE_NAME) try{ Object.defineProperty(W.navigator,'getGamepads',{value:()=>[]}); }catch(e){} /* a named-save run is deaf to game controllers (a held trigger reels in the fight tests; the director may be playing something else) */
   while(Date.now()-s<25000){ try{ if(W.__ui&&W.__qa&&W.document.getElementById('panel')) break; }catch(e){} await wait(200); }
   await wait(1500); /* let the first ticks and timers run (a timer's first run goes after loading, #130) */
   return W; }
@@ -206,7 +211,8 @@ async function run(resume){
   const on=s=>document.querySelector('[data-s="'+s+'"]').checked; $('go').disabled=true; window.__R={state:'running'}; keepAwake();
   const st=resume?runState():null;
   if(st){ R=st.rows||[]; t0=st.t0; saved=st.hadSave?localStorage.getItem(BAK):null; draw(); }
-  else{ R=[]; draw(); t0=Date.now(); saved=localStorage.getItem(KEY); localStorage.setItem(BAK,saved==null?'':saved);
+  else{ if(SAVE_NAME){ localStorage.setItem(ORIG,JSON.stringify({s:localStorage.getItem(KEY)})); const n=await namedSave(); if(n==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,n); }
+    R=[]; draw(); t0=Date.now(); saved=localStorage.getItem(KEY); localStorage.setItem(BAK,saved==null?'':saved);
     const secs=[...document.querySelectorAll('[data-s]')].filter(c=>c.checked).map(c=>c.dataset.s);
     try{ localStorage.setItem(RUN,JSON.stringify({dev:DEV(),secs,t0,hadSave:saved!=null,reloads:0,rows:[],cur:null})); }catch(e){} }
   $('copy').disabled=false; $('copy').textContent='Copy report so far';
@@ -233,12 +239,14 @@ async function run(resume){
   const keyset=rs=>new Set(rs.filter(r=>both.has(r.sec+' | '+r.name)).flatMap(r=>(r.list.length?r.list:(r.ok===false?[r.detail]:[])).filter(x=>!/  \[(held|shelved):/.test(x)).map(x=>r.sec+' | '+r.name+' | '+x)));
   const now=prev?keyset(R):null, was=prev?keyset(prev.results):null;
   const diff=was?{newFindings:[...now].filter(x=>!was.has(x)), gone:[...was].filter(x=>!now.has(x)), prevStamp:prev.stamp}:null;
-  const rep={stamp, device:navigator.userAgent, speedFactor:SPEEDK, finished:new Date().toISOString(), minutes:+mins, checks:R.length, failed:bad.length, held:held.length, saveRestored:localStorage.getItem(KEY)===saved, diff, results:R};
+  const restoredNamed=localStorage.getItem(KEY)===saved;
+  if(SAVE_NAME) try{ const o=JSON.parse(localStorage.getItem(ORIG)||'{}').s; if(o==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,o); localStorage.removeItem(ORIG); }catch(e){}
+  const rep={stamp, save:SAVE_NAME||'(this browser’s own)', device:navigator.userAgent, speedFactor:SPEEDK, finished:new Date().toISOString(), minutes:+mins, checks:R.length, failed:bad.length, held:held.length, saveRestored:restoredNamed, diff, results:R};
   try{ localStorage.setItem(LAST+(DEV()==='pc'?'':'-'+DEV()),JSON.stringify({stamp,results:R})); }catch(e){}
   window.__R=Object.assign({state:'done'},rep);
   status((bad.length?bad.length+' of '+R.length+' checks FAILED':'All '+R.length+' checks passed')+(held.length?' ('+held.length+' with held findings)':'')+' · build '+stamp+' · '+mins+' min'+(diff?' · '+diff.newFindings.length+' new and '+diff.gone.length+' gone since the last run':'')+(rep.saveRestored?' · test save put back':' · TEST SAVE NOT RESTORED'));
   $('sum').className=bad.length?'bad':'ok'; $('copy').disabled=false; $('copy').textContent='Copy report';
-  if(location.hostname==='localhost') try{ await fetch('/report/sweep',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rep,null,1)}); }catch(e){}
+  if(location.hostname==='localhost') try{ await fetch('/report/sweep'+(SAVE_NAME?'_'+SAVE_NAME:''),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rep,null,1)}); }catch(e){}
 }
 $('go').onclick=()=>run(false);
 /* a text summary to paste into a message (phones have no report file); during a run it copies what is done so far */

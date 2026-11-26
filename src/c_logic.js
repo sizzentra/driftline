@@ -11,7 +11,7 @@ const fresh = () => ({v:3, money:0, xp:0, lvl:1, gear:{rod:0,reel:0,line:0,hook:
   aq:{theme:'lagoon', sand:'gold', decor:[], hid:[], owned:['lagoon','gold']}, voyCatch:{}, titled:{}, nib:{}, nibAmt:1, pathXP:{}, pearlOld:0, pearlMig:1, pshop:{}, boons:{}, boonPts:0, passMig:1, fedT:0, wheelT:0, rankClaimed:0, tokens:{small:0,big:0,legend:0},
   gstats:{frenzy:0, frenzyFish:0, chests:0, stars:0, spins:0, crates:0, flips:0, flipWins:0, scratch:0, scratchWins:0, pets:0, tasks:0},
   petLook:{}, bond:{}, petTints:['none'], petAccs:['none','bandana'], scales:0, specs:{}, relics:[], castN:0,
-  pet2:null, dock:{wood:'oak', decor:[], owned:['oak']}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
+  pet2:null, dock:{wood:'oak', decor:[], owned:['oak']}, docks:{}, pass:{xp:0,lvl:0,claimed:0}, derby:null, medals:{gold:0,silver:0,bronze:0},
   rods:{owned:['bamboo'], eq:'bamboo', lvl:{}, att:{}}, atts:{}, daily:null, login:{last:'', streak:0}, seenPatch:'',
   stats:{caught:0,earned:0,runEarned:0,snapped:0,shiny:0,treasure:0,stormEpic:0,trophies:0,bestStreak:0,perfect:0,demand:0,hot:0,bought:0,maxBuffs:0},
   muted:true, tab:'cooler', savedAt:0});
