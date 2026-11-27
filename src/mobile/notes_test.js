@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fixed: a damaged or very old save that had lost its list of hats could not be loaded (the game started a new one instead, and a save code like it was refused). It now loads and gets the starter hats back. Every other save loads exactly as before.',
+  '## Test build 2026.11.27-0405',
   'Behind the scenes, nothing should look or act differently: the code under the buttons and pages was tidied (one list of button actions, one page drawer, fewer leftover layers). If a button does nothing or does the wrong thing, if a page looks different from yesterday, or if the box Errors the game passed over appears in Stats › Tester tools, tell us which button or page and send the box.',
   '## Test build 2026.11.27-0043',
   'Behind the scenes, nothing changes on screen: the game now keeps a list of the errors it used to pass over without a trace. If one happens while you play, a box named Errors the game passed over appears at the bottom of Stats › Tester tools: copy it and send it. No box means none happened. Run every check lists them at its end too.',

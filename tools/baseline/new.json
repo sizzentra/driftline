@@ -1,7 +1,7 @@
 {
  "save": "new",
- "made": "2026-11-27T10:12:03.139Z",
- "stamp": "2026.11.27-0405",
+ "made": "2026-11-27T14:02:06.323Z",
+ "stamp": "2026.11.27-0752",
  "builds": {
   "pc": {
    "build": "pc",
@@ -136,7 +136,7 @@
     "settings/Controls": "b0a23f07",
     "settings/Display": "95d86c0",
     "settings/Gameplay": "12a294d5",
-    "settings/Patch notes": "7d1dac4a",
+    "settings/Patch notes": "aae9152b",
     "settings/Save & codes": "8a5ca9bc",
     "cooler": "89a6a56b",
     "bait": "ab8f7b21",
