@@ -24,7 +24,7 @@ const xfCodeFmt = c => c.slice(0,3)+' '+c.slice(3);
 const xfTopic = code => XF_RELAY+XF_PREFIX+code;
 // the newest progress parcel in a code's mailbox (or null)
 async function xfLatest(code){ const r=await fetch(xfTopic(code)+'/json?poll=1&since=3h',{cache:'no-store'}); if(!r.ok) throw new Error('relay '+r.status);
-  const lines=(await r.text()).trim().split('\n').filter(Boolean).map(l=>{ try{ return JSON.parse(l); }catch(e){ return null; } }).filter(m=>m&&m.event==='message'&&m.attachment&&m.attachment.url);
+  const lines=(await r.text()).trim().split('\n').filter(Boolean).map(l=>{ try{ return JSON.parse(l); }catch(e){ oops('d9_link:transfer-line',e); return null; } }).filter(m=>m&&m.event==='message'&&m.attachment&&m.attachment.url);
   return lines.length ? lines[lines.length-1] : null; }
 async function xfSend(tries=0){ xfStop(); const run=XF.run; XF.mode='send'; XF.code=String(100000+Math.floor(Math.random()*900000)); xfStat('Getting your code ready…'); refreshXfer();
   try{
@@ -60,7 +60,7 @@ function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
 function refreshXfer(){ if(S.tab!=='save') return; renderPanel(); }
 async function paintLink(){ const box=$('qrbox'); if(!box||XF.mode!=="send"||!XF.ready) return;
   try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:SHARE_BASE+'#pair='+XF.code,width:300,height:300,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); qrState='ok'; }
-  catch(e){ box.remove(); qrState='fail'; } }
+  catch(e){ oops('d9_link:qr',e); box.remove(); qrState='fail'; } }
 actOn('xfsend redeem xfget xfgo xfcancel sharelink copylink maillink linkload linkkeep pet2 pet2off petedit', function(b){ switch(b.dataset.act){
     case 'xfsend': xfSend(); return 'skip';
     case 'redeem': { const i=$('giftin'); return redeemGift(i?i.value:''); }

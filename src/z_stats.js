@@ -49,7 +49,7 @@ function testerErrs(){ const L=oopsList().map(r=>r.where+' ×'+r.n+(r.msg?': '+r
 /* Tester tools › Time and weather (director, 2026-11-22: "I can't control the weather on the tester tools"): the test build's clock is
    moved forward to the nearest moment with that time of day or weather (kept across reloads; check pages ignore it), so the scene,
    its light and its fish all follow as in the game. Back to the real clock with Real time. */
-function testerNow(){ try{ const p=phase(), n=p>=.95||p<.05?'dawn':p<.45?'day':p<.55?'dusk':'night'; return n+' · '+weather().k; }catch(e){ return ''; } }
+function testerNow(){ try{ const p=phase(), n=p>=.95||p<.05?'dawn':p<.45?'day':p<.55?'dusk':'night'; return n+' · '+weather().k; }catch(e){ oops('z_stats:testerNow',e); return ''; } }
 function testerClock(k){ const keep=()=>{ try{ localStorage.setItem('dl-test-toff',String(window.__tOff||0)); }catch(e){ oops('z_stats:localStorage.setItem',e); } };
   if(k==='tod:real'){ window.__tOff=0; keep(); return 'Back to the real clock: '+testerNow()+'.'; }
   const ph=()=>(Date.now()/1000%CYCLE)/CYCLE, near=(a,b,d)=>{ const x=Math.abs(a-b); return Math.min(x,1-x)<=d; }, base=window.__tOff||0, raw=()=>weatherAt(Math.floor(Date.now()/1000/WX_LEN)).k;
@@ -64,9 +64,9 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; if(k.startsWith('tod:')
   if(k==='coins'){ S.money+=1e9; return 'One billion coins added.'; } if(k==='scales'){ S.scales+=1e4; S.tickets+=1e4; return 'Scales and tickets added.'; }
   if(k==='pearls'){ S.pearls=(S.pearls||0)+20; return '20 Wisdom Pearls added: spend them in Prestige, Pearl relics.'; }
   if(k==='pass'){ S.pass.lvl=Math.max(S.pass.lvl,50); return 'Tide Pass set to level 50. Claim your rewards in the Tide Pass tab.'; }
-  if(k==='lvl'){ for(let i=0;i<10;i++){ try{ addXP(Math.max(1,xpNeed(S.lvl)-S.xp)); }catch(e){ S.lvl++; } } return 'Now level '+S.lvl+'.'; }
+  if(k==='lvl'){ for(let i=0;i<10;i++){ try{ addXP(Math.max(1,xpNeed(S.lvl)-S.xp)); }catch(e){ oops('z_stats:tester-lvl',e); S.lvl++; } } return 'Now level '+S.lvl+'.'; }
   if(k==='log'){ const now=Date.now(); for(const sp of SP){ if(!S.journal[sp.id]) S.journal[sp.id]={n:1,best:1,min:1,sh:false,pr:false,tr:false,bv:0,first:now}; } for(const j of JUNK) if(!S.junk[j.id]) S.junk[j.id]=1; try{ checkFeats(); }catch(e){ oops('z_stats:checkFeats',e); } return 'Every fish species and oddity is now in your Fish Log.'; }
-  if(k==='feats'){ let n=0; try{ for(const f of FEATS){ if(!S.feats[f.id]){ S.feats[f.id]=true; n++; } } }catch(e){ return 'Feats could not be finished: '+e.message; } return n+' feats finished (their rewards were not paid out).'; }
+  if(k==='feats'){ let n=0; try{ for(const f of FEATS){ if(!S.feats[f.id]){ S.feats[f.id]=true; n++; } } }catch(e){ oops('z_stats:tester-feats',e); return 'Feats could not be finished: '+e.message; } return n+' feats finished (their rewards were not paid out).'; }
   if(k==='cooler'){ const pool=SP.filter(s=>s.loc===S.loc); let n=0; while(S.cooler.length<gv('cooler')&&n<200){ const sp=pool[n%pool.length]; S.cooler.push({id:sp.id,kg:1,value:100,sh:0,tr:0}); n++; } return n+' fish added to your cooler.'; }
   if(k==='time'){ const h=8*3600e3; try{ S.tankT=(S.tankT||Date.now())-h; accrue(); }catch(e){ oops('z_stats:skip-aquarium',e); } try{ S.wheelT=(S.wheelT||Date.now())-h; accrueSpins(); }catch(e){ oops('z_stats:skip-spins',e); } return 'Skipped 8 hours: collect your aquarium and spins.'; }
   S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.pearls=(S.pearls||0)+20; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;

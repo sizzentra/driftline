@@ -79,7 +79,7 @@ const HDR_STATS=[
   ['caught','Fish caught',()=>fmt(S.stats.caught||0)+' caught'],
   ['earned','Coins earned',()=>fmt(S.stats.earned||0)+' earned'],
   ['played','Time played',()=>playTimeStr(S.stats.playS||0)]];
-function hdrStatText(){ const k=S.settings&&S.settings.hdrStat, e=HDR_STATS.find(x=>x[0]===k)||HDR_STATS[0]; try{ return e[2](); }catch(er){ return HDR_STATS[0][2](); } }
+function hdrStatText(){ const k=S.settings&&S.settings.hdrStat, e=HDR_STATS.find(x=>x[0]===k)||HDR_STATS[0]; try{ return e[2](); }catch(er){ oops('pc/br_pc05:hdrStatText',er); return HDR_STATS[0][2](); } }
 { const _rs=renderStats; renderStats=function(P){ _rs(P); try{ if(!P.classList.contains('st-on')) return; const cur=(S.settings&&S.settings.hdrStat)||'sales';
       const t=document.createElement('div'); t.className='st-pick';
       t.innerHTML=`<span class="st-pl">Shown on your header</span>${HDR_STATS.map(([k,n,f])=>{ let v=''; try{ v=f(); }catch(e){ oops('pc/br_pc05:f',e); } return `<button type="button" data-hs="${k}" aria-pressed="${k===cur}"><b>${n}</b><span>${esc(v)}</span></button>`; }).join('')}`;

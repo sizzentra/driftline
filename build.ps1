@@ -92,7 +92,27 @@ foreach ($f in (Get-ChildItem (Join-Path $root 'src') -Recurse -Include *.js,*.h
   $t = [IO.File]::ReadAllText($f.FullName)
   foreach ($m in $silentRe.Matches($t)) { $silent += "$($f.FullName.Substring($root.Length + 5)) line $(($t.Substring(0, $m.Index) -split "`n").Count): $($m.Value)" }
 }
-if ($silent.Count) { throw ("SILENT CATCH REFUSED: an error is caught and thrown away. Call oops('file:what', e) in the catch, or say why it stays quiet with /* quiet: reason */ (build.ps1, NO SILENT CATCH):`n  " + ($silent -join "`n  ")) }
+# Widened in F6 slice 5 (2026-11-27): a catch that falls back to a default value ("return ''", "x=null", "continue") hid the error just
+# as well (46 of them, qc 261). Every catch in the game's files must now report: call oops, or carry the quiet mark, or tell someone
+# itself (a toast, the transfer status line, a prompt, the console). The test file is left out: its catches are the tests' own logic.
+$tells = [regex]'\boops\(|/\*\s*quiet:|\bconsole\.(?:error|warn)\(|\btoast\(|\bxfStat\(|\bprompt\('
+$catchAt = [regex]'(?<=\})\s*catch\s*(?:\(\s*\w*\s*\))?\s*\{|\.catch\(\s*(?:function\b|\(?\s*\w*\s*\)?\s*=>)'
+foreach ($f in (Get-ChildItem (Join-Path $root 'src') -Recurse -Include *.js,*.html | Where-Object { $_.Name -ne 'bn_qa04.js' })) {
+  $t = [IO.File]::ReadAllText($f.FullName)
+  foreach ($m in $catchAt.Matches($t)) {
+    # the catch's own text: from its opening brace (or the bracket of ".catch(") to the one that closes it; text in quotes is skipped
+    $open = if ($m.Value.TrimStart().StartsWith('.')) { '(' } else { '{' }; $close = if ($open -eq '(') { ')' } else { '}' }
+    $i = if ($open -eq '(') { $m.Index + $m.Value.IndexOf('(') } else { $m.Index + $m.Length - 1 }; $d = 0; $j = $i; $q = [char]0
+    while ($j -lt $t.Length) { $c = $t[$j]
+      if ($q -ne [char]0) { if ($c -eq '\') { $j++ } elseif ($c -eq $q) { $q = [char]0 } }
+      elseif ($c -eq "'" -or $c -eq '"') { $q = $c }
+      elseif ($c -eq $open) { $d++ } elseif ($c -eq $close) { $d--; if ($d -eq 0) { break } }
+      $j++ }
+    $bodyTxt = $t.Substring($i, [Math]::Min($j, $t.Length - 1) - $i + 1)
+    if (-not $tells.IsMatch($bodyTxt)) { $short = if ($bodyTxt.Length -gt 90) { $bodyTxt.Substring(0, 90) + '...' } else { $bodyTxt }; $silent += "$($f.FullName.Substring($root.Length + 5)) line $(($t.Substring(0, $m.Index) -split "`n").Count): catch $short" }
+  }
+}
+if ($silent.Count) { throw ("SILENT CATCH REFUSED: an error is caught and thrown away, or only swapped for a default value. Call oops('file:what', e) in the catch, or say why it stays quiet with /* quiet: reason */ (build.ps1, NO SILENT CATCH):`n  " + ($silent -join "`n  ")) }
 
 # ---------- ENCODING GATE (Foundation F4, 2026-11-26) ----------
 # A script that reads a UTF-8 file as Windows-1252 and writes it back garbles every special character, and each later pass garbles it

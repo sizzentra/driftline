@@ -6,13 +6,13 @@
 // lost every time. Now an exit only counts as your choice if the game is still on screen a moment later; exits caused by leaving the
 // app keep "on". Coming back to the app (not only a fresh start) also turns full screen back on at your first tap.
 // =====================================================================
-{ let hiddenAt=0; const want=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ return false; } };
+{ let hiddenAt=0; const want=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ oops('mobile/fullscreen07:want',e); return false; } };
   const arm=()=>{ if(!want()||document.fullscreenElement||!document.documentElement.requestFullscreen) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&want()){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{ /* quiet: the browser may refuse full screen (no tap, a setting, a frame); the game plays the same without it */ }); }catch(e){ oops('mobile/fullscreen07:umentElement.requestFullscreen',e); } } }; ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); };
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) hiddenAt=performance.now(); else if(MOB()) setTimeout(arm,50); });
   document.addEventListener('fullscreenchange',()=>{ if(!MOB()||document.fullscreenElement) return; const t=performance.now();
     /* the shared listener has just saved "off"; if the app is being left, put "on" back */
     setTimeout(()=>{ if(document.hidden||hiddenAt>=t-50){ try{ localStorage.setItem('dl-fs','1'); }catch(e){ oops('mobile/fullscreen07:localStorage.setItem',e); } } },700); });
-  if(/[?&]test\b/.test(location.search)) window.__fsPref=()=>{ try{ return localStorage.getItem('dl-fs'); }catch(e){ return null; } }; }
+  if(/[?&]test\b/.test(location.search)) window.__fsPref=()=>{ try{ return localStorage.getItem('dl-fs'); }catch(e){ oops('mobile/fullscreen07:fsPref',e); return null; } }; }
 // Round 2 (director, 2026-11-18: "make full screen remember your choice when you close the app ... Android still doesn't know this is a game"):
 // the fix above put "on" back 0.7 s after an exit, but swiping the app away kills the page before that runs, so the "off" the shared
 // listener wrote on the way out stuck. Now on phones only the Full screen button (data-act="fullscreen") changes the saved choice:

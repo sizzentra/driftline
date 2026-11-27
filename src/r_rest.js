@@ -51,7 +51,7 @@ if(/[?&]test\b/.test(location.search)) window.__fightSim=(opts)=>{ const B=__bal
     while(t<90){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-1-Math.round(lag/dt))]; G.hold = name==='holder'?true:fishNew()?((o.run||(o.ev==='jump'&&G.jumpAway)||o.ev==='shake')?o.ten<thr*.55:o.ev==='dive'?(G.dive?G.ten<G.dive.zone:false):!(o.ten>thr||o.tmp>2.4)):!(o.ten>thr || o.run || o.ev || o.tmp>1.2); /* new fight: short pulls during a move, hold the dive band */ fight(dt); pk=Math.max(pk,G.ten); t+=dt; if(G.st!=='reeling') break; }
     if(G.st==='landing'){ caught++; ts+=t; } peak+=pk; }
    out.push(loc+' '+['C','U','R','E','L','M'][r]+' '+name+': '+Math.round(caught/N*100)+'% in '+(caught?(ts/caught).toFixed(1):'-')+'s peak '+Math.round(peak/N)); }
- }catch(e){ out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
+ }catch(e){ oops('r_rest:feelSim',e); out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
  return out; };
 /* Pet Nap (Rest path, batch 5, replaces Homebody with the decorations): while you rest, each pet with you gains a bond point every
    minute (the favourite two), up to 20 a day from napping. First version; the amount is tuned in the balance batch. */

@@ -44,7 +44,7 @@ if(/[?&]test\b/.test(location.search)) window.__hunt={toggleHunt, huntsAt, isHun
 // its real chance per catch. Undiscovered fish stay silhouettes: a hunt shows nothing the log did not already show.
 // ---------------------------------------------------------------------
 function huntLabel(s){ return S.journal[s.id]?s.name:RAR[s.r].k+' fish'+(s.time!=='any'?' ('+(s.time==='night'?'night':'day')+')':''); }
-function huntChance(s){ try{ const sh=catchOdds({loc:s.loc}).shares.find(([x])=>x.id===s.id); return sh?sh[1]:0; }catch(e){ return 0; } }
+function huntChance(s){ try{ const sh=catchOdds({loc:s.loc}).shares.find(([x])=>x.id===s.id); return sh?sh[1]:0; }catch(e){ oops('bl_hunts04:huntChance',e); return 0; } }
 let huntFlash=null;
 { const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ if(encLoc==='junk') return; const L=LOCS[locIdx(encLoc)]; if(!L) return; const open=S.unlocked.includes(L.id), hs=huntsAt(L.id), mode=S.settings.logShow||'all';
     // the "Hunting" filter

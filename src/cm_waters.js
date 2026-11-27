@@ -212,7 +212,7 @@ const isEgLoc = id => { const L=LOCS[locIdx(id)]; return !!(L&&L.eg); };
    water and stays open for good once paid for (S.egPaid). Waters a save already had open count as paid. */
 /* (function declarations: the name getters below can run while the page is still loading) */
 const egVoy = L => Math.max(1,(L.eg||0)-1); /* the voyages an end-game water needs: Animal Farm after the first voyage, one more for each after it (director, 2026-11-23: was one later) */
-function egCharted(L){ try{ return !!L && ((S.tides||0) >= egVoy(L) || S.unlocked.includes(L.id)); }catch(e){ return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
+function egCharted(L){ try{ return !!L && ((S.tides||0) >= egVoy(L) || S.unlocked.includes(L.id)); }catch(e){ oops('cm_waters:egCharted',e); return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
 const egCost = L => Math.max(1000, Math.round(30*bestNormalLoot()*(1+.15*((L.eg||2)-2))/1000)*1000); /* balance first version (the director and Cam decide): about 30 catches' worth at your best water */
 function egOpenAdd(st){ st=st||S; if(!st||!Array.isArray(st.unlocked)) return; if(!Array.isArray(st.egPaid)) st.egPaid=[];
   for(const Wd of WATER_EG){ if(st.unlocked.includes(Wd.id)&&!st.egPaid.includes(Wd.id)) st.egPaid.push(Wd.id); if(st.egPaid.includes(Wd.id)&&!st.unlocked.includes(Wd.id)) st.unlocked.push(Wd.id); } }

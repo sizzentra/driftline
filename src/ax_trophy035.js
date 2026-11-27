@@ -20,7 +20,7 @@ const VAULT_SORTS=[['rar','Rarest'],['kg','Heaviest'],['new','Newest'],['water',
 function vaultSorted(){ const V=vaultList().map((f,i)=>({f,i})), k=S.settings.vaultSort||'rar', sp=x=>SPI[x.f.id]||{r:0,name:'',loc:''};
   const by={rar:(a,b)=>sp(b).r-sp(a).r||(b.f.sh||0)-(a.f.sh||0)||b.f.kg-a.f.kg, kg:(a,b)=>b.f.kg-a.f.kg, new:(a,b)=>(b.f.kept||0)-(a.f.kept||0), water:(a,b)=>locIdx(sp(a).loc)-locIdx(sp(b).loc)||sp(b).r-sp(a).r||b.f.kg-a.f.kg};
   return V.sort(by[k]||by.rar); }
-function vaultDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return ''; } }
+function vaultDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); }catch(e){ oops('ax_trophy035:vaultDate',e); return ''; } }
 
 function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).size, total=SP.length, cool=S.cooler.length<gv('cooler'), k=S.settings.vaultSort||'rar';
   const plaques=vaultSorted().map(({f,i})=>{ const sp=SPI[f.id]; if(!sp) return ''; const L=LOCS[locIdx(sp.loc)], gold=sp.r>=4, sh=f.sh===2?'prism':f.sh?'shiny':'';

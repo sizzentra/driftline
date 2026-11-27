@@ -92,7 +92,7 @@ let rpLive=false; /* bz_rods06.js switches this on once the rod presets exist; s
 function save(){ deviceSave(); if(rpLive) rpSync(); S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){ oops('c_logic:localStorage.setItem#2',e); } try{ autoBackup(); }catch(e){ oops('c_logic:autoBackup',e); } /* at most every 5 minutes (d3_update.js) */
   if (cloudDoc){ clearTimeout(saveTimer); saveTimer = setTimeout(pushCloud, 2500); } }
 async function pushCloud(){ if(!cloudDoc) return; if(saving){ pendingSave=true; return; } saving=true;
-  try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
+  try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ oops('c_logic:pushCloud',e); if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
   saving=false; if(pendingSave){ pendingSave=false; pushCloud(); } }
 async function initCloud(){
   try{
@@ -103,7 +103,7 @@ async function initCloud(){
     const snap = await doc.get(); cloudDoc = doc;
     if(snap.exists){ const st = snap.data() && snap.data().state; if(st && (st.savedAt||0) > (S.savedAt||0) && G.st==='idle'){ S = migrate(JSON.parse(JSON.stringify(st))); offlineIncome(); try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){ oops('c_logic:localStorage.setItem#3',e); } refreshAll(); toast('Progress loaded from your account'); } }
     else if(S.savedAt) pushCloud();
-  }catch(e){ cloudDoc=null; }
+  }catch(e){ oops('c_logic:initCloud',e); cloudDoc=null; }
 }
 
 // ---------- helpers ----------
@@ -205,7 +205,7 @@ const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s)%60).padStart(2,'0');
 let AC=null, BUS=null;
 function ac(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)();
     BUS={master:AC.createGain(), sfx:AC.createGain(), music:AC.createGain(), amb:AC.createGain()}; BUS.master.connect(AC.destination); BUS.sfx.connect(BUS.master); BUS.music.connect(BUS.master); BUS.amb.connect(BUS.master); applyVolumes();
-  }catch(e){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
+  }catch(e){ oops('c_logic:AudioContext',e); return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
 function applyVolumes(){ if(!BUS) return; const s=S.settings, t=AC.currentTime; const set=(gn,v)=>{ gn.gain.cancelScheduledValues(t); gn.gain.setTargetAtTime(v,t,.08); };
   set(BUS.master,s.master); set(BUS.sfx,s.sfx); set(BUS.music,s.musicOn?s.music*.7:0); set(BUS.amb,s.ambient?s.amb*.6:0); }
 function tone(f,dur,type='sine',vol=.12,slide=0,delay=0){ if(!S.settings.sfx||!S.settings.master) return; const a=ac(); if(!a) return; const t=a.currentTime+delay; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g).connect(BUS.sfx); o.start(t); o.stop(t+dur+.02); }

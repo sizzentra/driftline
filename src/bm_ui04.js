@@ -149,7 +149,7 @@ const DW={
       `<div class="dwrow"><span class="meta"><b>${esc(r.name)}</b>${bs.length?' · '+bs.join(', '):''}</span></div><div class="dwrow"><span class="meta">Bait: <b>${esc(bt.name)}</b>${S.baitSel==='worm'?' (free)':' · '+S.bait[S.baitSel]+' left'}</span></div>
        <div class="dwacts"><button class="btn alt sm" data-act="dbait">Change bait</button><button class="btn alt sm" data-tabgo="rods">Rods</button></div>`}); }
 };
-function dashHTML(id){ try{ return DW[id](); }catch(e){ return ''; } }
+function dashHTML(id){ try{ return DW[id](); }catch(e){ oops('bm_ui04:dashHTML',e); return ''; } }
 // things waiting in pages the cards do not cover (feats, the pass, the boardwalk...)
 function dashWaiting(){ const skip=new Set(['cooler','bounties','aquarium','events']); const out=[];
   for(const s of MENU_SECS) for(const t of s.tabs){ if(skip.has(t)) continue; const n=menuDot(t); if(n) out.push(`<button class="dwpill" type="button" data-tabgo="${t}"><span aria-hidden="true">${menuTabLabel(t)[0]}</span>${esc(menuTabLabel(t)[1])}<b>${n>99?'99+':n}</b></button>`); }
@@ -1293,7 +1293,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
 {
   // Fog's tag says what it does: night fish come out by day (at night there is nothing extra to say)
-  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){ oops('bm_ui04:Object.defineProperty',e); } }
+  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ oops('bm_ui04:fog-tag',e); return 'night fish out by day'; } }}); }catch(e){ oops('bm_ui04:Object.defineProperty',e); } }
 // =====================================================================
 // Weather that fits the time of day (director, 2026-11-17: "no nighttime rainbows", "all weather needs to be time appropriate").
 // Rainbow and Gilded light happen only by day, Aurora and Blood Moon only at night; rain, storm, fog, the spawning run and clear

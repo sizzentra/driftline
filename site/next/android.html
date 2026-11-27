@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='android'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } try{ window.__tOff=/[?&](test|sweep|frozen)\b/.test(location.search)?0:(+(localStorage.getItem("dl-test-toff")||0)||0); }catch(e){ window.__tOff=0; } (function(){ var rn=Date.now.bind(Date); Date.now=function(){ return rn()+window.__tOff; }; })(); if(/[?&]frozen\b/.test(location.search)){ var __fz=20261122; Math.random=function(){ __fz|=0; __fz=__fz+0x6D2B79F5|0; var t=Math.imul(__fz^__fz>>>15,1|__fz); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; var __fc=0, __pn=performance.now.bind(performance); performance.now=function(){ __fc+=0.01; return 100000+__fc; }; Date.now=function(){ return 1795300000000+Math.floor(__fc); }; window.__frozenClock=function(){ return __fc; }; window.requestAnimationFrame=function(){ return 0; }; window.cancelAnimationFrame=function(){}; } window.DL_VERSION='2026.11.27-0228';
+window.DL_BUILD='android'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } try{ window.__tOff=/[?&](test|sweep|frozen)\b/.test(location.search)?0:(+(localStorage.getItem("dl-test-toff")||0)||0); }catch(e){ window.__tOff=0; } (function(){ var rn=Date.now.bind(Date); Date.now=function(){ return rn()+window.__tOff; }; })(); if(/[?&]frozen\b/.test(location.search)){ var __fz=20261122; Math.random=function(){ __fz|=0; __fz=__fz+0x6D2B79F5|0; var t=Math.imul(__fz^__fz>>>15,1|__fz); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; var __fc=0, __pn=performance.now.bind(performance); performance.now=function(){ __fc+=0.01; return 100000+__fc; }; Date.now=function(){ return 1795300000000+Math.floor(__fc); }; window.__frozenClock=function(){ return __fc; }; window.requestAnimationFrame=function(){ return 0; }; window.cancelAnimationFrame=function(){}; } window.DL_VERSION='2026.11.27-0313';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -1572,7 +1572,7 @@ const isEgLoc = id => { const L=LOCS[locIdx(id)]; return !!(L&&L.eg); };
    water and stays open for good once paid for (S.egPaid). Waters a save already had open count as paid. */
 /* (function declarations: the name getters below can run while the page is still loading) */
 const egVoy = L => Math.max(1,(L.eg||0)-1); /* the voyages an end-game water needs: Animal Farm after the first voyage, one more for each after it (director, 2026-11-23: was one later) */
-function egCharted(L){ try{ return !!L && ((S.tides||0) >= egVoy(L) || S.unlocked.includes(L.id)); }catch(e){ return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
+function egCharted(L){ try{ return !!L && ((S.tides||0) >= egVoy(L) || S.unlocked.includes(L.id)); }catch(e){ oops('cm_waters:egCharted',e); return false; } } /* a water you can already travel to is charted (director, 2026-11-22: open waters were still called Uncharted Waters after Unlock everything) */
 const egCost = L => Math.max(1000, Math.round(30*bestNormalLoot()*(1+.15*((L.eg||2)-2))/1000)*1000); /* balance first version (the director and Cam decide): about 30 catches' worth at your best water */
 function egOpenAdd(st){ st=st||S; if(!st||!Array.isArray(st.unlocked)) return; if(!Array.isArray(st.egPaid)) st.egPaid=[];
   for(const Wd of WATER_EG){ if(st.unlocked.includes(Wd.id)&&!st.egPaid.includes(Wd.id)) st.egPaid.push(Wd.id); if(st.egPaid.includes(Wd.id)&&!st.unlocked.includes(Wd.id)) st.unlocked.push(Wd.id); } }
@@ -1716,7 +1716,7 @@ let rpLive=false; /* bz_rods06.js switches this on once the rod presets exist; s
 function save(){ deviceSave(); if(rpLive) rpSync(); S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){ oops('c_logic:localStorage.setItem#2',e); } try{ autoBackup(); }catch(e){ oops('c_logic:autoBackup',e); } /* at most every 5 minutes (d3_update.js) */
   if (cloudDoc){ clearTimeout(saveTimer); saveTimer = setTimeout(pushCloud, 2500); } }
 async function pushCloud(){ if(!cloudDoc) return; if(saving){ pendingSave=true; return; } saving=true;
-  try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
+  try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ oops('c_logic:pushCloud',e); if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
   saving=false; if(pendingSave){ pendingSave=false; pushCloud(); } }
 async function initCloud(){
   try{
@@ -1727,7 +1727,7 @@ async function initCloud(){
     const snap = await doc.get(); cloudDoc = doc;
     if(snap.exists){ const st = snap.data() && snap.data().state; if(st && (st.savedAt||0) > (S.savedAt||0) && G.st==='idle'){ S = migrate(JSON.parse(JSON.stringify(st))); offlineIncome(); try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){ oops('c_logic:localStorage.setItem#3',e); } refreshAll(); toast('Progress loaded from your account'); } }
     else if(S.savedAt) pushCloud();
-  }catch(e){ cloudDoc=null; }
+  }catch(e){ oops('c_logic:initCloud',e); cloudDoc=null; }
 }
 
 // ---------- helpers ----------
@@ -1829,7 +1829,7 @@ const mmss = s => Math.floor(s/60)+':'+String(Math.max(0,s)%60).padStart(2,'0');
 let AC=null, BUS=null;
 function ac(){ if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)();
     BUS={master:AC.createGain(), sfx:AC.createGain(), music:AC.createGain(), amb:AC.createGain()}; BUS.master.connect(AC.destination); BUS.sfx.connect(BUS.master); BUS.music.connect(BUS.master); BUS.amb.connect(BUS.master); applyVolumes();
-  }catch(e){ return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
+  }catch(e){ oops('c_logic:AudioContext',e); return null; } } if(AC.state==='suspended') AC.resume(); return AC; }
 function applyVolumes(){ if(!BUS) return; const s=S.settings, t=AC.currentTime; const set=(gn,v)=>{ gn.gain.cancelScheduledValues(t); gn.gain.setTargetAtTime(v,t,.08); };
   set(BUS.master,s.master); set(BUS.sfx,s.sfx); set(BUS.music,s.musicOn?s.music*.7:0); set(BUS.amb,s.ambient?s.amb*.6:0); }
 function tone(f,dur,type='sine',vol=.12,slide=0,delay=0){ if(!S.settings.sfx||!S.settings.master) return; const a=ac(); if(!a) return; const t=a.currentTime+delay; const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,t); if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+dur); g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.connect(g).connect(BUS.sfx); o.start(t); o.stop(t+dur+.02); }
@@ -2413,7 +2413,7 @@ const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool
   SHORT_T:[3,6,10,15,20,30],        /* Cam: shortest landing time from the far edge by rank; a fish that still has fight never comes in faster */
   NOREEL:10, SNAP_HOLD:.325, /* Cam, 2026-11-23: 35% less grace at full tension (was .5 s) */ SW_AFTER:10, SW_TO:.5, RUN_T:[1.5,5], REST_T:[1,5] };
 // the switch: test builds only (Stats › Tester tools › Fishing: New / Old); read once, changed by the button
-let FISH_OLD = (()=>{ try{ return !!window.DL_PREVIEW && localStorage.getItem('dl-fish-old')==='1'; }catch(e){ return false; } })();
+let FISH_OLD = (()=>{ try{ return !!window.DL_PREVIEW && localStorage.getItem('dl-fish-old')==='1'; }catch(e){ oops('c2_fightfeel:FISH_OLD',e); return false; } })();
 const fishNew = () => FEATURE.fightFeel && !FISH_OLD; /* FEATURE.fightFeel off (b_data.js): every caller takes the earlier fight */
 function setFishOld(on){ FISH_OLD=!!on && !!window.DL_PREVIEW; try{ if(FISH_OLD) localStorage.setItem('dl-fish-old','1'); else localStorage.removeItem('dl-fish-old'); }catch(e){ oops('c2_fightfeel:localStorage.setItem',e); } }
 // =====================================================================
@@ -4116,14 +4116,14 @@ function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
-function hasBackup(){ try{ return !!localStorage.getItem(BACKUP_KEY); }catch(e){ return false; } }
+function hasBackup(){ try{ return !!localStorage.getItem(BACKUP_KEY); }catch(e){ oops('d3_update:hasBackup',e); return false; } }
 /* ---------- automatic backup on this device (batch 3, director 2026-11-21: "a backup copy on the device, refreshed automatically,
    restorable from Settings if the main save breaks; works offline"): a copy of the save at most every 5 minutes and whenever the app
    is hidden or closed. If progress suddenly drops (a reset, a broken save, a smaller save loaded in), the old copy is moved to a kept
    slot first, so a good backup is never overwritten by a worse one. ---------- */
 const AUTO_BK=LS_KEY+'-auto', AUTO_BK_KEEP=LS_KEY+'-auto-kept', AUTO_BK_MS=5*60*1000;
-const bkScore=s=>{ try{ return Object.keys((s&&s.journal)||{}).length+((s&&s.tides)||0)*100+((s&&s.lvl)||0); }catch(e){ return 0; } }; /* the Fish Log, voyages and level only grow in play */
-const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } };
+const bkScore=s=>{ try{ return Object.keys((s&&s.journal)||{}).length+((s&&s.tides)||0)*100+((s&&s.lvl)||0); }catch(e){ oops('d3_update:bkScore',e); return 0; } }; /* the Fish Log, voyages and level only grow in play */
+const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ oops('d3_update:bkRead-parse',e); return null; } };
 let autoBkAt=0, bkAsk=null;
 function autoBackup(now){ if(window.__dlUnreadable||!S) return; const t=Date.now(); if(!now&&t-autoBkAt<AUTO_BK_MS) return; autoBkAt=t;
   try{ const old=bkRead(AUTO_BK); if(old&&bkScore(S)<bkScore(old)*.5) localStorage.setItem(AUTO_BK_KEEP, JSON.stringify(old));
@@ -4820,7 +4820,7 @@ const xfCodeFmt = c => c.slice(0,3)+' '+c.slice(3);
 const xfTopic = code => XF_RELAY+XF_PREFIX+code;
 // the newest progress parcel in a code's mailbox (or null)
 async function xfLatest(code){ const r=await fetch(xfTopic(code)+'/json?poll=1&since=3h',{cache:'no-store'}); if(!r.ok) throw new Error('relay '+r.status);
-  const lines=(await r.text()).trim().split('\n').filter(Boolean).map(l=>{ try{ return JSON.parse(l); }catch(e){ return null; } }).filter(m=>m&&m.event==='message'&&m.attachment&&m.attachment.url);
+  const lines=(await r.text()).trim().split('\n').filter(Boolean).map(l=>{ try{ return JSON.parse(l); }catch(e){ oops('d9_link:transfer-line',e); return null; } }).filter(m=>m&&m.event==='message'&&m.attachment&&m.attachment.url);
   return lines.length ? lines[lines.length-1] : null; }
 async function xfSend(tries=0){ xfStop(); const run=XF.run; XF.mode='send'; XF.code=String(100000+Math.floor(Math.random()*900000)); xfStat('Getting your code ready…'); refreshXfer();
   try{
@@ -4856,7 +4856,7 @@ function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
 function refreshXfer(){ if(S.tab!=='save') return; renderPanel(); }
 async function paintLink(){ const box=$('qrbox'); if(!box||XF.mode!=="send"||!XF.ready) return;
   try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:SHARE_BASE+'#pair='+XF.code,width:300,height:300,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); qrState='ok'; }
-  catch(e){ box.remove(); qrState='fail'; } }
+  catch(e){ oops('d9_link:qr',e); box.remove(); qrState='fail'; } }
 actOn('xfsend redeem xfget xfgo xfcancel sharelink copylink maillink linkload linkkeep pet2 pet2off petedit', function(b){ switch(b.dataset.act){
     case 'xfsend': xfSend(); return 'skip';
     case 'redeem': { const i=$('giftin'); return redeemGift(i?i.value:''); }
@@ -5937,7 +5937,7 @@ function wx3BloodMoonDisc(mx,my,a){ const r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,
   g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
 function wx3Rainbow(hz){ const s=wx3sun(hz), R=H*.66; if(!s.up) return {cx:W*.62, cy:hz+H*.28, R};
   const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.12+.2*elev); return {cx, cy, R}; } /* map redo 2026-11-22: a little higher, so more of the arc clears the trees */
-function wx3k(){ try{ return weather().k; }catch(e){ return 'Clear'; } }
+function wx3k(){ try{ return weather().k; }catch(e){ oops('ap_weather033:wx3k',e); return 'Clear'; } }
 const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------
@@ -6116,7 +6116,7 @@ setTimeout(thumbNext,3000);
 // build or a changed home makes fresh ones, and old ones are cleared out
 const THUMB_DB={ready:null};
 const thumbSig = () => { const s=(window.DL_VERSION||'')+'|'+LOCS.map(L=>L.id).join(','); /* a new build or a new water list makes fresh pictures (homes are fixed: no choices to follow, 2026-11-25) */ let h=0; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))|0; return String(h>>>0); };
-function thumbDB(){ if(THUMB_DB.ready) return THUMB_DB.ready; return THUMB_DB.ready=new Promise(res=>{ try{ const r=indexedDB.open('dl-thumbs',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('t'); }catch(e){ oops('ar_ember033:result.createObjectStore',e); } }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ res(null); } }); }
+function thumbDB(){ if(THUMB_DB.ready) return THUMB_DB.ready; return THUMB_DB.ready=new Promise(res=>{ try{ const r=indexedDB.open('dl-thumbs',1); r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('t'); }catch(e){ oops('ar_ember033:result.createObjectStore',e); } }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ oops('ar_ember033:indexedDB.open',e); res(null); } }); }
 function thumbSave(id,url){ if(!url||!window.indexedDB) return; const k=thumbSig()+'|'+id; thumbDB().then(db=>{ if(!db) return; try{ db.transaction('t','readwrite').objectStore('t').put(url,k); }catch(e){ oops('ar_ember033:db.transaction',e); } }); }
 function thumbLoadAll(){ if(!window.indexedDB) return; const sig=thumbSig(); thumbDB().then(db=>{ if(!db) return; try{ const rq=db.transaction('t','readwrite').objectStore('t').openCursor();
   rq.onsuccess=()=>{ const c=rq.result; if(!c){ const P=document.getElementById('panel'); if(P&&S.tab==='map'&&MENU_OPEN) v3WaterThumbs(P); return; } const k=String(c.key); if(k.startsWith(sig+'|')){ const id=k.slice(sig.length+1); if(!V3THUMB[id]) V3THUMB[id]=c.value; } else c.delete(); c.continue(); }; }catch(e){ oops('ar_ember033:db.transaction#2',e); } }); }
@@ -6252,7 +6252,7 @@ function m34bell(){ if(!m34ambOK()) return; try{ const t=AC.currentTime+.05, out
 const _musicTick_034=musicTick;
 musicTick=function(){ _musicTick_034(); if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
   // rain on the water: a soft hiss that swells with the weather (heavier out on the deep sea)
-  if(!n.rain){ try{ n.rain=AC.createBufferSource(); n.rain.buffer=noiseBuf(3,false); n.rain.loop=true; const hp=AC.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900; const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=6500; n.raing=AC.createGain(); n.raing.gain.value=0; n.rain.connect(hp); hp.connect(lp); lp.connect(n.raing); n.raing.connect(BUS.amb); n.rain.start(); }catch(e){ n.rain=1; } }
+  if(!n.rain){ try{ n.rain=AC.createBufferSource(); n.rain.buffer=noiseBuf(3,false); n.rain.loop=true; const hp=AC.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900; const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=6500; n.raing=AC.createGain(); n.raing.gain.value=0; n.rain.connect(hp); hp.connect(lp); lp.connect(n.raing); n.raing.connect(BUS.amb); n.rain.start(); }catch(e){ oops('av_sea034:rain-sound',e); n.rain=1; } }
   if(n.raing){ const k=wx3k(), a=wx3A(), L=S.loc, sea=L==='deep'?1.5:['shelf','coast','reef','trench'].includes(L)?1.15:1; n.raing.gain.setTargetAtTime((k==='Storm'?.05:k==='Rain'?.028:0)*a*sea, now, 1.2); }
   if(S.settings.ambient&&S.loc==='shelf'&&Math.random()<.0055) m34bell(); };
 
@@ -9522,7 +9522,7 @@ function drawCreature3(c,sp,x,y,L,o={}){
 if(/[?&]test\b/.test(location.search)){
   // QC: render every species and find drawn parts that don't touch the rest (floating fins, stray lines)
   window.__fishParts=(opt={})=>{ const out=[], W2=420, H2=300, cv2=document.createElement('canvas'); cv2.width=W2; cv2.height=H2; const x=cv2.getContext('2d',{willReadFrequently:true});
-    for(const sp of (opt.ids?SP.filter(s=>opt.ids.includes(s.id)):SP)){ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W2,H2); try{ drawCreature3(x,sp,W2/2,H2/2,220,{t:0,still:1}); }catch(e){ out.push([sp.id,'ERR '+e.message]); continue; }
+    for(const sp of (opt.ids?SP.filter(s=>opt.ids.includes(s.id)):SP)){ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W2,H2); try{ drawCreature3(x,sp,W2/2,H2/2,220,{t:0,still:1}); }catch(e){ oops('i_fish:fishParts',e); out.push([sp.id,'ERR '+e.message]); continue; }
       const d=x.getImageData(0,0,W2,H2).data, lab=new Int32Array(W2*H2), sizes=[]; let n=0;
       for(let i=0;i<W2*H2;i++){ if(d[i*4+3]<opt.th||lab[i]) continue; if(d[i*4+3]<(opt.th||60)) continue; n++; let sz=0; const st=[i]; lab[i]=n;
         while(st.length){ const p=st.pop(); sz++; const px=p%W2, py=(p-px)/W2; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const qx=px+dx, qy=py+dy; if(qx<0||qy<0||qx>=W2||qy>=H2) continue; const q=qy*W2+qx; if(!lab[q]&&d[q*4+3]>=(opt.th||60)){ lab[q]=n; st.push(q); } } }
@@ -10878,7 +10878,7 @@ if(/[?&]test\b/.test(location.search)) window.__fightSim=(opts)=>{ const B=__bal
     while(t<90){ hist.push({ten:G.ten,run:G.run,ev:G.ev,tmp:G.temper}); const o=hist[Math.max(0,hist.length-1-Math.round(lag/dt))]; G.hold = name==='holder'?true:fishNew()?((o.run||(o.ev==='jump'&&G.jumpAway)||o.ev==='shake')?o.ten<thr*.55:o.ev==='dive'?(G.dive?G.ten<G.dive.zone:false):!(o.ten>thr||o.tmp>2.4)):!(o.ten>thr || o.run || o.ev || o.tmp>1.2); /* new fight: short pulls during a move, hold the dive band */ fight(dt); pk=Math.max(pk,G.ten); t+=dt; if(G.st!=='reeling') break; }
     if(G.st==='landing'){ caught++; ts+=t; } peak+=pk; }
    out.push(loc+' '+['C','U','R','E','L','M'][r]+' '+name+': '+Math.round(caught/N*100)+'% in '+(caught?(ts/caught).toFixed(1):'-')+'s peak '+Math.round(peak/N)); }
- }catch(e){ out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
+ }catch(e){ oops('r_rest:feelSim',e); out.push(String(e.stack).slice(0,300)); } finally { window.save=os; const o=JSON.parse(snap); for(const k of Object.keys(S)) delete S[k]; Object.assign(S,o); for(const k in gsnap) G[k]=gsnap[k]; G.st='idle'; G.fish=null; }
  return out; };
 /* Pet Nap (Rest path, batch 5, replaces Homebody with the decorations): while you rest, each pet with you gains a bond point every
    minute (the favourite two), up to 20 a day from napping. First version; the amount is tuned in the balance batch. */
@@ -11352,7 +11352,7 @@ function testerErrs(){ const L=oopsList().map(r=>r.where+' ×'+r.n+(r.msg?': '+r
 /* Tester tools › Time and weather (director, 2026-11-22: "I can't control the weather on the tester tools"): the test build's clock is
    moved forward to the nearest moment with that time of day or weather (kept across reloads; check pages ignore it), so the scene,
    its light and its fish all follow as in the game. Back to the real clock with Real time. */
-function testerNow(){ try{ const p=phase(), n=p>=.95||p<.05?'dawn':p<.45?'day':p<.55?'dusk':'night'; return n+' · '+weather().k; }catch(e){ return ''; } }
+function testerNow(){ try{ const p=phase(), n=p>=.95||p<.05?'dawn':p<.45?'day':p<.55?'dusk':'night'; return n+' · '+weather().k; }catch(e){ oops('z_stats:testerNow',e); return ''; } }
 function testerClock(k){ const keep=()=>{ try{ localStorage.setItem('dl-test-toff',String(window.__tOff||0)); }catch(e){ oops('z_stats:localStorage.setItem',e); } };
   if(k==='tod:real'){ window.__tOff=0; keep(); return 'Back to the real clock: '+testerNow()+'.'; }
   const ph=()=>(Date.now()/1000%CYCLE)/CYCLE, near=(a,b,d)=>{ const x=Math.abs(a-b); return Math.min(x,1-x)<=d; }, base=window.__tOff||0, raw=()=>weatherAt(Math.floor(Date.now()/1000/WX_LEN)).k;
@@ -11367,9 +11367,9 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; if(k.startsWith('tod:')
   if(k==='coins'){ S.money+=1e9; return 'One billion coins added.'; } if(k==='scales'){ S.scales+=1e4; S.tickets+=1e4; return 'Scales and tickets added.'; }
   if(k==='pearls'){ S.pearls=(S.pearls||0)+20; return '20 Wisdom Pearls added: spend them in Prestige, Pearl relics.'; }
   if(k==='pass'){ S.pass.lvl=Math.max(S.pass.lvl,50); return 'Tide Pass set to level 50. Claim your rewards in the Tide Pass tab.'; }
-  if(k==='lvl'){ for(let i=0;i<10;i++){ try{ addXP(Math.max(1,xpNeed(S.lvl)-S.xp)); }catch(e){ S.lvl++; } } return 'Now level '+S.lvl+'.'; }
+  if(k==='lvl'){ for(let i=0;i<10;i++){ try{ addXP(Math.max(1,xpNeed(S.lvl)-S.xp)); }catch(e){ oops('z_stats:tester-lvl',e); S.lvl++; } } return 'Now level '+S.lvl+'.'; }
   if(k==='log'){ const now=Date.now(); for(const sp of SP){ if(!S.journal[sp.id]) S.journal[sp.id]={n:1,best:1,min:1,sh:false,pr:false,tr:false,bv:0,first:now}; } for(const j of JUNK) if(!S.junk[j.id]) S.junk[j.id]=1; try{ checkFeats(); }catch(e){ oops('z_stats:checkFeats',e); } return 'Every fish species and oddity is now in your Fish Log.'; }
-  if(k==='feats'){ let n=0; try{ for(const f of FEATS){ if(!S.feats[f.id]){ S.feats[f.id]=true; n++; } } }catch(e){ return 'Feats could not be finished: '+e.message; } return n+' feats finished (their rewards were not paid out).'; }
+  if(k==='feats'){ let n=0; try{ for(const f of FEATS){ if(!S.feats[f.id]){ S.feats[f.id]=true; n++; } } }catch(e){ oops('z_stats:tester-feats',e); return 'Feats could not be finished: '+e.message; } return n+' feats finished (their rewards were not paid out).'; }
   if(k==='cooler'){ const pool=SP.filter(s=>s.loc===S.loc); let n=0; while(S.cooler.length<gv('cooler')&&n<200){ const sp=pool[n%pool.length]; S.cooler.push({id:sp.id,kg:1,value:100,sh:0,tr:0}); n++; } return n+' fish added to your cooler.'; }
   if(k==='time'){ const h=8*3600e3; try{ S.tankT=(S.tankT||Date.now())-h; accrue(); }catch(e){ oops('z_stats:skip-aquarium',e); } try{ S.wheelT=(S.wheelT||Date.now())-h; accrueSpins(); }catch(e){ oops('z_stats:skip-spins',e); } return 'Skipped 8 hours: collect your aquarium and spins.'; }
   S.money+=1e9; S.scales+=1e4; S.tickets+=1e4; S.pearls=(S.pearls||0)+20; S.unlocked=LOCS.map(l=>l.id); for(const g in GEAR) S.gear[g]=GEAR[g].lv.length-1;
@@ -11431,7 +11431,7 @@ if(/[?&]test\b/.test(location.search)) window.__landSplit=(n=5)=>{ const L=LOCS.
   let a=0,b=0; for(let i=0;i<n;i++){ let t0=performance.now(); V3SCENES[L.id].land(noop,P,hz,real); a+=performance.now()-t0; t0=performance.now(); V3SCENES[L.id].land(rx,P,hz,real); b+=performance.now()-t0; }
   return {jsOnly:+(a/n).toFixed(1), full:+(b/n).toFixed(1)}; };
 // test-only: time named functions across many frames; reports the worst single call of each
-if(/[?&]test\b/.test(location.search)) window.__timeFns=(names,run)=>{ const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); T[k]=0; eval(k+'=function(){ const t0=performance.now(); const r=orig["'+k+'"].apply(this,arguments); const d=performance.now()-t0; if(d>T["'+k+'"]) T["'+k+'"]=d; return r; }'); }catch(e){ T[k]='n/a'; } } try{ run(); } finally { for(const k in orig) eval(k+'=orig["'+k+'"]'); } const o={}; for(const k in T) o[k]=typeof T[k]==='number'?+T[k].toFixed(1):T[k]; return o; };
+if(/[?&]test\b/.test(location.search)) window.__timeFns=(names,run)=>{ const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); T[k]=0; eval(k+'=function(){ const t0=performance.now(); const r=orig["'+k+'"].apply(this,arguments); const d=performance.now()-t0; if(d>T["'+k+'"]) T["'+k+'"]=d; return r; }'); }catch(e){ oops('af_smooth:time-eval',e); T[k]='n/a'; } } try{ run(); } finally { for(const k in orig) eval(k+'=orig["'+k+'"]'); } const o={}; for(const k in T) o[k]=typeof T[k]==='number'?+T[k].toFixed(1):T[k]; return o; };
 // =====================================================================
 // 0.3.1 sort and filter for the decoration shops (aquarium and Home).
 // A small bar above the aquarium's decorations: sort by price, name or bonus, show all / owned / for sale,
@@ -11613,7 +11613,7 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
 // ---------- what a fish would earn in the aquarium: on the catch card and on the To aquarium button ----------
 // what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
 function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
-function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
+function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ oops('au_fix034:aqIncomeTxt',e); return ''; } }
 const _showCard_034 = showCard;
 showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
@@ -11726,7 +11726,7 @@ function menuBadges(){ const T=$('tabs'); if(!T) return;
   T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.secdot'); if(n){ const txt=n>99?'99+':String(n); if(d.textContent!==txt) d.textContent=txt; d.hidden=false; } else d.hidden=true; });
   T.querySelectorAll('.subp').forEach(p=>{ const n=menuDot(p.dataset.sub), d=p.querySelector('.subdot'); if(n){ d.textContent=n>99?'99+':String(n); d.hidden=false; } else d.hidden=true; }); }
 // after picking a section, make sure its page is in view (on phones the section row is docked at the bottom)
-function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) return; const r=sb.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*.6){ try{ sb.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ sb.scrollIntoView(); } } }
+function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) return; const r=sb.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*.6){ try{ sb.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ oops('aw_menu035:scrollIntoView',e); sb.scrollIntoView(); } } }
 
 // keep both rows in step with whatever opened a page (tab links, the gear button, saves loading, events)
 panelStep({ after(){ try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){ oops('aw_menu035:menuSync',e); } } });
@@ -11885,7 +11885,7 @@ const VAULT_SORTS=[['rar','Rarest'],['kg','Heaviest'],['new','Newest'],['water',
 function vaultSorted(){ const V=vaultList().map((f,i)=>({f,i})), k=S.settings.vaultSort||'rar', sp=x=>SPI[x.f.id]||{r:0,name:'',loc:''};
   const by={rar:(a,b)=>sp(b).r-sp(a).r||(b.f.sh||0)-(a.f.sh||0)||b.f.kg-a.f.kg, kg:(a,b)=>b.f.kg-a.f.kg, new:(a,b)=>(b.f.kept||0)-(a.f.kept||0), water:(a,b)=>locIdx(sp(a).loc)-locIdx(sp(b).loc)||sp(b).r-sp(a).r||b.f.kg-a.f.kg};
   return V.sort(by[k]||by.rar); }
-function vaultDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return ''; } }
+function vaultDate(t){ if(!t) return ''; try{ return new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}); }catch(e){ oops('ax_trophy035:vaultDate',e); return ''; } }
 
 function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).size, total=SP.length, cool=S.cooler.length<gv('cooler'), k=S.settings.vaultSort||'rar';
   const plaques=vaultSorted().map(({f,i})=>{ const sp=SPI[f.id]; if(!sp) return ''; const L=LOCS[locIdx(sp.loc)], gold=sp.r>=4, sh=f.sh===2?'prism':f.sh?'shiny':'';
@@ -12155,7 +12155,7 @@ HAT036.astro=function(c){ c.save(); const sh=(a,b)=>hat036Grad(c,-10,-10,8,10,[a
   c.fillStyle='#c8d0d8'; c.beginPath(); c.arc(-3.4,1,2.6,0,7); c.fill(); c.fillStyle='#8a949e'; c.beginPath(); c.arc(-3.4,1,1.2,0,7); c.fill(); c.fillStyle='#e8303a'; c.beginPath(); c.arc(-8.4,-4.6,.9,0,7); c.fill(); c.restore(); };
 const _drawHat_036=drawHat;
 drawHat=function(c,id,col,t=0){ const f=HAT036[id]; if(!f||(typeof HAT_TRIM_OFF!=='undefined'&&HAT_TRIM_OFF)) return _drawHat_036(c,id,col,t);
-  c.save(); c.lineCap='round'; c.lineJoin='round'; try{ f(c,col,t); }catch(e){ c.restore(); return _drawHat_036(c,id,col,t); } c.restore(); };
+  c.save(); c.lineCap='round'; c.lineJoin='round'; try{ f(c,col,t); }catch(e){ oops('bg_angler036:drawHat',e); c.restore(); return _drawHat_036(c,id,col,t); } c.restore(); };
 // QC (test mode only): every wearable, pet, decoration and junk id, read from the game's own lists
 if(/[?&]test\b/.test(location.search)) window.__lists=()=>{ const id=x=>Array.isArray(x)?x[0]:(x&&x.id); const L={hats:HATS,outfits:OUTFITS,glasses:GLASSES,shoes:SHOES,necks:NECKS,backs:BACKS,beards:BEARDS,pets:PETS,decor:DECOR,junk:JUNK};
   const o={}; for(const k in L) o[k]=L[k].map(id).filter(Boolean); return o; };
@@ -13137,7 +13137,7 @@ if(/[?&]test\b/.test(location.search)) window.__hunt={toggleHunt, huntsAt, isHun
 // its real chance per catch. Undiscovered fish stay silhouettes: a hunt shows nothing the log did not already show.
 // ---------------------------------------------------------------------
 function huntLabel(s){ return S.journal[s.id]?s.name:RAR[s.r].k+' fish'+(s.time!=='any'?' ('+(s.time==='night'?'night':'day')+')':''); }
-function huntChance(s){ try{ const sh=catchOdds({loc:s.loc}).shares.find(([x])=>x.id===s.id); return sh?sh[1]:0; }catch(e){ return 0; } }
+function huntChance(s){ try{ const sh=catchOdds({loc:s.loc}).shares.find(([x])=>x.id===s.id); return sh?sh[1]:0; }catch(e){ oops('bl_hunts04:huntChance',e); return 0; } }
 let huntFlash=null;
 { const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ if(encLoc==='junk') return; const L=LOCS[locIdx(encLoc)]; if(!L) return; const open=S.unlocked.includes(L.id), hs=huntsAt(L.id), mode=S.settings.logShow||'all';
     // the "Hunting" filter
@@ -13206,7 +13206,7 @@ const ACT_OK=(()=>{ const has=(arr,k)=>arr.some(x=>(Array.isArray(x)?x[0]:x&&x.i
     aqtheme:k=>has(THEMES,k), aqsand:k=>has(SANDS,k), decor:k=>!!DECORI[k],
     buypet:k=>!!PETI[k], pet:k=>!!PETI[k], usebait:k=>!!BAIT[k], buybait:k=>!!BAIT[k], perk:k=>!!PERKS[k] }; })();
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; const f=ACT_OK[b.dataset.act]; if(!f) return;
-  let ok=false; try{ ok=!!f(b.dataset.k, b.dataset.i!=null&&b.dataset.i!==''?+b.dataset.i:NaN); }catch(er){ ok=false; }
+  let ok=false; try{ ok=!!f(b.dataset.k, b.dataset.i!=null&&b.dataset.i!==''?+b.dataset.i:NaN); }catch(er){ oops('bo_guard04:ACT_OK',er); ok=false; }
   if(!ok){ e.stopImmediatePropagation(); e.preventDefault(); try{ renderPanel(); }catch(er){ oops('bo_guard04:renderPanel',er); } } },true);
 // ---- an option you pick stays where it was (C13, Cam, 2026-11-20: "the customization menu never snaps or moves when an option is
 // picked"; __snapQC found it on phones (23-66 px) and PC (back to the top) in the Wardrobe, Your home, pets, Settings and the aquarium).
@@ -13378,7 +13378,7 @@ const DW={
       `<div class="dwrow"><span class="meta"><b>${esc(r.name)}</b>${bs.length?' · '+bs.join(', '):''}</span></div><div class="dwrow"><span class="meta">Bait: <b>${esc(bt.name)}</b>${S.baitSel==='worm'?' (free)':' · '+S.bait[S.baitSel]+' left'}</span></div>
        <div class="dwacts"><button class="btn alt sm" data-act="dbait">Change bait</button><button class="btn alt sm" data-tabgo="rods">Rods</button></div>`}); }
 };
-function dashHTML(id){ try{ return DW[id](); }catch(e){ return ''; } }
+function dashHTML(id){ try{ return DW[id](); }catch(e){ oops('bm_ui04:dashHTML',e); return ''; } }
 // things waiting in pages the cards do not cover (feats, the pass, the boardwalk...)
 function dashWaiting(){ const skip=new Set(['cooler','bounties','aquarium','events']); const out=[];
   for(const s of MENU_SECS) for(const t of s.tabs){ if(skip.has(t)) continue; const n=menuDot(t); if(n) out.push(`<button class="dwpill" type="button" data-tabgo="${t}"><span aria-hidden="true">${menuTabLabel(t)[0]}</span>${esc(menuTabLabel(t)[1])}<b>${n>99?'99+':n}</b></button>`); }
@@ -14674,7 +14674,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
 {
   // Fog's tag says what it does: night fish come out by day (at night there is nothing extra to say)
-  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){ oops('bm_ui04:Object.defineProperty',e); } }
+  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ oops('bm_ui04:fog-tag',e); return 'night fish out by day'; } }}); }catch(e){ oops('bm_ui04:Object.defineProperty',e); } }
 // =====================================================================
 // Weather that fits the time of day (director, 2026-11-17: "no nighttime rainbows", "all weather needs to be time appropriate").
 // Rainbow and Gilded light happen only by day, Aurora and Blood Moon only at night; rain, storm, fog, the spawning run and clear
@@ -14875,7 +14875,7 @@ document.head.insertAdjacentHTML('beforeend','<style>@container (min-width:560px
 var FEAT_CATS_REF; // set by the Feats page code (bm_ui04.js)
 const FEAT_CAT_BONUS={'Catching':['bite',.05],'Collection':['sell',.05],'Legends & myths':['rare',.05],'Pets':['trophy',.05],'Waters':['xp',.05],'Aquarium & home':['tank',.1],'Style':['shiny',.05],'Gear':['reel',.05],'Boardwalk & events':['treasure',.1],'Progress':['xp',.05]};
 let featBonusCache={n:-1,v:{}};
-function featCatDone(cat){ try{ if(!FEAT_CATS_REF||!S.feats) return false; const ids=cat==='Waters'?FEATS.filter(f=>/^Master of /.test(f.name)).map(f=>f.id):((FEAT_CATS_REF.find(c=>c[0]===cat)||[])[1]||[]).filter(id=>FEATS.some(f=>f.id===id)); return ids.length>0&&ids.every(id=>S.feats[id]); }catch(e){ return false; } }
+function featCatDone(cat){ try{ if(!FEAT_CATS_REF||!S.feats) return false; const ids=cat==='Waters'?FEATS.filter(f=>/^Master of /.test(f.name)).map(f=>f.id):((FEAT_CATS_REF.find(c=>c[0]===cat)||[])[1]||[]).filter(id=>FEATS.some(f=>f.id===id)); return ids.length>0&&ids.every(id=>S.feats[id]); }catch(e){ oops('bs_rules05:featCatDone',e); return false; } }
 function featCatBonus(k){ const n=S.feats?Object.keys(S.feats).length:0; if(featBonusCache.n!==n){ const v={}; for(const cat in FEAT_CAT_BONUS) if(featCatDone(cat)){ const [bk,x]=FEAT_CAT_BONUS[cat]; v[bk]=(v[bk]||0)+x; } featBonusCache={n,v}; } return featBonusCache.v[k]||0; }
 function featBonusText(cat){ const b=FEAT_CAT_BONUS[cat]; if(!b) return ''; const n=BK[b[0]]||b[0]; return '+'+Math.round(b[1]*100)+'% '+n+' forever'; }
 { const _b=bonus; bonus=function(k){ return _b(k)+featCatBonus(k); }; }
@@ -15319,7 +15319,7 @@ function riverWheel(P,t,hz,mx,mb,mw,mh,FX){ const R=mh*.62, xL=mx-mw/2, cx=xL-R*
 /* 4) Tinted pets: a canvas color filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
    once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
 { const _dp=drawPetStyled; let PC=null;
-  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
+  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ oops('cd_efficiency:pet-tint',e); return _dp.apply(this,arguments); }
     if(!f||f==='none') return _dp.apply(this,arguments);
     const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
     const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);
@@ -15773,7 +15773,7 @@ const BW_JACK=.04, CHEST_COST=120;
 let gamble=null, chest=null, bwJackLock=false;
 const bwCoinWin = mul => bwEarn(Math.round(bestLoot()*mul*coinMult()*pathMul('bwcoin')));
 // coin jackpots on top of ticket wins at the Boardwalk
-{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){ oops('ci_boardwalk:sfx.catch',e); } bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
+{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){ oops('ci_boardwalk:sfx.catch',e); } bwJackLock=false; },400); } }catch(e){ oops('ci_boardwalk:coin-jackpot',e); bwJackLock=false; } return r; }; }
 // Fishmonger's Gamble
 const GAMBLE=[[.5,0,'The Fishmonger keeps it.'],[.35,1.8,'×1.8!'],[.12,3,'×3!'],[.03,8,'JACKPOT ×8!']];
 function gambleList(){ return S.cooler.map((f,i)=>({f,i,p:salePrice(f)})).filter(x=>SPI[x.f.id]&&x.p>0).sort((a,b)=>b.p-a.p).slice(0,4); }
@@ -19151,11 +19151,11 @@ var A3NAT=false;
 // =====================================================================
 const onPC = () => window.DL_BUILD==='pc';
 /* the live event as a goal (a Live chip on phones, the goal chip on PC, the Live line in Quests); null when nothing is on */
-function liveNow(){ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ return null; } } /* where things live differs: PC has one header row, phones a top bar and a side panel */
+function liveNow(){ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ oops('cw_pages08:liveNow-goal',e); return null; } } /* where things live differs: PC has one header row, phones a top bar and a side panel */
 /* QUESTS (moved from mobile/quests08.js) */
   try{ PAGE_DESC.quests='Your goals, short lessons, where to find everything, and help'; }catch(e){ oops('cw_pages08:PAGE_DESC.quests',e); }
   try{ SEARCH_IDX.unshift(['Quests: goals','quests','Goals','goal next objective quest what to do journey'],['Quests: learn','quests','Learn','tutorial lesson how to learn guide help basics'],['Quests: find anything','quests','Find','where find directions map menu'],['Quests: help','quests','Help','help faq question problem stuck']); }catch(e){ oops('cw_pages08:SEARCH_IDX.unshift',e); }
-const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
+const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ oops('cw_pages08:goal',e2); return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
   read:()=>{ const s=S.settings; if(!Array.isArray(s.q8read)) s.q8read=[]; return s.q8read; } };
 /* the lessons: [id, group, title, one line, body, go] (go = [tab, section] for Take me there) */
 const Q8_LESSONS=[
@@ -19199,7 +19199,7 @@ const Q8_LESSONS=[
 /* where everything lives on a phone: [place, label, tab, section] */
 /* each device's own words, written once: Tap or Click; PC has one header row where phones have a top bar and a side panel */
 const q8dev = s => { if(typeof s!=='string') return s; const T=PLAT.touch(); s=s.replace(/\bTap\b/g,T?'Tap':'Click').replace(/\btap\b/g,T?'tap':'click'); if(onPC()) s=s.replace(/top bar/g,'header').replace(/side panel/gi,'header').replace(/the ring around (it|the fish)/g,'the line bar').replace(/keep the ring inside/g,'keep the line inside').replace(/The ring is your line/g,'The line bar shows the strain'); return s; };
-const Q8_FIND=()=>{ const TB=onPC()?'Header':'Top bar', SPN=onPC()?'Header · ':'Side panel · ', out=[], lbl=t=>{ try{ return menuTabLabel(t)[1]; }catch(e){ return t; } };
+const Q8_FIND=()=>{ const TB=onPC()?'Header':'Top bar', SPN=onPC()?'Header · ':'Side panel · ', out=[], lbl=t=>{ try{ return menuTabLabel(t)[1]; }catch(e){ oops('cw_pages08:find-label',e); return t; } };
   out.push([TB,'Cooler','cooler',null],[TB,'Aquarium','aquarium',null],[TB,'Fish Log','journal',null],[TB,'Bait: switch, buy, special lures','bait',null],[TB,'Tasks (daily, weekly, bounties)','bounties',null],[(onPC()?'Header · settings button':'Top bar · settings button'),'Settings','settings',null],[(onPC()?'Header · settings button':'Top bar · settings button'),'Save and save codes','save',null]);
   for(const s of MENU_SECS){ if(s.id==='quests') continue; for(const t of s.tabs) out.push([SPN+s.short,lbl(t),t,null]); }
   out.push([SPN+'Prestige','Set sail again','prestige','Set sail again'],[SPN+'Prestige','Pearl relics','prestige','Pearl relics']);
@@ -19384,7 +19384,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
   const num=(t,re,i=1)=>{ const m=String(t||'').match(re); return m?m[i]:null; };
   const txt=e=>e?(e.textContent||'').replace(/\s+/g,' ').trim():'';
   const enabled=P=>sel=>[...P.querySelectorAll(sel)].filter(b=>!b.disabled).length;
-  const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ return ''; } };
+  const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ oops('cx_pages:locName',e); return ''; } };
   // per page: summary cells [label, value], the main actions (moved into the strip), and sections for long pages without any
   const CFG={
     cooler:{ cells:(P,hd)=>{ const t=txt(hd); const m=t.match(/([\d,]+) of ([\d,]+) slots/), bo=t.match(/\+([\d,]+)% to every sale/); return [['In your cooler',m?m[1]+' / '+m[2]:S.cooler.length+' / '+gv('cooler')],bo?['Sale bonus','+'+bo[1]+'%']:null]; },
@@ -19404,7 +19404,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
         return [{name:'Daily tasks',nodes:d?[d]:[],badge:d?ready([d]):0},{name:'Weekly quests',nodes:w?[w]:[],badge:w?ready([w]):0},{name:'Bounties',nodes:rest,badge:ready(rest)}]; } },
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; }, acts:P=>[P.querySelector('[data-act="passclaim"]')] }, /* Cam, 2026-11-20: the claim button went with the header box, so Tide Pass rewards could not be claimed on phones */
     feats:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Feats done',(num(t,/(\d+) of (\d+) done/)||'0')+' / '+(num(t,/(\d+) of (\d+) done/,2)||'?')]]; } },
-    events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
+    events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ oops('cx_pages:wx3k',e); return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
       groups:K=>{ const cal=K.filter(c=>c.classList.contains('ev-cal')||c.classList.contains('wxf')); const hs=K.filter(c=>c.tagName==='H3'); const out=[{name:'Calendar',nodes:cal}];
         hs.forEach((hh,i)=>{ const a=K.indexOf(hh), b=i+1<hs.length?K.indexOf(hs[i+1]):K.length; out.push({name:txt(hh).replace(/^Fishing\s+/,'')||('Part '+(i+1)),nodes:K.slice(a,b)}); });
         const used=new Set(out.flatMap(g=>g.nodes)); const left=K.filter(c=>!used.has(c)); if(left.length) out[0].nodes=out[0].nodes.concat(left); return out; } },
@@ -19466,10 +19466,10 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
 /* test builds: window.__menuMap() lists what a player can reach: the sections and their pages, every page's name, and every page's tabs.
    The sweep runs it on PC and on a phone and compares the two (PC Reborn rule: PC never falls behind the phones again). */
 if(/[?&]test\b/.test(location.search)) window.__menuMap=async()=>{ const w=ms=>new Promise(r=>setTimeout(r,ms)), clean=s=>String(s||'').replace(/\s*·\s*\d.*$/,'').replace(/\s+\d+$/,'').trim();
-  const label=t=>{ try{ return (menuTabLabel(t)||[])[1]||t; }catch(e){ return t; } };
+  const label=t=>{ try{ return (menuTabLabel(t)||[])[1]||t; }catch(e){ oops('cx_pages:qc-label',e); return t; } };
   const pages=new Set(['cooler','aquarium','journal','bait','stats','settings']); for(const s of MENU_SECS) for(const t of s.tabs) pages.add(t);
   const out={secs:MENU_SECS.map(s=>({id:s.id, name:s.short||s.name, tabs:s.tabs.slice()})), labels:{}, tabs:{}};
-  for(const t of pages){ out.labels[t]=label(t); try{ openMenu(t); }catch(e){ continue; } await w(220); const P=$('panel'); if(!P||S.tab!==t) continue;
+  for(const t of pages){ out.labels[t]=label(t); try{ openMenu(t); }catch(e){ oops('cx_pages:qc-openMenu',e); continue; } await w(220); const P=$('panel'); if(!P||S.tab!==t) continue;
     out.tabs[t]=[...P.querySelectorAll('.sect-nav > button')].map(b=>clean(b.dataset.sect||b.textContent)).filter(Boolean); }
   try{ closeMenu(); }catch(e){ oops('cx_pages:closeMenu',e); } return out; };
 /* Rod presets on every platform (Cam, round 5: "What happened to having 3 presets in Your Rods?": PC lost them when its Rods page moved to the shared page engine; this block lived only in the phone layer). The box goes right after the first node of the "Your rods" tab and is shown and hidden with it. */
@@ -20241,13 +20241,13 @@ html body.phone-app #panel .mb-shnote,html body.phone-land #panel .mb-shnote{fon
 // lost every time. Now an exit only counts as your choice if the game is still on screen a moment later; exits caused by leaving the
 // app keep "on". Coming back to the app (not only a fresh start) also turns full screen back on at your first tap.
 // =====================================================================
-{ let hiddenAt=0; const want=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ return false; } };
+{ let hiddenAt=0; const want=()=>{ try{ return localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ oops('mobile/fullscreen07:want',e); return false; } };
   const arm=()=>{ if(!want()||document.fullscreenElement||!document.documentElement.requestFullscreen) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&want()){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{ /* quiet: the browser may refuse full screen (no tap, a setting, a frame); the game plays the same without it */ }); }catch(e){ oops('mobile/fullscreen07:umentElement.requestFullscreen',e); } } }; ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); };
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) hiddenAt=performance.now(); else if(MOB()) setTimeout(arm,50); });
   document.addEventListener('fullscreenchange',()=>{ if(!MOB()||document.fullscreenElement) return; const t=performance.now();
     /* the shared listener has just saved "off"; if the app is being left, put "on" back */
     setTimeout(()=>{ if(document.hidden||hiddenAt>=t-50){ try{ localStorage.setItem('dl-fs','1'); }catch(e){ oops('mobile/fullscreen07:localStorage.setItem',e); } } },700); });
-  if(/[?&]test\b/.test(location.search)) window.__fsPref=()=>{ try{ return localStorage.getItem('dl-fs'); }catch(e){ return null; } }; }
+  if(/[?&]test\b/.test(location.search)) window.__fsPref=()=>{ try{ return localStorage.getItem('dl-fs'); }catch(e){ oops('mobile/fullscreen07:fsPref',e); return null; } }; }
 // Round 2 (director, 2026-11-18: "make full screen remember your choice when you close the app ... Android still doesn't know this is a game"):
 // the fix above put "on" back 0.7 s after an exit, but swiping the app away kills the page before that runs, so the "off" the shared
 // listener wrote on the way out stuck. Now on phones only the Full screen button (data-act="fullscreen") changes the saved choice:
@@ -20349,7 +20349,7 @@ const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));
 { let dev=null, cur=null; const done=new WeakSet(), DEF=fresh().settings||{};
-  const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ return null; } };
+  const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ oops('mobile/settings08:device-read',e); return null; } };
   const pick=st=>{ const o={}; if(st) for(const k of DEV_KEYS) if(st[k]!==undefined) o[k]=st[k]; return o; };
   let lastJ=null; const write=()=>{ try{ const j=JSON.stringify(dev); if(j===lastJ) return; localStorage.setItem(DEV_STORE,j); lastJ=j; }catch(e){ oops('mobile/settings08:JSON.stringify',e); } }; /* only when the settings changed (redundancies list B10: every save rewrote them) */
   const apply=s=>{ if(s&&s.settings&&dev){ for(const k of DEV_KEYS){ if(dev[k]!==undefined) s.settings[k]=dev[k]; else if(DEF[k]!==undefined) s.settings[k]=DEF[k]; else delete s.settings[k]; } } return s; };
@@ -20408,7 +20408,7 @@ if(window.DL_PREVIEW){
 // brought up the patch notes for the patch previous"): the save carries the last notes seen on the device it came from (PC 0.4.8.2),
 // so the phone showed its own older updates again. Phones remember the newest notes they showed; an arriving save never lowers it.
 /* both run from this file's device steps above: seenPatchFix at the end of every load, seenPatchKeep at the start of every save */
-function seenPatchGet(){ try{ return localStorage.getItem('dl-seen-patch')||''; }catch(e){ return ''; } }
+function seenPatchGet(){ try{ return localStorage.getItem('dl-seen-patch')||''; }catch(e){ oops('mobile/settings08:seenPatchGet',e); return ''; } }
 function seenPatchFix(s){ try{ if(!MOB()||!s||typeof s!=='object') return; const d=seenPatchGet(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){ oops('mobile/settings08:MOB',e); } }
 function seenPatchKeep(){ try{ if(MOB()&&S&&S.seenPatch){ const d=seenPatchGet(); if(!d||verNewer(S.seenPatch,d)) localStorage.setItem('dl-seen-patch',S.seenPatch); } }catch(e){ oops('mobile/settings08:MOB#2',e); } }
 seenPatchFix(S);
@@ -20865,7 +20865,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landsca
 // Updates twice a second, text only when it changes (no layout work otherwise).
 // =====================================================================
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
-  const realGoal=()=>{ try{ return _nextGoal_036(); }catch(e){ return nextGoal(); } }; /* the goal without live events in front of it */
+  const realGoal=()=>{ try{ return _nextGoal_036(); }catch(e){ oops('mobile/header08:realGoal',e); return nextGoal(); } }; /* the goal without live events in front of it */
   const short=gl=>{ const t=gl.t||'', s=gl.sub||''; let m;
     if(/cooler is full/i.test(t)) return 'Cooler full';
     if(/first fish/i.test(t)) return 'Catch a fish';
@@ -20915,8 +20915,8 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   let T=null, Pz=null, last='';
   const mk=(id,go,lbl)=>{ const b=h('button','stat hudx mb-x'); b.type='button'; b.id=id; b.innerHTML=`<span class="lbl">${lbl}</span><b></b>`;
     b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#3',er); } openMenu(go); }); return b; };
-  const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
-  const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
+  const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ oops('mobile/header08:quests-chip',e); return {ready:0,txt:'—'}; } };
+  const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ oops('mobile/header08:pass-chip',e); return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
     T.hidden=!land; Pz.hidden=true; hud.classList.remove('mb-compact'); if(!land) return;
     /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,

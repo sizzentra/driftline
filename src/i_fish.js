@@ -624,7 +624,7 @@ function drawCreature3(c,sp,x,y,L,o={}){
 if(/[?&]test\b/.test(location.search)){
   // QC: render every species and find drawn parts that don't touch the rest (floating fins, stray lines)
   window.__fishParts=(opt={})=>{ const out=[], W2=420, H2=300, cv2=document.createElement('canvas'); cv2.width=W2; cv2.height=H2; const x=cv2.getContext('2d',{willReadFrequently:true});
-    for(const sp of (opt.ids?SP.filter(s=>opt.ids.includes(s.id)):SP)){ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W2,H2); try{ drawCreature3(x,sp,W2/2,H2/2,220,{t:0,still:1}); }catch(e){ out.push([sp.id,'ERR '+e.message]); continue; }
+    for(const sp of (opt.ids?SP.filter(s=>opt.ids.includes(s.id)):SP)){ x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,W2,H2); try{ drawCreature3(x,sp,W2/2,H2/2,220,{t:0,still:1}); }catch(e){ oops('i_fish:fishParts',e); out.push([sp.id,'ERR '+e.message]); continue; }
       const d=x.getImageData(0,0,W2,H2).data, lab=new Int32Array(W2*H2), sizes=[]; let n=0;
       for(let i=0;i<W2*H2;i++){ if(d[i*4+3]<opt.th||lab[i]) continue; if(d[i*4+3]<(opt.th||60)) continue; n++; let sz=0; const st=[i]; lab[i]=n;
         while(st.length){ const p=st.pop(); sz++; const px=p%W2, py=(p-px)/W2; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ const qx=px+dx, qy=py+dy; if(qx<0||qy<0||qx>=W2||qy>=H2) continue; const q=qy*W2+qx; if(!lab[q]&&d[q*4+3]>=(opt.th||60)){ lab[q]=n; st.push(q); } } }

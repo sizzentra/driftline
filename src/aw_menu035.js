@@ -60,7 +60,7 @@ function menuBadges(){ const T=$('tabs'); if(!T) return;
   T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.secdot'); if(n){ const txt=n>99?'99+':String(n); if(d.textContent!==txt) d.textContent=txt; d.hidden=false; } else d.hidden=true; });
   T.querySelectorAll('.subp').forEach(p=>{ const n=menuDot(p.dataset.sub), d=p.querySelector('.subdot'); if(n){ d.textContent=n>99?'99+':String(n); d.hidden=false; } else d.hidden=true; }); }
 // after picking a section, make sure its page is in view (on phones the section row is docked at the bottom)
-function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) return; const r=sb.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*.6){ try{ sb.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ sb.scrollIntoView(); } } }
+function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) return; const r=sb.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*.6){ try{ sb.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ oops('aw_menu035:scrollIntoView',e); sb.scrollIntoView(); } } }
 
 // keep both rows in step with whatever opened a page (tab links, the gear button, saves loading, events)
 panelStep({ after(){ try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){ oops('aw_menu035:menuSync',e); } } });

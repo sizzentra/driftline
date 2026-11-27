@@ -49,7 +49,7 @@ if(/[?&]test\b/.test(location.search)) window.__pcSpec=async()=>{ const w=ms=>ne
   const SIZES=new Set([11,12,13,14,15,16,18,20,22]), CTL=new Set([32,36,40,42]);
   const vis=e=>{ const r=e.getBoundingClientRect(), cs=getComputedStyle(e); return r.width>0&&r.height>0&&cs.visibility!=='hidden'&&cs.display!=='none'; };
   const tabs=[...new Set([...document.querySelectorAll('#tabs [data-tab]')].map(b=>b.dataset.tab).concat(['trophy','events','stats']))];
-  for(const t of tabs){ if(PAGES_SKIP.has(t)||t==='settings'||t==='save') continue; try{ openMenu(t); }catch(e){ continue; } await w(250); const P=$('panel'); if(!P||S.tab!==t) continue; n++;
+  for(const t of tabs){ if(PAGES_SKIP.has(t)||t==='settings'||t==='save') continue; try{ openMenu(t); }catch(e){ oops('pc/pages_pc:qc-openMenu',e); continue; } await w(250); const P=$('panel'); if(!P||S.tab!==t) continue; n++;
     const nm=(menuTabLabel(t)||[])[1]||t;
     if(P.classList.contains('pg08')){ const bar=P.querySelector(':scope > .pg08-bar'), body=P.querySelector('.pg08-body'), nav=P.querySelector('.pg08-sheet > .bwx-nav');
       if(!bar) out.push(nm+': no key-number strip'); if(!body) out.push(nm+': no scrolling body');

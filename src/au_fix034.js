@@ -41,7 +41,7 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
 // ---------- what a fish would earn in the aquarium: on the catch card and on the To aquarium button ----------
 // what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
 function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
-function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ return ''; } }
+function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ oops('au_fix034:aqIncomeTxt',e); return ''; } }
 const _showCard_034 = showCard;
 showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }

@@ -11,7 +11,7 @@ const BW_JACK=.04, CHEST_COST=120;
 let gamble=null, chest=null, bwJackLock=false;
 const bwCoinWin = mul => bwEarn(Math.round(bestLoot()*mul*coinMult()*pathMul('bwcoin')));
 // coin jackpots on top of ticket wins at the Boardwalk
-{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){ oops('ci_boardwalk:sfx.catch',e); } bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
+{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){ oops('ci_boardwalk:sfx.catch',e); } bwJackLock=false; },400); } }catch(e){ oops('ci_boardwalk:coin-jackpot',e); bwJackLock=false; } return r; }; }
 // Fishmonger's Gamble
 const GAMBLE=[[.5,0,'The Fishmonger keeps it.'],[.35,1.8,'×1.8!'],[.12,3,'×3!'],[.03,8,'JACKPOT ×8!']];
 function gambleList(){ return S.cooler.map((f,i)=>({f,i,p:salePrice(f)})).filter(x=>SPI[x.f.id]&&x.p>0).sort((a,b)=>b.p-a.p).slice(0,4); }

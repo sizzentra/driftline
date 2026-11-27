@@ -11,7 +11,7 @@
 // Updates twice a second, text only when it changes (no layout work otherwise).
 // =====================================================================
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
-  const realGoal=()=>{ try{ return _nextGoal_036(); }catch(e){ return nextGoal(); } }; /* the goal without live events in front of it */
+  const realGoal=()=>{ try{ return _nextGoal_036(); }catch(e){ oops('mobile/header08:realGoal',e); return nextGoal(); } }; /* the goal without live events in front of it */
   const short=gl=>{ const t=gl.t||'', s=gl.sub||''; let m;
     if(/cooler is full/i.test(t)) return 'Cooler full';
     if(/first fish/i.test(t)) return 'Catch a fish';
@@ -61,8 +61,8 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   let T=null, Pz=null, last='';
   const mk=(id,go,lbl)=>{ const b=h('button','stat hudx mb-x'); b.type='button'; b.id=id; b.innerHTML=`<span class="lbl">${lbl}</span><b></b>`;
     b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#3',er); } openMenu(go); }); return b; };
-  const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
-  const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
+  const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ oops('mobile/header08:quests-chip',e); return {ready:0,txt:'—'}; } };
+  const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ oops('mobile/header08:pass-chip',e); return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
     T.hidden=!land; Pz.hidden=true; hud.classList.remove('mb-compact'); if(!land) return;
     /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,

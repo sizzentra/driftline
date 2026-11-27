@@ -15,7 +15,7 @@ function wx3BloodMoonDisc(mx,my,a){ const r=H*.06; v3glow(g,mx,my,r*5,'rgba(255,
   g.fillStyle='rgba(90,10,16,.35)'; for(const [dx,dy,rr] of [[-.3,-.1,.22],[.25,.2,.16],[.05,-.35,.12]]){ g.beginPath(); g.arc(mx+dx*r,my+dy*r,rr*r,0,7); g.fill(); } g.restore(); }
 function wx3Rainbow(hz){ const s=wx3sun(hz), R=H*.66; if(!s.up) return {cx:W*.62, cy:hz+H*.28, R};
   const elev=Math.max(0,(hz-s.y)/(hz*.8)), cx=clamp(W-s.x+(s.x<W/2?1:-1)*W*.08,W*.22,W*.86), cy=hz+H*(.12+.2*elev); return {cx, cy, R}; } /* map redo 2026-11-22: a little higher, so more of the arc clears the trees */
-function wx3k(){ try{ return weather().k; }catch(e){ return 'Clear'; } }
+function wx3k(){ try{ return weather().k; }catch(e){ oops('ap_weather033:wx3k',e); return 'Clear'; } }
 const wx3A=()=>typeof WXA==='number'?WXA:1;
 
 // ---------- sky layer: hooked into every scene's sky step (drawn before the cached land) ----------

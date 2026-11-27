@@ -115,7 +115,7 @@ HAT036.astro=function(c){ c.save(); const sh=(a,b)=>hat036Grad(c,-10,-10,8,10,[a
   c.fillStyle='#c8d0d8'; c.beginPath(); c.arc(-3.4,1,2.6,0,7); c.fill(); c.fillStyle='#8a949e'; c.beginPath(); c.arc(-3.4,1,1.2,0,7); c.fill(); c.fillStyle='#e8303a'; c.beginPath(); c.arc(-8.4,-4.6,.9,0,7); c.fill(); c.restore(); };
 const _drawHat_036=drawHat;
 drawHat=function(c,id,col,t=0){ const f=HAT036[id]; if(!f||(typeof HAT_TRIM_OFF!=='undefined'&&HAT_TRIM_OFF)) return _drawHat_036(c,id,col,t);
-  c.save(); c.lineCap='round'; c.lineJoin='round'; try{ f(c,col,t); }catch(e){ c.restore(); return _drawHat_036(c,id,col,t); } c.restore(); };
+  c.save(); c.lineCap='round'; c.lineJoin='round'; try{ f(c,col,t); }catch(e){ oops('bg_angler036:drawHat',e); c.restore(); return _drawHat_036(c,id,col,t); } c.restore(); };
 // QC (test mode only): every wearable, pet, decoration and junk id, read from the game's own lists
 if(/[?&]test\b/.test(location.search)) window.__lists=()=>{ const id=x=>Array.isArray(x)?x[0]:(x&&x.id); const L={hats:HATS,outfits:OUTFITS,glasses:GLASSES,shoes:SHOES,necks:NECKS,backs:BACKS,beards:BEARDS,pets:PETS,decor:DECOR,junk:JUNK};
   const o={}; for(const k in L) o[k]=L[k].map(id).filter(Boolean); return o; };

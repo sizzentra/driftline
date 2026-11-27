@@ -20,7 +20,7 @@ function m34bell(){ if(!m34ambOK()) return; try{ const t=AC.currentTime+.05, out
 const _musicTick_034=musicTick;
 musicTick=function(){ _musicTick_034(); if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
   // rain on the water: a soft hiss that swells with the weather (heavier out on the deep sea)
-  if(!n.rain){ try{ n.rain=AC.createBufferSource(); n.rain.buffer=noiseBuf(3,false); n.rain.loop=true; const hp=AC.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900; const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=6500; n.raing=AC.createGain(); n.raing.gain.value=0; n.rain.connect(hp); hp.connect(lp); lp.connect(n.raing); n.raing.connect(BUS.amb); n.rain.start(); }catch(e){ n.rain=1; } }
+  if(!n.rain){ try{ n.rain=AC.createBufferSource(); n.rain.buffer=noiseBuf(3,false); n.rain.loop=true; const hp=AC.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=900; const lp=AC.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=6500; n.raing=AC.createGain(); n.raing.gain.value=0; n.rain.connect(hp); hp.connect(lp); lp.connect(n.raing); n.raing.connect(BUS.amb); n.rain.start(); }catch(e){ oops('av_sea034:rain-sound',e); n.rain=1; } }
   if(n.raing){ const k=wx3k(), a=wx3A(), L=S.loc, sea=L==='deep'?1.5:['shelf','coast','reef','trench'].includes(L)?1.15:1; n.raing.gain.setTargetAtTime((k==='Storm'?.05:k==='Rain'?.028:0)*a*sea, now, 1.2); }
   if(S.settings.ambient&&S.loc==='shelf'&&Math.random()<.0055) m34bell(); };
 

@@ -16,7 +16,7 @@ const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));
 { let dev=null, cur=null; const done=new WeakSet(), DEF=fresh().settings||{};
-  const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ return null; } };
+  const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ oops('mobile/settings08:device-read',e); return null; } };
   const pick=st=>{ const o={}; if(st) for(const k of DEV_KEYS) if(st[k]!==undefined) o[k]=st[k]; return o; };
   let lastJ=null; const write=()=>{ try{ const j=JSON.stringify(dev); if(j===lastJ) return; localStorage.setItem(DEV_STORE,j); lastJ=j; }catch(e){ oops('mobile/settings08:JSON.stringify',e); } }; /* only when the settings changed (redundancies list B10: every save rewrote them) */
   const apply=s=>{ if(s&&s.settings&&dev){ for(const k of DEV_KEYS){ if(dev[k]!==undefined) s.settings[k]=dev[k]; else if(DEF[k]!==undefined) s.settings[k]=DEF[k]; else delete s.settings[k]; } } return s; };
@@ -75,7 +75,7 @@ if(window.DL_PREVIEW){
 // brought up the patch notes for the patch previous"): the save carries the last notes seen on the device it came from (PC 0.4.8.2),
 // so the phone showed its own older updates again. Phones remember the newest notes they showed; an arriving save never lowers it.
 /* both run from this file's device steps above: seenPatchFix at the end of every load, seenPatchKeep at the start of every save */
-function seenPatchGet(){ try{ return localStorage.getItem('dl-seen-patch')||''; }catch(e){ return ''; } }
+function seenPatchGet(){ try{ return localStorage.getItem('dl-seen-patch')||''; }catch(e){ oops('mobile/settings08:seenPatchGet',e); return ''; } }
 function seenPatchFix(s){ try{ if(!MOB()||!s||typeof s!=='object') return; const d=seenPatchGet(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){ oops('mobile/settings08:MOB',e); } }
 function seenPatchKeep(){ try{ if(MOB()&&S&&S.seenPatch){ const d=seenPatchGet(); if(!d||verNewer(S.seenPatch,d)) localStorage.setItem('dl-seen-patch',S.seenPatch); } }catch(e){ oops('mobile/settings08:MOB#2',e); } }
 seenPatchFix(S);

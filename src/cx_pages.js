@@ -14,7 +14,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
   const num=(t,re,i=1)=>{ const m=String(t||'').match(re); return m?m[i]:null; };
   const txt=e=>e?(e.textContent||'').replace(/\s+/g,' ').trim():'';
   const enabled=P=>sel=>[...P.querySelectorAll(sel)].filter(b=>!b.disabled).length;
-  const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ return ''; } };
+  const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ oops('cx_pages:locName',e); return ''; } };
   // per page: summary cells [label, value], the main actions (moved into the strip), and sections for long pages without any
   const CFG={
     cooler:{ cells:(P,hd)=>{ const t=txt(hd); const m=t.match(/([\d,]+) of ([\d,]+) slots/), bo=t.match(/\+([\d,]+)% to every sale/); return [['In your cooler',m?m[1]+' / '+m[2]:S.cooler.length+' / '+gv('cooler')],bo?['Sale bonus','+'+bo[1]+'%']:null]; },
@@ -34,7 +34,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
         return [{name:'Daily tasks',nodes:d?[d]:[],badge:d?ready([d]):0},{name:'Weekly quests',nodes:w?[w]:[],badge:w?ready([w]):0},{name:'Bounties',nodes:rest,badge:ready(rest)}]; } },
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; }, acts:P=>[P.querySelector('[data-act="passclaim"]')] }, /* Cam, 2026-11-20: the claim button went with the header box, so Tide Pass rewards could not be claimed on phones */
     feats:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Feats done',(num(t,/(\d+) of (\d+) done/)||'0')+' / '+(num(t,/(\d+) of (\d+) done/,2)||'?')]]; } },
-    events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
+    events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ oops('cx_pages:wx3k',e); return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
       groups:K=>{ const cal=K.filter(c=>c.classList.contains('ev-cal')||c.classList.contains('wxf')); const hs=K.filter(c=>c.tagName==='H3'); const out=[{name:'Calendar',nodes:cal}];
         hs.forEach((hh,i)=>{ const a=K.indexOf(hh), b=i+1<hs.length?K.indexOf(hs[i+1]):K.length; out.push({name:txt(hh).replace(/^Fishing\s+/,'')||('Part '+(i+1)),nodes:K.slice(a,b)}); });
         const used=new Set(out.flatMap(g=>g.nodes)); const left=K.filter(c=>!used.has(c)); if(left.length) out[0].nodes=out[0].nodes.concat(left); return out; } },
@@ -96,10 +96,10 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
 /* test builds: window.__menuMap() lists what a player can reach: the sections and their pages, every page's name, and every page's tabs.
    The sweep runs it on PC and on a phone and compares the two (PC Reborn rule: PC never falls behind the phones again). */
 if(/[?&]test\b/.test(location.search)) window.__menuMap=async()=>{ const w=ms=>new Promise(r=>setTimeout(r,ms)), clean=s=>String(s||'').replace(/\s*·\s*\d.*$/,'').replace(/\s+\d+$/,'').trim();
-  const label=t=>{ try{ return (menuTabLabel(t)||[])[1]||t; }catch(e){ return t; } };
+  const label=t=>{ try{ return (menuTabLabel(t)||[])[1]||t; }catch(e){ oops('cx_pages:qc-label',e); return t; } };
   const pages=new Set(['cooler','aquarium','journal','bait','stats','settings']); for(const s of MENU_SECS) for(const t of s.tabs) pages.add(t);
   const out={secs:MENU_SECS.map(s=>({id:s.id, name:s.short||s.name, tabs:s.tabs.slice()})), labels:{}, tabs:{}};
-  for(const t of pages){ out.labels[t]=label(t); try{ openMenu(t); }catch(e){ continue; } await w(220); const P=$('panel'); if(!P||S.tab!==t) continue;
+  for(const t of pages){ out.labels[t]=label(t); try{ openMenu(t); }catch(e){ oops('cx_pages:qc-openMenu',e); continue; } await w(220); const P=$('panel'); if(!P||S.tab!==t) continue;
     out.tabs[t]=[...P.querySelectorAll('.sect-nav > button')].map(b=>clean(b.dataset.sect||b.textContent)).filter(Boolean); }
   try{ closeMenu(); }catch(e){ oops('cx_pages:closeMenu',e); } return out; };
 /* Rod presets on every platform (Cam, round 5: "What happened to having 3 presets in Your Rods?": PC lost them when its Rods page moved to the shared page engine; this block lived only in the phone layer). The box goes right after the first node of the "Your rods" tab and is shown and hidden with it. */

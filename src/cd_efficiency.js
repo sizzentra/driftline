@@ -34,7 +34,7 @@
 /* 4) Tinted pets: a canvas color filter makes every brush stroke of the pet go through the filter separately. The pet is now drawn
    once without the tint into a picture at screen resolution, then put on the water through the filter in one step. */
 { const _dp=drawPetStyled; let PC=null;
-  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ return _dp.apply(this,arguments); }
+  drawPetStyled=function(c,id,x,y,s,t,night,lkOver){ if(c!==g||id==='daxniko') return _dp.apply(this,arguments); /* Dax & Niko tint each dog on its own (never the hearts or z's): left as before */ let lk, f='none'; try{ lk=lkOver||petLook(id); f=tintFilter(lk,t); }catch(e){ oops('cd_efficiency:pet-tint',e); return _dp.apply(this,arguments); }
     if(!f||f==='none') return _dp.apply(this,arguments);
     const m=c.getTransform(), k=Math.hypot(m.a,m.b); if(m.b||m.c||!(m.a>0)||!(m.d>0)||!(s>0)) return _dp.apply(this,arguments); /* mirrored (facing left) or rotated: as before */
     const bw=170*s, bh=150*s, bx=-bw/2, by=-bh*.82, pw=Math.ceil(bw*k), ph=Math.ceil(bh*k); if(pw*ph>4e6) return _dp.apply(this,arguments);

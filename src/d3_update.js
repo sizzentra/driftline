@@ -652,14 +652,14 @@ function allPatchesHTML(){ return (S.owned.pets.includes("lily")?[LILY_PATCH]:[]
 
 // ---------- safe reset ----------
 const BACKUP_KEY='driftline-backup';
-function hasBackup(){ try{ return !!localStorage.getItem(BACKUP_KEY); }catch(e){ return false; } }
+function hasBackup(){ try{ return !!localStorage.getItem(BACKUP_KEY); }catch(e){ oops('d3_update:hasBackup',e); return false; } }
 /* ---------- automatic backup on this device (batch 3, director 2026-11-21: "a backup copy on the device, refreshed automatically,
    restorable from Settings if the main save breaks; works offline"): a copy of the save at most every 5 minutes and whenever the app
    is hidden or closed. If progress suddenly drops (a reset, a broken save, a smaller save loaded in), the old copy is moved to a kept
    slot first, so a good backup is never overwritten by a worse one. ---------- */
 const AUTO_BK=LS_KEY+'-auto', AUTO_BK_KEEP=LS_KEY+'-auto-kept', AUTO_BK_MS=5*60*1000;
-const bkScore=s=>{ try{ return Object.keys((s&&s.journal)||{}).length+((s&&s.tides)||0)*100+((s&&s.lvl)||0); }catch(e){ return 0; } }; /* the Fish Log, voyages and level only grow in play */
-const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } };
+const bkScore=s=>{ try{ return Object.keys((s&&s.journal)||{}).length+((s&&s.tides)||0)*100+((s&&s.lvl)||0); }catch(e){ oops('d3_update:bkScore',e); return 0; } }; /* the Fish Log, voyages and level only grow in play */
+const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ oops('d3_update:bkRead-parse',e); return null; } };
 let autoBkAt=0, bkAsk=null;
 function autoBackup(now){ if(window.__dlUnreadable||!S) return; const t=Date.now(); if(!now&&t-autoBkAt<AUTO_BK_MS) return; autoBkAt=t;
   try{ const old=bkRead(AUTO_BK); if(old&&bkScore(S)<bkScore(old)*.5) localStorage.setItem(AUTO_BK_KEEP, JSON.stringify(old));

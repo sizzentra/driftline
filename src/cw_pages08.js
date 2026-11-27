@@ -5,11 +5,11 @@
 // =====================================================================
 const onPC = () => window.DL_BUILD==='pc';
 /* the live event as a goal (a Live chip on phones, the goal chip on PC, the Live line in Quests); null when nothing is on */
-function liveNow(){ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ return null; } } /* where things live differs: PC has one header row, phones a top bar and a side panel */
+function liveNow(){ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ oops('cw_pages08:liveNow-goal',e); return null; } } /* where things live differs: PC has one header row, phones a top bar and a side panel */
 /* QUESTS (moved from mobile/quests08.js) */
   try{ PAGE_DESC.quests='Your goals, short lessons, where to find everything, and help'; }catch(e){ oops('cw_pages08:PAGE_DESC.quests',e); }
   try{ SEARCH_IDX.unshift(['Quests: goals','quests','Goals','goal next objective quest what to do journey'],['Quests: learn','quests','Learn','tutorial lesson how to learn guide help basics'],['Quests: find anything','quests','Find','where find directions map menu'],['Quests: help','quests','Help','help faq question problem stuck']); }catch(e){ oops('cw_pages08:SEARCH_IDX.unshift',e); }
-const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
+const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ oops('cw_pages08:goal',e2); return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
   read:()=>{ const s=S.settings; if(!Array.isArray(s.q8read)) s.q8read=[]; return s.q8read; } };
 /* the lessons: [id, group, title, one line, body, go] (go = [tab, section] for Take me there) */
 const Q8_LESSONS=[
@@ -53,7 +53,7 @@ const Q8_LESSONS=[
 /* where everything lives on a phone: [place, label, tab, section] */
 /* each device's own words, written once: Tap or Click; PC has one header row where phones have a top bar and a side panel */
 const q8dev = s => { if(typeof s!=='string') return s; const T=PLAT.touch(); s=s.replace(/\bTap\b/g,T?'Tap':'Click').replace(/\btap\b/g,T?'tap':'click'); if(onPC()) s=s.replace(/top bar/g,'header').replace(/side panel/gi,'header').replace(/the ring around (it|the fish)/g,'the line bar').replace(/keep the ring inside/g,'keep the line inside').replace(/The ring is your line/g,'The line bar shows the strain'); return s; };
-const Q8_FIND=()=>{ const TB=onPC()?'Header':'Top bar', SPN=onPC()?'Header · ':'Side panel · ', out=[], lbl=t=>{ try{ return menuTabLabel(t)[1]; }catch(e){ return t; } };
+const Q8_FIND=()=>{ const TB=onPC()?'Header':'Top bar', SPN=onPC()?'Header · ':'Side panel · ', out=[], lbl=t=>{ try{ return menuTabLabel(t)[1]; }catch(e){ oops('cw_pages08:find-label',e); return t; } };
   out.push([TB,'Cooler','cooler',null],[TB,'Aquarium','aquarium',null],[TB,'Fish Log','journal',null],[TB,'Bait: switch, buy, special lures','bait',null],[TB,'Tasks (daily, weekly, bounties)','bounties',null],[(onPC()?'Header · settings button':'Top bar · settings button'),'Settings','settings',null],[(onPC()?'Header · settings button':'Top bar · settings button'),'Save and save codes','save',null]);
   for(const s of MENU_SECS){ if(s.id==='quests') continue; for(const t of s.tabs) out.push([SPN+s.short,lbl(t),t,null]); }
   out.push([SPN+'Prestige','Set sail again','prestige','Set sail again'],[SPN+'Prestige','Pearl relics','prestige','Pearl relics']);
