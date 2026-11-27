@@ -27,7 +27,7 @@ const voyMs = n => ((S&&S.tides)||0) >= n;
 ].forEach(a=>{ if(!RELICS.some(r=>r.id===a[0])) RELICS.push({id:a[0],name:a[1],cost:a[2],d:a[3]}); });
 
 // relic and Legacy effects flow through the normal bonus pipeline (aquarium income, rare odds)
-{ const _bonus=bonus; bonus=function(k){ let v=_bonus(k); if(k==='tank'&&relic('tankkeeper')) v+=.3; if(k==='rare'){ if(relic('abyssal')) v+=.12; v+=.02*Math.min((S.tides||0),10); } return v; }; }
+stepOn('bonus', function(v,k){ if(k==='tank'&&relic('tankkeeper')) v+=.3; if(k==='rare'){ if(relic('abyssal')) v+=.12; v+=.02*Math.min((S.tides||0),10); } return v; });
 
 // cooler space from the milestone and the relic: added to every cooler size once (gear data is not saved)
 const COOLER_BASE=GEAR.cooler.lv.slice();
@@ -66,5 +66,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // ---------- tiny hybrids: smaller than their species' normal range = stronger aquarium boosts ----------
 // ×1 just below the normal minimum, rising to ×3 at about 1/15 of it (on top of the usual hybrid ×1.5).
 function tinyHybridK(f){ const sp=f&&SPI[f.id]; if(!sp||!f.hy||!(f.kg>0)||f.kg>=sp.min) return 1; return Math.min(3, 1+.75*Math.log(sp.min/f.kg)); }
-{ const _aq=aqBuffsOf; aqBuffsOf=function(f){ const L=_aq(f), k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; }; }
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){ oops('bc_voyage036:tinyHybridK',e); } }; }
+stepOn('aqBuffsOf', function(L,f){ const k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; });
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){ oops('bc_voyage036:tinyHybridK',e); } } });

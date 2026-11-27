@@ -49,7 +49,8 @@ function setHint(){ let h='';
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------
-function showCard(o){
+function showCard(o){ const L=stepsOf('showCard'); return stepsRun(L,showCardCore,[o],L.length-1); } /* F6 slice 6: the card's extras (quick buttons, aquarium line, shine, badges, rarity) are steps around it */
+function showCardCore(o){
   /* the last card's sparkle animation is let go first: it kept repainting a shiny or mythic fish over the next card's picture
      (batch 2: a Brass Spyglass card showed the fish caught before it). A fish card attaches its own again. */
   spkDrop($('cardfish')); o.draw($('cardfish')); $('cardin').classList.toggle('shiny',!!o.shiny);
@@ -88,12 +89,9 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'
    removed (also right after it, once the page is idle); only pictures no longer on the page are touched. */
 var rpOld=null, rpT=0; /* var: a page drawn while the game is still loading must not hit a not-yet-defined name (#130) */
 function rpRelease(){ clearTimeout(rpT); if(rpOld) for(const c of rpOld) if(!c.isConnected&&c.width){ c.width=0; c.height=0; } rpOld=null; }
-/* F6 slice 3: the one renderPanel. It runs the page steps (panelStep, d2_extra.js) around the draw: each step's "before" from the last
-   added to the first, the draw, each "after" (then "always") from the first added to the last; a "before" that answers 'drawn' has
-   drawn the page itself, so everything added before it is skipped. Exactly the order the old wrappers ran in. */
-function panelRun(i){ if(i<0) return panelDraw(); const s=panelStep.list[i]; let t; if(s.before){ t=s.before(); if(t==='drawn') return; }
-  if(s.always){ try{ panelRun(i-1); if(s.after) s.after(t); } finally{ s.always(t); } } else { panelRun(i-1); if(s.after) s.after(t); } }
-function renderPanel(){ panelRun((panelStep.list||[]).length-1); }
+/* F6 slice 3: the one renderPanel. It runs the page steps (panelStep, d2_extra.js; stepsRun, a3_plat.js) around the draw, in exactly
+   the order the old wrappers ran in. */
+function renderPanel(){ const L=stepsOf('renderPanel'); stepsRun(L,panelDraw,[],L.length-1); }
 function panelDraw(){ const P=$('panel'); rpRelease(); rpOld=[...P.getElementsByTagName('canvas')]; rpT=setTimeout(rpRelease,0); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const L=aqNet(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
@@ -110,7 +108,9 @@ const coolSortBar=()=>S.cooler.length<2?'':sortBar('coolsort',coolSort,COOL_SORT
 let tankSort='old'; const TANK_SORTS=[['old','Oldest'],['recent','Newest'],['rarity','Rarity'],['income','Income'],['species','Species']];
 function tankListOrder(){ const L=S.tank.map((f,i)=>({f,i})), nm=x=>(SPI[x.f.id]||{}).name||''; if(tankSort==='recent') return L.reverse(); if(tankSort==='income') return L.sort((a,b)=>fishRate(b.f)-fishRate(a.f)); if(tankSort==='species') return L.sort((a,b)=>nm(a).localeCompare(nm(b))||a.i-b.i); if(tankSort==='rarity'){ const rk=x=>(SPI[x.f.id]||{r:-1}).r*10+(x.f.sh?(x.f.sh===2?2:1):0); return L.sort((a,b)=>rk(b)-rk(a)||fishRate(b.f)-fishRate(a.f)); } return L; }
 actOn('coolsort inspect tanksort', function(b){ if(b.dataset.act==='coolsort'){ if(COOL_SORTS.some(s=>s[0]===b.dataset.k)) coolSort=b.dataset.k; return 'render'; } if(b.dataset.act==='inspect') return inspectOpen(b.dataset.k,+b.dataset.i); if(b.dataset.act==='tanksort'){ if(TANK_SORTS.some(s=>s[0]===b.dataset.k)) tankSort=b.dataset.k; return 'render'; } });
-document.head.insertAdjacentHTML('beforeend','<style>.cool-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:22px 16px}.cool-empty .bwx-art{font-size:34px;line-height:1.1}.cool-empty .meta{max-width:420px}.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');function renderCooler(P){
+document.head.insertAdjacentHTML('beforeend','<style>.cool-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:22px 16px}.cool-empty .bwx-art{font-size:34px;line-height:1.1}.cool-empty .meta{max-width:420px}.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');
+function renderCooler(P){ const L=stepsOf('renderCooler'); return stepsRun(L,renderCoolerCore,[P],L.length-1); } /* F6 slice 6: the sell filters, the tank lines and the shared pages are steps around it */
+function renderCoolerCore(P){
   const total=S.cooler.filter(f=>!sellKeep(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < aqCap(); const dm=demandSp();
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
   <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell ${sellFilterOn()?"matching":"all"}${S.cooler.some(sellKeep)?" (keeping "+S.cooler.filter(sellKeep).length+")":""} for <span class="coin">${fmt(total)}</span></button></div>

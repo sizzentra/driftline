@@ -397,3 +397,30 @@ Left as they were, because they already tell someone: the three that show the pl
 **The build check, widened.** `build.ps1` (NO SILENT CATCH) now reads every catch in the game's files, also the promise form with a function in it: one that neither calls `oops`, nor carries the quiet mark, nor tells someone itself (toast, transfer status, prompt, console) stops the build. Proven by planting five (a returned default, an assigned default, a `continue`, two promise forms): all five refused, then removed. The test file is left out (its catches are test logic). The quiet count did not change (PC 3, phones 8).
 
 **Proof.** 588 save texts identical; baseline 424 / 430 / 421 unchanged (the new save's first run wobbled and matched on the second and on two more runs); full sweep 57 checks and 0 failed on three saves; Passed-over errors empty, so none of the 46 fires in normal play or in the checks.
+
+## Foundation F6 slice 6: nine more wrap families folded into their originals (2026-11-27, test builds 2026.11.27-0405; nothing changes on screen or in any save)
+Rollback tag `rollback/before-f6-6`. Wrap layers: PC 189 to 154, phones 206 to 169. Since F6 began: PC 242 to 154 (36% fewer), phones 272 to 169 (38% fewer); the aim was about a third.
+
+**One mechanism.** `stepOn('name', step)` in `a3_plat.js` (beside `oops`): a later file adds a step to a core function instead of wrapping it, and the function runs its own steps in the order the files load. Two kinds. Around the function: `{before(){ }, after(t){ }}`, run by `stepsRun` (every "before" from the last added to the first, the function, every "after" from the first to the last; `'drawn'` and `always` as in slice 3). After the function, on its value: `(value, ...args) => new value`, run by `thenRun`. `renderPanel`'s steps from slice 3 use the same runner now (`panelStep(s)` is `stepOn('renderPanel', s)`).
+
+| Function | Layers folded | Its steps now (in order) |
+|---|---|---|
+| `bonus` (`c_logic.js`) | 5 | relics and voyages, timed events, feat categories, paths, boons and relic bonuses |
+| `aqBuffsOf` (`n_play.js`) | 4 | weight, decorations, tiny hybrids, Nibbles and feeding |
+| `aqFishBase` (`n_play.js`) | 3 | decorations, Nibbles and feeding, paths |
+| `catchW` (`c_logic.js`) | 3 | hunts, favourite and hated foods, paths |
+| `rollFish` (`n_play.js`) | 3 | paths, the Heavy boon, end-game waters |
+| `landFish` (`c_logic.js`) | 4 | challenges, hunts, path ranks, Catch Surge and Second Hook |
+| `showCard` (`e_ui.js`) | 7 | quick Sell and To aquarium buttons, the aquarium line, the shine, the open-card mark, the tiny-hybrid badge, the rarity effects, the hybrid numbers |
+| `menuTidy2` (`bm_ui04.js`) | 3 shared, 2 phone | daily tasks side by side, path and rod marks, centring the chosen chip; on phones the Fish Log's two touches |
+| `renderCooler` (`e_ui.js`) | 3 | the sell filters, the tank lines, the shared pages (Quests, Bait and the others draw in its place) |
+
+**One thing needed care.** The events file had kept the bonus as it stood before its own layer and uses it for Market Rush's base; folded, that is `bonus(k, upto)`: the bonus with only the first so many steps.
+
+**The clean-up and the review** (`/simplify`, `/code-review`) over the whole night's change found no fault in behaviour. Applied: four leftover brace pairs in action handlers from slice 3, three comments that still spoke of wrapping `renderPanel`, the limits of the step runner written beside it. Noted, not changed: the test-only hook `__bal` now hands out the full `rollFish`, `aqBuffsOf` and `bonus` (it used to hold the copies from the moment its file loaded; nothing reads them, qc 263); the build's catch check finds a catch's text by counting brackets; `PC_STEPS` and `PAGES.before/after` are older lists around the same draw that could become page steps one day.
+
+**Frame cost** (`__drawCost`, the Rockies, 60 frames six times, twice per build): PC 1920×1080 medians 2.7 and 3.6 ms before, 3.3 and 3.1 ms after; phone 956×440 1.5 and 1.3 ms before, 1.1 and 1.3 ms after. The spread between two runs of the same build is larger than any difference, and none of the folded functions is called while a frame is drawn.
+
+**What is left (154 on PC, 169 on phones) and why.** Not folded tonight, each needs its own look: the drawing families (`drawHat` 5, `drawFace` 4, `drawJunkZ` 4, `drawOutfit3` 3, `v3Thumb` 3, `draw` 2 and the angler parts), which run every frame and replace each other's pictures rather than add to them; `stageHOverride` (6), where each layer answers first or passes on and one phone file replaces the original; `setTab` (3), where a layer changes the value handed on; `nextGoal` (3), where two files use a half-wrapped copy on purpose; the page drawers (`renderJournal` 7, `renderSettings` 6, `renderStyle` 4 on PC), where most layers are one platform's own version, which the rules allow; and about 60 functions with one or two layers.
+
+**Proof (the final build of the night, 2026.11.27-0405).** 588 save texts identical; baseline unchanged before the tester note was added, then identical except the PC Patch notes page, which shows the note (the agreed set was made again for that one page); full sweep 57 checks and 0 failed on new, mid and heavy; Passed-over errors empty. No edit after the sweep.

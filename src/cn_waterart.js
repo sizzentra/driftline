@@ -172,5 +172,5 @@ try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow
 try{ egOpenAdd(S); }catch(e){ oops('cn_waterart:egOpenAdd',e); }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b) return; setTimeout(()=>{ try{ egOpenAdd(S); }catch(er){ oops('cn_waterart:egOpenAdd#2',er); } },30); },true);
 // end-game fish pay 25% more than your best normal water and fight like it
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){ oops('cn_waterart:egScale',e); } return f; }; }
+stepOn('rollFish', function(f,sp){ try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){ oops('cn_waterart:egScale',e); } return f; });
 // end-game fish in the Aquarium: their income cap follows the same scale (it is computed from the water's fish)

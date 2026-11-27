@@ -57,14 +57,13 @@ function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal
   checkFeats(); save(); if(S.tab==='events') renderPanel(); }
 function chalProgress(){ const c=S.chal, C=CHAL[c.id]; if(!C.ranked&&c.prog>=c.need) setTimeout(()=>chalEnd(true),900); else save(); if(S.tab==='events') renderPanel(); }
 // progress from every landed fish (the fish, its hook and its cast are read before the catch is processed)
-const _landFish_036=landFish;
-landFish=function(){ const f=G.fish, perfect=!!G.perfect, far=G.lastCast>farAt(); _landFish_036.apply(this,arguments);
-  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){ oops('bk_events036:Date.now',e); } };
+stepOn('landFish', { before(){ return {f:G.fish, perfect:!!G.perfect, far:G.lastCast>farAt()}; }, after({f,perfect,far}){
+  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){ oops('bk_events036:Date.now',e); } } });
 const _landJunk_04=landJunk;
 landJunk=function(){ _landJunk_04.apply(this,arguments); try{ const c=S.chal; if(c&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onJunk&&C.onJunk(c)) chalProgress(); } }catch(e){ oops('bk_events036:Date.now#2',e); } };
 // scheduled events lift their stat while they last (through the shared bonus, so cards and odds show it too)
-const _bonus_036=bonus;
-bonus=function(k){ let v=_bonus_036(k); for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; };
+const BONUS_N_036=stepsOf('bonus').length, _bonus_036=k=>bonus(k,BONUS_N_036); /* the bonus as it stood before this file's step (Market Rush reads it) */
+stepOn('bonus', function(v,k){ for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; });
 const schedWas={}; SCHED.forEach(e=>schedWas[e.id]=!!schedLeft(e));
 setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
   let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ try{ sfx.hot(); }catch(er){ oops('bk_events036:sfx.hot',er); } } /* no notice: the LIVE marker and badges show it (director, 2026-11-21) */ } schedWas[e.id]=on; }

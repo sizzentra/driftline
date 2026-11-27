@@ -126,10 +126,10 @@ const RAR_FEEL={ buzz:[[0],[18],[22,40,22],[30,40,30,40,30],[40,50,40,50,80],[60
 function rarFanfare(r){ try{ if(r>=4){ const base=r===5?[523,659,784,1047,1319]:[392,523,659,784,1047]; base.forEach((f,i)=>tone(f,.5,'triangle',.06,0,.12+i*.09)); tone(r===5?1568:1319,.9,'sine',.05,0,.62); }
     else if(r===3){ [659,880,1109].forEach((f,i)=>tone(f,.32,'triangle',.05,0,.1+i*.07)); } }catch(e){ oops('bd_ui036:base.forEach',e); }
   try{ if(r>=1&&typeof vib==='function') vib(RAR_FEEL.buzz[r]); }catch(e){ oops('bd_ui036:vib',e); } }
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
     if(r>=3){ ci.insertAdjacentHTML('afterbegin',`<div class="rf rf-rays" aria-hidden="true"></div>`); }
     if(r>=4){ let s='<div class="rf rf-sparks" aria-hidden="true">'; const n=r===5?14:9; for(let i=0;i<n;i++) s+=`<i style="left:${6+((i*37)%88)}%;animation-delay:${(i*.23).toFixed(2)}s;animation-duration:${(2.2+(i%4)*.35).toFixed(2)}s"></i>`; ci.insertAdjacentHTML('afterbegin',s+'</div>'); }
-    if(r>=0) rarFanfare(r); }catch(e){ oops('bd_ui036:ci.querySelectorAll',e); } }; }
+    if(r>=0) rarFanfare(r); }catch(e){ oops('bd_ui036:ci.querySelectorAll',e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 #cardin{position:relative;isolation:isolate}
 #cardin > *:not(.rf):not(.shine){position:relative;z-index:1}

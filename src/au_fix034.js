@@ -19,8 +19,7 @@ function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true;
   const pick=s.sellR&&s.sellR!=='all', chosen=(f.sh&&sellShinyOn())||(f.hy&&sellHybridOn());
   if(pick){ if(sp.r>+s.sellR) return true; } else if(s.protectRare && sp.r>=3 && !chosen) return true;
   if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
-const _renderCooler_034 = renderCooler;
-renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
+stepOn('renderCooler', { after(t,P){ const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
   // 0.3.4.3: the price is typed in (plain numbers or 50k / 1.2m); empty means any price
   const pv=+s.sellP>0?fmtShort(+s.sellP):'';
@@ -29,7 +28,7 @@ renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[da
   P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); });
   const inp=P.querySelector('[data-sp]'); if(inp){ const apply=()=>{ const v=sellParse(inp.value); if(v===+S.settings.sellP||(!v&&!(+S.settings.sellP))){ inp.value=v?fmtShort(v):''; return; } S.settings.sellP=v; save(); renderPanel(); };
     inp.addEventListener('change',apply); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }); }
-  const clr=P.querySelector('[data-spclear]'); if(clr) clr.onclick=()=>{ S.settings.sellP=0; save(); renderPanel(); }; };
+  const clr=P.querySelector('[data-spclear]'); if(clr) clr.onclick=()=>{ S.settings.sellP=0; save(); renderPanel(); }; } });
 // "50k" -> 50000, "1.2m" -> 1200000, "2,500" -> 2500, anything else -> 0 (no limit)
 function sellParse(t){ const m=String(t||'').trim().toLowerCase().replace(/[, _]/g,'').match(/^(\d+(?:\.\d+)?)([kmb]?)$/); if(!m) return 0; const n=parseFloat(m[1])*({k:1e3,m:1e6,b:1e9}[m[2]]||1); return Math.max(0,Math.round(n)); }
 
@@ -42,13 +41,11 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
 // what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
 function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
 function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ oops('au_fix034:aqIncomeTxt',e); return ''; } }
-const _showCard_034 = showCard;
-showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
+stepOn('showCard', { before(){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ return ce; }, after(ce){ const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
   // 0.3.5: a compact fourth stat beside Weight, Sells for and XP (the full sentence is on hover)
-  const full=S.tank.length>=aqCap(), nums=$('cardnums'); if(nums) nums.insertAdjacentHTML('beforeend',`<div class="aqinc${full?' full':''}" title="${inc}${full?' (your aquarium is full)':''}"><span>Aquarium</span><b class="coin">${fmt(aqRateIf(ce))}<small>/h</small></b></div>`); };
-const _renderCooler_034b = renderCooler;
-renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); };
+  const full=S.tank.length>=aqCap(), nums=$('cardnums'); if(nums) nums.insertAdjacentHTML('beforeend',`<div class="aqinc${full?' full':''}" title="${inc}${full?' (your aquarium is full)':''}"><span>Aquarium</span><b class="coin">${fmt(aqRateIf(ce))}<small>/h</small></b></div>`); } });
+stepOn('renderCooler', { after(t,P){ P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); } });
 
 // ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
 const DEMAND={slot:-1,id:null};
@@ -64,7 +61,7 @@ fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.ru
 
 // ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
 panelStep({ after(){ try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){ oops('au_fix034:requestAnimationFrame',e); } } });
-const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } };
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } } });
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 .sellsh{display:inline-flex;align-items:center;gap:6px;color:#cfe0ec}.sellsh .ssh-star{color:#8fa6ba;transition:color .2s}.sellsh[aria-pressed="true"]{color:#ffe7a8}.sellsh[aria-pressed="true"] .ssh-star{color:#ffd36a;text-shadow:0 0 8px #ffd36a99}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}

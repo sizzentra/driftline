@@ -26,10 +26,10 @@ function nibHalve(){ nibFold(); const o={}; for(const k in (S.nib||{})){ const n
 const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 
 // income and bonuses of a fed fish
-{ const _base=aqFishBase; aqFishBase=function(f){ const v=_base(f); return f ? v*(f.fed?nibIncome(f.fed):1)*(1+FEED_INC*(f.fdi||0)) : v; }; /* Nibbles, and C28 feeding gains */
-  const _buffs=aqBuffsOf; aqBuffsOf=function(f){ const L=_buffs(f); if(!f) return L; const sp=SPI[f.id];
+stepOn('aqFishBase', function(v,f){ return f ? v*(f.fed?nibIncome(f.fed):1)*(1+FEED_INC*(f.fdi||0)) : v; }); /* Nibbles, and C28 feeding gains */
+stepOn('aqBuffsOf', function(L,f){ if(!f) return L; const sp=SPI[f.id];
     if(sp&&f.abx) for(const b of f.abx) if(b&&BK[b.k]) L.push({k:b.k, v:AQ_MAG2[clamp(b.t|0,0,5)]*(b.w||1), t:b.t, nib:1});
-    if(f.nbst||f.fdb){ const m=(1+NIB_BOOST*(f.nbst||0))*(1+FEED_BOOST*(f.fdb||0)); for(const e of L) e.v*=m; } return L; }; }
+    if(f.nbst||f.fdb){ const m=(1+NIB_BOOST*(f.nbst||0))*(1+FEED_BOOST*(f.fdb||0)); for(const e of L) e.v*=m; } return L; });
 
 // scrap and feed
 let NIB_ANIM=null;

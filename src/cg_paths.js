@@ -73,9 +73,9 @@ function pathAdd(k){ let v=0; if(!S||!S.specs) return 0; for(const id of pathCho
 function pathSave(){ for(const id of pathChosen()){ const fx=PATH_FX[id]; if(fx&&fx.save&&Math.random()<fx.save*pathPow(id)) return true; } return false; }
 const spinEvery = () => SPIN_EVERY/pathMul('spin');
 // bonus keys: the new paths' additions plus +1% sale price and XP per rank of every chosen path
-{ const _b=bonus; bonus=function(k){ let v=_b(k); if(!S||!S.specs) return v; let add=0;
+stepOn('bonus', function(v,k){ if(!S||!S.specs) return v; let add=0;
     for(const id of pathChosen()){ const fx=PATH_FX[id]; if(fx&&fx.add&&fx.add[k]!=null&&(!fx.when||fx.when())) add+=fx.add[k]*pathPow(id); if(k==='sell'||k==='xp') add+=.01*pathRank(id); }
-    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; }; }
+    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; });
 // weather paths
 { const _w=weather; weather=function(){ const w=_w(); if(!S||!S.specs) return w; const amp=(x,m)=>x>1?1+(x-1)*m:x; let o=w;
     if(spec('stormchaser')&&(w.str||1)>1){ o=Object.assign({},o,{str:1, rare:(o.rare||0)*(1+.5*pathPow('stormchaser'))}); }
@@ -84,17 +84,17 @@ const spinEvery = () => SPIN_EVERY/pathMul('spin');
     return o; }; }
 // rest, foods, mythics, tickets, events, voyage, hybrids in the tank
 { const _r=restBiteTime; restBiteTime=function(){ return _r()*pathMul('restbite'); }; }
-{ const _cw=catchW; catchW=function(s,pool,rare,b){ let w=_cw.apply(this,arguments); if(b&&b.food&&FISH_FAV[s.id]===b.id) w*=pathMul('fav'); if(s.r>=5) w*=pathMul('mythic'); return w; }; }
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); if(f&&sp&&sp.r>=5){ const m=pathMul('mythval'); if(m!==1) f.value=Math.round(f.value*m); } return f; }; }
+stepOn('catchW', function(w,s,pool,rare,b){ if(b&&b.food&&FISH_FAV[s.id]===b.id) w*=pathMul('fav'); if(s.r>=5) w*=pathMul('mythic'); return w; });
+stepOn('rollFish', function(f,sp){ if(f&&sp&&sp.r>=5){ const m=pathMul('mythval'); if(m!==1) f.value=Math.round(f.value*m); } return f; });
 { const _t=addTickets; addTickets=function(n){ return _t(n*pathMul('tix')); }; }
 { const _c=chalReward; chalReward=function(m){ return _c(m*pathMul('chal')); }; }
 { const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const m=pathMul('derby'); if(m!==1&&S.derby&&S.derby.total>before) S.derby.total=+(S.derby.total+(S.derby.total-before)*(m-1)).toFixed(2); }catch(e){ oops('cg_paths:pathMul',e); } }; }
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()*pathMul('legacy'); }; }
-{ const _a=aqFishBase; aqFishBase=function(f){ const v=_a(f); return f&&f.hy ? v*pathMul('hyaq') : v; }; }
+stepOn('aqFishBase', function(v,f){ return f&&f.hy ? v*pathMul('hyaq') : v; });
 // ranks grow with every fish landed while a path is chosen
-{ const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
+stepOn('landFish', { before(){ const f=G.fish; return f&&f.kind==='fish'; }, after(was){
     try{ if(was&&S.specs){ S.pathXP=S.pathXP||{}; for(const id of pathChosen()){ const r0=pathRank(id); S.pathXP[id]=(S.pathXP[id]||0)+1; const r1=pathRank(id);
-      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){ oops('cg_paths:pathChosen',e); } return r; }; }
+      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){ oops('cg_paths:pathChosen',e); } } });
 // saves: pathXP is a plain map of path id → fish landed
 function pathsClean(t){ try{ const px={}; if(t.pathXP&&typeof t.pathXP==='object') for(const k in t.pathXP){ const n=+t.pathXP[k]; if(PATH_FX[k]!==undefined||SPEC_TIERS.some(T=>T.opts.some(op=>op[0]===k))) if(isFinite(n)&&n>0) px[k]=Math.floor(n); } t.pathXP=px;
     if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } }catch(e){ oops('cg_paths:SPEC_TIERS.some',e); } } /* a step of migrate() in c_logic.js */
@@ -110,8 +110,8 @@ function renderPaths(P){ const open=SPEC_TIERS.filter(T=>S.lvl>=T.lvl).length, c
   P.innerHTML=`<h2>Paths</h2><p class="sub path-intro">${SPEC_TIERS.length} forks open from level 5 to 75. Pick one specialty per fork: it ranks up from I to V as you fish with it.<br>Switching or removing a path costs the fee shown on its fork.</p>
    <div class="meta" style="margin-top:4px">${chosen} chosen · ${open} of ${SPEC_TIERS.length} open at level ${S.lvl}</div>
    <div class="path-list">${PATH_ORDER.map(pathCard).join('')}</div>`; };
-actOn('specrm', function(b){ { const ti=+b.dataset.i, T=SPEC_TIERS[ti]; if(!T||!S.specs[ti]) return 'skip'; const fee=specFee(ti); if(S.money<fee){ toast('Removing this path costs '+fmt(fee)+' coins.'); return 'skip'; }
-    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Pick it again to keep its rank.'); save(); return 'render'; } });
+actOn('specrm', function(b){ const ti=+b.dataset.i, T=SPEC_TIERS[ti]; if(!T||!S.specs[ti]) return 'skip'; const fee=specFee(ti); if(S.money<fee){ toast('Removing this path costs '+fmt(fee)+' coins.'); return 'skip'; }
+    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Pick it again to keep its rank.'); save(); return 'render'; });
 if(typeof ACT_OK==='object') ACT_OK.specrm=(k,i)=>Number.isInteger(i)&&i>=0&&i<SPEC_TIERS.length;
 // feats for the longer road
 try{ const f5=FEATS.find(f=>f.id==='paths5'); if(f5){ f5.name='Five roads'; f5.d='Choose five Paths'; }

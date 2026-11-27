@@ -195,5 +195,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 }
 </style>`);
 // a cheap switch for "a catch card is open" (instead of a :has() style rule the browser keeps re-checking)
-{ const _sc=showCard; showCard=function(o){ _sc(o); document.body.classList.add('card-open'); };
+{ stepOn('showCard', { after(){ document.body.classList.add('card-open'); } });
   const _hc=hideCard; hideCard=function(){ document.body.classList.remove('card-open'); return _hc.apply(this,arguments); }; }

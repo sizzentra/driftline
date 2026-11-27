@@ -28,7 +28,8 @@ const AQ_MAG2 = [.012,.022,.04,.065,.1,.18];
 function rollTier(r){ const x=Math.random(); if(x<.004) return Math.floor(Math.random()*6); if(x<.07) return clamp(r+(Math.random()<.5?-1:1)*2,0,5); if(x<.26) return clamp(r+(Math.random()<.5?-1:1),0,5); return r; }
 function rollAqBuff(sp,kg,favoured){ const pref=AQ_KEYS[hashStr(sp.id)%AQ_KEYS.length], k=(favoured||Math.random()<.62)?pref:AQ_KEYS[Math.floor(Math.random()*AQ_KEYS.length)];
   const t=rollTier(sp.r), rel=sp.max>sp.min?clamp((kg-sp.min)/(sp.max-sp.min),0,1.5):.5; return {k,t,w:+(.75+.5*Math.min(1,rel)).toFixed(3)}; }
-function aqBuffsOf(f){ const sp=SPI[f.id]; if(!sp) return [];
+function aqBuffsOf(f){ return thenRun('aqBuffsOf',aqBuffsOfCore(f),f); } /* F6 slice 6: weight, decorations, tiny hybrids and Nibbles are steps */
+function aqBuffsOfCore(f){ const sp=SPI[f.id]; if(!sp) return [];
   const mult=(f.sh===2?3.5:f.sh?(maxed('aquarist')?3:2):1)*(f.tr?1.25:1)*(1+.03*pr('aquarist'))*(f.hy?1.5:1);
   const list=[]; const add=b=>{ if(b) list.push({k:b.k, v:AQ_MAG2[b.t]*(b.w||1)*mult, t:b.t}); };
   if(f.ab){ add(f.ab); add(f.ab2); } else { const b=aqBase(f.id); if(b) list.push({k:b.k, v:b.v*mult, t:sp.r}); }
@@ -63,7 +64,8 @@ function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=n
   drawCreature(g,E.sp,x,y,len,{sil:'#06121a',wag:t*14,flip:true}); g.restore(); }
 
 // ---------- a fish of a given species, rolled the 0.3 way (used for normal catches, prey and predators) ----------
-function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{rare:0,weight:1};
+function rollFish(sp,ctx){ return thenRun('rollFish',rollFishCore(sp,ctx),sp,ctx); } /* F6 slice 6: paths, boons and end-game waters are steps */
+function rollFishCore(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{rare:0,weight:1};
   const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?1.6:1) * dm.weight;
   let kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb), hy=null;
   // hybrid: the weight of another fish from the same waters
@@ -104,16 +106,16 @@ if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=docu
 // rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
 const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
 function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
-function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const cu=waterCatchUp(sp.loc), sm=hySmall(f,sp), raw=(+f.value||0)/(+f.cu||1)*cu/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1)*cu; return Math.min(raw,cap); } /* Cam, round 7 (2026-11-25): fish from earlier waters earn more in the aquarium as later waters open, like their sale price (waterCatchUp: competitive, never better than the top water) */ /* [23] in-range hybrids lift the cap by the same multiplier */
+function aqFishBase(f){ return thenRun('aqFishBase',aqFishBaseCore(f),f); } /* F6 slice 6: decorations, Nibbles and paths are steps */
+function aqFishBaseCore(f){ const sp=SPI[f.id]; if(!sp) return 0; const cu=waterCatchUp(sp.loc), sm=hySmall(f,sp), raw=(+f.value||0)/(+f.cu||1)*cu/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1)*cu; return Math.min(raw,cap); } /* Cam, round 7 (2026-11-25): fish from earlier waters earn more in the aquarium as later waters open, like their sale price (waterCatchUp: competitive, never better than the top water) */ /* [23] in-range hybrids lift the cap by the same multiplier */
 // 0.3.2: weight counts in the aquarium. A fish heavy for its kind earns more (its income cap grows from x0.75 for the
 // lightest to x1.7 for a record-breaker) and rolls stronger buffs, so your best prized catches belong on display.
 function aqRel(f,sp){ return sp&&sp.max>sp.min ? clamp(((+f.kg||0)-sp.min)/(sp.max-sp.min),0,1.5) : .5; }
 function aqWeightK(f,sp){ return .75+.63*aqRel(f,sp); }
-const _aqBuffsOf_w = aqBuffsOf;
-aqBuffsOf = function(f){ const L=_aqBuffsOf_w(f), sp=SPI[f.id]; if(!sp) return L; const r=aqRel(f,sp);
+stepOn('aqBuffsOf', function(L,f){ const sp=SPI[f.id]; if(!sp) return L; const r=aqRel(f,sp);
   // fish rolled since 0.3 already carry a weight factor (0.75 to 1.25); this adds a bonus for the top end, and gives
   // older fish (which had none) the full weight effect
-  const k=f.ab ? 1+.3*Math.max(0,r-.6) : .75+.5*Math.min(1.5,r); if(k!==1) for(const e of L) e.v*=k; return L; };
+  const k=f.ab ? 1+.3*Math.max(0,r-.6) : .75+.5*Math.min(1.5,r); if(k!==1) for(const e of L) e.v*=k; return L; });
 /* small hybrids (Cam, 2026-11-23: "small hybrids lose only half of their sell value from the drop in weight rather than all, and don't lose any
    from aquarium revenue"): a hybrid lighter than its own kind's usual weight loses half of what its weight would cost in coins (value
    follows weight^0.85; half of that drop is given back), and in the aquarium it earns as if it weighed the usual amount */

@@ -101,7 +101,7 @@ function q8html(){ const gl=Q8.goal(), read=Q8.read(), p=gl.p!=null?Math.max(0,M
   return `<div class="row spread"><div><h2 class="dl-dup">Quests</h2></div></div>${goals}${learn}${find}${help}`; }
 /* the shared pages are drawn through the game's normal page drawing (unknown pages fall back to renderCooler): ONE hook, one entry per page */
 const SHARED_PAGES={ quests:P=>{ P.innerHTML=q8html(); } };
-{ const _rc=renderCooler; renderCooler=function(P){ const f=P&&SHARED_PAGES[S.tab]; if(f){ f(P); return; } return _rc.apply(this,arguments); }; }
+stepOn('renderCooler', { before(P){ const f=P&&SHARED_PAGES[S.tab]; if(f){ f(P); return 'drawn'; } } });
 {
   /* taps inside the page */
   document.addEventListener('click',e=>{ const P=$('panel'); if(!P||S.tab!=='quests'||!P.contains(e.target)) return;

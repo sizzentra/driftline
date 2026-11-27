@@ -95,6 +95,8 @@ foreach ($f in (Get-ChildItem (Join-Path $root 'src') -Recurse -Include *.js,*.h
 # Widened in F6 slice 5 (2026-11-27): a catch that falls back to a default value ("return ''", "x=null", "continue") hid the error just
 # as well (46 of them, qc 261). Every catch in the game's files must now report: call oops, or carry the quiet mark, or tell someone
 # itself (a toast, the transfer status line, a prompt, the console). The test file is left out: its catches are the tests' own logic.
+# The catch's text is found by counting brackets and skipping quoted text: a lone bracket inside a pattern (/}/) or a template text
+# in a catch would mislead it; write such a catch so its oops call comes first.
 $tells = [regex]'\boops\(|/\*\s*quiet:|\bconsole\.(?:error|warn)\(|\btoast\(|\bxfStat\(|\bprompt\('
 $catchAt = [regex]'(?<=\})\s*catch\s*(?:\(\s*\w*\s*\))?\s*\{|\.catch\(\s*(?:function\b|\(?\s*\w*\s*\)?\s*=>)'
 foreach ($f in (Get-ChildItem (Join-Path $root 'src') -Recurse -Include *.js,*.html | Where-Object { $_.Name -ne 'bn_qa04.js' })) {

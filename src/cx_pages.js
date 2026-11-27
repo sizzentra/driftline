@@ -7,7 +7,7 @@
 // =====================================================================
 const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform adds one page step (panelStep): PAGES.before(); draw; PAGES.after() */
 /* Clean Pages (2026-11-21): a page's own finishing touches, run in order at the very end of PAGES.after (after the page engine has
-   laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of wrapping renderPanel again */
+   laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of adding another page step (panelStep) */
 const PAGE_DONE={}; function pageDone(tab,fn){ (PAGE_DONE[tab]=PAGE_DONE[tab]||[]).push(fn); }
 function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(const f of L) try{ f(P); }catch(e){ console.error(e); } }
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };

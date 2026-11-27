@@ -1,4 +1,4 @@
-/* PC page steps (Clean Pages 4): PC page touches push here instead of wrapping renderPanel; pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
+/* PC page steps (Clean Pages 4): PC page touches push here instead of adding another page step (panelStep); pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
 const PC_STEPS={pre:[],post:[]};
 // PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every

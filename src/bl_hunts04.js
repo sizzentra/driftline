@@ -22,8 +22,7 @@ function cleanHunts(st){ const out={}; const src=st&&st.hunts&&typeof st.hunts==
 S.hunts=cleanHunts(S);
 /* every load runs cleanHunts: a step of migrate() in c_logic.js */
 // the weight: one multiplier, in the shared function
-const _catchW_04=catchW;
-catchW=function(s,pool,rare,b){ const w=_catchW_04(s,pool,rare,b); return isHunted(s)?w*huntMult(s):w; };
+stepOn('catchW', function(w,s){ return isHunted(s)?w*huntMult(s):w; });
 // start or stop a hunt; returns a short result the UI turns into feedback
 function toggleHunt(id){ const s=SPI[id]; if(!s) return {ok:false, msg:'That fish does not exist.'};
   S.hunts=S.hunts||{}; const a=huntsAt(s.loc).slice(), i=a.indexOf(id), L=LOCS[locIdx(s.loc)];
@@ -33,9 +32,8 @@ function toggleHunt(id){ const s=SPI[id]; if(!s) return {ok:false, msg:'That fis
   a.push(id); S.hunts[s.loc]=a; save(); const found=!!S.journal[id], j=S.journal[id];
   return {ok:true, on:true, msg:found?('Shiny hunt: '+s.name+' turns up '+HUNT_MULT_FOUND+'× as often'+(j&&j.sh?' (you have its shiny already; stop the hunt any time)':' until you land a shiny one')+' ('+a.length+' / '+HUNT_MAX+').'):('Hunting this fish at '+L.name+': it now turns up '+HUNT_MULT+'× as often ('+a.length+' / '+HUNT_MAX+').')}; }
 // a missing fish's hunt ends when you catch it; a found fish's (shiny) hunt ends when you land it shiny for the first time
-const _landFish_hunt=landFish;
-landFish=function(){ const f=G.fish, sp=f&&f.kind==='fish'?f.sp:null, hunted=sp&&isHunted(sp), j0=sp&&S.journal[sp.id], wasMissing=hunted&&!j0, shinyDone=hunted&&j0&&!j0.sh&&!!f.shiny; _landFish_hunt.apply(this,arguments);
-  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){ oops('bl_hunts04:sfx.catch',e); } },900); if(S.tab==='journal') renderPanel(); } };
+stepOn('landFish', { before(){ const f=G.fish, sp=f&&f.kind==='fish'?f.sp:null, hunted=sp&&isHunted(sp), j0=sp&&S.journal[sp.id], wasMissing=hunted&&!j0, shinyDone=hunted&&j0&&!j0.sh&&!!f.shiny; return {sp,wasMissing,shinyDone}; }, after({sp,wasMissing,shinyDone}){
+  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){ oops('bl_hunts04:sfx.catch',e); } },900); if(S.tab==='journal') renderPanel(); } } });
 if(/[?&]test\b/.test(location.search)) window.__hunt={toggleHunt, huntsAt, isHunted, huntable, cleanHunts, HUNT_MAX, HUNT_MULT, get:()=>JSON.parse(JSON.stringify(S.hunts)), set:h=>{ S.hunts=h; }};
 
 // ---------------------------------------------------------------------

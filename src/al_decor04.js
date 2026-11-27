@@ -22,11 +22,9 @@ function decorSumKind(kind){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]){ c
 function decorBonus(){ return decorSumKind('income'); };
 const decorBoost = () => decorSumKind('boost'), decorShow = () => decorSumKind('show');
 // fish buffs: every aquarium buff a little stronger (the caps on each bonus still apply)
-const _aqBuffsOf_04 = aqBuffsOf;
-aqBuffsOf = function(f){ const L=_aqBuffsOf_04(f), m=1+decorBoost(); if(m!==1) for(const e of L) e.v*=m; return L; };
+stepOn('aqBuffsOf', function(L){ const m=1+decorBoost(); if(m!==1) for(const e of L) e.v*=m; return L; });
 // showpiece: shiny and hybrid fish earn more
-const _aqFishBase_04 = aqFishBase;
-aqFishBase = function(f){ const v=_aqFishBase_04(f); return (f&&(f.sh||f.hy)) ? v*(1+decorShow()) : v; };
+stepOn('aqFishBase', function(v,f){ return (f&&(f.sh||f.hy)) ? v*(1+decorShow()) : v; });
 
 Object.assign(TANK_ART,{
   reefarch(c,t){ const sh=(x0,y0,x1,y1,a,b)=>{ const g=c.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,a); g.addColorStop(1,b); return g; };

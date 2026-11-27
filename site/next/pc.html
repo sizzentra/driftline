@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="DL Test">
 <script>
-window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } try{ window.__tOff=/[?&](test|sweep|frozen)\b/.test(location.search)?0:(+(localStorage.getItem("dl-test-toff")||0)||0); }catch(e){ window.__tOff=0; } (function(){ var rn=Date.now.bind(Date); Date.now=function(){ return rn()+window.__tOff; }; })(); if(/[?&]frozen\b/.test(location.search)){ var __fz=20261122; Math.random=function(){ __fz|=0; __fz=__fz+0x6D2B79F5|0; var t=Math.imul(__fz^__fz>>>15,1|__fz); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; var __fc=0, __pn=performance.now.bind(performance); performance.now=function(){ __fc+=0.01; return 100000+__fc; }; Date.now=function(){ return 1795300000000+Math.floor(__fc); }; window.__frozenClock=function(){ return __fc; }; window.requestAnimationFrame=function(){ return 0; }; window.cancelAnimationFrame=function(){}; } window.DL_VERSION='2026.11.27-0313';
+window.DL_BUILD='pc'; window.DL_PREVIEW=true; if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } try{ window.__tOff=/[?&](test|sweep|frozen)\b/.test(location.search)?0:(+(localStorage.getItem("dl-test-toff")||0)||0); }catch(e){ window.__tOff=0; } (function(){ var rn=Date.now.bind(Date); Date.now=function(){ return rn()+window.__tOff; }; })(); if(/[?&]frozen\b/.test(location.search)){ var __fz=20261122; Math.random=function(){ __fz|=0; __fz=__fz+0x6D2B79F5|0; var t=Math.imul(__fz^__fz>>>15,1|__fz); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; var __fc=0, __pn=performance.now.bind(performance); performance.now=function(){ __fc+=0.01; return 100000+__fc; }; Date.now=function(){ return 1795300000000+Math.floor(__fc); }; window.__frozenClock=function(){ return __fc; }; window.requestAnimationFrame=function(){ return 0; }; window.cancelAnimationFrame=function(){}; } window.DL_VERSION='2026.11.27-0405';
 window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__dlInstallPrompt=e; });
 </script>
 </head>
@@ -462,6 +462,26 @@ function oops(where,e){ try{ const L=oops.seen||(oops.seen=new Map()); let r=L.g
     if(!r){ if(L.size>=60){ oops.over=(oops.over||0)+1; return; } r={where,n:0,msg:[]}; L.set(where,r); }
     r.n++; if(r.msg.length<3&&r.n<=20){ /* messages are only looked at for the first 20: an error repeating every frame costs a count after that */ const m=String(e&&e.message||e).slice(0,160); if(!r.msg.includes(m)) r.msg.push(m); }
   }catch(_){ /* quiet: the reporter itself never throws */ } }
+// =====================================================================
+// Steps on a function (Foundation F6 slices 3 and 6, 2026-11-27). A later file that adds to what a core function does adds a step to
+// it with stepOn('name', step) instead of wrapping it. The function itself runs its steps, in the order the files load, so there is
+// one function and one list per name. Two kinds, one per function:
+//   around it (renderPanel, showCard, landFish, renderCooler, menuTidy2): a step is {before(...args){ }, after(t, ...args){ }}.
+//     stepsRun runs every "before" from the last added to the first, the function, then every "after" from the first added to the
+//     last. What a "before" returns is handed to the same step's "after". A "before" that answers 'drawn' has done the job itself:
+//     the steps added before it and the function are skipped, the steps added after it still run their "after". A step's "always"
+//     runs right after its "after", also when the function failed.
+//   after it, on its value (bonus, catchW, rollFish, aqFishBase, aqBuffsOf): a step is (value, ...args)=>new value; thenRun hands the
+//     value through them in order.
+// The lists sit on stepOn (like oops' list), so steps can be added, and the functions called, while the page is still loading.
+// Limits, on purpose (no array is made per call): an "after" gets the first two arguments, a value step the first four; a "before"
+// must not use the text 'drawn' as its own value.
+// =====================================================================
+function stepOn(name,s){ const L=stepOn.lists||(stepOn.lists={}); (L[name]||(L[name]=[])).push(s); }
+function stepsOf(name){ return (stepOn.lists&&stepOn.lists[name])||stepOn.none||(stepOn.none=[]); }
+function stepsRun(L,core,a,i){ if(i<0) return core.apply(null,a); const s=L[i]; let t, r; if(s.before){ t=s.before.apply(null,a); if(t==='drawn') return; }
+  if(s.always){ try{ r=stepsRun(L,core,a,i-1); if(s.after) s.after(t,a[0],a[1]); } finally{ s.always(t); } } else { r=stepsRun(L,core,a,i-1); if(s.after) s.after(t,a[0],a[1]); } return r; }
+function thenRun(name,v,a,b,c,d){ const L=stepsOf(name); for(let i=0;i<L.length;i++) v=L[i](v,a,b,c,d); return v; }
 /* a copy of the list for Tester tools and the checks: [{where, n, msg}], msg = the different messages joined */
 function oopsList(){ const L=oops.seen?[...oops.seen.values()].map(r=>({where:r.where,n:r.n,msg:r.msg.join(' | ')})):[]; if(oops.over) L.push({where:'(other places, list full)',n:oops.over,msg:''}); return L; }
 
@@ -1763,7 +1783,9 @@ function aqSum(k){ let s=0; for(const f of S.tank) for(const e of aqNet(f)) if(e
 const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
-function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
+/* F6 slice 6: the files that add to a bonus (relics, events, feats, paths, boons) are steps on it (stepOn('bonus', (v,k)=>v2), a3_plat.js),
+   run in the order the files load. upto: only the first so many steps (the events file needs the bonus as it stood before its own step). */
+function bonus(k,upto){ let v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); if(BONUS_CAP[k]) v=Math.min(BONUS_CAP[k],v); const L=stepsOf('bonus'), n=upto===undefined?L.length:upto; for(let i=0;i<n;i++) v=L[i](v,k); return v; }
 /* the sale price before bonuses: one formula, also used by Market Rush (a copy of it missed the Merchant Path, so Rush gave 27.5% instead of 30%: Cam's Pixel, 2026-11-20) */
 const sellBase = () => 1 + .03*(S.lvl-1) + .04*pr('haggler') + .01*anglerRank() + (spec('merchant')?.12:0);
 const sellMult = () => (sellBase() + bonus('sell')) * coinMult();
@@ -1911,7 +1933,8 @@ function chooseCatch(){
 // 0.3.6: how much better rare odds make each rarity. Compounding, so every source of rare odds keeps mattering as they
 // stack (it used to be a flat sum, where each new source counted for less and less). Commons are never boosted.
 const rareMul = (rare,f) => f ? Math.pow(1+Math.max(0,rare)*.6, f*1.25) : 1;
-function catchW(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.4:1); }
+function catchW(s,pool,rare,b){ return thenRun('catchW',catchWCore(s,pool,rare,b),s,pool,rare,b); } /* F6 slice 6: hunts, foods and paths are steps */
+function catchWCore(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.4:1); }
 // the real chance of each rarity on your next normal cast here (no hotspot, not a far cast), from the same weights as a
 // catch; opts can try a different bait or rod or extra Lucky Charm ranks, so cards can show exactly what a choice changes
 function catchOdds(opts={}){ const keep={bait:S.baitSel, rod:S.rods&&S.rods.eq, perks:S.perks};
@@ -1942,7 +1965,8 @@ function endFight(kind){
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
   if(f.hot) S.stats.hot++; G.inHot=false;
   if(f.kind==='fish') landFish(); else if(f.kind==='hat') landHat(); else landJunk(); }
-function landFish(){
+function landFish(){ const L=stepsOf('landFish'); return stepsRun(L,landFishCore,[],L.length-1); } /* F6 slice 6: events, hunts, paths and boons are steps around it */
+function landFishCore(){
   const f=G.fish, sp=f.sp; G.st='result'; G.fish=null; S.voyCatch=S.voyCatch||{}; S.voyCatch[sp.loc]=(S.voyCatch[sp.loc]||0)+1; /* [16] catches per water this voyage */ const titleNew = f.shiny===2 && f.pv && !(S.titled=S.titled||{})[sp.id+':'+f.pv]; if(titleNew) S.titled[sp.id+':'+f.pv]=1; /* [18] */
   const j=S.journal[sp.id]; const isNew=!j; const record = j && !f.hy && f.kg > j.best; const hyNew = f.hy && !(j&&j.hb!=null);
   journalAdd(f);
@@ -2264,7 +2288,8 @@ const AQ_MAG2 = [.012,.022,.04,.065,.1,.18];
 function rollTier(r){ const x=Math.random(); if(x<.004) return Math.floor(Math.random()*6); if(x<.07) return clamp(r+(Math.random()<.5?-1:1)*2,0,5); if(x<.26) return clamp(r+(Math.random()<.5?-1:1),0,5); return r; }
 function rollAqBuff(sp,kg,favoured){ const pref=AQ_KEYS[hashStr(sp.id)%AQ_KEYS.length], k=(favoured||Math.random()<.62)?pref:AQ_KEYS[Math.floor(Math.random()*AQ_KEYS.length)];
   const t=rollTier(sp.r), rel=sp.max>sp.min?clamp((kg-sp.min)/(sp.max-sp.min),0,1.5):.5; return {k,t,w:+(.75+.5*Math.min(1,rel)).toFixed(3)}; }
-function aqBuffsOf(f){ const sp=SPI[f.id]; if(!sp) return [];
+function aqBuffsOf(f){ return thenRun('aqBuffsOf',aqBuffsOfCore(f),f); } /* F6 slice 6: weight, decorations, tiny hybrids and Nibbles are steps */
+function aqBuffsOfCore(f){ const sp=SPI[f.id]; if(!sp) return [];
   const mult=(f.sh===2?3.5:f.sh?(maxed('aquarist')?3:2):1)*(f.tr?1.25:1)*(1+.03*pr('aquarist'))*(f.hy?1.5:1);
   const list=[]; const add=b=>{ if(b) list.push({k:b.k, v:AQ_MAG2[b.t]*(b.w||1)*mult, t:b.t}); };
   if(f.ab){ add(f.ab); add(f.ab2); } else { const b=aqBase(f.id); if(b) list.push({k:b.k, v:b.v*mult, t:sp.r}); }
@@ -2299,7 +2324,8 @@ function drawEat(t){ const E=G.eat; if(!E) return; if(G.st!=="reeling"){ G.eat=n
   drawCreature(g,E.sp,x,y,len,{sil:'#06121a',wag:t*14,flip:true}); g.restore(); }
 
 // ---------- a fish of a given species, rolled the 0.3 way (used for normal catches, prey and predators) ----------
-function rollFish(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{rare:0,weight:1};
+function rollFish(sp,ctx){ return thenRun('rollFish',rollFishCore(sp,ctx),sp,ctx); } /* F6 slice 6: paths, boons and end-game waters are steps */
+function rollFishCore(sp,ctx){ const b=BAIT[S.baitSel], wx=weather(), dm=ctx.dist||{rare:0,weight:1};
   const tb = (1 + bonus('trophy') + .06*pr('trophy') + (b.trophy||0)) * (spec('trophyking')?1.6:1) * dm.weight;
   let kg = sp.min + (sp.max-sp.min)*Math.pow(Math.random(),1.8/tb), hy=null;
   // hybrid: the weight of another fish from the same waters
@@ -2340,16 +2366,16 @@ if(/[?&]test\b/.test(location.search)) window.__prismSheet=(ids)=>{ const o=docu
 // rising with rarity. So a full tank is a strong passive bonus, and fishing yourself always pays more per hour.
 const AQ_CAP_K=[.006,.008,.012,.02,.03,.045], WATER_EV={};
 function waterEV(loc){ if(WATER_EV[loc]==null){ const pool=SP.filter(s=>s.loc===loc); let a=0,t=0; for(let r=0;r<6;r++){ const L=pool.filter(s=>s.r===r); if(!L.length) continue; a+=RAR[r].w*L.reduce((x,s)=>x+s.base,0)/L.length*RAR[r].val; t+=RAR[r].w; } WATER_EV[loc]=t?a/t:1; } return WATER_EV[loc]; }
-function aqFishBase(f){ const sp=SPI[f.id]; if(!sp) return 0; const cu=waterCatchUp(sp.loc), sm=hySmall(f,sp), raw=(+f.value||0)/(+f.cu||1)*cu/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1)*cu; return Math.min(raw,cap); } /* Cam, round 7 (2026-11-25): fish from earlier waters earn more in the aquarium as later waters open, like their sale price (waterCatchUp: competitive, never better than the top water) */ /* [23] in-range hybrids lift the cap by the same multiplier */
+function aqFishBase(f){ return thenRun('aqFishBase',aqFishBaseCore(f),f); } /* F6 slice 6: decorations, Nibbles and paths are steps */
+function aqFishBaseCore(f){ const sp=SPI[f.id]; if(!sp) return 0; const cu=waterCatchUp(sp.loc), sm=hySmall(f,sp), raw=(+f.value||0)/(+f.cu||1)*cu/(sm?hyWeightK(sm):1)*TANK_RATE*.75*RAR[sp.r].aq*(f.sh===2?1.6:1)*(f.hy?1.3:1), cap=waterEV(sp.loc)*4.6*AQ_CAP_K[sp.r]*(sm?aqWeightK({kg:(sp.min+sp.max)/2},sp):aqWeightK(f,sp))*(f.sh===2?1.6:f.sh?1.25:1)*(f.hy?1.3:1)*(f.hx||1)*cu; return Math.min(raw,cap); } /* Cam, round 7 (2026-11-25): fish from earlier waters earn more in the aquarium as later waters open, like their sale price (waterCatchUp: competitive, never better than the top water) */ /* [23] in-range hybrids lift the cap by the same multiplier */
 // 0.3.2: weight counts in the aquarium. A fish heavy for its kind earns more (its income cap grows from x0.75 for the
 // lightest to x1.7 for a record-breaker) and rolls stronger buffs, so your best prized catches belong on display.
 function aqRel(f,sp){ return sp&&sp.max>sp.min ? clamp(((+f.kg||0)-sp.min)/(sp.max-sp.min),0,1.5) : .5; }
 function aqWeightK(f,sp){ return .75+.63*aqRel(f,sp); }
-const _aqBuffsOf_w = aqBuffsOf;
-aqBuffsOf = function(f){ const L=_aqBuffsOf_w(f), sp=SPI[f.id]; if(!sp) return L; const r=aqRel(f,sp);
+stepOn('aqBuffsOf', function(L,f){ const sp=SPI[f.id]; if(!sp) return L; const r=aqRel(f,sp);
   // fish rolled since 0.3 already carry a weight factor (0.75 to 1.25); this adds a bonus for the top end, and gives
   // older fish (which had none) the full weight effect
-  const k=f.ab ? 1+.3*Math.max(0,r-.6) : .75+.5*Math.min(1.5,r); if(k!==1) for(const e of L) e.v*=k; return L; };
+  const k=f.ab ? 1+.3*Math.max(0,r-.6) : .75+.5*Math.min(1.5,r); if(k!==1) for(const e of L) e.v*=k; return L; });
 /* small hybrids (Cam, 2026-11-23: "small hybrids lose only half of their sell value from the drop in weight rather than all, and don't lose any
    from aquarium revenue"): a hybrid lighter than its own kind's usual weight loses half of what its weight would cost in coins (value
    follows weight^0.85; half of that drop is given back), and in the aquarium it earns as if it weighed the usual amount */
@@ -3348,15 +3374,13 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
    The button actions: a file adds its actions with actOn('name other', fn). A press of data-act="name" runs that one function,
    which answers 'render' (draw the page again), 'skip' (leave the page) or undefined (not handled: extraAct's own list below is
    tried). One action has one owner: a name that is taken stops the page while it loads, so a clash cannot ship.
-   The page steps, what runs around every page draw, in the order the files load: a file adds panelStep({before(){ }, after(t){ }}).
-   renderPanel (e_ui.js) runs every "before" from the last added to the first, draws the page, then every "after" from the first
-   added to the last. What a "before" returns is handed to the same step's "after". A "before" that drew the page itself returns
-   'drawn': the steps added earlier and the normal draw are skipped, the steps added later still run their "after". A step's
-   "always" runs right after its "after", also when the draw failed.
-   Both lists sit on their functions (like oops), so a file can add to them, and a page can be drawn, while the game is still loading. */
+   The page steps, what runs around every page draw, in the order the files load: a file adds panelStep({before(){ }, after(t){ }}),
+   which is stepOn('renderPanel', step): how steps run is written once, at stepOn in a3_plat.js. A "before" that drew the page itself
+   returns 'drawn'.
+   The lists sit on their functions (like oops), so a file can add to them, and a page can be drawn, while the game is still loading. */
 function actOn(names,fn){ const T=actOn.table||(actOn.table=Object.create(null)); for(const n of names.split(' ')){ if(T[n]) throw new Error('button action added twice: '+n); T[n]=fn; } }
 function actRun(b){ const f=actOn.table&&actOn.table[b.dataset.act]; return f?f(b):undefined; }
-function panelStep(s){ (panelStep.list||(panelStep.list=[])).push(s); }
+function panelStep(s){ stepOn('renderPanel',s); }
 // handles panel buttons added by the extras; returns 'skip' to avoid a full re-render
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r=actRun(b); if(r!==undefined) return r==='render' ? undefined : r;
@@ -9768,9 +9792,9 @@ function bwSpecialsHTML(){ const left=Math.ceil(BW_LEN-(Date.now()/1000%BW_LEN))
 const _renderBoardwalk_0 = renderBoardwalk;
 renderBoardwalk = function(P){ _renderBoardwalk_0(P); P.insertAdjacentHTML('beforeend',bwSpecialsHTML());
   P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,56,108,1.25,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,112,112); }); };
-actOn('bwbuy', function(b){ { const [kind,id]=b.dataset.k.split(':'), o=bwOffers().find(x=>x.kind===kind&&x.id===id); if(!o||bwOwned(o)||S.tickets<o.tix) return 'skip';
+actOn('bwbuy', function(b){ const [kind,id]=b.dataset.k.split(':'), o=bwOffers().find(x=>x.kind===kind&&x.id===id); if(!o||bwOwned(o)||S.tickets<o.tix) return 'skip';
     S.tickets-=o.tix; if(kind==='shoe'){ S.owned.shoes.push(id); S.look.shoes=id; } else if(kind==='neck'){ S.owned.necks.push(id); S.look.neck=id; } else if(kind==='back'){ S.owned.backs.push(id); S.look.back=id; } else { S.owned.outfits.push(id); S.look.outfit=id; }
-    sfx.coin(); toast('You got the '+o.name+'! You are wearing it now (change it in the Wardrobe).'); save(); return 'render'; } });
+    sfx.coin(); toast('You got the '+o.name+'! You are wearing it now (change it in the Wardrobe).'); save(); return 'render'; });
 
 // =====================================================================
 // 0.3 Wardrobe, reorganised: your angler stays in view on the left, and everything else lives in
@@ -11175,11 +11199,9 @@ function decorSumKind(kind){ let s=0; for(const id of (S.aq&&S.aq.decor)||[]){ c
 function decorBonus(){ return decorSumKind('income'); };
 const decorBoost = () => decorSumKind('boost'), decorShow = () => decorSumKind('show');
 // fish buffs: every aquarium buff a little stronger (the caps on each bonus still apply)
-const _aqBuffsOf_04 = aqBuffsOf;
-aqBuffsOf = function(f){ const L=_aqBuffsOf_04(f), m=1+decorBoost(); if(m!==1) for(const e of L) e.v*=m; return L; };
+stepOn('aqBuffsOf', function(L){ const m=1+decorBoost(); if(m!==1) for(const e of L) e.v*=m; return L; });
 // showpiece: shiny and hybrid fish earn more
-const _aqFishBase_04 = aqFishBase;
-aqFishBase = function(f){ const v=_aqFishBase_04(f); return (f&&(f.sh||f.hy)) ? v*(1+decorShow()) : v; };
+stepOn('aqFishBase', function(v,f){ return (f&&(f.sh||f.hy)) ? v*(1+decorShow()) : v; });
 
 Object.assign(TANK_ART,{
   reefarch(c,t){ const sh=(x0,y0,x1,y1,a,b)=>{ const g=c.createLinearGradient(x0,y0,x1,y1); g.addColorStop(0,a); g.addColorStop(1,b); return g; };
@@ -11553,8 +11575,7 @@ function tankMove(f,sp,i,t,w,h,L){ let m=TANK_MV.get(f); if(!m){ const hs=hashSt
 // 0.3 catch card quick actions: sell the fish you just landed or put it straight in the aquarium.
 // Tapping anywhere else keeps it in the cooler, as always. (The Cooler stays a normal menu tab.)
 // =====================================================================
-const _showCard_cq = showCard;
-showCard = function(o){ _showCard_cq(o); const old=$('cardq'); if(old) old.remove(); const ce=G.lastEntry; G.lastEntry=null; if(!ce||!S.cooler.includes(ce)){ const t=$('cardin').querySelector('.tap'); if(t) t.textContent=PLAT.touch()?'Tap to dismiss':'Click to dismiss'; return; } /* C1 (director + Cam, 2026-11-20): an oddity or other non-fish catch kept the last fish card's "keep it in your cooler" line */
+stepOn('showCard', { after(){ const old=$('cardq'); if(old) old.remove(); const ce=G.lastEntry; G.lastEntry=null; if(!ce||!S.cooler.includes(ce)){ const t=$('cardin').querySelector('.tap'); if(t) t.textContent=PLAT.touch()?'Tap to dismiss':'Click to dismiss'; return; } /* C1 (director + Cam, 2026-11-20): an oddity or other non-fish catch kept the last fish card's "keep it in your cooler" line */
   const tankFree=S.tank.length<aqCap(), price=salePrice(ce), d=document.createElement('div'); d.id='cardq'; d.className='cardq';
   d.innerHTML=`<button class="btn sm" data-q="sell">Sell · <span class="coin">${fmt(price)}</span></button><button class="btn alt sm" data-q="tank" ${tankFree?'':'disabled title="Your aquarium is full"'}>To aquarium</button>`;
   const tap=$('cardin').querySelector('.tap'); $('cardin').insertBefore(d,$('cardbadges'));
@@ -11562,7 +11583,7 @@ showCard = function(o){ _showCard_cq(o); const old=$('cardq'); if(old) old.remov
     if(b.dataset.q==='sell'){ const c=earn(salePrice(ce)); S.cooler.splice(i,1); sfx.coin(); toast('Sold for '+fmt(c)+' coins.'); }
     else if(S.tank.length<aqCap()){ accrue(); S.tank.push(ce); S.cooler.splice(i,1); toast(SPI[ce.id].name+' is on display'+(aqEff(ce)?': '+aqTxt(ce):'')+'.'); }
     save(); hideCard(); if(S.tab==='cooler'||S.tab==='aquarium') renderPanel(); });
-  if(tap) tap.textContent='Tap anywhere else to keep it in your cooler'; };
+  if(tap) tap.textContent='Tap anywhere else to keep it in your cooler'; } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 .cardq{display:flex;gap:8px;justify-content:center;margin:6px 0 8px}.cardq .btn{min-width:120px}@media (max-width:560px){.card canvas{width:128px!important;height:64px!important}.cardq .btn{min-width:0;flex:1}.card #carddesc{font-size:12px}}
 </style>`);
@@ -11587,8 +11608,7 @@ function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true;
   const pick=s.sellR&&s.sellR!=='all', chosen=(f.sh&&sellShinyOn())||(f.hy&&sellHybridOn());
   if(pick){ if(sp.r>+s.sellR) return true; } else if(s.protectRare && sp.r>=3 && !chosen) return true;
   if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
-const _renderCooler_034 = renderCooler;
-renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
+stepOn('renderCooler', { after(t,P){ const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
   // 0.3.4.3: the price is typed in (plain numbers or 50k / 1.2m); empty means any price
   const pv=+s.sellP>0?fmtShort(+s.sellP):'';
@@ -11597,7 +11617,7 @@ renderCooler = function(P){ _renderCooler_034(P); const btn=P.querySelector('[da
   P.querySelectorAll('[data-sf]').forEach(el=>el.onchange=()=>{ S.settings[el.dataset.sf]=el.value; save(); renderPanel(); });
   const inp=P.querySelector('[data-sp]'); if(inp){ const apply=()=>{ const v=sellParse(inp.value); if(v===+S.settings.sellP||(!v&&!(+S.settings.sellP))){ inp.value=v?fmtShort(v):''; return; } S.settings.sellP=v; save(); renderPanel(); };
     inp.addEventListener('change',apply); inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); inp.blur(); } }); }
-  const clr=P.querySelector('[data-spclear]'); if(clr) clr.onclick=()=>{ S.settings.sellP=0; save(); renderPanel(); }; };
+  const clr=P.querySelector('[data-spclear]'); if(clr) clr.onclick=()=>{ S.settings.sellP=0; save(); renderPanel(); }; } });
 // "50k" -> 50000, "1.2m" -> 1200000, "2,500" -> 2500, anything else -> 0 (no limit)
 function sellParse(t){ const m=String(t||'').trim().toLowerCase().replace(/[, _]/g,'').match(/^(\d+(?:\.\d+)?)([kmb]?)$/); if(!m) return 0; const n=parseFloat(m[1])*({k:1e3,m:1e6,b:1e9}[m[2]]||1); return Math.max(0,Math.round(n)); }
 
@@ -11610,13 +11630,11 @@ renderAquarium = function(P){ _renderAquarium_034(P); const c=P.querySelector('#
 // what a fish earns per hour once it is on display, counting its own aquarium boost (the same number the Aquarium tab will show)
 function aqRateIf(f){ if(S.tank.includes(f)) return fishRate(f)*60; S.tank.push(f); try{ return fishRate(f)*60; } finally{ S.tank.pop(); } }
 function aqIncomeTxt(f){ try{ return 'Earns '+fmt(aqRateIf(f))+' coins per hour in your aquarium'; }catch(e){ oops('au_fix034:aqIncomeTxt',e); return ''; } }
-const _showCard_034 = showCard;
-showCard = function(o){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ _showCard_034(o); const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
+stepOn('showCard', { before(){ const ce=G.lastEntry; $('cardin').querySelectorAll('.aqinc').forEach(e=>e.remove()); /* one line per card, never stacked */ return ce; }, after(ce){ const q=$('cardq'); if(!ce||!q) return; const inc=aqIncomeTxt(ce); if(!inc) return;
   const tb=q.querySelector('[data-q="tank"]'); if(tb){ tb.title=(tb.disabled?'Your aquarium is full. ':'')+inc; }
   // 0.3.5: a compact fourth stat beside Weight, Sells for and XP (the full sentence is on hover)
-  const full=S.tank.length>=aqCap(), nums=$('cardnums'); if(nums) nums.insertAdjacentHTML('beforeend',`<div class="aqinc${full?' full':''}" title="${inc}${full?' (your aquarium is full)':''}"><span>Aquarium</span><b class="coin">${fmt(aqRateIf(ce))}<small>/h</small></b></div>`); };
-const _renderCooler_034b = renderCooler;
-renderCooler = function(P){ _renderCooler_034b(P); P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); };
+  const full=S.tank.length>=aqCap(), nums=$('cardnums'); if(nums) nums.insertAdjacentHTML('beforeend',`<div class="aqinc${full?' full':''}" title="${inc}${full?' (your aquarium is full)':''}"><span>Aquarium</span><b class="coin">${fmt(aqRateIf(ce))}<small>/h</small></b></div>`); } });
+stepOn('renderCooler', { after(t,P){ P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-i]'); const f=ib?S.cooler[+ib.dataset.i]:null; if(!f) return; /* rows are shown newest first: read each row's own index */ const b=row.querySelector('[data-act="totank"],[data-act="tank"]'); if(b) b.title=(b.disabled?'Your aquarium is full. ':'')+aqIncomeTxt(f); const v=row.querySelector('.val'); if(v&&!v.querySelector('.aqh')) v.insertAdjacentHTML('beforeend','<div class="aqh" title="What it would earn on display in your aquarium">'+fmt(aqRateIf(f))+' / h in tank</div>'); }); } });
 
 // ---------- the fishmonger asks for a fish from the water you are on 80% of the time ----------
 const DEMAND={slot:-1,id:null};
@@ -11632,7 +11650,7 @@ fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.ru
 
 // ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
 panelStep({ after(){ try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){ oops('au_fix034:requestAnimationFrame',e); } } });
-const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } };
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } } });
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 .sellsh{display:inline-flex;align-items:center;gap:6px;color:#cfe0ec}.sellsh .ssh-star{color:#8fa6ba;transition:color .2s}.sellsh[aria-pressed="true"]{color:#ffe7a8}.sellsh[aria-pressed="true"] .ssh-star{color:#ffd36a;text-shadow:0 0 8px #ffd36a99}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}
@@ -11857,7 +11875,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 }
 </style>`);
 // a cheap switch for "a catch card is open" (instead of a :has() style rule the browser keeps re-checking)
-{ const _sc=showCard; showCard=function(o){ _sc(o); document.body.classList.add('card-open'); };
+{ stepOn('showCard', { after(){ document.body.classList.add('card-open'); } });
   const _hc=hideCard; hideCard=function(){ document.body.classList.remove('card-open'); return _hc.apply(this,arguments); }; }
 // =====================================================================
 // 0.3.5 Trophy Room (placeholder name): a permanent home for any fish you choose. Fish kept here earn nothing
@@ -12405,7 +12423,7 @@ const voyMs = n => ((S&&S.tides)||0) >= n;
 ].forEach(a=>{ if(!RELICS.some(r=>r.id===a[0])) RELICS.push({id:a[0],name:a[1],cost:a[2],d:a[3]}); });
 
 // relic and Legacy effects flow through the normal bonus pipeline (aquarium income, rare odds)
-{ const _bonus=bonus; bonus=function(k){ let v=_bonus(k); if(k==='tank'&&relic('tankkeeper')) v+=.3; if(k==='rare'){ if(relic('abyssal')) v+=.12; v+=.02*Math.min((S.tides||0),10); } return v; }; }
+stepOn('bonus', function(v,k){ if(k==='tank'&&relic('tankkeeper')) v+=.3; if(k==='rare'){ if(relic('abyssal')) v+=.12; v+=.02*Math.min((S.tides||0),10); } return v; });
 
 // cooler space from the milestone and the relic: added to every cooler size once (gear data is not saved)
 const COOLER_BASE=GEAR.cooler.lv.slice();
@@ -12444,8 +12462,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // ---------- tiny hybrids: smaller than their species' normal range = stronger aquarium boosts ----------
 // ×1 just below the normal minimum, rising to ×3 at about 1/15 of it (on top of the usual hybrid ×1.5).
 function tinyHybridK(f){ const sp=f&&SPI[f.id]; if(!sp||!f.hy||!(f.kg>0)||f.kg>=sp.min) return 1; return Math.min(3, 1+.75*Math.log(sp.min/f.kg)); }
-{ const _aq=aqBuffsOf; aqBuffsOf=function(f){ const L=_aq(f), k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; }; }
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){ oops('bc_voyage036:tinyHybridK',e); } }; }
+stepOn('aqBuffsOf', function(L,f){ const k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; });
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){ oops('bc_voyage036:tinyHybridK',e); } } });
 // =====================================================================
 // 0.3.6 UI clarity (research-led: visible navigation, labels above controls, 44pt touch targets, findability):
 //  - every page title matches its name in the menu
@@ -12574,10 +12592,10 @@ const RAR_FEEL={ buzz:[[0],[18],[22,40,22],[30,40,30,40,30],[40,50,40,50,80],[60
 function rarFanfare(r){ try{ if(r>=4){ const base=r===5?[523,659,784,1047,1319]:[392,523,659,784,1047]; base.forEach((f,i)=>tone(f,.5,'triangle',.06,0,.12+i*.09)); tone(r===5?1568:1319,.9,'sine',.05,0,.62); }
     else if(r===3){ [659,880,1109].forEach((f,i)=>tone(f,.32,'triangle',.05,0,.1+i*.07)); } }catch(e){ oops('bd_ui036:base.forEach',e); }
   try{ if(r>=1&&typeof vib==='function') vib(RAR_FEEL.buzz[r]); }catch(e){ oops('bd_ui036:vib',e); } }
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
     if(r>=3){ ci.insertAdjacentHTML('afterbegin',`<div class="rf rf-rays" aria-hidden="true"></div>`); }
     if(r>=4){ let s='<div class="rf rf-sparks" aria-hidden="true">'; const n=r===5?14:9; for(let i=0;i<n;i++) s+=`<i style="left:${6+((i*37)%88)}%;animation-delay:${(i*.23).toFixed(2)}s;animation-duration:${(2.2+(i%4)*.35).toFixed(2)}s"></i>`; ci.insertAdjacentHTML('afterbegin',s+'</div>'); }
-    if(r>=0) rarFanfare(r); }catch(e){ oops('bd_ui036:ci.querySelectorAll',e); } }; }
+    if(r>=0) rarFanfare(r); }catch(e){ oops('bd_ui036:ci.querySelectorAll',e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 #cardin{position:relative;isolation:isolate}
 #cardin > *:not(.rf):not(.shine){position:relative;z-index:1}
@@ -12928,14 +12946,13 @@ function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal
   checkFeats(); save(); if(S.tab==='events') renderPanel(); }
 function chalProgress(){ const c=S.chal, C=CHAL[c.id]; if(!C.ranked&&c.prog>=c.need) setTimeout(()=>chalEnd(true),900); else save(); if(S.tab==='events') renderPanel(); }
 // progress from every landed fish (the fish, its hook and its cast are read before the catch is processed)
-const _landFish_036=landFish;
-landFish=function(){ const f=G.fish, perfect=!!G.perfect, far=G.lastCast>farAt(); _landFish_036.apply(this,arguments);
-  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){ oops('bk_events036:Date.now',e); } };
+stepOn('landFish', { before(){ return {f:G.fish, perfect:!!G.perfect, far:G.lastCast>farAt()}; }, after({f,perfect,far}){
+  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){ oops('bk_events036:Date.now',e); } } });
 const _landJunk_04=landJunk;
 landJunk=function(){ _landJunk_04.apply(this,arguments); try{ const c=S.chal; if(c&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onJunk&&C.onJunk(c)) chalProgress(); } }catch(e){ oops('bk_events036:Date.now#2',e); } };
 // scheduled events lift their stat while they last (through the shared bonus, so cards and odds show it too)
-const _bonus_036=bonus;
-bonus=function(k){ let v=_bonus_036(k); for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; };
+const BONUS_N_036=stepsOf('bonus').length, _bonus_036=k=>bonus(k,BONUS_N_036); /* the bonus as it stood before this file's step (Market Rush reads it) */
+stepOn('bonus', function(v,k){ for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; });
 const schedWas={}; SCHED.forEach(e=>schedWas[e.id]=!!schedLeft(e));
 setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
   let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ try{ sfx.hot(); }catch(er){ oops('bk_events036:sfx.hot',er); } } /* no notice: the LIVE marker and badges show it (director, 2026-11-21) */ } schedWas[e.id]=on; }
@@ -13024,8 +13041,7 @@ function cleanHunts(st){ const out={}; const src=st&&st.hunts&&typeof st.hunts==
 S.hunts=cleanHunts(S);
 /* every load runs cleanHunts: a step of migrate() in c_logic.js */
 // the weight: one multiplier, in the shared function
-const _catchW_04=catchW;
-catchW=function(s,pool,rare,b){ const w=_catchW_04(s,pool,rare,b); return isHunted(s)?w*huntMult(s):w; };
+stepOn('catchW', function(w,s){ return isHunted(s)?w*huntMult(s):w; });
 // start or stop a hunt; returns a short result the UI turns into feedback
 function toggleHunt(id){ const s=SPI[id]; if(!s) return {ok:false, msg:'That fish does not exist.'};
   S.hunts=S.hunts||{}; const a=huntsAt(s.loc).slice(), i=a.indexOf(id), L=LOCS[locIdx(s.loc)];
@@ -13035,9 +13051,8 @@ function toggleHunt(id){ const s=SPI[id]; if(!s) return {ok:false, msg:'That fis
   a.push(id); S.hunts[s.loc]=a; save(); const found=!!S.journal[id], j=S.journal[id];
   return {ok:true, on:true, msg:found?('Shiny hunt: '+s.name+' turns up '+HUNT_MULT_FOUND+'× as often'+(j&&j.sh?' (you have its shiny already; stop the hunt any time)':' until you land a shiny one')+' ('+a.length+' / '+HUNT_MAX+').'):('Hunting this fish at '+L.name+': it now turns up '+HUNT_MULT+'× as often ('+a.length+' / '+HUNT_MAX+').')}; }
 // a missing fish's hunt ends when you catch it; a found fish's (shiny) hunt ends when you land it shiny for the first time
-const _landFish_hunt=landFish;
-landFish=function(){ const f=G.fish, sp=f&&f.kind==='fish'?f.sp:null, hunted=sp&&isHunted(sp), j0=sp&&S.journal[sp.id], wasMissing=hunted&&!j0, shinyDone=hunted&&j0&&!j0.sh&&!!f.shiny; _landFish_hunt.apply(this,arguments);
-  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){ oops('bl_hunts04:sfx.catch',e); } },900); if(S.tab==='journal') renderPanel(); } };
+stepOn('landFish', { before(){ const f=G.fish, sp=f&&f.kind==='fish'?f.sp:null, hunted=sp&&isHunted(sp), j0=sp&&S.journal[sp.id], wasMissing=hunted&&!j0, shinyDone=hunted&&j0&&!j0.sh&&!!f.shiny; return {sp,wasMissing,shinyDone}; }, after({sp,wasMissing,shinyDone}){
+  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){ oops('bl_hunts04:sfx.catch',e); } },900); if(S.tab==='journal') renderPanel(); } } });
 if(/[?&]test\b/.test(location.search)) window.__hunt={toggleHunt, huntsAt, isHunted, huntable, cleanHunts, HUNT_MAX, HUNT_MULT, get:()=>JSON.parse(JSON.stringify(S.hunts)), set:h=>{ S.hunts=h; }};
 
 // ---------------------------------------------------------------------
@@ -13604,7 +13619,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 }
 </style>`);
 // pages that redraw themselves (not through renderPanel) get the same tidy-up: watch the page for new content
-function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
+function menuTidy2(){ const L=stepsOf('menuTidy2'); return stepsRun(L,menuTidy2Core,[],L.length-1); } /* F6 slice 6: the later page touches are steps after it */
+function menuTidy2Core(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
   const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")){ const wide=[...hr.children].slice(1).some(c=>c.matches("select,input,.fld")||c.querySelector("select,input,.fld")); hr.classList.toggle("dl-head",!wide); hr.classList.toggle("dl-headw",wide); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
@@ -13995,10 +14011,10 @@ function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
-{ const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
+{ stepOn('menuTidy2', { after(){ try{ const P=$('panel');
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
-  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* a page header's number or controls sit beside the text when they fit, and start on the left when they wrap */
 #menuov #panel > .row.dl-head{justify-content:space-between!important}
@@ -14017,10 +14033,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov .mo-in{grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"tools sub back" "body body secs"!important}
 }
 </style>`);
-{ const _t7=menuTidy2; menuTidy2=function(){ _t7(); try{ const P=$('panel');
+{ stepOn('menuTidy2', { after(){ try{ const P=$('panel');
     if(S.tab==='paths') P.querySelectorAll('.tile .grid').forEach(g=>g.classList.add('pathgrid'));
     if(S.tab==='rods'){ const t=[...P.querySelectorAll('.tile')].find(x=>/in your hands/i.test(x.textContent)); if(t) t.classList.add('rodnow'); }
-  }catch(e){ oops('bm_ui04:P.querySelectorAll#2',e); } }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll#2',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* disabled buttons stay readable (they say what is not possible yet) */
 #menuov .btn:disabled,#menuov .btn[disabled]{opacity:.55!important;filter:saturate(.35)}
@@ -14049,7 +14065,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
 }
 </style>`);
-{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){ oops('bm_ui04:querySelectorAll',e); } }; menuTidy=menuTidy2; }
+{ stepOn('menuTidy2', { after(){ try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){ oops('bm_ui04:querySelectorAll',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:560px){
@@ -14445,7 +14461,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 // A water thumbnail is drawn on the game canvas; afterwards the game's own scenery picture is put back, so the next frame does not
 // have to redraw the whole landscape (that cost a long frame per thumbnail, twice).
 { const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return V3THUMB[id]; const c=V3CACHE, p=V3PREV; try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; v3palette.k=null; } }; }
-/* PC page steps (Clean Pages 4): PC page touches push here instead of wrapping renderPanel; pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
+/* PC page steps (Clean Pages 4): PC page touches push here instead of adding another page step (panelStep); pages_pc.js runs pre (last added first) after PAGES.before and post before PAGES.after. Defined here, the first PC file that uses it. */
 const PC_STEPS={pre:[],post:[]};
 // PC: a menu page that is a little taller than the screen scales itself down to fit it at once (director, 2026-11-17), down to
 // 76% at most; a page that still does not fit scrolls the small rest. Pages that already fit stay at full size. Checked after every
@@ -15517,7 +15533,7 @@ let featBonusCache={n:-1,v:{}};
 function featCatDone(cat){ try{ if(!FEAT_CATS_REF||!S.feats) return false; const ids=cat==='Waters'?FEATS.filter(f=>/^Master of /.test(f.name)).map(f=>f.id):((FEAT_CATS_REF.find(c=>c[0]===cat)||[])[1]||[]).filter(id=>FEATS.some(f=>f.id===id)); return ids.length>0&&ids.every(id=>S.feats[id]); }catch(e){ oops('bs_rules05:featCatDone',e); return false; } }
 function featCatBonus(k){ const n=S.feats?Object.keys(S.feats).length:0; if(featBonusCache.n!==n){ const v={}; for(const cat in FEAT_CAT_BONUS) if(featCatDone(cat)){ const [bk,x]=FEAT_CAT_BONUS[cat]; v[bk]=(v[bk]||0)+x; } featBonusCache={n,v}; } return featBonusCache.v[k]||0; }
 function featBonusText(cat){ const b=FEAT_CAT_BONUS[cat]; if(!b) return ''; const n=BK[b[0]]||b[0]; return '+'+Math.round(b[1]*100)+'% '+n+' forever'; }
-{ const _b=bonus; bonus=function(k){ return _b(k)+featCatBonus(k); }; }
+stepOn('bonus', function(v,k){ return v+featCatBonus(k); });
 { const _v=specLocValue; specLocValue=function(loc){ return _v(loc)*(S.setDone&&S.setDone[loc]?1.1:1); }; }
 
 // ---------- bounty bonuses ----------
@@ -15552,10 +15568,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>#panel .fl-perk{color:#ffd3
 // up"). Shared by every platform: a hybrid's card says how much heavier than usual it is, how much its value rose for being
 // a hybrid, and both aquarium boosts it carries (with the hybrid's ×1.5 already counted in).
 // =====================================================================
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ if(!ce||!ce.hy) return; const sp=SPI[ce.id], other=SPI[ce.hy]; if(!sp) return; const b=$('cardbadges'); if(!b||b.querySelector('.hy-stats')) return;
+stepOn('showCard', { before(){ return G.lastEntry; }, after(ce){ try{ if(!ce||!ce.hy) return; const sp=SPI[ce.id], other=SPI[ce.hy]; if(!sp) return; const b=$('cardbadges'); if(!b||b.querySelector('.hy-stats')) return;
       const avg=(sp.min+sp.max)/2, R=ce.kg/avg, bonus=clamp(Math.pow(R,.85)*(1+.6*Math.abs(Math.log(R))),.3,25)/Math.max(.0001,Math.pow(R,.85));
       const boosts=aqNet(ce).map(x=>fmtB(x.k,x.v)).join(' and ');
-      b.insertAdjacentHTML('beforeend',`<span class="badge g hy-stats">${R>=1?'×'+(Math.round(R*10)/10)+' the usual weight':'×'+(Math.round(R*100)/100)+' the usual weight'}</span><span class="badge g hy-stats">Hybrid value ×${(Math.round(bonus*10)/10).toFixed(1)}</span>${boosts?`<span class="badge g hy-stats">Aquarium: ${esc(boosts)}</span>`:''}`); }catch(e){ oops('bv_catch06:b.querySelector',e); } }; }
+      b.insertAdjacentHTML('beforeend',`<span class="badge g hy-stats">${R>=1?'×'+(Math.round(R*10)/10)+' the usual weight':'×'+(Math.round(R*100)/100)+' the usual weight'}</span><span class="badge g hy-stats">Hybrid value ×${(Math.round(bonus*10)/10).toFixed(1)}</span>${boosts?`<span class="badge g hy-stats">Aquarium: ${esc(boosts)}</span>`:''}`); }catch(e){ oops('bv_catch06:b.querySelector',e); } } });
 // =====================================================================
 // Water baits (director, 2026-11-18: "make bait listed that are associated with areas they're best at scale proportionally
 // in price to the economy of the area while keeping them fair, also ensure they're grouped together in the menu, sequential
@@ -15999,10 +16015,10 @@ function nibHalve(){ nibFold(); const o={}; for(const k in (S.nib||{})){ const n
 const NIB_WORD = n => n+' Nibble'+(n===1?'':'s');
 
 // income and bonuses of a fed fish
-{ const _base=aqFishBase; aqFishBase=function(f){ const v=_base(f); return f ? v*(f.fed?nibIncome(f.fed):1)*(1+FEED_INC*(f.fdi||0)) : v; }; /* Nibbles, and C28 feeding gains */
-  const _buffs=aqBuffsOf; aqBuffsOf=function(f){ const L=_buffs(f); if(!f) return L; const sp=SPI[f.id];
+stepOn('aqFishBase', function(v,f){ return f ? v*(f.fed?nibIncome(f.fed):1)*(1+FEED_INC*(f.fdi||0)) : v; }); /* Nibbles, and C28 feeding gains */
+stepOn('aqBuffsOf', function(L,f){ if(!f) return L; const sp=SPI[f.id];
     if(sp&&f.abx) for(const b of f.abx) if(b&&BK[b.k]) L.push({k:b.k, v:AQ_MAG2[clamp(b.t|0,0,5)]*(b.w||1), t:b.t, nib:1});
-    if(f.nbst||f.fdb){ const m=(1+NIB_BOOST*(f.nbst||0))*(1+FEED_BOOST*(f.fdb||0)); for(const e of L) e.v*=m; } return L; }; }
+    if(f.nbst||f.fdb){ const m=(1+NIB_BOOST*(f.nbst||0))*(1+FEED_BOOST*(f.fdb||0)); for(const e of L) e.v*=m; } return L; });
 
 // scrap and feed
 let NIB_ANIM=null;
@@ -16120,7 +16136,7 @@ for(const k in BAIT) BAIT[k].id=k;
   for(const k of keys){ copy[k]=BAIT[k]; delete BAIT[k]; } for(const k of [...rest,...food,...junk]) BAIT[k]=copy[k]; }
 try{ S.bait=Object.assign(baitZero(),S.bait||{}); }catch(e){ oops('cf_foods:Object.assign',e); }
 // a favourite pulls, a least favourite puts off
-{ const _cw=catchW; catchW=function(s,pool,rare,b){ const w=_cw.apply(this,arguments); if(!b||!b.food) return w; return FISH_FAV[s.id]===b.id ? w*FOOD_FAV*(1+rodBonus('fav'))*(1+.06*pr('gourmet')) : FISH_HATE[s.id]===b.id ? w*FOOD_HATE : w; }; }
+stepOn('catchW', function(w,s,pool,rare,b){ if(!b||!b.food) return w; return FISH_FAV[s.id]===b.id ? w*FOOD_FAV*(1+rodBonus('fav'))*(1+.06*pr('gourmet')) : FISH_HATE[s.id]===b.id ? w*FOOD_HATE : w; });
 // catching a fish on its favourite reveals it in the Fish Log (epic and rarer keep it hidden until then)
 { const _ja=journalAdd; journalAdd=function(f){ const had=f&&f.sp&&S.journal[f.sp.id]&&S.journal[f.sp.id].fav; const r=_ja.apply(this,arguments); try{ if(had&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; if(f&&f.sp&&BAIT[S.baitSel]&&BAIT[S.baitSel].food&&FISH_FAV[f.sp.id]===S.baitSel&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; }catch(e){ oops('cf_foods:fav',e); } return r; }; }
 const foodKnown = (sp,j) => sp.r<3 || !!(j&&j.fav) || maxed('gourmet');
@@ -16201,9 +16217,9 @@ function pathAdd(k){ let v=0; if(!S||!S.specs) return 0; for(const id of pathCho
 function pathSave(){ for(const id of pathChosen()){ const fx=PATH_FX[id]; if(fx&&fx.save&&Math.random()<fx.save*pathPow(id)) return true; } return false; }
 const spinEvery = () => SPIN_EVERY/pathMul('spin');
 // bonus keys: the new paths' additions plus +1% sale price and XP per rank of every chosen path
-{ const _b=bonus; bonus=function(k){ let v=_b(k); if(!S||!S.specs) return v; let add=0;
+stepOn('bonus', function(v,k){ if(!S||!S.specs) return v; let add=0;
     for(const id of pathChosen()){ const fx=PATH_FX[id]; if(fx&&fx.add&&fx.add[k]!=null&&(!fx.when||fx.when())) add+=fx.add[k]*pathPow(id); if(k==='sell'||k==='xp') add+=.01*pathRank(id); }
-    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; }; }
+    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; });
 // weather paths
 { const _w=weather; weather=function(){ const w=_w(); if(!S||!S.specs) return w; const amp=(x,m)=>x>1?1+(x-1)*m:x; let o=w;
     if(spec('stormchaser')&&(w.str||1)>1){ o=Object.assign({},o,{str:1, rare:(o.rare||0)*(1+.5*pathPow('stormchaser'))}); }
@@ -16212,17 +16228,17 @@ const spinEvery = () => SPIN_EVERY/pathMul('spin');
     return o; }; }
 // rest, foods, mythics, tickets, events, voyage, hybrids in the tank
 { const _r=restBiteTime; restBiteTime=function(){ return _r()*pathMul('restbite'); }; }
-{ const _cw=catchW; catchW=function(s,pool,rare,b){ let w=_cw.apply(this,arguments); if(b&&b.food&&FISH_FAV[s.id]===b.id) w*=pathMul('fav'); if(s.r>=5) w*=pathMul('mythic'); return w; }; }
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); if(f&&sp&&sp.r>=5){ const m=pathMul('mythval'); if(m!==1) f.value=Math.round(f.value*m); } return f; }; }
+stepOn('catchW', function(w,s,pool,rare,b){ if(b&&b.food&&FISH_FAV[s.id]===b.id) w*=pathMul('fav'); if(s.r>=5) w*=pathMul('mythic'); return w; });
+stepOn('rollFish', function(f,sp){ if(f&&sp&&sp.r>=5){ const m=pathMul('mythval'); if(m!==1) f.value=Math.round(f.value*m); } return f; });
 { const _t=addTickets; addTickets=function(n){ return _t(n*pathMul('tix')); }; }
 { const _c=chalReward; chalReward=function(m){ return _c(m*pathMul('chal')); }; }
 { const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const m=pathMul('derby'); if(m!==1&&S.derby&&S.derby.total>before) S.derby.total=+(S.derby.total+(S.derby.total-before)*(m-1)).toFixed(2); }catch(e){ oops('cg_paths:pathMul',e); } }; }
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()*pathMul('legacy'); }; }
-{ const _a=aqFishBase; aqFishBase=function(f){ const v=_a(f); return f&&f.hy ? v*pathMul('hyaq') : v; }; }
+stepOn('aqFishBase', function(v,f){ return f&&f.hy ? v*pathMul('hyaq') : v; });
 // ranks grow with every fish landed while a path is chosen
-{ const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
+stepOn('landFish', { before(){ const f=G.fish; return f&&f.kind==='fish'; }, after(was){
     try{ if(was&&S.specs){ S.pathXP=S.pathXP||{}; for(const id of pathChosen()){ const r0=pathRank(id); S.pathXP[id]=(S.pathXP[id]||0)+1; const r1=pathRank(id);
-      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){ oops('cg_paths:pathChosen',e); } return r; }; }
+      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){ oops('cg_paths:pathChosen',e); } } });
 // saves: pathXP is a plain map of path id → fish landed
 function pathsClean(t){ try{ const px={}; if(t.pathXP&&typeof t.pathXP==='object') for(const k in t.pathXP){ const n=+t.pathXP[k]; if(PATH_FX[k]!==undefined||SPEC_TIERS.some(T=>T.opts.some(op=>op[0]===k))) if(isFinite(n)&&n>0) px[k]=Math.floor(n); } t.pathXP=px;
     if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } }catch(e){ oops('cg_paths:SPEC_TIERS.some',e); } } /* a step of migrate() in c_logic.js */
@@ -16238,8 +16254,8 @@ function renderPaths(P){ const open=SPEC_TIERS.filter(T=>S.lvl>=T.lvl).length, c
   P.innerHTML=`<h2>Paths</h2><p class="sub path-intro">${SPEC_TIERS.length} forks open from level 5 to 75. Pick one specialty per fork: it ranks up from I to V as you fish with it.<br>Switching or removing a path costs the fee shown on its fork.</p>
    <div class="meta" style="margin-top:4px">${chosen} chosen · ${open} of ${SPEC_TIERS.length} open at level ${S.lvl}</div>
    <div class="path-list">${PATH_ORDER.map(pathCard).join('')}</div>`; };
-actOn('specrm', function(b){ { const ti=+b.dataset.i, T=SPEC_TIERS[ti]; if(!T||!S.specs[ti]) return 'skip'; const fee=specFee(ti); if(S.money<fee){ toast('Removing this path costs '+fmt(fee)+' coins.'); return 'skip'; }
-    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Pick it again to keep its rank.'); save(); return 'render'; } });
+actOn('specrm', function(b){ const ti=+b.dataset.i, T=SPEC_TIERS[ti]; if(!T||!S.specs[ti]) return 'skip'; const fee=specFee(ti); if(S.money<fee){ toast('Removing this path costs '+fmt(fee)+' coins.'); return 'skip'; }
+    const o=T.opts.find(o=>o[0]===S.specs[ti]); S.money-=fee; delete S.specs[ti]; toast('Removed '+(o?o[1]:'the path')+' ('+fmt(fee)+' coins). Pick it again to keep its rank.'); save(); return 'render'; });
 if(typeof ACT_OK==='object') ACT_OK.specrm=(k,i)=>Number.isInteger(i)&&i>=0&&i<SPEC_TIERS.length;
 // feats for the longer road
 try{ const f5=FEATS.find(f=>f.id==='paths5'); if(f5){ f5.name='Five roads'; f5.d='Choose five Paths'; }
@@ -16319,26 +16335,26 @@ function voyMul(k){ let m=1; if(!S) return 1; for(const id in RELIC_MUL) if(RELI
 function voyAdd(k){ if(!S) return 0; if(k==='nibkeep') return bv('nibkeep')+(relic('candytin')?.25:0); return 0; }
 { const _pm=pathMul; pathMul=function(k){ return _pm(k)*voyMul(k); }; }
 const BOON_BONUS={treasure:'treasure', hotspot:'hot', shine:'shiny', trophy:'trophy', calm:'calm', tank:'tank', wisdom:'xp'}; /* each rank adds its Boon's per value (BOONS) */
-{ const _b=bonus; bonus=function(k){ let v=_b(k), add=0; if(!S) return v;
+stepOn('bonus', function(v,k){ let add=0; if(!S) return v;
     for(const id in RELIC_BONUS) if(RELIC_BONUS[id][k]&&relic(id)) add+=RELIC_BONUS[id][k];
     for(const id in BOON_BONUS) if(BOON_BONUS[id]===k) add+=bv(id);
     if(k==='rare') add+=.02*boonR('hotspot'); /* Cam, round 5: Hot Water also raises rarity a little */
     if(k==='rare') add+=msSum('rare');
-    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; }; }
+    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; });
 // Legacy = the voyage Legacy (already ×paths and ×Crown of Tides through pathMul) + milestone Legacy (×Crown of Tides) + the Golden Compass
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()+msSum('legacy')*(relic('tidecrown')?1.25:1)+(relic('goldcompass')?.2:0); }; }
 { const _w=weather; weather=function(){ const w=_w(), r=boonR('weather'); if(!r) return w; const m=1+bv('weather'), amp=x=>x>1?1+(x-1)*m:x;
     return Object.assign({},w,{bite:w.bite?amp(w.bite):w.bite, shiny:w.shiny?amp(w.shiny):w.shiny, xp:w.xp?amp(w.xp):w.xp, rare:w.rare!=null?w.rare*m:w.rare}); }; }
 { const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1+BOONI.derby.per,r)).toFixed(2); }catch(e){ oops('ch_voyage:boonR',e); } }; }
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
+stepOn('rollFish', function(f){ const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; });
 { const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map(v=>v+add+Math.ceil(v*bv('cooler'))); }; voyApplyCooler(); } /* Cam, round 5: Deep Cooler reworked to a share of every cooler size (6% a rank), so it stays useful after the cooler upgrades (was +1 space per upgrade) */
 // Catch Surge and the Second Hook ride on every landed fish
-{ const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
+stepOn('landFish', { before(){ const f=G.fish; return {f, was:f&&f.kind==='fish'}; }, after({f,was}){
     try{ if(was){ const rk=boonR('surge'); if(rk&&S.streak>0&&S.streak%SURGE_N[rk]===0){ const t=Date.now(), mins=relic('surgehorn')?25:SURGE_MIN; let slot=1;
         for(let i=1;i<=SURGE_MAX;i++){ const b=S.buffs.find(x=>x.src==='Surge '+i+' bite'); if(!b||b.until<=t){ slot=i; break; } if(i===SURGE_MAX) slot=1+((S.surgeNext||0)%SURGE_MAX); }
         S.surgeNext=slot; S.buffs=S.buffs.filter(x=>!(x.src&&x.src.indexOf('Surge '+slot+' ')===0)); for(const k of ['bite','reel','rare']) S.buffs.push({k,v:.08,until:t+mins*60000,src:'Surge '+slot+' '+k});
         const n=S.buffs.filter(x=>x.k==='bite'&&/^Surge /.test(x.src||'')&&x.until>t).length; setTimeout(()=>toast('Catch Surge! '+S.streak+' in a row: +8% bite speed, reel speed and rare bonus for '+mins+' min ('+n+' active).'),700); }
-      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){ oops('ch_voyage:boonR#2',e); } return r; }; }
+      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){ oops('ch_voyage:boonR#2',e); } } });
 // ---------- setting sail: Boon points, milestone gifts ----------
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b||!canRetire()) return; const before=S.tides, earned=S.stats.runEarned||0;
   setTimeout(()=>{ if(S.tides===before) return; const t=S.tides; let pts=boonPtsFor(t); const ms=VOYAGE_MS.find(m=>m.n===t); if(ms&&ms.fx&&ms.fx.pts) pts+=ms.fx.pts; S.boonPts=(S.boonPts||0)+pts;
@@ -16559,8 +16575,8 @@ function passWearPaint(root){ (root||document).querySelectorAll('canvas[data-pw]
   else { const L=LINEI[id]; x.lineWidth=4; x.strokeStyle=L[2]==='star'?'hsl(270,90%,80%)':L[2].replace('A',1); x.beginPath(); x.moveTo(w*.12,h*.2); x.quadraticCurveTo(w*.45,h*.95,w*.86,h*.42); x.stroke(); drawBobSkin(x,w*.86,h*.45,h*.08,null); } }); }
 { const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ if(typeof wSec!=='undefined'&&wSec==='tidepass') passWearPaint(P||$('panel')); }catch(e){ oops('cj_tidepass:passWearPaint',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend','<style>#panel .wd-th canvas[data-pw^="aura:"]{width:100%!important;height:auto!important;max-width:120px;aspect-ratio:1} /* batch 2: aura previews fill their tile (they were a small figure in a big tile) */#panel .wd-th.pw-lock{opacity:.9}#panel .wd-th.pw-lock span{opacity:.75} /* batch 2: locked previews stay bright (try before you buy); the label says the level */</style>');
-actOn('passwear', function(b){ { const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
-    S.look[k]=id==='none'?'none':id; save(); return 'render'; } });
+actOn('passwear', function(b){ const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
+    S.look[k]=id==='none'?'none':id; save(); return 'render'; });
 if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(String(k));
 /* a step of migrate() in c_logic.js; saved = the save as it arrived (null when it was not a save at all) */
 function passOwnedClean(m,saved){ const raw=saved&&isObj(saved.owned)?saved.owned:{}; try{ m.owned=m.owned||{}; for(const k in PASS_NEW_KINDS){ const key=PASS_NEW_KINDS[k], I=k==='aura'?AURAI:k==='bob'?BOBI:LINEI, src=Array.isArray(raw[key])?raw[key]:m.owned[key]; m.owned[key]=Array.isArray(src)?[...new Set(src.filter(x=>I[x]))]:[];
@@ -16803,7 +16819,7 @@ try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow
 try{ egOpenAdd(S); }catch(e){ oops('cn_waterart:egOpenAdd',e); }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b) return; setTimeout(()=>{ try{ egOpenAdd(S); }catch(er){ oops('cn_waterart:egOpenAdd#2',er); } },30); },true);
 // end-game fish pay 25% more than your best normal water and fight like it
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){ oops('cn_waterart:egScale',e); } return f; }; }
+stepOn('rollFish', function(f,sp){ try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){ oops('cn_waterart:egScale',e); } return f; });
 // end-game fish in the Aquarium: their income cap follows the same scale (it is computed from the water's fish)
 // =====================================================================
 // Rocky Mountains: its whole scene in one file (Clean Scenes 5, 2026-11-22): the scene, then its extra life and its own moment
@@ -19886,7 +19902,7 @@ function q8html(){ const gl=Q8.goal(), read=Q8.read(), p=gl.p!=null?Math.max(0,M
   return `<div class="row spread"><div><h2 class="dl-dup">Quests</h2></div></div>${goals}${learn}${find}${help}`; }
 /* the shared pages are drawn through the game's normal page drawing (unknown pages fall back to renderCooler): ONE hook, one entry per page */
 const SHARED_PAGES={ quests:P=>{ P.innerHTML=q8html(); } };
-{ const _rc=renderCooler; renderCooler=function(P){ const f=P&&SHARED_PAGES[S.tab]; if(f){ f(P); return; } return _rc.apply(this,arguments); }; }
+stepOn('renderCooler', { before(P){ const f=P&&SHARED_PAGES[S.tab]; if(f){ f(P); return 'drawn'; } } });
 {
   /* taps inside the page */
   document.addEventListener('click',e=>{ const P=$('panel'); if(!P||S.tab!=='quests'||!P.contains(e.target)) return;
@@ -20016,7 +20032,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // =====================================================================
 const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform adds one page step (panelStep): PAGES.before(); draw; PAGES.after() */
 /* Clean Pages (2026-11-21): a page's own finishing touches, run in order at the very end of PAGES.after (after the page engine has
-   laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of wrapping renderPanel again */
+   laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of adding another page step (panelStep) */
 const PAGE_DONE={}; function pageDone(tab,fn){ (PAGE_DONE[tab]=PAGE_DONE[tab]||[]).push(fn); }
 function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(const f of L) try{ f(P); }catch(e){ console.error(e); } }
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
@@ -20689,6 +20705,8 @@ PATCHES.unshift({v:'0.4.9', name:'Work in progress', items:[
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Behind the scenes, nothing should look or act differently: the code under the buttons and pages was tidied (one list of button actions, one page drawer, fewer leftover layers). If a button does nothing or does the wrong thing, if a page looks different from yesterday, or if the box Errors the game passed over appears in Stats › Tester tools, tell us which button or page and send the box.',
+  '## Test build 2026.11.27-0043',
   'Behind the scenes, nothing changes on screen: the game now keeps a list of the errors it used to pass over without a trace. If one happens while you play, a box named Errors the game passed over appears at the bottom of Stats › Tester tools: copy it and send it. No box means none happened. Run every check lists them at its end too.',
   '## Test build 2026.11.26-2236',
   'Fixed: Quests, Learn and Help showed odd letters in place of the multiplication sign, apostrophes and the shiny marks in 28 places.',
@@ -22304,7 +22322,8 @@ function setHint(){ let h='';
 let toastT=0; function toast(m){ const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('on'),3200); }
 
 // ---------- catch card ----------
-function showCard(o){
+function showCard(o){ const L=stepsOf('showCard'); return stepsRun(L,showCardCore,[o],L.length-1); } /* F6 slice 6: the card's extras (quick buttons, aquarium line, shine, badges, rarity) are steps around it */
+function showCardCore(o){
   /* the last card's sparkle animation is let go first: it kept repainting a shiny or mythic fish over the next card's picture
      (batch 2: a Brass Spyglass card showed the fish caught before it). A fish card attaches its own again. */
   spkDrop($('cardfish')); o.draw($('cardfish')); $('cardin').classList.toggle('shiny',!!o.shiny);
@@ -22343,12 +22362,9 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-tabgo]'
    removed (also right after it, once the page is idle); only pictures no longer on the page are touched. */
 var rpOld=null, rpT=0; /* var: a page drawn while the game is still loading must not hit a not-yet-defined name (#130) */
 function rpRelease(){ clearTimeout(rpT); if(rpOld) for(const c of rpOld) if(!c.isConnected&&c.width){ c.width=0; c.height=0; } rpOld=null; }
-/* F6 slice 3: the one renderPanel. It runs the page steps (panelStep, d2_extra.js) around the draw: each step's "before" from the last
-   added to the first, the draw, each "after" (then "always") from the first added to the last; a "before" that answers 'drawn' has
-   drawn the page itself, so everything added before it is skipped. Exactly the order the old wrappers ran in. */
-function panelRun(i){ if(i<0) return panelDraw(); const s=panelStep.list[i]; let t; if(s.before){ t=s.before(); if(t==='drawn') return; }
-  if(s.always){ try{ panelRun(i-1); if(s.after) s.after(t); } finally{ s.always(t); } } else { panelRun(i-1); if(s.after) s.after(t); } }
-function renderPanel(){ panelRun((panelStep.list||[]).length-1); }
+/* F6 slice 3: the one renderPanel. It runs the page steps (panelStep, d2_extra.js; stepsRun, a3_plat.js) around the draw, in exactly
+   the order the old wrappers ran in. */
+function renderPanel(){ const L=stepsOf('renderPanel'); stepsRun(L,panelDraw,[],L.length-1); }
 function panelDraw(){ const P=$('panel'); rpRelease(); rpOld=[...P.getElementsByTagName('canvas')]; rpT=setTimeout(rpRelease,0); const fn={cooler:renderCooler, shop:renderShop, skills:renderSkills2, aquarium:renderAquarium, bounties:renderBounties, feats:renderFeats, journal:renderJournal, map:renderMap, style:renderStyle, pets:renderPets, save:renderSave, games:renderBoardwalk, settings:renderSettings, rods:renderRods, paths:renderPaths, pass:renderPass}[S.tab]||renderCooler; fn(P); }
 const tags = f => (f.sh===2?' <span class="sh" style="color:'+PRISM[f.pv||'rainbow'].c+'">✦✦ '+PRISM[f.pv||'rainbow'].n+' prismatic</span>':f.sh?' <span class="sh">✦ Shiny</span>':'')+(f.hy?' · <span class="sh">Hybrid</span>':'')+(f.tr?' · Trophy':'');
 const aqTxt = f => { const L=aqNet(f), sp=SPI[f.id]; return L.length ? L.map(e=>fmtB(e.k,e.v)+(sp&&e.t!==sp.r?' ('+RAR[e.t].k+' boost)':'')).join(' + ') : 'no special effect'; };
@@ -22365,7 +22381,9 @@ const coolSortBar=()=>S.cooler.length<2?'':sortBar('coolsort',coolSort,COOL_SORT
 let tankSort='old'; const TANK_SORTS=[['old','Oldest'],['recent','Newest'],['rarity','Rarity'],['income','Income'],['species','Species']];
 function tankListOrder(){ const L=S.tank.map((f,i)=>({f,i})), nm=x=>(SPI[x.f.id]||{}).name||''; if(tankSort==='recent') return L.reverse(); if(tankSort==='income') return L.sort((a,b)=>fishRate(b.f)-fishRate(a.f)); if(tankSort==='species') return L.sort((a,b)=>nm(a).localeCompare(nm(b))||a.i-b.i); if(tankSort==='rarity'){ const rk=x=>(SPI[x.f.id]||{r:-1}).r*10+(x.f.sh?(x.f.sh===2?2:1):0); return L.sort((a,b)=>rk(b)-rk(a)||fishRate(b.f)-fishRate(a.f)); } return L; }
 actOn('coolsort inspect tanksort', function(b){ if(b.dataset.act==='coolsort'){ if(COOL_SORTS.some(s=>s[0]===b.dataset.k)) coolSort=b.dataset.k; return 'render'; } if(b.dataset.act==='inspect') return inspectOpen(b.dataset.k,+b.dataset.i); if(b.dataset.act==='tanksort'){ if(TANK_SORTS.some(s=>s[0]===b.dataset.k)) tankSort=b.dataset.k; return 'render'; } });
-document.head.insertAdjacentHTML('beforeend','<style>.cool-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:22px 16px}.cool-empty .bwx-art{font-size:34px;line-height:1.1}.cool-empty .meta{max-width:420px}.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');function renderCooler(P){
+document.head.insertAdjacentHTML('beforeend','<style>.cool-empty{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;padding:22px 16px}.cool-empty .bwx-art{font-size:34px;line-height:1.1}.cool-empty .meta{max-width:420px}.cool-sort{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:10px 0 2px}.cool-sort .chip{height:32px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--glass,#16243a);color:#cfe0ee;font:700 12.5px var(--display,system-ui);cursor:pointer}.cool-sort .chip.on{background:linear-gradient(180deg,#ffe08a,#f3b94e);color:#2a1c05;border-color:#ffe6a3}</style>');
+function renderCooler(P){ const L=stepsOf('renderCooler'); return stepsRun(L,renderCoolerCore,[P],L.length-1); } /* F6 slice 6: the sell filters, the tank lines and the shared pages are steps around it */
+function renderCoolerCore(P){
   const total=S.cooler.filter(f=>!sellKeep(f)).reduce((a,f)=>a+salePrice(f),0); const tankFree = S.tank.length < aqCap(); const dm=demandSp();
   P.innerHTML=`<div class="row spread"><div><h2>Cooler</h2><p class="sub">${S.cooler.length} of ${gv('cooler')} slots. Your bonuses add +${Math.round((sellMult()-1)*100)}% to every sale. Fish in the aquarium earn coins and give stacking boosts.</p></div>
   <button class="btn" data-act="sellall" ${total?'':'disabled'}>Sell ${sellFilterOn()?"matching":"all"}${S.cooler.some(sellKeep)?" (keeping "+S.cooler.filter(sellKeep).length+")":""} for <span class="coin">${fmt(total)}</span></button></div>

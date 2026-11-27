@@ -70,26 +70,26 @@ function voyMul(k){ let m=1; if(!S) return 1; for(const id in RELIC_MUL) if(RELI
 function voyAdd(k){ if(!S) return 0; if(k==='nibkeep') return bv('nibkeep')+(relic('candytin')?.25:0); return 0; }
 { const _pm=pathMul; pathMul=function(k){ return _pm(k)*voyMul(k); }; }
 const BOON_BONUS={treasure:'treasure', hotspot:'hot', shine:'shiny', trophy:'trophy', calm:'calm', tank:'tank', wisdom:'xp'}; /* each rank adds its Boon's per value (BOONS) */
-{ const _b=bonus; bonus=function(k){ let v=_b(k), add=0; if(!S) return v;
+stepOn('bonus', function(v,k){ let add=0; if(!S) return v;
     for(const id in RELIC_BONUS) if(RELIC_BONUS[id][k]&&relic(id)) add+=RELIC_BONUS[id][k];
     for(const id in BOON_BONUS) if(BOON_BONUS[id]===k) add+=bv(id);
     if(k==='rare') add+=.02*boonR('hotspot'); /* Cam, round 5: Hot Water also raises rarity a little */
     if(k==='rare') add+=msSum('rare');
-    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; }; }
+    return BONUS_CAP[k] ? Math.min(BONUS_CAP[k], v+add) : v+add; });
 // Legacy = the voyage Legacy (already ×paths and ×Crown of Tides through pathMul) + milestone Legacy (×Crown of Tides) + the Golden Compass
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()+msSum('legacy')*(relic('tidecrown')?1.25:1)+(relic('goldcompass')?.2:0); }; }
 { const _w=weather; weather=function(){ const w=_w(), r=boonR('weather'); if(!r) return w; const m=1+bv('weather'), amp=x=>x>1?1+(x-1)*m:x;
     return Object.assign({},w,{bite:w.bite?amp(w.bite):w.bite, shiny:w.shiny?amp(w.shiny):w.shiny, xp:w.xp?amp(w.xp):w.xp, rare:w.rare!=null?w.rare*m:w.rare}); }; }
 { const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1+BOONI.derby.per,r)).toFixed(2); }catch(e){ oops('ch_voyage:boonR',e); } }; }
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
+stepOn('rollFish', function(f){ const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; });
 { const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map(v=>v+add+Math.ceil(v*bv('cooler'))); }; voyApplyCooler(); } /* Cam, round 5: Deep Cooler reworked to a share of every cooler size (6% a rank), so it stays useful after the cooler upgrades (was +1 space per upgrade) */
 // Catch Surge and the Second Hook ride on every landed fish
-{ const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
+stepOn('landFish', { before(){ const f=G.fish; return {f, was:f&&f.kind==='fish'}; }, after({f,was}){
     try{ if(was){ const rk=boonR('surge'); if(rk&&S.streak>0&&S.streak%SURGE_N[rk]===0){ const t=Date.now(), mins=relic('surgehorn')?25:SURGE_MIN; let slot=1;
         for(let i=1;i<=SURGE_MAX;i++){ const b=S.buffs.find(x=>x.src==='Surge '+i+' bite'); if(!b||b.until<=t){ slot=i; break; } if(i===SURGE_MAX) slot=1+((S.surgeNext||0)%SURGE_MAX); }
         S.surgeNext=slot; S.buffs=S.buffs.filter(x=>!(x.src&&x.src.indexOf('Surge '+slot+' ')===0)); for(const k of ['bite','reel','rare']) S.buffs.push({k,v:.08,until:t+mins*60000,src:'Surge '+slot+' '+k});
         const n=S.buffs.filter(x=>x.k==='bite'&&/^Surge /.test(x.src||'')&&x.until>t).length; setTimeout(()=>toast('Catch Surge! '+S.streak+' in a row: +8% bite speed, reel speed and rare bonus for '+mins+' min ('+n+' active).'),700); }
-      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){ oops('ch_voyage:boonR#2',e); } return r; }; }
+      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){ oops('ch_voyage:boonR#2',e); } } });
 // ---------- setting sail: Boon points, milestone gifts ----------
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b||!canRetire()) return; const before=S.tides, earned=S.stats.runEarned||0;
   setTimeout(()=>{ if(S.tides===before) return; const t=S.tides; let pts=boonPtsFor(t); const ms=VOYAGE_MS.find(m=>m.n===t); if(ms&&ms.fx&&ms.fx.pts) pts+=ms.fx.pts; S.boonPts=(S.boonPts||0)+pts;

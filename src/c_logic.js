@@ -139,7 +139,9 @@ function aqSum(k){ let s=0; for(const f of S.tank) for(const e of aqNet(f)) if(e
 const petVal = (id=S.pet) => { const p=PETI[id]; return p ? p.v*(1+.1*pr('petpal'))*(1+.05*bondLevel(id)) : 0; };
 function petSum(k){ const p=PETI[S.pet], q=S.pet2&&PETI[S.pet2]; return (p && p.k===k ? petVal() : 0) + (q && q.k===k ? petVal(S.pet2)*compShare() : 0); }
 const compShare = () => .5+.02*bondLevel(S.pet2);
-function bonus(k){ const v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); return BONUS_CAP[k] ? Math.min(BONUS_CAP[k],v) : v; }
+/* F6 slice 6: the files that add to a bonus (relics, events, feats, paths, boons) are steps on it (stepOn('bonus', (v,k)=>v2), a3_plat.js),
+   run in the order the files load. upto: only the first so many steps (the events file needs the bonus as it stood before its own step). */
+function bonus(k,upto){ let v=buffSum(k)+aqSum(k)+petSum(k)+rodBonus(k); if(BONUS_CAP[k]) v=Math.min(BONUS_CAP[k],v); const L=stepsOf('bonus'), n=upto===undefined?L.length:upto; for(let i=0;i<n;i++) v=L[i](v,k); return v; }
 /* the sale price before bonuses: one formula, also used by Market Rush (a copy of it missed the Merchant Path, so Rush gave 27.5% instead of 30%: Cam's Pixel, 2026-11-20) */
 const sellBase = () => 1 + .03*(S.lvl-1) + .04*pr('haggler') + .01*anglerRank() + (spec('merchant')?.12:0);
 const sellMult = () => (sellBase() + bonus('sell')) * coinMult();
@@ -287,7 +289,8 @@ function chooseCatch(){
 // 0.3.6: how much better rare odds make each rarity. Compounding, so every source of rare odds keeps mattering as they
 // stack (it used to be a flat sum, where each new source counted for less and less). Commons are never boosted.
 const rareMul = (rare,f) => f ? Math.pow(1+Math.max(0,rare)*.6, f*1.25) : 1;
-function catchW(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.4:1); }
+function catchW(s,pool,rare,b){ return thenRun('catchW',catchWCore(s,pool,rare,b),s,pool,rare,b); } /* F6 slice 6: hunts, foods and paths are steps */
+function catchWCore(s,pool,rare,b){ return rarBase(s,pool)*rareMul(rare,RAR[s.r].f)*(b.beh&&b.beh.includes(s.beh)?1.9:1)*(b.legend&&s.r>=4?b.legend:1)*(spec('mythseeker')&&s.r>=4?1.4:1); }
 // the real chance of each rarity on your next normal cast here (no hotspot, not a far cast), from the same weights as a
 // catch; opts can try a different bait or rod or extra Lucky Charm ranks, so cards can show exactly what a choice changes
 function catchOdds(opts={}){ const keep={bait:S.baitSel, rod:S.rods&&S.rods.eq, perks:S.perks};
@@ -318,7 +321,8 @@ function endFight(kind){
 function finishCatch(){ const f=G.fish; G.land=null; if(!f){ G.st='idle'; return; } if(V3ON) vib([30,40,70]);
   if(f.hot) S.stats.hot++; G.inHot=false;
   if(f.kind==='fish') landFish(); else if(f.kind==='hat') landHat(); else landJunk(); }
-function landFish(){
+function landFish(){ const L=stepsOf('landFish'); return stepsRun(L,landFishCore,[],L.length-1); } /* F6 slice 6: events, hunts, paths and boons are steps around it */
+function landFishCore(){
   const f=G.fish, sp=f.sp; G.st='result'; G.fish=null; S.voyCatch=S.voyCatch||{}; S.voyCatch[sp.loc]=(S.voyCatch[sp.loc]||0)+1; /* [16] catches per water this voyage */ const titleNew = f.shiny===2 && f.pv && !(S.titled=S.titled||{})[sp.id+':'+f.pv]; if(titleNew) S.titled[sp.id+':'+f.pv]=1; /* [18] */
   const j=S.journal[sp.id]; const isNew=!j; const record = j && !f.hy && f.kg > j.best; const hyNew = f.hy && !(j&&j.hb!=null);
   journalAdd(f);

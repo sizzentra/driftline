@@ -193,15 +193,13 @@ $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) sav
    The button actions: a file adds its actions with actOn('name other', fn). A press of data-act="name" runs that one function,
    which answers 'render' (draw the page again), 'skip' (leave the page) or undefined (not handled: extraAct's own list below is
    tried). One action has one owner: a name that is taken stops the page while it loads, so a clash cannot ship.
-   The page steps, what runs around every page draw, in the order the files load: a file adds panelStep({before(){ }, after(t){ }}).
-   renderPanel (e_ui.js) runs every "before" from the last added to the first, draws the page, then every "after" from the first
-   added to the last. What a "before" returns is handed to the same step's "after". A "before" that drew the page itself returns
-   'drawn': the steps added earlier and the normal draw are skipped, the steps added later still run their "after". A step's
-   "always" runs right after its "after", also when the draw failed.
-   Both lists sit on their functions (like oops), so a file can add to them, and a page can be drawn, while the game is still loading. */
+   The page steps, what runs around every page draw, in the order the files load: a file adds panelStep({before(){ }, after(t){ }}),
+   which is stepOn('renderPanel', step): how steps run is written once, at stepOn in a3_plat.js. A "before" that drew the page itself
+   returns 'drawn'.
+   The lists sit on their functions (like oops), so a file can add to them, and a page can be drawn, while the game is still loading. */
 function actOn(names,fn){ const T=actOn.table||(actOn.table=Object.create(null)); for(const n of names.split(' ')){ if(T[n]) throw new Error('button action added twice: '+n); T[n]=fn; } }
 function actRun(b){ const f=actOn.table&&actOn.table[b.dataset.act]; return f?f(b):undefined; }
-function panelStep(s){ (panelStep.list||(panelStep.list=[])).push(s); }
+function panelStep(s){ stepOn('renderPanel',s); }
 // handles panel buttons added by the extras; returns 'skip' to avoid a full re-render
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
   const r=actRun(b); if(r!==undefined) return r==='render' ? undefined : r;

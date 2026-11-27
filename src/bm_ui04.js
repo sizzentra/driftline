@@ -466,7 +466,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 }
 </style>`);
 // pages that redraw themselves (not through renderPanel) get the same tidy-up: watch the page for new content
-function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
+function menuTidy2(){ const L=stepsOf('menuTidy2'); return stepsRun(L,menuTidy2Core,[],L.length-1); } /* F6 slice 6: the later page touches are steps after it */
+function menuTidy2Core(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
   const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")){ const wide=[...hr.children].slice(1).some(c=>c.matches("select,input,.fld")||c.querySelector("select,input,.fld")); hr.classList.toggle("dl-head",!wide); hr.classList.toggle("dl-headw",wide); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
@@ -857,10 +858,10 @@ function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
-{ const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
+{ stepOn('menuTidy2', { after(){ try{ const P=$('panel');
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
-  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* a page header's number or controls sit beside the text when they fit, and start on the left when they wrap */
 #menuov #panel > .row.dl-head{justify-content:space-between!important}
@@ -879,10 +880,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov .mo-in{grid-template-rows:auto minmax(0,1fr)!important;grid-template-areas:"tools sub back" "body body secs"!important}
 }
 </style>`);
-{ const _t7=menuTidy2; menuTidy2=function(){ _t7(); try{ const P=$('panel');
+{ stepOn('menuTidy2', { after(){ try{ const P=$('panel');
     if(S.tab==='paths') P.querySelectorAll('.tile .grid').forEach(g=>g.classList.add('pathgrid'));
     if(S.tab==='rods'){ const t=[...P.querySelectorAll('.tile')].find(x=>/in your hands/i.test(x.textContent)); if(t) t.classList.add('rodnow'); }
-  }catch(e){ oops('bm_ui04:P.querySelectorAll#2',e); } }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll#2',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* disabled buttons stay readable (they say what is not possible yet) */
 #menuov .btn:disabled,#menuov .btn[disabled]{opacity:.55!important;filter:saturate(.35)}
@@ -911,7 +912,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
 }
 </style>`);
-{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){ oops('bm_ui04:querySelectorAll',e); } }; menuTidy=menuTidy2; }
+{ stepOn('menuTidy2', { after(){ try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){ oops('bm_ui04:querySelectorAll',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:560px){
