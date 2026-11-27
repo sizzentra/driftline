@@ -78,6 +78,13 @@ foreach ($t in $texts.Values) {
 $unused = @($declN.Keys | Where-Object { $tokCount[$_] -le $declN[$_] } | Sort-Object)
 if ($unused.Count) { throw ("REDUNDANCY: functions that nothing uses (delete them, or use them): " + ($unused -join ', ')) }
 
+# ---------- ENCODING GATE (Foundation F4, 2026-11-26) ----------
+# A script that reads a UTF-8 file as Windows-1252 and writes it back garbles every special character, and each later pass garbles it
+# again: CLAUDE.md held 486 such runs and the game's Learn and Help texts 28 (shown to testers since build 0140) before this gate.
+# tools/mojibake.ps1 finds them (and repairs with -Fix); the build refuses while any is left in the rulebook, the docs, the source or the tools.
+$mojiOut = & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'tools/mojibake.ps1') (Join-Path $root 'CLAUDE.md') (Join-Path $root 'README.md') (Join-Path $root 'build.ps1') (Join-Path $root 'docs') (Join-Path $root 'src') (Join-Path $root 'tools')
+if ($LASTEXITCODE -ne 0) { throw ("ENCODING GATE: garbled characters (repair with tools/mojibake.ps1 -Fix <file>, then read the lines it changed):`n  " + ($mojiOut -join "`n  ")) }
+
 # The bug log (docs/qc_incidents.csv, Sharper Tools 2026-11-21): fixed labels only, and every row says whether it is fixed and when.
 # A new label goes into the lists below on purpose (one place), never by typing a new spelling into the log.
 $bugLog = Join-Path $root 'docs\qc_incidents.csv'
@@ -134,7 +141,7 @@ foreach ($p in 'pc','android','ios') {
     $clockRec = 'try{ window.__tOff=/[?&](test|sweep|frozen)\b/.test(location.search)?0:(+(localStorage.getItem("dl-test-toff")||0)||0); }catch(e){ window.__tOff=0; } (function(){ var rn=Date.now.bind(Date); Date.now=function(){ return rn()+window.__tOff; }; })(); '
     $top = $top.Replace("window.DL_VERSION=", "window.DL_PREVIEW=true; " + $sweepRec + $clockRec + $frozenRec + "window.DL_VERSION=").Replace('href="icon-192.png"', 'href="../icon-192.png"').Replace('content="Driftline">', 'content="DL Test">')
     # the test label: a fixed small pill (it stretched into a tall shape on iPhone held sideways), plain ASCII text (a "·" was
-    # read as "Â·" by Windows PowerShell)
+    # read as two characters by Windows PowerShell)
     $badge = '<span class="dlprev" style="position:fixed!important;' + $(if($p -eq 'pc'){'right:10px!important;bottom:10px!important;top:auto!important;left:auto!important;'}else{''}) + 'z-index:30;display:inline-block!important;width:auto!important;height:auto!important;min-height:0!important;max-height:22px!important;white-space:nowrap!important;background:#2a2048cc;color:#ffd59a;border:1px solid #ffd59a88;border-radius:999px;padding:3px 10px!important;margin:0!important;font:700 11px/14px system-ui,sans-serif!important;pointer-events:none;box-sizing:border-box">test build - ' + $names[$p] + '</span>'
     # phones: above the bottom tabs when upright, top left of the water when held sideways (the side menu is on the right)
     if($p -ne 'pc'){ $badge = '<style>html body span.dlprev.dlprev{transform:none!important;right:10px!important;left:auto!important;top:auto!important;bottom:calc(env(safe-area-inset-bottom) + 84px)!important}@media (orientation:landscape){html body span.dlprev.dlprev{right:auto!important;left:calc(env(safe-area-inset-left) + 22px)!important;bottom:auto!important;top:calc(env(safe-area-inset-top) + 92px)!important}}</style>' + $badge }
