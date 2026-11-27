@@ -4,7 +4,7 @@ A cozy fishing game in the browser, made for the director and their friends. It 
 
 **Sessions start in this folder (`C:\Users\sizze\Driftline`), never in OutPace's** (director, 2026-11-19). Driftline has its own memory; memory only points here.
 
-**One session keeps going while the work is connected** (director, 2026-11-20 and 2026-11-21: starting new sessions went wrong before on a stale CLAUDE.md). What keeps work safe across a summary or a new session is this file being current.
+**One session keeps going while the work is connected** (director, 2026-11-20 and 2026-11-21: starting new sessions went wrong before on a stale CLAUDE.md). What keeps work safe across a summary or a new session is this file being current. **Being tested (director, 2026-11-26: "Yes, fresh session"):** each Foundation step runs in a fresh session that works from this file and the skills alone, starting with F2; the director decides afterwards whether that becomes the rule.
 
 **This file is the single source of rules for working on Driftline.** It was shortened on 2026-11-26 (Foundation F4): the routines moved into skills that load when needed, the build history into `docs/HISTORY.md`. Keep it short: current facts and rules only.
 
