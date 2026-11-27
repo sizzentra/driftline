@@ -110,13 +110,12 @@ function voyClean(m,raw){
       m.boonMig=1; m.boonPts=Math.max(0,Math.floor(+m.boonPts||0)); if(!isFinite(m.boonPts)) m.boonPts=0; }catch(e){ oops('ch_voyage:Math.max',e); } }
 // ---------- actions ----------
 let voyAll=false;
-{ const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act, k=b.dataset.k;
+actOn('pshop boon voyall', function(b){ const a=b.dataset.act, k=b.dataset.k;
   if(a==='pshop'){ if(k!=='gold'&&k!=='xp') return 'skip'; const n=Math.max(1,Math.min(+b.dataset.n||1,PSHOP_MAX-pshopLv(k))), cost=n*PSHOP_COST; if(pshopLv(k)>=PSHOP_MAX||S.pearls<cost) return 'skip';
     S.pearls-=cost; S.pshop=S.pshop||{}; S.pshop[k]=pshopLv(k)+n; sfx.shiny(); toast((k==='gold'?'Coins':'XP')+' from everything: +'+pshopLv(k)+'% now.'); save(); return 'render'; }
   if(a==='boon'){ const B=BOONI[k]; if(!B) return 'skip'; const r=boonR(k); if(r>=B.max) return 'skip'; const c=r+1; if((S.boonPts||0)<c) return 'skip';
     S.boonPts-=c; S.boons=S.boons||{}; S.boons[k]=c; if(k==='cooler') voyApplyCooler(); sfx.shiny(); toast(B.name+' rank '+c+': '+boonText(B,c)); save(); return 'render'; }
-  if(a==='voyall'){ voyAll=!voyAll; return 'render'; }
-  return _ea(b); }; }
+  if(a==='voyall'){ voyAll=!voyAll; return 'render'; } });
 if(typeof ACT_OK==='object'){ ACT_OK.pshop=k=>k==='gold'||k==='xp'; ACT_OK.boon=k=>!!BOONI[k]; ACT_OK.voyall=()=>true; }
 // ---------- the Prestige page ----------
 function nextPearlAt(){ const pm=voyagePearlMult()*pathMul('pearl'), n=Math.floor(Math.pow((S.stats.runEarned||0)/PEARL_DIV,1/PEARL_EXP)*pm); return Math.ceil(Math.pow((n+1)/pm,PEARL_EXP)*PEARL_DIV); }

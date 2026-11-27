@@ -30,11 +30,10 @@ function chestGive(p){ if(p.k==='tix') return '+'+addTickets(p.n)+' tickets'; if
   if(p.k==='food'){ S.bait[p.id]=(S.bait[p.id]||0)+10; return '+10 '+BAIT[p.id].name; }
   if(p.k==='coins') return '+'+fmt(bwCoinWin(p.n))+' coins';
   if(typeof petColorPrize==='function'){ const t=petColorPrize(); if(t) return t; } return '+'+addTickets(400)+' tickets'; }
-{ const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act;
+actOn('gamble chestbuy chestpick', function(b){ const a=b.dataset.act;
   if(a==='gamble') return gamblePlay(+b.dataset.i);
   if(a==='chestbuy'){ if(chest&&chest.pick<0) return 'skip'; if(S.tickets<CHEST_COST){ toast('A chest costs '+CHEST_COST+' tickets.'); return 'skip'; } S.tickets-=CHEST_COST; chest={prizes:[chestPrize(),chestPrize(),chestPrize()], pick:-1, msg:''}; save(); return 'render'; }
-  if(a==='chestpick'){ const i=+b.dataset.i; if(!chest||chest.pick>=0||!chest.prizes[i]) return 'skip'; chest.pick=i; chest.msg=chestGive(chest.prizes[i]); try{ sfx.shiny(); }catch(e){ oops('ci_boardwalk:sfx.shiny',e); } save(); return 'render'; }
-  return _ea(b); }; }
+  if(a==='chestpick'){ const i=+b.dataset.i; if(!chest||chest.pick>=0||!chest.prizes[i]) return 'skip'; chest.pick=i; chest.msg=chestGive(chest.prizes[i]); try{ sfx.shiny(); }catch(e){ oops('ci_boardwalk:sfx.shiny',e); } save(); return 'render'; } });
 if(typeof ACT_OK==='object'){ ACT_OK.gamble=(k,i)=>Number.isInteger(i)&&i>=0&&i<S.cooler.length; ACT_OK.chestbuy=()=>true; ACT_OK.chestpick=(k,i)=>Number.isInteger(i)&&i>=0&&i<3; }
 { const _g=bwGamesHTML; bwGamesHTML=function(){ if(!FEATURE.boardwalkExtras) return _g(); /* switched off (b_data.js FEATURE): the games page without the two cards, so their buttons never exist */ const h=_g(), L=gambleList();
   const gm=bwCard('🐟','#ff6f91','Fishmonger’s Gamble','Stake a fish from your cooler: half the time the Fishmonger keeps it (you get tickets), otherwise you win 1.8×, 3× or even 8× its price in coins. '+(S.gstats.gambles||0)+' played.',

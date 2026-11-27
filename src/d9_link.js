@@ -61,7 +61,7 @@ function refreshXfer(){ if(S.tab!=='save') return; renderPanel(); }
 async function paintLink(){ const box=$('qrbox'); if(!box||XF.mode!=="send"||!XF.ready) return;
   try{ await loadQRLib(); box.innerHTML=''; new window.QRCode(box,{text:SHARE_BASE+'#pair='+XF.code,width:300,height:300,colorDark:'#0a161d',colorLight:'#ffffff',correctLevel:window.QRCode.CorrectLevel.M}); qrState='ok'; }
   catch(e){ box.remove(); qrState='fail'; } }
-function extraAct7(b){ switch(b.dataset.act){
+actOn('xfsend redeem xfget xfgo xfcancel sharelink copylink maillink linkload linkkeep pet2 pet2off petedit', function(b){ switch(b.dataset.act){
     case 'xfsend': xfSend(); return 'skip';
     case 'redeem': { const i=$('giftin'); return redeemGift(i?i.value:''); }
     case 'xfget': xfStop(); XF.mode='get'; XF.code=''; xfStat(''); refreshXfer(); setTimeout(()=>{ const i=$('xfin'); i&&i.focus(); },50); return 'skip';
@@ -75,7 +75,7 @@ function extraAct7(b){ switch(b.dataset.act){
     case 'pet2': { const k=b.dataset.k; if(!S.owned.pets.includes(k)||k===S.pet) return 'skip'; S.pet2=k; PET_EDIT=null; toast(petName(k)+' is tagging along as your companion.'); return 'render'; }
     case 'pet2off': if(S.pet2){ toast(petName(S.pet2)+' heads home for a nap.'); S.pet2=null; PET_EDIT=null; } return 'render';
     case 'petedit': { const k=b.dataset.k; if(k!==S.pet&&k!==S.pet2) return 'skip'; PET_EDIT=k; PET_PV=null; return 'render'; }
-  } return undefined; }
+  } return undefined; });
 document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target&&e.target.id==='xfin'){ e.preventDefault(); xfGet(e.target.value); } });
 // a new favourite: the old one becomes the companion if that spot is free (or if they simply swap places)
 function setFav(k){ if(!PETI[k]||k===S.pet) return; const old=S.pet; if(S.pet2===k||!S.pet2) S.pet2=old; S.pet=k; if(S.pet2===S.pet) S.pet2=null; PET_EDIT=null;
@@ -93,7 +93,7 @@ async function offerCode(code,title='From your other device'){
 function checkIncomingLink(){ const h=location.hash; if(!h.startsWith('#load=')&&!h.startsWith('#pair=')) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){ oops('d9_link:history.replaceState',e); }
   if(h.startsWith('#load=')) return offerCode(codeFromAny(h));
   const code=h.slice(6).replace(/\D/g,''); setTab('save'); xfGet(code); }
-$('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-act="linkload"],[data-act="linkkeep"]'); if(!b) return; const r=extraAct7(b); checkFeats(); save(); if(r!=='skip') refreshAll(); });
+$('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-act="linkload"],[data-act="linkkeep"]'); if(!b) return; const r=actRun(b); checkFeats(); save(); if(r!=='skip') refreshAll(); });
 window.addEventListener('hashchange',checkIncomingLink);
 setTimeout(checkIncomingLink,900);
 

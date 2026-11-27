@@ -101,9 +101,8 @@ function renderEvents(P){ const o=catchOdds(), c=S.chal;
   P.innerHTML=`<h2>Events</h2><p class="sub">Live events, challenges and the derby. Challenges are sized to your odds here, so better gear and bait make them easier.</p>
    ${active}${schedCal()}<h3 class="ev-h">Challenges</h3>${c?'':'<p class="sub" style="margin-top:-4px">One at a time. Each rests for 12 minutes after it ends.</p>'}<div class="grid ev-grid">${tiles}</div>
    <h3 class="ev-h">Fishing Derby</h3>${derbyHTML()}<div class="tile"><h4>Derby rewards</h4><div class="meta" style="margin-bottom:6px">Four minutes, one water: the heaviest total catch wins.</div>${row('🥇',1,'First place')}${row('🥈',.5,'Second place')}${row('🥉',.25,'Third place')}${row('🎣',0,'Fourth place')}</div>`; };
-const _extraAct2_ev036=extraAct2;
-extraAct2=function(b){ const a=b.dataset.act; if(a==='chalgo'){ if(G.st!=='idle'&&G.st!=='waiting'&&G.st!=='result'){ toast('Finish your catch first.'); return 'skip'; } return chalStart(b.dataset.k)?'render':'skip'; }
-  if(a==='chalquit'){ if(!S.chal) return 'skip'; if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent=(PLAT.touch()?'Tap':'Click')+' again to give up'; return 'skip'; } chalEnd(false); return 'render'; } return _extraAct2_ev036(b); };
+actOn('chalgo chalquit', function(b){ const a=b.dataset.act; if(a==='chalgo'){ if(G.st!=='idle'&&G.st!=='waiting'&&G.st!=='result'){ toast('Finish your catch first.'); return 'skip'; } return chalStart(b.dataset.k)?'render':'skip'; }
+  if(a==='chalquit'){ if(!S.chal) return 'skip'; if(!b.dataset.sure){ b.dataset.sure='1'; b.textContent=(PLAT.touch()?'Tap':'Click')+' again to give up'; return 'skip'; } chalEnd(false); return 'render'; } });
 // the Events tab shows how many things are live (scheduled events and your challenge)
 setInterval(()=>{ const b=document.querySelector('#tabs [data-tab="events"]'); if(!b) return; let d=b.querySelector('.dot'); const n=liveScheds().length+(S.chal?1:0);
   if(n){ if(!d){ d=document.createElement('span'); d.className='dot'; b.appendChild(d); } if(d.textContent!==String(n)) d.textContent=n; } else if(d) d.remove(); },1500);

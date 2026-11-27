@@ -43,7 +43,7 @@ function pcFit(){ const w=document.querySelector('.wrap'); if(!w) return; if(!do
 const _stageHOverride_036=stageHOverride;
 stageHOverride=function(W,H){ const o=_stageHOverride_036(W,H); if(o) return o; if(!document.body.classList.contains('pc-app')) return 0;
   return Math.max(260,Math.min(Math.round(W*.5),Math.round(innerHeight/UIZ*.38))); };
-{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), same=S.tab===lastTab, keep=P?P.scrollTop:0; const r=_rp.apply(this,arguments); try{ if(document.body.classList.contains('pc-app')&&P) P.scrollTop=same?keep:0; }catch(e){ oops('bj_polish036:classList.contains',e); } lastTab=S.tab; return r; }; }
+{ let lastTab=null; panelStep({ before(){ const P=$('panel'), same=S.tab===lastTab, keep=P?P.scrollTop:0; return {P,same,keep}; }, after({P,same,keep}){ try{ if(document.body.classList.contains('pc-app')&&P) P.scrollTop=same?keep:0; }catch(e){ oops('bj_polish036:classList.contains',e); } lastTab=S.tab; } }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html.pc-app{overflow:hidden;height:100%}
 body.pc-app{overflow:hidden;height:calc(100*var(--uvh,1vh));overscroll-behavior:none}
@@ -174,7 +174,7 @@ SEARCH_IDX.push(
  ['Hide menus','settings',null,'hide menus collapse full water bigger screen'],
  ['Keyboard shortcuts','settings',null,'keyboard shortcuts keys hotkeys help']);
 // a breadcrumb at the top of every page
-(function(){ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){ oops('bj_polish036:menuSecOf',e); } return r; }; })();
+panelStep({ after(){ try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){ oops('bj_polish036:menuSecOf',e); } } });
 // the search opens on a map of every page, grouped by section
 (function(){ const res=$('searchres'), q=$('searchq'); if(!res||!q) return; const ov=$('searchov');
   const map=()=>{ if(q.value.trim()) return; const secs=MENU_SECS.concat([{id:'more',name:'Settings',tabs:MENU_MORE.tabs}]);
@@ -205,8 +205,7 @@ hookIt=function(){ const sel=S.baitSel; _hookIt_04.apply(this,arguments);
   try{ const b=BAIT[sel]; if(sel!=='worm'&&S.settings.autoBait&&S.bait[sel]===0&&b&&!b.junk&&b.price>0&&S.money>=b.price){ S.money-=b.price; S.bait[sel]+=b.pack; S.baitSel=sel; renderBait(); save(); setTimeout(()=>toast('Restocked '+b.name+': '+b.pack+' more for '+fmtShort(b.price)+' coins.'),700); } }catch(e){ oops('bj_polish036:renderBait',e); } };
 const _renderShop_04=renderShop;
 renderShop=function(P){ _renderShop_04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; const on=!!S.settings.autoBait; const b=document.createElement('button'); b.className='btn alt sm'; b.dataset.act='autobait'; b.setAttribute('aria-pressed',on); b.title='When your bait runs out, buy one more pack automatically if you have the coins'; b.textContent=on?'Auto-restock: on':'Auto-restock: off'; b.style.marginLeft='auto'; cur.appendChild(b); }catch(e){ oops('bj_polish036:P.querySelector',e); } };
-const _extraAct2_qol=extraAct2;
-extraAct2=function(b){ if(b.dataset.act==='autobait'){ S.settings.autoBait=!S.settings.autoBait; save(); toast(S.settings.autoBait?'Bait will restock itself when it runs out (if you have the coins).':'Bait restocking is off.'); return 'render'; } return _extraAct2_qol(b); };
+actOn('autobait', function(){ S.settings.autoBait=!S.settings.autoBait; save(); toast(S.settings.autoBait?'Bait will restock itself when it runs out (if you have the coins).':'Bait restocking is off.'); return 'render'; });
 // 2) A full cooler shows on the water before you try to cast
 const _nextGoal_qol=nextGoal;
 nextGoal=function(){ if(S.cooler&&S.cooler.length>=gv('cooler')&&!S.chal) return {t:'Your cooler is full', sub:(PLAT.touch()?'Tap':'Click')+' to sell or keep your catch', p:1, tab:'cooler', ready:true}; return _nextGoal_qol(); };

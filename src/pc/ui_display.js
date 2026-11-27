@@ -28,10 +28,9 @@ addEventListener('resize',()=>{ clearTimeout(uiApplyZoom.t); uiApplyZoom.t=setTi
     const s=S.settings, cur=String(s.uiScale==null?'auto':s.uiScale), q=s.renderQ||'auto', chips=(act,L,c)=>`<div class="chips">${L.map(([v,n])=>`<button class="chipb" data-act="${act}" data-k="${v}" aria-pressed="${String(v)===c}">${n}</button>`).join('')}</div>`;
     h.insertAdjacentHTML('afterend',`<div class="pcdisp"><h5>Interface size</h5>${chips('uiscale',UI_SCALES,cur)}<div class="meta">Auto fits the window: 100% on a 1080p screen, bigger on 1440p and 4K. Now ${Math.round(UIZ*100)}%.</div>
       <h5>Picture quality</h5>${chips('renderq',RENDER_Q,q)}<div class="meta">Auto draws the water at 1.5× for sharp edges, Sharp at 2×; Balanced and Fast help older PCs keep a smooth frame rate.</div></div>`); }catch(e){ oops('pc/ui_display:pn.querySelectorAll',e); } return r; }; }
-{ const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act, k=b.dataset.k;
+actOn('uiscale renderq', function(b){ const a=b.dataset.act, k=b.dataset.k;
   if(a==='uiscale'){ const ok=UI_SCALES.some(([v])=>String(v)===k); if(!ok) return 'skip'; S.settings.uiScale=k==='auto'?'auto':+k; save(); uiApplyZoom(true); return 'render'; }
-  if(a==='renderq'){ if(!RENDER_Q.some(([v])=>v===k)) return 'skip'; S.settings.renderQ=k; save(); try{ cv.width=0; resize(); }catch(e){ oops('pc/ui_display:resize#2',e); } return 'render'; }
-  return _ea(b); }; }
+  if(a==='renderq'){ if(!RENDER_Q.some(([v])=>v===k)) return 'skip'; S.settings.renderQ=k; save(); try{ cv.width=0; resize(); }catch(e){ oops('pc/ui_display:resize#2',e); } return 'render'; } });
 if(typeof ACT_OK==='object'){ ACT_OK.uiscale=k=>UI_SCALES.some(([v])=>String(v)===String(k)); ACT_OK.renderq=k=>RENDER_Q.some(([v])=>v===k); }
 try{ SEARCH_IDX.push(['Settings: interface size and picture quality','settings','Display','zoom scale size big monitor 1440p 4k resolution sharp quality ui text bigger smaller']); }catch(e){ oops('pc/ui_display:SEARCH_IDX.push',e); }
 document.head.insertAdjacentHTML('beforeend','<style>#panel .pcdisp{margin:6px 0 10px}#panel .pcdisp .meta{margin-top:3px}</style>');

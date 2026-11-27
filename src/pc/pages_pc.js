@@ -11,7 +11,7 @@
 /* every section's tabs share one row on PC */
 function PG_COLS(el,n){ return Math.max(1,n); }
 /* the engine, after every PC page tweak has run */
-{ const _rp=renderPanel; renderPanel=function(){ PAGES.before(); for(let i=PC_STEPS.pre.length-1;i>=0;i--) PC_STEPS.pre[i](); const r=_rp.apply(this,arguments); for(const f of PC_STEPS.post) f(); PAGES.after(); return r; }; } /* PC_STEPS: br_pc05.js */
+panelStep({ before(){ PAGES.before(); for(let i=PC_STEPS.pre.length-1;i>=0;i--) PC_STEPS.pre[i](); }, after(){ for(const f of PC_STEPS.post) f(); PAGES.after(); } }); /* PC_STEPS: br_pc05.js */
 /* PC_UI: one size for every page (the phones' MB_UI, for a big screen). Text 15 px, small text 13 px, card titles 16 px, controls 40 px. */
 const PC_UI={text:15, small:13, title:16, h2:22, ctl:40, tab:42, cell:20, gap:12};
 document.head.insertAdjacentHTML('beforeend',`<style>

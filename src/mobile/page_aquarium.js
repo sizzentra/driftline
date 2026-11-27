@@ -84,14 +84,14 @@
         hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Next expansion: ${nx} fish${S.money<cost?` · you need <span class="coin">${fmt(cost-S.money)}</span> more`:''}</p>`); }
       else if(cost==null) hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Your tank is as big as it gets: ${cap} fish.</p>`); } };
   // the one step: the tank's live canvas is carried through every re-render, so it never blinks or restarts
-  const _rp=renderPanel; renderPanel=function(){ const aq=MOB()&&S.tab==='aquarium', keep=aq?$('tankcv'):null;
+  panelStep({ before(){ const aq=MOB()&&S.tab==='aquarium', keep=aq?$('tankcv'):null;
     if(aq) try{ aqTryPlace(); }catch(e){ oops('mobile/page_aquarium:aqTryPlace',e); }
-    const r=_rp.apply(this,arguments); const P=$('panel'); if(!P) return r;
+    return {aq,keep}; },
+   after({aq,keep}){ const P=$('panel'); if(!P) return;
     try{ P.classList.toggle('aq07',aq); }catch(e){ oops('mobile/page_aquarium:classList.toggle',e); }
     if(aq){ for(const step of [aqHeader,aqLayout,aqDecorate]) try{ step(P); }catch(e){ console.error(e); }
       try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){ oops('mobile/page_aquarium:fresh.replaceWith',e); }
-      try{ aqTankSize(P); }catch(e){ console.error(e); } }
-    return r; };
+      try{ aqTankSize(P); }catch(e){ console.error(e); } } } });
   /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles) */
   let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){ oops('mobile/page_aquarium:MOB',e); } },160); }); }
 

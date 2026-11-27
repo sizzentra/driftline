@@ -89,12 +89,12 @@ function drawAmbient(L,t,night,hz,dt){ if(!S.settings.effects) return;
 function drawVignette(night){ const gr=g.createRadialGradient(W/2,H*.55,Math.min(W,H)*.35,W/2,H*.55,Math.max(W,H)*.75); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(4,10,16,'+(.22+night*.2)+')'); g.fillStyle=gr; g.fillRect(0,0,W,H); }
 
 // ---------- actions ----------
-function extraAct5(b){ const k=b.dataset.k;
+actOn('derby passclaim', function(b){
   switch(b.dataset.act){
     case 'derby': { if(S.derby||G.st!=='idle') return 'skip'; const c=derbyCost(); if(S.money<c) return 'skip'; S.money-=c; startDerby(); return 'render'; }
     case 'passclaim': { const got=[]; while(S.pass.claimed<S.pass.lvl){ S.pass.claimed++; got.push(grantPass(S.pass.claimed)); } if(got.length){ sfx.shiny(); toast('Tide Pass: '+got.slice(0,3).join(', ')+(got.length>3?' and more':'')); renderBait(); } return 'render'; }
   }
-  return undefined; }
+  return undefined; });
 
 // ---------- Ember Springs & Starfall Lake looks ----------
 function drawFarX(L,t,night,hz){ const N=cl=>mix(cl,'#0a1220',night*.6); const sy=x=>hz-(Math.sin(x/W*L.freq*Math.PI+1)*.5+.5)*H*L.amp-Math.sin(x/W*L.freq*7.3)*H*L.amp*.25-H*.012;

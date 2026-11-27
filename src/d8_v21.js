@@ -81,7 +81,7 @@ function paintClaw(){ const c=$('clawcv'); if(!c) return; const x=c.getContext('
   if(claw && k<1) requestAnimationFrame(paintClaw); }
 
 // ---------- actions ----------
-function extraAct6(b){ if(b.dataset.act==='claw'){ const c=clawCost(); if(S.money<c) return 'skip'; S.money-=c; playClaw(); return 'render'; } return undefined; }
+actOn('claw', function(){ const c=clawCost(); if(S.money<c) return 'skip'; S.money-=c; playClaw(); return 'render'; });
 
 // ---------- drawings for the new things ----------
 function drawPetZ(c,id,t,h){ const {el,ci,rc,ln,eye,blink}=h;

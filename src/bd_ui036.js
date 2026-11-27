@@ -21,7 +21,7 @@ function uiTidy(P){ if(!P) return; const t=S.tab;
       f.insertAdjacentHTML('afterbegin','<div class="fld-title">Sell all: what to sell</div>'); } }
   // any text box without a name gets one read out by screen readers and shown as a title
   P.querySelectorAll('input[type=text]:not([aria-label]):not([id])').forEach(i=>{ if(!i.closest('label')&&!(i.previousElementSibling&&/LABEL|SPAN|B/.test(i.previousElementSibling.tagName))) i.setAttribute('aria-label',i.placeholder||'Text'); }); }
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ uiTidy($('panel')); }catch(e){ oops('bd_ui036:uiTidy',e); } return r; }; }
+panelStep({ after(){ try{ uiTidy($('panel')); }catch(e){ oops('bd_ui036:uiTidy',e); } } });
 
 // ---------- menu search ----------
 const SEARCH_IDX=[

@@ -64,7 +64,8 @@ Builds: `build.ps1` joins the shared core (`src/*.js`, in the order of `$core`) 
 ## Menus
 | Piece | Defined in | Notes |
 |---|---|---|
-| `renderPanel()` | `e_ui.js`, wrapped by ~25 files | add a page's phone touches with `pageDone(tab,fn)` (runs in order at the end of the page engine, `cx_pages.js`) instead of another wrapper; check the page on every platform |
+| `renderPanel()` | `e_ui.js`: one function since F6 slice 3 (2026-11-27); about 40 files add a step with `panelStep({before, after})` (`d2_extra.js`), run in file order around the draw | a new step's place is where its file loads (`$core` and `$layers` in build.ps1); a `before` that returns `'drawn'` skips every step added before it; add a page's own touches with `pageDone(tab,fn)` (end of the page engine, `cx_pages.js`); check the page on every platform |
+| Button actions (`data-act`) | one table since F6 slice 3: `actOn('names', fn)` in the action's owner file, read by `actRun` / `extraAct` (`d2_extra.js`); `e_ui.js`'s own list is tried first | an action name has one owner (a second `actOn` for it stops the page at load); `ACT_OK` (`bo_guard04.js`) still checks a press's values before it runs |
 | One file per phone page (Clean Pages, 2026-11-21) | `mobile/page_aquarium.js`, `mobile/page_home.js` (one `renderPanel` step each, in their old order), `mobile/page_cooler.js`; Settings / Save / Rods touches via `pageDone` in `mobile/settings08.js`, `mobile/pages08.js`, `mobile/polish08.js` | change a page in its own file; verify with the element fingerprint (every element's place, size and style before and after) |
 | sections (`bwx-nav sect-nav`) | `x_sections.js` | hides by inline `display`; anything you insert must follow its section (see `mobile/page_home.js`) |
 | scroll-edge arrows | `bx_qol06.js` | selector list `SEL` |

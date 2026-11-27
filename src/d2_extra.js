@@ -189,14 +189,22 @@ function renderSettings(P){ const s=S.settings; const sl=(k,label)=>`<div class=
 $('panel').addEventListener('input',e=>{ const el=e.target.closest('[data-set]'); if(!el) return; const k=el.dataset.set; S.settings[k]=(+el.value)/100; const v=$('setv_'+k); if(v) v.textContent=el.value+'%'; startAudio(); applyVolumes(); });
 $('panel').addEventListener('change',e=>{ if(e.target.closest('[data-set]')) save(); });
 
+/* ---------- the two panel lists (Foundation F6 slice 3, 2026-11-27) ----------
+   The button actions: a file adds its actions with actOn('name other', fn). A press of data-act="name" runs that one function,
+   which answers 'render' (draw the page again), 'skip' (leave the page) or undefined (not handled: extraAct's own list below is
+   tried). One action has one owner: a name that is taken stops the page while it loads, so a clash cannot ship.
+   The page steps, what runs around every page draw, in the order the files load: a file adds panelStep({before(){ }, after(t){ }}).
+   renderPanel (e_ui.js) runs every "before" from the last added to the first, draws the page, then every "after" from the first
+   added to the last. What a "before" returns is handed to the same step's "after". A "before" that drew the page itself returns
+   'drawn': the steps added earlier and the normal draw are skipped, the steps added later still run their "after". A step's
+   "always" runs right after its "after", also when the draw failed.
+   Both lists sit on their functions (like oops), so a file can add to them, and a page can be drawn, while the game is still loading. */
+function actOn(names,fn){ const T=actOn.table||(actOn.table=Object.create(null)); for(const n of names.split(' ')){ if(T[n]) throw new Error('button action added twice: '+n); T[n]=fn; } }
+function actRun(b){ const f=actOn.table&&actOn.table[b.dataset.act]; return f?f(b):undefined; }
+function panelStep(s){ (panelStep.list||(panelStep.list=[])).push(s); }
 // handles panel buttons added by the extras; returns 'skip' to avoid a full re-render
 function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
-  const r2=extraAct2(b); if(r2!==undefined) return r2==='render' ? undefined : r2;
-  const r3=extraAct3(b); if(r3!==undefined) return r3==='render' ? undefined : r3;
-  const r4=extraAct4(b); if(r4!==undefined) return r4==='render' ? undefined : r4;
-  const r5=extraAct5(b); if(r5!==undefined) return r5==='render' ? undefined : r5;
-  const r6=extraAct6(b); if(r6!==undefined) return r6==='render' ? undefined : r6;
-  const r7=extraAct7(b); if(r7!==undefined) return r7==='render' ? undefined : r7;
+  const r=actRun(b); if(r!==undefined) return r==='render' ? undefined : r;
   if(['aqtheme','aqsand','decor'].includes(b.dataset.act)) AQ_PV=null;
   switch(b.dataset.act){
     case 'tog': S.settings[k]=!S.settings[k]; applyVolumes(); if(k==='musicOn'||k==='ambient') startAudio(); return;

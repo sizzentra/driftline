@@ -62,7 +62,7 @@ function nibPatch(){ const P=$('panel'); if(!P||S.tab!=='aquarium') return false
     if(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); b.replaceWith(t.content.firstElementChild); } else b.remove();
     const v=row&&row.querySelector('.val .coin'); if(v) v.textContent=fmt(sh[i]); const sm=row&&row.querySelector('.nm small'); if(sm){ const sp=SPI[f.id]; sm.innerHTML=`${RAR[sp.r].k} · ${kgStr(f.kg)}${tags(f)} · <span class="aq">${aqTxt(f)}</span>${nibFedTxt(f)}`; } }
   const e=P.querySelector('.bank b.coin'); if(e){ const r=tankRate()*60; e.textContent=fmtShort(r); e.title=fmt(r)+' coins an hour'; } const ns=P.querySelector('.nibstrip'); if(ns) ns.outerHTML=nibStripHTML(); return true; }
-{ const _ea7=extraAct7; extraAct7=function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); if(b.dataset.act==='nibamt'){ const n=+b.dataset.k; if(!NIB_AMTS.includes(n)) return 'skip'; S.nibAmt=n; return 'render'; } return _ea7(b); }; }
+actOn('scrap scrapall nibfeed nibamt', function(b){ const i=+b.dataset.i; if(b.dataset.act==='scrap') return nibScrap(i); if(b.dataset.act==='scrapall') return nibScrapAll(); if(b.dataset.act==='nibfeed') return nibFeed(i); if(b.dataset.act==='nibamt'){ const n=+b.dataset.k; if(!NIB_AMTS.includes(n)) return 'skip'; S.nibAmt=n; return 'render'; } });
 if(typeof ACT_OK==='object') ACT_OK.nibamt=k=>NIB_AMTS.includes(+k);
 /* Cam, round 5: the feed amount and your Nibbles of every rarity, in a strip above the tank */
 function nibStripHTML(){ const a=nibAmt(), has=NIB_RAR.map((r,i)=>[i,(S.nib&&S.nib['r'+i])||0]).filter(x=>x[1]>0);

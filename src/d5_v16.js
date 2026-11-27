@@ -106,10 +106,10 @@ function checkBounties2(f){ const done=[]; for(const b of S.bounties){ if(!['tro
   if(b.type==='trophy' && f.trophy && f.sp.loc===b.loc) b.have=1; const here=!b.loc||f.sp.loc===b.loc; if(b.type==='style' && here && f.sp.beh===b.beh) b.have++; if(b.type==='shiny' && here && f.shiny) b.have=1; if(bDone(b)) done.push(b); } return done; }
 
 // ---------- actions ----------
-function extraAct3(b){ const k=b.dataset.k;
+actOn('spec relic', function(b){ const k=b.dataset.k;
   switch(b.dataset.act){
     case 'spec': { const [ti,id]=k.split(':'); const T=SPEC_TIERS[+ti]; if(!T||S.lvl<T.lvl) return 'skip'; const cur=S.specs[ti]; if(cur===id) return 'skip'; if(cur){ const fee=specFee(+ti); if(S.money<fee) return 'skip'; S.money-=fee; }
       S.specs[ti]=id; sfx.catch(3); toast('Specialisation: '+T.opts.find(o=>o[0]===id)[1]+'.'); return 'render'; }
     case 'relic': { const r=RELICS.find(x=>x.id===k); if(!r||relic(k)||S.pearls<r.cost) return 'skip'; S.pearls-=r.cost; S.relics.push(k); sfx.shiny(); toast('Relic gained: '+r.name+'. It’s yours forever.'); return 'render'; }
   }
-  return undefined; }
+  return undefined; });

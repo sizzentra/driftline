@@ -76,11 +76,9 @@ function testerUnlock(k){ if(!window.DL_PREVIEW) return; if(k.startsWith('tod:')
   U(S.aq.owned,[...DECOR.map(d=>d.id),...THEMES.map(x=>x[0]),...SANDS.map(x=>x[0])]); S.tankSlots=TANK_COST.length;
   for(const b2 in BAIT) if(b2!=='worm') S.bait[b2]=(S.bait[b2]||0)+99; S.lvl=Math.max(S.lvl,40); S.tokens.small+=5; S.tokens.big+=5; S.tokens.legend+=5;
   return 'Everything unlocked for testing.'; }
-const _renderPanel_1 = renderPanel;
-renderPanel = function(){ if(S.tab==='stats'){ renderStats($('panel')); return; } _renderPanel_1(); };
-const _extraAct2_4 = extraAct2;
-extraAct2 = function(b){ if(b.dataset.act==='statsec'){ statSec=b.dataset.k; return 'render'; }
-  if(b.dataset.act==='tester'){ const m=testerUnlock(b.dataset.k); if(m){ toast(m); save(); lastHud=''; } return 'render'; } return _extraAct2_4(b); };
+panelStep({ before(){ if(S.tab==='stats'){ renderStats($('panel')); return 'drawn'; } } });
+actOn('statsec tester', function(b){ if(b.dataset.act==='statsec'){ statSec=b.dataset.k; return 'render'; }
+  if(b.dataset.act==='tester'){ const m=testerUnlock(b.dataset.k); if(m){ toast(m); save(); lastHud=''; } return 'render'; } });
 // the tab itself, next to Save
 { const sv=document.querySelector('#tabs [data-tab="save"]'); if(sv&&!document.querySelector('#tabs [data-tab="stats"]')){ sv.insertAdjacentHTML('beforebegin','<button role="tab" data-tab="stats" aria-selected="false" data-label="📊 Stats"></button>'); const nb=document.querySelector('#tabs [data-tab="stats"]'); nb.innerHTML=tabHTML(nb.dataset.label); } }
 document.head.insertAdjacentHTML('beforeend',`<style>

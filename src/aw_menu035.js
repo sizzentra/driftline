@@ -63,8 +63,7 @@ function menuBadges(){ const T=$('tabs'); if(!T) return;
 function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) return; const r=sb.getBoundingClientRect(); if(r.top<0||r.top>innerHeight*.6){ try{ sb.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){ sb.scrollIntoView(); } } }
 
 // keep both rows in step with whatever opened a page (tab links, the gear button, saves loading, events)
-const _renderPanel_035=renderPanel;
-renderPanel=function(){ const r=_renderPanel_035.apply(this,arguments); try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){ oops('aw_menu035:menuSync',e); } return r; };
+panelStep({ after(){ try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){ oops('aw_menu035:menuSync',e); } } });
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the old grid stays in the page (hidden) so the game can keep updating it */

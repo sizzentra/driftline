@@ -108,4 +108,4 @@ function wearFxDraw(c,lk,t,toC,k){ try{ const A=A3FXP; if(!A||(!A.hat&&!A.torso&
 // ---------- the Wardrobe preview is alive: while it is on screen it is drawn every display frame, so the angler breathes and every
 // cosmetic effect above plays there too (it used to be drawn once, a still picture). Stops by itself when the page closes ----------
 { let raf=0; const loop=()=>{ raf=0; const c=document.getElementById('lookcv'); if(!c||!c.isConnected) return; if(!document.hidden){ const r=c.getBoundingClientRect(); if(r.width>0&&r.bottom>0&&r.top<innerHeight) drawLookPreview(); } raf=requestAnimationFrame(loop); };
-  const _rp=renderPanel; renderPanel=function(){ const x=_rp.apply(this,arguments); try{ if(!raf&&document.getElementById('lookcv')) raf=requestAnimationFrame(loop); }catch(e){ oops('cb_wearfx06:document.getElementById',e); } return x; }; }
+  panelStep({ after(){ try{ if(!raf&&document.getElementById('lookcv')) raf=requestAnimationFrame(loop); }catch(e){ oops('cb_wearfx06:document.getElementById',e); } } }); }

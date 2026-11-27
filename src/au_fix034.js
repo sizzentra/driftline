@@ -55,15 +55,15 @@ const DEMAND={slot:-1,id:null};
 function demandSp(){ const slot=Math.floor(Date.now()/1000/WX_LEN); if(DEMAND.slot!==slot||!SPI[DEMAND.id]){ const h=hashStr('dm'+slot), local=SP.filter(s=>s.loc===S.loc&&s.r<=3), any=SP.filter(s=>S.unlocked.includes(s.loc)&&s.r<=3), pool=(h%10<8&&local.length)?local:any; DEMAND.slot=slot; DEMAND.id=pool[(h>>>4)%pool.length].id; } return SPI[DEMAND.id]; };
 
 // ---------- Bounties opens on the board of the water you are fishing ----------
-let lastTab034=null; const _renderPanel_034=renderPanel;
-renderPanel = function(){ if(S.tab==='bounties'&&lastTab034!=='bounties') bLoc=null; lastTab034=S.tab; return _renderPanel_034.apply(this,arguments); };
+let lastTab034=null;
+panelStep({ before(){ if(S.tab==='bounties'&&lastTab034!=='bounties') bLoc=null; lastTab034=S.tab; } });
 
 // ---------- a soft cue when a hooked fish starts to run (line hissing off the reel) ----------
 const _fight_034 = fight;
 fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.run&&!was){ try{ tone(520,.14,'triangle',.035,-160); tone(380,.18,'sine',.025,-90,.06); }catch(e){ oops('au_fix034:tone',e); } if(typeof vib==='function') vib(12); } };
 
 // ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
-const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPanel_034b.apply(this,arguments); try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){ oops('au_fix034:requestAnimationFrame',e); } return r; };
+panelStep({ after(){ try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){ oops('au_fix034:requestAnimationFrame',e); } } });
 const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } };
 
 document.head.insertAdjacentHTML('beforeend',`<style>

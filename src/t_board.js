@@ -91,8 +91,7 @@ function renderBoardwalk(P){ accrueSpins();
       else if(tag==='rod'&&ROD_I[id]){ x.clearRect(0,0,c.width,c.height); v3Rod(x,{x:10,y:66},{x:88,y:12},44,44,ROD_I[id],0,0,false); }
       else if(tag==='hat'&&HATI[id]){ x.clearRect(0,0,c.width,c.height); hatPreview(x,96,80,id,S.look.hatCol); } }); }
   if(bwView==='specials') P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,80,124,1.45,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,160,130); }); };
-const _extraAct2_1 = extraAct2;
-extraAct2 = function(b){ if(b.dataset.act==='bwview'){ bwView=b.dataset.k; return 'render'; } return _extraAct2_1(b); };
+actOn('bwview', function(b){ bwView=b.dataset.k; return 'render'; });
 document.head.insertAdjacentHTML('beforeend',`<style>
 .bwx-hero{position:relative;height:170px;border-radius:18px;overflow:hidden;border:1px solid #5a4a8a66;box-shadow:0 10px 30px #02060f99, inset 0 1px 0 #ffffff14}
 .bwx-hero canvas{position:absolute;inset:0;width:100%;height:100%;cursor:default}

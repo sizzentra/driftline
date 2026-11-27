@@ -19,7 +19,7 @@ function rpUse(i){ const p=S.rodPresets[i]; if(!p||!S.rods.owned.includes(p.rod)
 function rpSave(i){ if(!S.rods.owned.includes(S.rods.eq)) return false; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; S.rodPreset=i; save(); return true; }
 function rpClear(i){ S.rodPresets[i]=null; if(S.rodPreset===i) S.rodPreset=-1; save(); }
 rpLive=true; /* from here on every save() runs rpSync first (c_logic.js) */
-{ const _rp=renderPanel; renderPanel=function(){ if(S.tab==='rods') rpSync(); return _rp.apply(this,arguments); }; }
+panelStep({ before(){ if(S.tab==='rods') rpSync(); } });
 function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Presets</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
     if(!R) return `<div class="rp-card empty"><span class="rp-n">Preset ${i+1}</span><em>Empty</em><button type="button" class="btn alt sm" data-rp="save:${i}">Save the rod in your hands here</button></div>`;
     const atts=p.att.filter(a=>a&&ATT_I[a]).map(a=>`<span class="rp-att">${esc(ATT_I[a].name)}</span>`).join('')||'<span class="rp-att none">No attachments</span>';

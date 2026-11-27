@@ -186,8 +186,7 @@ petPreviewLook = function(id=editPet()){ if(id!=='daxniko') return _petPreviewLo
 const pairUIOn = () => S.tab==='pets' && editPet()==='daxniko';
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-pairdog]'); if(b){ PAIR_EDIT=b.dataset.pairdog; renderPanel(); return; } if(pairUIOn()){ PAIR_UI=true; setTimeout(()=>{ PAIR_UI=false; },0); } },true);
 document.addEventListener('click',()=>{ PAIR_UI=false; });
-const _renderPanel_pair = renderPanel;
-renderPanel = function(){ const on=pairUIOn(), was=PAIR_UI; if(on) PAIR_UI=true; try{ _renderPanel_pair(); if(on) pairSwitchInject(); } finally { PAIR_UI=was; } };
+panelStep({ before(){ const on=pairUIOn(), was=PAIR_UI; if(on) PAIR_UI=true; return {on,was}; }, after(t){ if(t.on) pairSwitchInject(); }, always(t){ PAIR_UI=t.was; } });
 function pairSwitchInject(){ const wrap=document.querySelector('#panel .petwrap'); if(!wrap||wrap.querySelector('.pairdog')) return; const first=[...wrap.querySelectorAll('h5')].find(h=>/Color|Color/.test(h.textContent)); if(!first) return;
   first.insertAdjacentHTML('beforebegin',`<div class="pairdog"><h5>Dressing</h5><div class="chips"><button class="chipb" data-pairdog="dax" aria-pressed="${PAIR_EDIT==='dax'}">Dax</button><button class="chipb" data-pairdog="niko" aria-pressed="${PAIR_EDIT==='niko'}">Niko</button></div></div>`); }
 // a fresh exclusive starts both dogs plain

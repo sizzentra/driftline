@@ -53,7 +53,7 @@ function drawPatternX(c,pat,base,x,y,w,h){ const dk='rgba(0,0,0,.3)', lt='rgba(2
   } }
 
 // ---------- actions ----------
-function extraAct4(b){ const k=b.dataset.k;
+actOn('tryon tryoff petpv petpvoff aqpv aqpvoff prizepv', function(b){ const k=b.dataset.k;
   switch(b.dataset.act){
     case 'tryon': { const [kind,id]=k.split(':'); const o=shopOffers().find(x=>x.kind===kind&&x.id===id); if(!o) return 'skip'; PREVIEW={kind,id,name:o.name,price:o.price}; setTimeout(()=>pvReveal('lookcv'),30); return 'render'; }
     case 'tryoff': PREVIEW=null; return 'render';
@@ -68,4 +68,4 @@ function extraAct4(b){ const k=b.dataset.k;
       else { AQ_PV={kind:'decor',id:k,name:nm,price:p[2],prize:k}; S.tab='aquarium'; }
       setTimeout(()=>$('panel').scrollIntoView({behavior:'smooth',block:'start'}),30); return 'render'; }
   }
-  return undefined; }
+  return undefined; });

@@ -68,7 +68,7 @@ if(window.DL_PREVIEW){
   { const _rd=renderDPR; renderDPR=function(w,h){ return GT_OFF.has('lowres')?1:_rd(w,h); }; }
   const _th=testerHTML; testerHTML=function(){ const base=_th(); if(!MOB()) return base;
     return base+`<details class="tile st-test" open><summary><b>Graphics test</b> <span class="meta">· turn parts of the water off, then read the frame counter</span></summary><p class="sub">Switch on the frame counter (Settings, Display), then tap one part at a time and look at the water. A part that makes the counter jump is the heavy one.</p><div class="row" style="gap:6px;flex-wrap:wrap">${GT_PARTS.map(([k,n])=>`<button class="btn${GT_OFF.has(k)?'':' alt'} sm" data-act="gtest" data-k="${k}">${GT_OFF.has(k)?'OFF: ':''}${n}</button>`).join('')}</div></details>`; };
-  const _xa=extraAct2; extraAct2=function(b){ if(b.dataset.act==='gtest'){ const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){ oops('mobile/settings08:V3CACHE.key',e); } try{ resize(); }catch(e){ oops('mobile/settings08:resize',e); } toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } return _xa(b); };
+  actOn('gtest', function(b){ { const k=b.dataset.k; if(GT_OFF.has(k)) GT_OFF.delete(k); else GT_OFF.add(k); try{ if(typeof V3CACHE!=='undefined'&&V3CACHE) V3CACHE.key=''; }catch(e){ oops('mobile/settings08:V3CACHE.key',e); } try{ resize(); }catch(e){ oops('mobile/settings08:resize',e); } toast((GT_OFF.has(k)?'Off: ':'Back on: ')+GT_PARTS.find(p=>p[0]===k)[1]); return 'render'; } });
 }
 
 // ---------- patch notes a phone has already shown stay shown (director, 2026-11-18: after moving progress from PC "my first relaunch

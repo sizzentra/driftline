@@ -29,8 +29,7 @@ function applySections(){ const P=$('panel'); if(!P) return; const tab=S.tab, K=
     sectionize(P,tab,[{name:'Your rods',nodes:K.slice(1,i1)},{name:'Rod rack',nodes:K.slice(i1,i2)},{name:'Attachments',nodes:K.slice(i2)}]); }
   else if(tab==='locs'||tab==='waters'||tab==='map'){ const grid=K.find(c=>c.classList.contains('grid')), js=K.filter(c=>c.classList.contains('jsec')); if(!grid||!js.length) return;
     sectionize(P,tab,[{name:'Waters',nodes:[grid]},...js.map(j=>({name:(j.querySelector('h2')||{}).textContent||'More',nodes:[j]}))]); } }
-const _renderPanel_0 = renderPanel;
-renderPanel = function(){ _renderPanel_0(); try{ applySections(); }catch(e){ oops('x_sections:applySections',e); } };
+panelStep({ after(){ try{ applySections(); }catch(e){ oops('x_sections:applySections',e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>.sect-nav{margin:10px 0 12px;flex-wrap:wrap} .sect-nav button{min-width:90px} #panel .grid.sect-one{grid-template-columns:minmax(0,1fr)!important}</style>`);
 // denser layouts for the longest lists (0.3 QC): patch notes scroll inside their box, pets/feats/decor/bait use tighter grids
 document.head.insertAdjacentHTML('beforeend',`<style>

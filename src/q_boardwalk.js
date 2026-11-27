@@ -42,8 +42,6 @@ function bwSpecialsHTML(){ const left=Math.ceil(BW_LEN-(Date.now()/1000%BW_LEN))
 const _renderBoardwalk_0 = renderBoardwalk;
 renderBoardwalk = function(P){ _renderBoardwalk_0(P); P.insertAdjacentHTML('beforeend',bwSpecialsHTML());
   P.querySelectorAll('canvas[data-bw]').forEach(c=>{ const [kind,id]=c.dataset.bw.split(':'), x=c.getContext('2d'); x.clearRect(0,0,c.width,c.height); if(kind==='out') drawAngler(x,56,108,1.25,Object.assign({},S.look,{outfit:id,hat:'none'}),{}); else wearPreview(x,kind,id,112,112); }); };
-const _extraAct2_0 = extraAct2;
-extraAct2 = function(b){ if(b.dataset.act==='bwbuy'){ const [kind,id]=b.dataset.k.split(':'), o=bwOffers().find(x=>x.kind===kind&&x.id===id); if(!o||bwOwned(o)||S.tickets<o.tix) return 'skip';
+actOn('bwbuy', function(b){ { const [kind,id]=b.dataset.k.split(':'), o=bwOffers().find(x=>x.kind===kind&&x.id===id); if(!o||bwOwned(o)||S.tickets<o.tix) return 'skip';
     S.tickets-=o.tix; if(kind==='shoe'){ S.owned.shoes.push(id); S.look.shoes=id; } else if(kind==='neck'){ S.owned.necks.push(id); S.look.neck=id; } else if(kind==='back'){ S.owned.backs.push(id); S.look.back=id; } else { S.owned.outfits.push(id); S.look.outfit=id; }
-    sfx.coin(); toast('You got the '+o.name+'! You are wearing it now (change it in the Wardrobe).'); save(); return 'render'; }
-  return _extraAct2_0(b); };
+    sfx.coin(); toast('You got the '+o.name+'! You are wearing it now (change it in the Wardrobe).'); save(); return 'render'; } });

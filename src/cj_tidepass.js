@@ -113,8 +113,8 @@ function passWearPaint(root){ (root||document).querySelectorAll('canvas[data-pw]
   else { const L=LINEI[id]; x.lineWidth=4; x.strokeStyle=L[2]==='star'?'hsl(270,90%,80%)':L[2].replace('A',1); x.beginPath(); x.moveTo(w*.12,h*.2); x.quadraticCurveTo(w*.45,h*.95,w*.86,h*.42); x.stroke(); drawBobSkin(x,w*.86,h*.45,h*.08,null); } }); }
 { const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ if(typeof wSec!=='undefined'&&wSec==='tidepass') passWearPaint(P||$('panel')); }catch(e){ oops('cj_tidepass:passWearPaint',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend','<style>#panel .wd-th canvas[data-pw^="aura:"]{width:100%!important;height:auto!important;max-width:120px;aspect-ratio:1} /* batch 2: aura previews fill their tile (they were a small figure in a big tile) */#panel .wd-th.pw-lock{opacity:.9}#panel .wd-th.pw-lock span{opacity:.75} /* batch 2: locked previews stay bright (try before you buy); the label says the level */</style>');
-{ const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='passwear'){ const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
-    S.look[k]=id==='none'?'none':id; save(); return 'render'; } return _ea(b); }; }
+actOn('passwear', function(b){ { const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
+    S.look[k]=id==='none'?'none':id; save(); return 'render'; } });
 if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(String(k));
 /* a step of migrate() in c_logic.js; saved = the save as it arrived (null when it was not a save at all) */
 function passOwnedClean(m,saved){ const raw=saved&&isObj(saved.owned)?saved.owned:{}; try{ m.owned=m.owned||{}; for(const k in PASS_NEW_KINDS){ const key=PASS_NEW_KINDS[k], I=k==='aura'?AURAI:k==='bob'?BOBI:LINEI, src=Array.isArray(raw[key])?raw[key]:m.owned[key]; m.owned[key]=Array.isArray(src)?[...new Set(src.filter(x=>I[x]))]:[];

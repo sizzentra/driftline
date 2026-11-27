@@ -38,13 +38,11 @@ function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).s
   paintFish(P); try{ shineDecorate(P); }catch(e){ oops('ax_trophy035:shineDecorate',e); } }
 
 // the Trophy Room page, and Keep buttons on cooler and aquarium fish
-const _renderPanel_tp=renderPanel;
-renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){ oops('ax_trophy035:menuSync',e); } return; } return _renderPanel_tp.apply(this,arguments); };
+panelStep({ before(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){ oops('ax_trophy035:menuSync',e); } return 'drawn'; } } });
 function vaultButtons(P){ const add=(row,attr,i)=>{ const acts=row.querySelector('.acts'); if(!acts||acts.querySelector('[data-vk],[data-vt]')) return; acts.insertAdjacentHTML('afterbegin',`<button class="btn alt sm tp-keep" ${attr}="${i}" title="Mount it in the Trophy Room forever (no income or boosts, never lost on a new voyage)">🏛️ Keep</button>`); };
   if(S.tab==='cooler') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="totank"][data-i]'); if(ib) add(row,'data-vk',ib.dataset.i); });
   if(S.tab==='aquarium') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="untank"][data-i]'); if(ib) add(row,'data-vt',ib.dataset.i); }); }
-const _renderPanel_tp2=renderPanel;
-renderPanel=function(){ const r=_renderPanel_tp2.apply(this,arguments); try{ if(S.tab==='cooler'||S.tab==='aquarium') vaultButtons($('panel')); }catch(e){ oops('ax_trophy035:vaultButtons',e); } return r; };
+panelStep({ after(){ try{ if(S.tab==='cooler'||S.tab==='aquarium') vaultButtons($('panel')); }catch(e){ oops('ax_trophy035:vaultButtons',e); } } });
 
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-vk],[data-vt],[data-vo],[data-vs]'); if(!b||b.disabled) return; e.stopPropagation();
   if(b.dataset.vs){ S.settings.vaultSort=b.dataset.vs; save(); renderPanel(); return; }

@@ -13,7 +13,7 @@
 // Android + iPhone + tablets.
 // =====================================================================
 /* The engine and every page's parts are shared since PC Reborn (src/cx_pages.js); this file styles the frame for phones. */
-{ const _rp=renderPanel; renderPanel=function(){ const m=MOB(); if(m) PAGES.before(); const r=_rp.apply(this,arguments); if(m) PAGES.after(); else { const P=$('panel'); if(P){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); } } return r; }; } /* the shared engine, hooked in at the same place as before */
+panelStep({ before(){ const m=MOB(); if(m) PAGES.before(); return m; }, after(m){ if(m) PAGES.after(); else { const P=$('panel'); if(P){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); } } } }); /* the shared engine, hooked in at the same place as before */
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* pages without a view: the strip on top, the sheet fills the rest (upright); sideways the summary column on the left */
 html body.phone-app #menuov #panel.pg08 .pg08-sheet,html body.phone-land #menuov #panel.pg08 .pg08-sheet{flex:1 1 0;min-height:0}
@@ -35,14 +35,14 @@ html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-side,html body.phone-l
 </style>`);
 /* the Aquarium and the Dock keep their place too: placing a decoration or adding a fish redraws the page, which jumped to the top */
 { const keep={}; const sec=P=>{ const s=P.querySelector('.aq07-sheet .sect-nav [aria-selected="true"]'); return s?s.textContent.trim():''; };
-  const _rp=renderPanel; renderPanel=function(){ const P0=$('panel'); const t0=S.tab; delete keep[t0]; if(P0&&((t0==='aquarium'&&P0.classList.contains('aq07')&&!P0.classList.contains('dk08')&&!P0.classList.contains('pg08')&&!P0.classList.contains('wd08'))||(t0==='home'&&P0.classList.contains('dk08')))){ const b=P0.querySelector('.aq07-body'); if(b&&b.scrollTop>0) keep[t0]={top:b.scrollTop, sec:sec(P0)}; }
-    const r=_rp.apply(this,arguments);
-    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&t==='aquarium'&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){ oops('mobile/pages08:MOB',e); } return r; }; }
+  panelStep({ before(){ const P0=$('panel'); const t0=S.tab; delete keep[t0]; if(P0&&((t0==='aquarium'&&P0.classList.contains('aq07')&&!P0.classList.contains('dk08')&&!P0.classList.contains('pg08')&&!P0.classList.contains('wd08'))||(t0==='home'&&P0.classList.contains('dk08')))){ const b=P0.querySelector('.aq07-body'); if(b&&b.scrollTop>0) keep[t0]={top:b.scrollTop, sec:sec(P0)}; } return t0; },
+   after(t0){
+    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&t==='aquarium'&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){ oops('mobile/pages08:MOB',e); } } }); }
 /* the Wardrobe works like the Dock: your angler is the live view, the categories are the Options panel's tabs */
 { let WD_OPEN=true; try{ WD_OPEN=localStorage.getItem('dl-wd-open')!=='0'; }catch(e){ oops('mobile/pages08:localStorage.getItem',e); }
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(!MOB()||S.tab!=='style'){ if(P) P.classList.remove('wd08'); return r; }
-      const nav=P.querySelector(':scope > .wd-nav'), wrap=P.querySelector(':scope > .stylewrap'), prev=wrap&&wrap.querySelector(':scope > .wd-prev'), main=wrap&&wrap.querySelector(':scope > .wd-main'); if(!nav||!prev||!main) return r;
+  panelStep({ after(){ try{ const P=$('panel'); if(!MOB()||S.tab!=='style'){ if(P) P.classList.remove('wd08'); return; }
+      const nav=P.querySelector(':scope > .wd-nav'), wrap=P.querySelector(':scope > .stylewrap'), prev=wrap&&wrap.querySelector(':scope > .wd-prev'), main=wrap&&wrap.querySelector(':scope > .wd-main'); if(!nav||!prev||!main) return;
       const land=document.body.classList.contains('phone-land');
       const stage=h('div','aq07-stage wd08-stage'); stage.appendChild(prev);
       const bar=h('div','aq07-bar'); const cur=nav.querySelector('[aria-selected="true"] .wl'); const bank=h('div','aq07-bank wd08-bank',`<div><span class="sub">Wardrobe</span><b>${esc(cur?cur.textContent:'Your look')}</b></div><div><span class="sub">Tip</span><b>Tap to try on</b></div>`); bar.appendChild(bank);
@@ -53,7 +53,7 @@ html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-side,html body.phone-l
       [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.append(stage,bar,sheet);
       P.classList.add('aq07','wd08'); P.classList.toggle('aq07-open',WD_OPEN); P.classList.remove('pg08','pg08-nostage','dk08');
       const n=nav.querySelectorAll(':scope > button').length; nav.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nav,n)},minmax(0,1fr))`,'important'); nav.querySelectorAll('.wl').forEach(l=>{ if(l.textContent.trim()==='Neck & back'&&l.scrollWidth>l.clientWidth+1){ l.textContent='Neck/back'; l.parentElement.title='Neck & back'; } }); /* narrowest phones */
-    }catch(e){ console.error(e); } return r; };
+    }catch(e){ console.error(e); } } });
   let rt=0, lastL=null; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const l=document.body.classList.contains('phone-land'); if(MOB()&&S.tab==='style'&&MENU_OPEN&&lastL!==null&&l!==lastL) renderPanel(); lastL=l; }catch(e){ oops('mobile/pages08:classList.contains',e); } },160); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-sidev,html body.phone-land #menuov #panel.pg08 .pg08-bar > .pg08-sidev{display:none}
@@ -85,20 +85,20 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
   setTimeout(()=>{ try{ const body=document.querySelector('#panel .aq07-body'); if(!body) return; const n=document.createComment(''); body.appendChild(n); n.remove(); }catch(er){ oops('mobile/pages08:document.querySelector',er); } },0); },true);
 /* short tab names where the full one does not fit a phone row */
 { const SHORT={'Move to another device':'Move progress','Aquarium & pets':'Tank & pets'};
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()) document.querySelectorAll('#panel .aq07-sheet > .bwx-nav > button[data-sect]').forEach(b=>{ const s=SHORT[b.dataset.sect]; if(s&&b.firstChild&&b.firstChild.nodeType===3) b.firstChild.nodeValue=s+(b.firstChild.nodeValue.endsWith(' ')?' ':''); }); }catch(e){ oops('mobile/pages08:MOB#2',e); } return r; }; }
+  panelStep({ after(){ try{ if(MOB()) document.querySelectorAll('#panel .aq07-sheet > .bwx-nav > button[data-sect]').forEach(b=>{ const s=SHORT[b.dataset.sect]; if(s&&b.firstChild&&b.firstChild.nodeType===3) b.firstChild.nodeValue=s+(b.firstChild.nodeValue.endsWith(' ')?' ':''); }); }catch(e){ oops('mobile/pages08:MOB#2',e); } } }); }
 /* Waters, Set sail again: the locked button's label is shortened on phones so it fits its card ("Reach Hollow Trench first" -> "Reach Hollow Trench") */
 pageDone('map',P=>{ if(MOB()) P.querySelectorAll('button[data-act="retire"][disabled]').forEach(b=>{ const m=b.textContent.trim().match(/^Reach (.+) first$/); if(m) b.textContent='Reach '+m[1]; }); }); /* Clean Pages 2: a page step, not a renderPanel layer */
 /* color choices (director: "color choices in customization don't look good and take up too much space, descriptions can be condensed
    with proper coloring"): every color chip (home light, hull paint, pet color) becomes a compact round swatch; the chosen color's
    name sits next to its heading ("Light · Golden"); the name stays as the button's label for screen readers and long-press */
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(!MOB()) return r; const P=$('panel'); if(!P) return r;
+panelStep({ after(){ try{ if(!MOB()) return; const P=$('panel'); if(!P) return;
     P.querySelectorAll('button.chipb').forEach(b=>{ if(b.classList.contains('mb-swatch')) return; const sw=b.querySelector('.hm-sw, .tint-dot'); if(!sw) return;
       const name=(b.textContent||'').trim(); b.classList.add('mb-swatch'); b.title=name; b.setAttribute('aria-label',name);
       [...b.childNodes].forEach(n=>{ if(n!==sw){ if(n.nodeType===3){ const s=document.createElement('span'); s.className='mb-swn'; s.textContent=n.nodeValue; n.replaceWith(s); } else if(n.nodeType===1) n.classList.add('mb-swn'); } });
       const row=b.parentElement; if(row) row.classList.add('mb-swrow'); });
     P.querySelectorAll('.chips.mb-swrow').forEach(row=>{ const hd=row.previousElementSibling; const on=row.querySelector('.mb-swatch[aria-pressed="true"]'); if(hd&&hd.tagName==='H5'&&on){ let t=hd.querySelector('.mb-swsel'); if(!t){ t=document.createElement('span'); t.className='mb-swsel'; hd.appendChild(t); } t.textContent=' · '+on.title; } });
     const note=P.querySelector('.hm-note'); if(note&&!note.dataset.short){ note.dataset.short='1'; note.textContent='Free to change. Every choice shows on the water at once.'; }
-  }catch(e){ console.error(e); } return r; }; }
+  }catch(e){ console.error(e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel .chips.mb-swrow:not([style*="display: none"]),html body.phone-land #menuov #panel .chips.mb-swrow:not([style*="display: none"]){display:flex!important;flex-wrap:wrap!important;gap:8px!important}
 html body.phone-app #menuov #panel button.chipb.mb-swatch,html body.phone-land #menuov #panel button.chipb.mb-swatch{width:32px!important;min-width:32px!important;height:32px!important;padding:3px!important;border-radius:50%!important;position:relative;display:inline-flex!important;align-items:center;justify-content:center}

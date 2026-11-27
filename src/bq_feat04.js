@@ -34,10 +34,9 @@ function weeklyHTML(){ const w=ensureWeekly(), done=w.quests.filter(q=>q.claimed
      ${q.claimed?'<span class="badge g">Done</span>':`<button class="btn sm" data-act="wqclaim" data-i="${i}" ${ok?'':'disabled'}>Claim</button>`}</div>`; }).join('')}
    ${w.quests.every(q=>q.claimed)?(w.bonus?'<p class="sub">Weekly crate collected. New quests on Monday.</p>':'<button class="btn" data-act="wqbonus" style="margin-top:8px">Claim the weekly crate</button>'):''}</div>`; }
 { const _rb=renderBounties; renderBounties=function(P){ _rb(P); try{ const d=[...P.children].find(c=>c.classList&&c.classList.contains('tile')&&/Daily tasks/.test(c.textContent)); const html=weeklyHTML(); if(d) d.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){ oops('bq_feat04:find',e); } }; }
-{ const _xw=extraAct2; extraAct2=function(b){ const a=b.dataset.act;
+actOn('wqclaim wqbonus', function(b){ const a=b.dataset.act;
   if(a==='wqclaim'){ const w=ensureWeekly(), q=w.quests[+b.dataset.i]; if(!q||q.claimed||wqHave(q)<q.n) return 'skip'; q.claimed=true; const c=earn(q.coins*coinMult()); S.scales+=q.scales; try{ addPassXP(60); }catch(e){ oops('bq_feat04:addPassXP',e); } try{ sfx.coin(); }catch(e){ oops('bq_feat04:sfx.coin',e); } toast('Weekly quest done: +'+fmt(c)+' coins, +'+q.scales+' Scales'); save(); return 'render'; }
-  if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){ oops('bq_feat04:sfx.catch',e); } toast('Weekly quests done! +25 Scales and a big Mystery Crate (Boardwalk).'); save(); return 'render'; }
-  return _xw(b); }; }
+  if(a==='wqbonus'){ const w=ensureWeekly(); if(w.bonus||!w.quests.every(q=>q.claimed)) return 'skip'; w.bonus=true; S.tokens.big=(S.tokens.big||0)+1; S.scales+=25; try{ sfx.catch(3); }catch(e){ oops('bq_feat04:sfx.catch',e); } toast('Weekly quests done! +25 Scales and a big Mystery Crate (Boardwalk).'); save(); return 'render'; } });
 if(typeof ACT_OK==='object'){ ACT_OK.wqclaim=(k,i)=>Number.isInteger(i)&&i>=0&&i<ensureWeekly().quests.length; ACT_OK.wqbonus=()=>true; }
 /* the Bounties badge: one count, in e_ui's hud (Cam's list #6: it used to add a second writer here and count yesterday's daily tasks) */
 function bountyReady(){ const u=new Set(S.unlocked); const d=ensureDaily(); return S.bounties.filter(b=>bDone(b)&&(!b.loc||u.has(b.loc))).length+d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+wqReady(); }
@@ -136,7 +135,7 @@ function settleScratch(){ if(!scratch||scratch.done) return; scratch.done=true; 
     scratch.txt=t; S.gstats.scratchWins++; try{ sfx.catch(w>=3?4:2); }catch(e){ oops('bq_feat04:sfx.catch#3',e); } } else { try{ sfx.lost(); }catch(e){ oops('bq_feat04:sfx.lost',e); } } };
 // higher or lower: the pot is tickets now; a right guess grows it by half, eight in a row pays it out
 const HILO_POT=12;
-{ const _xh=extraAct2; extraAct2=function(b){ const a=b.dataset.act, k=b.dataset.k, i=+b.dataset.i;
+actOn('hilostart hilo hilocash duckpick', function(b){ const a=b.dataset.act, k=b.dataset.k, i=+b.dataset.i;
   if(a==='hilostart'){ const c=bestLoot()*2; if(S.money<c) return 'skip'; S.money-=c; hilo={card:rint(1,13), streak:0, pot:HILO_POT, done:false}; taskProgress('game',1); return 'render'; }
   if(a==='hilo'){ if(!hilo||hilo.done) return 'skip'; let n; do{ n=rint(1,13); }while(n===hilo.card); const ok=(k==='hi')===(n>hilo.card), prev=hilo.card; hilo.card=n;
     if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); try{ tone(900+hilo.streak*100,.1,'triangle',.06); }catch(e){ oops('bq_feat04:tone',e); } if(hilo.streak>=8){ addTickets(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' tickets.'; try{ sfx.catch(4); }catch(e){ oops('bq_feat04:sfx.catch#4',e); } } }
@@ -145,8 +144,7 @@ const HILO_POT=12;
   if(a==='duckpick'){ if(!duck||duck.pick>=0) return 'skip'; if(!Number.isInteger(i)||i<0||i>=duck.prizes.length) return 'skip'; duck.pick=i; const p=duck.prizes[i];
     if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; try{ sfx.shiny(); }catch(e){ oops('bq_feat04:sfx.shiny#2',e); } }
     else if(p.k==='wear'){ const r=bwWearPrize(false); duck.msg=(r?r.title:'+'+addTickets(120)+' tickets')+'. Quack!'; try{ sfx.shiny(); }catch(e){ oops('bq_feat04:sfx.shiny#3',e); } }
-    else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; try{ tone(1200,.08,'triangle',.05); }catch(e){ oops('bq_feat04:tone#2',e); } } return 'render'; }
-  return _xh(b); }; }
+    else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; try{ tone(1200,.08,'triangle',.05); }catch(e){ oops('bq_feat04:tone#2',e); } } return 'render'; } });
 
 // (2026-11-17 balance check: Wild Berries, Ice Flies and Live Shrimp were too weak to be the best bait at their own
 //  water, so their base odds were raised in b_data.js; Lava Worms and Stardust already were.)

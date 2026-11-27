@@ -701,11 +701,10 @@ const PRIZES = [
 ];
 function addTickets(n){ n=Math.max(0,Math.round(n)); S.tickets+=n; return n; }
 let duck=null, hilo=null;
-function newHilo(){ hilo={card:rint(1,13), streak:0, pot:Math.round(bestLoot()*2), done:false, msg:'Higher or lower than '+0+'?'}; }
 const CARD_FISH = ['','Minnow','Perch','Trout','Bass','Carp','Pike','Salmon','Tuna','Shark','Marlin','Kraken','Leviathan','Legend'];
 
 // ---------- actions for this update ----------
-function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
+actOn('rodeq rodbuy rodup rodatt attbuy pettint petacc pethat petcol taskclaim claimall taskclaimall taskbonus patches safereset restorebk autobk autobkkept duckagain prize', function(b){ const k=b.dataset.k, i=+b.dataset.i;
   switch(b.dataset.act){
     case 'rodeq': if(S.rods.owned.includes(k)){ S.rods.eq=k; toast('You pick up the '+ROD_I[k].name+'.'); } return 'render';
     case 'rodbuy': { const r=ROD_I[k]; if(!r||r.src!=='shop'||S.rods.owned.includes(k)||S.money<r.price||S.scales<rodScales(r)||!S.unlocked.includes(r.need)) return 'skip'; S.money-=r.price; S.scales-=rodScales(r); S.rods.owned.push(k); S.rods.eq=k; sfx.coin(); toast('New rod: '+r.name+'!'); return 'render'; }
@@ -729,16 +728,10 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
       try{ if(!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){ oops('d3_update:localStorage.getItem',e); } /* the progress being replaced becomes the backup above (when that slot is free, so a pre-reset copy is never overwritten), so a restore can be undone */
       try{ S=migrate(s); delete S.bkAt; S.savedAt=Date.now(); G.st='idle'; window.__dlUnreadable=false; save(); toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
-    case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(bwEarn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
-    case 'hilostart': { const c=bestLoot()*2; if(S.money<c) return 'skip'; S.money-=c; newHilo(); taskProgress('game',1); return 'render'; }
-    case 'hilo': { if(!hilo||hilo.done) return 'skip'; let n; do{ n=rint(1,13); }while(n===hilo.card); const ok=(k==='hi')===(n>hilo.card); const prev=hilo.card; hilo.card=n;
-      if(ok){ hilo.streak++; hilo.pot=Math.round(hilo.pot*1.5); addTickets(3); tone(900+hilo.streak*100,.1,'triangle',.06); if(hilo.streak>=8){ bwEarn(hilo.pot); hilo.done=true; hilo.msg='Eight in a row! The pot pays out: +'+fmt(hilo.pot)+' coins.'; sfx.catch(4); } }
-      else { hilo.done=true; hilo.msg=prev+' → '+n+'. Wrong way! The pot sinks to the bottom of the sea.'; addTickets(2); sfx.lost(); } return 'render'; }
-    case 'hilocash': { if(!hilo||hilo.done||!hilo.streak) return 'skip'; bwEarn(hilo.pot); hilo.done=true; hilo.msg='Cashed out: +'+fmt(hilo.pot)+' coins after '+hilo.streak+' right guesses.'; sfx.coin(); return 'render'; }
     case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); PREVIEW=null; PET_PV=null; AQ_PV=null;
       if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }
-  return undefined; }
+  return undefined; });
 // the Customize stage fits each pet: measured once (drawn small offscreen), then scaled to fill the stage
 const PET_FIT={};
 function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;

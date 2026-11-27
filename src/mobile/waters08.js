@@ -13,11 +13,11 @@
 // =====================================================================
 /* Prestige, Oddities and Bait pages are shared since PC Reborn (src/cw_pages08.js); the sections live in bm_ui04.js. Phones' own layout stays here. */
 { let lastTab='';
-  const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), mob=MOB(), opened=S.tab!==lastTab; lastTab=S.tab;
-    const r=_rp.apply(this,arguments); if(!mob||S.tab!=='map'||!P) return r;
+  panelStep({ before(){ const P=$('panel'), mob=MOB(), opened=S.tab!==lastTab; lastTab=S.tab; return {P,mob,opened}; },
+   after({P,mob,opened}){ if(!mob||S.tab!=='map'||!P) return;
     try{ /* Waters: the voyage and relic sections live in Prestige now */
       P.querySelectorAll(':scope > .sect-nav').forEach(n=>n.remove());
-      const grid=P.querySelector(':scope > .grid'); if(!grid) return r; grid.classList.add('wt8-grid');
+      const grid=P.querySelector(':scope > .grid'); if(!grid) return; grid.classList.add('wt8-grid');
       for(const card of grid.querySelectorAll(':scope > .tile.loc')){ const h4=card.querySelector('h4'), L=h4&&LOCS.find(l=>l.name===h4.textContent.trim()); if(!L) continue;
         const metas=[...card.querySelectorAll(':scope > .meta')], blurb=metas[0], req=metas.find(m=>/fish caught at/.test(m.textContent)), btn=card.querySelector(':scope > button'), th=card.querySelector(':scope > .sw2');
         const sps=spAt(L.id), got=caughtAt(L.id), here=S.loc===L.id, open=S.unlocked.includes(L.id);
@@ -29,7 +29,7 @@
         if(btn&&!here){ btn.classList.add('wt8-btn'); if(open&&btn.disabled) btn.title='Reel in your line first'; info.appendChild(btn); }
         [...card.children].forEach(c=>{ if(c!==th) c.remove(); }); card.appendChild(info); }
       if(opened){ /* opening Waters: go to the water you are at */ setTimeout(()=>{ const c=grid.querySelector('.tile.loc.here'), body=c&&c.closest('.aq07-body,.pg08-body'); if(c&&body){ const top=c.getBoundingClientRect().top-body.getBoundingClientRect().top+body.scrollTop-8; body.scrollTop=Math.max(0,top); } },0); }
-    }catch(e){ console.error(e); } return r; }; }
+    }catch(e){ console.error(e); } } }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08 .pg08-body .grid.wt8-grid:not(.sect-one),html body.phone-app #menuov #panel.pg08 .pg08-body .grid.wt8-grid:not(.sect-one){grid-template-columns:repeat(auto-fill,minmax(280px,1fr))!important;gap:8px!important}
 html body.phone-land #menuov #panel.pg08 .tile.loc.wt8,html body.phone-app #menuov #panel.pg08 .tile.loc.wt8{display:flex!important;flex-direction:row!important;align-items:stretch!important;gap:10px!important;padding:8px!important;min-height:0!important}

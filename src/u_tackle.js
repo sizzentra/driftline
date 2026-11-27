@@ -22,7 +22,7 @@ let baitFold=[true,true,true];
 const baitFoldHead=(g,n,open)=>`<button type="button" class="bt-fold" data-act="baitfold" data-k="${g}" aria-expanded="${open}"><span class="bt-fold-t">${BAIT_GROUPS[g][0]} <em>${n}</em></span><span class="bt-fold-s">${BAIT_GROUPS[g][1]}</span></button>`;
 function baitGroupsHTML(list){ const L=baitSorted(list); return '<div class="tk-list tk-groups">'+[0,1,2].map(g=>{ const rows=L.filter(e=>baitGrp(e[1])===g); if(!rows.length) return ''; const open=!baitFold[g]; return baitFoldHead(g,rows.length,open)+(open?`<div class="tk-list">${rows.map(baitRow).join('')}</div>`:''); }).join('')+'</div>'; } /* one wrapper: the phone Bait page copies the shop's .tk-list */
 { const _st=setTab; setTab=function(t){ if(t!==S.tab) baitFold=[true,true,true]; return _st.apply(this,arguments); }; } /* every visit opens folded */
-{ const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='baitfold'){ const g=+b.dataset.k; if(g>=0&&g<3) baitFold[g]=!baitFold[g]; return 'render'; } if(b.dataset.act==='tackleview'&&b.dataset.k==='bait') baitFold=[true,true,true]; return _ea(b); }; }
+actOn('baitfold', function(b){ const g=+b.dataset.k; if(g>=0&&g<3) baitFold[g]=!baitFold[g]; return 'render'; }); /* F6 slice 3: a second line here folded the groups again on "tackleview bait", but the tackleview action below always answered first, so it never ran (qc 262); removed with the chain, nothing changes */
 function renderShop(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
   const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
     return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv} / ${max}</span></div><div class="pips">${G2.lv.slice(1).map((_,i)=>`<i class="${i<lv?"on":""}"></i>`).join('')}</div>
@@ -35,8 +35,7 @@ function renderShop(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!==
    ${tackleView==='bait'?baitGroupsHTML(shopBait)
     :tackleView==='lures'?`<p class="sub">These can’t be bought. They come out of junk you fish up: cheese, disco balls, magnets, gold.</p><div class="tk-list">${junkBait.map(baitRow).join('')}</div>`
     :`<div class="grid">${gearTiles}</div>`}`; };
-const _extraAct2_2 = extraAct2;
-extraAct2 = function(b){ if(b.dataset.act==='tackleview'){ tackleView=b.dataset.k; return 'render'; } return _extraAct2_2(b); };
+actOn('tackleview', function(b){ tackleView=b.dataset.k; return 'render'; });
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .tk-cur{display:flex;flex-direction:row;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0}
 .tk-list{display:flex;flex-direction:column;gap:8px}

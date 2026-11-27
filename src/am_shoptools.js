@@ -27,8 +27,7 @@ function shopToolsFor(grid,which){ if(!grid||!grid.isConnected||!grid.parentNode
   items.sort((A,B)=>cmp(A.it,B.it)).forEach(({t})=>grid.appendChild(t));
   let shown=0; for(const {t,it} of items){ const ok=(st.show==='all'||(st.show==='owned'?it.own:it.forSale))&&(which!=='aq'||st.kind==='all'||it.kind===st.kind); t.style.display=ok?'':'none'; if(ok) shown++; }
   let none=grid.querySelector('.st-none'); if(!shown){ if(!none){ none=document.createElement('p'); none.className='meta st-none'; none.style.gridColumn='1/-1'; grid.appendChild(none); } none.textContent='Nothing here with these filters.'; } else if(none) none.remove(); }
-const _renderPanel_st = renderPanel;
-renderPanel = function(){ const r=_renderPanel_st.apply(this,arguments); try{ shopTools(); }catch(e){ console.error(e); } return r; };
+panelStep({ after(){ try{ shopTools(); }catch(e){ console.error(e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 .shoptools{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:4px 0 10px}.shoptools .chips{margin:0}
 .st-sort{display:flex;align-items:center;gap:6px;font-size:13px;opacity:.9}.st-sort select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}

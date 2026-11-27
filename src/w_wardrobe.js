@@ -95,16 +95,14 @@ function renderStyle(P){ const lk=S.look, cols=[...FREE_COLS,...S.owned.cols].ma
 function previewBarHTML(){ if(!PREVIEW) return ''; const p=PREVIEW;
   const buy = p.prize ? `<button class="btn sm" data-act="prize" data-k="${p.prize}" ${S.tickets>=p.price?'':'disabled'}>Get · 🎟 ${p.price}</button>` : `<button class="btn sm" data-act="wbuy" data-k="${p.kind}:${p.id}" ${S.money>=p.price?'':'disabled'}>Buy · <span class="coin">${fmt(p.price)}</span></button>`;
   return `<div class="pvbar"><span>Trying on: <b>${esc(p.name)}</b></span><span class="row">${buy}<button class="btn alt sm" data-act="tryoff">Take off</button></span></div>`; };
-const _extraAct2_3 = extraAct2;
-extraAct2 = function(b){ const a=b.dataset.act, k=b.dataset.k||'';
+actOn('wsec wshop wtry wbuy', function(b){ const a=b.dataset.act, k=b.dataset.k||'';
   if(a==='wsec'){ wSec=k; return 'render'; } if(a==='wshop'){ wShop=k; return 'render'; }
   if(a==='wtry'||a==='wbuy'){ const [kind,id]=k.split(':'); const it=wCatalog(kind).find(x=>x.id===id)||shopOffers().find(x=>x.kind===kind&&x.id===id); if(!it) return 'skip';
     if(a==='wtry'){ PREVIEW={kind,id,name:it.name,price:it.price}; return 'render'; }
     if(wOwned(kind,id)||S.money<it.price) return 'skip'; S.money-=it.price; S.stats.bought++; PREVIEW=null; const o=S.owned, L=S.look;
     if(kind==='col') o.cols.push(id); else if(kind==='pat'){ o.pats.push(id); L.pat=id; } else if(kind==='out'){ o.outfits.push(id); L.outfit=id; } else if(kind==='gls'){ o.glasses.push(id); L.glasses=id; } else if(kind==='hat'){ o.hats.push(id); L.hat=id; }
     else if(kind==='shoe'){ o.shoes.push(id); L.shoes=id; } else if(kind==='neck'){ o.necks.push(id); L.neck=id; } else { o.backs.push(id); L.back=id; }
-    sfx.coin(); toast('Bought '+it.name+'. Looking sharp.'); save(); return 'render'; }
-  return _extraAct2_3(b); };
+    sfx.coin(); toast('Bought '+it.name+'. Looking sharp.'); save(); return 'render'; } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 .stylewrap.wd{grid-template-columns:minmax(220px,300px) 1fr;align-items:start}
 .wd-prev{position:sticky;top:8px}

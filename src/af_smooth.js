@@ -5,15 +5,15 @@
 // buying, equipping or toggling never looks like a page reload.
 // =====================================================================
 let _smoothTab=null;
-const _renderPanel_2 = renderPanel;
-renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
+panelStep({ before(){ const P=$('panel'); if(!P) return;
   const newTab = S.tab!==_smoothTab; _smoothTab=S.tab;
   const ps=P.scrollTop, ws=window.scrollY;
   const open=newTab?[]:[...P.querySelectorAll('details[open]')].map(d=>(d.querySelector('summary')||{}).textContent||'');
-  _renderPanel_2();
+  return {P,newTab,ps,ws,open}; },
+ after(t){ if(!t) return; const {P,newTab,ps,ws,open}=t;
   if(newTab){ if(document.body.classList.contains('pch-on')) return; if(PLAT.quietTabSwitch()) return; /* phones: no forced layout here; the phone page engine fades pages in itself */ /* PC: the page's own fade covers it (no per-card animation, no forced layout) */ P.classList.remove('pin'); void P.offsetWidth; P.classList.add('pin'); clearTimeout(P._pinT); P._pinT=setTimeout(()=>P.classList.remove('pin'),400); return; }
   if(open.length) for(const d of P.querySelectorAll('details')){ const s=(d.querySelector('summary')||{}).textContent||''; if(open.includes(s)) d.open=true; }
-  if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); };
+  if(P.scrollTop!==ps) P.scrollTop=ps; if(window.scrollY!==ws) window.scrollTo(0,ws); } });
 
 // test-only (?test): time the scene helpers during one land rebuild, to find what makes light changes slow
 if(/[?&]test\b/.test(location.search)) window.__prof=(n=3)=>{ const names=['v3range','v3hillBand','v3tree','v3rock','v3water','v3glitter','v3mist','v3stack','v3palm','v3snowPine','v3pine','v3glow','v3leafTree','v3bushes','v3flowers','v3reeds','v3fishRing','v3willow'];

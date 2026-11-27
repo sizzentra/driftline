@@ -15,8 +15,8 @@ const PHONE_APP=()=>window.innerWidth<=700 && !(window.innerWidth>window.innerHe
   addEventListener('resize',apply); addEventListener('orientationchange',()=>setTimeout(apply,60)); apply(); })();
 
 // a new page starts at its top (inside its own scroll area on phones); the same page re-drawing keeps its place
-{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), keep=P?P.scrollTop:0, same=S.tab===lastTab; const r=_rp.apply(this,arguments);
-    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){ oops('mobile/ay_phone035:classList.contains',e); } lastTab=S.tab; return r; }; }
+{ let lastTab=null; panelStep({ before(){ const P=$('panel'), keep=P?P.scrollTop:0, same=S.tab===lastTab; return {P,keep,same}; }, after({P,keep,same}){
+    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){ oops('mobile/ay_phone035:classList.contains',e); } lastTab=S.tab; } }); }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app{height:100dvh;overflow:hidden;padding-top:8px!important;padding-bottom:0!important;overscroll-behavior:none}

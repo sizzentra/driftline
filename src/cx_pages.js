@@ -5,7 +5,7 @@
 // (.pg08) its own way: mobile/pages08.js for phones, pc/pages_pc.js for PC. A platform can leave a page out (PAGES_SKIP: PC keeps its
 // Fish Log, Aquarium and Home layouts) and decides how many tabs share a row (PG_COLS).
 // =====================================================================
-const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform wraps renderPanel: PAGES.before(); draw; PAGES.after() */
+const PAGES_SKIP=new Set(), PAGES={before(){}, after(){}}; /* each platform adds one page step (panelStep): PAGES.before(); draw; PAGES.after() */
 /* Clean Pages (2026-11-21): a page's own finishing touches, run in order at the very end of PAGES.after (after the page engine has
    laid the page out, or skipped it), so a platform file adds them with pageDone('settings',fn) instead of wrapping renderPanel again */
 const PAGE_DONE={}; function pageDone(tab,fn){ (PAGE_DONE[tab]=PAGE_DONE[tab]||[]).push(fn); }

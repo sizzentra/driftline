@@ -171,13 +171,12 @@ setInterval(dashTick,500);
 { const P=$('panel'); P.addEventListener('pointerdown',()=>{ if(S.tab===DASH) dashPress=true; }); addEventListener('pointerup',()=>{ dashPress=false; }); addEventListener('pointercancel',()=>{ dashPress=false; }); }
 function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'+id+'"]'); if(!el) return; if(dashCol()[id]){ delete dashCol()[id]; renderPanel(); return dashFlash(id); } el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); try{ el.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){ oops('bm_ui04:el.scrollIntoView',e); } }
 // dashboard actions that are not already game actions
-{ const _xa=extraAct2; extraAct2=function(b){ const a=b.dataset.act, k=b.dataset.k;
+actOn('dcol dhunts dbait', function(b){ const a=b.dataset.act, k=b.dataset.k;
     if(a==='dcol'){ const c=dashCol(); if(c[k]) delete c[k]; else c[k]=1; return 'render'; }
     if(a==='dhunts'){ encLoc=S.loc; encSel=null; S.settings.logShow='hunt'; setTab('journal'); save(); return 'skip'; }
-    if(a==='dbait'){ searchGo(['','shop',['tackleview','bait']]); return 'skip'; }
-    return _xa(b); }; }
+    if(a==='dbait'){ searchGo(['','shop',['tackleview','bait']]); return 'skip'; } });
 // the panel shows the dashboard in fishing mode, the page otherwise
-{ const _rp=renderPanel; renderPanel=function(){ if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){ oops('bm_ui04:menuSync',e); } return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){ oops('bm_ui04:menuHead',e); } return r; }; }
+panelStep({ before(){ if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){ oops('bm_ui04:menuSync',e); } return 'drawn'; } }, after(){ try{ menuHead(); }catch(e){ oops('bm_ui04:menuHead',e); } } });
 setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&&c.textContent!==v){ c.textContent=v; c.title=fmt(S.money)+' coins'; } menuHead(); } },250);
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
@@ -453,7 +452,7 @@ body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:10
 //@layer mobile mobile/ui_menu_land.js
 // In the menu the highlighted tab already names the page, so a page title that only repeats it is hidden (more room
 // for the page itself). The wardrobe's own tabs (Body, Clothes, Hats...) move up into that row across the full width.
-{ const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){ oops('bm_ui04:menuTidy',e); } }; }
+panelStep({ after(){ try{ menuTidy(); }catch(e){ oops('bm_ui04:menuTidy',e); } } });
 function menuTidy(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2'); if(h){ const lbl=on?on.textContent.replace(/\s+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&(t===lbl||lbl.endsWith(' '+t)||lbl.includes(t))); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
@@ -1122,7 +1121,7 @@ let paintFish, paintDecor; // set just below (pictures drawn once and reused)
     for(const v of P.querySelectorAll(':scope > .bwx-nav')){ const on=P.scrollTop>0&&v.getBoundingClientRect().top-pr.top-pad<=1.5; if(v.classList.contains('stuck')!==on) v.classList.toggle('stuck',on); } };
   const soon=()=>{ if(!q) q=requestAnimationFrame(sync); };
   if(P){ P.addEventListener('scroll',soon,{passive:true}); P.addEventListener('click',soon); }
-  addEventListener('resize',soon); const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); if(PLAT.quietTabSwitch()) soon(); else sync(); return r; }; } /* phones (round 8 speed): checked on the next frame, not mid-switch */
+  addEventListener('resize',soon); panelStep({ after(){ if(PLAT.quietTabSwitch()) soon(); else sync(); } }); } /* phones (round 8 speed): checked on the next frame, not mid-switch */
 // Touch screens: no hover effects. A phone counts a tap as "hovering" first, so hover looks (a blue glow, a lift) showed
 // before the button acted, and iPhone sometimes treated the first tap as only a hover. Every :hover rule is switched off there.
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
@@ -1279,7 +1278,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
       h.innerHTML=`<span>${esc(cat)}</span><span class="meta">${nd} of ${list.length} done${featBonusText(cat)?` · finish all: ${esc(featBonusText(cat))}`:""}</span>`; /* the category bonus (it showed only in the old PC rail) */ grid.appendChild(h); list.forEach(x=>{ x.t.dataset.cat=cat; grid.appendChild(x.t); }); }
     const sync=()=>grid.querySelectorAll('.feat-cat').forEach(h=>{ const any=[...grid.querySelectorAll('.tile[data-cat="'+CSS.escape(h.dataset.cat)+'"]')].some(t=>t.style.display!=='none'); h.style.display=any?'':'none'; });
     sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); const more=grid.nextElementSibling; if(more&&more.tagName==='BUTTON') more.addEventListener('click',()=>setTimeout(sync,0)); };
-  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; const r=_rp.apply(this,arguments); try{ if(S.tab==='feats') organize($('panel')); }catch(e){ oops('bm_ui04:organize',e); } return r; }; }
+  panelStep({ before(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; }, after(){ try{ if(S.tab==='feats') organize($('panel')); }catch(e){ oops('bm_ui04:organize',e); } } }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .grid > .feat-cat{grid-column:1 / -1;display:flex;align-items:baseline;gap:10px;margin:10px 2px 0;padding-bottom:4px;border-bottom:1px solid #ffffff14;font:800 13px var(--display,system-ui);letter-spacing:.06em;text-transform:uppercase;color:#cfe0f2}
 #panel .grid > .feat-cat:first-child{margin-top:0}
@@ -1289,7 +1288,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 //@layer pc pc/ui_fishlog.js
 // Pets > Find more: the "Show pets that boost" label stayed above a filter that is hidden on that tab (all platforms).
 // PC: the shop cards are compact and the pets still to discover become short wide rows, so the page fits the screen.
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){ oops('bm_ui04:querySelector',e); } return r; }; }
+panelStep({ after(){ try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){ oops('bm_ui04:querySelector',e); } } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
 </style>`); /* the PC look of these tiles lives in src/pc/ui_pets_find.js (moved 2026-11-19) */
