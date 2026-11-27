@@ -1,0 +1,31 @@
+---
+name: full-batch
+description: Driftline full round checklist - run once per batch before publishing to the test builds, and always before anything goes live. Covers the sweep on all three saves, the baseline, what to check when per-frame code, art, balance or systems changed, notes, docs, the bug log, gate 2, the closing message, and the end-of-project clean-up.
+---
+# Driftline: the round checklist (once per batch, and before anything goes live)
+
+**Since 2026-11-26 the automatic part is one command:** `powershell -ExecutionPolicy Bypass -File tools/sweep_all.ps1` (every check on the brand-new, mid-game and end-game saves in an invisible browser, about 14 minutes a save; reports `tools/shots/sweep_<save>.json`) and `tools/baseline.ps1 -Check` (what changed on screen). The pane's `next/sweep.html?go` is the same sweep on the pane's own save, for looking.
+
+The order comes from the incident data (`docs/QC_ANALYSIS.md`, `docs/qc_incidents.csv`): cheapest and most severe first, slow and device-specific last, nothing edited after the final gate.
+1. Edit `src/`. Pick shared vs platform (CLAUDE.md, How we work, rule 3). A new screen or a reworked layout starts with the **frontend-design** add-on for the layout thinking (where it pushes for a fresh look, the Driftline Design System wins) and is checked against the design system's control cards. New page / chip / section / water / currency: use the new-page or new-water skill. A new check is **proven when it is written**: put the old bug back once and watch it fail (3 of 6 new checks on 2026-11-19 passed with their bug present until proven).
+1b. **A fix is verified only when the bug was reproduced first** on the unfixed page with the exact condition (e.g. a live event forced by shifting `Date.now`), then measured gone on the fixed page (#118: a Bait chip fix was reported working and changed nothing).
+2. `build.ps1 -Preview`, then **the one-click sweep: http://localhost:8766/next/sweep.html?go** (source `tools/sweep.html`, copied beside the preview builds; report in `tools/shots/sweep.json`; what it runs, in order, is listed at the top of the file: parse + stamps, start-up of every build also with a Path in every tier (#130), `__qa` on iPhone 956×440 and PC 1920/1440, `__contentQC` normal + extreme at 7 sizes, phone `__spec` plain / safe areas / split screen, `__layoutQC` / `__searchQC` / `__questsQC`, `__mapQC` for every water on the phone build and PC, a fresh-save pass; every time limit stretches by the device's measured speed). It puts the test save back and lists what is new since the last run. Every red line is a bug unless PLATFORM_DESIGN lists it as an exception; yellow = held in PLAN › Open now. Re-run one part with `?only=<part>&go`; `?android` adds `__qa` at Cam's size (when Android-only code changed). A failure caused by the save's state is a test bug: make the test state-independent.
+3. **By hand, only when it applies:** a phone-only change leaves `site/next/pc.html` identical to HEAD (stamps normalized).
+4. **Only when it applies:**
+   - Per-frame code or saves changed: every water × dawn/day/dusk/night (× weather) with `__drawCost` on a heavy save and a fresh one; the 120 Hz frame-loop copy; scenery rebuild counts through transitions.
+   - Art changed: `__fishParts()`, `__fishSheet({loc})` for every water, every pet × pose × accessory, every area × time × weather.
+   - Balance changed: `__bal`. Taps: `__fnTime(names, fn)` (no heavy work inside a tap).
+   - Systems touched: walk `docs/SYSTEMS_MAP.md` and test every listed place on every platform.
+5. **Device risks (escaped 100% so far):** touch / installed-app paths (finger scroll inside `#stage`, activation on pointerup, `display-mode: fullscreen`, taps normal / slid / redrawn / after Back) and anything Safari could size differently (CLAUDE.md, Code rules). These go in the closing message under "Awaiting your feedback and testing" (step 9).
+6. Read every new text as that platform's player ("click" and "Space" are wrong on phones), then the Design add-on's **design critique** per platform (it replaces the by-hand critique; its **accessibility review** only for text contrast, since tap sizes and cut text stay with `__spec` / `__contentQC`): hard to find for new players? what is missing? how good does it look here?
+7. **Notes** (`notes_release.js`, `notes_test.js` for every changed build), **docs** (SYSTEMS_MAP, PLATFORM_DESIGN when a standard changed, LESSONS, "Where we left off", PLAN marks), and **one row per new bug in `docs/qc_incidents.csv`** (who found it, where, severity, what catches it now).
+8. **Gate 2, after the LAST edit:** `next/sweep.html?only=gate&go` (parse every page, each stamp against the version file it fetches) (the one live outage came from an edit after QC). Then commit, `publish_preview.ps1` / `publish_testapps.ps1`; live only per the live-and-hotfix skill; check the published stamps.
+9. **Closing message:** where it is + stamp, what changed, what was found and fixed, then **"Awaiting your feedback and testing"** (director, 2026-11-20: never "not verified"): numbered directions for the director and Cam, each saying which device, where to tap, what they should see, and what to send back.
+
+
+## End of every project (automatic, never asked for)
+When a project or a batch of the plan is finished, before reporting it done:
+1. **Clean-up pass on the code (run `/simplify` on the batch's changes; it does this hunt):** dead code (builders whose output is hidden or never shown, unused functions, styles that never match), the same work done twice (two blocks owning one element, save/restore workarounds copied into callers, duplicated helpers), per-frame or per-second work that could be event-driven or cached, and leftovers from moved features. Fix them, then the full checklist above. The build’s redundancy counter (`tools/redundancy_baseline.json`) shows the numbers; every pass should leave them lower.
+2. **Clean-up pass on the rules:** remove rules that no longer apply, merge duplicates, correct anything the code contradicts (this file, PLATFORM_DESIGN, LESSONS; memory only points here).
+3. **Re-run the QC numbers** in `docs/QC_ANALYSIS.md` from the incident log; if a category keeps escaping, change the checklist order or add a check, and say what changed.
+

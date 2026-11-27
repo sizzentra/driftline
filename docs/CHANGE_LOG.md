@@ -266,3 +266,16 @@ Every water redone from the director's map-by-map notes and Claude's own review 
 | Fish picture glow as an oval; `sparkles(..., box)` | `d_draw.js` fishCanvas | every still fish picture |
 | Music: record crackle removed, seamless brown noise, `nz` and `mv` fade-ins | `d2_extra.js` | all music and ambience |
 | Learn lessons and Help answers | `cw_pages08.js` | Quests › Learn and Help |
+
+## Foundation (2026-11-26, test builds 1341 to the F4 build; nothing changes on screen unless noted)
+| What | Where | Affects |
+|---|---|---|
+| Fast publish: the committed folder goes onto its Pages branch as one commit | `tools/push_folder.ps1`, `publish*.ps1` | every publish (8 minutes became 11 seconds) |
+| A new save starts with `docks:{}` | `c_logic.js` fresh() | the save round-trip test on a brand-new save |
+| Three test saves in git, made by `__mkSave` | `tools/saves/`, `bn_qa04.js` | every one-command check |
+| One-command sweep in an invisible browser; `?save=<name>` on the sweep page; no full screen, no controller, nothing stored but the save for the game under test | `tools/sweep_all.ps1`, `tools/headless.ps1`, `tools/sweep.html` | all checks |
+| Baseline fingerprints (`__baseline`, software drawing, pinned clock and random numbers) | `tools/baseline.ps1`, `tools/baseline.html`, `tools/baseline/`, `bn_qa04.js` | proving a change altered nothing on screen |
+| Item names are not instructions for the device-words rule | `bn_qa04.js` textBad | `__contentQC`, `__qa` text tests |
+| Feature switches; controllers off (visible: a connected controller does nothing) | `b_data.js` FEATURE, `k_controls.js` | controller input, the "Controller connected" pop-up |
+| Garbled characters repaired; encoding gate in the build (visible: Learn and Help texts read correctly again) | `tools/mojibake.ps1`, `build.ps1`, `cw_pages08.js`, `CLAUDE.md` | Quests, Learn and Help on the test builds; every build |
+| CLAUDE.md shortened; routines as skills; README rewritten | `CLAUDE.md`, `.claude/skills/`, `docs/HISTORY.md`, `README.md` | how every session works |

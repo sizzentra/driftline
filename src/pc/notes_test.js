@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fixed: Quests, Learn and Help showed odd letters in place of the multiplication sign, apostrophes and the shiny marks in 28 places.',
   'Game controllers are switched off for now (the director: not ready yet). A connected controller does nothing and no pop-up appears; it comes back when it is ready.',
   'Behind the scenes only, nothing changes on screen: publishing test builds is faster, and a brand-new save now starts with the same empty home record a reloaded save has (a self-check disagreed with itself about it).',
   '## Test build 2026.11.25-1249',

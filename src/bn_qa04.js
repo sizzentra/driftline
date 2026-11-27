@@ -996,6 +996,8 @@ if(/[?&]test\b/.test(location.search)) window.__baseline=async(o={})=>{ const wa
   const keep={loc:S.loc, un:S.unlocked.slice(), off:window.__off, st:G.st, tab:S.tab, pn:performance.now, mr:Math.random, rn:window.__realNow}, scenes={}, pages={};
   /* pinned for the whole run, so timers that ran while the page loaded cannot shift anything: one clock value, and random numbers restarted for every picture */
   const played0=+S.stats.playS||0, played=0; Object.defineProperty(S.stats,'playS',{get:()=>played, set(){}, configurable:true, enumerable:true}); /* the play-time counter ticks every second: held still for the run */
+  /* "new Date()" with no time given reads the real clock past every other pin (the PC Map page on a new save changed between 18:48 and 19:16 with no change to the game): it gets the pinned time too */
+  const RealDate=Date; window.Date=class extends RealDate{ constructor(...a){ if(a.length) super(...a); else super(RealDate.now()); } };
   let seed=1; const reseed=n=>{ seed=n; }; performance.now=()=>200000; window.__realNow=()=>1795300000000; Math.random=()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
   try{
     if(!o.noScenes) for(const L of LOCS){ if(o.ids&&!o.ids.includes(L.id)) continue; for(const [nm,ph] of [['dawn',.99],['day',.3],['dusk',.475],['night',.75]]){ reseed(20261126); __go(L.id); await __setPhase(ph); V3CACHE=null; G.st='idle'; draw(200000); draw(200016); scenes[L.id+'@'+nm]=pix(cv); } }
@@ -1010,5 +1012,5 @@ if(/[?&]test\b/.test(location.search)) window.__baseline=async(o={})=>{ const wa
           const subs=[...document.querySelectorAll('#menuov .sect-nav [data-sect]')].map(b=>b.dataset.sect); for(const k of subs){ const b=document.querySelector('#menuov .sect-nav [data-sect="'+k+'"]'); if(!b) continue; reseed(20261126); b.click(); try{ renderPanel(); }catch(e){} pages[t+'/'+k]=await settled(); } }
         catch(e){ pages[t]='error: '+e.message; } }
       try{ closeMenu(); }catch(e){} }
-  } finally { delete S.stats.playS; S.stats.playS=played0; const st2=document.getElementById('__still'); if(st2) st2.remove(); performance.now=keep.pn; Math.random=keep.mr; window.__realNow=keep.rn; S.tab=keep.tab; S.loc=keep.loc; S.unlocked=keep.un; window.__off=keep.off; G.st=keep.st; }
+  } finally { window.Date=RealDate; delete S.stats.playS; S.stats.playS=played0; const st2=document.getElementById('__still'); if(st2) st2.remove(); performance.now=keep.pn; Math.random=keep.mr; window.__realNow=keep.rn; S.tab=keep.tab; S.loc=keep.loc; S.unlocked=keep.un; window.__off=keep.off; G.st=keep.st; }
   return {build:window.DL_BUILD||'', size:innerWidth+'x'+innerHeight, dpr:window.devicePixelRatio, scenes, pages}; };
