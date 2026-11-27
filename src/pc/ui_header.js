@@ -42,7 +42,6 @@ html body.pch-on.dl-fish #pchead{grid-template-columns:190px calc(var(--pcTabs) 
 html body.pch-on #pchead .pch-brand{grid-column:1!important;grid-row:1!important}
 html body.pch-on #pchead .pch-cats{grid-column:2!important;grid-row:1!important;margin-left:14px!important}
 html body.pch-on #pchead .pch-tools{grid-column:4!important;grid-row:1!important}
-html body.pch-on #pchead .pch-coin{display:none!important}
 html body.pch-on #menuov .mo-in{grid-template-columns:190px 0 var(--pcTabs) minmax(0,1fr) auto!important;grid-template-areas:"back home secs . tools" "sub sub sub sub sub" "body body body body body"!important}
 /* left block: Level and coins */
 html body.pch-on #pchead .pch-brand.pch-me{display:grid!important;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);padding:0;overflow:hidden;cursor:default}
@@ -82,7 +81,6 @@ html body.pch-on #pcscene > #resttog{position:static!important;inset:auto!import
 /* narrower PC windows: icon-only section tabs (names on hover) in both rows, and a tighter right block */
 @media (max-width:1320px){
   html body.pch-on{--pcTabs:max(240px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 480px - 56px)))}
-  html body.pch-on #pchead #catdock .cdl,html body.pch-on #menuov #tabs .secl{display:none!important}
   html body.pch-on #pchead #catdock .cdb,html body.pch-on #menuov #tabs .secb{padding:4px 6px!important}
   html body.pch-on #pchead .pch-stats > .stat{padding:4px 9px!important}
 }

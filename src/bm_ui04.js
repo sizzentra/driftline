@@ -56,7 +56,6 @@ function menuEls(){ return {T:$('tabs'), P:$('panel'), toast:$('toast'), stage:$
 const MO=document.createElement('div'); MO.id='menuov'; MO.hidden=true; MO.setAttribute('role','dialog'); MO.setAttribute('aria-modal','true'); MO.setAttribute('aria-label','Menu');
 MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   <button type="button" class="mo-back" data-mo="close" aria-label="Back to fishing (Esc)" title="Back to fishing (Esc)"><svg class="mo-bi" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SEC_ICONS.fish}</svg><span class="mo-bl">Back to fishing</span></button>
-  <div class="mo-title" aria-live="polite"></div>
   <div class="mo-tools"><span class="mo-pause" hidden title="Your line waits while a menu is open">⏸ <span>Line waiting</span></span><span class="mo-coin" title="Your coins"><span class="coin" id="mocoin">0</span></span><button type="button" class="mo-tb" data-mo="search" aria-label="Search the menus" title="Search (/)">🔍</button><button type="button" class="mo-tb" data-mo="settings" aria-label="Settings, stats and save" title="Settings, stats and save">⚙</button></div>
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
 document.body.appendChild(MO);
@@ -79,8 +78,7 @@ addEventListener('popstate',()=>{ if(menuHist){ menuHist=false; if(MENU_OPEN) cl
 function closeMenu(){ if(!MENU_OPEN&&!MENU_WANT) return; MENU_WANT=false; setTab(DASH); save(); }
 function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
 { const _st=setTab; setTab=function(t){ if(!t) t=DASH; if(t!==DASH) MENU_WANT=true; menuMode(); _st(t); menuHead(); }; }
-function menuHead(){ if(!MENU_OPEN) return; const sec=menuSecOf(S.tab), t=MO.querySelector('.mo-title'), nm=S.tab===DASH?'Overview':sec?(sec.id==='more'?'Settings':(sec.short||sec.name)):'';
-  if(t.textContent!==nm) t.textContent=nm; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy;
+function menuHead(){ if(!MENU_OPEN) return; const pz=MO.querySelector('.mo-pause'), busy=!['idle','rest','result','event'].includes(G.st); if(pz.hidden===busy) pz.hidden=!busy;
   }
 MO.addEventListener('click',e=>{ const b=e.target.closest('[data-mo]'); if(!b) return; e.stopPropagation(); const m=b.dataset.mo;
   if(m==='close') closeMenu(); else if(m==='home'){ if(S.tab!==DASH){ setTab(DASH); save(); } } else if(m==='search'){ const s=$('searchbtn'); if(s) s.click(); } else if(m==='settings'){ const mt=MENU_MORE.tabs, last=menuLast().more; setTab(S.tab!=='settings'&&mt.includes(last)&&menuSecOf(S.tab)!==MENU_MORE?last:'settings'); save(); } });
@@ -205,7 +203,6 @@ body.pc-wide:not(.menu-open) #tabs.secmode .secb .secfull{display:none}body.pc-w
 #menuov .mo-back{grid-area:back;align-self:center;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 16px 0 12px;border-radius:14px;border:1px solid #7fe3c455;background:linear-gradient(180deg,#173a4a,#10283a);color:#dff8ee;font:800 14px var(--display,system-ui);cursor:pointer;box-shadow:0 4px 14px #02060f66;transition:border-color .15s,box-shadow .15s,transform .12s}
 #menuov .mo-back:hover{border-color:#7fe3c4;box-shadow:0 4px 14px #02060f66,0 0 16px #7fe3c433;transform:translateY(-1px)}
 #menuov .mo-back .mo-bi{flex:0 0 auto}
-#menuov .mo-title{grid-area:title;display:none;align-self:center;min-width:0;font:800 17px var(--display,system-ui);color:#fff3cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #menuov .mo-tools{grid-area:tools;align-self:center;display:flex;align-items:center;gap:8px}
 #menuov .mo-coin{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;border-radius:12px;background:#0d1a2c;border:1px solid var(--line,#26385180);font:800 15px var(--display,system-ui);white-space:nowrap}
 #menuov .mo-pause{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 10px;border-radius:999px;background:#7fe3c418;border:1px solid #7fe3c455;color:#bff3e2;font:700 12px var(--display,system-ui);white-space:nowrap}
@@ -225,7 +222,7 @@ body #menuov #panel{display:block!important;flex:1 1 auto;min-height:0;max-heigh
 /* phones held upright: the categories stay docked along the bottom edge, in menus too */
 @media (max-width:700px) and (orientation:portrait){#menuov .mo-in{grid-template-areas:"back title tools" "sub sub sub" "body body body"}body #menuov #panel{padding-bottom:calc(92px + env(safe-area-inset-bottom))}#menuov > #toast{top:calc(60px + env(safe-area-inset-top))}}
 /* phones held sideways: one compact row */
-@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-title{display:none}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
+@media (orientation:landscape) and (max-height:560px){#menuov .mo-in{grid-template-areas:"back secs tools" "sub sub sub" "body body body";row-gap:2px;padding-top:max(6px,env(safe-area-inset-top))}#menuov .mo-back{min-height:38px}#menuov .mo-back .mo-bl,#menuov .mo-back svg:not(.mo-bi){display:none}#menuov .mo-back::after{content:"Back";font-size:12px}#menuov .mo-tb{width:36px;height:36px}#menuov .mo-coin{min-height:34px;font-size:12px}#menuov .mo-pause{display:none}}
 html.menu-open,body.menu-open{overflow:hidden!important}
 body.menu-open #towater,body.menu-open .dlprev{display:none!important}
 .wrap.wrapin{animation:wrapin .2s ease-out}
@@ -339,14 +336,12 @@ body.phone-app.dl-fish .hud{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)
 body.phone-app.dl-fish .hud > .stat.loc,body.phone-app.dl-fish .hud > #buffchip,body.phone-app.dl-fish .hud > .hudbtns{display:none!important}
 @media (orientation:landscape) and (max-height:560px){
   body.dl-fish .hud{grid-template-columns:minmax(0,.95fr) minmax(0,.9fr) minmax(0,1.6fr) minmax(0,.8fr) minmax(0,1.05fr)!important}
-  body.dl-fish .hud > #buffchip,body.dl-fish .hud > .hudbtns{display:none!important}
 }
 /* ---------- the Menu button ---------- */
 .dlprev{right:auto!important;left:50%!important;bottom:4px!important;transform:translateX(-50%);opacity:.8}
 /* ---------- the full-screen menu: no pinned bars, every part is a row of one screen-tall grid (works under Safari's toolbars) ---------- */
 #menuov{inset:auto!important;top:0!important;left:0!important;right:0!important;height:calc(100*var(--uvh,1vh));height:calc(100*var(--uvh,1dvh))}
 #menuov .mo-in{grid-template-columns:auto auto minmax(0,1fr) auto!important;grid-template-rows:auto auto minmax(0,1fr)!important;grid-template-areas:"back home secs tools" "sub sub sub sub" "body body body body"!important}
-#menuov .mo-title{display:none!important}
 @media (max-width:1100px){#menuov .mo-in{grid-template-rows:auto auto auto minmax(0,1fr)!important;grid-template-areas:"back home . tools" "secs secs secs secs" "sub sub sub sub" "body body body body"!important}}
 @media (max-width:460px){#menuov .mo-tools{gap:6px}#menuov .mo-tb{width:38px;height:38px}#menuov .mo-coin{padding:0 9px}}
 #menuov .mo-in{overflow:hidden}
@@ -457,7 +452,6 @@ function menuTidy(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; c
   const h=P.querySelector(':scope > h2'); if(h){ const lbl=on?on.textContent.replace(/\s+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&(t===lbl||lbl.endsWith(' '+t)||lbl.includes(t))); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
 document.head.insertAdjacentHTML('beforeend',`<style>
-#menuov #panel > h2.dl-dup{display:none!important}
 #menuov #panel > .wd-nav.wd-top{display:flex!important;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 10px;padding:1px;grid-template-columns:none!important}
 #menuov #panel > .wd-nav.wd-top::-webkit-scrollbar{display:none}
 #menuov #panel > .wd-nav.wd-top button{flex:1 0 auto;flex-direction:row!important;gap:6px!important;min-height:36px!important;height:36px;padding:0 12px!important;border-radius:11px;white-space:nowrap}
@@ -793,7 +787,6 @@ body.phone-app.dl-fish .hud > .stat b{font-size:14px}
 }
 @media (orientation:landscape) and (max-height:560px) and (max-width:799px){
   body.dl-fish .hud{grid-template-columns:minmax(64px,.8fr) minmax(60px,.7fr) max-content minmax(0,1.9fr) minmax(52px,.55fr) minmax(58px,.65fr) minmax(86px,.85fr)!important}
-  body.dl-fish .hud > .st-log{display:none!important}
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -1005,7 +998,6 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
   body.dock-mini #menuov .mo-back{justify-content:center!important;padding:0!important;font-size:0!important}
   body.dock-mini #menuov .mo-back::after{content:none!important}
   body.dock-mini #menuov #tabs.secmode .secb{justify-content:center!important;padding:0!important}
-  body.dock-mini #menuov #tabs.secmode .secb .secl{display:none!important}
   body.dock-mini #menuov #tabs.secmode .secb .secdot{position:absolute!important;top:-4px!important;right:-4px!important;transform:none!important}
   body.dock-mini.dl-fish .wrap > #stage > #hint{left:50%!important;max-width:calc(100% - 28px)!important}
   body.dock-mini .dlprev{right:calc(66px + env(safe-area-inset-right))!important}

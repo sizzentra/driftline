@@ -107,7 +107,7 @@ html body.pch-on{--pcTabs:min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px
 }
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
-html body.pch-on .pch-stats > .stat::before{content:none!important;display:none!important}
+html body.pch-on .pch-stats > .stat::before{content:none!important}
 html body.pch-on #pchead .pch-stats > .stat.on,html body.pch-on #menuov .pch-stats > .stat.on{border-color:#ffd36a!important}
 </style>`);
 // PC: no name shown twice on one screen (director, 2026-11-17: "stuff is in multiple places")
@@ -119,7 +119,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 /* narrower PC windows: the right side (four header buttons + tools) must always fit */
 @media (max-width:1580px){
   html body.pch-on{--pcTabs:max(180px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 690px - 70px)))}
-  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
+  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important}
   html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
   html body.pch-on #pchead .pch-stats > .stat,html body.pch-on #menuov .pch-stats > .stat{padding:4px 9px!important;column-gap:7px}
   html body.pch-on .pch-stats > .stat b{font-size:13px!important}

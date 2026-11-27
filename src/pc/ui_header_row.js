@@ -6,19 +6,18 @@
 // =====================================================================
 { const wrap=document.querySelector('.wrap'), hud=document.querySelector('.hud'), stage=$('stage');
   const PCH=document.createElement('div'); PCH.id='pchead';
-  PCH.innerHTML=`<div class="pch-brand" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 7-5 10-5 3 0 5 2 7 5-2 3-4 5-7 5-3 0-7-1-10-5z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16" cy="11" r=".9" fill="currentColor"/></svg><span>Driftline</span></div><div class="pch-cats"></div><div class="pch-tools"><span class="pch-coin" title="Coins"><span class="coin" id="pchcoin">0</span></span><button type="button" class="pch-tb" data-pch="search" aria-label="Search the menus" title="Search the menus">🔍</button><button type="button" class="pch-tb" data-pch="settings" aria-label="Settings" title="Settings">⚙</button></div>`;
+  PCH.innerHTML=`<div class="pch-brand" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 7-5 10-5 3 0 5 2 7 5-2 3-4 5-7 5-3 0-7-1-10-5z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16" cy="11" r=".9" fill="currentColor"/></svg><span>Driftline</span></div><div class="pch-cats"></div><div class="pch-tools"><button type="button" class="pch-tb" data-pch="search" aria-label="Search the menus" title="Search the menus">🔍</button><button type="button" class="pch-tb" data-pch="settings" aria-label="Settings" title="Settings">⚙</button></div>`;
   if(wrap&&hud) wrap.insertBefore(PCH,hud);
-  const cats=PCH.querySelector('.pch-cats'), coin=PCH.querySelector('#pchcoin');
+  const cats=PCH.querySelector('.pch-cats');
   PCH.querySelector('.pch-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-pch]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/ui_header_row:startAudio',er); } const t=$(b.dataset.pch==='search'?'searchbtn':'settingsbtn'); if(t) t.click(); });
   const label=(full)=>CD.querySelectorAll('.cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=full?sec.name:(sec.short||sec.name); if(l.textContent!==t) l.textContent=t; } });
   const on=()=>{ const b=document.body.classList; return b.contains('plat-pc')&&b.contains('pc-app')&&!b.contains('phone-app')&&!b.contains('phone-land')&&innerWidth>=800; };
   let was=null; const apply=()=>{ const v=on(); if(v===was) return; was=v; document.body.classList.toggle('pch-on',v);
     if(v){ if(CD.parentElement!==cats) cats.appendChild(CD); label(true); } else { if(CD.parentElement===cats&&stage) stage.after(CD); label(false); }
     try{ requestAnimationFrame(()=>resize()); }catch(e){ oops('pc/ui_header_row:requestAnimationFrame',e); } };
-  const tick=()=>{ if(!was) return; try{ const v=fmtShort(S.money); if(coin.textContent!==v){ coin.textContent=v; PCH.querySelector('.pch-coin').title=fmt(S.money)+' coins'; } }catch(e){ oops('pc/ui_header_row:fmtShort',e); } };
   addEventListener('resize',()=>setTimeout(apply,30)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,140));
   new MutationObserver(()=>apply()).observe(document.body,{attributes:true,attributeFilter:['class']});
-  apply(); setTimeout(apply,80); setInterval(tick,400); tick(); }
+  apply(); setTimeout(apply,80); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #pchead{display:none}
 html body.pch-on.dl-fish .wrap{padding-left:4px!important;padding-right:4px!important;box-sizing:border-box}
@@ -38,7 +37,6 @@ html body.pch-on #pchead #catdock .cdb:active{transform:scale(.985)!important}
 html body.pch-on #pchead #catdock .cddot{position:absolute!important;top:-7px!important;right:8px!important;left:auto!important;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:999px;background:linear-gradient(180deg,#ffb36a,#ff7a4a)!important;color:#2a1206!important;font:800 12px/20px var(--display,system-ui)!important;text-align:center;box-shadow:0 0 10px #ff8a5c88,0 2px 6px #0008!important}
 html body.pch-on #pchead #catdock .cdb.live::before{top:6px!important;left:8px!important}
 #pchead .pch-tools{display:flex;align-items:center;gap:8px}
-#pchead .pch-coin{display:inline-flex;align-items:center;min-height:40px;padding:0 12px;box-sizing:border-box;border-radius:12px;background:#0d1a2c;border:1px solid #26385180;font:800 15px var(--display,system-ui);white-space:nowrap;color:#eef3f8}
 #pchead .pch-tb{width:42px;height:42px;border-radius:12px;border:1px solid #26385180;background:#111c2e;color:#dbe7f3;font-size:18px;cursor:pointer;transition:border-color .15s,color .15s;display:flex;align-items:center;justify-content:center;padding:0}
 #pchead .pch-tb:hover{border-color:#5a7ea8aa;color:#fff}
 #pchead .pch-tb:focus-visible,html body.pch-on #pchead #catdock .cdb:focus-visible{outline:2px solid var(--gold,#ffd36a);outline-offset:2px}

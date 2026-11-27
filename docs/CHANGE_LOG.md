@@ -366,3 +366,25 @@ Rollback tag `rollback/before-f6-3`. Wrap layers: PC 230 to 189, phones 256 to 2
 **Page drawing.** Before: `renderPanel` was wrapped by 23 layers on PC and 32 on phones, each doing something before or after the draw, four of them drawing a page themselves. After: one `renderPanel` (`e_ui.js`); each former layer is a step, `panelStep({before(){ }, after(t){ }})`, added in the same place in the same file, so the order is the order the files load, as before. Every `before` runs from the last added to the first, then the draw, then every `after` from the first to the last; a `before` that drew the page itself (Stats, Events, Trophy room, Overview) answers `'drawn'` and the steps added before it are skipped, exactly as its wrapper skipped them. The pair-dog step keeps its "put it back even if the draw fails" part as `always`.
 
 **Proof.** 588 save texts identical (the "before" record was made again from build 0043 the same night: the old record was a day old and the daily tasks carry the date); baseline 424 / 430 / 421 fingerprints unchanged; full sweep 57 checks and 0 failed on new, mid and heavy; Passed-over errors empty. The test file's direct calls (`extraAct7(b)`) now call `actRun(b)`; its stand-ins for `renderPanel` work unchanged.
+
+## Foundation F6 slice 4: force-hide rules (2026-11-27, build 2026.11.27-0228; nothing changes on screen or in any save)
+Rollback tag `rollback/before-f6-4`. Force-hide rules (`display:none!important`): PC 63 to 52, phones 82 to 75. Timers on PC 29 to 28.
+
+Every rule was read from the built pages themselves (the browser's own list of style rules, with their screen-size conditions) and switched off one at a time on every menu page and on the water, to see which ones hide something there.
+
+| Removed | Where | Why it was safe |
+|---|---|---|
+| the menu's title line `.mo-title`: the element, the code that wrote its text on every page change, and its three rules | `bm_ui04.js` | built and filled, never shown on any screen size |
+| the PC header's coin readout `.pch-coin`: the element, its timer (every 0.4 s) and its two rules | `pc/ui_header_row.js`, `pc/ui_header.js` | built and updated, hidden whenever the header shows; coins are read from the stats row |
+| `#menuov #panel > h2.dl-dup` | `bm_ui04.js` | the rule below it hides the same headings and more |
+| the second `.st-log` rule for short sideways screens under 800 px | `bm_ui04.js` | same screens, same element, twice |
+| `#buffchip, .hudbtns` on short sideways screens | `bm_ui04.js` | a later rule for the same screens hides both (`#buffchip` is the `.st-buff` chip) |
+| section names with the dock collapsed, short sideways screens | `bm_ui04.js` | the rule for all short sideways screens already hides them |
+| header labels under 1320 px, stat labels and the gear's dot under 1000 px | `pc/ui_header.js`, `pc/ui_header_narrow.js` | the same rules exist for everything under 1580 px |
+| `display:none!important` beside `content:none!important` on four `::before` / `::after` rules | `pc/ui_fhd.js`, `mobile/header08.js`, `mobile/polish08.js` | `content:none` already removes the piece; the rules stay |
+
+**Measured.** Besides the baseline (every menu page): every visible element on the whole screen (tag, text, box) on the water, on five menu pages and on the Overview, before and after, at PC 1920×1080, 1300×800, 900×700, 900×500, 780×500 and 760×700, phone 956×440, 700×375, 440×460 and 375×812, and with the dock collapsed: identical. One removal failed this test and was put back: `.hud > #goalchip` for phones looked like a copy of a wider rule, but in the narrow window layout a stronger rule shows the chip again and only this one hides it.
+
+**What stays, and why (52 on PC, 75 on phones).** Almost all of them hide by state or by screen size, which is what a style rule is for: the fishing view against the menu (`dl-fish`, `menu-open`, `side-off`), a live challenge, the collapsed dock, short or narrow screens, an element's own `hidden` mark where a stronger layout rule would otherwise show it, one page's note or heading that the phone layout shows in its tab bar instead. The hidden tab buttons in `#tabs` are the game's list of pages. Left although the thing is built and then hidden, because the builder is shared and the hiding is one platform's: page headings and notes on phones (the PC shows them), the bait chip `.st-bait` (hidden on PC; on phones only proven hidden sideways), the goal chip and its `#mbgoal` copy on phones, the goal's sub-line `.gl-s`, the time-of-day and weather chips in the old top bar. Each of those needs a builder that knows the platform or a design decision, so they are follow-ups, not part of this slice.
+
+**Proof.** 588 save texts identical; baseline 424 / 430 / 421 unchanged; full sweep 57 checks and 0 failed on three saves; Passed-over errors empty.

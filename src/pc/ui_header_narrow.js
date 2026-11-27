@@ -8,11 +8,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   html body.pch-on{--pcTabs:max(200px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 330px - 56px)))}
   html body.pch-on #pchead .pch-stats{gap:4px}
   html body.pch-on #pchead .pch-stats > .stat{padding:4px 8px!important;flex-direction:row!important;align-items:center;gap:5px}
-  html body.pch-on #pchead .pch-stats > .stat .lbl{display:none!important}
   html body.pch-on #pchead .pch-stats > .st-cool::before{content:"🧊";font-size:13px}
   html body.pch-on #pchead .pch-stats > .st-aq::before{content:"🐠";font-size:13px}
   html body.pch-on #pchead .pch-stats > .st-log::before{content:"📖";font-size:13px}
-  html body.pch-on #pchead [data-pch="settings"]::after,html body.pch-on #menuov [data-mo="settings"]::after{content:none!important;display:none!important}
   html body.pch-on #pchead [data-pch="settings"],html body.pch-on #menuov [data-mo="settings"]{width:42px!important;min-width:42px!important;padding:0!important;justify-content:center}
 }
 /* patch notes reader: a short update spreads across the card instead of sitting in one narrow box */

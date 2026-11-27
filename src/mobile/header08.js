@@ -124,7 +124,7 @@ html body.phone-land .hud > .mb-stat8 > .stat,html body.phone-app .hud > .mb-sta
 html body.phone-land .hud > .mb-stat8 > .stat + .stat,html body.phone-app .hud > .mb-stat8 > .stat + .stat{border-left:1px solid #ffffff1c!important}
 html body.phone-land .hud > .mb-stat8 > .stat .lbl,html body.phone-app .hud > .mb-stat8 > .stat .lbl{color:#8fa6bf!important}
 html body.phone-land .hud > .mb-stat8 > .stat b,html body.phone-app .hud > .mb-stat8 > .stat b{color:#fff!important}
-html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-app .hud > .mb-stat8 > .stat.loc .lbl::after{content:none!important;display:none!important}
+html body.phone-land .hud > .mb-stat8 > .stat.loc .lbl::after,html body.phone-app .hud > .mb-stat8 > .stat.loc .lbl::after{content:none!important}
 </style>`);
 /* round 8 (director, 2026-11-18: "Tide pass doesn't need to be on the top header"): no Tide Pass chip (it lives in Challenges). The Home chip went with homes (director, 2026-11-24). */
 { const ensure=()=>{ if(!MOB()) return; const pz=document.getElementById('mbpass'); if(pz&&!pz.hidden) pz.hidden=true; };
