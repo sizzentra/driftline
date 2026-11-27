@@ -3,8 +3,9 @@
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
   'Bounties are the one thing to chase now (director and Cam): daily tasks and weekly quests are gone. Rewards you had not claimed on them are lost.',
-  'A bounty no longer pays coins. When you claim one you pick your reward: Scales, or a Nibble crate. Harder bounties (a legend, a shiny, a trophy, a variety hunt) pay 8 Scales or a big crate, the others 3 Scales or a small one. Every claim also gives some Tide Pass XP.',
-  'Nibble crates open straight away and show what was inside: a small one holds 6 Nibbles, a big one 10 with at least one Epic or better. These are first numbers: tell us how they feel.',
+  'A bounty no longer pays coins. When you claim one you pick your reward: Scales, or a crate of Nibbles. Every claim also gives some Tide Pass XP.',
+  'The reward follows the effort (director): a bounty for one common fish pays 2 Scales or 4 Nibbles, two rare fish 7 Scales or 7 Nibbles, a trophy 9 Scales or a big crate of 9, a shiny or a legend 12 Scales or a big crate of 10. Rarer fish, more fish, a set size and day-only or night-only fish all count for more.',
+  'Nibble crates open straight away and show what was inside. A big crate has better odds and at least one Epic or better. These are first numbers: tell us how they feel.',
   'A new kind of bounty, the variety hunt: catch several different fish at one water.',
   'The Bounty Ledger relic now pays both rewards on every bounty (it used to add coins).',
   'Claim all asks once which reward you want and pays every finished bounty that way.',

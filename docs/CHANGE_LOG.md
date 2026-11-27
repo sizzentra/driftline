@@ -443,3 +443,8 @@ Director and Cam: "Cam and I didn't like weekly and daily quests, and want to po
 **Numbers:** wrap layers PC 154 to 151, phones 169 to 166; force-hide rules on phones 75 to 72.
 
 **Side effects to know (for the director and Cam):** Mystery Crates now come only from feats, the Tide Pass, the daily gift and legendary or mythic catches; the swap price of a bounty is still coins (10% of its old coin value, which is no longer shown); a bounty pays a flat 40 Tide Pass XP where the old bonus paid 120 to 300 on about one bounty in six.
+
+## Bounties, first feedback (2026-11-27, build 2026.11.27-1125)
+Director, from the iPhone: "Mobile doesn't show bounties on the top header ... and some of these bounties don't equal the same rewards for effort".
+- **The reward follows the effort** (`bs_rules05.js`): `bountyEffort(b)` scores a bounty (a fish counts 1, 1.5, 3, 5, 8, 12 by rarity, times 1.25 for a day-only or night-only fish, times the number wanted; a size bounty counts double; a style hunt 1.2 a fish, a variety hunt 1.5 a kind, a trophy 8, a shiny or a legend 12). `bountyPay(b)`: Scales = 1 + effort (2 to 12), Nibbles = 3 + 0.7 x effort (4 to 10), a big crate (better odds, an Epic or better) from an effort of 8. `BOUNTY_SC` and the fixed crate sizes are gone; `nibCrateRoll(size, n)`. The tile says "6 Scales or a crate of 6 Nibbles"; the buttons "6 Scales" and "6 Nibbles". Every weight is a Feel call.
+- **Phone top bar** (`mobile/header08.js` `fit`): when the bar is short of room the event chip shortens, then steps aside, and only then Bounties (it used to go first, so it vanished whenever an event ran). At 667 wide both still step aside: there is no room for either.

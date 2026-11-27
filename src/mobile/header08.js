@@ -65,15 +65,15 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ oops('mobile/header08:pass-chip',e); return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
     T.hidden=!land; Pz.hidden=true; hud.classList.remove('mb-compact'); if(!land) return;
-    /* when the bar runs out of room: Tasks steps aside first, then Live shrinks to its icon and time, then Live steps aside; Bait, Cooler,
+    /* when the bar runs out of room: Live shrinks to its icon and time, then Live steps aside, then Bounties (it went first until 2026-11-27); Bait, Cooler,
        Aquarium, Home and Fish Log always stay */
     /* "out of room" also means the Bait name is being cut: the Bait chip is allowed to shrink (polish08), so without this it soaked up all
        the shortage, the bar never overflowed and Tasks and Live never stepped aside (0.4.8.9.4 hotfix: Bait squeezed to a 19 px sliver) */
     const over=()=>{ if(hud.scrollWidth>hud.clientWidth+1) return true; const bb=document.querySelector('#mbbait > b'); return !!(bb&&bb.offsetParent&&bb.scrollWidth>bb.clientWidth+1); }, L=document.getElementById('mblive'), has=hud.classList.contains('mb-has-live');
     if(L&&has){ L.hidden=false; const b=L.querySelector(':scope > b'); if(b&&b.dataset.full){ if(b.textContent===b.dataset.tight) b.textContent=b.dataset.full; delete b.dataset.full; delete b.dataset.tight; } /* (a newer event text written meanwhile wins) */ L.classList.remove('mb-tight'); }
-    if(over()) T.hidden=true;
     if(over()&&L&&has){ const b=L.querySelector(':scope > b'); if(b){ const p=b.textContent.trim().split(' '); if(p.length>2){ b.dataset.full=b.textContent; b.textContent=p[0]+' '+p[p.length-1]; b.dataset.tight=b.textContent; } } L.classList.add('mb-tight'); }
     if(over()&&L&&has) L.hidden=true;
+    if(over()) T.hidden=true; /* Bounties goes last (director, 2026-11-27: the chip was missing while an event ran; bounties are the thing to chase) */
     /* last step (2026-11-20, director's iPhone at 667×375: "BAIT Worms" cut, 44 px of text in 39, with nothing left to step aside): every
        chip gives up a little of its padding before any word is cut; the info box keeps its words (rule) */
     if(over()) hud.classList.add('mb-compact');
