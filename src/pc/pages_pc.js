@@ -99,7 +99,6 @@ body.pch-on #panel .bq-rew{margin-top:10px}
 body.pch-on #panel .bq-rew > .bq-chip{flex:0 0 auto}
 body.pch-on #panel .bq-chip{min-height:46px;padding:0 20px;font-size:18px;gap:10px}
 body.pch-on #panel button.bq-chip.go{min-height:54px;font-size:19px}
-body.pch-on #panel .bq-chip em{font-size:13px}
 body.pch-on #panel .bq-i-sc{width:14px;height:14px}
 body.pch-on #panel .bq-i-cr{width:19px;height:15px}
 body.pch-on #menuov #panel .tile.bq .bq-swap{min-height:46px!important;font-size:17px!important;padding:0 24px!important;margin-top:4px}

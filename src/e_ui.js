@@ -147,7 +147,7 @@ function bountyParts(b){ const bt=bountyText(b), d=bDone(b), L=LOCS[locIdx(b.loc
   if(bt){ what=bt.what; if(b.type==='style'||b.type==='kinds'){ n=b.n; have=Math.min(b.have,b.n); } }
   else { const sp=SPI[b.sp]; n=b.type==='count'?b.n:1; have=b.type==='count'?Math.min(b.have,b.n):(d?1:0); extra=sp.time!=='any'?(sp.time==='night'?'night only':'day only'):'';
     what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+L.name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?'an':'a'} ${sp.name} of ${kgStr(b.kg)} or more`; }
-  return {what, n, have, d, where:L.name, extra}; }
+  if(what.endsWith(' at '+L.name)) what=what.slice(0,-(' at '+L.name).length); /* the picker and the line below already name the water */ return {what, n, have, d, where:L.name, extra}; }
 function renderBounties(P){ fillBounties(); const cur=S.unlocked.includes(bLoc)?bLoc:S.loc, L=LOCS[locIdx(cur)], ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length, both=bountyBoth();
   const th=id=>{ const u=V3THUMB[id]; return u?` style="background-image:url(${u})"`:''; }, waters=S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b));
   P.innerHTML=`<div class="bq-head"><span class="bq-art"${th(cur)}></span><span class="bq-ic" aria-hidden="true"></span><div class="bq-ti"><h3>Bounties</h3><p>Complete location tasks for rewards</p></div></div>
@@ -158,7 +158,7 @@ function renderBounties(P){ fillBounties(); const cur=S.unlocked.includes(bLoc)?
     const chip=(k,txt)=>p.d&&!both?`<button type="button" class="bq-chip go" data-act="claim" data-i="${i}" data-k="${k}"><i class="bq-i-${k}"></i>${txt}</button>`:`<span class="bq-chip"><i class="bq-i-${k}"></i>${txt}</span>`;
     return `<div class="tile bq${p.d?' done':''}">${b.legend?'<span class="rar" style="color:var(--gold)">Legendary bounty</span>':''}<h4>${esc(p.what)}</h4>
      <div class="bq-meta">${esc(p.where)}${p.extra?' · '+p.extra:''} · ${p.have} / ${p.n}</div><div class="bq-bar"><i style="width:${Math.round(p.have/p.n*100)}%"></i></div>
-     <div class="bq-rew"><span class="bq-lbl">${p.d&&!both?'Pick one':'Rewards'}</span>${chip('sc',pay.sc+' Scales')}${chip('cr',pay.n+' Nibbles'+(pay.cr==='big'?' <em>big</em>':''))}</div>
+     <div class="bq-rew"><span class="bq-lbl">${p.d&&!both?'Pick one':'Rewards'}${pay.cr==='big'?' · big crate':''}</span>${chip('sc',pay.sc+' Scales')}${chip('cr',pay.n+' Nibbles')}</div>
      ${p.d?(both?`<button class="btn bq-claim" data-act="claim" data-i="${i}" data-k="both">Claim both</button>`:''):`<button class="btn alt sm bq-swap" data-act="reroll" data-i="${i}" ${S.money>=cost?'':'disabled'}>Swap · <span class="coin">${fmt(cost)}</span></button>`}</div>`; }).join('')+'</div>';
   if(!V3THUMB[cur]&&MENU_OPEN) setTimeout(()=>{ try{ const u=v3Thumb(cur); if(u&&S.tab==='bounties') P.querySelectorAll('.bq-art,.bq-pick .bq-th').forEach(e=>{ e.style.backgroundImage='url('+u+')'; }); }catch(e){ oops('e_ui:bounty-picture',e); } },60); /* the water's picture, drawn once when it is not ready yet */
 }

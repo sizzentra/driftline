@@ -456,3 +456,10 @@ Director, with a mockup: "What do you think of this layout"; then "the reward ch
 - `newBounty(L)` (`e_ui.js`): a board never gets a bounty it already shows (same kind, fish and style); used by `fillBounties` and Swap.
 - `bountySwapCost(b)` (`bs_rules05.js`): the water's `loot` x effort x 0.5, at least 5 coins, in place of a tenth of the old coin reward. Feel call.
 - Styles: shared in `bs_rules05.js` (phone sizes), PC sizes in `pc/pages_pc.js`.
+
+## Bounties, cards that fit a phone screen (2026-11-27, build 2026.11.27-1405)
+Director, from the iPhone: "On mobile I want all the bounties to fit on this screen, right now the cards are too large". On the real phone the notch margins left the page 690 wide, so the grid fell to two columns and the third bounty sat below the screen (my pictures had no margins and showed three).
+- Shared sizes (`bs_rules05.js`, the phone sizes; PC keeps its own): three columns down to 165 px a card, smaller title band (46 px), picker (38 px), card padding, title (14 px), chips (28 px) and Swap (30 px).
+- A card's title no longer repeats the water (`bountyParts`, `e_ui.js`): "Catch 6 divers", not "Catch 6 divers at Maplewood Hollow". "big crate" moved from the Nibbles chip to the label ("Rewards, big crate").
+- A screen under 400 px high leaves the title band out and tightens the cards.
+- Pictures are now taken with notch margins (62 px each side, 21 px below), the width a real iPhone gives the game.

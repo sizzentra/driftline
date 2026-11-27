@@ -1,7 +1,7 @@
 {
  "save": "heavy",
- "made": "2026-11-27T19:17:35.491Z",
- "stamp": "2026.11.27-1252",
+ "made": "2026-11-27T20:30:32.802Z",
+ "stamp": "2026.11.27-1405",
  "builds": {
   "pc": {
    "build": "pc",
@@ -132,7 +132,7 @@
     "settings/Controls": "b0a23f07",
     "settings/Display": "95d86c0",
     "settings/Gameplay": "12a294d5",
-    "settings/Patch notes": "755922d4",
+    "settings/Patch notes": "3141354c",
     "settings/Save & codes": "3d7b235d",
     "cooler": "7c95dba7",
     "bait": "c8925218",
@@ -264,7 +264,7 @@
     "events/Calendar": "1bc8c73e",
     "events/Challenges": "4b467565",
     "events/Derby": "57839112",
-    "bounties": "3f4d43a9",
+    "bounties": "fd96d10a",
     "feats": "4b73cb16",
     "pass": "d900b2e0",
     "games": "16f88c26",
@@ -410,7 +410,7 @@
     "events/Calendar": "5b543612",
     "events/Challenges": "7676ba58",
     "events/Derby": "e83470ac",
-    "bounties": "dae635d5",
+    "bounties": "86b89c7d",
     "feats": "6e737275",
     "pass": "c45df98a",
     "games": "66fc846d",

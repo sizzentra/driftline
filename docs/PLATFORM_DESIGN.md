@@ -210,8 +210,8 @@ Fish wear no water costumes (the ears, ties, circuits, toppings, headdresses, an
 
 ## The Bounties page (director's layout, 2026-11-27; `e_ui.js` renderBounties, styles in `bs_rules05.js`, PC sizes in `pc/pages_pc.js`)
 One page for every platform, no summary strip (the page engine leaves the strip out when a page has nothing for it: `pg08-nobar`).
-- **Title band:** a ring mark, "Bounties", "Complete location tasks for rewards", and the chosen water's own drawn picture fading in from the right (`V3THUMB`, drawn once when missing). Phones 60 px high, PC 118 px.
+- **Title band:** a ring mark, "Bounties", "Complete location tasks for rewards", and the chosen water's own drawn picture fading in from the right (`V3THUMB`, drawn once when missing). Phones 46 px high, PC 118 px.
 - **Row under it:** the water picker (the water's picture, its name, a caret; opens a grid of every open water with "n ready"), then "n Ready to Claim" (gold when above 0), then Claim all (two buttons, Scales and Nibbles; one with the Bounty Ledger) when more than one is ready.
-- **Bounties:** three a water. Phones: as many columns as fit at 230 px (three at 956 wide, two at 667). PC: three columns across the whole page, title 26 px, chips 46 px high.
+- **Bounties:** three a water. Phones: as many columns as fit at 165 px, so all three show on one screen inside the notch margins of the director's iPhone (director, 2026-11-27: "I want all the bounties to fit on this screen"); a screen under 400 px high leaves the title band out. PC: three columns across the whole page, title 26 px, chips 46 px high.
 - **A bounty:** what to do; "water · day only or night only · have / wanted"; a bar; "Rewards" and two chips (a blue diamond and "n Scales", a crate and "n Nibbles", with "big" on a big crate); Swap with its price in coins.
 - **A finished bounty:** gold frame, the label reads "Pick one" and the two chips are gold buttons that claim that reward. With the Bounty Ledger relic the chips stay plain and one "Claim both" button sits under them.

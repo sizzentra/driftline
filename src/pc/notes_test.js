@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Bounties: the titles no longer repeat the water, and a big crate is named beside Rewards.',
   'The Bounties page has a new layout (the director’s design): a title band with the water’s picture, one water picker in place of a button for every water, and each bounty with a progress bar and its two rewards as chips. On a finished bounty the two chips are the claim buttons: click the reward you want. On PC the page now fills the screen with larger text.',
   'A board never shows the same bounty twice, and swapping a bounty now costs coins by its water and its effort (it was 15 coins beside 9,900 on one board).',
   'Bounties are the one thing to chase now (director and Cam): daily tasks and weekly quests are gone. Rewards you had not claimed on them are lost.',
