@@ -1,6 +1,6 @@
-# Publishes only the 0.3 preview (site/next/). Friends' live game (site/index.html) is not rebuilt or changed.
+# Publishes the PC test build (site/next/). Friends' live game (site/index.html) is not rebuilt or changed.
 # Run:  powershell -ExecutionPolicy Bypass -File publish_preview.ps1 -Message "Preview: what changed"
-param([string]$Message = 'Driftline 0.3 preview')
+param([string]$Message = 'Driftline test build')
 Set-Location $PSScriptRoot
 powershell -ExecutionPolicy Bypass -File build.ps1 -Preview
 git add -A
