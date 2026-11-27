@@ -13,7 +13,6 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   const num=(t,re,i=1)=>{ const m=String(t||'').match(re); return m?m[i]:null; };
   const txt=e=>e?(e.textContent||'').replace(/\s+/g,' ').trim():'';
-  const enabled=P=>sel=>[...P.querySelectorAll(sel)].filter(b=>!b.disabled).length;
   const locName=()=>{ try{ return LOCS[locIdx(S.loc)].name; }catch(e){ oops('cx_pages:locName',e); return ''; } };
   // per page: summary cells [label, value], the main actions (moved into the strip), and sections for long pages without any
   const CFG={
@@ -28,10 +27,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
     rods:{ cells:(P,hd)=>[['Rod in use',txt(P.querySelector('.rp-card.on b'))||'—'],['Scales',txt(hd&&hd.querySelector('.pts'))||'0']] },
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
     paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / '+SPEC_TIERS.length]] },
-    bounties:{ cells:P=>[['Ready to claim',String(enabled(P)('[data-act="taskclaim"],[data-act="wqclaim"],[data-act="bclaim"],[data-act="bounty"]'))],['Board',locName()]],
-      groups:K=>{ const w=K.find(c=>c.classList.contains('wq')), d=K.find(c=>c!==w&&c.classList.contains('tile')&&/Daily tasks/i.test((c.querySelector('h4')||{}).textContent||'')); /* the weekly card also wears .dtasks (its grid style), so the daily card is found by its title (director, 2026-11-19: a weekly reward badged the Daily tab) */ const rest=K.filter(c=>c!==d&&c!==w);
-        const ready=ns=>ns.reduce((n,e)=>n+[...e.querySelectorAll('button[data-act$="claim"]')].filter(b=>!b.disabled).length,0)||0; /* a badge shows where a reward is waiting */
-        return [{name:'Daily tasks',nodes:d?[d]:[],badge:d?ready([d]):0},{name:'Weekly quests',nodes:w?[w]:[],badge:w?ready([w]):0},{name:'Bounties',nodes:rest,badge:ready(rest)}]; } },
+    bounties:{ cells:P=>[['Ready to claim',String(bountyReady())],['Board',locName()]] }, /* one list now: daily tasks and weekly quests, and their page tabs, went on 2026-11-27 */
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; }, acts:P=>[P.querySelector('[data-act="passclaim"]')] }, /* Cam, 2026-11-20: the claim button went with the header box, so Tide Pass rewards could not be claimed on phones */
     feats:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Feats done',(num(t,/(\d+) of (\d+) done/)||'0')+' / '+(num(t,/(\d+) of (\d+) done/,2)||'?')]]; } },
     events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ oops('cx_pages:wx3k',e); return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
@@ -112,4 +108,4 @@ if(/[?&]test\b/.test(location.search)) window.__menuMap=async()=>{ const w=ms=>n
       /* shown and hidden with Your rods: synced when a tab is picked (it was a new watcher on every redraw, never released) */
       const sync=()=>{ box.style.display=first.style.display; }; sync(); const nv=P.querySelector('.sect-nav'); if(nv) nv.addEventListener('click',()=>setTimeout(sync,0)); });
 /* the Nibbles strip above the tank (Cam, round 5; ce_nibbles.js builds it) */
-pageDone('aquarium',P=>{ if(P.querySelector('.nibstrip')||!S.tank.length) return; const bank=P.querySelector('.bank'), body=P.querySelector('.pg08-body'); if(bank) bank.insertAdjacentHTML('afterend',nibStripHTML()); else if(body) body.insertAdjacentHTML('afterbegin',nibStripHTML()); });
+pageDone('aquarium',P=>{ if(P.querySelector('.nibstrip')||(!S.tank.length&&!Object.keys(S.nib||{}).length)) return; /* also with an empty tank once you hold Nibbles: the row is your Nibble inventory (director, 2026-11-27) */ const bank=P.querySelector('.bank'), body=P.querySelector('.pg08-body'); if(bank) bank.insertAdjacentHTML('afterend',nibStripHTML()); else if(body) body.insertAdjacentHTML('afterbegin',nibStripHTML()); });

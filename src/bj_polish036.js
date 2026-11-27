@@ -161,7 +161,7 @@ body.pc-wide.side-off .wrap > #stage{grid-column:1 / -1}
 // "Where is that?" Every page says where you are; the search opens on a map of every page with what it is for; badges
 // say what is waiting; and search knows the newer things.
 // ---------------------------------------------------------------------
-const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Paid jobs for specific catches, daily tasks and weekly quests', events:'Challenges, the event calendar, the derby and the weather forecast',
+const PAGE_DESC={cooler:'Fish you are carrying: sell them or keep them', map:'Travel between waters, and set sail again', bounties:'Jobs for specific catches that pay Scales or Nibble crates', events:'Challenges, the event calendar, the derby and the weather forecast',
   shop:'Line, reel and other gear, bait and special lures', rods:'Your rods, upgrades and attachments', skills:'Spend skill points on small steady gains', paths:'Big choices that shape your style',
   aquarium:'Fish that earn coins and boosts while you play', trophy:'Fish you keep forever', journal:'Every species and oddity, found and missing', feats:'Goals with rewards',
   pets:'Your companions, new pets and their looks', style:'Your angler: body, clothes and accessories', pass:'Levels and rewards from fishing', games:'Mini-games, prizes and tickets',

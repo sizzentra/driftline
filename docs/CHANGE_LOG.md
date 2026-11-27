@@ -427,3 +427,19 @@ Rollback tag `rollback/before-f6-6`. Wrap layers: PC 189 to 154, phones 206 to 1
 
 ## qc 259 fixed (2026-11-27, build 2026.11.27-0752, tag `rollback/before-qc259`)
 Director: "Yes, fix 259". `migrate()` in `c_logic.js`: the hats list is built from the save's own list or, when the save has none, from the starter hats (it read `d.owned.hats` after the save's own `owned` had replaced the fresh one, so a save without the list stopped the load). Proof: `tools/saveprobe.ps1`: 567 texts identical, the 21 loads of the tiny old save now give a save instead of an error (and its 21 written texts are new); gate, boot, QA and content 0 failed; baseline identical except the PC Patch notes page with the new note (agreed set made again).
+
+## Bounties, the one thing to chase (2026-11-27, tag `rollback/before-bounties`)
+Director and Cam: "Cam and I didn't like weekly and daily quests, and want to polish/expand on the bounty system instead"; "Just scales and nibble crates"; "Definitely the relic choice"; "Open straight away"; "Sounds good build this out". The first new work after the Foundation.
+
+| Piece | Defined in | Shows up in |
+|---|---|---|
+| Rewards: `BOUNTY_SC` (3 / 8 Scales), `NIB_CRATE` (small 6, big 10 with an Epic or better; the odds per tier), `BOUNTY_PASS` (40 Tide Pass XP a claim), `bountyHard`, `bountyPay`, `bountyBoth` (the Bounty Ledger relic), `bountyPayText`, `bountyClaimBtns`, `nibCrateRoll`, `bountyGive`, `bountyShow` (the card `#nibcrate`, or a toast for Scales alone) | `bs_rules05.js` | the Bounties page and the `claim` action (`e_ui.js`), the dashboard's bounty box (`bm_ui04.js`), Claim all (`d3_update.js`, passes the pick on) |
+| A new bounty kind, `kinds` ("Variety hunt": several different fish of one water; counted in `got`) | `makeBounty2`, `bountyText`, `checkBounties2` (`d5_v16.js`); `bDone` (`e_ui.js`); kept by `migrate()` (`c_logic.js`) | the Bounties page, the dashboard box |
+| The Nibble row as an inventory (all six tiers, zeros dimmed; shown with an empty tank once you hold Nibbles); Feed buttons say how many are left | `nibStripHTML`, `nibFeedBtn` (`ce_nibbles.js`); `pageDone('aquarium')` (`cx_pages.js`) | the Aquarium |
+| The header box (PC) and top-bar chip (phones) "Tasks" are "Bounties": ready to claim, else how many wait at this water | `pc/ui_fhd.js`, `mobile/header08.js` | PC header, phone top bar |
+
+**Removed:** daily tasks (`makeTasks`, `ensureDaily`, `taskHave`, `taskProgress` and its 11 calls, `dailyHTML`, the actions `taskclaim`, `taskclaimall`, `taskbonus`), weekly quests (the whole first part of `bq_feat04.js`, the actions `wqclaim`, `wqbonus`), the random bounty bonus (`bountyBx` and its three hooks: bait, lures, Tide Pass XP, Mystery Crates), coins from bounties, the Bounties page tabs, the Learn entry for tasks, the daily card's styling. `S.daily`, `S.weekly` and a bounty's old `x` stay in a save unread. The daily gift (`dailyLogin`) stays. The feats `tasks10` and `tasks100` count claimed bounties on the same counter (`S.gstats.tasks`).
+
+**Numbers:** wrap layers PC 154 to 151, phones 169 to 166; force-hide rules on phones 75 to 72.
+
+**Side effects to know (for the director and Cam):** Mystery Crates now come only from feats, the Tide Pass, the daily gift and legendary or mythic catches; the swap price of a bounty is still coins (10% of its old coin value, which is no longer shown); a bounty pays a flat 40 Tide Pass XP where the old bonus paid 120 to 300 on about one bounty in six.

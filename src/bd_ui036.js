@@ -29,7 +29,7 @@ const SEARCH_IDX=[
  ['Waters','map','Waters','travel water unlock location pond river coast frost reef shelf deep trench ember starfall map'],
  ['Set sail again (voyages)','map','Set sail again','voyage prestige pearls wisdom legacy milestones start over retire'],
  ['Pearl relics','map','Pearl relics','relic pearls permanent bonus'],
- ['Bounties','bounties',null,'bounty harbourmaster daily tasks reward login streak weekly quests week crate'],
+ ['Bounties','bounties',null,'bounty harbourmaster reward scales nibble crate claim swap'],
  ['Events','events',null,'derby frenzy event medals challenges calendar weather forecast rain storm aurora'],
  ['Tackle: gear','shop',['tackleview','gear'],'line reel cooler upgrade rod length hook finder tackle buy'],
  ['Tackle: bait','shop',['tackleview','bait'],'bait worms lures glow chum shrimp buy'],

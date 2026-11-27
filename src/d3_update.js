@@ -578,7 +578,7 @@ function petHit(e){ if(!e||!PET_BOX) return false; const m=canvasXY(e); const hi
   tone(880,.08,'sine',.05); tone(1320,.12,'sine',.04,0,.08); petTap(hit); return true; }
 // one pet (on the dock or in the Pets tab). The favourite bonds twice as fast.
 function petTap(id){ const today=dayKey(); const b=S.bond[id]||(S.bond[id]={xp:0,day:today,today:0}); if(b.day!==today){ b.day=today; b.today=0; }
-  const before=bondLevel(id); if(b.today<25){ b.today++; b.xp+=id===S.pet?2:1; } S.gstats.pets++; taskProgress('pet',1);
+  const before=bondLevel(id); if(b.today<25){ b.today++; b.xp+=id===S.pet?2:1; } S.gstats.pets++;
   if(maxed('petpal') && Date.now()-(S.petGiftT||0)>3600000 && Math.random()<.35){ S.petGiftT=Date.now(); const r=Math.random(); let gift;
     if(r<.4){ gift=fmt(earn(bestLoot()*rnd(2,5)*coinMult()))+' coins'; } else if(r<.75){ const sc=rint(3,8); S.scales+=sc; gift=sc+' Scales'; } else { const opts=Object.keys(BAIT).filter(k=>k!=='worm'&&!BAIT[k].junk&&!BAIT[k].scales); const k=pick(opts); S.bait[k]+=5; renderBait(); gift='5 '+BAIT[k].name; }
     setTimeout(()=>toast(petName(id)+' brought you a gift: '+gift+'!'),600); sfx.coin(); }
@@ -612,28 +612,15 @@ function paintPetCustom(){ const c=$('petcv'); if(!c) return; const id=editPet()
 function refreshPetInfo(){ if(S.tab!=='pets') return; const el=$('petbond'); if(!el) return; const id=editPet(), bl=bondLevel(id);
   el.innerHTML=`<span class="meta">Bond ${'♥'.repeat(bl)}${'♡'.repeat(10-bl)}</span>`; const inf=$('petbondinfo'); if(inf) inf.innerHTML=petBondText(id); }
 
-// ---------- daily tasks & gift ----------
+// ---------- the daily gift (daily tasks went on 2026-11-27: bounties are the one thing to chase) ----------
 function dayKey(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 const rint = (a,b) => a+Math.floor(Math.random()*(b-a+1));
-function makeTasks(){ const L=pick(S.unlocked), base=bestLoot(); const pool=[
-  {t:'catch', n:rint(10,20), d:'Land {n} fish'}, {t:'catchat', loc:L, n:rint(5,10), d:'Land {n} fish at '+LOCS[locIdx(L)].name}, {t:'rare', n:rint(2,4), d:'Land {n} Rare or better fish'},
-  {t:'pet', n:rint(5,10), d:'Pet {pet} {n} times'}, {t:'hot', n:rint(2,3), d:'Land {n} catches from hotspots'}, {t:'junk', n:2, d:'Fish up {n} pieces of junk'},
-  {t:'earn', n:Math.round(base*rint(15,30)), start:S.stats.earned, d:'Earn {n} coins'}, {t:'game', n:rint(1,3), d:'Play {n} Boardwalk games'} ];
-  const out=[]; while(out.length<3){ const x=pick(pool); if(out.some(o=>o.t===x.t)) continue; out.push(Object.assign({have:0, claimed:false, coins:Math.round(base*rnd(4,8)), scales:rint(3,8)},x)); } return out; }
-function ensureDaily(){ const k=dayKey(); if(!S.daily||S.daily.day!==k) S.daily={day:k, tasks:makeTasks(), bonus:false}; return S.daily; }
-function taskHave(t){ return t.t==='earn' ? Math.max(0,S.stats.earned-t.start) : t.have; }
-function taskProgress(type,n,sp){ const d=ensureDaily(); for(const t of d.tasks){ if(t.claimed) continue; if(t.t===type || (t.t==='catchat' && type==='catch' && sp && sp.loc===t.loc)) t.have=Math.min(t.n,t.have+n); } }
 function dailyLogin(){ const k=dayKey(), y=dayKey(new Date(Date.now()-86400000)); if(S.login.last===k) return null; S.login.streak = S.login.last===y ? S.login.streak+1 : 1; S.login.last=k;
   if(!S.stats.caught && !S.savedAt) return null; const day=S.login.streak, mult=Math.min(3,1+day*.25); const coins=earn(bestLoot()*3*mult*coinMult()); const sc=Math.min(10,day); S.scales+=sc; let extra='';
   if(day%7===0){ S.tokens.big++; extra=' and a big Mystery Crate'; } S.freeSpins=Math.min(3,S.freeSpins+1);
   return 'Daily gift, day '+day+': +'+fmt(coins)+' coins, +'+sc+' Scales, a free spin'+extra+'!'; }
 /* presses one panel action as if its button were clicked (Claim all reuses each Claim exactly) */
-function actClick(a,i){ const P=document.getElementById('panel')||document.body, b=document.createElement('button'); b.type='button'; b.dataset.act=a; b.dataset.i=i; b.hidden=true; P.appendChild(b); try{ b.click(); } finally{ b.remove(); } }
-function dailyHTML(){ const d=ensureDaily(); const done=d.tasks.filter(t=>taskHave(t)>=t.n).length, ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length;
-  return `<div class="tile" style="margin-bottom:12px"><div class="row spread"><div><h4>Daily tasks</h4><div class="meta">New tasks every day. Finish all three for a bonus crate. Login streak: ${S.login.streak} day${S.login.streak===1?'':'s'}.</div></div><span class="meta">${done} / 3</span>${ready>1?'<button class="btn sm" data-act="taskclaimall">Claim all</button>':''}</div>
-   ${d.tasks.map((t,i)=>{ const h=Math.min(t.n,taskHave(t)), ok=h>=t.n; return `<div class="toggle"><div style="min-width:0"><b>${esc(t.d.replace('{n}',fmt(t.n)).replace('{pet}',petName()))}</b><div class="meta">${fmt(h)} / ${fmt(t.n)} · reward <span class="coin">${fmt(t.coins)}</span> + ${t.scales} Scales</div><div class="prog"><i style="width:${h/t.n*100}%"></i></div></div>
-     ${t.claimed?'<span class="badge g">Done</span>':`<button class="btn sm" data-act="taskclaim" data-i="${i}" ${ok?'':'disabled'}>Claim</button>`}</div>`; }).join('')}
-   ${d.tasks.every(t=>t.claimed)?(d.bonus?'<p class="sub">Bonus collected. See you tomorrow!</p>':'<button class="btn" data-act="taskbonus" style="margin-top:8px">Claim bonus crate</button>'):''}</div>`; }
+function actClick(a,i,k){ const P=document.getElementById('panel')||document.body, b=document.createElement('button'); b.type='button'; b.dataset.act=a; b.dataset.i=i; if(k!=null) b.dataset.k=k; b.hidden=true; P.appendChild(b); try{ b.click(); } finally{ b.remove(); } }
 
 // ---------- patch notes ----------
 function patchHTML(p){ return `<div class="rar" style="color:var(--gold)">${p.label?esc(p.label):"Update "+p.v}</div><h3>${esc(p.name)}</h3><ul style="text-align:left;margin:8px 0 0;padding-left:20px;line-height:1.55">${p.items.map(i=>i.startsWith("## ")?`<li class="pn-h">${esc(i.slice(3))}</li>`:`<li>${esc(i)}</li>`).join('')}</ul>`; }
@@ -704,7 +691,7 @@ let duck=null, hilo=null;
 const CARD_FISH = ['','Minnow','Perch','Trout','Bass','Carp','Pike','Salmon','Tuna','Shark','Marlin','Kraken','Leviathan','Legend'];
 
 // ---------- actions for this update ----------
-actOn('rodeq rodbuy rodup rodatt attbuy pettint petacc pethat petcol taskclaim claimall taskclaimall taskbonus patches safereset restorebk autobk autobkkept duckagain prize', function(b){ const k=b.dataset.k, i=+b.dataset.i;
+actOn('rodeq rodbuy rodup rodatt attbuy pettint petacc pethat petcol claimall patches safereset restorebk autobk autobkkept duckagain prize', function(b){ const k=b.dataset.k, i=+b.dataset.i;
   switch(b.dataset.act){
     case 'rodeq': if(S.rods.owned.includes(k)){ S.rods.eq=k; toast('You pick up the '+ROD_I[k].name+'.'); } return 'render';
     case 'rodbuy': { const r=ROD_I[k]; if(!r||r.src!=='shop'||S.rods.owned.includes(k)||S.money<r.price||S.scales<rodScales(r)||!S.unlocked.includes(r.need)) return 'skip'; S.money-=r.price; S.scales-=rodScales(r); S.rods.owned.push(k); S.rods.eq=k; sfx.coin(); toast('New rod: '+r.name+'!'); return 'render'; }
@@ -716,10 +703,7 @@ actOn('rodeq rodbuy rodup rodatt attbuy pettint petacc pethat petcol taskclaim c
     case 'petacc': { const a=PET_ACCS.find(x=>x[0]===k); if(!a) return 'skip'; PET_PV=null; if(!S.petAccs.includes(k)){ if(!a[2]||S.money<a[2]) return 'skip'; S.money-=a[2]; S.petAccs.push(k); sfx.coin(); } petLook().acc=k; return 'render'; }
     case 'pethat': if(S.owned.hats.includes(k)) petLook().hat=k; return 'render';
     case 'petcol': petLook()[k]=b.dataset.v; return 'render';
-    case 'taskclaim': { const t=ensureDaily().tasks[i]; if(!t||t.claimed||taskHave(t)<t.n) return 'skip'; t.claimed=true; addPassXP(40); earn(t.coins*coinMult()); S.scales+=t.scales; S.gstats.tasks++; sfx.coin(); toast('Task done: +'+fmt(t.coins*coinMult())+' coins, +'+t.scales+' Scales'); return 'render'; }
-    case 'claimall': { const is=S.bounties.map((b,j)=>[b,j]).filter(([b])=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).map(([,j])=>j).sort((a,b)=>b-a); if(!is.length) return 'skip'; for(const j of is) actClick('claim',j); return 'render'; } /* Cam, round 7: claim every finished bounty at once (each through its own Claim, so every bonus still applies; highest first, so the others keep their places) */
-    case 'taskclaimall': { const d=ensureDaily(), is=d.tasks.map((t,j)=>j).filter(j=>!d.tasks[j].claimed&&taskHave(d.tasks[j])>=d.tasks[j].n); if(!is.length) return 'skip'; for(const j of is) actClick('taskclaim',j); return 'render'; }
-    case 'taskbonus': { const d=ensureDaily(); if(d.bonus||!d.tasks.every(t=>t.claimed)) return 'skip'; d.bonus=true; S.tokens.small++; sfx.catch(3); toast('All tasks done! A small Mystery Crate is waiting at the Boardwalk.'); return 'render'; }
+    case 'claimall': { const is=S.bounties.map((b,j)=>[b,j]).filter(([b])=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).map(([,j])=>j).sort((a,b)=>b-a); if(!is.length) return 'skip'; for(const j of is) actClick('claim',j,k); return 'render'; } /* Cam, round 7: claim every finished bounty at once (each through its own Claim with the same pick, Scales or Nibble crates; highest first, so the others keep their places) */
     case 'patches': showPatchNotes(); return 'skip';
     case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){ oops('d3_update:localStorage.setItem',e); }
       S=fresh(); S.seenPatch=GAME_VERSION; S.tab='settings'; S.savedAt=Date.now(); G.st='idle'; fillBounties(); toast('Progress erased. A backup was kept. You can restore it in Settings.'); return 'render'; }
@@ -727,7 +711,7 @@ actOn('rodeq rodbuy rodup rodatt attbuy pettint petacc pethat petcol taskclaim c
     case 'autobk': case 'autobkkept': { if(bkAsk!==b.dataset.act){ bkAsk=b.dataset.act; return 'render'; } bkAsk=null; const s=bkRead(b.dataset.act==='autobk'?AUTO_BK:AUTO_BK_KEEP); if(!s) return 'skip';
       try{ if(!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){ oops('d3_update:localStorage.getItem',e); } /* the progress being replaced becomes the backup above (when that slot is free, so a pre-reset copy is never overwritten), so a restore can be undone */
       try{ S=migrate(s); delete S.bkAt; S.savedAt=Date.now(); G.st='idle'; window.__dlUnreadable=false; save(); toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
-    case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
+    case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); return 'render'; }
     case 'prize': { const p=PRIZES.find(x=>x[0]===k); if(!p||S.tickets<p[2]||(p[4]&&p[4]())) return 'skip'; S.tickets-=p[2]; const got=p[3](); PREVIEW=null; PET_PV=null; AQ_PV=null;
       if(k==='golden'||k==='rainbow') petLook().tint=k; if(k==='balloon'||k==='partyhat') petLook().acc=k; if(['sixsevencap','carnival','fishbowl'].includes(k)) S.look.hat=k; if(k==='spacesuit') S.look.outfit='spacesuit'; sfx.shiny(); toast('Prize counter: you got '+got+'!'); return 'render'; }
   }

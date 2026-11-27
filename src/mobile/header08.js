@@ -55,13 +55,13 @@ html body.phone-app .hud > #mbgoal.ready .lbl,html body.phone-land .hud > #mbgoa
 html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl{color:#ffd36a!important}
 </style>`);
 /* the room the goal gave back: two shortcuts players check all the time, sideways only (upright the bar has no room):
-   Tasks (daily tasks + weekly quests: how many rewards are ready) and Tide Pass (level; gold when a reward waits).
+   Bounties (how many are ready to claim; it was Tasks until daily tasks and weekly quests went, 2026-11-27) and Tide Pass (level; gold when a reward waits).
    If a narrow phone runs out of room, Tide Pass goes first, then Tasks: Goal, Live and the core chips always stay. */
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   let T=null, Pz=null, last='';
   const mk=(id,go,lbl)=>{ const b=h('button','stat hudx mb-x'); b.type='button'; b.id=id; b.innerHTML=`<span class="lbl">${lbl}</span><b></b>`;
     b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#3',er); } openMenu(go); }); return b; };
-  const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ oops('mobile/header08:quests-chip',e); return {ready:0,txt:'—'}; } };
+  const tasks=()=>{ try{ const ready=bountyReady(); return {ready, txt:ready?ready+' ready':S.bounties.filter(b=>b.loc===S.loc).length+' here'}; }catch(e){ oops('mobile/header08:quests-chip',e); return {ready:0,txt:'—'}; } };
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ oops('mobile/header08:pass-chip',e); return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
     T.hidden=!land; Pz.hidden=true; hud.classList.remove('mb-compact'); if(!land) return;
@@ -81,10 +81,10 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
   if(/[?&]test\b/.test(location.search)) window.__hudFit=()=>fit(); /* QA: run the step-aside check now (the 500 ms tick is too slow for a test) */
   let ro=null, busy=false; const seen=new WeakSet(); /* round 8 (director: "settings cut off sometimes on top right"): the bar is re-checked whenever it or any chip changes size (the Live timer text, opening or closing the side panel), not only when Tasks or Tide Pass change */
   const tick=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'), lv=document.getElementById('mblive'); if(!hud||!lv) return;
-    if(!T||!T.isConnected){ T=mk('mbtasks','bounties','Tasks'); Pz=mk('mbpass','pass','Tide Pass'); lv.after(T); T.after(Pz); last=''; }
+    if(!T||!T.isConnected){ T=mk('mbtasks','bounties','Bounties'); Pz=mk('mbpass','pass','Tide Pass'); lv.after(T); T.after(Pz); last=''; }
     const a=tasks(), b=pass(), live=!lv.hidden, key=a.txt+'|'+a.ready+'|'+b.txt+'|'+live+'|'+document.body.classList.contains('phone-land');
     if(key===last){ fit(); return; } last=key; T.querySelector('b').textContent=a.txt; T.classList.toggle('ready',a.ready>0); Pz.querySelector('b').textContent=b.txt; Pz.classList.toggle('ready',b.ready);
-    T.title=a.ready?a.ready+' task reward'+(a.ready===1?'':'s')+' ready. Tap for Bounties.':'Daily tasks and weekly quests. Tap for Bounties.'; Pz.title='Tide Pass. Tap to open it.'; fit(); };
+    T.title=a.ready?a.ready+' bount'+(a.ready===1?'y':'ies')+' ready to claim. Tap for Bounties.':'Bounties at this water. Tap to open them.'; Pz.title='Tide Pass. Tap to open it.'; fit(); };
   setInterval(tick,500); setTimeout(tick,50); addEventListener('resize',()=>{ last=''; setTimeout(tick,200); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land .hud > #mbgoal,html body.phone-land .hud > #mblive,html body.phone-land .hud > .mb-x{flex:0 1 auto!important}

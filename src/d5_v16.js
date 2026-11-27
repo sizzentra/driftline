@@ -70,7 +70,7 @@ const RELICS = [
  ['tidecaller','Tide Caller',2,'+30% Tide Pass XP.'],
  ['goldhook','Golden Hook',2,'+0.15 s hook window, and perfect hooks add 10% value.'],
  ['luckypearl','Lucky Pearl',2,'+50% shiny chance.'],
- ['seasoned','Bounty Ledger',3,'Bounties pay 30% more coins.'] /* Cam, round 5: replaces Seasoned Angler (milestones give starting tackle) */,
+ ['seasoned','Bounty Ledger',3,'Bounties pay both rewards: the Scales and the Nibble crate.'] /* Cam, round 5: replaces Seasoned Angler (milestones give starting tackle); director, 2026-11-27: both rewards instead of 30% more coins (bounties pay no coins now) */,
 ].map(a=>({id:a[0],name:a[1],cost:a[2],d:a[3]}));
 const relic = id => S.relics && S.relics.includes(id);
 /* C31 (director + Cam, 2026-11-20; Feel calls): water prices start a little higher (LOC_BASE) and grow with each voyage (LOC_VOY a voyage,
@@ -99,10 +99,12 @@ function makeBounty2(L){ const r=Math.random(); L=L||pick(S.unlocked); const bas
   if(r<.12) return {type:'trophy', loc:L, n:1, have:0, reward:Math.round(base*6), scales:4};
   if(r<.24){ const opts=STYLE_BOUNTY.filter(k=>SP.some(s=>s.loc===L&&s.beh===k)), st=pick(opts.length?opts:STYLE_BOUNTY); return {type:'style', loc:L, beh:st, n:rint(3,6), have:0, reward:Math.round(bestLoot()*3), scales:3}; }
   if(r<.3) return {type:'shiny', loc:L, n:1, have:0, reward:Math.round(bestLoot()*12), scales:10};
+  if(r<.38){ const all=SP.filter(s=>s.loc===L).length, n=clamp(Math.round(all*.4),4,10); if(all>=n) return {type:'kinds', loc:L, n, have:0, got:[], reward:Math.round(base*8)}; } /* a harder bounty (director, 2026-11-27): many different fish of one water; Feel call: 40% of its fish, 4 to 10 */
   return null; }
 function bountyText(b){ if(b.type==='trophy') return {what:'Catch any trophy-size fish at '+LOCS[locIdx(b.loc)].name, where:LOCS[locIdx(b.loc)].name};
-  const wn=b.loc?LOCS[locIdx(b.loc)].name:'Any water'; if(b.type==='style') return {what:'Catch '+b.n+' '+BEH[b.beh].n.toLowerCase()+'s'+(b.loc?' at '+wn:''), where:wn}; if(b.type==='shiny') return {what:'Catch any shiny fish'+(b.loc?' at '+wn:''), where:wn}; return null; }
-function checkBounties2(f){ const done=[]; for(const b of S.bounties){ if(!['trophy','style','shiny'].includes(b.type)||bDone(b)) continue;
+  const wn=b.loc?LOCS[locIdx(b.loc)].name:'Any water'; if(b.type==='style') return {what:'Catch '+b.n+' '+BEH[b.beh].n.toLowerCase()+'s'+(b.loc?' at '+wn:''), where:wn}; if(b.type==='shiny') return {what:'Catch any shiny fish'+(b.loc?' at '+wn:''), where:wn}; if(b.type==='kinds') return {what:'Catch '+b.n+' different fish at '+wn, where:wn}; return null; }
+function checkBounties2(f){ const done=[]; for(const b of S.bounties){ if(!['trophy','style','shiny','kinds'].includes(b.type)||bDone(b)) continue;
+  if(b.type==='kinds' && f.sp.loc===b.loc){ if(!Array.isArray(b.got)) b.got=[]; if(!b.got.includes(f.sp.id)) b.got.push(f.sp.id); b.have=b.got.length; }
   if(b.type==='trophy' && f.trophy && f.sp.loc===b.loc) b.have=1; const here=!b.loc||f.sp.loc===b.loc; if(b.type==='style' && here && f.sp.beh===b.beh) b.have++; if(b.type==='shiny' && here && f.shiny) b.have=1; if(bDone(b)) done.push(b); } return done; }
 
 // ---------- actions ----------

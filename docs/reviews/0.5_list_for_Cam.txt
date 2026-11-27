@@ -72,7 +72,7 @@ D4 Prestige, Bait and Oddities as their own pages with tabs.
 D5 Cooler: sort, Scrap all, Hybrids switch, Go fishing when empty.
 D6 Aquarium: sort, Nibbles shown, Cooler / Aquarium button on phones.
 D7 [SWITCH] Inspect button on every fish in Cooler and Aquarium.
-D8 Claim all for bounties and daily tasks.
+D8 Claim all for bounties (daily tasks went on 2026-11-27).
 D9 Map page: clearer wording, pictures appear at once.
 D10 Menus hold still when you pick an option.
 D11 [SWITCH] Install welcome card on every browser visit.

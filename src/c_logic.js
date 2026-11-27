@@ -68,7 +68,7 @@ function migrate(o,coreOnly){ const d=fresh(), raw=isObj(o)?o:null, m=d; if(raw)
   const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=[]; /* batch 5: home decorations are gone (no refunds: director 2026-11-21) */ if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
   m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   if((o.pearlV||1)<2){ m.pearls=Math.ceil((+o.pearls||0)*.4); m.pearlV=2; }
-  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; }
+  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny','kinds'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; }
   if(coreOnly===true) return m;
   fabricMigrate(m); /* old shirt designs refunded once (ah_fabric.js) */
   if(!Array.isArray(m.vault)) m.vault=[]; /* the Trophy vault (ax_trophy035.js) */
@@ -336,7 +336,7 @@ function landFishCore(){
   if(f.shiny) S.stats.shiny++; if(f.trophy) S.stats.trophies++; if(f.storm && sp.r>=3) S.stats.stormEpic++;
   const scl=Math.round(RAR[sp.r].sc*(f.shiny?3:1)*(f.trophy?(maxed('trophy')?3:1.5):1)*(relic('luckyscale')?1.2:1)); if(scl) S.scales+=scl;
   const tok = sp.r>=4 && Math.random()<(sp.r===5?1:.15) ? (sp.r===5?'big':'small') : null; if(tok) S.tokens[tok]++;
-  taskProgress('catch',1,sp); if(sp.r>=2) taskProgress('rare',1,sp); if(f.hot) taskProgress('hot',1);
+ 
   addPassXP(PASS_XP[sp.r]*(f.shiny?2:1)*(f.trophy?1.5:1)); derbyCatch(f);
   const lvUps = addXP(xp); const bdone = checkBounties(sp, f.kg).concat(checkBounties2(f)); const setNow = checkSet(sp.loc);
   const b=[]; if(f.shiny===2){ b.push(['g',PRISM[f.pv].n+' prismatic ×'+PRISM_VALUE+' value']); const T=TITLE_BUFFS[f.pv]; if(T) b.push(['g','In your aquarium: +'+T.keys.map(k=>BK[k]).join(', +')+', and every other fish’s bonuses +'+Math.round(T.aura*100)+'%']); if(titleNew) b.push(['g','New title: +'+Math.round(TITLE_COIN*100)+'% coins on every voyage'+(titleLegacy()>=TITLE_COIN_CAP?' (at the +'+Math.round(TITLE_COIN_CAP*100)+'% cap)':'')]); } else if(f.shiny) b.push(['g','Shiny ×4 value']); if(f.hy) b.push(['g','Hybrid: the weight of a '+SPI[f.hy].name+(f.hx?' and still its own size: ×'+f.hx+' value and aquarium income':'')]); if(hyNew) b.push(['g','First hybrid of this fish']); b.push(...preyB); if(f.ate) b.push(['g','Swallowed your catch: ×1.5 coins']); if(f.trophy) b.push(['g','Trophy size ×1.5']); if(f.hot) b.push(['k','Hotspot catch']);
@@ -361,7 +361,7 @@ function landJunk(){
     if(h && !S.owned.hats.includes(h)){ S.owned.hats.push(h); found=HATI[h].name; b.push(['g','New hat: '+HATI[h].name+'! See the Wardrobe']); } else coins += base; }
   if(e.rod){ if(!S.rods.owned.includes(e.rod)){ S.rods.owned.push(e.rod); found='A fishing rod'; b.push(['g','New rod: '+ROD_I[e.rod].name+'! See the Rods tab']); } else coins += base; }
   if(e.scales){ S.scales+=e.scales; b.push(['k','+'+e.scales+' Scales']); }
-  taskProgress('junk',1);
+ 
   if(e.special==='lottery'){ const r=Math.random(); if(r<.05){ coins=base*30; quote='WE HAVE A WINNER! All six numbers! I need to sit down.'; b.push(['g','Jackpot ×30']); } else if(r<.3){ coins=base*3; quote='A small winner. Better than a boot!'; } else { coins=0; quote='Not a winner. Not even close. Keep it as a souvenir.'; } }
   if(e.special==='fortune'){ const fo=pick(FORTUNES); quote='The paper says: "'+fo[0]+'"'; addBuff(fo[1],fo[2],5,'Fortune: '+BK[fo[1]]); b.push(['k','Boost: '+fmtB(fo[1],fo[2])+' for 5 min']); }
   if(e.special==='chest'){ coins=base*3; const bk = li<=1?'cricket':li<=3?'glow':'chum'; const n=bk==='chum'?3:5; S.bait[bk]+=n; found=n+' '+BAIT[bk].name; b.push(['k','+'+n+' '+BAIT[bk].name]); }
@@ -409,8 +409,8 @@ const FEATS = [
   {id:'rod10', name:'Fine-tuned',             d:'Upgrade a rod to level 10', p:()=>[Math.max(0,...Object.values(S.rods.lvl)),10], coins:100000, pt:2},
   {id:'pet50', name:'Good boy, good girl',    d:'Pet your pets 50 times',    p:()=>[S.gstats.pets,50], coins:3000, pt:1},
   {id:'bond10',name:'Best friends',           d:'Reach bond level 10 with a pet', p:()=>[Math.max(0,...PETS.map(p=>bondLevel(p.id))),10], coins:50000, pt:2},
-  {id:'tasks10',name:'Daily grind',           d:'Finish 10 daily tasks',     p:()=>[S.gstats.tasks,10], coins:20000, pt:1},
-  {id:'tasks100',name:'Creature of habit',    d:'Finish 100 daily tasks',    p:()=>[S.gstats.tasks,100], coins:500000, pt:3},
+  {id:'tasks10',name:'Daily grind',           d:'Claim 10 bounties',     p:()=>[S.gstats.tasks,10], coins:20000, pt:1},
+  {id:'tasks100',name:'Creature of habit',    d:'Claim 100 bounties',    p:()=>[S.gstats.tasks,100], coins:500000, pt:3},
   ...LOCS.map(L=>({id:'set_'+L.id, name:'Master of '+L.name, d:'Find every fish in '+L.name, p:()=>[caughtAt(L.id),spAt(L.id).length], coins:Math.round(L.bonus*.5), pt:1, pet:L.id==='frost'?'penguin':null})),
   {id:'shiny', name:'Something glittered',    d:'Land a shiny fish',         p:()=>[S.stats.shiny,1],     coins:1000, pt:1},
   {id:'shiny10',name:'Shine collector',       d:'Land 10 shiny fish',        p:()=>[S.stats.shiny,10],    coins:25000, pt:1},
@@ -461,7 +461,7 @@ const FEATS = [
 function checkFeats(){ for(const f of FEATS){ if(S.feats[f.id]) continue; const [a,b]=f.p(); if(a>=b){ S.feats[f.id]=true; earn(f.coins); if(f.pt) S.bonusPts+=f.pt;
   let extra='', gift=''; if(f.pet && !S.owned.pets.includes(f.pet)){ S.owned.pets.push(f.pet); gift='New pet: '+PETI[f.pet].name+'!'; }
   if(f.rod && !S.rods.owned.includes(f.rod)){ S.rods.owned.push(f.rod); gift+=(gift?' ':'')+'New rod: '+ROD_I[f.rod].name+'!'; } /* a pet or rod gets its own pop-up: with the crate, one line ran past 80 letters (2026-11-25) */
-  { const ck=f.pt?'big':'small'; S.tokens[ck]=(S.tokens[ck]||0)+1; extra+=', a '+ck+' Mystery Crate'; } /* Cam, round 5: crates come from feats (big for a feat with a skill point) */
+  { const ck=f.pt?'big':'small'; S.tokens[ck]=(S.tokens[ck]||0)+1; extra+=', a '+ck+' crate'; } /* 'crate', not 'Mystery Crate': the longest feat lines ran to 85 letters, the pop-up limit is 80 (found by the sweep, 2026-11-27) */ /* Cam, round 5: crates come from feats (big for a feat with a skill point) */
   setTimeout(()=>{ toast('Feat: '+f.name+' (+'+fmt(f.coins)+' coins'+(f.pt?', +'+f.pt+' skill point'+(f.pt>1?'s':''):'')+extra+')'); sfx.coin(); if(gift) setTimeout(()=>toast(gift),1400); }, 900); } } }
 
 // ---------- aquarium ----------

@@ -114,10 +114,9 @@ const DW={
        <div class="dwacts"><button class="btn sm" data-act="sellall" ${sell.length?'':'disabled'}>Sell all${sell.length?' · <span class="coin">'+fmtShort(val)+'</span>':''}</button><button class="btn alt sm" data-tabgo="cooler">Open</button></div>`}); },
   bounty(){ fillBounties(); const here=S.bounties.map((b,i)=>[b,i]).filter(([b])=>b.loc===S.loc), ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length, readyHere=here.filter(([b])=>bDone(b)).length, away=ready-readyHere;
     const row=([b,i])=>{ const d=bDone(b), bt=bountyText(b); let what, p=d?1:0, pt;
-      if(bt){ what=bt.what; if(b.type==='style'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
+      if(bt){ what=bt.what; if(b.type==='style'||b.type==='kinds'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
       else { const sp=SPI[b.sp]; if(!sp) return ''; what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+LOCS[locIdx(sp.loc)].name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?"an":"a"} ${sp.name} of ${kgStr(b.kg)} or more`; if(b.type==='count'){ p=Math.min(1,b.have/b.n); pt=Math.min(b.have,b.n)+' / '+b.n; } }
-      const rw=Math.round(b.reward*coinMult()*1);
-      return `<div class="dwq${d?' done':''}"><div class="dwqt"><b>${esc(what)}</b><span class="meta"><span class="coin">${fmtShort(rw)}</span>${b.scales?' + '+b.scales+' Scales':''}${pt?' · '+pt:d?'':' · not yet'}</span>${pt&&!d?dwBar(p):''}</div>${d?`<button class="btn sm" data-act="claim" data-i="${i}">Claim</button>`:''}</div>`; };
+      return `<div class="dwq${d?' done':''}"><div class="dwqt"><b>${esc(what)}</b><span class="meta">${bountyPayText(b)}${pt?' · '+pt:d?'':' · not yet'}</span>${pt&&!d?dwBar(p):''}</div>${d?bountyClaimBtns(b,i,true):''}</div>`; };
     return dwBox('bounty',{icon:'📜', title:'Bounties', wide:true, state:ready?'ready':'', sum:ready?`${ready} ready`:`${here.length} here`, body:
       (here.length?here.slice(0,3).map(row).join(''):'<div class="meta">No bounties at this water right now.</div>')+
       `<div class="dwacts">${away?`<span class="meta">${away} ready at other waters</span>`:''}<button class="btn alt sm" data-tabgo="bounties">All bounties</button></div>`}); },
@@ -858,22 +857,15 @@ function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(
 // =====================================================================
 // QC pass fixes (2026-11-17, round 2)
 // =====================================================================
-{ stepOn('menuTidy2', { after(){ try{ const P=$('panel');
-    // Bounties: the three daily tasks sit side by side when there is room
-    if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
-  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } } }); menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* a page header's number or controls sit beside the text when they fit, and start on the left when they wrap */
 #menuov #panel > .row.dl-head{justify-content:space-between!important}
 #menuov #panel > .row.dl-head > :not(:first-child){margin-left:0!important}
-/* Events calendar and daily tasks: side by side on wide enough pages */
+/* Events calendar: side by side on wide enough pages */
 @container (min-width:560px){
   #menuov #panel .tile.ev-cal{display:grid; /* no !important: it overrode the page tabs hiding the calendar (director, 2026-11-19: Events tabs showed the same things) */ grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:14px}
   #menuov #panel .ev-cal > :not(.ev-cal-row){grid-column:1 / -1}
   #menuov #panel .ev-cal > .ev-cal-row{border-top:1px solid var(--line)!important}
-  #menuov #panel .tile.dtasks{display:grid; /* no !important: page tabs hide it with an inline display:none (PC Reborn) */grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 12px}
-  #menuov #panel .tile.dtasks > .row{grid-column:1 / -1}
-  #menuov #panel .tile.dtasks > .toggle{flex-wrap:wrap;align-content:flex-start;border-top:1px solid var(--line);padding-top:6px}
 }
 /* sideways phones: no empty slot where the Overview button was */
 @media (orientation:landscape) and (max-height:560px){
@@ -932,7 +924,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 body.v3 .toggle button.btn{color:#dfe8f2!important;border:1px solid #3a587888!important;text-shadow:none}
 body.v3 .toggle button.btn[aria-pressed="true"]{color:#ffe7a6!important;border-color:#ffd36a99!important;box-shadow:0 0 10px #ffd36a26}
 body.v3 .toggle button.btn[aria-pressed="false"]{color:#9fb2c8!important}
-body.v3 .toggle button.btn[data-act="taskclaim"]:not(:disabled){background:linear-gradient(180deg,var(--buoy2,#ff9a6a),var(--buoy,#ff6a3d) 55%,#f0683c)!important;color:#1d0d06!important;border-color:transparent!important}
 </style>`);
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* one clear look for anything not possible yet: dark slate with readable muted text (was faded orange, unreadable) */

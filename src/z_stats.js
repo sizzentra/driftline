@@ -13,7 +13,7 @@ function statsHTML(){ const wx=weather(), b=BAIT[S.baitSel]||BAIT.worm, dm={rare
   if(statSec==='bonuses'){ const rows=keys.map(k=>{ const parts=[buffSum(k),aqSum(k),petSum(k),rodBonus(k)], raw=parts.reduce((a,c)=>a+c,0), tot=bonus(k), cap=BONUS_CAP[k];
       const cell=v=>v?`<td>${(k==='tension'||k==='calm'?'−':'+')+Math.round(v*1000)/10}%</td>`:'<td class="z">·</td>';
       return `<tr><th>${BK[k][0].toUpperCase()+BK[k].slice(1)}</th>${parts.map(cell).join('')}<td class="t">${tot?(k==='tension'||k==='calm'?'−':'+')+Math.round(tot*1000)/10+'%':'·'}${cap&&raw>cap?' <small>(max)</small>':''}</td></tr>`; }).join('');
-    return `<p class="sub">Every bonus and where it comes from. Boosts are timed buffs from junk and tasks; Aquarium is your displayed fish; Pets are your favourite and companion; Rod includes its level and attachments.</p>
+    return `<p class="sub">Every bonus and where it comes from. Boosts are timed buffs from junk; Aquarium is your displayed fish; Pets are your favourite and companion; Rod includes its level and attachments.</p>
       <div class="st-table-wrap"><table class="st-table"><thead><tr><th></th><th>Boosts</th><th>Aquarium</th><th>Pets</th><th>Rod</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table></div>`; }
   if(statSec==='gear'){ const g=k=>GEAR[k].fmt(gv(k));
     return `<div class="st-grid"><div class="tile"><h4>Tackle</h4>${statRow('Rod length',g('rod'),'Level '+S.gear.rod+' of '+(GEAR.rod.lv.length-1))}${statRow('Reel',g('reel'),'Level '+S.gear.reel+' of '+(GEAR.reel.lv.length-1))}${statRow('Line',g('line'),'Level '+S.gear.line+' of '+(GEAR.line.lv.length-1))}${statRow('Angler strength',strTxt(anglerStr()),'Line plus skills that lower tension')}

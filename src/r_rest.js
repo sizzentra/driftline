@@ -19,7 +19,7 @@ function restTick(dt){ if(!S.settings.rest){ G.st='idle'; return; } RST.t+=dt; p
     if(RST.k>=1){ restLand(); } } }
 function restLand(){ const f=chooseCatch(); splash(G.bob.x,G.bob.y,18); sfx.pull();
   if(f.kind==='fish'){ journalAdd(f); S.cooler.push(coolerEntry(f)); S.stats.caught++; for(const p of (f.prey||[])){ journalAdd(p); if(S.cooler.length<gv('cooler')) S.cooler.push(coolerEntry(p)); }
-    const xp=Math.round((5+Math.sqrt(f.value)*3)*RAR[f.sp.r].xp*xpMult()*(pr("dozer")>=5?1:.6)); addXP(xp); checkBounties(f.sp,f.kg); checkBounties2(f); taskProgress('catch',1,f.sp);
+    const xp=Math.round((5+Math.sqrt(f.value)*3)*RAR[f.sp.r].xp*xpMult()*(pr("dozer")>=5?1:.6)); addXP(xp); checkBounties(f.sp,f.kg); checkBounties2(f);
     toast('While resting you caught a '+(f.shiny===2?PRISM[f.pv].n+' prismatic ':f.shiny?'shiny ':'')+(f.hy?'hybrid ':'')+f.sp.name+' ('+kgStr(f.kg)+')'+(f.prey&&f.prey.length?', with a '+f.prey[0].sp.name+' inside':'')+'.'); sfx.catch(f.sp.r); }
   else if(f.kind==='junk'){ S.junk[f.item.id]=(S.junk[f.item.id]||0)+1; const c=earn(curLoc().loot*rnd(.8,1.2)*coinMult()); toast('While resting you fished up '+f.item.name+' (+'+fmt(c)+' coins).'); }
   else { S.owned.hats.push(f.hat.id); toast('While resting you fished up a hat: '+f.hat.name+'!'); }

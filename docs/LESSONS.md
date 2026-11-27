@@ -303,3 +303,9 @@ Error bookmarks (symptom → cause → fix → how to catch it) and what works. 
 - **A hook that hands out a function keeps the function it saw when its file loaded.** `__bal` held `rollFish` and `bonus` from before later files wrapped them (qc 263). One function with its steps inside cannot be captured half-finished.
 - **When a check widens, run the game once with the new reports before the long sweep** (boot, every page, the transfer button): an expected probe that now reports would fail 45 minutes later. None of the 46 fallback catches fired.
 - **The pane measures frame cost only roughly while another check runs.** The same build gave 1.5 to 4.7 ms; compare medians of several runs, alternate the two builds, and say "no difference to measure" when the spread is wider than the gap.
+
+## Bounties batch (2026-11-27)
+- **A line-number delete right after other edits hit the wrong line** (the closing line of a style block instead of the rule above it): the page still built. Delete by the line's text (`sed -i '/pattern/d'`) or print the line immediately before deleting, every time, not once per file.
+- **A script that dot-sources `tools/headless.ps1` must not name a parameter `$Shots`** (the helper sets `$script:Shots`): the parameter silently became the shots folder.
+- **Pictures of menu pages without the browser pane:** a scratch page in `site/next/_ab/` that writes a test save, opens the build in an iframe and clicks to the page, shot with Edge `--headless=new --screenshot --virtual-time-budget=9000 --window-size=W,H`. Phone and PC sizes both work; delete the scratch page afterwards.
+- **Git Bash turns an argument with colons into a Windows path list:** pass such lists from the PowerShell tool.

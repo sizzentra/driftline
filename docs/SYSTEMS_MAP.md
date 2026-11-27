@@ -229,3 +229,10 @@ Phone-only: `src/mobile/*`, `src/android/*`, `src/ios/*`. Shared code the phones
 - **0.4.8.9 live (2026-11-19):** batch 2 (the fight) + the rail safety net on PC, Android and iPhone (stamp 2026.11.19-0900, tag v0.4.8.9).
 - **0.4.9 big patch part 1 (2026-11-19, test builds):** [16] `unlockNeed` (10 × voyage, cap 50) + `S.voyCatch` per water this voyage (counted in landFish, reset on retire, old saves seeded from lifetime catches); the Unlock action checks it too (it didn't). [23] `HYBRID_IN_RANGE` ×2…×5 value + aquarium cap (`f.hx`), `rollFish(…,{forceHybrid})` for tests. [24] `ROD_SC` Scales per shop rod. [18] `TITLE_BUFFS` (3 bonuses per title, aura ≤ +30% on other fish in `aqSum`, `S.titled` → `titleLegacy` ≤ +20% coins in `coinMult`). [19] `src/ce_nibbles.js`: scrap (odds by rarity, 1+2+2+2), feed (`f.fed`, `nibIncome`, every 10: `nbst` boost or a new `abx` bonus up to 5), tank animation (`nibMove`/`nibDraw` in drawTank), `S.nib` halved on retire, Fish Log + Trophy Room lines, Search + Help. QA +6 checks.
 
+## Bounties (2026-11-27)
+| What | Affects |
+|---|---|
+| `bountyPay(b)` / `bountyHard(b)` (`bs_rules05.js`) | what every bounty tile, the dashboard box and the claim pay: Scales (`S.scales`) or a Nibble crate (`S.nib`), plus Tide Pass XP and the feats counter `S.gstats.tasks` |
+| `relic('seasoned')` (Bounty Ledger) | `bountyBoth()`: both rewards, one Claim button instead of two |
+| `NIB_CRATE` | the Nibbles a bounty adds, so how fast aquarium fish grow (`ce_nibbles.js`) |
+| `bountyReady()` (`bq_feat04.js`) | the Bounties badge, the PC header box, the phone top-bar chip, the "ready" list in Quests |

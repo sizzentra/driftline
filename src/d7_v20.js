@@ -32,7 +32,7 @@ function renderPass(P){ const pl=S.pass.lvl, need=passNeed(pl+1), unclaimed=pl-S
    ${ns?`<div class="tile pass-next"><canvas width="240" height="180" data-passbig="${nextSp}"></canvas><div><span class="bwx-cat">Next Tide reward · level ${nextSp}</span><h3 style="margin:2px 0">${esc(ns[2])}</h3><div class="meta">${esc(ns[3])}</div><div class="meta" style="margin-top:6px">${nextSp-pl} level${nextSp-pl>1?'s':''} to go.</div></div></div>`:''}
    <div class="passtrack">${shown.map(L=>{ const got=L<=S.pass.claimed, ready=!got&&L<=pl, sp=PASS_SPECIAL[L], d=sp?sp[3]:passPlain(L).d;
      return `<div class="passcell ${got?'got':''} ${ready?'ready':''} ${sp?'special':''}" title="${esc(d)}"><span class="lv">${L}</span><canvas width="120" height="90" data-pass="${L}"></canvas><b style="font-size:12.5px;line-height:1.2">${got?'✓ ':''}${esc(passReward(L))}</b><span class="meta" style="font-size:11px;line-height:1.25">${esc(d)}</span></div>`; }).join('')}</div>
-   <p class="sub" style="margin-top:8px">Fish ×${PASS_XP.join(' / ')} XP by rarity. Shiny ×2, trophy ×1.5. Daily tasks and derbies give extra.</p>`;
+   <p class="sub" style="margin-top:8px">Fish ×${PASS_XP.join(' / ')} XP by rarity. Shiny ×2, trophy ×1.5. Bounties and derbies give extra.</p>`;
   P.querySelectorAll('canvas[data-pass]').forEach(cv2=>passArt(cv2.getContext('2d'),120,90,+cv2.dataset.pass));
   P.querySelectorAll('canvas[data-passbig]').forEach(cv2=>passArt(cv2.getContext('2d'),240,180,+cv2.dataset.passbig)); }
 

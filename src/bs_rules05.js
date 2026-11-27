@@ -16,28 +16,35 @@ function featBonusText(cat){ const b=FEAT_CAT_BONUS[cat]; if(!b) return ''; cons
 stepOn('bonus', function(v,k){ return v+featCatBonus(k); });
 { const _v=specLocValue; specLocValue=function(loc){ return _v(loc)*(S.setDone&&S.setDone[loc]?1.1:1); }; }
 
-// ---------- bounty bonuses ----------
-function bountyBx(b){ const ox=b.x; if(ox&&typeof ox==='object'&&Number.isInteger(ox.n)&&ox.n>0&&((ox.k==='bait'&&BAIT[ox.id]&&ox.n<=12)||(ox.k==='scales'&&ox.n<=12)||(ox.k==='pass'&&ox.n<=400)||(ox.k==='nib'&&ox.n<=20&&Number.isInteger(ox.r)&&ox.r>=0&&ox.r<=5)||(ox.k==='crate'&&(ox.id==='small'||ox.id==='big')&&ox.n<=2))) return ox; /* a saved bonus is used only if it is one the game could have rolled */ const r=Math.random(), here=Object.entries(BAIT).filter(([k,x])=>x.loc===b.loc&&!x.junk&&!x.scales), shop=Object.entries(BAIT).filter(([k,x])=>k!=='worm'&&!x.junk&&!x.scales), lure=Object.entries(BAIT).filter(([k,x])=>x.junk);
-  let x; if(b.legend||r<.12) x={k:'bait', id:pick(lure)[0], n:b.legend?2:1};
-  else if(r<.35){ const e=pick(here.length?here:shop); x={k:'bait', id:e[0], n:rint(5,10)}; }
-  else if(r<.52) x={k:'scales', n:rint(3,8)+(b.scales?2:0)};
-  else if(r<.68) x={k:'pass', n:rint(12,30)*10};
-  else if(r<.88){ const sr=b.sp&&SPI[b.sp]?Math.min(5,SPI[b.sp].r):b.type==='shiny'||b.type==='trophy'?rint(1,3):rint(0,2); x={k:'nib', r:sr, n:sr>=4?rint(1,2):sr>=2?rint(2,4):rint(3,6)}; } /* Cam, round 5: Nibbles can be bounty rewards */
-  else x={k:'crate', id:b.legend||Math.random()<.2?'big':'small', n:1}; /* Cam, round 5: crates come from bounties (and feats), not from gold */
-  b.x=x; return x; }
-function bountyBxText(x){ if(!x) return ''; if(x.k==='bait'){ const B=BAIT[x.id]; return B?x.n+' × '+B.name:''; } if(x.k==='scales') return x.n+' Scales'; if(x.k==='pass') return x.n+' Tide Pass XP'; if(x.k==='nib') return x.n+' '+NIB_TIER[x.r]+' Nibble'+(x.n===1?'':'s'); if(x.k==='crate') return 'a '+(x.id==='big'?'big':'small')+' Mystery Crate'; return ''; }
-function bountyBxGive(x){ if(!x) return ''; try{ if(x.k==='bait'&&BAIT[x.id]){ S.bait[x.id]=(S.bait[x.id]||0)+x.n; try{ renderBait(); }catch(e){ oops('bs_rules05:renderBait',e); } } else if(x.k==='scales') S.scales+=x.n; else if(x.k==='pass') addPassXP(x.n); else if(x.k==='nib') nibAdd('r'+x.r,x.n); else if(x.k==='crate') S.tokens[x.id]=(S.tokens[x.id]||0)+x.n; }catch(e){ oops('bs_rules05:renderBait#2',e); } return bountyBxText(x); }
-{ const _fb=fillBounties; fillBounties=function(){ const r=_fb.apply(this,arguments); try{ for(const b of S.bounties) bountyBx(b); }catch(e){ oops('bs_rules05:bountyBx',e); } return r; }; }
-document.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.closest('[data-act="claim"]'); if(!btn) return; const b=S.bounties[+btn.dataset.i]; if(!b) return; const x=bountyBx(b);
-  setTimeout(()=>{ if(S.bounties.includes(b)) return; const t=bountyBxGive(x); if(t){ save(); setTimeout(()=>{ try{ toast('Bounty bonus: '+t+'!'); }catch(er){ oops('bs_rules05:toast',er); } },1100); } },0); },true);
-{ const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){ oops('bs_rules05:bountyBx#2',e); } _rb(P); try{
-      P.querySelectorAll('[data-act="reroll"][data-i],[data-act="claim"][data-i]').forEach(btn=>{ const b=S.bounties[+btn.dataset.i], card=btn.closest('.tile'); if(!b||!card||card.querySelector('.bx')) return; const t=bountyBxText(b.x); if(!t) return;
-        const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🎣'):b.x.k==='scales'?'🔷':b.x.k==='nib'?'🍬':b.x.k==='crate'?'🎁':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
-    }catch(e){ console.error(e); } }; }
-document.head.insertAdjacentHTML('beforeend',`<style>
-#panel .bx{display:flex;align-items:center;gap:6px;margin:2px 0 4px;padding:4px 10px;border-radius:999px;background:#7fe3c41a;border:1px solid #7fe3c455;color:#bff3e2;font:700 12px var(--display,system-ui);width:max-content;max-width:100%}
-#panel .bx.sp{background:#ffd36a1f;border-color:#ffd36a77;color:#ffe9b0}
-</style>`);
+// ---------- bounty rewards (director, 2026-11-27: "Just scales and nibble crates"; no coins; daily tasks and weekly quests are gone) ----------
+//  An ordinary bounty pays 3 Scales or a small Nibble crate; a harder one (a legend, a shiny, a trophy, many kinds of fish) pays 8 Scales or a
+//  big crate. The player picks on claim; with the Bounty Ledger relic a bounty pays both. Every claim also gives Tide Pass XP (daily tasks did).
+//  A Nibble crate opens straight away: each Nibble rolls its own tier from the pool; a big crate holds at least one Epic or better.
+//  Feel calls (first versions, the director and Cam tune them): the Scales, the crate sizes and odds, the Tide Pass XP.
+const BOUNTY_SC=[3,8], BOUNTY_PASS=40, NIB_CRATE={small:{n:6, odds:[50,30,14,5,1,0], min:0}, big:{n:10, odds:[30,30,22,12,5,1], min:3}};
+const bountyHard = b => !!(b.legend||b.type==='shiny'||b.type==='trophy'||b.type==='kinds');
+const bountyPay = b => bountyHard(b) ? {sc:BOUNTY_SC[1], cr:'big'} : {sc:BOUNTY_SC[0], cr:'small'};
+const bountyBoth = () => !!relic('seasoned');
+const bountyPayText = b => { const p=bountyPay(b); return p.sc+' Scales '+(bountyBoth()?'and':'or')+' a '+p.cr+' Nibble crate'; };
+function bountyClaimBtns(b,i,sm){ const p=bountyPay(b), c='btn'+(sm?' sm':''); if(bountyBoth()) return `<button class="${c}" data-act="claim" data-i="${i}" data-k="both">Claim</button>`;
+  return `<span class="bpick"><button class="${c}" data-act="claim" data-i="${i}" data-k="sc" title="Take ${p.sc} Scales">${p.sc} Scales</button><button class="${c}" data-act="claim" data-i="${i}" data-k="cr" title="Take a ${p.cr} Nibble crate: it opens straight away">Nibble crate</button></span>`; }
+function nibCrateRoll(size){ const C=NIB_CRATE[size]||NIB_CRATE.small, out=[0,0,0,0,0,0];
+  for(let j=0;j<C.n;j++){ let x=Math.random()*100, t=0; for(let i=0;i<6;i++){ if(x<C.odds[i]){ t=i; break; } x-=C.odds[i]; } out[t]++; }
+  if(C.min&&!out.slice(C.min).some(n=>n>0)){ out[out.findIndex(n=>n>0)]--; out[C.min]++; } return out; }
+let bountyGot=null; /* what the claims of one press paid, shown once (Claim all pays many) */
+function bountyGive(b,pick){ const p=bountyPay(b), g=bountyGot||(bountyGot={sc:0, nib:[0,0,0,0,0,0], crates:0, n:0}); g.n++;
+  if(pick!=='cr'){ S.scales+=p.sc; g.sc+=p.sc; }
+  if(pick!=='sc'){ nibCrateRoll(p.cr).forEach((n,i)=>{ if(n){ nibAdd('r'+i,n); g.nib[i]+=n; } }); g.crates++; }
+  addPassXP(BOUNTY_PASS); S.gstats.tasks=(S.gstats.tasks||0)+1; /* the counter daily tasks used; its two feats count bounties now */
+  setTimeout(bountyShow,0); }
+function nibCrateClose(){ const o=$('nibcrate'); if(o) o.remove(); }
+function bountyShow(){ const g=bountyGot; bountyGot=null; if(!g) return; const head=g.n>1?g.n+' bounties paid':'Bounty paid';
+  if(!g.crates){ toast(head+': +'+g.sc+' Scales'); return; }
+  nibCrateClose(); const chips=g.nib.map((n,i)=>n?`<span class="nibs-r" style="--rc:${RAR[i].c}">${NIB_TIER[i]} <b>+${n}</b></span>`:'').join('');
+  document.body.insertAdjacentHTML('beforeend',`<div class="card nibcrate" id="nibcrate" role="dialog" aria-modal="true" aria-label="Nibble crate"><div class="in"><div class="rar" style="color:var(--gold)">${esc(head)}</div><h3>${g.crates>1?g.crates+' Nibble crates':'Nibble crate'}</h3><div class="nc-row">${chips}</div>${g.sc?`<div class="nc-sc">and +${g.sc} Scales</div>`:''}<div class="sub">Feed Nibbles to your fish in the Aquarium.</div><div class="tap">${PLAT.touch()?'Tap to close':'Click or press Esc to close'}</div></div></div>`);
+  $('nibcrate').addEventListener('pointerup',e=>{ e.stopPropagation(); nibCrateClose(); }); try{ sfx.shiny(); }catch(e){ oops('bs_rules05:sfx.shiny',e); } }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('nibcrate')){ nibCrateClose(); e.preventDefault(); e.stopPropagation(); } },true);
+document.head.insertAdjacentHTML('beforeend','<style>#nibcrate{position:fixed;z-index:70;padding:12px calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}#nibcrate .nc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0}#nibcrate .nc-row .nibs-r{font-size:14px;padding:5px 12px}#nibcrate .nc-sc{font:700 14px var(--display,system-ui);color:var(--gold);margin:0 0 8px}.bpick{display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.brew{font-size:12.5px;color:var(--muted)}</style>');
 
 // ---------- Fish Log: the completion reward says what it really gives ----------
 { const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ const m=P.querySelector('.fl-mh .meta'); if(m&&/find them all for/.test(m.innerHTML)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk">+ fish from here worth 10% more, forever</b>'); else if(m&&/complete/.test(m.textContent)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk got">· fish from here worth 10% more</b>'); }catch(e){ oops('bs_rules05:P.querySelector',e); } }; }
