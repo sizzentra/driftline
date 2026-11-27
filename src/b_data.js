@@ -1,6 +1,9 @@
 // ---------- feature switches (Foundation, 2026-11-26): one line turns a larger feature off without deleting it; its save data stays, unread ----------
 // controller: off on the director's word (2026-11-26: "we shouldn't even allow controller yet anyways, it's not ready"); the code stays in k_controls.js
-const FEATURE = {controller:false};
+// The four below are the 0.5 list's switches (Foundation F5, 2026-11-26; docs/reviews/0.5_list.md), all ON: each has one guard at its owner.
+//  fightFeel: Cam's fight (c2_fightfeel.js fishNew); off = the earlier fight in c_logic.js fight().   inspect: the Inspect button on Cooler and Aquarium rows (cz_inspect.js).
+//  boardwalkExtras: Fishmonger's Gamble, Treasure chests and coin jackpots (ci_boardwalk.js).         installWelcome: the install card that opens by itself in a browser (cy_install.js; Settings keeps its button).
+const FEATURE = {controller:false, fightFeel:true, inspect:true, boardwalkExtras:true, installWelcome:true};
 // ---------- data ----------
 const RAR = [
   {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1,   val:1,    aq:1,   sc:0},

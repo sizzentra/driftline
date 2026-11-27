@@ -52,7 +52,7 @@ const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool
   NOREEL:10, SNAP_HOLD:.325, /* Cam, 2026-11-23: 35% less grace at full tension (was .5 s) */ SW_AFTER:10, SW_TO:.5, RUN_T:[1.5,5], REST_T:[1,5] };
 // the switch: test builds only (Stats › Tester tools › Fishing: New / Old); read once, changed by the button
 let FISH_OLD = (()=>{ try{ return !!window.DL_PREVIEW && localStorage.getItem('dl-fish-old')==='1'; }catch(e){ return false; } })();
-const fishNew = () => !FISH_OLD;
+const fishNew = () => FEATURE.fightFeel && !FISH_OLD; /* FEATURE.fightFeel off (b_data.js): every caller takes the earlier fight */
 function setFishOld(on){ FISH_OLD=!!on && !!window.DL_PREVIEW; try{ if(FISH_OLD) localStorage.setItem('dl-fish-old','1'); else localStorage.removeItem('dl-fish-old'); }catch(e){} }
 // =====================================================================
 // FEEL LAB (director and Cam, 2026-11-22: "more arcade-y and snappier but still with depth"; test builds: Stats › Tester tools › Feel lab).

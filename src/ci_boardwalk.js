@@ -11,7 +11,7 @@ const BW_JACK=.04, CHEST_COST=120;
 let gamble=null, chest=null, bwJackLock=false;
 const bwCoinWin = mul => bwEarn(Math.round(bestLoot()*mul*coinMult()*pathMul('bwcoin')));
 // coin jackpots on top of ticket wins at the Boardwalk
-{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){} bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
+{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){} bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
 // Fishmonger's Gamble
 const GAMBLE=[[.5,0,'The Fishmonger keeps it.'],[.35,1.8,'×1.8!'],[.12,3,'×3!'],[.03,8,'JACKPOT ×8!']];
 function gambleList(){ return S.cooler.map((f,i)=>({f,i,p:salePrice(f)})).filter(x=>SPI[x.f.id]&&x.p>0).sort((a,b)=>b.p-a.p).slice(0,4); }
@@ -36,7 +36,7 @@ function chestGive(p){ if(p.k==='tix') return '+'+addTickets(p.n)+' tickets'; if
   if(a==='chestpick'){ const i=+b.dataset.i; if(!chest||chest.pick>=0||!chest.prizes[i]) return 'skip'; chest.pick=i; chest.msg=chestGive(chest.prizes[i]); try{ sfx.shiny(); }catch(e){} save(); return 'render'; }
   return _ea(b); }; }
 if(typeof ACT_OK==='object'){ ACT_OK.gamble=(k,i)=>Number.isInteger(i)&&i>=0&&i<S.cooler.length; ACT_OK.chestbuy=()=>true; ACT_OK.chestpick=(k,i)=>Number.isInteger(i)&&i>=0&&i<3; }
-{ const _g=bwGamesHTML; bwGamesHTML=function(){ const h=_g(), L=gambleList();
+{ const _g=bwGamesHTML; bwGamesHTML=function(){ if(!FEATURE.boardwalkExtras) return _g(); /* switched off (b_data.js FEATURE): the games page without the two cards, so their buttons never exist */ const h=_g(), L=gambleList();
   const gm=bwCard('🐟','#ff6f91','Fishmonger’s Gamble','Stake a fish from your cooler: half the time the Fishmonger keeps it (you get tickets), otherwise you win 1.8×, 3× or even 8× its price in coins. '+(S.gstats.gambles||0)+' played.',
     (gamble?`<div class="val bwx-res" style="color:${gamble.win?'var(--gold)':'var(--muted)'}">${esc(gamble.txt)}</div>`:'')+(L.length?`<div class="bwx-gl">${L.map(x=>`<button class="btn alt sm" data-act="gamble" data-i="${x.i}"><span class="gn">${esc(SPI[x.f.id].name)}</span> · <span class="coin">${fmtShort(x.p)}</span></button>`).join('')}</div>`:'<div class="meta">Your cooler is empty: catch something to stake.</div>'),'');
   const ch=bwCard('🧰','#c8a26a','Treasure chests',CHEST_COST+' tickets: three chests, pick one. Tickets, Scales, Nibbles, favourite foods, sometimes coins, and rarely a pet color you can’t buy.',

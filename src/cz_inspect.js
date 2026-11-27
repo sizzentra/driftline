@@ -6,7 +6,7 @@
 //    Nibbles eaten, mastery and your record for the species, and its Fish Log note.
 //  - Its own card, not the catch card: closing the catch card moves the fishing on (mini-games, quick sell), this one only closes.
 // =====================================================================
-function inspectBtn(where,i){ return `<button type="button" class="btn alt sm insp-btn" data-act="inspect" data-k="${where}" data-i="${i}" title="See this fish’s card">Inspect</button>`; }
+function inspectBtn(where,i){ if(!FEATURE.inspect) return ''; /* switched off (b_data.js FEATURE): no button, so the card is never opened */ return `<button type="button" class="btn alt sm insp-btn" data-act="inspect" data-k="${where}" data-i="${i}" title="See this fish’s card">Inspect</button>`; }
 function inspectClose(){ const o=$('inspcard'); if(o) o.remove(); }
 function inspectOpen(where,i){ const L=where==='tank'?S.tank:S.cooler, f=L[i], sp=f&&SPI[f.id]; if(!sp) return 'skip'; inspectClose();
   const rar=(f.sh===2?PRISM[f.pv||'rainbow'].n+' prismatic ':f.sh?'Shiny ':'')+(f.hy?'hybrid ':'')+RAR[sp.r].k, col=f.sh===2?PRISM[f.pv||'rainbow'].c:f.sh?'var(--gold)':RAR[sp.r].c;

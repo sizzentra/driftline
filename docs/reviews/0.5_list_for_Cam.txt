@@ -1,0 +1,120 @@
+DRIFTLINE: WHAT 0.5 WOULD CONTAIN (2026-11-26)
+
+Cam, this is everything the test build has that the live game does not. Nothing is decided. For each line, answer with its code and one word: keep, off (hidden for now, stays in the code) or remove. Example: "B8 off, D7 keep". Anything you skip counts as "no opinion".
+
+Live today: 10 waters, 520 fish, 100 oddities, Tide Pass 50 levels.
+Test build: 20 waters, 1,040 fish, 300 oddities, Tide Pass 100 levels.
+
+Tags:
+[SWITCH] = can be turned off with one line today.
+[SAVES] = test saves already use it, so taking it out needs real work.
+[WORK] = hiding it needs building first.
+
+
+A. WATERS
+A1 [SAVES] Four new waters on the journey: Maplewood Hollow (was Cherry Blossom Lake), Canadian Rockies, Florida Keys, Amazon Rainforest. 52 fish each, own bait, own home.
+A2 [SAVES] Six end-game waters: Animal Farm, The Buffet, Corporate Pond, The Nile, Circuit Lake, Mount Olympus. One more after each voyage.
+A3 [SAVES] Uncharted Waters: end-game waters stay hidden until their voyage, then open for coins and stay open.
+A4 [WORK] Every water redrawn: all 20 have their own scenery, the ten live ones look different too.
+A5 A moment on every water every half minute or so (ducklings, porpoises, geyser, dolphins, tractor, Pegasus...).
+A6 [WORK] One fixed home per water with its own seat (boathouse, mill house, treehouse, log cabin...).
+A7 [WORK] Home customizing, decorations and the cozy bonus are gone (live still has them).
+A8 Weather that fits: snow at Frostbite, sprinkles at The Buffet, stardust at Starfall and Olympus.
+A9 Hollow Trench is 3,000 m+ deep with stronger fish than Midnight Deep.
+
+B. FISHING AND FIGHT FEEL, BY ROUND
+B1 Fight rework: fish must be tired out, holding through a rare fish's runs snaps the line, jumps have a warning, second winds.
+B2 [SWITCH] Your fight feel: fish rest between moves, weight decides what a move can do, 40 m casts, 10 s without reeling lets it go.
+B3 Your feel update: tension builds while reeling, temper, fish swim toward you, more second winds for rare fish.
+B4 Middle feel: warnings before moves, right reactions pay, perfect pull, combo, in the groove, darting and long runs, big-catch fanfare.
+B5 Rounds 3 and 4: full temper punishes reeling, snap after a third of a second at 100%, close-hooked rare fish surge, chains, line out at 80 m.
+B6 Round 5: tired fish much stronger than your tackle come in slowly; 1 second no-cast after Fish Frenzy.
+B7 Round 6: tired fish keep half their hold; shiny, titled and hybrid fish fight harder; fish get harder each voyage up to 100.
+B8 Round 7: every fish kind has its own hold and stamina, your strength reels weaker fish faster, temper hits harder, fish stronger everywhere (to about 300 lb).
+B9 Dives in deep waters: keep the tension in the pink band to cut a dive short.
+B10 Bites: one try per bite, skills add tries; miss them all at a hotspot and you lose bait and streak.
+B11 Hotspot colours show the lowest rarity there; a sparkling hotspot promises a shiny.
+B12 Swallowed catches: the big fish pulls line steadily, at most about 50 m; the swallowed fish always goes in the cooler.
+B13 Oddities reel in faster but snag sooner.
+B14 [WORK] Quiet Waters: no pop-ups on the fishing screen for weather, events or challenges.
+B15 Short fight cues and hints.
+B16 Fight signs around the fish (tension ring, instruction above it), on PC too.
+B17 Travel while resting.
+B18 Streak XP climbs half as fast, same top.
+Note: the B2 switch turns B2 to B9 off together and gives the "Old" fight of the test builds. Single rounds cannot be switched. B8 is the round that made top-water fights much harder, which you and the director still have to settle.
+
+C. ECONOMY AND PROGRESSION
+C1 [SAVES] Fish Nibbles: scrap fish for Nibbles, feed aquarium fish, 1x to 100x at once.
+C2 [SAVES] 15 Paths with ranks I to V and a remove fee (live has a smaller set).
+C3 [SAVES] Pearl shop: pearls are spent on +1% coins or XP.
+C4 [SAVES] 18 Boons bought with Boon points from voyages.
+C5 [SAVES] 32 voyage milestones, 24 new Pearl relics, some old relics changed.
+C6 [WORK] A voyage starts you at level 1 again and hands your skills back.
+C7 [SAVES] Tide Pass with 100 levels in five chapters and its own exclusives.
+C8 New prices: one curve for tackle up to 15 million, upgrades from level 0, five attachment tiers, rods cost Scales and far more coins.
+C9 Waters open after 10 catches at the one before (more each voyage) and cost more on later voyages.
+C10 Earlier waters pay more once later ones are open.
+C11 Hybrid, shiny and titled worth: hybrids x2 to x5, bonuses stack, titled shinies add aquarium bonuses.
+C12 [SAVES] Six new skills (Grappler, Snag Sense, Gourmet, Candy Maker, Prism Keeper, Second Bite), Naturalist reworked, more skill points.
+C13 [SAVES] Favourite foods: eight new baits, each fish loves one and dislikes another.
+C14 [SAVES] Five new rod attachments.
+C15 Crates are earned, not bought: one per feat, sometimes from bounties.
+C16 [SWITCH] Boardwalk: Fishmonger's Gamble, Treasure chests and coin jackpots.
+C17 Boardwalk coins count in full toward pearls.
+C18 [SAVES] 300 oddities instead of 100.
+C19 Aquarium: fish swim up to food, real sizes, boost numbers show what you get.
+
+D. PAGES AND MENUS
+D1 [WORK] PC rebuilt: everything the phones have, in the header.
+D2 [WORK] The same page layout everywhere.
+D3 Quests on PC; Learn and Help rewritten.
+D4 Prestige, Bait and Oddities as their own pages with tabs.
+D5 Cooler: sort, Scrap all, Hybrids switch, Go fishing when empty.
+D6 Aquarium: sort, Nibbles shown, Cooler / Aquarium button on phones.
+D7 [SWITCH] Inspect button on every fish in Cooler and Aquarium.
+D8 Claim all for bounties and daily tasks.
+D9 Map page: clearer wording, pictures appear at once.
+D10 Menus hold still when you pick an option.
+D11 [SWITCH] Install welcome card on every browser visit.
+D12 Tide Pass page with chapters; Wardrobe tab for auras, bobbers and lines.
+D13 Feat pop-ups: a pet or rod reward gets its own pop-up.
+D14 Rod presets on every device.
+D15 Deeper teal buttons, gold selected tabs on PC.
+
+E. PETS, LOOKS AND CUSTOMIZING
+E1 Second hand turns the reel, the rod sways.
+E2 [SAVES] Natural face style, new eyes, noses, mouths, brows, hairstyles.
+E3 Hair redrawn with volume; tucks under hats.
+E4 Real fish look like the real fish (about 100 species).
+E5 No water costumes on fish (only earlier test builds had them).
+E6 Fish pictures: glow stays around the fish, tall creatures show whole.
+E7 [SAVES] Tide Pass auras, bobber skins and line colors.
+E8 [SAVES] More pet colors.
+E9 [SAVES] Pet Nap path: pets nap beside you while you rest and bond by themselves.
+E10 Wizard hat's new magic.
+
+F. MUSIC AND SOUND
+F1 [WORK] Every water has its own music (12 new themes), softer at night.
+F2 Clicks and record crackle removed from the music.
+F3 Big catch fanfare (goes off with the B2 switch).
+
+G. SETTINGS
+G1 Fight display: Classic, Around the fish, or Dial under the dock.
+G2 Metres or feet.
+G3 Left-handed.
+G4 PC: Interface size and Picture quality.
+G5 Install Driftline button in Settings.
+G6 Backup on this device, with Restore.
+G7 [SWITCH, now off] Game controllers: live reacts to one, the test build ignores it. "keep" = stay off in 0.5.
+
+H. FIXES AND BEHIND THE SCENES (normally all kept)
+H1 Menus use much less memory (iPhone).
+H2 Smoother light changes at dawn and dusk.
+H3 Cooler fixes: Sell choices always decide; a swallowed fish is never sold for lack of room.
+H4 Fishing fixes: no white screen on junk, no hook flash, float does not jump.
+H5 Page fixes: Bounties badge, sideways row, missing icons on older devices, 30 fish renamed.
+H6 Phone fixes: Bait name never cut, Live button in split screen, color choices under the right tab.
+H7 Save safety: a loaded save code asks on the fishing screen; an unreadable save points to the backup.
+H8 Code clean-up, nothing to see.
+
+Not in any release, nothing to mark: the Tester tools (Feel lab, Time and weather, Run every check) and the test notes.

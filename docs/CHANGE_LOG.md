@@ -280,3 +280,22 @@ Every water redone from the director's map-by-map notes and Claude's own review 
 | Garbled characters repaired; encoding gate in the build (visible: Learn and Help texts read correctly again) | `tools/mojibake.ps1`, `build.ps1`, `cw_pages08.js`, `CLAUDE.md` | Quests, Learn and Help on the test builds; every build |
 | CLAUDE.md shortened; routines as skills; README rewritten | `CLAUDE.md`, `.claude/skills/`, `docs/HISTORY.md`, `README.md` | how every session works |
 | F2: the `live` branch (what players have); live published from it; a test publish cannot change a live file (no build, nothing published) | `tools/push_live.ps1`, `tools/live_take_main.ps1`, `tools/push_folder.ps1`, `publish.ps1`, the live-and-hotfix and publish-test skills | every hotfix, every release, every PC test publish |
+
+## Foundation F5 (2026-11-26, test builds; nothing changes on screen)
+| What | Where | Affects |
+|---|---|---|
+| The 0.5 list: 89 lines in 8 groups, everything the test build has that live does not, with keep / switch off / remove boxes; the same as one message for Cam | `docs/reviews/0.5_list.md`, `docs/reviews/0.5_list_for_Cam.txt` | the director's and Cam's decisions for 0.5 |
+| `FEATURE.fightFeel` (on): off = every `fishNew()` caller takes the earlier fight | `b_data.js`, `c2_fightfeel.js` (`fishNew`) | every fight, both fight displays, the rod length line, Rest mode, Stats |
+| `FEATURE.inspect` (on): off = `inspectBtn` returns nothing | `b_data.js`, `cz_inspect.js` | Cooler and Aquarium rows |
+| `FEATURE.boardwalkExtras` (on): off = the games page without the Gamble and Treasure chests cards, no coin jackpots | `b_data.js`, `ci_boardwalk.js` (the `bwGamesHTML` and `addTickets` wrappers) | Boardwalk › Games; `S.gstats.gambles` stays in the save |
+| `FEATURE.installWelcome` (on): off = the install card never opens by itself (Settings › Install Driftline still shows it) | `b_data.js`, `cy_install.js` (`installWelcome`) | browser visits |
+| Tests follow the switches: Cam's two fight tests, the Inspect line, the Boardwalk test (cards and jackpot) | `bn_qa04.js` | `__qa` with a switch off |
+
+**Off-runs** (each switch off once, `tools/sweep_all.ps1 -Only gate,boot,qa,content`, 22 checks on each of the three saves; the game started clean every time):
+- `fightFeel` off: first run failed only the two tests of Cam's fight (they forced the new fight on); after they followed the switch, see the result line below.
+- `inspect` off: 0 failed on new, mid and heavy.
+- `boardwalkExtras` off: first run failed only the jackpot line of the Boardwalk test; after it followed the switch, see the result line below.
+- `installWelcome` off: 0 failed on new, mid and heavy.
+- Second runs with the tests following the switch: `fightFeel` off 0 failed on all three saves (build 2057); `boardwalkExtras` off 0 failed on all three (build 2111; the held Gamble picture item is absent with it, 4 held instead of 8 on mid and heavy).
+
+**Everything on (build 2026.11.26-2126, the committed build):** `tools/baseline.ps1 -Check` passes: new 424, mid 430, heavy 421 fingerprints match the agreed set (one wobble on new in the first run, matched in the second); `tools/sweep_all.ps1` passes on all three saves, 56 checks each, 0 failed (held as before: the Gamble picture, feat pop-ups 1 to 4 letters over, Market Rush 29.4% on the end-game save; 44 minutes).
