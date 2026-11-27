@@ -116,8 +116,9 @@ document.head.insertAdjacentHTML('beforeend','<style>#panel .wd-th canvas[data-p
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='passwear'){ const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
     S.look[k]=id==='none'?'none':id; save(); return 'render'; } return _ea(b); }; }
 if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(String(k));
-{ const _m=migrate; migrate=function(o){ const raw=isObj(o)&&isObj(o.owned)?o.owned:{}; const m=_m(o); try{ m.owned=m.owned||{}; for(const k in PASS_NEW_KINDS){ const key=PASS_NEW_KINDS[k], I=k==='aura'?AURAI:k==='bob'?BOBI:LINEI, src=Array.isArray(raw[key])?raw[key]:m.owned[key]; m.owned[key]=Array.isArray(src)?[...new Set(src.filter(x=>I[x]))]:[];
-      if(m.look&&m.look[k]!=null&&m.look[k]!=='none'&&!m.owned[key].includes(m.look[k])) m.look[k]='none'; } }catch(e){} return m; }; }
+/* a step of migrate() in c_logic.js; saved = the save as it arrived (null when it was not a save at all) */
+function passOwnedClean(m,saved){ const raw=saved&&isObj(saved.owned)?saved.owned:{}; try{ m.owned=m.owned||{}; for(const k in PASS_NEW_KINDS){ const key=PASS_NEW_KINDS[k], I=k==='aura'?AURAI:k==='bob'?BOBI:LINEI, src=Array.isArray(raw[key])?raw[key]:m.owned[key]; m.owned[key]=Array.isArray(src)?[...new Set(src.filter(x=>I[x]))]:[];
+      if(m.look&&m.look[k]!=null&&m.look[k]!=='none'&&!m.owned[key].includes(m.look[k])) m.look[k]='none'; } }catch(e){} }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .pass-ch{margin:10px 0}
 #panel .pass-show{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px}
@@ -129,8 +130,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 // players already past a new exclusive's level get it once (their old claim there was a plain reward)
 const PASS_NEW_L=[22,24,28,33,38,42,48,52,55,58,60,63,66,70,73,76,80,84,88,90,93,96,100];
-{ const _m=migrate; migrate=function(o){ const raw=isObj(o)?o:null; const m=_m(o); try{ if(raw&&raw.passMig!==1&&m.pass&&m.pass.claimed>=22){ m.pass.got=isObj(m.pass.got)?m.pass.got:{};
+/* the next step of migrate() */
+function passCatchUp(m,raw){ try{ if(raw&&raw.passMig!==1&&m.pass&&m.pass.claimed>=22){ m.pass.got=isObj(m.pass.got)?m.pass.got:{};
       for(const L of PASS_NEW_L){ if(L>m.pass.claimed) break; const [k,id,name]=PASS_SPECIAL[L];
         if(PASS_NEW_KINDS[k]){ const key=PASS_NEW_KINDS[k]; if(!m.owned[key].includes(id)) m.owned[key].push(id); } else if(k==='tint'){ if(Array.isArray(m.petTints)&&!m.petTints.includes(id)) m.petTints.push(id); }
         else if(k==='pearl') m.pearls=(m.pearls||0)+id; else if(k==='boon') m.boonPts=(m.boonPts||0)+id; m.pass.got[L]=name; } }
-    m.passMig=1; }catch(e){} return m; }; }
+    m.passMig=1; }catch(e){} }

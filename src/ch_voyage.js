@@ -100,13 +100,14 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     voyApplyCooler(); save(); try{ renderPanel(); }catch(er){}
     setTimeout(()=>toast('+'+pts+' Boon points to spend in Prestige, Boons.'+(nest?' Nest Egg: +'+fmt(nest)+' coins.':'')),2400); },0); },true);
 // ---------- saves ----------
-{ const _m=migrate; migrate=function(o){ const raw=isObj(o)?o:null; const m=_m(o);
+/* a step of migrate() in c_logic.js; raw = the save as it arrived (null when it was not a save at all) */
+function voyClean(m,raw){
     try{ if(raw&&raw.pearlMig!==1){ m.pearlOld=Math.max(0,Math.floor(+raw.pearls||0)); m.pearlMig=1; }
       if(!isFinite(+m.pearlOld)||m.pearlOld<0) m.pearlOld=0; m.pearlOld=Math.floor(m.pearlOld);
       const ps={}; if(isObj(m.pshop)) for(const k of ['gold','xp']){ const n=Math.floor(+m.pshop[k]); if(isFinite(n)&&n>0) ps[k]=Math.min(PSHOP_MAX,n); } m.pshop=ps;
       const bo={}; if(isObj(m.boons)) for(const k in m.boons){ const n=Math.floor(+m.boons[k]); if(BOONI[k]&&isFinite(n)&&n>0) bo[k]=Math.min(5,n); } m.boons=bo;
       if(raw&&raw.boonMig!==1){ let p=0; const T=Math.max(0,Math.floor(+m.tides||0)); for(let t=1;t<=T;t++){ p+=3+Math.floor(t/4); const ms=VOYAGE_MS.find(x=>x.n===t); if(ms&&ms.fx&&ms.fx.pts) p+=ms.fx.pts; } m.boonPts=Math.max(+m.boonPts||0,p); }
-      m.boonMig=1; m.boonPts=Math.max(0,Math.floor(+m.boonPts||0)); if(!isFinite(m.boonPts)) m.boonPts=0; }catch(e){} return m; }; }
+      m.boonMig=1; m.boonPts=Math.max(0,Math.floor(+m.boonPts||0)); if(!isFinite(m.boonPts)) m.boonPts=0; }catch(e){} }
 // ---------- actions ----------
 let voyAll=false;
 { const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act, k=b.dataset.k;

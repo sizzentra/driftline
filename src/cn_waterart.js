@@ -168,7 +168,7 @@ try{ Object.assign(MUS_AREA,{blossom:null /* Maplewood Hollow plays the cozy hom
 try{ Object.assign(DEPTH_MOTE,{blossom:'255,220,170', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){}
 try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow autumn fall leaves rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){}
 // end-game waters: open them for anyone with enough voyages (start-up, any load, and after setting sail)
-{ const _m=migrate; migrate=function(o){ const m=_m(o); try{ egOpenAdd(m); }catch(e){} return m; }; }
+/* every load runs egOpenAdd: a step of migrate() in c_logic.js */
 try{ egOpenAdd(S); }catch(e){}
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b) return; setTimeout(()=>{ try{ egOpenAdd(S); }catch(er){} },30); },true);
 // end-game fish pay 25% more than your best normal water and fight like it

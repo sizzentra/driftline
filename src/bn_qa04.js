@@ -1016,3 +1016,16 @@ if(/[?&]test\b/.test(location.search)) window.__baseline=async(o={})=>{ const wa
       try{ closeMenu(); }catch(e){} }
   } finally { window.Date=RealDate; delete S.stats.playS; S.stats.playS=played0; const st2=document.getElementById('__still'); if(st2) st2.remove(); performance.now=keep.pn; Math.random=keep.mr; window.__realNow=keep.rn; S.tab=keep.tab; S.loc=keep.loc; S.unlocked=keep.un; window.__off=keep.off; G.st=keep.st; }
   return {build:window.DL_BUILD||'', size:innerWidth+'x'+innerHeight, dpr:window.devicePixelRatio, scenes, pages}; };
+// Foundation F6 slice 1 (2026-11-26): what loading and saving make of a save, as text, so a change to migrate() or save() can be proven
+// to alter nothing. On a ?test&frozen page: the save as it stood once every file had loaded, then for each given save text what
+// migrate() returns and what save() writes for it (the save, the backup, this device's own stores). The page's own save and stores are
+// put back after each one. tools/saveprobe.html runs it per build and start-up save; tools/saveprobe.ps1 makes and checks the set.
+const QA_PROBE_START=/[?&]frozen\b/.test(location.search)&&/[?&]test\b/.test(location.search)?JSON.stringify(S):null;
+if(/[?&]test\b/.test(location.search)) window.__saveProbe=inputs=>{ const text={}, mine=k=>/^(driftline|dl-)/.test(k);
+  const ls=()=>{ const o={}; for(const k of Object.keys(localStorage).sort()) if(mine(k)) o[k]=localStorage.getItem(k); return o; };
+  const put=o=>{ for(const k of Object.keys(localStorage)) if(mine(k)) localStorage.removeItem(k); for(const k in o) localStorage.setItem(k,o[k]); };
+  text['start-up']=String(QA_PROBE_START); text['start-up stores']=JSON.stringify(ls()); const keepS=S, keepLs=ls(), realNow=Date.now; Date.now=()=>1795300005000; /* one fixed moment, however long the page has been open */ try{
+  for(const [name,txt] of inputs||[]){ let m; try{ m=migrate(JSON.parse(txt)); text['load '+name]=JSON.stringify(m); }catch(e){ text['load '+name]='throws: '+(e&&e.message); continue; }
+    try{ S=m; save(); text['save '+name]=JSON.stringify(ls()); }catch(e){ text['save '+name]='throws: '+(e&&e.message); } finally{ S=keepS; put(keepLs); } }
+  try{ save(); text['save own']=JSON.stringify(ls()); }catch(e){ text['save own']='throws: '+(e&&e.message); } finally{ put(keepLs); }
+  }finally{ Date.now=realNow; } return text; };

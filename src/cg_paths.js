@@ -96,8 +96,8 @@ const spinEvery = () => SPIN_EVERY/pathMul('spin');
     try{ if(was&&S.specs){ S.pathXP=S.pathXP||{}; for(const id of pathChosen()){ const r0=pathRank(id); S.pathXP[id]=(S.pathXP[id]||0)+1; const r1=pathRank(id);
       if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){} return r; }; }
 // saves: pathXP is a plain map of path id → fish landed
-{ const _m=migrate; migrate=function(s){ const o=_m.apply(this,arguments); const t=o||s; try{ if(t&&typeof t==='object'){ const px={}; if(t.pathXP&&typeof t.pathXP==='object') for(const k in t.pathXP){ const n=+t.pathXP[k]; if(PATH_FX[k]!==undefined||SPEC_TIERS.some(T=>T.opts.some(op=>op[0]===k))) if(isFinite(n)&&n>0) px[k]=Math.floor(n); } t.pathXP=px;
-    if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } } }catch(e){} return o; }; }
+function pathsClean(t){ try{ const px={}; if(t.pathXP&&typeof t.pathXP==='object') for(const k in t.pathXP){ const n=+t.pathXP[k]; if(PATH_FX[k]!==undefined||SPEC_TIERS.some(T=>T.opts.some(op=>op[0]===k))) if(isFinite(n)&&n>0) px[k]=Math.floor(n); } t.pathXP=px;
+    if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } }catch(e){} } /* a step of migrate() in c_logic.js */
 
 // the page
 function pathCard(ti){ const T=SPEC_TIERS[ti], cur=S.specs[ti], locked=S.lvl<T.lvl, fee=specFee(ti), poor=S.money<fee;

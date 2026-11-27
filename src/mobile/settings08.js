@@ -15,7 +15,7 @@ const DEV_KEYS=['fightUi','master','music','sfx','amb','musicOn','ambient','styl
 const DEV_STORE='dl-device-settings-v1';
 var DEV_GUARD=null;
 const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(location.search)&&/[?&]iphone\b/.test(location.search));
-{ let dev=null, cur=null; const done=new WeakSet(), _mig=migrate, DEF=fresh().settings||{};
+{ let dev=null, cur=null; const done=new WeakSet(), DEF=fresh().settings||{};
   const read=()=>{ try{ const r=localStorage.getItem(DEV_STORE); return r?JSON.parse(r):null; }catch(e){ return null; } };
   const pick=st=>{ const o={}; if(st) for(const k of DEV_KEYS) if(st[k]!==undefined) o[k]=st[k]; return o; };
   let lastJ=null; const write=()=>{ try{ const j=JSON.stringify(dev); if(j===lastJ) return; localStorage.setItem(DEV_STORE,j); lastJ=j; }catch(e){} }; /* only when the settings changed (redundancies list B10: every save rewrote them) */
@@ -23,10 +23,10 @@ const IS_IPHONE=()=>/iPhone|iPod/.test(navigator.userAgent)||(/[?&]test\b/.test(
   /* first run after this update: this device keeps the settings it has now */
   dev=read(); if(!dev||typeof dev!=="object"){ dev=pick(S.settings); write(); } apply(S); cur=S;
   /* a fresh start or a save arriving from anywhere (code, transfer, cloud, backup) keeps this device's settings */
-  migrate=function(){ const s=apply(_mig.apply(this,arguments)); if(s&&typeof s==="object") done.add(s); return s; };
+  deviceLoad=s=>{ apply(s); done.add(s); seenPatchFix(s); }; /* the last step of migrate() (c_logic.js) */
   /* any replaced save (progress reset, code, transfer, cloud, backup) gets this device's settings back before it is used or saved */
   const guard=()=>{ if(S!==cur){ if(!done.has(S)) apply(S); cur=S; } }; DEV_GUARD=guard;
-  const _save=save; save=function(){ guard(); if(S&&S.settings){ dev=pick(S.settings); write(); } return _save.apply(this,arguments); };
+  deviceSave=()=>{ seenPatchKeep(); guard(); if(S&&S.settings){ dev=pick(S.settings); write(); } }; /* the first step of save() (c_logic.js) */
   if(/[?&]test\b/.test(location.search)) window.__devSettings=()=>({store:read(), keys:DEV_KEYS.slice()}); }
 
 // ---------- frame rate: the game's work runs only as often as the chosen rate (the display keeps its own timing) ----------
@@ -74,11 +74,11 @@ if(window.DL_PREVIEW){
 // ---------- patch notes a phone has already shown stay shown (director, 2026-11-18: after moving progress from PC "my first relaunch
 // brought up the patch notes for the patch previous"): the save carries the last notes seen on the device it came from (PC 0.4.8.2),
 // so the phone showed its own older updates again. Phones remember the newest notes they showed; an arriving save never lowers it.
-{ const K='dl-seen-patch'; const get=()=>{ try{ return localStorage.getItem(K)||''; }catch(e){ return ''; } }, put=v=>{ try{ localStorage.setItem(K,v); }catch(e){} };
-  const fix=s=>{ try{ if(!MOB()||!s||typeof s!=='object') return; const d=get(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){} };
-  const _mg=migrate; migrate=function(){ const s=_mg.apply(this,arguments); fix(s); return s; };
-  const _sv=save; save=function(){ try{ if(MOB()&&S&&S.seenPatch){ const d=get(); if(!d||verNewer(S.seenPatch,d)) put(S.seenPatch); } }catch(e){} return _sv.apply(this,arguments); };
-  try{ fix(S); }catch(e){} }
+/* both run from this file's device steps above: seenPatchFix at the end of every load, seenPatchKeep at the start of every save */
+function seenPatchGet(){ try{ return localStorage.getItem('dl-seen-patch')||''; }catch(e){ return ''; } }
+function seenPatchFix(s){ try{ if(!MOB()||!s||typeof s!=='object') return; const d=seenPatchGet(); if(d&&(!s.seenPatch||verNewer(d,s.seenPatch))) s.seenPatch=d; }catch(e){} }
+function seenPatchKeep(){ try{ if(MOB()&&S&&S.seenPatch){ const d=seenPatchGet(); if(!d||verNewer(S.seenPatch,d)) localStorage.setItem('dl-seen-patch',S.seenPatch); } }catch(e){} }
+seenPatchFix(S);
 
 // ---------- Settings, Patch notes on phones (director, 2026-11-19, iPhone: "patch notes are hard to open on your own, and are so
 // cluttered compared to the first initial opening. Reading patch notes again sucks and scrolling through is really hard and glitchy"):

@@ -28,7 +28,13 @@ function saveClean(o,d){ const out={}; for(const k of Object.keys(o)){ const v=o
     if(isObj(dv)){ if(isObj(v)) out[k]=saveClean(v,dv); continue; }
     out[k]=v; }
   return out; }
-function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
+/* Loading a save: the ONE function every load goes through (start-up, save code, link, transfer, cloud, backup). F6 slice 1, 2026-11-26:
+   the eleven layers later files used to stack on it are steps here now, in the order those files load; each step's code stays in its
+   owner's file. coreOnly = the very first read at start-up, further down: the later files' lists do not exist yet at that moment, so
+   only the core checks run there and ck_bootfix.js runs the whole function once they do. A new save rule is a new step here, never a wrapper:
+   above the coreOnly line it may use only plain values and b_data constants; below it, a field it sets also goes into BOOTFIX_KEYS
+   (ck_bootfix.js), unless its owner file runs the step on S itself when it loads. */
+function migrate(o,coreOnly){ const d=fresh(), raw=isObj(o)?o:null, m=d; if(raw){ o=saveClean(o,d);
   for(const k of ['cooler','tank','bounties']) if(o[k]) o[k]=o[k].filter(isObj);
   if(o.journal!==undefined&&!isObj(o.journal)) delete o.journal; else if(o.journal) for(const k in o.journal) if(!isObj(o.journal[k])) delete o.journal[k];
   for(const k of ['money','scales','tickets','pearls','xp','tankBank','freeSpins','tides']) if(typeof o[k]==='number') o[k]=Math.max(0,o[k]);
@@ -36,7 +42,7 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   if(o.rods){ if(o.rods.owned) o.rods.owned=o.rods.owned.filter(x=>typeof x==='string'); /* unknown rods are dropped later, once the rod list exists (bm_ui04) */ if(typeof o.rods.eq!=='string') delete o.rods.eq; }
   if(o.pass){ for(const k of ['xp','lvl','claimed']) if(typeof o.pass[k]==='number') o.pass[k]=Math.max(0,Math.floor(o.pass[k])); if(o.pass.claimed>o.pass.lvl) o.pass.claimed=o.pass.lvl||0; }
   if(o.bait&&isObj(o.bait)) for(const k in o.bait){ const n=+o.bait[k]; o.bait[k]=isFinite(n)&&n>0?Math.floor(n):0; }
-  const m=Object.assign(d,o);
+  Object.assign(d,o);
   m.gear=Object.assign(fresh().gear,o.gear||{}); if(!(o.gearV>=2)){ m.gear.hook=Math.ceil((m.gear.hook|0)*5/3-1e-9); m.gear.finder=(m.gear.finder|0)*2; } m.gearV=2; /* Cam, 2026-11-23: Hook (7 steps) and Fish Finder (6) now have 11; old saves keep at least the window and finder they had */ for(const k in GEAR) m.gear[k]=clamp(m.gear[k]|0,0,GEAR[k].lv.length-1);
   m.bait=Object.assign(baitZero(),o.bait||{}); if(!BAIT[m.baitSel]) m.baitSel='worm';
   m.stats=Object.assign(fresh().stats,o.stats||{}); m.perks=Object.assign({},o.perks||{}); for(const k in m.perks){ if(!PERKS[k]) delete m.perks[k]; else m.perks[k]=Math.min(m.perks[k],PERKS[k].max); }
@@ -62,11 +68,28 @@ function migrate(o){ const d=fresh(); if(!isObj(o)) return d; o=saveClean(o,d);
   const dk=Object.assign(fresh().dock,o.dock||{}); dk.owned=uniq(['oak',...(dk.owned||[])]); dk.decor=[]; /* batch 5: home decorations are gone (no refunds: director 2026-11-21) */ if(!dk.owned.includes(dk.wood)) dk.wood='oak'; m.dock=dk;
   m.pass=Object.assign(fresh().pass,o.pass||{}); m.medals=Object.assign(fresh().medals,o.medals||{}); if(m.derby && !(m.derby.until>Date.now()-3600000)) m.derby=null;
   if((o.pearlV||1)<2){ m.pearls=Math.ceil((+o.pearls||0)*.4); m.pearlV=2; }
-  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; return m; }
-try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw)); } catch(e) { try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){} } } } catch(e) {} // 0.4: a save that cannot be read is kept aside, never overwritten
+  m.bounties=(m.bounties||[]).filter(b=>SPI[b.sp]||['trophy','style','shiny'].includes(b.type)); if(m.tankSlots>TANK_COST.length) m.tankSlots=TANK_COST.length; m.v=3; }
+  if(coreOnly===true) return m;
+  fabricMigrate(m); /* old shirt designs refunded once (ah_fabric.js) */
+  if(!Array.isArray(m.vault)) m.vault=[]; /* the Trophy vault (ax_trophy035.js) */
+  try{ m.hunts=cleanHunts(m); }catch(e){ m.hunts={}; } /* hunts (bl_hunts04.js) */
+  rodsClean(m); perksClean(m); docksClean(m); /* unknown rods, more perk ranks than points, old home choices (bm_ui04.js) */
+  try{ rpClean(m); }catch(e){ m.rodPresets=[null,null,null]; m.rodPreset=-1; } /* rod presets (bz_rods06.js) */
+  pathsClean(m); /* Paths and their fish counts (cg_paths.js) */
+  voyClean(m,raw); /* old pearls, the pearl shop, Boons (ch_voyage.js) */
+  passOwnedClean(m,raw); passCatchUp(m,raw); /* Tide Pass exclusives owned, and the ones an old save is already past (cj_tidepass.js) */
+  facesClean(m,raw); /* face and eye shape (cl_faces.js) */
+  try{ egOpenAdd(m); }catch(e){} /* end-game waters open for enough voyages (cn_waterart.js) */
+  deviceLoad(m); /* this device's own last step */
+  return m; }
+let deviceLoad=()=>{}, deviceSave=()=>{}; /* a platform's own step at the end of every load and at the start of every save; nothing until the platform layer that needs one has loaded and set it. One file owns each; it combines its steps inside, nothing else reassigns them */
+try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw), true); } catch(e) { try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){} } } } catch(e) {} // 0.4: a save that cannot be read is kept aside, never overwritten
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
-function save(){ S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} try{ autoBackup(); }catch(e){} /* at most every 5 minutes (d3_update.js) */
+let rpLive=false; /* bz_rods06.js switches this on once the rod presets exist; saves before that leave them alone */
+/* Saving: the ONE function (F6 slice 1): this device's own step, the rod preset in use kept in step, then the save itself. A new step
+   whose owner file loads later gets an on-switch like rpLive (declared here, set by the owner), so saves made while the page loads stay as they were. */
+function save(){ deviceSave(); if(rpLive) rpSync(); S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} try{ autoBackup(); }catch(e){} /* at most every 5 minutes (d3_update.js) */
   if (cloudDoc){ clearTimeout(saveTimer); saveTimer = setTimeout(pushCloud, 2500); } }
 async function pushCloud(){ if(!cloudDoc) return; if(saving){ pendingSave=true; return; } saving=true;
   try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }

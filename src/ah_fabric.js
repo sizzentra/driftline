@@ -21,8 +21,7 @@ function fabricMigrate(m){ if(!m||m.fabV) return 0; m.fabV=1; let back=0; const 
   if(OLD_PAT_PRICE[lk.pat]) lk.pat='none';
   if(lk.patOn==='outfit'){ if(lk.pat!=='none' && outfitFabrics(lk.outfit).includes(lk.pat)) lk.outFab=lk.pat; lk.pat='none'; } delete lk.patOn;
   if(back){ m.money=(m.money||0)+back; m.fabRefund=back; } return back; }
-const _migrate_fab = migrate;
-migrate = function(o){ const m=_migrate_fab(o); fabricMigrate(m); return m; };
+/* every load runs fabricMigrate: a step of migrate() in c_logic.js */
 if(typeof S!=='undefined' && S) fabricMigrate(S);
 
 // ---------- drawing: alpha overlays only, so a fabric works on any color and on both halves of a two-tone shirt

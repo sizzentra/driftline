@@ -213,6 +213,7 @@ if ($Preview) {
   Copy-Item (Join-Path $root 'tools\sweep.html') (Join-Path $out 'sweep.html') -Force
   # Foundation F1 (2026-11-26): the baseline page and the three test saves (tools/saves/) sit beside the preview builds too
   Copy-Item (Join-Path $root 'tools/baseline.html') (Join-Path $out 'baseline.html') -Force
+  Copy-Item (Join-Path $root 'tools/saveprobe.html') (Join-Path $out 'saveprobe.html') -Force   # F6 slice 1: what loading and saving make of every save (tools/saveprobe.ps1)
   New-Item -ItemType Directory -Force (Join-Path $out 'saves') | Out-Null; Copy-Item (Join-Path $root 'tools/saves/*.json') (Join-Path $out 'saves') -Force
   $sw =[IO.File]::ReadAllText((Join-Path $root 'site\sw.js')).Replace("const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];", "const CORE = ['./', 'index.html', 'manifest.webmanifest'];")
   [IO.File]::WriteAllText((Join-Path $out 'sw.js'), $sw, $utf8)

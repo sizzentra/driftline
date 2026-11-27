@@ -6,7 +6,7 @@
 const VAULT_MAX=500; // generous; keeps saves and transfer codes a sensible size
 function vaultList(){ if(!Array.isArray(S.vault)) S.vault=[]; return S.vault; }
 vaultList();
-{ const _migrate_035=migrate; migrate=function(o){ const m=_migrate_035(o); if(!Array.isArray(m.vault)) m.vault=[]; return m; }; }
+/* a load makes sure the vault is a list: a step of migrate() in c_logic.js */
 
 // the page button (hidden like the others; the Collection section shows it as a pill)
 { const T=$('tabs'), after=T&&T.querySelector(':scope > [data-tab="aquarium"]'); if(after&&!T.querySelector(':scope > [data-tab="trophy"]')) after.insertAdjacentHTML('afterend','<button role="tab" data-tab="trophy" aria-selected="false" data-label="🏛️ Trophy Room">🏛️ Trophy Room</button>'); }

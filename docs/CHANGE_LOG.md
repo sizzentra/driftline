@@ -299,3 +299,30 @@ Every water redone from the director's map-by-map notes and Claude's own review 
 - Second runs with the tests following the switch: `fightFeel` off 0 failed on all three saves (build 2057); `boardwalkExtras` off 0 failed on all three (build 2111; the held Gamble picture item is absent with it, 4 held instead of 8 on mid and heavy).
 
 **Everything on (build 2026.11.26-2126, the committed build):** `tools/baseline.ps1 -Check` passes: new 424, mid 430, heavy 421 fingerprints match the agreed set (one wobble on new in the first run, matched in the second); `tools/sweep_all.ps1` passes on all three saves, 56 checks each, 0 failed (held as before: the Gamble picture, feat pop-ups 1 to 4 letters over, Market Rush 29.4% on the end-game save; 44 minutes).
+
+## Foundation F6 slice 1: one loader, one saver (2026-11-26, test builds; nothing changes on screen or in any save)
+Rollback tag `rollback/before-f6-1`. Before: `migrate` (loading and checking a save) was replaced 13 times by later files, each stacking its part on the one before (11 shared, 2 phone); `save` 3 times (1 shared, 2 phone). After: one `function migrate` and one `function save` in `c_logic.js`; every former layer is a step inside, in the same order, its code still in its owner's file.
+
+| Was a layer in | What it does | Now |
+|---|---|---|
+| `ah_fabric.js` | old shirt designs refunded once | step `fabricMigrate(m)` |
+| `ax_trophy035.js` | the Trophy vault is a list | one line in `migrate` |
+| `bl_hunts04.js` | hunts cleaned | step `cleanHunts(m)` (with its fallback) |
+| `bm_ui04.js` | unknown rods, more perk ranks than points, old home choices | steps `rodsClean`, `perksClean`, new `docksClean` |
+| `bz_rods06.js` | rod presets cleaned; on save, the preset in use follows the rod held | step `rpClean(m)`; `save()` calls `rpSync()` once `rpLive` is on (set where the layer used to start) |
+| `cg_paths.js` | Paths and their fish counts | step `pathsClean(m)` |
+| `ch_voyage.js` | old pearls, the pearl shop, Boons | step `voyClean(m, raw)` |
+| `cj_tidepass.js` (two layers) | Tide Pass exclusives owned; the ones an old save is already past | steps `passOwnedClean(m, raw)`, `passCatchUp(m, raw)` |
+| `cl_faces.js` | face and eye shape | step `facesClean(m, raw)` |
+| `cn_waterart.js` | end-game waters open for enough voyages | step `egOpenAdd(m)` |
+| `mobile/settings08.js` (two on load, two on save) | this phone's own settings and newest notes seen | `deviceLoad` / `deviceSave`: one phone step at the end of `migrate()` and one at the start of `save()`, set by that file (PC has none) |
+
+Left as they are, on purpose: the first read of the save in `c_logic.js` runs only the core checks (`migrate(o, true)`: the later files' lists do not exist yet) and `ck_bootfix.js` still runs the whole function afterwards and copies its keys; each owner file still runs its own step on `S` when it loads; the `save=function(){}` stand-ins in the tests (`bn_qa04.js`), which switch saving off during a test and put it back.
+
+**Numbers:** wrap layers PC 242 to 230, Android and iPhone 272 to 256 (`tools/redundancy_baseline.json`); hides, timers and watchers unchanged; unused functions 0.
+
+**New tool:** `tools/saveprobe.ps1` with `tools/saveprobe.html` and the hook `__saveProbe` (`bn_qa04.js`): what loading and saving make of a save, as text, before and after a change. 588 texts (3 builds, 7 start-up situations, 13 save texts each, loaded and written) identical character for character; proven by planting a removed load step (378 texts failed) and a removed save step (21 failed).
+
+**Proof (build 2026.11.26-2236, the committed build):** `tools/saveprobe.ps1 -Check` 588 texts identical; `tools/baseline.ps1 -Check` passes: new 424, mid 430, heavy 421 fingerprints match the agreed set, no wobble; `tools/sweep_all.ps1` passes on all three saves, 56 checks each, 0 failed (held as before: the Gamble picture, feat pop-ups 1 to 4 letters over, Market Rush 29.4% on the end-game save; 44 minutes). `/simplify` (four reviewers) and one `/code-review` run before the final build: the probe page refuses to run off the local server, `migrate` cuts short only for exactly `true`.
+
+**Found and left alone (behaviour kept identical):** a save whose `owned` part has no `hats` list cannot be loaded (qc 259); the start-up save skips the old-home-choices clean-up (qc 260, harmless).

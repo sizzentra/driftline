@@ -20,7 +20,7 @@ function cleanHunts(st){ const out={}; const src=st&&st.hunts&&typeof st.hunts==
   for(const L of LOCS){ const a=Array.isArray(src[L.id])?src[L.id]:[]; const seen=[]; for(const id of a){ const s=typeof id==='string'&&SPI[id]; if(!s||s.loc!==L.id||seen.includes(id)) continue; seen.push(id); if(seen.length>=HUNT_MAX) break; } if(seen.length) out[L.id]=seen; }
   return out; }
 S.hunts=cleanHunts(S);
-{ const _mig=migrate; migrate=function(o){ const m=_mig(o); try{ m.hunts=cleanHunts(m); }catch(e){ m.hunts={}; } return m; }; }
+/* every load runs cleanHunts: a step of migrate() in c_logic.js */
 // the weight: one multiplier, in the shared function
 const _catchW_04=catchW;
 catchW=function(s,pool,rare,b){ const w=_catchW_04(s,pool,rare,b); return isHunted(s)?w*huntMult(s):w; };

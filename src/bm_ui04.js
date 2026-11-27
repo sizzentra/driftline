@@ -43,9 +43,10 @@ KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or
 function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){} }
 function perksClean(st){ const keep=S; try{ S=st; if(ptsFree()<0) st.perks={}; }catch(e){} finally{ S=keep; } } // more ranks than points (a damaged save): refund them
 rodsClean(S); perksClean(S);
-{ const _mig04=migrate; migrate=function(o){ const st=_mig04(o); rodsClean(st); perksClean(st); try{ if(!st.docks||typeof st.docks!=='object'||Array.isArray(st.docks)) st.docks={};
+/* every load runs these three: steps of migrate() in c_logic.js */
+function docksClean(st){ try{ if(!isObj(st.docks)) st.docks={};
     for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else { const el=hfClean(st.docks[k]&&st.docks[k].el); st.docks[k]=Object.keys(el).length?{el}:{}; } } /* old home choices stay valid in the save, unread (homes are fixed) */
-    if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} return st; }; }
+    if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} }
 
 // ---------- menu mode ----------
 let MENU_OPEN=false, menuHist=false, dashPress=false;

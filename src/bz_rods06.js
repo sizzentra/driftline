@@ -12,13 +12,13 @@ function rpClean(st){ const src=Array.isArray(st.rodPresets)?st.rodPresets:[];
   st.rodPresets=out; st.rodPreset=(Number.isInteger(st.rodPreset)&&st.rodPreset>=0&&st.rodPreset<3&&out[st.rodPreset])?st.rodPreset:-1; return st; }
 function rpInit(){ rpClean(S); if(!S.rodPresets.some(Boolean)&&S.rods&&ROD_I[S.rods.eq]){ S.rodPresets[0]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; S.rodPreset=0; } }
 rpInit();
-{ const _mig=migrate; migrate=function(o){ const m=_mig(o); try{ rpClean(m); }catch(e){ m.rodPresets=[null,null,null]; m.rodPreset=-1; } return m; }; }
+/* every load runs rpClean: a step of migrate() in c_logic.js */
 // keep the preset in use matching what you hold
 function rpSync(){ try{ const i=S.rodPreset; if(i<0||!S.rodPresets[i]||!S.rods.owned.includes(S.rods.eq)) return; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; }catch(e){} }
 function rpUse(i){ const p=S.rodPresets[i]; if(!p||!S.rods.owned.includes(p.rod)) return false; S.rods.eq=p.rod; S.rods.att[p.rod]=p.att.filter(a=>!a||S.atts[a]).slice(0,ROD_I[p.rod].slots); S.rodPreset=i; save(); return true; }
 function rpSave(i){ if(!S.rods.owned.includes(S.rods.eq)) return false; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; S.rodPreset=i; save(); return true; }
 function rpClear(i){ S.rodPresets[i]=null; if(S.rodPreset===i) S.rodPreset=-1; save(); }
-{ const _sv=save; save=function(){ rpSync(); return _sv.apply(this,arguments); }; }
+rpLive=true; /* from here on every save() runs rpSync first (c_logic.js) */
 { const _rp=renderPanel; renderPanel=function(){ if(S.tab==='rods') rpSync(); return _rp.apply(this,arguments); }; }
 function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>Presets</b><span>Three presets: a rod and its attachments. The one in use updates as you change it.</span></div><div class="rp-list">${[0,1,2].map(i=>{ const p=S.rodPresets[i], on=S.rodPreset===i, R=p&&ROD_I[p.rod];
     if(!R) return `<div class="rp-card empty"><span class="rp-n">Preset ${i+1}</span><em>Empty</em><button type="button" class="btn alt sm" data-rp="save:${i}">Save the rod in your hands here</button></div>`;
