@@ -25,7 +25,7 @@ stage.addEventListener('pointerup',()=>{ CTRL.crankA=null; CTRL.start=false; });
 stage.addEventListener('wheel',e=>{ const now=performance.now(); if(G.st!=='reeling'){ /* keep wheel reeling from scrolling the page as the fight ends (catch or escape) */ if(now-(stage._reelT||-1e9)<1600||G.st==='landing'){ e.preventDefault(); stage._reelT=now; } return; } stage._reelT=now; e.preventDefault(); G.crank=Math.min(.3,(G.crank||0)+Math.min(1,Math.abs(e.deltaY)/100)*.09); },{passive:false});
 
 // gamepad: polled only while a pad is connected
-window.addEventListener('gamepadconnected',e=>{ CTRL.padIdx=e.gamepad.index; toast('Controller connected: A to cast and reel, right trigger to reel gently.'); });
+window.addEventListener('gamepadconnected',e=>{ if(!FEATURE.controller) return; /* switched off (b_data.js FEATURE): no pad is ever taken, so padPoll never reads one and no pop-up shows */ CTRL.padIdx=e.gamepad.index; toast('Controller connected: A to cast and reel, right trigger to reel gently.'); });
 window.addEventListener('gamepaddisconnected',()=>{ CTRL.padIdx=-1; G.padReel=0; });
 function padPoll(){ if(CTRL.padIdx<0||!navigator.getGamepads) return; const p=navigator.getGamepads()[CTRL.padIdx]; if(!p) return;
   const a=!!(p.buttons[0]&&p.buttons[0].pressed); if(a&&!CTRL.padPrev){ startAudio(); down(null); } if(!a&&CTRL.padPrev) up(); CTRL.padPrev=a;

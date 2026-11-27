@@ -1,3 +1,6 @@
+// ---------- feature switches (Foundation, 2026-11-26): one line turns a larger feature off without deleting it; its save data stays, unread ----------
+// controller: off on the director's word (2026-11-26: "we shouldn't even allow controller yet anyways, it's not ready"); the code stays in k_controls.js
+const FEATURE = {controller:false};
 // ---------- data ----------
 const RAR = [
   {k:'Common',    c:'#b9c6c3', w:60,  f:0,   xp:1,   val:1,    aq:1,   sc:0},
