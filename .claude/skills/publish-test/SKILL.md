@@ -12,7 +12,7 @@ Test builds are the default target; Claude may publish them on its own after the
 4. Docs in the same step: CLAUDE.md "Where we left off" (stamp, one line), `docs/CHANGE_LOG.md`, `docs/PLAN.md` marks, one row per new bug in `docs/qc_incidents.csv` (the build checks its labels), `docs/LESSONS.md` for anything learned.
 5. Commit (source, docs and the built pages together), `git push origin main`.
 6. Publish (5 seconds each; each checks that the published files are identical to the commit):
-   - PC preview: `powershell -ExecutionPolicy Bypass -File tools/push_folder.ps1 -Prefix site -Remote origin`
+   - PC preview: `powershell -ExecutionPolicy Bypass -File tools/push_folder.ps1 -Prefix site -Remote origin` (this folder also holds `main`'s copy of the live files; the script refuses if one differs from the `live` branch, so a test publish cannot change the live game. If it refuses after a hotfix: `git checkout origin/live -- site`, commit, publish again.)
    - Phone test apps: `powershell -ExecutionPolicy Bypass -File tools/push_folder.ps1 -Prefix testapps -Remote https://github.com/sizzentra/driftline-test.git`
    (`publish_preview.ps1` and `publish_testapps.ps1` wrap the same steps.)
 7. About a minute later read the published stamps: `https://sizzentra.github.io/driftline/next/version.txt`, `https://sizzentra.github.io/driftline-test/android/version.txt`, `.../iphone/version.txt`; and confirm live did not move (`https://sizzentra.github.io/driftline/version.txt` for PC, `.../version-phone.txt` for phones).
