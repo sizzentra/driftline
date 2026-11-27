@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Driftline save probe</title>
+<!-- Foundation F6 slice 1 (2026-11-26): proves that a change to loading or saving alters no save. For the PC, iPhone and Android test
+     builds (?test&frozen) and for seven start-up situations (no save, the mid and end-game test saves, an old-format save, a damaged
+     save, a save that cannot be read, a phone that already has its own settings stored) it records, as text: the save as the game holds
+     it once every file has loaded, and for thirteen save texts what migrate() returns and what save() then writes (window.__saveProbe,
+     src/bn_qa04.js). Every text is posted to the local server (tools/shots/saveprobe_<tag>__<build>_<start>.json) and a summary last (each text's name and length)
+     (saveprobe_<tag>.json). tools/saveprobe.ps1 -Make runs it before a change, -Check after it and compares character for character.
+     Copied beside the preview builds by build.ps1 -Preview; never in a release build. ?only=pc|ios|android runs one build. -->
+<style>body{margin:0;background:#0d1824;color:#e8f0f7;font:14px/1.4 system-ui,Segoe UI,sans-serif;padding:12px} iframe{border:0;display:block;margin-top:8px}</style>
+</head>
+<body>
+<div id="s">Driftline save probe</div>
+<iframe id="f" title="game under test"></iframe>
+<script>
+const Q=new URLSearchParams(location.search), TAG=(Q.get('tag')||'now').replace(/[^a-z0-9]/gi,''), KEY='driftline-save-next';
+const BUILDS=[['pc','pc.html?test&frozen',1920,1080],['ios','ios.html?test&frozen&iphone',956,440],['android','android.html?test&frozen',915,412]];
+const wait=ms=>new Promise(r=>setTimeout(r,ms)), status=t=>{ document.getElementById('s').textContent='Save probe ('+TAG+'): '+t; document.title='Save probe: '+t; };
+const load=(f,url)=>new Promise(r=>{ f.onload=()=>{ f.onload=null; r(); }; f.src=url; });
+const mine=k=>/^(driftline|dl-)/.test(k), wipe=()=>{ for(const k of Object.keys(localStorage)) if(mine(k)) localStorage.removeItem(k); };
+/* an old-format save: everything later updates added is taken away again, and the old shirt designs are back */
+function aged(o){ o=JSON.parse(JSON.stringify(o)); for(const k of ['pearlMig','passMig','boonMig','fabV','gearV','pearlV','voyCatch','titled','egPaid','vault','hunts','rodPresets','rodPreset','docks','pathXP','nib','seenPatch','tokens','gstats']) delete o[k];
+  o.v=1; o.pearls=40; o.owned=o.owned||{}; o.owned.pats=['none','stripes','galaxy','flannel']; for(const k of ['auras','bobs','lines']) delete o.owned[k];
+  o.look=o.look||{}; o.look.pat='stripes'; o.look.patOn='outfit'; for(const k of ['face','eyeShape','aura','bob','line']) delete o.look[k];
+  o.pass=Object.assign({},o.pass,{claimed:70,lvl:80}); delete o.pass.got; if(o.gear){ o.gear.hook=6; o.gear.finder=5; } return o; }
+/* a damaged save: wrong types and unknown names in every part a load checks */
+function damaged(o){ o=JSON.parse(JSON.stringify(o)); Object.assign(o,{money:'12x', lvl:-3, xp:'77', journal:[], cooler:'x', tickets:-5, tankSlots:99, loc:'nowhere', vault:'x', hunts:'x', rodPreset:7, baitSel:'bogus', pet:'nobody', pet2:'nobody', derby:{until:1},
+    rods:{owned:['nope',5,'bamboo'],eq:7,lvl:null,att:'x'}, rodPresets:[{rod:'nope'},5,{rod:'bamboo',att:['x',3]}], specs:{0:'bogus',9:'x',1:'homebody'}, pathXP:{bogus:3,treasurer:'7',geneticist:-4},
+    pshop:{gold:'250',bad:3}, boons:{heavy:9,nope:2}, docks:{pond:{el:{a:'x'}},nowhere:{},river:5}, unlocked:['buffet','nowhere','pond'], buffs:[null,{k:'bogus',until:9e15},{k:'xp',v:1,until:1}], bounties:[null,{sp:'nope'},{type:'style'}],
+    relics:'x', petTints:'x', bait:{worm:'x',krill:-2,shrimp:'4.7'}, nib:{r2:'6',bogus:4,r9:1}, titled:{'nope:1':1}, voyCatch:{pond:'x',nowhere:5}, pearlOld:-4, boonPts:'x', egPaid:'x', seenPatch:5});
+  o.perks=Object.assign({},o.perks); for(const k in o.perks) o.perks[k]=999; o.perks.bogus=3;
+  o.owned=Object.assign({},o.owned,{hats:['cap','nohat'],pets:'x',auras:['tideswirl','bogus'],pats:['stripes',7]}); o.look=Object.assign({},o.look,{aura:'veil',face:'zzz',nose:'afro',hat:'nohat',build:'x',eye:99,shoeCol:'red',eyeShape:'zzz'});
+  o.settings=Object.assign({},o.settings,{uiScale:9,renderQ:'ultra',hand:'x',units:5,fightUi:'x',master:'loud'}); o.pass={xp:-5,lvl:'x',claimed:400,got:'x'}; o.tank=[null,{id:'nope'},7].concat((o.tank||[]).slice(0,2).map(f=>Object.assign({},f,{fed:'4.7',value:0,abx:[{k:'xp',t:1},{k:'bogus'}]}))); return o; }
+window.__R={state:'idle'};
+async function run(){ if(location.hostname!=='localhost'){ status('runs on the local server only (it empties this browser’s Driftline storage while it works)'); return; } window.__R={state:'running'}; const out={tag:TAG, made:new Date().toISOString(), stamp:'', prints:{}}, f=document.getElementById('f'); const keep={}; for(const k of Object.keys(localStorage)) if(mine(k)) keep[k]=localStorage.getItem(k);
+  try{ const get=async n=>(await (await fetch('saves/'+n+'.json',{cache:'no-store'})).json()).save, mid=await get('mid'), heavy=await get('heavy'), H=JSON.parse(heavy), M=JSON.parse(mid);
+    out.stamp=(await (await fetch('version.txt',{cache:'no-store'})).text()).trim();
+    const old=JSON.stringify(aged(H)), bad=JSON.stringify(damaged(H));
+    /* the rod preset in use names another rod than the one held, and the newest notes seen are newer than this device's: saving has to put both right */
+    const behind=JSON.parse(heavy); { const other=(behind.rods.owned||[]).find(r=>r!==behind.rods.eq); if(!other) throw new Error('the heavy save owns one rod only'); behind.rodPresets=[{rod:other,att:[]},null,null]; behind.rodPreset=0; behind.seenPatch='9.9.9'; }
+    const INPUTS=[['nothing','null'],['a number','7'],['a word','"text"'],['a list','[]'],['empty','{}'],['tiny old',JSON.stringify({money:500,pearls:10,lvl:4,journal:{},owned:{pats:['hawaii']},look:{pat:'hawaii'}})],
+      ['mid',mid],['heavy',heavy],['old heavy',old],['old mid',JSON.stringify(aged(M))],['damaged heavy',bad],['damaged mid',JSON.stringify(damaged(M))],['preset behind',JSON.stringify(behind)]];
+    const STARTS=[['none',{}],['mid',{[KEY]:mid}],['heavy',{[KEY]:heavy}],['old',{[KEY]:old}],['damaged',{[KEY]:bad}],['unreadable',{[KEY]:'{oops'}],
+      ['device',{[KEY]:mid,'dl-device-settings-v1':JSON.stringify({units:'lb',hand:'l',master:.3,musicOn:false}),'dl-seen-patch':'0.4.8.2'}]];
+    for(const [b,url,w,h] of BUILDS){ if(Q.get('only')&&Q.get('only')!==b) continue;
+      for(const [sn,stores] of STARTS){ status(b+', start '+sn+'…'); wipe(); for(const k in stores) localStorage.setItem(k,stores[k]);
+        f.style.width=w+'px'; f.style.height=h+'px'; await load(f,url); const W=f.contentWindow, s=Date.now(); try{ Object.defineProperty(W.navigator,'getGamepads',{value:()=>[]}); const gone=()=>W.dispatchEvent(new W.Event('gamepaddisconnected')); W.addEventListener('gamepadconnected',gone); gone(); const no=()=>Promise.reject(new Error('no full screen under test')); W.Element.prototype.requestFullscreen=no; W.Element.prototype.webkitRequestFullscreen=no; }catch(e){}
+        while(Date.now()-s<30000&&!(W.__saveProbe&&W.document.getElementById('panel'))) await wait(100);
+        if(!W.__saveProbe) throw new Error(b+' start '+sn+': the game did not start');
+        const text=W.__saveProbe(INPUTS); await load(f,'about:blank');
+        for(const k in text) out.prints[b+' | start '+sn+' | '+k]=String(text[k]).length;
+        await fetch('/report/saveprobe_'+TAG+'__'+b+'_'+sn,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(text)}); } } }
+  catch(e){ out.error=String(e&&e.message||e); }
+  finally{ wipe(); for(const k in keep) localStorage.setItem(k,keep[k]); }
+  try{ await fetch('/report/saveprobe_'+TAG,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(out,null,1)}); }catch(e){}
+  window.__R=Object.assign({state:'done'},out); status(out.error?'FAILED: '+out.error:'done, '+Object.keys(out.prints).length+' texts'); }
+if(Q.has('go')) setTimeout(run,300);
+</script>
+</body>
+</html>
