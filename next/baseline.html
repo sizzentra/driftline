@@ -24,7 +24,7 @@ async function run(){ window.__R={state:'running'}; const orig=localStorage.getI
     out.stamp=(await (await fetch('version.txt',{cache:'no-store'})).text()).trim();
     for(const [b,url,w,h] of BUILDS){ if(Q.get('only')&&Q.get('only')!==b) continue; status(b+' '+w+'x'+h+'…');
       if(sv==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,sv);
-      f.style.width=w+'px'; f.style.height=h+'px'; await load(f,url); const W=f.contentWindow, s=Date.now(); try{ Object.defineProperty(W.navigator,'getGamepads',{value:()=>[]}); }catch(e){} /* deaf to game controllers */
+      f.style.width=w+'px'; f.style.height=h+'px'; await load(f,url); const W=f.contentWindow, s=Date.now(); try{ Object.defineProperty(W.navigator,'getGamepads',{value:()=>[]}); const gone=()=>W.dispatchEvent(new W.Event('gamepaddisconnected')); W.addEventListener('gamepadconnected',gone); gone(); const no=()=>Promise.reject(new Error('no full screen under test')); W.Element.prototype.requestFullscreen=no; W.Element.prototype.webkitRequestFullscreen=no; }catch(e){} /* deaf to game controllers; never full screen (the frame would stop being phone-sized) */
       while(Date.now()-s<30000&&!(W.__baseline&&W.document.getElementById('panel'))) await wait(200);
       await wait(500); out.builds[b]=await W.__baseline(); await load(f,'about:blank'); } }
   catch(e){ out.error=String(e&&e.message||e); }
