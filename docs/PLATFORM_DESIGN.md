@@ -207,3 +207,11 @@ What goes *inside* cards and pages. The frame rules above say how big the boxes 
 
 ## Fish decorations: none (director, 2026-11-22)
 Fish wear no water costumes (the ears, ties, circuits, toppings, headdresses, ankhs and laurels of `cq_traits.js` were removed: "I don't like the idea of adding the custom map apparel to the fish. This is bad design"). A fish is drawn as just the fish: its family's body, fins, head, pattern and colors (`fishDesign` in `i_fish.js`). Rarity marks (the legendary crown, shiny glow) stay. Proposing any decoration on fish again is a look call for the director.
+
+## The Bounties page (director's layout, 2026-11-27; `e_ui.js` renderBounties, styles in `bs_rules05.js`, PC sizes in `pc/pages_pc.js`)
+One page for every platform, no summary strip (the page engine leaves the strip out when a page has nothing for it: `pg08-nobar`).
+- **Title band:** a ring mark, "Bounties", "Complete location tasks for rewards", and the chosen water's own drawn picture fading in from the right (`V3THUMB`, drawn once when missing). Phones 60 px high, PC 118 px.
+- **Row under it:** the water picker (the water's picture, its name, a caret; opens a grid of every open water with "n ready"), then "n Ready to Claim" (gold when above 0), then Claim all (two buttons, Scales and Nibbles; one with the Bounty Ledger) when more than one is ready.
+- **Bounties:** three a water. Phones: as many columns as fit at 230 px (three at 956 wide, two at 667). PC: three columns across the whole page, title 26 px, chips 46 px high.
+- **A bounty:** what to do; "water · day only or night only · have / wanted"; a bar; "Rewards" and two chips (a blue diamond and "n Scales", a crate and "n Nibbles", with "big" on a big crate); Swap with its price in coins.
+- **A finished bounty:** gold frame, the label reads "Pick one" and the two chips are gold buttons that claim that reward. With the Bounty Ledger relic the chips stay plain and one "Claim both" button sits under them.

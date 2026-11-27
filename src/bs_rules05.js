@@ -30,6 +30,7 @@ function bountyEffort(b){ const sp=b.sp&&SPI[b.sp]; if(b.legend||b.type==='shiny
   if(!sp) return 1; const w=BOUNTY_W[Math.min(5,sp.r)]*(sp.time&&sp.time!=='any'?1.25:1); return b.type==='size' ? w*2 : w*(b.n||1); }
 const bountyPay = b => { const e=bountyEffort(b); return {sc:clamp(Math.round(1+e),2,12), cr:e>=BOUNTY_BIG?'big':'small', n:clamp(Math.round(3+e*.7),4,10)}; };
 const bountyBoth = () => !!relic('seasoned');
+const bountySwapCost = b => Math.max(5, Math.round(LOCS[locIdx(b.loc||S.loc)].loot*bountyEffort(b)*.5)); /* coins to swap a bounty for another: by the water and the effort (it was a tenth of the old coin reward, 15 beside 9,900 on one board); Feel call */
 const bountyPayText = b => { const p=bountyPay(b); return p.sc+' Scales '+(bountyBoth()?'and':'or')+' a '+(p.cr==='big'?'big ':'')+'crate of '+p.n+' Nibbles'; };
 function bountyClaimBtns(b,i,sm){ const p=bountyPay(b), c='btn'+(sm?' sm':''); if(bountyBoth()) return `<button class="${c}" data-act="claim" data-i="${i}" data-k="both">Claim</button>`;
   return `<span class="bpick"><button class="${c}" data-act="claim" data-i="${i}" data-k="sc" title="Take ${p.sc} Scales">${p.sc} Scales</button><button class="${c}" data-act="claim" data-i="${i}" data-k="cr" title="Take the crate of ${p.n} Nibbles: it opens straight away">${p.n} Nibbles</button></span>`; }
@@ -51,6 +52,49 @@ function bountyShow(){ const g=bountyGot; bountyGot=null; if(!g) return; const h
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('nibcrate')){ nibCrateClose(); e.preventDefault(); e.stopPropagation(); } },true);
 document.head.insertAdjacentHTML('beforeend','<style>#nibcrate{position:fixed;z-index:70;padding:12px calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}#nibcrate .nc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0}#nibcrate .nc-row .nibs-r{font-size:14px;padding:5px 12px}#nibcrate .nc-sc{font:700 14px var(--display,system-ui);color:var(--gold);margin:0 0 8px}.bpick{display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.brew{font-size:12.5px;color:var(--muted)}</style>');
 
+/* the Bounties page (director's layout, 2026-11-27): title band, water picker, bounty tiles with a bar and reward chips. Sizes here suit phones; PC makes them larger (pc/pages_pc.js) */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.bq-head{position:relative;display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0e1a2c;margin:0 0 10px}
+.bq-art{position:absolute;inset:0 0 0 30%;background-size:cover;background-position:center 62%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 40%);mask-image:linear-gradient(90deg,transparent,#000 40%);opacity:.9}
+.bq-ic{position:relative;flex:0 0 34px;width:34px;height:34px;box-sizing:border-box;border-radius:50%;border:3px solid #7fe3c4;box-shadow:inset 0 0 0 5px #0e1a2c,inset 0 0 0 8px #7fe3c4}
+.bq-ti{position:relative;min-width:0}
+.bq-ti h3{margin:0;font:800 22px/1.15 var(--display,system-ui);color:#fff}
+.bq-ti p{margin:0;font-size:13px;color:#e6efe8}
+.bq-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 10px}
+.bq-pick,.bq-w{display:flex;align-items:center;gap:10px;min-height:42px;padding:0 12px 0 0;border:1px solid var(--line);border-radius:12px;background:#0e1a2c;color:#e6efe8;font:800 15px var(--display,system-ui);cursor:pointer;overflow:hidden;text-align:left}
+.bq-pick{min-width:240px}
+.bq-pick b,.bq-w b{flex:1;min-width:0}
+.bq-th{flex:0 0 64px;align-self:stretch;min-height:42px;background:#16324a center/cover}
+.bq-car{flex:0 0 auto;width:8px;height:8px;border-right:2px solid;border-bottom:2px solid;transform:rotate(45deg);margin:0 4px 4px}
+.bq-pick[aria-expanded="true"] .bq-car{transform:rotate(225deg);margin:4px 4px 0}
+.bq-ready{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);color:#9fb2c8;font:800 14px var(--display,system-ui)}
+.bq-ready.on{color:#ffd36a;border-color:#ffd36a66}
+.bq-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin:0 0 10px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#0a1424}
+.bq-w{padding-right:10px}
+.bq-w .bq-th{flex-basis:48px}
+.bq-w .bq-th:not([style]){flex-basis:0;min-width:0;margin-right:2px} /* a water whose picture is not drawn yet shows its name alone, not an empty box */
+.bq-w.on{border-color:#ffd36a}
+.bq-n{flex:0 0 auto;font:700 12px var(--display,system-ui);color:#ffd36a}
+.bq-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+#panel .tile.bq{display:flex;flex-direction:column;gap:6px;margin:0}
+#panel .tile.bq h4{margin:0}
+#panel .tile.bq.done{border-color:#ffd36a;box-shadow:0 0 0 1px #ffd36a}
+.bq-meta{font-size:13px;color:#8fc7e8}
+.bq-bar{height:8px;border-radius:4px;background:#0a1220;border:1px solid var(--line);overflow:hidden}
+.bq-bar i{display:block;height:100%;background:linear-gradient(90deg,#3fd0b5,#7fe3c4)}
+.bq-rew{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:auto;padding-top:2px}
+.bq-rew > .bq-chip{flex:1 1 0;justify-content:center;white-space:nowrap}
+.bq-lbl{flex:0 0 100%;font-size:12.5px;color:#9fb2c8}
+.bq-chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#0a1424;color:#e6efe8;font:800 13.5px var(--display,system-ui)}
+button.bq-chip.go{min-height:40px;border:0;color:#1d1300;background:linear-gradient(180deg,#ffe08a,#f3b94e);cursor:pointer}
+button.bq-chip.go:focus-visible,.bq-pick:focus-visible,.bq-w:focus-visible{outline:3px solid #7fe3c4;outline-offset:2px}
+.bq-chip em{font:700 11px var(--display,system-ui);font-style:normal;opacity:.85}
+.bq-i-sc{flex:0 0 auto;width:10px;height:10px;background:#6fb3ff;transform:rotate(45deg);border-radius:2px}
+button.bq-chip.go .bq-i-sc{background:#1f5fae}
+.bq-i-cr{flex:0 0 auto;width:14px;height:11px;border-radius:2px;background:#e0a23a;box-shadow:inset 0 3px 0 #f6cf7a,inset 0 -1px 0 #8a5a12}
+button.bq-chip.go .bq-i-cr{background:#8a5a12;box-shadow:inset 0 3px 0 #b97c1e}
+#panel .bq-swap{align-self:center}
+</style>`);
 // ---------- Fish Log: the completion reward says what it really gives ----------
 { const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ const m=P.querySelector('.fl-mh .meta'); if(m&&/find them all for/.test(m.innerHTML)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk">+ fish from here worth 10% more, forever</b>'); else if(m&&/complete/.test(m.textContent)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk got">· fish from here worth 10% more</b>'); }catch(e){ oops('bs_rules05:P.querySelector',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .fl-perk{color:#ffd36a;font-weight:800} #panel .fl-perk.got{color:#7fe3c4}</style>`);

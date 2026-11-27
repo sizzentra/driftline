@@ -73,3 +73,35 @@ if(/[?&]test\b/.test(location.search)) window.__pcSpec=async()=>{ const w=ms=>ne
 // Fishmonger's Gamble on PC (batch 2, 2026-11-21): in the eight-column games grid the card was 226 px wide, so a long fish name wrapped
 // its button onto two lines (41 px, off the button standard). The card takes two columns and lists one fish per row, on one line.
 document.head.insertAdjacentHTML('beforeend','<style>body.pch-on #panel .bwx-grid > .bwx-card:has(.bwx-gl){grid-column:span 2}body.pch-on #panel .bwx-gl{display:grid;grid-template-columns:1fr;gap:6px}body.pch-on #panel .bwx-gl .btn{white-space:nowrap;width:100%}</style>');
+/* Bounties on PC (director, 2026-11-27: "it looks so small on pc"): the same page as the phones (e_ui.js renderBounties, styles in bs_rules05.js),
+   sized for a full screen: three bounties across the whole width, larger type, a taller title band. */
+document.head.insertAdjacentHTML('beforeend',`<style>
+body.pch-on #panel .bq-head{min-height:118px;padding:16px 26px;gap:20px;margin-bottom:16px;border-radius:18px}
+body.pch-on #panel .bq-ic{flex-basis:56px;width:56px;height:56px;border-width:4px;box-shadow:inset 0 0 0 8px #0e1a2c,inset 0 0 0 12px #7fe3c4}
+body.pch-on #panel .bq-ti h3{font-size:38px}
+body.pch-on #panel .bq-ti p{font-size:18px}
+body.pch-on #panel .bq-row{gap:12px 18px;margin-bottom:16px}
+body.pch-on #panel .bq-pick{min-height:60px;min-width:420px;font-size:21px;border-radius:14px}
+body.pch-on #panel .bq-pick .bq-th{flex-basis:120px}
+body.pch-on #panel .bq-ready{min-height:50px;padding:0 20px;font-size:18px}
+body.pch-on #panel .bq-list{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;padding:12px;margin-bottom:16px}
+body.pch-on #panel .bq-w{min-height:52px;font-size:17px}
+body.pch-on #panel .bq-w .bq-th{flex-basis:76px}
+body.pch-on #panel .bq-n{font-size:14px}
+body.pch-on #panel .bq-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+body.pch-on #menuov #panel .tile.bq{padding:24px 28px!important;gap:14px;border-radius:18px}
+body.pch-on #menuov #panel .tile.bq h4{font-size:26px!important;line-height:1.2!important}
+body.pch-on #panel .bq-meta{font-size:17px}
+body.pch-on #panel .bq-bar{height:13px;border-radius:7px}
+body.pch-on #panel .bq-rew{gap:10px}
+body.pch-on #panel .bq-lbl{flex:0 0 auto;font-size:16px;margin-right:6px}
+body.pch-on #panel .bq-rew{margin-top:10px}
+body.pch-on #panel .bq-rew > .bq-chip{flex:0 0 auto}
+body.pch-on #panel .bq-chip{min-height:46px;padding:0 20px;font-size:18px;gap:10px}
+body.pch-on #panel button.bq-chip.go{min-height:54px;font-size:19px}
+body.pch-on #panel .bq-chip em{font-size:13px}
+body.pch-on #panel .bq-i-sc{width:14px;height:14px}
+body.pch-on #panel .bq-i-cr{width:19px;height:15px}
+body.pch-on #menuov #panel .tile.bq .bq-swap{min-height:46px!important;font-size:17px!important;padding:0 24px!important;margin-top:4px}
+body.pch-on #panel .bq-claim{min-height:54px;font-size:19px}
+</style>`);

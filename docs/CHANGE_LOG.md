@@ -448,3 +448,11 @@ Director and Cam: "Cam and I didn't like weekly and daily quests, and want to po
 Director, from the iPhone: "Mobile doesn't show bounties on the top header ... and some of these bounties don't equal the same rewards for effort".
 - **The reward follows the effort** (`bs_rules05.js`): `bountyEffort(b)` scores a bounty (a fish counts 1, 1.5, 3, 5, 8, 12 by rarity, times 1.25 for a day-only or night-only fish, times the number wanted; a size bounty counts double; a style hunt 1.2 a fish, a variety hunt 1.5 a kind, a trophy 8, a shiny or a legend 12). `bountyPay(b)`: Scales = 1 + effort (2 to 12), Nibbles = 3 + 0.7 x effort (4 to 10), a big crate (better odds, an Epic or better) from an effort of 8. `BOUNTY_SC` and the fixed crate sizes are gone; `nibCrateRoll(size, n)`. The tile says "6 Scales or a crate of 6 Nibbles"; the buttons "6 Scales" and "6 Nibbles". Every weight is a Feel call.
 - **Phone top bar** (`mobile/header08.js` `fit`): when the bar is short of room the event chip shortens, then steps aside, and only then Bounties (it used to go first, so it vanished whenever an event ran). At 667 wide both still step aside: there is no room for either.
+
+## Bounties, the director's page layout (2026-11-27, build 2026.11.27-1252, tag `rollback/before-bounty-layout`)
+Director, with a mockup: "What do you think of this layout"; then "the reward chips themselves becoming the buttons on a finished bounty. Also, factor in pc's size right now because it looks so small on pc, 3 bounties per water is fine".
+- `renderBounties` (`e_ui.js`) rewritten: title band (`.bq-head`), water picker (`bPick`, action `bpick`; `bloc` closes it), ready count, tiles (`.tile.bq`) from `bountyParts(b)` (what, where, have / wanted for every kind). The 20 water buttons, the intro paragraph, the fish picture and the kind label on a tile are gone; "Legendary bounty" stays.
+- The page engine (`cx_pages.js`) leaves the summary strip out for a page with no cells (`pg08-nobar`); Bounties has none now.
+- `newBounty(L)` (`e_ui.js`): a board never gets a bounty it already shows (same kind, fish and style); used by `fillBounties` and Swap.
+- `bountySwapCost(b)` (`bs_rules05.js`): the water's `loot` x effort x 0.5, at least 5 coins, in place of a tenth of the old coin reward. Feel call.
+- Styles: shared in `bs_rules05.js` (phone sizes), PC sizes in `pc/pages_pc.js`.

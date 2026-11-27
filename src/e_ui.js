@@ -65,7 +65,7 @@ $('card').addEventListener('pointerdown',e=>{ e.stopPropagation(); hideCard(); }
 // ---------- bounties ----------
 // 0.3: every water keeps its own board of bounties, so progress (and rare bounties) stay with that water
 const BOUNTIES_PER_WATER = 3;
-let bLoc=null;
+let bLoc=null, bPick=false; /* the water whose board is shown, and whether the water picker is open */
 function makeBounty(L){ L=L||S.loc;
   if(Math.random()<.08){ const lp=SP.filter(s=>s.loc===L&&s.r===4); if(lp.length){ const sp=pick(lp); return {sp:sp.id, loc:L, type:'count', n:1, have:0, reward:Math.round(sp.base*3), legend:1}; } }
   const cap = Math.random()<.12 ? 3 : Math.random()<.3 ? 2 : 1;
@@ -75,7 +75,9 @@ function makeBounty(L){ L=L||S.loc;
 }
 function bountyLoc(b){ if(b.loc) return b.loc; if(b.sp&&SPI[b.sp]) return SPI[b.sp].loc; return null; }
 function fillBounties(){ for(const b of S.bounties){ if(!b.loc){ const l=bountyLoc(b); b.loc=l||S.loc; } }
-  for(const L of S.unlocked){ let n=S.bounties.filter(b=>b.loc===L).length; while(n<BOUNTIES_PER_WATER){ S.bounties.push(makeBounty2(L)||makeBounty(L)); n++; } } }
+  for(const L of S.unlocked){ let n=S.bounties.filter(b=>b.loc===L).length; while(n<BOUNTIES_PER_WATER){ S.bounties.push(newBounty(L)); n++; } } }
+/* a new bounty for a water, never one its board already shows (two "Catch 2 x Bluegill" sat side by side, 2026-11-27) */
+function newBounty(L){ const sig=b=>[b.type,b.sp||'',b.beh||''].join('|'), have=new Set(S.bounties.filter(b=>b.loc===L).map(sig)); let b; for(let k=0;k<8;k++){ b=makeBounty2(L)||makeBounty(L); if(!have.has(sig(b))) break; } return b; }
 function bDone(b){ return (b.type==='count'||b.type==='style'||b.type==='kinds') ? b.have>=b.n : b.have>=1; }
 function checkBounties(sp,kg){ const done=[]; for(const b of S.bounties){ if(b.sp!==sp.id || bDone(b)) continue; if(b.type==='count'){ b.have++; } else if(kg>=b.kg){ b.have=1; } if(bDone(b)) done.push(b); } return done; }
 
@@ -138,20 +140,27 @@ function renderAquarium(P){ accrue(); const rate=tankRate(); let AQS=null; const
    : '<div class="empty">No fish on display yet. In the Cooler, press <b>To aquarium</b> on a fish you want to keep.</div>') + aqCustomHTML();
   paintFish(P); paintDecor(P);
 }
-function renderBounties(P){ fillBounties(); const ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length;
-  P.innerHTML=`<h2>Bounties</h2><p class="sub">The harbourmaster pays for specific catches: ${bountyBoth()?'Scales and a Nibble crate (your Bounty Ledger pays both)':'Scales or a Nibble crate, your pick'}. Every water has its own board, and its bounties wait there until you finish them. Fish still go in your cooler.</p>
-  <div class="chips" style="margin:6px 0 10px">${S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b)).map(L=>{ const n=S.bounties.filter(b=>b.loc===L&&bDone(b)).length; return `<button class="chipb" data-act="bloc" data-k="${L}" aria-pressed="${(bLoc||S.loc)===L}">${esc(LOCS[locIdx(L)].name)}${n?' · '+n+' ready':''}</button>`; }).join('')}</div>${ready>1?`<div class="bpick" style="margin:0 0 10px;justify-content:flex-start">${bountyBoth()?`<button class="btn" data-act="claimall" data-k="both">Claim all · ${ready} ready</button>`:`<button class="btn" data-act="claimall" data-k="sc">Claim all ${ready} · Scales</button><button class="btn" data-act="claimall" data-k="cr">Claim all ${ready} · Nibble crates</button>`}</div>`:''}<div class="grid">`+
-  S.bounties.map((b,i)=>{ if(b.loc!==(S.unlocked.includes(bLoc)?bLoc:S.loc)) return ''; const bt=bountyText(b); if(bt){ const d=bDone(b);
-      return `<div class="tile ${d?'done':''}"><span class="rar" style="color:var(--kelp)">${b.type==='shiny'?'Shiny hunt':b.type==='trophy'?'Trophy hunt':b.type==='kinds'?'Variety hunt':'Style hunt'}</span><h4>${esc(bt.what)}</h4><div class="meta">${bt.where} · ${b.type==='style'||b.type==='kinds'?Math.min(b.have,b.n)+' / '+b.n:(d?'Done':'Not yet')}</div>
-       <div class="row spread"><span class="val brew">${bountyPayText(b)}</span>${d?bountyClaimBtns(b,i):`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }
-    const sp=SPI[b.sp], d=bDone(b), L=LOCS[locIdx(sp.loc)];
-    const what = b.type==='count' ? `Catch ${b.n} × ${sp.name}` : `Catch ${/^[aeiou]/i.test(sp.name)?"an":"a"} ${sp.name} of ${kgStr(b.kg)} or more`;
-    const prog = b.type==='count' ? `${Math.min(b.have,b.n)} / ${b.n}` : (d?'Done':'Not yet');
-    return `<div class="tile ${d||b.legend?'done':''}">${b.legend?'<span class="rar" style="color:var(--gold)">Legendary bounty</span>':''}<canvas width="220" height="90" data-fish="${sp.id}" data-known="${S.journal[sp.id]?1:0}" style="width:110px;height:45px"></canvas><h4>${S.journal[sp.id]||!b.legend?what:'Catch the legend of '+L.name}</h4>
-    <div class="meta">${L.name}${sp.time!=='any'?' · '+(sp.time==='night'?'night only':'day only'):''} · ${RAR[sp.r].k} · ${prog}</div>
-    <div class="row spread"><span class="val brew">${bountyPayText(b)}</span>
-    ${d?bountyClaimBtns(b,i):`<button class="btn alt" data-act="reroll" data-i="${i}" ${S.money>=Math.ceil(b.reward*.1)?'':'disabled'}>Swap · <span class="coin">${fmt(Math.ceil(b.reward*.1))}</span></button>`}</div></div>`; }).join('')+'</div>';
-  paintFish(P);
+/* The Bounties page (director's layout, 2026-11-27): a title band with the water's own picture, one water picker in place of a button per
+   water, how many are ready, then the water's bounties. Every bounty: what to do, where and how far (with a bar), its two rewards as chips;
+   on a finished bounty the chips are the claim buttons ("the reward chips themselves becoming the buttons"). */
+function bountyParts(b){ const bt=bountyText(b), d=bDone(b), L=LOCS[locIdx(b.loc||S.loc)]; let what, n=1, have=d?1:0, extra='';
+  if(bt){ what=bt.what; if(b.type==='style'||b.type==='kinds'){ n=b.n; have=Math.min(b.have,b.n); } }
+  else { const sp=SPI[b.sp]; n=b.type==='count'?b.n:1; have=b.type==='count'?Math.min(b.have,b.n):(d?1:0); extra=sp.time!=='any'?(sp.time==='night'?'night only':'day only'):'';
+    what=b.legend&&!S.journal[sp.id]?'Catch the legend of '+L.name:b.type==='count'?`Catch ${b.n} × ${sp.name}`:`Catch ${/^[aeiou]/i.test(sp.name)?'an':'a'} ${sp.name} of ${kgStr(b.kg)} or more`; }
+  return {what, n, have, d, where:L.name, extra}; }
+function renderBounties(P){ fillBounties(); const cur=S.unlocked.includes(bLoc)?bLoc:S.loc, L=LOCS[locIdx(cur)], ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length, both=bountyBoth();
+  const th=id=>{ const u=V3THUMB[id]; return u?` style="background-image:url(${u})"`:''; }, waters=S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b));
+  P.innerHTML=`<div class="bq-head"><span class="bq-art"${th(cur)}></span><span class="bq-ic" aria-hidden="true"></span><div class="bq-ti"><h3>Bounties</h3><p>Complete location tasks for rewards</p></div></div>
+  <div class="bq-row"><button type="button" class="bq-pick" data-act="bpick" aria-expanded="${bPick}" aria-label="Water: ${esc(L.name)}. Choose another water"><span class="bq-th"${th(cur)}></span><b>${esc(L.name)}</b><span class="bq-car" aria-hidden="true"></span></button>
+   <span class="bq-ready${ready?' on':''}">${ready} Ready to Claim</span>${ready>1?(both?`<button class="btn sm" data-act="claimall" data-k="both">Claim all</button>`:`<button class="btn sm" data-act="claimall" data-k="sc">Claim all · Scales</button><button class="btn sm" data-act="claimall" data-k="cr">Claim all · Nibbles</button>`):''}</div>
+  ${bPick?`<div class="bq-list" role="listbox" aria-label="Waters">${waters.map(W=>{ const n=S.bounties.filter(b=>b.loc===W&&bDone(b)).length; return `<button type="button" class="bq-w${W===cur?' on':''}" role="option" aria-selected="${W===cur}" data-act="bloc" data-k="${W}"><span class="bq-th"${th(W)}></span><b>${esc(LOCS[locIdx(W)].name)}</b>${n?`<span class="bq-n">${n} ready</span>`:''}</button>`; }).join('')}</div>`:''}
+  <div class="bq-grid">`+S.bounties.map((b,i)=>{ if(b.loc!==cur) return ''; const p=bountyParts(b), pay=bountyPay(b), cost=bountySwapCost(b);
+    const chip=(k,txt)=>p.d&&!both?`<button type="button" class="bq-chip go" data-act="claim" data-i="${i}" data-k="${k}"><i class="bq-i-${k}"></i>${txt}</button>`:`<span class="bq-chip"><i class="bq-i-${k}"></i>${txt}</span>`;
+    return `<div class="tile bq${p.d?' done':''}">${b.legend?'<span class="rar" style="color:var(--gold)">Legendary bounty</span>':''}<h4>${esc(p.what)}</h4>
+     <div class="bq-meta">${esc(p.where)}${p.extra?' · '+p.extra:''} · ${p.have} / ${p.n}</div><div class="bq-bar"><i style="width:${Math.round(p.have/p.n*100)}%"></i></div>
+     <div class="bq-rew"><span class="bq-lbl">${p.d&&!both?'Pick one':'Rewards'}</span>${chip('sc',pay.sc+' Scales')}${chip('cr',pay.n+' Nibbles'+(pay.cr==='big'?' <em>big</em>':''))}</div>
+     ${p.d?(both?`<button class="btn bq-claim" data-act="claim" data-i="${i}" data-k="both">Claim both</button>`:''):`<button class="btn alt sm bq-swap" data-act="reroll" data-i="${i}" ${S.money>=cost?'':'disabled'}>Swap · <span class="coin">${fmt(cost)}</span></button>`}</div>`; }).join('')+'</div>';
+  if(!V3THUMB[cur]&&MENU_OPEN) setTimeout(()=>{ try{ const u=v3Thumb(cur); if(u&&S.tab==='bounties') P.querySelectorAll('.bq-art,.bq-pick .bq-th').forEach(e=>{ e.style.backgroundImage='url('+u+')'; }); }catch(e){ oops('e_ui:bounty-picture',e); } },60); /* the water's picture, drawn once when it is not ready yet */
 }
 function renderFeats(P){ const done=FEATS.filter(f=>S.feats[f.id]).length;
   P.innerHTML=`<h2>Feats</h2><p class="sub">${done} of ${FEATS.length} done. Each pays coins, the bigger ones give bonus skill points, and two bring a new pet.</p><div class="grid">`+
@@ -286,11 +295,12 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
       Object.assign(S,{money:0, gear:fresh().gear, bait:relic('tacklebox')?S.bait:baitZero(), baitSel:relic('tacklebox')?S.baitSel:'worm', unlocked:['pond'], loc:'pond', cooler:[], bounties:[], setDone:{}, streak:0, voyCatch:{}, lvl:1, xp:0, perks:{}}); /* Cam, round 5: a new voyage starts at level 1; skills are handed back and only the points from feats and the Fish Log stay to spend */
       S.nib=nibHalve(); /* [19] half of every species' Nibbles expire on a new voyage */ S.stats.runEarned=0; S.stats.runBw=0; confirmBox=null; fillBounties(); sfx.catch(4); toast('You set sail again: +'+n+' Wisdom Pearl'+(n===1?'':'s')+' to spend ('+S.pearls+' in all) in the Pearl shop or on relics.'); break; }
     case 'resetok': { S=fresh(); S.savedAt=Date.now(); confirmBox=null; G.st='idle'; encLoc=null; encSel=null; fillBounties(); toast('Progress reset. A fresh start at Willow Pond.'); break; }
-    case 'reroll': { const bo=S.bounties[i]; const c=Math.ceil(bo.reward*.1); if(S.money<c) return; S.money-=c; const L=bo.loc||S.loc; S.bounties[i]=makeBounty2(L)||makeBounty(L); break; }
+    case 'reroll': { const bo=S.bounties[i]; const c=bountySwapCost(bo); if(S.money<c) return; S.money-=c; S.bounties[i]=newBounty(bo.loc||S.loc); break; }
     case 'unlock': { const i=locIdx(k), L=LOCS[i]; if(!L||S.unlocked.includes(k)||S.money<locCost(L)||!unlockMet(i)||!locPrevOk(i)) return; /* the requirement is checked here too, not only on the button */ S.money-=locCost(L); S.unlocked.push(k); if(L.eg){ if(!Array.isArray(S.egPaid)) S.egPaid=[]; if(!S.egPaid.includes(k)) S.egPaid.push(k); } S.loc=k; G.hot=null; fillBounties(); sfx.catch(2); toast('Welcome to '+L.name); break; }
     case 'goto': if(G.st==='rest'){ S.loc=k; G.hot=null; restCast(); toast('Travelled to '+LOCS[locIdx(k)].name+'. Still resting.'); break; } /* resting travels too and keeps resting (director, 2026-11-22: Travel did nothing while resting) */ if(G.st!=='idle'){ toast('Reel in your line first, then travel.'); return; } S.loc=k; G.hot=null; toast('Travelled to '+LOCS[locIdx(k)].name); break;
     case 'encloc': if(k==='junk'||LOCS[locIdx(k)]) encLoc=k; encSel=null; break;
-    case 'bloc': bLoc=k; break;
+    case 'bloc': bLoc=k; bPick=false; break;
+    case 'bpick': bPick=!bPick; break;
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }

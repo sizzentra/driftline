@@ -27,7 +27,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
     rods:{ cells:(P,hd)=>[['Rod in use',txt(P.querySelector('.rp-card.on b'))||'—'],['Scales',txt(hd&&hd.querySelector('.pts'))||'0']] },
     skills:{ cells:(P,hd)=>[['Skill points',txt(hd&&hd.querySelector('.pts'))||'0'],['Level',String(S.lvl)]], acts:P=>[P.querySelector('[data-act="respec"]')] },
     paths:{ cells:P=>[['Level',String(S.lvl)],['Paths chosen',P.querySelectorAll('.spec.on, .spec[aria-pressed="true"]').length+' / '+SPEC_TIERS.length]] },
-    bounties:{ cells:P=>[['Ready to claim',String(bountyReady())],['Board',locName()]] }, /* one list now: daily tasks and weekly quests, and their page tabs, went on 2026-11-27 */
+    bounties:{ note:()=>'', cells:()=>[] }, /* the page draws its own title band, water picker and ready count (e_ui.js renderBounties, the director's layout of 2026-11-27), so the strip has nothing to show and is left out */
     pass:{ cells:(P,hd)=>{ const t=hd&&hd.querySelector('.tile'); return [['Tide Pass',txt(t&&t.querySelector('.rar'))||'—'],['Progress',(txt(t&&t.querySelector('.meta'))||'').replace(/\s*to level.*$/,'')||'—']]; }, acts:P=>[P.querySelector('[data-act="passclaim"]')] }, /* Cam, 2026-11-20: the claim button went with the header box, so Tide Pass rewards could not be claimed on phones */
     feats:{ cells:(P,hd,sub)=>{ const t=txt(sub); return [['Feats done',(num(t,/(\d+) of (\d+) done/)||'0')+' / '+(num(t,/(\d+) of (\d+) done/,2)||'?')]]; } },
     events:{ cells:P=>{ const w=txt(P.querySelector('.wxf b, .wxf h4'))||''; return [['Weather now',(typeof wx3k==='function'?(()=>{ try{ return wx3k(); }catch(e){ oops('cx_pages:wx3k',e); return ''; } })():'')||w||'—'],['Challenges',String(P.querySelectorAll('.ev-grid > *').length)]]; },
@@ -50,7 +50,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
   PAGES.before=function(){ const P0=$('panel'); const ob=P0&&P0.classList.contains('pg08')&&P0.dataset.pgTab===S.tab?P0.querySelector('.aq07-body'):null; prev=ob?{tab:S.tab, top:ob.scrollTop, sec:P0.dataset.pgSec||''}:null;
     };
   PAGES.after=function(){
-    try{ const P=$('panel'), tab=S.tab, cfg=CFG[tab]; if(!P) return;
+    try{ const P=$('panel'), tab=S.tab, cfg=CFG[tab]; if(!P) return; P.classList.remove('pg08-nobar');
       if(!cfg||PAGES_SKIP.has(tab)){ P.classList.remove('pg08','pg08-nostage'); delete P.dataset.pgTab; if(S.tab!=='aquarium'&&!P.classList.contains('dk08')) P.classList.remove('aq07','aq07-open'); pageDoneRun(); return; }
       const kids=[...P.children].filter(c=>!c.classList.contains('crumb'));
       /* the page's own header: marked dl-dup when a side-panel tab names the page; pages opened only from the top bar (Cooler, Fish Log)
@@ -79,7 +79,7 @@ function pageDoneRun(){ const P=$('panel'), L=PAGE_DONE[S.tab]; if(P&&L) for(con
       rest.forEach(c=>body.appendChild(c));
       let nv=nav;
       if(!nv&&cfg.groups){ try{ const K=[...body.children].filter(c=>!c.classList.contains('pg08-note')); const gs=cfg.groups(K).filter(g=>g.nodes.length); if(gs.length>1){ sectionize(body,tab,gs); nv=body.querySelector(':scope > .bwx-nav'); } }catch(e){ console.error(e); } }
-      [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.appendChild(bar); P.appendChild(sheet); if(nv){ sheet.appendChild(nv); } /* tab columns are set once below, after the page's final layout classes */ /* up to 4 tabs in one row; 5-6 in balanced rows of 3 */ sheet.appendChild(body);
+      [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); if(bank.children.length||bar.children.length>1) P.appendChild(bar); else P.classList.add('pg08-nobar'); /* a page with nothing for the strip (Bounties) has none */ P.appendChild(sheet); if(nv){ sheet.appendChild(nv); } /* tab columns are set once below, after the page's final layout classes */ /* up to 4 tabs in one row; 5-6 in balanced rows of 3 */ sheet.appendChild(body);
       P.classList.add('aq07','aq07-open','pg08','pg08-nostage'); P.classList.remove('dk08'); P.dataset.pgTab=tab;
       if(nv){ const n2=nv.querySelectorAll(':scope > button').length; nv.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nv,n2)},minmax(0,1fr))`,'important'); } /* measured again with the page's final layout */
       // keep the scroll place on a refresh of the same page and section; a new section starts at the top

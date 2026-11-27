@@ -2,6 +2,8 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'The Bounties page has a new layout (the director’s design): a title band with the water’s picture, one water picker in place of a button for every water, and each bounty with a progress bar and its two rewards as chips. On a finished bounty the two chips are the claim buttons: click the reward you want. On PC the page now fills the screen with larger text.',
+  'A board never shows the same bounty twice, and swapping a bounty now costs coins by its water and its effort (it was 15 coins beside 9,900 on one board).',
   'Bounties are the one thing to chase now (director and Cam): daily tasks and weekly quests are gone. Rewards you had not claimed on them are lost.',
   'A bounty no longer pays coins. When you claim one you pick your reward: Scales, or a crate of Nibbles. Every claim also gives some Tide Pass XP.',
   'The reward follows the effort (director): a bounty for one common fish pays 2 Scales or 4 Nibbles, two rare fish 7 Scales or 7 Nibbles, a trophy 9 Scales or a big crate of 9, a shiny or a legend 12 Scales or a big crate of 10. Rarer fish, more fish, a set size and day-only or night-only fish all count for more.',
