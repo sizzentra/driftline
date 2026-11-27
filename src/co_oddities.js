@@ -238,7 +238,7 @@ goldenrecord|Golden Record|3|disc|#e8b830,#8a6a2a|c15|Sounds of Earth, sent to t
 const ODD_TIER_NAMES=['Junk','Odd junk','Rare find','Treasure'];
 // add them to the list (each one knows its template, colors, water and night rule)
 { const seen=new Set(), keep=JUNK.filter(j=>!seen.has(j.id)&&seen.add(j.id)); JUNK.length=0; JUNK.push(...keep); for(const j of JUNK) JUNKI[j.id]=j; } /* the old list held a few entries twice (Lava Lamp, Snow Globe): keep the first */
-try{ if(JUNKI.ancientcoin) JUNKI.ancientcoin.name='Old Gold Coin'; if(JUNKI.traffic) JUNKI.traffic.name='Road Works Cone'; }catch(e){} /* two old pairs shared a name */
+try{ if(JUNKI.ancientcoin) JUNKI.ancientcoin.name='Old Gold Coin'; if(JUNKI.traffic) JUNKI.traffic.name='Road Works Cone'; }catch(e){ oops('co_oddities:ancientcoin.name',e); } /* two old pairs shared a name */
 const ODD_OLD_N=JUNK.length, ODD_NAMES=new Set(JUNK.map(j=>j.name.toLowerCase()));
 for(const line of [...ODD_NEW,...ODD_SPARE]){ if(JUNK.length>=300) break; let [id,name,t,art,cols,eff,q,cond]=line.split('|'); if(ODD_NAMES.has(name.toLowerCase())) continue; if(JUNKI[id]&&JUNK.includes(JUNKI[id])) id='n_'+id; if(JUNKI[id]&&JUNK.includes(JUNKI[id])) continue; ODD_NAMES.add(name.toLowerCase()); const e={};
   const m=/^c([\d.]+)$/.exec(eff); if(m) e.c=+m[1]; else if(/^b/.test(eff)){ const [k,v,mn]=eff.slice(1).split(':'); e.buff=[k,+v,+mn]; } else if(/^s\d/.test(eff)) e.scales=+eff.slice(1);
@@ -256,8 +256,8 @@ function oddBase(L,J){ const bl=bestLoot(), f=Math.max(.6,Math.pow(Math.max(1,L.
 { const _lj=landJunk; landJunk=function(){ const J=G.fish&&G.fish.item; const r=_lj.apply(this,arguments); try{ if(J&&J.e){
     if(J.e.petcol&&typeof petColorPrize==='function'){ const t=petColorPrize(); if(t) setTimeout(()=>toast(t),500); }
     if(J.e.nib){ const ids=Object.keys(S.journal||{}).filter(id=>SPI[id]); if(ids.length){ const id=pick(ids); nibAdd(id,3); setTimeout(()=>toast('+3 '+nibRarName(id)+' Nibbles'+'!'),500); } }
-    if(J.e.song){ const songs=['🎵 Take me to the river… 🎵','🎵 Don’t worry, be happy… 🎵','🎵 Under the sea, under the sea… 🎵','🎵 Row, row, row your boat… 🎵']; setTimeout(()=>toast('The Singing Bass Mount turns its head: '+pick(songs)),400); try{ for(let i=0;i<4;i++) setTimeout(()=>tone(520+i*90,.12,'triangle',.05),i*180); }catch(e){} }
-  } }catch(e){} return r; }; }
+    if(J.e.song){ const songs=['🎵 Take me to the river… 🎵','🎵 Don’t worry, be happy… 🎵','🎵 Under the sea, under the sea… 🎵','🎵 Row, row, row your boat… 🎵']; setTimeout(()=>toast('The Singing Bass Mount turns its head: '+pick(songs)),400); try{ for(let i=0;i<4;i++) setTimeout(()=>tone(520+i*90,.12,'triangle',.05),i*180); }catch(e){ oops('co_oddities:setTimeout',e); } }
+  } }catch(e){ oops('co_oddities:petColorPrize',e); } return r; }; }
 // the pictures: 26 templates, each in the oddity's own colors (and as one flat color for its shadow on the hook)
 const ODD_ART={
   duck(R,E,P,Ci,c,a,b){ E(0,8,40,24,a); Ci(26,-18,18,a); P([40,-20,62,-14,40,-10],b); Ci(30,-22,3,'#1a1a1a'); },
@@ -328,7 +328,7 @@ const ODD_ART={
 { const _dj=drawJunkAt; drawJunkAt=function(c,id,x,y,s,sil){ const J=JUNKI[id]; const fn=J&&J.art&&ODD_ART[J.art]; if(!fn) return _dj.apply(this,arguments);
     c.save(); c.translate(x,y); c.scale(s,s); c.lineJoin='round'; c.lineCap='round'; const F=col=>sil||col, a=F(J.cols[0]), b=F(J.cols[1]||J.cols[0]);
     const R=(x,y,w,h,col)=>{ c.fillStyle=F(col); c.fillRect(x,y,w,h); }, Ci=(x,y,r,col)=>{ c.fillStyle=F(col); c.beginPath(); c.arc(x,y,r,0,7); c.fill(); }, E=(x,y,rx,ry,col,rot=0)=>{ c.fillStyle=F(col); c.beginPath(); c.ellipse(x,y,rx,ry,rot,0,7); c.fill(); }, P=(pts,col)=>{ c.fillStyle=F(col); c.beginPath(); c.moveTo(pts[0],pts[1]); for(let i=2;i<pts.length;i+=2) c.lineTo(pts[i],pts[i+1]); c.closePath(); c.fill(); };
-    c.fillStyle=a; try{ fn(R,E,P,Ci,c,a,b); if(!sil) oddDecor(c,J,a,b,R,E,Ci); }catch(e){} if(!sil){ c.globalAlpha=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-14,-20,16,7,-.5,0,7); c.fill(); } c.restore(); }; }
+    c.fillStyle=a; try{ fn(R,E,P,Ci,c,a,b); if(!sil) oddDecor(c,J,a,b,R,E,Ci); }catch(e){ oops('co_oddities:fn',e); } if(!sil){ c.globalAlpha=.18; c.fillStyle='#ffffff'; c.beginPath(); c.ellipse(-14,-20,16,7,-.5,0,7); c.fill(); } c.restore(); }; }
 // what the Oddities page shows once you have found one: rarity, odds, where and when, what it gives
 function oddKV(id){ const J=JUNKI[id]; if(!J) return ''; const L=J.loc&&LOCS[locIdx(J.loc)], o=oddOdds(J), jc=junkChance();
   return `<div><span>Rarity</span> ${ODD_TIER_NAMES[J.t]}</div><div><span>Turns up</span> ${L?'only at '+esc(L.name):'at every water'}${J.night?', only at night':''}</div>`+

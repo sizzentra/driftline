@@ -25,9 +25,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.pch-on #hint.dl-e
 // ---------- Bait on the fishing screen (item 15): a chip in the strip under the header shows the bait you use and opens Bait ----------
 { let chip=null; const name=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
   const place=()=>{ const row=document.getElementById('pcscene'); if(!row) return; if(!chip){ chip=document.createElement('button'); chip.type='button'; chip.className='stat pcs-bait'; chip.innerHTML='<span class="lbl">Bait</span><b></b>';
-      chip.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu('bait'); }); }
+      chip.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/ui_round6:startAudio',er); } openMenu('bait'); }); }
     const wx=row.querySelector('.pcs-wx'); if(chip.parentElement!==row) (wx?wx.after(chip):row.appendChild(chip)); const t=name(), b=chip.querySelector('b'); if(b.textContent!==t) b.textContent=t; };
-  setInterval(()=>{ try{ if(FHD()||document.body.classList.contains('pch-on')) place(); }catch(e){} },1000); setTimeout(place,900); }
+  setInterval(()=>{ try{ if(FHD()||document.body.classList.contains('pch-on')) place(); }catch(e){ oops('pc/ui_round6:FHD',e); } },1000); setTimeout(place,900); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pch-on #pcscene > .pcs-bait{display:grid!important;grid-template-rows:auto auto;align-content:center;flex:0 0 auto!important;max-width:220px;padding:0 12px!important;border-radius:10px;border:1px solid #7fe3c455;background:#0e1a2c;color:#e6f2ff;cursor:pointer;text-align:left}
 html body.pch-on #pcscene > .pcs-bait .lbl{font:800 10px var(--display,system-ui);letter-spacing:.08em;text-transform:uppercase;color:#8ea4b9}

@@ -164,13 +164,13 @@ function keysFastBoat(x,y,s,dir,kind,P,t){ const N=c0=>mix(c0,P.wMid,P.night*.55
 function waRing(x,y,s,k,a){ g.strokeStyle='rgba(255,255,255,'+(a*(1-k))+')'; g.lineWidth=1.2; g.beginPath(); g.ellipse(x,y,s*(1+k*4),s*(.3+k*1.2),0,0,7); g.stroke(); }
 const WA_MORE={}; /* each newer water's extra life and its moment: src/w_<id>.js (Clean Scenes 5, 2026-11-22) */
 // music, depth motes and search words for the new waters
-try{ Object.assign(MUS_AREA,{blossom:null /* Maplewood Hollow plays the cozy home tune for now; its own fall music is a later job */, rockies:'glacier', keys:'flats', amazon:'canopy', farm:'fair', buffet:'dinner', corporate:'lounge', nile:'nile', circuit:'neon', olympus:'thunder'}); }catch(e){} /* batch 5: every water its own theme (j_music.js) */
-try{ Object.assign(DEPTH_MOTE,{blossom:'255,220,170', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){}
-try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow autumn fall leaves rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){}
+try{ Object.assign(MUS_AREA,{blossom:null /* Maplewood Hollow plays the cozy home tune for now; its own fall music is a later job */, rockies:'glacier', keys:'flats', amazon:'canopy', farm:'fair', buffet:'dinner', corporate:'lounge', nile:'nile', circuit:'neon', olympus:'thunder'}); }catch(e){ oops('cn_waterart:Object.assign',e); } /* batch 5: every water its own theme (j_music.js) */
+try{ Object.assign(DEPTH_MOTE,{blossom:'255,220,170', rockies:'255,255,255', keys:'255,255,240', amazon:'220,240,200', farm:'255,250,230', buffet:'255,240,200', corporate:'220,230,255', nile:'255,240,210', circuit:'120,240,255', olympus:'255,240,200'}); }catch(e){ oops('cn_waterart:Object.assign#2',e); }
+try{ const s=SEARCH_IDX.find(e=>e[0]==='Waters'); if(s) s[3]+=' maplewood hollow autumn fall leaves rockies canada keys florida amazon farm buffet corporate nile egypt circuit cyber olympus'; }catch(e){ oops('cn_waterart:SEARCH_IDX.find',e); }
 // end-game waters: open them for anyone with enough voyages (start-up, any load, and after setting sail)
 /* every load runs egOpenAdd: a step of migrate() in c_logic.js */
-try{ egOpenAdd(S); }catch(e){}
-document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b) return; setTimeout(()=>{ try{ egOpenAdd(S); }catch(er){} },30); },true);
+try{ egOpenAdd(S); }catch(e){ oops('cn_waterart:egOpenAdd',e); }
+document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b) return; setTimeout(()=>{ try{ egOpenAdd(S); }catch(er){ oops('cn_waterart:egOpenAdd#2',er); } },30); },true);
 // end-game fish pay 25% more than your best normal water and fight like it
-{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){} return f; }; }
+{ const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); try{ if(f&&sp&&sp.eg){ const k=egScale(); f.value=Math.max(1,Math.round(f.value*k.v)); f.str=+(f.str*k.s).toFixed(2); } }catch(e){ oops('cn_waterart:egScale',e); } return f; }; }
 // end-game fish in the Aquarium: their income cap follows the same scale (it is computed from the water's fish)

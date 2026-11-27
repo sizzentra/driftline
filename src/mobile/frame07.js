@@ -123,7 +123,7 @@ new MutationObserver(ms=>{ if(!MOB()) return; for(const m of ms) for(const n of 
   window.addEventListener('resize',()=>{ if(!queued){ queued=true; requestAnimationFrame(fit); } });
   if(/[?&]test\b/.test(location.search)) window.__mbFit=fit; }
 // ---- the measurement check (test builds only): returns every place that breaks the set measurements, on the screen now ----
-if(/[?&]test\b/.test(location.search)) window.__spec=()=>{ for(const a of document.getAnimations()){ try{ if(a.effect&&a.effect.getComputedTiming().iterations!==Infinity) a.finish(); }catch(e){} } /* measure where things end up, not mid slide-in */
+if(/[?&]test\b/.test(location.search)) window.__spec=()=>{ for(const a of document.getAnimations()){ try{ if(a.effect&&a.effect.getComputedTiming().iterations!==Infinity) a.finish(); }catch(e){ oops('mobile/frame07:effect.getComputedTiming',e); } } /* measure where things end up, not mid slide-in */
   /* the phone's safe areas (camera cutout, rounded corners, home bar), read through a probe; every expected position follows them
      exactly like the water does: an edge is the standard number or the safe area, whichever is bigger */
   const SA=(()=>{ const p=document.createElement('div'); p.className='mb-sa-probe'; document.body.appendChild(p); const c=getComputedStyle(p); const o={l:parseFloat(c.paddingLeft)||0,r:parseFloat(c.paddingRight)||0,t:parseFloat(c.paddingTop)||0,b:parseFloat(c.paddingBottom)||0}; p.remove(); return o; })();
@@ -187,4 +187,4 @@ if(/[?&]test\b/.test(location.search)) window.__spec=()=>{ for(const a of docume
   if(/[?&]test\b/.test(location.search)) window.__safeSim=(l,r,t,b)=>{ const px={left:l,right:r,top:t,bottom:b}; const fix=v=>v.replace(/env\(\s*safe-area-inset-(left|right|top|bottom)\s*(?:,[^()]*(?:\([^()]*\))?[^()]*)?\)/g,(m,s)=>px[s]+'px'); let n=0;
     /* the whole rule text, so shorthands (padding: max(...) max(...)...) and !important are kept */
     const walk=rs=>{ for(const rule of rs){ if(rule.cssRules&&!rule.selectorText) walk(rule.cssRules); else if(rule.style&&rule.style.cssText.includes('safe-area-inset')){ rule.style.cssText=fix(rule.style.cssText); n++; } } };
-    for(const ss of document.styleSheets){ try{ walk(ss.cssRules); }catch(e){} } for(const el of document.querySelectorAll('[style*="safe-area-inset"]')){ el.setAttribute('style',fix(el.getAttribute('style'))); n++; } dispatchEvent(new Event('resize')); /* positions the game works out on a resize */ return n; }; }
+    for(const ss of document.styleSheets){ try{ walk(ss.cssRules); }catch(e){ /* quiet: test hook; a style sheet from another address cannot be read, by design */ } } for(const el of document.querySelectorAll('[style*="safe-area-inset"]')){ el.setAttribute('style',fix(el.getAttribute('style'))); n++; } dispatchEvent(new Event('resize')); /* positions the game works out on a resize */ return n; }; }

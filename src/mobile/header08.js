@@ -26,11 +26,11 @@
   const ensure=()=>{ const hud=document.querySelector('.hud'), gc=document.getElementById('goalchip'); if(!hud||!gc) return false; if(G0&&G0.isConnected) return true;
     G0=mk('mbgoal','mb-goal'); L0=mk('mblive','mb-live'); G0.insertAdjacentHTML('beforeend','<i class="mbg-bar"><b></b></i>'); gc.before(G0); G0.after(L0); L0.hidden=true;
     G0.addEventListener('pointerdown',e=>e.stopPropagation()); L0.addEventListener('pointerdown',e=>e.stopPropagation());
-    G0.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); const gl=realGoal(); try{ startAudio(); }catch(er){}
-      if(!gl.tab){ try{ setHint(gl.sub||gl.t); }catch(er){} return; }
-      try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(er){}
+    G0.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); const gl=realGoal(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio',er); }
+      if(!gl.tab){ try{ setHint(gl.sub||gl.t); }catch(er){ oops('mobile/header08:setHint',er); } return; }
+      try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(er){ oops('mobile/header08:locIdx',er); }
       openMenu(gl.tab); });
-    L0.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('events'); });
+    L0.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#2',er); } openMenu('events'); });
     return true; };
   const tick=()=>{ if(!MOB()||!ensure()) return; const gl=realGoal(), lv=liveNow();
     const g=(gl.ready?'1':'0')+'|'+short(gl)+'|'+Math.round((gl.p||0)*100)+'|'+gl.t+'|'+(gl.sub||'');
@@ -60,7 +60,7 @@ html body.phone-app .hud > #mblive .lbl,html body.phone-land .hud > #mblive .lbl
 { const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   let T=null, Pz=null, last='';
   const mk=(id,go,lbl)=>{ const b=h('button','stat hudx mb-x'); b.type='button'; b.id=id; b.innerHTML=`<span class="lbl">${lbl}</span><b></b>`;
-    b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu(go); }); return b; };
+    b.addEventListener('pointerdown',e=>e.stopPropagation()); b.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#3',er); } openMenu(go); }); return b; };
   const tasks=()=>{ try{ const d=ensureDaily(); const ready=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); const done=d.tasks.filter(t=>t.claimed).length; return {ready, txt:ready?ready+' ready':done+'/'+d.tasks.length+' done'}; }catch(e){ return {ready:0,txt:'—'}; } };
   const pass=()=>{ try{ const pl=S.pass.lvl|0, un=pl-(S.pass.claimed|0); return {ready:un>0, txt:'Lv '+pl+(un>0?' · claim':'')}; }catch(e){ return {ready:false,txt:'—'}; } };
   const fit=()=>{ const hud=document.querySelector('.hud'); if(!hud||!T) return; const land=document.body.classList.contains('phone-land');
@@ -136,7 +136,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land .hud >
 { const lbl=()=>{ const b=BAIT[S.baitSel]||BAIT.worm; return b.name+(S.baitSel!=='worm'?' · '+(S.bait[S.baitSel]||0):''); };
   const ensure=()=>{ if(!MOB()) return; const hud=document.querySelector('.hud'); if(!hud) return; let c=document.getElementById('mbbait');
     if(!c){ c=document.createElement('button'); c.type='button'; c.id='mbbait'; c.className='stat hudx mb-x mb-bait'; c.innerHTML='<span class="lbl">Bait</span><b></b>'; c.title='The bait you fish with. Tap to switch bait, buy more or use a special lure.';
-      c.addEventListener('pointerdown',e=>e.stopPropagation()); c.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('bait'); }); }
+      c.addEventListener('pointerdown',e=>e.stopPropagation()); c.addEventListener('click',e=>{ e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/header08:startAudio#4',er); } openMenu('bait'); }); }
     const after=document.getElementById('mbtasks')||document.getElementById('mblive'), cool=hud.querySelector('.st-cool');
     if(cool&&c.nextElementSibling!==cool) cool.before(c); else if(!cool&&after&&c.previousElementSibling!==after) after.after(c);
     const t=lbl(), b=c.querySelector('b'); if(b.textContent!==t) b.textContent=t; };

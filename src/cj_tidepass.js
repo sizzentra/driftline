@@ -71,8 +71,8 @@ function auraDraw(c,a,x,y,s,front){ const t=tnow(), cx=x, cy=y-42*s, R=24*s, st=
     else { c.lineWidth=Math.max(.8,1.1*s); for(let i=0;i<3;i++){ c.globalAlpha=.55; c.strokeStyle=i%2?c2:c1; c.beginPath(); for(let k=0;k<=20;k++){ const u=k/20, xx=cx-R*1.3+u*R*2.6, yy=cy+18*s-i*10*s+Math.sin(u*6+t*2+i)*4*s; k?c.lineTo(xx,yy):c.moveTo(xx,yy); } c.stroke(); }
       c.globalAlpha=.8; c.strokeStyle=c1; c.beginPath(); c.ellipse(cx,y-86*s,9*s,2.6*s,0,0,7); c.stroke(); for(let i=0;i<5;i++){ const an=t*2+i/5*Math.PI*2; c.fillStyle=c2; c.beginPath(); c.arc(cx+Math.cos(an)*9*s,y-86*s+Math.sin(an)*2.6*s,1.1*s,0,7); c.fill(); } } }
   c.restore(); }
-{ const _da=drawAngler; drawAngler=function(c,x,y,s,lk,o){ const a=lk&&lk.aura&&AURAI[lk.aura], fx=a&&!(S.settings&&S.settings.effects===false); if(fx) try{ auraDraw(c,a,x,y,s,0); }catch(e){}
-    const r=_da.apply(this,arguments); if(fx) try{ auraDraw(c,a,x,y,s,1); }catch(e){} return r; }; }
+{ const _da=drawAngler; drawAngler=function(c,x,y,s,lk,o){ const a=lk&&lk.aura&&AURAI[lk.aura], fx=a&&!(S.settings&&S.settings.effects===false); if(fx) try{ auraDraw(c,a,x,y,s,0); }catch(e){ oops('cj_tidepass:auraDraw',e); }
+    const r=_da.apply(this,arguments); if(fx) try{ auraDraw(c,a,x,y,s,1); }catch(e){ oops('cj_tidepass:auraDraw#2',e); } return r; }; }
 function lineStyle(a){ const L=LINEI[S.look&&S.look.line]; if(!L) return 'rgba(235,240,235,'+a+')'; if(L[2]==='star') return 'hsla('+((tnow()*60)%360|0)+',90%,80%,'+a+')'; return L[2].replace('A',a); }
 function drawBobSkin(g,x,y,br,id){ const B=BOBI[id||(S.look&&S.look.bob)]; if(!B) return false; const t=tnow();
   if(B[4]==='glow') v3glow(g,x,y,br*4,'rgba(255,170,80,.9)',.35+.15*Math.sin(t*3));
@@ -99,8 +99,8 @@ function drawBobSkin(g,x,y,br,id){ const B=BOBI[id||(S.look&&S.look.bob)]; if(!B
       <div class="prog" style="margin-top:4px"><i style="width:${clamp((pl-C[0]+1)/(end-C[0]+1),0,1)*100}%;background:var(--kelp)"></i></div>
       <div class="pass-show">${ex.filter(L=>L>=C[0]&&L<=end).map(L=>{ const sp=PASS_SPECIAL[L], own=L<=S.pass.claimed; return `<div class="pass-ex ${own?'got':''} ${L<=pl&&!own?'ready':''}" title="${esc(sp[3])}"><canvas width="72" height="72" data-pex="${L}"></canvas><span><b>Lv ${L}</b>${own?' ✓':''}<br>${esc(sp[2])}</span></div>`; }).join('')||'<span class="meta">No exclusives in this chapter.</span>'}</div>
       <div class="pass-chs">${PASS_CHAPTERS.map((c,i)=>{ const e2=PASS_CHAPTERS[i+1]?PASS_CHAPTERS[i+1][0]-1:PASS_MAX, l=ex.filter(L=>L>=c[0]&&L<=e2), g=l.filter(L=>L<=S.pass.claimed).length; return `<span class="${i===ch?'on':''}">${i+1}. ${esc(c[1])} <b>${g}/${l.length}</b></span>`; }).join('')}</div></div>`;
-    const head=P.querySelector('.row.spread'); if(head) head.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){} }; }
-{ const _rp2=renderPass; renderPass=function(P){ _rp2(P); try{ P.querySelectorAll("canvas[data-pex]").forEach(cv=>{ const x=cv.getContext("2d"); x.clearRect(0,0,cv.width,cv.height); passArt(x,cv.width,cv.height,+cv.dataset.pex); }); }catch(e){} }; }
+    const head=P.querySelector('.row.spread'); if(head) head.insertAdjacentHTML('afterend',html); else P.insertAdjacentHTML('afterbegin',html); }catch(e){ oops('cj_tidepass:passChapter',e); } }; }
+{ const _rp2=renderPass; renderPass=function(P){ _rp2(P); try{ P.querySelectorAll("canvas[data-pex]").forEach(cv=>{ const x=cv.getContext("2d"); x.clearRect(0,0,cv.width,cv.height); passArt(x,cv.width,cv.height,+cv.dataset.pex); }); }catch(e){ oops('cj_tidepass:P.querySelectorAll',e); } }; }
 // ---------- Wardrobe: wear what the Pass gave you ----------
 // Wardrobe › Tide Pass tab: picture tiles (the same tiles as the rest of the Wardrobe), locked ones show the level that brings them
 function passWearHTML(){ const grid=(k,list,cur,label)=>{ const own=passOwnList(k); const tile=(id,name,ok,L)=>`<button class="wd-th${ok?'':' pw-lock'}" data-act="passwear" data-k="${k}:${id}" aria-pressed="${(cur||'none')===id}" ${ok?'':'disabled'} title="${ok?'Wear it':'Tide Pass level '+L}"><canvas width="${k==='aura'?144:96}" height="${k==='aura'?144:96}" data-pw="${k}:${id}"></canvas><span>${esc(name)}${ok?'':' · Lv '+L}</span></button>`;
@@ -111,14 +111,14 @@ function passWearPaint(root){ (root||document).querySelectorAll('canvas[data-pw]
   if(k==='aura') drawAngler(x,w/2,h*.97,h/94,Object.assign({},S.look,{aura:id}),{t:performance.now()/1000});
   else if(k==='bob') drawBobSkin(x,w/2,h*.55,h*.18,id);
   else { const L=LINEI[id]; x.lineWidth=4; x.strokeStyle=L[2]==='star'?'hsl(270,90%,80%)':L[2].replace('A',1); x.beginPath(); x.moveTo(w*.12,h*.2); x.quadraticCurveTo(w*.45,h*.95,w*.86,h*.42); x.stroke(); drawBobSkin(x,w*.86,h*.45,h*.08,null); } }); }
-{ const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ if(typeof wSec!=='undefined'&&wSec==='tidepass') passWearPaint(P||$('panel')); }catch(e){} return r; }; }
+{ const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ if(typeof wSec!=='undefined'&&wSec==='tidepass') passWearPaint(P||$('panel')); }catch(e){ oops('cj_tidepass:passWearPaint',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend','<style>#panel .wd-th canvas[data-pw^="aura:"]{width:100%!important;height:auto!important;max-width:120px;aspect-ratio:1} /* batch 2: aura previews fill their tile (they were a small figure in a big tile) */#panel .wd-th.pw-lock{opacity:.9}#panel .wd-th.pw-lock span{opacity:.75} /* batch 2: locked previews stay bright (try before you buy); the label says the level */</style>');
 { const _ea=extraAct7; extraAct7=function(b){ if(b.dataset.act==='passwear'){ const [k,id]=String(b.dataset.k||'').split(':'); if(!PASS_NEW_KINDS[k]) return 'skip'; if(id!=='none'&&!passOwnList(k).includes(id)) return 'skip';
     S.look[k]=id==='none'?'none':id; save(); return 'render'; } return _ea(b); }; }
 if(typeof ACT_OK==='object') ACT_OK.passwear=k=>/^(aura|bob|line):[a-z]+$/.test(String(k));
 /* a step of migrate() in c_logic.js; saved = the save as it arrived (null when it was not a save at all) */
 function passOwnedClean(m,saved){ const raw=saved&&isObj(saved.owned)?saved.owned:{}; try{ m.owned=m.owned||{}; for(const k in PASS_NEW_KINDS){ const key=PASS_NEW_KINDS[k], I=k==='aura'?AURAI:k==='bob'?BOBI:LINEI, src=Array.isArray(raw[key])?raw[key]:m.owned[key]; m.owned[key]=Array.isArray(src)?[...new Set(src.filter(x=>I[x]))]:[];
-      if(m.look&&m.look[k]!=null&&m.look[k]!=='none'&&!m.owned[key].includes(m.look[k])) m.look[k]='none'; } }catch(e){} }
+      if(m.look&&m.look[k]!=null&&m.look[k]!=='none'&&!m.owned[key].includes(m.look[k])) m.look[k]='none'; } }catch(e){ oops('cj_tidepass:Array.isArray',e); } }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .pass-ch{margin:10px 0}
 #panel .pass-show{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin-top:8px}
@@ -135,4 +135,4 @@ function passCatchUp(m,raw){ try{ if(raw&&raw.passMig!==1&&m.pass&&m.pass.claime
       for(const L of PASS_NEW_L){ if(L>m.pass.claimed) break; const [k,id,name]=PASS_SPECIAL[L];
         if(PASS_NEW_KINDS[k]){ const key=PASS_NEW_KINDS[k]; if(!m.owned[key].includes(id)) m.owned[key].push(id); } else if(k==='tint'){ if(Array.isArray(m.petTints)&&!m.petTints.includes(id)) m.petTints.push(id); }
         else if(k==='pearl') m.pearls=(m.pearls||0)+id; else if(k==='boon') m.boonPts=(m.boonPts||0)+id; m.pass.got[L]=name; } }
-    m.passMig=1; }catch(e){} }
+    m.passMig=1; }catch(e){ oops('cj_tidepass:isObj',e); } }

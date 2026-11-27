@@ -199,7 +199,7 @@ Object.assign(HAT036,{
 // 0.3.6 outfit detail: real construction on the outfits that still read flat (drawn over the outfit, clipped to it)
 // ---------------------------------------------------------------------
 const _drawOutfit3_036=drawOutfit3;
-drawOutfit3=function(c,lk,D,f,t){ _drawOutfit3_036(c,lk,D,f,t); const o=lk.outfit; if(!OUT036[o]) return; c.save(); c.globalCompositeOperation="source-atop"; c.lineCap="round"; c.lineJoin="round"; try{ OUT036[o](c,lk,D,f,t||0); }catch(e){} c.restore(); };
+drawOutfit3=function(c,lk,D,f,t){ _drawOutfit3_036(c,lk,D,f,t); const o=lk.outfit; if(!OUT036[o]) return; c.save(); c.globalCompositeOperation="source-atop"; c.lineCap="round"; c.lineJoin="round"; try{ OUT036[o](c,lk,D,f,t||0); }catch(e){ oops('bi_hats036:n1',e); } c.restore(); };
 const OUT036={
   hoodie(c,lk,D,f){ const oc=D(a3OC(lk,'#d8a020')), dk=mix(oc,'#000000',.32), lt=mix(oc,'#ffffff',.3), fx=sideFront(-44,f);
     c.strokeStyle=D('#f4f0e8'); c.lineWidth=.45; c.beginPath(); c.moveTo(fx-1.2,-46); c.quadraticCurveTo(fx-.6,-42,fx-.9,-38.6); c.moveTo(fx-2.2,-46.2); c.quadraticCurveTo(fx-1.8,-42.6,fx-2.2,-39.4); c.stroke();

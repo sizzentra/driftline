@@ -30,7 +30,7 @@
     if(J&&v3play(J.C,now>J.ms-1000?12:4)){ B={c:J.c,ms:J.ms,lt:J.lt}; J=null; } /* 8b: the next picture is painted a few ms per frame (it was one 300 ms frame on the director's PC) */
     if(!B&&!J&&!bq&&now>=(A.chk||0)){ A.chk=now+500; const ms=Math.max(A.ms,now)+D, lt2=lightAt(ms), lt1=A.lt;
       if(lt1&&Math.abs(lt2.night-lt1.night)<.004&&Math.abs(lt2.dusk-lt1.dusk)<.004&&Math.abs(lt2.gloom-lt1.gloom)<.004){ A.ms=now; }
-      else bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; const r=buildAt(L2,ms,HZ(),1); J={c:r.c,ms,lt:r.lt,C:r.C}; }catch(e){} },0); }
+      else bq=setTimeout(()=>{ bq=0; try{ const L2=curLoc(); if(base!==L2.id+'|'+W+'|'+H+'|'+DPR||!A) return; const r=buildAt(L2,ms,HZ(),1); J={c:r.c,ms,lt:r.lt,C:r.C}; }catch(e){ oops('pc/scene_light:curLoc',e); } },0); }
     g.drawImage(A.c,0,0,W,H);
     if(B){ const a=clamp((now-A.ms)/(B.ms-A.ms),0,1); if(a>0){ g.globalAlpha=a; g.drawImage(B.c,0,0,W,H); g.globalAlpha=1; } } };
   if(/[?&]test\b/.test(location.search)) window.__pclight=()=>({on:pcOn()&&Date.now()>=fallbackUntil, A:A&&A.ms, B:B&&B.ms, fallback:Date.now()<fallbackUntil, builds}); }

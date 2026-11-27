@@ -8,19 +8,19 @@ function oddsDelta(now,then){ const d=then.epic-now.epic; if(Math.abs(d)<.0005) 
 // bait rows: the odds with that bait at this water, against the bait you are using now
 const _baitRow_036=baitRow;
 baitRow=function(e){ const html=_baitRow_036(e), k=e[0]; let line='';
-  try{ const now=catchOdds(), o=catchOdds({bait:k}); line=`<div class="odds">${oddsHere(o)} ${S.baitSel===k?'<span class="odds-same">in use</span>':oddsDelta(now,o)}</div>`; }catch(err){}
+  try{ const now=catchOdds(), o=catchOdds({bait:k}); line=`<div class="odds">${oddsHere(o)} ${S.baitSel===k?'<span class="odds-same">in use</span>':oddsDelta(now,o)}</div>`; }catch(err){ oops('bj_polish036:catchOdds',err); }
   return html.replace(/<\/div>(\s*)<div class="tk-acts">/, line+'</div>$1<div class="tk-acts">'); };
 // rods: every rod in the rack shows the odds it would give you here
 const _renderRods_036=renderRods;
 renderRods=function(P){ _renderRods_036(P); try{ const now=catchOdds(), byName={}; RODS.forEach(r=>byName[r.name]=r);
   P.querySelectorAll('.grid .tile').forEach(t=>{ const h=t.querySelector('h4'), r=h&&byName[h.textContent.trim()]; if(!r) return; const o=catchOdds({rod:r.id});
-    const here=S.rods&&S.rods.eq===r.id; const d=document.createElement('div'); d.className='odds'; d.innerHTML=oddsHere(o)+' '+(here?'<span class="odds-same">equipped</span>':oddsDelta(now,o)); const btn=t.querySelector('button,.meta:last-child'); t.insertBefore(d, t.querySelector('button')||null); }); }catch(err){} };
+    const here=S.rods&&S.rods.eq===r.id; const d=document.createElement('div'); d.className='odds'; d.innerHTML=oddsHere(o)+' '+(here?'<span class="odds-same">equipped</span>':oddsDelta(now,o)); const btn=t.querySelector('button,.meta:last-child'); t.insertBefore(d, t.querySelector('button')||null); }); }catch(err){ oops('bj_polish036:catchOdds#2',err); } };
 // skills: Lucky Charm shows what its next rank does at this water
 const _renderSkills2_036=renderSkills2;
 renderSkills2=function(P){ _renderSkills2_036(P); try{ const h=[...P.querySelectorAll('h4')].find(x=>x.textContent.trim()==='Lucky Charm'); if(!h) return; const tile=h.closest('.tile')||h.parentElement; const r=pr('lucky');
   const now=catchOdds(), d=document.createElement('div'); d.className='odds';
   d.innerHTML = r>=10 ? oddsHere(now)+' <span class="odds-same">fully learned</span>' : (()=>{ const o=catchOdds({lucky:r+1}); return 'Next rank here: epic or better <b>'+fmtOdds(o.epic)+'</b> '+oddsDelta(now,o); })();
-  const btn=[...tile.querySelectorAll('button')].pop(); tile.insertBefore(d, btn||null); }catch(err){} };
+  const btn=[...tile.querySelectorAll('button')].pop(); tile.insertBefore(d, btn||null); }catch(err){ oops('bj_polish036:P.querySelectorAll',err); } };
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .odds{font-size:12.5px;color:var(--muted,#9fb2c8);margin-top:6px;line-height:1.35}
 #panel .odds b{color:#e9d8ff;font-variant-numeric:tabular-nums}
@@ -38,12 +38,12 @@ const PC_APP=()=>!document.body.classList.contains('phone-app')&&!document.body.
 function pcFit(){ const w=document.querySelector('.wrap'); if(!w) return; if(!document.body.classList.contains('pc-app')){ w.style.height=''; return; }
   const top=w.getBoundingClientRect().top+(window.scrollY||0); w.style.height=Math.max(420,Math.round(innerHeight-top-10))+'px'; }
 (function(){ let on=null; const apply=()=>{ const v=PC_APP(); if(v!==on){ on=v; document.body.classList.toggle('pc-app',v); document.documentElement.classList.toggle('pc-app',v); if(v) window.scrollTo(0,0); }
-    pcFit(); try{ resize(); }catch(e){} };
+    pcFit(); try{ resize(); }catch(e){ oops('bj_polish036:resize',e); } };
   addEventListener('resize',apply); document.addEventListener('fullscreenchange',()=>setTimeout(apply,80)); setTimeout(apply,0); })();
 const _stageHOverride_036=stageHOverride;
 stageHOverride=function(W,H){ const o=_stageHOverride_036(W,H); if(o) return o; if(!document.body.classList.contains('pc-app')) return 0;
   return Math.max(260,Math.min(Math.round(W*.5),Math.round(innerHeight/UIZ*.38))); };
-{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), same=S.tab===lastTab, keep=P?P.scrollTop:0; const r=_rp.apply(this,arguments); try{ if(document.body.classList.contains('pc-app')&&P) P.scrollTop=same?keep:0; }catch(e){} lastTab=S.tab; return r; }; }
+{ let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), same=S.tab===lastTab, keep=P?P.scrollTop:0; const r=_rp.apply(this,arguments); try{ if(document.body.classList.contains('pc-app')&&P) P.scrollTop=same?keep:0; }catch(e){ oops('bj_polish036:classList.contains',e); } lastTab=S.tab; return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html.pc-app{overflow:hidden;height:100%}
 body.pc-app{overflow:hidden;height:calc(100*var(--uvh,1vh));overscroll-behavior:none}
@@ -55,7 +55,7 @@ body.pc-app #panel::-webkit-scrollbar{width:8px} body.pc-app #panel::-webkit-scr
 // Wide PC screens: the page sits in its own full-height column beside the water instead of under it, so it always has
 // room (at 1280x800 the stacked layout left it about 125 px). The section bar sits at the top of that column.
 const PC_WIDE=()=>document.body.classList.contains('pc-app')&&innerWidth>=980&&innerWidth/innerHeight>=1.2;
-(function(){ const apply=()=>{ const v=PC_WIDE(); if(document.body.classList.contains('pc-wide')!==v){ document.body.classList.toggle('pc-wide',v); try{ resize(); }catch(e){} } };
+(function(){ const apply=()=>{ const v=PC_WIDE(); if(document.body.classList.contains('pc-wide')!==v){ document.body.classList.toggle('pc-wide',v); try{ resize(); }catch(e){ oops('bj_polish036:resize#2',e); } } };
   addEventListener('resize',()=>setTimeout(apply,0)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,120)); setTimeout(apply,30); })();
 const _stageHOverride_036b=stageHOverride;
 stageHOverride=function(W,H){ if(document.body.classList.contains('pc-wide')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*.52),Math.round((innerHeight-top-56)/UIZ))); } return _stageHOverride_036b(W,H); };
@@ -101,7 +101,7 @@ function nextGoal(){ if(!S.stats.caught) return {t:'Catch your first fish', sub:
   if(got<here.length) return {t:'Fish Log: '+curLoc().name, sub:got+' / '+here.length+' species found here', p:got/here.length, tab:'journal', loc:S.loc};
   const all=SP.filter(s=>S.journal[s.id]).length; return {t:'Every species here found', sub:all+' / '+SP.length+' in the Fish Log', p:all/SP.length, tab:'journal', loc:S.loc}; }
 (function(){ const stage=$('stage'); if(!stage) return; const el=document.createElement('button'); el.id='goalchip'; el.type='button'; stage.appendChild(el);
-  el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(er){} /* open the page on the place the goal is about */ if(!MENU_OPEN){ openMenu(gl.tab); return; } /* PC Reborn: clicking the chip ("Live: ... left" included) opens its page; it used to switch the page behind a closed menu */ setTab(gl.tab); try{ menuSync(); }catch(er){} const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
+  el.addEventListener('pointerdown',e=>e.stopPropagation()); el.addEventListener('click',e=>{ e.stopPropagation(); const gl=nextGoal(); if(!gl.tab) return; try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(er){ oops('bj_polish036:locIdx',er); } /* open the page on the place the goal is about */ if(!MENU_OPEN){ openMenu(gl.tab); return; } /* PC Reborn: clicking the chip ("Live: ... left" included) opens its page; it used to switch the page behind a closed menu */ setTab(gl.tab); try{ menuSync(); }catch(er){ oops('bj_polish036:menuSync',er); } const P=$('panel'); if(P&&!document.body.classList.contains('pc-app')&&!document.body.classList.contains('phone-app')) P.scrollIntoView({behavior:'smooth',block:'start'}); });
   // in the top bar (fishing mode) the chip always shows, so the bar never shifts when a fight starts
   let last=''; const tick=()=>{ const show=(el.closest('.hud')||['idle','waiting','result','rest'].includes(G.st))&&!S.settings.hideGoal; let html='';
     if(show){ const gl=nextGoal(); html=`<span class="gl-k">${gl.ready?'Ready':gl.live?'Live':'Next goal'}</span><span class="gl-t">${esc(gl.t)}</span><span class="gl-s">${esc(gl.sub)}</span>${gl.p!=null?`<i class="gl-bar"><b style="width:${Math.round(clamp(gl.p,0,1)*100)}%"></b></i>`:''}`; el.classList.toggle('ready',!!gl.ready); el.classList.toggle('live',!!gl.live); el.title=(gl.sub?gl.sub+'. ':'')+(gl.tab?'Open the page for this goal':''); }
@@ -132,8 +132,8 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // Saving: also when the page is hidden or closed (phones put tabs to sleep and iOS may discard them), so nothing done
 // since the last save is ever lost
 // ---------------------------------------------------------------------
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ try{ save(); }catch(e){} } });
-addEventListener('pagehide',()=>{ try{ save(); }catch(e){} });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ try{ save(); }catch(e){ oops('bj_polish036:save',e); } } });
+addEventListener('pagehide',()=>{ try{ save(); }catch(e){ oops('bj_polish036:save#2',e); } });
 // narrower PC windows stack the water over the page: a compact section bar leaves the page more room
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-app:not(.pc-wide) #tabs.secmode .secb{min-height:42px;padding:4px 8px;font-size:13px}
@@ -148,7 +148,7 @@ body.pc-app:not(.pc-wide) #hint{margin:2px 0}
 const _stageHOverride_036d=stageHOverride;
 stageHOverride=function(W,H){ const b=document.body.classList; if(b.contains('pc-app')&&b.contains('side-off')){ const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:60; return Math.max(300,Math.min(Math.round(W*.62),Math.round((innerHeight-top-22)/UIZ))); } return _stageHOverride_036d(W,H); };
 addEventListener('keydown',e=>{ if(e.key!=='m'&&e.key!=='M'||e.ctrlKey||e.metaKey||e.altKey) return; const t=(document.activeElement&&document.activeElement.tagName)||''; if(/INPUT|TEXTAREA|SELECT/.test(t)) return; if(!document.body.classList.contains('pc-app')) return; const b=$('sidetog'); if(b){ e.preventDefault(); b.click(); } });
-(function(){ const b=$('sidetog'); if(b) b.addEventListener('click',()=>setTimeout(()=>{ try{ pcFit(); resize(); }catch(e){} },60)); })();
+(function(){ const b=$('sidetog'); if(b) b.addEventListener('click',()=>setTimeout(()=>{ try{ pcFit(); resize(); }catch(e){ oops('bj_polish036:pcFit',e); } },60)); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-app .sidetog{display:flex!important;position:absolute;right:8px;top:50%;transform:translateY(-50%);width:28px;height:64px;border-radius:10px;align-items:center;justify-content:center;background:#08121ec8;border:1px solid #ffffff22;color:#e6efe8;font-size:20px;font-weight:800;z-index:5;cursor:pointer;box-shadow:0 4px 14px #0006}
 body.pc-app .sidetog:hover{border-color:#ffd36a88;color:#ffd36a}
@@ -174,13 +174,13 @@ SEARCH_IDX.push(
  ['Hide menus','settings',null,'hide menus collapse full water bigger screen'],
  ['Keyboard shortcuts','settings',null,'keyboard shortcuts keys hotkeys help']);
 // a breadcrumb at the top of every page
-(function(){ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){} return r; }; })();
+(function(){ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'), t=S.tab, sec=menuSecOf(t); if(P&&sec&&!P.querySelector(':scope > .crumb')){ const lab=menuTabLabel(t)[1]; const d=document.createElement('div'); d.className='crumb'; d.innerHTML=`<span>${esc(sec.name==='More'?'Settings':sec.name)}</span><b>${esc(lab)}</b>`; P.prepend(d); } }catch(e){ oops('bj_polish036:menuSecOf',e); } return r; }; })();
 // the search opens on a map of every page, grouped by section
 (function(){ const res=$('searchres'), q=$('searchq'); if(!res||!q) return; const ov=$('searchov');
   const map=()=>{ if(q.value.trim()) return; const secs=MENU_SECS.concat([{id:'more',name:'Settings',tabs:MENU_MORE.tabs}]);
     res.innerHTML='<div class="sv-map">'+secs.map(s=>`<div class="sv-sec"><div class="sv-sec-h">${esc(s.name)}</div>${s.tabs.filter(t=>t==='settings'||menuTabBtn(t)||t==='stats'||t==='save').map(t=>`<button type="button" class="sv-r sv-p" data-tab="${t}"><b>${esc(menuTabLabel(t)[1]||t)}</b><span class="meta">${esc(PAGE_DESC[t]||'')}</span></button>`).join('')}</div>`).join('')+'</div>'; };
   new MutationObserver(()=>{ if(!ov.hidden&&!q.value.trim()&&!res.querySelector('.sv-map')) map(); }).observe(res,{childList:true});
-  res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){} },true);
+  res.addEventListener('click',e=>{ const b=e.target.closest('.sv-p'); if(!b) return; e.stopPropagation(); ov.hidden=true; setTab(b.dataset.tab); try{ menuSync(); }catch(er){ oops('bj_polish036:menuSync#2',er); } },true);
   q.placeholder='Search, or pick a page below'; })();
 // badges say what is waiting
 setInterval(()=>{ if(!MENU_OPEN) return; /* tooltips only matter while the menu is open */ const T=$('tabs'); if(!T) return; T.querySelectorAll('.secb').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.sec); if(!sec) return; const parts=sec.tabs.map(t=>[t,menuDot(t)]).filter(x=>x[1]).map(([t,n])=>n+' in '+menuTabLabel(t)[1]);
@@ -202,9 +202,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // 1) Bait restocks itself (one pack) when it runs out, if you can afford it. Switch it on or off on the Tackle page.
 const _hookIt_04=hookIt;
 hookIt=function(){ const sel=S.baitSel; _hookIt_04.apply(this,arguments);
-  try{ const b=BAIT[sel]; if(sel!=='worm'&&S.settings.autoBait&&S.bait[sel]===0&&b&&!b.junk&&b.price>0&&S.money>=b.price){ S.money-=b.price; S.bait[sel]+=b.pack; S.baitSel=sel; renderBait(); save(); setTimeout(()=>toast('Restocked '+b.name+': '+b.pack+' more for '+fmtShort(b.price)+' coins.'),700); } }catch(e){} };
+  try{ const b=BAIT[sel]; if(sel!=='worm'&&S.settings.autoBait&&S.bait[sel]===0&&b&&!b.junk&&b.price>0&&S.money>=b.price){ S.money-=b.price; S.bait[sel]+=b.pack; S.baitSel=sel; renderBait(); save(); setTimeout(()=>toast('Restocked '+b.name+': '+b.pack+' more for '+fmtShort(b.price)+' coins.'),700); } }catch(e){ oops('bj_polish036:renderBait',e); } };
 const _renderShop_04=renderShop;
-renderShop=function(P){ _renderShop_04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; const on=!!S.settings.autoBait; const b=document.createElement('button'); b.className='btn alt sm'; b.dataset.act='autobait'; b.setAttribute('aria-pressed',on); b.title='When your bait runs out, buy one more pack automatically if you have the coins'; b.textContent=on?'Auto-restock: on':'Auto-restock: off'; b.style.marginLeft='auto'; cur.appendChild(b); }catch(e){} };
+renderShop=function(P){ _renderShop_04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; const on=!!S.settings.autoBait; const b=document.createElement('button'); b.className='btn alt sm'; b.dataset.act='autobait'; b.setAttribute('aria-pressed',on); b.title='When your bait runs out, buy one more pack automatically if you have the coins'; b.textContent=on?'Auto-restock: on':'Auto-restock: off'; b.style.marginLeft='auto'; cur.appendChild(b); }catch(e){ oops('bj_polish036:P.querySelector',e); } };
 const _extraAct2_qol=extraAct2;
 extraAct2=function(b){ if(b.dataset.act==='autobait'){ S.settings.autoBait=!S.settings.autoBait; save(); toast(S.settings.autoBait?'Bait will restock itself when it runs out (if you have the coins).':'Bait restocking is off.'); return 'render'; } return _extraAct2_qol(b); };
 // 2) A full cooler shows on the water before you try to cast

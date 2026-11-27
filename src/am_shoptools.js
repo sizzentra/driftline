@@ -4,8 +4,8 @@
 // and in the aquarium pick a bonus kind. It only reorders and hides the tiles that are already there,
 // so it is instant; your choice is remembered on this device.
 // =====================================================================
-const SHOPT=(()=>{ let o={aq:{sort:'price',show:'all',kind:'all'},home:{sort:'price',show:'all'}}; try{ const v=JSON.parse(localStorage.getItem('dl-shoptools')||'null'); if(v&&v.aq&&v.home) o=Object.assign(o,v); }catch(e){} return o; })();
-function shoptSave(){ try{ localStorage.setItem('dl-shoptools',JSON.stringify(SHOPT)); }catch(e){} }
+const SHOPT=(()=>{ let o={aq:{sort:'price',show:'all',kind:'all'},home:{sort:'price',show:'all'}}; try{ const v=JSON.parse(localStorage.getItem('dl-shoptools')||'null'); if(v&&v.aq&&v.home) o=Object.assign(o,v); }catch(e){ oops('am_shoptools:JSON.parse',e); } return o; })();
+function shoptSave(){ try{ localStorage.setItem('dl-shoptools',JSON.stringify(SHOPT)); }catch(e){ oops('am_shoptools:localStorage.setItem',e); } }
 function shopTools(){ const P=$('panel'); if(!P) return;
   const aqTile=P.querySelector('canvas[data-decor]');
   if(aqTile) shopToolsFor(aqTile.closest('.grid'),'aq'); }

@@ -35,7 +35,7 @@ function toggleHunt(id){ const s=SPI[id]; if(!s) return {ok:false, msg:'That fis
 // a missing fish's hunt ends when you catch it; a found fish's (shiny) hunt ends when you land it shiny for the first time
 const _landFish_hunt=landFish;
 landFish=function(){ const f=G.fish, sp=f&&f.kind==='fish'?f.sp:null, hunted=sp&&isHunted(sp), j0=sp&&S.journal[sp.id], wasMissing=hunted&&!j0, shinyDone=hunted&&j0&&!j0.sh&&!!f.shiny; _landFish_hunt.apply(this,arguments);
-  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){} },900); if(S.tab==='journal') renderPanel(); } };
+  if(wasMissing||shinyDone){ const a=huntsAt(sp.loc).filter(x=>x!==sp.id); if(a.length) S.hunts[sp.loc]=a; else delete S.hunts[sp.loc]; save(); setTimeout(()=>{ toast(wasMissing?'🎯 Hunt complete: '+sp.name+' found!':'✦ Shiny hunt complete: a shiny '+sp.name+'!'); try{ sfx.catch(Math.max(2,sp.r)); }catch(e){ oops('bl_hunts04:sfx.catch',e); } },900); if(S.tab==='journal') renderPanel(); } };
 if(/[?&]test\b/.test(location.search)) window.__hunt={toggleHunt, huntsAt, isHunted, huntable, cleanHunts, HUNT_MAX, HUNT_MULT, get:()=>JSON.parse(JSON.stringify(S.hunts)), set:h=>{ S.hunts=h; }};
 
 // ---------------------------------------------------------------------
@@ -72,7 +72,7 @@ let huntFlash=null;
       box.innerHTML=!open?'<span class="meta">Open this water to hunt this fish.</span>':
         `<div class="row" style="gap:10px;flex-wrap:wrap;align-items:center"><button type="button" class="btn sm ${on?'':'alt'}" data-hunt="${sel.id}">${on?'🎯 Stop hunting':fnd?'✦ Shiny hunt':'🎯 Hunt this fish'}</button><span class="meta">Chance per catch here${ok?'':' (when it bites)'}: <b>${ok?fmtOdds(ch):'—'}</b>${on?' · hunting: '+huntMult(sel)+'×':''}${ok?'':' · it only bites at '+(sel.time==='night'?'night':'day')}</span></div>`;
       const host=det.querySelector(':scope > div:last-child')||det; host.appendChild(box); }
-    P.querySelectorAll('[data-hunt]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const r=toggleHunt(b.dataset.hunt); toast((r.ok?'🎯 ':'')+r.msg); if(r.full){ huntFlash=L.id; setTimeout(()=>{ huntFlash=null; },900); } try{ if(r.ok){ const fn=sfx[r.on?'hot':'lost']; fn&&fn(); } }catch(er){} renderPanel(); });
+    P.querySelectorAll('[data-hunt]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const r=toggleHunt(b.dataset.hunt); toast((r.ok?'🎯 ':'')+r.msg); if(r.full){ huntFlash=L.id; setTimeout(()=>{ huntFlash=null; },900); } try{ if(r.ok){ const fn=sfx[r.on?'hot':'lost']; fn&&fn(); } }catch(er){ oops('bl_hunts04:fn',er); } renderPanel(); });
   }catch(e){ console.error(e); } }; }
 // on the water: the goal chip mentions your hunts here
 const _nextGoal_hunt=nextGoal;

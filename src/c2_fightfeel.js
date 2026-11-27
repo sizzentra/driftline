@@ -53,7 +53,7 @@ const FF = { FAR_M:40, SPOOL_M:80, LB:.4536, /* Cam, 2026-11-23 (round 4): spool
 // the switch: test builds only (Stats › Tester tools › Fishing: New / Old); read once, changed by the button
 let FISH_OLD = (()=>{ try{ return !!window.DL_PREVIEW && localStorage.getItem('dl-fish-old')==='1'; }catch(e){ return false; } })();
 const fishNew = () => FEATURE.fightFeel && !FISH_OLD; /* FEATURE.fightFeel off (b_data.js): every caller takes the earlier fight */
-function setFishOld(on){ FISH_OLD=!!on && !!window.DL_PREVIEW; try{ if(FISH_OLD) localStorage.setItem('dl-fish-old','1'); else localStorage.removeItem('dl-fish-old'); }catch(e){} }
+function setFishOld(on){ FISH_OLD=!!on && !!window.DL_PREVIEW; try{ if(FISH_OLD) localStorage.setItem('dl-fish-old','1'); else localStorage.removeItem('dl-fish-old'); }catch(e){ oops('c2_fightfeel:localStorage.setItem',e); } }
 // =====================================================================
 // FEEL LAB (director and Cam, 2026-11-22: "more arcade-y and snappier but still with depth"; test builds: Stats › Tester tools › Feel lab).
 // Every knob below changes the new fight live. Presets: Old (the fight before Cam's changes), Current (Cam's update as it was), Middle and
@@ -68,9 +68,9 @@ const FEEL_KNOBS=[['len','Fight length',.5,1.5,.1],['tx','Temper curve',0,1.5,.2
 const FEEL_PRESETS={ current:{len:1,rest:1,tell:0,counter:0,pull:0,combo:0,sw:1,read:0,juice:0,tx:0,runs:0,groove:0},
   middle:{len:.88,rest:.8,tell:.3,counter:.75,pull:.75,combo:.75,sw:.5,read:1,juice:1,tx:1,runs:1,groove:1}, /* Cam, 2026-11-23: "middle is the one for sure": the feel for everyone; a slightly shorter Reel hard window (sw .7 to .6), Cam's temper curve, darting and long runs, the groove */
   arcade:{len:.65,rest:.6,tell:.45,counter:1.25,pull:1.25,combo:1.25,sw:.5,read:1,juice:1,tx:1.25,runs:1,groove:1.25} };
-let FEEL=(()=>{ const testPage=/[?&](test|sweep|frozen)\b/.test(location.search); let s=null; try{ if(window.DL_PREVIEW&&!testPage) s=JSON.parse(localStorage.getItem('dl-feel2')||'null'); }catch(e){}
+let FEEL=(()=>{ const testPage=/[?&](test|sweep|frozen)\b/.test(location.search); let s=null; try{ if(window.DL_PREVIEW&&!testPage) s=JSON.parse(localStorage.getItem('dl-feel2')||'null'); }catch(e){ oops('c2_fightfeel:JSON.parse',e); }
   const base=Object.assign({},FEEL_PRESETS[testPage?'current':'middle']); /* Middle is the game's feel (Cam, 2026-11-23); test pages fight on Current so the checks stay steady */ return Object.assign(base,s&&typeof s==='object'?s:{}); })();
-function feelSave(){ try{ localStorage.setItem('dl-feel2',JSON.stringify(FEEL)); }catch(e){} }
+function feelSave(){ try{ localStorage.setItem('dl-feel2',JSON.stringify(FEEL)); }catch(e){ oops('c2_fightfeel:localStorage.setItem#2',e); } }
 function feelPreset(name){ if(name==='old'){ setFishOld(true); return; } setFishOld(false); FEEL=Object.assign({},FEEL_PRESETS[name]||FEEL_PRESETS.current); feelSave(); }
 function feelNudge(k,dir){ const K=FEEL_KNOBS.find(x=>x[0]===k); if(!K) return; const [,,lo,hi,st]=K; FEEL[k]=Math.round(clamp((FEEL[k]||0)+dir*st,lo,hi)*100)/100; feelSave(); }
 function feelPresetName(){ if(!fishNew()) return 'old'; for(const n in FEEL_PRESETS){ const p=FEEL_PRESETS[n]; if(Object.keys(p).every(k=>Math.abs((FEEL[k]||0)-p[k])<1e-6)) return n; } return 'custom'; }
@@ -211,7 +211,7 @@ function fightNew(dt){
   // a predator that swallowed your catch strips line (n_play.js), as before
   if(G.strip){ const P=G.strip; P.t+=dt; const k=Math.min(1,P.t/P.dur), e=1-Math.pow(1-k,2); G.d=Math.max(G.d,P.from+(P.to-P.from)*e); G.run=true; if(rin>0) G.ten+=EAT_STRIP_TEN*rin*dt*tensionMult(); if(k>=1){ G.strip=null; if(!G.ffA) G.run=false; } }
   /* Feel lab: the perfect pull (press reel inside the glowing window as a move ends), the hook flash, pop-ups, a mistake at the snap line */
-  { const press=rin>0&&!(G.prevRin>0); if(G.ppw>0){ G.ppw-=dt; if(press&&G.sta>0){ G.ppw=0; G.sta=Math.max(0,G.sta-.1*FEEL.pull); G.dQ=(G.dQ||0)+1.2*FEEL.pull; feelPop('Perfect pull!'); feelCombo(1); try{ tone(880,.08,'triangle',.06); }catch(e){} } }
+  { const press=rin>0&&!(G.prevRin>0); if(G.ppw>0){ G.ppw-=dt; if(press&&G.sta>0){ G.ppw=0; G.sta=Math.max(0,G.sta-.1*FEEL.pull); G.dQ=(G.dQ||0)+1.2*FEEL.pull; feelPop('Perfect pull!'); feelCombo(1); try{ tone(880,.08,'triangle',.06); }catch(e){ oops('c2_fightfeel:tone',e); } } }
     G.prevRin=rin; if(G.pops){ for(const p of G.pops) p.t+=dt; G.pops=G.pops.filter(p=>p.t<1.1); }
     if(G.ten>92&&rin>0&&(G.combo||0)>0&&!G.ffA) feelCombo(-1); }
   if(G.dQ>0){ const st=Math.min(G.dQ,Math.max(.05,G.dQ*dt*8)); G.d=Math.max(.5,G.d-st); G.dQ-=st; } /* line won back by a reward comes in over a moment, so the float glides instead of jumping (bug: "landing a combo reaction, the game jumps", director 2026-11-23) */
@@ -223,7 +223,7 @@ function fightNew(dt){
   if(G.fullT>=FF.SNAP_HOLD) endFight('snap'); /* Cam: the line goes after about a third of a second of reeling at 100% (FF.SNAP_HOLD) */
   else if(G.d>=G.maxOut) endFight('spool');
   else if(G.noReelT>=FF.NOREEL) endFight('escape'); /* Cam: 10 s without reeling and it swims off */
-  else if(G.d<=0){ if(FEEL.juice&&(rk>=3||rel>1.5)){ splash(G.bob.x,G.bob.y,34); try{ tone(523,.09,'triangle',.07); setTimeout(()=>tone(659,.09,'triangle',.07),90); setTimeout(()=>tone(784,.18,'triangle',.08),180); }catch(e){} if(V3ON) vib([40,30,90]); } /* landing a big one (Claude's idea): a big splash, a rising chime and a buzz */ endFight('caught'); } }
+  else if(G.d<=0){ if(FEEL.juice&&(rk>=3||rel>1.5)){ splash(G.bob.x,G.bob.y,34); try{ tone(523,.09,'triangle',.07); setTimeout(()=>tone(659,.09,'triangle',.07),90); setTimeout(()=>tone(784,.18,'triangle',.08),180); }catch(e){ oops('c2_fightfeel:tone#2',e); } if(V3ON) vib([40,30,90]); } /* landing a big one (Claude's idea): a big splash, a rising chime and a buzz */ endFight('caught'); } }
 // the fight's one-line instruction, shared by the PC panel (d_draw.js) and the phones' card (mobile/fight08.js)
 function fightMsg(danger,oddDanger){ const NF=fishNew(), odd=G.fish&&G.fish.kind!=='fish';
   if(odd) return G.ev==='snag'?'Snagged!':oddDanger?'Ease off!':'Dead Weight';

@@ -236,7 +236,7 @@ function showLoadAsk(){ const old=$('loadask'); if(old) old.remove(); if(!pendin
   d.addEventListener('click',e=>{ const b=e.target.closest('[data-la]'); if(!b&&e.target!==d) return; if(b&&b.dataset.la==='yes'&&pendingLoad){ S=migrate(pendingLoad); pendingLoad=null; G.st='idle'; $('card').hidden=true; offlineIncome(); fillBounties(); save(); renderPanel(); toast('Progress loaded. Welcome back!'); } else pendingLoad=null; d.remove(); });
   document.body.appendChild(d); const y=d.querySelector('[data-la="yes"]'); if(y) y.focus(); }
 async function makeCode(){ const json=JSON.stringify(S);
-  try{ if(window.CompressionStream){ const st=new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw')); const buf=new Uint8Array(await new Response(st).arrayBuffer()); let bin=''; for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000)); return 'DL1:'+btoa(bin); } }catch(e){}
+  try{ if(window.CompressionStream){ const st=new Blob([json]).stream().pipeThrough(new CompressionStream('deflate-raw')); const buf=new Uint8Array(await new Response(st).arrayBuffer()); let bin=''; for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null,buf.subarray(i,i+0x8000)); return 'DL1:'+btoa(bin); } }catch(e){ oops('e_ui:Blob',e); }
   return 'DL0:'+btoa(unescape(encodeURIComponent(json))); }
 async function readCode(code){ code=String(code).trim().replace(/\s+/g,''); const tag=code.slice(0,4), bin=atob(code.slice(4));
   if(tag==='DL1:'){ const u=Uint8Array.from(bin,ch=>ch.charCodeAt(0)); const st=new Blob([u]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return JSON.parse(await new Response(st).text()); }

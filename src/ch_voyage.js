@@ -80,7 +80,7 @@ const BOON_BONUS={treasure:'treasure', hotspot:'hot', shine:'shiny', trophy:'tro
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()+msSum('legacy')*(relic('tidecrown')?1.25:1)+(relic('goldcompass')?.2:0); }; }
 { const _w=weather; weather=function(){ const w=_w(), r=boonR('weather'); if(!r) return w; const m=1+bv('weather'), amp=x=>x>1?1+(x-1)*m:x;
     return Object.assign({},w,{bite:w.bite?amp(w.bite):w.bite, shiny:w.shiny?amp(w.shiny):w.shiny, xp:w.xp?amp(w.xp):w.xp, rare:w.rare!=null?w.rare*m:w.rare}); }; }
-{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1+BOONI.derby.per,r)).toFixed(2); }catch(e){} }; }
+{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const r=boonR('derby'); if(r&&S.derby&&S.derby.total>before) S.derby.total=+(before+(S.derby.total-before)*Math.pow(1+BOONI.derby.per,r)).toFixed(2); }catch(e){ oops('ch_voyage:boonR',e); } }; }
 { const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); const r=boonR('heavy'); if(f&&f.kind==='fish'&&r){ const m=1+Math.random()*bv('heavy'); f.kg*=m; f.value=Math.round(f.value*Math.pow(m,.85)); } return f; }; }
 { const _ac=voyApplyCooler; voyApplyCooler=function(){ _ac(); const add=msSum('cooler'), per=boonR('cooler'); if(add||per) GEAR.cooler.lv=GEAR.cooler.lv.map(v=>v+add+Math.ceil(v*bv('cooler'))); }; voyApplyCooler(); } /* Cam, round 5: Deep Cooler reworked to a share of every cooler size (6% a rank), so it stays useful after the cooler upgrades (was +1 space per upgrade) */
 // Catch Surge and the Second Hook ride on every landed fish
@@ -89,7 +89,7 @@ const BOON_BONUS={treasure:'treasure', hotspot:'hot', shine:'shiny', trophy:'tro
         for(let i=1;i<=SURGE_MAX;i++){ const b=S.buffs.find(x=>x.src==='Surge '+i+' bite'); if(!b||b.until<=t){ slot=i; break; } if(i===SURGE_MAX) slot=1+((S.surgeNext||0)%SURGE_MAX); }
         S.surgeNext=slot; S.buffs=S.buffs.filter(x=>!(x.src&&x.src.indexOf('Surge '+slot+' ')===0)); for(const k of ['bite','reel','rare']) S.buffs.push({k,v:.08,until:t+mins*60000,src:'Surge '+slot+' '+k});
         const n=S.buffs.filter(x=>x.k==='bite'&&/^Surge /.test(x.src||'')&&x.until>t).length; setTimeout(()=>toast('Catch Surge! '+S.streak+' in a row: +8% bite speed, reel speed and rare bonus for '+mins+' min ('+n+' active).'),700); }
-      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){} return r; }; }
+      if(relic('secondhook')&&Math.random()<.05&&S.cooler.length<gv('cooler')){ const last=S.cooler[S.cooler.length-1]; if(last&&f&&last.id===f.sp.id){ S.cooler.push(Object.assign({},last)); setTimeout(()=>toast('Second Hook: a twin '+f.sp.name+' came up too!'),900); } } } }catch(e){ oops('ch_voyage:boonR#2',e); } return r; }; }
 // ---------- setting sail: Boon points, milestone gifts ----------
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="retireok"]'); if(!b||!canRetire()) return; const before=S.tides, earned=S.stats.runEarned||0;
   setTimeout(()=>{ if(S.tides===before) return; const t=S.tides; let pts=boonPtsFor(t); const ms=VOYAGE_MS.find(m=>m.n===t); if(ms&&ms.fx&&ms.fx.pts) pts+=ms.fx.pts; S.boonPts=(S.boonPts||0)+pts;
@@ -97,7 +97,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     const un=msSum('unlock'); for(let i=0;i<Math.min(un,LOCS.length);i++) if(!S.unlocked.includes(LOCS[i].id)) S.unlocked.push(LOCS[i].id);
     const hb=boonR('habits'); if(hb){ S.lvl=Math.max(S.lvl,1+2*hb); S.xp=0; } /* Old Habits (Cam, round 5) */
     const tk=msSum('tackle'); if(tk) for(const k in S.gear) S.gear[k]=Math.max(S.gear[k],Math.min(tk,GEAR[k].lv.length-1));
-    voyApplyCooler(); save(); try{ renderPanel(); }catch(er){}
+    voyApplyCooler(); save(); try{ renderPanel(); }catch(er){ oops('ch_voyage:renderPanel',er); }
     setTimeout(()=>toast('+'+pts+' Boon points to spend in Prestige, Boons.'+(nest?' Nest Egg: +'+fmt(nest)+' coins.':'')),2400); },0); },true);
 // ---------- saves ----------
 /* a step of migrate() in c_logic.js; raw = the save as it arrived (null when it was not a save at all) */
@@ -107,7 +107,7 @@ function voyClean(m,raw){
       const ps={}; if(isObj(m.pshop)) for(const k of ['gold','xp']){ const n=Math.floor(+m.pshop[k]); if(isFinite(n)&&n>0) ps[k]=Math.min(PSHOP_MAX,n); } m.pshop=ps;
       const bo={}; if(isObj(m.boons)) for(const k in m.boons){ const n=Math.floor(+m.boons[k]); if(BOONI[k]&&isFinite(n)&&n>0) bo[k]=Math.min(5,n); } m.boons=bo;
       if(raw&&raw.boonMig!==1){ let p=0; const T=Math.max(0,Math.floor(+m.tides||0)); for(let t=1;t<=T;t++){ p+=3+Math.floor(t/4); const ms=VOYAGE_MS.find(x=>x.n===t); if(ms&&ms.fx&&ms.fx.pts) p+=ms.fx.pts; } m.boonPts=Math.max(+m.boonPts||0,p); }
-      m.boonMig=1; m.boonPts=Math.max(0,Math.floor(+m.boonPts||0)); if(!isFinite(m.boonPts)) m.boonPts=0; }catch(e){} }
+      m.boonMig=1; m.boonPts=Math.max(0,Math.floor(+m.boonPts||0)); if(!isFinite(m.boonPts)) m.boonPts=0; }catch(e){ oops('ch_voyage:Math.max',e); } }
 // ---------- actions ----------
 let voyAll=false;
 { const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act, k=b.dataset.k;

@@ -58,7 +58,7 @@ function sparkles(c,w,h,n=7,box){ c.save(); c.fillStyle='#ffe9a8'; for(let i=0;i
    in a short box; now a creature that would not fit is scaled down to the box's height and centred. Fish that fit are unchanged. */
 const CREATURE_BOX={};
 function creatureBox(sp){ const k=sp.id; if(CREATURE_BOX[k]) return CREATURE_BOX[k]; const c=document.createElement('canvas'); c.width=c.height=260; const x=c.getContext('2d',{willReadFrequently:true});
-  let t=0,b=0; try{ drawCreature(x,sp,130,130,100,{sil:'#000000',t:0,still:1}); const d=x.getImageData(0,0,260,260).data; t=260; b=0; for(let y=0;y<260;y++){ for(let q=0;q<260;q+=2) if(d[(y*260+q)*4+3]>60){ if(y<t) t=y; b=y; break; } } }catch(e){}
+  let t=0,b=0; try{ drawCreature(x,sp,130,130,100,{sil:'#000000',t:0,still:1}); const d=x.getImageData(0,0,260,260).data; t=260; b=0; for(let y=0;y<260;y++){ for(let q=0;q<260;q+=2) if(d[(y*260+q)*4+3]>60){ if(y<t) t=y; b=y; break; } } }catch(e){ oops('d_draw:drawCreature',e); }
   return CREATURE_BOX[k]=b>t?{h:(b-t)/100, cy:((t+b)/2-130)/100}:{h:.5,cy:0}; }
 function fishFit(sp,w,h){ let L=w*.66, y=h*.52; const B=creatureBox(sp); if(L*B.h>h*.94){ L=h*.94/B.h; y=h/2-B.cy*L; } return {L,y}; }
 function fishCanvas(cnv, sp, known=true, shiny=false, pv=null){ const c=cnv.getContext('2d'); const w=cnv.width, h=cnv.height; c.clearRect(0,0,w,h); const FF=known?fishFit(sp,w,h):null, L=FF?FF.L:w*.66, cy=FF?FF.y:h*.52;

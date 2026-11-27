@@ -7,8 +7,8 @@ const onPC = () => window.DL_BUILD==='pc';
 /* the live event as a goal (a Live chip on phones, the goal chip on PC, the Live line in Quests); null when nothing is on */
 function liveNow(){ try{ if(!(S.chal||(typeof liveScheds==='function'&&liveScheds().length))) return null; const gl=nextGoal(); return gl&&gl.live?gl:null; }catch(e){ return null; } } /* where things live differs: PC has one header row, phones a top bar and a side panel */
 /* QUESTS (moved from mobile/quests08.js) */
-  try{ PAGE_DESC.quests='Your goals, short lessons, where to find everything, and help'; }catch(e){}
-  try{ SEARCH_IDX.unshift(['Quests: goals','quests','Goals','goal next objective quest what to do journey'],['Quests: learn','quests','Learn','tutorial lesson how to learn guide help basics'],['Quests: find anything','quests','Find','where find directions map menu'],['Quests: help','quests','Help','help faq question problem stuck']); }catch(e){}
+  try{ PAGE_DESC.quests='Your goals, short lessons, where to find everything, and help'; }catch(e){ oops('cw_pages08:PAGE_DESC.quests',e); }
+  try{ SEARCH_IDX.unshift(['Quests: goals','quests','Goals','goal next objective quest what to do journey'],['Quests: learn','quests','Learn','tutorial lesson how to learn guide help basics'],['Quests: find anything','quests','Find','where find directions map menu'],['Quests: help','quests','Help','help faq question problem stuck']); }catch(e){ oops('cw_pages08:SEARCH_IDX.unshift',e); }
 const Q8={ goal:()=>{ try{ return _nextGoal_036(); }catch(e){ try{ return nextGoal(); }catch(e2){ return {t:'Catch a fish',sub:'',p:null,tab:null}; } } },
   read:()=>{ const s=S.settings; if(!Array.isArray(s.q8read)) s.q8read=[]; return s.q8read; } };
 /* the lessons: [id, group, title, one line, body, go] (go = [tab, section] for Take me there) */
@@ -74,18 +74,18 @@ const Q8_HELP=[
  ['How do I move my game to another device?','Save, Save codes: copy the code there and enter it on the other device.',['save',null],'Save'],
  ['How do I turn hints or sounds off?','Settings has Sound and Gameplay sections; they belong to this device only.',['settings',null],'Settings'],
 ];
-function q8go(tab,sect){ try{ startAudio(); }catch(e){} try{ if(typeof sect==='string'&&typeof SECT==='object') SECT[tab]=sect; }catch(e){} /* the page opens on that section */ try{ if(tab==='journal'){ encLoc=S.loc; encSel=null; } if(Array.isArray(sect)&&sect[0]==='tackleview'){ tackleView=sect[1]; sect=null; } }catch(e){}
-  try{ if(!MENU_OPEN) openMenu(tab); else if(S.tab!==tab){ setTab(tab); save(); } }catch(e){ try{ openMenu(tab); }catch(e2){} }
-  if(sect) setTimeout(()=>{ try{ const P=$('panel'); if(Array.isArray(sect)){ const b=P.querySelector(`[data-act="${sect[0]}"][data-k="${sect[1]}"]`); if(b) b.click(); } else { const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===sect||x.dataset.sect.startsWith(sect)); if(b) b.click(); } }catch(e){} },40); }
-function q8goal(){ const gl=Q8.goal(); try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(e){} if(gl.tab) q8go(gl.tab,null); else { try{ closeMenu(); }catch(e){} } }
-function q8ready(){ const r=[]; try{ const d=ensureDaily(); const n=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); if(n) r.push([n+' task reward'+(n>1?'s':'')+' ready','bounties','Daily tasks']); }catch(e){}
-  try{ const un=(S.pass.lvl|0)-(S.pass.claimed|0); if(un>0) r.push([un+' Tide Pass reward'+(un>1?'s':'')+' ready','pass',null]); }catch(e){}
-  try{ if(S.tankBank>=1) r.push([fmt(Math.floor(S.tankBank))+' coins waiting in the Aquarium','aquarium',null]); }catch(e){}
-  try{ if(typeof ptsFree==='function'&&ptsFree()>0) r.push([ptsFree()+' skill point'+(ptsFree()>1?'s':'')+' to spend','skills',null]); }catch(e){}
+function q8go(tab,sect){ try{ startAudio(); }catch(e){ oops('cw_pages08:startAudio',e); } try{ if(typeof sect==='string'&&typeof SECT==='object') SECT[tab]=sect; }catch(e){ oops('cw_pages08:n4',e); } /* the page opens on that section */ try{ if(tab==='journal'){ encLoc=S.loc; encSel=null; } if(Array.isArray(sect)&&sect[0]==='tackleview'){ tackleView=sect[1]; sect=null; } }catch(e){ oops('cw_pages08:Array.isArray',e); }
+  try{ if(!MENU_OPEN) openMenu(tab); else if(S.tab!==tab){ setTab(tab); save(); } }catch(e){ try{ openMenu(tab); }catch(e2){ oops('cw_pages08:openMenu',e2); } }
+  if(sect) setTimeout(()=>{ try{ const P=$('panel'); if(Array.isArray(sect)){ const b=P.querySelector(`[data-act="${sect[0]}"][data-k="${sect[1]}"]`); if(b) b.click(); } else { const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===sect||x.dataset.sect.startsWith(sect)); if(b) b.click(); } }catch(e){ oops('cw_pages08:Array.isArray#2',e); } },40); }
+function q8goal(){ const gl=Q8.goal(); try{ if(gl.tab==='journal'){ encLoc=gl.loc&&LOCS[locIdx(gl.loc)]?gl.loc:S.loc; encSel=null; } if(gl.tab==='map') SECT.map='Waters'; }catch(e){ oops('cw_pages08:locIdx',e); } if(gl.tab) q8go(gl.tab,null); else { try{ closeMenu(); }catch(e){ oops('cw_pages08:closeMenu',e); } } }
+function q8ready(){ const r=[]; try{ const d=ensureDaily(); const n=d.tasks.filter(t=>!t.claimed&&taskHave(t)>=t.n).length+(typeof wqReady==='function'?wqReady():0); if(n) r.push([n+' task reward'+(n>1?'s':'')+' ready','bounties','Daily tasks']); }catch(e){ oops('cw_pages08:ensureDaily',e); }
+  try{ const un=(S.pass.lvl|0)-(S.pass.claimed|0); if(un>0) r.push([un+' Tide Pass reward'+(un>1?'s':'')+' ready','pass',null]); }catch(e){ oops('cw_pages08:r.push',e); }
+  try{ if(S.tankBank>=1) r.push([fmt(Math.floor(S.tankBank))+' coins waiting in the Aquarium','aquarium',null]); }catch(e){ oops('cw_pages08:r.push#2',e); }
+  try{ if(typeof ptsFree==='function'&&ptsFree()>0) r.push([ptsFree()+' skill point'+(ptsFree()>1?'s':'')+' to spend','skills',null]); }catch(e){ oops('cw_pages08:ptsFree',e); }
   return r; }
 function q8html(){ const gl=Q8.goal(), read=Q8.read(), p=gl.p!=null?Math.max(0,Math.min(1,gl.p)):null;
   const goal=`<div class="tile q8-goal${gl.ready?' ready':''}"><span class="q8-k">${gl.ready?'Ready':'Your next goal'}</span><b class="q8-gt">${esc(gl.t)}</b>${gl.sub?`<span class="meta">${esc(gl.sub)}</span>`:''}${p!=null?`<span class="q8-bar"><i style="width:${(p*100).toFixed(1)}%"></i></span>`:''}<button class="btn" data-q8goal>${gl.tab?'Show me':'Back to the water'}</button></div>`;
-  let live=''; try{ const L=liveNow&&liveNow(); if(L) live=`<div class="tile q8-row"><div><b>${esc(L.t)}</b>${L.sub?`<div class="meta">${esc(L.sub)}</div>`:''}</div><button class="btn alt sm" data-q8go="events">Events</button></div>`; }catch(e){}
+  let live=''; try{ const L=liveNow&&liveNow(); if(L) live=`<div class="tile q8-row"><div><b>${esc(L.t)}</b>${L.sub?`<div class="meta">${esc(L.sub)}</div>`:''}</div><button class="btn alt sm" data-q8go="events">Events</button></div>`; }catch(e){ oops('cw_pages08:liveNow',e); }
   const rd=q8ready(); const ready=rd.length?`<h5>Waiting for you</h5><div class="q8-list">${rd.map(([t,tab,sect])=>`<div class="tile q8-row"><b>${esc(t)}</b><button class="btn alt sm" data-q8go="${tab}"${sect?` data-q8s="${esc(sect)}"`:''}>Open</button></div>`).join('')}</div>`:'';
   /* the journey: every water, then Hollow Trench and the voyages */
   const jr=LOCS.map((L,i)=>{ const open=S.unlocked.includes(L.id), prev=i?LOCS[i-1]:null, need=prev?unlockLine(i):''; return `<div class="q8-step${open?' done':''}"><span class="q8-dot">${open?'✓':i+1}</span><div><b>${open?'Opened ':'Open '}${esc(L.name)}</b>${!open&&prev?`<div class="meta">${need} · ${fmtShort(locCost(L))} coins</div>`:''}</div></div>`; }).join('')+
@@ -106,7 +106,7 @@ const SHARED_PAGES={ quests:P=>{ P.innerHTML=q8html(); } };
   /* taps inside the page */
   document.addEventListener('click',e=>{ const P=$('panel'); if(!P||S.tab!=='quests'||!P.contains(e.target)) return;
     if(e.target.closest('[data-q8goal]')){ e.stopPropagation(); q8goal(); return; }
-    const g=e.target.closest('[data-q8go]'); if(g){ e.stopPropagation(); let s=g.dataset.q8s||null; if(s&&(s[0]==='['||s[0]==='"')) try{ s=JSON.parse(s); }catch(er){} q8go(g.dataset.q8go,s); } },true);
+    const g=e.target.closest('[data-q8go]'); if(g){ e.stopPropagation(); let s=g.dataset.q8s||null; if(s&&(s[0]==='['||s[0]==='"')) try{ s=JSON.parse(s); }catch(er){ oops('cw_pages08:JSON.parse',er); } q8go(g.dataset.q8go,s); } },true);
   document.addEventListener('toggle',e=>{ const d=e.target; if(!(d instanceof HTMLDetailsElement)||!d.open||!d.dataset.q8id) return; const r=Q8.read(); if(!r.includes(d.dataset.q8id)){ r.push(d.dataset.q8id); save(); d.classList.add('read'); const t=d.querySelector('.q8-tick'); if(t) t.textContent='✓'; const c=$('panel').querySelector('.pg08-bank'); if(c){ const cell=[...c.children].find(x=>/^Lessons read/.test((x.querySelector('.sub')||{}).textContent||'')); if(cell){ const b=cell.querySelector('b'); if(b) b.textContent=r.filter(id=>Q8_LESSONS.some(l=>l[0]===id)).length+' / '+Q8_LESSONS.length; } } } },true);
   document.addEventListener('input',e=>{ const f=e.target; if(!f.classList||!f.classList.contains('q8-filter')) return; const q=f.value.trim().toLowerCase(), box=f.closest('.q8-sec'); let any=0;
     box.querySelectorAll('.q8-fi').forEach(r=>{ const on=!q||q.split(/\s+/).every(w=>r.dataset.q8k.includes(w)); r.hidden=!on; if(on) any++; }); box.querySelectorAll('[data-q8place]').forEach(p=>{ p.hidden=![...p.querySelectorAll('.q8-fi')].some(r=>!r.hidden); }); const n=box.querySelector('.q8-none'); if(n) n.hidden=!!any; });
@@ -115,14 +115,14 @@ const SHARED_PAGES={ quests:P=>{ P.innerHTML=q8html(); } };
    its page (and section; Tackle views too). Part of every final QC with the search check (director, 2026-11-18). */
 if(/[?&]test\b/.test(location.search)) window.__questsQC=async()=>{ const w=ms=>new Promise(r=>setTimeout(r,ms)), bad=[]; let n=0; const P=()=>$('panel');
   const nav=s=>{ const x=[...P().querySelectorAll('.bwx-nav > button')].find(b=>b.textContent.trim()===s); if(x) x.click(); return !!x; };
-  /* Show me (first let any earlier check's menu close finish: run right after __searchQC it used to collide) */ try{ closeMenu(); }catch(e){} await w(700); openMenu('quests'); await w(250); nav('Goals'); await w(80); const gl=Q8.goal(); const sm=P().querySelector('[data-q8goal]'); if(!sm) bad.push('no Show me'); else { sm.click(); await w(300); n++; if(gl.tab){ if(S.tab!==gl.tab||!MENU_OPEN) bad.push('Show me -> '+S.tab+' (want '+gl.tab+')'); } else if(MENU_OPEN) bad.push('Show me should return to the water'); }
+  /* Show me (first let any earlier check's menu close finish: run right after __searchQC it used to collide) */ try{ closeMenu(); }catch(e){ oops('cw_pages08:closeMenu#2',e); } await w(700); openMenu('quests'); await w(250); nav('Goals'); await w(80); const gl=Q8.goal(); const sm=P().querySelector('[data-q8goal]'); if(!sm) bad.push('no Show me'); else { sm.click(); await w(300); n++; if(gl.tab){ if(S.tab!==gl.tab||!MENU_OPEN) bad.push('Show me -> '+S.tab+' (want '+gl.tab+')'); } else if(MENU_OPEN) bad.push('Show me should return to the water'); }
   for(const part of ['Goals','Find','Learn','Help']){ openMenu('quests'); await w(250); nav(part); await w(80); const cnt=P().querySelectorAll('.q8-sec[data-q8sec="'+part+'"] [data-q8go]').length;
-    for(let i=0;i<cnt;i++){ openMenu('quests'); await w(220); if(!nav(part)){ bad.push('no '+part+' tab'); break; } await w(60); const b=P().querySelectorAll('.q8-sec[data-q8sec="'+part+'"] [data-q8go]')[i]; if(!b) break; const want=b.dataset.q8go; let ws=b.dataset.q8s||''; try{ ws=JSON.parse(ws); }catch(e){}
+    for(let i=0;i<cnt;i++){ openMenu('quests'); await w(220); if(!nav(part)){ bad.push('no '+part+' tab'); break; } await w(60); const b=P().querySelectorAll('.q8-sec[data-q8sec="'+part+'"] [data-q8go]')[i]; if(!b) break; const want=b.dataset.q8go; let ws=b.dataset.q8s||''; try{ ws=JSON.parse(ws); }catch(e){ /* quiet: this check tries every target as a list; a plain page name is not one, by design */ }
       const label=((b.closest('.q8-fi,details,.q8-row')||b).querySelector('b')||{}).textContent||want; b.click(); await w(300); n++; let ok=S.tab===want&&MENU_OPEN;
       if(ok&&typeof ws==='string'&&ws){ const s=P().querySelector('.bwx-nav [aria-selected="true"]'); ok=!!s&&s.textContent.trim().startsWith(ws); }
       if(ok&&Array.isArray(ws)&&ws[0]==='tackleview') ok=tackleView===ws[1]||S.tab==='shop';
       if(!ok) bad.push(part+' "'+label.slice(0,30)+'" -> '+S.tab+' (want '+want+' '+JSON.stringify(ws)+')'); } }
-  try{ closeMenu(); }catch(e){} return {checked:n, bad}; };
+  try{ closeMenu(); }catch(e){ oops('cw_pages08:closeMenu#3',e); } return {checked:n, bad}; };
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .q8-goal{display:flex;flex-direction:column;gap:4px;padding:12px 14px!important;border-color:#7fe3c455!important}
 #menuov #panel .q8-goal.ready{border-color:#ffd36aaa!important;box-shadow:0 0 0 1px #ffd36a55,0 0 18px #ffd36a22}
@@ -162,13 +162,13 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .q8-place > h5{grid-column:1/-1}
 </style>`);
 /* PRESTIGE: its own page and section, Set sail again and Pearl relics (moved from mobile/waters08.js; the Map page keeps only the waters) */
-  try{ SEARCH_IDX.forEach(e=>{ if(e[1]==='map'&&/^(Set sail again|Pearl relics)/.test(e[0])) e[1]='prestige'; }); }catch(e){}
-  try{ PAGE_DESC.prestige='Set sail again for Wisdom Pearls, and trade pearls for permanent relics'; }catch(e){}
+  try{ SEARCH_IDX.forEach(e=>{ if(e[1]==='map'&&/^(Set sail again|Pearl relics)/.test(e[0])) e[1]='prestige'; }); }catch(e){ oops('cw_pages08:SEARCH_IDX.forEach',e); }
+  try{ PAGE_DESC.prestige='Set sail again for Wisdom Pearls, and trade pearls for permanent relics'; }catch(e){ oops('cw_pages08:PAGE_DESC.prestige',e); }
 SHARED_PAGES.prestige=P=>{ P.innerHTML='<div class="row spread"><div><h2 class="dl-dup">Prestige</h2></div></div>'+renderVoyage()+relicHTML(); };
 /* ODDITIES: its own page in Collection, with Oddities and Treasures as tabs (moved from mobile/waters08.js) */
 {
-  try{ SEARCH_IDX.push(['Oddities','oddities',null,'oddities junk treasure rare finds boot can found things']); }catch(e){}
-  try{ PAGE_DESC.oddities='Junk, odd finds and treasure you have pulled from the water'; }catch(e){}
+  try{ SEARCH_IDX.push(['Oddities','oddities',null,'oddities junk treasure rare finds boot can found things']); }catch(e){ oops('cw_pages08:SEARCH_IDX.push',e); }
+  try{ PAGE_DESC.oddities='Junk, odd finds and treasure you have pulled from the water'; }catch(e){ oops('cw_pages08:PAGE_DESC.oddities',e); }
   /* the first 12 pictures are drawn at once, the rest as they come into view (100 pictures took about 10 ms per switch) */
   const draw=P=>{ const cvs=[...P.querySelectorAll('canvas[data-junk]')], one=cv=>{ const cx=cv.getContext('2d'); cx.clearRect(0,0,cv.width,cv.height); if(cv.dataset.known==='1') drawJunk(cx,cv.width,cv.height,cv.dataset.junk,null); else mysteryThumb(cx,cv.width,cv.height,cv.dataset.junk); };
     cvs.slice(0,12).forEach(one); if(typeof IntersectionObserver!=='function'){ cvs.slice(12).forEach(one); return; } const io=new IntersectionObserver(es=>es.forEach(e=>{ if(!e.isIntersecting) return; io.unobserve(e.target); one(e.target); }),{rootMargin:'240px'}); cvs.slice(12).forEach(c=>io.observe(c)); };
@@ -184,8 +184,8 @@ SHARED_PAGES.prestige=P=>{ P.innerHTML='<div class="row spread"><div><h2 class="
 document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .od8 > .meta{margin:0 0 8px!important}</style>');
 /* BAIT: its own page, opened from Bait in the top bar: Switch, Buy bait, Special lures (moved from mobile/waters08.js); Tackle keeps its Gear */
 {
-  try{ SEARCH_IDX.forEach(e=>{ if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='bait'){ e[0]='Bait'; e[1]='bait'; e[2]='Buy bait'; } else if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='lures'){ e[0]='Bait: special lures'; e[1]='bait'; e[2]='Special lures'; } }); SEARCH_IDX.push(['Switch bait','bait','Switch','switch change bait use bait lure']); }catch(e){}
-  try{ PAGE_DESC.bait='Switch bait, buy more, and use the special lures you found'; }catch(e){}
+  try{ SEARCH_IDX.forEach(e=>{ if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='bait'){ e[0]='Bait'; e[1]='bait'; e[2]='Buy bait'; } else if(e[1]==='shop'&&Array.isArray(e[2])&&e[2][1]==='lures'){ e[0]='Bait: special lures'; e[1]='bait'; e[2]='Special lures'; } }); SEARCH_IDX.push(['Switch bait','bait','Switch','switch change bait use bait lure']); }catch(e){ oops('cw_pages08:SEARCH_IDX.forEach#2',e); }
+  try{ PAGE_DESC.bait='Switch bait, buy more, and use the special lures you found'; }catch(e){ oops('cw_pages08:PAGE_DESC.bait',e); }
   const isLure=k=>!!(BAIT[k]&&('junk' in BAIT[k]));
   const take=(P,view,keep)=>{ const was=tackleView; tackleView=view; try{ renderShop(P); }finally{ tackleView=was; } const f=document.createDocumentFragment(); [...P.children].filter(keep).forEach(c=>f.appendChild(c)); return f; };
   SHARED_PAGES.bait=P=>{
@@ -202,7 +202,7 @@ document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .od8 > .meta
     { const t=cur.querySelector&&cur.querySelector('.tk-cur'); if(t&&!t.querySelector('[data-act="usebait"]')) t.insertAdjacentHTML('beforeend','<button type="button" class="btn alt sm" tabindex="-1" aria-hidden="true" style="visibility:hidden">Switch to worms</button>'); }
     P.querySelector('.bt8-cur').appendChild(cur); P.querySelector('[data-bt8="Buy bait"]').appendChild(buy); P.querySelector('[data-bt8="Special lures"]').appendChild(lures); };
   /* Tackle: Gear only (bait and lures live on the Bait page) */
-  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='shop'){ try{ tackleView='gear'; }catch(e){} } const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'){ const P=$('panel'); P.querySelectorAll('[data-act="tackleview"]').forEach(b=>{ if(b.dataset.k!=='gear') b.remove(); }); P.querySelectorAll(':scope > .bwx-nav').forEach(n=>{ if(n.querySelectorAll('button').length<2) n.remove(); }); } }catch(e){ console.error(e); } return r; }; }
+  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='shop'){ try{ tackleView='gear'; }catch(e){ oops('cw_pages08:tackleView',e); } } const r=_rp.apply(this,arguments); try{ if(S.tab==='shop'){ const P=$('panel'); P.querySelectorAll('[data-act="tackleview"]').forEach(b=>{ if(b.dataset.k!=='gear') b.remove(); }); P.querySelectorAll(':scope > .bwx-nav').forEach(n=>{ if(n.querySelectorAll('button').length<2) n.remove(); }); } }catch(e){ console.error(e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .bt8-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin:0 0 6px}
 #menuov #panel .bt8-b{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:48px;padding:7px 11px;border-radius:12px;border:1px solid #ffffff1c;background:linear-gradient(180deg,#16263d,#111e31);color:#e8f1fb;text-align:left;cursor:pointer;font:inherit}

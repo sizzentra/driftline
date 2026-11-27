@@ -1,5 +1,5 @@
 // Fish Log on phones: the water list is one sideways-scrolling row (the chosen water scrolled into view), not five rows
-{ const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){} }; menuTidy=menuTidy2; }
+{ const _t2=menuTidy2; menuTidy2=function(){ _t2(); try{ if(S.tab!=='journal') return; const row=$('panel').querySelector('.chips:has(> [data-act="encloc"])'); const on=row&&row.querySelector('[aria-pressed="true"]'); if(row&&on&&row.scrollWidth>row.clientWidth+2){ row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); } }catch(e){ oops('mobile/ui_fishlog:querySelector',e); } }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:760px){
   #menuov #panel .chips:has(> [data-act="encloc"]){flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
@@ -8,7 +8,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tile.hunt-bar p,#menuov #panel .tile.hunt-bar .meta{font-size:12px;line-height:1.35}
 }
 </style>`);
-{ const _t3=menuTidy2; menuTidy2=function(){ _t3(); try{ if(S.tab!=='journal') return; const t=[...$('panel').querySelectorAll(':scope > .tile')].find(x=>/Angler rank/i.test(x.textContent)); if(t) t.classList.add('jrank'); }catch(e){} }; menuTidy=menuTidy2; }
+{ const _t3=menuTidy2; menuTidy2=function(){ _t3(); try{ if(S.tab!=='journal') return; const t=[...$('panel').querySelectorAll(':scope > .tile')].find(x=>/Angler rank/i.test(x.textContent)); if(t) t.classList.add('jrank'); }catch(e){ oops('mobile/ui_fishlog:querySelectorAll',e); } }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* Bait in use: always one line */
 #panel .tk-cur.tk-slim{flex-wrap:nowrap!important;white-space:nowrap}

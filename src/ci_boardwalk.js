@@ -11,14 +11,14 @@ const BW_JACK=.04, CHEST_COST=120;
 let gamble=null, chest=null, bwJackLock=false;
 const bwCoinWin = mul => bwEarn(Math.round(bestLoot()*mul*coinMult()*pathMul('bwcoin')));
 // coin jackpots on top of ticket wins at the Boardwalk
-{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){} bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
+{ const _t=addTickets; addTickets=function(n){ const r=_t(n); try{ if(FEATURE.boardwalkExtras&&S.tab==='games'&&!bwJackLock&&n>0&&Math.random()<BW_JACK){ bwJackLock=true; const c=bwCoinWin(rnd(15,40)); setTimeout(()=>{ toast('Coin jackpot! +'+fmt(c)+' coins on top.'); try{ sfx.catch(3); }catch(e){ oops('ci_boardwalk:sfx.catch',e); } bwJackLock=false; },400); } }catch(e){ bwJackLock=false; } return r; }; }
 // Fishmonger's Gamble
 const GAMBLE=[[.5,0,'The Fishmonger keeps it.'],[.35,1.8,'×1.8!'],[.12,3,'×3!'],[.03,8,'JACKPOT ×8!']];
 function gambleList(){ return S.cooler.map((f,i)=>({f,i,p:salePrice(f)})).filter(x=>SPI[x.f.id]&&x.p>0).sort((a,b)=>b.p-a.p).slice(0,4); }
 function gamblePlay(i){ const f=S.cooler[i]; if(!f||!SPI[f.id]) return 'skip'; const p=salePrice(f), sp=SPI[f.id]; S.cooler.splice(i,1);
   let x=Math.random(), o=GAMBLE[0]; for(const g of GAMBLE){ if(x<g[0]){ o=g; break; } x-=g[0]; }
-  if(!o[1]){ const t=addTickets(Math.max(5,Math.round(p/Math.max(1,bestLoot())*8))); gamble={txt:'Your '+sp.name+' is gone. '+o[2]+' You get '+t+' tickets for the trouble.', win:false}; try{ sfx.lost(); }catch(e){} }
-  else { const c=bwEarn(Math.round(p*o[1]*pathMul('bwcoin'))); gamble={txt:o[2]+' Your '+sp.name+' (worth '+fmt(p)+') wins '+fmt(c)+' coins.', win:true}; try{ sfx.catch(o[1]>=8?4:2); }catch(e){} }
+  if(!o[1]){ const t=addTickets(Math.max(5,Math.round(p/Math.max(1,bestLoot())*8))); gamble={txt:'Your '+sp.name+' is gone. '+o[2]+' You get '+t+' tickets for the trouble.', win:false}; try{ sfx.lost(); }catch(e){ oops('ci_boardwalk:sfx.lost',e); } }
+  else { const c=bwEarn(Math.round(p*o[1]*pathMul('bwcoin'))); gamble={txt:o[2]+' Your '+sp.name+' (worth '+fmt(p)+') wins '+fmt(c)+' coins.', win:true}; try{ sfx.catch(o[1]>=8?4:2); }catch(e){ oops('ci_boardwalk:sfx.catch#2',e); } }
   S.gstats.gambles=(S.gstats.gambles||0)+1; save(); return 'render'; }
 // Treasure chests
 function chestPrize(){ const r=Math.random(), base=bestLoot(); const caught=Object.keys(S.journal||{}).filter(id=>SPI[id]);
@@ -33,7 +33,7 @@ function chestGive(p){ if(p.k==='tix') return '+'+addTickets(p.n)+' tickets'; if
 { const _ea=extraAct7; extraAct7=function(b){ const a=b.dataset.act;
   if(a==='gamble') return gamblePlay(+b.dataset.i);
   if(a==='chestbuy'){ if(chest&&chest.pick<0) return 'skip'; if(S.tickets<CHEST_COST){ toast('A chest costs '+CHEST_COST+' tickets.'); return 'skip'; } S.tickets-=CHEST_COST; chest={prizes:[chestPrize(),chestPrize(),chestPrize()], pick:-1, msg:''}; save(); return 'render'; }
-  if(a==='chestpick'){ const i=+b.dataset.i; if(!chest||chest.pick>=0||!chest.prizes[i]) return 'skip'; chest.pick=i; chest.msg=chestGive(chest.prizes[i]); try{ sfx.shiny(); }catch(e){} save(); return 'render'; }
+  if(a==='chestpick'){ const i=+b.dataset.i; if(!chest||chest.pick>=0||!chest.prizes[i]) return 'skip'; chest.pick=i; chest.msg=chestGive(chest.prizes[i]); try{ sfx.shiny(); }catch(e){ oops('ci_boardwalk:sfx.shiny',e); } save(); return 'render'; }
   return _ea(b); }; }
 if(typeof ACT_OK==='object'){ ACT_OK.gamble=(k,i)=>Number.isInteger(i)&&i>=0&&i<S.cooler.length; ACT_OK.chestbuy=()=>true; ACT_OK.chestpick=(k,i)=>Number.isInteger(i)&&i>=0&&i<3; }
 { const _g=bwGamesHTML; bwGamesHTML=function(){ if(!FEATURE.boardwalkExtras) return _g(); /* switched off (b_data.js FEATURE): the games page without the two cards, so their buttons never exist */ const h=_g(), L=gambleList();

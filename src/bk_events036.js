@@ -45,12 +45,12 @@ function chalPlace(c){ return 1+c.rivals.filter(r=>r[1]>c.best).length; }
 function chalReward(m){ const base=bestLoot(); return {coins:Math.round(base*25*m*coinMult()), scales:Math.max(1,Math.round(30*m)), tickets:Math.round(150*m), xp:Math.round(300*m)}; }
 function chalStart(id){ const C=CHAL[id]; if(!C||S.chal||(S.chalCd&&S.chalCd[id]>Date.now())) return false;
   const o=catchOdds(), extra=C.setup(o); S.chal=Object.assign({id, until:Date.now()+C.mins*MIN, loc:S.loc, prog:0}, extra);
-  try{ sfx.catch(2); }catch(e){} save(); return true; } /* no notice: the Events page shows the challenge you started (director, 2026-11-21) */
+  try{ sfx.catch(2); }catch(e){ oops('bk_events036:sfx.catch',e); } save(); return true; } /* no notice: the Events page shows the challenge you started (director, 2026-11-21) */
 function chalEnd(won){ const c=S.chal; if(!c) return; const C=CHAL[c.id]; S.chal=null; S.chalCd=S.chalCd||{}; S.chalCd[c.id]=Date.now()+CHAL_CD;
   let title, m=0; if(C.ranked){ const place=c.best>0?chalPlace(c):4; m=place<=3?[1,.55,.3][place-1]*C.m:0; title=c.best>0?(['🥇 First place!','🥈 Second place','🥉 Third place','Fourth place'][place-1]):'No fish weighed in'; }
   else { m=won?C.m:0; title=won?C.name+' complete!':C.name+': out of time'; }
-  let txt; if(m>0){ const r=chalReward(m); earn(r.coins); S.scales+=r.scales; S.tickets+=r.tickets; addPassXP(r.xp); txt=`+${fmt(r.coins)} coins, +${r.scales} Scales, +${r.tickets} tickets`; try{ sfx.catch(4); }catch(e){} S.stats.chalWins=(S.stats.chalWins||0)+1; }
-  else { S.tickets+=10; txt='+10 tickets for taking part'; try{ sfx.lost(); }catch(e){} }
+  let txt; if(m>0){ const r=chalReward(m); earn(r.coins); S.scales+=r.scales; S.tickets+=r.tickets; addPassXP(r.xp); txt=`+${fmt(r.coins)} coins, +${r.scales} Scales, +${r.tickets} tickets`; try{ sfx.catch(4); }catch(e){ oops('bk_events036:sfx.catch#2',e); } S.stats.chalWins=(S.stats.chalWins||0)+1; }
+  else { S.tickets+=10; txt='+10 tickets for taking part'; try{ sfx.lost(); }catch(e){ oops('bk_events036:sfx.lost',e); } }
   const table=C.ranked?`<div class="list" style="margin:8px 0">${[['You',c.best],...c.rivals].sort((a,b)=>b[1]-a[1]).map((r,i)=>`<div class="row spread prize"><span>${i+1}. <b>${esc(r[0])}</b></span><span>${r[1]?wFix(r[1],2):'–'}</span></div>`).join('')}</div>`:`<p class="sub">${c.prog} / ${c.need}</p>`;
   const show=()=>{ $('evin').innerHTML=`<div class="rar" style="color:var(--gold)">${C.icon} ${esc(C.name)}</div><h3>${esc(title)}</h3>${table}<p class="sub">${txt}</p><button class="btn" data-ev="skip">Back to fishing</button>`; G.st='event'; $('evcard').hidden=false; };
   if(G.st==='idle') show(); else setTimeout(()=>{ if(G.st==='idle') show(); else toast(C.name+': '+title+'. '+txt); },2500);
@@ -59,15 +59,15 @@ function chalProgress(){ const c=S.chal, C=CHAL[c.id]; if(!C.ranked&&c.prog>=c.n
 // progress from every landed fish (the fish, its hook and its cast are read before the catch is processed)
 const _landFish_036=landFish;
 landFish=function(){ const f=G.fish, perfect=!!G.perfect, far=G.lastCast>farAt(); _landFish_036.apply(this,arguments);
-  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){} };
+  try{ const c=S.chal; if(c&&f&&f.kind==='fish'&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onCatch&&C.onCatch(c,f,perfect,far)) chalProgress(); else if(S.tab==='events') renderPanel(); } }catch(e){ oops('bk_events036:Date.now',e); } };
 const _landJunk_04=landJunk;
-landJunk=function(){ _landJunk_04.apply(this,arguments); try{ const c=S.chal; if(c&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onJunk&&C.onJunk(c)) chalProgress(); } }catch(e){} };
+landJunk=function(){ _landJunk_04.apply(this,arguments); try{ const c=S.chal; if(c&&Date.now()<c.until&&S.loc===c.loc){ const C=CHAL[c.id]; if(C.onJunk&&C.onJunk(c)) chalProgress(); } }catch(e){ oops('bk_events036:Date.now#2',e); } };
 // scheduled events lift their stat while they last (through the shared bonus, so cards and odds show it too)
 const _bonus_036=bonus;
 bonus=function(k){ let v=_bonus_036(k); for(const e of SCHED) if(e.fx[k]&&schedLeft(e)) v+=typeof e.fx[k]==='function'?e.fx[k]():e.fx[k]; return v; };
 const schedWas={}; SCHED.forEach(e=>schedWas[e.id]=!!schedLeft(e));
 setInterval(()=>{ const c=S.chal; if(c&&Date.now()>=c.until) chalEnd(false);
-  let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ try{ sfx.hot(); }catch(er){} } /* no notice: the LIVE marker and badges show it (director, 2026-11-21) */ } schedWas[e.id]=on; }
+  let changed=false; for(const e of SCHED){ const on=!!schedLeft(e); if(on!==schedWas[e.id]){ changed=true; if(on){ try{ sfx.hot(); }catch(er){ oops('bk_events036:sfx.hot',er); } } /* no notice: the LIVE marker and badges show it (director, 2026-11-21) */ } schedWas[e.id]=on; }
   if(S.tab==='events'){ // a rest that just ended, or a scheduled event starting or ending, redraws the page so its buttons are right
     const stale=changed||[...document.querySelectorAll('[data-evleft]')].some(el=>{ const k=el.dataset.evleft; return CHAL[k]&&!((S.chalCd&&S.chalCd[k]||0)>Date.now()); });
     if(stale){ renderPanel(); return; }

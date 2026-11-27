@@ -61,7 +61,7 @@ function shinyStyle(sp,shiny,pv){ const kind=shiny===2?(pv&&SFX_PAL[pv]?pv:'rain
 // ---------- fish in the water and in the tank (called from al_decor04.js with the fish's body drawn on its own layer) ----------
 function shinyFxWater(c,x,y,L,t,sp,o,layer,px,R){ try{ const S0=shinyStyle(sp,o.shiny,o.pv);
     shinyFxDraw(c,t,{kind:S0.kind, style:S0.style, seed:S0.seed+(o.seedAdd||0), size:Math.max(1.1,L*.085), w:L*1.4, h:L*.6, cx:x, cy:y, motes:true,
-      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }}); }catch(e){} }
+      pick:(r1,r2)=>{ const a=r1*Math.PI*2, rr=Math.sqrt(r2); return [x+Math.cos(a)*rr*L*.42, y+Math.sin(a)*rr*L*.14]; }}); }catch(e){ oops('ca_shiny06:shinyStyle',e); } }
 
 // ---------- still pictures ----------
 const SPK=new Map(), SPK_SPOTS=new Map();
@@ -75,7 +75,7 @@ function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<
       const d=cnv.getContext('2d').getImageData(0,0,w,h).data, pts=[], st=Math.max(2,Math.round(Math.min(w,h)/40)); for(let yy=0;yy<h;yy+=st) for(let xx=0;xx<w;xx+=st){ if(d[(yy*w+xx)*4+3]>215) pts.push([xx,yy]); }
       if(!pts.length) return;
       let sx=0,sy=0; for(const p of pts){ sx+=p[0]; sy+=p[1]; } sp0={pts,cx:sx/pts.length,cy:sy/pts.length}; if(SPK_SPOTS.size>300) SPK_SPOTS.clear(); SPK_SPOTS.set(key,sp0); }
-    const was=SPK.get(cnv); SPK.set(cnv,Object.assign({base,w,h,vis:was?was.vis:true},S0,sp0)); if(spkVis&&!was) spkVis.observe(cnv); spkDraw(cnv,SPK.get(cnv),performance.now()/1000); }catch(e){} }
+    const was=SPK.get(cnv); SPK.set(cnv,Object.assign({base,w,h,vis:was?was.vis:true},S0,sp0)); if(spkVis&&!was) spkVis.observe(cnv); spkDraw(cnv,SPK.get(cnv),performance.now()/1000); }catch(e){ oops('ca_shiny06:document.createElement',e); } }
 { const _fc=fishCanvas; fishCanvas=function(cnv,sp,known=true,shiny=false,pv=null){ spkDrop(cnv);
     const keep=sparkles; sparkles=function(){}; SHINY3.still=true; try{ _fc.apply(this,arguments); } finally{ sparkles=keep; SHINY3.still=false; }
     if(spkWants(sp,known,shiny)&&cnv.isConnected) spkAttach(cnv,sp,shiny,pv); }; }
@@ -83,7 +83,7 @@ function spkAttach(cnv,sp,shiny,pv){ try{ const w=cnv.width, h=cnv.height; if(w<
 { // the shine is set up just after the page appears, a few pictures at a time, so opening a page never waits for it
   const Q=[]; let qT=0; const run=()=>{ qT=0; const t0=performance.now(); while(Q.length&&performance.now()-t0<6){ const [c,sp,sh,pv]=Q.shift(); if(c.isConnected) spkAttach(c,sp,sh,pv); } if(Q.length) qT=setTimeout(run,16); };
   const _pf=paintFish; paintFish=function(P){ const r=_pf.apply(this,arguments); try{ P.querySelectorAll('canvas[data-fish]').forEach(c=>{ const sp=SPI[c.dataset.fish], known=c.dataset.known!=='0', sh=+c.dataset.sh||0;
-      if(spkWants(sp,known,sh)) Q.push([c,sp,sh,c.dataset.pv||null]); else spkDrop(c); }); if(Q.length&&!qT) qT=setTimeout(run,0); }catch(e){} return r; }; }
+      if(spkWants(sp,known,sh)) Q.push([c,sp,sh,c.dataset.pv||null]); else spkDrop(c); }); if(Q.length&&!qT) qT=setTimeout(run,0); }catch(e){ oops('ca_shiny06:P.querySelectorAll',e); } return r; }; }
 function spkDraw(cnv,o,t){ const c=cnv.getContext('2d'), w=o.w, h=o.h; c.save(); c.setTransform(1,0,0,1,0,0); c.globalAlpha=1; c.globalCompositeOperation='source-over'; c.clearRect(0,0,w,h); c.drawImage(o.base,0,0);
   const sz=Math.max(1.6,Math.min(w,h)*.06), pts=o.pts;
   shinyFxDraw(c,t,{kind:o.kind, style:o.style, seed:o.seed, size:sz, w, h, cx:o.cx, cy:o.cy, motes:true,

@@ -21,11 +21,11 @@ for(const k in BAIT) BAIT[k].id=k;
 // order: everyday baits, water baits, favourite foods, then special lures (junk)
 { const keys=Object.keys(BAIT), junk=keys.filter(k=>BAIT[k].junk), food=keys.filter(k=>BAIT[k].food), rest=keys.filter(k=>!junk.includes(k)&&!food.includes(k)), copy={};
   for(const k of keys){ copy[k]=BAIT[k]; delete BAIT[k]; } for(const k of [...rest,...food,...junk]) BAIT[k]=copy[k]; }
-try{ S.bait=Object.assign(baitZero(),S.bait||{}); }catch(e){}
+try{ S.bait=Object.assign(baitZero(),S.bait||{}); }catch(e){ oops('cf_foods:Object.assign',e); }
 // a favourite pulls, a least favourite puts off
 { const _cw=catchW; catchW=function(s,pool,rare,b){ const w=_cw.apply(this,arguments); if(!b||!b.food) return w; return FISH_FAV[s.id]===b.id ? w*FOOD_FAV*(1+rodBonus('fav'))*(1+.06*pr('gourmet')) : FISH_HATE[s.id]===b.id ? w*FOOD_HATE : w; }; }
 // catching a fish on its favourite reveals it in the Fish Log (epic and rarer keep it hidden until then)
-{ const _ja=journalAdd; journalAdd=function(f){ const had=f&&f.sp&&S.journal[f.sp.id]&&S.journal[f.sp.id].fav; const r=_ja.apply(this,arguments); try{ if(had&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; if(f&&f.sp&&BAIT[S.baitSel]&&BAIT[S.baitSel].food&&FISH_FAV[f.sp.id]===S.baitSel&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; }catch(e){} return r; }; }
+{ const _ja=journalAdd; journalAdd=function(f){ const had=f&&f.sp&&S.journal[f.sp.id]&&S.journal[f.sp.id].fav; const r=_ja.apply(this,arguments); try{ if(had&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; if(f&&f.sp&&BAIT[S.baitSel]&&BAIT[S.baitSel].food&&FISH_FAV[f.sp.id]===S.baitSel&&S.journal[f.sp.id]) S.journal[f.sp.id].fav=1; }catch(e){ oops('cf_foods:fav',e); } return r; }; }
 const foodKnown = (sp,j) => sp.r<3 || !!(j&&j.fav) || maxed('gourmet');
 function foodLine(sp,j){ const fv=FISH_FAV[sp.id], ht=FISH_HATE[sp.id]; if(!fv) return ''; return `<div><span>Favourite food</span> ${foodKnown(sp,j)?esc(BAIT[fv].name):'??? <small>(catch it on its favourite)</small>'}</div><div><span>Least favourite</span> ${esc(BAIT[ht].name)}</div>`; }
 const foodFans = k => SP.filter(s=>FISH_FAV[s.id]===k);

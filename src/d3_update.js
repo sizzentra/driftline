@@ -663,7 +663,7 @@ const bkRead=k=>{ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):n
 let autoBkAt=0, bkAsk=null;
 function autoBackup(now){ if(window.__dlUnreadable||!S) return; const t=Date.now(); if(!now&&t-autoBkAt<AUTO_BK_MS) return; autoBkAt=t;
   try{ const old=bkRead(AUTO_BK); if(old&&bkScore(S)<bkScore(old)*.5) localStorage.setItem(AUTO_BK_KEEP, JSON.stringify(old));
-    localStorage.setItem(AUTO_BK, JSON.stringify(Object.assign({},S,{bkAt:t}))); }catch(e){} }
+    localStorage.setItem(AUTO_BK, JSON.stringify(Object.assign({},S,{bkAt:t}))); }catch(e){ oops('d3_update:bkRead',e); } }
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) autoBackup(true); });
 addEventListener('pagehide',()=>autoBackup(true));
 function agoText(t){ const m=Math.max(0,Math.round((Date.now()-t)/60000)); return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':Math.round(m/1440)+' days ago'; }
@@ -722,11 +722,11 @@ function extraAct2(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'taskclaimall': { const d=ensureDaily(), is=d.tasks.map((t,j)=>j).filter(j=>!d.tasks[j].claimed&&taskHave(d.tasks[j])>=d.tasks[j].n); if(!is.length) return 'skip'; for(const j of is) actClick('taskclaim',j); return 'render'; }
     case 'taskbonus': { const d=ensureDaily(); if(d.bonus||!d.tasks.every(t=>t.claimed)) return 'skip'; d.bonus=true; S.tokens.small++; sfx.catch(3); toast('All tasks done! A small Mystery Crate is waiting at the Boardwalk.'); return 'render'; }
     case 'patches': showPatchNotes(); return 'skip';
-    case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){}
+    case 'safereset': { const w=$('resetword'); if(!w||w.value.trim()!=='DELETE') return 'skip'; try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){ oops('d3_update:localStorage.setItem',e); }
       S=fresh(); S.seenPatch=GAME_VERSION; S.tab='settings'; S.savedAt=Date.now(); G.st='idle'; fillBounties(); toast('Progress erased. A backup was kept. You can restore it in Settings.'); return 'render'; }
     case 'restorebk': { try{ const raw=localStorage.getItem(BACKUP_KEY); if(!raw) return 'skip'; S=migrate(JSON.parse(raw)); S.savedAt=Date.now(); localStorage.removeItem(BACKUP_KEY); G.st='idle'; toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'autobk': case 'autobkkept': { if(bkAsk!==b.dataset.act){ bkAsk=b.dataset.act; return 'render'; } bkAsk=null; const s=bkRead(b.dataset.act==='autobk'?AUTO_BK:AUTO_BK_KEEP); if(!s) return 'skip';
-      try{ if(!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){} /* the progress being replaced becomes the backup above (when that slot is free, so a pre-reset copy is never overwritten), so a restore can be undone */
+      try{ if(!localStorage.getItem(BACKUP_KEY)) localStorage.setItem(BACKUP_KEY, JSON.stringify(S)); }catch(e){ oops('d3_update:localStorage.getItem',e); } /* the progress being replaced becomes the backup above (when that slot is free, so a pre-reset copy is never overwritten), so a restore can be undone */
       try{ S=migrate(s); delete S.bkAt; S.savedAt=Date.now(); G.st='idle'; window.__dlUnreadable=false; save(); toast('Backup restored. Welcome back!'); }catch(e){ toast('That backup couldn’t be read.'); } return 'render'; }
     case 'duckagain': { const c=bestLoot(); if(S.money<c) return 'skip'; S.money-=c; newDuck(); taskProgress('game',1); return 'render'; }
     case 'duckpick': { if(!duck||duck.pick>=0) return 'skip'; duck.pick=i; const p=duck.prizes[i]; if(p.k==='crate'){ S.tokens.small++; duck.msg='A small Mystery Crate! Quack.'; sfx.shiny(); } else if(p.k==='coins'){ duck.msg='+'+fmt(bwEarn(bestLoot()*p.m*coinMult()))+' coins. Quack quack.'; sfx.coin(); } else { duck.msg='+'+addTickets(p.n)+' tickets. Quack.'; tone(1200,.08,'triangle',.05); } return 'render'; }
@@ -744,5 +744,5 @@ const PET_FIT={};
 function petFitScale(id){ if(PET_FIT[id]) return PET_FIT[id]; const big=id==='horse'||id==='cow'; let s=big?4.2:6.5;
   try{ const o=document.createElement('canvas'); o.width=240; o.height=200; const x=o.getContext('2d'), k=2; drawPetStyled(x,id,120,170,k,0,0,Object.assign({},petLook(id),{hat:'none',acc:'none'}));
     const d=x.getImageData(0,0,o.width,o.height).data; let x0=1e9,y0=1e9,x1=-1,y1=-1; for(let yy=0;yy<o.height;yy++) for(let xx=0;xx<o.width;xx++){ if(d[(yy*o.width+xx)*4+3]>30){ if(xx<x0)x0=xx; if(xx>x1)x1=xx; if(yy<y0)y0=yy; if(yy>y1)y1=yy; } }
-    if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){}
+    if(x1>x0&&y1>y0){ const w=(x1-x0)/k, h=(y1-y0)/k; s=Math.min(175/h, 300/w, 11); } }catch(e){ oops('d3_update:document.createElement',e); }
   return PET_FIT[id]=s; }

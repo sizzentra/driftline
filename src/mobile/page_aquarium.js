@@ -11,8 +11,8 @@
 //    tried decoration lands in the most open spot of the sand.
 //  - The tank's canvas is carried through every re-render, so it never blinks or restarts; turning the phone rebuilds the layout.
 // =====================================================================
-{ let AQ_OPEN=true; try{ AQ_OPEN=localStorage.getItem('dl-aq-open')!=='0'; }catch(e){}
-  const saveOpen=()=>{ try{ localStorage.setItem('dl-aq-open',AQ_OPEN?'1':'0'); }catch(e){} };
+{ let AQ_OPEN=true; try{ AQ_OPEN=localStorage.getItem('dl-aq-open')!=='0'; }catch(e){ oops('mobile/page_aquarium:localStorage.getItem',e); }
+  const saveOpen=()=>{ try{ localStorage.setItem('dl-aq-open',AQ_OPEN?'1':'0'); }catch(e){ oops('mobile/page_aquarium:localStorage.setItem',e); } };
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   const addRows=()=>{ const full=S.tank.length>=aqCap(); const rows=S.cooler.map((f,i)=>({f,i})).reverse();
     if(!rows.length) return `<div class="empty">Your Cooler is empty. Fish you catch can go on display from here.</div>`;
@@ -85,15 +85,15 @@
       else if(cost==null) hr.insertAdjacentHTML('afterend',`<p class="meta mb-tankwhy">Your tank is as big as it gets: ${cap} fish.</p>`); } };
   // the one step: the tank's live canvas is carried through every re-render, so it never blinks or restarts
   const _rp=renderPanel; renderPanel=function(){ const aq=MOB()&&S.tab==='aquarium', keep=aq?$('tankcv'):null;
-    if(aq) try{ aqTryPlace(); }catch(e){}
+    if(aq) try{ aqTryPlace(); }catch(e){ oops('mobile/page_aquarium:aqTryPlace',e); }
     const r=_rp.apply(this,arguments); const P=$('panel'); if(!P) return r;
-    try{ P.classList.toggle('aq07',aq); }catch(e){}
+    try{ P.classList.toggle('aq07',aq); }catch(e){ oops('mobile/page_aquarium:classList.toggle',e); }
     if(aq){ for(const step of [aqHeader,aqLayout,aqDecorate]) try{ step(P); }catch(e){ console.error(e); }
-      try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){}
+      try{ if(keep){ const fresh=$('tankcv'); if(fresh&&fresh!==keep){ fresh.replaceWith(keep); keep.scrollIntoView=function(){}; } } }catch(e){ oops('mobile/page_aquarium:fresh.replaceWith',e); }
       try{ aqTankSize(P); }catch(e){ console.error(e); } }
     return r; };
   /* turning the phone while the aquarium is open rebuilds it for the new layout (checked after the resize settles) */
-  let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){} },160); }); }
+  let rt=0; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const P=$('panel'); if(!MOB()||S.tab!=='aquarium'||!P.classList.contains('aq07')) return; const l=document.body.classList.contains('phone-land')?'1':'0'; if(P.dataset.aqLand!==l) renderPanel(); }catch(e){ oops('mobile/page_aquarium:MOB',e); } },160); }); }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* ---- layout: the page itself does not scroll; the tank grows, the panel's body scrolls ---- */

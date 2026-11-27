@@ -9,13 +9,13 @@
   PCH.innerHTML=`<div class="pch-brand" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c3-4 7-5 10-5 3 0 5 2 7 5-2 3-4 5-7 5-3 0-7-1-10-5z"/><path d="M3 12l-1.5-3M3 12l-1.5 3"/><circle cx="16" cy="11" r=".9" fill="currentColor"/></svg><span>Driftline</span></div><div class="pch-cats"></div><div class="pch-tools"><span class="pch-coin" title="Coins"><span class="coin" id="pchcoin">0</span></span><button type="button" class="pch-tb" data-pch="search" aria-label="Search the menus" title="Search the menus">🔍</button><button type="button" class="pch-tb" data-pch="settings" aria-label="Settings" title="Settings">⚙</button></div>`;
   if(wrap&&hud) wrap.insertBefore(PCH,hud);
   const cats=PCH.querySelector('.pch-cats'), coin=PCH.querySelector('#pchcoin');
-  PCH.querySelector('.pch-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-pch]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const t=$(b.dataset.pch==='search'?'searchbtn':'settingsbtn'); if(t) t.click(); });
+  PCH.querySelector('.pch-tools').addEventListener('click',e=>{ const b=e.target.closest('[data-pch]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/ui_header_row:startAudio',er); } const t=$(b.dataset.pch==='search'?'searchbtn':'settingsbtn'); if(t) t.click(); });
   const label=(full)=>CD.querySelectorAll('.cdb[data-cd]').forEach(b=>{ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), l=b.querySelector('.cdl'); if(sec&&l){ const t=full?sec.name:(sec.short||sec.name); if(l.textContent!==t) l.textContent=t; } });
   const on=()=>{ const b=document.body.classList; return b.contains('plat-pc')&&b.contains('pc-app')&&!b.contains('phone-app')&&!b.contains('phone-land')&&innerWidth>=800; };
   let was=null; const apply=()=>{ const v=on(); if(v===was) return; was=v; document.body.classList.toggle('pch-on',v);
     if(v){ if(CD.parentElement!==cats) cats.appendChild(CD); label(true); } else { if(CD.parentElement===cats&&stage) stage.after(CD); label(false); }
-    try{ requestAnimationFrame(()=>resize()); }catch(e){} };
-  const tick=()=>{ if(!was) return; try{ const v=fmtShort(S.money); if(coin.textContent!==v){ coin.textContent=v; PCH.querySelector('.pch-coin').title=fmt(S.money)+' coins'; } }catch(e){} };
+    try{ requestAnimationFrame(()=>resize()); }catch(e){ oops('pc/ui_header_row:requestAnimationFrame',e); } };
+  const tick=()=>{ if(!was) return; try{ const v=fmtShort(S.money); if(coin.textContent!==v){ coin.textContent=v; PCH.querySelector('.pch-coin').title=fmt(S.money)+' coins'; } }catch(e){ oops('pc/ui_header_row:fmtShort',e); } };
   addEventListener('resize',()=>setTimeout(apply,30)); document.addEventListener('fullscreenchange',()=>setTimeout(apply,140));
   new MutationObserver(()=>apply()).observe(document.body,{attributes:true,attributeFilter:['class']});
   apply(); setTimeout(apply,80); setInterval(tick,400); tick(); }

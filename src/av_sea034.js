@@ -13,10 +13,10 @@ function seaStormK(){ const k=wx3k(), a=wx3A(); return (k==='Storm'?1:k==='Rain'
 function m34ambOK(){ return typeof AC!=='undefined'&&AC&&MUS&&MUS.n&&S.settings.ambient&&S.settings.master; }
 function m34horn(){ if(!m34ambOK()) return; try{ const t=AC.currentTime+.05, f=AC.createBiquadFilter(); f.type='lowpass'; f.frequency.value=320; f.connect(BUS.amb); if(MUS.n.wet) f.connect(MUS.n.wet);
   // one long low blast, two notes a fifth apart, swelling in and dying away like it is miles off
-  for(const [hz,v] of [[92,.012],[138,.007]]){ const o=AC.createOscillator(), gn=AC.createGain(); o.type='sawtooth'; o.frequency.value=hz; gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(v,t+.5); gn.gain.setValueAtTime(v,t+1.9); gn.gain.exponentialRampToValueAtTime(.0001,t+3.4); o.connect(gn); gn.connect(f); o.start(t); o.stop(t+3.5); } }catch(e){} }
+  for(const [hz,v] of [[92,.012],[138,.007]]){ const o=AC.createOscillator(), gn=AC.createGain(); o.type='sawtooth'; o.frequency.value=hz; gn.gain.setValueAtTime(0,t); gn.gain.linearRampToValueAtTime(v,t+.5); gn.gain.setValueAtTime(v,t+1.9); gn.gain.exponentialRampToValueAtTime(.0001,t+3.4); o.connect(gn); gn.connect(f); o.start(t); o.stop(t+3.5); } }catch(e){ oops('av_sea034:AC.createBiquadFilter',e); } }
 function m34bell(){ if(!m34ambOK()) return; try{ const t=AC.currentTime+.05, outs=MUS.n.wet?[BUS.amb,MUS.n.wet]:[BUS.amb], b=520+Math.random()*30;
   // a soft bell: a few inharmonic partials, the high ones fading first
-  mv('sine',b,t,3.2,.011,.004,outs); mv('sine',b*2.76,t,1.6,.004,.003,outs); mv('sine',b*5.4,t,.7,.0018,.002,outs); }catch(e){} }
+  mv('sine',b,t,3.2,.011,.004,outs); mv('sine',b*2.76,t,1.6,.004,.003,outs); mv('sine',b*5.4,t,.7,.0018,.002,outs); }catch(e){ oops('av_sea034:Math.random',e); } }
 const _musicTick_034=musicTick;
 musicTick=function(){ _musicTick_034(); if(!AC||!MUS.n) return; const n=MUS.n, now=AC.currentTime;
   // rain on the water: a soft hiss that swells with the weather (heavier out on the deep sea)

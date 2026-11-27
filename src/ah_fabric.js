@@ -97,4 +97,4 @@ const SLEEVE_DRAW={
 const _drawFabric_0 = drawFabric;
 drawFabric = function(c,id,base,x,y,w,h){ const f=SLEEVE_DRAW[id]; if(f) return f(c,x,y,w,h); return _drawFabric_0(c,id,base,x,y,w,h); };
 // one message for players whose old shirt designs were refunded
-setTimeout(()=>{ try{ if(S&&S.fabRefund){ toast('Shirt designs became fabrics. You got '+fmt(S.fabRefund)+' coins back for the designs you owned.'); delete S.fabRefund; save(); } }catch(e){} },2500);
+setTimeout(()=>{ try{ if(S&&S.fabRefund){ toast('Shirt designs became fabrics. You got '+fmt(S.fabRefund)+' coins back for the designs you owned.'); delete S.fabRefund; save(); } }catch(e){ oops('ah_fabric:toast',e); } },2500);

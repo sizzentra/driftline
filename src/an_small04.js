@@ -43,9 +43,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 
 // ---------- full screen is remembered on this device: if you left the game in full screen, it goes back to full
 // screen on your first tap or key press (browsers only allow full screen after you touch the page) ----------
-(function(){ let want=false; try{ want=localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){}
-  document.addEventListener('fullscreenchange',()=>{ try{ localStorage.setItem('dl-fs',document.fullscreenElement?'1':'0'); }catch(e){} });
-  if(!want) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{}); }catch(e){} } };
+(function(){ let want=false; try{ want=localStorage.getItem('dl-fs')==='1'&&localStorage.getItem('dl-fs-auto')!=='0'; }catch(e){ oops('an_small04:localStorage.getItem',e); }
+  document.addEventListener('fullscreenchange',()=>{ try{ localStorage.setItem('dl-fs',document.fullscreenElement?'1':'0'); }catch(e){ oops('an_small04:localStorage.setItem',e); } });
+  if(!want) return; const go=()=>{ ['pointerdown','keydown'].forEach(ev=>document.removeEventListener(ev,go,true)); if(!document.fullscreenElement&&document.documentElement.requestFullscreen){ try{ const p=document.documentElement.requestFullscreen(); if(p&&p.catch) p.catch(()=>{ /* quiet: the browser may refuse full screen (no tap, a setting, a frame); the game plays the same without it */ }); }catch(e){ oops('an_small04:umentElement.requestFullscreen',e); } } };
   ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,go,true)); })();
 if(/[?&]test\b/.test(location.search)) window.__frenzy=()=>{ G.st='frenzy'; G.fz={t:0,dur:10,next:0,jumpers:[],caught:0}; return 'ok'; };
 // test: jump the clock to a moment with the given weather, inside a phase range, away from the weather's fade edges

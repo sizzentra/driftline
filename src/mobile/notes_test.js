@@ -3,6 +3,8 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Behind the scenes, nothing changes on screen: the game now keeps a list of the errors it used to pass over without a trace. If one happens while you play, a box named Errors the game passed over appears at the bottom of Stats › Tester tools: copy it and send it. No box means none happened. Run every check lists them at its end too.',
+  '## Test build 2026.11.26-2236',
   'Fixed: Quests, Learn and Help showed odd letters in place of the multiplication sign, apostrophes and the shiny marks in 28 places.',
   'Game controllers are switched off for now (the director: not ready yet). A connected controller does nothing and no pop-up appears; it comes back when it is ready.',
   'Behind the scenes only, nothing changes on screen: publishing test builds is faster, and a brand-new save now starts with the same empty home record a reloaded save has (a self-check disagreed with itself about it).',

@@ -6,7 +6,7 @@
 // ---------- after "Travel here" the menu closes and you are fishing at the new water at once ----------
 // (director: "when moving to a new zone through Waters, jump back to the game screen once Travel here is clicked")
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="goto"]'); if(!b||!MENU_OPEN) return; const from=S.loc;
-  setTimeout(()=>{ try{ if(S.loc!==from&&MENU_OPEN){ closeMenu(); } }catch(er){} },60); },true);
+  setTimeout(()=>{ try{ if(S.loc!==from&&MENU_OPEN){ closeMenu(); } }catch(er){ oops('bx_qol06:closeMenu',er); } },60); },true);
 
 // ---------- rows that scroll sideways show a small arrow at the edge that has more (director: "whenever a bar can be scrolled
 // left or right, add a slight indicator at the corner so players don't miss a function or menu") ----------
@@ -28,4 +28,4 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // ---------- the water always fills its frame: if the layout around it settles after the water was sized (a chip arriving in the
 // strip, a font loading, a page closing), the water is fitted again. A cheap check once a second; it only acts on a real gap ----------
 setInterval(()=>{ try{ if(document.hidden||(typeof MENU_OPEN!=='undefined'&&MENU_OPEN)) return; const st=$('stage'), c=$('cv'); if(!st||!c||!st.clientHeight) return;
-  const ch=parseFloat(c.style.height)||c.getBoundingClientRect().height; if(Math.abs(st.clientHeight-ch)>3) resize(); }catch(e){} },1000);
+  const ch=parseFloat(c.style.height)||c.getBoundingClientRect().height; if(Math.abs(st.clientHeight-ch)>3) resize(); }catch(e){ oops('bx_qol06:parseFloat',e); } },1000);

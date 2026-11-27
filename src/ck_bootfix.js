@@ -6,5 +6,5 @@
 // A save field that a later step of migrate() sets belongs in BOOTFIX_KEYS, unless its owner file also sets it on S when it loads.
 // =====================================================================
 const BOOTFIX_KEYS=['egPaid','pearls','pearlV','pearlOld','pearlMig','pshop','boons','boonPts','boonMig','pathXP','specs','pass','passMig','owned','look','petTints'];
-function bootFixFrom(raw){ try{ if(raw){ const o=JSON.parse(raw); if(o&&typeof o==='object'){ const m=migrate(o); for(const k of BOOTFIX_KEYS) if(m[k]!==undefined) S[k]=m[k]; try{ voyApplyCooler(); }catch(e){} return true; } } }catch(e){ try{ console.error("boot fix",e); }catch(_){} } return false; }
-try{ bootFixFrom(localStorage.getItem(LS_KEY)); }catch(e){}
+function bootFixFrom(raw){ try{ if(raw){ const o=JSON.parse(raw); if(o&&typeof o==='object'){ const m=migrate(o); for(const k of BOOTFIX_KEYS) if(m[k]!==undefined) S[k]=m[k]; try{ voyApplyCooler(); }catch(e){ oops('ck_bootfix:voyApplyCooler',e); } return true; } } }catch(e){ try{ console.error("boot fix",e); }catch(_){ oops('ck_bootfix:console.error',_); } } return false; }
+try{ bootFixFrom(localStorage.getItem(LS_KEY)); }catch(e){ oops('ck_bootfix:bootFixFrom',e); }

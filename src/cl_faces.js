@@ -40,8 +40,8 @@ HAIRSTYLES.push(['sidepart','Side part'],['bob','Bob'],['pixie','Pixie'],['wavy'
 { const _rs=renderStyle; renderStyle=function(P){ const r=_rs.apply(this,arguments); try{ const pn=P||$('panel'), h=[...pn.querySelectorAll('h5')].find(x=>/^Nose$/.test(x.textContent.trim())); const lk=S.look;
     const chips=(k,L,cur)=>`<div class="chips">${L.map(([v,n])=>`<button class="chipb" data-act="look" data-k="${k}" data-v="${v}" aria-pressed="${cur===v}">${n}</button>`).join('')}</div>`;
     const html=`<h5>Face style</h5>${chips('face',FACES,lk.face||'classic')}<h5>Eye shape</h5>${chips('eyeShape',EYESHAPES,lk.eyeShape||'round')}`;
-    if(h&&!pn.querySelector('[data-k="face"]')) h.insertAdjacentHTML('beforebegin',html); }catch(e){} return r; }; }
+    if(h&&!pn.querySelector('[data-k="face"]')) h.insertAdjacentHTML('beforebegin',html); }catch(e){ oops('cl_faces:pn.querySelectorAll',e); } return r; }; }
 // saves: unknown values fall back; an angler made before 0.4.9 keeps the Classic face
 /* a step of migrate() in c_logic.js; saved = the save as it arrived (null when it was not a save at all) */
 function facesClean(m,saved){ const raw=saved&&isObj(saved.look)?saved.look:null; try{ if(raw&&raw.face===undefined) m.look.face='classic';
-    if(!FACES.some(x=>x[0]===m.look.face)) m.look.face='natural'; if(!A3_EYESH[m.look.eyeShape]) m.look.eyeShape='round'; }catch(e){} }
+    if(!FACES.some(x=>x[0]===m.look.face)) m.look.face='natural'; if(!A3_EYESH[m.look.eyeShape]) m.look.eyeShape='round'; }catch(e){ oops('cl_faces:FACES.some',e); } }

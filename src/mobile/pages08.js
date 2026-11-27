@@ -37,9 +37,9 @@ html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-side,html body.phone-l
 { const keep={}; const sec=P=>{ const s=P.querySelector('.aq07-sheet .sect-nav [aria-selected="true"]'); return s?s.textContent.trim():''; };
   const _rp=renderPanel; renderPanel=function(){ const P0=$('panel'); const t0=S.tab; delete keep[t0]; if(P0&&((t0==='aquarium'&&P0.classList.contains('aq07')&&!P0.classList.contains('dk08')&&!P0.classList.contains('pg08')&&!P0.classList.contains('wd08'))||(t0==='home'&&P0.classList.contains('dk08')))){ const b=P0.querySelector('.aq07-body'); if(b&&b.scrollTop>0) keep[t0]={top:b.scrollTop, sec:sec(P0)}; }
     const r=_rp.apply(this,arguments);
-    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&t==='aquarium'&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){} return r; }; }
+    try{ const P=$('panel'), t=S.tab; if(MOB()&&P&&t==='aquarium'&&t===t0){ const b=P.querySelector('.aq07-body'), k=keep[t]; if(b&&k&&k.sec===sec(P)) queueMicrotask(()=>{ if(b.isConnected) b.scrollTop=k.top; }); } }catch(e){ oops('mobile/pages08:MOB',e); } return r; }; }
 /* the Wardrobe works like the Dock: your angler is the live view, the categories are the Options panel's tabs */
-{ let WD_OPEN=true; try{ WD_OPEN=localStorage.getItem('dl-wd-open')!=='0'; }catch(e){}
+{ let WD_OPEN=true; try{ WD_OPEN=localStorage.getItem('dl-wd-open')!=='0'; }catch(e){ oops('mobile/pages08:localStorage.getItem',e); }
   const h=(tag,cls,html)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(html!=null) e.innerHTML=html; return e; };
   const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ const P=$('panel'); if(!MOB()||S.tab!=='style'){ if(P) P.classList.remove('wd08'); return r; }
       const nav=P.querySelector(':scope > .wd-nav'), wrap=P.querySelector(':scope > .stylewrap'), prev=wrap&&wrap.querySelector(':scope > .wd-prev'), main=wrap&&wrap.querySelector(':scope > .wd-main'); if(!nav||!prev||!main) return r;
@@ -48,13 +48,13 @@ html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-side,html body.phone-l
       const bar=h('div','aq07-bar'); const cur=nav.querySelector('[aria-selected="true"] .wl'); const bank=h('div','aq07-bank wd08-bank',`<div><span class="sub">Wardrobe</span><b>${esc(cur?cur.textContent:'Your look')}</b></div><div><span class="sub">Tip</span><b>Tap to try on</b></div>`); bar.appendChild(bank);
       const tog=h('button','aq07-tog'); tog.type='button'; const paint=()=>{ tog.setAttribute('aria-expanded',String(WD_OPEN)); tog.title=WD_OPEN?'Hide the options and see your whole angler':'Show the wardrobe';
         tog.innerHTML=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${land?(WD_OPEN?'M9 6l6 6-6 6':'M15 6l-6 6 6 6'):(WD_OPEN?'M6 9l6 6 6-6':'M6 15l6-6 6 6')}"/></svg><span>${WD_OPEN?'Hide':'Options'}</span>`; };
-      paint(); bar.appendChild(tog); tog.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); WD_OPEN=!WD_OPEN; try{ localStorage.setItem('dl-wd-open',WD_OPEN?'1':'0'); }catch(er){} P.classList.toggle('aq07-open',WD_OPEN); paint(); });
+      paint(); bar.appendChild(tog); tog.addEventListener('click',e=>{ e.preventDefault(); e.stopPropagation(); WD_OPEN=!WD_OPEN; try{ localStorage.setItem('dl-wd-open',WD_OPEN?'1':'0'); }catch(er){ oops('mobile/pages08:localStorage.setItem',er); } P.classList.toggle('aq07-open',WD_OPEN); paint(); });
       const sheet=h('div','aq07-sheet'), body=h('div','aq07-body '+wrap.className); sheet.appendChild(nav); sheet.appendChild(body); body.appendChild(main);
       [...P.children].forEach(c=>{ if(!c.classList.contains('crumb')) c.remove(); }); P.append(stage,bar,sheet);
       P.classList.add('aq07','wd08'); P.classList.toggle('aq07-open',WD_OPEN); P.classList.remove('pg08','pg08-nostage','dk08');
       const n=nav.querySelectorAll(':scope > button').length; nav.style.setProperty('grid-template-columns',`repeat(${PG_COLS(nav,n)},minmax(0,1fr))`,'important'); nav.querySelectorAll('.wl').forEach(l=>{ if(l.textContent.trim()==='Neck & back'&&l.scrollWidth>l.clientWidth+1){ l.textContent='Neck/back'; l.parentElement.title='Neck & back'; } }); /* narrowest phones */
     }catch(e){ console.error(e); } return r; };
-  let rt=0, lastL=null; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const l=document.body.classList.contains('phone-land'); if(MOB()&&S.tab==='style'&&MENU_OPEN&&lastL!==null&&l!==lastL) renderPanel(); lastL=l; }catch(e){} },160); }); }
+  let rt=0, lastL=null; addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{ try{ const l=document.body.classList.contains('phone-land'); if(MOB()&&S.tab==='style'&&MENU_OPEN&&lastL!==null&&l!==lastL) renderPanel(); lastL=l; }catch(e){ oops('mobile/pages08:classList.contains',e); } },160); }); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-app #menuov #panel.pg08 .pg08-bar > .pg08-sidev,html body.phone-land #menuov #panel.pg08 .pg08-bar > .pg08-sidev{display:none}
 @media (orientation:landscape) and (max-height:560px){ html body.phone-land #menuov #panel.aq07.pg08 .pg08-bar > .pg08-sidev{display:block;margin:0!important;border-radius:12px;overflow:hidden} }
@@ -77,15 +77,15 @@ html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav,html body.phone-l
   const _pp=paintPetCustom; let io=null;
   paintPetCustom=function(){ if(!MOB()) return _pp.apply(this,arguments); const a=arguments, self=this;
     queueMicrotask(()=>{ const c=$('petcv'); if(!c) return; if(c.getClientRects().length){ _pp.apply(self,a); return; }
-      clearTimeout(io); io=setTimeout(()=>{ try{ if($('petcv')) _pp(); }catch(er){} },120); }); };
+      clearTimeout(io); io=setTimeout(()=>{ try{ if($('petcv')) _pp(); }catch(er){ oops('mobile/pages08:_pp',er); } },120); }); };
   }
 /* labels in a section that was hidden when the page was built are fitted when you open that section (the fit step runs on any
    change inside the menu: a tiny no-op change after each section switch triggers it) */
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('#panel.aq07 .aq07-sheet > .bwx-nav > button, #panel.aq07 .aq07-sheet > .sect-nav > button'); if(!b||!MOB()) return;
-  setTimeout(()=>{ try{ const body=document.querySelector('#panel .aq07-body'); if(!body) return; const n=document.createComment(''); body.appendChild(n); n.remove(); }catch(er){} },0); },true);
+  setTimeout(()=>{ try{ const body=document.querySelector('#panel .aq07-body'); if(!body) return; const n=document.createComment(''); body.appendChild(n); n.remove(); }catch(er){ oops('mobile/pages08:document.querySelector',er); } },0); },true);
 /* short tab names where the full one does not fit a phone row */
 { const SHORT={'Move to another device':'Move progress','Aquarium & pets':'Tank & pets'};
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()) document.querySelectorAll('#panel .aq07-sheet > .bwx-nav > button[data-sect]').forEach(b=>{ const s=SHORT[b.dataset.sect]; if(s&&b.firstChild&&b.firstChild.nodeType===3) b.firstChild.nodeValue=s+(b.firstChild.nodeValue.endsWith(' ')?' ':''); }); }catch(e){} return r; }; }
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(MOB()) document.querySelectorAll('#panel .aq07-sheet > .bwx-nav > button[data-sect]').forEach(b=>{ const s=SHORT[b.dataset.sect]; if(s&&b.firstChild&&b.firstChild.nodeType===3) b.firstChild.nodeValue=s+(b.firstChild.nodeValue.endsWith(' ')?' ':''); }); }catch(e){ oops('mobile/pages08:MOB#2',e); } return r; }; }
 /* Waters, Set sail again: the locked button's label is shortened on phones so it fits its card ("Reach Hollow Trench first" -> "Reach Hollow Trench") */
 pageDone('map',P=>{ if(MOB()) P.querySelectorAll('button[data-act="retire"][disabled]').forEach(b=>{ const m=b.textContent.trim().match(/^Reach (.+) first$/); if(m) b.textContent='Reach '+m[1]; }); }); /* Clean Pages 2: a page step, not a renderPanel layer */
 /* color choices (director: "color choices in customization don't look good and take up too much space, descriptions can be condensed
@@ -142,7 +142,7 @@ html body.phone-land.dock-mini #menuov #tabs .secbar .secb .secdot{top:0!importa
 /* how many section tabs share a row: up to 4 in one row, 5-6 in rows of 3, 7-8 in rows of 4, but never narrower than ~70 px a tab (the fit step shrinks a long label a little, never below 11 px)
    (round 8: the Wardrobe's side sheet is only ~234 px wide on the smallest iPhone, where 4 tabs a row cut "Clothes") */
 const PG_W=new Map(); /* the tab row's width per screen size and page type: measured once, not on every switch (a forced layout pass) */
-function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ const P=$('panel'), k=innerWidth+'x'+innerHeight+'|'+(P&&P.classList.contains('wd08')?'wd':'pg')+'|'+document.body.classList.contains('dock-mini')+'|'+(document.body.classList.contains('phone-app')?'app':'land'); if(PG_W.has(k)) w=PG_W.get(k); else if(el&&el.isConnected){ w=el.getBoundingClientRect().width; if(w>0) PG_W.set(k,w); } }catch(e){} if(w>0&&n<=6&&(w+6)/n>=118) return n; /* all in one row when each tab still gets ~118 px */ return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
+function PG_COLS(el,n){ const base=n<=4?n:n<=6?3:4; let w=0; try{ const P=$('panel'), k=innerWidth+'x'+innerHeight+'|'+(P&&P.classList.contains('wd08')?'wd':'pg')+'|'+document.body.classList.contains('dock-mini')+'|'+(document.body.classList.contains('phone-app')?'app':'land'); if(PG_W.has(k)) w=PG_W.get(k); else if(el&&el.isConnected){ w=el.getBoundingClientRect().width; if(w>0) PG_W.set(k,w); } }catch(e){ oops('mobile/pages08:classList.contains#2',e); } if(w>0&&n<=6&&(w+6)/n>=118) return n; /* all in one row when each tab still gets ~118 px */ return w>0?Math.max(2,Math.min(base,Math.floor((w+6)/74))):base; }
 document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-app #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl,html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{white-space:nowrap!important}</style>`); /* one line per tab; the fit step shrinks a long one a little */
 document.head.insertAdjacentHTML('beforeend',`<style>@media (orientation:landscape) and (max-height:560px) and (max-width:760px){ html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav{gap:4px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button{padding-left:2px!important;padding-right:2px!important} html body.phone-land #menuov #panel.wd08 .aq07-sheet > .bwx-nav > button .wl{max-width:100%!important;overflow:hidden!important} }</style>`); /* smallest iPhones: the Wardrobe's 3-a-row tabs get 4 px more room each */
 /* round 8 (director: "A lot of tabs take up way too much space on the left side when it comes to info. So much empty space wasted"):

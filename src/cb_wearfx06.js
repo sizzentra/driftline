@@ -103,9 +103,9 @@ function wearFxDraw(c,lk,t,toC,k){ try{ const A=A3FXP; if(!A||(!A.hat&&!A.torso&
       if(s==='moonboots'){ for(let i=0;i<2;i++){ const L=life(1.8+i*.4,i*.9); flare(F.M,(i?F.f:F.b)+sfxHash(L.n,i)*4,-3-sfxHash(L.n,i+1)*2,.45,starry,i,L.a,false); } }
       if(s==='rollers'){ const L=life(1.2,0); flare(F.M,F.b+(L.n%3)*1.6,.6,.45,gold,0,L.a,false); }
       if(s==='fishfeet'){ for(let i=0;i<2;i++){ const q=((t*.4+i*.5)%1); bubble(F.M,F.b+3+i*2,-1-q*9,.4+q*.4,Math.sin(q*Math.PI)); } } }
-    c.restore(); }catch(e){} }
+    c.restore(); }catch(e){ oops('cb_wearfx06:bubble',e); } }
 
 // ---------- the Wardrobe preview is alive: while it is on screen it is drawn every display frame, so the angler breathes and every
 // cosmetic effect above plays there too (it used to be drawn once, a still picture). Stops by itself when the page closes ----------
 { let raf=0; const loop=()=>{ raf=0; const c=document.getElementById('lookcv'); if(!c||!c.isConnected) return; if(!document.hidden){ const r=c.getBoundingClientRect(); if(r.width>0&&r.bottom>0&&r.top<innerHeight) drawLookPreview(); } raf=requestAnimationFrame(loop); };
-  const _rp=renderPanel; renderPanel=function(){ const x=_rp.apply(this,arguments); try{ if(!raf&&document.getElementById('lookcv')) raf=requestAnimationFrame(loop); }catch(e){} return x; }; }
+  const _rp=renderPanel; renderPanel=function(){ const x=_rp.apply(this,arguments); try{ if(!raf&&document.getElementById('lookcv')) raf=requestAnimationFrame(loop); }catch(e){ oops('cb_wearfx06:document.getElementById',e); } return x; }; }

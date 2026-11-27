@@ -97,6 +97,14 @@ function saveRun(cur){ try{ const st=runState()||{}; Object.assign(st,{rows:R,cu
 let wake=null; async function keepAwake(){ try{ if(navigator.wakeLock&&!document.hidden) wake=await navigator.wakeLock.request('screen'); }catch(e){} }
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&window.__R.state==='running') keepAwake(); });
 
+/* Foundation F6 slice 2 (2026-11-26): every copy of the game keeps a list of the errors it caught and carried on from (oops in a3_plat.js, read
+   through __errs). The list is read just before a copy is closed and kept on the check that opened it (CUR, the running check's own list, becomes row.errs: it never changes that check's
+   own result); the last part, Passed-over errors, lists every place once, with how often, on which builds and during which checks. */
+let CUR=null;
+function grabErrs(){ try{ const f=$('f'), W=f&&f.contentWindow, L=W&&W.__errs?W.__errs():[]; if(f._errs) for(const x of L) f._errs.push({b:f._b,where:x.where,n:x.n,msg:x.msg}); }catch(e){} }
+async function errsPart(){ await blank(); await step('Passed-over errors','errors the game caught and carried on from, during every check above',async()=>{ const M=new Map();
+    for(const r of R) for(const x of (r.errs||[])){ let o=M.get(x.where); if(!o){ o={n:0,b:new Set(),msg:x.msg,at:new Set()}; M.set(x.where,o); } o.n+=x.n; o.b.add(x.b); o.at.add(r.sec); }
+    return {detail:M.size?M.size+' place'+(M.size>1?'s':''):'none recorded', list:[...M].sort((a,b)=>a[0]<b[0]?-1:1).map(([k,o])=>k+': '+o.msg+'  ('+o.n+' times; builds: '+[...o.b].join(', ')+'; during: '+[...o.at].join(', ')+')')}; }); }
 function heldOf(s){ for(const [re,why] of HELD) if(re.test(s)) return why; return null; }
 function add(sec,name,ok,detail,ms,list){ const row={sec,name,ok,detail:detail||'',ms:ms||0,list:list||[]}; R.push(row); draw(); return row; }
 function draw(){ const T=$('out'); let h='', sec=''; for(const r of R){ if(r.sec!==sec){ sec=r.sec; h+=`<tr class="sec"><td colspan="3">${sec}</td></tr>`; }
@@ -109,10 +117,10 @@ function status(s){ $('sum').textContent=s; document.title='Sweep: '+s; window._
 /* the test save: backed up once, put back before every check and at the end */
 function putSaveBack(){ if(saved==null) localStorage.removeItem(KEY); else localStorage.setItem(KEY,saved); }
 function onload(f){ return new Promise(r=>{ const h=()=>{ f.removeEventListener('load',h); r(); }; f.addEventListener('load',h); }); }
-async function blank(){ const f=$('f'); if(f.src&&f.src!=='about:blank'){ const p=onload(f); f.src='about:blank'; await Promise.race([p,wait(3000)]);
+async function blank(){ const f=$('f'); if(f.src&&f.src!=='about:blank'){ grabErrs(); const p=onload(f); f.src='about:blank'; await Promise.race([p,wait(3000)]);
     /* a brand-new frame for the next check: Safari frees the old game's memory more reliably than when one frame is reused */
     const n=document.createElement('iframe'); n.id='f'; n.title='game under test'; f.replaceWith(n); } } /* unloading lets the game save; the save is put back after this */
-async function open(b,w,h,o={}){ if(!o.any&&!inScope(b)) throw SKIP; await blank(); const f=$('f'); if(!o.keepSave) putSaveBack(); if(o.fresh) localStorage.removeItem(KEY);
+async function open(b,w,h,o={}){ if(!o.any&&!inScope(b)) throw SKIP; await blank(); const f=$('f'); f._errs=CUR; f._b=b; if(!o.keepSave) putSaveBack(); if(o.fresh) localStorage.removeItem(KEY);
   /* a named-save run starts every check with nothing stored but the save (2026-11-26): phone builds keep device settings and the old-fishing switch outside the save, so one check's leftovers changed the next check's fights (qc 253: fight tests failed on phone builds in an order-dependent way) */
   if(SAVE_NAME) try{ for(const k of Object.keys(localStorage)) if(k!==KEY&&k!==BAK&&k!==RUN&&k!==ORIG&&k.indexOf(LAST)!==0) localStorage.removeItem(k); }catch(e){}
   f.style.width=w+'px'; f.style.height=h+'px'; const sc=Math.min(384/w,216/h); f.style.transform=`scale(${sc})`;
@@ -130,13 +138,13 @@ const SPEEDK=(()=>{ const bench=()=>{ const c=document.createElement('canvas'); 
   try{ const b=Math.min(bench(),bench(),bench()); return Math.min(12,Math.max(1,+(b/12.5).toFixed(1))); }catch(e){ return 1; } })();
 async function timed(ms,p){ ms=Math.round(ms*SPEEDK); let to; const t=new Promise((_,rej)=>{ to=setTimeout(()=>rej(new Error('timed out after '+ms/1000+' s')),ms); }); try{ return await Promise.race([p,t]); } finally{ clearTimeout(to); } }
 async function step(sec,name,fn){ const key=sec+' | '+name; const had=R.find(r=>r.sec+' | '+r.name===key); if(had) return had; /* done before the page reloaded */
-  saveRun(key); const s=performance.now(); status(name+'…'); let row;
+  saveRun(key); const errs=CUR=[]; const s=performance.now(); status(name+'…'); let row;
   try{ const r=await fn(); const ms=performance.now()-s;
     let list=r.list||[], heldN=0; const real=list.filter(x=>{ const hw=heldOf(x); if(hw){ heldN++; return false; } return true; });
     const shown=list.map(x=>{ const hw=heldOf(x); return hw?x+'  ['+hw+']':x; });
     const ok=r.ok===false||real.length?false:heldN?'held':true; row=add(sec,name,ok,r.detail,ms,shown); }
   catch(e){ if(e===SKIP){ saveRun(null); status('skipped (other platform): '+name); return null; } row=add(sec,name,false,'threw: '+(e&&e.message||e),performance.now()-s); }
-  saveRun(null); return row; }
+  row.errs=errs; saveRun(null); return row; }
 
 /* gate 1/2: every built page parses, and each page's stamp matches the version file it fetches */
 async function gate(){
@@ -234,6 +242,7 @@ async function run(resume){
     if(on('fresh')) await fresh();
     if(on('pcspec')) await pcSpec();
     if(on('parity')) await parity();
+    if(R.some(r=>r.sec!=='Parse + stamps')) await errsPart();
   } finally{ await blank(); putSaveBack(); $('go').disabled=false; $('f').style.transform=''; try{ localStorage.removeItem(RUN); }catch(e){} try{ wake&&wake.release(); }catch(e){} }
   const bad=R.filter(r=>r.ok===false), held=R.filter(r=>r.ok==='held'), mins=((Date.now()-t0)/60000).toFixed(1);
   let stamp=''; try{ stamp=(await (await fetch('version.txt',{cache:'no-store'})).text()).trim(); }catch(e){}

@@ -19,7 +19,7 @@ let XF={mode:null, code:'', stat:'', ok:false, ready:false, es:null, timer:0, ru
 function loadLib(src,test){ return new Promise((res,rej)=>{ if(test()) return res(); const s=document.createElement('script'); s.src=src; s.onload=()=>res(); s.onerror=()=>rej(); document.head.appendChild(s); }); }
 const loadQRLib = () => loadLib('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js', ()=>!!window.QRCode);
 function xfStat(t,ok){ XF.stat=t; XF.ok=!!ok; const el=$('xfstat'); if(el){ el.textContent=t; el.style.color=ok?'var(--kelp)':''; } }
-function xfStop(){ clearTimeout(XF.timer); try{ XF.es&&XF.es.close(); }catch(e){} XF.es=null; XF.ready=false; XF.run++; }
+function xfStop(){ clearTimeout(XF.timer); try{ XF.es&&XF.es.close(); }catch(e){ oops('d9_link:es.close',e); } XF.es=null; XF.ready=false; XF.run++; }
 const xfCodeFmt = c => c.slice(0,3)+' '+c.slice(3);
 const xfTopic = code => XF_RELAY+XF_PREFIX+code;
 // the newest progress parcel in a code's mailbox (or null)
@@ -32,7 +32,7 @@ async function xfSend(tries=0){ xfStop(); const run=XF.run; XF.mode='send'; XF.c
     const body=await makeCode();
     const r=await fetch(xfTopic(XF.code),{method:'PUT', body, headers:{'Filename':'driftline-progress.txt'}}); if(!r.ok) throw new Error('relay '+r.status);
     if(run!==XF.run) return; XF.ready=true; xfStat('Waiting for your other device… (the code works for 3 hours; if you keep playing here first, tap Send again)'); refreshXfer();
-    try{ const es=new EventSource(xfTopic(XF.code+'-ok')+'/sse'); XF.es=es; es.onmessage=()=>{ if(run!==XF.run) return; xfStat('All done: your progress is on your other device now.',true); toast('Your progress arrived on your other device.'); sfx.shiny(); try{ es.close(); }catch(e){} }; }catch(e){}
+    try{ const es=new EventSource(xfTopic(XF.code+'-ok')+'/sse'); XF.es=es; es.onmessage=()=>{ if(run!==XF.run) return; xfStat('All done: your progress is on your other device now.',true); toast('Your progress arrived on your other device.'); sfx.shiny(); try{ es.close(); }catch(e){ oops('d9_link:es.close#2',e); } }; }catch(e){ oops('d9_link:EventSource',e); }
     XF.timer=setTimeout(()=>{ if(run===XF.run&&!XF.ok){ xfStop(); XF.mode=null; xfStat(''); toast('The code expired. Tap Send for a new one.'); refreshXfer(); } },3*60*60*1000);
   }catch(e){ if(run===XF.run){ xfStat('Couldn’t reach the internet just now. Check your connection and tap Send again, or use another way below.'); } } }
 async function xfGet(code){ code=String(code||'').replace(/\D/g,''); if(code.length!==6){ xfStat('Type the 6-digit code from your other device.'); return; }
@@ -40,7 +40,7 @@ async function xfGet(code){ code=String(code||'').replace(/\D/g,''); if(code.len
   try{ const m=await xfLatest(code); if(run!==XF.run) return;
     if(!m){ xfStat('No progress found for that code. Check the number, and make sure you tapped Send on the other device first.'); return; }
     const r=await fetch(m.attachment.url,{cache:'no-store'}); if(!r.ok) throw new Error('file '+r.status); const text=(await r.text()).trim(); if(run!==XF.run) return;
-    xfStat('Got it!',true); XF.onLoaded=()=>{ fetch(xfTopic(code+'-ok'),{method:'POST', body:'done'}).catch(()=>{}); };
+    xfStat('Got it!',true); XF.onLoaded=()=>{ fetch(xfTopic(code+'-ok'),{method:'POST', body:'done'}).catch(e=>{ oops('d9_link:transfer-ok',e); }); };
     offerCode(text,'From your other device');
   }catch(e){ if(run===XF.run) xfStat('Couldn’t reach the internet just now. Check your connection and try again, or use another way below.'); } }
 function linkHTML(){ const canShare=!!navigator.share; const m=XF.mode;
@@ -67,7 +67,7 @@ function extraAct7(b){ switch(b.dataset.act){
     case 'xfget': xfStop(); XF.mode='get'; XF.code=''; xfStat(''); refreshXfer(); setTimeout(()=>{ const i=$('xfin'); i&&i.focus(); },50); return 'skip';
     case 'xfgo': { const i=$('xfin'); xfGet(i?i.value:''); return 'skip'; }
     case 'xfcancel': xfStop(); XF.mode=null; xfStat(''); refreshXfer(); return 'skip';
-    case 'sharelink': (async()=>{ const url=await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){} })(); return 'skip';
+    case 'sharelink': (async()=>{ const url=await makeShareLink(); try{ await navigator.share({title:'My Driftline progress', text:'Open this on my other device to load my Driftline progress.', url}); }catch(e){ oops('d9_link:navigator.share',e); } })(); return 'skip';
     case 'copylink': (async()=>{ const url=await makeShareLink(); try{ await navigator.clipboard.writeText(url); toast('Link copied. Paste it into a message to yourself, then open it on your other device.'); }catch(e){ prompt('Copy this link:',url); } })(); return 'skip';
     case 'maillink': (async()=>{ const url=await makeShareLink(); location.href='mailto:?subject='+encodeURIComponent('My Driftline progress')+'&body='+encodeURIComponent('Open this on my other device to load my Driftline progress:\n\n'+url); })(); return 'skip';
     case 'linkload': { const o=pendingLink; if(!o) return 'skip'; S=migrate(o); pendingLink=null; S.savedAt=Date.now(); closeEvent(); offlineIncome(); fillBounties(); toast('Welcome back! Your progress is here now.'); sfx.shiny(); if(XF.onLoaded){ XF.onLoaded(); XF.onLoaded=null; } XF.mode=null; xfStat('Loaded!',true); return 'render'; }
@@ -90,7 +90,7 @@ async function offerCode(code,title='From your other device'){
      <div class="row" style="justify-content:center;margin-top:10px"><button class="btn" data-act="linkload">Load it</button><button class="btn alt" data-act="linkkeep">Keep this device’s</button></div>`;
     $('evcard').hidden=false; }catch(e){ toast('That progress didn’t come through. Try again.'); } }
 // opening a link: #load= carries the progress, #pair= opens Get progress with the code filled in (phone camera)
-function checkIncomingLink(){ const h=location.hash; if(!h.startsWith('#load=')&&!h.startsWith('#pair=')) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+function checkIncomingLink(){ const h=location.hash; if(!h.startsWith('#load=')&&!h.startsWith('#pair=')) return; try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){ oops('d9_link:history.replaceState',e); }
   if(h.startsWith('#load=')) return offerCode(codeFromAny(h));
   const code=h.slice(6).replace(/\D/g,''); setTab('save'); xfGet(code); }
 $('evcard').addEventListener('click',e=>{ const b=e.target.closest('[data-act="linkload"],[data-act="linkkeep"]'); if(!b) return; const r=extraAct7(b); checkFeats(); save(); if(r!=='skip') refreshAll(); });
@@ -102,10 +102,10 @@ const tabHTML = l => { const i=l.indexOf(' '); return `<span class="ti">${l.slic
 document.querySelectorAll('#tabs [data-tab]').forEach(b=>{ b.innerHTML=tabHTML(b.dataset.label); });
 
 // ---------- phones in landscape: hide / show the menu sidebar so the water fills the screen ----------
-(function(){ const b=$('sidetog'); if(!b) return; let mode='on'; try{ const v=localStorage.getItem('driftline-side-off'); mode=v==='1'?'off':'on'; }catch(e){} /* 0.3.5: a saved "wide" setting from 0.3 opens as normal */
+(function(){ const b=$('sidetog'); if(!b) return; let mode='on'; try{ const v=localStorage.getItem('driftline-side-off'); mode=v==='1'?'off':'on'; }catch(e){ oops('d9_link:localStorage.getItem',e); } /* 0.3.5: a saved "wide" setting from 0.3 opens as normal */
   // 0.3.5 (director): back to two steps. Menus beside the water <-> menus hidden (the water fills the screen)
   const L={on:['›','Hide menus'],off:['‹','Show menus']};
   const apply=()=>{ document.body.classList.toggle('side-off',mode==='off'); document.body.classList.toggle('side-wide',mode==='wide'); b.textContent=L[mode][0]; b.title=L[mode][1]; b.setAttribute('aria-label',L[mode][1]); b.setAttribute('aria-expanded',String(mode!=='off')); };
   ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-  b.addEventListener('click',e=>{ e.stopPropagation(); mode=mode==='on'?'off':'on'; try{ localStorage.setItem('driftline-side-off',mode==='off'?'1':'0'); }catch(er){} apply(); setTimeout(()=>resize(),30); });
+  b.addEventListener('click',e=>{ e.stopPropagation(); mode=mode==='on'?'off':'on'; try{ localStorage.setItem('driftline-side-off',mode==='off'?'1':'0'); }catch(er){ oops('d9_link:localStorage.setItem',er); } apply(); setTimeout(()=>resize(),30); });
   apply(); })();

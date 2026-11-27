@@ -13,7 +13,7 @@ html body.phone-land .dlprev{top:4px!important}
 { const ios=/iP(hone|od|ad)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   if(ios){ const vp=document.querySelector('meta[name=viewport]'); let q=0;
     const refresh=()=>{ try{ if(vp){ const c=vp.getAttribute('content'); vp.setAttribute('content',c+' '); vp.setAttribute('content',c); }
-        const r=document.documentElement; r.classList.add('sa-recalc'); void r.offsetHeight; r.classList.remove('sa-recalc'); try{ resize(); }catch(e){} }catch(e){} };
+        const r=document.documentElement; r.classList.add('sa-recalc'); void r.offsetHeight; r.classList.remove('sa-recalc'); try{ resize(); }catch(e){ oops('ios/ui_homescreen:resize',e); } }catch(e){ oops('ios/ui_homescreen:vp.getAttribute',e); } };
     const soon=()=>{ clearTimeout(q); [80,400,1000].forEach(ms=>setTimeout(refresh,ms)); };
     addEventListener('orientationchange',soon); addEventListener('resize',soon); addEventListener('pageshow',soon); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) soon(); });
     soon(); }

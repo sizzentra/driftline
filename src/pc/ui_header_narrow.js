@@ -2,7 +2,7 @@
 // window or browser zoom made the page narrower than 900 px, and the old layout came back). Under 1000 px it goes compact:
 // icon-only tabs, the counters as icon + number (names on hover), the gear without its label. Crossing the width limit also
 // re-checks the layout straight away.
-try{ [800,1000,1320].forEach(w=>matchMedia('(min-width:'+w+'px)').addEventListener('change',()=>dispatchEvent(new Event('resize')))); }catch(e){}
+try{ [800,1000,1320].forEach(w=>matchMedia('(min-width:'+w+'px)').addEventListener('change',()=>dispatchEvent(new Event('resize')))); }catch(e){ oops('pc/ui_header_narrow:forEach',e); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 @media (max-width:1000px){
   html body.pch-on{--pcTabs:max(200px,min(700px,calc(calc(100*var(--uvw,1vw)) - 32px - 190px - 330px - 56px)))}

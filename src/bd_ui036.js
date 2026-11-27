@@ -21,7 +21,7 @@ function uiTidy(P){ if(!P) return; const t=S.tab;
       f.insertAdjacentHTML('afterbegin','<div class="fld-title">Sell all: what to sell</div>'); } }
   // any text box without a name gets one read out by screen readers and shown as a title
   P.querySelectorAll('input[type=text]:not([aria-label]):not([id])').forEach(i=>{ if(!i.closest('label')&&!(i.previousElementSibling&&/LABEL|SPAN|B/.test(i.previousElementSibling.tagName))) i.setAttribute('aria-label',i.placeholder||'Text'); }); }
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ uiTidy($('panel')); }catch(e){} return r; }; }
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ uiTidy($('panel')); }catch(e){ oops('bd_ui036:uiTidy',e); } return r; }; }
 
 // ---------- menu search ----------
 const SEARCH_IDX=[
@@ -74,7 +74,7 @@ const SEARCH_IDX=[
 function searchGo(e){ const [,tab,sect]=e; if(S.tab!==tab){ setTab(tab); save(); } const P=$('panel');
   setTimeout(()=>{ if(Array.isArray(sect)){ const b=P.querySelector(`[data-act="${sect[0]}"][data-k="${sect[1]}"]`); if(b&&b.getAttribute('aria-selected')!=='true'&&b.getAttribute('aria-pressed')!=='true') b.click(); }
     else if(sect){ const b=[...P.querySelectorAll('[data-sect]')].find(x=>x.dataset.sect===sect||x.dataset.sect.startsWith(sect)); if(b) b.click(); }
-    try{ if(document.body.classList.contains('phone-app')) P.scrollTop=0; else $('tabs').scrollIntoView({behavior:'smooth',block:'start'}); }catch(er){} },30); }
+    try{ if(document.body.classList.contains('phone-app')) P.scrollTop=0; else $('tabs').scrollIntoView({behavior:'smooth',block:'start'}); }catch(er){ oops('bd_ui036:classList.contains',er); } },30); }
 function searchFind(q){ q=q.toLowerCase().trim(); if(!q) return SEARCH_IDX.slice(0,8); const words=q.split(/\s+/);
   return SEARCH_IDX.map(e=>{ const tw=e[0].toLowerCase().split(/[^a-z0-9]+/), hw=(e[0]+' '+e[3]).toLowerCase().split(/[^a-z0-9]+/); let s=0; for(const w of words){ if(tw.some(x=>x.startsWith(w))) s+=3; else if(hw.some(x=>x.startsWith(w))) s+=1; else return null; } return [s,e]; }).filter(Boolean).sort((a,b)=>b[0]-a[0]).slice(0,8).map(x=>x[1]); }
 (function(){ const sb=$('settingsbtn'); if(!sb||$('searchbtn')) return;
@@ -124,12 +124,12 @@ body.phone-app .hudbtns #settingsbtn::before{content:"⚙";font-size:19px;line-h
 // rising sparkles and a shimmer over the name · mythic: prismatic rays, more sparkles and a pulsing frame
 const RAR_FEEL={ buzz:[[0],[18],[22,40,22],[30,40,30,40,30],[40,50,40,50,80],[60,40,60,40,60,40,140]] };
 function rarFanfare(r){ try{ if(r>=4){ const base=r===5?[523,659,784,1047,1319]:[392,523,659,784,1047]; base.forEach((f,i)=>tone(f,.5,'triangle',.06,0,.12+i*.09)); tone(r===5?1568:1319,.9,'sine',.05,0,.62); }
-    else if(r===3){ [659,880,1109].forEach((f,i)=>tone(f,.32,'triangle',.05,0,.1+i*.07)); } }catch(e){}
-  try{ if(r>=1&&typeof vib==='function') vib(RAR_FEEL.buzz[r]); }catch(e){} }
+    else if(r===3){ [659,880,1109].forEach((f,i)=>tone(f,.32,'triangle',.05,0,.1+i*.07)); } }catch(e){ oops('bd_ui036:base.forEach',e); }
+  try{ if(r>=1&&typeof vib==='function') vib(RAR_FEEL.buzz[r]); }catch(e){ oops('bd_ui036:vib',e); } }
 { const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const ci=$('cardin'); ci.querySelectorAll('.rf').forEach(e=>e.remove()); const sp=ce&&SPI[ce.id], r=sp?sp.r:-1; ci.dataset.rar=r>=0?String(r):'';
     if(r>=3){ ci.insertAdjacentHTML('afterbegin',`<div class="rf rf-rays" aria-hidden="true"></div>`); }
     if(r>=4){ let s='<div class="rf rf-sparks" aria-hidden="true">'; const n=r===5?14:9; for(let i=0;i<n;i++) s+=`<i style="left:${6+((i*37)%88)}%;animation-delay:${(i*.23).toFixed(2)}s;animation-duration:${(2.2+(i%4)*.35).toFixed(2)}s"></i>`; ci.insertAdjacentHTML('afterbegin',s+'</div>'); }
-    if(r>=0) rarFanfare(r); }catch(e){} }; }
+    if(r>=0) rarFanfare(r); }catch(e){ oops('bd_ui036:ci.querySelectorAll',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #cardin{position:relative;isolation:isolate}
 #cardin > *:not(.rf):not(.shine){position:relative;z-index:1}
@@ -174,5 +174,5 @@ document.head.insertAdjacentHTML('beforeend',`<style>
         if(sm){ sm.classList.add('loghint'); sm.innerHTML=html; } else c.insertAdjacentHTML('beforeend','<small class="loghint">'+html+'</small>'); } });
     if(mode!=='all'&&!P.querySelector('.jgrid .jcard[data-k]:not([style*="none"])')) P.querySelector('.jgrid').insertAdjacentHTML('beforebegin',`<div class="empty">${mode==='now'?'Nothing new to catch here right now. Try the other time of day, or another water.':'You have found every fish here. Well done!'}</div>`);
     P.querySelectorAll('[data-logshow]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); S.settings.logShow=b.dataset.logshow; save(); renderPanel(); });
-  }catch(e){} }; }
+  }catch(e){ oops('bd_ui036:locIdx',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>.jcard .loghint{color:#97abc2;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.jcard .lognow{color:var(--kelp,#7fe3c4);font-weight:800}</style>`);

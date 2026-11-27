@@ -395,7 +395,7 @@ function hatClipY(id){ let y=A3_HAT_CLIP.get(id); if(y!=null) return y; y=-63.9;
   try{ const k=6, o=document.createElement('canvas'); o.width=40*k; o.height=40*k; const x=o.getContext('2d'); x.translate(20*k,30*k); x.scale(k,k); drawHat(x,id,'#c8553a',1.3); const d=x.getImageData(0,0,o.width,o.height).data;
     const bottom=hx=>{ const px=Math.round((20+hx)*k); for(let py=o.height-1;py>=0;py--) if(d[(py*o.width+px)*4+3]>60) return py/k-30-57.4; return null; };
     const edge=(from,to)=>{ const st=from<to?.25:-.25; for(let hx=from;(st>0?hx<=to:hx>=to);hx+=st){ const b=bottom(hx); if(b!=null) return b; } return null; };
-    const b1=edge(-7.8,0), b2=edge(6.5,0); if(b1!=null&&b2!=null) y=Math.max(-63.9,Math.min(b1,b2)); }catch(e){}
+    const b1=edge(-7.8,0), b2=edge(6.5,0); if(b1!=null&&b2!=null) y=Math.max(-63.9,Math.min(b1,b2)); }catch(e){ oops('g_angler:document.createElement',e); }
   A3_HAT_CLIP.set(id,y); return y; }
 const A3HAT=new WeakMap();
 function a3HatLayer(c){ let H=A3HAT.get(c.canvas); if(!H){ H=document.createElement('canvas'); A3HAT.set(c.canvas,H); } if(H.width!==c.canvas.width||H.height!==c.canvas.height){ H.width=c.canvas.width; H.height=c.canvas.height; } return H; }

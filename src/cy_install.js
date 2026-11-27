@@ -18,7 +18,7 @@ function installWelcome(force){ const p=window.DL_PLAT||{}, mm=q=>!!(window.matc
   const close=()=>el.remove();
   el.addEventListener('click',e=>{ const b=e.target.closest('[data-dli]'); if(!b) return; if(b.dataset.dli==='install'){ const ip=window.__dlInstallPrompt; if(ip){ ip.prompt(); ip.userChoice.finally(()=>{ window.__dlInstallPrompt=null; }); } } close(); });
   document.body.appendChild(el); const go=el.querySelector('.dli-go'); if(go) go.focus(); }
-function installWhenIdle(){ const ev=document.getElementById('evcard'); if((typeof G!=='undefined'&&G.st!=='idle')||(ev&&ev.offsetWidth)){ setTimeout(installWhenIdle,3000); return; } try{ installWelcome(false); }catch(e){} } /* never over another card (patch notes, the first-day tips) or mid-cast */
+function installWhenIdle(){ const ev=document.getElementById('evcard'); if((typeof G!=='undefined'&&G.st!=='idle')||(ev&&ev.offsetWidth)){ setTimeout(installWhenIdle,3000); return; } try{ installWelcome(false); }catch(e){ oops('cy_install:installWelcome',e); } } /* never over another card (patch notes, the first-day tips) or mid-cast */
 setTimeout(installWhenIdle,6000); /* after loading and after the cards that open by themselves (what's new ~1 s, test notes 3.5 s); the browser's install offer usually arrives first */
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-act="installhelp"]'); if(b) installWelcome(true); }); /* Settings › Install Driftline */
 document.head.insertAdjacentHTML('beforeend',`<style>

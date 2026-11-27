@@ -26,11 +26,11 @@ function bountyBx(b){ const ox=b.x; if(ox&&typeof ox==='object'&&Number.isIntege
   else x={k:'crate', id:b.legend||Math.random()<.2?'big':'small', n:1}; /* Cam, round 5: crates come from bounties (and feats), not from gold */
   b.x=x; return x; }
 function bountyBxText(x){ if(!x) return ''; if(x.k==='bait'){ const B=BAIT[x.id]; return B?x.n+' × '+B.name:''; } if(x.k==='scales') return x.n+' Scales'; if(x.k==='pass') return x.n+' Tide Pass XP'; if(x.k==='nib') return x.n+' '+NIB_TIER[x.r]+' Nibble'+(x.n===1?'':'s'); if(x.k==='crate') return 'a '+(x.id==='big'?'big':'small')+' Mystery Crate'; return ''; }
-function bountyBxGive(x){ if(!x) return ''; try{ if(x.k==='bait'&&BAIT[x.id]){ S.bait[x.id]=(S.bait[x.id]||0)+x.n; try{ renderBait(); }catch(e){} } else if(x.k==='scales') S.scales+=x.n; else if(x.k==='pass') addPassXP(x.n); else if(x.k==='nib') nibAdd('r'+x.r,x.n); else if(x.k==='crate') S.tokens[x.id]=(S.tokens[x.id]||0)+x.n; }catch(e){} return bountyBxText(x); }
-{ const _fb=fillBounties; fillBounties=function(){ const r=_fb.apply(this,arguments); try{ for(const b of S.bounties) bountyBx(b); }catch(e){} return r; }; }
+function bountyBxGive(x){ if(!x) return ''; try{ if(x.k==='bait'&&BAIT[x.id]){ S.bait[x.id]=(S.bait[x.id]||0)+x.n; try{ renderBait(); }catch(e){ oops('bs_rules05:renderBait',e); } } else if(x.k==='scales') S.scales+=x.n; else if(x.k==='pass') addPassXP(x.n); else if(x.k==='nib') nibAdd('r'+x.r,x.n); else if(x.k==='crate') S.tokens[x.id]=(S.tokens[x.id]||0)+x.n; }catch(e){ oops('bs_rules05:renderBait#2',e); } return bountyBxText(x); }
+{ const _fb=fillBounties; fillBounties=function(){ const r=_fb.apply(this,arguments); try{ for(const b of S.bounties) bountyBx(b); }catch(e){ oops('bs_rules05:bountyBx',e); } return r; }; }
 document.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.closest('[data-act="claim"]'); if(!btn) return; const b=S.bounties[+btn.dataset.i]; if(!b) return; const x=bountyBx(b);
-  setTimeout(()=>{ if(S.bounties.includes(b)) return; const t=bountyBxGive(x); if(t){ save(); setTimeout(()=>{ try{ toast('Bounty bonus: '+t+'!'); }catch(er){} },1100); } },0); },true);
-{ const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){} _rb(P); try{
+  setTimeout(()=>{ if(S.bounties.includes(b)) return; const t=bountyBxGive(x); if(t){ save(); setTimeout(()=>{ try{ toast('Bounty bonus: '+t+'!'); }catch(er){ oops('bs_rules05:toast',er); } },1100); } },0); },true);
+{ const _rb=renderBounties; renderBounties=function(P){ try{ for(const b of S.bounties) bountyBx(b); }catch(e){ oops('bs_rules05:bountyBx#2',e); } _rb(P); try{
       P.querySelectorAll('[data-act="reroll"][data-i],[data-act="claim"][data-i]').forEach(btn=>{ const b=S.bounties[+btn.dataset.i], card=btn.closest('.tile'); if(!b||!card||card.querySelector('.bx')) return; const t=bountyBxText(b.x); if(!t) return;
         const ic=b.x.k==='bait'?(BAIT[b.x.id]&&BAIT[b.x.id].junk?'✨':'🎣'):b.x.k==='scales'?'🔷':b.x.k==='nib'?'🍬':b.x.k==='crate'?'🎁':'🌊'; const row=btn.closest('.row'); (row||btn).insertAdjacentHTML('beforebegin',`<div class="bx${b.x.k==='bait'&&BAIT[b.x.id]&&BAIT[b.x.id].junk?' sp':''}"><span>${ic}</span>+ ${esc(t)}</div>`); });
     }catch(e){ console.error(e); } }; }
@@ -40,6 +40,6 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 </style>`);
 
 // ---------- Fish Log: the completion reward says what it really gives ----------
-{ const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ const m=P.querySelector('.fl-mh .meta'); if(m&&/find them all for/.test(m.innerHTML)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk">+ fish from here worth 10% more, forever</b>'); else if(m&&/complete/.test(m.textContent)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk got">· fish from here worth 10% more</b>'); }catch(e){} }; }
+{ const _rj=renderJournal; renderJournal=function(P){ _rj(P); try{ const m=P.querySelector('.fl-mh .meta'); if(m&&/find them all for/.test(m.innerHTML)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk">+ fish from here worth 10% more, forever</b>'); else if(m&&/complete/.test(m.textContent)) m.insertAdjacentHTML('beforeend',' <b class="fl-perk got">· fish from here worth 10% more</b>'); }catch(e){ oops('bs_rules05:P.querySelector',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>#panel .fl-perk{color:#ffd36a;font-weight:800} #panel .fl-perk.got{color:#7fe3c4}</style>`);
 

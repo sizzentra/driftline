@@ -58,12 +58,13 @@ foreach ($k in $texts.Keys) {
 if ($dead.Count) { throw ("GROUND RULE BROKEN: a function is fully replaced and its original is dead code.`n  " + (($dead | Sort-Object -Unique) -join "`n  ")) }
 
 # ---------- REDUNDANCY COUNTER (director, 2026-11-20: "is there a sweep for redundant things?") ----------
-# Five numbers per build that may only go DOWN, so old layering cannot grow back while it is cleaned up:
+# Six numbers per build that may only go DOWN, so old layering cannot grow back while it is cleaned up:
 #   unused   functions declared and never used anywhere (tests count as use)                     -> refused at once, listed by name
 #   wraps    later files re-wrapping a function ("name = function", e.g. renderPanel 52x on PC)  -> fold the change into the owner instead
 #   hides    "display:none!important" rules (things built and then hidden; one owner shows/hides) -> don't build what is never shown
 #   timers   setInterval loops (polling)                                                         -> update when the thing changes
 #   watchers MutationObservers (reacting to other code's DOM changes)                            -> one owner per element
+#   quiet    catches that pass over an error without reporting it, marked /* quiet: reason */    -> call oops('file:what', e) instead (NO SILENT CATCH, below)
 # The allowed numbers live in tools/redundancy_baseline.json; when a number goes down the build lowers it there by itself.
 $redFile = Join-Path $root 'tools\redundancy_baseline.json'
 $redBase = if (Test-Path $redFile) { [IO.File]::ReadAllText($redFile) | ConvertFrom-Json } else { $null }
@@ -77,6 +78,21 @@ foreach ($t in $texts.Values) {
 }
 $unused = @($declN.Keys | Where-Object { $tokCount[$_] -le $declN[$_] } | Sort-Object)
 if ($unused.Count) { throw ("REDUNDANCY: functions that nothing uses (delete them, or use them): " + ($unused -join ', ')) }
+
+# ---------- NO SILENT CATCH (Foundation F6 slice 2, 2026-11-26) ----------
+# 413 places caught an error and threw it away without a trace. Every catch that carries on now calls oops('file:what', e)
+# (a3_plat.js), which records it where Tester tools and the checks can read it. A catch whose body is empty (or only a comment),
+# and a promise's .catch(()=>{}), is refused here. Where reporting would be noise by design, the body says why:
+# /* quiet: reason */ ; those are counted per build with the redundancy numbers below ("quiet"), so they can only get fewer.
+$emptyBody = '\{(?:\s|/\*(?!\s*quiet:).*?\*/|//.*?\n)*\}'   # nothing inside but space and comments, and no "quiet:" mark
+$silentRe = New-Object regex ("catch\s*(?:\(\s*\w*\s*\))?\s*$emptyBody|\.catch\(\s*(?:function\s*)?\(?\s*\w*\s*\)?\s*(?:=>)?\s*$emptyBody\s*\)"), 'Singleline'
+$quietRe = [regex]'\{\s*/\*\s*quiet:'
+$silent = @()
+foreach ($f in (Get-ChildItem (Join-Path $root 'src') -Recurse -Include *.js,*.html)) {
+  $t = [IO.File]::ReadAllText($f.FullName)
+  foreach ($m in $silentRe.Matches($t)) { $silent += "$($f.FullName.Substring($root.Length + 5)) line $(($t.Substring(0, $m.Index) -split "`n").Count): $($m.Value)" }
+}
+if ($silent.Count) { throw ("SILENT CATCH REFUSED: an error is caught and thrown away. Call oops('file:what', e) in the catch, or say why it stays quiet with /* quiet: reason */ (build.ps1, NO SILENT CATCH):`n  " + ($silent -join "`n  ")) }
 
 # ---------- ENCODING GATE (Foundation F4, 2026-11-26) ----------
 # A script that reads a UTF-8 file as Windows-1252 and writes it back garbles every special character, and each later pass garbles it
@@ -130,7 +146,7 @@ foreach ($p in 'pc','android','ios') {
   $badge = ''
   if ($Preview) {
     # own save key; copies the real save once on first open and never writes to it
-    $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){}")
+    $body = $body.Replace("const LS_KEY = 'driftline-save-v1';", "const LS_KEY = 'driftline-save-next'; try{ if(!localStorage.getItem(LS_KEY)){ const m=localStorage.getItem('driftline-save-v1'); if(m) localStorage.setItem(LS_KEY,m); } }catch(e){ oops('preview:copy-save',e); }")
     # opened by the one-click sweep (?sweep, tools/sweep.html): record every error from the first line on, and keep the frame loop
     # running in a hidden browser pane (a timer instead of animation frames)
     $sweepRec = 'if(/[?&]sweep\b/.test(location.search)){ window.__bootErr=[]; addEventListener("error",function(e){ __bootErr.push(String(e.message||e)+(e.lineno?" (line "+e.lineno+")":"")); }); addEventListener("unhandledrejection",function(e){ __bootErr.push("promise: "+String(e.reason&&e.reason.message||e.reason)); }); window.requestAnimationFrame=function(f){ return setTimeout(function(){ f(performance.now()); },16); }; window.cancelAnimationFrame=function(i){ clearTimeout(i); }; } '
@@ -160,7 +176,7 @@ foreach ($p in 'pc','android','ios') {
   $rb = $body.Replace($qaText, '')
   $fnNames = @{}; foreach ($m in [regex]::Matches($rb, '\bfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(')) { $fnNames[$m.Groups[1].Value] = 1 }
   $wr = @([regex]::Matches($rb, '(?<![A-Za-z0-9_$.])([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*function\b') | Where-Object { $fnNames.ContainsKey($_.Groups[1].Value) })
-  $redNow[$p] = [ordered]@{ wraps = $wr.Count; hides = [regex]::Matches($rb, 'display\s*:\s*none\s*!important').Count; timers = [regex]::Matches($rb, '\bsetInterval\s*\(').Count; watchers = [regex]::Matches($rb, '\bnew\s+MutationObserver\b').Count }
+  $redNow[$p] = [ordered]@{ wraps = $wr.Count; hides = [regex]::Matches($rb, 'display\s*:\s*none\s*!important').Count; timers = [regex]::Matches($rb, '\bsetInterval\s*\(').Count; watchers = [regex]::Matches($rb, '\bnew\s+MutationObserver\b').Count; quiet = $quietRe.Matches($rb).Count }
   # phones check their OWN version file (director, 2026-11-18: "updates pop up without changes"): PC is frozen on its stamp, so the
   # shared version.txt keeps PC's stamp, and a phone page with a newer stamp saw "update ready" every 5 minutes forever (tapping it
   # reloaded the same page). Android + iPhone read version-phone.txt, which every build writes with the phone pages' stamp.
@@ -175,9 +191,10 @@ foreach ($p in 'pc','android','ios') {
 # redundancy counter: compare with the allowed numbers; up = refused, down = the allowed number is lowered for good
 $redUp = @(); $redDown = $false; $newBase = [ordered]@{}
 foreach ($p in 'pc','android','ios') { $nb = [ordered]@{}
-  foreach ($k in $redNow[$p].Keys) { $now = $redNow[$p][$k]; $was = if ($redBase -and $redBase.$p -and $null -ne $redBase.$p.$k) { [int]$redBase.$p.$k } else { $now }
+  foreach ($k in $redNow[$p].Keys) { $now = $redNow[$p][$k]; $known = [bool]($redBase -and $redBase.$p -and $null -ne $redBase.$p.$k); $was = if ($known) { [int]$redBase.$p.$k } else { $now }
     if ($now -gt $was) { $redUp += "$($names[$p]) $k went up from $was to $now" }
-    if ($now -lt $was) { $redDown = $true }; $nb[$k] = [Math]::Min($now, $was) }
+    if ($now -lt $was -or -not $known) { $redDown = $true }  # lower, or a number counted for the first time: store it
+    $nb[$k] = [Math]::Min($now, $was) }
   $newBase[$p] = $nb }
 if ($redUp.Count) { throw ("REDUNDANCY WENT UP (these numbers may only go down; see the comment above `$redFile in build.ps1 for what to do instead):`n  " + ($redUp -join "`n  ")) }
 if ($redDown -or -not $redBase) { [IO.File]::WriteAllText($redFile, ($newBase | ConvertTo-Json), $utf8) }

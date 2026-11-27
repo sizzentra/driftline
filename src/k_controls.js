@@ -6,7 +6,7 @@
 //  - Vibration (phones): a buzz on a bite, a tick when the line is about to snap, a little pattern on a catch.
 // =====================================================================
 const CTRL={ crankA:null, crankCx:0, crankCy:0, padDown:false, padPrev:false, padIdx:-1 };
-function vib(p){ try{ if(S.settings.vibrate!==false && navigator.vibrate && matchMedia('(pointer:coarse)').matches && !(navigator.userActivation && !navigator.userActivation.hasBeenActive)) navigator.vibrate(p); }catch(e){} }
+function vib(p){ try{ if(S.settings.vibrate!==false && navigator.vibrate && matchMedia('(pointer:coarse)').matches && !(navigator.userActivation && !navigator.userActivation.hasBeenActive)) navigator.vibrate(p); }catch(e){ oops('k_controls:matchMedia',e); } }
 
 // tap to aim: returns true when it handled the press
 function aimCast(e){ if(!V3ON || S.settings.castMode!=='aim' || G.st!=='idle' || !e || e.clientX==null) return false;

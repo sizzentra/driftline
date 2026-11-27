@@ -371,7 +371,7 @@ drawFace = function(c,lk,D,hair){ if(lk.glasses!=='visor') return _drawFace_side
   c.lineWidth=.5; c.beginPath(); c.moveTo(1.9,ey-1.2); c.quadraticCurveTo(.4,ey-1.2,-1.2,ey-.6); c.stroke(); c.restore(); };
 
 // ---------- capes with a little life: they flare out behind, the hem ripples, and the wind (and weather) moves them ----------
-function capeWind(t){ let k=.35; try{ const wx=weather().k; k+=(wx==='Storm'?1.1:wx==='Rain'?.55:wx==='Fog'?.1:0)*(typeof WXA==='number'?WXA:1); }catch(e){} return k; }
+function capeWind(t){ let k=.35; try{ const wx=weather().k; k+=(wx==='Storm'?1.1:wx==='Rain'?.55:wx==='Fog'?.1:0)*(typeof WXA==='number'?WXA:1); }catch(e){ oops('ak_side:weather',e); } return k; }
 const _a3Back_side = a3Back;
 a3Back = function(c,id,D,col,t,w,lean,st){ if(!['cape','royalcape','tatteredcape','starcape'].includes(id)) return _a3Back_side(c,id,D,col,t,w,lean,st);
   const len=id==='royalcape'?42:id==='tatteredcape'?34:36, W0=capeWind(t), gust=W0*(.7+.3*Math.sin(t*.9)+.25*Math.sin(t*2.3+1)), mv=-(lean||0)*14;

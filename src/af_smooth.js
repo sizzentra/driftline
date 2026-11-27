@@ -17,7 +17,7 @@ renderPanel = function(){ const P=$('panel'); if(!P) return _renderPanel_2();
 
 // test-only (?test): time the scene helpers during one land rebuild, to find what makes light changes slow
 if(/[?&]test\b/.test(location.search)) window.__prof=(n=3)=>{ const names=['v3range','v3hillBand','v3tree','v3rock','v3water','v3glitter','v3mist','v3stack','v3palm','v3snowPine','v3pine','v3glow','v3leafTree','v3bushes','v3flowers','v3reeds','v3fishRing','v3willow'];
-  const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); T[k]=0; eval(k+'=function(){ const t0=performance.now(); const r=orig["'+k+'"].apply(this,arguments); T["'+k+'"]+=performance.now()-t0; return r; }'); }catch(e){} }
+  const T={}, orig={}; for(const k of names){ try{ orig[k]=eval(k); T[k]=0; eval(k+'=function(){ const t0=performance.now(); const r=orig["'+k+'"].apply(this,arguments); T["'+k+'"]+=performance.now()-t0; return r; }'); }catch(e){ oops('af_smooth:eval',e); } }
   const tot=__landCost(n); for(const k in orig) eval(k+'=orig["'+k+'"]'); const o={total:tot}; for(const k in T) if(T[k]>.2) o[k]=+(T[k]/n).toFixed(1); return o; };
 if(/[?&]test\b/.test(location.search)) window.__landSplit=(n=5)=>{ const L=LOCS.find(l=>l.id===S.loc), P=v3palette.v, hz=H*.5;
   const real=document.createElement('canvas'); real.width=W*DPR; real.height=H*DPR; const rx=real.getContext('2d'); rx.setTransform(DPR,0,0,DPR,0,0);

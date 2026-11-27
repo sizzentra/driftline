@@ -13,7 +13,7 @@
 const IS_ANDROID_PHONE=()=>(/Android/i.test(navigator.userAgent)&&Math.min(screen.width,screen.height)<600)||(/[?&]test\b/.test(location.search)&&/[?&]phone\b/.test(location.search));
 const IS_PHONE=()=>IS_IPHONE()||IS_ANDROID_PHONE();
 { let el=null, on=false;
-  const upright=()=>{ if(!IS_PHONE()) return false; try{ const t=screen.orientation&&screen.orientation.type; if(t&&!/[?&]test\b/.test(location.search)) return /portrait/.test(t); }catch(e){} return window.innerHeight>window.innerWidth; };
+  const upright=()=>{ if(!IS_PHONE()) return false; try{ const t=screen.orientation&&screen.orientation.type; if(t&&!/[?&]test\b/.test(location.search)) return /portrait/.test(t); }catch(e){ oops('mobile/landscape08:test',e); } return window.innerHeight>window.innerWidth; };
   const build=()=>{ if(el) return el; const ip=IS_IPHONE(), dev=ip?'iPhone':'phone';
     el=document.createElement('div'); el.id='dl-turn'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true'); el.setAttribute('aria-label','Turn your '+dev+' sideways');
     el.innerHTML=`<style>
@@ -32,19 +32,19 @@ const IS_PHONE=()=>IS_IPHONE()||IS_ANDROID_PHONE();
     ['pointerdown','pointerup','click','touchstart','touchend','wheel'].forEach(ev=>el.addEventListener(ev,e=>{ e.stopPropagation(); if(ev!=='touchstart'&&ev!=='wheel') e.preventDefault(); },{passive:false}));
     document.body.appendChild(el); return el; };
   const check=()=>{ const v=upright(); if(v===on) return; on=v; build().classList.toggle('on',v); document.documentElement.classList.toggle('dl-turn-on',v);
-    if(v){ try{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); }catch(e){} } };
+    if(v){ try{ if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); }catch(e){ oops('mobile/landscape08:activeElement.blur',e); } } };
   /* paused while upright: no time passes and nothing is drawn underneath (saves battery, and a fish on the line waits for you) */
   const _up=update; update=function(){ if(on) return; return _up.apply(this,arguments); };
   const _dr=draw; draw=function(){ if(on) return; return _dr.apply(this,arguments); };
   addEventListener('resize',check); addEventListener('orientationchange',()=>setTimeout(check,60));
-  try{ if(screen.orientation) screen.orientation.addEventListener('change',check); }catch(e){}
-  if(window.matchMedia) try{ matchMedia('(orientation:portrait)').addEventListener('change',check); }catch(e){}
+  try{ if(screen.orientation) screen.orientation.addEventListener('change',check); }catch(e){ oops('mobile/landscape08:orientation.addEventListener',e); }
+  if(window.matchMedia) try{ matchMedia('(orientation:portrait)').addEventListener('change',check); }catch(e){ oops('mobile/landscape08:matchMedia',e); }
   /* Android: while full screen, the screen itself is locked to landscape */
-  document.addEventListener('fullscreenchange',()=>{ try{ if(document.fullscreenElement&&IS_ANDROID_PHONE()&&screen.orientation&&screen.orientation.lock){ const p=screen.orientation.lock('landscape'); if(p&&p.catch) p.catch(()=>{}); } }catch(e){} });
+  document.addEventListener('fullscreenchange',()=>{ try{ if(document.fullscreenElement&&IS_ANDROID_PHONE()&&screen.orientation&&screen.orientation.lock){ const p=screen.orientation.lock('landscape'); if(p&&p.catch) p.catch(()=>{ /* quiet: most browsers refuse to lock the turn outside full screen, by design */ }); } }catch(e){ oops('mobile/landscape08:IS_ANDROID_PHONE',e); } });
   if(document.body) check(); else addEventListener('DOMContentLoaded',check);
   if(/[?&]test\b/.test(location.search)) window.__turn=()=>({phone:IS_PHONE(), iphone:IS_IPHONE(), upright:upright(), shown:on}); }
 /* safety net: a turn the browser did not announce (some iPhone Home Screen apps skip the resize event after turning, and the test
    browser never sends it) still switches the layout: twice a second the window size is compared (a cheap read, no layout work) and
    a missed change sends the resize event itself */
 { let w=window.innerWidth, h=window.innerHeight, seen=0; addEventListener('resize',()=>{ seen=Date.now(); w=window.innerWidth; h=window.innerHeight; });
-  setInterval(()=>{ const nw=window.innerWidth, nh=window.innerHeight; if(nw!==w||nh!==h){ w=nw; h=nh; if(Date.now()-seen>400){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} } } },500); }
+  setInterval(()=>{ const nw=window.innerWidth, nh=window.innerHeight; if(nw!==w||nh!==h){ w=nw; h=nh; if(Date.now()-seen>400){ try{ window.dispatchEvent(new Event('resize')); }catch(e){ oops('mobile/landscape08:window.dispatchEvent',e); } } } },500); }

@@ -29,7 +29,7 @@
   const tick=()=>{ if(!built||!pc()) return; try{ const w=weather(), tag=WX_TAG[w.k], l=tod(phase())+' · '+wxName(w.k), v=(tag?tag+' · ':'changes in ')+mmss(wxLeft());
       const a=wx.firstChild, b=wx.lastChild; if(a.textContent!==l) a.textContent=l; if(b.textContent!==v) b.textContent=v; wx.classList.toggle('special',!!tag); wx.classList.toggle('gilded',w.k==='Gilded');
       const sk=scene.querySelector('.pcs-streak'), st=S.streak>=2?'Streak '+S.streak+' · +'+Math.round(streakXP(S.streak)*100)+'% XP':''; if(sk.textContent!==st) sk.textContent=st; sk.classList.toggle('hot',S.streak>=10);
-      const bo=scene.querySelector('.pcs-boosts'), now=Date.now(), bt=S.settings.boostsOnScreen?activeBuffs().slice(0,3).map(x=>fmtB(x.k,x.v)+' '+mmss(Math.ceil((x.until-now)/1000))).join('   '):''; if(bo.textContent!==bt) bo.textContent=bt; }catch(e){} };
+      const bo=scene.querySelector('.pcs-boosts'), now=Date.now(), bt=S.settings.boostsOnScreen?activeBuffs().slice(0,3).map(x=>fmtB(x.k,x.v)+' '+mmss(Math.ceil((x.until-now)/1000))).join('   '):''; if(bo.textContent!==bt) bo.textContent=bt; }catch(e){ oops('pc/ui_header:weather',e); } };
   setInterval(tick,1000);
   const _sc=drawSceneChip; drawSceneChip=function(){ if(pc()) return; return _sc.apply(this,arguments); };
   const init=()=>{ apply(); new MutationObserver(apply).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(apply,300); setTimeout(apply,1200); addEventListener('resize',()=>setTimeout(apply,200)); };

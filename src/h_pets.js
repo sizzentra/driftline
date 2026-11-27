@@ -133,7 +133,7 @@ function petTopK(id,xk,t){ /* a head turned upside down or on its side (the bat 
   try{ const S=320, cv=document.createElement('canvas'); cv.width=cv.height=S; const x=cv.getContext('2d',{willReadFrequently:true});
     const lk=Object.assign({},petLook(id),{acc:'none',hat:'none'}); drawPetStyled(x,id,S/2,S*.8,4,t||0,0,lk); const F=PET3_FR[id]; if(!F) return null;
     const hd=F.head, col=Math.round(hd.x+(hd.flip?-1:1)*xk*hd.r); if(col<1||col>S-2) return null; const d=x.getImageData(col-1,0,3,S).data;
-    for(let y=0;y<S;y++){ if(d[(y*3+1)*4+3]>110){ PET_TOP[key]=(y-hd.y)/hd.r; break; } } }catch(e){}
+    for(let y=0;y<S;y++){ if(d[(y*3+1)*4+3]>110){ PET_TOP[key]=(y-hd.y)/hd.r; break; } } }catch(e){ oops('h_pets:document.createElement',e); }
   return PET_TOP[key]; }
 function drawGear3(c,id,lk,t){ const F=PET3_FR[id]; if(!F) return false; const hd=F.head, nk=F.neck, col=lk.accCol||'#d8303a', dk=mix(col,'#000000',.3), lt=mix(col,'#ffffff',.35), front=hd.face==='front';
   c.save(); c.lineCap='round'; c.lineJoin='round';

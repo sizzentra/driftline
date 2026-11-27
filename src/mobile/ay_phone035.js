@@ -11,12 +11,12 @@ const PHONE_APP=()=>window.innerWidth<=700 && !(window.innerWidth>window.innerHe
   function apply(){ const v=PHONE_APP(); if(v===on) return; on=v; document.body.classList.toggle('phone-app',v); document.documentElement.classList.toggle('phone-app',v);
     // the tip line moves onto the water (and back when the phone is turned)
     if(v){ if(hint.parentElement!==stage) stage.appendChild(hint); } else if(hint.parentElement!==home){ next&&next.parentElement===home?home.insertBefore(hint,next):home.appendChild(hint); }
-    try{ resize(); }catch(e){} }
+    try{ resize(); }catch(e){ oops('mobile/ay_phone035:resize',e); } }
   addEventListener('resize',apply); addEventListener('orientationchange',()=>setTimeout(apply,60)); apply(); })();
 
 // a new page starts at its top (inside its own scroll area on phones); the same page re-drawing keeps its place
 { let lastTab=null; const _rp=renderPanel; renderPanel=function(){ const P=$('panel'), keep=P?P.scrollTop:0, same=S.tab===lastTab; const r=_rp.apply(this,arguments);
-    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){} lastTab=S.tab; return r; }; }
+    try{ if(document.body.classList.contains('phone-app')&&P){ P.scrollTop=same?keep:0; } }catch(e){ oops('mobile/ay_phone035:classList.contains',e); } lastTab=S.tab; return r; }; }
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app{height:100dvh;overflow:hidden;padding-top:8px!important;padding-bottom:0!important;overscroll-behavior:none}
@@ -47,7 +47,7 @@ body.phone-app #towater{display:none!important}
 stageHOverride=function(W,H){ /* replaces the core one explicitly (a second declaration of the same name is refused by the build) */ if(!(document.body.classList.contains('phone-app')&&document.body.classList.contains('side-off'))) return 0;
   const hud=document.querySelector('.hud'), top=hud?hud.getBoundingClientRect().bottom:0; return Math.max(240,Math.round(window.innerHeight-top-14)); };
 // re-measure the water whenever the toggle flips (the sideways code already does this; upright needs it too)
-{ const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },40)); }
+{ const t=$('sidetog'); if(t) t.addEventListener('click',()=>setTimeout(()=>{ try{ resize(); }catch(e){ oops('mobile/ay_phone035:resize#2',e); } },40)); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.phone-app .sidetog{display:flex!important;position:absolute;right:10px;top:auto;bottom:10px;transform:none;width:40px;height:40px;border-radius:12px;align-items:center;justify-content:center;background:#0a1220c4;border:1px solid #ffffff2e;color:#fff;font-size:0;z-index:4;box-shadow:0 4px 12px #0008}
 body.phone-app .sidetog::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:var(--fsic) center/contain no-repeat;mask:var(--fsic) center/contain no-repeat}

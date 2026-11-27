@@ -14,7 +14,7 @@ function rpInit(){ rpClean(S); if(!S.rodPresets.some(Boolean)&&S.rods&&ROD_I[S.r
 rpInit();
 /* every load runs rpClean: a step of migrate() in c_logic.js */
 // keep the preset in use matching what you hold
-function rpSync(){ try{ const i=S.rodPreset; if(i<0||!S.rodPresets[i]||!S.rods.owned.includes(S.rods.eq)) return; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; }catch(e){} }
+function rpSync(){ try{ const i=S.rodPreset; if(i<0||!S.rodPresets[i]||!S.rods.owned.includes(S.rods.eq)) return; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; }catch(e){ oops('bz_rods06:owned.includes',e); } }
 function rpUse(i){ const p=S.rodPresets[i]; if(!p||!S.rods.owned.includes(p.rod)) return false; S.rods.eq=p.rod; S.rods.att[p.rod]=p.att.filter(a=>!a||S.atts[a]).slice(0,ROD_I[p.rod].slots); S.rodPreset=i; save(); return true; }
 function rpSave(i){ if(!S.rods.owned.includes(S.rods.eq)) return false; S.rodPresets[i]={rod:S.rods.eq, att:(S.rods.att[S.rods.eq]||[]).slice(0,rod().slots)}; S.rodPreset=i; save(); return true; }
 function rpClear(i){ S.rodPresets[i]=null; if(S.rodPreset===i) S.rodPreset=-1; save(); }
@@ -26,7 +26,7 @@ function rodPresetsHTML(){ return `<div class="rp-box"><div class="rp-head"><b>P
     return `<div class="rp-card${on?' on':''}"><span class="rp-n">Preset ${i+1}${on?' · in use':''}</span><b>${esc(R.name)}</b><span class="rp-lv">Level ${(S.rods.lvl&&S.rods.lvl[p.rod])||0} / 10 · ${R.slots} slot${R.slots>1?'s':''}</span><div class="rp-atts">${atts}</div><div class="rp-acts">${on?'<span class="badge g">In use</span>':`<button type="button" class="btn sm" data-rp="use:${i}">Use</button>`}<button type="button" class="btn alt sm" data-rp="save:${i}">${on?'Saved':'Replace with current'}</button><button type="button" class="btn alt sm" data-rp="clear:${i}">Clear</button></div></div>`; }).join('')}</div></div>`; }
 document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('[data-rp]'); if(!b) return; e.stopPropagation(); const [a,n]=b.dataset.rp.split(':'), i=+n; if(!(i>=0&&i<3)) return;
   if(a==='use'){ if(rpUse(i)){ toast('Rod preset '+(i+1)+': '+rod().name+'.'); } } else if(a==='save'){ if(S.rodPreset===i) return; rpSave(i); toast('Saved to preset '+(i+1)+'.'); } else if(a==='clear'){ rpClear(i); }
-  try{ sfx.coin(); }catch(er){} renderPanel(); },true);
+  try{ sfx.coin(); }catch(er){ oops('bz_rods06:sfx.coin',er); } renderPanel(); },true);
 document.head.insertAdjacentHTML('beforeend',`<style>
 .rp-box{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
 .rp-head{display:flex;flex-direction:column;gap:2px} .rp-head b{font:800 15px var(--display,system-ui);color:#fff} .rp-head span{font-size:12px;color:#9fb2c8}

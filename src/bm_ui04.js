@@ -40,13 +40,13 @@ KEYS.forEach((k,i)=>{ if(k[0]==='Esc') KEYS[i]=['Esc','Close the menu, a card or
   menuSubKey=''; })();
 
 /* (the per-water home store, dockSync / dockStore, is gone: homes are fixed since 2026-11-24; old saves keep S.dock / S.docks untouched) */
-function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){} }
-function perksClean(st){ const keep=S; try{ S=st; if(ptsFree()<0) st.perks={}; }catch(e){} finally{ S=keep; } } // more ranks than points (a damaged save): refund them
+function rodsClean(st){ try{ const r=st.rods; if(!r) return; r.owned=uniq(['bamboo',...(r.owned||[]).filter(x=>ROD_I[x])]); if(!r.owned.includes(r.eq)) r.eq='bamboo'; }catch(e){ oops('bm_ui04:uniq',e); } }
+function perksClean(st){ const keep=S; try{ S=st; if(ptsFree()<0) st.perks={}; }catch(e){ oops('bm_ui04:ptsFree',e); } finally{ S=keep; } } // more ranks than points (a damaged save): refund them
 rodsClean(S); perksClean(S);
 /* every load runs these three: steps of migrate() in c_logic.js */
 function docksClean(st){ try{ if(!isObj(st.docks)) st.docks={};
     for(const k of Object.keys(st.docks)){ if(!LOCS.some(L=>L.id===k)) delete st.docks[k]; else { const el=hfClean(st.docks[k]&&st.docks[k].el); st.docks[k]=Object.keys(el).length?{el}:{}; } } /* old home choices stay valid in the save, unread (homes are fixed) */
-    if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){} }
+    if(st.dockAt&&!LOCS.some(L=>L.id===st.dockAt)) st.dockAt=null; }catch(e){ oops('bm_ui04:isObj',e); } }
 
 // ---------- menu mode ----------
 let MENU_OPEN=false, menuHist=false, dashPress=false;
@@ -61,20 +61,20 @@ MO.innerHTML=`<div class="mo-in"><div class="mo-top">
   </div><div class="mo-nav"></div><div class="mo-body"></div></div>`;
 document.body.appendChild(MO);
 function menuMount(){ const {T,P,toast}=menuEls(); MO.querySelector('.mo-nav').appendChild(T); MO.querySelector('.mo-body').appendChild(P); if(toast) MO.appendChild(toast);
-  G.hold=false; try{ spaceDown=false; }catch(e){} MO.hidden=false; if(document.body.classList.contains('pch-on')){ MO.classList.add('mo-show'); try{ const sb=MO.querySelector('#tabs .subbar'); if(sb&&sb.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) sb.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'}); }catch(e){} } else { MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show'); }
+  G.hold=false; try{ spaceDown=false; }catch(e){ oops('bm_ui04:spaceDown',e); } MO.hidden=false; if(document.body.classList.contains('pch-on')){ MO.classList.add('mo-show'); try{ const sb=MO.querySelector('#tabs .subbar'); if(sb&&sb.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) sb.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:200,easing:'ease-out'}); }catch(e){ oops('bm_ui04:MO.querySelector',e); } } else { MO.classList.remove('mo-show'); void MO.offsetWidth; MO.classList.add('mo-show'); }
   document.body.classList.add('menu-open'); document.documentElement.classList.add('menu-open');
-  if(!menuHist){ try{ history.pushState({dlmenu:1},''); menuHist=true; }catch(e){} }
-  const sb=T.querySelector('.secb.on')||MO.querySelector('.mo-back'); try{ (document.activeElement&&document.activeElement.blur)&&document.activeElement.blur(); sb&&sb.focus({preventScroll:true}); }catch(e){} }
+  if(!menuHist){ try{ history.pushState({dlmenu:1},''); menuHist=true; }catch(e){ oops('bm_ui04:history.pushState',e); } }
+  const sb=T.querySelector('.secb.on')||MO.querySelector('.mo-back'); try{ (document.activeElement&&document.activeElement.blur)&&document.activeElement.blur(); sb&&sb.focus({preventScroll:true}); }catch(e){ oops('bm_ui04:activeElement.blur',e); } }
 function menuUnmount(){ const {T,P,toast,stage}=menuEls(); const [a,b]=holdTab; if(a) a.parentNode.insertBefore(T,a); if(b) b.parentNode.insertBefore(P,b); if(toast&&stage) stage.insertBefore(toast,$('card')&&$('card').parentNode===stage?$('card'):null);
   MO.hidden=true; document.body.classList.remove('menu-open'); document.documentElement.classList.remove('menu-open');
   const w=document.querySelector('.wrap'); if(w){ w.classList.remove('wrapin'); void w.offsetWidth; w.classList.add('wrapin'); }
-  try{ document.activeElement&&document.activeElement.blur&&document.activeElement.blur(); }catch(e){}
+  try{ document.activeElement&&document.activeElement.blur&&document.activeElement.blur(); }catch(e){ oops('bm_ui04:activeElement.blur#2',e); }
  }
 // Two modes. MENU_WANT says which one the player asked for; S.tab is the page shown inside the menu ('dash' = Overview).
 // Any page opened from anywhere (a link, the goal chip, search, settings, a full cooler) opens the menu; refreshing the
 // page after an action never does. Closing the menu always returns to the Overview, so the menu opens on it next time.
 let MENU_WANT=false;
-function menuMode(){ const open=MENU_WANT; if(open===MENU_OPEN) return; MENU_OPEN=open; if(open) menuMount(); else { menuUnmount(); if(menuHist){ menuHist=false; try{ history.back(); }catch(e){} } } }
+function menuMode(){ const open=MENU_WANT; if(open===MENU_OPEN) return; MENU_OPEN=open; if(open) menuMount(); else { menuUnmount(); if(menuHist){ menuHist=false; try{ history.back(); }catch(e){ oops('bm_ui04:history.back',e); } } } }
 addEventListener('popstate',()=>{ if(menuHist){ menuHist=false; if(MENU_OPEN) closeMenu(); } });
 function closeMenu(){ if(!MENU_OPEN&&!MENU_WANT) return; MENU_WANT=false; setTab(DASH); save(); }
 function toggleMenu(){ if(MENU_OPEN) closeMenu(); else openMenu(DASH); }
@@ -100,7 +100,7 @@ addEventListener('keyup',e=>{ if(MENU_OPEN&&e.code==='Space') e.stopImmediatePro
 // keep the category row honest in fishing mode (nothing is "open") and mark live events
 { const _ms=menuSync; menuSync=function(){ _ms(); try{ const T=$('tabs'), live=!!(S.chal||liveScheds().length);
     T.querySelectorAll('.secb').forEach(b=>{ const l=b.querySelector('.seclive'); if(l){ const on=b.dataset.sec==='chal'&&live; if(l.hidden===on) l.hidden=!on; } }); if(document.body.classList.contains('chal-live')!==live) document.body.classList.toggle('chal-live',live); /* while LIVE shows, the Challenges count hides (director, 2026-11-19: not both) */
-    const sbtn=$('settingsbtn'); if(sbtn&&!MENU_OPEN) sbtn.classList.remove('menu-on'); const mset=MO.querySelector('[data-mo="settings"]'); if(mset) mset.classList.toggle('on',menuSecOf(S.tab)===MENU_MORE); }catch(e){} }; }
+    const sbtn=$('settingsbtn'); if(sbtn&&!MENU_OPEN) sbtn.classList.remove('menu-on'); const mset=MO.querySelector('[data-mo="settings"]'); if(mset) mset.classList.toggle('on',menuSecOf(S.tab)===MENU_MORE); }catch(e){ oops('bm_ui04:liveScheds',e); } }; }
 
 // ---------- the dashboard ----------
 const DW_ORDER=['cooler','bounty','aq','event','hunt','prog','gear'];
@@ -169,7 +169,7 @@ function dashTick(){ if(!MENU_OPEN||S.tab!==DASH||document.hidden) return; const
   want.forEach((h,i)=>{ const s=dwStrip(h); if(dwLast[ids[i]]!==s){ const el=D.children[i]; const tmp=document.createElement('div'); tmp.innerHTML=h; const n=tmp.firstElementChild; el.replaceWith(n); dwLast[ids[i]]=s; } }); }
 setInterval(dashTick,500);
 { const P=$('panel'); P.addEventListener('pointerdown',()=>{ if(S.tab===DASH) dashPress=true; }); addEventListener('pointerup',()=>{ dashPress=false; }); addEventListener('pointercancel',()=>{ dashPress=false; }); }
-function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'+id+'"]'); if(!el) return; if(dashCol()[id]){ delete dashCol()[id]; renderPanel(); return dashFlash(id); } el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); try{ el.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){} }
+function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'+id+'"]'); if(!el) return; if(dashCol()[id]){ delete dashCol()[id]; renderPanel(); return dashFlash(id); } el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); try{ el.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){ oops('bm_ui04:el.scrollIntoView',e); } }
 // dashboard actions that are not already game actions
 { const _xa=extraAct2; extraAct2=function(b){ const a=b.dataset.act, k=b.dataset.k;
     if(a==='dcol'){ const c=dashCol(); if(c[k]) delete c[k]; else c[k]=1; return 'render'; }
@@ -177,7 +177,7 @@ function dashFlash(id){ const el=document.querySelector('#panel .dash [data-w="'
     if(a==='dbait'){ searchGo(['','shop',['tackleview','bait']]); return 'skip'; }
     return _xa(b); }; }
 // the panel shows the dashboard in fishing mode, the page otherwise
-{ const _rp=renderPanel; renderPanel=function(){ if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){} return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){} return r; }; }
+{ const _rp=renderPanel; renderPanel=function(){ if(S.tab===DASH){ const P=$('panel'); if(P&&MENU_OPEN){ renderDash(P); P.dataset.tab035=DASH; } try{ menuSync(); }catch(e){ oops('bm_ui04:menuSync',e); } return; } const r=_rp.apply(this,arguments); try{ menuHead(); }catch(e){ oops('bm_ui04:menuHead',e); } return r; }; }
 setInterval(()=>{ if(MENU_OPEN){ const c=$('mocoin'), v=fmtShort(S.money); if(c&&c.textContent!==v){ c.textContent=v; c.title=fmt(S.money)+' coins'; } menuHead(); } },250);
 // start in fishing mode; the last page opens again from its category
 { if(S.tab&&S.tab!==DASH) S.settings.pageLast=S.tab; S.tab=DASH; }
@@ -307,10 +307,10 @@ if(window.__dlUnreadable) setTimeout(()=>toast(localStorage.getItem(AUTO_BK)?'Yo
 // the Overview and every page live in the full-screen menu, one tap away on the Menu button.
 // =====================================================================
 document.body.classList.add('dl-fish'); document.documentElement.classList.add('dl-fish');
-try{ document.body.classList.remove('side-off'); localStorage.setItem('driftline-side-off','0'); }catch(e){} // the old "hide menus" switch has nothing left to hide
-{ const _sho04=stageHOverride; stageHOverride=function(W,H){ try{ const w=document.querySelector('.wrap'), st=$('stage'); if(w&&st&&document.body.classList.contains('dl-fish')){ const h=Math.round((w.getBoundingClientRect().bottom-st.getBoundingClientRect().top)/UIZ); if(h>140) return h; } }catch(e){} return _sho04(W,H); }; }
-addEventListener('orientationchange',()=>setTimeout(()=>{ try{ resize(); }catch(e){} },300));
-if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ clearTimeout(window.__dlvv); window.__dlvv=setTimeout(()=>{ try{ resize(); }catch(e){} },120); });
+try{ document.body.classList.remove('side-off'); localStorage.setItem('driftline-side-off','0'); }catch(e){ oops('bm_ui04:classList.remove',e); } // the old "hide menus" switch has nothing left to hide
+{ const _sho04=stageHOverride; stageHOverride=function(W,H){ try{ const w=document.querySelector('.wrap'), st=$('stage'); if(w&&st&&document.body.classList.contains('dl-fish')){ const h=Math.round((w.getBoundingClientRect().bottom-st.getBoundingClientRect().top)/UIZ); if(h>140) return h; } }catch(e){ oops('bm_ui04:document.querySelector',e); } return _sho04(W,H); }; }
+addEventListener('orientationchange',()=>setTimeout(()=>{ try{ resize(); }catch(e){ oops('bm_ui04:resize',e); } },300));
+if(window.visualViewport) visualViewport.addEventListener('resize',()=>{ clearTimeout(window.__dlvv); window.__dlvv=setTimeout(()=>{ try{ resize(); }catch(e){ oops('bm_ui04:resize#2',e); } },120); });
 // the water's chip says where you are too (the top bar on phones has no room for the name of the water)
 // phones held upright: two lines (the water, then time · weather · effect · time left) so it never runs into the streak chip
 function drawSceneChip(p,wx){ const tag=WX_TAG[wx.k], nm=curLoc().name; const big=W>=700; const bc=document.body.classList, phone=bc.contains('phone-app')||bc.contains('phone-land');
@@ -431,7 +431,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // the water redraws at its new size whenever its box changes (window resize, rotation, the top bar changing height),
 // not only on the window's resize event
 if(window.ResizeObserver){ const st=$("stage"); let tmr=0, lw=0, lh=0;
-  new ResizeObserver(es=>{ const r=es[0].contentRect, w=Math.round(r.width), h=Math.round(r.height); if(Math.abs(w-lw)<2&&Math.abs(h-lh)<2) return; lw=w; lh=h; clearTimeout(tmr); tmr=setTimeout(()=>{ try{ resize(); }catch(e){} },30); }).observe(st); }
+  new ResizeObserver(es=>{ const r=es[0].contentRect, w=Math.round(r.width), h=Math.round(r.height); if(Math.abs(w-lw)<2&&Math.abs(h-lh)<2) return; lw=w; lh=h; clearTimeout(tmr); tmr=setTimeout(()=>{ try{ resize(); }catch(e){ oops('bm_ui04:resize#3',e); } },30); }).observe(st); }
 // a goal too long for one line wraps onto two compact lines (the label runs in front of it) instead of being cut
 { const gc=$('goalchip'); if(gc){ const fit=()=>{ const t=gc.querySelector('.gl-t'); gc.classList.remove('long'); if(t&&gc.closest('.hud')&&t.scrollWidth>t.clientWidth+1) gc.classList.add('long'); };
   new MutationObserver(fit).observe(gc,{childList:true}); addEventListener('resize',()=>setTimeout(fit,80)); addEventListener('orientationchange',()=>setTimeout(fit,350)); setTimeout(fit,100);
@@ -453,7 +453,7 @@ body.dl-fish .hud .xpbar{min-width:0!important;width:auto!important;max-width:10
 //@layer mobile mobile/ui_menu_land.js
 // In the menu the highlighted tab already names the page, so a page title that only repeats it is hidden (more room
 // for the page itself). The wardrobe's own tabs (Body, Clothes, Hats...) move up into that row across the full width.
-{ const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){} }; }
+{ const _rp2=renderPanel; renderPanel=function(){ _rp2.apply(this,arguments); try{ menuTidy(); }catch(e){ oops('bm_ui04:menuTidy',e); } }; }
 function menuTidy(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
   const h=P.querySelector(':scope > h2'); if(h){ const lbl=on?on.textContent.replace(/\s+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&(t===lbl||lbl.endsWith(' '+t)||lbl.includes(t))); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
@@ -478,7 +478,7 @@ function menuTidy2(){ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; 
   const hr=P.querySelector(":scope > .row.spread"); if(hr&&hr.querySelector("h2")){ const wide=[...hr.children].slice(1).some(c=>c.matches("select,input,.fld")||c.querySelector("select,input,.fld")); hr.classList.toggle("dl-head",!wide); hr.classList.toggle("dl-headw",wide); }
   const nav=P.querySelector('.stylewrap.wd .wd-nav'), wrap=P.querySelector('.stylewrap.wd'); if(nav&&wrap&&nav.nextElementSibling!==wrap){ nav.classList.add('wd-top'); wrap.before(nav); } }
 menuTidy=menuTidy2;
-{ const P=$('panel'); if(P&&window.MutationObserver){ let q=false; new MutationObserver(()=>{ if(q) return; q=true; queueMicrotask(()=>{ q=false; try{ menuTidy2(); }catch(e){} }); }).observe(P,{childList:true}); } }
+{ const P=$('panel'); if(P&&window.MutationObserver){ let q=false; new MutationObserver(()=>{ if(q) return; q=true; queueMicrotask(()=>{ q=false; try{ menuTidy2(); }catch(e){ oops('bm_ui04:menuTidy2',e); } }); }).observe(P,{childList:true}); } }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel h2.dl-dup{display:none!important}
 /* a page header keeps its number (Scales, skill points...) beside the description instead of on a line of its own */
@@ -641,7 +641,7 @@ const CD=document.createElement('nav'); CD.id='catdock'; CD.setAttribute('aria-l
 CD.innerHTML=MENU_SECS.map(s=>`<button type="button" class="cdb" data-cd="${s.id}" title="${esc(s.name)}" aria-label="${esc(s.name)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${s.icon}</svg><span class="cdl">${s.short}</span><span class="cddot" hidden></span></button>`).join('');
 $('stage').appendChild(CD);
 ['pointerdown','touchstart','mousedown'].forEach(ev=>CD.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-CD.addEventListener('click',e=>{ const b=e.target.closest('[data-cd]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){} const sec=MENU_SECS.find(s=>s.id===b.dataset.cd); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; openMenu(list.includes(last)?last:list[0]); });
+CD.addEventListener('click',e=>{ const b=e.target.closest('[data-cd]'); if(!b) return; e.stopPropagation(); try{ startAudio(); }catch(er){ oops('bm_ui04:startAudio',er); } const sec=MENU_SECS.find(s=>s.id===b.dataset.cd); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; openMenu(list.includes(last)?last:list[0]); });
 setInterval(()=>{ if(MENU_OPEN) return; for(const b of CD.querySelectorAll('.cdb')){ const sec=MENU_SECS.find(s=>s.id===b.dataset.cd), n=sec.tabs.reduce((a,t)=>a+menuDot(t),0), d=b.querySelector('.cddot'), t=n>99?'99+':String(n); if(n){ if(d.textContent!==t) d.textContent=t; d.hidden=false; } else d.hidden=true;
   if(sec.id==='chal'){ const live=!!(S.chal||liveScheds().length); b.classList.toggle('live',live); } } },1000);
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -732,7 +732,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .sellf .fld-title{width:100%;margin:0!important}
 </style>`);
 // "Bait in use" belongs to the bait: it shows only under Bait and Special lures, as one slim line under those tabs
-{ const _rs04=renderShop; renderShop=function(P){ _rs04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; if(tackleView!=='bait'&&tackleView!=='lures'){ cur.remove(); return; } const nav=[...P.children].find(c=>c.classList.contains('bwx-nav')); if(nav) nav.after(cur); cur.classList.add('tk-slim'); }catch(e){} }; }
+{ const _rs04=renderShop; renderShop=function(P){ _rs04(P); try{ const cur=P.querySelector('.tk-cur'); if(!cur) return; if(tackleView!=='bait'&&tackleView!=='lures'){ cur.remove(); return; } const nav=[...P.children].find(c=>c.classList.contains('bwx-nav')); if(nav) nav.after(cur); cur.classList.add('tk-slim'); }catch(e){ oops('bm_ui04:P.querySelector',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .tk-cur.tk-slim{margin:0 0 8px!important;padding:6px 10px!important;gap:4px 8px!important;min-height:0;font-size:13px}
 #panel .tk-cur.tk-slim .meta{font-size:12px}
@@ -755,9 +755,9 @@ document.head.insertAdjacentHTML('beforeend','<style>body #menuov #panel{overscr
   const mk=(cls,lbl,go,title)=>{ const b=document.createElement('button'); b.type='button'; b.className='stat hudx '+cls; b.dataset.go=go; b.title=title; b.innerHTML='<span class="lbl">'+lbl+'</span><b>–</b>'; return b; };
   const aq=mk('st-aq','Aquarium','aquarium','Aquarium: coins per hour (tap to open)'), lg=mk('st-log','Fish Log','journal','Fish Log: species found (tap to open)');
   after.after(aq); aq.after(lg);
-  [aq,lg].forEach(b=>{ ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(b.dataset.go); }); });
+  [aq,lg].forEach(b=>{ ['pointerdown','touchstart','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',e=>{ e.stopPropagation(); try{ startAudio(); }catch(er){ oops('bm_ui04:startAudio#2',er); } openMenu(b.dataset.go); }); });
   const tick=()=>{ try{ const r=Math.floor(tankRate()*60), ready=S.tankBank>=1&&S.tank.length>0; const at=fmtShort(r)+'/h'; const av=aq.querySelector('b'); if(av.textContent!==at) av.textContent=at; aq.classList.toggle('ready',ready); aq.title=ready?'Aquarium: '+fmt(Math.floor(S.tankBank))+' coins waiting (tap to collect)':'Aquarium: '+fmt(r)+' coins per hour (tap to open)';
-    const got=SP.filter(s=>S.journal[s.id]).length, lt=got+'/'+SP.length, lv=lg.querySelector('b'); if(lv.textContent!==lt) lv.textContent=lt; }catch(e){} };
+    const got=SP.filter(s=>S.journal[s.id]).length, lt=got+'/'+SP.length, lv=lg.querySelector('b'); if(lv.textContent!==lt) lv.textContent=lt; }catch(e){ oops('bm_ui04:Math.floor',e); } };
   tick(); setInterval(tick,1500); })();
 document.head.insertAdjacentHTML('beforeend',`<style>
 .hud > .hudx{font:inherit;color:inherit;text-align:left;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -859,7 +859,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // carry their own counts. 'dash' stays only as the internal "menu closed / fishing" state.
 // =====================================================================
 function menuLastPage(){ const ok=t=>!!t&&t!==DASH&&(MENU_SECS.some(s=>s.tabs.includes(t))||MENU_MORE.tabs.includes(t)); const l=S.settings&&S.settings.lastPage; return ok(l)?l:'cooler'; }
-{ const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){} } return _st05.apply(this,arguments); }; }
+{ const _st05=setTab; setTab=function(t){ if(t&&t!==DASH){ try{ S.settings.lastPage=t; }catch(e){ oops('bm_ui04:settings.lastPage',e); } } return _st05.apply(this,arguments); }; }
 function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(t); save(); };
 
 // =====================================================================
@@ -868,7 +868,7 @@ function openMenu(t){ if(!t||t===DASH) t=menuLastPage(); MENU_WANT=true; setTab(
 { const _t6=menuTidy2; menuTidy2=function(){ _t6(); try{ const P=$('panel');
     // Bounties: the three daily tasks sit side by side when there is room
     if(S.tab==='bounties'){ const t=[...P.querySelectorAll(':scope > .tile')].find(x=>{ const h=x.querySelector('h4'); return h&&/Daily tasks/i.test(h.textContent); }); if(t) t.classList.add('dtasks'); }
-  }catch(e){} }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll',e); } }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* a page header's number or controls sit beside the text when they fit, and start on the left when they wrap */
 #menuov #panel > .row.dl-head{justify-content:space-between!important}
@@ -890,7 +890,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 { const _t7=menuTidy2; menuTidy2=function(){ _t7(); try{ const P=$('panel');
     if(S.tab==='paths') P.querySelectorAll('.tile .grid').forEach(g=>g.classList.add('pathgrid'));
     if(S.tab==='rods'){ const t=[...P.querySelectorAll('.tile')].find(x=>/in your hands/i.test(x.textContent)); if(t) t.classList.add('rodnow'); }
-  }catch(e){} }; menuTidy=menuTidy2; }
+  }catch(e){ oops('bm_ui04:P.querySelectorAll#2',e); } }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* disabled buttons stay readable (they say what is not possible yet) */
 #menuov .btn:disabled,#menuov .btn[disabled]{opacity:.55!important;filter:saturate(.35)}
@@ -919,7 +919,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
   #menuov #panel .tp-ghost{transform:scale(.75);transform-origin:left center}
 }
 </style>`);
-{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){} }; menuTidy=menuTidy2; }
+{ const _t8=menuTidy2; menuTidy2=function(){ _t8(); try{ $('panel').querySelectorAll('.chips,.bwx-nav.sect-nav,.wd-nav.wd-top').forEach(row=>{ if(row.scrollWidth<=row.clientWidth+2) return; const on=row.querySelector('[aria-pressed="true"],[aria-selected="true"]'); if(on) row.scrollLeft=Math.max(0,on.offsetLeft-row.clientWidth/2+on.offsetWidth/2); }); }catch(e){ oops('bm_ui04:querySelectorAll',e); } }; menuTidy=menuTidy2; }
 document.head.insertAdjacentHTML('beforeend','<style>body.v3 .btn:disabled,body.v3 .btn[disabled]{color:#aebfd3!important;text-shadow:none!important}#menuov .btn:disabled,#menuov .btn[disabled]{opacity:.7!important}</style>');
 document.head.insertAdjacentHTML('beforeend',`<style>
 @container (max-width:560px){
@@ -954,7 +954,7 @@ body.v3 .btn:disabled .coin,body.v3 .btn[disabled] .coin{color:#a9b9cc!important
 { const wrap=document.querySelector('.wrap'), st=$('stage'); if(wrap&&st&&CD){ st.after(CD); }
   const hint=$('hint'); const keepHint=()=>{ if(hint&&st&&hint.parentElement!==st) st.appendChild(hint); }; keepHint(); addEventListener('resize',()=>setTimeout(keepHint,120)); setTimeout(keepHint,400);
   // the picture is exactly the water's box (the bar below or beside it is not part of the water)
-  const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){} return _sho06(W,H); }; }
+  const _sho06=stageHOverride; stageHOverride=function(W,H){ try{ if(document.body.classList.contains('dl-fish')){ const h=Math.round(st.clientHeight); if(h>140) return h; } }catch(e){ oops('bm_ui04:classList.contains',e); } return _sho06(W,H); }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.dl-fish .wrap > #catdock{position:relative!important;inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;z-index:2;flex:0 0 auto;margin:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;background:linear-gradient(180deg,#14223a,#0f1a2e);border:1px solid var(--line,#26385180)}
 /* on the water: Rest bottom left, the tip just above it in the middle */
@@ -1037,7 +1037,7 @@ body .cdmini,body #menuov #tabs .secbar > .cdmini{display:none!important} /* onl
       let best=null; const fits=(s,fs)=>{ nm.textContent=s; nm.style.fontSize=fs+'px'; return nm.scrollWidth<=nm.clientWidth+.5; };
       if(avail>0){ for(const s of [b.name, SHORT[k]||b.name]){ for(let fs=15;fs>=11;fs--){ if(fits(s,fs)){ best=[s,fs]; break; } } if(best) break; } }
       if(!best) best=[SHORT[k]||b.name,11];
-      if(nm.textContent!==best[0]) nm.textContent=best[0]; const f=best[1]+'px'; if(nm.style.fontSize!==f) nm.style.fontSize=f; }catch(e){} };
+      if(nm.textContent!==best[0]) nm.textContent=best[0]; const f=best[1]+'px'; if(nm.style.fontSize!==f) nm.style.fontSize=f; }catch(e){ oops('bm_ui04:fmtShort',e); } };
     { const _rb=renderBait; renderBait=function(){ const r=_rb.apply(this,arguments); paint(); return r; }; }
     sel.addEventListener('change',()=>setTimeout(paint,0)); addEventListener('resize',()=>requestAnimationFrame(paint));
     if(window.ResizeObserver) new ResizeObserver(()=>paint()).observe(chip);
@@ -1056,7 +1056,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // the cast power bar sits just above the hint bubble at the bottom of the water (it used to be drawn underneath it,
 // hidden by the "Release to cast" hint on tablets and sideways phones; director, 2026-11-17)
 function castBarY(){ let y=H-34; try{ const h=$('hint'), cv=$('cv'); if(h&&cv&&h.offsetParent&&h.textContent.trim()&&+getComputedStyle(h).opacity>.05){ const hr=h.getBoundingClientRect(), cr=cv.getBoundingClientRect();
-    if(cr.height>0&&hr.height>0&&hr.bottom>cr.top&&hr.top<cr.bottom){ const top=(hr.top-cr.top)*H/cr.height; if(top>H*.4) y=Math.min(y,top-26); } } }catch(e){} return y; }
+    if(cr.height>0&&hr.height>0&&hr.bottom>cr.top&&hr.top<cr.bottom){ const top=(hr.top-cr.top)*H/cr.height; if(top>H*.4) y=Math.min(y,top-26); } } }catch(e){ oops('bm_ui04:textContent.trim',e); } return y; }
 if(/[?&]test\b/.test(location.search)) window.__castBarY=()=>({y:castBarY(), H});
 //@layer mobile mobile/ui_boardwalk.js
 //@layer mobile mobile/ui_aquarium_land.js
@@ -1064,7 +1064,7 @@ if(/[?&]test\b/.test(location.search)) window.__castBarY=()=>({y:castBarY(), H})
 // the far shore and the middle distance still fade into it, and a light veil stays over the near water (2026-11-17)
 { let FOG_EARLY=false; const _dwx=drawWeatherX, _vp=v3Platform;
   drawWeatherX=function(t,wx,hz){ if(wx&&wx.k==='Fog'&&!FOG_EARLY) return; return _dwx.apply(this,arguments); };
-  v3Platform=function(L,t,night,dockY,pb){ try{ const wx=weather(); if(wx.k==='Fog'){ FOG_EARLY=true; _dwx(t,wx,HZ()); } }catch(e){} finally{ FOG_EARLY=false; } return _vp.apply(this,arguments); }; }
+  v3Platform=function(L,t,night,dockY,pb){ try{ const wx=weather(); if(wx.k==='Fog'){ FOG_EARLY=true; _dwx(t,wx,HZ()); } }catch(e){ oops('bm_ui04:weather',e); } finally{ FOG_EARLY=false; } return _vp.apply(this,arguments); }; }
 // ---------- touch: no bouncing past the top bars, no long-press menus, no text selection, no zoom (director, 2026-11-17) ----------
 // 1. Pulling a list past its top or bottom never drags the page (iPhone Safari rubber-bands the whole page otherwise, sliding
 //    pages under the top panels). A drag is let through only to a box that can still scroll that way; sideways drags (tab rows,
@@ -1108,14 +1108,14 @@ let paintFish, paintDecor; // set just below (pictures drawn once and reused)
 // while a page is still being built only remember where you want to go, and that one page is built on the next frame.
 // The save that remembers your last page waits until the tapping stops instead of writing on every tap.
 { const T=$('tabs'); let busyUntil=0, want=null, reveal=false, raf=0, saveT=0;
-  const go=(t,rv)=>{ if(t&&S.tab!==t){ setTab(t); clearTimeout(saveT); saveT=setTimeout(()=>{ try{ save(); }catch(e){} },700); } else menuSync(); if(rv) try{ menuReveal(); }catch(e){} };
-  if(T) T.addEventListener('click',e=>{ const sb=e.target.closest('[data-sec]'), pb=e.target.closest('[data-sub]'); if(!sb&&!pb) return; e.stopImmediatePropagation(); e.stopPropagation(); try{ startAudio&&startAudio(); }catch(er){}
+  const go=(t,rv)=>{ if(t&&S.tab!==t){ setTab(t); clearTimeout(saveT); saveT=setTimeout(()=>{ try{ save(); }catch(e){ oops('bm_ui04:save',e); } },700); } else menuSync(); if(rv) try{ menuReveal(); }catch(e){ oops('bm_ui04:menuReveal',e); } };
+  if(T) T.addEventListener('click',e=>{ const sb=e.target.closest('[data-sec]'), pb=e.target.closest('[data-sub]'); if(!sb&&!pb) return; e.stopImmediatePropagation(); e.stopPropagation(); try{ startAudio&&startAudio(); }catch(er){ oops('bm_ui04:startAudio#3',er); }
     let t; if(sb){ const sec=MENU_SECS.find(s=>s.id===sb.dataset.sec); if(!sec) return; const list=menuTabsIn(sec), last=menuLast()[sec.id]; t=list.includes(last)?last:list[0]; }
-    else { t=pb.dataset.sub; try{ pb.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(er){} }
+    else { t=pb.dataset.sub; try{ pb.scrollIntoView({block:'nearest',inline:'nearest'}); }catch(er){ oops('bm_ui04:pb.scrollIntoView',er); } }
 
     if(e.timeStamp>=busyUntil&&!raf){ go(t,!!sb); busyUntil=performance.now(); return; } // the tap came while nothing was being built: switch right now
     want=t; reveal=reveal||!!sb; if(!raf) raf=requestAnimationFrame(()=>{ raf=0; const w=want, rv=reveal; want=null; reveal=false; go(w,rv); busyUntil=performance.now(); }); },true);
-  addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){} } }); }
+  addEventListener('pagehide',()=>{ if(saveT){ clearTimeout(saveT); try{ save(); }catch(e){ oops('bm_ui04:save#2',e); } } }); }
 // the page tabs count as pinned only once the page has scrolled under them (that's when the cover band shows)
 { const P=$('panel'); let q=0;
   const sync=()=>{ q=0; if(!P) return; const pr=P.getBoundingClientRect(), pad=parseFloat(getComputedStyle(P).paddingTop)||0;
@@ -1128,7 +1128,7 @@ let paintFish, paintDecor; // set just below (pictures drawn once and reused)
 if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssRules.length-1;i>=0;i--){ const r=list.cssRules[i];
       if(r.selectorText!==undefined){ if(!r.selectorText.includes(':hover')) continue; const keep=r.selectorText.split(',').filter(s=>!s.includes(':hover')); if(keep.length) r.selectorText=keep.join(','); else list.deleteRule(i); }
       else if(r.cssRules) strip(r); } };
-  const all=()=>{ for(const s of document.styleSheets){ if(s._noHover) continue; try{ strip(s); s._noHover=true; }catch(e){} } };
+  const all=()=>{ for(const s of document.styleSheets){ if(s._noHover) continue; try{ strip(s); s._noHover=true; }catch(e){ oops('bm_ui04:strip',e); } } };
   all(); setTimeout(all,0); addEventListener('load',all);
   new MutationObserver(ms=>{ if(ms.some(m=>[...m.addedNodes].some(n=>n.tagName==='STYLE'||n.tagName==='LINK'))) all(); }).observe(document.head,{childList:true}); }
 // Menu navigation on touch screens acts when the finger lifts (if it stayed put), instead of waiting for the phone to decide
@@ -1166,7 +1166,7 @@ if(matchMedia('(hover: none)').matches){ const strip=list=>{ for(let i=list.cssR
 { const cool=$('coolerct'), cc=cool&&cool.closest('.stat'), loc=document.querySelector('.hud > .stat.loc');
   const link=(el,go,title)=>{ if(!el) return; el.classList.add('hudx','hud-link'); el.setAttribute('role','button'); el.tabIndex=0; el.title=title;
     ['pointerdown','touchstart','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
-    const act=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} go(); };
+    const act=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){ oops('bm_ui04:startAudio#4',er); } go(); };
     el.addEventListener('click',act); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') act(e); }); };
   const tp=PLAT.touch()?'tap':'click'; link(loc,()=>openMenu('map'),'Fishing at: '+tp+' to choose a water');
   link(cc,()=>openMenu('cooler'),'Cooler: fish you are carrying ('+tp+' to open)');
@@ -1253,7 +1253,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
 //@layer pc pc/scene_light.js
 // opening or closing the menu changes the layout under the water: measure the water again on the next frame (does not depend on
 // the browser's size watcher, which some browsers deliver late)
-{ const _mm=menuMode; menuMode=function(){ const was=MENU_OPEN, r=_mm.apply(this,arguments); if(was!==MENU_OPEN) requestAnimationFrame(()=>{ try{ resize(); }catch(e){} }); return r; }; }
+{ const _mm=menuMode; menuMode=function(){ const was=MENU_OPEN, r=_mm.apply(this,arguments); if(was!==MENU_OPEN) requestAnimationFrame(()=>{ try{ resize(); }catch(e){ oops('bm_ui04:resize#4',e); } }); return r; }; }
 // Feats, organized (director, 2026-11-17: hard to read, not organized): grouped under labelled headings with "x of y done",
 // closest to finishing first inside each group. PC shows every feat at once (no "Show all" button).
 { const CATS=[['Catching',['c10','c100','c500','c2000','c5000','perfect25','hot10','hot100','frenzy5','frenzy100','snap10','snap50','storm','trench','star1']],
@@ -1279,7 +1279,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#fpsbox{position:absolute;r
       h.innerHTML=`<span>${esc(cat)}</span><span class="meta">${nd} of ${list.length} done${featBonusText(cat)?` · finish all: ${esc(featBonusText(cat))}`:""}</span>`; /* the category bonus (it showed only in the old PC rail) */ grid.appendChild(h); list.forEach(x=>{ x.t.dataset.cat=cat; grid.appendChild(x.t); }); }
     const sync=()=>grid.querySelectorAll('.feat-cat').forEach(h=>{ const any=[...grid.querySelectorAll('.tile[data-cat="'+CSS.escape(h.dataset.cat)+'"]')].some(t=>t.style.display!=='none'); h.style.display=any?'':'none'; });
     sync(); const nav=P.querySelector('.sect-nav'); if(nav) nav.addEventListener('click',()=>setTimeout(sync,0)); const more=grid.nextElementSibling; if(more&&more.tagName==='BUTTON') more.addEventListener('click',()=>setTimeout(sync,0)); };
-  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; const r=_rp.apply(this,arguments); try{ if(S.tab==='feats') organize($('panel')); }catch(e){} return r; }; }
+  const _rp=renderPanel; renderPanel=function(){ if(S.tab==='feats'&&document.body.classList.contains('pch-on')) featsAll=true; const r=_rp.apply(this,arguments); try{ if(S.tab==='feats') organize($('panel')); }catch(e){ oops('bm_ui04:organize',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #panel .grid > .feat-cat{grid-column:1 / -1;display:flex;align-items:baseline;gap:10px;margin:10px 2px 0;padding-bottom:4px;border-bottom:1px solid #ffffff14;font:800 13px var(--display,system-ui);letter-spacing:.06em;text-transform:uppercase;color:#cfe0f2}
 #panel .grid > .feat-cat:first-child{margin-top:0}
@@ -1289,7 +1289,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 //@layer pc pc/ui_fishlog.js
 // Pets > Find more: the "Show pets that boost" label stayed above a filter that is hidden on that tab (all platforms).
 // PC: the shop cards are compact and the pets still to discover become short wide rows, so the page fits the screen.
-{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){} return r; }; }
+{ const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); try{ if(S.tab==='pets'){ const g=$('panel').querySelector(':scope > .grid'); if(g) [...g.children].forEach(t=>{ if(!t.classList.contains('tile')) return; const h=t.querySelector('h4'); if(h&&h.textContent.trim()==='???') t.classList.add('pet-hid'); else if(t.querySelector('[data-act="buypet"]')) t.classList.add('pet-sale'); }); } }catch(e){ oops('bm_ui04:querySelector',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 #menuov #panel .ctl-l:has(+ .chips[style*="display: none"]),#menuov #panel .ctl-l:has(+ .chips[hidden]){display:none!important}
 </style>`); /* the PC look of these tiles lives in src/pc/ui_pets_find.js (moved 2026-11-19) */
@@ -1302,7 +1302,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // so every Rainbow spell runs into some night and swapping them out would remove rainbows altogether.
 {
   // Fog's tag says what it does: night fish come out by day (at night there is nothing extra to say)
-  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){} }
+  try{ Object.defineProperty(WX_TAG,'Fog',{configurable:true,enumerable:true,get(){ try{ return nightness(phase())>.5?'':'night fish out by day'; }catch(e){ return 'night fish out by day'; } }}); }catch(e){ oops('bm_ui04:Object.defineProperty',e); } }
 // =====================================================================
 // Weather that fits the time of day (director, 2026-11-17: "no nighttime rainbows", "all weather needs to be time appropriate").
 // Rainbow and Gilded light happen only by day, Aurora and Blood Moon only at night; rain, storm, fog, the spawning run and clear
@@ -1315,7 +1315,7 @@ let weather, wxLeft, wxAmt, wxForecast; // set just below (weather that fits the
 { const RULE={'Rainbow':'day','Gilded':'day','Aurora':'night','Blood Moon':'night'};
   const W=k=>WEATHERS.find(w=>w.k===k), CLEAR=W('Clear');
   // twice the draws for the time-bound spells, taken from Clear (the weights still add up to 100)
-  try{ const add={Rainbow:3,Gilded:6,Aurora:4,'Blood Moon':3}; let took=0; for(const k in add){ const w=W(k); if(w){ w.w+=add[k]; took+=add[k]; } } if(CLEAR) CLEAR.w-=took; }catch(e){}
+  try{ const add={Rainbow:3,Gilded:6,Aurora:4,'Blood Moon':3}; let took=0; for(const k in add){ const w=W(k); if(w){ w.w+=add[k]; took+=add[k]; } } if(CLEAR) CLEAR.w-=took; }catch(e){ oops('bm_ui04:W',e); }
   const slotW=weatherAt; // the raw schedule: one roll every WX_LEN seconds
   const night=t=>nightness((((t%CYCLE)+CYCLE)%CYCLE)/CYCLE)>.5;
   const kindAt=t=>{ const w=slotW(Math.floor(t/WX_LEN)), r=RULE[w.k]; return !r||(r==='night')===night(t)?w:CLEAR; };

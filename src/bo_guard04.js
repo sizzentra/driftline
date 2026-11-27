@@ -14,7 +14,7 @@ const ACT_OK=(()=>{ const has=(arr,k)=>arr.some(x=>(Array.isArray(x)?x[0]:x&&x.i
     buypet:k=>!!PETI[k], pet:k=>!!PETI[k], usebait:k=>!!BAIT[k], buybait:k=>!!BAIT[k], perk:k=>!!PERKS[k] }; })();
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]'); if(!b) return; const f=ACT_OK[b.dataset.act]; if(!f) return;
   let ok=false; try{ ok=!!f(b.dataset.k, b.dataset.i!=null&&b.dataset.i!==''?+b.dataset.i:NaN); }catch(er){ ok=false; }
-  if(!ok){ e.stopImmediatePropagation(); e.preventDefault(); try{ renderPanel(); }catch(er){} } },true);
+  if(!ok){ e.stopImmediatePropagation(); e.preventDefault(); try{ renderPanel(); }catch(er){ oops('bo_guard04:renderPanel',er); } } },true);
 // ---- an option you pick stays where it was (C13, Cam, 2026-11-20: "the customization menu never snaps or moves when an option is
 // picked"; __snapQC found it on phones (23-66 px) and PC (back to the top) in the Wardrobe, Your home, pets, Settings and the aquarium).
 // One rule for every page instead of a fix per page: before the page redraws, the tapped option's place on screen is noted; after the

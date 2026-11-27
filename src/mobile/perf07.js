@@ -12,7 +12,7 @@
   const build=(night,k,a)=>{ const key=W+'x'+H+'|'+q(night,10)+'|'+k+'|'+q(a,10); if(OV&&OV.key===key) return OV.c;
     const c=(OV&&OV.c)||document.createElement('canvas'), s=Math.min(1,600/Math.max(W,H)), w=Math.max(8,Math.round(W*s)), h=Math.max(8,Math.round(H*s)); if(c.width!==w||c.height!==h){ c.width=w; c.height=h; }
     const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.clearRect(0,0,w,h);
-    try{ x.drawImage(finVignette(),0,0,w,h); }catch(e){}
+    try{ x.drawImage(finVignette(),0,0,w,h); }catch(e){ oops('mobile/perf07:x.drawImage',e); }
     // the scene's own vignette (d7_v20 drawVignette), in the small picture's scale
     const sc=w/W; { const gr=x.createRadialGradient(w/2,h*.55,Math.min(W,H)*.35*sc,w/2,h*.55,Math.max(W,H)*.75*sc); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(4,10,16,'+(.22+night*.2)+')'); x.fillStyle=gr; x.fillRect(0,0,w,h); }
     // the weather's darkening (as_depth033), faded in with the weather
@@ -48,7 +48,7 @@
 // Android + iPhone only. ----------
 { const _sa=startAudio; let wait=0;
   startAudio=function(){ if(!MOB()) return _sa.apply(this,arguments); if(MUS.started||wait) return; const a=ac(); if(!a) return;
-    wait=setTimeout(()=>{ wait=0; try{ _sa(); }catch(e){} },400); };
+    wait=setTimeout(()=>{ wait=0; try{ _sa(); }catch(e){ oops('mobile/perf07:_sa',e); } },400); };
   const _pd=paintDecor;
   const paint=list=>{ if(list.length) _pd({ querySelectorAll:()=>list }); };
   paintDecor=function(P){ if(!MOB()||!P||!P.querySelectorAll) return _pd.apply(this,arguments);

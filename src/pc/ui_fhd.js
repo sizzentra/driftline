@@ -8,7 +8,7 @@
 // PC Reborn (2026-11-21): Skills, Save, Rods, Feats, Cooler and Stats use the shared page engine (src/cx_pages.js) like the phones;
 // their PC-only full-HD layouts (side-by-side boards, the rod pair, the cooler side panel, Stats on one screen) were removed.
 // full HD Tackle > Gear: the six upgrades in two rows of three, so the cards are wide and readable instead of one thin strip
-PC_STEPS.post.push(()=>{ try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){} });
+PC_STEPS.post.push(()=>{ try{ if(S.tab==='shop'&&document.body.classList.contains('pc-fhd')){ const g=$('panel').querySelector(':scope > .grid'); if(g&&g.querySelectorAll(':scope > .tile').length===6) g.classList.add('fhd-gear'); } }catch(e){ oops('pc/ui_fhd:classList.contains',e); } });
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-fhd #menuov #panel > .grid.fhd-gear{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
 body.pc-fhd #menuov #panel > .grid.fhd-gear > .tile{padding:16px 18px!important;gap:8px!important}
@@ -40,11 +40,11 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
   let mode=null; const applyIA=()=>{ const on=pc(); if(on===mode) return; mode=on;
     for(const [s,tabs] of ORIG) s.tabs.splice(0,s.tabs.length,...(on?tabs.filter(t=>!SOLO.includes(t)):tabs));
     MENU_MORE.tabs.splice(0,MENU_MORE.tabs.length,...(on?['settings']:MORE0));
-    try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){} };
+    try{ menuSubKey=''; if(MENU_OPEN) menuSync(); }catch(e){ oops('pc/ui_fhd:menuSync',e); } };
   // a page reached from a header button has no section: its name shows as the one page tab, so the row is never empty
   const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ if(!pc()) return; const T=$('tabs'), sb=T&&T.querySelector('.subbar'); if(!sb) return;
       if((!menuSecOf(S.tab)&&S.tab!==DASH)||(menuSecOf(S.tab)||{}).id==='more'){ menuSubKey='solo|'+S.tab; sb.innerHTML=''; sb.hidden=true; } /* the lit header button (or the lit gear) already says where you are */
-      document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); }catch(e){} };
+      document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); }catch(e){ oops('pc/ui_fhd:pc',e); } };
   // header buttons: icon + label + value, the look of a button; Stats joins them
   const ICON={cooler:'<path d="M4 9h16v10a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19z"/><path d="M3 9l1.6-4h14.8L21 9"/><path d="M10 13h4"/>',
     aquarium:'<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M7 12.5c1.6-2 4.2-2.4 6-.5l1.6-1.2v3.4L13 13c-1.8 1.9-4.4 1.5-6-.5z"/><path d="M3 17c3 .7 5 .7 9 0s6-.7 9 0"/>',
@@ -56,21 +56,21 @@ body.pch-on #panel .tile.pc-pn[style*="display: none"],body.pch-on #panel .tile.
     for(const [el,k] of map){ if(!el||el.dataset.page) continue; el.dataset.page=k; el.insertAdjacentHTML('afterbegin',svg(k)); }
     if(!statsBtn){ statsBtn=document.createElement('div'); statsBtn.className='stat st-stats hudx hud-link'; statsBtn.dataset.page='stats'; statsBtn.setAttribute('role','button'); statsBtn.tabIndex=0; statsBtn.title='Stats: your total sale multiplier and everything else that shapes your fishing (click to open)';
       statsBtn.innerHTML=svg('stats')+'<span class="lbl">Stats</span><b class="pcs-sv"></b>';
-      const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu('stats'); };
+      const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/ui_fhd:startAudio',er); } openMenu('stats'); };
       ['pointerdown','mousedown'].forEach(ev=>statsBtn.addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
       statsBtn.addEventListener('click',go); statsBtn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); }
     if(statsBtn.parentElement!==box) box.appendChild(statsBtn);
     /* PC Reborn (director, 2026-11-21): Tasks joins the header, like the phones' top bar (the Home chip went with homes, 2026-11-24) */
-    for(const [k,lbl,tip,after] of [['bounties','Tasks','Daily tasks, weekly quests and bounties. Click to open them.','journal']]){ let b=box.querySelector(':scope > [data-page="'+k+'"]'); if(!b){ b=document.createElement('div'); b.className='stat hudx hud-link st-'+k; b.dataset.page=k; b.setAttribute('role','button'); b.tabIndex=0; b.title=tip; b.innerHTML=svg(k)+'<span class="lbl">'+lbl+'</span><b class="pcs-v"></b>'; const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(k); }; ['pointerdown','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',go); b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); } const ref=box.querySelector(':scope > [data-page="'+after+'"]'); if(ref&&b.previousElementSibling!==ref) ref.after(b); }
+    for(const [k,lbl,tip,after] of [['bounties','Tasks','Daily tasks, weekly quests and bounties. Click to open them.','journal']]){ let b=box.querySelector(':scope > [data-page="'+k+'"]'); if(!b){ b=document.createElement('div'); b.className='stat hudx hud-link st-'+k; b.dataset.page=k; b.setAttribute('role','button'); b.tabIndex=0; b.title=tip; b.innerHTML=svg(k)+'<span class="lbl">'+lbl+'</span><b class="pcs-v"></b>'; const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/ui_fhd:startAudio#2',er); } openMenu(k); }; ['pointerdown','mousedown'].forEach(ev=>b.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); b.addEventListener('click',go); b.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); } const ref=box.querySelector(':scope > [data-page="'+after+'"]'); if(ref&&b.previousElementSibling!==ref) ref.after(b); }
     return true; };
   const tick=()=>{ try{ if(statsBtn){ const v=hdrStatText(); /* the stat picked on the Stats page (sale price by default) */ const b=statsBtn.querySelector('.pcs-sv'); if(b.textContent!==v) b.textContent=v; }
     const set=(k,v,ready)=>{ const c=document.querySelector('.pch-stats > [data-page="'+k+'"]'); if(!c) return; const b=c.querySelector('.pcs-v'); if(b&&b.textContent!==v) b.textContent=v; c.classList.toggle('ready',!!ready); };
-    try{ const d=ensureDaily(), n=bountyReady(); set('bounties',n?n+' ready':d.tasks.filter(t=>t.claimed).length+'/'+d.tasks.length+' done',n>0); }catch(e){} }catch(e){} };
+    try{ const d=ensureDaily(), n=bountyReady(); set('bounties',n?n+' ready':d.tasks.filter(t=>t.claimed).length+'/'+d.tasks.length+' done',n>0); }catch(e){ oops('pc/ui_fhd:ensureDaily',e); } }catch(e){ oops('pc/ui_fhd:hdrStatText',e); } };
   setInterval(tick,1500);
   // in the menus the same buttons stay in the top row (the header itself is covered by the menu)
   const place=()=>{ const box=document.querySelector('.pch-stats'), tools=document.querySelector('#menuov .mo-tools'), ph=document.querySelector('#pchead .pch-tools'); if(!box||!tools||!ph) return;
     const inMenu=false; /* the header stays visible in menus now, with its buttons in place */ if(inMenu&&box.parentElement!==tools) tools.insertBefore(box,tools.querySelector('.mo-coin')||tools.firstChild); else if(!inMenu&&box.parentElement!==ph) ph.prepend(box); };
-  { const _om=openMenu, _cm=closeMenu; openMenu=function(){ const r=_om.apply(this,arguments); try{ place(); }catch(e){} return r; }; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ place(); }catch(e){} return r; }; } // move the buttons at once, not a moment later
+  { const _om=openMenu, _cm=closeMenu; openMenu=function(){ const r=_om.apply(this,arguments); try{ place(); }catch(e){ oops('pc/ui_fhd:place',e); } return r; }; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ place(); }catch(e){ oops('pc/ui_fhd:place#2',e); } return r; }; } // move the buttons at once, not a moment later
   const init=()=>{ applyIA(); decorate(); tick(); place();
     new MutationObserver(()=>{ applyIA(); if(!statsBtn) decorate(); place(); }).observe(document.body,{attributes:true,attributeFilter:['class']}); setTimeout(()=>{ decorate(); place(); },600); };
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
@@ -114,7 +114,7 @@ html body.pch-on #pchead .pch-stats > .stat.on,html body.pch-on #menuov .pch-sta
 // - a section tab never repeats its page's name: Waters > "Travel", Dock > "Your dock"
 { const _sz=sectionize; sectionize=function(P,tab,groups,before){ if(document.body.classList.contains('pch-on')&&groups){ const ren={home:{Dock:'Your dock'}}[tab]; if(ren){ groups=groups.map(g=>ren[g.name]?Object.assign({},g,{name:ren[g.name]}):g); if(SECT[tab]&&ren[SECT[tab]]) SECT[tab]=ren[SECT[tab]]; } } return _sz.call(this,P,tab,groups,before); }; }
 // PC Settings: the volume sliders and the on/off switches both said "Music" and "Nature sounds"; the switches say what they do
-{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ P.querySelectorAll('.toggle b').forEach(b=>{ const t=b.textContent.trim(); if(t==='Music') b.textContent='Play music'; else if(t==='Nature sounds') b.textContent='Play nature sounds'; }); }catch(e){} }; }
+{ const _rs=renderSettings; renderSettings=function(P){ _rs(P); if(!document.body.classList.contains('pch-on')) return; try{ P.querySelectorAll('.toggle b').forEach(b=>{ const t=b.textContent.trim(); if(t==='Music') b.textContent='Play music'; else if(t==='Nature sounds') b.textContent='Play nature sounds'; }); }catch(e){ oops('pc/ui_fhd:P.querySelectorAll',e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* narrower PC windows: the right side (four header buttons + tools) must always fit */
 @media (max-width:1580px){
@@ -167,10 +167,10 @@ document.head.insertAdjacentHTML('beforeend',`<style>
     document.querySelectorAll('#pchead #catdock .cdb[data-cd]').forEach(b=>{ const on=!!sec&&b.dataset.cd===sec.id; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
     const g=document.querySelector('#pchead [data-pch="settings"]'); if(g) g.classList.toggle('on',MENU_OPEN&&!!sec&&sec.id==='more');
     document.querySelectorAll('.pch-stats > .stat').forEach(b=>b.classList.toggle('on',MENU_OPEN&&b.dataset.page===S.tab)); };
-  const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ lit(); }catch(e){} };
-  const _cm=closeMenu; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ lit(); }catch(e){} return r; };
+  const _ms=menuSync; menuSync=function(){ _ms.apply(this,arguments); try{ lit(); }catch(e){ oops('pc/ui_fhd:lit',e); } };
+  const _cm=closeMenu; closeMenu=function(){ const r=_cm.apply(this,arguments); try{ lit(); }catch(e){ oops('pc/ui_fhd:lit#2',e); } return r; };
   // a lit button closes the menu (captured first, so the button's own "open" does not run)
-  document.addEventListener('click',e=>{ if(!pc()||!MENU_OPEN) return; const b=e.target.closest&&e.target.closest('#pchead .pch-stats > .stat.on, #pchead #catdock .cdb.on, #pchead [data-pch="settings"].on'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); try{ closeMenu(); }catch(er){} },true); }
+  document.addEventListener('click',e=>{ if(!pc()||!MENU_OPEN) return; const b=e.target.closest&&e.target.closest('#pchead .pch-stats > .stat.on, #pchead #catdock .cdb.on, #pchead [data-pch="settings"].on'); if(!b) return; e.preventDefault(); e.stopImmediatePropagation(); try{ closeMenu(); }catch(er){ oops('pc/ui_fhd:closeMenu',er); } },true); }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.pch-on #menuov{top:var(--pcTop,66px)!important;height:calc(calc(100*var(--uvh,1vh)) - var(--pcTop,66px))!important;height:calc(calc(100*var(--uvh,1vh)) - var(--pcTop,66px))!important;background:#0a1220!important}
 html body.pch-on.menu-open #pchead{visibility:visible!important}

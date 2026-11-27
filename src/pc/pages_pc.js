@@ -62,11 +62,11 @@ if(/[?&]test\b/.test(location.search)) window.__pcSpec=async()=>{ const w=ms=>ne
     if(bad.size) out.push(nm+': text sizes outside the standard '+[...bad].map(([s,c])=>s+'px×'+c).join(', '));
     if(badCtl.size) out.push(nm+': control heights outside the standard '+[...badCtl].map(([s,c])=>s+' ×'+c).join(', '));
     if(cut.length) out.push(nm+': text cut off: '+cut.slice(0,3).join(' | ')); }
-  try{ closeMenu(); }catch(e){} return {pages:n, issues:out}; };
+  try{ closeMenu(); }catch(e){ oops('pc/pages_pc:closeMenu',e); } return {pages:n, issues:out}; };
 /* everything in the header that can open a page does (director: "Everything that could be hyperlinked on pc should be hyperlinked"):
    Level opens Skills (where its points go), Coins opens Stats (what you earn and why) */
 { const link=(sel,tab,tip)=>{ const el=document.querySelector(sel); if(!el||el.dataset.pcLink) return; el.dataset.pcLink=tab; el.classList.add('hud-link'); el.setAttribute('role','button'); el.tabIndex=0; el.title=tip; el.style.cursor='pointer';
-    ['pointerdown','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){} openMenu(tab); };
+    ['pointerdown','mousedown'].forEach(ev=>el.addEventListener(ev,e=>e.stopPropagation(),{passive:true})); const go=e=>{ e.preventDefault(); e.stopPropagation(); try{ startAudio(); }catch(er){ oops('pc/pages_pc:startAudio',er); } openMenu(tab); };
     el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' ') go(e); }); };
   const wire=()=>{ link('#pchead .stat.st-lvl','skills','Your level. Click for Skills, where your skill points go.'); link('#pchead .stat.st-coins','stats','Your coins. Click for Stats: what you earn and why.'); };
   setTimeout(wire,0); setTimeout(wire,1200); }

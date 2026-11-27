@@ -45,7 +45,7 @@ document.addEventListener('click',e=>{ const b=e.target.closest&&e.target.closes
     if(voyMs(10)&&!S.unlocked.includes('coast')) S.unlocked.push('coast');
     if(voyMs(5)) S.bait.glow=(S.bait.glow||0)+20;
     if(voyMs(7)) for(const k in S.gear) S.gear[k]=Math.max(S.gear[k],Math.min(2,GEAR[k].lv.length-1));
-    voyApplyCooler(); save(); try{ renderPanel(); refreshAll&&refreshAll(); }catch(er){}
+    voyApplyCooler(); save(); try{ renderPanel(); refreshAll&&refreshAll(); }catch(er){ oops('bc_voyage036:renderPanel',er); }
     const ms=VOYAGE_MS.find(m=>m.n===S.tides);
     setTimeout(()=>toast((moved?moved+' aquarium fish '+(moved===1?'was':'were')+' mounted in your Trophy Room. ':'')+(ms?'New voyage milestone: '+ms.name+'!':'Legacy is now +'+Math.round(voyageLegacy()*100)+'%.')),900);
   },0); },true);
@@ -67,4 +67,4 @@ document.head.insertAdjacentHTML('beforeend',`<style>
 // ×1 just below the normal minimum, rising to ×3 at about 1/15 of it (on top of the usual hybrid ×1.5).
 function tinyHybridK(f){ const sp=f&&SPI[f.id]; if(!sp||!f.hy||!(f.kg>0)||f.kg>=sp.min) return 1; return Math.min(3, 1+.75*Math.log(sp.min/f.kg)); }
 { const _aq=aqBuffsOf; aqBuffsOf=function(f){ const L=_aq(f), k=tinyHybridK(f); if(k>1) for(const e of L) e.v*=k; return L; }; }
-{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){} }; }
+{ const _sc=showCard; showCard=function(o){ const ce=G.lastEntry; _sc(o); try{ const k=tinyHybridK(ce); if(k>1){ const b=$('cardbadges'); if(b&&!b.querySelector('.tinyhy')) b.insertAdjacentHTML('beforeend',`<span class="badge g tinyhy" title="Smaller than its species ever grows: its aquarium boosts are ×${k.toFixed(1)} stronger">Tiny hybrid · boosts ×${k.toFixed(1)}</span>`); } }catch(e){ oops('bc_voyage036:tinyHybridK',e); } }; }

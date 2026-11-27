@@ -56,7 +56,7 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="prestige"] .pg08-body .gri
    Fish Log is fish only. FISH LOG: the waters (and the Show choices) wrap into neat rows instead of one long sideways-scrolling strip
    with arrows ("mobile fish log has side scrolling and it doesn't look good at all"). */
 {
-  const _rj=renderJournal; renderJournal=function(P){ if(MOB()&&encLoc==='junk') encLoc=S.loc; const r=_rj.apply(this,arguments); try{ if(MOB()) P.querySelectorAll('[data-act="encloc"][data-k="junk"]').forEach(b=>b.remove()); }catch(e){} return r; }; }
+  const _rj=renderJournal; renderJournal=function(P){ if(MOB()&&encLoc==='junk') encLoc=S.loc; const r=_rj.apply(this,arguments); try{ if(MOB()) P.querySelectorAll('[data-act="encloc"][data-k="junk"]').forEach(b=>b.remove()); }catch(e){ oops('mobile/waters08:MOB',e); } return r; }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .chips,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .chips{flex-wrap:wrap!important;overflow:visible!important;-webkit-mask:none!important;mask:none!important;padding:0!important;gap:6px!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow,html body.phone-app #menuov #panel.pg08[data-pg-tab="journal"] .sc-arrow{display:none!important}

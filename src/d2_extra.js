@@ -206,7 +206,7 @@ function extraAct(b){ const k=b.dataset.k, i=+b.dataset.i;
     case 'fightui': S.settings.fightUi=['old','new','mid'].includes(k)?k:'new'; return; /* Cam, round 7: the fight display */
     case 'dist': S.settings.dist=k==='ft'?'ft':'m'; return;
     case 'hand': S.settings.hand=k==='l'?'l':'r'; return;
-    case 'fullscreen': { const d=document; try{ if(d.fullscreenElement) d.exitFullscreen(); else d.documentElement.requestFullscreen(); }catch(e){} return 'skip'; }
+    case 'fullscreen': { const d=document; try{ if(d.fullscreenElement) d.exitFullscreen(); else d.documentElement.requestFullscreen(); }catch(e){ oops('d2_extra:d.exitFullscreen',e); } return 'skip'; }
     case 'spin': { if(WH.spinning) return 'skip'; accrueSpins(); const freeSpin=k==='free' && S.freeSpins>0; if(!freeSpin){ const c=wheelCost(); if(S.money<c) return 'skip'; S.money-=c; } else { if(S.freeSpins>=SPIN_BANK) S.wheelT=Date.now(); S.freeSpins--; } b.disabled=true; taskProgress('game',1); spinWheel(!freeSpin); lastHud=''; return 'skip'; }
     case 'crate': { if(!['small','big','legend'].includes(k)) return; if(!(S.tokens[k]>0)) return; S.tokens[k]--; /* Cam, round 5: crates are claimed, never bought with gold */ openCrate(k); addTickets({small:8,big:25,legend:80}[k]); taskProgress('game',1); return; }
     case 'flip': { if(!['.1','.25','.5','0.1','0.25','0.5'].includes(String(k))) return; const amt=Math.min(Math.floor(S.money*(+k)), bestLoot()*60); if(amt<10) return; S.money-=amt; S.gstats.flips++; addTickets(2+(+k)*20); taskProgress('game',1); flipRes={txt:'The coin spins…'}; renderPanel(); tone(1200,.05,'square',.03);

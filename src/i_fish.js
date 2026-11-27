@@ -158,7 +158,7 @@ const F3TOP={};
 function f3TopAt(sp,L,fx){ const key=sp.id+'|'+fx; let k=F3TOP[key];
   if(k===undefined){ F3TOP[key]=null; k=null; try{ const S=240, M=150, cv=document.createElement('canvas'); cv.width=S; cv.height=S; const x=cv.getContext('2d',{willReadFrequently:true});
       drawCreature3(x,sp,S/2,S/2,M,{sil:'#000000',t:0,still:1}); const col=Math.round(S/2+fx*M), d=x.getImageData(col-1,0,3,S).data;
-      for(let y=0;y<S;y++){ if(d[(y*3+1)*4+3]>120){ k=(y-S/2)/M; break; } } }catch(e){} F3TOP[key]=k; }
+      for(let y=0;y<S;y++){ if(d[(y*3+1)*4+3]>120){ k=(y-S/2)/M; break; } } }catch(e){ oops('i_fish:document.createElement',e); } F3TOP[key]=k; }
   return k==null?null:k*L; }
 function f3Nose(L,d){ return d.plan==='long'?L*.5:d.plan==='deep'||d.plan==='disc'?L*.44:L*.47; }
 // the seahorse's body centre line at height y (its spine points, joined straight), so leaves and fins attach to it

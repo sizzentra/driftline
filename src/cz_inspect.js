@@ -22,6 +22,6 @@ function inspectOpen(where,i){ const L=where==='tank'?S.tank:S.cooler, f=L[i], s
     <div class="badges">${badges.map(b=>`<span class="badge ${b[0]}">${esc(b[1])}</span>`).join('')}</div>
     <div class="nums">${nums.map(n=>`<div><span>${esc(n[0])}</span><b${n[2]?' class="coin"':''}>${esc(n[1])}</b></div>`).join('')}</div>
     <div class="sub">${esc(sp.note||'')}</div><div class="tap">${PLAT.touch()?'Tap to close':'Click or press Esc to close'}</div></div></div>`;
-  document.body.insertAdjacentHTML('beforeend',h); const o=$('inspcard'); o.addEventListener('pointerup',e=>{ e.stopPropagation(); inspectClose(); }); try{ paintFish(o); }catch(e){} return 'skip'; }
+  document.body.insertAdjacentHTML('beforeend',h); const o=$('inspcard'); o.addEventListener('pointerup',e=>{ e.stopPropagation(); inspectClose(); }); try{ paintFish(o); }catch(e){ oops('cz_inspect:paintFish',e); } return 'skip'; }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('inspcard')){ inspectClose(); e.preventDefault(); e.stopPropagation(); } },true);
 document.head.insertAdjacentHTML('beforeend','<style>#inspcard{position:fixed;z-index:70;padding:12px calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}#inspcard canvas{width:220px;height:110px;max-width:100%;display:block;margin:0 auto}#inspcard .badges{justify-content:center;flex-wrap:wrap;gap:4px;margin:6px 0}#inspcard .in{max-height:calc(100% - 8px)}@media (max-height:500px){#inspcard canvas{width:160px;height:80px}}</style>');

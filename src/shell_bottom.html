@@ -5,11 +5,11 @@
 </div>
 <script>
 (function(){
-  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(function(){});
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).catch(function(){ /* quiet: the offline helper did not start; the game plays without it, and the reporter (oops) lives inside the game's own script, out of reach here */ });
   function check(){
     fetch('version.txt', {cache:'no-store'}).then(function(r){ return r.ok ? r.text() : ''; }).then(function(v){
       v = (v || '').trim(); if (v && v !== window.DL_VERSION) document.getElementById('updbar').hidden = false;
-    }).catch(function(){});
+    }).catch(function(){ /* quiet: offline, so there is no version file to compare with */ });
   }
   setInterval(check, 5 * 60 * 1000);
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) check(); });

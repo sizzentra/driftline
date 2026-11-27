@@ -9,12 +9,12 @@
 // =====================================================================
 const AFTER_EVERY=[]; /* steps run after every page draw, in order (Clean Pages 3; the wrapper is at the end of this file) */
 /* Stats is its own section on the side panel (director, 2026-11-18); the list itself lives in bm_ui04.js since PC Reborn */
-try{ if(typeof SECT==='object'&&SECT.settings==='Save & codes') delete SECT.settings; }catch(e){}
+try{ if(typeof SECT==='object'&&SECT.settings==='Save & codes') delete SECT.settings; }catch(e){ oops('mobile/polish08:n1',e); }
 
 /* the Level chip opens Stats */
 { const hook=()=>{ const lv=document.querySelector('.hud > .st-lvl'); if(!lv||lv.dataset.mbtap) return; lv.dataset.mbtap='1'; lv.setAttribute('role','button'); lv.tabIndex=0; lv.title='Your level and all your stats. Tap to open Stats.';
     lv.addEventListener('pointerdown',e=>{ if(MOB()) e.stopPropagation(); });
-    lv.addEventListener('click',e=>{ if(!MOB()) return; e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){} openMenu('stats'); }); };
+    lv.addEventListener('click',e=>{ if(!MOB()) return; e.stopPropagation(); e.preventDefault(); try{ startAudio(); }catch(er){ oops('mobile/polish08:startAudio',er); } openMenu('stats'); }); };
   setTimeout(hook,0); setTimeout(hook,1500); }
 
 /* Settings: no "Save & codes" section; Save > Save codes gets the gift code and the erase / backup tools */
@@ -25,7 +25,7 @@ pageDone('settings',P=>{ { const nav=P.querySelector('.aq07-sheet > .bwx-nav, .b
         if(was){ const f=nav.querySelector('[data-sect]'); if(f) f.click(); } } } });
 pageDone('save',P=>{ if(!P.querySelector('#giftin')){ const host=[...P.querySelectorAll('.pg08-body > .grid, .pg08-body > *')].find(x=>/Your save code/.test(x.textContent));
       if(host){ host.insertAdjacentHTML('beforeend',`<div class="tile mb-gift"><b>🎁 Gift code</b><div class="meta">Got a gift code from a friend? Type it here.</div><div class="row" style="gap:8px;margin-top:8px;flex-wrap:nowrap"><input id="giftin" maxlength="24" placeholder="Gift code" autocapitalize="characters" style="flex:1;min-width:0;background:#0a161d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px;text-transform:uppercase"><button class="btn sm" data-act="redeem">Redeem</button></div></div>`);
-        try{ host.insertAdjacentHTML('beforeend',dangerHTML()); }catch(e){} } }
+        try{ host.insertAdjacentHTML('beforeend',dangerHTML()); }catch(e){ oops('mobile/polish08:host.insertAdjacentHTML',e); } } }
   });
 
 /* Rods (director, 2026-11-18: "Rod rack looks weird when you switch headers. Consider a rework for it to make a lot more sense and
@@ -131,14 +131,14 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
      switch, about 10 ms on the Fish Log). Same for the Oddities pictures (waters08).
    - the page-tab row is measured on the next frame instead of in the middle of the switch (it forced an extra layout pass). */
 { const _pf=paintFish, N=12; let io=null;
-  const show=c=>{ if(!c.isConnected||!c.dataset.fishlazy) return; c.setAttribute('data-fish',c.dataset.fishlazy); c.removeAttribute('data-fishlazy'); try{ _pf(c.parentElement); }catch(e){} };
+  const show=c=>{ if(!c.isConnected||!c.dataset.fishlazy) return; c.setAttribute('data-fish',c.dataset.fishlazy); c.removeAttribute('data-fishlazy'); try{ _pf(c.parentElement); }catch(e){ oops('mobile/polish08:_pf',e); } };
   paintFish=function(P){ if(!MOB()||!P||!P.querySelectorAll||typeof IntersectionObserver!=='function') return _pf.apply(this,arguments);
     const all=[...P.querySelectorAll('canvas[data-fish]')]; if(all.length<=N) return _pf.apply(this,arguments);
     if(!io) io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ io.unobserve(e.target); show(e.target); } }),{rootMargin:'240px'});
     const later=all.slice(N); later.forEach(c=>{ c.dataset.fishlazy=c.getAttribute('data-fish'); c.removeAttribute('data-fish'); });
     const r=_pf.apply(this,arguments); later.forEach(c=>io.observe(c)); return r; };
   if(/[?&]test\b/.test(location.search)) window.__lazyFish=()=>{ document.querySelectorAll('canvas[data-fishlazy]').forEach(show); }; /* tests: draw them all */ }
-{ const _mp=menuPillView; menuPillView=function(sb,p){ if(MOB()){ requestAnimationFrame(()=>{ try{ _mp(sb,p); }catch(e){} }); return; } return _mp.apply(this,arguments); }; }
+{ const _mp=menuPillView; menuPillView=function(sb,p){ if(MOB()){ requestAnimationFrame(()=>{ try{ _mp(sb,p); }catch(e){ oops('mobile/polish08:_mp',e); } }); return; } return _mp.apply(this,arguments); }; }
 /* speed: the chip / tab rows are scrolled to the chosen one on the next frame instead of in the middle of the switch (menuTidy2 measured
    every row right after the page was built: a forced layout pass of 3-7 ms per switch) */
 { const _mt=menuTidy2; let q=0;
@@ -148,7 +148,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #fpsbo
   const quick=()=>{ if(!MENU_OPEN) return; const P=$('panel'); if(!P) return; const on=$('tabs')&&$('tabs').querySelector('.subp.on');
     const h=P.querySelector(':scope > h2, :scope > .row > div > h2'); if(h){ const lbl=on?on.textContent.replace(/[\d\s]+/g,' ').trim().toLowerCase():''; const t=h.textContent.replace(/\s+/g,' ').trim().toLowerCase(); h.classList.toggle('dl-dup', !!lbl&&!!t&&lbl.includes(t)); }
     const hr=P.querySelector(':scope > .row.spread'); if(hr&&hr.querySelector('h2')){ const wide=[...hr.children].slice(1).some(c=>c.matches('select,input,.fld')||c.querySelector('select,input,.fld')); hr.classList.toggle('dl-head',!wide); hr.classList.toggle('dl-headw',wide); } };
-  menuTidy2=function(){ if(MOB()){ try{ quick(); }catch(e){} if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){} }); return; } return _mt.apply(this,arguments); }; try{ menuTidy=menuTidy2; }catch(e){} } /* the page switch calls the older alias menuTidy */
+  menuTidy2=function(){ if(MOB()){ try{ quick(); }catch(e){ oops('mobile/polish08:quick',e); } if(!q) q=requestAnimationFrame(()=>{ q=0; try{ _mt(); }catch(e){ oops('mobile/polish08:_mt',e); } }); return; } return _mt.apply(this,arguments); }; try{ menuTidy=menuTidy2; }catch(e){ oops('mobile/polish08:menuTidy',e); } } /* the page switch calls the older alias menuTidy */
 /* TROPHY ROOM fits one screen (director, 2026-11-18): a compact wall, each plaque just the fish and its name (about eight across);
    tap a plaque to see its details in a bar under the wall (rarity, weight, water, date) with To cooler. The intro line steps aside. */
 pageDone('trophy',P=>{ try{ if(!MOB()) return; const room=P.querySelector('.tp-room'); if(!room||room.classList.contains('tp8')) return; /* Clean Pages 3: a page step */
@@ -164,7 +164,7 @@ pageDone('trophy',P=>{ try{ if(!MOB()) return; const room=P.querySelector('.tp-r
 /* "Waters" is called "Map" (director, 2026-11-18) */
 { const f=MENU_SECS.find(s=>s.id==='fish'); if(f){ f.name='Map'; f.short='Map'; }
   const b=$('tabs')&&$('tabs').querySelector(':scope > [data-tab="map"]'); if(b&&MOB()){ b.dataset.label='🗺️ Map'; for(const n of b.childNodes) if(n.nodeType===3&&/Waters/.test(n.textContent)) n.textContent=n.textContent.replace('Waters','Map'); }
-  try{ SEARCH_IDX.forEach((e,i)=>{ if(e[1]==='map'&&e[0]==='Waters') SEARCH_IDX[i]=['Map (waters)',e[1],e[2],e[3]]; }); }catch(e){} }
+  try{ SEARCH_IDX.forEach((e,i)=>{ if(e[1]==='map'&&e[0]==='Waters') SEARCH_IDX[i]=['Map (waters)',e[1],e[2],e[3]]; }); }catch(e){ oops('mobile/polish08:SEARCH_IDX.forEach',e); } }
 document.head.insertAdjacentHTML('beforeend',`<style>
 html body.phone-land #menuov #panel.pg08[data-pg-tab="trophy"] .pg08-body > .pg08-note,html body.phone-app #menuov #panel.pg08[data-pg-tab="trophy"] .pg08-body > .pg08-note{display:none!important}
 #menuov #panel .tp-room.tp8 .tp-in{padding:8px!important}
@@ -219,7 +219,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>#menuov #panel .tp-room.tp8
    tops every tab, the big "Challenges" / "Fishing Derby" headings (the tab names them) are gone, and Derby rewards no longer repeats
    "four minutes, one water, heaviest catch wins" (the derby card above says it). */
 pageDone('events',P=>{ try{ if(!MOB()) return; /* Clean Pages 3: a page step */
-      P.querySelectorAll('.tile').forEach(t=>{ const h=t.querySelector('h4,b'); if(h&&/^Derby rewards/.test(h.textContent.trim())){ const m=t.querySelector(':scope > .meta, :scope > div > .meta'); if(m&&/heaviest/i.test(m.textContent)) m.style.display='none'; } }); }catch(e){} });
+      P.querySelectorAll('.tile').forEach(t=>{ const h=t.querySelector('h4,b'); if(h&&/^Derby rewards/.test(h.textContent.trim())){ const m=t.querySelector(':scope > .meta, :scope > div > .meta'); if(m&&/heaviest/i.test(m.textContent)) m.style.display='none'; } }); }catch(e){ oops('mobile/polish08:MOB',e); } });
 /* FEATS (director: "Feats can definitely shrink in size overall when it comes to each card"): each card is two short lines and a thin
    bar (title + progress, then what to do + the reward), about half the height */
 document.head.insertAdjacentHTML('beforeend',`<style>
@@ -253,7 +253,7 @@ document.head.insertAdjacentHTML('beforeend',`<style>html body.phone-land #stage
 /* Opening a menu over an info card (patch notes, test notes: one closing button only) closes that card first (director, 2026-11-18:
    "Unlock all doesn't unlock all maps"): while #evcard was open the game counted as busy (G.st 'event'), so every Travel here was
    greyed out behind the menu with no reason given. Cards with choices (chests, frenzy offers) are left alone. */
-{ const _om=openMenu; openMenu=function(){ try{ if(MOB()){ const ev=$('evcard'); if(ev&&!ev.hidden){ const bs=ev.querySelectorAll('button'), sk=ev.querySelector('[data-ev="skip"]'); if(sk&&bs.length===1) closeEvent(); } } }catch(e){} return _om.apply(this,arguments); }; }
+{ const _om=openMenu; openMenu=function(){ try{ if(MOB()){ const ev=$('evcard'); if(ev&&!ev.hidden){ const bs=ev.querySelectorAll('button'), sk=ev.querySelector('[data-ev="skip"]'); if(sk&&bs.length===1) closeEvent(); } } }catch(e){ oops('mobile/polish08:MOB#2',e); } return _om.apply(this,arguments); }; }
 
 /* Side-panel badges never cover the name (director, 2026-11-18: "Challenges at high values for badge cover its UI"): badges are 16 px
    now (MB_UI, frame07), so they end above the name; "99+" also gets tight padding and sits 1 px further into the corner, which keeps
@@ -310,9 +310,9 @@ document.head.insertAdjacentHTML('beforeend',`<style>
     const t=h.textContent.trim(); if(t===N){ h.classList.add('dl-dupname'); h.dataset.dupDone=N; return; }
     if(t.startsWith(N+' ·')||t.startsWith(N+' -')){ const w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT), texts=[]; let n; while(n=w.nextNode()) if(n.textContent.trim()) texts.push(n); const f=texts[0]; if(!f) return; if(f.textContent.trim()===N){ f.textContent=''; if(texts[1]) texts[1].textContent=texts[1].textContent.replace(/^\s*[·-]\s*/,''); } else f.textContent=f.textContent.replace(N,'').replace(/^\s*[·-]\s*/,''); const g=texts.find(x=>x.textContent.trim()); if(g) g.textContent=g.textContent.replace(/^(\s*)(\S)/,(m,s,c)=>s+c.toUpperCase()); h.dataset.dupDone=N; } };
   /* after every other renderPanel step (later files wrap it again and add their headings after this one runs) */
-  AFTER_EVERY.push(()=>queueMicrotask(()=>{ try{ dedupe(); }catch(e){} })); /* after every other renderPanel step: run by the one wrapper at the end of this file */
+  AFTER_EVERY.push(()=>queueMicrotask(()=>{ try{ dedupe(); }catch(e){ oops('mobile/polish08:dedupe',e); } })); /* after every other renderPanel step: run by the one wrapper at the end of this file */
   /* twice after a tab switch: the page engine can show the new tab after the first run, which left "Decorate" under the Decorate tab until the next redraw (and then the list jumped up 35 px, found by __snapQC) */
-  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')){ const run=()=>{ try{ dedupe(); }catch(er){} }; setTimeout(run,0); setTimeout(()=>setTimeout(run,0),0); } },true); /* the second pass queues behind the page engine's own zero-delay switch */
+  document.addEventListener('click',e=>{ if(e.target.closest&&e.target.closest('#menuov .sect-nav [data-sect]')){ const run=()=>{ try{ dedupe(); }catch(er){ oops('mobile/polish08:dedupe#2',er); } }; setTimeout(run,0); setTimeout(()=>setTimeout(run,0),0); } },true); /* the second pass queues behind the page engine's own zero-delay switch */
   PHONE_DEDUPE=dedupe; document.head.insertAdjacentHTML('beforeend','<style>#menuov #panel .dl-dupname{display:none!important}</style>'); }
 var PHONE_DEDUPE;
 /* Menu rail height (director, 2026-11-19, iPhone screenshots: the rail ended after "Quests"): its height came only from being stretched
@@ -325,7 +325,7 @@ document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuo
 { const fit=()=>{ try{ if(!MOB()||!MENU_OPEN) return; const bar=document.querySelector('#menuov #tabs .secbar'), box=document.querySelector('#menuov .mo-in'); if(!bar||!box||bar.offsetParent===null) return;
       if(getComputedStyle(bar).position==='fixed') return; /* the narrow layout's bottom bar sizes itself */
       const r=bar.getBoundingClientRect(), b=box.getBoundingClientRect(), want=Math.floor(b.bottom-r.top-6);
-      if(want>120&&(b.bottom-r.bottom>24||bar.scrollHeight>bar.clientHeight+1)) bar.style.setProperty('height',want+'px','important'); }catch(e){} };
+      if(want>120&&(b.bottom-r.bottom>24||bar.scrollHeight>bar.clientHeight+1)) bar.style.setProperty('height',want+'px','important'); }catch(e){ oops('mobile/polish08:MOB#3',e); } };
   const later=()=>{ requestAnimationFrame(fit); setTimeout(fit,120); };
   AFTER_EVERY.push(later);
   addEventListener('resize',()=>{ const bar=document.querySelector('#menuov #tabs .secbar'); if(bar) bar.style.removeProperty('height'); later(); });
@@ -358,11 +358,11 @@ document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land .hud >
 { const swapSync=()=>{ try{ if(!MOB()) return; const tools=document.querySelector('#menuov .mo-tools'); if(!tools) return;
     let b=tools.querySelector('.mo-swap'); if(!b){ b=document.createElement('button'); b.type='button'; b.className='mo-tb mo-swap';
       b.addEventListener('click',e=>{ e.stopPropagation(); openMenu(S.tab==='cooler'?'aquarium':'cooler'); }); const set=tools.querySelector('[data-mo="settings"]'); if(set) set.after(b); else tools.appendChild(b); }
-    const on=S.tab==='cooler'||S.tab==='aquarium'; b.hidden=!on; if(on){ const to=S.tab==='cooler'?'Aquarium':'Cooler'; b.textContent=(to==='Aquarium'?'🐠 ':'🧊 ')+to; b.setAttribute('aria-label','Switch to the '+to); } }catch(e){} };
+    const on=S.tab==='cooler'||S.tab==='aquarium'; b.hidden=!on; if(on){ const to=S.tab==='cooler'?'Aquarium':'Cooler'; b.textContent=(to==='Aquarium'?'🐠 ':'🧊 ')+to; b.setAttribute('aria-label','Switch to the '+to); } }catch(e){ oops('mobile/polish08:MOB#4',e); } };
   /* kept in step with every page change: menu changes and page draws (2026-11-20: opening the Fish Log from a fish left the Cooler switch showing) */
   const _ms=menuSync; menuSync=function(){ const r=_ms.apply(this,arguments); swapSync(); return r; }; AFTER_EVERY.push(swapSync);
   /* Clean Pages 3: the steps that follow every page draw (names not repeated, the rail fitted, the Cooler switch) have one owner: this wrapper runs them in their old order */
-  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); for(const fn of AFTER_EVERY){ try{ fn(); }catch(e){} } return r; }; }
+  const _rp=renderPanel; renderPanel=function(){ const r=_rp.apply(this,arguments); for(const fn of AFTER_EVERY){ try{ fn(); }catch(e){ oops('mobile/polish08:fn',e); } } return r; }; }
 document.head.insertAdjacentHTML('beforeend','<style>html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap{width:auto!important;min-width:0!important;padding:0 12px!important;font:800 13px var(--display,system-ui)!important;font-size:13px!important;color:#dbe7f3!important;white-space:nowrap}html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap[hidden],html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap[hidden]{display:none!important}html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap::before,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap::before,html body.phone-land #menuov .mo-tools > .mo-tb.mo-swap::after,html body.phone-app #menuov .mo-tools > .mo-tb.mo-swap::after{content:none!important;display:none!important}</style>');
 /* C12 (director + Cam, 2026-11-20): a chosen color keeps its own color and gets a gold box around it (the general "chosen chip" gold
    used to fill the whole swatch, so you couldn't see which color you had) */

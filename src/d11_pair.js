@@ -88,7 +88,7 @@ function drawPair(c,t,h){ const {el,ln}=h;
   let sleep=PET_NIGHT>.55&&!petted&&!yip&&!watching&&!play;
   const busy=()=>petted||yip||play||watching;
   let boop=!sleep&&!busy()&&(t%23)>15&&(t%23)<17.2, paw=!sleep&&!busy()&&!boop&&(t%19)>8&&(t%19)<9.6, tilt=!boop&&!paw&&(t%7)>5.2&&(t%7)<6.6, twitch=(t%9)>7.6&&(t%9)<8.1;
-  let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){} let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
+  let cold=false; try{ cold=curLoc().id==='frost'; }catch(e){ oops('d11_pair:curLoc',e); } let shiver=cold&&!sleep&&!busy()&&(t%11)>6&&(t%11)<8.5;
   if(PAIR.force){ const f=PAIR.force; petted=f==='petted'; play=f==='play'; yip=f==='yip'; watching=f==='watch'; sleep=f==='sleep'; boop=f==='boop'; paw=f==='paw'; tilt=f==='tilt'; twitch=f==='twitch'; shiver=f==='shiver'; if(play) PAIR.playT=now-700; if(yip) PAIR.yipT=now-300; }
   // each dog has its own look (color, hat, accessory); the color is applied per dog, never to hearts, bubbles or z's
   const dLk=(PAIR.lk&&PAIR.lk!==S.petLook.daxniko_niko)?PAIR.lk:_petLook_pair('daxniko'), nLk=Object.assign({},pairNikoLook(),(dLk.__pv&&PAIR.nikoPv)||{}), blink=h.blink; PAIR.nLk=nLk;

@@ -326,3 +326,29 @@ Left as they are, on purpose: the first read of the save in `c_logic.js` runs on
 **Proof (build 2026.11.26-2236, the committed build):** `tools/saveprobe.ps1 -Check` 588 texts identical; `tools/baseline.ps1 -Check` passes: new 424, mid 430, heavy 421 fingerprints match the agreed set, no wobble; `tools/sweep_all.ps1` passes on all three saves, 56 checks each, 0 failed (held as before: the Gamble picture, feat pop-ups 1 to 4 letters over, Market Rush 29.4% on the end-game save; 44 minutes). `/simplify` (four reviewers) and one `/code-review` run before the final build: the probe page refuses to run off the local server, `migrate` cuts short only for exactly `true`.
 
 **Found and left alone (behaviour kept identical):** a save whose `owned` part has no `hats` list cannot be loaded (qc 259); the start-up save skips the old-home-choices clean-up (qc 260, harmless).
+
+## Foundation F6 slice 2: one reporter for errors that were passed over (2026-11-27, test builds 2026.11.27-0043; nothing changes on screen or in any save)
+Rollback tag `rollback/before-f6-2`. Before: 413 places in `src/` caught an error and did nothing with it (`catch(e){}`), plus 10 promise versions (`.catch(()=>{})`); a real fault behind one of them left no trace. After: one function, `oops(where, e)` at the top of `a3_plat.js`.
+
+| Kind (sorted by a text rule, so the numbers are rough) | How many | Now |
+|---|---|---|
+| a best-effort extra after the real work (tidying a page after it is drawn, a sound, a scroll) | 210 | reports |
+| something a device may not have (storage, sound, full screen, vibration, animation) | 116 | reports |
+| inside the test file `bn_qa04.js` | 41 | reports, labels start with `qa:` |
+| a drawing step that must not stop the frame | 30 | reports |
+| near saving or stored data | 16 | reports |
+| promise versions | 10 | 1 reports (the transfer's "done" message); 9 quiet, see below |
+
+**The reporter.** `oops('file:what', e)` keeps a list in memory: at most 60 places, a count per place, the first 3 different messages (read only during the first 20 repeats, so an error that repeats every frame costs one count). It never throws, shows nothing, stores nothing and sends nothing. It is a function declaration that keeps its list on itself, so any file can call it while the page is still loading. The release build runs the same code (so live and test do not differ), but no screen reads the list there.
+
+**Where it is read.** Test builds: Stats, Tester tools shows a box "Errors the game passed over" once the list is not empty (a clean session looks as before). Checks: the hook `__errs` and the sweep's new last part, Passed-over errors, which collects the list from every game copy just before it is closed and fails the run on any line that is not held.
+
+**Left quiet on purpose (12 places, each `/* quiet: reason */`):** four full-screen requests and the turn lock that a browser may refuse (the sweep itself refuses full screen on every tap, so these would be noise in every run); the reporter's own guard; two test probes found by the first run (the Quests check tries every target as a list, the safe-area test hook reads style sheets from other addresses); a cancelled animation in the test file (two places); two in the page shell, outside the game's script, where the reporter cannot be reached. The build counts the ones inside each game build (PC 3, phones 8; the test file and the page shell are outside that count).
+
+**The build check.** `build.ps1` refuses a catch whose body is empty or only a comment, and an empty promise catch (proven by planting six kinds). The marked quiet ones are counted per build beside the redundancy numbers and may only go down.
+
+**What it surfaced.** The first partial run recorded two places, both test probes (now quiet). The full sweep on the new, mid-game and end-game saves recorded nothing: 57 checks, 0 failed on each. A planted error was listed for all three builds.
+
+**Proof.** `tools/saveprobe.ps1`: 588 save texts identical. `tools/baseline.ps1 -Check`: identical on the build before the tester note was written (424 / 430 / 421); with the note, one page differs, PC Settings, Patch notes, which shows the note; the agreed set was made again from this build for that reason. Redundancy: wraps 230 / 256, hides 63 / 82, timers 29 / 30, watchers 13 / 14, unchanged. Draw cost on Willow Pond, end-game save, phone build at 956 by 440 in the hidden pane: about 1 ms a frame before and after, and the reporter was not called once in 440 frames.
+
+**Also changed:** three save-loading fallbacks now report before they fall back (hunts, rod presets, a save that cannot be read). **Not done, on purpose:** about 50 more catches that fall back to a default value (qc 261): each needs a look at whether the fallback is an expected probe or a hidden fault. The tools pages' own catches (`tools/*.html`) are not game code and were left.

@@ -88,16 +88,16 @@ const spinEvery = () => SPIN_EVERY/pathMul('spin');
 { const _rf=rollFish; rollFish=function(sp){ const f=_rf.apply(this,arguments); if(f&&sp&&sp.r>=5){ const m=pathMul('mythval'); if(m!==1) f.value=Math.round(f.value*m); } return f; }; }
 { const _t=addTickets; addTickets=function(n){ return _t(n*pathMul('tix')); }; }
 { const _c=chalReward; chalReward=function(m){ return _c(m*pathMul('chal')); }; }
-{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const m=pathMul('derby'); if(m!==1&&S.derby&&S.derby.total>before) S.derby.total=+(S.derby.total+(S.derby.total-before)*(m-1)).toFixed(2); }catch(e){} }; }
+{ const _d=derbyCatch; derbyCatch=function(f){ const d=S.derby, before=d?d.total:0; _d(f); try{ const m=pathMul('derby'); if(m!==1&&S.derby&&S.derby.total>before) S.derby.total=+(S.derby.total+(S.derby.total-before)*(m-1)).toFixed(2); }catch(e){ oops('cg_paths:pathMul',e); } }; }
 { const _v=voyageLegacy; voyageLegacy=function(){ return _v()*pathMul('legacy'); }; }
 { const _a=aqFishBase; aqFishBase=function(f){ const v=_a(f); return f&&f.hy ? v*pathMul('hyaq') : v; }; }
 // ranks grow with every fish landed while a path is chosen
 { const _lf=landFish; landFish=function(){ const f=G.fish, was=f&&f.kind==='fish'; const r=_lf.apply(this,arguments);
     try{ if(was&&S.specs){ S.pathXP=S.pathXP||{}; for(const id of pathChosen()){ const r0=pathRank(id); S.pathXP[id]=(S.pathXP[id]||0)+1; const r1=pathRank(id);
-      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){} return r; }; }
+      if(r1>r0){ const T=SPEC_TIERS.find(T=>T.opts.some(o=>o[0]===id)), o=T&&T.opts.find(o=>o[0]===id); if(o) setTimeout(()=>toast('Path rank up: '+o[1]+' is now rank '+PATH_RN[r1]+'.'),600); } } } }catch(e){ oops('cg_paths:pathChosen',e); } return r; }; }
 // saves: pathXP is a plain map of path id → fish landed
 function pathsClean(t){ try{ const px={}; if(t.pathXP&&typeof t.pathXP==='object') for(const k in t.pathXP){ const n=+t.pathXP[k]; if(PATH_FX[k]!==undefined||SPEC_TIERS.some(T=>T.opts.some(op=>op[0]===k))) if(isFinite(n)&&n>0) px[k]=Math.floor(n); } t.pathXP=px;
-    if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } }catch(e){} } /* a step of migrate() in c_logic.js */
+    if(t.specs&&typeof t.specs==='object') for(const k of Object.keys(t.specs)){ const T=SPEC_TIERS[+k]; if(!T||!T.opts.some(op=>op[0]===t.specs[k])) delete t.specs[k]; } }catch(e){ oops('cg_paths:SPEC_TIERS.some',e); } } /* a step of migrate() in c_logic.js */
 
 // the page
 function pathCard(ti){ const T=SPEC_TIERS[ti], cur=S.specs[ti], locked=S.lvl<T.lvl, fee=specFee(ti), poor=S.money<fee;
@@ -117,5 +117,5 @@ if(typeof ACT_OK==='object') ACT_OK.specrm=(k,i)=>Number.isInteger(i)&&i>=0&&i<S
 try{ const f5=FEATS.find(f=>f.id==='paths5'); if(f5){ f5.name='Five roads'; f5.d='Choose five Paths'; }
   FEATS.push({id:'paths10', name:'Ten roads', d:'Choose ten Paths at once', p:()=>[pathChosen().length,10], coins:3000000, pt:3},
              {id:'paths15', name:'Every road taken', d:'Choose all fifteen Paths at once', p:()=>[pathChosen().length,15], coins:50000000, pt:5},
-             {id:'pathrank', name:'Well travelled', d:'Raise a path to rank V', p:()=>[Math.max(0,...pathChosen().map(pathRank),...Object.keys(S.pathXP||{}).map(pathRank)),5], coins:5000000, pt:3}); }catch(e){}
+             {id:'pathrank', name:'Well travelled', d:'Raise a path to rank V', p:()=>[Math.max(0,...pathChosen().map(pathRank),...Object.keys(S.pathXP||{}).map(pathRank)),5], coins:5000000, pt:3}); }catch(e){ oops('cg_paths:FEATS.find',e); }
 document.head.insertAdjacentHTML('beforeend','<style>#panel .path-list{display:grid;gap:10px;margin-top:12px;grid-template-columns:1fr}#panel .path-intro{max-width:760px}@media (min-width:1280px){#panel .path-list{grid-template-columns:repeat(2,minmax(0,1fr))}#panel .path-list .pathgrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}</style>');

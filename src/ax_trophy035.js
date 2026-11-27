@@ -35,23 +35,23 @@ function renderTrophy(P){ const V=vaultList(), species=new Set(V.map(f=>f.id)).s
       :`<div class="tp-empty"><div class="tp-plaque tp-ghost"></div><p><b>No trophies yet.</b> Press <b>Keep</b> on any fish in your Cooler or Aquarium to mount it here for good.</p></div>`}
     <p class="tp-foot">${V.length>=VAULT_MAX?'The room is full. Take a fish out to make space.':`Room for ${VAULT_MAX-V.length} more.`}</p>
   </div></div>`;
-  paintFish(P); try{ shineDecorate(P); }catch(e){} }
+  paintFish(P); try{ shineDecorate(P); }catch(e){ oops('ax_trophy035:shineDecorate',e); } }
 
 // the Trophy Room page, and Keep buttons on cooler and aquarium fish
 const _renderPanel_tp=renderPanel;
-renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){} return; } return _renderPanel_tp.apply(this,arguments); };
+renderPanel=function(){ if(S.tab==='trophy'){ const P=$('panel'); renderTrophy(P); try{ menuSync(); if(P.dataset.tab035!=='trophy'){ P.dataset.tab035='trophy'; pageIn(P); } }catch(e){ oops('ax_trophy035:menuSync',e); } return; } return _renderPanel_tp.apply(this,arguments); };
 function vaultButtons(P){ const add=(row,attr,i)=>{ const acts=row.querySelector('.acts'); if(!acts||acts.querySelector('[data-vk],[data-vt]')) return; acts.insertAdjacentHTML('afterbegin',`<button class="btn alt sm tp-keep" ${attr}="${i}" title="Mount it in the Trophy Room forever (no income or boosts, never lost on a new voyage)">🏛️ Keep</button>`); };
   if(S.tab==='cooler') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="totank"][data-i]'); if(ib) add(row,'data-vk',ib.dataset.i); });
   if(S.tab==='aquarium') P.querySelectorAll('.fishrow').forEach(row=>{ const ib=row.querySelector('[data-act="untank"][data-i]'); if(ib) add(row,'data-vt',ib.dataset.i); }); }
 const _renderPanel_tp2=renderPanel;
-renderPanel=function(){ const r=_renderPanel_tp2.apply(this,arguments); try{ if(S.tab==='cooler'||S.tab==='aquarium') vaultButtons($('panel')); }catch(e){} return r; };
+renderPanel=function(){ const r=_renderPanel_tp2.apply(this,arguments); try{ if(S.tab==='cooler'||S.tab==='aquarium') vaultButtons($('panel')); }catch(e){ oops('ax_trophy035:vaultButtons',e); } return r; };
 
 $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-vk],[data-vt],[data-vo],[data-vs]'); if(!b||b.disabled) return; e.stopPropagation();
   if(b.dataset.vs){ S.settings.vaultSort=b.dataset.vs; save(); renderPanel(); return; }
   if(b.dataset.vk!=null){ const f=S.cooler[+b.dataset.vk]; if(f&&vaultKeep(f)){ S.cooler.splice(+b.dataset.vk,1); } }
   else if(b.dataset.vt!=null){ const f=S.tank[+b.dataset.vt]; if(f){ accrue(); if(vaultKeep(f)) S.tank.splice(+b.dataset.vt,1); } }
   else if(b.dataset.vo!=null){ if(S.cooler.length>=gv('cooler')){ toast('Your cooler is full.'); return; } const V=vaultList(), f=V[+b.dataset.vo]; if(!f) return; V.splice(+b.dataset.vo,1); const c=Object.assign({},f); delete c.kept; S.cooler.push(c); toast(SPI[c.id].name+' is back in your cooler.'); }
-  save(); renderPanel(); if(typeof refreshAll==='function') try{ refreshAll(); }catch(e){} },true);
+  save(); renderPanel(); if(typeof refreshAll==='function') try{ refreshAll(); }catch(e){ oops('ax_trophy035:refreshAll',e); } },true);
 
 if(/[?&]test\b/.test(location.search)) window.__vault=()=>vaultList();
 

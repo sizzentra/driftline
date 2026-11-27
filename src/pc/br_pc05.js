@@ -7,7 +7,7 @@ const FHD=()=>document.body.classList.contains('pc-fhd');
 // every page tags the panel with its name, so full-HD styles can be scoped to one page (data-pg="skills" ...)
 /* PC page steps (Clean Pages 4, batch 7): this file's and ui_round5's page touches run from the PC page engine (pages_pc.js) in the order
    they were added, instead of five renderPanel wrappers; pre steps run before the page is built (last added first, as the wrappers did) */
-PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){} });
+PC_STEPS.post.push(()=>{ try{ const P=$('panel'); if(P&&P.dataset.pg!==S.tab) P.dataset.pg=S.tab; }catch(e){ oops('pc/br_pc05:P',e); } });
 
 // (the aquarium tank and every page animation then get the whole frame)
 // (the aquarium tank and every page animation then get the whole frame; the Dock page still needs the scene: it shows it)
@@ -82,9 +82,9 @@ const HDR_STATS=[
 function hdrStatText(){ const k=S.settings&&S.settings.hdrStat, e=HDR_STATS.find(x=>x[0]===k)||HDR_STATS[0]; try{ return e[2](); }catch(er){ return HDR_STATS[0][2](); } }
 { const _rs=renderStats; renderStats=function(P){ _rs(P); try{ if(!P.classList.contains('st-on')) return; const cur=(S.settings&&S.settings.hdrStat)||'sales';
       const t=document.createElement('div'); t.className='st-pick';
-      t.innerHTML=`<span class="st-pl">Shown on your header</span>${HDR_STATS.map(([k,n,f])=>{ let v=''; try{ v=f(); }catch(e){} return `<button type="button" data-hs="${k}" aria-pressed="${k===cur}"><b>${n}</b><span>${esc(v)}</span></button>`; }).join('')}`;
+      t.innerHTML=`<span class="st-pl">Shown on your header</span>${HDR_STATS.map(([k,n,f])=>{ let v=''; try{ v=f(); }catch(e){ oops('pc/br_pc05:f',e); } return `<button type="button" data-hs="${k}" aria-pressed="${k===cur}"><b>${n}</b><span>${esc(v)}</span></button>`; }).join('')}`;
       const all=P.querySelector('.st-all'); if(all) all.before(t);
-      t.querySelectorAll('[data-hs]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.hdrStat=b.dataset.hs; save(); t.querySelectorAll('[data-hs]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); try{ const sv=document.querySelector('.st-stats .pcs-sv'); if(sv) sv.textContent=hdrStatText(); }catch(er){} })); }catch(e){ console.error(e); } }; }
+      t.querySelectorAll('[data-hs]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); S.settings.hdrStat=b.dataset.hs; save(); t.querySelectorAll('[data-hs]').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); try{ const sv=document.querySelector('.st-stats .pcs-sv'); if(sv) sv.textContent=hdrStatText(); }catch(er){ oops('pc/br_pc05:document.querySelector',er); } })); }catch(e){ console.error(e); } }; }
 document.head.insertAdjacentHTML('beforeend',`<style>
 body.pc-fhd #panel.st-on .st-pick{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:10px 12px;border-radius:14px;background:#0e1a2c;border:1px solid #ffffff14;flex-wrap:wrap}
 body.pc-fhd #panel.st-on .st-pl{font:800 12px var(--display,system-ui);letter-spacing:.07em;text-transform:uppercase;color:#ffd36a;margin-right:6px}

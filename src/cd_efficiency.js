@@ -11,7 +11,7 @@
    other water's scenery until the light changed. A thumbnail now always gets fresh canvases; the live ones are never painted over.
    Thumbnails are only made while the Map page is open (the only place they show): Settings and other menus no longer pay for them. */
 { const _vt=v3Thumb; v3Thumb=function(id){ if(V3THUMB[id]) return _vt(id); const c=V3CACHE, p=V3PREV; V3CACHE=null; V3PREV=null; const wl={c:V3WIL.c,t:V3WIL.t,k:V3WIL.k,turn:V3WIL.turn}; V3WIL.c=[]; V3WIL.t=[-9,-9,-9]; V3WIL.k="";
-    try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; V3WIL.c=wl.c; V3WIL.t=wl.t; V3WIL.k=wl.k; V3WIL.turn=wl.turn; try{ v3palette.k=null; }catch(e){} } }; }
+    try{ return _vt(id); } finally{ V3CACHE=c; V3PREV=p; V3WIL.c=wl.c; V3WIL.t=wl.t; V3WIL.k=wl.k; V3WIL.turn=wl.turn; try{ v3palette.k=null; }catch(e){ oops('cd_efficiency:v3palette.k',e); } } }; }
 { const _tn=thumbNext; thumbNext=function(){ if(S.tab!=='map'){ setTimeout(thumbNext,1500); return; } return _tn.apply(this,arguments); }; }
 
 /* 2) Glows: v3glow (108 uses: lanterns, lamps, Starfall's star whale, blossoms, sun and moon) built a new radial gradient on every

@@ -60,11 +60,11 @@ renderPanel = function(){ if(S.tab==='bounties'&&lastTab034!=='bounties') bLoc=n
 
 // ---------- a soft cue when a hooked fish starts to run (line hissing off the reel) ----------
 const _fight_034 = fight;
-fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.run&&!was){ try{ tone(520,.14,'triangle',.035,-160); tone(380,.18,'sine',.025,-90,.06); }catch(e){} if(typeof vib==='function') vib(12); } };
+fight = function(dt){ const was=G.run; _fight_034(dt); if(G.st==='reeling'&&G.run&&!was){ try{ tone(520,.14,'triangle',.035,-160); tone(380,.18,'sine',.025,-90,.06); }catch(e){ oops('au_fix034:tone',e); } if(typeof vib==='function') vib(12); } };
 
 // ---------- shiny fish pictures twinkle (cooler, aquarium, fish log, catch card) ----------
-const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPanel_034b.apply(this,arguments); try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){} return r; };
-const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){} };
+const _renderPanel_034b=renderPanel; renderPanel=function(){ const r=_renderPanel_034b.apply(this,arguments); try{ requestAnimationFrame(()=>shineDecorate($('panel'))); }catch(e){ oops('au_fix034:requestAnimationFrame',e); } return r; };
+const _showCard_034b=showCard; showCard=function(o){ const ce=G.lastEntry; _showCard_034b(o); try{ const cv=$('cardfish'); const old=$('cardin').querySelector('.shine'); if(old) old.remove(); const f=ce&&{shiny:ce.sh}; if(cv&&f&&f.shiny){ cv.classList.add('shiny'); cv.dataset.sh=String(f.shiny); requestAnimationFrame(()=>shineDecorate($('cardin'))); } else if(cv){ cv.classList.remove('shiny'); delete cv.dataset.sh; } }catch(e){ oops('au_fix034:querySelector',e); } };
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 .sellsh{display:inline-flex;align-items:center;gap:6px;color:#cfe0ec}.sellsh .ssh-star{color:#8fa6ba;transition:color .2s}.sellsh[aria-pressed="true"]{color:#ffe7a8}.sellsh[aria-pressed="true"] .ssh-star{color:#ffd36a;text-shadow:0 0 8px #ffd36a99}.sellf{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-right:8px}.sellp{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute,#9ab0c2)}.sellp input{width:96px;font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:#e8eef4}.sellp input::placeholder{color:#7f93a4}.sellf select{font:inherit;font-size:13px;padding:5px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.18);background:rgba(10,24,36,.6);color:inherit}

@@ -72,24 +72,24 @@ function migrate(o,coreOnly){ const d=fresh(), raw=isObj(o)?o:null, m=d; if(raw)
   if(coreOnly===true) return m;
   fabricMigrate(m); /* old shirt designs refunded once (ah_fabric.js) */
   if(!Array.isArray(m.vault)) m.vault=[]; /* the Trophy vault (ax_trophy035.js) */
-  try{ m.hunts=cleanHunts(m); }catch(e){ m.hunts={}; } /* hunts (bl_hunts04.js) */
+  try{ m.hunts=cleanHunts(m); }catch(e){ oops('c_logic:load-hunts',e); m.hunts={}; } /* hunts (bl_hunts04.js) */
   rodsClean(m); perksClean(m); docksClean(m); /* unknown rods, more perk ranks than points, old home choices (bm_ui04.js) */
-  try{ rpClean(m); }catch(e){ m.rodPresets=[null,null,null]; m.rodPreset=-1; } /* rod presets (bz_rods06.js) */
+  try{ rpClean(m); }catch(e){ oops('c_logic:load-rod-presets',e); m.rodPresets=[null,null,null]; m.rodPreset=-1; } /* rod presets (bz_rods06.js) */
   pathsClean(m); /* Paths and their fish counts (cg_paths.js) */
   voyClean(m,raw); /* old pearls, the pearl shop, Boons (ch_voyage.js) */
   passOwnedClean(m,raw); passCatchUp(m,raw); /* Tide Pass exclusives owned, and the ones an old save is already past (cj_tidepass.js) */
   facesClean(m,raw); /* face and eye shape (cl_faces.js) */
-  try{ egOpenAdd(m); }catch(e){} /* end-game waters open for enough voyages (cn_waterart.js) */
+  try{ egOpenAdd(m); }catch(e){ oops('c_logic:egOpenAdd',e); } /* end-game waters open for enough voyages (cn_waterart.js) */
   deviceLoad(m); /* this device's own last step */
   return m; }
 let deviceLoad=()=>{}, deviceSave=()=>{}; /* a platform's own step at the end of every load and at the start of every save; nothing until the platform layer that needs one has loaded and set it. One file owns each; it combines its steps inside, nothing else reassigns them */
-try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw), true); } catch(e) { try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){} } } } catch(e) {} // 0.4: a save that cannot be read is kept aside, never overwritten
+try { const raw = localStorage.getItem(LS_KEY); if (raw) { try { S = migrate(JSON.parse(raw), true); } catch(e) { oops('c_logic:save-unreadable',e); try{ localStorage.setItem(LS_KEY+'-unreadable', raw); window.__dlUnreadable=true; }catch(e2){ oops('c_logic:localStorage.setItem',e2); } } } } catch(e){ oops('c_logic:localStorage.getItem',e); } // 0.4: a save that cannot be read is kept aside, never overwritten
 
 let cloudDoc = null, saveTimer = null, saving = false, pendingSave = false;
 let rpLive=false; /* bz_rods06.js switches this on once the rod presets exist; saves before that leave them alone */
 /* Saving: the ONE function (F6 slice 1): this device's own step, the rod preset in use kept in step, then the save itself. A new step
    whose owner file loads later gets an on-switch like rpLive (declared here, set by the owner), so saves made while the page loads stay as they were. */
-function save(){ deviceSave(); if(rpLive) rpSync(); S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} try{ autoBackup(); }catch(e){} /* at most every 5 minutes (d3_update.js) */
+function save(){ deviceSave(); if(rpLive) rpSync(); S.savedAt = Date.now(); try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){ oops('c_logic:localStorage.setItem#2',e); } try{ autoBackup(); }catch(e){ oops('c_logic:autoBackup',e); } /* at most every 5 minutes (d3_update.js) */
   if (cloudDoc){ clearTimeout(saveTimer); saveTimer = setTimeout(pushCloud, 2500); } }
 async function pushCloud(){ if(!cloudDoc) return; if(saving){ pendingSave=true; return; } saving=true;
   try{ await cloudDoc.set({state: JSON.parse(JSON.stringify(S))}); }catch(e){ if(e && (e.code==='invalid_argument'||e.code==='revoked'||e.code==='not_granted')) cloudDoc=null; }
@@ -101,7 +101,7 @@ async function initCloud(){
     if(!user || !db) return; const id = await user.id(); if(!id) return;
     const doc = db.doc('data/users/'+id+'/save');
     const snap = await doc.get(); cloudDoc = doc;
-    if(snap.exists){ const st = snap.data() && snap.data().state; if(st && (st.savedAt||0) > (S.savedAt||0) && G.st==='idle'){ S = migrate(JSON.parse(JSON.stringify(st))); offlineIncome(); try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){} refreshAll(); toast('Progress loaded from your account'); } }
+    if(snap.exists){ const st = snap.data() && snap.data().state; if(st && (st.savedAt||0) > (S.savedAt||0) && G.st==='idle'){ S = migrate(JSON.parse(JSON.stringify(st))); offlineIncome(); try{localStorage.setItem(LS_KEY,JSON.stringify(S));}catch(e){ oops('c_logic:localStorage.setItem#3',e); } refreshAll(); toast('Progress loaded from your account'); } }
     else if(S.savedAt) pushCloud();
   }catch(e){ cloudDoc=null; }
 }
@@ -240,7 +240,7 @@ function resize(){ const r=cv.parentElement.getBoundingClientRect(); W=Math.max(
   // resizing a canvas wipes it: skip when nothing changed, and draw the scene again at once so a blank frame never shows (folding the side panels flashed)
   if(cv.width===Math.floor(W*DPR)&&cv.height===Math.floor(H*DPR)&&cv.style.height===H+'px'){ g.setTransform(DPR,0,0,DPR,0,0); return; }
   cv.width=W*DPR; cv.height=H*DPR; cv.style.height=H+'px'; g.setTransform(DPR,0,0,DPR,0,0);
-  if(resize.live){ resize.force=true; try{ draw(performance.now()); }catch(e){} resize.force=false; } }
+  if(resize.live){ resize.force=true; try{ draw(performance.now()); }catch(e){ oops('c_logic:draw',e); } resize.force=false; } }
 // drawing size: the screen's sharpness (at most 2x), but a very large picture on a high-scaling PC screen is capped at about 3.2 million
 // pixels (never below normal sharpness), so big full-screen windows stay smooth on fast monitors
 function renderDPR(w,h){ let d=Math.min(2,window.devicePixelRatio||1); const cap=3.2e6; if(d>1&&w*h*d*d>cap) d=Math.max(1,Math.sqrt(cap/(w*h))); return Math.round(d*100)/100; }
@@ -486,7 +486,7 @@ function down(e){
 }
 function up(){ if(G.st==='charging') release(); else if(G.st==='reeling') G.hold=false; }
 const stage=$('stage');
-stage.addEventListener('pointerdown',e=>{ if(e.button>0) return; if(e.target.closest('#evcard')) return; e.preventDefault(); try{stage.setPointerCapture(e.pointerId);}catch(_){} startAudio(); down(e); });
+stage.addEventListener('pointerdown',e=>{ if(e.button>0) return; if(e.target.closest('#evcard')) return; e.preventDefault(); try{stage.setPointerCapture(e.pointerId);}catch(_){ oops('c_logic:stage.setPointerCapture',_); } startAudio(); down(e); });
 stage.addEventListener('pointerup',up); stage.addEventListener('pointercancel',up);
 stage.addEventListener('contextmenu',e=>e.preventDefault());
 let spaceDown=false;

@@ -7,7 +7,7 @@
 // =====================================================================
 // the page's fade-in, started without forcing a layout (the old way read a size right after building the page, which made the
 // browser finish laying out a big page early: 8-11 ms per menu change). Same look: from 35% to full, rising 3 px, 0.22 s.
-function pageIn(P){ try{ if(!P||!P.animate||matchMedia('(prefers-reduced-motion:reduce)').matches) return; P.animate([{opacity:.35,transform:'translateY(3px)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'}); }catch(e){} }
+function pageIn(P){ try{ if(!P||!P.animate||matchMedia('(prefers-reduced-motion:reduce)').matches) return; P.animate([{opacity:.35,transform:'translateY(3px)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'}); }catch(e){ oops('aw_menu035:matchMedia',e); } }
 const MENU_SECS=[
   {id:'fish',  name:'Fishing',    tabs:['cooler','map','bounties','events'],
    icon:'<path d="M4 12c3-4.5 9-5.5 13-1l3-2.5v7L17 13c-4 4.5-10 3.5-13-1z"/><circle cx="8.5" cy="11.4" r=".9" fill="currentColor" stroke="none"/>'},
@@ -51,7 +51,7 @@ function menuSync(){ const T=$('tabs'); if(!T) return; const sec=menuSecOf(S.tab
   // the pills of the open section (rebuilt only when the section changes)
   const list=sec?menuTabsIn(sec):[], key=(sec?sec.id:'')+'|'+list.join(',');
   if(key!==menuSubKey){ menuSubKey=key; sb.innerHTML=list.map(t=>{ const [ic,nm]=menuTabLabel(t); return `<button type="button" class="subp" data-sub="${t}" aria-pressed="false"><span class="subi" aria-hidden="true">${ic}</span><span>${nm}</span><span class="subdot" hidden></span></button>`; }).join('');
-    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){} }); } else if(PLAT.quietTabSwitch()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){} } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
+    if(document.body.classList.contains('pch-on')){ sb.querySelectorAll('.subp').forEach((p,i)=>{ try{ if(p.animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches) p.animate([{opacity:0,transform:'translateY(4px)'},{opacity:1,transform:'none'}],{duration:280,delay:Math.min(i,3)*30,easing:'ease-out',fill:'backwards'}); }catch(e){ oops('aw_menu035:matchMedia#2',e); } }); } else if(PLAT.quietTabSwitch()){ try{ sb.animate([{opacity:.35},{opacity:1}],{duration:200,easing:'ease-out'}); }catch(e){ oops('aw_menu035:sb.animate',e); } } /* phones (round 8 speed): the same fade without a forced layout */ else { sb.classList.remove('subin'); void sb.offsetWidth; sb.classList.add('subin'); } }
   sb.hidden=!list.length; let onP=null; sb.querySelectorAll('.subp').forEach(p=>{ const on=p.dataset.sub===S.tab; p.setAttribute('aria-pressed',on?'true':'false'); p.classList.toggle('on',on); if(on) onP=p; });
   // keep the open page's pill in view when the row scrolls sideways (small phones), without moving the page
   menuPillView(sb,onP); requestAnimationFrame(()=>menuPillView(sb,onP));
@@ -64,7 +64,7 @@ function menuReveal(){ const sb=$('tabs').querySelector('.subbar'); if(!sb) retu
 
 // keep both rows in step with whatever opened a page (tab links, the gear button, saves loading, events)
 const _renderPanel_035=renderPanel;
-renderPanel=function(){ const r=_renderPanel_035.apply(this,arguments); try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){} return r; };
+renderPanel=function(){ const r=_renderPanel_035.apply(this,arguments); try{ menuSync(); const P=$('panel'); if(P&&P.dataset.tab035!==S.tab){ P.dataset.tab035=S.tab; pageIn(P); } }catch(e){ oops('aw_menu035:menuSync',e); } return r; };
 
 document.head.insertAdjacentHTML('beforeend',`<style>
 /* the old grid stays in the page (hidden) so the game can keep updating it */
