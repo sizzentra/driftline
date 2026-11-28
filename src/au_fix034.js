@@ -14,11 +14,18 @@ function sellHybridOn(){ const s=S.settings; return s.sellHybrid!=null ? !!s.sel
 /* what Sell all keeps (bug fix, director 2026-11-23: "filters just don't work, same with the sell toggles"): the cooler's own choices win.
    A rarity picked in the dropdown sells up to that rarity even with Protect rare fish on; "Sell shinies too" and "Sell hybrids too" sell
    them whatever their rarity; Protect rare fish keeps Epic and up only while the dropdown says Any rarity */
-function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true; if(f.lk) return true; /* a locked fish: Sell all and Scrap all pass it by (director, 2026-11-28: "I think a lock is good") */
-  if(f.hy && !sellHybridOn()) return true; if(f.sh && !sellShinyOn()) return true;
+/* why Sell all and Scrap all pass a fish by ('' = they take it): the one rule, and its reason in a word, so the page can say what is kept and not only how many
+   (director, 2026-11-28: "cooler shows sell all keeping 1 but i dont have anything locked?"; it was a shiny, kept because "Sell shinies too" was off) */
+function sellKeepWhy(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return 'unknown'; if(f.lk) return 'locked'; /* a locked fish (director, 2026-11-28: "I think a lock is good") */
+  if(f.hy && !sellHybridOn()) return 'hybrid'; if(f.sh && !sellShinyOn()) return 'shiny';
   const pick=s.sellR&&s.sellR!=='all', chosen=(f.sh&&sellShinyOn())||(f.hy&&sellHybridOn());
-  if(pick){ if(sp.r>+s.sellR) return true; } else if(s.protectRare && sp.r>=3 && !chosen) return true;
-  if(+s.sellP>0&&salePrice(f)>=+s.sellP) return true; return false; }
+  if(pick){ if(sp.r>+s.sellR) return 'rarer'; } else if(s.protectRare && sp.r>=3 && !chosen) return 'rare';
+  if(+s.sellP>0&&salePrice(f)>=+s.sellP) return 'pricier'; return ''; }
+function sellKeep(f){ return !!sellKeepWhy(f); }
+const SELL_WHY={locked:['locked','locked'], hybrid:['hybrid','hybrids'], shiny:['shiny','shinies'], rarer:['rarer fish','rarer fish'], rare:['Epic or better','Epic or better'], pricier:['pricier fish','pricier fish'], unknown:['other','other']};
+/* " (keeping 1 shiny)" when everything kept is kept for one reason, " (keeping 5)" when the reasons differ; the second value is the whole list, for the button's tooltip */
+function sellKeptText(){ const by={}; let n=0; for(const f of S.cooler){ const w=sellKeepWhy(f); if(w){ by[w]=(by[w]||0)+1; n++; } } if(!n) return ['','']; const ks=Object.keys(by), say=k=>by[k]+' '+SELL_WHY[k][by[k]===1?0:1];
+  return [' (keeping '+(ks.length===1?say(ks[0]):n)+')', 'Sell all and Scrap all leave these alone: '+ks.map(say).join(', ')+'.']; }
 stepOn('renderCooler', { after(t,P){ const btn=P.querySelector('[data-act="sellall"]'); if(!btn) return; const s=S.settings;
   const sel=(k,list,cur)=>`<select data-sf="${k}">${list.map(([v,n])=>`<option value="${v}" ${String(cur)===String(v)?'selected':''}>${n}</option>`).join('')}</select>`;
   // 0.3.4.3: the price is typed in (plain numbers or 50k / 1.2m); empty means any price

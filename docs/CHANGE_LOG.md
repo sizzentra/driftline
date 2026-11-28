@@ -510,3 +510,8 @@ The director sent two sketches of the Cooler page ("just the layout"; the game's
 - `mobile/page_cooler.js`: a fish card is at least 410 px wide (or the whole width of a narrower page), was 330. On an iPhone 16 Pro Max the page is wide enough for two 330 px cards, but five buttons need about 400, so they ran over the next card and the page scrolled sideways. That phone now shows one column; the page body cannot scroll sideways.
 - Reproduced on the PC only at the phone's real size, 956 by 440; the pictures until then were taken at 932 by 430, where one column shows. Phone pictures are taken at 956 by 440 from now on.
 - `__qa`: every button of a Cooler card is measured against its own card, the page against sideways scroll, and neighbouring cards against overlap.
+
+## Sell all says what it keeps (2026-11-28, build 2026.11.28-0158)
+Director: "cooler shows sell all keeping 1 but i dont have anything locked?" (it was a shiny, kept because "Sell shinies too" was off).
+- `sellKeepWhy(f)` (`au_fix034.js`) is the one keep rule and gives its reason in a word; `sellKeep` reads it. `sellKeptText()`: "keeping 1 shiny", "keeping 2 locked" when everything kept shares a reason, the number when reasons differ, and the whole list as the button's tooltip.
+- PC cards: a fish the filters keep carries a "Sell all skips it" tag.

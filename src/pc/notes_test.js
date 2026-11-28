@@ -2,6 +2,7 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Sell all now says what it is keeping (“keeping 1 shiny”, “keeping 2 locked”), and a fish the filters keep says “Sell all skips it” on its card. Before, the button only gave a number (found by the director).',
   'The Cooler page has a new layout (the director’s design): a title band with a bar that shows how full the cooler is, then Upgrade, Sell all and Scrap all; one row for the Sell all filters, the fishmonger and Sort by; and fish cards that are all the same size. Each card has its rarity as a pill, its aquarium bonuses as chips on one line (click “more” to see them all), and its actions as a picture with a word.',
   'New: lock a fish in the cooler. Click the lock at the front of its card and Sell all and Scrap all leave it alone; click again to unlock.',
   'The fish card (Inspect) now lists every aquarium bonus in its own block, one chip a stat. With many bonuses the old single line was cut off at both ends (found by the director).',

@@ -3,6 +3,7 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Sell all now says what it is keeping (“keeping 1 shiny”, “keeping 2 locked”). Before, the button only gave a number (found by the director).',
   'Fixed on the Cooler page (found by the director on the iPhone): on a large phone two fish cards sat side by side, their buttons ran over each other and the page scrolled sideways. Cards are one to a row there now, with every button inside its card.',
   'The fish card (Inspect) now lists every aquarium bonus in its own block, one chip a stat. With many bonuses the old single line was cut off at both ends (found by the director).',
   'The Cooler upgrade moved to the Cooler page (director): its button sits beside your fish count and shows what the next level holds and its price. Tackle keeps Rod length, Reel, Line, Hook and Fish Finder.',
