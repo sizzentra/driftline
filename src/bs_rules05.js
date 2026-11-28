@@ -28,20 +28,7 @@ const BOUNTY_PASS=40, BOUNTY_W=[1,1.5,3,5,8,12], NIB_CRATE=[38,30,18,8,5,1]; /* 
    bounty counts double (it needs a big one); a style hunt 1.2 a fish, a variety hunt 1.5 a kind, a trophy 8, a shiny or a legend 12 */
 function bountyEffort(b){ const sp=b.sp&&SPI[b.sp]; if(b.legend||b.type==='shiny') return 12; if(b.type==='trophy') return 8; if(b.type==='kinds') return (b.n||1)*1.5; if(b.type==='style') return (b.n||1)*1.2;
   if(!sp) return 1; const w=BOUNTY_W[Math.min(5,sp.r)]*(sp.time&&sp.time!=='any'?1.25:1); return b.type==='size' ? w*2 : w*(b.n||1); }
-/* What a bounty pays follows the fishing it takes (director, 2026-11-27: "we want this system to be worth the players time"; measured that day: most
-   bounties took 45 to 500 catches and paid 4 to 12 Scales, while that fishing alone gave 12 to 130). bountyCatches: the catches a bounty takes on
-   plain odds (no aimed bait, no hunt), from the water's own base weights (rarBase, what catchOdds starts from): n of one fish = n / its share; a set
-   size counts double; a day-only or night-only fish half as often again; a style = n / the share of fish that fight that way; a variety hunt 1.6 a
-   kind; a trophy 1 in 18; a shiny 1 in 50. The Scales are about what those catches bring on their own (BOUNTY_SC a catch), so a finished bounty
-   roughly doubles them; the crate grows more slowly. Feel calls, all four numbers: BOUNTY_SC, BOUNTY_SC_MAX, BOUNTY_NIB, BOUNTY_NIB_MAX. */
-const BOUNTY_SC=.25, BOUNTY_SC_MAX=60, BOUNTY_NIB=.12, BOUNTY_NIB_MAX=30, BOUNTY_C=new WeakMap();
-function bountyCatches(b){ if(BOUNTY_C.has(b)) return BOUNTY_C.get(b); const sp=b.sp&&SPI[b.sp], L=b.loc||(sp&&sp.loc)||S.loc, pool=SP.filter(s=>s.loc===L); let c=1;
-  if(b.type==='shiny') c=50; else if(b.type==='trophy') c=18; else if(b.type==='kinds') c=(b.n||1)*1.6;
-  else if(pool.length){ const w=pool.map(s=>rarBase(s,pool)), tot=w.reduce((a,x)=>a+x,0)||1;
-    if(b.type==='style'){ const p=pool.reduce((a,s,i)=>a+(s.beh===b.beh?w[i]:0),0)/tot; c=p?(b.n||1)/p:(b.n||1)*4; }
-    else if(sp){ const i=pool.indexOf(sp), p=i<0?0:w[i]/tot; if(p) c=(b.type==='size'?2:(b.n||1))/p*(sp.time&&sp.time!=='any'?1.5:1); } }
-  BOUNTY_C.set(b,c); return c; }
-const bountyPay = b => { const c=bountyCatches(b); return {sc:clamp(Math.round(c*BOUNTY_SC),2,BOUNTY_SC_MAX), n:clamp(Math.round(3+c*BOUNTY_NIB),4,BOUNTY_NIB_MAX)}; };
+const bountyPay = b => { const e=bountyEffort(b); return {sc:clamp(Math.round(1+e),2,12), n:clamp(Math.round(3+e*.7),4,10)}; };
 const bountyBoth = () => !!relic('seasoned');
 const bountySwapCost = b => Math.max(5, Math.round(LOCS[locIdx(b.loc||S.loc)].loot*bountyEffort(b)*.5)); /* coins to swap a bounty for another: by the water and the effort (it was a tenth of the old coin reward, 15 beside 9,900 on one board); Feel call */
 const bountyPayText = b => { const p=bountyPay(b); return p.sc+' Scales '+(bountyBoth()?'and':'or')+' a crate of '+p.n+' Nibbles'; };
@@ -68,7 +55,7 @@ function nibOddsShow(){ nibOddsClose(); const pc=v=>v?v+'%':'none';
   const rows=NIB_TIER.map((t,i)=>`<tr><th scope="row"><span class="nibs-r" style="--rc:${RAR[i].c}">${t}</span></th><td>${pc(NIB_CRATE[i])}</td></tr>`).join('');
   document.body.insertAdjacentHTML('beforeend',`<div class="card nibcrate" id="nibodds" role="dialog" aria-modal="true" aria-label="Nibble crate odds"><div class="in"><div class="rar" style="color:var(--gold)">Bounty reward</div><h3>Nibble crate odds</h3><div class="sub">Every Nibble in a crate is drawn on its own.</div>
    <table class="no-t"><thead><tr><th scope="col">Nibble</th><th scope="col">Chance</th></tr></thead><tbody>${rows}</tbody></table>
-   <div class="sub">A crate holds 4 to ${BOUNTY_NIB_MAX} Nibbles: the longer the bounty takes, the more.</div><div class="tap">${PLAT.touch()?'Tap to close':'Click or press Esc to close'}</div></div></div>`);
+   <div class="sub">A crate holds 4 to 10 Nibbles: the harder the bounty, the more.</div><div class="tap">${PLAT.touch()?'Tap to close':'Click or press Esc to close'}</div></div></div>`);
   $('nibodds').addEventListener('pointerup',e=>{ e.stopPropagation(); nibOddsClose(); }); }
 document.addEventListener('keydown',e=>{ if(e.key!=='Escape') return; const c=$('nibcrate'), o=$('nibodds'); if(!c&&!o) return; nibCrateClose(); nibOddsClose(); e.preventDefault(); e.stopPropagation(); },true);
 document.head.insertAdjacentHTML('beforeend','<style>#nibcrate,#nibodds{position:fixed;z-index:70;padding:12px calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left))}#nibodds .no-t{margin:8px auto;border-collapse:collapse;font:700 13px var(--display,system-ui);color:#e6efe8}#nibodds .no-t th,#nibodds .no-t td{padding:3px 12px;text-align:center}#nibodds .no-t thead th{font-size:12px;color:#9fb2c8;border-bottom:1px solid var(--line)}#nibodds .no-t tbody th{text-align:left}#nibodds .sub{max-width:340px;margin-left:auto;margin-right:auto}#nibcrate .nc-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0}#nibcrate .nc-row .nibs-r{font-size:14px;padding:5px 12px}#nibcrate .nc-sc{font:700 14px var(--display,system-ui);color:var(--gold);margin:0 0 8px}.bpick{display:inline-flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.brew{font-size:12.5px;color:var(--muted)}</style>');

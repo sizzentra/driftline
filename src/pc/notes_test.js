@@ -2,7 +2,6 @@
 // which becomes '## Test build <stamp>' once published. Curly apostrophes only. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
-  'Bounties pay much more (director): the reward now follows how many catches a bounty takes. A quick one (a trophy, a variety hunt) pays about 5 Scales or a crate of 5 Nibbles; several of a common fish about 20 Scales or 13 Nibbles; a rare or better fish up to 60 Scales or 30 Nibbles. Finishing a bounty about doubles the Scales that fishing gave you on the way. First numbers: tell us how they feel.',
   'Bounties: the crate reward is named now, “Nibble Crate”, with how many Nibbles it holds under the name (director). A new Crate odds button in the title band shows the chance of each kind of Nibble in a crate. There is one kind of crate now, no big crates (director): a harder bounty simply holds more Nibbles, and the odds are better (Legendary 5%, Mythic 1%). Claim all sits in the title band too.',
   'Bounties: choosing a water is its own screen now (director). Click the water button, marked Change, and every water shows at once with its picture; click one to see its bounties, or Back to bounties (top left) to return. The button’s arrow no longer sits on the water’s name.',
   'Bounties: the titles no longer repeat the water.',
@@ -10,7 +9,7 @@ const TEST_NOTES={v:'test', label:'Test build · PC', name:'0.4.9 test build (ne
   'A board never shows the same bounty twice, and swapping a bounty now costs coins by its water and its effort (it was 15 coins beside 9,900 on one board).',
   'Bounties are the one thing to chase now (director and Cam): daily tasks and weekly quests are gone. Rewards you had not claimed on them are lost.',
   'A bounty no longer pays coins. When you claim one you pick your reward: Scales, or a crate of Nibbles. Every claim also gives some Tide Pass XP.',
-  'The reward follows the effort (director): a bounty pays for the fishing it takes. Rarer fish, more fish, a set size and day-only or night-only fish all count for more.',
+  'The reward follows the effort (director): a bounty for one common fish pays 2 Scales or 4 Nibbles, two rare fish 7 Scales or 7 Nibbles, a trophy 9 Scales or a crate of 9, a shiny or a legend 12 Scales or a crate of 10. Rarer fish, more fish, a set size and day-only or night-only fish all count for more.',
   'Nibble crates open straight away and show what was inside. These are first numbers: tell us how they feel.',
   'A new kind of bounty, the variety hunt: catch several different fish at one water.',
   'The Bounty Ledger relic now pays both rewards on every bounty (it used to add coins).',
