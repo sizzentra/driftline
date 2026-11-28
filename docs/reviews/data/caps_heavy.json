@@ -1,0 +1,1 @@
+{"save":"heavy","build":"2026.11.27-2127","caps":{"tension":0.6,"calm":0.7},"rows":[{"stat":"tension","cap":0.6,"withHugeBoost":0.6,"plusEveryRelic":0.6,"steps":5,"afterEachStep":[0.6,0.6,0.6,0.6,0.6]},{"stat":"calm","cap":0.7,"withHugeBoost":0.7,"plusEveryRelic":0.7,"steps":5,"afterEachStep":[0.7,0.7,0.7,0.7,0.7]}]}
