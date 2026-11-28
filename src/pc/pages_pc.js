@@ -84,9 +84,23 @@ body.pch-on #panel .bq-row{gap:12px 18px;margin-bottom:16px}
 body.pch-on #panel .bq-pick{min-height:60px;min-width:420px;font-size:21px;border-radius:14px}
 body.pch-on #panel .bq-pick .bq-th{flex-basis:120px}
 body.pch-on #panel .bq-ready{min-height:50px;padding:0 20px;font-size:18px}
-body.pch-on #panel .bq-list{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;padding:12px;margin-bottom:16px}
-body.pch-on #panel .bq-w{min-height:52px;font-size:17px}
-body.pch-on #panel .bq-w .bq-th{flex-basis:76px}
+body.pch-on #panel .bq-chg{padding:5px 14px;font-size:15px}
+body.pch-on #panel .bq-layer{gap:16px}
+body.pch-on #panel .bq-lh{gap:18px}
+body.pch-on #panel .bq-lh h3{font-size:34px}
+body.pch-on #panel .bq-ct b{font-size:18px}
+body.pch-on #panel .bq-ct small{font-size:13px}
+body.pch-on #menuov #panel .bq-acts .btn{min-height:50px!important;font-size:17px!important;padding:0 22px!important}
+body.pch-on #panel .bq-acts{gap:12px}
+body.pch-on #nibodds .no-t{font-size:18px}
+body.pch-on #nibodds .no-t thead th{font-size:15px}
+body.pch-on #nibodds .no-t th,body.pch-on #nibodds .no-t td{padding:5px 22px}
+body.pch-on #nibodds .sub{max-width:480px}
+body.pch-on #menuov #panel .bq-x{min-height:50px!important;font-size:18px!important;padding:0 26px!important}
+body.pch-on #panel .bq-list{grid-auto-rows:minmax(0,150px);gap:12px}
+body.pch-on #panel .bq-w{font-size:21px;padding:0 18px;gap:14px;border-radius:14px}
+body.pch-on #panel .bq-w.pic{padding-left:0}
+body.pch-on #panel .bq-w.pic::before{content:"";flex:0 0 34%;align-self:stretch;background:var(--th) center 62%/cover} /* the water's own picture, where it is drawn already; the room for it is PC's */
 body.pch-on #panel .bq-n{font-size:14px}
 body.pch-on #panel .bq-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
 body.pch-on #menuov #panel .tile.bq{padding:24px 28px!important;gap:14px;border-radius:18px}
@@ -104,3 +118,8 @@ body.pch-on #panel .bq-i-cr{width:19px;height:15px}
 body.pch-on #menuov #panel .tile.bq .bq-swap{min-height:46px!important;font-size:17px!important;padding:0 24px!important;margin-top:4px}
 body.pch-on #panel .bq-claim{min-height:54px;font-size:19px}
 </style>`);
+/* the water layer on PC shows each water's picture: one not drawn yet is drawn here, one at a time and only in a calm moment (as the background queue in ar_ember033.js does), and the run ends by itself when all are in or the layer is gone */
+pageDone('bounties',function bqPics(P){ const miss=[...P.querySelectorAll('.bq-layer .bq-w:not(.pic)')].filter(b=>V3SCENES[b.dataset.k]&&(THUMB_FAIL[b.dataset.k]||0)<2); if(!miss.length) return;
+  const b=miss[0], k=b.dataset.k, calm=G.st==='idle'||G.st==='waiting'||G.st==='rest'||G.st==='event'; /* an event card waiting for an answer is calm too */ if(calm&&!V3THUMB[k]){ v3Thumb(k); if(!V3THUMB[k]) THUMB_FAIL[k]=(THUMB_FAIL[k]||0)+1; }
+  for(const m of miss){ const u=V3THUMB[m.dataset.k]; if(u){ m.style.setProperty('--th','url('+u+')'); m.classList.add('pic'); } }
+  setTimeout(()=>{ if(P.isConnected&&S.tab==='bounties'&&MENU_OPEN) bqPics(P); },calm?60:1500); });

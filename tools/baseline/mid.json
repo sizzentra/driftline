@@ -1,7 +1,7 @@
 {
  "save": "mid",
- "made": "2026-11-27T20:30:32.443Z",
- "stamp": "2026.11.27-1405",
+ "made": "2026-11-28T01:20:35.703Z",
+ "stamp": "2026.11.27-1833",
  "builds": {
   "pc": {
    "build": "pc",
@@ -92,7 +92,7 @@
    "pages": {
     "quests": "eea6dee0",
     "quests/Goals": "eea6dee0",
-    "quests/Learn": "6161c803",
+    "quests/Learn": "afb45037",
     "quests/Find": "9fe73fdd",
     "quests/Help": "576471f9",
     "map": "7d6330de",
@@ -116,7 +116,7 @@
     "events/Calendar": "417fae1d",
     "events/Challenges": "793ff67f",
     "events/Derby": "5969d7af",
-    "bounties": "79e68532",
+    "bounties": "34563fc6",
     "feats": "3ab8ed74",
     "feats/To do · 85": "3ab8ed74",
     "feats/Done · 14": "8b42381b",
@@ -135,7 +135,7 @@
     "settings/Controls": "b0a23f07",
     "settings/Display": "95d86c0",
     "settings/Gameplay": "12a294d5",
-    "settings/Patch notes": "3141354c",
+    "settings/Patch notes": "ec5c7f11",
     "settings/Save & codes": "c29ff183",
     "cooler": "4edf486f",
     "bait": "ab8f7b21",
@@ -242,7 +242,7 @@
    "pages": {
     "quests": "bf740cbd",
     "quests/Goals": "bf740cbd",
-    "quests/Learn": "5ce0c269",
+    "quests/Learn": "c019237c",
     "quests/Find": "9eab893d",
     "quests/Help": "22b5ddbc",
     "map": "2d3c912b",
@@ -267,7 +267,7 @@
     "events/Calendar": "2832de45",
     "events/Challenges": "c3d3c2a7",
     "events/Derby": "42d7ee0b",
-    "bounties": "d1e4da18",
+    "bounties": "94e4a525",
     "feats": "dc943b7e",
     "feats/To do · 85": "dc943b7e",
     "feats/Done · 14": "b5ec744",
@@ -391,7 +391,7 @@
    "pages": {
     "quests": "c83be324",
     "quests/Goals": "c83be324",
-    "quests/Learn": "6caa8d82",
+    "quests/Learn": "8581cf8",
     "quests/Find": "80d61677",
     "quests/Help": "e83cc12b",
     "map": "6c8bd303",
@@ -416,7 +416,7 @@
     "events/Calendar": "be46cc4e",
     "events/Challenges": "bd25d779",
     "events/Derby": "b82a60d0",
-    "bounties": "595e1cdc",
+    "bounties": "f362ebc",
     "feats": "52930ead",
     "feats/To do · 85": "52930ead",
     "feats/Done · 14": "5a81c87e",

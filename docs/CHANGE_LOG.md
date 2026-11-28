@@ -463,3 +463,26 @@ Director, from the iPhone: "On mobile I want all the bounties to fit on this scr
 - A card's title no longer repeats the water (`bountyParts`, `e_ui.js`): "Catch 6 divers", not "Catch 6 divers at Maplewood Hollow". "big crate" moved from the Nibbles chip to the label ("Rewards, big crate").
 - A screen under 400 px high leaves the title band out and tightens the cards.
 - Pictures are now taken with notch margins (62 px each side, 21 px below), the width a real iPhone gives the game.
+
+## Bounties, choosing a water is its own layer (2026-11-27, build 2026.11.27-1833, tag `rollback/before-water-layer`)
+Director, from the iPhone: the picker's arrow sat on the water's name; the open list needed scrolling and pushed the bounties down ("I almost want the map select to be its own seperate ui layer"). Agreed design, built as agreed.
+- The water button (`.bq-pick`): the name keeps its own room (it can no longer be overlapped), the arrow is gone, a teal "Change" mark says the button opens something.
+- `renderBounties` (`e_ui.js`): while `bPick` is on it draws only the layer (`.bq-layer`: a teal "Back to bounties" button at the top left (first a "Close" at the top right, which the director did not see: "I dont see an option to go back"), "Choose a water", the ready count, one `.bq-w` button per open water) and returns; the page and its bounties are not built behind it. `bloc` and `bpick` close it as before; entering the Bounties page closes it too (`au_fix034.js`).
+- `bountyLayerFit` (`e_ui.js`, a `pageDone('bounties')` touch): the layer takes the page's visible height and its grid rows share it (four columns, five above 20 waters), so 20 waters fit an iPhone held sideways with nothing to scroll. One `resize` listener draws the layer again while it is open. Under 520 px of page width it lists three or two across and scrolls (rows would fall under 30 px).
+- Phones show names only. PC shows each water's picture (`--th` on the button, `.bq-w.pic::before`); pictures not drawn yet are drawn by the layer one at a time in a calm moment (`bqPics`, `pc/pages_pc.js`; an open event card counts as calm), ending by itself, so every water has its still picture (director: "pc has room to have pictures next to all maps ... just a static one is fine").
+- A new `__qa` test: the layer lists every open water, shows no bounty behind it, does not scroll, every name fits its button, a pick shows that water, and the Change mark never sits on the name.
+- The old in-page list and its styles (`.bq-car`, the `.bq-th` rules for list buttons) are deleted.
+
+## Bounties, the Nibble Crate by name and its odds (2026-11-27, build 2026.11.27-1833; ships with the water layer)
+Director: "nibble crates need more information on odds" and "right now it just says 10 nibbles not actually a Nibble Crate".
+- The crate chip (`renderBounties`, `e_ui.js`): "Nibble Crate" with "n Nibbles" under the name (`.bq-ct`). On phones the two chips of a bounty sit one above the other; all three bounties still fit the director's iPhone. Claim all reads "Claim all, Nibble Crates"; the dashboard's claim button reads "Nibble Crate".
+- Crate odds: `nibOddsShow` / `nibOddsClose` (`bs_rules05.js`), action `bodds`. A card with one row per kind of Nibble and its chance in a crate and a big crate, read from `NIB_CRATE` (it cannot disagree with the roll), plus "a big crate always holds at least one Epic or better" and "a crate holds 4 to 10 Nibbles". Closes on a press or Esc. Nothing about the odds themselves changed.
+- The title band now carries the page-wide buttons (`.bq-acts`): Claim all (when more than one is ready; the line under the title is left out then) and Crate odds. The row under it is the water button and the ready count only, so it stays one line on a phone. A screen under 400 px high shrinks the band to its name and buttons (it used to leave the band out).
+- A new `__qa` test: the card's numbers equal `NIB_CRATE`, each column adds up to 100, the sure Nibble of a big crate is named, the card closes, the chip names the crate.
+
+## Bounties, one kind of crate and the director's odds (2026-11-27, build 2026.11.27-1833; ships with the two entries above)
+Director: "i just dont see the point of big crates" and "legendary should be 5".
+- `NIB_CRATE` (`bs_rules05.js`) is one list, the chance of each kind for every single Nibble: 38 / 30 / 18 / 8 / 5 / 1, Common to Mythic (was 50/30/14/5/1/0 for a crate and 30/30/22/12/5/1 with a sure Epic for a big one). `BOUNTY_BIG` and the `cr` field of `bountyPay` are gone; `nibCrateRoll(n)` takes only the count. A harder bounty's crate holds more Nibbles (4 to 10), nothing else.
+- The odds card has one column; "big crate" is gone from the cards, the Learn text and the tester notes.
+- `__qa`: the pool test checks the single list (adds up to 100, every kind possible, shares within 3 points over 18,000 Nibbles, the top roll is Mythic); no bounty names a kind of crate.
+- Measured the same day, nothing built from it: what bounties take and pay against plain fishing (`docs/reviews/bounty_effort_heavy_2026-11-27.json`, `bounty_effort_mid_2026-11-27.json`; PLAN note 12).

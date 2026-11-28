@@ -150,18 +150,28 @@ function bountyParts(b){ const bt=bountyText(b), d=bDone(b), L=LOCS[locIdx(b.loc
   if(what.endsWith(' at '+L.name)) what=what.slice(0,-(' at '+L.name).length); /* the picker and the line below already name the water */ return {what, n, have, d, where:L.name, extra}; }
 function renderBounties(P){ fillBounties(); const cur=S.unlocked.includes(bLoc)?bLoc:S.loc, L=LOCS[locIdx(cur)], ready=S.bounties.filter(b=>bDone(b)&&(!b.loc||S.unlocked.includes(b.loc))).length, both=bountyBoth();
   const th=id=>{ const u=V3THUMB[id]; return u?` style="background-image:url(${u})"`:''; }, waters=S.unlocked.slice().sort((a,b)=>locIdx(a)-locIdx(b));
-  P.innerHTML=`<div class="bq-head"><span class="bq-art"${th(cur)}></span><span class="bq-ic" aria-hidden="true"></span><div class="bq-ti"><h3>Bounties</h3><p>Complete location tasks for rewards</p></div></div>
-  <div class="bq-row"><button type="button" class="bq-pick" data-act="bpick" aria-expanded="${bPick}" aria-label="Water: ${esc(L.name)}. Choose another water"><span class="bq-th"${th(cur)}></span><b>${esc(L.name)}</b><span class="bq-car" aria-hidden="true"></span></button>
-   <span class="bq-ready${ready?' on':''}">${ready} Ready to Claim</span>${ready>1?(both?`<button class="btn sm" data-act="claimall" data-k="both">Claim all</button>`:`<button class="btn sm" data-act="claimall" data-k="sc">Claim all · Scales</button><button class="btn sm" data-act="claimall" data-k="cr">Claim all · Nibbles</button>`):''}</div>
-  ${bPick?`<div class="bq-list" role="listbox" aria-label="Waters">${waters.map(W=>{ const n=S.bounties.filter(b=>b.loc===W&&bDone(b)).length; return `<button type="button" class="bq-w${W===cur?' on':''}" role="option" aria-selected="${W===cur}" data-act="bloc" data-k="${W}"><span class="bq-th"${th(W)}></span><b>${esc(LOCS[locIdx(W)].name)}</b>${n?`<span class="bq-n">${n} ready</span>`:''}</button>`; }).join('')}</div>`:''}
+  if(bPick){ /* choosing a water is its own layer: it takes the whole page, the bounties wait behind it, and every water fits without scrolling (director, 2026-11-27: "I almost want the map select to be its own seperate ui layer") */
+    const wide=P.clientWidth>=520, c=wide?(waters.length>20?5:4):P.clientWidth>=360?3:2;
+    P.innerHTML=`<div class="bq-layer" role="dialog" aria-label="Choose a water" data-rows="${wide?Math.ceil(waters.length/c):0}"><div class="bq-lh"><button type="button" class="btn sm bq-x" data-act="bpick"><span aria-hidden="true">‹</span> Back to bounties</button><h3>Choose a water</h3><span class="bq-ready${ready?' on':''}">${ready} Ready to Claim</span></div>
+    <div class="bq-list" role="listbox" aria-label="Waters" style="--c:${c}">${waters.map(W=>{ const n=S.bounties.filter(b=>b.loc===W&&bDone(b)).length, u=V3THUMB[W]; return `<button type="button" class="bq-w${W===cur?' on':''}${u?' pic':''}" role="option" aria-selected="${W===cur}" data-act="bloc" data-k="${W}"${u?` style="--th:url(${u})"`:''}><b>${esc(LOCS[locIdx(W)].name)}</b>${n?`<span class="bq-n">${n} ready</span>`:''}</button>`; }).join('')}</div></div>`;
+    P.scrollTop=0; return; }
+  P.innerHTML=`<div class="bq-head"><span class="bq-art"${th(cur)}></span><span class="bq-ic" aria-hidden="true"></span><div class="bq-ti"><h3>Bounties</h3>${ready>1?'':'<p>Complete location tasks for rewards</p>'}</div><div class="bq-acts">${ready>1?(both?`<button class="btn sm" data-act="claimall" data-k="both">Claim all</button>`:`<button class="btn sm" data-act="claimall" data-k="sc">Claim all · Scales</button><button class="btn sm" data-act="claimall" data-k="cr">Claim all · Nibble Crates</button>`):''}<button type="button" class="btn alt sm bq-odds" data-act="bodds">Crate odds</button></div></div>
+  <div class="bq-row"><button type="button" class="bq-pick" data-act="bpick" aria-haspopup="dialog" aria-label="Water: ${esc(L.name)}. Choose another water"><span class="bq-th"${th(cur)}></span><b>${esc(L.name)}</b><span class="bq-chg" aria-hidden="true">Change</span></button>
+   <span class="bq-ready${ready?' on':''}">${ready} Ready to Claim</span></div>
   <div class="bq-grid">`+S.bounties.map((b,i)=>{ if(b.loc!==cur) return ''; const p=bountyParts(b), pay=bountyPay(b), cost=bountySwapCost(b);
     const chip=(k,txt)=>p.d&&!both?`<button type="button" class="bq-chip go" data-act="claim" data-i="${i}" data-k="${k}"><i class="bq-i-${k}"></i>${txt}</button>`:`<span class="bq-chip"><i class="bq-i-${k}"></i>${txt}</span>`;
     return `<div class="tile bq${p.d?' done':''}">${b.legend?'<span class="rar" style="color:var(--gold)">Legendary bounty</span>':''}<h4>${esc(p.what)}</h4>
      <div class="bq-meta">${esc(p.where)}${p.extra?' · '+p.extra:''} · ${p.have} / ${p.n}</div><div class="bq-bar"><i style="width:${Math.round(p.have/p.n*100)}%"></i></div>
-     <div class="bq-rew"><span class="bq-lbl">${p.d&&!both?'Pick one':'Rewards'}${pay.cr==='big'?' · big crate':''}</span>${chip('sc',pay.sc+' Scales')}${chip('cr',pay.n+' Nibbles')}</div>
+     <div class="bq-rew"><span class="bq-lbl">${p.d&&!both?'Pick one':'Rewards'}</span>${chip('sc',pay.sc+' Scales')}${chip('cr',`<span class="bq-ct"><b>Nibble Crate</b><small>${pay.n} Nibbles</small></span>`)}</div>
      ${p.d?(both?`<button class="btn bq-claim" data-act="claim" data-i="${i}" data-k="both">Claim both</button>`:''):`<button class="btn alt sm bq-swap" data-act="reroll" data-i="${i}" ${S.money>=cost?'':'disabled'}>Swap · <span class="coin">${fmt(cost)}</span></button>`}</div>`; }).join('')+'</div>';
   if(!V3THUMB[cur]&&MENU_OPEN) setTimeout(()=>{ try{ const u=v3Thumb(cur); if(u&&S.tab==='bounties') P.querySelectorAll('.bq-art,.bq-pick .bq-th').forEach(e=>{ e.style.backgroundImage='url('+u+')'; }); }catch(e){ oops('e_ui:bounty-picture',e); } },60); /* the water's picture, drawn once when it is not ready yet */
 }
+/* the water layer takes the page's visible height, so its rows share it and nothing scrolls; runs after the page engine has placed the page */
+function bountyLayerFit(P){ const box=P.querySelector('.bq-layer'); if(!box) return; const rows=+box.dataset.rows; box.style.height=''; if(!rows) return; /* a narrow window lists two or three across and scrolls */
+  const room=P.clientHeight-parseFloat(getComputedStyle(P).paddingBottom)-(box.getBoundingClientRect().top-P.getBoundingClientRect().top+P.scrollTop);
+  if((room-box.firstElementChild.offsetHeight)/rows>=30) box.style.height=Math.floor(room)+'px'; }
+pageDone('bounties',bountyLayerFit);
+addEventListener('resize',()=>{ if(bPick&&MENU_OPEN&&S.tab==='bounties') renderPanel(); });
 function renderFeats(P){ const done=FEATS.filter(f=>S.feats[f.id]).length;
   P.innerHTML=`<h2>Feats</h2><p class="sub">${done} of ${FEATS.length} done. Each pays coins, the bigger ones give bonus skill points, and two bring a new pet.</p><div class="grid">`+
   FEATS.map(f=>{ const [a,b]=f.p(), ok=!!S.feats[f.id]; return `<div class="tile ${ok?'done':''}"><div class="row spread"><h4>${f.name}</h4><span class="meta">${ok?'Done':fmt(Math.min(a,b))+' / '+fmt(b)}</span></div>
@@ -301,6 +311,7 @@ $('panel').addEventListener('click',e=>{ const b=e.target.closest('[data-act]');
     case 'encloc': if(k==='junk'||LOCS[locIdx(k)]) encLoc=k; encSel=null; break;
     case 'bloc': bLoc=k; bPick=false; break;
     case 'bpick': bPick=!bPick; break;
+    case 'bodds': nibOddsShow(); return;
     case 'enc': encSel = encSel===k ? null : k; break;
     case 'look': { const v=b.dataset.v; if(k==='skin'||k==='hair'||k==='eye') S.look[k]=+v; else if(k==='shoes'){ if(S.owned.shoes.includes(v)) S.look.shoes=v; } else if(k==='neck'){ if(S.owned.necks.includes(v)) S.look.neck=v; } else if(k==='back'){ if(S.owned.backs.includes(v)) S.look.back=v; } else if(k==='build'){ if(BUILDI[v]) S.look.build=v; } else if(k==='hat'){ if(S.owned.hats.includes(v)) S.look.hat=v; } else if(k==='pat'){ if(S.owned.pats.includes(v)) S.look.pat=v; }
       else if(k==='glasses'){ if(S.owned.glasses.includes(v)) S.look.glasses=v; } else if(k==='outfit'){ if(S.owned.outfits.includes(v)) S.look.outfit=v; } else S.look[k]=v; break; }

@@ -1,7 +1,7 @@
 {
  "save": "new",
- "made": "2026-11-27T20:30:32.397Z",
- "stamp": "2026.11.27-1405",
+ "made": "2026-11-28T01:20:35.734Z",
+ "stamp": "2026.11.27-1833",
  "builds": {
   "pc": {
    "build": "pc",
@@ -92,7 +92,7 @@
    "pages": {
     "quests": "98d59120",
     "quests/Goals": "98d59120",
-    "quests/Learn": "6161c803",
+    "quests/Learn": "afb45037",
     "quests/Find": "9fe73fdd",
     "quests/Help": "576471f9",
     "map": "2e8d11d7",
@@ -116,7 +116,7 @@
     "events/Calendar": "417fae1d",
     "events/Challenges": "65f98143",
     "events/Derby": "116c5a8a",
-    "bounties": "3062cfcb",
+    "bounties": "5a531755",
     "feats": "9100322d",
     "pass": "8b506e6d",
     "games": "969e5f2b",
@@ -133,7 +133,7 @@
     "settings/Controls": "b0a23f07",
     "settings/Display": "95d86c0",
     "settings/Gameplay": "12a294d5",
-    "settings/Patch notes": "3141354c",
+    "settings/Patch notes": "ec5c7f11",
     "settings/Save & codes": "8a5ca9bc",
     "cooler": "89a6a56b",
     "bait": "ab8f7b21",
@@ -240,7 +240,7 @@
    "pages": {
     "quests": "1e793b11",
     "quests/Goals": "1e793b11",
-    "quests/Learn": "3b0e79d1",
+    "quests/Learn": "9d869854",
     "quests/Find": "339e9a05",
     "quests/Help": "c3f20bd4",
     "map": "f1b9daa4",
@@ -265,7 +265,7 @@
     "events/Calendar": "de24d709",
     "events/Challenges": "8f1255c8",
     "events/Derby": "373dfe1c",
-    "bounties": "b0ca42d5",
+    "bounties": "e42e9579",
     "feats": "1b3e030f",
     "pass": "a1508acf",
     "games": "ce8c5c6f",
@@ -387,7 +387,7 @@
    "pages": {
     "quests": "9908f8b0",
     "quests/Goals": "9908f8b0",
-    "quests/Learn": "98578904",
+    "quests/Learn": "b4a99726",
     "quests/Find": "3c206f61",
     "quests/Help": "a8d65765",
     "map": "b7cce8b3",
@@ -412,7 +412,7 @@
     "events/Calendar": "154576f4",
     "events/Challenges": "503172ca",
     "events/Derby": "635e1e0d",
-    "bounties": "6e54635f",
+    "bounties": "b8b1d8b0",
     "feats": "2bbf898c",
     "pass": "818adb7e",
     "games": "38723171",

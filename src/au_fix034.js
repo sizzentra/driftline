@@ -53,7 +53,7 @@ function demandSp(){ const slot=Math.floor(Date.now()/1000/WX_LEN); if(DEMAND.sl
 
 // ---------- Bounties opens on the board of the water you are fishing ----------
 let lastTab034=null;
-panelStep({ before(){ if(S.tab==='bounties'&&lastTab034!=='bounties') bLoc=null; lastTab034=S.tab; } });
+panelStep({ before(){ if(S.tab==='bounties'&&lastTab034!=='bounties'){ bLoc=null; bPick=false; } lastTab034=S.tab; } });
 
 // ---------- a soft cue when a hooked fish starts to run (line hissing off the reel) ----------
 const _fight_034 = fight;
