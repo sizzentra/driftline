@@ -24,7 +24,7 @@ function baitGroupsHTML(list){ const L=baitSorted(list); return '<div class="tk-
 { const _st=setTab; setTab=function(t){ if(t!==S.tab) baitFold=[true,true,true]; return _st.apply(this,arguments); }; } /* every visit opens folded */
 actOn('baitfold', function(b){ const g=+b.dataset.k; if(g>=0&&g<3) baitFold[g]=!baitFold[g]; return 'render'; }); /* F6 slice 3: a second line here folded the groups again on "tackleview bait", but the tackleview action below always answered first, so it never ran (qc 262); removed with the chain, nothing changes */
 function renderShop(P){ const shopBait=Object.entries(BAIT).filter(([k,b])=>k!=='worm'&&!b.junk), junkBait=Object.entries(BAIT).filter(([k,b])=>b.junk), cur=BAIT[S.baitSel]||BAIT.worm;
-  const gearTiles = Object.entries(GEAR).map(([k,G2])=>{ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
+  const gearTiles = Object.entries(GEAR).filter(([k])=>k!=='cooler').map(([k,G2])=>{ /* the Cooler upgrade lives on the Cooler page (coolerUpHTML, e_ui.js) */ const lv=S.gear[k], max=G2.lv.length-1, next=lv<max?G2.cost[lv+1]:0;
     return `<div class="tile"><div class="row spread"><h4>${G2.name}</h4><span class="meta">Level ${lv} / ${max}</span></div><div class="pips">${G2.lv.slice(1).map((_,i)=>`<i class="${i<lv?"on":""}"></i>`).join('')}</div>
     <div class="meta">${G2.what}</div><div class="val">${G2.fmt(G2.lv[lv])}${lv<max?` <span class="meta">→ ${G2.fmt(G2.lv[lv+1])}</span>`:''}</div>
     ${lv<max?`<button class="btn" data-act="buygear" data-k="${k}" ${S.money>=next?'':'disabled'}>Upgrade · <span class="coin">${fmt(next)}</span></button>`:'<button class="btn alt" disabled>Maxed out</button>'}</div>`; }).join('');

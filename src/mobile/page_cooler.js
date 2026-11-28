@@ -23,5 +23,14 @@ html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf select,htm
 html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .sellf input{width:96px!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm{padding:6px 10px!important;margin:0 0 8px!important;gap:10px!important;min-height:0!important}
 html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm .meta,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .tile.cl8-dm .meta{font-size:11.5px!important}
-html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(330px,1fr))!important;gap:6px!important}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(min(410px,100%),1fr))!important;gap:6px!important}
+/* qc 270 (director's iPhone, 2026-11-28: "mobile doesnt even fit anywyas and sidescrolls ... overlaps too"): a card was allowed to be 330 px wide, but its five buttons need about 400, so on an
+   iPhone 16 Pro Max (the page is about 690 wide there) two cards sat side by side, the buttons ran out of each card over the next one and the page scrolled sideways. A card is now at least
+   410 px (or the whole width, where the page is narrower than that), so that phone shows one column, and the page cannot scroll sideways. */
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body{overflow-x:hidden}
+html body.phone-land #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list > .fishrow,html body.phone-app #menuov #panel.pg08[data-pg-tab="cooler"] .pg08-body > .list > .fishrow{min-width:0;max-width:100%}
 </style>`);
+/* Phones: the Cooler upgrade (coolerUpHTML, e_ui.js) sits at the end of the "Sell all:" row, where there is room. In the summary strip, where
+   the page engine puts it and where PC keeps it, it pushed Scrap all onto a second line and the fish list down (seen 2026-11-27). */
+pageDone('cooler',P=>{ const bank=P.querySelector('.pg08-bank'), b=bank&&bank.querySelector(':scope > .cool-up'), row=P.querySelector('.sellf'); if(!b||!row) return;
+  row.appendChild(b); b.style.marginLeft='auto'; const t=b.firstChild; if(t&&t.nodeType===3&&/^Upgrade to /.test(t.textContent)){ b.setAttribute('aria-label',b.textContent.replace(/\s+/g,' ').trim()); t.textContent=t.textContent.replace('Upgrade to ','↑ '); } /* a short label, so it fits beside the filters on one line */ bank.style.gridTemplateColumns=bank.style.gridTemplateColumns.replace(/repeat\((\d+),\s*auto\)/,(m,n)=>n>1?'repeat('+(n-1)+', auto)':''); });

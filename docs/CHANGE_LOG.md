@@ -486,3 +486,27 @@ Director: "i just dont see the point of big crates" and "legendary should be 5".
 - The odds card has one column; "big crate" is gone from the cards, the Learn text and the tester notes.
 - `__qa`: the pool test checks the single list (adds up to 100, every kind possible, shares within 3 points over 18,000 Nibbles, the top roll is Mythic); no bounty names a kind of crate.
 - Measured the same day, nothing built from it: what bounties take and pay against plain fishing (`docs/reviews/bounty_effort_heavy_2026-11-27.json`, `bounty_effort_mid_2026-11-27.json`; PLAN note 12).
+
+## The Cooler upgrade on the Cooler page (2026-11-27, built as 2026.11.27-2309, tag `rollback/before-ui-polish`; waits for the director's word on the pictures)
+Director: "definitely should upgrade the cooler inside of cooler". The first piece of the UI work of this patch.
+- `coolerUpHTML()` (`e_ui.js`): the upgrade button, "Upgrade to 50 fish" and its price, drawn by the Cooler page; it uses the existing `buygear` action, so levels, prices and sizes are unchanged. A maxed cooler has no button.
+- PC: the page engine moves it into the summary strip beside the count (`cx_pages.js`, the cooler's `acts`). Phones: `mobile/page_cooler.js` puts it at the end of the "Sell all:" row with a short label (an up arrow, the size, the price; the full words are its aria-label), because in the strip it pushed Scrap all onto a second line.
+- Tackle (`u_tackle.js`) draws five cards, without Cooler; its "Gear upgrades" count leaves the cooler out. Learn and Help say where the upgrade is now.
+- A new `__qa` test: no Cooler card on Tackle, the other five are there, the button on the Cooler page names the next size, buys a level, and is gone at the top level.
+
+## The Cooler page on PC in the director's layout, the lock, and the Inspect card's bonus block (2026-11-28, built as 2026.11.28-0059, tag `rollback/before-ui-polish`)
+The director sent two sketches of the Cooler page ("just the layout"; the game's own drawn fish and panels stay) and steered it picture by picture.
+- PC only (`pc/pages_pc.js`, `pageDone('cooler')`: `ckLayout`, `ckRows`), built from what the page engine has drawn. A title band (`.ck-head`): "Cooler", a line about the page, a box with the count, the sale bonus and a fill bar, then Upgrade, Sell all and Scrap all; it takes the place of the engine's summary strip. One control row: the Sell all filters, the fishmonger's wish (it had a row of its own: "look how much space fishmongers is taking up") and "Sort by" as a list in place of six chips.
+- Fish cards, all the same height ("the fact that cards woudlnt all be the same size is a bad idea"): a lock, the fish, the name with its rarity as a pill, the weight and marks, price and coins per hour, five actions as a picture with its word (Keep, Display, Sell, Scrap, Inspect), and under all of it one line of bonus chips that runs the whole width ("theres room for it to go sideways if the buffs went down just a tade underneath the icons"). A chip is in the colour of its bonus's tier; chips that do not fit become one "+N more" button that opens the Inspect card.
+- The lock (shared rule): `f.lk` on a fish in the cooler, action `coollock` (`e_ui.js`), `sellKeep` (`au_fix034.js`) answers true for it, so Sell all and Scrap all pass it by; the single Sell and Scrap buttons still work. Kept by the save as it is (the cooler's fish are stored whole). Director: "I think a lock is good". Phones have no lock button yet.
+- Keep stays a button: it mounts the fish in the Trophy Room for good, so the sketch's star would have read as "favourite".
+- The Inspect card (`cz_inspect.js`, every platform): bonuses have a set place, a block "In the aquarium" with one chip a stat in two columns (`aqMerged`: bonuses on the same stat add up). Before, they were one line in a badge, cut off at both ends from about six bonuses (qc 268, found by the director: "right now it seems the buffs dont have a set place").
+- On chips "aquarium income" reads "tank income" (`AQ_SHORT`; director: "Yes, tank income"); every other place keeps the full name.
+- The Cooler's intro line described the aquarium (a leftover: the count and the sale bonus had moved into the strip); it now says what the page is for (director: "why is the cooler explaining the aquarium instead of the cooler?").
+- Facts checked for it: a fish holds at most five bonuses of its own (one when caught, a second for a hybrid, the rest from Nibbles, `NIB_MAX_BUFFS`), a titled prismatic three more.
+- `__qa`: the lock (on, off, kept out of Sell all and Scrap all, survives loading), every PC card the same height with a lock and a bonus line, the Inspect card's block (one chip a stat, none cut, eight fit).
+
+## Phones: Cooler cards no longer overlap or scroll sideways (2026-11-28, qc 270, seen on the director's iPhone)
+- `mobile/page_cooler.js`: a fish card is at least 410 px wide (or the whole width of a narrower page), was 330. On an iPhone 16 Pro Max the page is wide enough for two 330 px cards, but five buttons need about 400, so they ran over the next card and the page scrolled sideways. That phone now shows one column; the page body cannot scroll sideways.
+- Reproduced on the PC only at the phone's real size, 956 by 440; the pictures until then were taken at 932 by 430, where one column shows. Phone pictures are taken at 956 by 440 from now on.
+- `__qa`: every button of a Cooler card is measured against its own card, the page against sideways scroll, and neighbouring cards against overlap.

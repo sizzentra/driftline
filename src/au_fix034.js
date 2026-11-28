@@ -14,7 +14,7 @@ function sellHybridOn(){ const s=S.settings; return s.sellHybrid!=null ? !!s.sel
 /* what Sell all keeps (bug fix, director 2026-11-23: "filters just don't work, same with the sell toggles"): the cooler's own choices win.
    A rarity picked in the dropdown sells up to that rarity even with Protect rare fish on; "Sell shinies too" and "Sell hybrids too" sell
    them whatever their rarity; Protect rare fish keeps Epic and up only while the dropdown says Any rarity */
-function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true;
+function sellKeep(f){ const s=S.settings, sp=SPI[f.id]; if(!sp) return true; if(f.lk) return true; /* a locked fish: Sell all and Scrap all pass it by (director, 2026-11-28: "I think a lock is good") */
   if(f.hy && !sellHybridOn()) return true; if(f.sh && !sellShinyOn()) return true;
   const pick=s.sellR&&s.sellR!=='all', chosen=(f.sh&&sellShinyOn())||(f.hy&&sellHybridOn());
   if(pick){ if(sp.r>+s.sellR) return true; } else if(s.protectRare && sp.r>=3 && !chosen) return true;

@@ -3,6 +3,9 @@
 // text changes. Released notes live in notes_release.js.
 const TEST_NOTES={v:'test', label:'Test build · '+(window.DL_BUILD==='ios'?'iPhone':'Android'), name:'0.4.9 test build (newest first)', items:[
   '## New in this build',
+  'Fixed on the Cooler page (found by the director on the iPhone): on a large phone two fish cards sat side by side, their buttons ran over each other and the page scrolled sideways. Cards are one to a row there now, with every button inside its card.',
+  'The fish card (Inspect) now lists every aquarium bonus in its own block, one chip a stat. With many bonuses the old single line was cut off at both ends (found by the director).',
+  'The Cooler upgrade moved to the Cooler page (director): its button sits beside your fish count and shows what the next level holds and its price. Tackle keeps Rod length, Reel, Line, Hook and Fish Finder.',
   'Bounties: the crate reward is named now, “Nibble Crate”, with how many Nibbles it holds under the name (director). A new Crate odds button in the title band shows the chance of each kind of Nibble in a crate. There is one kind of crate now, no big crates (director): a harder bounty simply holds more Nibbles, and the odds are better (Legendary 5%, Mythic 1%). Claim all sits in the title band too.',
   'Bounties: choosing a water is its own screen now (director). Tap the water button, marked Change, and every water shows at once with nothing to scroll; tap one to see its bounties, or Back to bounties (top left) to return. The button’s arrow no longer sits on the water’s name.',
   'Bounties: the cards are smaller, so all three of a water fit on one screen with nothing to scroll (director). Their titles no longer repeat the water.',

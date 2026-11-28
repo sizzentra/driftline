@@ -5,7 +5,7 @@
 // =====================================================================
 const ACT_OK=(()=>{ const has=(arr,k)=>arr.some(x=>(Array.isArray(x)?x[0]:x&&x.id)===k), colon=k=>typeof k==='string'&&/^[\w-]+:[\w-]*$/.test(k), idx=(i,a)=>Number.isInteger(i)&&i>=0&&i<a.length;
   const apv={theme:k=>has(THEMES,k), sand:k=>has(SANDS,k), decor:k=>!!DECORI[k]};
-  return { scrapall:()=>true, coolsort:k=>['recent','old','rarity','value','aq','species'].includes(k), tanksort:k=>['old','recent','rarity','income','species'].includes(k), inspect:(k,i)=>(k==='cooler'||k==='tank')&&Number.isInteger(i)&&i>=0&&i<(k==='cooler'?S.cooler:S.tank).length, baitfold:k=>['0','1','2'].includes(String(k)), /* C16 bait groups (u_tackle.js) */ buygear:k=>!!GEAR[k], unlock:k=>LOCS.some(L=>L.id===k)&&!S.unlocked.includes(k), goto:k=>S.unlocked.includes(k)&&LOCS.some(L=>L.id===k),
+  return { scrapall:()=>true, coolsort:k=>['recent','old','rarity','value','aq','species'].includes(k), tanksort:k=>['old','recent','rarity','income','species'].includes(k), inspect:(k,i)=>(k==='cooler'||k==='tank')&&Number.isInteger(i)&&i>=0&&i<(k==='cooler'?S.cooler:S.tank).length, baitfold:k=>['0','1','2'].includes(String(k)), /* C16 bait groups (u_tackle.js) */ buygear:k=>!!GEAR[k], coollock:(k,i)=>Number.isInteger(i)&&i>=0&&i<S.cooler.length, unlock:k=>LOCS.some(L=>L.id===k)&&!S.unlocked.includes(k), goto:k=>S.unlocked.includes(k)&&LOCS.some(L=>L.id===k),
     reroll:(k,i)=>idx(i,S.bounties), claim:(k,i)=>idx(i,S.bounties), sell:(k,i)=>idx(i,S.cooler), totank:(k,i)=>idx(i,S.cooler), untank:(k,i)=>idx(i,S.tank),
     rodup:k=>!!ROD_I[k], rodbuy:k=>!!ROD_I[k], rodeq:k=>!!ROD_I[k], attbuy:k=>has(ATTS,k),
     buyoffer:colon, bwbuy:colon, rodatt:colon, spec:colon, tryon:colon, petpv:colon,
