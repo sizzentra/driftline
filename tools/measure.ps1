@@ -2,6 +2,7 @@
 # on each test save and stores what it returns as docs/reviews/data/<Script>_<save>.json. Nothing in the game or in any save changes.
 #   powershell -ExecutionPolicy Bypass -File tools/measure.ps1 -Script stats [-Saves new,mid,heavy]
 param([Parameter(Mandatory=$true)][string]$Script, [string[]]$Saves = @('new','mid','heavy'), [int]$BudgetMs = 30000)
+$Saves = @($Saves | ForEach-Object { $_ -split ',' } | Where-Object { $_ })   # "-Saves mid,heavy" arrives as one word when run with -File
 . (Join-Path $PSScriptRoot 'headless.ps1')
 $root = Split-Path $PSScriptRoot -Parent
 $js = Join-Path $PSScriptRoot ("measure\" + $Script + ".js"); if (-not (Test-Path $js)) { throw "No such script: $js" }
